@@ -28,6 +28,8 @@ _manqiArborClusterizer_HGCEE = cms.PSet(
     # use basic pad sizes in HGCEE
     cellSize = cms.double(10.0),
     layerThickness = cms.double(16.0),
+    killNoiseClusters = cms.bool(True),
+    maxNoiseClusterSize = cms.uint32(3),
     thresholdsByDetector = cms.VPSet( )
 )
 

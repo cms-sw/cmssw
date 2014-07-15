@@ -43,9 +43,10 @@ namespace reco {
       HFHAD=9,
       SC=10,
       HO=11,
-      ECAL_HGC=12,
-      HCAL_HGC=13,
-      kNBETypes=14
+      HGC_ECAL=12,
+      HGC_HCALF=13,
+      HGC_HCALB=14,
+      kNBETypes=15
     };
 
     enum TrackType {
@@ -127,7 +128,8 @@ namespace reco {
                                      const PFBlockElement& element );
 
     // Glowinski & Gouzevitch
-    void setMultilinks(const PFMultiLinksTC& ml) {multilinks_ = ml;}
+    void setMultilinks(const PFMultiLinksTC& ml) {multilinks_.linkedClusters.insert(multilinks_.linkedClusters.end(),ml.linkedClusters.begin(),ml.linkedClusters.end());}
+    void clearMultilinks() { multilinks_.linkedClusters.clear(); }
     void setIsValidMultilinks(bool isVal) {multilinks_.isValid = isVal;}
     void setMultilinksList(const PFMultilinksType& links) {multilinks_.linkedClusters = links;}
     

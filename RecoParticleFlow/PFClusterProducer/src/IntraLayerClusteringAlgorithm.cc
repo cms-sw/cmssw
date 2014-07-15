@@ -134,16 +134,23 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	    temp.recHitFractions().size() > m_maximumSizeForClusterSplitting ){
 	  SplitClusterInSingleCaloHitClusters(temp,output);
 	} else {
-	  double x(0.0),y(0.0),z(0.0);
+	  double x(0.0),y(0.0),z(0.0),minMag2(1e12);
+	  DetId leastR_id;
 	  for( const auto& rhf : temp.recHitFractions() ) {
 	    const math::XYZPoint& pos = rhf.recHitRef()->position();
+	    const double mag2 = pos.Mag2();
 	    x += pos.x();
 	    y += pos.y();
 	    z += pos.z();
+	    if( mag2 < minMag2 ) {
+	      leastR_id = DetId(rhf.recHitRef()->detId());
+	      minMag2 = mag2;
+	    } 
 	  }
 	  double sizeinv = 1.0/temp.recHitFractions().size();
 	  x *= sizeinv; y *= sizeinv; z *= sizeinv;
 	  const math::XYZPoint mypos(x,y,z);
+	  temp.setSeed(leastR_id);
 	  temp.setLayer(the_detector);
 	  temp.setPosition(mypos);
 	  temp.calculatePositionREP();
@@ -153,7 +160,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       }
     }
   }
-  edm::LogError("ClusterReport") 
+  LogDebug("ClusterReport") 
     << "made " << output.size() << " topological clusters!";
 }
 

@@ -454,13 +454,24 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
   // do the HGCal if we actually got it
   for( const auto& hgcGeom : m_hgcGeom ){
     if( hgcGeom.product() ) {
+      float minZ = 1e6, maxZ = 0;
+      float minRho = 1e6, maxRho = 0;
       const std::vector<DetId>& hids = hgcGeom->getValidDetIds();
+      std::cout << "Processing: " << hgcGeom->cellElement() << std::endl;
       std::cout << "got hgc detector with " << hids.size() << " valid det ids!" << std::endl;
       for( const auto& hid : hids ) {
 	const HGCalGeometry::CornersVec cor( std::move( hgcGeom->getCorners( hid ) ) );
+	for( const auto& corner : cor ) {
+	  minZ = std::min(std::abs(corner.z()),minZ);
+	  maxZ = std::max(std::abs(corner.z()),maxZ);
+	  minRho = std::min(std::hypot(corner.x(),corner.y()), minRho);
+	  maxRho = std::max(std::hypot(corner.x(),corner.y()), maxRho);
+	}
 	unsigned int id = insert_id( hid.rawId() );
 	fillPoints( id, cor.begin(), cor.end() );
       }
+      std::cout << "Got minZ = " << minZ << " got maxZ = " << maxZ 
+		<< " minRho  = " << minRho << " maxRho = " << maxRho << std::endl;
     }
   }
 }

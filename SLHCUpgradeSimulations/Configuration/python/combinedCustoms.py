@@ -188,6 +188,22 @@ def cust_2023HGCal(process):
             process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
             if hasattr(process,'ecalDrivenElectronSeeds'):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+        if hasattr(process,'particleFlowBlock'):
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCEE') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
+                                                                        linkType = cms.string('TRACK:HGC_ECAL'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEFLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALF'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEBLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALB'),
+                                                                        useKDTree = cms.bool(True) ) )
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
@@ -223,6 +239,22 @@ def cust_2023HGCalMuon(process):
             process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
             if hasattr(process,'ecalDrivenElectronSeeds'):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+        if hasattr(process,'particleFlowBlock'):
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCEE') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
+                                                                        linkType = cms.string('TRACK:HGC_ECAL'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEFLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALF'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEBLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALB'),
+                                                                        useKDTree = cms.bool(True) ) )
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):

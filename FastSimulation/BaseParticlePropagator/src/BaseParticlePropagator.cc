@@ -510,6 +510,32 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
 }
 
 bool
+BaseParticlePropagator::propagateToHGCEEEntrance(bool first) {
+  //
+  // Propagation to HGC ECAL entrance
+  // TODO: include v5 geometry
+  // Geometry taken from HGC v4 Geometry
+  //
+  // First propagate to global barrel / endcap cylinder 
+  setPropagationConditions(129.0 , 317.31, first);
+  bool done = propagate();
+
+  // Go to endcap cylinder in the "barrel cut corner" 
+  // eta = 1.479 -> cos^2(theta) = 0.81230
+  //  if ( done && eta > 1.479 && success == 1 ) {
+  if ( done && cos2ThetaV() > 0.81230 && success == 1 ) {
+    setPropagationConditions(152.6 , 317.3, first);
+    done = propagate();
+  }
+
+  // We are not in the ECAL acceptance
+  // eta = 3.0 -> cos^2(theta) = 0.99013
+  if ( cos2ThetaV() > 0.99014 ) success = 0;
+
+  return done;
+}
+
+bool
 BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   //
   // Propagation to HCAL entrance
@@ -531,6 +557,48 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
     propDir = 1;
   }
 
+
+  // out of the HB/HE acceptance
+  // eta = 3.0 -> cos^2(theta) = 0.99014
+  if ( done && cos2ThetaV() > 0.99014 ) success = 0;
+
+  return done;
+}
+
+bool
+BaseParticlePropagator::propagateToHGCHEFEntrance(bool first) {
+  //
+  // Propagation to HCAL entrance
+  // TODO: include proper geometry
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
+  //
+
+  // First propagate to global barrel / endcap cylinder 
+  setPropagationConditions(168.088 , 360.63, first);
+  propDir = 0;
+  bool done = propagate();
+  propDir = 1;
+
+  // out of the HB/HE acceptance
+  // eta = 3.0 -> cos^2(theta) = 0.99014
+  if ( done && cos2ThetaV() > 0.99014 ) success = 0;
+
+  return done;
+}
+
+bool
+BaseParticlePropagator::propagateToHGCHEBEntrance(bool first) {
+  //
+  // Propagation to HCAL entrance
+  // TODO: include proper geometry
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
+  //
+
+  // First propagate to global barrel / endcap cylinder 
+  setPropagationConditions(227.582 , 439.65, first);
+  propDir = 0;
+  bool done = propagate();
+  propDir = 1;
 
   // out of the HB/HE acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99014
@@ -572,6 +640,60 @@ BaseParticlePropagator::propagateToHcalExit(bool first) {
 
   // Approximate it to a single cylinder as it is not that crucial.
   setPropagationConditions(263.9 , 554.1, first);
+  //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
+  propDir = 0;
+  bool done = propagate();
+  propDir = 1;
+
+  return done;
+}
+
+bool
+BaseParticlePropagator::propagateToHGCEEExit(bool first) {
+  //
+  // Propagation to HCAL exit
+  // TODO: include proper geometry
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
+  //
+
+  // Approximate it to a single cylinder as it is not that crucial.
+  setPropagationConditions(168.1 , 349.72, first);
+  //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
+  propDir = 0;
+  bool done = propagate();
+  propDir = 1;
+
+  return done;
+}
+
+bool
+BaseParticlePropagator::propagateToHGCHEFExit(bool first) {
+  //
+  // Propagation to HCAL exit
+  // TODO: include proper geometry
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
+  //
+
+  // Approximate it to a single cylinder as it is not that crucial.
+  setPropagationConditions(227.582 , 425.89, first);
+  //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
+  propDir = 0;
+  bool done = propagate();
+  propDir = 1;
+
+  return done;
+}
+
+bool
+BaseParticlePropagator::propagateToHGCHEBExit(bool first) {
+  //
+  // Propagation to HCAL exit
+  // TODO: include proper geometry
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
+  //
+
+  // Approximate it to a single cylinder as it is not that crucial.
+  setPropagationConditions(266.88 , 524.1, first);
   //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
   propDir = 0;
   bool done = propagate();

@@ -45,6 +45,9 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   output.reserve(branches.size());
   
   for( auto& branch : branches ) {
+    if( _killNoiseClusters && branch.size() <= _maxNoiseClusterSize ) {
+      continue;
+    }
     // sort hits by radius
     std::sort(branch.begin(),branch.end(),
 	      [&](const arbor::branch::value_type& a,
