@@ -121,7 +121,7 @@ PFCandidate::PFCandidate( Charge charge,
   setPdgId( translateTypeToPdgId( partId ) );
 }
 
-PFCandidate::~PFCandidate() {}
+PFCandidate::~PFCandidate() { elementsInBlocks_.clear(); }
 
 PFCandidate * PFCandidate::clone() const {
   return new PFCandidate( * this );

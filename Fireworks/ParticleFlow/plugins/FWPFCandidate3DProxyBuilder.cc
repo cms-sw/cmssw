@@ -66,15 +66,12 @@ FWPFCandidate3DProxyBuilder::~FWPFCandidate3DProxyBuilder(){}
 void 
 FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-  TEveCompound* comp = createCompound();  
-  comp->SetMainColor((unsigned)2.0*myRandom.Uniform(50));
+  TEveCompound* comp = createCompound(false,true);  
+  
   const reco::PFCandidate::ElementsInBlocks& elems = iData.elementsInBlocks();
   
   for( unsigned i = 0 ; i < elems.size(); ++i ) {
-    std::cout << i << ' ' << elems[i].first.isAvailable() << ' ' << elems[i].second << ' ' << elems[i].first->elements().size() << std::endl;
     const reco::PFBlockElement& elem = elems[i].first->elements()[elems[i].second];
-    std::cout << &elem << std::endl;
-    assert( elems[i].second < elems[i].first->elements().size() );
     switch( elem.type() ) {
     case reco::PFBlockElement::TRACK:
       {
@@ -86,7 +83,7 @@ FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int
 	TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator() );      
 	trk->MakeTrack();      
 	fireworks::setTrackTypePF( iData, trk );    
-	setupAddElement( trk, comp );
+	setupAddElement( trk, comp, false );
       }
       break;
     case reco::PFBlockElement::ECAL:
@@ -104,7 +101,7 @@ FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int
 	  TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator() );      
 	  trk->MakeTrack();      
 	  fireworks::setTrackTypePF( iData, trk );    
-	  setupAddElement( trk, comp );
+	  setupAddElement( trk, comp, false );
 	  continue;
 	}
 	const std::vector<std::pair<DetId, float> >& clusterDetIds = 
@@ -128,7 +125,7 @@ FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int
 	  }
 	
 	boxset->RefitPlex();
-	setupAddElement(boxset,comp);
+	setupAddElement(boxset,comp,false);
       }
       break;
     default:
@@ -136,8 +133,9 @@ FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int
     }
   }
   
+  comp->SetMainColor((unsigned)2.0*myRandom.Uniform(50));
 
-  setupAddElement( comp, &oItemHolder );
+  setupAddElement( comp, &oItemHolder, false );
 }
 
 //______________________________________________________________________________
