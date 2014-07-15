@@ -8,7 +8,7 @@ public:
     _ooemoopCutValue(c.getParameter<double>("eInverseMinusPInverseCutValue")) {
   }
   
-  result_type operator()(const reco::GsfElectron&) const override final;
+  result_type operator()(const reco::GsfElectronRef&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -24,8 +24,8 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleEInverseMinusPInverseCut::
-operator()(const reco::GsfElectron& cand) const{
-  const float ecal_energy_inverse = 1.0/cand.ecalEnergy();
-  const float eSCoverP = cand.eSuperClusterOverP();
+operator()(const reco::GsfElectronRef& cand) const{
+  const float ecal_energy_inverse = 1.0/cand->ecalEnergy();
+  const float eSCoverP = cand->eSuperClusterOverP();
   return std::abs(1.0 - eSCoverP)*ecal_energy_inverse < _ooemoopCutValue;
 }

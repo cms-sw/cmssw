@@ -15,7 +15,7 @@ public:
     }
   }
   
-  result_type operator()(const reco::GsfElectron&) const override final;
+  result_type operator()(const reco::GsfElectronRef&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -32,8 +32,8 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleSCEtaMultiRangeCut::
-operator()(const reco::GsfElectron& cand) const{
-  const reco::SuperClusterRef& scref = cand.superCluster();
+operator()(const reco::GsfElectronRef& cand) const{
+  const reco::SuperClusterRef& scref = cand->superCluster();
   const double the_eta = ( _absEta ? std::abs(scref->eta()) : scref->eta() );
   bool result = false;
   for(const auto& range : _ranges ) {

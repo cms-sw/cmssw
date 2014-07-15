@@ -7,7 +7,7 @@ public:
     _minPt(c.getParameter<double>("minPt")) { }
   
   result_type asCandidate(const argument_type& cand) const override final {
-    return cand.pt() > _minPt;
+    return cand->pt() > _minPt;
   }
 
 private:

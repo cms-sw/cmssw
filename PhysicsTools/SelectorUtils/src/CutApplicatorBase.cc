@@ -1,15 +1,5 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-
 EDM_REGISTER_PLUGINFACTORY(CutApplicatorFactory,"CutApplicatorFactory");
 
 CutApplicatorBase::result_type 
@@ -17,50 +7,50 @@ CutApplicatorBase::
 operator()(const CutApplicatorBase::argument_type& arg) const {  
   switch(candidateType()) {
   case ELECTRON:
-    {
-      const reco::GsfElectron& ele = static_cast<const reco::GsfElectron&>(arg);
+    {      
+      const reco::GsfElectronRef ele(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(ele);
     }
     break;
   case MUON:
     {
-      const reco::Muon& mu = static_cast<const reco::Muon&>(arg);
+      const reco::MuonRef mu(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(mu);
     }
     break;
   case PHOTON:
     {
-      const reco::Photon& pho = static_cast<const reco::Photon&>(arg);
+      const reco::PhotonRef pho(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(pho);
     }
     break;
   case TAU:
     {
-      const reco::PFTau& tau = static_cast<const reco::PFTau&>(arg);
+      const reco::PFTauRef tau(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(tau);
     }
     break;
   case PATELECTRON:
     {
-      const pat::Electron& ele = static_cast<const pat::Electron&>(arg);
+      const pat::ElectronRef ele(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(ele);
     }
     break;
   case PATMUON:
     {
-      const pat::Muon& mu = static_cast<const pat::Muon&>(arg);
+      const pat::MuonRef mu(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(mu);
     }
     break;
   case PATPHOTON:
     {
-      const pat::Photon& pho = static_cast<const pat::Photon&>(arg);
+      const pat::PhotonRef pho(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(pho);
     }
     break;
   case PATTAU:
     {
-      const pat::Tau& tau = static_cast<const pat::Tau&>(arg);
+      const pat::TauRef tau(arg.id(),arg.key(),arg.productGetter());
       return this->operator()(tau);
     }
     break;

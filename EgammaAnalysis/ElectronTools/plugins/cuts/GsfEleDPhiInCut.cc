@@ -1,4 +1,5 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 class GsfEleDPhiInCut : public CutApplicatorBase {
@@ -8,7 +9,7 @@ public:
     _dPhiInCutValue(c.getParameter<double>("dPhiInCutValue")) {    
   }
   
-  result_type operator()(const reco::GsfElectron&) const override final;
+  result_type operator()(const reco::GsfElectronRef&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -24,6 +25,6 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleDPhiInCut::
-operator()(const reco::GsfElectron& cand) const{  
-  return cand.deltaPhiSuperClusterTrackAtVtx() < _dPhiInCutValue;
+operator()(const reco::GsfElectronRef& cand) const{  
+  return cand->deltaPhiSuperClusterTrackAtVtx() < _dPhiInCutValue;
 }

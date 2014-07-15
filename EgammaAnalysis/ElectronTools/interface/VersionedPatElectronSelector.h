@@ -10,10 +10,10 @@
 
 #include <iostream>
 
-class VersionedPatElectronSelector : public VersionedSelector<pat::Electron> {
+class VersionedPatElectronSelector : public VersionedSelector<pat::ElectronRef> {
  public:
  VersionedPatElectronSelector() : 
-  VersionedSelector<pat::Electron>(),
+  VersionedSelector<pat::ElectronRef>(),
     initialized_(false) {}
   
  VersionedPatElectronSelector( const edm::ParameterSet& parameters );
@@ -21,17 +21,17 @@ class VersionedPatElectronSelector : public VersionedSelector<pat::Electron> {
  void initialize( const edm::ParameterSet& parameters );
 
   // Allow for multiple definitions of the cuts.
- bool operator()(const pat::Electron&,pat::strbitset&); 
+ bool operator()(const pat::ElectronRef&,pat::strbitset&); 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
- bool operator()(const pat::Electron&,
+ bool operator()(const pat::ElectronRef&,
 		 edm::EventBase const&,
 		 pat::strbitset&) override final;
 #else
- bool operator()(const pat::Electron&,
+ bool operator()(const pat::ElectronRef&,
 		 edm::EventBase const&,
 		 pat::strbitset&);
 #endif
- using VersionedSelector<pat::Electron>::operator();
+ using VersionedSelector<pat::ElectronRef>::operator();
  
  private:
  bool initialized_; 

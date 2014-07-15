@@ -19,19 +19,15 @@
 
 namespace candf = candidate_functions;
 
-namespace reco {
-  class Photon;
-  class GsfElectron;
-  class Muon;
-  class PFTau;
-}
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 
-namespace pat {
-  class Photon;
-  class Electron;
-  class Muon;
-  class Tau;
-}
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 
 class CutApplicatorBase : public candf::CandidateCut {
  public:
@@ -49,20 +45,20 @@ class CutApplicatorBase : public candf::CandidateCut {
   virtual result_type operator()(const argument_type&) const final;
   
   // electrons 
-  virtual result_type operator()(const reco::GsfElectron&) const {return false;}
-  virtual result_type operator()(const pat::Electron&) const {return false;}
+  virtual result_type operator()(const reco::GsfElectronRef&) const {return false;}
+  virtual result_type operator()(const pat::ElectronRef&) const {return false;}
 
   // photons
-  virtual result_type operator()(const reco::Photon&) const {return false;}
-  virtual result_type operator()(const pat::Photon&) const {return false;}
+  virtual result_type operator()(const reco::PhotonRef&) const {return false;}
+  virtual result_type operator()(const pat::PhotonRef&) const {return false;}
   
   // muons
-  virtual result_type operator()(const reco::Muon&) const {return false;}
-  virtual result_type operator()(const pat::Muon&) const {return false;}
+  virtual result_type operator()(const reco::MuonRef&) const {return false;}
+  virtual result_type operator()(const pat::MuonRef&) const {return false;}
 
   // taus
-  virtual result_type operator()(const reco::PFTau&) const {return false;}
-  virtual result_type operator()(const pat::Tau&) const {return false;}
+  virtual result_type operator()(const reco::PFTauRef&) const {return false;}
+  virtual result_type operator()(const pat::TauRef&) const {return false;}
 
   // candidate operation
   virtual result_type asCandidate(const argument_type&) const {return false;} 

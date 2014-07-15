@@ -4,7 +4,7 @@
 
 VersionedPatElectronSelector::
 VersionedPatElectronSelector( edm::ParameterSet const & parameters ):
-  VersionedSelector<pat::Electron>(parameters) {
+  VersionedSelector<pat::ElectronRef>(parameters) {
   initialize(parameters);  
   retInternal_ = getBitTemplate();
 }
@@ -38,7 +38,7 @@ initialize( const edm::ParameterSet& conf ) {
 }
 
 bool VersionedPatElectronSelector::
-operator()(const pat::Electron & electron,pat::strbitset & ret ) {
+operator()(const pat::ElectronRef & electron,pat::strbitset & ret ) {
   howfar_ = 0;
   bool failed = false;
   if( !initialized_ ) {
@@ -46,7 +46,9 @@ operator()(const pat::Electron & electron,pat::strbitset & ret ) {
       << "VersionedPatElectronSelector not initialized!" << std::endl;
   }  
   for( unsigned i = 0; i < cuts_.size(); ++i ) {
-    const bool result = (*cuts_[i])(electron);
+    reco::CandidateRef temp(electron.id(),electron.key(),
+			    electron.productGetter());
+    const bool result = (*cuts_[i])(temp);
     if( result || ignoreCut(cut_indices_[i]) ) {
       passCut(ret,cut_indices_[i]);
       if( !failed) ++howfar_;
@@ -59,7 +61,7 @@ operator()(const pat::Electron & electron,pat::strbitset & ret ) {
 }
 
 bool VersionedPatElectronSelector::
-operator()(const pat::Electron & electron,
+operator()(const pat::ElectronRef & electron,
 	   edm::EventBase const & e,
 	   pat::strbitset & ret) {
   // setup isolation needs

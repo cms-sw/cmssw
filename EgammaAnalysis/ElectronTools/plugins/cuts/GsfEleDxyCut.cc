@@ -8,7 +8,7 @@ class GsfEleDxyCut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleDxyCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectron&) const override final;
+  result_type operator()(const reco::GsfElectronRef&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -45,10 +45,10 @@ void GsfEleDxyCut::getEventContent(const edm::EventBase& ev) {
 
 CutApplicatorBase::result_type 
 GsfEleDxyCut::
-operator()(const reco::GsfElectron& cand) const{  
+operator()(const reco::GsfElectronRef& cand) const{  
   const reco::VertexCollection& vtxs = *_vtxs;
   const double dxy = ( vtxs.size() ? 
-		       cand.gsfTrack()->dxy(vtxs[0].position()) : 
-		       cand.gsfTrack()->dxy() );
+		       cand->gsfTrack()->dxy(vtxs[0].position()) : 
+		       cand->gsfTrack()->dxy() );
   return dxy < _dxyCutValue;
 }
