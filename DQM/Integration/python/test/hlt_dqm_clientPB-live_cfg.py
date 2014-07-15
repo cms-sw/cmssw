@@ -14,6 +14,7 @@ process.source = DQMProtobufReader
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'HLT'
+process.dqmSaver.dirName = './HLT'
 #-----------------------------
 
 # DQM Modules
