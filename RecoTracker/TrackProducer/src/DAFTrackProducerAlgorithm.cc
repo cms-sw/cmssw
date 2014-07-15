@@ -101,11 +101,12 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //checking if the trajectory has the minimum number of valid hits ( weight (>1e-6) )
       //in order to remove tracks with too many outliers.
 
-      Trajectory filtered = filter(currentTraj);
+      int goodHits = countingGoodHits(currentTraj);
 
-      if(filtered.foundHits() >= minHits_) {
+      if( goodHits >= minHits_) {
 
         bool ok = buildTrack(currentTraj, algoResults, ndof, bs) ;
+	// or filtered?
         if(ok) cont++;
 
       }
@@ -258,10 +259,10 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
   }
 }
 /*------------------------------------------------------------------------------------------------------*/
-Trajectory DAFTrackProducerAlgorithm::filter(const Trajectory traj) const{
+int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const{
 
   int ngoodhits = 0;
-  Trajectory myTraj;
+  Trajectory myTraj = traj;
   std::vector<TrajectoryMeasurement> vtm = traj.measurements();
 
   for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++){
@@ -271,31 +272,21 @@ Trajectory DAFTrackProducerAlgorithm::filter(const Trajectory traj) const{
       std::vector<const TrackingRecHit*> components = mHit.recHits();
 
       int iComp = 0;
-      bool isGood = false;
 
       for(std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end(); iter++, iComp++){ 
         //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
         if (mHit.weight(iComp)>1e-6) {
-	  ngoodhits++; iComp++; 
-	  isGood = true; 
+	  ngoodhits++; 
+	  iComp++; 
 	  break;
 	}
       }
 
-      if (isGood) {
-        myTraj.push(*tm);
-      } else {
-        TrajectoryStateOnSurface predtsos = tm->predictedState();
-        myTraj.push(TrajectoryMeasurement( predtsos, std::make_shared<InvalidTrackingRecHit>(*tm->recHit()->det(), TrackingRecHit::missing), 0));
-      }
-    } else {
-      myTraj.push(*tm);
     }   
   }
   
-
-  LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << traj.foundHits() << "; after filtering " << ngoodhits;
-  return myTraj;
+  LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << traj.foundHits() << " -> hit with good weight (>1e-6) are " << ngoodhits;
+  return ngoodhits;
 
 }
 /*------------------------------------------------------------------------------------------------------*/
