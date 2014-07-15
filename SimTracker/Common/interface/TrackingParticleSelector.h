@@ -24,15 +24,19 @@ public:
 
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const {
+    auto pdgid = tp.pdgId();
     if (chargedOnly_ && tp.threeCharge()==0) return false;//select only if charge!=0
+
     bool testId = false;
     unsigned int idSize = pdgId_.size();
     if (idSize==0) testId = true;
     else for (unsigned int it=0;it!=idSize;++it){
-      if (tp.pdgId()==pdgId_[it]) testId = true;
+      if (pdgid==pdgId_[it]) { testId = true; break;}
     }
+
     bool signal = true;
     if (signalOnly_) signal = (tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0); // signal only means no PU particles
+
     // select only stable particles
     bool stable = true;
     if (stableOnly_) {
@@ -45,10 +49,10 @@ public:
 	  }
 	}
        // test for remaining unstabled due to lack of genparticle pointer
-       if( stable  && tp.status() == -99 &&
-          (std::abs(tp.pdgId()) != 11 && std::abs(tp.pdgId()) != 13 && std::abs(tp.pdgId()) != 211 &&
-           std::abs(tp.pdgId()) != 321 && std::abs(tp.pdgId()) != 2212 && std::abs(tp.pdgId()) != 3112 &&
-           std::abs(tp.pdgId()) != 3222 && std::abs(tp.pdgId()) != 3312 && std::abs(tp.pdgId()) != 3334)) stable = 0;
+       if( (stable  & (tp.status() == -99) ) &&
+          (std::abs(pdgid) != 11 && std::abs(pdgid) != 13 && std::abs(pdgid) != 211 &&
+           std::abs(pdgid) != 321 && std::abs(pdgid) != 2212 && std::abs(pdgid) != 3112 &&
+           std::abs(pdgid) != 3222 && std::abs(pdgid) != 3312 && std::abs(pdgid) != 3334)) stable = false;
       }
     }
 
@@ -56,10 +60,10 @@ public:
     return (
             (testId & signal & stable) &&
  	    tp.numberOfTrackerLayers() >= minHit_ &&
-            std::abs(tp.vertex().z()) <= lip_ &&
 	    tp.momentum().perp2() >= ptMin_*ptMin_ &&
-	    tp.vertex().perp2() <= tip_*tip_ &&
-            etaOk(tp.momentum())
+            etaOk(tp.momentum()) &&
+            std::abs(tp.vertex().z()) <= lip_ &&   // vertex last to avoid to load it if not striclty necessary...
+	    tp.vertex().perp2() <= tip_*tip_ 
 	    );
   }
 

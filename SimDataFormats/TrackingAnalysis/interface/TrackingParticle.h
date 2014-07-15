@@ -6,8 +6,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 //
 // Forward declarations
@@ -115,28 +115,37 @@ public:
     double eta() const; ///< @brief Momentum pseudorapidity. Note this is taken from the first SimTrack only.
     double rapidity() const; ///< @brief Rapidity. Note this is taken from the first SimTrack only.
     double y() const; ///< @brief Same as rapidity().
-    Point vertex() const; ///< @brief Parent vertex position
+
+    ///< @brief Parent vertex position
+    Point vertex() const {
+       const TrackingVertex::LorentzVector & p = (*parentVertex_).position();
+       return Point(p.x(),p.y(),p.z());
+    }  
+
     double vx() const; ///< @brief x coordinate of parent vertex position
     double vy() const; ///< @brief y coordinate of parent vertex position
     double vz() const; ///< @brief z coordinate of parent vertex position
     /** @brief Status word.
      *
      * Returns status() from the first gen particle, or -99 if there are no gen particles attached. */
-    int status() const;
+    int status() const {
+      return genParticles_.empty() ? -99 : (*genParticles_[0]).status();
+    }
 
     static const unsigned int longLivedTag; ///< long lived flag
 
-    bool longLived() const; ///< is long lived?
+    ///< is long lived?
+    bool longLived() const { return status()&longLivedTag;}
 
    /** @brief Gives the total number of hits, including muon hits. Hits on overlaps in the same layer count separately.
     *
     * Equivalent to trackPSimHit().size() in the old TrackingParticle implementation. */
-   int numberOfHits() const;
+   int numberOfHits() const {return numberOfHits_;}
 
    /** @brief The number of hits in the tracker. Hits on overlaps in the same layer count separately.
     *
     * Equivalent to trackPSimHit(DetId::Tracker).size() in the old TrackingParticle implementation. */
-   int numberOfTrackerHits() const;
+   int numberOfTrackerHits() const {return numberOfTrackerHits_;}
 
    /** @deprecated The number of hits in the tracker but taking account of overlaps.
     * Deprecated in favour of the more aptly named numberOfTrackerLayers(). */
@@ -144,7 +153,7 @@ public:
    /** @brief The number of tracker layers with a hit.
     *
     * Different from numberOfTrackerHits because this method counts multiple hits on overlaps in the layer as one hit. */
-   int numberOfTrackerLayers() const;
+   int numberOfTrackerLayers() const {return numberOfTrackerLayers_;}
 
    void setNumberOfHits( int numberOfHits );
    void setNumberOfTrackerHits( int numberOfTrackerHits );

@@ -214,20 +214,22 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   //calculate dR for TPs
   std::vector<double> dR_tPCeff;
-  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
-    TrackingParticleRef tpr(TPCollectionHeff, i);
-    TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
+//  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
+  int i=0;
+  for ( auto const & tp : *TPCollectionHeff) {
+      int j=0;
+//    TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
     double dR = std::numeric_limits<double>::max();
-    if(dRtpSelector(*tp)) {//only for those needed for efficiency!
-      for (TrackingParticleCollection::size_type j=0; j<tPCeff.size(); j++){
+    if(dRtpSelector(tp)) {//only for those needed for efficiency!
+     for (   auto const & tp2 : *TPCollectionHeff) {
 	if (i==j) continue;
-	TrackingParticleRef tpr2(TPCollectionHeff, j);
-	TrackingParticle* tp2=const_cast<TrackingParticle*>(tpr2.get());
-	if(! tpSelector(*tp2)) continue;//calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-	double dR_tmp = reco::deltaR(*tp,*tp2);
+//	TrackingParticleRef tpr2(TPCollectionHeff, j);
+//	TrackingParticle* tp2=const_cast<TrackingParticle*>(tpr2.get());
+	if(! tpSelector(tp2)) continue;//calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+	double dR_tmp = reco::deltaR(tp,tp2);
 	if (dR_tmp<dR) dR=dR_tmp;
-      }
-    }
+      ++j;}
+    } ++i;
     dR_tPCeff.push_back(dR);
   }
 
@@ -424,12 +426,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //calculate dR for tracks
       std::vector<double> dR_trk;
       for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
-	RefToBase<Track> track(trackCollection, i);
+	auto const &  track = (*trackCollection)[i];
 	double dR = std::numeric_limits<double>::max();
 	for(View<Track>::size_type j=0; j<trackCollectionForDrCalculation->size(); ++j){
-	  RefToBase<Track> track2(trackCollectionForDrCalculation, j);
-	  double dR_tmp = reco::deltaR(*track,*track2);
-	  if (dR_tmp<dR && dR_tmp>std::numeric_limits<double>::min()) dR=dR_tmp;
+	  auto const & track2 = (*trackCollectionForDrCalculation)[j];
+	  double dR_tmp = reco::deltaR(track,track2);
+	  if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<double>::min())) dR=dR_tmp;
 	}
 	dR_trk.push_back(dR);
       }
