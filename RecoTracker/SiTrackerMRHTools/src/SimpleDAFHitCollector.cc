@@ -7,6 +7,22 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
+#ifdef EDM_ML_DEBUG
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#endif
+
+
 #include <vector>
 #include <map>
 
@@ -59,7 +75,9 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
           if( idtemps == id && tmps.hits[i]->hit()->isValid() ) {
 
-	    //fill with the right dimension hit
+	    //fill with the right dimension hit :: what about if was invalid ??
+//	    TrackingRecHit * righthit = rightdimension(*(tmps.hits[i]->hit()));
+//            hits.push_back(righthit);
             if( itrajmeas->recHit()->dimension() == 1 ){
 	      auto const & hit1 = tmps.hits[i]->hit();
 	      auto const & thit = static_cast<BaseTrackerRecHit const&>(*hit1);
@@ -99,11 +117,14 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
       }
       
+    //the error was scaled, now is scaled back (even if this is not tightly necessary)
+    if (smoothState.isValid()) smoothState.rescaleError(0.1);
+
   }
   LogTrace("MultiRecHitCollector") << " Ending SimpleDAFHitCollector::recHits >> " << result.size();
 
-  LogTrace("MultiRecHitCollector") << "  Original measurements are:";
-  Debug(result);
+  //LogTrace("MultiRecHitCollector") << "  Original measurements are:";
+  //Debug(result);
 
   //adding a protection against too few hits and invalid hits 
   //(due to failed propagation on the same surface of the original hits)
@@ -130,11 +151,45 @@ void SimpleDAFHitCollector::Debug( const std::vector<TrajectoryMeasurement> TM )
   for(vector<TrajectoryMeasurement>::const_iterator itrajmeas = TM.begin(); itrajmeas < TM.end();
       itrajmeas++) {
     if (itrajmeas->recHit()->isValid()){
+
       LogTrace("MultiRecHitCollector") << "  Valid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId() << " and dim:" << itrajmeas->recHit()->dimension()
                       //<< " type " << typeid(itrajmeas->recHit()).name()
                         << " local position " << itrajmeas->recHit()->hit()->localPosition()
                         << " global position " << itrajmeas->recHit()->hit()->globalPosition()
                         << " and r " << itrajmeas->recHit()->hit()->globalPosition().perp() ;
+
+      DetId hitId = itrajmeas->recHit()->geographicalId();
+
+      if(hitId.det() == DetId::Tracker) {
+        if (hitId.subdetId() == StripSubdetector::TIB )
+          LogTrace("MultiRecHitCollector") << " I am TIB " << TIBDetId(hitId).layer();
+        else if (hitId.subdetId() == StripSubdetector::TOB )
+          LogTrace("MultiRecHitCollector") << " I am TOB " << TOBDetId(hitId).layer();
+        else if (hitId.subdetId() == StripSubdetector::TEC )
+          LogTrace("MultiRecHitCollector") << " I am TEC " << TECDetId(hitId).wheel();
+        else if (hitId.subdetId() == StripSubdetector::TID )
+          LogTrace("MultiRecHitCollector") << " I am TID " << TIDDetId(hitId).wheel();
+        else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
+          LogTrace("MultiRecHitCollector") << " I am PixBar " << PXBDetId(hitId).layer();
+        else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
+          LogTrace("MultiRecHitCollector") << " I am PixFwd " << PXFDetId(hitId).disk();
+        else
+          LogTrace("MultiRecHitCollector") << " UNKNOWN TRACKER HIT TYPE ";
+      }
+      else if(hitId.det() == DetId::Muon) {
+        if(hitId.subdetId() == MuonSubdetId::DT) 
+          LogTrace("MultiRecHitCollector") << " I am DT " << DTWireId(hitId);
+        else if (hitId.subdetId() == MuonSubdetId::CSC )
+          LogTrace("MultiRecHitCollector") << " I am CSC " << CSCDetId(hitId);
+        else if (hitId.subdetId() == MuonSubdetId::RPC )
+          LogTrace("MultiRecHitCollector") << " I am RPC " << RPCDetId(hitId);
+        else
+          LogTrace("MultiRecHitCollector") << " UNKNOWN MUON HIT TYPE ";
+      }
+      else
+        LogTrace("MultiRecHitCollector") << " UNKNOWN HIT TYPE ";
+
+
       LogTrace("MultiRecHitCollector") << "  TSOS predicted " << itrajmeas->predictedState().localPosition() ;
       LogTrace("MultiRecHitCollector") << "  TSOS smoothState " << itrajmeas->updatedState().localPosition() ;
             } else {
