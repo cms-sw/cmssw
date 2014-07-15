@@ -1017,7 +1017,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     //LogDebug("SiPixelRawDumper")<< " GET DATA FOR FED: " <<  fedId ;
     if(printHeaders) cout<<"Get data For FED = "<<fedId<<endl;
 
-    PixelDataFormatter::Digis digis;
+    edm::DetSetVector<PixelDigi> collection;
     PixelDataFormatter::Errors errors;
 
     //get event data for this fed
@@ -1270,7 +1270,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     countErrorsPerEvent2 += countErrorsInFed2;
 
     //convert data to digi (dummy for the moment)
-    formatter.interpretRawData( dummyErrorBool, fedId, rawData, digis, errors);
+    formatter.interpretRawData( dummyErrorBool, fedId, rawData, collection, errors);
     //cout<<dummyErrorBool<<" "<<digis.size()<<" "<<errors.size()<<endl;
 
     if(countPixelsInFed>0)  {

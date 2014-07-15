@@ -3,7 +3,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "EventFilter/ESDigiToRaw/interface/ESDigiToRaw.h"
 #include "EventFilter/ESDigiToRaw/src/ESDataFormatterV1_1.h"
@@ -17,6 +16,8 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   
   label_ = ps.getParameter<string>("Label");
   instanceName_ = ps.getParameter<string>("InstanceES");
+  edm::InputTag ESTag = edm::InputTag(label_, instanceName_);
+  ESDigiToken_ = consumes<ESDigiCollection>(ESTag);
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
   formatMajor_ = ps.getUntrackedParameter<int>("formatMajor", 4);
   formatMinor_ = ps.getUntrackedParameter<int>("formatMinor", 1);
@@ -84,7 +85,7 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   ESDataFormatter_->setKchipEC(kchip_ec_);
 
   edm::Handle<ESDigiCollection> digis;
-  ev.getByLabel(label_, instanceName_, digis);
+  ev.getByToken(ESDigiToken_, digis);
 
   int ifed;
   ESDataFormatter::Digis Digis;

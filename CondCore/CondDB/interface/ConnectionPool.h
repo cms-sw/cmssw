@@ -26,6 +26,7 @@ namespace cond {
     // 
     enum DbAuthenticationSystem { UndefinedAuthentication=0,CondDbKey, CoralXMLFile };
 
+    // a wrapper for the coral connection service.  
     class ConnectionPool {
     public:
       ConnectionPool();
@@ -38,20 +39,23 @@ namespace cond {
       bool isLoggingEnabled() const;
       void setParameters( const edm::ParameterSet& connectionPset );
       void configure();
-      Session createSession( const std::string& connectionString, bool writeCapable=false );
+      Session createSession( const std::string& connectionString, bool writeCapable=false, BackendType backType=DEFAULT_DB );
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
       
     private:
-      Session createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable=false );
+      Session createSession( const std::string& connectionString, 
+			     const std::string& transactionId, 
+			     bool writeCapable=false, 
+			     BackendType backType=DEFAULT_DB );
       void configure( coral::IConnectionServiceConfiguration& coralConfig);
     private:
       std::string m_authPath;
       int m_authSys = 0;
-      coral::MsgLevel m_messageLevel = coral::Info;
+      coral::MsgLevel m_messageLevel = coral::Error;
       bool m_loggingEnabled = false;
       // this one has to be moved!
       cond::CoralServiceManager* m_pluginManager = 0; 
-      std::vector<std::string> m_refreshtablelist;
+      std::map<std::string,int> m_dbTypes;
     };
   }
 }

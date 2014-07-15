@@ -77,6 +77,7 @@ namespace DataFormats_ParticleFlowReco {
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;
     edm::Wrapper< std::vector<reco::PFRecHit> >          dummy5;
+    edm::RefVector<std::vector<reco::PFRecHit> >         dummy5_2;
 
     std::vector<reco::PFRecTrack>                        dummy6;
     edm::Wrapper< std::vector<reco::PFRecTrack> >        dummy7;

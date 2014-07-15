@@ -22,10 +22,10 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "SiTrivialDigitalConverter.h"
-#include "SiGaussianTailNoiseAdder.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
-#include "SiPileUpSignals.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -55,12 +55,12 @@ class SiStripDigitizerAlgorithm {
   typedef float Amplitude;
   
   // Constructor
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf);
 
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup);
 
   void initializeEvent(const edm::EventSetup& iSetup);
 
@@ -70,7 +70,8 @@ class SiStripDigitizerAlgorithm {
                          size_t inputBeginGlobalIndex,
                          const StripGeomDetUnit *stripdet,
                          const GlobalVector& bfield,
-			 const TrackerTopology *tTopo);
+			 const TrackerTopology *tTopo,
+                         CLHEP::HepRandomEngine*);
 
   void digitize(
                 edm::DetSet<SiStripDigi>& outDigis,
@@ -80,7 +81,8 @@ class SiStripDigitizerAlgorithm {
                 edm::ESHandle<SiStripGain>&,
                 edm::ESHandle<SiStripThreshold>&, 
                 edm::ESHandle<SiStripNoises>&,
-                edm::ESHandle<SiStripPedestals>&);
+                edm::ESHandle<SiStripPedestals>&,
+                CLHEP::HepRandomEngine*);
 
   // ParticleDataTable
   void setParticleDataTable(const ParticleDataTable * pardt) {
@@ -123,8 +125,6 @@ class SiStripDigitizerAlgorithm {
   const std::unique_ptr<const SiGaussianTailNoiseAdder> theSiNoiseAdder;
   const std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
   const std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
-
-  const std::unique_ptr<CLHEP::RandFlat> theFlatDistribution;
 
   // bad channels for each detector ID
   std::map<unsigned int, std::vector<bool> > allBadChannels;

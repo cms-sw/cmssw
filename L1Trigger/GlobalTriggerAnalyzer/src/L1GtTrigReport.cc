@@ -30,8 +30,6 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -122,6 +120,13 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) {
 
     // set the index of physics DAQ partition TODO input parameter?
     m_physicsDaqPartition = 0;
+
+    if (m_useL1GlobalTriggerRecord) {
+      m_l1GtRecordInputToken1=consumes<L1GlobalTriggerRecord>(m_l1GtRecordInputTag);
+    }
+    else{
+      m_l1GtRecordInputToken2=consumes<L1GlobalTriggerReadoutRecord>(m_l1GtRecordInputTag);
+    }
 
 }
 
@@ -336,9 +341,9 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
 
     if (m_useL1GlobalTriggerRecord) {
-        iEvent.getByLabel(m_l1GtRecordInputTag, gtRecord);
+        iEvent.getByToken(m_l1GtRecordInputToken1, gtRecord);
     } else {
-        iEvent.getByLabel(m_l1GtRecordInputTag, gtReadoutRecord);
+        iEvent.getByToken(m_l1GtRecordInputToken2, gtReadoutRecord);
     }
 
     bool validRecord = false;

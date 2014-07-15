@@ -30,9 +30,7 @@ hiRegitPixelPairStepClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
-hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone(
-    ComponentName = 'hiRegitPixelPairStepSeedLayers'
-    )
+hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone()
 hiRegitPixelPairStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitPixelPairStepClusters')
 hiRegitPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitPixelPairStepClusters')
 
@@ -47,20 +45,17 @@ hiRegitPixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 
 # building: feed the new-named seeds
-hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone(
-    ComponentName    = 'hiRegitPixelPairStepTrajectoryFilter'
-    )
+hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone()
 
 hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitPixelPairStepTrajectoryBuilder',
-    trajectoryFilterName = 'hiRegitPixelPairStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitPixelPairStepClusters'),
 )
 
 # trackign candidate
 hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitPixelPairStepSeeds'),
-    TrajectoryBuilder = 'hiRegitPixelPairStepTrajectoryBuilder',
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryBuilder')),
     maxNSeeds = 100000
     )
 
@@ -101,6 +96,7 @@ hiRegitPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
     ) #end of clone  
 
 hiRegitPixelPairStep = cms.Sequence(hiRegitPixelPairStepClusters*
+                                    hiRegitPixelPairStepSeedLayers*
                                     hiRegitPixelPairStepSeeds*
                                     hiRegitPixelPairStepTrackCandidates*
                                     hiRegitPixelPairStepTracks*

@@ -73,7 +73,7 @@ Direction PixelTrackExtractor::directionAtPresetRadius(const Track& tk, double b
 
 IsoDeposit PixelTrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
 {
-  static std::string metname = "MuonIsolation|PixelTrackExtractor";
+  static const std::string metname = "MuonIsolation|PixelTrackExtractor";
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);

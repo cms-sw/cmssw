@@ -3,14 +3,14 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class LostHitsFractionTrajectoryFilter : public TrajectoryFilter {
+class LostHitsFractionTrajectoryFilter final : public TrajectoryFilter {
 public:
 
   explicit LostHitsFractionTrajectoryFilter( float maxLostHitsFraction=1./10.,float constantValue=1 ): 
   theMaxLostHitsFraction( maxLostHitsFraction), 
   theConstantValue( constantValue) {}
   
-  explicit LostHitsFractionTrajectoryFilter( const edm::ParameterSet & pset){
+  explicit LostHitsFractionTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
     theMaxLostHitsFraction = pset.existsAs<double>("maxLostHitsFraction") ? 
       pset.getParameter<double>("maxLostHitsFraction") : 999; 
     theConstantValue =  pset.existsAs<double>("constantValueForLostHitsFractionFilter") ? 
@@ -28,10 +28,7 @@ public:
 protected:
 
   template<class T> bool TBC(const T& traj) const {
-    if(traj.lostHits() <= theConstantValue + theMaxLostHitsFraction*traj.foundHits() )
-      return true;
-    else
-      return false;
+    return traj.lostHits() <= theConstantValue + theMaxLostHitsFraction*traj.foundHits();
   }
 
   float theMaxLostHitsFraction;

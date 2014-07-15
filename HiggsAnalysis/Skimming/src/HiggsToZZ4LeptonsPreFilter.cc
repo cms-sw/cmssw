@@ -1,5 +1,5 @@
 
-/* \class HiggsTo4LeptonsPreFilter 
+/* \class HiggsTo4LeptonsPreFilter
  *
  * Consult header file for description
  *
@@ -18,7 +18,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // C++
 #include <iostream>
@@ -41,6 +40,7 @@ HiggsToZZ4LeptonsPreFilter::HiggsToZZ4LeptonsPreFilter(const edm::ParameterSet& 
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsPreFilter");
   leptonFlavour      = pset.getParameter<int>("HiggsToZZ4LeptonsPreFilterLeptonFlavour");
+  genToken           = consumes<GenParticleCollection>(edm::InputTag("genParticles"));
 
   ikept = 0;
   evt = 0;
@@ -67,10 +67,9 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
   bool FourM    = false;
   bool TwoETwoM = false;
 
-  // get gen particle candidates 
+  // get gen particle candidates
   Handle<GenParticleCollection> genParticles;
-
-  event.getByLabel("genParticles", genParticles);
+  event.getByToken(genToken, genParticles);
 
   if ( genParticles.isValid() ) {
 
@@ -88,7 +87,7 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
       }
     }
     // Electrons:
-    if ( mcIter->pdgId() == 11 || mcIter->pdgId() == -11) 
+    if ( mcIter->pdgId() == 11 || mcIter->pdgId() == -11)
       // Mother is a Z
       if ( mcIter->mother()->pdgId() == 23 ) {
         // In fiducial volume:
@@ -97,16 +96,16 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
       }
     }
 
-     
+
     if (nElec > 3) FourE = true;
     if (nMuon > 3) FourM = true;
     if (nMuon > 1 && nElec > 1) TwoETwoM = true;
     if ( FourE || FourM || TwoETwoM ) FourL = true;
 
-    if ( leptonFlavour == 0 && FourL    ) keepEvent = true;    
-    if ( leptonFlavour == 1 && FourM    ) keepEvent = true;    
-    if ( leptonFlavour == 2 && FourE    ) keepEvent = true;    
-    if ( leptonFlavour == 3 && TwoETwoM ) keepEvent = true;    
+    if ( leptonFlavour == 0 && FourL    ) keepEvent = true;
+    if ( leptonFlavour == 1 && FourM    ) keepEvent = true;
+    if ( leptonFlavour == 2 && FourE    ) keepEvent = true;
+    if ( leptonFlavour == 3 && TwoETwoM ) keepEvent = true;
 
   }
 

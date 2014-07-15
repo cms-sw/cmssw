@@ -1,10 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelDBTestt")
+
+# does not run - fake conditions do not exist 
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
-useFakeSource = True
-#useFakeSource = False
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
+# 2012
+#process.GlobalTag.globaltag = 'GR_P_V40::All'
+# MC 2913
+#process.GlobalTag.globaltag = 'MC_70_V1::All'
+
+
+#useFakeSource = True
+useFakeSource = False
 useCPEGeneric = True
 #useCPEGeneric = False
 
@@ -31,7 +40,8 @@ else:
     if useCPEGeneric:
         process.load("CalibTracker.SiPixelESProducers.SiPixelFakeTemplateDBObjectESSource_cfi")
         process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-                                              process.CondDBSetup,loadAll = cms.bool(True),
+                                              process.CondDBSetup,
+                                              loadAll = cms.bool(True),
                                               toGet = cms.VPSet(cms.PSet(
             record = cms.string('SiPixelCPEGenericErrorParmRcd'),
             tag = cms.string('SiPixelCPEGenericErrorParm')
@@ -56,12 +66,10 @@ else:
            
  
 process.source = cms.Source("PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(1),
-    
-    
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/2A00EECC-A185-DD11-93A9-000423D9517C.root'
+#    '/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/2A00EECC-A185-DD11-93A9-000423D9517C.root'
+    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/rechits/rechits1.root'
+
 )
 )
 

@@ -21,11 +21,11 @@ using std::endl;
 // constructors and destructor
 //
 BoostedTopProducer::BoostedTopProducer(const edm::ParameterSet& iConfig) :
-  eleLabel_   (iConfig.getParameter<edm::InputTag>  ("electronLabel")),
-  muoLabel_   (iConfig.getParameter<edm::InputTag>  ("muonLabel")),
-  jetLabel_   (iConfig.getParameter<edm::InputTag>  ("jetLabel")),
-  metLabel_   (iConfig.getParameter<edm::InputTag>  ("metLabel")),
-  solLabel_   (iConfig.getParameter<edm::InputTag>  ("solLabel")),
+  eleToken_   (consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>  ("electronLabel"))),
+  muoToken_   (consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>  ("muonLabel"))),
+  jetToken_   (consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>  ("jetLabel"))),
+  metToken_   (consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>  ("metLabel"))),
+  solToken_   (mayConsume<TtSemiLeptonicEvent>(iConfig.getParameter<edm::InputTag>  ("solLabel"))),
   caloIsoCut_ (iConfig.getParameter<double>         ("caloIsoCut") ),
   mTop_       (iConfig.getParameter<double>         ("mTop") )
 {
@@ -56,19 +56,19 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get the bare PAT objects
   // -----------------------------------------------------
    edm::Handle<std::vector<pat::Muon> > muonHandle;
-   iEvent.getByLabel(muoLabel_,muonHandle);
+   iEvent.getByToken(muoToken_,muonHandle);
    std::vector<pat::Muon> const & muons = *muonHandle;
-  
+
    edm::Handle<std::vector<pat::Jet> > jetHandle;
-   iEvent.getByLabel(jetLabel_,jetHandle);
+   iEvent.getByToken(jetToken_,jetHandle);
    std::vector<pat::Jet> const & jets = *jetHandle;
 
    edm::Handle<std::vector<pat::Electron> > electronHandle;
-   iEvent.getByLabel(eleLabel_,electronHandle);
+   iEvent.getByToken(eleToken_,electronHandle);
    std::vector<pat::Electron> const & electrons = *electronHandle;
 
    edm::Handle<std::vector<pat::MET> > metHandle;
-   iEvent.getByLabel(metLabel_,metHandle);
+   iEvent.getByToken(metToken_,metHandle);
    std::vector<pat::MET> const & mets = *metHandle;
 
    // -----------------------------------------------------
@@ -82,15 +82,15 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //    We want to look at leptons within "top jets" in some
    //    cases. This means the isolation will kill those events.
    //    However, if there IS an isolated lepton, we want only
-   //    one of them. 
-   // 
+   //    one of them.
+   //
    //    So to select the prompt W lepton, the logic is:
    //    1. If there is an isolated lepton, accept it as the W lepton.
    //    2. Else, take the highest Pt lepton (possibly non-isolated)
-   // 
+   //
    // -----------------------------------------------------
    bool preselection = true;
-  
+
    // This will hold the prompt W lepton candidate, and a
    // maximum pt decision variable
    double maxWLeptonPt = -1;
@@ -150,11 +150,11 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------
    // Now decide on the "prompt" lepton from the W:
    // Choose isolated leptons over all, and if no isolated,
-   // then take highest pt lepton. 
+   // then take highest pt lepton.
    // ----------------------
    bool isMuon = true;
    if      ( isolatedMuon     != muonEnd     ) { muon     = isolatedMuon;     isMuon = true; }
-   else if ( isolatedElectron != electronEnd ) { electron = isolatedElectron; isMuon = false; } 
+   else if ( isolatedElectron != electronEnd ) { electron = isolatedElectron; isMuon = false; }
    else {
      // Set to the highest pt lepton
      if      ( muon != muonEnd && electron == electronEnd ) isMuon = true;
@@ -190,31 +190,31 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool write = false;
 
 
-   
+
    // -----------------------------------------------------
    //
    // CompositeCandidates to store the event solution.
    // This will take one of two forms:
    //    a) lv jj jj   Full reconstruction.
-   //       
+   //
    //   ttbar->
-   //       (hadt -> (hadW -> hadp + hadq) + hadb) + 
+   //       (hadt -> (hadW -> hadp + hadq) + hadb) +
    //       (lept -> (lepW -> lepton + neutrino) + lepb)
-   // 
-   //    b) lv jj (j)  Partial reconstruction, associate 
-   //                  at least 1 jet to the lepton 
-   //                  hemisphere, and at least one jet in 
+   //
+   //    b) lv jj (j)  Partial reconstruction, associate
+   //                  at least 1 jet to the lepton
+   //                  hemisphere, and at least one jet in
    //                  the opposite hemisphere.
    //
    //    ttbar->
    //        (hadt -> (hadJet1 [+ hadJet2] ) ) +
    //        (lept -> (lepW -> lepton + neutrino) + lepJet1 )
    //
-   // There will also be two subcategories of (b) that 
+   // There will also be two subcategories of (b) that
    // will correspond to physics cases:
-   // 
+   //
    //    b1)           Lepton is isolated: Moderate ttbar mass.
-   //    b2)           Lepton is nonisolated: High ttbar mass. 
+   //    b2)           Lepton is nonisolated: High ttbar mass.
    //
    // -----------------------------------------------------
    reco::CompositeCandidate ttbar("ttbar");
@@ -241,7 +241,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        // get the ttbar semileptonic event solution if there are more than 3 jets
        edm::Handle< TtSemiLeptonicEvent > eSol;
-       iEvent.getByLabel(solLabel_, eSol);
+       iEvent.getByToken(solToken_, eSol);
 
        // Have solution, continue
        if ( eSol.isValid() ) {
@@ -258,14 +258,14 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      // 2. With 2 or 3 jets, we decide based on the separation between
      // the lepton and the closest jet in that hemisphere whether to
-     // consider it "moderate" or "high" mass. 
+     // consider it "moderate" or "high" mass.
      else if ( jets.size() == 2 || jets.size() == 3 ) {
 
        // ------------------------------------------------------------------
        // First create a leptonic W candidate
        // ------------------------------------------------------------------
        reco::CompositeCandidate lepW("lepW");
-       
+
        if ( isMuon ) {
 	 if ( debug ) cout << "Adding muon as daughter" << endl;
 	 lepW.addDaughter(  *muon,     "muon" );
@@ -279,9 +279,9 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //bool nuzHasComplex = false;
        METzCalculator zcalculator;
-       
+
        zcalculator.SetMET( neutrino );
-       if ( isMuon ) 
+       if ( isMuon )
  	 zcalculator.SetMuon( *muon );
        else
 	 zcalculator.SetMuon( *electron ); // This name is misleading, should be setLepton
@@ -293,7 +293,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if ( debug ) cout << "Set neutrino pz to " << neutrinoPz << endl;
 
        // ------------------------------------------------------------------
-       // Next ensure that there is a jet within the hemisphere of the 
+       // Next ensure that there is a jet within the hemisphere of the
        // leptonic W, and one in the opposite hemisphere
        // ------------------------------------------------------------------
        reco::CompositeCandidate hadt("hadt");
@@ -336,7 +336,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   s << hadName << ii;
 	   if ( debug ) cout << "Adding daughter " << s.str() << endl;
 	   hadt.addDaughter( *jetit, s.str() );
-	   
+
 	 }
        } // end loop over jets
 
@@ -350,15 +350,15 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 ttbar.addDaughter( lept, "lept");
 	 ttbar.addDaughter( hadt, "hadt");
 	 addFourMomenta.set( ttbar );
-	 write = true; 
+	 write = true;
        } // end of hadronic jet and leptonic jet
 
 
-     } // end if there are 2 or 3 jets 
-   
+     } // end if there are 2 or 3 jets
+
    } // end if preselection is satisfied
 
-   // Write the solution to the event record   
+   // Write the solution to the event record
    std::vector<reco::CompositeCandidate> ttbarList;
    if ( write ) {
      if ( debug ) cout << "Writing out" << endl;
@@ -367,17 +367,17 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<std::vector<reco::CompositeCandidate> > pTtbar ( new std::vector<reco::CompositeCandidate>(ttbarList) );
    iEvent.put( pTtbar );
 
-   
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 BoostedTopProducer::beginJob(const edm::EventSetup&)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 BoostedTopProducer::endJob() {
 }
 
@@ -393,7 +393,7 @@ BoostedTopProducer::Psi(const TLorentzVector& p1, const TLorentzVector& p2, doub
 	double psi = (p1.P()+p2.P())*TMath::Abs(TMath::Sin(th1th2))/(2.* mass );
 	if ( th1th2 > (TMath::Pi()/2) )
 		psi = (p1.P()+p2.P())*( 1. + TMath::Abs(TMath::Cos(th1th2)))/(2.* mass );
-	
+
 	return psi;
 }
 

@@ -1,11 +1,4 @@
 <use   name="DQM/EcalCommon"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<library   file="plugins.cc" name="DQMEcalCommonPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library file="EcalDQMBinningService.cc" name="DQMEcalCommonEcalDQMBinningService">
+<library file="*.cc" name="DQMEcalCommonPlugins">
    <flags EDM_PLUGIN="1"/>
 </library>

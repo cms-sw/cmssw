@@ -141,6 +141,10 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
   // get the DT segments that were used to construct the muon
   std::vector<const DTRecSegment4D*> range = theMatcher->matchDT(*muonTrack,iEvent);
+  
+  if (debug) 
+    std::cout << " The muon track matches " << range.size() << " segments." << std::endl;
+  
 
   // create a collection on TimeMeasurements for the track        
   for (std::vector<const DTRecSegment4D*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
@@ -149,6 +153,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     DetId id = (*rechit)->geographicalId();
     DTChamberId chamberId(id.rawId());
     int station = chamberId.station();
+    if (debug) std::cout << "Matched DT segment in station " << station << std::endl;
 
     // use only segments with both phi and theta projections present (optional)
     bool bothProjections = ( ((*rechit)->hasPhi()) && ((*rechit)->hasZed()) );
@@ -218,6 +223,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   	  thisHit.posInLayer += slCorr;
 	}
 
+        if (debug) std::cout << " dist: " << dist << "  t0: " << thisHit.posInLayer << std::endl;
+ 
 	tms.push_back(thisHit);
       }
     } // phi = (0,1) 	        
@@ -284,7 +291,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	    std::cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << std::endl;
 	  continue;
 	}
-          
+
 	// a segment must have at least one left and one right hit
 	if ((!hitxl.size()) || (!hityl.size())) continue;
 
@@ -301,6 +308,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  double hitLocalPos = tm->posInLayer;
 	  int hitSide = -tm->isLeft*2+1;
 	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543+tm->timeCorr;
+	  
+	  if (debug) std::cout << "   Segm hit.  dstnc: " << tm->distIP << "   t0: " << t0_segm << std::endl;
             
 	  dstnc.push_back(tm->distIP);
 	  dsegm.push_back(t0_segm);

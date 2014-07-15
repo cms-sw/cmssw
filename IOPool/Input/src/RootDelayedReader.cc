@@ -7,6 +7,9 @@
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+
 #include "TROOT.h"
 #include "TBranch.h"
 #include "TClass.h"
@@ -17,15 +20,21 @@ namespace edm {
 
   RootDelayedReader::RootDelayedReader(
       RootTree const& tree,
-      boost::shared_ptr<InputFile> filePtr,
+      std::shared_ptr<InputFile> filePtr,
       InputType inputType) :
    tree_(tree),
    filePtr_(filePtr),
    nextReader_(),
+  resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
    inputType_(inputType) {
   }
 
   RootDelayedReader::~RootDelayedReader() {
+  }
+
+  SharedResourcesAcquirer*
+  RootDelayedReader::sharedResources_() const {
+    return resourceAcquirer_.get();
   }
 
   WrapperOwningHolder

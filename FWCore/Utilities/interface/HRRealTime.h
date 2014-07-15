@@ -59,12 +59,18 @@ namespace edm {
       return(result);
     }
 #elif defined(__arm__)
-#warning unsigned long long rdtsc(void) is not implemented on ARM architecture. Returning 0 by default.
+#warning unsigned long long rdtsc(void) is not implemented on ARMv7 architecture. Returning 0 by default.
     static __inline__ unsigned long long rdtsc(void)
     {
       return 0;
     }
-#else /* defined(__arm__) */
+#elif defined(__aarch64__)
+#warning unsigned long long rdtsc(void) is not implemented on ARMv8 (AArch64) architecture. Returning 0 by default.
+    static __inline__ unsigned long long rdtsc(void)
+    {
+      return 0;
+    }
+#else
 #error The file FWCore/Utilities/interface/HRRealTime.h needs to be set up for your CPU type.
 #endif
  }

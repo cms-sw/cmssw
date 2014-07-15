@@ -97,6 +97,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
     produces<std::vector<L1MuRegionalCand> > ("RPCb");
     produces<std::vector<L1MuRegionalCand> > ("RPCf");
     produces<std::vector<L1MuGMTCand> > ();
+    consumes<FEDRawDataCollection>(m_daqGtInputTag);
 
     // create GTFE, FDL, PSB cards once per producer
     // content will be reset whenever needed
@@ -141,10 +142,6 @@ L1GlobalTriggerRawToDigi::~L1GlobalTriggerRawToDigi() {
 }
 
 // member functions
-
-void L1GlobalTriggerRawToDigi::beginJob() {
-    // empty
-}
 
 // method called to produce the data
 void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
@@ -1051,12 +1048,6 @@ void L1GlobalTriggerRawToDigi::dumpFedRawData(
                 << payload[i] << std::dec << std::setfill(' ') << std::endl;
     }
 
-}
-
-//
-void L1GlobalTriggerRawToDigi::endJob() {
-
-    // empty now
 }
 
 // static class members

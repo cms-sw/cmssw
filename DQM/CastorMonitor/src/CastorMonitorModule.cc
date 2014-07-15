@@ -20,7 +20,6 @@
 //==================================================================//
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   {
-  if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
 
    ////---- get steerable variables
   inputLabelRaw_ 			= ps.getParameter<edm::InputTag>("rawLabel");
@@ -32,6 +31,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   showTiming_ 				= ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   			= ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
 
+  if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
   ////---- initialize Run, LS, Event number and other parameters
   irun_=0; 
   ilumisec_=0; 
@@ -596,13 +596,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
  if(rechitOK_)
  {
- //---- get Castor tower collection
- /* 
- edm::ESHandle<reco::CastorTowerCollection> castorTowers; //fix this
- iEvent.getByLabel(inputLabelCastorTowers_,castorTowers); //fix this
-
- TowerJetMon_->processEventTowers(*castorTowers);
- */
  if (showTiming_){
       cpu_timer.stop();
       if (TowerJetMon_!=NULL) std::cout <<"TIMER:: TOWER JET MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;

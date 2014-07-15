@@ -8,7 +8,7 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -42,7 +42,7 @@
 
 //#define VTXDEBUG
 
-class TrackVertexArbitrator : public edm::EDProducer {
+class TrackVertexArbitrator : public edm::stream::EDProducer<> {
     public:
 	TrackVertexArbitrator(const edm::ParameterSet &params);
 

@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -37,7 +38,7 @@ namespace sistrip {
     void updateCabling( const edm::EventSetup& );
     
     RawToDigiUnpacker* rawToDigi_;
-    edm::InputTag productLabel_;
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
     const SiStripFedCabling* cabling_;
     uint32_t cacheId_;
     bool extractCm_;    

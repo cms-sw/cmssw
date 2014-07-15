@@ -2,7 +2,7 @@
 #define TrackRecoDeDx_DeDxEstimatorProducer_H
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +31,7 @@
 // class declaration
 //
 
-class DeDxEstimatorProducer : public edm::EDProducer {
+class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
 
 public:
 
@@ -41,7 +41,6 @@ public:
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
 
   int    getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips,const uint32_t &);
 //  int    getCharge(const SiStripRecHit2D* sistripsimplehit, int& Saturating_Strips);

@@ -20,7 +20,8 @@ class HLTConfigProvider;
 
 class HLTTauDQMPathPlotter: private HLTTauDQMPlotter {
 public:
-  HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
+  HLTTauDQMPathPlotter(const std::string& pathName, const HLTConfigProvider& HLTCP,
+                       bool doRefAnalysis, const std::string& dqmBaseFolder,
                        const std::string& hltProcess, int ptbins, int etabins, int phibins,
                        double ptmax, double highptmax,
                        double l1MatchDr, double hltMatchDr);
@@ -28,7 +29,7 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void beginRun(const HLTConfigProvider& HLTCP);
+  void bookHistograms(DQMStore::IBooker &iBooker);
 
   void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
 

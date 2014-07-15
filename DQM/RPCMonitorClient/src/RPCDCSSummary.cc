@@ -14,7 +14,7 @@
 
 RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
 
- numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+ numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
 
  FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);
  FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumRPCFEDId", 792);

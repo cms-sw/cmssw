@@ -132,6 +132,165 @@ def configure_L2L3_fftjet_esproducer(sequenceTag, tableName, tableCategory):
     return (config, esProducer)
 
 #
+# ES producer for L2 residual corrections
+#
+def configure_L2Res_fftjet_esproducer(sequenceTag, tableName, tableCategory):
+    #
+    # The ES producer name comes from the C++ plugin registration code
+    esProducer = fftjet_corr_types[sequenceTag].esProducer
+    config = cms.ESProducer(
+        esProducer,
+        sequence = cms.VPSet(
+            cms.PSet(
+                level = cms.uint32(3),
+                applyTo = cms.string("DataOnly"),
+                adjuster = cms.PSet(
+                    Class = cms.string("FFTSimpleScalingAdjuster")
+                ),
+                scalers = cms.VPSet(
+                    cms.PSet(
+                        Class = cms.string("FFTSpecificScaleCalculator"),
+                        Subclass = cms.PSet(
+                                Class = cms.string("L2ResScaleCalculator"),
+                                radiusFactor = cms.double(1.0)
+                        ),
+                        name = cms.string(tableName),
+                        nameIsRegex = cms.bool(False),
+                        category = cms.string(tableCategory),
+                        categoryIsRegex = cms.bool(False)
+                    )
+                )
+            )
+        ),
+        isArchiveCompressed = cms.bool(False),
+        verbose = cms.untracked.bool(False)
+    )
+    return (config, esProducer)
+
+#
+# ES producer for L3 residual corrections
+#
+def configure_L3Res_fftjet_esproducer(sequenceTag, tableName, tableCategory):
+    #
+    # The ES producer name comes from the C++ plugin registration code
+    esProducer = fftjet_corr_types[sequenceTag].esProducer
+    config = cms.ESProducer(
+        esProducer,
+        sequence = cms.VPSet(
+            cms.PSet(
+                level = cms.uint32(4),
+                applyTo = cms.string("DataOnly"),
+                adjuster = cms.PSet(
+                    Class = cms.string("FFTSimpleScalingAdjuster")
+                ),
+                scalers = cms.VPSet(
+                    cms.PSet(
+                        Class = cms.string("FFTSpecificScaleCalculator"),
+                        Subclass = cms.PSet(
+                                Class = cms.string("L2RecoScaleCalculator"),
+                                radiusFactor = cms.double(1.0)
+                        ),
+                        name = cms.string(tableName),
+                        nameIsRegex = cms.bool(False),
+                        category = cms.string(tableCategory),
+                        categoryIsRegex = cms.bool(False)
+                    )
+                )
+            )
+        ),
+        isArchiveCompressed = cms.bool(False),
+        verbose = cms.untracked.bool(False)
+    )
+    return (config, esProducer)
+
+#
+# Helper function for configuring FFTGenericScaleCalculator
+#
+def configure_FFTGenericScaleCalculator(variables, factorsForTheseVariables):
+    if len(variables) == 0:
+        raise ValueError("Must have at least one variable mapped")
+    if len(variables) != len(factorsForTheseVariables):
+        raise ValueError("Incompatible length of the input arguments")
+    subclass = cms.PSet(
+        Class = cms.string("FFTGenericScaleCalculator"),
+        factors = cms.vdouble(factorsForTheseVariables),
+        eta=cms.int32(-1),
+        phi=cms.int32(-1),
+        pt=cms.int32(-1),
+        logPt=cms.int32(-1),
+        mass=cms.int32(-1),
+        logMass=cms.int32(-1),
+        energy=cms.int32(-1),
+        logEnergy=cms.int32(-1),
+        gamma=cms.int32(-1),
+        logGamma=cms.int32(-1),
+        pileup=cms.int32(-1),
+        ncells=cms.int32(-1),
+        etSum=cms.int32(-1),
+        etaWidth=cms.int32(-1),
+        phiWidth=cms.int32(-1),
+        averageWidth=cms.int32(-1),
+        widthRatio=cms.int32(-1),
+        etaPhiCorr=cms.int32(-1),
+        fuzziness=cms.int32(-1),
+        convergenceDistance=cms.int32(-1),
+        recoScale=cms.int32(-1),
+        recoScaleRatio=cms.int32(-1),
+        membershipFactor=cms.int32(-1),
+        magnitude=cms.int32(-1),
+        logMagnitude=cms.int32(-1),
+        magS1=cms.int32(-1),
+        LogMagS1=cms.int32(-1),
+        magS2=cms.int32(-1),
+        LogMagS2=cms.int32(-1),
+        driftSpeed=cms.int32(-1),
+        magSpeed=cms.int32(-1),
+        lifetime=cms.int32(-1),
+        splitTime=cms.int32(-1),
+        mergeTime=cms.int32(-1),
+        scale=cms.int32(-1),
+        logScale=cms.int32(-1),
+        nearestNeighborDistance=cms.int32(-1),
+        clusterRadius=cms.int32(-1),
+        clusterSeparation=cms.int32(-1),
+        dRFromJet=cms.int32(-1),
+        LaplacianS1=cms.int32(-1),
+        LaplacianS2=cms.int32(-1),
+        LaplacianS3=cms.int32(-1),
+        HessianS2=cms.int32(-1),
+        HessianS4=cms.int32(-1),
+        HessianS6=cms.int32(-1),
+        nConstituents=cms.int32(-1),
+        aveConstituentPt=cms.int32(-1),
+        logAveConstituentPt=cms.int32(-1),
+        constituentPtDistribution=cms.int32(-1),
+        constituentEtaPhiSpread=cms.int32(-1),
+        chargedHadronEnergyFraction=cms.int32(-1),
+        neutralHadronEnergyFraction=cms.int32(-1),
+        photonEnergyFraction=cms.int32(-1),
+        electronEnergyFraction=cms.int32(-1),
+        muonEnergyFraction=cms.int32(-1),
+        HFHadronEnergyFraction=cms.int32(-1),
+        HFEMEnergyFraction=cms.int32(-1),
+        chargedHadronMultiplicity=cms.int32(-1),
+        neutralHadronMultiplicity=cms.int32(-1),
+        photonMultiplicity=cms.int32(-1),
+        electronMultiplicity=cms.int32(-1),
+        muonMultiplicity=cms.int32(-1),
+        HFHadronMultiplicity=cms.int32(-1),
+        HFEMMultiplicity=cms.int32(-1),
+        chargedEmEnergyFraction=cms.int32(-1),
+        chargedMuEnergyFraction=cms.int32(-1),
+        neutralEmEnergyFraction=cms.int32(-1),
+        EmEnergyFraction=cms.int32(-1),
+        chargedMultiplicity=cms.int32(-1),
+        neutralMultiplicity=cms.int32(-1)
+    )
+    for i, varname in enumerate(variables):
+        setattr(subclass, varname, cms.int32(i))
+    return subclass
+
+#
 # Procedure for configuring the ES source which fetches
 # the database record. "process.CondDBCommon" should be
 # already defined before calling this procedure.

@@ -64,7 +64,7 @@ private:
  
  std::string outputFile_;
 
- edm::InputTag EBdigiCollection_;
+ edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_;
  
  std::map<int, double, std::less<int> > gainConv_;
 

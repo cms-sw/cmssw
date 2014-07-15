@@ -7,8 +7,6 @@ TTbarSpinCorrHepMCAnalyzer::TTbarSpinCorrHepMCAnalyzer(const edm::ParameterSet& 
   genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")),
   genParticlesTag_(iConfig.getParameter<edm::InputTag>("genParticlesTag"))
 {
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
 
   genEventInfoProductTagToken_=consumes<GenEventInfoProduct>(genEventInfoProductTag_);
   genParticlesTagToken_=consumes<reco::GenParticleCollection>(genParticlesTag_);
@@ -16,23 +14,14 @@ TTbarSpinCorrHepMCAnalyzer::TTbarSpinCorrHepMCAnalyzer(const edm::ParameterSet& 
 }
 
 
-TTbarSpinCorrHepMCAnalyzer::~TTbarSpinCorrHepMCAnalyzer()
-{
- 
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
-}
-
+TTbarSpinCorrHepMCAnalyzer::~TTbarSpinCorrHepMCAnalyzer(){}
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
-TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   using namespace edm;
 
   // --- the MC weights ---
@@ -97,62 +86,26 @@ TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TTbarSpinCorrHepMCAnalyzer::beginJob()
-{
-  if(dbe){
+void TTbarSpinCorrHepMCAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
     ///Setting the DQM top directories
     TString dir="Generator/";
     dir+="TTbarSpinCorr";
-    dbe->setCurrentFolder(dir.Data());
+    i.setCurrentFolder(dir.Data());
 
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
     
-    _h_asym = dbe->book1D("TTbar_asym","Asymmetr", 2, -1., 1.);
+    _h_asym = i.book1D("TTbar_asym","Asymmetr", 2, -1., 1.);
     _h_asym->setAxisTitle("Asymmetry");
 
-    _h_deltaPhi = dbe->book1D("TTbar_deltaPhi","#Delta#phi(ll)", 320, 0, 3.2);
+    _h_deltaPhi = i.book1D("TTbar_deltaPhi","#Delta#phi(ll)", 320, 0, 3.2);
     _h_deltaPhi->setAxisTitle("#Delta#phi(ll)");
     
-    _h_llpairPt = dbe->book1D("TTbar_llpairPt","Lepton pair transverse momentum", 1000, 0, 1000);
+    _h_llpairPt = i.book1D("TTbar_llpairPt","Lepton pair transverse momentum", 1000, 0, 1000);
     _h_llpairPt->setAxisTitle("p_{T}(ll)");
     
-    _h_llpairM  = dbe->book1D("TTbar_llpairM","Lepton pair invariant mass", 1000, 0, 1000);
+    _h_llpairM  = i.book1D("TTbar_llpairM","Lepton pair invariant mass", 1000, 0, 1000);
     _h_llpairM->setAxisTitle("M(ll)");
 
-  }
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TTbarSpinCorrHepMCAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-TTbarSpinCorrHepMCAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-TTbarSpinCorrHepMCAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-TTbarSpinCorrHepMCAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-TTbarSpinCorrHepMCAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(TTbarSpinCorrHepMCAnalyzer);

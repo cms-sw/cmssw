@@ -21,10 +21,6 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 namespace edm {
   class ConsumesCollector;
   namespace one {
@@ -34,6 +30,7 @@ namespace edm {
   class EventSetup;
   class ParameterSet;
   template<typename T> class Handle;
+  class StreamID;
 }
 
 class MagneticField;
@@ -42,6 +39,10 @@ class PixelGeomDetUnit;
 class PSimHit;
 class SiPixelDigitizerAlgorithm;
 class TrackerGeometry;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
@@ -53,12 +54,23 @@ namespace cms {
 
     virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c) override;
+    virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
     virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
     virtual void beginJob() {}
+
+    virtual void StorePileupInformation( std::vector<int> &numInteractionList,
+				 std::vector<int> &bunchCrossingList,
+				 std::vector<float> &TrueInteractionList){
+      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList);
+    }
+
+    virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
+
   private:
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >);   
+    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, CLHEP::HepRandomEngine*);
+    CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
+
     bool first;
     std::unique_ptr<SiPixelDigitizerAlgorithm>  _pixeldigialgo;
     typedef std::vector<std::string> vstring;
@@ -67,9 +79,14 @@ namespace cms {
     const std::string geometryType;
     edm::ESHandle<TrackerGeometry> pDD;
     edm::ESHandle<MagneticField> pSetup;
-    std::map<unsigned int, PixelGeomDetUnit*> detectorUnits;
-    CLHEP::HepRandomEngine* rndEngine;
+    std::map<unsigned int, PixelGeomDetUnit const *> detectorUnits;
+    std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 
+    PileupMixingContent* PileupInfo_;
+    
+    const bool pilotBlades; // Default = false
+    const int NumberOfEndcapDisks; // Default = 2
+    
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };
 }

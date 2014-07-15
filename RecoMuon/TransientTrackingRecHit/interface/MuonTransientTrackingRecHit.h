@@ -14,10 +14,19 @@
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
 
-class MuonTransientTrackingRecHit: public GenericTransientTrackingRecHit{
+class MuonTransientTrackingRecHit final : public GenericTransientTrackingRecHit{
 public:
-  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
-  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+   using MuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit>;
+   using ConstMuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit const>;
+
+#else
+   typedef MuonTransientTrackingRecHit *           MuonRecHitPointer;
+   typedef MuonTransientTrackingRecHit const *     ConstMuonRecHitPointer;
+#endif
+
+//  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
+//  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
   typedef std::vector<MuonRecHitPointer>                             MuonRecHitContainer;
   typedef std::vector<ConstMuonRecHitPointer>                        ConstMuonRecHitContainer;
   
@@ -35,7 +44,7 @@ public:
   /// Error on the global direction
   virtual GlobalError globalDirectionError() const;
  
-  virtual AlgebraicSymMatrix parametersError() const;
+  virtual AlgebraicSymMatrix parametersError() const  override;
 
   /// Chi square of the fit for segments, else 0
   virtual double chi2() const;
@@ -53,7 +62,7 @@ public:
   bool isRPC() const;
 
   /// return the sub components of this transient rechit
-  virtual ConstRecHitContainer transientHits() const;
+  virtual ConstRecHitContainer transientHits() const override;
 
   /// FIXME virtual ConstMuonRecHitContainer specificTransientHits() const;
 
@@ -77,7 +86,7 @@ public:
   /// Copy ctor
   MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit & other );
 
-  virtual MuonTransientTrackingRecHit* clone() const {
+  virtual MuonTransientTrackingRecHit* clone() const  override {
     return new MuonTransientTrackingRecHit(*this);
   }
 

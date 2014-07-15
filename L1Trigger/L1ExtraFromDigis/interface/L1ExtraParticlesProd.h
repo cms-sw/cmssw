@@ -18,7 +18,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,15 +38,13 @@
 // forward declarations
 class L1CaloGeometry ;
 
-class L1ExtraParticlesProd : public edm::EDProducer {
+class L1ExtraParticlesProd : public edm::stream::EDProducer<> {
    public:
       explicit L1ExtraParticlesProd(const edm::ParameterSet&);
       ~L1ExtraParticlesProd();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       //      math::XYZTLorentzVector gctLorentzVector( const double& et,
       math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,

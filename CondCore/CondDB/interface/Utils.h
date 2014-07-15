@@ -7,12 +7,15 @@
 #include <cxxabi.h>
 #include <algorithm>
 #include <iostream>
+#include <tuple>
+//
+#include <boost/regex.hpp>
 
 namespace cond {
 
   namespace {
 
-    std::string demangledName( const std::type_info& typeInfo ){
+    inline std::string demangledName( const std::type_info& typeInfo ){
       int status = 0;
       std::string ret("");
       char* realname = abi::__cxa_demangle( typeInfo.name(), 0, 0, &status);
@@ -25,24 +28,93 @@ namespace cond {
       return ret;
     }
 
-    std::tuple<std::string,std::string,std::string> parseConnectionString( const std::string& connectionString ){
-      size_t ptr = 0;
+  }
+
+  namespace persistency {
+
+    inline std::string getConnectionProtocol( const std::string& connectionString ){
       size_t techEnd = connectionString.find( ':' );
-      if( techEnd == std::string::npos ) throwException( "Connection string is invalid (0)","parseConnectionString" );
-      std::string technology = connectionString.substr(ptr,techEnd);
-      std::string service("");
-      ptr = techEnd+1;
-      if( technology != "sqlite_file" ){
-	if( connectionString.substr( ptr,2 )!="//" ) throwException( "Connection string is invalid (1)","parseConnectionString" );
+      if( techEnd == std::string::npos ) throwException( "Could not resolve the connection protocol on "+connectionString+".",
+							 "getConnectionProtocol" );
+      std::string technology = connectionString.substr(0,techEnd);
+      return technology;
+    }
+    
+    inline std::tuple<std::string,std::string,std::string> parseConnectionString( const std::string& connectionString ){
+      std::string protocol = getConnectionProtocol( connectionString );
+      std::string serviceName("");
+      std::string databaseName("");
+      if( protocol == "sqlite" || protocol == "sqlite_file" || protocol == "sqlite_fip" ){
+	databaseName = connectionString.substr( protocol.size()+1 ); 
+      } else if ( protocol == "oracle" || protocol == "frontier" ){
+	size_t ptr = protocol.size()+1;
+	if( connectionString.substr( ptr,2 )!="//" ) throwException( "Connection string "+connectionString+
+								     " is invalid format for technology \""+
+								     protocol+"\".","parseConnectionString" );
 	ptr += 2;
 	size_t serviceEnd = connectionString.find( '/', ptr );
-	if( serviceEnd == std::string::npos ) throwException( "Connection string is invalid (2)","parseConnectionString" );
-	service = connectionString.substr( ptr, serviceEnd-ptr );
+	if( serviceEnd == std::string::npos ) throwException( "Connection string "+connectionString+" is invalid.",
+							      "parseConnectionString" );
+	serviceName = connectionString.substr( ptr, serviceEnd-ptr );
 	ptr = serviceEnd+1;
-      }
-      std::string schema = connectionString.substr( ptr );
-      return std::make_tuple( technology, service, schema );
+	databaseName = connectionString.substr( ptr );
+      } else throwException( "Technology "+protocol+" is not known.","parseConnectionString" );
+	
+      return std::make_tuple( protocol, serviceName, databaseName );
     }
+
+    inline std::string convertoToOracleConnection(const std::string & input){
+
+      //static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
+      static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
+      static const boost::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
+      static const boost::regex long_frontier_serverurl("\\(serverurl=[^\\)]+?/([[:alnum:]]+?)\\)");
+
+      static const std::map<std::string, std::string> frontierMap = {
+	{"PromptProd", "cms_orcon_adg"},
+	{"FrontierProd", "cms_orcon_adg"},
+	{"FrontierArc", "cms_orcon_adg"},
+	{"FrontierOnProd", "cms_orcon_adg"},
+	{"FrontierPrep", "cms_orcoff_prep"},
+      };
+
+      boost::smatch matches;
+
+      static const std::string technology("oracle://");
+      std::string service("");
+      std::string account("");
+
+      bool match = false;
+      if (boost::regex_match(input, matches, short_frontier)){
+	service = matches[1];
+	account = matches[2];
+	match = true;
+      }
+      
+      if (boost::regex_match(input, matches, long_frontier)) {
+	std::string frontier_config(matches[1]);
+	boost::smatch matches2;
+	if (not boost::regex_search(frontier_config, matches2, long_frontier_serverurl))
+	  throwException("No serverurl in matched long frontier","convertoToOracleConnection");
+	service = matches2[1];
+	account = matches[3];
+	match = true;
+      }
+
+      if( !match ) throwException("Connection string can't be converted.","convertoToOracleConnection");
+
+      if( service == "FrontierArc" ){
+	size_t len = account.size()-5;
+	account = account.substr(0,len);
+      }
+
+      auto it = frontierMap.find( service );
+      if( it == frontierMap.end() ) throwException("Connection string can't be converted.","convertoToOracleConnection");
+      service = it->second; 
+
+      return technology+service+"/"+account;
+    }
+    
   }
 
 }

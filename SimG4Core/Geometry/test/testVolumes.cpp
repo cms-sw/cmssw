@@ -308,7 +308,13 @@ doPolycone2( const std::string& name, double phiStart, double phiTotal,
 	     const std::vector<double> & z,
 	     const std::vector<double> & r )
 {  
-  G4Polycone g4( name, phiStart, phiTotal, z.size(), &z[0], &r[0] );
+  std::cout << "### doPolycone_RZ: " << "phi1=" << phiStart/deg 
+  	    << " phi2=" << phiTotal/deg 
+  	    << " N= " << z.size() << std::endl;
+  for(size_t i=0; i<z.size(); ++i) { 
+    std::cout << " R= " << r[i] << " Z= " << z[i] << std::endl;
+  }
+  G4Polycone g4( name, phiStart, phiTotal, z.size(), &r[0], &z[0] );
   DDI::Polycone dd( phiStart, phiTotal, z, r );
   DDPolycone dds = DDSolidFactory::polycone( name, phiStart, phiTotal, z, r );
   dd.stream(std::cout);
@@ -358,7 +364,7 @@ doPolyhedra2( const std::string& name, int sides, double phiStart, double phiTot
 	      const std::vector<double> & z,
 	      const std::vector<double> & r )
 {  
-  G4Polyhedra g4( name, phiStart, phiTotal, sides, z.size(), &z[0], &r[0] );
+  G4Polyhedra g4( name, phiStart, phiTotal, sides, z.size(), &r[0], &z[0] );
   DDI::Polyhedra dd( sides, phiStart, phiTotal, z, r );
   DDPolyhedra dds = DDSolidFactory::polyhedra( name, sides, phiStart, phiTotal, z, r );
   dd.stream(std::cout);
@@ -653,7 +659,7 @@ main( int argc, char *argv[] )
   doPolycone1( name, phiStart, phiTotal, z, rInner, rOuter );
   std::cout << std::endl;
 
-  doPolycone2( name, phiStart, phiTotal, z, rOuter );
+  doPolycone2( name, phiStart, phiTotal, z, rOuter);
   std::cout << std::endl;
 
 //

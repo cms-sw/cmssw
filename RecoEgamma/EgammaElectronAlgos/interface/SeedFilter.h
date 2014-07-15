@@ -17,6 +17,8 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+
 #include <TMath.h>
 
 #include <Math/VectorUtil.h>
@@ -24,6 +26,8 @@
 
 class SeedGeneratorFromRegionHits;
 class MagneticField;
+class MeasurementTrackerEvent;
+namespace edm { class ConsumesCollector; }
 
 class SeedFilter {
  public:
@@ -34,7 +38,8 @@ class SeedFilter {
   };
 
   SeedFilter(const edm::ParameterSet& conf,
-	     const Tokens& tokens);
+	     const Tokens& tokens,
+	     edm::ConsumesCollector& iC);
   ~SeedFilter();
 
   void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);
@@ -52,11 +57,11 @@ class SeedFilter {
 
   edm::ESHandle<MagneticField> theMagField;
 
-  int hitsfactoryMode_;
+  RectangularEtaPhiTrackingRegion::UseMeasurementTracker hitsfactoryMode_;
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
-  std::string measurementTrackerName_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerToken_;
 };
 
 #endif // SeedFilter_H

@@ -1,6 +1,8 @@
 #ifndef HcalLutMetadatum_h
 #define HcalLutMetadatum_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /*
 \class HcalLutMetadatum
 \author Gena Kukartsev
@@ -31,6 +33,8 @@ class HcalLutMetadatum
   float    mRCalib;
   uint8_t  mLutGranularity;
   uint8_t  mOutputLutThreshold;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

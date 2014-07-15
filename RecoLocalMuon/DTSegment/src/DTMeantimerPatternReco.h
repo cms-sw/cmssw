@@ -25,6 +25,7 @@ class DTSegmentUpdator;
 class DTSegmentCleaner;
 class DTHitPairForFit;
 class DTSegmentCand;
+class DTLinearFit;
 
 /* C++ Headers */
 #include <vector>
@@ -33,10 +34,12 @@ class DTSegmentCand;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* ====================================================================== */
 
 /* Class DTMeantimerPatternReco Interface */
+
 
 class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
 
@@ -65,36 +68,41 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
  protected:
 
  private:
+  DTLinearFit* theFitter; // the linear fitter
+
   friend class DTMeantimerPatternReco4D;
 
-  typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+  // typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
     
   // create the DTHitPairForFit from the pairs for easy use
-  std::vector<DTHitPairForFit*> initHits(const DTSuperLayer* sl,
-					 const std::vector<DTRecHit1DPair>& hits);
+  std::vector<std::shared_ptr<DTHitPairForFit>> initHits(const DTSuperLayer* sl,
+	    						 const std::vector<DTRecHit1DPair>& hits);
 
   // search for candidate, starting from pairs of hits in different layers
   std::vector<DTSegmentCand*> buildSegments(const DTSuperLayer* sl,
-					    const std::vector<DTHitPairForFit*>& hits);
+					    const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
 
   // try adding more hits to a candidate
   void addHits(const DTSuperLayer* sl, 
-               std::vector<AssPoint>& assHits, 
-               const std::vector<DTHitPairForFit*>& hits, 
-               std::vector<DTSegmentCand*> &result,
-               std::vector<AssPoint>& usedHits);
+               std::vector<DTSegmentCand::AssPoint>& assHits, 
+               const std::vector<std::shared_ptr<DTHitPairForFit>>& hits, 
+               std::vector<DTSegmentCand*> &result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
-  bool fitWithT0(const std::vector<AssPoint> &assHits, double &chi2, double &t0_corr, const bool fitdebug);
+  std::unique_ptr<DTSegmentCand> fitWithT0(const DTSuperLayer* sl,
+                                           const std::vector<DTSegmentCand::AssPoint> &assHits, 
+                                           double &chi2, 
+                                           double &t0_corr, 
+                                           const bool fitdebug);
 
   // check if two hist can be considered in one segment (come from different layers, not too far away etc.)
   bool geometryFilter( const DTWireId first, const DTWireId second ) const;
 
-  // a generic least-square fit to a set of points
-  void rawFit(double &a, double &b, const std::vector< std::pair<double,double> > &hits);
-
   bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs,
 			     DTSegmentCand* seg);
+
+  void printPattern( std::vector<DTSegmentCand::AssPoint>& assHits, const DTHitPairForFit* hit);
+
 
  private:
 
@@ -103,8 +111,6 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
   double theAlphaMaxTheta;
   double theAlphaMaxPhi;
   double theMaxChi2;
-  double theMaxT0;
-  double theMinT0;
   bool debug;
   DTSegmentUpdator* theUpdator; // the updator and fitter
   DTSegmentCleaner* theCleaner; // the cleaner

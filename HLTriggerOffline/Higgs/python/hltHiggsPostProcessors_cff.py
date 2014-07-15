@@ -80,31 +80,41 @@ for type in plot_types:
 	for trig in triggers:
 	    efficiency_strings.append(efficiency_string(obj,type,trig))
 
+
+#add the summary plots
+for an in _config.analysis:
+    efficiency_strings.append("EffSummaryPaths_"+an+"_gen ' Efficiency of paths used in "+an+" ; trigger path ' SummaryPaths_"+an+"_gen_passingHLT SummaryPaths_"+an+"_gen")
+    for trig in triggers:
+        efficiency_strings.append("Eff_trueVtxDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs nb of interactions ; nb events passing each path ' trueVtxDist_"+an+"_gen_"+trig+" trueVtxDist_"+an+"_gen")
+
 add_reco_strings(efficiency_strings)
 
-hltHiggsPostHTauNu = hltHiggsPostProcessor.clone()
-hltHiggsPostHTauNu.subDirs = ['HLT/Higgs/Htaunu']
-hltHiggsPostHTauNu.efficiencyProfile = efficiency_strings
+
 
 hltHiggsPostHWW = hltHiggsPostProcessor.clone()
 hltHiggsPostHWW.subDirs = ['HLT/Higgs/HWW']
 hltHiggsPostHWW.efficiencyProfile = efficiency_strings
 
+
 hltHiggsPostHZZ = hltHiggsPostProcessor.clone()
 hltHiggsPostHZZ.subDirs = ['HLT/Higgs/HZZ']
 hltHiggsPostHZZ.efficiencyProfile = efficiency_strings
+
 
 hltHiggsPostHgg = hltHiggsPostProcessor.clone()
 hltHiggsPostHgg.subDirs = ['HLT/Higgs/Hgg']
 hltHiggsPostHgg.efficiencyProfile = efficiency_strings
 
+
 hltHiggsPostH2tau = hltHiggsPostProcessor.clone()
 hltHiggsPostH2tau.subDirs = ['HLT/Higgs/H2tau']
 hltHiggsPostH2tau.efficiencyProfile = efficiency_strings
 
+
 hltHiggsPostHtaunu = hltHiggsPostProcessor.clone()
 hltHiggsPostHtaunu.subDirs = ['HLT/Higgs/Htaunu']
 hltHiggsPostHtaunu.efficiencyProfile = efficiency_strings
+
 
 
 hltHiggsPostProcessors = cms.Sequence(
@@ -114,3 +124,5 @@ hltHiggsPostProcessors = cms.Sequence(
 		hltHiggsPostHtaunu+
 		hltHiggsPostH2tau
 )
+
+

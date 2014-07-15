@@ -50,10 +50,10 @@ TestEcalDigi<DigiCollection>::TestEcalDigi() : sv(10){
 
 namespace {
 
-  void check_ctor(EBDigiCollection const& digis) {
+  inline void check_ctor(EBDigiCollection const& digis) {
     CPPUNIT_ASSERT(digis.subdetId()==EcalBarrel);
   }
-  void check_ctor(EEDigiCollection const& digis) {
+  inline void check_ctor(EEDigiCollection const& digis) {
     CPPUNIT_ASSERT(digis.subdetId()==EcalEndcap);
   }
 
@@ -151,7 +151,7 @@ namespace {
   }
   void verifyEndcapId(edm::DataFrame::id_type id) {
     try {
-      EEDetId detid(DetId(id)); // detid(id) does not throw
+      EEDetId detid{DetId(id)}; // detid(id) does not throw
     } catch(...) {
       bool NotEndcapID=false;
       CPPUNIT_ASSERT(NotEndcapID);

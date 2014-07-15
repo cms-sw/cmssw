@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 class PFTrackTransformer;
 class LightPFTrackProducer : public edm::EDProducer {
 public:
@@ -26,7 +28,7 @@ private:
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  std::vector<edm::InputTag> tracksContainers_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
   ///TRACK QUALITY
     bool useQuality_;
     reco::TrackBase::TrackQuality trackQuality_;

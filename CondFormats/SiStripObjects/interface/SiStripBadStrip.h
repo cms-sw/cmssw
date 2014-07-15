@@ -1,6 +1,8 @@
 #ifndef SiStripBadStrip_h
 #define SiStripBadStrip_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -38,7 +40,9 @@ class SiStripBadStrip {
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   class StrictWeakOrdering{
   public:
@@ -61,7 +65,8 @@ class SiStripBadStrip {
 
   bool put(const uint32_t& detID,const InputVector& vect){return put(detID,Range(vect.begin(),vect.end()));}
   bool put(const uint32_t& detID,Range input);
-  const Range getRange(const uint32_t& detID) const;
+  const Range getRange(const uint32_t detID) const;
+  Range getRangeByPos(unsigned short pos) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
   void printSummary(std::stringstream & ss) const;
   void printDebug(std::stringstream & ss) const;
@@ -87,6 +92,8 @@ class SiStripBadStrip {
 protected:
   Container v_badstrips; 
   Registry indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

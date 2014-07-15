@@ -18,8 +18,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // Digis
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
@@ -40,7 +38,7 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
   dbe = Service<DQMStore>().operator->();
 
   // Label to retrieve DT digis from the event
-  digiLabel = ps.getUntrackedParameter<string>("digiLabel"); 
+  digiLabel = consumes<DTDigiCollection>(ps.getUntrackedParameter<string>("digiLabel")); 
 
   // parameter for Time Boxes booking
   minTriggerWidth = ps.getUntrackedParameter<int>("minTriggerWidth",2000); 
@@ -78,7 +76,7 @@ void DTPreCalibrationTask::analyze(const edm::Event& event, const edm::EventSetu
   
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
-  event.getByLabel(digiLabel, dtdigis);
+  event.getByToken(digiLabel, dtdigis);
 
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;

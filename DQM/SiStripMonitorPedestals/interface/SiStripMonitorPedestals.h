@@ -42,6 +42,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "boost/cstdint.hpp"
 #include <iomanip>
@@ -52,23 +53,22 @@ class MonitorElement;
 class DQMStore;
 class SiStripDetCabling;
 
-class SiStripMonitorPedestals : public edm::EDAnalyzer {
+class SiStripMonitorPedestals : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorPedestals(const edm::ParameterSet&);
   ~SiStripMonitorPedestals();
   
   virtual void beginJob() ;
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void endJob() ;
-
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
    
  private:
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiToken_;
 
   void resetMEs(uint32_t idet);
-  void createMEs(edm::EventSetup const& eSetup);
+  void createMEs(DQMStore::IBooker &, edm::EventSetup const& eSetup);
   void fillCondDBMEs(edm::EventSetup const& eSetup);
 
   struct ModMEs{

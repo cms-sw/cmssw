@@ -54,10 +54,13 @@ from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 # Inclusive VBF
 from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 
-import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
-TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
+# tracking
+from DQMOffline.Trigger.TrackingMonitoring_cff import *
+
+#import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
+#TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+#TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
+#TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -67,6 +70,7 @@ dqmEnvHLT.subSystemFolder = 'HLT'
 
 # Remove topElectronHLTOffDQMSource
 # remove quadJetAna
+from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
     egHLTOffDQMSource *
@@ -76,8 +80,10 @@ offlineHLTSource = cms.Sequence(
     jetMETHLTOfflineAnalyzer *
     #TnPEfficiency *
     hltInclusiveVBFSource *
-    TrackerCollisionTrackMonHLT *
-    dqmEnvHLT)
+#    TrackerCollisionTrackMonHLT *
+    trackingMonitorHLT *
+    dqmEnvHLT *
+    topHLTriggerOfflineDQM)
 
 #triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)

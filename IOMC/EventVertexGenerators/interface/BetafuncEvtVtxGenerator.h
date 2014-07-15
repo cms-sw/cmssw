@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 
 namespace CLHEP {
-   class RandGaussQ;
+  class HepRandomEngine;
 }
 
 class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator 
@@ -37,7 +37,7 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
   virtual TMatrixD* GetInvLorentzBoost();
 
@@ -84,9 +84,7 @@ private:
   double fbetastar, femittance;
   //  double falpha;
   double fTimeOffset;
-    
-  CLHEP::RandGaussQ*  fRandom ;
-  
+
   void update(const edm::EventSetup& iEventSetup);
   edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
 };

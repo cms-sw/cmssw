@@ -26,7 +26,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
-#include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
+#include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSignalGenerator.h"
 #include "SimGeneral/DataMixingModule/plugins/HcalNoiseStorage.h"
 
@@ -45,7 +45,7 @@ namespace edm
     public:
 
      /** standard constructor*/
-      explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
+      explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC);
 
       /**Default destructor*/
       virtual ~DataMixingHcalDigiWorkerProd();
@@ -60,7 +60,8 @@ namespace edm
     void setHOAccess( edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok) { tok_ho_ = tok; }
     void setHFAccess( edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok) { tok_hf_ = tok; }
     void setZDCAccess( edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok) { tok_zdc_ = tok; }
-
+    void beginRun(const edm::Run& run, const edm::EventSetup& ES);
+    void initializeEvent(const edm::Event &e, const edm::EventSetup& ES);
 
     private:
       // data specifiers
@@ -79,13 +80,13 @@ namespace edm
       std::string HFDigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to collection of digis
 
-     edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
-     edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
-     edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
-     edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
+      edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
+      edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
+      edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
+      edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
   
 
-      HcalDigitizer* myHcalDigitizer_;
+      HcalDigiProducer* myHcalDigitizer_;
       HBHESignalGenerator theHBHESignalGenerator;
       HOSignalGenerator theHOSignalGenerator;
       HFSignalGenerator theHFSignalGenerator;

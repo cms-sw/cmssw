@@ -273,8 +273,8 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
   nEventMonitor = dbe->bookFloat("nProcessedEventsNoise");
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chId = (*ch_it)->id();
     // histo booking

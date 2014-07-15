@@ -14,6 +14,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
+#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
@@ -25,12 +28,19 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
   doVdriftCorr(config.getParameter<bool>("doVdriftCorr")),
   // Option to force going back to digi time at Step 2 
   stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
+  useUncertDB(false),
   // Set verbose output
   debug(config.getUntrackedParameter<bool>("debug"))
 {
-    if(debug)
-      cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
+  if(debug)
+    cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
+
+  // Check for compatibility with older configurations
+  if (config.existsAs<bool>("useUncertDB")) {
+    // Assign hit uncertainties based on new uncertainties DB
+    useUncertDB= config.getParameter<bool>("useUncertDB");
   }
+}
 
 
 
@@ -46,9 +56,21 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   ESHandle<DTMtime> mTimeHandle;
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap = &*mTimeHandle;
+
+  if (useUncertDB) {
+    ESHandle<DTRecoUncertainties> uncerts;
+    setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
+    uncertMap = &*uncerts;
   
-  if(debug) 
+    // check uncertainty map type
+    if (uncertMap->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unknown: " << uncertMap->version();
+  }
+  
+  if(debug) {
     cout << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version()<<endl;
+    if (useUncertDB) cout << "                          uncertDB  version: " << uncertMap->version()<<endl;
+  }
+  
 }
 
 
@@ -137,13 +159,18 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 
   // Read the vDrift and reso for this wire
   float vDrift = 0;
-  float hitResolution = 0;//FIXME: should use this!
+  float hitResolution = 0; 
   // vdrift is cm/ns , resolution is cm
   mTimeMap->get(wireId.superlayerId(),
 	        vDrift,
-	        hitResolution,
+	        hitResolution,  // Value from vdrift DB; replaced below if useUncertDB card is set
 	        DTVelocityUnits::cm_per_ns);
 
+  if (useUncertDB) {
+    // Read the uncertainty from the DB for the given channel and step
+    hitResolution = uncertMap->get(wireId, step-1);
+  }
+  
   //only in step 3
   if(doVdriftCorr && step == 3){
     if (abs(wireId.wheel()) == 2 && 

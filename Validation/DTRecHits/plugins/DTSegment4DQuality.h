@@ -23,9 +23,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Histograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <vector>
 #include <map>
@@ -38,7 +39,6 @@ namespace edm {
 }
 
 class TFile;
-class MonitorElement;
 
 class DTSegment4DQuality : public edm::EDAnalyzer {
 public:
@@ -52,6 +52,9 @@ public:
 
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+  
   // Write the histos to file
   void endJob();
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
@@ -70,6 +73,8 @@ private:
   //Labels to read from event
   edm::InputTag simHitLabel;
   edm::InputTag segment4DLabel;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
   //Sigma resolution on position
   double sigmaResX;
   double sigmaResY;
@@ -88,9 +93,6 @@ private:
   HEff4DHit *hEff_W1;
   HEff4DHit *hEff_W2;
   HEff4DHit *hEffWS[3][4];
-
-  MonitorElement* hHitMult[3][4];
-  MonitorElement* ht0[3][4];
 
   DQMStore* dbe_;
   bool doall;

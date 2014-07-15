@@ -4,7 +4,7 @@ from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 HITpixelTripletRegGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
-        SeedingLayers = cms.string('PixelLayerTriplets'),
+        SeedingLayers = cms.InputTag('PixelLayerTriplets'),
         PixelTripletHLTGenerator = cms.PSet(
             useBending = cms.bool(True),
             useFixedPreFiltering = cms.bool(False),

@@ -20,8 +20,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 #include <memory>
 #include <set>
@@ -35,14 +33,14 @@ namespace edm {
     template <typename T>
     class GlobalScheduleSignalSentry {
     public:
-      GlobalScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es, typename T::Context const* context) :
-        a_(a), principal_(principal), es_(es), context_(context),
+      GlobalScheduleSignalSentry(ActivityRegistry* a, typename T::Context const* context) :
+        a_(a), context_(context),
         allowThrow_(false) {
-        if (a_) T::preScheduleSignal(a_, principal_, context_);
+        if (a_) T::preScheduleSignal(a_, context_);
       }
       ~GlobalScheduleSignalSentry() noexcept(false) {
         try {
-          if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_, context_);
+          if (a_) T::postScheduleSignal(a_, context_);
         } catch(...) {
           if(allowThrow_) {throw;}
         }
@@ -55,8 +53,6 @@ namespace edm {
     private:
       // We own none of these resources.
       ActivityRegistry* a_;
-      typename T::MyPrincipal* principal_;
-      EventSetup const* es_;
       typename T::Context const* context_;
       bool allowThrow_;
     };
@@ -74,18 +70,18 @@ namespace edm {
   public:
     typedef std::vector<std::string> vstring;
     typedef std::vector<Worker*> AllWorkers;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
+    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> Workers;
 
     GlobalSchedule(TriggerResultInserter* inserter,
-                   boost::shared_ptr<ModuleRegistry> modReg,
+                   std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
                    ProductRegistry& pregistry,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
-                   boost::shared_ptr<ActivityRegistry> areg,
-                   boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                   std::shared_ptr<ActivityRegistry> areg,
+                   std::shared_ptr<ProcessConfiguration> processConfiguration,
                    ProcessContext const* processContext);
     GlobalSchedule(GlobalSchedule const&) = delete;
 
@@ -134,7 +130,7 @@ namespace edm {
     void addToAllWorkers(Worker* w);
     
     WorkerManager                         workerManager_;
-    boost::shared_ptr<ActivityRegistry>   actReg_;
+    std::shared_ptr<ActivityRegistry>   actReg_;
     WorkerPtr                             results_inserter_;
 
 
@@ -149,21 +145,15 @@ namespace edm {
                                  bool cleaningUpAfterException) {
     GlobalContext globalContext = T::makeGlobalContext(ep, processContext_);
 
-    GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &globalContext);
+    GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &globalContext);
 
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, StreamID::invalidStreamID(), &globalContext, &globalContext, cleaningUpAfterException);
 
     try {
-      try {
+      convertException::wrap([&]() {
         runNow<T>(ep,es,&globalContext);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {

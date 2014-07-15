@@ -16,10 +16,12 @@ class CSCTightHaloFilter : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     const bool taggingMode_;
+    edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
 };
 
 CSCTightHaloFilter::CSCTightHaloFilter(const edm::ParameterSet & iConfig)
   : taggingMode_     (iConfig.getParameter<bool> ("taggingMode"))
+  , beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary")))
 {
 
   produces<bool>();
@@ -28,7 +30,7 @@ CSCTightHaloFilter::CSCTightHaloFilter(const edm::ParameterSet & iConfig)
 bool CSCTightHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
-  iEvent.getByLabel("BeamHaloSummary" , beamHaloSummary);
+  iEvent.getByToken(beamHaloSummaryToken_ , beamHaloSummary);
 
   const bool pass = !beamHaloSummary->CSCTightHaloId();
 

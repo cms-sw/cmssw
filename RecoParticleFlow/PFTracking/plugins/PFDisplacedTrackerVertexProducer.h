@@ -1,14 +1,15 @@
 #ifndef PFDisplacedTrackerVertexProducer_H
 #define PFDisplacedTrackerVertexProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 
 class PFTrackTransformer;
-class PFDisplacedTrackerVertexProducer : public edm::EDProducer {
+class PFDisplacedTrackerVertexProducer : public edm::stream::EDProducer<> {
 public:
   
   ///Constructor
@@ -26,8 +27,8 @@ private:
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  edm::InputTag pfDisplacedVertexContainer_;
-  edm::InputTag pfTrackContainer_;
+  edm::EDGetTokenT<reco::PFDisplacedVertexCollection> pfDisplacedVertexContainer_;
+  edm::EDGetTokenT<reco::TrackCollection> pfTrackContainer_;
 
 };
 #endif

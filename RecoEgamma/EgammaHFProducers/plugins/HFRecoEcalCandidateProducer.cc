@@ -30,8 +30,9 @@
 
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
   defaultDB_(std::vector<double>()),
-  hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
-  vertices_(conf.existsAs<edm::InputTag>("VertexCollection") ? conf.getParameter<edm::InputTag>("VertexCollection"):(edm::InputTag)"offlinePrimaryVertices"),
+  hfclustersSC_(consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("hfclusters"))),
+  hfclustersHFEM_(consumes<reco::HFEMClusterShapeAssociationCollection>(conf.getParameter<edm::InputTag>("hfclusters"))),
+  
   HFDBversion_(conf.existsAs<int>("HFDBversion") ? conf.getParameter<int>("HFDBversion"):99),//do nothing
   HFDBvector_(conf.existsAs<std::vector<double> >("HFDBvector") ? conf.getParameter<std::vector<double> >("HFDBvector"):defaultDB_),
   doPU_(false),
@@ -47,6 +48,9 @@ HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const
 	conf.getParameter<std::vector<double> >("eSeLCut"),
 	hfvars_) 
 {
+  if(conf.existsAs<edm::InputTag>("VertexCollection")){
+    vertices_ = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexCollection"));
+  }else vertices_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
 
   produces<reco::RecoEcalCandidateCollection>();
 
@@ -58,13 +62,13 @@ void HFRecoEcalCandidateProducer::produce(edm::Event & e, edm::EventSetup const&
   edm::Handle<reco::SuperClusterCollection> super_clus;
   edm::Handle<reco::HFEMClusterShapeAssociationCollection> hf_assoc;
  
-  e.getByLabel(hfclusters_,super_clus);
-  e.getByLabel(hfclusters_,hf_assoc);
+  e.getByToken(hfclustersSC_,super_clus);
+  e.getByToken(hfclustersHFEM_,hf_assoc);
  
   int nvertex = 0;
   if(HFDBversion_!=99){
     edm:: Handle<reco::VertexCollection> pvHandle;
-    e.getByLabel(vertices_, pvHandle);
+    e.getByToken(vertices_, pvHandle);
     const reco::VertexCollection & vertices = *pvHandle.product();
     static const int minNDOF = 4;
     static const double maxAbsZ = 15.0;

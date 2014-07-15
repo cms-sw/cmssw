@@ -1,4 +1,4 @@
-#if !defined(__arm__) && !defined(__MIC__)
+#if !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__)
 #include "DataFormats/Math/interface/SSEVec.h"
 
 #include<cmath>
@@ -278,7 +278,7 @@ int main() {
 }
 #endif
 
-#else // arm
+#else /* !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__) */
 int main() {
   return 0;
 }

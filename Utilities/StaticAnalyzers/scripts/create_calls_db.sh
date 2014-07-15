@@ -1,25 +1,19 @@
 #!/usr/bin/env bash
-if [ $# -eq 0 ]
-        then
-        echo "Passing -j1 to make."
-        echo "Supply a number argument to override."
-        J=1
-else
-        J=$1
-fi
+export LC_ALL=C
 
 eval `scram runtime -sh`
-ulimit -m 2000000
-ulimit -v 2000000
-ulimit -t 1200
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker cms.FunctionDumper -enable-checker optional.EDMPluginDumper -enable-checker cms.FunctionChecker"
-cd ${CMSSW_BASE}
-touch tmp/function-dumper.txt.unsorted tmp/function-checker.txt.unsorted tmp/plugins.txt.unsorted
-scram b -k -j $J checker  2>&1 > tmp/function-dumper.log
-cd ${CMSSW_BASE}/tmp
-sort -u function-dumper.txt.unsorted >function-calls-db.txt
-sort -u function-checker.txt.unsorted >function-statics-db.txt
-sort -u plugins.txt.unsorted >function-plugins-db.txt
-cat  function-calls-db.txt function-statics-db.txt function-plugins-db.txt >db.txt
-statics.py 2>&1 >module2statics.txt.unsorted
-sort -u module2statics.txt.unsorted >module2statics.txt
+
+cd ${LOCALRT}/tmp
+
+if [ ! -f ./function-calls-db.txt ]
+        then 
+	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/run_class_dumper.sh first"
+	exit 1
+fi
+
+if [ ! -f ./function-statics-db.txt ]
+        then
+	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/run_class_checker.sh first"
+	exit 2
+fi
+${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/create_statics_esd_reports.sh

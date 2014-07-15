@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 HITpixelPairRegGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitPairGenerator'),
-        SeedingLayers = cms.string('PixelLayerPairs')
+        SeedingLayers = cms.InputTag('PixelLayerPairs')
     ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')

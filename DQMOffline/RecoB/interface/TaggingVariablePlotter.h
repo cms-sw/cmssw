@@ -19,16 +19,17 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
  public:
 
   TaggingVariablePlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-			  const edm::ParameterSet& pSet, const bool& update, const unsigned int& mc,
-	const std::string &category = std::string());
+			  const edm::ParameterSet& pSet, const bool& update, 
+			  const unsigned int& mc, DQMStore::IBooker & ibook,
+			  const std::string &category = std::string());
 
   ~TaggingVariablePlotter () ;
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
 
   void analyzeTag (const reco::TaggingVariableList & variables, const int & jetFlavour);
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
   void analyzeTag (const reco::TaggingVariableList & variables, const int & jetFlavour, const float & w);
 
@@ -45,7 +46,8 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
 
   struct VariableConfig {
     VariableConfig(const std::string &name, const edm::ParameterSet& pSet,
-                   const bool& update, const std::string &category, const std::string& label, const unsigned int& mc);
+                   const bool& update, const std::string &category, const std::string& label, 
+		   const unsigned int& mc, DQMStore::IBooker & ibook);
 
     reco::TaggingVariableName	var;
     unsigned int		nBins;

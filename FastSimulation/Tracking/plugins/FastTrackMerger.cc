@@ -10,12 +10,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "FastSimulation/Tracking/plugins/FastTrackMerger.h"
 
@@ -82,6 +79,16 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
     produces<reco::TrackExtraCollection>();
     produces<TrackingRecHitCollection>();
   }
+
+  // consumes
+  for ( unsigned aProducer=0; aProducer<removeTrackProducers.size(); ++aProducer ) { 
+    removeTrackTokens.push_back(consumes<reco::TrackCollection>(removeTrackProducers[aProducer]));
+  }
+  for ( unsigned aProducer=0; aProducer<trackProducers.size(); ++aProducer ) { 
+    trackTokens.push_back(consumes<reco::TrackCollection>(trackProducers[aProducer]));
+    trajectoryTokens.push_back(consumes<std::vector<Trajectory> >(trackProducers[aProducer]));
+    assoMapTokens.push_back(consumes<TrajTrackAssociationCollection>(trackProducers[aProducer]));
+  }
 }
 
   
@@ -147,7 +154,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   // First, the tracks to be removed
   std::set<unsigned> removeTracks;
   for ( unsigned aProducer=0; aProducer<removeTrackProducers.size(); ++aProducer ) { 
-    bool isTrackCollection = e.getByLabel(removeTrackProducers[aProducer],theTrackCollection); 
+    bool isTrackCollection = e.getByToken(removeTrackTokens[aProducer],theTrackCollection); 
     if (!isTrackCollection) continue;
     reco::TrackCollection::const_iterator aTrack = theTrackCollection->begin();
     reco::TrackCollection::const_iterator lastTrack = theTrackCollection->end();
@@ -167,7 +174,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   // Loop on the track producers to be merged
   for ( unsigned aProducer=0; aProducer<trackProducers.size(); ++aProducer ) { 
     
-    bool isTrackCollection = e.getByLabel(trackProducers[aProducer],theTrackCollection); 
+    bool isTrackCollection = e.getByToken(trackTokens[aProducer],theTrackCollection); 
     if ( ! isTrackCollection ) { 
 #ifdef FAMOS_DEBUG
       std::cout << "***FastTrackMerger*** Warning! The track collection " 
@@ -272,8 +279,8 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
       recoHits->reserve(nRecoHits); // This is to save some time at push_back.
       
-      e.getByLabel(trackProducers[aProducer],theTrajectoryCollection);
-      e.getByLabel(trackProducers[aProducer],theAssoMap);
+      e.getByToken(trajectoryTokens[aProducer],theTrajectoryCollection);
+      e.getByToken(assoMapTokens[aProducer],theAssoMap);
       
       // The track collection iterators.
       TrajTrackAssociationCollection::const_iterator anAssociation;  

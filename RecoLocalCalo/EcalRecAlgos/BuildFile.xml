@@ -6,7 +6,7 @@
 <use   name="CondFormats/ESObjects"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
 
 <use   name="root"/>
 <use   name="rootminuit"/>

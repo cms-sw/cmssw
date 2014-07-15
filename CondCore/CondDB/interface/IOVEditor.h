@@ -61,6 +61,9 @@ namespace cond {
       cond::Time_t lastValidatedTime() const;
       void setLastValidatedTime( cond::Time_t time );  
       
+      // flag (hack) for the validation
+      void setValidationMode(); 
+
       // register a new insertion.
       // if checkType==true, the payload corresponding to the specified id is verified to be the same type as the iov payloadObjectType 
       void insert( cond::Time_t since, const cond::Hash& payloadHash, bool checkType=false );

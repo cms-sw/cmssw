@@ -1,6 +1,8 @@
 #ifndef gen_FortranInstance_h
 #define gen_FortranInstance_h
 
+#include <string>
+
 namespace gen {
 
 // the callbacks from Pythia6/Herwig6 which are passed to the FortranInstance
@@ -65,6 +67,8 @@ class FortranInstance {
 	virtual void upInit();
 	virtual void upEvnt();
 	virtual bool upVeto();
+
+        static const std::string kFortranInstance;
 
     private:
 	// list all the Fortran callbacks here

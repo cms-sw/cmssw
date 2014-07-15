@@ -26,7 +26,6 @@ using edm::service::UnixSignalService;
 using edm::PrintEventSetupDataRetrieval;
 
 DEFINE_FWK_SERVICE(Tracer);
-DEFINE_FWK_SERVICE(Timing);
 DEFINE_FWK_SERVICE(CPU);
 DEFINE_FWK_SERVICE(PrintEventSetupDataRetrieval);
 
@@ -45,3 +44,5 @@ DEFINE_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::All
 DEFINE_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>);
 typedef edm::serviceregistry::AllArgsMaker<edm::JobReport,JobReportService> JobReportMaker;
 DEFINE_FWK_SERVICE_MAKER(JobReportService, JobReportMaker);
+typedef edm::serviceregistry::AllArgsMaker<edm::TimingServiceBase,Timing> TimingMaker;
+DEFINE_FWK_SERVICE_MAKER(Timing, TimingMaker);

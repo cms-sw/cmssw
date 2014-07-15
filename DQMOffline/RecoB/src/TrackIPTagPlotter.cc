@@ -6,7 +6,8 @@
 #include "DQMOffline/RecoB/interface/TrackIPTagPlotter.h"
 
 TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& update, const unsigned int& mc, const bool& wf) :
+				     const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& update, 
+				     const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook) :
   BaseTagInfoPlotter(tagName, etaPtBin),
   nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
   startEffPur_(pSet.getParameter<double>("startEffPur")),
@@ -26,517 +27,518 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   maxDecayLength(pSet.getParameter<double>("MaxDecayLength")),
   minJetDistance(pSet.getParameter<double>("MinJetDistance")),
   maxJetDistance(pSet.getParameter<double>("MaxJetDistance")),
-  finalized(false)
+  finalized(false),
+  ibook_(ibook)
 {
   const std::string trackIPDir(theExtensionString.substr(1));
 
   trkNbr3D = new TrackIPHistograms<int>
 	("selTrksNbr_3D" + theExtensionString, "Number of selected tracks for 3D IPS", 31, -0.5, 30.5,
-	false, true, true, "b", update,trackIPDir ,mc, makeQualityPlots_);
+	 false, true, true, "b", update,trackIPDir ,mc, makeQualityPlots_, ibook);
 
   trkNbr2D = new TrackIPHistograms<int>
 	("selTrksNbr_2D" + theExtensionString, "Number of selected tracks for 2D IPS", 31, -0.5, 30.5,
-	false, true, true, "b", update,trackIPDir ,mc, makeQualityPlots_);
+	 false, true, true, "b", update,trackIPDir ,mc, makeQualityPlots_, ibook);
 
   // IP significance
   // 3D
   tkcntHistosSig3D[4] = new TrackIPHistograms<double>
        ("ips_3D" + theExtensionString, "3D IP significance",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig3D[0] = new TrackIPHistograms<double>
        ("ips1_3D" + theExtensionString, "3D IP significance 1.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir,mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir,mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig3D[1] = new TrackIPHistograms<double>
        ("ips2_3D" + theExtensionString, "3D IP significance 2.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig3D[2] = new TrackIPHistograms<double>
        ("ips3_3D" + theExtensionString, "3D IP significance 3.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig3D[3] = new TrackIPHistograms<double>
        ("ips4_3D" + theExtensionString, "3D IP significance 4.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   //2D
   tkcntHistosSig2D[4] = new TrackIPHistograms<double>
        ("ips_2D" + theExtensionString, "2D IP significance",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig2D[0] = new TrackIPHistograms<double>
        ("ips1_2D" + theExtensionString, "2D IP significance 1.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig2D[1] = new TrackIPHistograms<double>
        ("ips2_2D" + theExtensionString, "2D IP significance 2.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig2D[2] = new TrackIPHistograms<double>
        ("ips3_2D" + theExtensionString, "2D IP significance 3.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosSig2D[3] = new TrackIPHistograms<double>
        ("ips4_2D" + theExtensionString, "2D IP significance 4.trk",
-	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   // IP value
   //3D
   tkcntHistosVal3D[4] = new TrackIPHistograms<double>
        ("ip_3D" + theExtensionString, "3D IP value",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal3D[0] = new TrackIPHistograms<double>
        ("ip1_3D" + theExtensionString, "3D IP value 1.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal3D[1] = new TrackIPHistograms<double>
        ("ip2_3D" + theExtensionString, "3D IP value 2.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal3D[2] = new TrackIPHistograms<double>
        ("ip3_3D" + theExtensionString, "3D IP value 3.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal3D[3] = new TrackIPHistograms<double>
        ("ip4_3D" + theExtensionString, "3D IP value 4.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   //2D
   tkcntHistosVal2D[4] = new TrackIPHistograms<double>
        ("ip_2D" + theExtensionString, "2D IP value",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal2D[0] = new TrackIPHistograms<double>
        ("ip1_2D" + theExtensionString, "2D IP value 1.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal2D[1] = new TrackIPHistograms<double>
        ("ip2_2D" + theExtensionString, "2D IP value 2.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal2D[2] = new TrackIPHistograms<double>
        ("ip3_2D" + theExtensionString, "2D IP value 3.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosVal2D[3] = new TrackIPHistograms<double>
        ("ip4_2D" + theExtensionString, "2D IP value 4.trk",
-	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
 
   // IP error
   // 3D
   tkcntHistosErr3D[4] = new TrackIPHistograms<double>
        ("ipe_3D" + theExtensionString, "3D IP error",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr3D[0] = new TrackIPHistograms<double>
        ("ipe1_3D" + theExtensionString, "3D IP error 1.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr3D[1] = new TrackIPHistograms<double>
        ("ipe2_3D" + theExtensionString, "3D IP error 2.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr3D[2] = new TrackIPHistograms<double>
        ("ipe3_3D" + theExtensionString, "3D IP error 3.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr3D[3] = new TrackIPHistograms<double>
        ("ipe4_3D" + theExtensionString, "3D IP error 4.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   //2D
   tkcntHistosErr2D[4] = new TrackIPHistograms<double>
        ("ipe_2D" + theExtensionString, "2D IP error",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr2D[0] = new TrackIPHistograms<double>
        ("ipe1_2D" + theExtensionString, "2D IP error 1.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr2D[1] = new TrackIPHistograms<double>
        ("ipe2_2D" + theExtensionString, "2D IP error 2.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr2D[2] = new TrackIPHistograms<double>
        ("ipe3_2D" + theExtensionString, "2D IP error 3.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosErr2D[3] = new TrackIPHistograms<double>
        ("ipe4_2D" + theExtensionString, "2D IP error 4.trk",
-	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	nBinsIPE, lowerIPEBound, upperIPEBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   // decay length
   tkcntHistosDecayLengthVal2D[4] = new TrackIPHistograms<double>
        ("decLen_2D" + theExtensionString, "Decay Length 2D",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal2D[0] = new TrackIPHistograms<double>
        ("decLen1_2D" + theExtensionString, "2D Decay Length 1.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal2D[1] = new TrackIPHistograms<double>
        ("decLen2_2D" + theExtensionString, "2D Decay Length 2.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal2D[2] = new TrackIPHistograms<double>
        ("decLen3_2D" + theExtensionString, "2D Decay Length 3.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal2D[3] = new TrackIPHistograms<double>
        ("decLen4_2D" + theExtensionString, "2D Decay Length 4.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal3D[4] = new TrackIPHistograms<double>
        ("decLen_3D" + theExtensionString, "3D Decay Length",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal3D[0] = new TrackIPHistograms<double>
        ("decLen1_3D" + theExtensionString, "3D Decay Length 1.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal3D[1] = new TrackIPHistograms<double>
        ("decLen2_3D" + theExtensionString, "3D Decay Length 2.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal3D[2] = new TrackIPHistograms<double>
        ("decLen3_3D" + theExtensionString, "3D Decay Length 3.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosDecayLengthVal3D[3] = new TrackIPHistograms<double>
        ("decLen4_3D" + theExtensionString, "3D Decay Length 4.trk",
-	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 5.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   // jet distance
   tkcntHistosJetDistVal2D[4] = new TrackIPHistograms<double>
        ("jetDist_2D" + theExtensionString, "JetDistance 2D",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal2D[0] = new TrackIPHistograms<double>
        ("jetDist1_2D" + theExtensionString, "JetDistance 2D 1.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal2D[1] = new TrackIPHistograms<double>
        ("jetDist2_2D" + theExtensionString, "JetDistance 2D 2.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal2D[2] = new TrackIPHistograms<double>
        ("jetDist3_2D" + theExtensionString, "JetDistance 2D 3.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal2D[3] = new TrackIPHistograms<double>
        ("jetDist4_2D" + theExtensionString, "JetDistance 2D 4.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal3D[4] = new TrackIPHistograms<double>
        ("jetDist_3D" + theExtensionString, "JetDistance 3D",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal3D[0] = new TrackIPHistograms<double>
        ("jetDist1_3D" + theExtensionString, "JetDistance 3D 1.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal3D[1] = new TrackIPHistograms<double>
        ("jetDist2_3D" + theExtensionString, "JetDistance 3D 2.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal3D[2] = new TrackIPHistograms<double>
        ("jetDist3_3D" + theExtensionString, "JetDistance 3D 3.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistVal3D[3] = new TrackIPHistograms<double>
        ("jetDist4_3D" + theExtensionString, "JetDistance 3D 4.trk",
-	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   /* // the jet distance significance return always 0 => disabled
   tkcntHistosJetDistSign2D[4] = new TrackIPHistograms<double>
        ("jetDistSig_2D" + theExtensionString, "JetDistance Sign 2D",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign2D[0] = new TrackIPHistograms<double>
        ("jetDistSig1_2D" + theExtensionString, "JetDistance Sign 2D 1.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign2D[1] = new TrackIPHistograms<double>
        ("jetDistSig2_2D" + theExtensionString, "JetDistance Sign 2D 2.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign2D[2] = new TrackIPHistograms<double>
        ("jetDistSig3_2D" + theExtensionString, "JetDistance Sign 2D 3.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign2D[3] = new TrackIPHistograms<double>
        ("jetDistSig4_2D" + theExtensionString, "JetDistance Sign 2D 4.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign3D[4] = new TrackIPHistograms<double>
        ("jetDistSig_3D" + theExtensionString, "JetDistance Sign 3D",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign3D[0] = new TrackIPHistograms<double>
        ("jetDistSig1_3D" + theExtensionString, "JetDistance Sign 3D 1.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign3D[1] = new TrackIPHistograms<double>
        ("jetDistSig2_3D" + theExtensionString, "JetDistance Sign 3D 2.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign3D[2] = new TrackIPHistograms<double>
        ("jetDistSig3_3D" + theExtensionString, "JetDistance Sign 3D 3.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosJetDistSign3D[3] = new TrackIPHistograms<double>
        ("jetDistSig4_3D" + theExtensionString, "JetDistance Sign 3D 4.trk",
-	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   */
   // track chi-squared
   tkcntHistosTkNChiSqr2D[4] = new TrackIPHistograms<double>
        ("tkNChiSqr_2D" + theExtensionString, "Normalized Chi Squared 2D",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr2D[0] = new TrackIPHistograms<double>
        ("tkNChiSqr1_2D" + theExtensionString, "Normalized Chi Squared 2D 1.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr2D[1] = new TrackIPHistograms<double>
        ("tkNChiSqr2_2D" + theExtensionString, "Normalized Chi Squared 2D 2.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr2D[2] = new TrackIPHistograms<double>
        ("tkNChiSqr3_2D" + theExtensionString, "Normalized Chi Squared 2D 3.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr2D[3] = new TrackIPHistograms<double>
        ("tkNChiSqr4_2D" + theExtensionString, "Normalized Chi Squared 2D 4.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr3D[4] = new TrackIPHistograms<double>
        ("tkNChiSqr_3D" + theExtensionString, "Normalized Chi Squared 3D",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr3D[0] = new TrackIPHistograms<double>
        ("tkNChiSqr1_3D" + theExtensionString, "Normalized Chi Squared 3D 1.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr3D[1] = new TrackIPHistograms<double>
        ("tkNChiSqr2_3D" + theExtensionString, "Normalized Chi Squared 3D 2.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr3D[2] = new TrackIPHistograms<double>
        ("tkNChiSqr3_3D" + theExtensionString, "Normalized Chi Squared 3D 3.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNChiSqr3D[3] = new TrackIPHistograms<double>
        ("tkNChiSqr4_3D" + theExtensionString, "Normalized Chi Squared 3D 4.trk",
-        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 10.0, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   // track pT
   tkcntHistosTkPt2D[4] = new TrackIPHistograms<double>
        ("tkPt_2D" + theExtensionString, "Track Pt 2D",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt2D[0] = new TrackIPHistograms<double>
        ("tkPt1_2D" + theExtensionString, "Track Pt 2D 1.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt2D[1] = new TrackIPHistograms<double>
        ("tkPt2_2D" + theExtensionString, "Track Pt 2D 2.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt2D[2] = new TrackIPHistograms<double>
        ("tkPt3_2D" + theExtensionString, "Track Pt 2D 3.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt2D[3] = new TrackIPHistograms<double>
        ("tkPt4_2D" + theExtensionString, "Track Pt 2D 4.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt3D[4] = new TrackIPHistograms<double>
        ("tkPt_3D" + theExtensionString, "Track Pt 3D",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt3D[0] = new TrackIPHistograms<double>
        ("tkPt1_3D" + theExtensionString, "Track Pt 3D 1.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt3D[1] = new TrackIPHistograms<double>
        ("tkPt2_3D" + theExtensionString, "Track Pt 3D 2.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt3D[2] = new TrackIPHistograms<double>
        ("tkPt3_3D" + theExtensionString, "Track Pt 3D 3.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkPt3D[3] = new TrackIPHistograms<double>
        ("tkPt4_3D" + theExtensionString, "Track Pt 3D 4.trk",
-        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        50, -0.1, 50.1, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   // track nHits
   tkcntHistosTkNHits2D[4] = new TrackIPHistograms<int>
        ("tkNHits_2D" + theExtensionString, "Track NHits 2D",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits2D[0] = new TrackIPHistograms<int>
        ("tkNHits1_2D" + theExtensionString, "Track NHits 2D 1.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits2D[1] = new TrackIPHistograms<int>
        ("tkNHits2_2D" + theExtensionString, "Track NHits 2D 2.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits2D[2] = new TrackIPHistograms<int>
        ("tkNHits3_2D" + theExtensionString, "Track NHits 2D 3.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits2D[3] = new TrackIPHistograms<int>
        ("tkNHits4_2D" + theExtensionString, "Track NHits 2D 4.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits3D[4] = new TrackIPHistograms<int>
        ("tkNHits_3D" + theExtensionString, "Track NHits 3D",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits3D[0] = new TrackIPHistograms<int>
        ("tkNHits1_3D" + theExtensionString, "Track NHits 3D 1.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits3D[1] = new TrackIPHistograms<int>
        ("tkNHits2_3D" + theExtensionString, "Track NHits 3D 2.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits3D[2] = new TrackIPHistograms<int>
        ("tkNHits3_3D" + theExtensionString, "Track NHits 3D 3.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNHits3D[3] = new TrackIPHistograms<int>
        ("tkNHits4_3D" + theExtensionString, "Track NHits 3D 4.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   //Pixel hits
   tkcntHistosTkNPixelHits2D[4] = new TrackIPHistograms<int>
        ("tkNPixelHits_2D" + theExtensionString, "Track NPixelHits 2D",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits2D[0] = new TrackIPHistograms<int>
        ("tkNPixelHits1_2D" + theExtensionString, "Track NPixelHits 2D 1.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits2D[1] = new TrackIPHistograms<int>
        ("tkNPixelHits2_2D" + theExtensionString, "Track NPixelHits 2D 2.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits2D[2] = new TrackIPHistograms<int>
        ("tkNPixelHits3_2D" + theExtensionString, "Track NPixelHits 2D 3.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits2D[3] = new TrackIPHistograms<int>
        ("tkNPixelHits4_2D" + theExtensionString, "Track NPixelHits 2D 4.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits3D[4] = new TrackIPHistograms<int>
        ("tkNPixelHits_3D" + theExtensionString, "Track NPixelHits 3D",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits3D[0] = new TrackIPHistograms<int>
        ("tkNPixelHits1_3D" + theExtensionString, "Track NPixelHits 3D 1.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits3D[1] = new TrackIPHistograms<int>
        ("tkNPixelHits2_3D" + theExtensionString, "Track NPixelHits 3D 2.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits3D[2] = new TrackIPHistograms<int>
        ("tkNPixelHits3_3D" + theExtensionString, "Track NPixelHits 3D 3.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosTkNPixelHits3D[3] = new TrackIPHistograms<int>
        ("tkNPixelHits4_3D" + theExtensionString, "Track NPixelHits 3D 4.trk",
-        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   // probability
   tkcntHistosProb3D[4] = new TrackIPHistograms<float>
        ("prob_3D" + theExtensionString, "3D IP probability",
-	50, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	50, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb3D[0] = new TrackIPHistograms<float>
        ("prob1_3D" + theExtensionString, "3D IP probability 1.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb3D[1] = new TrackIPHistograms<float>
        ("prob2_3D" + theExtensionString, "3D IP probability 2.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb3D[2] = new TrackIPHistograms<float>
        ("prob3_3D" + theExtensionString, "3D IP probability 3.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb3D[3] = new TrackIPHistograms<float>
        ("prob4_3D" + theExtensionString, "3D IP probability 4.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb2D[4] = new TrackIPHistograms<float>
        ("prob_2D" + theExtensionString, "2D IP probability",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb2D[0] = new TrackIPHistograms<float>
        ("prob1_2D" + theExtensionString, "2D IP probability 1.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb2D[1] = new TrackIPHistograms<float>
        ("prob2_2D" + theExtensionString, "2D IP probability 2.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb2D[2] = new TrackIPHistograms<float>
        ("prob3_2D" + theExtensionString, "2D IP probability 3.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   tkcntHistosProb2D[3] = new TrackIPHistograms<float>
        ("prob4_2D" + theExtensionString, "2D IP probability 4.trk",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   //probability for tracks with IP value < 0 or IP value > 0
   tkcntHistosTkProbIPneg2D = new TrackIPHistograms<float>
        ("probIPneg_2D" + theExtensionString, "2D negative IP probability",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   tkcntHistosTkProbIPpos2D = new TrackIPHistograms<float>
        ("probIPpos_2D" + theExtensionString, "2D positive IP probability",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   tkcntHistosTkProbIPneg3D = new TrackIPHistograms<float>
        ("probIPneg_3D" + theExtensionString, "3D negative IP probability",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   tkcntHistosTkProbIPpos3D = new TrackIPHistograms<float>
        ("probIPpos_3D" + theExtensionString, "3D positive IP probability",
-	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   //ghost Tracks and others
   ghostTrackDistanceValuHisto = new TrackIPHistograms<double>
        ("ghostTrackDist" + theExtensionString, "GhostTrackDistance",
-	50, 0.0, 0.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 0.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   ghostTrackDistanceSignHisto = new TrackIPHistograms<double>
        ("ghostTrackDistSign" + theExtensionString, "GhostTrackDistance significance",
-	50, -5.0, 15.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, -5.0, 15.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
   ghostTrackWeightHisto = new TrackIPHistograms<double>
        ("ghostTrackWeight" + theExtensionString, "GhostTrack fit participation weight",
-	50, 0.0, 1.0, false, false, true, "b", update,trackIPDir, mc, makeQualityPlots_);
+	50, 0.0, 1.0, false, false, true, "b", update,trackIPDir, mc, makeQualityPlots_, ibook) ;
 
   trackQualHisto = new FlavourHistograms<int>
        ("trackQual" + theExtensionString, "Track Quality of Tracks Associated to Jets",
-        4, -1.5, 2.5, false, true, true, "b", update, trackIPDir, mc);
+        4, -1.5, 2.5, false, true, true, "b", update, trackIPDir, mc, ibook);
 
   selectedTrackQualHisto = new FlavourHistograms<int>
        ("selectedTrackQual" + theExtensionString, "Track Quality of Selected Tracks Associated to Jets",
-        4, -1.5, 2.5, false, true, true, "b", update, trackIPDir, mc);
+        4, -1.5, 2.5, false, true, true, "b", update, trackIPDir, mc, ibook);
 
   trackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
        ("trackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Tracks Associated to Jets",
-        50, 0.0, 250.0, 21, -0.5, 30.5, false, update, trackIPDir, mc, true);
+        50, 0.0, 250.0, 21, -0.5, 30.5, false, update, trackIPDir, mc, true, ibook);
 
   selectedTrackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
        ("selectedTrackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Selected Tracks Associated to Jets",
-        50, 0.0, 250.0, 21, -0.5, 20.5, false, update, trackIPDir, mc, true);
+        50, 0.0, 250.0, 21, -0.5, 20.5, false, update, trackIPDir, mc, true, ibook);
 
-  if (willFinalize_) createPlotsForFinalize();
+  if (willFinalize_) createPlotsForFinalize(ibook);
 
 }
 
@@ -588,11 +590,13 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
 }
 
 void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+				    const double & jec,
 				    const int & jetFlavour)
 {
-  analyzeTag(baseTagInfo,jetFlavour,1.);
+  analyzeTag(baseTagInfo, jec, jetFlavour, 1.);
 }
 void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+				    const double & jec,
 				    const int & jetFlavour, const float & w)
 {
   const reco::TrackIPTagInfo * tagInfo = 
@@ -766,24 +770,24 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   }
 
   //still need to implement weights in FlavourHistograms2D
-  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), tagInfo->tracks().size());
-  selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), nSelectedTracks); //tagInfo->selectedTracks().size());
+  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, tagInfo->tracks().size());
+  selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, nSelectedTracks); //tagInfo->selectedTracks().size());
 }
 
-void TrackIPTagPlotter::createPlotsForFinalize (){
+void TrackIPTagPlotter::createPlotsForFinalize (DQMStore::IBooker & ibook){
   const std::string trackIPDir(theExtensionString.substr(1));
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_, 
-		nBinEffPur_, startEffPur_,
-		endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_,
-		nBinEffPur_, startEffPur_,
-		endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_,
-		nBinEffPur_, startEffPur_,
-		endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_,
-		nBinEffPur_, startEffPur_,
-		endEffPur_);
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_, ibook, 
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_, ibook,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_, ibook,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_, ibook,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
 }
 
 
@@ -794,19 +798,19 @@ void TrackIPTagPlotter::finalize ()
   // produce the misid. vs. eff histograms
   //
   const std::string trackIPDir(theExtensionString.substr(1));
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_,
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_,
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_,
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_,
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_, ibook_,
 					      nBinEffPur_, startEffPur_,
 					      endEffPur_);
-  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
+  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute(ibook_);
   finalized = true;
 }
 

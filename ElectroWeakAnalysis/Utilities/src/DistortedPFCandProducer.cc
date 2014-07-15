@@ -3,6 +3,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 
@@ -19,9 +24,9 @@ class DistortedPFCandProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-      edm::InputTag muonTag_;
-      edm::InputTag pfTag_;
-      edm::InputTag genMatchMapTag_;
+      edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+      edm::EDGetTokenT<reco::GenParticleMatch> genMatchMapToken_;
+      edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfToken_;
       std::vector<double> etaBinEdges_;
 
       std::vector<double> shiftOnOneOverPt_; // in [1/GeV]
@@ -35,12 +40,8 @@ class DistortedPFCandProducer : public edm::EDProducer {
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include <CLHEP/Random/RandFlat.h>
@@ -53,9 +54,9 @@ DistortedPFCandProducer::DistortedPFCandProducer(const edm::ParameterSet& pset) 
       produces<std::vector<reco::PFCandidate> >();
 
   // Input products
-      muonTag_ = pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"));
-      pfTag_ = pset.getUntrackedParameter<edm::InputTag> ("PFTag", edm::InputTag("particleFlow"));
-      genMatchMapTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenMatchMapTag", edm::InputTag("genMatchMap"));
+      muonToken_ = consumes<edm::View<reco::Muon> >(pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons")));
+      genMatchMapToken_ = consumes<reco::GenParticleMatch>(pset.getUntrackedParameter<edm::InputTag> ("GenMatchMapTag", edm::InputTag("genMatchMap")));
+      pfToken_ = consumes<edm::View<reco::PFCandidate> >(pset.getUntrackedParameter<edm::InputTag> ("PFTag", edm::InputTag("particleFlow")));
 
   // Eta edges
       std::vector<double> defEtaEdges;
@@ -98,15 +99,15 @@ DistortedPFCandProducer::DistortedPFCandProducer(const edm::ParameterSet& pset) 
 
   // Send a warning if there are inconsistencies in vector sizes !!
       bool effWrong = efficiencyRatioOverMC_.size()!=ninputs_expected;
-      bool momWrong =    shiftOnOneOverPt_.size()!=ninputs_expected 
-                      || relativeShiftOnPt_.size()!=ninputs_expected 
-                      || uncertaintyOnOneOverPt_.size()!=ninputs_expected 
+      bool momWrong =    shiftOnOneOverPt_.size()!=ninputs_expected
+                      || relativeShiftOnPt_.size()!=ninputs_expected
+                      || uncertaintyOnOneOverPt_.size()!=ninputs_expected
                       || relativeUncertaintyOnPt_.size()!=ninputs_expected;
       if ( effWrong and momWrong) {
            edm::LogError("") << "WARNING: DistortedPFCandProducer : Size of some parameters do not match the EtaBinEdges vector!!";
       }
 
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 DistortedPFCandProducer::~DistortedPFCandProducer(){
@@ -127,28 +128,28 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 
       // Muon collection
       edm::Handle<edm::View<reco::Muon> > muonCollection;
-      if (!ev.getByLabel(muonTag_, muonCollection)) {
+      if (!ev.getByToken(muonToken_, muonCollection)) {
             edm::LogError("") << ">>> Muon collection does not exist !!!";
             return;
       }
 
       edm::Handle<reco::GenParticleMatch> genMatchMap;
-      if (!ev.getByLabel(genMatchMapTag_, genMatchMap)) {
+      if (!ev.getByToken(genMatchMapToken_, genMatchMap)) {
             edm::LogError("") << ">>> Muon-GenParticle match map does not exist !!!";
             return;
       }
-  
+
 
       // Get PFCandidate collection
       edm::Handle<edm::View<reco::PFCandidate> > pfCollection;
-      if (!ev.getByLabel(pfTag_, pfCollection)) {
+      if (!ev.getByToken(pfToken_, pfCollection)) {
             edm::LogError("") << ">>> PFCandidate collection does not exist !!!";
             return;
       }
 
       unsigned int muonCollectionSize = muonCollection->size();
       unsigned int pfCollectionSize = pfCollection->size();
-      
+
       if (pfCollectionSize<1) return;
 
 
@@ -182,7 +183,7 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
                          ( !mu->isGlobalMuon()  || ( mu->isGlobalMuon() &&  ptmu != muref->combinedMuon()->pt() ) ) &&
                          ( !mu->isTrackerMuon() || ( mu->isTrackerMuon() && ptmu != mu->track()->pt() ) ) )
                        ) {
-                        pfMuonFound = false; 
+                        pfMuonFound = false;
                     }
 	            else if ( !mu->isTrackerMuon() ){
                         pfMuonFound = false;
@@ -197,7 +198,7 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 
           // do nothing if StandAlone muon
           //const reco::Track& track = *trackRef;
-          
+
           if ( !pfMuonFound) continue;
 
 	  double ptgen = pf->pt();
@@ -212,7 +213,7 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 	  } else {
 	    LogTrace("") << ">>> MUON-GENPARTICLE MATCH NOT FOUND!!!";
 	  }
-     
+
 
 	  // Initialize parameters
 	  double effRatio = 0.;
@@ -239,25 +240,25 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 	    pfMuonFound = false;
 	    continue;
 	  }
-	  
+
           if (!pfMuonFound) continue;
 
 	  // Set shifts
 	  shift1 = shiftOnOneOverPt_[etaBin];
 	  shift2 = relativeShiftOnPt_[etaBin];
-	  LogTrace("") << "\tshiftOnOneOverPt= " << shift1*100 << " [%]"; 
-	  LogTrace("") << "\trelativeShiftOnPt= " << shift2*100 << " [%]"; 
-	  
+	  LogTrace("") << "\tshiftOnOneOverPt= " << shift1*100 << " [%]";
+	  LogTrace("") << "\trelativeShiftOnPt= " << shift2*100 << " [%]";
+
 	  // Set resolutions
 	  sigma1 = uncertaintyOnOneOverPt_[etaBin];
 	  sigma2 = relativeUncertaintyOnPt_[etaBin];
-	  LogTrace("") << "\tuncertaintyOnOneOverPt= " << sigma1 << " [1/GeV]"; 
-	  LogTrace("") << "\trelativeUncertaintyOnPt= " << sigma2*100 << " [%]"; 
-	  
+	  LogTrace("") << "\tuncertaintyOnOneOverPt= " << sigma1 << " [1/GeV]";
+	  LogTrace("") << "\trelativeUncertaintyOnPt= " << sigma2*100 << " [%]";
+
 	  // Set efficiency ratio
 	  effRatio = efficiencyRatioOverMC_[etaBin];
 	  LogTrace("") << "\tefficiencyRatioOverMC= " << effRatio;
-	  
+
 	  // Reject muons according to efficiency ratio
 	  double rndf = CLHEP::RandFlat::shoot();
 	  if (rndf>effRatio) continue;
@@ -265,9 +266,9 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 	  // Gaussian Random numbers for smearing
 	  double rndg1 = CLHEP::RandGauss::shoot();
 	  double rndg2 = CLHEP::RandGauss::shoot();
-            
-            
-	  // change here the pt of the candidate, if it is a muon 
+
+
+	  // change here the pt of the candidate, if it is a muon
 
 	  ptmu += ptgen * ( shift1*ptgen + shift2 + sigma1*rndg1*ptgen + sigma2*rndg2);
 	  pfMuonFound = false ;
@@ -280,11 +281,11 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 							  ptmu, pf->eta(), pf->phi(), pf->mass()
 							  )
 		      );
-	
+
 	newmuons->push_back(*newmu);
       }
 
- 
+
 	ev.put(newmuons);
 
 

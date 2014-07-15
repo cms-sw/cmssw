@@ -19,7 +19,7 @@ class BoundDiskSector GCC11_FINAL : public Plane {
   
   float innerRadius() const { return bounds().innerRadius();}
   float outerRadius() const  { return bounds().outerRadius();}
-  float phiExtension() const  { return bounds().phiExtension();}
+  float phiHalfExtension() const  { return bounds().phiHalfExtension();}
 
   // hide
   DiskSectorBounds const & bounds() const {

@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 
@@ -56,7 +57,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
- class SiPixelClusterSource : public edm::EDAnalyzer {
+ class SiPixelClusterSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelClusterSource(const edm::ParameterSet& conf);
        ~SiPixelClusterSource();
@@ -65,11 +66,11 @@
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob() ;
-       virtual void endJob() ;
-       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs();
+       virtual void bookMEs(DQMStore::IBooker &);
 
     private:
        edm::ParameterSet conf_;
@@ -78,7 +79,6 @@
        bool isPIB;
        bool slowDown;
        int eventNo;
-       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;
        bool modOn; 
        bool twoDimOn;
@@ -94,14 +94,18 @@
        int nBigEvents;
        MonitorElement* bigFpixClusterEventRate;
        int bigEventSize;
+       bool isUpgrade;
 
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;
   MonitorElement* meClPosLayer3;
+  MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk3pz;
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
+  MonitorElement* meClPosDisk3mz;
 
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;

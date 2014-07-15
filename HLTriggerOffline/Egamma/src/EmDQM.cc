@@ -11,10 +11,6 @@ using namespace ROOT::Math::VectorUtil ;
 ////////////////////////////////////////////////////////////////////////////////
 EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_) 
 {
-
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(0);
-
   // are we running in automatic configuration mode with the HLTConfigProvider
   // or with a per path python config file
   autoConfMode_ = pset.getUntrackedParameter<bool>("autoConfMode", false);
@@ -55,6 +51,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   if (autoConfMode_) {
     gencutColl_fidWenu_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialWenu"));
     gencutColl_fidZee_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialZee"));
+    gencutColl_fidTripleEle_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialTripleEle"));
     gencutColl_fidGammaJet_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialGammaJet"));
     gencutColl_fidDiGamma_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialDiGamma"));
   } else {
@@ -72,7 +69,7 @@ EmDQM::beginJob()
 }
 
 void 
-EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
+EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 {
    bool changed(true);
    if (hltConfig_.init(iRun, iSetup, triggerObject_.process(), changed)) {
@@ -87,7 +84,42 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
            edm::LogPrint("EmDQM") << "processName=" << hltConfig_.processName();
            edm::LogPrint("EmDQM") << "tableName=" << hltConfig_.tableName();
            edm::LogPrint("EmDQM") << "size=" << hltConfig_.size();
+           edm::LogInfo("EmDQM") << "The following filter types are not analyzed: \n" 
+                                  << "\tHLTGlobalSumsMET\n"
+                                  << "\tHLTHtMhtFilter\n"
+                                  << "\tHLTMhtFilter\n"
+                                  << "\tHLTJetTag\n"
+                                  << "\tHLT1CaloJet\n"
+                                  << "\tHLT1CaloMET\n"
+                                  << "\tHLT1CaloBJet\n"
+                                  << "\tHLT1Tau\n"
+                                  << "\tHLT1PFTau\n"
+                                  << "\tPFTauSelector\n"
+                                  << "\tHLT1PFJet\n"
+                                  << "\tHLTPFJetCollectionsFilter\n"
+                                  << "\tHLTPFJetCollectionsVBFFilter\n"
+                                  << "\tHLTPFJetTag\n"
+                                  << "\tEtMinCaloJetSelector\n"
+                                  << "\tEtMinPFJetSelector\n"
+                                  << "\tLargestEtCaloJetSelector\n"
+                                  << "\tLargestEtPFJetSelector\n"
+                                  << "\tHLTEgammaTriggerFilterObjectWrapper\n"
+                                  << "\tHLTEgammaDoubleLegCombFilter\n"
+                                  << "\tHLT2ElectronTau\n"
+                                  << "\tHLT2ElectronMET\n"
+                                  << "\tHLT2ElectronPFTau\n"
+                                  << "\tHLTPMMassFilter\n"
+                                  << "\tHLTHcalTowerFilter\n"
+                                  << "\tHLT1Photon\n"
+                                  << "\tHLTRFilter\n"
+                                  << "\tHLTRHemisphere\n"
+                                  << "\tHLTElectronPFMTFilter\n"
+                                  << "\tPrimaryVertexObjectFilter\n"
+                                  << "\tHLTEgammaAllCombMassFilter\n"
+                                  << "\tHLTMuon*\n"
+                                  ;
         }
+
 
         // All electron and photon paths
         std::vector<std::vector<std::string> > egammaPaths = findEgammaPaths();
@@ -100,6 +132,25 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
         std::vector<std::string> filterModules;
 
         for (unsigned int j=0; j < egammaPaths.size() ; j++) {
+           if (verbosity_ >= OUTPUT_ALL) {
+              switch(j) {
+                 case TYPE_SINGLE_ELE:
+                    edm::LogPrint("EmDQM") << "/////////////////////////////////////////\nSingle electron paths: ";
+                    break;
+                 case TYPE_DOUBLE_ELE:
+                    edm::LogPrint("EmDQM") << "/////////////////////////////////////////\nDouble electron paths: ";
+                    break;
+                 case TYPE_TRIPLE_ELE:
+                    edm::LogPrint("EmDQM") << "/////////////////////////////////////////\nTriple electron paths: ";
+                    break;
+                 case TYPE_SINGLE_PHOTON:
+                    edm::LogPrint("EmDQM") << "/////////////////////////////////////////\nSingle photon paths: ";
+                    break;
+                 case TYPE_DOUBLE_PHOTON:
+                    edm::LogPrint("EmDQM") << "/////////////////////////////////////////\nDouble photon paths: ";
+                    break;
+              }
+           }
 
            for (unsigned int i=0; i < egammaPaths.at(j).size() ; i++) {
               // get pathname of this trigger 
@@ -157,7 +208,7 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                  case TYPE_TRIPLE_ELE:
                     paramSet.addParameter<unsigned>("reqNum", 3);
                     paramSet.addParameter<int>("pdgGen", 11);
-                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialZee"));
+                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialTripleEle"));
                     paramSet.addParameter<int>("cutnum", 3);
                     break;
                  case TYPE_SINGLE_PHOTON:
@@ -223,20 +274,37 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                     filterPSet = makePSetForEgammaDoubleEtDeltaPhiFilter(moduleLabel);
                  }
                  else if (moduleType == "HLTGlobalSumsMET"
-                          || moduleType == "HLTMhtHtFilter"
+                          || moduleType == "HLTHtMhtFilter"
+                          || moduleType == "HLTMhtFilter"
                           || moduleType == "HLTJetTag"
                           || moduleType == "HLT1CaloJet"
+                          || moduleType == "HLT1CaloMET"
                           || moduleType == "HLT1CaloBJet"
                           || moduleType == "HLT1Tau"
+                          || moduleType == "HLT1PFTau"
                           || moduleType == "PFTauSelector"
+                          || moduleType == "HLT1PFJet"
+                          || moduleType == "HLTPFJetCollectionsFilter"
+                          || moduleType == "HLTPFJetCollectionsVBFFilter"
+                          || moduleType == "HLTPFJetTag"
                           || moduleType == "EtMinCaloJetSelector"
+                          || moduleType == "EtMinPFJetSelector"
                           || moduleType == "LargestEtCaloJetSelector"
+                          || moduleType == "LargestEtPFJetSelector"
                           || moduleType == "HLTEgammaTriggerFilterObjectWrapper"  // 'fake' filter
                           || moduleType == "HLTEgammaDoubleLegCombFilter" // filter does not put anything in TriggerEventWithRefs
-                          //|| moduleType == "HLT2ElectronTau"
+                          || moduleType == "HLT2ElectronMET"
+                          || moduleType == "HLT2ElectronTau"
+                          || moduleType == "HLT2ElectronPFTau"
                           || moduleType == "HLTPMMassFilter"
                           || moduleType == "HLTHcalTowerFilter"
-                          //|| moduleType == "HLT1Photon"
+                          || moduleType == "HLT1Photon"
+                          || moduleType == "HLTRFilter"
+                          || moduleType == "HLTRHemisphere"
+                          || moduleType == "HLTElectronPFMTFilter"
+                          || moduleType == "PrimaryVertexObjectFilter"
+                          || moduleType == "HLTEgammaAllCombMassFilter"
+                          || moduleType.find("HLTMuon") != std::string::npos
                          )
                     continue;
                  else {
@@ -298,280 +366,13 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
       hltCollectionLabelsFoundPerPath.reserve(paramSets.size());
       hltCollectionLabelsMissedPerPath.reserve(paramSets.size());
+
       ////////////////////////////////////////////////////////////
       // loop over all the trigger path parameter sets
       ////////////////////////////////////////////////////////////
       for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
-         SetVarsFromPSet(psetIt);
          hltCollectionLabelsFoundPerPath.push_back(hltCollectionLabelsFound);
          hltCollectionLabelsMissedPerPath.push_back(hltCollectionLabelsMissed);
-
-         // if init returns TRUE, initialisation has succeeded!
-      
-         //edm::Service<TFileService> fs;
-         dbe->setCurrentFolder(dirname_);
-       
-         ////////////////////////////////////////////////////////////
-         //  Set up Histogram of Effiency vs Step.                 //
-         //   theHLTCollectionLabels is a vector of InputTags      //
-         //    from the configuration file.                        //
-         ////////////////////////////////////////////////////////////
-         // Et & eta distributions
-         std::vector<MonitorElement*> etahist;
-         std::vector<MonitorElement*> phihist;
-         std::vector<MonitorElement*> ethist;
-         std::vector<MonitorElement*> etahistmatch;
-         std::vector<MonitorElement*> phihistmatch;
-         std::vector<MonitorElement*> ethistmatch;
-         std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
-         std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
-         std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
-         // commented out because uses data not included in HTLDEBUG and uses getByLabel
-         // Isolation distributions
-         //std::vector<MonitorElement*> etahistiso;
-         //std::vector<MonitorElement*> phihistiso;
-         //std::vector<MonitorElement*> ethistiso;
-         //std::vector<MonitorElement*> etahistisomatch;
-         //std::vector<MonitorElement*> phihistisomatch;
-         //std::vector<MonitorElement*> ethistisomatch;
-         //std::vector<MonitorElement*> histEtIsoOfHltObjMatchToGen; 
-         //std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToGen;
-         //std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToGen;
-         // Plots of efficiency per step
-         MonitorElement* total;
-         MonitorElement* totalmatch;
-         //generator histograms
-         MonitorElement* etgen;
-         MonitorElement* etagen;
-         MonitorElement* phigen;
-      
-         std::string histName="total_eff";
-         std::string histTitle = "total events passing";
-         if (!mcMatchedOnly_) {
-            // This plot will have bins equal to 2+(number of
-            //        HLTCollectionLabels in the config file)
-            total = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
-            total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
-            total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
-            for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
-         }
-       
-         histName="total_eff_MC_matched";
-         histTitle="total events passing (mc matched)";
-         totalmatch = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
-         totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
-         totalmatch->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
-         for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
-       
-         MonitorElement* tmphisto;
-         //MonitorElement* tmpiso;
-       
-         ////////////////////////////////////////////////////////////
-         // Set up generator-level histograms                      //
-         ////////////////////////////////////////////////////////////
-         std::string pdgIdString;
-         switch(pdgGen) {
-         case 11:
-           pdgIdString="Electron";break;
-         case 22:
-           pdgIdString="Photon";break;
-         default:
-           pdgIdString="Particle";
-         }
-       
-         histName = "gen_et";
-         histTitle= "E_{T} of " + pdgIdString + "s" ;
-         etgen =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-         histName = "gen_eta";
-         histTitle= "#eta of "+ pdgIdString +"s " ;
-         etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-         histName = "gen_phi";
-         histTitle= "#phi of "+ pdgIdString +"s " ;
-         if (!noPhiPlots_) phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-       
-         ////////////////////////////////////////////////////////////
-         //  Set up histograms of HLT objects                      //
-         ////////////////////////////////////////////////////////////
-         // Determine what strings to use for histogram titles
-         std::vector<std::string> HltHistTitle;
-         if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles_ ) {
-           HltHistTitle = theHLTCollectionHumanNames;
-         } else {
-           for (unsigned int i =0; i < numOfHLTCollectionLabels; i++) {
-             HltHistTitle.push_back(theHLTCollectionLabels[i].label());
-           }
-         }
-        
-         for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
-           if (!mcMatchedOnly_) {
-              // Et distribution of HLT objects passing filter i
-              histName = theHLTCollectionLabels[i].label()+"et_all";
-              histTitle = HltHistTitle[i]+" Et (ALL)";
-              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-              ethist.push_back(tmphisto);
-              
-              // Eta distribution of HLT objects passing filter i
-              histName = theHLTCollectionLabels[i].label()+"eta_all";
-              histTitle = HltHistTitle[i]+" #eta (ALL)";
-              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-              etahist.push_back(tmphisto);          
-
-              if (!noPhiPlots_) {
-                // Phi distribution of HLT objects passing filter i
-                histName = theHLTCollectionLabels[i].label()+"phi_all";
-                histTitle = HltHistTitle[i]+" #phi (ALL)";
-                tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-                phihist.push_back(tmphisto);
-              }
-       
-        
-              // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-              histName  = theHLTCollectionLabels[i].label()+"et";
-              histTitle = HltHistTitle[i]+" Et";
-              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-              histEtOfHltObjMatchToGen.push_back(tmphisto);
-       
-              // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-              histName  = theHLTCollectionLabels[i].label()+"eta";
-              histTitle = HltHistTitle[i]+" eta";
-              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-              histEtaOfHltObjMatchToGen.push_back(tmphisto);
-       
-              if (!noPhiPlots_) {
-                // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-                histName  = theHLTCollectionLabels[i].label()+"phi";
-                histTitle = HltHistTitle[i]+" phi";
-                tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-                histPhiOfHltObjMatchToGen.push_back(tmphisto);
-              }
-          }
-       
-           // Et distribution of gen object matching HLT object passing filter i
-           histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
-           histTitle = HltHistTitle[i]+" Et (MC matched)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-           ethistmatch.push_back(tmphisto);
-           
-           // Eta distribution of gen object matching HLT object passing filter i
-           histName = theHLTCollectionLabels[i].label()+"eta_MC_matched";
-           histTitle = HltHistTitle[i]+" #eta (MC matched)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-           etahistmatch.push_back(tmphisto);
-       
-           if (!noPhiPlots_) {
-             // Phi distribution of gen object matching HLT object passing filter i
-             histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
-             histTitle = HltHistTitle[i]+" #phi (MC matched)";
-             tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-             phihistmatch.push_back(tmphisto);
-           }
-       
-       
-           // commented out because uses data not included in HTLDEBUG and uses getByLabel
-           //if (!plotiso[i]) {
-           //  tmpiso = NULL;
-           //  if (!mcMatchedOnly_) {
-           //     etahistiso.push_back(tmpiso);
-           //     phihistiso.push_back(tmpiso);
-           //     ethistiso.push_back(tmpiso);
-           //     histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //     histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //     histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //  }
-           //  etahistisomatch.push_back(tmpiso);
-           //  phihistisomatch.push_back(tmpiso);
-           //  ethistisomatch.push_back(tmpiso);
-           //} else {
-           //  if (!mcMatchedOnly_) {
-           //     // 2D plot: Isolation values vs eta for all objects
-           //     histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
-           //     histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     etahistiso.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs phi for all objects
-           //     histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
-           //     histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     phihistiso.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs et for all objects
-           //     histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
-           //     histTitle = HltHistTitle[i]+" isolation vs Et (all)";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     ethistiso.push_back(tmpiso);
-        
-           //     // 2D plot: Isolation values vs eta for HLT object that 
-           //     // is closest delta-R match to sorted gen particle(s)
-           //     histName  = theHLTCollectionLabels[i].label()+"eta_isolation";
-           //     histTitle = HltHistTitle[i]+" isolation vs #eta";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs phi for HLT object that
-           //     // is closest delta-R match to sorted gen particle(s)
-           //     histName  = theHLTCollectionLabels[i].label()+"phi_isolation";
-           //     histTitle = HltHistTitle[i]+" isolation vs #phi";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs et for HLT object that 
-           //     // is closest delta-R match to sorted gen particle(s)
-           //     histName  = theHLTCollectionLabels[i].label()+"et_isolation";
-           //     histTitle = HltHistTitle[i]+" isolation vs Et";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //  }
-       
-           //  // 2D plot: Isolation values vs eta for matched objects
-           //  histName  = theHLTCollectionLabels[i].label()+"eta_isolation_MC_matched";
-           //  histTitle = HltHistTitle[i]+" isolation vs #eta (mc matched)";
-           //  tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //  etahistisomatch.push_back(tmpiso);
-       
-           //  // 2D plot: Isolation values vs phi for matched objects
-           //  histName  = theHLTCollectionLabels[i].label()+"phi_isolation_MC_matched";
-           //  histTitle = HltHistTitle[i]+" isolation vs #phi (mc matched)";
-           //  tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //  phihistisomatch.push_back(tmpiso);
-       
-       
-           //  // 2D plot: Isolation values vs et for matched objects
-           //  histName  = theHLTCollectionLabels[i].label()+"et_isolation_MC_matched";
-           //  histTitle = HltHistTitle[i]+" isolation vs Et (mc matched)";
-           //  tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //  ethistisomatch.push_back(tmpiso);
-       
-           //} // END of HLT histograms
-         }
-
-         // Et & eta distributions
-         etahists.push_back(etahist);
-         phihists.push_back(phihist);
-         ethists.push_back(ethist);
-         etahistmatchs.push_back(etahistmatch);
-         phihistmatchs.push_back(phihistmatch);
-         ethistmatchs.push_back(ethistmatch);
-         histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
-         histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
-         histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
-         // commented out because uses data not included in HTLDEBUG and uses getByLabel
-         // Isolation distributions
-         //etahistisos.push_back(etahistiso);
-         //phihistisos.push_back(phihistiso);
-         //ethistisos.push_back(ethistiso);
-         //etahistisomatchs.push_back(etahistisomatch);
-         //phihistisomatchs.push_back(phihistisomatch);
-         //ethistisomatchs.push_back(ethistisomatch);
-         //histEtIsoOfHltObjMatchToGens.push_back(histEtIsoOfHltObjMatchToGen); 
-         //histEtaIsoOfHltObjMatchToGens.push_back(histEtaIsoOfHltObjMatchToGen);
-         //histPhiIsoOfHltObjMatchToGens.push_back(histPhiIsoOfHltObjMatchToGen);
-
-         totals.push_back(total);
-         totalmatchs.push_back(totalmatch);
-         etgens.push_back(etgen);
-         etagens.push_back(etagen);
-         phigens.push_back(phigen);
       }
 
       if (changed) {
@@ -584,6 +385,196 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       if (verbosity_ >= OUTPUT_ERRORS)
          edm::LogError("EmDQM") << " HLT config extraction failure with process name '" << triggerObject_.process() << "'.";
       // In this case, all access methods will return empty values!
+   }
+}
+
+void 
+EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup)
+{
+   ////////////////////////////////////////////////////////////
+   // loop over all the trigger path parameter sets
+   ////////////////////////////////////////////////////////////
+   for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
+      SetVarsFromPSet(psetIt);
+
+      iBooker.setCurrentFolder(dirname_);
+    
+      ////////////////////////////////////////////////////////////
+      //  Set up Histogram of Effiency vs Step.                 //
+      //   theHLTCollectionLabels is a vector of InputTags      //
+      //    from the configuration file.                        //
+      ////////////////////////////////////////////////////////////
+      // Et & eta distributions
+      std::vector<MonitorElement*> etahist;
+      std::vector<MonitorElement*> phihist;
+      std::vector<MonitorElement*> ethist;
+      std::vector<MonitorElement*> etahistmatch;
+      std::vector<MonitorElement*> phihistmatch;
+      std::vector<MonitorElement*> ethistmatch;
+      std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
+      std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
+      std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
+      // Plots of efficiency per step
+      MonitorElement* total;
+      MonitorElement* totalmatch;
+      //generator histograms
+      MonitorElement* etgen;
+      MonitorElement* etagen;
+      MonitorElement* phigen;
+   
+      std::string histName="total_eff";
+      std::string histTitle = "total events passing";
+      if (!mcMatchedOnly_) {
+         // This plot will have bins equal to 2+(number of
+         //        HLTCollectionLabels in the config file)
+         total = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+         total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
+         total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
+         for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
+            total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+         }
+      }
+    
+      histName="total_eff_MC_matched";
+      histTitle="total events passing (mc matched)";
+      totalmatch = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+      totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
+      totalmatch->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
+      for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
+         totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+      }
+    
+      MonitorElement* tmphisto;
+      //MonitorElement* tmpiso;
+    
+      ////////////////////////////////////////////////////////////
+      // Set up generator-level histograms                      //
+      ////////////////////////////////////////////////////////////
+      std::string pdgIdString;
+      switch(pdgGen) {
+      case 11:
+        pdgIdString="Electron";break;
+      case 22:
+        pdgIdString="Photon";break;
+      default:
+        pdgIdString="Particle";
+      }
+    
+      histName = "gen_et";
+      histTitle= "E_{T} of " + pdgIdString + "s" ;
+      etgen =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+      histName = "gen_eta";
+      histTitle= "#eta of "+ pdgIdString +"s " ;
+      etagen = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+      histName = "gen_phi";
+      histTitle= "#phi of "+ pdgIdString +"s " ;
+      if (!noPhiPlots_) phigen = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+    
+      ////////////////////////////////////////////////////////////
+      //  Set up histograms of HLT objects                      //
+      ////////////////////////////////////////////////////////////
+      // Determine what strings to use for histogram titles
+      std::vector<std::string> HltHistTitle;
+      if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles_ ) {
+        HltHistTitle = theHLTCollectionHumanNames;
+      } else {
+        for (unsigned int i =0; i < numOfHLTCollectionLabels; i++) {
+          HltHistTitle.push_back(theHLTCollectionLabels[i].label());
+        }
+      }
+     
+      for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
+        if (!mcMatchedOnly_) {
+           // Et distribution of HLT objects passing filter i
+           histName = theHLTCollectionLabels[i].label()+"et_all";
+           histTitle = HltHistTitle[i]+" Et (ALL)";
+           tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+           ethist.push_back(tmphisto);
+           
+           // Eta distribution of HLT objects passing filter i
+           histName = theHLTCollectionLabels[i].label()+"eta_all";
+           histTitle = HltHistTitle[i]+" #eta (ALL)";
+           tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+           etahist.push_back(tmphisto);          
+
+           if (!noPhiPlots_) {
+             // Phi distribution of HLT objects passing filter i
+             histName = theHLTCollectionLabels[i].label()+"phi_all";
+             histTitle = HltHistTitle[i]+" #phi (ALL)";
+             tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+             phihist.push_back(tmphisto);
+           }
+    
+     
+           // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+           histName  = theHLTCollectionLabels[i].label()+"et";
+           histTitle = HltHistTitle[i]+" Et";
+           tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+           histEtOfHltObjMatchToGen.push_back(tmphisto);
+    
+           // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+           histName  = theHLTCollectionLabels[i].label()+"eta";
+           histTitle = HltHistTitle[i]+" eta";
+           tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+           histEtaOfHltObjMatchToGen.push_back(tmphisto);
+    
+           if (!noPhiPlots_) {
+             // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+             histName  = theHLTCollectionLabels[i].label()+"phi";
+             histTitle = HltHistTitle[i]+" phi";
+             tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+             histPhiOfHltObjMatchToGen.push_back(tmphisto);
+           }
+       }
+    
+        // Et distribution of gen object matching HLT object passing filter i
+        histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
+        histTitle = HltHistTitle[i]+" Et (MC matched)";
+        tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+        ethistmatch.push_back(tmphisto);
+        
+        // Eta distribution of gen object matching HLT object passing filter i
+        histName = theHLTCollectionLabels[i].label()+"eta_MC_matched";
+        histTitle = HltHistTitle[i]+" #eta (MC matched)";
+        tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+        etahistmatch.push_back(tmphisto);
+    
+        if (!noPhiPlots_) {
+          // Phi distribution of gen object matching HLT object passing filter i
+          histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
+          histTitle = HltHistTitle[i]+" #phi (MC matched)";
+          tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+          phihistmatch.push_back(tmphisto);
+        }
+      }
+
+      // Et & eta distributions
+      etahists.push_back(etahist);
+      phihists.push_back(phihist);
+      ethists.push_back(ethist);
+      etahistmatchs.push_back(etahistmatch);
+      phihistmatchs.push_back(phihistmatch);
+      ethistmatchs.push_back(ethistmatch);
+      histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
+      histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
+      histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
+      // commented out because uses data not included in HTLDEBUG and uses
+      // Isolation distributions
+      //etahistisos.push_back(etahistiso);
+      //phihistisos.push_back(phihistiso);
+      //ethistisos.push_back(ethistiso);
+      //etahistisomatchs.push_back(etahistisomatch);
+      //phihistisomatchs.push_back(phihistisomatch);
+      //ethistisomatchs.push_back(ethistisomatch);
+      //histEtIsoOfHltObjMatchToGens.push_back(histEtIsoOfHltObjMatchToGen); 
+      //histEtaIsoOfHltObjMatchToGens.push_back(histEtaIsoOfHltObjMatchToGen);
+      //histPhiIsoOfHltObjMatchToGens.push_back(histPhiIsoOfHltObjMatchToGen);
+
+      totals.push_back(total);
+      totalmatchs.push_back(totalmatch);
+      etgens.push_back(etgen);
+      etagens.push_back(etagen);
+      phigens.push_back(phigen);
    }
 }
 
@@ -669,7 +660,7 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
           else event.getByToken(gencutColl_fidDiGamma_token, referenceParticles);
           break;
        case 3:
-          event.getByToken(gencutColl_fidZee_token, referenceParticles);
+          event.getByToken(gencutColl_fidTripleEle_token, referenceParticles);
           break;
     }
   } else {
@@ -739,7 +730,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
             else event.getByToken(gencutColl_fidDiGamma_token, cutCounter);
             break;
          case 3:
-            event.getByToken(gencutColl_fidZee_token, cutCounter);
+            event.getByToken(gencutColl_fidTripleEle_token, cutCounter);
             break;
       }
     } else {
@@ -945,24 +936,6 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
         dqm->histEtaOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->eta() );
         if (!dqm->noPhiPlots_) dqm->histPhiOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->phi() );
         
-        // commented out because uses data not included in HTLDEBUG and uses getByLabel
-        //// Also store isolation info
-        //if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
-        //  if (dqm->plotiso[n+1] ){  // only plot if requested in config
-        //    for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
-        //      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-        //      iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
-        //      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-        //        typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestEcalCandIndex]);
-        //        if (mapi!=depMap->end()) {  // found candidate in isolation map! 
-        //          dqm->histEtaIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->eta(),mapi->val);
-        //          dqm->histPhiIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->phi(),mapi->val);
-        //          dqm->histEtIsoOfHltObjMatchToGens.at(vPos).at(n+1) ->Fill( recoecalcands[closestEcalCandIndex]->et(), mapi->val);
-        //        }
-        //      }
-        //    }
-        //  }
-        //}
       } // END of if closestEcalCandIndex >= 0
     }
 
@@ -994,27 +967,6 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
       dqm->etahists.at(vPos).at(n)->Fill(recoecalcands[i]->eta() );
       if (!dqm->noPhiPlots_) dqm->phihists.at(vPos).at(n)->Fill(recoecalcands[i]->phi() );
 
-      // commented out because uses data not included in HTLDEBUG and uses getByLabel
-      ////////////////////////////////////////////////////////////
-      //  Plot isolation variables (show the not-yet-cut        //
-      //  isolation, i.e. associated to next filter)            //
-      ////////////////////////////////////////////////////////////
-      //if ( n+1 < dqm->numOfHLTCollectionLabels ) { // can't plot beyond last
-      //  if (dqm->plotiso[n+1]) {
-      //    for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
-      //      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-      //      iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
-      //      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-      //        typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
-      //        if (mapi!=depMap->end()){  // found candidate in isolation map! 
-      //          dqm->etahistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->eta(),mapi->val);
-      //          dqm->phihistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->phi(),mapi->val);
-      //          dqm->ethistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->et(),mapi->val);
-      //        }
-      //      }
-      //    }
-      //  }
-      //} // END of if n+1 < then the number of hlt collections
     }
   }
 
@@ -1053,28 +1005,6 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
       dqm->etahistmatchs.at(vPos).at(n)->Fill( sortedGen[i].eta() );
       if (!dqm->noPhiPlots_) dqm->phihistmatchs.at(vPos).at(n)->Fill( sortedGen[i].phi() );
     }
-    // commented out because uses data not included in HTLDEBUG and uses getByLabel
-    ////////////////////////////////////////////////////////////
-    //  Plot isolation variables (show the not-yet-cut        //
-    //  isolation, i.e. associated to next filter)            //
-    ////////////////////////////////////////////////////////////
-    //if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
-    //  if (dqm->plotiso[n+1] ){  // only plot if requested in config
-    //    for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
-    //      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-    //      iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
-    //      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-    //        typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closest]);
-    //        if (mapi!=depMap->end()){  // found candidate in isolation map!
-    //          // Only make efficiency plot using photons with some min Et
-    //          dqm->etahistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].eta(),mapi->val);
-    //          dqm->phihistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].phi(),mapi->val);
-    //          dqm->ethistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].et(),mapi->val);
-    //        }
-    //      }
-    //    }
-    //  }
-    //} // END of if n+1 < then the number of hlt collections
   }
   // fill total mc matched efficiency
 
@@ -1131,6 +1061,20 @@ void EmDQM::endJob()
 
 }
 
+// returns count of non-overlapping occurrences of 'sub' in 'str'
+int 
+EmDQM::countSubstring(const std::string& str, const std::string& sub)
+{
+    if (sub.length() == 0) return 0;
+    int count = 0;
+    for (size_t offset = str.find(sub); offset != std::string::npos;
+	 offset = str.find(sub, offset + sub.length()))
+    {
+        ++count;
+    }
+    return count;
+}
+
 //----------------------------------------------------------------------
 // find egamma trigger paths from trigger name
 std::vector<std::vector<std::string> >
@@ -1142,51 +1086,44 @@ EmDQM::findEgammaPaths()
 
       std::string path = hltConfig_.triggerName(i);
 
-      // Find electron and photon paths
+      // Find electron and photon paths and classify them
       if (int(path.find("HLT_")) == 0) {    // Path should start with 'HLT_'
-         if (path.find("HLT_Ele") != std::string::npos && path.rfind("Ele") == 4 && path.find("SC") == std::string::npos) {
-            Paths[TYPE_SINGLE_ELE].push_back(path);
-            //std::cout << "Electron " << path << std::endl;
+
+         int scCount = countSubstring(path, "_SC");
+         int eleCount = countSubstring(path, "Ele");
+         int doubleEleCount = countSubstring(path, "DoubleEle");
+         int tripleEleCount = countSubstring(path, "TripleEle");
+         int photonCount = countSubstring(path, "Photon");
+         int doublePhotonCount = countSubstring(path, "DoublePhoton");
+
+         int totEleCount = 2*tripleEleCount + doubleEleCount + eleCount + scCount;
+         int totPhotonCount = doublePhotonCount + photonCount;
+
+         if (totEleCount + totPhotonCount < 1) continue;
+         switch (totEleCount) {
+            case 1:
+               Paths[TYPE_SINGLE_ELE].push_back(path);
+               //std::cout << "Electron \t" << path << std::endl;
+               break;
+            case 2:
+               Paths[TYPE_DOUBLE_ELE].push_back(path);
+               //std::cout << "DoubleElectron \t" << path << std::endl;
+               break;
+            case 3:
+               Paths[TYPE_TRIPLE_ELE].push_back(path);
+               //std::cout << "TripleElectron \t" << path << std::endl;
+               break;
          }
-         if (path.find("HLT_Ele") != std::string::npos && path.find("EleId") != std::string::npos && path.rfind("Ele") == path.find("EleId")) {
-            Paths[TYPE_SINGLE_ELE].push_back(path);
-            //std::cout << "Electron " << path << std::endl;
-         }
-         else if (path.find("HLT_Ele") != std::string::npos && path.rfind("Ele") > 4) {
-            Paths[TYPE_DOUBLE_ELE].push_back(path);
-            //std::cout << "DoubleElectron " << path << std::endl;
-         }
-         else if (path.find("HLT_DoubleEle") != std::string::npos && path.find("Ele") == path.rfind("Ele")) {
-            Paths[TYPE_DOUBLE_ELE].push_back(path);
-            //std::cout << "DoubleElectron " << path << std::endl;
-         }
-         else if (path.find("HLT_Ele") != std::string::npos && path.find("SC") != std::string::npos) {
-            Paths[TYPE_DOUBLE_ELE].push_back(path);
-            //std::cout << "DoubleElectron " << path << std::endl;
-         }
-         else if (path.find("HLT_DoubleEle") != std::string::npos && path.find("Ele") != path.rfind("Ele")) {
-            Paths[TYPE_TRIPLE_ELE].push_back(path);
-            //std::cout << "TripleElectron " << path << std::endl;
-         }
-         else if (path.find("HLT_TripleEle") != std::string::npos && path.find("Ele") == path.rfind("Ele")) {
-            Paths[TYPE_TRIPLE_ELE].push_back(path);
-            //std::cout << "TripleElectron " << path << std::endl;
-         }
-         else if (path.find("HLT_Photon") != std::string::npos && path.find("Ele") != std::string::npos) {
-            Paths[TYPE_DOUBLE_PHOTON].push_back(path);
-            //std::cout << "DoublePhoton " << path << std::endl;
-         }
-         else if (path.find("HLT_Photon") != std::string::npos && path.rfind("Photon") == 4) {
-            Paths[TYPE_SINGLE_PHOTON].push_back(path);
-            //std::cout << "Photon " << path << std::endl;
-         }
-         else if (path.find("HLT_Photon") != std::string::npos && path.rfind("Photon") > 4) {
-            Paths[TYPE_DOUBLE_PHOTON].push_back(path);
-            //std::cout << "DoublePhoton " << path << std::endl;
-         }
-         else if (path.find("HLT_DoublePhoton") != std::string::npos) {
-            Paths[TYPE_DOUBLE_PHOTON].push_back(path);
-            //std::cout << "DoublePhoton " << path << std::endl;
+
+         switch (totPhotonCount) {
+            case 1:
+               Paths[TYPE_SINGLE_PHOTON].push_back(path);
+               //std::cout << "Photon \t\t" << path << std::endl;
+               break;
+            case 2:
+               Paths[TYPE_DOUBLE_PHOTON].push_back(path);
+               //std::cout << "DoublePhoton \t" << path << std::endl;
+               break;
          }
       }
       //std::cout << i << " triggerName: " << path << " containing " << hltConfig_.size(i) << " modules."<< std::endl;
@@ -1226,12 +1163,12 @@ EmDQM::getPrimaryEtCut(const std::string& path)
 {
    double minEt = -1;
 
-   boost::regex reg("^HLT_.*?([[:digit:]]+).*");
+   boost::regex reg("^HLT_.*?(Ele|Photon|EG|SC)([[:digit:]]+).*");
 
    boost::smatch what;
    if (boost::regex_match(path, what, reg, boost::match_extra))
    {
-     minEt = boost::lexical_cast<double>(what[1]); 
+     minEt = boost::lexical_cast<double>(what[2]); 
    }
 
    return minEt;
@@ -1255,14 +1192,35 @@ EmDQM::makePSetForL1SeedFilter(const std::string& moduleName)
   retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerL1NoIsoEG);
   
   // as HLTLevel1GTSeed has no parameter ncandcut we determine the value from the name of the filter
-  if (moduleName.find("Single") != std::string::npos)
-     retPSet.addParameter<int>("ncandcut", 1);
-  else if (moduleName.find("Double") != std::string::npos)
-     retPSet.addParameter<int>("ncandcut", 2);
-  else if (moduleName.find("Triple") != std::string::npos)
-     retPSet.addParameter<int>("ncandcut", 3);
-  else
-     retPSet.addParameter<int>("ncandcut", -1);
+
+  int orCount = countSubstring(moduleName, "OR");
+  int egCount = countSubstring(moduleName, "EG");
+  int dEgCount = countSubstring(moduleName, "DoubleEG");
+  int tEgCount = countSubstring(moduleName, "TripleEG");
+
+  int candCount = 2*tEgCount + dEgCount + egCount;
+  // if L1 is and OR of triggers try the assumption that all of them are similar first and, if not successful, let the path name decide
+  if (orCount > 0 && candCount > 0) {
+     if (egCount % (orCount+1) == 0 && dEgCount % (orCount+1) == 0 && tEgCount % (orCount+1) == 0) candCount /= (orCount+1);
+     else candCount = -1;
+  }
+
+  switch (candCount) {
+     case 0:
+        retPSet.addParameter<int>("ncandcut", 0);
+        break;
+     case 1:
+        retPSet.addParameter<int>("ncandcut", 1);
+        break;
+     case 2:
+        retPSet.addParameter<int>("ncandcut", 2);
+        break;
+     case 3:
+        retPSet.addParameter<int>("ncandcut", 3);
+        break;
+     default:
+        retPSet.addParameter<int>("ncandcut", -1);
+  }
 
   return retPSet;
 }
@@ -1577,7 +1535,6 @@ EmDQM::makePSetForElectronGenericFilter(const std::string& moduleName)
 void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt) 
 {
   dirname_="HLT/HLTEgammaValidation/"+psetIt->getParameter<std::string>("@module_label");
-  dbe->setCurrentFolder(dirname_);
  
   pathIndex = psetIt->getUntrackedParameter<unsigned int>("pathIndex", 0);
   // parameters for generator study

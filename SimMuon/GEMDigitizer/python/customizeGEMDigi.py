@@ -92,7 +92,6 @@ def customize_random_GEMDigi(process):
 def customize_digi_addGEM(process):
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM(process)
-    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMCSCPadDigis)
     process.doAllDigi = cms.Sequence(process.trDigi + process.calDigi + process.muonDigi)
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
@@ -107,7 +106,7 @@ def customize_digi_addGEM(process):
 def customize_digi_addGEM_muon_only(process):
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM_muon_only(process)
-    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMCSCPadDigis)
+    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMPadDigis)
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
@@ -119,11 +118,11 @@ def customize_digi_addGEM_muon_only(process):
 def customize_digi_addGEM_gem_only(process):
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM_muon_only(process)
-    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMCSCPadDigis)
+    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMPadDigis)
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.simMuonGEMDigis*
-        process.simMuonGEMCSCPadDigis )
+        process.simMuonGEMPadDigis )
     return process
 

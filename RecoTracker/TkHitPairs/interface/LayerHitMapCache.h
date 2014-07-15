@@ -7,7 +7,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
@@ -45,25 +45,24 @@ public:
 
   void clear() { theCache.clear(); }
   
-  const RecHitsSortedInPhi & 
-  operator()(const ctfseeding::SeedingLayer * layer, const TrackingRegion & region, 
+  const RecHitsSortedInPhi &
+  operator()(const SeedingLayerSetsHits::SeedingLayer& layer, const TrackingRegion & region,
 	     const edm::Event & iEvent, const edm::EventSetup & iSetup) {
-    int key = layer->seqNum();
+    int key = layer.index();
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer), region.origin(), layer->detLayer());
+      lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer), region.origin(), layer.detLayer());
       lhm->theOrigin = region.origin();
-      LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer->detLayer();
-      theCache.add( key, lhm); 
+      LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer.detLayer();
+      theCache.add( key, lhm);
     }
     else{
       // std::cout << region.origin() << " " <<  lhm->theOrigin << std::endl;
-      LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits FROM THE cache for: "<<layer->detLayer();
+      LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits FROM THE cache for: "<<layer.detLayer();
     }
     return *lhm;
   }
-
 
 private:
   Cache theCache; 

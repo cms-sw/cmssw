@@ -54,7 +54,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 
 #------------------------------------------------------------------
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
@@ -121,6 +121,13 @@ process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
 process.alloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),cms.InputTag("ssclusmultprod"))
 process.alloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),cms.InputTag("ssclusoccuprod"))
 
+process.layersoccupancyplots = process.occupancyplots.clone()
+process.layersoccupancyplots.wantedSubDets = cms.VPSet()
+process.layersoccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedLayers)
+process.layersoccupancyplots.wantedSubDets.extend(OccupancyPlotsStripWantedLayers)
+process.layersoccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),cms.InputTag("ssclusmultprod"))
+process.layersoccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),cms.InputTag("ssclusoccuprod"))
+
 
 process.load("TrackingPFG.Utilities.bxlumianalyzer_cfi")
 
@@ -137,7 +144,7 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoProfile=cms.untracked.
 process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracked.bool(False)
 
 process.seqAnalyzers = cms.Sequence(process.bxlumianalyzer + process.goodVertices + process.primaryvertexanalyzer +
-                                    process.occupancyplots + process.pixeloccupancyplots + process.alloccupancyplots) 
+                                    process.occupancyplots + process.pixeloccupancyplots + process.alloccupancyplots + process.layersoccupancyplots) 
 
 #-------------------------------------------------------------------------------------------
 
@@ -172,7 +179,7 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.TFileService = cms.Service('TFileService',
 #                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')
-                                   fileName = cms.string('OccupancyPlotsTest_simplified_newschema_corrected.root')
+                                   fileName = cms.string('OccupancyPlotsTest_simplified_newschema_corrected_layers.root')
                                    )
 
 

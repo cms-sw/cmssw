@@ -25,7 +25,7 @@ public:
 
   /// implementation of MeasurementEstimator::estimate
   virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& aTsos,
-				      const TransientTrackingRecHit& aHit) const;
+				      const TrackingRecHit& aHit) const;
 
   virtual Chi2Switching1DEstimator* clone() const 
   {

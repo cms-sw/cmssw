@@ -139,7 +139,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   // 1) Get the various stations and store segments in containers for each station (layers)
  
   // 1a. get the DT segments by stations (layers):
-  std::vector<DetLayer*> dtLayers = muonLayers->allDTLayers();
+  std::vector<const DetLayer*> dtLayers = muonLayers->allDTLayers();
  
   SegmentContainer DTlist4 = muonMeasurements->recHits( dtLayers[3], event );
   SegmentContainer DTlist3 = muonMeasurements->recHits( dtLayers[2], event );
@@ -162,7 +162,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
   // 1b. get the CSC segments by stations (layers):
   // 1b.1 Global z < 0
-  std::vector<DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();    
+  std::vector<const DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();    
   SegmentContainer CSClist4B = muonMeasurements->recHits( cscBackwardLayers[4], event );
   SegmentContainer CSClist3B = muonMeasurements->recHits( cscBackwardLayers[3], event );
   SegmentContainer CSClist2B = muonMeasurements->recHits( cscBackwardLayers[2], event );
@@ -176,7 +176,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   BoolContainer usedCSClist0B(CSClist0B.size(), false);
 
   // 1b.2 Global z > 0
-  std::vector<DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
+  std::vector<const DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
   SegmentContainer CSClist4F = muonMeasurements->recHits( cscForwardLayers[4], event );
   SegmentContainer CSClist3F = muonMeasurements->recHits( cscForwardLayers[3], event );
   SegmentContainer CSClist2F = muonMeasurements->recHits( cscForwardLayers[2], event );
@@ -1183,8 +1183,10 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
     best_match = index;
     // propagate the eta and phi to next layer
     if ((*it)->dimension() != 4 ) {
-       phi_last = phi_last;
-       eta_last = eta_last;    
+      // Self assignment, is this a bug??
+      // should this have been (phi/eta)_last = (phi/eta)_temp to make it reset?
+      //phi_last = phi_last;
+      //eta_last = eta_last;    
     } else {
        phi_last = gp2.phi(); 
        eta_last = gp2.eta();

@@ -117,6 +117,7 @@
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //Root Classes
 
@@ -150,48 +151,46 @@
 
 class MuonServiceProxy;
 
-class BeamHaloAnalyzer: public edm::EDAnalyzer {
+class BeamHaloAnalyzer: public DQMEDAnalyzer {
  public:
   explicit BeamHaloAnalyzer(const edm::ParameterSet&);
   ~BeamHaloAnalyzer();
  
  private:
 
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
-  virtual void endJob();
-  virtual void endRun(const edm::Run&, const edm::EventSetup&){ if (OutputFileName!="") dqm->save(OutputFileName);}
 
   edm::InputTag IT_L1MuGMTReadout;
 
   //RecHit Level
-  edm::InputTag IT_CSCRecHit;
-  edm::InputTag IT_EBRecHit;
-  edm::InputTag IT_EERecHit;
-  edm::InputTag IT_ESRecHit;
-  edm::InputTag IT_HBHERecHit;
-  edm::InputTag IT_HORecHit;
-  edm::InputTag IT_HFRecHit;
+  edm::EDGetTokenT<CSCRecHit2DCollection > IT_CSCRecHit;
+  edm::EDGetTokenT<EBRecHitCollection > IT_EBRecHit;
+  edm::EDGetTokenT<EERecHitCollection > IT_EERecHit;
+  edm::EDGetTokenT<ESRecHitCollection > IT_ESRecHit;
+  edm::EDGetTokenT<HBHERecHitCollection > IT_HBHERecHit;
+  edm::EDGetTokenT<HORecHitCollection > IT_HORecHit;
+  edm::EDGetTokenT<HFRecHitCollection > IT_HFRecHit;
 
   //Higher Level Reco
-  edm::InputTag IT_CosmicMuon;
-  edm::InputTag IT_CSCSegment;
-  edm::InputTag IT_CollisionMuon;
-  edm::InputTag IT_CollisionStandAloneMuon;
-  edm::InputTag IT_BeamHaloMuon;
-  edm::InputTag IT_CosmicStandAloneMuon;
-  edm::InputTag IT_met;
-  edm::InputTag IT_CaloTower;
-  edm::InputTag IT_SuperCluster;
-  edm::InputTag IT_Photon;
+  edm::EDGetTokenT<CSCSegmentCollection > IT_CSCSegment;
+  edm::EDGetTokenT<reco::MuonCollection > IT_CollisionMuon;
+  edm::EDGetTokenT<reco::MuonCollection > IT_CollisionStandAloneMuon;
+  edm::EDGetTokenT<reco::MuonCollection > IT_BeamHaloMuon;
+  edm::EDGetTokenT<reco::MuonCollection > IT_CosmicStandAloneMuon;
+  edm::EDGetTokenT<reco::CaloMETCollection > IT_met;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > IT_CaloTower;
+  edm::EDGetTokenT<reco::SuperClusterCollection > IT_SuperCluster;
+  edm::EDGetTokenT<reco::PhotonCollection > IT_Photon;
 
   // Halo Data
-  edm::InputTag IT_CSCHaloData;
-  edm::InputTag IT_EcalHaloData;
-  edm::InputTag IT_HcalHaloData;
-  edm::InputTag IT_GlobalHaloData;
-  edm::InputTag IT_BeamHaloSummary;
+  edm::EDGetTokenT<reco::CSCHaloData > IT_CSCHaloData;
+  edm::EDGetTokenT<reco::EcalHaloData > IT_EcalHaloData;
+  edm::EDGetTokenT<reco::HcalHaloData > IT_HcalHaloData;
+  edm::EDGetTokenT<reco::GlobalHaloData > IT_GlobalHaloData;
+  edm::EDGetTokenT<reco::BeamHaloSummary > IT_BeamHaloSummary;
+
+  edm::EDGetTokenT<reco::MuonTimeExtraMap > IT_CSCTimeMapToken;
 
   //Output File
   std::string OutputFileName;
@@ -199,6 +198,8 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   std::string FolderName;
 
   std::ofstream* out;
+
+
   double DumpMET;
 
   //Muon-Segment Matching
@@ -207,8 +208,6 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
 
   bool StandardDQM;
 
-  // DAQ Tools
-  DQMStore* dqm;
 
   MonitorElement* hEcalHaloData_PhiWedgeMultiplicity;
   MonitorElement* hEcalHaloData_PhiWedgeConstituents;

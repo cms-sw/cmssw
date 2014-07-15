@@ -34,7 +34,7 @@ reference type.
 
 // user include files
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_of.hpp"
 
@@ -46,6 +46,7 @@ reference type.
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   //--------------------------------------------------------------------
@@ -78,7 +79,7 @@ namespace edm {
     RefToBase(Handle<View<T> > const& handle, size_t i);
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
-    RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
+    RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
     ~RefToBase();
 
     RefToBase& operator= (RefToBase const& rhs);
@@ -109,7 +110,7 @@ namespace edm {
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
-    bool isAvailable() const { return holder_->isAvailable(); }
+    bool isAvailable() const { return holder_? holder_->isAvailable(): false; }
     
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
@@ -156,7 +157,7 @@ namespace edm {
   inline
   RefToBase<T>::RefToBase(RefToBase<T1> const& iRef) :
         holder_(new reftobase::IndirectHolder<T> (
-             boost::shared_ptr< edm::reftobase::RefHolderBase>(iRef.holder().release())
+             std::shared_ptr< edm::reftobase::RefHolderBase>(iRef.holder().release())
         ) )
   {
     // OUT: holder_( new reftobase::Holder<T,RefToBase<T1> >(iRef ) )  {
@@ -169,7 +170,7 @@ namespace edm {
 
   template <class T>
   inline
-  RefToBase<T>::RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p) :
+  RefToBase<T>::RefToBase(std::shared_ptr<reftobase::RefHolderBase> p) :
     holder_(new reftobase::IndirectHolder<T>(p))
   { }
 
@@ -319,19 +320,19 @@ namespace edm {
   template <class T>
   inline
   EDProductGetter const* RefToBase<T>::productGetter() const {
-    return holder_->productGetter();
+    return holder_? holder_->productGetter():nullptr;
   }
 
   template <class T>
   inline
   bool RefToBase<T>::hasProductCache() const {
-    return holder_->hasProductCache();
+    return holder_?holder_->hasProductCache():false;
   }
 
   template <class T>
   inline
   void const * RefToBase<T>::product() const {
-    return holder_->product();
+    return holder_?holder_->product():nullptr;
   }
 
   template <class T>
@@ -344,7 +345,7 @@ namespace edm {
 
   template <class T>
   std::auto_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
-    return holder_->holder();
+    return holder_? holder_->holder() : std::auto_ptr<reftobase::RefHolderBase>();
   }
 
   // Free swap function

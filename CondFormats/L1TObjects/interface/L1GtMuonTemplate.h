@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -66,7 +68,9 @@ public:
         unsigned long long etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
     // typedef for correlation parameters
     // chargeCorrelation is defined always
@@ -79,7 +83,9 @@ public:
         unsigned long long deltaPhiRange0Word;
         unsigned long long deltaPhiRange1Word;
         unsigned int deltaPhiMaxbits;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 public:
 
@@ -118,6 +124,8 @@ private:
     std::vector<ObjectParameter> m_objectParameter;
     CorrelationParameter m_correlationParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

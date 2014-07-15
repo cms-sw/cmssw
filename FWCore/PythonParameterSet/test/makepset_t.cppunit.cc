@@ -12,7 +12,7 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <algorithm>
 #include <iostream>
@@ -93,7 +93,7 @@ void testmakepset::secsourceAux() {
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
@@ -147,7 +147,7 @@ void testmakepset::usingBlockAux() {
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
@@ -196,7 +196,7 @@ void testmakepset::fileinpathAux() {
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(0 != ps.get());
 
   edm::ParameterSet const& innerps = ps->getParameterSet("main");
@@ -207,7 +207,7 @@ void testmakepset::fileinpathAux() {
   char *releaseBase = getenv("CMSSW_RELEASE_BASE");
   bool localArea = (releaseBase != 0 && strlen(releaseBase) != 0);
   if(localArea) {
-    CPPUNIT_ASSERT(fip.isLocal() == true);
+    CPPUNIT_ASSERT(fip.location() == edm::FileInPath::Local);
   }
   CPPUNIT_ASSERT(fip.relativePath()  == "FWCore/ParameterSet/python/Config.py");
   CPPUNIT_ASSERT(ufip.relativePath() == "FWCore/ParameterSet/python/Types.py");
@@ -220,7 +220,7 @@ void testmakepset::fileinpathAux() {
   std::string tmpout = fullpath.substr(0, fullpath.find("FWCore/ParameterSet/python/Config.py")) + "tmp.py";
 
   edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
-  CPPUNIT_ASSERT(topo.isLocal() == false);
+  CPPUNIT_ASSERT(topo.location() != edm::FileInPath::Local);
   CPPUNIT_ASSERT(topo.relativePath() == "Geometry/TrackerSimData/data/trackersens.xml");
   fullpath = topo.fullPath();
   CPPUNIT_ASSERT(!fullpath.empty());
@@ -254,14 +254,14 @@ void testmakepset::fileinpathAux() {
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder2(config2);
   unlink(tmpout.c_str());
-  boost::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
 
   CPPUNIT_ASSERT(0 != ps2.get());
 
   edm::ParameterSet const& innerps2 = ps2->getParameterSet("main");
   edm::FileInPath fip2 = innerps2.getParameter<edm::FileInPath>("fip2");
   if (localArea) {
-    CPPUNIT_ASSERT(fip2.isLocal() == true);
+    CPPUNIT_ASSERT(fip2.location() == edm::FileInPath::Local);
   }
   CPPUNIT_ASSERT(fip2.relativePath() == "tmp.py");
   std::string fullpath2 = fip2.fullPath();
@@ -332,7 +332,7 @@ void testmakepset::typesTest() {
    std::string config2(kTest);
    // Create the ParameterSet object from this configuration string.
    PythonProcessDesc builder2(config2);
-   boost::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
+   std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
    edm::ParameterSet const& test = ps2->getParameterSet("p");
 
    CPPUNIT_ASSERT(1 == test.getParameter<int>("i"));

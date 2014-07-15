@@ -18,8 +18,8 @@
 //
 //
 
-InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf ):
-  ConversionSeedFinder( conf ), conf_(conf)  
+InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf,edm::ConsumesCollector && iC ):
+  ConversionSeedFinder( conf,iC ), conf_(conf)  
 {
   
   
@@ -320,7 +320,7 @@ void InOutConversionSeedFinder::startSeed( const FreeTrajectoryState * fts, cons
   std::vector<const reco::CaloCluster*> bcVec;
  //std::cout << "InOutConversionSeedFinder::startSeed charge assumed for the in-out track  " << track2Charge_ <<  "\n";
   
-  Geom::Phi<float> theConvPhi( stateAtPreviousLayer.globalPosition().phi());
+ // Geom::Phi<float> theConvPhi( stateAtPreviousLayer.globalPosition().phi());
  //std::cout << "InOutConversionSeedFinder::startSeed  stateAtPreviousLayer phi " << stateAtPreviousLayer.globalPosition().phi() << " R " <<  stateAtPreviousLayer.globalPosition().perp() << " Z " << stateAtPreviousLayer.globalPosition().z() << "\n";
   
   bcVec = getSecondCaloClusters(stateAtPreviousLayer.globalPosition(),track2Charge_);

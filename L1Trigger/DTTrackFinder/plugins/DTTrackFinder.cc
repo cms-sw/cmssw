@@ -35,8 +35,8 @@ DTTrackFinder::DTTrackFinder(const edm::ParameterSet & pset) {
   produces<L1MuDTTrackContainer>("DTTF");
   produces<vector<L1MuRegionalCand> >("DT");
 
-  setup1 = new L1MuDTTFSetup(pset);
-
+  setup1 = new L1MuDTTFSetup(pset,consumesCollector());
+  usesResource("DTTrackFinder");
 }
 
 DTTrackFinder::~DTTrackFinder() {

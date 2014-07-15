@@ -35,7 +35,7 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
                                               double etLow,
                                               double eLow,
                                               edm::ESHandle<CaloGeometry> theCaloGeom,
-                                              CaloRecHitMetaCollectionV* caloHits,
+                                              const EcalRecHitCollection& caloHits,
                                               const EcalSeverityLevelAlgo* sl,
                                               DetId::Detector detector):  // not used anymore, kept for compatibility
     extRadius_(extRadius),
@@ -69,7 +69,7 @@ EgammaRecHitIsolation::~EgammaRecHitIsolation ()
 double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool returnEt) const {
   
   double energySum = 0.;
-  if (caloHits_){
+  if (! caloHits_.empty()) {
     //Take the SC position
     reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
     math::XYZPoint const & theCaloPosition = sc.get()->position();
@@ -84,10 +84,11 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
-      CaloRecHitMetaCollectionV::const_iterator j = caloHits_->end();
+      EcalRecHitCollection::const_iterator j = caloHits_.end();
+
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
-	j = caloHits_->find(*i); // find selected cell among rechits
-	if(j != caloHits_->end()) { // add rechit only if available 
+	j = caloHits_.find(*i); // find selected cell among rechits
+	if(j != caloHits_.end()) { // add rechit only if available 
 	  auto const cell  = theCaloGeom_.product()->getGeometry(*i);
 	  float eta = cell->etaPos();
 	  float phi = cell->phiPos();
@@ -183,7 +184,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnEt) const {
 
   double energySum = 0.;
-  if (caloHits_){
+  if (! caloHits_.empty()){
     //Take the SC position
  
     math::XYZPoint theCaloPosition = sc->position();
@@ -199,11 +200,11 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
-      CaloRecHitMetaCollectionV::const_iterator j=caloHits_->end();
+      EcalRecHitCollection::const_iterator j=caloHits_.end();
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i!= chosen.end ();++i){//loop selected cells
 	
-	j=caloHits_->find(*i); // find selected cell among rechits
-	if( j!=caloHits_->end()){ // add rechit only if available 
+	j=caloHits_.find(*i); // find selected cell among rechits
+	if( j!=caloHits_.end()){ // add rechit only if available 
 	  const  GlobalPoint & position = theCaloGeom_.product()->getPosition(*i);
 	  double eta = position.eta();
 	  double phi = position.phi();

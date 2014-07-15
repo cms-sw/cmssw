@@ -4,21 +4,17 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 using namespace std;
@@ -29,22 +25,25 @@ PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig):
 {
   produces<reco::PFRecTrackCollection>();
   
-  tracksContainers_ = 
-    iConfig.getParameter< vector < InputTag > >("TkColList");
   
+  std::vector<InputTag> tags=iConfig.getParameter< vector < InputTag > >("TkColList");
+  for( unsigned int i=0;i<tags.size();++i)
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
+
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
   
-  gsfTrackLabel_ = iConfig.getParameter<InputTag>
-    ("GsfTrackModuleLabel");  
+  gsfTrackLabel_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<InputTag>
+						      ("GsfTrackModuleLabel"));  
 
   trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
   
-  muonColl_ = iConfig.getParameter< InputTag >("MuColl");
+  muonColl_ = consumes<reco::MuonCollection>(iConfig.getParameter< InputTag >("MuColl"));
   
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   
   gsfinev_ = iConfig.getParameter<bool>("GsfTracksInEvents");
-  vtx_h=iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel");
+  vtx_h=consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel"));
+  
 }
 
 PFTrackProducer::~PFTrackProducer()
@@ -62,11 +61,11 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   //read track collection
   Handle<GsfTrackCollection> gsftrackcoll;
-  bool foundgsf = iEvent.getByLabel(gsfTrackLabel_,gsftrackcoll);
+  bool foundgsf = iEvent.getByToken(gsfTrackLabel_,gsftrackcoll);
   GsfTrackCollection gsftracks;
   //Get PV for STIP calculation, if there is none then take the dummy  
   Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vtx_h, vertex);
+  iEvent.getByToken(vtx_h, vertex);
   reco::Vertex dummy;
   const reco::Vertex* pv=&dummy;  
   if (vertex.isValid()) 
@@ -89,36 +88,27 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   if(gsfinev_) {
-    if(!foundgsf )
-      LogError("PFTrackProducer")
-	<<" cannot get GsfTracks (probably in HI events): "
-	<< " please set GsfTracksInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
-    else
+    if(foundgsf )
       gsftracks  = *(gsftrackcoll.product());
   }  
   
   // read muon collection
   Handle< reco::MuonCollection > recMuons;
-  iEvent.getByLabel(muonColl_, recMuons);
+  iEvent.getByToken(muonColl_, recMuons);
   
   
   for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
     Handle<reco::TrackCollection> tkRefCollection;
-    iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+    iEvent.getByToken(tracksContainers_[istr], tkRefCollection);
     reco::TrackCollection  Tk=*(tkRefCollection.product());
     
     vector<Trajectory> Tj(0);
     if(trajinev_) {
       //Trajectory collection
       Handle<vector<Trajectory> > tjCollection;
-      bool found = iEvent.getByLabel(tracksContainers_[istr], tjCollection);
-	if(!found )
-	  LogError("PFTrackProducer")
-	    <<" cannot get Trajectories of: "
-	    <<  tracksContainers_[istr]
-	    << " please set TrajInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
+      iEvent.getByToken(tracksContainers_[istr], tjCollection);
 	
 	Tj =*(tjCollection.product());
     }
@@ -146,10 +136,6 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      }
 	  }
 	}
-	else{
-	  edm::LogError("MissingInput")<<"there is no valide:"<<muonColl_<<" to be used.";
-	}
-
 	if(!isMuCandidate)
 	  {
 	    continue;	  

@@ -6,6 +6,8 @@
  *       Class to map read-out channels to physical RPC strips
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <vector>
 #include <utility>
@@ -68,6 +70,8 @@ private:
    std::map<int, DccSpec> theFeds;
    std::string theVersion;
   
+
+  COND_SERIALIZABLE;
 };
 
 #endif // RPCReadOutMapping_H

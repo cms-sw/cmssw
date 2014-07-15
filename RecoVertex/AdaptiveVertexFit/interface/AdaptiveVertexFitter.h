@@ -213,7 +213,6 @@ private:
   VertexTrackCompatibilityEstimator<5> * theComp;
   const AbstractLTSFactory<5> * theLinTrkFactory;
   bool gsfIntermediarySmoothing_;
-  mutable int mctr_;
 };
 
 #endif

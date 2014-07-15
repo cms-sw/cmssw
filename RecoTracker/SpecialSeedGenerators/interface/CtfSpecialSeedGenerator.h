@@ -6,7 +6,7 @@
  *  from combinations of hits in pairs of strip layers 
  */
 //FWK
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,7 +37,7 @@
 
 #include <map>
 
-class CtfSpecialSeedGenerator : public edm::EDProducer
+class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
 {
  public:
   typedef TrajectoryStateOnSurface TSOS;
@@ -82,7 +82,7 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   //PropagationDirection outInPropagationDirection;
   //GenericPairOrTripletGenerator* hitsGeneratorOutIn;
   //GenericPairOrTripletGenerator* hitsGeneratorInOut;	
-  std::vector<OrderedHitsGenerator*> theGenerators;
+  std::vector<std::unique_ptr<OrderedHitsGenerator> > theGenerators;
   std::vector<PropagationDirection> thePropDirs;
   std::vector<NavigationDirection>  theNavDirs; 
   TrackingRegionProducer* theRegionProducer;	

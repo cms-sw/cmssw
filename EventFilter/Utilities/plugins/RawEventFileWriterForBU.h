@@ -6,9 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/DataPointMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <fstream>
 #include <stdio.h>
@@ -32,31 +30,52 @@ class RawEventFileWriterForBU
   void doOutputEvent(boost::shared_array<unsigned char>& msg) {};
   void doOutputEventFragment(unsigned char* dataPtr,
                              unsigned long dataSize);
-  void doFlushFile();
+  //void doFlushFile();
   uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 
-  void start() {}
+  void start(){}
   void stop() {}
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
   bool sharedMode() const {return false;}
+  void makeRunPrefix(std::string const& destinationDir);
 
   void handler(int s);
   static void staticHandler(int s) { instance->handler(s); }
 
  private:
 
+  bool closefd(){if(outfd_>=0){close(outfd_); outfd_=-1; return true;} else return false;}
+  void finishFileWrite(int ls);
+  void writeJsds(); 
+  int outfd_ = -1;
+
+  int run_ = -1;
+  std::string runPrefix_;
+
+  IntJ perRunEventCount_;
+  IntJ perRunFileCount_;
+  IntJ perRunLumiCount_;
+
   IntJ perLumiEventCount_;
-  DataPointMonitor* lumiMon_;
+  IntJ perLumiFileCount_;
+  IntJ perLumiTotalEventCount_;
+
   IntJ perFileEventCount_;
-  DataPointMonitor* perFileMon_;
+
+  FastMonitor* fileMon_ = nullptr;
+  FastMonitor* lumiMon_ = nullptr;
+  FastMonitor* runMon_ = nullptr;
+
+  DataPointDefinition rawJsonDef_;
+  DataPointDefinition eolJsonDef_;
+  DataPointDefinition eorJsonDef_;
+  bool writtenJSDs_=false;
 
   std::auto_ptr<std::ofstream> ost_;
-  int outfd_;
   std::string fileName_;
   std::string destinationDir_;
 
-  string jsonDefLocation_;
   int microSleep_;
 
   uint32 adlera_;

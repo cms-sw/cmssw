@@ -83,6 +83,7 @@ TestDetSet::TestDetSet() : sv(10){
 void TestDetSet::default_ctor() {
 
   DSTV detsets(2);
+  CPPUNIT_ASSERT(!detsets.onDemand());
   CPPUNIT_ASSERT(detsets.subdetId()==2);
   CPPUNIT_ASSERT(detsets.size()==0);
   CPPUNIT_ASSERT(detsets.empty());
@@ -92,15 +93,19 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets.dataSize()==10);
   CPPUNIT_ASSERT(!detsets.empty());
   // follow is nonsense still valid construct... (maybe it shall throw...)
+  // now assert!
+  /*
   DST df(detsets,detsets.item(1));
   CPPUNIT_ASSERT(df.id()==0);
   CPPUNIT_ASSERT(df.size()==0);
-  CPPUNIT_ASSERT(df.m_data+1==&detsets.m_data.front());
+  CPPUNIT_ASSERT(df.data()+1==&detsets.m_data.front());
   df.set(detsets,detsets.item(2));
   CPPUNIT_ASSERT(df.size()==0);
-  CPPUNIT_ASSERT(df.m_data+1==&detsets.m_data.front());
-  DSTV detsets2(3);
+  CPPUNIT_ASSERT(df.data()+1==&detsets.m_data.front());
+  */
+
   // test swap
+  DSTV detsets2(3);
   detsets.swap(detsets2);
   CPPUNIT_ASSERT(detsets.subdetId()==3);
   CPPUNIT_ASSERT(detsets.size()==0);
@@ -108,6 +113,8 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets2.subdetId()==2);
   CPPUNIT_ASSERT(detsets2.size()==3);
   CPPUNIT_ASSERT(detsets2.dataSize()==10);
+  CPPUNIT_ASSERT(!detsets2.onDemand());
+
 }
 
 void TestDetSet::inserting() {
@@ -252,10 +259,10 @@ namespace {
     TestDetSet & test;
   };
 
-  struct Getter : public DSTV::Getter {
+  struct Getter final : public DSTV::Getter {
     Getter(TestDetSet * itest):ntot(0), test(*itest){}
 
-    void fill(FF& ff) {
+    void fill(FF& ff) override {
       int n=ff.id()-20;
       CPPUNIT_ASSERT(n>0);
       ff.resize(n);
@@ -282,7 +289,8 @@ void TestDetSet::iterator() {
     ff.resize(n);
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
   }
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
+  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(true),detsets.end(true),VerifyIter(this)).n==5);
   {
     FF ff(detsets,31);
     ff.resize(2);
@@ -309,6 +317,7 @@ void TestDetSet::iterator() {
       CPPUNIT_ASSERT(detsets.exists(22));
       CPPUNIT_ASSERT(!detsets.exists(44));
       DST df = *detsets.find(22);
+      //      DST df = *detsets.find(22,true);
       CPPUNIT_ASSERT(df.id()==22);
       CPPUNIT_ASSERT(df.size()==2);
     }
@@ -324,7 +333,9 @@ void TestDetSet::iterator() {
 
   try{
     DSTV::const_iterator p = detsets.find(44);
+    //    DSTV::const_iterator p = detsets.find(44,true);
     CPPUNIT_ASSERT(p==detsets.end());
+    //    CPPUNIT_ASSERT(p==detsets.end(true));
   }
   catch (edm::Exception const &) {
     CPPUNIT_ASSERT("find thrown edm exception when not expected"==0);
@@ -337,6 +348,9 @@ void TestDetSet::iterator() {
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
+
+ 
+
 }
 
 namespace {
@@ -400,18 +414,20 @@ void TestDetSet::algorithm() {
 using namespace boost::assign;
 
 void TestDetSet::onDemand() {
-  boost::shared_ptr<Getter> pg(new Getter(this));
+  auto pg = std::make_shared<Getter>(this);
   Getter & g = *pg;
   std::vector<unsigned int> v; v+= 21,23,25,27;
   DSTV detsets(pg,v,2);
   CPPUNIT_ASSERT(g.ntot==0);
+  CPPUNIT_ASSERT(detsets.onDemand());
   try {
     {
       CPPUNIT_ASSERT(detsets.exists(21));
       CPPUNIT_ASSERT(!detsets.exists(22));
       CPPUNIT_ASSERT(!detsets.isValid(21));
       CPPUNIT_ASSERT(!detsets.isValid(22));
-      DST df = *detsets.find(21);
+      //      DST df = *detsets.find(21);
+      DST df = *detsets.find(21,true);
       CPPUNIT_ASSERT(df.id()==21);
       CPPUNIT_ASSERT(df.size()==1);
       CPPUNIT_ASSERT(detsets.isValid(21));
@@ -428,8 +444,25 @@ void TestDetSet::onDemand() {
   catch (edm::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
+  // no onDemand!
+  int i=0;
+  //  for (auto di = detsets.begin(false); di!=detsets.end(false); ++di) {
+  for (auto di = detsets.begin(); di!=detsets.end(); ++di) {
+    ++i;
+    auto ds = *di;
+    auto id = ds.id();
+    CPPUNIT_ASSERT(id>20&&id<28&& id%2==1);
+    if (21==id || 25==id) CPPUNIT_ASSERT(ds.isValid());
+    else CPPUNIT_ASSERT(!ds.isValid());
+  }
+  CPPUNIT_ASSERT(4==i);
+  CPPUNIT_ASSERT(g.ntot==1+5);
 
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(true),detsets.end(true),VerifyIter(this,1,2)).n==9);
+
+  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(true),detsets.end(true),VerifyIter(this,1,2)).n==9);
   CPPUNIT_ASSERT(g.ntot==1+3+5+7);
 
   try{
@@ -447,6 +480,11 @@ void TestDetSet::onDemand() {
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
+
+  DSTV detsets2;
+  detsets2.swap(detsets);
+  CPPUNIT_ASSERT(detsets2.onDemand());
+
 }
 
 void TestDetSet::toRangeMap() {
@@ -484,6 +522,7 @@ void TestDetSet::toRangeMap() {
     for (int i=0; i<int(ids.size()); i++) {
       RM::range r = rm.get(ids[i]);
       DST df = *detsets.find(ids[i]);
+      //      DST df = *detsets.find(ids[i],true);
       CPPUNIT_ASSERT(static_cast<unsigned long>(r.second-r.first)==df.size());
       CPPUNIT_ASSERT(std::equal(r.first,r.second,df.begin()));
     }

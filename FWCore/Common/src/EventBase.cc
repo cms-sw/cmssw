@@ -12,7 +12,7 @@
 
 // system include files
 #include <vector>
-#include <map>
+#include "tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Common/interface/EventBase.h"
@@ -24,11 +24,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
+namespace {
+   struct key_hash {
+      std::size_t operator()(edm::ParameterSetID const& iKey) const{
+         return iKey.smallHash();
+      }
+   };
+   typedef tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
+   [[cms::thread_safe]] static TriggerNamesMap triggerNamesMap;
+}
+
 namespace edm
 {
-   typedef std::map<edm::ParameterSetID, edm::TriggerNames> TriggerNamesMap;
-   static TriggerNamesMap triggerNamesMap;
-   static TriggerNamesMap::const_iterator previousTriggerName;
 
    EventBase::EventBase()
    {
@@ -41,19 +48,11 @@ namespace edm
    TriggerNames const*
    EventBase::triggerNames_(edm::TriggerResults const& triggerResults) {
 
-      // If the current and previous requests are for the same TriggerNames
-      // then just return it.  
-      if (!triggerNamesMap.empty() &&
-          previousTriggerName->first == triggerResults.parameterSetID()) {
-         return &previousTriggerName->second;
-      }
-
       // If TriggerNames was already created and cached here in the map,
       // then look it up and return that one
       TriggerNamesMap::const_iterator iter =
          triggerNamesMap.find(triggerResults.parameterSetID());
       if (iter != triggerNamesMap.end()) {
-         previousTriggerName = iter;
          return &iter->second;
       }
 
@@ -78,7 +77,6 @@ namespace edm
 
             std::pair<TriggerNamesMap::iterator, bool> ret =
                triggerNamesMap.insert(std::pair<edm::ParameterSetID, edm::TriggerNames>(triggerResults.parameterSetID(), triggerNames));
-            previousTriggerName = ret.first;
             return &(ret.first->second);
          }
       }
@@ -101,7 +99,6 @@ namespace edm
 
          std::pair<TriggerNamesMap::iterator, bool> ret =
             triggerNamesMap.insert(std::pair<edm::ParameterSetID, edm::TriggerNames>(fakePset.id(), triggerNames));
-         previousTriggerName = ret.first;
          return &(ret.first->second);
       }
       return 0;

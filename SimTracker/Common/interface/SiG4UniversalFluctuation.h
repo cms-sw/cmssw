@@ -56,9 +56,6 @@
 
 namespace CLHEP{
   class HepRandomEngine;
-  class RandPoissonQ;
-  class RandGaussQ;
-  class RandFlat;
 }
 
 //#include "G4VEmFluctuationModel.hh"
@@ -66,7 +63,7 @@ namespace CLHEP{
 class SiG4UniversalFluctuation {
 public:
 
-  SiG4UniversalFluctuation(CLHEP::HepRandomEngine&);
+  SiG4UniversalFluctuation();
 
   ~SiG4UniversalFluctuation();
 
@@ -76,7 +73,8 @@ public:
                             const double mass,
                             double& tmax,
                             const double length,
-                            const double meanLoss);
+                            const double meanLoss,
+                            CLHEP::HepRandomEngine*);
    
   //G4double SampleFluctuations(const G4Material*,
   //                      const G4DynamicParticle*,
@@ -94,10 +92,6 @@ protected:
 
 private:
 
-  CLHEP::HepRandomEngine& rndEngine;
-  CLHEP::RandGaussQ* gaussQDistribution;
-  CLHEP::RandPoissonQ* poissonQDistribution;
-  CLHEP::RandFlat* flatDistribution;
   // hide assignment operator
   //SiG4UniversalFluctuation & operator=(const  SiG4UniversalFluctuation &right);
   //SiG4UniversalFluctuation(const  SiG4UniversalFluctuation&);

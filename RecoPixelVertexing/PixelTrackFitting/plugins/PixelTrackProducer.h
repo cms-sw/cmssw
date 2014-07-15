@@ -1,13 +1,13 @@
 #ifndef PixelTrackProducer_H
 #define PixelTrackProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
 
 namespace edm { class Event; class EventSetup; class ParameterSet; }
 
-class PixelTrackProducer :  public edm::EDProducer {
+class PixelTrackProducer :  public edm::stream::EDProducer<> {
 
 public:
   explicit PixelTrackProducer(const edm::ParameterSet& conf);

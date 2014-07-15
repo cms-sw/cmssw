@@ -21,6 +21,9 @@ namespace cond {
 
   namespace persistency {
 
+    // required in the "bridge" mode, to be removed with the ORA based code after the transition
+    std::pair<std::string,std::string> parseTag( const std::string& tag );
+
     class SessionImpl;
     class GTProxyData;
 

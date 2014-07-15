@@ -1,7 +1,7 @@
 #ifndef DataFormat_Math_SSEVec_H
 #define DataFormat_Math_SSEVec_H
 
-#if !defined(__arm__) && !defined(__MIC__)
+#if !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__)
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
 #include <x86intrin.h>
 #define CMS_USE_SSE
@@ -24,7 +24,7 @@
 #endif /* __SSE4_1__ */
 
 #endif /* defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4) */
-#endif /* !defined(__arm__) */
+#endif /* !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__) */
 
 #include<cmath>
 

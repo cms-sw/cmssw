@@ -25,7 +25,7 @@
 DetIdAssociator::DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
   :nPhi_(nPhi),nEta_(nEta),
    lookupMap_(nPhi_*nEta_,std::pair<unsigned int, unsigned int>(0,0)),
-  theMapIsValid_(false),etaBinSize_(etaBinSize),ivProp_(0)
+  theMapIsValid_(false),etaBinSize_(etaBinSize)
 {
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot initialize such a map.";
    maxEta_ = etaBinSize_*nEta_/2;

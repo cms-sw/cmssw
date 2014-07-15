@@ -1,20 +1,7 @@
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
-#include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
-
-#include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
-
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"   
-
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
-
+#include "CondFormats/PhysicsToolsObjects/src/headers.h"
 
 namespace CondFormats_PhysicsToolsObjects { // anonymous
+
 struct dictionary {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING
@@ -39,7 +26,6 @@ PhysicsTools::Calibration::HistogramF3D v31;
 std::vector<PhysicsTools::Calibration::HistogramF3D> v32;
 std::vector<PhysicsTools::Calibration::HistogramD3D> v33;
 
-
 // MVAComputer
 std::vector<PhysicsTools::Calibration::Variable> v19;
 std::vector<PhysicsTools::Calibration::ProcCategory::BinLimits> v20;
@@ -48,7 +34,6 @@ std::pair<std::vector<PhysicsTools::Calibration::ProcMLP::Neuron>, bool> v23;
 PhysicsTools::Calibration::MVAComputerContainer::Entry v24;
 std::vector<PhysicsTools::Calibration::MVAComputerContainer::Entry> v25;
 std::vector<PhysicsTools::Calibration::VarProcessor*> v26;
-
 
 // Performance DB stuff
 PhysicsPerformancePayload p1;          
@@ -66,5 +51,10 @@ std::vector<PhysicsTFormulaPayload> pv10;
 PerformancePayloadFromTFormula p11;
 PerformancePayloadFromBinnedTFormula p12;
 
+// TGraph stuff
+PhysicsTGraphPayload p13;          
+std::vector<PhysicsTGraphPayload> pv13;
+
 }; // struct dictionary
 } // anonymous namespace
+

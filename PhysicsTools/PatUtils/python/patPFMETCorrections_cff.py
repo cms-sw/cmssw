@@ -91,7 +91,7 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
 # define sequence to run all modules
 producePatPFMETCorrections = cms.Sequence(
     patPFMet
-   * pfCandsNotInJet
+   * pfCandsNotInJetsForMetCorr
    * selectedPatJetsForMETtype1p2Corr
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr

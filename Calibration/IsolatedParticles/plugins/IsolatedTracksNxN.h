@@ -142,10 +142,6 @@ private:
 
   // map of trig bit, algo name and num events passed
   std::map< std::pair<unsigned int,std::string>, int> l1AlgoMap;
-  /// number of DAQ partitions
-  unsigned int m_numberDaqPartitions;
-  /// trigger masks & veto masks
-  const L1GtTriggerMask* m_l1GtTmAlgo;
   std::vector<unsigned int> m_triggerMaskAlgoTrig;
 
   double pvTracksPtMin_;
@@ -259,9 +255,7 @@ private:
   std::vector<double> *t_trackOutPosOutHitDr, *t_trackL;
 
   std::vector<double> *t_maxNearP31x31;
-  std::vector<double> *t_maxNearP25x25;
   std::vector<double> *t_maxNearP21x21;
-  std::vector<double> *t_maxNearP15x15;
 
   std::vector<int>    *t_ecalSpike11x11;
   std::vector<double> *t_e7x7,       *t_e9x9,       *t_e11x11,       *t_e15x15;

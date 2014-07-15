@@ -27,7 +27,7 @@ class PhotonEnergyCorrector
  {
   public:
 
-   PhotonEnergyCorrector(const edm::ParameterSet& config);
+   PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector && iC);
    ~PhotonEnergyCorrector();
 
    std::unique_ptr<PFSCRegressionCalc>& gedRegression() 
@@ -51,9 +51,11 @@ class PhotonEnergyCorrector
    std::unique_ptr<PFSCRegressionCalc> gedRegression_;
    double minR9Barrel_;
    double minR9Endcap_;
-   edm::ESHandle<CaloGeometry> theCaloGeom_; 
+   edm::ESHandle<CaloGeometry> theCaloGeom_;
    edm::InputTag barrelEcalHits_;
    edm::InputTag endcapEcalHits_;
+   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHitsToken_;
+   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHitsToken_;
 
    EnergyUncertaintyPhotonSpecific* photonUncertaintyCalculator_;
    

@@ -5,6 +5,10 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 
 /** \class L2TauPixelIsoTagProducer
  * Producer of a JetTagCollection where tag is defined as # of pixel tracks
@@ -28,10 +32,10 @@ public:
 
 private:
 
-  edm::InputTag m_jetSrc;
-  edm::InputTag m_vertexSrc;
-  edm::InputTag m_trackSrc;
-  edm::InputTag m_beamSpotSrc;
+  edm::EDGetTokenT<edm::View<reco::Jet> > m_jetSrc_token;
+  edm::EDGetTokenT<reco::VertexCollection> m_vertexSrc_token;
+  edm::EDGetTokenT<reco::TrackCollection> m_trackSrc_token;
+  edm::EDGetTokenT<reco::BeamSpot> m_beamSpotSrc_token;
 
   int m_maxNumberPV;
 

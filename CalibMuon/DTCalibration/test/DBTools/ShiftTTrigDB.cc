@@ -67,10 +67,10 @@ void ShiftTTrigDB::endJob() {
   // Create the object to be written to DB
   DTTtrig* tTrigNewMap = new DTTtrig();  
   //Get the superlayers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+  vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
   //Loop on all superlayers
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+  for (auto sl = dtSupLylist.begin();
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;

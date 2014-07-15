@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -31,6 +30,7 @@ namespace reco { namespace utils {
 class ClusterChecker {
  public: 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector & iC) ;
   ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector && iC) ;
 #endif
 

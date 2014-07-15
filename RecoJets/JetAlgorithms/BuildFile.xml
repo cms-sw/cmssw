@@ -6,6 +6,10 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <export>
   <lib   name="1"/>
 </export>

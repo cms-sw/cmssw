@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      L1ABCDebugger
-// 
+//
 /**\class L1ABCDebugger L1ABCDebugger.cc DPGAnalysis/SiStripTools/plugins/L1ABCDebugger.cc
 
  Description: <one line class summary>
@@ -56,7 +56,7 @@ class L1ABCDebugger : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  edm::InputTag _l1abccollection;
+  edm::EDGetTokenT<L1AcceptBunchCrossingCollection> _l1abccollectionToken;
 };
 
 //
@@ -71,7 +71,7 @@ class L1ABCDebugger : public edm::EDAnalyzer {
 // constructors and destructor
 //
 L1ABCDebugger::L1ABCDebugger(const edm::ParameterSet& iConfig):
-  _l1abccollection(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))
+  _l1abccollectionToken(consumes<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection")))
 {
    //now do what ever initialization is needed
 
@@ -80,7 +80,7 @@ L1ABCDebugger::L1ABCDebugger(const edm::ParameterSet& iConfig):
 
 L1ABCDebugger::~L1ABCDebugger()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -98,7 +98,7 @@ L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 
    Handle<L1AcceptBunchCrossingCollection > pIn;
-   iEvent.getByLabel(_l1abccollection,pIn);
+   iEvent.getByToken(_l1abccollectionToken,pIn);
 
    // offset computation
 
@@ -111,15 +111,15 @@ L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 L1ABCDebugger::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-L1ABCDebugger::endJob() 
+void
+L1ABCDebugger::endJob()
 {
 }
 

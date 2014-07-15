@@ -1,10 +1,8 @@
 // C++ common header
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <fstream>
-
-// Boost headers
-#include "boost/scoped_ptr.hpp"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -68,7 +66,7 @@ namespace edmtest {
 	edm::ESHandle<FileBlob> rootgeo;
 	iSetup.get<DQMXMLFileRcd>().get(labelToGet_,rootgeo);
 	//std::cout<<"XML FILE IN MEMORY 1 with label " << labelToGet_ <<std::endl;
-	boost::scoped_ptr<std::vector<unsigned char> > tb1( (*rootgeo).getUncompressedBlob() );
+	std::unique_ptr<std::vector<unsigned char> > tb1( (*rootgeo).getUncompressedBlob() );
 	//here you can implement the stream for putting the TFile on disk...
 	std::string outfile1("XML1_retrieved.xml") ;
 	std::ofstream output1(outfile1.c_str()) ;
@@ -77,13 +75,13 @@ namespace edmtest {
 	
 // 	iSetup.get<DQMXMLFileRcd>().get("XML2_mio",rootgeo);
 // 	std::cout<<"ROOT FILE IN MEMORY 2"<<std::endl;
-// 	boost::scoped_ptr<std::vector<unsigned char> > tb2( (*rootgeo).getUncompressedBlob() );
+// 	std::unique_ptr<std::vector<unsigned char> > tb2( (*rootgeo).getUncompressedBlob() );
 // 	//here you can implement the stream for putting the TFile on disk...
 // 	std::string outfile2("XML2_retrieved.xml") ;
 // 	std::ofstream output2(outfile2.c_str()) ;
 // 	output2.write((const char *)&(*tb2)[0], tb2->size());
 // 	output2.close() ;
-	//	boost::scoped_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );
+	//	std::unique_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );
       }
   }
   

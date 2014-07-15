@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 
 namespace edm {
@@ -15,9 +16,9 @@ class TFileDirectory;
 class DigiInvestigatorHistogramMaker {
 
  public:
-  DigiInvestigatorHistogramMaker();
-  DigiInvestigatorHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  DigiInvestigatorHistogramMaker(edm::ConsumesCollector&& iC);
+  DigiInvestigatorHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+
   ~DigiInvestigatorHistogramMaker();
 
   void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);

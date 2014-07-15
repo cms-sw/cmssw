@@ -1,5 +1,9 @@
 #include "L1Trigger/HardwareValidation/plugins/L1EmulBias.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 using namespace dedefs;
 
 L1EmulBias::L1EmulBias(const edm::ParameterSet& iConfig) {
@@ -92,23 +96,27 @@ L1EmulBias::L1EmulBias(const edm::ParameterSet& iConfig) {
   if(m_doSys[GLT])  produces<L1GlobalTriggerObjectMapRecord> (instName[GLT][0]);
 
   edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  rndFlat_ = new CLHEP::RandFlat  (engine, 0., 1.);
-  rndGaus_ = new CLHEP::RandGaussQ(engine, 0., 1.);
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "L1EmulBias requires the RandomNumberGeneratorService\n"
+         "which is not present in the configuration file.  You must add the service\n"
+         "in the configuration file or remove the modules that require it.";
+  }
 
   if(verbose())
     std::cout << "L1EmulBias::L1EmulBias()... done." << std::endl; 
 }
   
 L1EmulBias::~L1EmulBias() {
-  delete rndFlat_;
-  delete rndGaus_;
 }
 
 // ------------ method called to produce the data  ------------
 void
 L1EmulBias::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
   if(verbose())
     std::cout << "L1EmulBias::produce...\n" << std::flush; 
 
@@ -221,30 +229,30 @@ L1EmulBias::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << "L1EmulBias::produce - modify...\n" << std::flush; 
 
   /// fill data as modified emul collections
-  if(m_doSys[ETP]) ModifyCollection(    ecal_tp_data,    ecal_tp_emul);
-  if(m_doSys[HTP]) ModifyCollection(    hcal_tp_data,    hcal_tp_emul);
-  if(m_doSys[RCT]) ModifyCollection(     rct_em_data,     rct_em_emul);
-  if(m_doSys[RCT]) ModifyCollection(    rct_rgn_data,    rct_rgn_emul);
-  if(m_doSys[GCT]) ModifyCollection(gct_isolaem_data,gct_isolaem_emul);
-  if(m_doSys[GCT]) ModifyCollection(gct_noisoem_data,gct_noisoem_emul);
-  if(m_doSys[GCT]) ModifyCollection(gct_cenjets_data,gct_cenjets_emul);
-  if(m_doSys[GCT]) ModifyCollection(gct_forjets_data,gct_forjets_emul);
-  if(m_doSys[GCT]) ModifyCollection(gct_taujets_data,gct_taujets_emul);
-  if(m_doSys[DTP]) ModifyCollection(     dtp_ph_data,     dtp_ph_emul);
-  if(m_doSys[DTP]) ModifyCollection(     dtp_th_data,     dtp_th_emul);
-  if(m_doSys[DTF]) ModifyCollection(        dtf_data,        dtf_emul);
-  if(m_doSys[DTF]) ModifyCollection(    dtf_trk_data,    dtf_trk_emul);
-  if(m_doSys[CTP]) ModifyCollection(        ctp_data,        ctp_emul);
-  if(m_doSys[CTF]) ModifyCollection(        ctf_data,        ctf_emul);
-  if(m_doSys[CTF]) ModifyCollection(    ctf_trk_data,    ctf_trk_emul);
-  if(m_doSys[RPC]) ModifyCollection(    rpc_cen_data,    rpc_cen_emul);
-  if(m_doSys[RPC]) ModifyCollection(    rpc_for_data,    rpc_for_emul);
-  if(m_doSys[LTC]) ModifyCollection(        ltc_data,        ltc_emul);
-  if(m_doSys[GMT]) ModifyCollection(        gmt_data,        gmt_emul);
-  if(m_doSys[GMT]) ModifyCollection(    gmt_rdt_data,    gmt_rdt_emul);
-  if(m_doSys[GLT]) ModifyCollection(    glt_rdt_data,    glt_rdt_emul);
-  if(m_doSys[GLT]) ModifyCollection(    glt_evm_data,    glt_evm_emul);
-  if(m_doSys[GLT]) ModifyCollection(    glt_obj_data,    glt_obj_emul);
+  if(m_doSys[ETP]) ModifyCollection(    ecal_tp_data,    ecal_tp_emul, engine);
+  if(m_doSys[HTP]) ModifyCollection(    hcal_tp_data,    hcal_tp_emul, engine);
+  if(m_doSys[RCT]) ModifyCollection(     rct_em_data,     rct_em_emul, engine);
+  if(m_doSys[RCT]) ModifyCollection(    rct_rgn_data,    rct_rgn_emul, engine);
+  if(m_doSys[GCT]) ModifyCollection(gct_isolaem_data,gct_isolaem_emul, engine);
+  if(m_doSys[GCT]) ModifyCollection(gct_noisoem_data,gct_noisoem_emul, engine);
+  if(m_doSys[GCT]) ModifyCollection(gct_cenjets_data,gct_cenjets_emul, engine);
+  if(m_doSys[GCT]) ModifyCollection(gct_forjets_data,gct_forjets_emul, engine);
+  if(m_doSys[GCT]) ModifyCollection(gct_taujets_data,gct_taujets_emul, engine);
+  if(m_doSys[DTP]) ModifyCollection(     dtp_ph_data,     dtp_ph_emul, engine);
+  if(m_doSys[DTP]) ModifyCollection(     dtp_th_data,     dtp_th_emul, engine);
+  if(m_doSys[DTF]) ModifyCollection(        dtf_data,        dtf_emul, engine);
+  if(m_doSys[DTF]) ModifyCollection(    dtf_trk_data,    dtf_trk_emul, engine);
+  if(m_doSys[CTP]) ModifyCollection(        ctp_data,        ctp_emul, engine);
+  if(m_doSys[CTF]) ModifyCollection(        ctf_data,        ctf_emul, engine);
+  if(m_doSys[CTF]) ModifyCollection(    ctf_trk_data,    ctf_trk_emul, engine);
+  if(m_doSys[RPC]) ModifyCollection(    rpc_cen_data,    rpc_cen_emul, engine);
+  if(m_doSys[RPC]) ModifyCollection(    rpc_for_data,    rpc_for_emul, engine);
+  if(m_doSys[LTC]) ModifyCollection(        ltc_data,        ltc_emul, engine);
+  if(m_doSys[GMT]) ModifyCollection(        gmt_data,        gmt_emul, engine);
+  if(m_doSys[GMT]) ModifyCollection(    gmt_rdt_data,    gmt_rdt_emul, engine);
+  if(m_doSys[GLT]) ModifyCollection(    glt_rdt_data,    glt_rdt_emul, engine);
+  if(m_doSys[GLT]) ModifyCollection(    glt_evm_data,    glt_evm_emul, engine);
+  if(m_doSys[GLT]) ModifyCollection(    glt_obj_data,    glt_obj_emul, engine);
 
   if(verbose())
     std::cout << "L1EmulBias::produce - put...\n" << std::flush; 

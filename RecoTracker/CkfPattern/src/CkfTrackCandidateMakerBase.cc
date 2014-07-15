@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -22,6 +23,7 @@
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
 
 
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
@@ -34,6 +36,8 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 #include<algorithm>
 #include<functional>
 
@@ -42,10 +46,14 @@
 using namespace edm;
 using namespace std;
 
+namespace {
+  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
+  }
+}
+
 namespace cms{
   CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf, edm::ConsumesCollector && iC) : 
-
-    conf_(conf),
     theTrackCandidateOutput(true),
     theTrajectoryOutput(false),
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
@@ -53,11 +61,11 @@ namespace cms{
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
     reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
-    theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
-    theTrajectoryBuilder(0),
+    theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
     theTrajectoryCleaner(0),
-    theInitialState(0),
+    theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
+    theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField") : ""),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
     theNavigationSchool(0),
     theSeedCleaner(0),
@@ -78,10 +86,9 @@ namespace cms{
         skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
-        maskStripsLazy_ = iC.consumes<StripClusterLazyMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
 
-    std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
+    std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
     } else if (cleaner == "SeedCleanerBySharedInput") {
@@ -89,10 +96,10 @@ namespace cms{
     } else if (cleaner == "CachingSeedCleanerByHitPosition") {
         theSeedCleaner = new CachingSeedCleanerByHitPosition();
     } else if (cleaner == "CachingSeedCleanerBySharedInput") {
-      int numHitsForSeedCleaner = conf_.existsAs<int>("numHitsForSeedCleaner") ? 
-	conf_.getParameter<int>("numHitsForSeedCleaner") : 4;
-      int onlyPixelHits = conf_.existsAs<bool>("onlyPixelHitsForSeedCleaner") ? 
-	conf_.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
+      int numHitsForSeedCleaner = conf.existsAs<int>("numHitsForSeedCleaner") ?
+	conf.getParameter<int>("numHitsForSeedCleaner") : 4;
+      int onlyPixelHits = conf.existsAs<bool>("onlyPixelHitsForSeedCleaner") ?
+	conf.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
       theSeedCleaner = new CachingSeedCleanerBySharedInput(numHitsForSeedCleaner,onlyPixelHits);
     } else if (cleaner == "none") {
         theSeedCleaner = 0;
@@ -106,7 +113,6 @@ namespace cms{
   
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
-    delete theInitialState;  
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -119,16 +125,9 @@ namespace cms{
 
     //services
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    es.get<IdealMagneticFieldRecord>().get( theMagField );
-
-    if (!theInitialState){
-      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
-      // get nested parameter set for the TransientInitialStateEstimator
-      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-      theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    }
-
-    theInitialState->setEventSetup( es );
+    es.get<IdealMagneticFieldRecord>().get(theMagFieldName, theMagField );
+    //    edm::ESInputTag mfESInputTag(mfName);
+    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
     edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
     es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
@@ -137,12 +136,7 @@ namespace cms{
     edm::ESHandle<NavigationSchool> navigationSchoolH;
     es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
     theNavigationSchool = navigationSchoolH.product();
-
-    // set the TrajectoryBuilder
-    edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
-    es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
-    theTrajectoryBuilder = dynamic_cast<const BaseCkfTrajectoryBuilder*>(theTrajectoryBuilderHandle.product());    
-    assert(theTrajectoryBuilder);
+    theTrajectoryBuilder->setNavigationSchool(theNavigationSchool);
   }
 
   // Functions that gets called by framework every event
@@ -152,7 +146,7 @@ namespace cms{
     setEventSetup( es ); 
 
     // set the correct navigation
-    NavigationSetter setter( *theNavigationSchool);
+    // NavigationSetter setter( *theNavigationSchool);
     
     // propagator
     edm::ESHandle<Propagator> thePropagator;
@@ -166,27 +160,22 @@ namespace cms{
     edm::Handle<MeasurementTrackerEvent> data;
     e.getByToken(theMTELabel, data);
 
-    std::auto_ptr<BaseCkfTrajectoryBuilder> trajectoryBuilder;
     std::auto_ptr<MeasurementTrackerEvent> dataWithMasks;
     if (skipClusters_) {
         edm::Handle<PixelClusterMask> pixelMask;
         e.getByToken(maskPixels_, pixelMask);
-        if (data->isStripRegional()) {
-            edm::Handle<StripClusterLazyMask> stripMask;
-            e.getByToken(maskStripsLazy_, stripMask);
-            dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
-        } else {
             edm::Handle<StripClusterMask> stripMask;
             e.getByToken(maskStrips_, stripMask);
             dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
-        }
-        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << (!data->isStripRegional() ? "offline": "onDemand") << std::endl;
-        trajectoryBuilder.reset(theTrajectoryBuilder->clone(&*dataWithMasks));
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << std::endl;
+        theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
     } else {
-        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << (!data->isStripRegional() ? "offline": "onDemand") << std::endl;
-        trajectoryBuilder.reset(theTrajectoryBuilder->clone(&*data));
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << std::endl;
+        theTrajectoryBuilder->setEvent(e, es, &*data);
     }
-    
+    // TISE ES must be set here due to dependence on theTrajectoryBuilder
+    theInitialState->setEventSetup( es, static_cast<TkTransientTrackingRecHitBuilder const *>(theTrajectoryBuilder->hitBuilder())->cloner() );
+
     // Step B: Retrieve seeds
     
     edm::Handle<View<TrajectorySeed> > collseed;
@@ -207,8 +196,8 @@ namespace cms{
     if ((*collseed).size()>0){
 
       unsigned int lastCleanResult=0;
-       vector<Trajectory> rawResult;
-       rawResult.reserve(collseed->size() * 4);
+      vector<Trajectory> rawResult;
+      rawResult.reserve(collseed->size() * 4);
 
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
       
@@ -231,7 +220,7 @@ namespace cms{
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
-	auto const & startTraj = trajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
+	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
        
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
@@ -252,7 +241,7 @@ namespace cms{
 	// seed and if possible further inwards.
 	
 	if (doSeedingRegionRebuilding) {
-	  trajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
+	  theTrajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
 
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
   			              << " valid/invalid trajectories from seed " << j << " ========"<<endl
@@ -272,10 +261,10 @@ namespace cms{
 	  if( it->isValid() ) {
 	    it->setSeedRef(collseed->refAt(j));
 	    // Store trajectory
-	    rawResult.push_back(*it);
+	    rawResult.push_back(std::move(*it));
   	    // Tell seed cleaner which hits this trajectory used.
             //TO BE FIXED: this cut should be configurable via cfi file
-            if (theSeedCleaner && it->foundHits()>3) theSeedCleaner->add( & (*it) );
+            if (theSeedCleaner && rawResult.back().foundHits()>3) theSeedCleaner->add( &rawResult.back() );
             //if (theSeedCleaner ) theSeedCleaner->add( & (*it) );
 	  }
 	}
@@ -286,7 +275,7 @@ namespace cms{
 
 	if ( maxSeedsBeforeCleaning_ >0 && rawResult.size() > maxSeedsBeforeCleaning_+lastCleanResult) {
           theTrajectoryCleaner->clean(rawResult);
-          rawResult.erase(std::remove_if(rawResult.begin(),rawResult.end(),
+          rawResult.erase(std::remove_if(rawResult.begin()+lastCleanResult,rawResult.end(),
 					 std::not1(std::mem_fun_ref(&Trajectory::isValid))),
 			  rawResult.end());
           lastCleanResult=rawResult.size();
@@ -296,7 +285,10 @@ namespace cms{
       // end of loop over seeds
       
       if (theSeedCleaner) theSeedCleaner->done();
-      
+   
+      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
+
+   
       // Step E: Clean the results to avoid duplicate tracks
       // Rejected ones just flagged as invalid.
       theTrajectoryCleaner->clean(rawResult);
@@ -314,9 +306,7 @@ namespace cms{
       
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {
-        vector<Trajectory> reversed; 
-        reversed.reserve(unsmoothedResult.size());
-        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
+        for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
           // reverse the trajectory only if it has valid hit on the last measurement (should happen)
           if (it->lastMeasurement().updatedState().isValid() && 
               it->lastMeasurement().recHit().get() != 0     &&
@@ -327,78 +317,69 @@ namespace cms{
             if (direction == alongMomentum)           direction = oppositeToMomentum;
             else if (direction == oppositeToMomentum) direction = alongMomentum;
             // 2) make a seed
-            TrajectoryStateOnSurface initState = it->lastMeasurement().updatedState();
-            DetId                    initDetId = it->lastMeasurement().recHit()->geographicalId();
-            PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState( initState, initDetId.rawId());
+            TrajectoryStateOnSurface const & initState = it->lastMeasurement().updatedState();
+            auto                    initId = it->lastMeasurement().recHitR().rawId();
+            PTrajectoryStateOnDet && state = trajectoryStateTransform::persistentState( initState, initId);
             TrajectorySeed::recHitContainer hits; 
-            hits.push_back(*it->lastMeasurement().recHit()->hit());
-            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, hits, direction));
+            hits.push_back(it->lastMeasurement().recHit()->hit()->clone());
+            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, std::move(hits), direction));
             // 3) make a trajectory
             Trajectory trajectory(seed, direction);
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
-            const Trajectory::DataContainer &meas = it->measurements();
-            for (Trajectory::DataContainer::const_reverse_iterator itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
-              trajectory.push(*itmeas);
-            } 
-            reversed.push_back(trajectory);
+            Trajectory::DataContainer &meas = it->measurements();
+            for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
+              trajectory.push(std::move(*itmeas));
+            }
+            // replace
+            (*it)= std::move(trajectory); 
           } else {
             edm::LogWarning("CkfPattern_InvalidLastMeasurement") << "Last measurement of the trajectory is invalid, cannot reverse it";
-            reversed.push_back(*it);
           }     
         }
-        unsmoothedResult.swap(reversed);
       }
 
-      //      for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
-      //	   itraw != rawResult.end(); itraw++) {
-      //if((*itraw).isValid()) unsmoothedResult.push_back( *itraw);
-      //}
-
-      //analyseCleanedTrajectories(unsmoothedResult);
-      
+   
+      int viTotHits=0;   
+   
       if (theTrackCandidateOutput){
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
+       Traj2TrackHits t2t(theTrajectoryBuilder->hitBuilder(),true);
+
        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	    it != unsmoothedResult.end(); ++it) {
 	
-	 Trajectory::RecHitContainer thits;
-	 //it->recHitsV(thits);
-	 LogDebug("CkfPattern") << "retrieving "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
-	 it->recHitsV(thits,useSplitting);
-	 OwnVector<TrackingRecHit> recHits;
-	 recHits.reserve(thits.size());
-	 LogDebug("CkfPattern") << "cloning hits into new collection.";
-	 for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
-	      hitIt != thits.end(); ++hitIt) {
-	   recHits.push_back( (**hitIt).hit()->clone());
-	 }
+	 LogDebug("CkfPattern") << "copying "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
+	 edm::OwnVector<TrackingRecHit> recHits;
+         if(it->direction() != alongMomentum) LogDebug("CkfPattern") << "not along momentum... " << std::endl;
+         t2t(*it,recHits,useSplitting);
+
+         viTotHits+=recHits.size();        
 
 	 LogDebug("CkfPattern") << "getting initial state.";
-	 const bool doBackFit = !doSeedingRegionRebuilding && !reverseTrajectories;
-	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
-	   theInitialState->innerState( *it , doBackFit);
+	 const bool doBackFit = (!doSeedingRegionRebuilding) & (!reverseTrajectories);
+	 std::pair<TrajectoryStateOnSurface, const GeomDet*> && initState = theInitialState->innerState( *it , doBackFit);
 
 	 // temporary protection againt invalid initial states
-	 if (! initState.first.isValid() || initState.second == 0 || edm::isNotFinite(initState.first.globalPosition().x())) {
+	 if ( !initState.first.isValid() || initState.second == nullptr || edm::isNotFinite(initState.first.globalPosition().x())) {
 	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
 	   continue;
 	 }
 	 
 	 PTrajectoryStateOnDet state;
-	 if(useSplitting && (initState.second != thits.front()->det()) && thits.front()->det() ){	 
+	 if(useSplitting && (initState.second != recHits.front().det()) && recHits.front().det() ){	 
 	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
-	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,thits.front()->det()->surface());
+	   TrajectoryStateOnSurface && propagated = thePropagator->propagate(initState.first,recHits.front().det()->surface());
 	   if (!propagated.isValid()) continue;
 	   state = trajectoryStateTransform::persistentState(propagated,
-								      thits.front()->det()->geographicalId().rawId());
+								      recHits.front().rawId());
 	 }
 	 else state = trajectoryStateTransform::persistentState( initState.first,
-									initState.second->geographicalId().rawId());
+							         initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef(),it->nLoops() ) );
+	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops());
        }
       }//output trackcandidates
 
@@ -408,7 +389,8 @@ namespace cms{
 						    << "number of Seed: " << collseed->size()<<endl
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
-      
+      assert(viTotHits>=0); // just to use it...
+      // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
      
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 

@@ -34,7 +34,6 @@
 - JetAnalyzerBase
 - JetMETAnalyzer
 - JetMETDQMDCSFilter
-- JetMETDQMOfflineClient
 - JetPtAnalyzer
 - METAnalyzer
 - METAnalyzerBase
@@ -65,7 +64,6 @@
 - ECALRecHitAnalyzer
 - BeamHaloAnalyzer
 - DataCertificationJetMET
-- JetMETDQMOfflineClient
 - SUSYDQMAnalyzer
 
 \subsection tests Unit tests and examples

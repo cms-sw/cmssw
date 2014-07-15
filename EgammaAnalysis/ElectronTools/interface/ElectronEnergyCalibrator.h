@@ -14,6 +14,10 @@ using std::ifstream;
 using std::istringstream;
 using std::cout;
 
+namespace edm {
+  class StreamID;
+}
+
 struct correctionValues
 {
     double nRunMin;
@@ -68,7 +72,7 @@ class ElectronEnergyCalibrator
 		    init();
     	}
 
-        void calibrate(SimpleElectron &electron);
+        void calibrate(SimpleElectron &electron, edm::StreamID const&);
         void correctLinearity(SimpleElectron &electron);
 
     private:

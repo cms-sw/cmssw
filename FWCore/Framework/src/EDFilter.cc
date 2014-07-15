@@ -8,27 +8,48 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
+
+#include "SharedResourcesRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
+  
+  EDFilter::EDFilter() : ProducerBase() , moduleDescription_(),
+  previousParentage_(), previousParentageId_() {
+    SharedResourcesRegistry::instance()->registerSharedResource(
+                                                                SharedResourcesRegistry::kLegacyModuleResourceName);
+  }
+
   EDFilter::~EDFilter() {
   }
 
   bool
   EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
+                    ActivityRegistry* act,
                     ModuleCallingContext const* mcc) {
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    rc = this->filter(e, c);
-    commit_(e,&previousParentage_, &previousParentageId_);
+    {
+      std::lock_guard<std::mutex> guard(mutex_);
+      {
+        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+        EventSignalsSentry sentry(act,mcc);
+        rc = this->filter(e, c);
+      }
+      commit_(e,&previousParentage_, &previousParentageId_);
+    }
     return rc;
   }
 
   void 
-  EDFilter::doBeginJob() { 
+  EDFilter::doBeginJob() {
+    std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
+    resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
+
     this->beginJob();
   }
    

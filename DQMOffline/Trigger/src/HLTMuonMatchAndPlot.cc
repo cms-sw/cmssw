@@ -11,14 +11,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <iostream>
 
@@ -35,7 +28,7 @@ typedef std::vector<std::string> vstring;
 
 
 //////////////////////////////////////////////////////////////////////////////
-//////// Class Members ///////////////////////////////////////////////////////
+//////// HLTMuonMatchAndPlot Class Members ///////////////////////////////////
 
 /// Constructor
 HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset, 
@@ -59,19 +52,8 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
 {
 
   // Create std::map<string, T> from ParameterSets. 
-  fillMapFromPSet(inputTags_, pset, "inputTags");
   fillMapFromPSet(binParams_, pset, "binParams");
   fillMapFromPSet(plotCuts_, pset, "plotCuts");
-
-  // Set HLT process name for TriggerResults and TriggerSummary.
-  InputTag & resTag = inputTags_["triggerResults"];
-  resTag = InputTag(resTag.label(), resTag.instance(), hltProcessName_);
-  InputTag & sumTag = inputTags_["triggerSummary"];
-  sumTag = InputTag(sumTag.label(), sumTag.instance(), hltProcessName_);
-
-  // Prepare the DQMStore object.
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
 
   // Get the trigger level.
   triggerLevel_ = "L3";
@@ -93,9 +75,11 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
     cutMinPt_ = ceil(cutMinPt_ * plotCuts_["minPtFactor"]);
   }
   delete objArray;
+
 }
 
-void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun, 
+void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
+				   const edm::Run& iRun, 
                                    const edm::EventSetup& iSetup)
 {
 
@@ -106,45 +90,45 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
   string pathSansSuffix = hltPath_;
   if (hltPath_.rfind("_v") < hltPath_.length())
     pathSansSuffix = hltPath_.substr(0, hltPath_.rfind("_v"));
-  dbe_->setCurrentFolder(baseDir + pathSansSuffix);
+  iBooker.setCurrentFolder(baseDir + pathSansSuffix);
 
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
-  book1D("deltaR", "deltaR", ";#Deltar(reco, HLT);");
-  book1D("hltPt", "pt", ";p_{T} of HLT object");
-  book1D("hltEta", "eta", ";#eta of HLT object");
-  book1D("hltPhi", "phi", ";#phi of HLT object");
-  book1D("resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
-  book1D("resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
-  book1D("resolutionPt", "resolutionRel", 
+  book1D(iBooker, "deltaR", "deltaR", ";#Deltar(reco, HLT);");
+  book1D(iBooker, "hltPt", "pt", ";p_{T} of HLT object");
+  book1D(iBooker, "hltEta", "eta", ";#eta of HLT object");
+  book1D(iBooker, "hltPhi", "phi", ";#phi of HLT object");
+  book1D(iBooker, "resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
+  book1D(iBooker, "resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
+  book1D(iBooker, "resolutionPt", "resolutionRel", 
          ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
 
   for (size_t i = 0; i < 2; i++) {
 
     string suffix = EFFICIENCY_SUFFIXES[i];
 
-    book1D("efficiencyEta_" + suffix, "eta", ";#eta;");
-    book1D("efficiencyPhi_" + suffix, "phi", ";#phi;");
-    book1D("efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
-    book1D("efficiencyD0_" + suffix, "d0", ";d0;");
-    book1D("efficiencyZ0_" + suffix, "z0", ";z0;");
-    book1D("efficiencyCharge_" + suffix, "charge", ";charge;");
-    book1D("efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
+    book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
+    book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
+    book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "efficiencyD0_" + suffix, "d0", ";d0;");
+    book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
+    book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
+    book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
 
-    book2D("efficiencyPhiVsEta_" + suffix, "etaCoarse", "phiCoarse", 
-           ";#eta;#phi");
+    book2D(iBooker, "efficiencyPhiVsEta_" + suffix, "etaCoarse", 
+	   "phiCoarse", ";#eta;#phi");
 
-    book1D("fakerateEta_" + suffix, "eta", ";#eta;");
-    book1D("fakerateVertex_" + suffix, "NVertex", ";NVertex;");
-    book1D("fakeratePhi_" + suffix, "phi", ";#phi;");
-    book1D("fakerateTurnOn_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "fakerateEta_" + suffix, "eta", ";#eta;");
+    book1D(iBooker, "fakerateVertex_" + suffix, "NVertex", ";NVertex;");
+    book1D(iBooker, "fakeratePhi_" + suffix, "phi", ";#phi;");
+    book1D(iBooker, "fakerateTurnOn_" + suffix, "pt", ";p_{T};");
 
-    book1D("massVsEtaZ_" + suffix, "etaCoarse", ";#eta");
-    book1D("massVsEtaJpsi_" + suffix, "etaCoarse", ";#eta");
-    book1D("massVsPtZ_" + suffix, "ptCoarse", ";p_{T}");
-    book1D("massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
-    book1D("massVsVertexZ_" + suffix, "NVertex", ";NVertex");
-    book1D("massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
+    book1D(iBooker, "massVsEtaZ_" + suffix, "etaCoarse", ";#eta");
+    book1D(iBooker, "massVsEtaJpsi_" + suffix, "etaCoarse", ";#eta");
+    book1D(iBooker, "massVsPtZ_" + suffix, "ptCoarse", ";p_{T}");
+    book1D(iBooker, "massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
+    book1D(iBooker, "massVsVertexZ_" + suffix, "NVertex", ";NVertex");
+    book1D(iBooker, "massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
 
   }
   
@@ -155,47 +139,17 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
 void HLTMuonMatchAndPlot::endRun(const edm::Run& iRun, 
                                  const edm::EventSetup& iSetup)
 {
+
 }
 
 
 
-void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
-                                  const edm::EventSetup& iSetup)
-
+void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons, 
+				  Handle<BeamSpot>         & beamSpot,
+				  Handle<VertexCollection> & vertices,
+				  Handle<TriggerEvent>     & triggerSummary,  
+				  Handle<TriggerResults>   & triggerResults)
 {
-
-  // Get objects from the event.
-  Handle<MuonCollection> allMuons;
-  iEvent.getByLabel(inputTags_["recoMuon"], allMuons);
-
-  Handle<BeamSpot> beamSpot;
-  iEvent.getByLabel(inputTags_["beamSpot"], beamSpot);
-  
-  Handle<TriggerEvent> triggerSummary;
-  iEvent.getByLabel(inputTags_["triggerSummary"], triggerSummary);
-  Handle<TriggerResults> triggerResults;
-
-  edm::Handle<VertexCollection> vertices;
-  iEvent.getByLabel("offlinePrimaryVertices", vertices);
-
-  //edm::Handle<GenParticleCollection> gen;
-  //iEvent.getByLabel("genParticles", gen);
-  //GenParticleCollection::const_iterator g_part;
-  //std::vector<const GenParticle *> gen_leptsp;
-  //std::vector<const GenParticle *> gen_momsp;
-
-
-  if(!triggerSummary.isValid()) 
-  {
-    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerSummary with label " << inputTags_["triggerSummary"] <<std::endl;
-    return;
-  }
-  iEvent.getByLabel(inputTags_["triggerResults"], triggerResults);
-  if(!triggerResults.isValid()) 
-  {
-    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults with label " << inputTags_["triggerResults"] <<std::endl;
-    return;
-  }
 
   /*
   if(gen != 0) {
@@ -380,7 +334,8 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 // Method to fill binning parameters from a vector of doubles.
 void 
 HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges, 
-                               const vector<double>& binning) {
+                               const vector<double>& binning) 
+{
 
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!"; 
@@ -413,7 +368,8 @@ HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges,
 template <class T>
 void 
 HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T> & m, 
-                                     const ParameterSet& pset, string target) {
+                                     const ParameterSet& pset, string target) 
+{
 
   // Get the ParameterSet with name 'target' from 'pset'
   ParameterSet targetPset;
@@ -442,7 +398,8 @@ template <class T1, class T2>
 vector<size_t> 
 HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1, 
                                    const vector<T2> & collection2,
-                                   const double maxDeltaR) {
+                                   const double maxDeltaR) 
+{
 
   const size_t n1 = collection1.size();
   const size_t n2 = collection2.size();
@@ -490,6 +447,7 @@ HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons,
                                    const StringCutObjectSelector<reco::Muon> &selector,
                                    double d0Cut, double z0Cut)
 {
+
   // If there is no selector (recoCuts does not exists), return an empty collection. 
   if (!hasRecoCuts)
     return MuonCollection();
@@ -548,8 +506,10 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
 
 
-void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
+void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name, 
+				 string binningType, string title)
 {
+
   /* Properly delete the array of floats that has been allocated on
    * the heap by fillEdges.  Avoid multiple copies and internal ROOT
    * clones by simply creating the histograms directly in the DQMStore
@@ -560,20 +520,22 @@ void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
   float * edges = 0; 
   fillEdges(nBins, edges, binParams_[binningType]);
 
-  hists_[name] = dbe_->book1D(name, title, nBins, edges);
+  hists_[name] = iBooker.book1D(name, title, nBins, edges);
   if (hists_[name])
     if (hists_[name]->getTH1F()->GetSumw2N())
       hists_[name]->getTH1F()->Sumw2();
 
   if (edges)
     delete [] edges;
+
 }
 
 
 
 void
-HLTMuonMatchAndPlot::book2D(string name, string binningTypeX, 
-                            string binningTypeY, string title) 
+HLTMuonMatchAndPlot::book2D(DQMStore::IBooker & iBooker, string name, 
+			    string binningTypeX, string binningTypeY, 
+			    string title) 
 {
   
   /* Properly delete the arrays of floats that have been allocated on
@@ -590,8 +552,8 @@ HLTMuonMatchAndPlot::book2D(string name, string binningTypeX,
   float * edgesY = 0;
   fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
 
-  hists_[name] = dbe_->book2D(name.c_str(), title.c_str(),
-			      nBinsX, edgesX, nBinsY, edgesY);
+  hists_[name] = iBooker.book2D(name.c_str(), title.c_str(),
+				nBinsX, edgesX, nBinsY, edgesY);
   if (hists_[name])
     if (hists_[name]->getTH2F()->GetSumw2N())
       hists_[name]->getTH2F()->Sumw2();
@@ -600,5 +562,7 @@ HLTMuonMatchAndPlot::book2D(string name, string binningTypeX,
     delete [] edgesX;
   if (edgesY)
     delete [] edgesY;
+
 }
+
 

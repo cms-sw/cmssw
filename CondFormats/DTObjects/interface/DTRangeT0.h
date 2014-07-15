@@ -6,8 +6,6 @@
  *       Class to hold drift tubes T0 range
  *             ( SL by SL min - max T0 )
  *
- *  $Date: 2007/12/07 15:00:45 $
- *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,14 +18,19 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -45,6 +48,8 @@ class DTRangeT0Id {
   int  sectorId;
   int      slId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -58,6 +63,8 @@ class DTRangeT0Data {
   int t0min;
   int t0max;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -135,20 +142,23 @@ class DTRangeT0 {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTRangeT0(DTRangeT0 const&);
+  DTRangeT0& operator=(DTRangeT0 const&);
 
   std::string dataVersion;
 
   std::vector< std::pair<DTRangeT0Id,DTRangeT0Data> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
-
-
 #endif // DTRangeT0_H
-

@@ -89,8 +89,8 @@ void DTNoiseComputation::beginRun(const edm::Run&, const EventSetup& setup)
     TH1F *hsomeHowNoisyC;
   
     // Loop over all the chambers 	 
-    vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
-    vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
+    vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
+    vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
     // Loop over the SLs 	 
     for (; ch_it != ch_end; ++ch_it) { 	 
       DTChamberId ch = (*ch_it)->id(); 	 
@@ -326,8 +326,8 @@ void DTNoiseComputation::endJob(){
   
   //overimpose the average noise histo
   bool histo=false;
-  vector<DTChamber*>::const_iterator chamber_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator chamber_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator chamber_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator chamber_end = dtGeom->chambers().end();
   // Loop over the chambers
   for (; chamber_it != chamber_end; ++chamber_it) {
     vector<const DTSuperLayer*>::const_iterator sl_it = (*chamber_it)->superLayers().begin(); 

@@ -1,34 +1,48 @@
-#ifndef HLTPFJetIDProducer_h
-#define HLTPFJetIDProducer_h
+#ifndef HLTPFJetIDProducer_h_
+#define HLTPFJetIDProducer_h_
+
+/** \class HLTPFJetIDProducer
+ *
+ *  \brief  This applies PFJet ID and produces a jet collection with jets that pass the ID.
+ *  \author Michele de Gruttola, Jia Fu Low (Nov 2013)
+ *
+ *  This receives a PFJet collection, selects jets that pass PFJet ID,
+ *  and makes an output PFJet collection with only jets that pass.
+ *
+ */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
+
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
+// Class declaration
 class HLTPFJetIDProducer : public edm::EDProducer {
- public:
-  explicit HLTPFJetIDProducer(const edm::ParameterSet&);
-  ~HLTPFJetIDProducer();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void beginJob() ; 
-  virtual void produce(edm::Event &, const edm::EventSetup&);
- private:
-  edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
-  edm::InputTag jetsInput_;
-  double min_NHEF_;         // minimum Neutral Hadron Energy Fraction
-  double max_NHEF_;         // maximum NHEF
-  double min_NEMF_;         // minimum Neutral EM Energy Fraction
-  double max_NEMF_;         // maximum NEMF
-  double min_CEMF_;         // minimum Charged EM Energy Fraction
-  double max_CEMF_;         // maximum CEMF
-  double min_CHEF_;         // minimum Charged Hadron Energy Fraction
-  double max_CHEF_;         // maximum CHEF
-  double min_pt_;           // pT cut
+  public:
+    explicit HLTPFJetIDProducer(const edm::ParameterSet & iConfig);
+    ~HLTPFJetIDProducer();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+
+  private:
+    double minPt_;
+    double CHF_;              ///< charged hadron fraction
+    double NHF_;              ///< neutral hadron fraction
+    double CEF_;              ///< charged EM fraction
+    double NEF_;              ///< neutral EM fraction
+    int NCH_;                 ///< number of charged constituents
+    int NTOT_;                ///< number of constituents
+    edm::InputTag inputTag_;  ///< input PFJet collection
+
+    edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
 };
 
-#endif
+#endif  // HLTPFJetIDProducer_h_

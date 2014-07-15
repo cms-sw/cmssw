@@ -75,11 +75,7 @@ namespace cms
     //--- realistic use case...
 
     //--- The top-level event method.
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
-    // Begin Job
-    //virtual void beginJob();
-    virtual void beginJob();
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector

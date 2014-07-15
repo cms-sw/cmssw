@@ -344,7 +344,6 @@ void GlobalRecHitsHistogrammer::analyze(const edm::Event& iEvent,
   }
 
 edm::Handle<PGlobalRecHit> srcGlobalRecHits;
-//  iEvent.getByLabel(GlobalRecHitSrc_,srcGlobalRecHits);
   iEvent.getByToken(GlobalRecHitSrc_Token_,srcGlobalRecHits);
   if (!srcGlobalRecHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)

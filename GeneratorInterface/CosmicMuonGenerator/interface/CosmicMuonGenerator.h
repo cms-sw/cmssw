@@ -267,8 +267,9 @@ public:
 
 
   // initialize the generator
+  void setRandomEngine(CLHEP::HepRandomEngine* v);
   void initialize(CLHEP::HepRandomEngine *rng = 0);
-   // prints rate + statistics
+  // prints rate + statistics
   void terminate();
   // initialize, generate and terminate the Cosmic Muon Generator
   void runCMG();

@@ -15,8 +15,6 @@
 		<Constant name="TrackBeamZ2" value="2.935*m"/>
 		<Constant name="TrackBeamR1" value="3.15*cm"/>
 		<Constant name="TrackBeamR2" value="7.40*cm"/>
-		<Constant name="TrackLumiZ1" value="1.722*m"/>
-		<Constant name="TrackLumiZ2" value="1.800*m"/>
 		<Constant name="TrackLumiR1" value="7.70*cm"/>
 		<Constant name="CalorBeamZ1" value="3.180*m"/>
 		<Constant name="CalorBeamZ2" value="5.541*m"/>
@@ -36,7 +34,7 @@
 		<Constant name="TotemBeamZ2" value="13.381*m"/>
 		<Constant name="TotemBeamZ3" value="13.439*m"/>
 		<Constant name="TotemBeamZ4" value="13.465*m"/>
-		<Constant name="TotemBeamR1" value="11.64*cm"/>
+		<Constant name="TotemBeamR1" value="11.785*cm"/>
 		<Constant name="TotemBeamR2" value="12.15*cm"/>
 		<Constant name="TotemBeamR3" value="12.20*cm"/>
 		<Constant name="TotemBeamR4" value="3.675*cm"/>

@@ -2,9 +2,7 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <iostream>
 
-CSCDetId::CSCDetId():DetId(DetId::Muon, MuonSubdetId::CSC){}
-
-
+#ifdef EDM_ML_DEBUG
 CSCDetId::CSCDetId(uint32_t id):DetId(id) {
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
     throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
@@ -43,6 +41,8 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   }
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
+
+#endif
 
 int CSCDetId::triggerSector() const
 {

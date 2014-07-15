@@ -3,7 +3,7 @@
 void PTDRElectronID::setup(const edm::ParameterSet& conf) {
 
   // Get all the parameters
-  baseSetup(conf);
+  //baseSetup(conf);
   
   quality_ =  conf.getParameter<std::string>("electronQuality");
   
@@ -117,12 +117,12 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
     if (value<mincut[icut]) return 0.;
   }
 
-  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  //EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  //std::vector<float> vCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
   //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
     
   if (useE9overE25_[variables_]) {
-    double value = lazyTools.e3x3(*(electron->superCluster()->seed()))/lazyTools.e5x5(*(electron->superCluster()->seed()));
+    double value = electron->r9()*electron->superCluster()->energy()/electron->e5x5();
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("E9overE25");
     if (fabs(value)<mincut[icut]) return 0.;
   }
@@ -130,13 +130,13 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
   if (useSigmaEtaEta_[variables_]) {
     std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaEtaEtaMax");
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaEtaEtaMin");
-    if (sqrt(vCov[0])<mincut[icut] || sqrt(vCov[0])>maxcut[icut]) return 0.;
+    if (electron->sigmaIetaIeta()<mincut[icut] || electron->sigmaIetaIeta()>maxcut[icut]) return 0.;
   }
 
   if (useSigmaPhiPhi_[variables_]) {
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaPhiPhiMin");
     std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaPhiPhiMax");
-    if (sqrt(vCov[1])<mincut[icut] || sqrt(vCov[1])>maxcut[icut]) return 0.;
+    if (electron->sigmaIphiIphi()<mincut[icut] || electron->sigmaIphiIphi()>maxcut[icut]) return 0.;
   }
 
   return 1.;

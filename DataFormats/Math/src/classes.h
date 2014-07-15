@@ -1,4 +1,17 @@
 #define G__DICTIONARY
+
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#ifdef CMS_NOCXX11
+#define SMATRIX_USE_COMPUTATION
+#else
+#define SMATRIX_USE_CONSTEXPR
+#endif
+
+
+#include <Math/SVector.h>
+#include <Math/SMatrix.h>
+
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Rtypes.h" 
 #include "Math/PxPyPzE4D.h" 
@@ -202,14 +215,6 @@ namespace DataFormats_Math {
     ROOT::Math::MatRepSym<float, 6> smf6;
     ROOT::Math::MatRepSym<float, 7> smf7;
 	
-    //     ROOT::Math::RowOffsets<1> ro1;
-    ROOT::Math::RowOffsets<2> ro2;
-    ROOT::Math::RowOffsets<3> ro3;
-    ROOT::Math::RowOffsets<4> ro4;
-    ROOT::Math::RowOffsets<5> ro5;
-    ROOT::Math::RowOffsets<6> ro6;
-    ROOT::Math::RowOffsets<7> ro7;
-
     //Used by ECAL Weights reconstruction
     //Used by ECAL Weights reconstruction
     math::Matrix<3,10>::type mw; 

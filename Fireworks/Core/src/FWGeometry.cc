@@ -24,40 +24,24 @@ FWGeometry::~FWGeometry( void )
 TFile*
 FWGeometry::findFile( const char* fileName )
 {
-   TString file;
-   if( fileName[0] == '/' || ( fileName[0] == '.' &&  fileName[1] == '/' ))
-   {
-      file = fileName;
-   }
-   else
-   {
-      if( const char* cmspath = gSystem->Getenv( "CMSSW_BASE" ))
-      {
-         file += cmspath;
-         file += "/";
-      }
-      file += fileName;
-   }
-   if( !gSystem->AccessPathName( file.Data()))
-   {
-      return TFile::Open( file );
+   std::string searchPath = ".";
+
+   if (gSystem->Getenv( "CMSSW_SEARCH_PATH" ))
+   {    
+       TString paths = gSystem->Getenv( "CMSSW_SEARCH_PATH" );
+       TObjArray* tokens = paths.Tokenize( ":" );
+       for( int i = 0; i < tokens->GetEntries(); ++i )
+       {
+           TObjString* path = (TObjString*)tokens->At( i );
+           searchPath += ":";
+           searchPath += path->GetString();
+           searchPath += "/Fireworks/Geometry/data/";
+       }
    }
 
-   const char* searchpath = gSystem->Getenv( "CMSSW_SEARCH_PATH" );
-   if( searchpath == 0 )
-     return 0;
-   TString paths( searchpath );
-   TObjArray* tokens = paths.Tokenize( ":" );
-   for( int i = 0; i < tokens->GetEntries(); ++i )
-   {
-      TObjString* path = (TObjString*)tokens->At( i );
-      TString fullFileName( path->GetString());
-      fullFileName += "/Fireworks/Geometry/data/";
-      fullFileName += fileName;
-      if( !gSystem->AccessPathName( fullFileName.Data()))
-         return TFile::Open( fullFileName.Data());
-   }
-   return 0;
+   TString fn = fileName;
+   const char* fp = gSystem->FindFile(searchPath.c_str(), fn, kFileExists);
+   return fp ? TFile::Open( fp) : 0;
 }
 
 void

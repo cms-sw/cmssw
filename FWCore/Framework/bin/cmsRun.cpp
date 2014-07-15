@@ -25,7 +25,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "TError.h"
 
 #include "boost/program_options.hpp"
-#include "boost/shared_ptr.hpp"
 #include "tbb/task_scheduler_init.h"
 
 #include <cstring>
@@ -54,7 +53,6 @@ static char const* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
-static char const* const kProgramName = "cmsRun";
 
 // -----------------------------------------------
 namespace {
@@ -124,13 +122,13 @@ int main(int argc, char* argv[]) {
   // may be using TBB.
   bool setNThreadsOnCommandLine = false;
   std::unique_ptr<tbb::task_scheduler_init> tsiPtr{new tbb::task_scheduler_init{1}};
-  boost::shared_ptr<edm::Presence> theMessageServicePresence;
+  std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
-  boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
+  std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
   EventProcessorWithSentry proc;
 
   try {
-    try {
+    returnCode = edm::convertException::wrap([&]()->int {
 
       // NOTE: MacOs X has a lower rlimit for opened file descriptor than Linux (256
       // in Snow Leopard vs 512 in SLC5). This is a problem for some of the workflows
@@ -166,11 +164,11 @@ int main(int argc, char* argv[]) {
       // Load the message service plug-in
 
       if(multiThreadML) {
-        theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+        theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("MessageServicePresence").release());
       }
       else {
-        theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+        theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("SingleThreadMSPresence").release());
       }
 
@@ -275,9 +273,9 @@ int main(int argc, char* argv[]) {
 
       context = "Processing the python configuration file named ";
       context += fileName;
-      boost::shared_ptr<edm::ProcessDesc> processDesc;
+      std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
+        std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
         processDesc.reset(new edm::ProcessDesc(parameterSet));
       }
       catch(cms::Exception& iException) {
@@ -290,18 +288,28 @@ int main(int argc, char* argv[]) {
       context = "Setting up number of threads";
       {
         if(not setNThreadsOnCommandLine) {
-          boost::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+          std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
           if(pset->existsAs<edm::ParameterSet>("options",false)) {
             auto const& ops = pset->getUntrackedParameterSet("options");
             if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
               unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
-	      unsigned int stackSize=0;
-	      if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",0)) {
-		stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
-	      }
+              unsigned int stackSize=0;
+              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",0)) {
+                stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
+              }
               setNThreads(nThreads,stackSize,tsiPtr);
             }
           }
+        } else {
+          //inject it into the top level ParameterSet
+          edm::ParameterSet newOp;
+          std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+          if(pset->existsAs<edm::ParameterSet>("options",false)) {
+            newOp = pset->getUntrackedParameterSet("options");
+          }
+          unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
+          newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreads);
+          pset->insertParameterSet(true,"options",edm::ParameterSetEntry(newOp,false));
         }
       }
 
@@ -358,26 +366,8 @@ int main(int argc, char* argv[]) {
 
       context = "Calling endJob";
       proc->endJob();
-    }
-    catch (cms::Exception& e) {
-      throw;
-    }
-    // The functions in the following catch blocks throw an edm::Exception
-    catch(std::bad_alloc& bda) {
-      edm::convertException::badAllocToEDM();
-    }
-    catch (std::exception& e) {
-      edm::convertException::stdToEDM(e);
-    }
-    catch(std::string& s) {
-      edm::convertException::stringToEDM(s);
-    }
-    catch(char const* c) {
-      edm::convertException::charPtrToEDM(c);
-    }
-    catch (...) {
-      edm::convertException::unknownToEDM();
-    }
+      return returnCode;
+    });
   }
   // All exceptions which are not handled before propagating
   // into main will get caught here.

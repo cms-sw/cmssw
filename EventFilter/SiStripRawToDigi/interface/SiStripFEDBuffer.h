@@ -9,6 +9,8 @@
 #include <cstring>
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 namespace sistrip {
 
   //
@@ -16,7 +18,7 @@ namespace sistrip {
   //
 
   //class representing standard (non-spy channel) FED buffers
-  class FEDBuffer : public FEDBufferBase
+  class FEDBuffer final : public FEDBufferBase
     {
     public:
       //construct from buffer
@@ -37,7 +39,7 @@ namespace sistrip {
 
       //functions to check buffer. All return true if there is no problem.
       //minimum checks to do before using buffer
-      virtual bool doChecks() const;
+      virtual bool doChecks(bool doCRC=true) const;
   
       //additional checks to check for corrupt buffers
       //check channel lengths fit inside to buffer length

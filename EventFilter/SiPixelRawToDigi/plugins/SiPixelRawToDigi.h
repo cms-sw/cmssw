@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,13 +16,14 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+class SiPixelFedCablingTree;
 class SiPixelFedCabling;
 class SiPixelQuality;
 class TH1D;
 class R2DTimerObserver;
 class PixelUnpackingRegions;
 
-class SiPixelRawToDigi : public edm::EDProducer {
+class SiPixelRawToDigi : public edm::stream::EDProducer<> {
 public:
 
   /// ctor
@@ -31,19 +32,14 @@ public:
   /// dtor
   virtual ~SiPixelRawToDigi();
 
-
-  /// dummy end of job 
-  virtual void endJob() {}
-
   /// get data, convert to digis attach againe to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
 
   edm::ParameterSet config_;
-  const SiPixelFedCabling* cabling_;
+  std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
-  bool  useCablingTree_;
   PixelUnpackingRegions* regions_;
   edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
 

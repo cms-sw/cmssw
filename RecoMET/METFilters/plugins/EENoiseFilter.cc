@@ -16,8 +16,9 @@ class EENoiseFilter : public edm::EDFilter {
   private:
 
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    
-    const edm::InputTag ebRHSrc_, eeRHSrc_;
+
+    edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
+    edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
     const double slope_, intercept_;
 
     const bool taggingMode_, debug_;
@@ -25,8 +26,8 @@ class EENoiseFilter : public edm::EDFilter {
 
 
 EENoiseFilter::EENoiseFilter(const edm::ParameterSet & iConfig)
-  : ebRHSrc_     (iConfig.getParameter<edm::InputTag>("EBRecHitSource"))
-  , eeRHSrc_     (iConfig.getParameter<edm::InputTag>("EERecHitSource"))
+  : ebRHSrcToken_     (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitSource")))
+  , eeRHSrcToken_     (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource")))
   , slope_       (iConfig.getParameter<double>("Slope"))
   , intercept_   (iConfig.getParameter<double>("Intercept"))
   , taggingMode_ (iConfig.getParameter<bool>("taggingMode"))
@@ -38,8 +39,8 @@ EENoiseFilter::EENoiseFilter(const edm::ParameterSet & iConfig)
 
 bool EENoiseFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   edm::Handle<EcalRecHitCollection> ebRHs, eeRHs;
-  iEvent.getByLabel(ebRHSrc_, ebRHs);
-  iEvent.getByLabel(eeRHSrc_, eeRHs);
+  iEvent.getByToken(ebRHSrcToken_, ebRHs);
+  iEvent.getByToken(eeRHSrcToken_, eeRHs);
 
   const bool pass = eeRHs->size() < slope_ * ebRHs->size() + intercept_;
 

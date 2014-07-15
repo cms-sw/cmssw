@@ -42,8 +42,6 @@ DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet& ps)
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
   ptThrMet_ = ps.getUntrackedParameter<double>("PtThrMet");
  
-  //DQMStore
-  dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 //
@@ -64,12 +62,19 @@ void DQMExample_Step1::beginJob()
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void DQMExample_Step1::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) 
+void DQMExample_Step1::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 {
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginRun" << std::endl;
+}
+//
+// -------------------------------------- bookHistos --------------------------------------------
+//
+void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
+{
+  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::bookHistograms" << std::endl;
   
   //book at beginRun
-  bookHistos(dbe_);  
+  bookHistos(ibooker_);
 }
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
@@ -330,41 +335,41 @@ void DQMExample_Step1::endJob()
 //
 // -------------------------------------- book histograms --------------------------------------------
 //
-void DQMExample_Step1::bookHistos(DQMStore* dbe)
+void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
 {
-  dbe->cd();
-  dbe->setCurrentFolder("Physics/TopTest");
+  ibooker_.cd();
+  ibooker_.setCurrentFolder("Physics/TopTest");
 
-  h_vertex_number = dbe->book1D("Vertex_number", "Number of event vertices in collection", 40,-0.5,   39.5 );
+  h_vertex_number = ibooker_.book1D("Vertex_number", "Number of event vertices in collection", 40,-0.5,   39.5 );
 
-  h_pfMet        = dbe->book1D("pfMet",        "Pf Missing E_{T}; GeV"          , 20,  0.0 , 100);
+  h_pfMet        = ibooker_.book1D("pfMet",        "Pf Missing E_{T}; GeV"          , 20,  0.0 , 100);
 
-  h_eMultiplicity = dbe_->book1D("NElectrons","# of electrons per event",10,0.,10.);
-  h_ePt_leading_matched = dbe_->book1D("ElePt_leading_matched","Pt of leading electron",50,0.,100.);
-  h_eEta_leading_matched = dbe_->book1D("EleEta_leading_matched","Eta of leading electron",50,-5.,5.);
-  h_ePhi_leading_matched = dbe_->book1D("ElePhi_leading_matched","Phi of leading electron",50,-3.5,3.5);
+  h_eMultiplicity = ibooker_.book1D("NElectrons","# of electrons per event",10,0.,10.);
+  h_ePt_leading_matched = ibooker_.book1D("ElePt_leading_matched","Pt of leading electron",50,0.,100.);
+  h_eEta_leading_matched = ibooker_.book1D("EleEta_leading_matched","Eta of leading electron",50,-5.,5.);
+  h_ePhi_leading_matched = ibooker_.book1D("ElePhi_leading_matched","Phi of leading electron",50,-3.5,3.5);
 
-  h_ePt_leading = dbe_->book1D("ElePt_leading","Pt of leading electron",50,0.,100.);
-  h_eEta_leading = dbe_->book1D("EleEta_leading","Eta of leading electron",50,-5.,5.);
-  h_ePhi_leading = dbe_->book1D("ElePhi_leading","Phi of leading electron",50,-3.5,3.5);
+  h_ePt_leading = ibooker_.book1D("ElePt_leading","Pt of leading electron",50,0.,100.);
+  h_eEta_leading = ibooker_.book1D("EleEta_leading","Eta of leading electron",50,-5.,5.);
+  h_ePhi_leading = ibooker_.book1D("ElePhi_leading","Phi of leading electron",50,-3.5,3.5);
 
-  h_jMultiplicity = dbe_->book1D("NJets","# of electrons per event",10,0.,10.);
-  h_jPt_leading = dbe_->book1D("JetPt_leading","Pt of leading Jet",150,0.,300.);
-  h_jEta_leading = dbe_->book1D("JetEta_leading","Eta of leading Jet",50,-5.,5.);
-  h_jPhi_leading = dbe_->book1D("JetPhi_leading","Phi of leading Jet",50,-3.5,3.5);
+  h_jMultiplicity = ibooker_.book1D("NJets","# of electrons per event",10,0.,10.);
+  h_jPt_leading = ibooker_.book1D("JetPt_leading","Pt of leading Jet",150,0.,300.);
+  h_jEta_leading = ibooker_.book1D("JetEta_leading","Eta of leading Jet",50,-5.,5.);
+  h_jPhi_leading = ibooker_.book1D("JetPhi_leading","Phi of leading Jet",50,-3.5,3.5);
 
-  h_eMultiplicity_HLT = dbe_->book1D("NElectrons_HLT","# of electrons per event @HLT",10,0.,10.);
-  h_ePt_leading_HLT = dbe_->book1D("ElePt_leading_HLT","Pt of leading electron @HLT",50,0.,100.);
-  h_eEta_leading_HLT = dbe_->book1D("EleEta_leading_HLT","Eta of leading electron @HLT",50,-5.,5.);
-  h_ePhi_leading_HLT = dbe_->book1D("ElePhi_leading_HLT","Phi of leading electron @HLT",50,-3.5,3.5);
+  h_eMultiplicity_HLT = ibooker_.book1D("NElectrons_HLT","# of electrons per event @HLT",10,0.,10.);
+  h_ePt_leading_HLT = ibooker_.book1D("ElePt_leading_HLT","Pt of leading electron @HLT",50,0.,100.);
+  h_eEta_leading_HLT = ibooker_.book1D("EleEta_leading_HLT","Eta of leading electron @HLT",50,-5.,5.);
+  h_ePhi_leading_HLT = ibooker_.book1D("ElePhi_leading_HLT","Phi of leading electron @HLT",50,-3.5,3.5);
 
-  h_ePt_leading_HLT_matched = dbe_->book1D("ElePt_leading_HLT_matched","Pt of leading electron @HLT",50,0.,100.);
-  h_eEta_leading_HLT_matched = dbe_->book1D("EleEta_leading_HLT_matched","Eta of leading electron @HLT",50,-5.,5.);
-  h_ePhi_leading_HLT_matched = dbe_->book1D("ElePhi_leading_HLT_matched","Phi of leading electron @HLT",50,-3.5,3.5);
+  h_ePt_leading_HLT_matched = ibooker_.book1D("ElePt_leading_HLT_matched","Pt of leading electron @HLT",50,0.,100.);
+  h_eEta_leading_HLT_matched = ibooker_.book1D("EleEta_leading_HLT_matched","Eta of leading electron @HLT",50,-5.,5.);
+  h_ePhi_leading_HLT_matched = ibooker_.book1D("ElePhi_leading_HLT_matched","Phi of leading electron @HLT",50,-3.5,3.5);
 
-  h_ePt_diff = dbe_->book1D("ElePt_diff_matched","pT(RECO) - pT(HLT) for mathed candidates",100,-10,10.);
+  h_ePt_diff = ibooker_.book1D("ElePt_diff_matched","pT(RECO) - pT(HLT) for mathed candidates",100,-10,10.);
 
-  dbe->cd();  
+  ibooker_.cd();  
 
 }
 

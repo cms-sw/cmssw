@@ -117,8 +117,8 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
 
   if(DTHVRecordFound) context.get<DTHVStatusRcd>().get(hvStatus);
 
-  vector<DTLayer*>::const_iterator layersIt  = theDTGeom->layers().begin();
-  vector<DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
+  vector<const DTLayer*>::const_iterator layersIt  = theDTGeom->layers().begin();
+  vector<const DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
 
   for(; layersIt!=layersEnd; ++layersIt) {
 

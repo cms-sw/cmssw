@@ -1,4 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 // Field
 // Geometry
@@ -12,10 +13,13 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
-ConversionSeedFinder::ConversionSeedFinder(const edm::ParameterSet& config ): 
-  conf_(config),
+ConversionSeedFinder::ConversionSeedFinder(const edm::ParameterSet& config,edm::ConsumesCollector & iC ): 
+  //  conf_(config),
   theUpdator_()
 {
+
+  measurementTrkToken_=iC.consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent")); //hardcoded because the original was and no time to fix (sigh)
+  beamSpotToken_=iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));  //hardcoded because the original was and no time to fix (sigh)
 
   LogDebug("ConversionSeedFinder")  << " CTOR " << "\n";
 
@@ -30,10 +34,10 @@ void ConversionSeedFinder::setEvent(const edm::Event& evt  )  {
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  evt.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+  evt.getByToken(beamSpotToken_,recoBeamSpotHandle);
   theBeamSpot_ = *recoBeamSpotHandle;
 
-  evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), theTrackerData_);
+  evt.getByToken(measurementTrkToken_, theTrackerData_);
 
 }
 
@@ -131,7 +135,7 @@ void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
 
   StartingLayerFinder starter(&prop, this->getMeasurementTracker() );
  
-  LayerCollector collector(&prop, &starter, 5., 5.);
+  LayerCollector collector(theNavigationSchool_, &prop, &starter, 5., 5.);
 
   theLayerList_ = collector.allLayers(traj);
 

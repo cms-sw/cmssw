@@ -11,10 +11,6 @@ SimpleDiskBounds::SimpleDiskBounds( float rmin, float rmax, float zmin, float zm
   if ( theZmin > theZmax) std::swap( theZmin, theZmax);
 }
 
-bool SimpleDiskBounds::inside( const Local3DPoint& p) const {
-  return p.z()    > theZmin && p.z()    < theZmax &&
-    p.perp() > theRmin && p.perp() < theRmax;
-}
     
 bool SimpleDiskBounds::inside( const Local2DPoint& p, const LocalError& err) const {
   return Bounds::inside(p,err);

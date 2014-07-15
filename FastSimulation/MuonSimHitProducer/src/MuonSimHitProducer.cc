@@ -56,6 +56,8 @@
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
+// for particle table
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
@@ -95,6 +97,11 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   edm::ParameterSet serviceParameters =
      iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+
+  // consumes
+  simMuonToken  = consumes<std::vector<SimTrack> >(simMuonLabel);
+  simVertexToken = consumes<std::vector<SimVertex> >(simVertexLabel);
+
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -148,6 +155,9 @@ void
 MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   // using namespace edm;
   // using namespace std;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdg;
+  iSetup.getData(pdg);
+  ParticleTable::Sentry ptable(pdg.product());
 
   RandomEngineAndDistribution random(iEvent.streamID());
 
@@ -160,8 +170,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   std::vector<PSimHit> theRPCHits;
 
   DirectMuonNavigation navigation(theService->detLayerGeometry());
-  iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
-  iEvent.getByLabel(theSimModuleLabel_,simVertices);
+  iEvent.getByToken(simMuonToken,simMuons);
+  iEvent.getByToken(simVertexToken,simVertices);
 
   for ( unsigned int itrk=0; itrk<simMuons->size(); itrk++ ) {
     const SimTrack &mySimTrack = (*simMuons)[itrk];
@@ -281,8 +291,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
-      const SteppingHelixStateInfo& shsDest = 
-	((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
+      SteppingHelixStateInfo shsDest;
+      ((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface(),shsDest);
       std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
 						      shsDest.path());
       // No need to continue if there is no valid propagation available.
@@ -526,9 +536,11 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 				   const edm::ParameterSet& fastTracks,
 				   const edm::ParameterSet& matEff) {
   // Muons
-  theSimModuleLabel_   = fastMuons.getParameter<std::string>("simModuleLabel");
-  theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
-  theTrkModuleLabel_   = fastMuons.getParameter<std::string>("trackModuleLabel");
+  std::string _simModuleLabel = fastMuons.getParameter<std::string>("simModuleLabel");
+  std::string _simModuleProcess = fastMuons.getParameter<std::string>("simModuleProcess");
+  simMuonLabel = edm::InputTag(_simModuleLabel,_simModuleProcess);
+  simVertexLabel = edm::InputTag(_simModuleLabel);
+ 
   std::vector<double> simHitIneffDT  = fastMuons.getParameter<std::vector<double> >("simHitDTIneffParameters");
   std::vector<double> simHitIneffCSC = fastMuons.getParameter<std::vector<double> >("simHitCSCIneffParameters");
   kDT = simHitIneffDT[0];

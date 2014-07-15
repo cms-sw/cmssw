@@ -13,11 +13,14 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+
+#include "SharedResourcesRegistry.h"
 
 #include <cassert>
 #include <iostream>
@@ -58,6 +61,9 @@ namespace edm {
                                                     process_name_,
                                                     getAllTriggerNames(),
                                                     selectors_);
+    SharedResourcesRegistry::instance()->registerSharedResource(
+                                                                SharedResourcesRegistry::kLegacyModuleResourceName);
+
   }
 
   void OutputModule::configure(OutputModuleDescription const& desc) {
@@ -155,6 +161,9 @@ namespace edm {
   OutputModule::~OutputModule() { }
 
   void OutputModule::doBeginJob() {
+    std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
+    resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
+
     this->beginJob();
   }
 
@@ -172,18 +181,27 @@ namespace edm {
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
                         EventSetup const&,
+                        ActivityRegistry* act,
                         ModuleCallingContext const* mcc) {
-    detail::TRBESSentry products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
 
-    if(!wantAllEvents_) {
-      if(!selectors_.wantEvent(ep, mcc)) {
-        return true;
+    {
+      std::lock_guard<std::mutex> guard(mutex_);
+      detail::TRBESSentry products_sentry(selectors_);
+      if(!wantAllEvents_) {
+        if(!selectors_.wantEvent(ep, mcc)) {
+          return true;
+        }
       }
+      
+      {
+        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+        EventSignalsSentry signals(act,mcc);
+        write(ep, mcc);
+      }
+      updateBranchParents(ep);
     }
-    write(ep, mcc);
-    updateBranchParents(ep);
     if(remainingEvents_ > 0) {
       --remainingEvents_;
     }

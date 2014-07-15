@@ -27,7 +27,7 @@ public:
 
 
   SiTrackerGSMatchedRecHit2D( const LocalPoint&, const LocalError&,
-		       const DetId&,
+		       GeomDet const & idet,
 		       const int simhitId,
 		       const int simtrackId,
 		       const uint32_t eeId,
@@ -40,7 +40,7 @@ public:
 		       );  
 
   SiTrackerGSMatchedRecHit2D( const LocalPoint&, const LocalError&,
-		       const DetId&,
+		       GeomDet const & idet,
 		       const int simhitId,
 		       const int simtrackId,
 		       const uint32_t eeId,

@@ -2,7 +2,7 @@
 #define BTagPerformanceAnalyzerMC_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,8 +18,6 @@
 #include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
-//#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
-//#include "RecoBTag/MCTools/interface/JetFlavour.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
@@ -29,6 +27,8 @@
 #include "DQMOffline/RecoB/interface/MatchJet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include <string>
 #include <vector>
@@ -42,18 +42,17 @@
  *
  */
 
-class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
+class BTagPerformanceAnalyzerMC : public thread_unsafe::DQMEDAnalyzer {
    public:
       explicit BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet);
 
       ~BTagPerformanceAnalyzerMC();
 
-      virtual void beginRun(const edm::Run & run, const edm::EventSetup & es);
-
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+      //virtual void endRun(const edm::Run & run, const edm::EventSetup & es);
       virtual void endJob();
-
+      
    private:
 
   struct JetRefCompare :
@@ -64,16 +63,19 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void bookHistos();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;     
+
   EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
-    typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
-typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
-typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
-  //  reco::JetFlavour getJetFlavour(
-  //	edm::RefToBase<reco::Jet> caloRef, FlavourMap flavours);
-  bool getJetWithFlavour( edm::RefToBase<reco::Jet> caloRef,
+
+  typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
+  typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
+  typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
+  
+  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef,
                          const FlavourMap& _flavours, JetWithFlavour &jetWithFlavour,
-                         const edm::EventSetup & es);
+			 const edm::EventSetup & es, 
+			 edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched);
+  bool getJetWithGenJet(edm::RefToBase<reco::Jet> jetRef, edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched); 
 
   std::vector<std::string> tiDataFormatType;
   bool partonKinematics;
@@ -82,6 +84,8 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
   std::string psBaseName, epsBaseName, inputFile;
+  std::string JECsource;
+  bool doJEC;
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;
@@ -90,6 +94,7 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
 
   edm::InputTag jetMCSrc;
   edm::InputTag slInfoTag;
+  edm::InputTag genJetsMatchedSrc;
 
   std::vector< std::vector<JetTagPlotter*> > binJetTagPlotters;
   std::vector< std::vector<TagCorrelationPlotter*> > binTagCorrelationPlotters;
@@ -110,17 +115,18 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   CorrectJet jetCorrector;
   MatchJet jetMatcher;
 
+  bool doPUid; 
   bool eventInitialized;
   bool electronPlots, muonPlots, tauPlots;
 
   //add consumes 
   edm::EDGetTokenT<GenEventInfoProduct> genToken;
+  edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetsMatchedToken;
   edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetToken;
   edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> slInfoToken;
   std::vector< edm::EDGetTokenT<reco::JetTagCollection> > jetTagToken;
   std::vector< std::pair<edm::EDGetTokenT<reco::JetTagCollection>, edm::EDGetTokenT<reco::JetTagCollection>> > tagCorrelationToken;
   std::vector<std::vector <edm::EDGetTokenT<edm::View<reco::BaseTagInfo>> >> tagInfoToken;
-
 };
 
 

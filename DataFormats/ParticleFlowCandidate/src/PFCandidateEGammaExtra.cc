@@ -153,16 +153,16 @@ float PFCandidateEGammaExtra::mvaVariable(MvaVariable var) const {
   return (mvaStatus(var) ? mvaVariables_[var] : -9999. );
 }
 
-void PFCandidateEGammaExtra::addSingleLegConvTrackRef(const reco::TrackRef& trackref){
-  assoSingleLegRefTrack_.push_back(trackref);
-}
-
-void PFCandidateEGammaExtra::addSingleLegConvMva(const float& mvasingleleg){
-  assoSingleLegMva_.push_back(mvasingleleg);
+void PFCandidateEGammaExtra::addSingleLegConvTrackRefMva(const std::pair<reco::TrackRef, float> &trackrefmva){
+  assoSingleLeg_.push_back(trackrefmva);
 }
 
 void PFCandidateEGammaExtra::addConversionRef(const reco::ConversionRef& convref){
   assoConversionsRef_.push_back(convref);
+}
+
+void PFCandidateEGammaExtra::addSingleLegConversionRef(const reco::ConversionRef& convref){
+  singleLegConversions_.push_back(convref);
 }
 
 static const char * const  listVar[] = {

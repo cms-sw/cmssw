@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESGain_H
 #define CondFormats_ESObjects_ESGain_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESGain {
@@ -14,6 +16,8 @@ class ESGain {
     }
   private:
     float gain_;
+
+  COND_SERIALIZABLE;
 };
 
 

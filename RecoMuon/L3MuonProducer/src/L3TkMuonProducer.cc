@@ -65,7 +65,7 @@ bool L3TkMuonProducer::sharedSeed(const L3MuonTrajectorySeed& s1,const L3MuonTra
   //quit right away if first detId does not match. front exist because of ==0 ->quit test
   if(i1_b->geographicalId() != i2_b->geographicalId()) return false;
   //then check hit by hit if they are the same
-  for (i1=i1_b,i2=i2_b;i1!=i1_e,i2!=i2_e;++i1,++i2){
+  for (i1=i1_b,i2=i2_b;i1!=i1_e && i2!=i2_e;++i1,++i2){
     if (!i1->sharesInput(&(*i2),TrackingRecHit::all)) return false;
   }
   return true;

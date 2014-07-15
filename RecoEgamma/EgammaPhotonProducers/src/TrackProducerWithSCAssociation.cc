@@ -43,6 +43,9 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
     consumes<reco::TrackCandidateCaloClusterPtrAssociation>(
 		    edm::InputTag(conversionTrackCandidateProducer_,
 				  trackCSuperClusterAssociationCollection_));
+  measurementTrkToken_=
+    consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent")); //hardcoded because the original was and no time to fix (sigh)
+  
  
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
@@ -160,7 +163,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	  
 	  //build Track
 	  // LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
-	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
+          FitterCloner fc(theFitter.product(),theBuilder.product());
+	  bool ok = theAlgo.buildTrack(fc.fitter.get(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
 	  // LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
 	  if(ok) {
 	    cont++;
@@ -177,7 +181,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     //put everything in the event
     // we copy putInEvt to get OrphanHandle filled...
     putInEvt(theEvent,thePropagator.product(),theMeasTk.product(), 
-	     outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+	     outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults, theBuilder.product());
     
     // now construct associationmap and put it in the  event
     if (  validTrackCandidateSCAssociationInput_ ) {    
@@ -251,16 +255,17 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
 }
 
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
 
 
- void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
+void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
 					       const Propagator* thePropagator,
 					       const MeasurementTracker* theMeasTk,
 					       std::auto_ptr<TrackingRecHitCollection>& selHits,
 					       std::auto_ptr<reco::TrackCollection>& selTracks,
 					       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 					       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-					       AlgoProductCollection& algoResults)
+					       AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder)
 {
 
 TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -278,7 +283,6 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
-    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
     
     reco::Track * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;
@@ -330,8 +334,7 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     if (theSchool.isValid())
       {
         edm::Handle<MeasurementTrackerEvent> mte;
-        evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), mte);
-	NavigationSetter setter( *theSchool );
+        evt.getByToken(measurementTrkToken_, mte);
 	setSecondHitPattern(theTraj,track,thePropagator,&*mte);
       }
     //==============================================================
@@ -346,6 +349,19 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     reco::TrackExtra & tx = selTrackExtras->back();
    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
+    Traj2TrackHits t2t(hitBuilder,false);
+    auto ih = selHits->size();
+    assert(ih==hidx);
+    t2t(*theTraj,*selHits,false);
+    auto ie = selHits->size();
+    size_t il = 0;
+    for (;ih<ie; ++ih) {
+      auto const & hit = (*selHits)[ih];
+      track.setHitPattern( hit, il ++ );
+      tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+    }
+
+    /*
     size_t k = 0;
     if (theTraj->direction() == alongMomentum) {
       for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
@@ -368,6 +384,8 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
         }
       }
     }
+    */
+
     // ----
 
     delete theTrack;

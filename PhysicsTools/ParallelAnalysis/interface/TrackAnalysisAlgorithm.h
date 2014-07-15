@@ -9,6 +9,7 @@
  *
  */
 
+#include "FWCore/TFWLiteSelector/interface/TFWLiteSelector.h"
 class TH1F;
 class TList;
 class TCanvas;
@@ -36,4 +37,5 @@ namespace examples {
 
 }
 
+template<> atomic_TClass_ptr TFWLiteSelector<examples::TrackAnalysisAlgorithm>::fgIsA;
 #endif

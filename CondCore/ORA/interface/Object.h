@@ -12,6 +12,9 @@ namespace ora {
   class Object {
     public:
     Object();
+    template <typename T>
+    explicit Object( const T& obj );
+    Object( const void* ptr, const std::type_info& typeInfo );
     Object( const void* ptr, const Reflex::Type& type );
     Object( const void* ptr, const std::string& typeName );
     Object( const Object& rhs);
@@ -30,6 +33,20 @@ namespace ora {
     void* m_ptr;
     Reflex::Type m_type;
   };
+
+  template<> 
+  inline
+  Object::Object( const Object& rhs ):
+    m_ptr( rhs.m_ptr ),
+    m_type( rhs.m_type ){
+  }
+
+}
+
+template <typename T>
+inline
+ora::Object::Object( const T& obj ):
+  Object( &obj, typeid(obj) ){
 }
 
 template <typename T>

@@ -38,7 +38,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TMath.h"
 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
@@ -49,16 +49,16 @@
 /**
  * Configurables:
  *
- *   Generic: 
+ *   Generic:
  *     tracks                  = InputTag of a collection of tracks to read from
  *     minimumHits             = Minimum hits that the output TrackCandidate must have to be saved
- *     replaceWithInactiveHits = instead of discarding hits, replace them with a invalid "inactive" hits, 
+ *     replaceWithInactiveHits = instead of discarding hits, replace them with a invalid "inactive" hits,
  *                               so multiple scattering is accounted for correctly.
  *     stripFrontInvalidHits   = strip invalid hits at the beginning of the track
  *     stripBackInvalidHits    = strip invalid hits at the end of the track
  *     stripAllInvalidHits     = remove ALL invald hits (might be a problem for multiple scattering, use with care!)
  *
- *   Per structure: 
+ *   Per structure:
  *      commands = list of commands, to be applied in order as they are written
  *      commands can be:
  *          "keep XYZ"  , "drop XYZ"    (XYZ = PXB, PXE, TIB, TID, TOB, TEC)
@@ -72,7 +72,7 @@ namespace reco {
  namespace modules {
   class TrackerTrackHitFilter : public edm::EDProducer {
   public:
-    TrackerTrackHitFilter(const edm::ParameterSet &iConfig) ; 
+    TrackerTrackHitFilter(const edm::ParameterSet &iConfig) ;
     virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
     int checkHit(const edm::EventSetup &iSetup,const  DetId &detid,  const TrackingRecHit * hit);
     void produceFromTrajectory( const edm::EventSetup &iSetup, const Trajectory *itt, std::vector<TrackingRecHit *>&hits);
@@ -104,19 +104,19 @@ namespace reco {
       int layer(DetId detid, const TrackerTopology *tTopo) const ;
 
     };
-    
+
     edm::InputTag src_;
 
     int iRun;
     int iEvt;
 
     size_t minimumHits_;
-    
+
     bool replaceWithInactiveHits_;
     bool stripFrontInvalidHits_;
     bool stripBackInvalidHits_;
     bool stripAllInvalidHits_;
-    
+
     bool rejectBadStoNHits_;
     std::string CMNSubtractionMode_;
     std::vector<bool>   subdetStoN_;//(6); //,std::bool(false));
@@ -124,7 +124,7 @@ namespace reco {
     std::vector<double> subdetStoNhighcut_;//(6,-1.0);
     bool checkStoN( const edm::EventSetup &iSetup,const DetId &id, const TrackingRecHit* therechit);
     void parseStoN(const std::string &str);
-    
+
     std::vector<uint32_t> detsToIgnore_;
     std::vector<Rule> rules_;
 
@@ -136,7 +136,7 @@ namespace reco {
     double pxlTPLProbXY_;
     double pxlTPLProbXYQ_;
     std::vector<int32_t> pxlTPLqBin_;
-  
+
     bool checkPXLCorrClustCharge(const TrajectoryMeasurement &meas);
     double PXLcorrClusChargeCut_;
 
@@ -145,7 +145,8 @@ namespace reco {
 
     edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
 
-
+    edm::EDGetTokenT<reco::TrackCollection> tokenTracks;
+    edm::EDGetTokenT<TrajTrackAssociationCollection> tokenTrajTrack;
 
     bool tagOverlaps_;
     int nOverlaps;
@@ -155,8 +156,8 @@ namespace reco {
     TrackCandidate makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) ;
     //const TransientTrackingRecHitBuilder *RHBuilder;
   }; // class
-  
-  
+
+
 
 TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
     static boost::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
@@ -175,7 +176,7 @@ TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
     // Set up fields:
     //  rule type
     keep_  = (strncmp(match[1].first,"keep",4 )== 0);
-   
+
     //  subdet
     subdet_ = -1;
     if      (strncmp(match[2].first, "PXB", 3) == 0) subdet_ = PixelSubdetector::PixelBarrel;
@@ -189,7 +190,7 @@ TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
     }
     //   layer (if present)
     if (match[4].first != match[4].second) {
-        layer_ = atoi(match[4].first);        
+        layer_ = atoi(match[4].first);
     } else {
         layer_ = 0;
     }
@@ -210,12 +211,12 @@ TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
 void TrackerTrackHitFilter::parseStoN(const std::string &str) {
   // match a set of capital case chars (preceded by an arbitrary number of leading blanks),
   //followed b an arbitrary number of blanks, one or more digits (not necessary, they cannot also be,
-  // another set of blank spaces and, again another *eventual* digit  
+  // another set of blank spaces and, again another *eventual* digit
   // static boost::regex rule("\\s+([A-Z]+)(\\s+(\\d+)(\\.)?(\\d+))?(\\s+(\\d+)(\\.)?(\\d+))?");
  static boost::regex rule("([A-Z]+)"
 			  "\\s*(\\d+\\.*\\d*)?"
 			  "\\s*(\\d+\\.*\\d*)?");
- 
+
 
   boost::cmatch match;
   std::string match_1;
@@ -226,10 +227,10 @@ void TrackerTrackHitFilter::parseStoN(const std::string &str) {
     throw cms::Exception("Configuration") << "Rule for S to N cut '" << str << "' not understood.\n";
   }
   else{
-    std::string match_0=(match[0].first,match[0].second);
-    match_1=(match[1].first,match[1].second);
-    match_2=(match[2].first,match[2].second);
-    match_3=(match[3].first,match[3].second);
+    std::string match_0=match[0].second;
+    match_1=match[1].second;
+    match_2=match[2].second;
+    match_3=match[3].second;
 
   }
 
@@ -238,11 +239,11 @@ void TrackerTrackHitFilter::parseStoN(const std::string &str) {
   for(cnt=0;cnt<6;cnt++ ){
     subdet_ind[cnt]=-1.0;
   }
-  
+
 
   bool doALL=false;
   std::string match_1a(match[1].first,match[1].second);
- if (strncmp(match[1].first, "ALL", 3) == 0) doALL=true;  
+ if (strncmp(match[1].first, "ALL", 3) == 0) doALL=true;
   if (doALL || strncmp(match[1].first, "PXB", 3) == 0)  subdet_ind[0] = +1.0;
   if (doALL || strncmp(match[1].first, "PXE", 3) == 0)  subdet_ind[1] = +1.0;
   if (doALL || strncmp(match[1].first, "TIB", 3) == 0)  subdet_ind[2] = +1.0;
@@ -254,10 +255,10 @@ void TrackerTrackHitFilter::parseStoN(const std::string &str) {
     if(subdet_ind[cnt]>0.0){
       subdetStoN_[cnt]=true;
       if (match[2].first != match[2].second) {
-	subdetStoNlowcut_[cnt] = atof(match[2].first);        
+	subdetStoNlowcut_[cnt] = atof(match[2].first);
       }
       if (match[3].first != match[3].second ) {
-	subdetStoNhighcut_[cnt] = atof(match[3].first);        
+	subdetStoNhighcut_[cnt] = atof(match[3].first);
       }
       std::cout<<"Setting thresholds*&^ for subdet #"<<cnt+1<<" = "<<subdetStoNlowcut_[cnt]<<" - "<<subdetStoNhighcut_[cnt]<<std::endl;
     }
@@ -297,8 +298,10 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     tagOverlaps_( iConfig.getParameter<bool>("tagOverlaps") )
 {
 
+    if(useTrajectories_) tokenTrajTrack = consumes<TrajTrackAssociationCollection>(src_);
+    else tokenTracks = consumes<reco::TrackCollection>(src_);
 
-    // sanity check 
+    // sanity check
     if (stripAllInvalidHits_ && replaceWithInactiveHits_) {
         throw cms::Exception("Configuration") << "Inconsistent Configuration: you can't set both 'stripAllInvalidHits' and 'replaceWithInactiveHits' to true\n";
     }
@@ -352,25 +355,25 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
 
     // sort detids to ignore
     std::sort(detsToIgnore_.begin(), detsToIgnore_.end());
-    
+
     // issue the produce<>
     produces<TrackCandidateCollection>();
 }
 
 void
-TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
+TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
   //Dump Run and Event
   iRun=iEvent.id().run();
   iEvt=iEvent.id().event();
- 
+
   // read with View, so we can read also a TrackRefVector
   edm::Handle<std::vector<reco::Track> > tracks;
   edm::Handle<TrajTrackAssociationCollection> assoMap;
 
-  if(useTrajectories_)iEvent.getByLabel(src_,  assoMap);
-  else iEvent.getByLabel(src_, tracks);
-  
+  if(useTrajectories_)iEvent.getByToken(tokenTrajTrack,  assoMap);
+  else iEvent.getByToken(tokenTracks, tracks);
+
   // read from EventSetup
   iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
@@ -385,23 +388,23 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection());
 
   output->reserve(candcollsize);
-  
+
   // working area and tools
   std::vector<TrackingRecHit *> hits;
 
   if(useTrajectories_){
     for (TrajTrackAssociationCollection::const_iterator itass = assoMap->begin();  itass != assoMap->end(); ++itass){
-      
+
       const edm::Ref<std::vector<Trajectory> >traj = itass->key;//trajectory in the collection
       const reco::TrackRef tkref = itass->val;//associated track track in the collection
       //std::cout<<"The hit collection has size "<<hits.size()<<" (should be 0) while the track contains initially "<< tkref->recHitsEnd() - tkref->recHitsBegin()<<std::endl;
-      
+
       const Track *trk = &(*tkref);
-      const Trajectory * myTrajectory= &(*traj);      
+      const Trajectory * myTrajectory= &(*traj);
       produceFromTrajectory(iSetup,myTrajectory,hits);
 
       std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
-      
+
       // strip invalid hits at the beginning
       if (stripFrontInvalidHits_) {
 	while ( (begin != end) && ( (*begin)->isValid() == false ) ) ++begin;
@@ -412,7 +415,7 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 	while ( (begin != end) && ( (*end)->isValid() == false ) ) --end;
 	++end;
       }
- 
+
          // if we still have some hits build the track candidate
       if(replaceWithInactiveHits_){
 	int nvalidhits=0;
@@ -427,7 +430,7 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       else{//all invalid hits have been already kicked out
 	if ((end - begin) >= int(minimumHits_)) {
 	  output->push_back( makeCandidate ( *trk, begin, end ) );
-	} 
+	}
       }
 
 
@@ -436,18 +439,18 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       //	output->push_back( makeCandidate ( *trk, begin, end ) );
       //}
 
- 
+
       // now delete the hits not used by the candidate
       for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
 	if (*begin) delete *begin;
-      } 
+      }
       hits.clear();
     } // loop on trajectories
-    
-    
+
+
   }
   else{ //use plain tracks
-  
+
     // loop on tracks
     for (std::vector<reco::Track>::const_iterator ittrk = tracks->begin(), edtrk = tracks->end(); ittrk != edtrk; ++ittrk) {
 
@@ -475,7 +478,7 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 	    }
 	    std::cout<<"-$-$ OUTPUT Hit position: ( "<<xx<<" , " <<yy<<" , " <<zz<<" ) , RADIUS = "  <<radius<<"  on DetID= "<< myid<<std::endl;
 	}//end loop on hits
-      */ 
+      */
       //-----------------------
 
 
@@ -491,7 +494,7 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 	while ( (begin != end) && ( (*end)->isValid() == false ) ) --end;
 	++end;
       }
-      
+
       // if we still have some hits build the track candidate
       if(replaceWithInactiveHits_){
 	int nvalidhits=0;
@@ -506,26 +509,26 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       else{//all invalid hits have been already kicked out
 	if ((end - begin) >= int(minimumHits_)) {
 	  output->push_back( makeCandidate ( *ittrk, begin, end ) );
-	} 
+	}
       }
 
       // now delete the hits not used by the candidate
       for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
 	if (*begin) delete *begin;
-      } 
+      }
       hits.clear();
     } // loop on tracks
   }//end else useTracks
 
   // std::cout<<"OUTPUT SIZE: "<<output->size()<<std::endl;
-  
+
   iEvent.put(output);
 }
 
 TrackCandidate
 TrackerTrackHitFilter::makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) {
 
-    
+
     PropagationDirection   pdir = tk.seedDirection();
     PTrajectoryStateOnDet state;
     if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
@@ -537,7 +540,7 @@ TrackerTrackHitFilter::makeCandidate(const reco::Track &tk, std::vector<Tracking
         // use inner state
         TrajectoryStateOnSurface originalTsosIn(trajectoryStateTransform::innerStateOnSurface(tk, *theGeometry, &*theMagField));
         state = trajectoryStateTransform::persistentState( originalTsosIn, DetId(tk.innerDetId()) );
-    } else { 
+    } else {
         // use outer state
         TrajectoryStateOnSurface originalTsosOut(trajectoryStateTransform::outerStateOnSurface(tk, *theGeometry, &*theMagField));
         state = trajectoryStateTransform::persistentState( originalTsosOut, DetId(tk.outerDetId()) );
@@ -545,11 +548,11 @@ TrackerTrackHitFilter::makeCandidate(const reco::Track &tk, std::vector<Tracking
     TrajectorySeed seed(state, TrackCandidate::RecHitContainer(), pdir);
     TrackCandidate::RecHitContainer ownHits;
     ownHits.reserve(hitsEnd - hitsBegin);
-    for ( ; hitsBegin != hitsEnd; ++hitsBegin) { 
+    for ( ; hitsBegin != hitsEnd; ++hitsBegin) {
       //if(! (*hitsBegin)->isValid() ) std::cout<<"Putting in the trackcandidate an INVALID HIT !"<<std::endl;
-      ownHits.push_back( *hitsBegin ); 
+      ownHits.push_back( *hitsBegin );
     }
-        
+
     TrackCandidate cand(ownHits, seed, state, tk.seedRef());
 
     return cand;
@@ -564,7 +567,7 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
 	  const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
 
 	    DetId detid = hit->geographicalId();
-	  
+
 	    //check that the hit is a real hit and not a constraint
 	    if(hit->isValid() && hit==0 && detid.rawId()==0) continue;
 
@@ -576,17 +579,17 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
 	    else if(verdict<-2){//hit rejected because did not pass the selections
 	                        // still, if replaceWithInactiveHits is true we have to put a new hit
 	      if (replaceWithInactiveHits_) {
-		hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
-	      } 
+		hits.push_back(new InvalidTrackingRecHit(*(hit->det()), TrackingRecHit::inactive));
+	      }
 	    }
 	    else if(verdict==-2) hits.push_back(hit->clone());//hit not in the tracker
 	    else if(verdict==-1){ //hit not valid
 	      if (!stripAllInvalidHits_) {
 		hits.push_back(hit->clone());
-	      } 
-	    } 
+	      }
+	    }
 	} // loop on hits
-			
+
 }//end TrackerTrackHitFilter::produceFromTrack
 
 
@@ -599,14 +602,14 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
   iSetup.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-  
+
   std::vector<TrajectoryMeasurement> tmColl =itt->measurements();
 
   //---OverlapBegin needed eventually for overlaps, but I must create them here in any case
   const TrajectoryMeasurement* previousTM(0);
   DetId previousId(0);
   //int previousLayer(-1);
-  ///---OverlapEnd   
+  ///---OverlapEnd
 
   int constrhits=0;
 
@@ -615,11 +618,11 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 
      //check that the hit is a real hit and not a constraint
      if(hitpointer->isValid() && hitpointer->hit()==0){constrhits++; continue;}
-    
+
     const TrackingRecHit *hit=((*hitpointer).hit());
     DetId detid = hit->geographicalId();
     int verdict=checkHit(iSetup,detid,hit);
-  
+
     if (verdict == 0) {
       if( rejectLowAngleHits_ && !checkHitAngle(*itTrajMeas) ){//check angle of track on module if requested
 	verdict=-6;//override previous verdicts
@@ -627,7 +630,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
     }
 
     /*
-    //this has been included in checkHitAngle(*itTrajMeas) 
+    //this has been included in checkHitAngle(*itTrajMeas)
     if (verdict == 0) {
     if( PXLcorrClusChargeCut_>0.0  && !checkPXLCorrClustCharge(*itTrajMeas) ){//check angle of track on module if requested
     verdict=-7;//override previous verdicts
@@ -644,7 +647,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 	  int layer(layerFromId(detid,tTopo));//layer 1-4=TIB, layer 5-10=TOB
 	  int subDet = detid.subdetId();
 	  //std::cout  << "  Check Subdet #" <<subDet << ", layer = " <<layer<<" stereo: "<< ((subDet > 2)?(SiStripDetId(detid).stereo()):2);
-	  
+
 	    if ( ( previousTM!=0 )&& (layer!=-1 )) {
 	      //std::cout<<"A previous TM exists! "<<std::endl;
 	      for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare =itTrajMeas-1;itmCompare >= tmColl.begin() &&  itmCompare > itTrajMeas - 4;--itmCompare){
@@ -665,12 +668,12 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 		      // std::cout<< "+++ "<< "\t"<<iRun<<"\t"<<iEvt<<"\t"<<detid.rawId()<<"\t"<<compareId.rawId()<<std::endl;
 		    // }
 		    //else  std::cout<< "+++ "<< "\t"<<iRun<<"\t"<<iEvt<<"\t"<<compareId.rawId()<<"\t"<<detid.rawId()<<std::endl;
-		    
+
 		    nOverlaps++;
 		    break;
 		  }
 	      }//end second loop on TM for overlap tagging
-	      
+
 	    }//end   if ( (layer!=-1 )&&(acceptLayer[subDet]))
 
 	    previousTM = &(* itTrajMeas);
@@ -679,43 +682,43 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 	}//end if look for overlaps
 	///---OverlapEnd
 
-	hits.push_back(hit->clone());   //just copy it 
+	hits.push_back(hit->clone());   //just copy it
     }//end if HIT TAKEN
     else if(verdict<-2){//hit rejected because did not pass the selections
       // still, if replaceWithInactiveHits is true we have to put a new hit
       if (replaceWithInactiveHits_) {
-	hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
-      } 
+	hits.push_back(new InvalidTrackingRecHit(*hit->det(), TrackingRecHit::inactive));
+      }
     }
     else if(verdict==-2) hits.push_back(hit->clone());//hit not in the tracker
     else if(verdict==-1){ //hit not valid
       if (!stripAllInvalidHits_) {
 	hits.push_back(hit->clone());
-      } 
+      }
     }
   } // loop on hits
 
   std::reverse(hits.begin(),hits.end());
-  //  std::cout<<"Finished producefromTrajecotries. Nhits in final coll"<<hits.size() <<"   Nconstraints="<<constrhits<<std::endl; 
+  //  std::cout<<"Finished producefromTrajecotries. Nhits in final coll"<<hits.size() <<"   Nconstraints="<<constrhits<<std::endl;
 } //end TrackerTrackHitFilter::produceFromTrajectories
 
 int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup,const  DetId &detid,  const TrackingRecHit * hit){
-  
+
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
   iSetup.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   int hitresult=0;
-  if (hit->isValid()) { 
- 
+  if (hit->isValid()) {
+
     if (detid.det() == DetId::Tracker) {  // check for tracker hits
        bool  verdict = true;
       // first check at structure level
       for (std::vector<Rule>::const_iterator itr = rules_.begin(), edr = rules_.end(); itr != edr; ++itr) {
 	itr->apply(detid, tTopo, verdict);
       }
- 
+
       // if the hit is good, check again at module level
       if ( verdict){
 	if(std::binary_search(detsToIgnore_.begin(), detsToIgnore_.end(), detid.rawId())) {
@@ -744,9 +747,9 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
    //check StoN only if subdet was set by the user
   //  int subdet_cnt=0;
   int subdet_cnt=id.subdetId();
- 
+
   //  for(subdet_cnt=0;subdet_cnt<6; ++subdet_cnt){
- 
+
   //  if( subdetStoN_[subdet_cnt-1]&& (id.subdetId()==subdet_cnt)  ){//check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
 
 
@@ -774,28 +777,28 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	//const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
 	//const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
 	else{
-	  throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() << 
+	  throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() <<
 	    " not supported. (use c++filt to demangle the name)";
 	}
-	
+
 	if(keepthishit){
-	  SiStripClusterInfo clusterInfo = SiStripClusterInfo( *cluster, iSetup, id.rawId()); 
-	  if ( (subdetStoNlowcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() < subdetStoNlowcut_[subdet_cnt-1])  ) keepthishit = false;	
-	  if ( (subdetStoNhighcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() > subdetStoNhighcut_[subdet_cnt-1])  ) keepthishit = false;	
+	  SiStripClusterInfo clusterInfo = SiStripClusterInfo( *cluster, iSetup, id.rawId());
+	  if ( (subdetStoNlowcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() < subdetStoNlowcut_[subdet_cnt-1])  ) keepthishit = false;
+	  if ( (subdetStoNhighcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() > subdetStoNhighcut_[subdet_cnt-1])  ) keepthishit = false;
 	  //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<clusterInfo.signalOverNoise()<<std::endl;
 	}
-	
+
       }//end if  subdetStoN_[subdet_cnt]&&...
-    
+
     }//end if subdet_cnt >2
-    else if (subdet_cnt<=2){//pixel 
-      //pixels have naturally a very low noise (because of their low capacitance). So the S/N cut is 
+    else if (subdet_cnt<=2){//pixel
+      //pixels have naturally a very low noise (because of their low capacitance). So the S/N cut is
       //irrelevant in this case. Leave it dummy
       keepthishit = true;
 
       /**************
        * Cut on cluster charge corr by angle embedded in the checkHitAngle() function
-       * 
+       *
        *************/
 
       if(checkPXLQuality_){
@@ -826,17 +829,17 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
     //  }//end loop on subdets
 
 
-  return  keepthishit;  
+  return  keepthishit;
 }//end CheckStoN
 
 
 
 bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
-  
+
   bool angle_ok=false;
   bool corrcharge_ok=true;
   TrajectoryStateOnSurface tsos = meas.updatedState();
-  /*  
+  /*
   edm::LogDebug("TrackerTrackHitFilter")<<"TSOS parameters: ";
   edm::LogDebug("TrackerTrackHitFilter") <<"Global momentum: "<<tsos.globalMomentum().x()<<"  "<<tsos.globalMomentum().y()<<"  "<<tsos.globalMomentum().z();
   edm::LogDebug("TrackerTrackHitFilter") <<"Local momentum: "<<tsos.localMomentum().x()<<"  "<<tsos.localMomentum().y()<<"  "<<tsos.localMomentum().z();
@@ -863,13 +866,13 @@ bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
 	corrcharge_ok=false;
 	float clust_alpha= atan2( mom_z, mom_x );
 	float clust_beta=  atan2( mom_z, mom_y );
-	
+
 	//Now get the cluster charge
-	
+
 	const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
 	float clust_charge=pixelhit->cluster()->charge();
-	float corr_clust_charge=clust_charge *  sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
-							      1.0/pow( tan(clust_beta ), 2 ) + 
+	float corr_clust_charge=clust_charge *  sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) +
+							      1.0/pow( tan(clust_beta ), 2 ) +
 							      1.0 )
 						      );
 	//std::cout<<"xxxxx "<<clust_charge<<" "<<corr_clust_charge<<"  " <<pixelhit->qBin()<<"  "<<pixelhit->clusterProbability(1)<<"  "<<pixelhit->clusterProbability(2)<< std::endl;
@@ -878,15 +881,15 @@ bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
 	}
       }       //end if hit is in pixel
       }//end if hit is valid
-      
+
     }//check corr cluster charge for pixel hits
 
   }//end if TSOS is valid
   else{
     edm::LogWarning("TrackerTrackHitFilter") <<"TSOS not valid ! Impossible to calculate track angle.";
   }
-  
-  return angle_ok&&corrcharge_ok; 
+
+  return angle_ok&&corrcharge_ok;
 }//end TrackerTrackHitFilter::checkHitAngle
 
 
@@ -904,7 +907,7 @@ bool TrackerTrackHitFilter::checkPXLCorrClustCharge(const TrajectoryMeasurement 
      return corrcharge_ok;
   }
 
-  TrajectoryStateOnSurface tsos = meas.updatedState();  
+  TrajectoryStateOnSurface tsos = meas.updatedState();
   if(tsos.isValid()){
     float mom_x=tsos.localDirection().x();
     float mom_y=tsos.localDirection().y();
@@ -913,15 +916,15 @@ bool TrackerTrackHitFilter::checkPXLCorrClustCharge(const TrajectoryMeasurement 
     float clust_beta=  atan2( mom_z, mom_y );
 
     //Now get the cluster charge
- 
+
       const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
       float clust_charge=pixelhit->cluster()->charge();
-      float corr_clust_charge=clust_charge *  sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
-							  1.0/pow( tan(clust_beta ), 2 ) + 
+      float corr_clust_charge=clust_charge *  sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) +
+							  1.0/pow( tan(clust_beta ), 2 ) +
 							  1.0 )
 						  );
       if(corr_clust_charge>PXLcorrClusChargeCut_)corrcharge_ok=true;
-    
+
   }//end if TSOS is valid
   return corrcharge_ok;
 
@@ -932,27 +935,27 @@ bool TrackerTrackHitFilter::checkPXLCorrClustCharge(const TrajectoryMeasurement 
 int TrackerTrackHitFilter::layerFromId (const DetId& id, const TrackerTopology *tTopo) const
 {
  if ( id.subdetId()== int(PixelSubdetector::PixelBarrel) ) {
-    
+
     return tTopo->pxbLayer(id);
   }
   else if ( id.subdetId()== int(PixelSubdetector::PixelEndcap) ) {
-    
+
     return tTopo->pxfDisk(id) + (3*(tTopo->pxfSide(id)-1));
   }
   else if ( id.subdetId()==StripSubdetector::TIB ) {
-    
+
     return tTopo->tibLayer(id);
   }
   else if ( id.subdetId()==StripSubdetector::TOB ) {
-    
+
     return tTopo->tobLayer(id);
   }
   else if ( id.subdetId()==StripSubdetector::TEC ) {
-    
+
     return tTopo->tecWheel(id) + (9*(tTopo->tecSide(id)-1));
   }
   else if ( id.subdetId()==StripSubdetector::TID ) {
-    
+
     return tTopo->tidWheel(id) + (3*(tTopo->tidSide(id)-1));
   }
   return -1;

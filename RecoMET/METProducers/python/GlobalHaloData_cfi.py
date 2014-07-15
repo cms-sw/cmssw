@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 GlobalHaloData = cms.EDProducer("GlobalHaloDataProducer",                         
                                 # Higher Level Reco
-                                metLabel = cms.InputTag("met"),
+                                metLabel = cms.InputTag("caloMet"),
                                 calotowerLabel = cms.InputTag("towerMaker"),
                                 CSCSegmentLabel = cms.InputTag("CSCSegments"),
                                 CSCRecHitLabel = cms.InputTag("csc2DRecHits"),

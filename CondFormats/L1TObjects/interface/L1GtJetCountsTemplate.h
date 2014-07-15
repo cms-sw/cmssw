@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -63,7 +65,9 @@ public:
         unsigned int countThreshold;
 
         bool countOverflow;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -95,6 +99,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

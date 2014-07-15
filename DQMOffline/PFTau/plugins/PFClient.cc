@@ -133,7 +133,7 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
     std::string ytit = th->GetYaxis()->GetTitle();
     float* xbins = new float[nbinx+1];
     for (size_t ix = 1; ix < nbinx+1; ++ix) {
-       xbins[ix-1] = th->GetBinLowEdge(ix);
+       xbins[ix-1] = th->GetXaxis()->GetBinLowEdge(ix);
        if (ix == nbinx) xbins[ix] = th->GetXaxis()->GetBinUpEdge(ix);
     }
     std::string tit_new = ";"+xtit+";"+ytit;
@@ -193,7 +193,7 @@ void PFClient::createProjectionPlots(std::string& folder, std::string& name) {
     std::string ytit = th->GetYaxis()->GetTitle();
     float* xbins = new float[nbinx+1];
     for (size_t ix = 1; ix < nbinx+1; ++ix) {
-       xbins[ix-1] = th->GetBinLowEdge(ix);
+       xbins[ix-1] = th->GetXaxis()->GetBinLowEdge(ix);
        if (ix == nbinx) xbins[ix] = th->GetXaxis()->GetBinUpEdge(ix);
     }    
 
@@ -236,7 +236,7 @@ void PFClient::createProfilePlots(std::string& folder, std::string& name) {
     std::string ytit = th->GetYaxis()->GetTitle();
     double* xbins = new double[nbinx+1];
     for (size_t ix = 1; ix < nbinx+1; ++ix) {
-       xbins[ix-1] = th->GetBinLowEdge(ix);
+       xbins[ix-1] = th->GetXaxis()->GetBinLowEdge(ix);
        if (ix == nbinx) xbins[ix] = th->GetXaxis()->GetBinUpEdge(ix);
     }    
 

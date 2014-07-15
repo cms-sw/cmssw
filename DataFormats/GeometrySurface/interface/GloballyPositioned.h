@@ -33,9 +33,9 @@ public:
     return 999.9978;
   }
 
-  GloballyPositioned(){}
+  GloballyPositioned() {setCache();}
   GloballyPositioned( const PositionType& pos, const RotationType& rot) :
-    thePos(pos), theRot(rot) {resetCache();}
+    thePos(pos), theRot(rot) {setCache();}
 
   virtual ~GloballyPositioned() {}
 
@@ -44,11 +44,9 @@ public:
   const RotationType& rotation() const { return theRot;}
 
   T phi() const {
-    if (thePhi==iniPhi()) thePhi = thePos.barePhi();
     return thePhi;
   }
   T eta() const { 
-    if (theEta==iniEta()) theEta = thePos.eta();
     return theEta;
   }
 
@@ -59,6 +57,14 @@ public:
     ToLocal(GloballyPositioned const & frame) :
       thePos(frame.position()), theRot(frame.rotation().transposed()){}
     
+    LocalPoint operator()(const GlobalPoint& gp) const {
+         return toLocal(gp);
+    }
+
+    LocalVector operator()(const GlobalVector& gv) const {
+       	 return	toLocal(gv);
+    }
+
     LocalPoint toLocal( const GlobalPoint& gp) const {
       return LocalPoint( theRot.multiplyInverse( gp.basicVector() -
 			 thePos.basicVector()) 
@@ -69,7 +75,7 @@ public:
       return LocalVector(theRot.multiplyInverse(gv.basicVector()));
     } 
     
-  private:
+  // private:
     PositionType  thePos;
     RotationType  theRot;
     
@@ -153,7 +159,7 @@ public:
    */
   void move( const GlobalVector& displacement) {
     thePos += displacement;
-    resetCache();
+    setCache();
   }
 
   /** Rotate the frame in the global frame.
@@ -161,7 +167,7 @@ public:
    */
   void rotate( const RotationType& rotation) {
     theRot *= rotation;
-    resetCache();
+    setCache();
   }
 
 private:
@@ -169,7 +175,7 @@ private:
   PositionType  thePos;
   RotationType  theRot;
 
-
+  /*
   void resetCache() {
     if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
       thePhi = theEta = 0.; // avoid FPE
@@ -178,10 +184,10 @@ private:
       theEta = iniEta();
     }
   }
-
+ */
 
   void setCache() {
-    if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
+    if ((thePos.x() == 0.) & (thePos.y() == 0.)) {
       thePhi = theEta = 0.; // avoid FPE
     } else {
       thePhi = thePos.barePhi();
@@ -189,8 +195,8 @@ private:
     }
   }
   
-  mutable T thePhi;
-  mutable T theEta;
+  T thePhi;
+  T theEta;
 
 };
   

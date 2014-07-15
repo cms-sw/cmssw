@@ -2,20 +2,22 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-#include "FWCore/Framework/interface/Event.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
-
 
 #include <iostream>
 #include <string>
@@ -45,4 +47,5 @@ class CPEAccessTester : public edm::EDAnalyzer {
 private:
   edm::ParameterSet conf_;
 };
-
+//define this as a plug-in
+DEFINE_FWK_MODULE(CPEAccessTester);

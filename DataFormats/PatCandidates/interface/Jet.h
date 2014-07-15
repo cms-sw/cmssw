@@ -30,6 +30,7 @@
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
@@ -59,6 +60,8 @@ namespace reco {
 // Class definition
 namespace pat {
 
+   class PATJetSlimmer;
+
   typedef reco::CaloJet::Specific CaloSpecific;
   typedef reco::JPTJet::Specific JPTSpecific;
   typedef reco::PFJet::Specific PFSpecific;
@@ -72,6 +75,7 @@ namespace pat {
     /// jet energy scale unequal to raw calling the private initializeJEC
     /// function, which should be non accessible to any other user
     friend class PATJetProducer;
+    friend class PATJetSlimmer;
 
     public:
 
@@ -94,8 +98,12 @@ namespace pat {
       const reco::GenParticle * genParton() const { return genParticle(); }
       /// return the matched generated jet
       const reco::GenJet * genJet() const;
-      /// return the flavour of the parton underlying the jet
+      /// return the parton-based flavour of the jet
       int partonFlavour() const;
+      /// return the hadron-based flavour of the jet
+      int hadronFlavour() const;
+      /// return the JetFlavourInfo of the jet
+      const reco::JetFlavourInfo & jetFlavourInfo() const;
 
   public:
       /// ---- methods for jet corrections ----
@@ -208,8 +216,12 @@ namespace pat {
       void setGenParton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
       /// method to set the matched generated jet reference, embedding if requested
       void setGenJetRef(const edm::FwdRef<reco::GenJetCollection> & gj);
-      /// method to set the flavour of the parton underlying the jet
+      /// method to set the parton-based flavour of the jet
       void setPartonFlavour(int partonFl);
+      /// method to set the hadron-based flavour of the jet
+      void setHadronFlavour(int hadronFl);
+      /// method to set the JetFlavourInfo of the jet
+      void setJetFlavourInfo(const reco::JetFlavourInfo & jetFlavourInfo);
 
 
       /// methods for jet ID
@@ -402,23 +414,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      virtual const reco::Candidate * daughter(size_t i) const {
-	if (isCaloJet() || isJPTJet() ) {
-	  if ( embeddedCaloTowers_ ) {
-	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_[i].get();
-	    else if ( caloTowers_.size() > 0 ) return &caloTowers_[i];
-	    else return reco::Jet::daughter(i);
-	  }
-	}
-	if (isPFJet()) {
-	  if ( embeddedPFCandidates_ ) {
-	    if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_[i].get();
-	    else if ( pfCandidates_.size() > 0 ) return &pfCandidates_[i];
-	    else return reco::Jet::daughter(i);
-	  }
-	}
-	return reco::Jet::daughter(i);
-      }
+      virtual const reco::Candidate * daughter(size_t i) const;
 
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
 
@@ -426,23 +422,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      virtual size_t numberOfDaughters() const {
-	if (isCaloJet() || isJPTJet()) {
-	  if ( embeddedCaloTowers_ ) {
-	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
-	    else if ( caloTowers_.size() > 0 ) return caloTowers_.size();
-	    else return reco::Jet::numberOfDaughters();
-	  }
-	}
-	if (isPFJet()) {
-	  if ( embeddedPFCandidates_ ) {
-	    if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_.size();
-	    else if ( pfCandidates_.size() > 0 ) return pfCandidates_.size();
-	    else return reco::Jet::numberOfDaughters();
-	  }
-	}
-	return reco::Jet::numberOfDaughters();
-      }
+      virtual size_t numberOfDaughters() const;
 
       /// accessing Jet ID information
       reco::JetID const & jetID () const { return jetID_;}
@@ -509,7 +489,7 @@ namespace pat {
       std::vector<reco::GenJet> genJet_;
       reco::GenJetRefVector genJetRef_;
       edm::FwdRef<reco::GenJetCollection>  genJetFwdRef_;
-      int partonFlavour_;
+      reco::JetFlavourInfo jetFlavourInfo_;
 
       // ---- energy scale correction factors ----
 

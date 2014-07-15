@@ -6,11 +6,11 @@ B2GDQM = cms.EDAnalyzer(
     #Trigger Results
     triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
 
-    PFJetCorService          = cms.string("ak5PFL1FastL2L3"),
+    PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
 
     jetLabels = cms.VInputTag(
-        'ak5PFJets',
-        'ak5PFJetsCHS',
+        'ak4PFJets',
+        'ak4PFJetsCHS',
         'ca8PFJetsCHS',
         'ca8PFJetsCHSPruned',
         'cmsTopTagPFJetsCHS'

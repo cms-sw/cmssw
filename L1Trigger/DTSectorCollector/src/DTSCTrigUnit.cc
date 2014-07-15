@@ -32,7 +32,7 @@
 //----------------
 // Constructors --
 //----------------
-DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat) {
+DTSCTrigUnit::DTSCTrigUnit(const DTChamber *stat) {
 
   // DTChamberId chambid = stat->id();
   // bool geom_debug = conf_manager->getDTConfigTrigUnit(chambid)->debug();

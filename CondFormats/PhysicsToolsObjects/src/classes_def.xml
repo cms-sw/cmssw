@@ -13,9 +13,10 @@
 	<class name="std::vector&lt;PerformanceResult::ResultType&gt;"/>
 	<class name="std::vector&lt;BinningVariables::BinningVariablesType&gt;"/>
 
-	<class name="PerformancePayloadFromTFormula">
-		<field name="compiledFormulas_" transient="true"/>
+	<class name="PerformancePayloadFromTFormula">	 
+          <field name="compiledFormulas_" transient="true"/>	  	
 	</class>
+        	
 
 	<class name="PerformancePayloadFromBinnedTFormula">
 		<field name="compiledFormulas_" transient="true"/>
@@ -23,7 +24,6 @@
 
 	<class name="PhysicsTFormulaPayload"/>
         <class name="std::vector<PhysicsTFormulaPayload>"/>
-
 
 	<!-- Histogram -->
 	<class name="PhysicsTools::Calibration::Range&lt;float&gt;"/>
@@ -120,4 +120,8 @@
 		<field name="entries" mapping="blob"/>
 		<field name="cacheId" transient="true"/>
 	</class>
+
+        <!-- TGraph -->
+        <class name="PhysicsTGraphPayload"/>
+        <class name="std::vector<PhysicsTGraphPayload>"/>
 </lcgdict>

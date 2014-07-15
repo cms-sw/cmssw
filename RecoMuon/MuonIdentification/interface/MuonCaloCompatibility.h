@@ -21,6 +21,7 @@
 #include "TFile.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "boost/shared_ptr.hpp"
 #include <string>
 
 class MuonCaloCompatibility {

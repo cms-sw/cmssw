@@ -31,7 +31,8 @@ class SiStripRegionCabling {
   enum Layer {TIBLAYERS = 4, TOBLAYERS = 6, TIDLAYERS = 3, TECLAYERS = 9, ALLLAYERS = 10}; 
 
   /** Cabling typedefs */
-  typedef std::map< uint32_t, std::vector<FedChannelConnection> > ElementCabling;
+  typedef std::pair< uint32_t, std::vector<FedChannelConnection> > Element;
+  typedef std::vector< Element > ElementCabling;
   typedef std::vector< ElementCabling > WedgeCabling;
   typedef std::vector< WedgeCabling > RegionCabling;
   typedef std::vector< RegionCabling > Cabling;

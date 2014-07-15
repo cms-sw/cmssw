@@ -7,8 +7,8 @@
 // Needed for Pythia8
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h> 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include <Pythia8/Pythia.h>
+#include <Pythia8/Pythia8ToHepMC.h>
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
@@ -49,7 +49,6 @@ class PythiaDecays
   gen::Pythia6Service *pyservice;
   Pythia6jets* pyjets;
   // for Pythia8:
-  std::auto_ptr<Pythia8::Pythia>   pythia;
   std::auto_ptr<Pythia8::Pythia>   decayer; 
   std::unique_ptr<gen::P8RndmEngine> p8RndmEngine;
 };

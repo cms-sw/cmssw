@@ -17,12 +17,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class EgammaRecHitIsolation {
  public:
@@ -34,7 +35,7 @@ class EgammaRecHitIsolation {
                          double etLow,
                          double eLow,
                          edm::ESHandle<CaloGeometry> ,
-                         CaloRecHitMetaCollectionV* ,
+                         const EcalRecHitCollection&,
                          const EcalSeverityLevelAlgo*,
                          DetId::Detector detector);
   
@@ -75,7 +76,7 @@ class EgammaRecHitIsolation {
 
   
   edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
-  CaloRecHitMetaCollectionV* caloHits_ ;
+  const EcalRecHitCollection&  caloHits_ ;
   const EcalSeverityLevelAlgo* sevLevel_;
 
   bool useNumCrystals_;

@@ -12,7 +12,7 @@ using namespace edm;
 
 namespace edmtest
 {
-  typedef boost::shared_ptr<std::ofstream> OutPtr;
+  typedef std::shared_ptr<std::ofstream> OutPtr;
   typedef std::vector<char> SaveArea;
 
   std::string makeFileName(const std::string& base, int num)

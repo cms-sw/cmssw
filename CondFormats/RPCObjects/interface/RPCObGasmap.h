@@ -8,6 +8,8 @@
 
 #ifndef RPCObGasmap_h
 #define RPCObGasmap_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 
@@ -23,11 +25,15 @@ class RPCObGasmap {
         int layer;
         int subsector;
         int suptype;
-    };
+    
+    COND_SERIALIZABLE;
+};
     RPCObGasmap(){}
     virtual ~RPCObGasmap(){}
     std::vector<GasMap_Item> ObGasMap_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 #endif
 

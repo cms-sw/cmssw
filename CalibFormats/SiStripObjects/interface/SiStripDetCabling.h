@@ -59,6 +59,8 @@ class SiStripDetCabling
   uint32_t undetectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 2); }
   inline const SiStripFedCabling * fedCabling() const {return fedCabling_;}
 
+  std::map< uint32_t, std::vector<int> > const & connected() const { return connected_;}
+
  private:
   SiStripDetCabling(const SiStripDetCabling&); // stop default
   const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default

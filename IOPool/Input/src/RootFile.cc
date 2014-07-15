@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -136,8 +138,8 @@ namespace edm {
   RootFile::RootFile(std::string const& fileName,
                      ProcessConfiguration const& processConfiguration,
                      std::string const& logicalFileName,
-                     boost::shared_ptr<InputFile> filePtr,
-                     boost::shared_ptr<EventSkipperByID> eventSkipperByID,
+                     std::shared_ptr<InputFile> filePtr,
+                     std::shared_ptr<EventSkipperByID> eventSkipperByID,
                      bool skipAnyEvents,
                      int remainingEvents,
                      int remainingLumis,
@@ -149,12 +151,12 @@ namespace edm {
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
-                     boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
-                     boost::shared_ptr<DuplicateChecker> duplicateChecker,
+                     std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                     std::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      ProcessHistoryRegistry& processHistoryRegistry,
-                     std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
-                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
+                     std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
+                     std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent,
@@ -201,7 +203,7 @@ namespace edm {
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_(),
       provenanceReaderMaker_(),
-      eventProductProvenanceRetriever_(),
+      eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
       daqProvenanceHelper_() {
 
@@ -380,7 +382,7 @@ namespace edm {
         it->second.init();
         daqProvenanceHelper_.reset(new DaqProvenanceHelper(it->second.unwrappedTypeID()));
         // Create the new branch description
-        BranchDescription const& newBD = daqProvenanceHelper_->constBranchDescription_;
+        BranchDescription const& newBD = daqProvenanceHelper_->branchDescription();
         // Save info from the old and new branch descriptions
         daqProvenanceHelper_->saveInfo(it->second, newBD);
         // Map the new branch name to the old branch name.
@@ -525,7 +527,7 @@ namespace edm {
         daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
         ParentageID newID = parents.id();
         if(newID != oldID) {
-          daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+          daqProvenanceHelper_->setOldParentageIDToNew(oldID,newID);
         }
       }
       // For thread safety, don't update global registries when a secondary source opens a file.
@@ -561,7 +563,7 @@ namespace edm {
         daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
         ParentageID newID = parents.id();
         if(newID != oldID) {
-          daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+          daqProvenanceHelper_->setOldParentageIDToNew(oldID,newID);
         }
       }
       // For thread safety, don't update global registries when a secondary source opens a file.
@@ -641,8 +643,7 @@ namespace edm {
                                                      file_,
                                                      branchListIndexesUnchanged(),
                                                      modifiedIDs(),
-                                                     branchChildren_,
-                                                     branchIDLists_));
+                                                     branchChildren_));
   }
 
   std::string const&
@@ -934,7 +935,7 @@ namespace edm {
       while(runTree_.next()) {
         // Note: adjacent duplicates will be skipped without an explicit check.
 
-        boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
+        std::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
         ProcessHistoryID reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(runAux->processHistoryID());
 
         if(runSet.insert(runAux->run()).second) { // (check 4, insert 4)
@@ -973,7 +974,7 @@ namespace edm {
     if(lumiTree_.isValid()) {
       while(lumiTree_.next()) {
         // Note: adjacent duplicates will be skipped without an explicit check.
-        boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
+        std::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
         LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
         if(runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
           // This lumi was not associated with any events.
@@ -1095,7 +1096,7 @@ namespace edm {
 
     indexIntoFile_.fixIndexes(orderedProcessHistoryIDs_);
     indexIntoFile_.setNumberOfEvents(eventTree_.entries());
-    indexIntoFile_.setEventFinder(boost::shared_ptr<IndexIntoFile::EventFinder>(new RootFileEventFinder(eventTree_)));
+    indexIntoFile_.setEventFinder(std::shared_ptr<IndexIntoFile::EventFinder>(std::make_shared<RootFileEventFinder>(eventTree_)));
     // We fill the event numbers explicitly if we need to find events in closed files,
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
     bool needEventNumbers = false;
@@ -1222,9 +1223,9 @@ namespace edm {
     branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::fillLumiAuxiliary() {
-    boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary(new LuminosityBlockAuxiliary);
+    auto lumiAuxiliary = std::make_shared<LuminosityBlockAuxiliary>();
     if(fileFormatVersion().newAuxiliary()) {
       LuminosityBlockAuxiliary *pLumiAux = lumiAuxiliary.get();
       lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
@@ -1246,9 +1247,9 @@ namespace edm {
     return lumiAuxiliary;
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   RootFile::fillRunAuxiliary() {
-    boost::shared_ptr<RunAuxiliary> runAuxiliary(new RunAuxiliary);
+    auto runAuxiliary = std::make_shared<RunAuxiliary>();
     if(fileFormatVersion().newAuxiliary()) {
       RunAuxiliary *pRunAux = runAuxiliary.get();
       runTree_.fillAux<RunAuxiliary>(pRunAux);
@@ -1384,7 +1385,7 @@ namespace edm {
 
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
     // The IndexIntoFile should guarantee that it never fails.
-    ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID() ? *daqProvenanceHelper_->oldProcessHistoryID_ : eventAux().processHistoryID());
+    ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID() ? *daqProvenanceHelper_->oldProcessHistoryID() : eventAux().processHistoryID());
     ProcessHistoryID const& reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(idToCheck);
     assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
 
@@ -1412,7 +1413,7 @@ namespace edm {
                                  *processHistoryRegistry_,
                                  std::move(eventSelectionIDs_),
                                  std::move(branchListIndexes_),
-                                 *(makeProductProvenanceRetriever()),
+                                 *(makeProductProvenanceRetriever(principal.streamID().value())),
                                  eventTree_.rootDelayedReader());
 
     // report event read from file
@@ -1425,7 +1426,7 @@ namespace edm {
     eventTree_.setEntryNumber(entry);
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   RootFile::readRunAuxiliary_() {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
@@ -1442,11 +1443,11 @@ namespace edm {
 
       RunID run = RunID(indexIntoFileIter_.run());
       overrideRunNumber(run);
-      return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(run.run(), eventAux().time(), Timestamp::invalidTimestamp()));
+      return std::make_shared<RunAuxiliary>(run.run(), eventAux().time(), Timestamp::invalidTimestamp());
     }
     // End code for backward compatibility before the existence of run trees.
     runTree_.setEntryNumber(indexIntoFileIter_.entry());
-    boost::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
+    std::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
     assert(runAuxiliary->run() == indexIntoFileIter_.run());
     overrideRunNumber(runAuxiliary->id());
     filePtr_->reportInputRunNumber(runAuxiliary->run());
@@ -1506,7 +1507,7 @@ namespace edm {
     ++indexIntoFileIter_;
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::readLuminosityBlockAuxiliary_() {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
@@ -1519,11 +1520,11 @@ namespace edm {
 
       LuminosityBlockID lumi = LuminosityBlockID(indexIntoFileIter_.run(), indexIntoFileIter_.lumi());
       overrideRunNumber(lumi);
-      return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(lumi.run(), lumi.luminosityBlock(), eventAux().time(), Timestamp::invalidTimestamp()));
+      return std::make_shared<LuminosityBlockAuxiliary>(lumi.run(), lumi.luminosityBlock(), eventAux().time(), Timestamp::invalidTimestamp());
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary = fillLumiAuxiliary();
+    std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary = fillLumiAuxiliary();
     assert(lumiAuxiliary->run() == indexIntoFileIter_.run());
     assert(lumiAuxiliary->luminosityBlock() == indexIntoFileIter_.lumi());
     overrideRunNumber(lumiAuxiliary->id());
@@ -1645,8 +1646,8 @@ namespace edm {
 
   void
   RootFile::initializeDuplicateChecker(
-    std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
-    std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile) {
+    std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
+    std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile) {
     if(duplicateChecker_) {
       if(eventTree_.next()) {
         fillThisEventAuxiliary();
@@ -1740,13 +1741,16 @@ namespace edm {
     }
   }
 
-  boost::shared_ptr<ProductProvenanceRetriever>
-  RootFile::makeProductProvenanceRetriever() {
-    if(!eventProductProvenanceRetriever_) {
-      eventProductProvenanceRetriever_.reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+  std::shared_ptr<ProductProvenanceRetriever>
+  RootFile::makeProductProvenanceRetriever(unsigned int iStreamID) {
+    if(eventProductProvenanceRetrievers_.size()<=iStreamID) {
+      eventProductProvenanceRetrievers_.resize(iStreamID+1);
     }
-    eventProductProvenanceRetriever_->reset();
-    return eventProductProvenanceRetriever_;
+    if(!eventProductProvenanceRetrievers_[iStreamID]) {
+      eventProductProvenanceRetrievers_[iStreamID].reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+    }
+    eventProductProvenanceRetrievers_[iStreamID]->reset();
+    return eventProductProvenanceRetrievers_[iStreamID];
   }
 
   class ReducedProvenanceReader : public ProvenanceReaderBase {
@@ -1760,6 +1764,7 @@ namespace edm {
     StoredProductProvenanceVector* pProvVector_;
     std::vector<ParentageID> const& parentageIDLookup_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
+    mutable SharedResourcesAcquirer resourceAcquirer_;
   };
 
   ReducedProvenanceReader::ReducedProvenanceReader(
@@ -1770,15 +1775,20 @@ namespace edm {
       rootTree_(iRootTree),
       pProvVector_(&provVector_),
       parentageIDLookup_(iParentageIDLookup),
-      daqProvenanceHelper_(daqProvenanceHelper) {
+      daqProvenanceHelper_(daqProvenanceHelper),
+      resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader())
+  {
     provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
   }
 
   void
   ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
-    ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
-    setRefCoreStreamer(true);
+    {
+      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
+      me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
+      setRefCoreStreamer(true);
+    }
     if(daqProvenanceHelper_) {
       for(auto const& prov : provVector_) {
         BranchID bid(prov.branchID_);
@@ -1809,6 +1819,7 @@ namespace edm {
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
+    mutable SharedResourcesAcquirer resourceAcquirer_;
   };
 
   FullProvenanceReader::FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1816,13 +1827,17 @@ namespace edm {
          rootTree_(rootTree),
          infoVector_(),
          pInfoVector_(&infoVector_),
-         daqProvenanceHelper_(daqProvenanceHelper) {
+         daqProvenanceHelper_(daqProvenanceHelper),
+         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
   }
 
   void
   FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
-    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
-    setRefCoreStreamer(true);
+    {
+      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
+      setRefCoreStreamer(true);
+    }
     if(daqProvenanceHelper_) {
       for(auto const& info : infoVector_) {
         provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(info.branchID()),
@@ -1846,6 +1861,7 @@ namespace edm {
     mutable std::vector<EventEntryInfo> *pInfoVector_;
     EntryDescriptionMap const& entryDescriptionMap_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
+    mutable SharedResourcesAcquirer resourceAcquirer_;
   };
 
   OldProvenanceReader::OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1854,14 +1870,18 @@ namespace edm {
          infoVector_(),
          pInfoVector_(&infoVector_),
          entryDescriptionMap_(theMap),
-         daqProvenanceHelper_(daqProvenanceHelper) {
+         daqProvenanceHelper_(daqProvenanceHelper),
+         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
   }
 
   void
   OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
-    rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
-    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
-    setRefCoreStreamer(true);
+    {
+      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
+      roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
+      setRefCoreStreamer(true);
+    }
     for(auto const& info : infoVector_) {
       EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
       assert(iter != entryDescriptionMap_.end());

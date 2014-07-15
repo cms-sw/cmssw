@@ -115,8 +115,8 @@ namespace edm{
   inline
   bool
   WorkerT<T>::implDo(EventPrincipal& ep, EventSetup const& c, ModuleCallingContext const* mcc) {
-    boost::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
-    return module_->doEvent(ep, c, mcc);
+    std::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
+    return module_->doEvent(ep, c, activityRegistry(), mcc);
   }
   
   template<typename T>

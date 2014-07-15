@@ -60,9 +60,11 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
   } 
   creds = m_cache.get( connectionString );
   if( ! creds ){
-    std::string msg("No Authentication available for connection=\"");
-    msg += connectionString + "\".";
-    throw coral::AuthenticationServiceException( msg, "cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials", "");
+    std::string msg("Connection to \"");
+    msg += connectionString + "\"";
+    msg += " with role \"COND_DEFAULT_ROLE\" is not available for ";
+    msg +=m_db.keyPrincipalName();
+    cond::throwException( msg, "cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials" );
   }
   return *creds;
 }
@@ -80,10 +82,11 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
   } 
   creds = m_cache.get( connectionString, role );
   if( ! creds ){
-    std::string msg("No Authentication available for connection=\"");
-    msg += connectionString + "\".";
-    msg += " and role=\"" + role + "\".";
-    throw coral::AuthenticationServiceException( msg, "cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials","");
+    std::string msg("Connection to \"");
+    msg += connectionString + "\"";
+    msg += " with role \"" + role + "\" is not available for ";
+    msg +=m_db.keyPrincipalName();
+    cond::throwException( msg, "cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials" );
   }
   return *creds;
 }

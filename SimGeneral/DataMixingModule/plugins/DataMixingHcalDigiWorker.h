@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -44,7 +45,7 @@ namespace edm
       DataMixingHcalDigiWorker();
 
      /** standard constructor*/
-      explicit DataMixingHcalDigiWorker(const edm::ParameterSet& ps);
+      explicit DataMixingHcalDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
 
       /**Default destructor*/
       virtual ~DataMixingHcalDigiWorker();
@@ -68,6 +69,17 @@ namespace edm
       edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
+
+      edm::EDGetTokenT<HBHEDigiCollection> HBHEDigiToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<HODigiCollection> HODigiToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<HFDigiCollection> HFDigiToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<ZDCDigiCollection> ZDCDigiToken_ ;  // Token to retrieve information 
+
+      edm::EDGetTokenT<HBHEDigiCollection> HBHEDigiPToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<HODigiCollection> HODigiPToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<HFDigiCollection> HFDigiPToken_ ;  // Token to retrieve information 
+      edm::EDGetTokenT<ZDCDigiCollection> ZDCDigiPToken_ ;  // Token to retrieve information 
+
 
       std::string HBHEDigiCollectionDM_; // secondary name to be given to collection of digis
       std::string HODigiCollectionDM_  ; // secondary name to be given to collection of digis

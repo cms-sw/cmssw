@@ -1,16 +1,16 @@
 
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
+#include "SiStripRawToDigiModule.h"
+#include "SiStripRawToDigiUnpacker.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstdlib>
@@ -19,7 +19,6 @@ namespace sistrip {
 
   RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
     rawToDigi_(0),
-    productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
     cacheId_(0),
     extractCm_(false),
@@ -32,6 +31,7 @@ namespace sistrip {
 	<< " Constructing object...";
     }
     
+    token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
     int16_t appended_bytes = pset.getParameter<int>("AppendedBytes");
     int16_t trigger_fed_id = pset.getParameter<int>("TriggerFedId");
     bool use_daq_register = pset.getParameter<bool>("UseDaqRegister");
@@ -91,7 +91,7 @@ namespace sistrip {
   
     // Retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
-    event.getByLabel( productLabel_, buffers ); 
+    event.getByToken( token_, buffers ); 
 
     // Populate SiStripEventSummary object with "trigger FED" info
     std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );

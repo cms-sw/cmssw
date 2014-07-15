@@ -13,7 +13,7 @@ DEFINE_FWK_MODULE(BasicGenParticleValidation);
 #include "Validation/EventGenerator/interface/DuplicationChecker.h"
 DEFINE_FWK_MODULE (DuplicationChecker);
 
-#include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"
+#include "MBUEandQCDValidation.h"
 DEFINE_FWK_MODULE (MBUEandQCDValidation);
 
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
@@ -32,9 +32,10 @@ DEFINE_FWK_MODULE(TTbar_GenJetAnalyzer);
 DEFINE_FWK_MODULE(TTbar_GenLepAnalyzer);
 
 #include "Validation/EventGenerator/interface/TTbar_Kinematics.h"
-
-#include "Validation/EventGenerator/interface/TTbar_Kinematics.h"
 DEFINE_FWK_MODULE(TTbar_Kinematics);
 
-#include "Validation/EventGenerator/interface/TTbar_P4Violation.h"
-DEFINE_FWK_MODULE(TTbar_P4Violation);
+#include "Validation/EventGenerator/interface/TTbarSpinCorrHepMCAnalyzer.h"
+DEFINE_FWK_MODULE(TTbarSpinCorrHepMCAnalyzer);
+
+#include "Validation/EventGenerator/interface/HiggsValidation.h"
+DEFINE_FWK_MODULE(HiggsValidation);

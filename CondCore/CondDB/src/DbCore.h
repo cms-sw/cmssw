@@ -79,7 +79,7 @@ namespace cond {
 
   // helper function to asses the equality of the underlying types, regardless if they are references and their constness
   template <typename T, typename P>
-  void static_assert_is_same_decayed() {
+  inline void static_assert_is_same_decayed() {
     static_assert( std::is_same<typename std::decay<T>::type, typename std::decay<P>::type>::value, "Parameter types don't match with the RowBuffer types" );
   };
 
@@ -540,6 +540,35 @@ namespace cond {
     std::string m_whereClause;
   };
 
+  class DeleteBuffer {
+
+  public:
+    DeleteBuffer():
+      m_data(),
+      m_whereClause(""){
+    }
+
+    template <typename Column, typename P> void addWhereCondition( const P& param, const std::string condition = "=" ){
+      f_add_condition_data<Column>( m_data, m_whereClause, param, condition );
+    }
+
+    template <typename Column1, typename Column2> void addWhereCondition( const std::string condition = "=" ){
+      f_add_condition<Column1,Column2>( m_whereClause, condition );
+    }
+
+    const coral::AttributeList& get() const {
+      return m_data;
+    }
+
+    const std::string& whereClause() const {
+      return m_whereClause;
+    }
+
+  private:
+    coral::AttributeList m_data;
+    std::string m_whereClause;
+  };
+
   template <typename... Types>  class BulkInserter {
   public:
     static constexpr size_t cacheSize = 1000;
@@ -573,15 +602,15 @@ namespace cond {
   namespace {
 
 
-    bool existsTable( coral::ISchema& schema, const char* tableName ){
+    inline bool existsTable( coral::ISchema& schema, const char* tableName ){
       return schema.existsTable( std::string( tableName ) );
     }
 
-    void createTable( coral::ISchema& schema, const coral::TableDescription& descr ){
+    inline void createTable( coral::ISchema& schema, const coral::TableDescription& descr ){
       schema.createTable( descr );
     }
 
-    bool insertInTable( coral::ISchema& schema, const char* tableName, const coral::AttributeList& row, bool failOnDuplicate=true  ){
+    inline bool insertInTable( coral::ISchema& schema, const char* tableName, const coral::AttributeList& row, bool failOnDuplicate=true  ){
       bool ret = false;
       try{
        schema.tableHandle( std::string(tableName ) ).dataEditor().insertRow( row );
@@ -592,10 +621,13 @@ namespace cond {
       return ret;
     }
 
-    void updateTable( coral::ISchema& schema, const char* tableName, const UpdateBuffer& data ){
+    inline void updateTable( coral::ISchema& schema, const char* tableName, const UpdateBuffer& data ){
       schema.tableHandle( std::string(tableName ) ).dataEditor().updateRows( data.setClause(), data.whereClause(), data.get() );
     }
 
+    inline void deleteFromTable( coral::ISchema& schema, const char* tableName, const DeleteBuffer& data ){
+      schema.tableHandle( std::string(tableName ) ).dataEditor().deleteRows( data.whereClause(), data.get() );
+    }
   }
 
   }

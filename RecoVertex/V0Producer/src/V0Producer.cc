@@ -81,14 +81,6 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 
-//void V0Producer::beginJob() {
-void V0Producer::beginJob() {
-}
-
-
-void V0Producer::endJob() {
-}
-
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 

@@ -3,6 +3,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
@@ -38,7 +39,7 @@ QuadrupletSeedMerger
 // Helper functions
 namespace {
   bool areHitsOnLayers(const SeedMergerPixelLayer& layer1, const SeedMergerPixelLayer& layer2,
-                       const std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
+                       const std::pair<SeedingHitSet::ConstRecHitPointer,SeedingHitSet::ConstRecHitPointer>& hits,
                        const TrackerTopology *tTopo) {
     DetId firstHitId = hits.first->geographicalId();
     DetId secondHitId = hits.second->geographicalId();
@@ -48,7 +49,7 @@ namespace {
              layer2.isContainsDetector(firstHitId, tTopo)));
   }
 
-  bool areHitsEqual(const TransientTrackingRecHit& hit1, const TransientTrackingRecHit& hit2) {
+  bool areHitsEqual(const TrackingRecHit & hit1, const TrackingRecHit & hit2) {
     constexpr double epsilon = 0.00001;
     if(hit1.geographicalId() != hit2.geographicalId())
       return false;
@@ -63,17 +64,26 @@ namespace {
 ///
 ///
 ///
-QuadrupletSeedMerger::QuadrupletSeedMerger( ) {
+namespace {
+  SeedCreator *createSeedCreator(const edm::ParameterSet& cfg) {
+    edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+    return SeedCreatorFactory::get()->create(creatorPSet.getParameter<std::string>("ComponentName") , creatorPSet);
+  }
+}
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
+  QuadrupletSeedMerger(iConfig, nullptr, iC) {}
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC):
+  QuadrupletSeedMerger(iConfig, createSeedCreator(seedCreatorConfig), iC) {}
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, SeedCreator *seedCreator, edm::ConsumesCollector& iC):
+  theLayerBuilder_(iConfig, iC),
+  theSeedCreator_(seedCreator)
+ {
 
   // by default, do not..
   // ..merge triplets
   isMergeTriplets_ = false;
   // ..add remaining triplets
   isAddRemainingTriplets_ = false;
-
-  // default is the layer list from plain quadrupletseedmerging_cff
-  // unless configured contrarily via setLayerListName()
-  layerListName_ = std::string( "PixelSeedMergerQuadruplets" );
 }
 
 void QuadrupletSeedMerger::update(const edm::EventSetup& es) {
@@ -108,9 +118,9 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   const TrackerTopology *tTopo=tTopoHand.product();
   
   // the list of layers on which quadruplets should be formed
-  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
-  es.get<TrackerDigiGeometryRecord>().get( layerListName_.c_str(), layerBuilder );
-  theLayerSets_ = layerBuilder->layers( es ); // this is a vector<vector<SeedingLayer> >
+  if(theLayerBuilder_.check(es)) {
+    theLayerSets_ = theLayerBuilder_.layers( es ); // this is a vector<vector<SeedingLayer> >
+  }
 
   
   // make a working copy of the input triplets
@@ -162,8 +172,8 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   // as specified in python/quadrupletseedmerging_cff.py
 
   std::vector<bool> usedTriplets(nInputTriplets,false);
-  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> sharedHits;
-  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> nonSharedHits;
+  std::pair<SeedingHitSet::ConstRecHitPointer,SeedingHitSet::ConstRecHitPointer> sharedHits;
+  std::pair<SeedingHitSet::ConstRecHitPointer,SeedingHitSet::ConstRecHitPointer> nonSharedHits;
 
   // k-d tree, indices are (th)eta, phi
   // build the tree
@@ -394,8 +404,7 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 ///
 const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const TrajectorySeedCollection& seedCollection,
 								    const TrackingRegion& region,
-								    const edm::EventSetup& es,
-                                                                    const edm::ParameterSet& cfg ) {
+								    const edm::EventSetup& es) {
 
   // ttrh builder for HitSet -> TrajectorySeed conversion;
   // require this to be correctly configured, otherwise -> exception
@@ -435,15 +444,15 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
   for( TrajectorySeedCollection::const_iterator aTrajectorySeed = seedCollection.begin();
        aTrajectorySeed < seedCollection.end(); ++aTrajectorySeed ) {
 
-    std::vector<TransientTrackingRecHit::RecHitPointer> recHitPointers;
+    std::vector<SeedingHitSet::ConstRecHitPointer> recHitPointers;
 
     // loop RecHits
     const TrajectorySeed::range theHitsRange = aTrajectorySeed->recHits();
     for( edm::OwnVector<TrackingRecHit>::const_iterator aHit = theHitsRange.first;
 	 aHit < theHitsRange.second; ++aHit ) {
       
-      // this is a collection of: ReferenceCountingPointer< TransientTrackingRecHit> 
-      recHitPointers.push_back( theTTRHBuilder_->build( &(*aHit) ) );
+      // this is a collection of: ReferenceCountingPointer< SeedingHitSet> 
+      recHitPointers.push_back( (SeedingHitSet::ConstRecHitPointer)(&*aHit ) );
 
     }
     
@@ -460,14 +469,10 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
   // the idea here is to fetch the same SeedCreator and PSet
   // as those used by the plugin which is calling the merger
   // (at the moment that's SeedGeneratorFromRegionHitsEDProducer)
-  edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-  std::string const& creatorName = creatorPSet.getParameter<std::string>( "ComponentName" );
-  // leak????
-  SeedCreator* seedCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet );
-  seedCreator->init(region, es, 0);
+  theSeedCreator_->init(region, es, 0);
   for ( unsigned int i=0; i< quadrupletHitSets.size(); i++) {
     // add trajectory seed to result collection
-    seedCreator->makeSeed( theResult, quadrupletHitSets[i]);
+    theSeedCreator_->makeSeed( theResult, quadrupletHitSets[i]);
   }
 
   return theResult;
@@ -505,16 +510,6 @@ std::pair<double,double> QuadrupletSeedMerger::calculatePhiEta( SeedingHitSet co
   
 }
 
-
-
-///
-///
-///
-void QuadrupletSeedMerger::printHit( const TransientTrackingRecHit::ConstRecHitPointer& aRecHitPointer ) const {
-
-  printHit( aRecHitPointer->hit() );
-
-}
 
 
 
@@ -582,15 +577,6 @@ void QuadrupletSeedMerger::setTTRHBuilderLabel( std::string label ) {
 
   theTTRHBuilderLabel_ = label;
   
-}
-
-
-
-///
-///
-///
-void QuadrupletSeedMerger::setLayerListName( std::string layerListName ) {
-  layerListName_ = layerListName;
 }
 
 
@@ -738,13 +724,13 @@ bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId, const Tracker
 }
 
 
-void QuadrupletSeedMerger::mySort(std::array<TransientTrackingRecHit::ConstRecHitPointer, 4>& unsortedHits) {
+void QuadrupletSeedMerger::mySort(std::array<SeedingHitSet::ConstRecHitPointer, 4>& unsortedHits) {
   float radiiSq[4];
   for ( unsigned int iR=0; iR<4; iR++){
     GlobalPoint p1 = unsortedHits[iR]->globalPosition();
     radiiSq[iR]=( p1.x()*p1.x()+p1.y()*p1.y()); // no need to take the sqrt
   }
-  TransientTrackingRecHit::ConstRecHitPointer tempRHP;
+  SeedingHitSet::ConstRecHitPointer tempRHP;
   float tempFloat=0.;
   for ( unsigned int iR1=0; iR1<3; iR1++) {
     for ( unsigned int iR2=iR1+1; iR2<4; iR2++) {

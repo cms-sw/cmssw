@@ -6,6 +6,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include <vector>
 #include <string>
 
@@ -18,11 +23,13 @@ class PTrajectoryStateOnDet;
 class ParticlePropagator; 
 class PropagatorWithMaterial;
 
+
 namespace edm { 
   class ParameterSet;
   class Event;
   class EventSetup;
 }
+
 
 class TrajectorySeedProducer : public edm::EDProducer
 {
@@ -110,6 +117,12 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<const reco::VertexCollection*> vertices;
   double x0, y0, z0;
 
+  // tokens
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
+  edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
+  std::vector<edm::EDGetTokenT<reco::VertexCollection> > recoVertexToken;
 };
 
 #endif

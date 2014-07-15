@@ -49,7 +49,7 @@ using namespace edm;
 //! digits of filenum.                                           
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //**************************************************************** 
-bool SiPixelTemplate2D::pushfile(int filenum)
+bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2D > & thePixelTemp_)
 {
     // Add template stored in external file numbered filenum to theTemplateStore
     
@@ -222,7 +222,7 @@ bool SiPixelTemplate2D::pushfile(int filenum)
 //! external file template_summary_zpNNNN where NNNN are four digits 
 //! \param dbobject - db storing multiple template calibrations
 //**************************************************************** 
-bool SiPixelTemplate2D::pushfile(const SiPixelTemplateDBObject& dbobject)
+bool SiPixelTemplate2D::pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore2D > & thePixelTemp_)
 {
 	// Add template stored in external dbobject to theTemplateStore
     

@@ -154,6 +154,12 @@ void DTRunConditionVarClient::endRun(Run const& run, EventSetup const& context)
         MonitorElement* VDriftME = getChamberHistos(DTChamberId(wheel,stat,sec),"VDrift_FromSegm"); 
         MonitorElement* T0ME = getChamberHistos(DTChamberId(wheel,stat,sec),"T0_FromSegm"); 
 
+	if (!VDriftME || !T0ME) {
+	  edm::LogWarning("DTRunConditionVarClient") << "ME not available" << std::endl;
+	  return;
+	}
+	  
+
         // Get the means per chamber
         float vDriftMean = VDriftME->getMean();
         float t0Mean = T0ME->getMean();

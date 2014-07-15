@@ -4,18 +4,17 @@
 #  description: BASH script for the installation of the LHAPDF package,
 #               can be used standalone or called from other scripts
 #
-#  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/12/07
-#  version:     2.7
+#  author:      Markus Merschmeyer, RWTH Aachen University
+#  date:        2013/05/23
+#  version:     3.0
 #
 
 print_help() {
     echo "" && \
-    echo "install_lhapdf version 2.7" && echo && \
+    echo "install_lhapdf version 3.0" && echo && \
     echo "options: -v  version    define LHAPDF version ( "${LHAPDFVER}" )" && \
     echo "         -d  path       define LHAPDF installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
-    echo "         -f             require flags for 32-bit compilation ( "${FLAGS}" )" && \
     echo "         -n             use 'nopdf' version ( "${NOPDF}" )" && \
     echo "         -l             use '--enable-low-memory' option ( "${LOWMEM}")" && \
     echo "         -N  number     define maximum number of PDFs (" ${NUMPDF}" )" && \
@@ -26,6 +25,7 @@ print_help() {
     echo "         -D             debug flag, compile with '-g' option ( "${FLGDEBUG}" )" && \
     echo "         -X             create XML file for tool override in CMSSW ( "${FLGXMLFL}" )" && \
     echo "         -Z             use multiple CPU cores if available ( "${FLGMCORE}" )" && \
+    echo "         -K             keep LHAPDF source code tree after installation ( "${FGLKEEPT}" )" && \
     echo "         -P  PDFset     retrieve the corresponding PDFset ( "${PDFSETS}" )" && \
     echo "         -h             display this help and exit" && echo
 }
@@ -38,7 +38,6 @@ HDIR=`pwd`
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
 LHAPDFVER="5.6.0"          # LHAPDF version to be installed
-FLAGS="FALSE"              # apply compiler/'make' flags
 NOPDF="FALSE"              # install 'nopdf' version
 LOWMEM="FALSE"             # use 'low-memory' option
 NUMPDF=3                   # maximum number of PDFs
@@ -48,16 +47,16 @@ LVLCLEAN=0                 # cleaning level (0-2)
 FLGDEBUG="FALSE"           # debug flag for compilation
 FLGXMLFL="FALSE"           # create XML tool definition file for SCRAM?
 FLGMCORE="FALSE"           # use multiple cores for compilation
+FLGKEEPT="FALSE"           # keep the source code tree?
 PDFSETS=""                 # list of PDFsets to install
 
 
 # get & evaluate options
-while getopts :v:d:W:S:C:fnlN:DXZP:h OPT
+while getopts :v:d:W:S:C:nlN:DXZKP:h OPT
 do
   case $OPT in
   v) LHAPDFVER=$OPTARG ;;
   d) IDIR=$OPTARG ;;
-  f) FLAGS=TRUE ;;
   n) NOPDF=TRUE ;;
   l) LOWMEM=TRUE ;;
   N) NUMPDF=$OPTARG ;;
@@ -67,6 +66,7 @@ do
   D) FLGDEBUG=TRUE ;;
   X) FLGXMLFL=TRUE ;;
   Z) FLGMCORE=TRUE ;;
+  K) FLGKEEPT=TRUE ;;
   P) PDFSETS=$PDFSETS" "$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
@@ -121,6 +121,7 @@ echo "  -> LHAPDF file name: '"${LHAPDFFILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
 echo "  -> CMSSW override: '"${FLGXMLFL}"'"
+echo "  -> keep sources:   '"${FLGKEEPT}"'"
 echo "  -> use multiple CPU cores: '"${FLGMCORE}"'"
 echo "  -> install PDFsets: '"${PDFSETS}"'"
 
@@ -131,31 +132,19 @@ export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LHAPDFVER}
 
 
 # add compiler & linker flags
-echo "CFLAGS   (old):  "$CFLAGS
-echo "FCFLAGS  (old):  "$FCFLAGS
-echo "FFLAGS   (old):  "$FFLAGS
+echo "CXX      (old):  "$CXX
 echo "CXXFLAGS (old):  "$CXXFLAGS
 echo "LDFLAGS  (old):  "$LDFLAGS
-CF32BIT=""
-if [ "$FLAGS" = "TRUE" ]; then
-  CF32BIT="-m32"
-  export CFLAGS=${CFLAGS}" "${CF32BIT}
-  export FCFLAGS=${FCFLAGS}" "${CF32BIT}
-  export FFLAGS=${FFLAGS}" "${CF32BIT}
-  export CXXFLAGS=${CXXFLAGS}" "${CF32BIT}
-  export LDFLAGS=${LDFLAGS}" "${CF32BIT}
-fi
-CFDEBUG=""
+##MM FIXME
+#  export CXX=""
+#  export CXXFLAGS=""
+#  export LDFLAGS=""
+##MM FIXME
 if [ "$FLGDEBUG" = "TRUE" ]; then
   CFDEBUG="-g"
-  export CFLAGS=${CFLAGS}" "${CFDEBUG}
-  export FCFLAGS=${FCFLAGS}" "${CFDEBUG}
-  export FFLAGS=${FFLAGS}" "${CFDEBUG}
   export CXXFLAGS=${CXXFLAGS}" "${CFDEBUG}
 fi
-echo "CFLAGS   (new):  "$CFLAGS
-echo "FCFLAGS  (new):  "$FCFLAGS
-echo "FFLAGS   (new):  "$FFLAGS
+echo "CXX      (new):  "$CXX
 echo "CXXFLAGS (new):  "$CXXFLAGS
 echo "LDFLAGS  (new):  "$LDFLAGS
 
@@ -163,18 +152,12 @@ echo "LDFLAGS  (new):  "$LDFLAGS
 # add compiler & linker flags
 COPTS=""
 MOPTS=""
-if [ "$FLAGS" = "TRUE" ]; then
-#    COPTS=${COPTS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-#    MOPTS=${MOPTS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-    COPTS=${COPTS}" CFLAGS=-m32 FCFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-    MOPTS=${MOPTS}" CFLAGS=-m32 FCFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-fi
 POPTS=""
 if [ "$FLGMCORE" = "TRUE" ]; then
     nprc=`cat /proc/cpuinfo | grep  -c processor`
-    let nprc=$nprc+1
-    if [ $nprc -gt 2 ]; then
-      echo " <I> multiple CPU cores detected: "$nprc"-1"
+    let nprc=$nprc
+    if [ $nprc -gt 1 ]; then
+      echo " <I> multiple CPU cores detected: "$nprc
       POPTS=" -j"$nprc" "
     fi
 fi
@@ -205,13 +188,15 @@ if [ ! -d ${LHAPDFIDIR} ]; then
     cp ${LHAPDFWEBLOCATION}/${LHAPDFFILE} ./
   fi
   tar -xzf ${LHAPDFFILE}
-  rm ${LHAPDFFILE}
+  if [ ! "$FLGKEEPT" = "TRUE" ]; then
+    rm ${LHAPDFFILE}
+  fi
   cd ${LHAPDFDIR}
-  echo " -> configuring LHAPDF with options: "${COPTS}
-  ./configure --prefix=${LHAPDFIDIR} ${COPTS}
-  echo " -> making LHAPDF with options "${POPTS} ${MOPTS}
-  make ${POPTS} ${MOPTS}
-  echo " -> installing LHAPDF with options "${MOPTS}
+  echo " -> configuring LHAPDF with options: "${COPTS} && \
+  ./configure --prefix=${LHAPDFIDIR} ${COPTS} && \
+  echo " -> making LHAPDF with options "${POPTS} ${MOPTS} && \
+  make ${POPTS} ${MOPTS} && \
+  echo " -> installing LHAPDF with options "${MOPTS} && \
   make install ${MOPTS}
   if [ ${LVLCLEAN} -gt 0 ]; then 
     echo " -> cleaning up LHAPDF installation, level: "${LVLCLEAN}" ..."
@@ -219,17 +204,24 @@ if [ ! -d ${LHAPDFIDIR} ]; then
       make clean
     fi
   fi
+  cd ${HDIR}
+  if [ "$FLGKEEPT" = "TRUE" ]; then
+    echo "-> keeping source code..."
+  else
+    rm -rf ${LHAPDFDIR}
+  fi
 else
   echo " <W> path exists => using already installed LHAPDF"
 fi
-rm -rf ${LHAPDFDIR}
 export LHAPDFDIR=${LHAPDFIDIR}
 cd ${HDIR}
 
 # retrieve PDFsets (...)
 pdfweblocation="http://svn.hepforge.org/lhapdf/pdfsets/tags/"${LHAPDFVER}
 pdflocation=`find $LHAPDFDIR -type d -name lhapdf`
-mkdir $pdflocation/PDFsets
+if [ ! -e $pdflocation/PDFsets ]; then
+  mkdir $pdflocation/PDFsets
+fi
 pdflocation=$pdflocation/PDFsets
 for pdfset in $PDFSETS; do
   echo " <I> retrieving PDFset(s): "$pdfset
@@ -252,7 +244,7 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
   echo "  <tool name=\"lhapdf\" version=\""${LHAPDFVER}"\">" >> ${xmlfile}
   tmppath=`find ${LHAPDFDIR} -type f -name libLHAPDF.so\*`
   tmpcnt=`echo ${tmppath} | grep -o "/" | grep -c "/"`
-  tmppath=`echo ${tmppath} | cut -f 0-${tmpcnt} -d "/"`
+  tmppath=`echo ${tmppath} | cut -f 1-${tmpcnt} -d "/"`
   for LIB in `cd ${tmppath}; ls *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${HDIR}`; do
     echo "    <lib name=\""${LIB}"\"/>" >> ${xmlfile}
   done

@@ -21,57 +21,48 @@ WValidation::WValidation(const edm::ParameterSet& iPSet):
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
 
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 WValidation::~WValidation() {}
 
-void WValidation::beginJob()
-{
-  if(dbe){
+void WValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
     ///Setting the DQM top directories
     std::string folderName = "Generator/W";
     folderName+=_name;
-    dbe->setCurrentFolder(folderName.c_str());
+    i.setCurrentFolder(folderName.c_str());
     
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
     
     //Kinematics
-    Wmass = dbe->book1D("Wmass","inv. Mass W", 70 ,0,140);
-    WmassPeak = dbe->book1D("WmassPeak","inv. Mass W", 80 ,80 ,100);
-    Wpt = dbe->book1D("Wpt","W pt",100,0,200);
-    WptLog = dbe->book1D("WptLog","log(W pt)",100,0.,5.);
-    Wrap = dbe->book1D("Wrap", "W y", 100, -5, 5);
-    Wdaughters = dbe->book1D("Wdaughters", "W daughters", 60, -30, 30);
+    Wmass = i.book1D("Wmass","inv. Mass W", 70 ,0,140);
+    WmassPeak = i.book1D("WmassPeak","inv. Mass W", 80 ,80 ,100);
+    Wpt = i.book1D("Wpt","W pt",100,0,200);
+    WptLog = i.book1D("WptLog","log(W pt)",100,0.,5.);
+    Wrap = i.book1D("Wrap", "W y", 100, -5, 5);
+    Wdaughters = i.book1D("Wdaughters", "W daughters", 60, -30, 30);
 
-    lepmet_mT = dbe->book1D("lepmet_mT","lepton-met transverse mass", 70 ,0,140);
-    lepmet_mTPeak = dbe->book1D("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100);
-    lepmet_pt = dbe->book1D("lepmet_pt","lepton-met",100,0,200);
-    lepmet_ptLog = dbe->book1D("lepmet_ptLog","log(lepton-met pt)",100,0.,5.);
+    lepmet_mT = i.book1D("lepmet_mT","lepton-met transverse mass", 70 ,0,140);
+    lepmet_mTPeak = i.book1D("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100);
+    lepmet_pt = i.book1D("lepmet_pt","lepton-met",100,0,200);
+    lepmet_ptLog = i.book1D("lepmet_ptLog","log(lepton-met pt)",100,0.,5.);
 
-    gamma_energy = dbe->book1D("gamma_energy", "photon energy in W rest frame", 200, 0., 100.);
-    cos_theta_gamma_lepton = dbe->book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in W rest frame",      200, -1, 1);
+    gamma_energy = i.book1D("gamma_energy", "photon energy in W rest frame", 200, 0., 100.);
+    cos_theta_gamma_lepton = i.book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in W rest frame",      200, -1, 1);
 
-    leppt = dbe->book1D("leadpt","lepton pt", 200, 0., 200.);    
-    met   = dbe->book1D("met","met", 200, 0., 200.);    
-    lepeta = dbe->book1D("leadeta","leading lepton eta", 100, -5., 5.);
+    leppt = i.book1D("leadpt","lepton pt", 200, 0., 200.);    
+    met   = i.book1D("met","met", 200, 0., 200.);    
+    lepeta = i.book1D("leadeta","leading lepton eta", 100, -5., 5.);
 
-  }
   return;
 }
 
-void WValidation::endJob(){return;}
-void WValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
+void WValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
 }
-void WValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
+
 void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
   

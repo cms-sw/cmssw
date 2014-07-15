@@ -26,7 +26,9 @@ public:
    FWPhotonDetailView();
    virtual ~FWPhotonDetailView();
 
+   using FWDetailViewGL<reco::Photon>::build;
    virtual void build (const FWModelId &id, const reco::Photon*);
+   using FWDetailViewGL<reco::Photon>::setTextInfo;
    virtual void setTextInfo(const FWModelId &id, const reco::Photon*);
 
 private:

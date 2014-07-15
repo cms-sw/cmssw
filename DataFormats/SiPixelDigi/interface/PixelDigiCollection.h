@@ -23,8 +23,8 @@ class PixelDigiCollection {
   const std::vector<unsigned int> detIDs() const;
   
  private:
-  mutable std::vector<PixelDigi> container_;
-  mutable Registry map_;
+  std::vector<PixelDigi> container_;
+  Registry map_;
 
 };
 

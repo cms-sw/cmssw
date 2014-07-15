@@ -4,7 +4,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {
 
@@ -19,7 +19,7 @@ namespace edm {
     // Used to append the current process to the process history
     // when necessary. Optimized to cache the results so it
     // does not need to repeat the same calculations many times.
-    boost::shared_ptr<ProcessHistory const>
+    std::shared_ptr<ProcessHistory const>
     appendToProcessHistory(ProcessHistoryID const& inputPHID,
                            ProcessHistory const* inputProcessHistory,
                            ProcessConfiguration const& pc);
@@ -34,7 +34,7 @@ namespace edm {
                              ProcessConfiguration const& pc) const;
 
     ProcessHistoryID m_cachedInputPHID;
-    boost::shared_ptr<ProcessHistory const> m_cachedHistory;
+    std::shared_ptr<ProcessHistory const> m_cachedHistory;
   };
 }
 #endif

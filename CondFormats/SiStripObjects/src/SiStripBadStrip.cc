@@ -23,14 +23,27 @@ bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   return true;
 }
 
-const SiStripBadStrip::Range SiStripBadStrip::getRange(const uint32_t& DetId) const {
+const SiStripBadStrip::Range SiStripBadStrip::getRange(const uint32_t DetId) const {
   // get SiStripBadStrip Range of DetId
   
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripBadStrip::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return SiStripBadStrip::Range(v_badstrips.end(),v_badstrips.end()); 
-  else 
+  else {
+    __builtin_prefetch((&v_badstrips.front())+p->ibegin);
+    __builtin_prefetch((&v_badstrips.front())+p->ibegin+24);
+    __builtin_prefetch((&v_badstrips.front())+p->iend-24);
     return SiStripBadStrip::Range(v_badstrips.begin()+p->ibegin,v_badstrips.begin()+p->iend);
+  }
+}
+
+SiStripBadStrip::Range SiStripBadStrip::getRangeByPos(unsigned short pos) const {
+  if (pos>indexes.size()) return Range(v_badstrips.end(),v_badstrips.end()); 
+  auto p = indexes.begin()+pos;
+  __builtin_prefetch((&v_badstrips.front())+p->ibegin);
+  __builtin_prefetch((&v_badstrips.front())+p->ibegin+24);
+  __builtin_prefetch((&v_badstrips.front())+p->iend-24);
+  return Range(v_badstrips.begin()+p->ibegin,v_badstrips.begin()+p->iend);
 }
 
 

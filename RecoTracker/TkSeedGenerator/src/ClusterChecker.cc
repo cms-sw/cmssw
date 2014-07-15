@@ -8,6 +8,11 @@
 
 ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC):
+  ClusterChecker(conf, iC)
+{}
+
+ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
+	edm::ConsumesCollector & iC):
     doACheck_(conf.getParameter<bool>("doClusterCheck")),
     selector_(conf.getParameter<bool>("doClusterCheck") && conf.existsAs<std::string>("cut") ?
                 conf.getParameter<std::string>("cut") : 
@@ -58,18 +63,6 @@ size_t ClusterChecker::tooManyClusters(const edm::Event & e) const
                 totals.strip += siz; 
                 totals.stripdets++;
             }
-        }
-    }
-    else{
-        edm::Handle<edm::LazyGetter<SiStripCluster> > lazyGH;
-        e.getByToken(token_sc, lazyGH);
-        totals.stripdets = 0; // don't know how to count this online
-        if (!lazyGH.failedToGet()){
-            totals.strip = lazyGH->size();
-        }else{
-            //say something's wrong.
-            edm::LogError("ClusterChecker")<<"could not get any SiStrip cluster collections of type edm::DetSetVector<SiStripCluster> or edm::LazyGetter<SiStripCluster, with label: "<<clusterCollectionInputTag_;
-            totals.strip = 999999;
         }
     }
     if (totals.strip > int(maxNrOfCosmicClusters_)) return totals.strip;

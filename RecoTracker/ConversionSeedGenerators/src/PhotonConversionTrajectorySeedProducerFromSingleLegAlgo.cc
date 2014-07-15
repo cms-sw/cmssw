@@ -16,10 +16,10 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC)
   :_conf(conf),seedCollection(0),seedCollectionOfSourceTracks(0),
-   hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
-   creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
-   regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
-   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), std::move(iC)),
+   theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
+   theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
+   theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
+   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
    _vtxMinDoF(conf.getParameter<double>("vtxMinDoF")),
    _maxDZSigmas(conf.getParameter<double>("maxDZSigmas")),
@@ -32,27 +32,9 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
   token_vertex      = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
   token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
   token_refitter    = iC.consumes<reco::TrackCollection>(_conf.getParameter<edm::InputTag>("TrackRefitter"));
-  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
-  init();  
 }
 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
-  if(theRegionProducer!=NULL)
-    delete theRegionProducer;
-}
-
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-clear(){
-  if(theHitsGenerator!=NULL)
-    delete theHitsGenerator;
-  if(theSeedCreator!=NULL)
-    delete theSeedCreator;
-}
-
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-init(){
-  theHitsGenerator  = new CombinedHitPairGeneratorForPhotonConversion(hitsfactoryPSet);
-  theSeedCreator    = new SeedForPhotonConversion1Leg(creatorPSet);
 }
 
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::

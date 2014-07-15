@@ -11,6 +11,3 @@ HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHEFlatNoise",12)
 HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHESpikeNoise",12)
 
 CSCHaloData.ExpectedBX = cms.int32(3)
-
-ecalGlobalUncalibRecHit.doEBtimeCorrection = True
-ecalGlobalUncalibRecHit.doEEtimeCorrection = True

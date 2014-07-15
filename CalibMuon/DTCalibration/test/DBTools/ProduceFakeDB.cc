@@ -44,8 +44,8 @@ void ProduceFakeDB::beginRun(const edm::Run&, const EventSetup& setup) {
 void ProduceFakeDB::endJob() {
   
   //Get the superlayers and layers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
-  vector<DTLayer*> dtLyList = muonGeom->layers();
+  vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+  vector<const DTLayer*> dtLyList = muonGeom->layers();
 
   if(dbToProduce == "VDriftDB") {
     //Read the fake values from the cfg files
@@ -56,7 +56,7 @@ void ProduceFakeDB::endJob() {
     DTMtime* mtimeMap = new DTMtime();
 
     //Loop on superlayers
-    for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+    for (auto sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
       // vdrift is cm/ns , resolution is cm
       mtimeMap->set((*sl)->id(), vdrift, hitReso, DTVelocityUnits::cm_per_ns);
@@ -77,7 +77,7 @@ void ProduceFakeDB::endJob() {
     DTTtrig* tTrigMap = new DTTtrig();
 
     //Loop on superlayers
-    for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+    for (auto sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
       tTrigMap->set((*sl)->id(), ttrig, sigmaTtrig, kFactor, DTTimeUnits::ns);
     }
@@ -97,7 +97,7 @@ void ProduceFakeDB::endJob() {
     DTT0* tZeroMap = new DTT0();
 
     //Loop on layers
-    for (vector<DTLayer*>::const_iterator ly = dtLyList.begin();
+    for (auto ly = dtLyList.begin();
 	 ly != dtLyList.end(); ly++) {
 	
       //Get the number of wires for each layer

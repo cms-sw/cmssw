@@ -56,8 +56,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -71,7 +69,7 @@ using namespace edm;
 
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 						 const MuonServiceProxy* service,
-						 edm::ConsumesCollector& iC) : GlobalTrajectoryBuilderBase(par, service) {
+						 edm::ConsumesCollector& iC) : GlobalTrajectoryBuilderBase(par, service, iC) {
 
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 

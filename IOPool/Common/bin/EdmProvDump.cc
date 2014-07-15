@@ -375,7 +375,7 @@ namespace {
   makeTFileWithLookup(std::string const& filename) {
     // See if it is a logical file name.
     std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
-    boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> > slc(new edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig>(slcptr));
+    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(slcptr);
     edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
     edm::ServiceRegistry::Operate operate(slcToken);
     std::string override;
@@ -1068,7 +1068,6 @@ static char const* const kShowTopLevelPSetsCommandOpt ="showTopLevelPSets,t";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt = "input-file";
-static char const* const kFileNameCommandOpt = "input-file";
 
 int main(int argc, char* argv[]) {
   using namespace boost::program_options;

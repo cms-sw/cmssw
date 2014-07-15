@@ -35,7 +35,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
 class L1GctCand;
@@ -61,7 +61,7 @@ class L1GlobalTriggerPSB
 public:
 
     // constructor
-    L1GlobalTriggerPSB();
+    L1GlobalTriggerPSB(const edm::InputTag & caloTag, const std::vector<edm::InputTag>& vecTag, edm::ConsumesCollector && iC);
 
     // destructor
     virtual ~L1GlobalTriggerPSB();

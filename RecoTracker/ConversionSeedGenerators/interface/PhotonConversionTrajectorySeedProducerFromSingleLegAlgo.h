@@ -21,7 +21,7 @@
 
 #include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitPairGeneratorForPhotonConversion.h"
 
-#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
+#include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -38,9 +38,6 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet &,
 	edm::ConsumesCollector && iC);
   ~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo();
-
-  void init();
-  void clear();
 
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
   IdealHelixParameters* getIdealHelixParameters(){return &_IdealHelixParameters;}
@@ -62,12 +59,10 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
 
   TrajectorySeedCollection *seedCollection;
   TrajectorySeedCollection *seedCollectionOfSourceTracks;
-  CombinedHitPairGeneratorForPhotonConversion * theHitsGenerator;
-  SeedForPhotonConversion1Leg *theSeedCreator;
-  GlobalTrackingRegionProducerFromBeamSpot* theRegionProducer;
+  std::unique_ptr<CombinedHitPairGeneratorForPhotonConversion> theHitsGenerator;
+  std::unique_ptr<SeedForPhotonConversion1Leg> theSeedCreator;
+  std::unique_ptr<GlobalTrackingRegionProducerFromBeamSpot> theRegionProducer;
 
-
-  edm::ParameterSet hitsfactoryPSet,creatorPSet,regfactoryPSet;
 
   ClusterChecker theClusterCheck;
   bool theSilentOnClusterCheck;

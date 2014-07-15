@@ -47,7 +47,7 @@
 // Constructors --
 //----------------
 
-DTTrig::DTTrig(const  edm::ParameterSet &params) :
+DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
  _inputexist(1) ,  _configid(0) , _geomid(0) {
 
   // Set configuration parameters
@@ -59,7 +59,7 @@ DTTrig::DTTrig(const  edm::ParameterSet &params) :
   }
 
   _digitag   = params.getParameter<edm::InputTag>("digiTag");
-
+  iC.consumes<DTDigiCollection>(_digitag);
 }
 
 
@@ -101,13 +101,13 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
   edm::ESHandle<DTGeometry>dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
-  for (std::vector<DTChamber*>::const_iterator ich=dtGeom->chambers().begin(); ich!=dtGeom->chambers().end();ich++){
+  for (std::vector<const DTChamber*>::const_iterator ich=dtGeom->chambers().begin(); ich!=dtGeom->chambers().end();ich++){
        
-    DTChamber* chamb = (*ich);
+    const DTChamber* chamb = (*ich);
     DTChamberId chid = chamb->id();
     TU_iterator it = _cache.find(chid);
     if ( it != _cache.end()) {
-      std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
+      if (_debug) std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
       continue;
     }
 

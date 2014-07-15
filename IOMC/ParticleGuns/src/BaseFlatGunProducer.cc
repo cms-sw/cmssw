@@ -27,10 +27,10 @@ using namespace edm;
 using namespace std;
 using namespace CLHEP;
 
-namespace {
-  CLHEP::HepRandomEngine& getEngineReference()
-  {
-
+BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
+   fEvt(0)
+   // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
+{
    Service<RandomNumberGenerator> rng;
    if(!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -38,18 +38,6 @@ namespace {
           "which appears to be absent.  Please add that service to your configuration\n"
           "or remove the modules that require it.";
    }
-
-// The Service has already instantiated an engine.  Make contact with it.
-   return (rng->getEngine());
-  }
-}
-
-BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
-   fEvt(0),
-   fRandomEngine(getEngineReference()),
-   fRandomGenerator(0)
-   // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
-{
 
    ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
   
@@ -85,8 +73,6 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
-// The Service has already instantiated an engine.  Use it.
-   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
    fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
    produces<GenRunInfoProduct, InRun>();
@@ -94,10 +80,6 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 
 BaseFlatGunProducer::~BaseFlatGunProducer()
 {
-  
-//if ( fRandomGenerator != NULL ) delete fRandomGenerator;
-  // do I need to delete the Engine, too ?
-  
   // no need to cleanup GenEvent memory - done in HepMCProduct
   // if (fEvt != NULL) delete fEvt ; // double check
   // delete fPDGTable;

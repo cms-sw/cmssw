@@ -64,11 +64,11 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);    
   
   edm::Handle<GenParticleCollection>  TPCollectionHeff ;
-  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  event.getByToken(label_tp_effic,TPCollectionHeff);
   const GenParticleCollection tPCeff = *(TPCollectionHeff.product());
   
   edm::Handle<GenParticleCollection>  TPCollectionHfake ;
-  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  event.getByToken(label_tp_fake,TPCollectionHfake);
   const GenParticleCollection tPCfake = *(TPCollectionHfake.product());
   
   //if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") 
@@ -77,11 +77,11 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
   //<< "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
   
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  event.getByToken(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
   
   edm::Handle< vector<PileupSummaryInfo> > puinfoH;
-  event.getByLabel(label_pileupinfo,puinfoH);
+  event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;      
   
   for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){ 
@@ -102,7 +102,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       //get collections from the event
       //
       edm::Handle<View<Track> >  trackCollection;
-      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_)continue;
+      if(!event.getByToken(labelToken[www], trackCollection)&&ignoremissingtkcollection_)continue;
       //if (trackCollection->size()==0) 
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
       //continue;
@@ -131,16 +131,16 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 					   << label[www].process()<<":"
 					   << label[www].label()<<":"
 					   << label[www].instance()<<" with "
-					   << associatormap.process()<<":"
-					   << associatormap.label()<<":"
-					   << associatormap.instance()<<"\n";
+					   << assMapInput.process()<<":"
+					   << assMapInput.label()<<":"
+					   << assMapInput.instance()<<"\n";
 	
 	Handle<reco::GenToRecoCollection > gentorecoCollectionH;
-	event.getByLabel(associatormap,gentorecoCollectionH);
+	event.getByToken(associatormapStR,gentorecoCollectionH);
 	genRecColl= *(gentorecoCollectionH.product()); 
 	
 	Handle<reco::RecoToGenCollection > recotogenCollectionH;
-	event.getByLabel(associatormap,recotogenCollectionH);
+	event.getByToken(associatormapRtS,recotogenCollectionH);
 	recGenColl= *(recotogenCollectionH.product()); 
       }
 
@@ -232,23 +232,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	
 
 	
-	/*
-	std::vector<PSimHit> simhits=tp->trackPSimHit(DetId::Tracker);
-        int nSimHits = simhits.end()-simhits.begin();
-	*/
         int nSimHits = 0;
-
-        double vtx_z_PU = vertexTP.z();
-	/*
-        for (size_t j = 0; j < tv.size(); j++) {
-            if (tp->eventId().event() == tv[j].eventId().event()) {
-                vtx_z_PU = tv[j].position().z();
-                break;
-            }
-        }
-	*/
-
-	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxyGen,dzGen,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
+	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxyGen,dzGen,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions());
 
 	sts++;
 	if (matchedTrackPointer) asts++;
@@ -285,9 +270,9 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       //std::cout << "PIPPO: label is " << label[www] << std::endl;
       if (label[www].label()=="generalTracks") {
 	try {
-	  event.getByLabel(m_dEdx1Tag, dEdx1Handle);
+	  event.getByToken(m_dEdx1Tag, dEdx1Handle);
 	  const edm::ValueMap<reco::DeDxData> dEdx1 = *dEdx1Handle.product();
-	  event.getByLabel(m_dEdx2Tag, dEdx2Handle);
+	  event.getByToken(m_dEdx2Tag, dEdx2Handle);
 	  const edm::ValueMap<reco::DeDxData> dEdx2 = *dEdx2Handle.product();
 	  v_dEdx.push_back(dEdx1);
 	  v_dEdx.push_back(dEdx2);
@@ -306,7 +291,6 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	bool isGenMatched(false);
 	bool isChargeMatched(true);
 	int numAssocRecoTracks = 0;
-        int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
 	std::vector<std::pair<GenParticleRef, double> > tp;
@@ -322,9 +306,6 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	    if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
 	    if(genRecColl.find(tp[0].first) != genRecColl.end()) numAssocRecoTracks = genRecColl[tp[0].first].size();
 	    //std::cout << numAssocRecoTracks << std::endl;
-	    /*
-	    tpbx = tp[0].first->eventId().bunchCrossing();
-	    */
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){ 
               GenParticle trackpart = *(tp[tp_ite].first);
@@ -345,7 +326,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	}
 	
 
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction);
+	double dR=0;//fixme: plots vs dR not implemented for now
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );

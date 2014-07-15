@@ -2,7 +2,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoLocalCalo/CaloTowersCreator/interface/ctEScales.h"
 
 CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) : 
   algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0., // thresholds cannot be reapplied
@@ -52,8 +51,6 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
   HOEScale=conf.getParameter<double>("HOEScale");
   HF1EScale=conf.getParameter<double>("HF1EScale");
   HF2EScale=conf.getParameter<double>("HF2EScale");
-  if (ctEScales.instanceLabel=="") produces<CaloTowerCollection>();
-  else produces<CaloTowerCollection>(ctEScales.instanceLabel);
   //  two notes:
   //  1) all this could go in a pset
   //  2) not clear the instanceLabel thing
@@ -84,26 +81,6 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<CaloTowerCollection> calt;
   e.getByToken(tok_calo_,calt);
 
-/*
-  if (!calt.isValid()) {
-    // can't find it!
-    if (!allowMissingInputs_) {
-      *calt;  // will throw the proper exception
-    }
-  } else {
-    algo_.process(*calt);
-  }
-
-  // Step B: Create empty output
-  std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
-
-  // Step C: Process
-  algo_.finish(*prod);
-
-  // Step D: Put into the event
-  if (ctEScales.instanceLabel=="") e.put(prod);
-  else e.put(prod,ctEScales.instanceLabel);
-*/
 
   // modified to rescale the CaloTowers directly
   // without going through metatowers
@@ -122,10 +99,6 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     // step C: rescale (without going threough metataowers)
     algo_.rescaleTowers(*calt, *prod);
 
-    // Step D: Put into the event
-    if (ctEScales.instanceLabel=="") e.put(prod);
-    else e.put(prod,ctEScales.instanceLabel);
   }
-
 }
 

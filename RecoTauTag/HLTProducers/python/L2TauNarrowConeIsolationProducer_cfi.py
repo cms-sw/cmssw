@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltL2TauIsolationProducer = cms.EDProducer( "L2TauNarrowConeIsolationProducer",
     L2TauJetCollection = cms.InputTag( "hltL2TauJets" ),
-    EBRecHits = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
-    EERecHits = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
+    EBRecHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
+    EERecHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
     CaloTowers = cms.InputTag('hltTowerMakerForAll'),                                        
 
     crystalThresholdEE = cms.double( 0.45 ),

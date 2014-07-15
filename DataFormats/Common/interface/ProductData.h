@@ -9,7 +9,7 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {
   class BranchDescription;
@@ -17,7 +17,7 @@ namespace edm {
   struct ProductData {
     ProductData();
 
-    explicit ProductData(boost::shared_ptr<BranchDescription const> bd);
+    explicit ProductData(std::shared_ptr<BranchDescription const> bd);
 
     // For use by FWLite
     ProductData(void const* product, Provenance const& prov);
@@ -26,7 +26,7 @@ namespace edm {
       return prov_.product().getInterface();
     }
 
-    boost::shared_ptr<BranchDescription const> const& branchDescription() const {
+    std::shared_ptr<BranchDescription const> const& branchDescription() const {
       return prov_.constBranchDescriptionPtr();
     }
 
@@ -35,7 +35,7 @@ namespace edm {
        prov_.swap(other.prov_);
     }
 
-    void resetBranchDescription(boost::shared_ptr<BranchDescription const> bd);
+    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd);
 
     void resetProductData() {
       wrapper_.reset();
@@ -47,7 +47,7 @@ namespace edm {
     // the effort to make the Framework multithread capable ...
 
     // "non-const data" (updated every event)
-    mutable boost::shared_ptr<void const> wrapper_;
+    mutable std::shared_ptr<void const> wrapper_;
     mutable Provenance prov_;
   };
 

@@ -5,17 +5,16 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 
 class TrackingRegion;
 class OrderedHitPairs;
 class HitPairGeneratorFromLayerPair;
-namespace ctfseeding { class SeedingLayer;}
+class SeedingLayerSetsHits;
 namespace edm { class Event; class EventSetup; }
 
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+#include <memory>
 
 /** \class CombinedHitPairGenerator
  * Hides set of HitPairGeneratorFromLayerPair generators.
@@ -26,11 +25,10 @@ public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitPairGenerator(const edm::ParameterSet & cfg);
+  CombinedHitPairGenerator(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
   virtual ~CombinedHitPairGenerator();
 
-  void  add(const ctfseeding::SeedingLayer & inner, 
-	      const ctfseeding::SeedingLayer & outer);
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override;
 
   /// form base class
   virtual void hitPairs( const TrackingRegion& reg, 
@@ -38,24 +36,16 @@ public:
 
   /// from base class
   virtual CombinedHitPairGenerator * clone() const 
-    { return new CombinedHitPairGenerator(theConfig); } 
+    { return new CombinedHitPairGenerator(*this); }
 
 private:
   CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 
-  void init(const ctfseeding::SeedingLayerSets & layerSets);
-  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
-  void cleanup();
 
-
-  mutable bool initialised;
-  edm::ParameterSet theConfig;
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
   LayerCacheType   theLayerCache;
 
-  edm::ESWatcher<TrackerDigiGeometryRecord> theESWatcher;
-
-  typedef std::vector<HitPairGeneratorFromLayerPair *>   Container;
-  Container        theGenerators;
+  std::unique_ptr<HitPairGeneratorFromLayerPair> theGenerator;
 
 };
 #endif

@@ -22,10 +22,10 @@ class PFLayer {
 
  public:
   /// constructor
-  PFLayer();
+  PFLayer() {}
 
   /// destructor
-  virtual ~PFLayer() = 0;
+  ~PFLayer() {}
 
   /// layer definition
   enum Layer {PS2          = -12, 

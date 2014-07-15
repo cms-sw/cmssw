@@ -9,12 +9,6 @@ using namespace reco;
 using namespace edm;
 using namespace cms;
 
-namespace {
-  const bool debug = false;
-
-}
-
-
 CompoundJetProducer::CompoundJetProducer(edm::ParameterSet const& conf):
   VirtualJetProducer( conf )
 {

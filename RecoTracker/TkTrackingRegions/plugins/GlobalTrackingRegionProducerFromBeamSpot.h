@@ -14,7 +14,11 @@ class GlobalTrackingRegionProducerFromBeamSpot : public TrackingRegionProducer {
 public:
 
   GlobalTrackingRegionProducerFromBeamSpot(const edm::ParameterSet& cfg,
-	   edm::ConsumesCollector && iC) {
+	   edm::ConsumesCollector && iC):
+    GlobalTrackingRegionProducerFromBeamSpot(cfg, iC)
+  {}
+  GlobalTrackingRegionProducerFromBeamSpot(const edm::ParameterSet& cfg,
+	   edm::ConsumesCollector & iC) {
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     thePtMin            = regionPSet.getParameter<double>("ptMin");

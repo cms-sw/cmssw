@@ -19,7 +19,7 @@ class JetIDFailureFilter : public edm::EDFilter {
 
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
-    const edm::InputTag theJetLabel_;
+    edm::EDGetTokenT<edm::View<pat::Jet> > theJetToken_;
     const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;
     const bool debug_;
     const bool taggingMode_;
@@ -27,8 +27,8 @@ class JetIDFailureFilter : public edm::EDFilter {
 
 
 
-JetIDFailureFilter::JetIDFailureFilter(const edm::ParameterSet & iConfig) 
-   : theJetLabel_ (iConfig.getParameter<edm::InputTag>("JetSource") )
+JetIDFailureFilter::JetIDFailureFilter(const edm::ParameterSet & iConfig)
+   : theJetToken_ (consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("JetSource") ))
    , minJetPt_ (iConfig.getParameter<double>("MinJetPt") )
    , maxJetEta_ (iConfig.getParameter<double>("MaxJetEta") )
    , maxNeutHadF_ (iConfig.getParameter<double>("MaxNeutralHadFrac") )
@@ -48,8 +48,8 @@ bool JetIDFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSe
 
   // read in the objects
   edm::Handle<edm::View<pat::Jet> > jets;
-  iEvent.getByLabel(theJetLabel_, jets);
-  
+  iEvent.getByToken(theJetToken_, jets);
+
   bool goodJetID=true;
 
   int jetIdx =-1;
@@ -62,7 +62,7 @@ bool JetIDFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSe
       if (j->pt() > minJetPt_ && fabs(j->eta()) < maxJetEta_) {
 
         jetIdx++;
-	
+
 	// neutral hadron fraction already calculated on uncorrected jet energy
 	double nhf = j->neutralHadronEnergyFraction();
 
@@ -80,8 +80,8 @@ bool JetIDFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSe
 
     }
   }
- 
-  iEvent.put( std::auto_ptr<bool>(new bool(goodJetID)) ); 
+
+  iEvent.put( std::auto_ptr<bool>(new bool(goodJetID)) );
 
   return taggingMode_ || goodJetID;
 }

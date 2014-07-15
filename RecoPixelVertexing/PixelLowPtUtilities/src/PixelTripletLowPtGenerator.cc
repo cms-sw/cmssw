@@ -8,9 +8,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #undef Debug
 
@@ -18,12 +22,16 @@ using namespace std;
 using namespace ctfseeding;
 
 /*****************************************************************************/
+PixelTripletLowPtGenerator::PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
+  theTracker(nullptr), theFilter(nullptr), ps(cfg), thePairGenerator(nullptr), theLayerCache(nullptr),
+  theClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
+{}
+
+/*****************************************************************************/
 void PixelTripletLowPtGenerator::init(const HitPairGenerator & pairs,
-      const vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
-  theLayers        = layers;
   theLayerCache    = layerCache;
 
   checkMultipleScattering = ps.getParameter<bool>("checkMultipleScattering");
@@ -32,6 +40,13 @@ void PixelTripletLowPtGenerator::init(const HitPairGenerator & pairs,
   rzTolerance             = ps.getParameter<double>("rzTolerance");
   maxAngleRatio           = ps.getParameter<double>("maxAngleRatio");
   builderName             = ps.getParameter<string>("TTRHBuilder");
+}
+
+/*****************************************************************************/
+void PixelTripletLowPtGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                                                  std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
+  thePairGenerator->setSeedingLayers(pairLayers);
+  theLayers = thirdLayers;
 }
 
 /*****************************************************************************/
@@ -76,6 +91,9 @@ void PixelTripletLowPtGenerator::hitTriplets(
   es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
+  edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
+  ev.getByToken(theClusterShapeCacheToken, clusterShapeCache);
+
   // Generate pairs
   OrderedHitPairs pairs; pairs.reserve(30000);
   thePairGenerator->hitPairs(region,pairs,ev,es);
@@ -87,7 +105,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
   // Set aliases
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size]; 
   for(int il=0; il<size; il++)
-    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
 
   // Get tracker
   getTracker(es);
@@ -120,8 +138,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
     // Look at all layers
     for(int il=0; il<size; il++)
     {
-      const SeedingLayer & layerwithhits = theLayers[il];
-      const DetLayer * layer = layerwithhits.detLayer();
+      const DetLayer * layer = theLayers[il].detLayer();
 
 #ifdef Debug
       cerr << "  check layer " << layer->subDetector()
@@ -178,7 +195,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
         // Check if the cluster shapes are compatible with thrusts
         if(checkClusterShape)
         {
-          if(! theFilter->checkTrack(recHits,globalDirs,tTopo))
+          if(! theFilter->checkTrack(recHits,globalDirs,tTopo, *clusterShapeCache))
           {
 #ifdef Debug
             cerr << "  not compatible: cluster shape" << endl;

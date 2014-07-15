@@ -24,41 +24,37 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
-							      const TransientTrackingRecHit& hit) const {
+							      const TrackingRecHit& hit) const {
   LocalPoint lp = hit.localPosition();
   GlobalPoint gp = hit.det()->surface().toGlobal( lp);
   return estimate(ts,gp);
 }
 
-std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, GlobalPoint &gp) const {
+std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, const GlobalPoint &gp) const {
 
   float tsR = ts.globalParameters().position().perp();
-  float tsPhi = ts.globalParameters().position().phi();
-
-  float rhPhi = gp.phi();
   float rhR = gp.perp();
-
-  float myZ = gp.z();
-
+  float rDiff = tsR - rhR;
   float rMin = theRMin;
   float rMax = theRMax;
+  float myZ = gp.z();
+  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.) {
+    rMin = theRMinI;
+    rMax = theRMaxI;
+  }
+  if( rDiff >= rMax || rDiff <= rMin ) return std::pair<bool,double>(false,0.);
+  
+  float tsPhi = ts.globalParameters().position().phi();
+  float rhPhi = gp.phi();
+  
   float myPhimin = thePhiMin;
   float myPhimax = thePhiMax;
-
-  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.)
-    {
-      rMin = theRMinI;
-      rMax = theRMaxI;
-    }
 
   float phiDiff = tsPhi - rhPhi;
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi;
 
-  float rDiff = tsR - rhR;
-
-  if ( phiDiff < myPhimax && phiDiff > myPhimin &&
-       rDiff < rMax && rDiff > rMin) {
+  if ( phiDiff < myPhimax && phiDiff > myPhimin ) {
     return std::pair<bool,double>(true,1.);
   } else {
     return std::pair<bool,double>(false,0.);
@@ -68,34 +64,33 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
 std::pair<bool,double> ForwardMeasurementEstimator::estimate
  ( const GlobalPoint& vprim,
    const TrajectoryStateOnSurface& absolute_ts,
-   GlobalPoint & absolute_gp ) const
+   const GlobalPoint & absolute_gp ) const
  {
   GlobalVector ts = absolute_ts.globalParameters().position() - vprim ;
   GlobalVector gp = absolute_gp - vprim ;
 
-  float tsR = ts.perp();
-  float tsPhi = ts.phi();
-
-  float rhPhi = gp.phi();
   float rhR = gp.perp();
-
-  float myZ = gp.z();
-
+  float tsR = ts.perp();
+  float rDiff = rhR - tsR;
   float rMin = theRMin;
   float rMax = theRMax;
+  float myZ = gp.z();
+  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.) {
+    rMin = theRMinI;
+    rMax = theRMaxI;
+  }
+  
+  if( rDiff >= rMax || rDiff <= rMin ) return std::pair<bool,double>(false,0.);
+  
+  float tsPhi = ts.phi();
+  float rhPhi = gp.phi();  
+  
   float myPhimin = thePhiMin;
-  float myPhimax = thePhiMax;
+  float myPhimax = thePhiMax;  
 
-  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.)
-    {
-      rMin = theRMinI;
-      rMax = theRMaxI;
-    }
+  float phiDiff = normalized_phi(rhPhi - tsPhi) ;  
 
-  float phiDiff = normalized_phi(rhPhi - tsPhi) ;
-  float rDiff = rhR - tsR;
-
-  if ( phiDiff < myPhimax && phiDiff > myPhimin && rDiff < rMax && rDiff > rMin)
+  if ( phiDiff < myPhimax && phiDiff > myPhimin )
    { return std::pair<bool,double>(true,1.) ; }
   else
    { return std::pair<bool,double>(false,0.) ; }

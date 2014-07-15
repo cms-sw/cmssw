@@ -74,17 +74,13 @@ namespace edm {
 
     StreamSchedule::WorkerPtr
     makeInserter(ExceptionToActionTable const& actions,
-                 boost::shared_ptr<ActivityRegistry> areg,
+                 std::shared_ptr<ActivityRegistry> areg,
                  TriggerResultInserter* inserter) {
       StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
       return ptr;
     }
 
-    bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
-      return std::binary_search(v.begin(), v.end(), s);
-    }
-    
     void
     initializeBranchToReadingWorker(ParameterSet const& opts,
                                     ProductRegistry const& preg,
@@ -138,15 +134,15 @@ namespace edm {
   // -----------------------------
 
   StreamSchedule::StreamSchedule(TriggerResultInserter* inserter,
-                                 boost::shared_ptr<ModuleRegistry> modReg,
+                                 std::shared_ptr<ModuleRegistry> modReg,
                                  ParameterSet& proc_pset,
                                  service::TriggerNamesService& tns,
                                  PreallocationConfiguration const& prealloc,
                                  ProductRegistry& preg,
                                  BranchIDListHelper& branchIDListHelper,
                                  ExceptionToActionTable const& actions,
-                                 boost::shared_ptr<ActivityRegistry> areg,
-                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ActivityRegistry> areg,
+                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
                                  bool allowEarlyDelete,
                                  StreamID streamID,
                                  ProcessContext const* processContext) :
@@ -411,7 +407,7 @@ namespace edm {
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& name,
                                    bool ignoreFilters,
                                    PathWorkers& out,
@@ -470,7 +466,7 @@ namespace edm {
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
                                     ProductRegistry& preg,
                                     PreallocationConfiguration const* prealloc,
-                                    boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos, std::string const& name, TrigResPtr trptr,
                                     vstring* labelsOnTriggerPaths) {
     PathWorkers tmpworkers;
@@ -498,7 +494,7 @@ namespace edm {
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos, std::string const& name) {
     PathWorkers tmpworkers;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, 0);

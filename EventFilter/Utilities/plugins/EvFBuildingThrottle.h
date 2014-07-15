@@ -6,7 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 
 #include <sys/statvfs.h>
 
@@ -17,8 +17,7 @@ namespace evf{
   class EvFBuildingThrottle 
     {
     public:
-      enum Directory { mInvalid = 0, mBase, mBU, mSM, mMon, mWhat, 
-		       mCOUNT}; 
+      enum Directory { mInvalid = 0, mBase, mBU, mCOUNT};
       explicit EvFBuildingThrottle( const edm::ParameterSet &pset, 
 				    edm::ActivityRegistry& reg ) 
 	: highWaterMark_(pset.getUntrackedParameter<double>("highWaterMark",0.8))
@@ -28,42 +27,35 @@ namespace evf{
 	, throttled_(false)
 	, sleep_( pset.getUntrackedParameter<unsigned int>("sleepmSecs",1000))
       {
-	reg.watchPreBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
-	reg.watchPostEndRun(this,&EvFBuildingThrottle::postEndRun);  
-	reg.watchPreBeginLumi(this,&EvFBuildingThrottle::preBeginLumi);
+	reg.watchPreGlobalBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
+	reg.watchPostGlobalEndRun(this,&EvFBuildingThrottle::postEndRun);  
+	reg.watchPreGlobalBeginLumi(this,&EvFBuildingThrottle::preBeginLumi);
       }
       ~EvFBuildingThrottle(){}
-      void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
+      void preBeginRun(edm::GlobalContext const& gc){
 	//obtain directory to stat on
 	switch(whatToThrottleOn_){
 	case mInvalid:
 	  //do nothing
 	  break;
 	case mBase:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->baseDir();
+	  baseDir_ = edm::Service<EvFDaqDirector>()->baseRunDir();
 	  break;
 	case mBU:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->buBaseDir();
-	  break;
-	case mSM:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->smBaseDir();
-	  break;
-	case mMon:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->monitorBaseDir();
+	  baseDir_ = edm::Service<EvFDaqDirector>()->buBaseRunDir();
 	  break;
 	default:
-	  baseDir_ = edm::Service<EvFDaqDirector>()->baseDir();
+	  baseDir_ = edm::Service<EvFDaqDirector>()->baseRunDir();
 	}
 	start();
       }
-      void postBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
-
+      void postBeginRun(edm::GlobalContext const& gc){
       }
 
-      void postEndRun(edm::Run const& run, edm::EventSetup const& es){
+      void postEndRun(edm::GlobalContext const& gc){
 	stop();
       }
-      void preBeginLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime){
+      void preBeginLumi(edm::GlobalContext const& gc){
 	lock_.lock();
 	lock_.unlock();
       }
@@ -85,7 +77,7 @@ namespace evf{
 	  if(highwater_ && !throttled_){ lock_.lock(); throttled_ = true;std::cout << ">>>>throttling on " << std::endl;}
 	  if(lowwater_ && throttled_){ lock_.unlock(); throttled_ = false;}
 	  std::cout << " building throttle on " << baseDir_ << " is " << fraction*100 << " %full " << std::endl;
-	  edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
+	  //edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
 	  ::usleep(sleep_*1000);
 	}
       }

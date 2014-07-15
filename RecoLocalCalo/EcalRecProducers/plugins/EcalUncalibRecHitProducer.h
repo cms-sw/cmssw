@@ -20,7 +20,7 @@ class EcalUncalibRecHitProducer : public edm::EDProducer {
         public:
                 explicit EcalUncalibRecHitProducer(const edm::ParameterSet& ps);
                 ~EcalUncalibRecHitProducer();
-                virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+                virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
         private:
 

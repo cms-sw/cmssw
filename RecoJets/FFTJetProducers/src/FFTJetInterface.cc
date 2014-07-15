@@ -7,8 +7,6 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
@@ -21,7 +19,8 @@ bool FFTJetInterface::storeInSinglePrecision() const
 
 
 FFTJetInterface::FFTJetInterface(const edm::ParameterSet& ps)
-    : inputLabel(ps.getParameter<edm::InputTag>("src")),
+    : edm::EDProducer(),
+      inputLabel(ps.getParameter<edm::InputTag>("src")),
       init_param(std::string, outputLabel),
       jetType(parseJetType(ps.getParameter<std::string>("jetType"))),
       init_param(bool, doPVCorrection),
@@ -34,16 +33,21 @@ FFTJetInterface::FFTJetInterface(const edm::ParameterSet& ps)
       init_param(double, completeEventScale),
       vertex_(0.0, 0.0, 0.0)
 {
-      if (insertCompleteEvent && completeEventScale <= 0.0)
+    if (insertCompleteEvent && completeEventScale <= 0.0)
 	throw cms::Exception("FFTJetBadConfig")
 	  << "Bad scale for the complete event : must be positive"
 	  << std::endl;
+
+    inputToken = consumes<reco::CandidateView>(inputLabel);
+
+    if (doPVCorrection && jetType == CALOJET)
+        srcPVsToken = consumes<reco::VertexCollection>(srcPVs);
 }
 
 
 double FFTJetInterface::getEventScale() const
 {
-     return insertCompleteEvent ? completeEventScale : 0.0;
+    return insertCompleteEvent ? completeEventScale : 0.0;
 }
 
 
@@ -56,7 +60,7 @@ void FFTJetInterface::loadInputCollection(const edm::Event& iEvent)
     if (adjustForVertex)
     {
         edm::Handle<reco::VertexCollection> pvCollection;
-        iEvent.getByLabel(srcPVs, pvCollection);
+        iEvent.getByToken(srcPVsToken, pvCollection);
         if (pvCollection->empty())
             vertex_ = reco::Particle::Point(0.0, 0.0, 0.0);
         else
@@ -64,7 +68,7 @@ void FFTJetInterface::loadInputCollection(const edm::Event& iEvent)
     }
 
     // Get the input collection
-    iEvent.getByLabel(inputLabel, inputCollection);
+    iEvent.getByToken(inputToken, inputCollection);
 
     // Create the set of 4-vectors needed by the algorithm
     eventData.clear();

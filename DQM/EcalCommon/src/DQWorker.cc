@@ -1,137 +1,132 @@
 #include "DQM/EcalCommon/interface/DQWorker.h"
 
+#include "DQM/EcalCommon/interface/MESetUtils.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DQM/EcalCommon/interface/MESet.h"
-#include "DQM/EcalCommon/interface/MESetNonObject.h"
-#include "DQM/EcalCommon/interface/MESetChannel.h"
-#include "DQM/EcalCommon/interface/MESetEcal.h"
-#include "DQM/EcalCommon/interface/MESetDet0D.h"
-#include "DQM/EcalCommon/interface/MESetDet1D.h"
-#include "DQM/EcalCommon/interface/MESetDet2D.h"
-#include "DQM/EcalCommon/interface/MESetTrend.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
-namespace ecaldqm{
-
-  std::map<std::string, std::vector<MEData> > DQWorker::meData;
-
-  DQWorker::DQWorker(const edm::ParameterSet &, const edm::ParameterSet& _paths, std::string const& _name) :
-    name_(_name),
-    MEs_(0),
-    initialized_(false),
-    verbosity_(0)
+namespace ecaldqm
+{
+  DQWorker::DQWorker() :
+    name_(""),
+    MEs_(),
+    timestamp_(),
+    verbosity_(0),
+    onlineMode_(false),
+    willConvertToEDM_(true)
   {
-    using namespace std;
-
-    map<string, vector<MEData> >::iterator dItr(meData.find(name_));
-    if(dItr == meData.end())
-      throw cms::Exception("InvalidCall") << "MonitorElement setup data not found for " << name_ << std::endl;
-
-    vector<MEData> const& vData(dItr->second);
-    MEs_.resize(vData.size());
-
-    for(unsigned iME(0); iME < MEs_.size(); iME++){
-      MEData& data(meData[name_].at(iME));
-      string fullpath(_paths.getUntrackedParameter<string>(data.pathName));
-
-      MEs_.at(iME) = createMESet_(fullpath, data);
-    }
   }
 
   DQWorker::~DQWorker()
   {
-    for(unsigned iME(0); iME < MEs_.size(); iME++)
-      delete MEs_[iME];
-  }
-
-  void
-  DQWorker::bookMEs()
-  {
-    for(unsigned iME(0); iME < MEs_.size(); iME++)
-      if(MEs_[iME]) MEs_[iME]->book();
-  }
-
-  void
-  DQWorker::reset()
-  {
-    for(unsigned iME(0); iME < MEs_.size(); iME++)
-      if(MEs_[iME]) MEs_[iME]->clear();
-
-    initialized_ = false;
   }
 
   /*static*/
   void
-  DQWorker::setMEData(std::vector<MEData>&)
+  DQWorker::fillDescriptions(edm::ParameterSetDescription& _desc)
   {
+    _desc.addUntracked<bool>("onlineMode", false);
+    _desc.addUntracked<bool>("willConvertToEDM", true);
+
+    edm::ParameterSetDescription meParameters;
+    edm::ParameterSetDescription meNodeParameters;
+    fillMESetDescriptions(meNodeParameters);
+    meParameters.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, false, meNodeParameters));
+    _desc.addUntracked("MEs", meParameters);
+
+    edm::ParameterSetDescription workerParameters;
+    workerParameters.setUnknown();
+    _desc.addUntracked("params", workerParameters);
   }
 
-  MESet*
-  DQWorker::createMESet_(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) const
+  void
+  DQWorker::initialize(std::string const& _name, edm::ParameterSet const& _commonParams)
   {
-    BinService::ObjectType otype(_data.otype);
-    BinService::BinningType btype(_data.btype);
-    MonitorElement::Kind kind(_data.kind);
+    name_ = _name;
+    onlineMode_ = _commonParams.getUntrackedParameter<bool>("onlineMode");
+    willConvertToEDM_ = _commonParams.getUntrackedParameter<bool>("willConvertToEDM");
+  }
 
-    if(otype == BinService::nObjType)
-      return new MESetNonObject(_fullpath, _data, _readOnly);
+  void
+  DQWorker::setME(edm::ParameterSet const& _meParams)
+  {
+    std::vector<std::string> const& MENames(_meParams.getParameterNames());
 
-    if(otype == BinService::kChannel)
-      return new MESetChannel(_fullpath, _data, _readOnly);
+    for(unsigned iME(0); iME != MENames.size(); iME++){
+      std::string name(MENames[iME]);
+      edm::ParameterSet const& params(_meParams.getUntrackedParameterSet(name));
 
-    if(btype == BinService::kTrend)
-      return new MESetTrend(_fullpath, _data, _readOnly);
+      if(!onlineMode_ && params.getUntrackedParameter<bool>("online")) continue;
 
-    unsigned logicalDimensions;
-    switch(kind){
-    case MonitorElement::DQM_KIND_REAL:
-      logicalDimensions = 0;
-      break;
-    case MonitorElement::DQM_KIND_TH1F:
-    case MonitorElement::DQM_KIND_TPROFILE:
-      logicalDimensions = 1;
-      break;
-    case MonitorElement::DQM_KIND_TH2F:
-    case MonitorElement::DQM_KIND_TPROFILE2D:
-      logicalDimensions = 2;
-      break;
-    default:
-      throw cms::Exception("InvalidCall") << "Histogram type " << kind << " not supported" << std::endl;
+      try{
+        MEs_.insert(name, createMESet(params));
+      }
+      catch(std::exception&){
+        edm::LogError("EcalDQM") << "Exception caught while constructing MESet " << name;
+        throw;
+      }
     }
+  }
 
-    // example case: Ecal/TriggerPrimitives/EmulMatching/TrigPrimTask matching index
-    if(logicalDimensions == 2 && _data.yaxis && btype != BinService::kUser) logicalDimensions = 1;
+  void
+  DQWorker::releaseMEs()
+  {
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr)
+      mItr->second->clear();
+  }
 
-    // for EventInfo summary contents
-    if(btype == BinService::kReport){
-      if(logicalDimensions != 0)
-	throw cms::Exception("InvalidCall") << "Report can only be a DQM_KIND_REAL" << std::endl;
+  void
+  DQWorker::bookMEs(DQMStore& _booker)
+  {
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      MESet* me(mItr->second);
+      if(me->isActive()) continue;
+      me->book(_booker);
     }
+  }
 
-    if(btype == BinService::kUser)
-      return new MESetEcal(_fullpath, _data, logicalDimensions, _readOnly);
+  void
+  DQWorker::bookMEs(DQMStore::IBooker& _booker)
+  {
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      MESet* me(mItr->second);
+      if(me->isActive()) continue;
+      me->book(_booker);
+    }
+  }
 
-    if(logicalDimensions == 0)
-      return new MESetDet0D(_fullpath, _data, _readOnly);
-
-    if(logicalDimensions == 1)
-      return new MESetDet1D(_fullpath, _data, _readOnly);
-
-    if(logicalDimensions == 2)
-      return new MESetDet2D(_fullpath, _data, _readOnly);
-
-    return 0;
+  void
+  DQWorker::print_(std::string const& _message, int _threshold/* = 0*/) const
+  {
+    if(verbosity_ > _threshold)
+      edm::LogInfo("EcalDQM") << name_ << ": " << _message;
   }
 
 
-
-  std::map<std::string, WorkerFactory> SetWorker::workerFactories_;
-
-  WorkerFactory
-  SetWorker::findFactory(const std::string &_name)
+  DQWorker*
+  WorkerFactoryStore::getWorker(std::string const& _name, int _verbosity, edm::ParameterSet const& _commonParams, edm::ParameterSet const& _workerParams) const
   {
-    if(workerFactories_.find(_name) != workerFactories_.end()) return workerFactories_[_name];
-    return NULL;
+    DQWorker* worker(workerFactories_.at(_name)());
+    worker->setVerbosity(_verbosity);
+    worker->initialize(_name, _commonParams);
+    worker->setME(_workerParams.getUntrackedParameterSet("MEs"));
+    if(_workerParams.existsAs<edm::ParameterSet>("sources", false))
+      worker->setSource(_workerParams.getUntrackedParameterSet("sources"));
+    if(_workerParams.existsAs<edm::ParameterSet>("params", false))
+      worker->setParams(_workerParams.getUntrackedParameterSet("params"));
+    return worker;
+  }
+
+  /*static*/
+  WorkerFactoryStore*
+  WorkerFactoryStore::singleton()
+  {
+    static WorkerFactoryStore workerFactoryStore;
+    return &workerFactoryStore;
   }
 
 }

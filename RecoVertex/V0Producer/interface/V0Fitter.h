@@ -77,7 +77,7 @@ class V0Fitter {
   const MagneticField* magField;
 
   bool useRefTrax;
-  bool storeRefTrax;
+  //  bool storeRefTrax;
   bool doKshorts;
   bool doLambdas;
 
@@ -90,7 +90,7 @@ class V0Fitter {
   int tkNhitsCut;
   double rVtxCut;
   double vtxSigCut;
-  double vtxSigCut3D;
+  //  double vtxSigCut3D;
   double collinCut;
   double kShortMassCut;
   double lambdaMassCut;

@@ -10,10 +10,10 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include <vector>
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
+namespace edm { class ConsumesCollector; }
 
 class HitTripletGeneratorFromPairAndLayers : public HitTripletGenerator {
 
@@ -21,8 +21,11 @@ public:
   typedef LayerHitMapCache  LayerCacheType;
 
   virtual ~HitTripletGeneratorFromPairAndLayers() {}
-  virtual void init( const HitPairGenerator & pairs, 
-    const std::vector<ctfseeding::SeedingLayer>& layers, LayerCacheType* layerCache) = 0; 
+
+  virtual void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) = 0;
+
+  virtual void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                                std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) = 0;
 };
 #endif
 

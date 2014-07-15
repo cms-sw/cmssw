@@ -14,16 +14,14 @@ void CmsTrackerStringBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g
 }
 
 void CmsTrackerStringBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer comp = det->components();
+  GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   std::stable_sort(comp.begin(),comp.end(),LessModZ()); 
   
   if(comp.size()){
     for(uint32_t i=0; i<comp.size();i++){
-      comp[i]->setGeographicalID(DetId(i+1));
+      det->component(i)->setGeographicalID(DetId(i+1));
     }
-    det->clearComponents();
-    det->addComponents(comp);
   }else{
        edm::LogError("CmsTrackerStringBuilder")<<"Where are the String's modules?";
   }

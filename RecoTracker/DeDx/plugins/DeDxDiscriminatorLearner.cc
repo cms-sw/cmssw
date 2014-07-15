@@ -79,7 +79,7 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
    m_tracker = tkGeom.product();
 
-   vector<GeomDet*> Det = tkGeom->dets();
+   auto const & Det = tkGeom->dets();
    for(unsigned int i=0;i<Det.size();i++){
       DetId  Detid  = Det[i]->geographicalId();
       int    SubDet = Detid.subdetId();
@@ -87,7 +87,7 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
       if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
           SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+          auto DetUnit     = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
           if(!DetUnit)continue;
 
           const StripTopology& Topo     = DetUnit->specificTopology();
@@ -186,7 +186,7 @@ void DeDxDiscriminatorLearner::Learn(const SiStripCluster*   cluster,TrajectoryS
    LocalVector             trackDirection = trajState.localDirection();
    double                  cosine         = trackDirection.z()/trackDirection.mag();
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
-   uint32_t                detId          = cluster->geographicalId();
+   uint32_t                detId          = 0; // zero since long time cluster->geographicalId();
    int                     firstStrip     = cluster->firstStrip();
    stModInfo* MOD                         = MODsColl[detId];
    // Sanity Checks

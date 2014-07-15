@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- ####### Constants common to all DTBX stations -->
+    <ConstantsSection label="mbCommon.xml">
+        <!--- #### Constants for all DT superlayers -->
+        <Constant name="MBHeight_With2RPC" value="362./2.*mm"/>
+        <Constant name="MBHeight_With1RPC" value="326./2.*mm"/>
+        <Constant name="MBSL_posDisp" value="[MBHeight_With2RPC]-[MBHeight_With1RPC]"/>
+        <Constant name="MBSL_pos_z" value="235./2.*mm"/>
+        <Constant name="MBCell_width" value="42./2.*mm"/>
+        <Constant name="MBIbeamWall" value="1.3*mm/2."/>
+        <Constant name="MBLayerElectronics_width" value="25./2.*mm"/>
+        <!--%% tappini -->
+        <Constant name="MBGas_height" value="11.5/2.*mm"/>
+        <Constant name="MBAlPlate_height" value="1.5/2.*mm"/>
+        <Constant name="MBCell_height" value="[MBGas_height]+[MBAlPlate_height]"/>
+        <Constant name="MBSuperLayer_height" value="4*[MBCell_height]+[MBAlPlate_height]"/>
+        <!---%% Honeycomb -->
+        <Constant name="MBHC_offset" value="26.75*mm"/>
+        <Constant name="MBHC_height" value="128./2.*mm"/>
+        <Constant name="MBHC_z" value="2458./2.*mm"/>
+        <Constant name="MBChimHC_z" value="[MBHC_z]-195.*mm"/>
+        <Constant name="MBHCElectronics_height" value="54.5*mm"/>
+        <Constant name="MBHCLatElectronics_width" value="70./2.*mm"/>
+        <Constant name="MBHCFrontElectronics_width" value="64.5/2.*mm"/>
+        <Constant name="MBHC_C_dimension" value="125./2.*mm"/>
+        <Constant name="MBHC_C_width" value="4.*mm"/>
+        <!--- ### Constants for all non-chimney DT superlayers -->
+        <Constant name="MBPos_z" value="8.5*mm"/>
+        <Constant name="MBSLPhiWire_length" value="2379./2.*mm"/>
+        <!--%% Wire length from EDMS: THIS NUMBER DEFINE THE SL DIMENSIONS-->
+        <Constant name="MBSLPhiBareWire_length" value="[MBSLPhiWire_length]-15.5*mm"/>
+        <!--%% Bare Wire _length == wire_lenght - depth in tappini-->
+        <Constant name="MBSLPhiLayer_length" value="[MBSLPhiBareWire_length]+2*[MBLayerElectronics_width]"/>
+        <!--%% The z length of the Al layer volume-->
+        <Constant name="MBSLPhiPlI_z" value="[MBSLPhiLayer_length]+6.5*mm"/>
+        <!--%% 6.5 is the distance between tappini and Al Plate edge-->
+        <Constant name="MBSLPhiPlO_z" value="[MBSLPhiPlI_z]+38.*mm"/>
+        <Constant name="MBSLZPl_x" value="2457./2*mm"/>
+        <Constant name="MBSLZL56" value="[MBCell_width]*56+[MBIbeamWall]"/>
+        <Constant name="MBSLZL57" value="[MBCell_width]*57+[MBIbeamWall]"/>
+        <Constant name="MBSLZL58" value="[MBCell_width]*58+[MBIbeamWall]"/>
+        <!--- #### Constants for all chimney DT superlayers -->
+        <Constant name="MBChimPos_z" value="186.5*mm"/>
+        <Constant name="MBChimSLPhiWire_length" value="1989./2.*mm"/>
+        <!--%% Just change this number -->
+        <Constant name="MBChimSLPhiBareWire_length" value="[MBChimSLPhiWire_length]-15.5*mm"/>
+        <Constant name="MBChimSLPhiLayer_length" value="[MBChimSLPhiBareWire_length]+2*[MBLayerElectronics_width]"/>
+        <Constant name="MBChimSLPhiPlI_z" value="[MBChimSLPhiLayer_length]+6.5*mm"/>
+        <Constant name="MBChimSLPhiPlO_z" value="[MBChimSLPhiPlI_z]+38.*mm"/>
+        <Constant name="MBChimSLZPl_x" value="[MBSLZPl_x]-399./2.*mm"/>
+        <Constant name="MBChimSLZL47" value="[MBCell_width]*47+[MBIbeamWall]"/>
+        <Constant name="MBChimSLZL48" value="[MBCell_width]*48+[MBIbeamWall]"/>
+        <!--- #### Constants for all RPCs -->
+        <Constant name="MBRPC_EngineerChamberWidth" value="55./2*mm"/>
+        <Constant name="MBRPC_y" value="12./2*mm"/>
+        <Constant name="MBRPC_Gas_y" value="4./2.*mm"/>
+        <Constant name="MBRPC_z" value="2455./2.*mm"/>
+        <Constant name="MBChimRPC_OGasLeft_z" value="389.5+195./2.*mm"/>
+        <Constant name="MBChimRPC_OGasRight_z" value="626.-195./2.*mm"/>
+        <Constant name="MBRPC_GasLeft_z" value="584.5*mm"/>
+        <Constant name="MBRPC_GasRight_z" value="626*mm"/>
+        <Constant name="MBRPC_x_pos" value="2*cm"/>
+        <Constant name="MBRPC_z_pos" value="17.5*cm"/>
+        <Constant name="MBRPC_GasLeft_y_pos" value="629*mm"/>
+        <Constant name="MBRPC_GasRight_y_pos" value="587.5*mm"/>
+        <Constant name="MBChimRPC_z" value="2081./2.*mm"/>
+        <Constant name="MBRPC_Gas_z_pos" value="3*mm"/>
+    </ConstantsSection>
+    <SolidSection label="mbCommon.xml">
+        <!-- ####  DTBX Gas cell for non chimney chambers -->
+        <!--%% Effective gas volume: This volume should not include the Ibeam horizontal bars (those that make the 'I' shape; without them it would be a '|') -->
+        <Box name="MBSLPhiGas_a" dx="20.35*mm" dz="[MBGas_height]" dy="[MBSLPhiBareWire_length]"/>
+        <Box name="MBSLPhiIBeamWing" dx="3.175*mm" dz="0.65*mm" dy="[MBSLPhiBareWire_length]"/>
+        <SubtractionSolid name="MBSLPhiGas_b">
+            <rSolid name="MBSLPhiGas_a"/>
+            <rSolid name="MBSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="17.175*mm" z="5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MBSLPhiGas_c">
+            <rSolid name="MBSLPhiGas_b"/>
+            <rSolid name="MBSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="17.175*mm" z="-5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MBSLPhiGas_d">
+            <rSolid name="MBSLPhiGas_c"/>
+            <rSolid name="MBSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-17.175*mm" z="5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MBSLPhiGas">
+            <rSolid name="MBSLPhiGas_d"/>
+            <rSolid name="MBSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-17.175*mm" z="-5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <!-- ####  DTBX Gas cell for chimney chambers -->
+        <!--%% Effective gas volume.
+             This volume should not include the Ibeam horizontal bars (those that make the 'I' shape; without them it would be a '|') -->
+        <Box name="MBChimSLPhiGas_a" dx="20.35*mm" dz="[MBGas_height]" dy="[MBChimSLPhiBareWire_length]"/>
+        <Box name="MBChimSLPhiIBeamWing" dx="3.175*mm" dz="0.65*mm" dy="[MBChimSLPhiBareWire_length]"/>
+        <SubtractionSolid name="MBChimSLPhiGas_b">
+            <rSolid name="MBChimSLPhiGas_a"/>
+            <rSolid name="MBChimSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="17.175*mm" z="5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MBChimSLPhiGas_c">
+            <rSolid name="MBChimSLPhiGas_b"/>
+            <rSolid name="MBChimSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="17.175*mm" z="-5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MBChimSLPhiGas_d">
+            <rSolid name="MBChimSLPhiGas_c"/>
+            <rSolid name="MBChimSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-17.175*mm" z="5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MBChimSLPhiGas">
+            <rSolid name="MBChimSLPhiGas_d"/>
+            <rSolid name="MBChimSLPhiIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-17.175*mm" z="-5.1*mm" y="0.*fm"/>
+        </SubtractionSolid>
+        <!--%%%%%%%%%%%  Cables inside wheels -->
+        <Box name="MBCablesBox_Int" dx="50*cm" dy="10*cm" dz="1.268*m"/>
+        <Box name="MBCablesBox_IntChim" dx="50*cm" dy="10*cm" dz="1.073*m"/>
+        <Box name="MBCables_Int" dx="50*cm" dy="2*cm" dz="1.268*m"/>
+        <Box name="MBCables_IntChim" dx="50*cm" dy="2*cm" dz="1.073*m"/>
+        <!--%%%%%%%%%%%  Cables outside wheels -->
+        <Box name="MBCables_Wheels0_1" dx="2.05*m" dy="70*cm" dz="5.4*cm"/>
+        <Box name="MBCables_Wheels1_2" dx="2.05*m" dy="70*cm" dz="3.25*cm"/>
+        <Tubs name="MBCables_Ext" rMin="8.05*m" rMax="8.3*m" dz="30*cm" startPhi="15*deg" deltaPhi="150*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="mbCommon.xml">
+        <!-- ####  DTBX Gas cell for non chimney chambers -->
+        <LogicalPart name="MBSLPhiGas" category="unspecified">
+            <rSolid name="MBSLPhiGas"/>
+            <rMaterial name="materials:M_DTBX Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MBSLPhiIBeamWing" category="unspecified">
+            <rSolid name="MBSLPhiIBeamWing"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!-- ####  DTBX Gas cell for chimney chambers -->
+        <LogicalPart name="MBChimSLPhiGas" category="unspecified">
+            <rSolid name="MBChimSLPhiGas"/>
+            <rMaterial name="materials:M_DTBX Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MBChimSLPhiIBeamWing" category="unspecified">
+            <rSolid name="MBChimSLPhiIBeamWing"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!--%%%%%%%%%%%  Cables inside wheels -->
+        <LogicalPart name="MBCablesBox_Int" category="unspecified">
+            <rSolid name="MBCablesBox_Int"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MBCables_Int" category="unspecified">
+            <rSolid name="MBCables_Int"/>
+            <rMaterial name="materials:M_Cables"/>
+        </LogicalPart>
+        <LogicalPart name="MBCablesBox_IntChim" category="unspecified">
+            <rSolid name="MBCablesBox_IntChim"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MBCables_IntChim" category="unspecified">
+            <rSolid name="MBCables_IntChim"/>
+            <rMaterial name="materials:M_Cables"/>
+        </LogicalPart>
+        <!--%%%%%%%%%%%  Cables outside wheels -->
+        <LogicalPart name="MBCables_Wheels0_1" category="unspecified">
+            <rSolid name="MBCables_Wheels0_1"/>
+            <rMaterial name="materials:M_Cables"/>
+        </LogicalPart>
+        <LogicalPart name="MBCables_Wheels1_2" category="unspecified">
+            <rSolid name="MBCables_Wheels1_2"/>
+            <rMaterial name="materials:M_Cables"/>
+        </LogicalPart>
+        <LogicalPart name="MBCables_Ext" category="unspecified">
+            <rSolid name="MBCables_Ext"/>
+            <rMaterial name="materials:M_Cables"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="mbCommon.xml">
+        <!--%%%%%%%%%%%  Cables inside wheels -->
+        <PosPart copyNumber="1">
+            <rParent name="mbCommon:MBCablesBox_Int"/>
+            <rChild name="mbCommon:MBCables_Int"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="-8*cm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mbCommon:MBCablesBox_IntChim"/>
+            <rChild name="mbCommon:MBCables_IntChim"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="-8*cm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R270"/>
+            <Translation x="3.945*m" y="34.5763*cm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R300"/>
+            <Translation x="3.24359*m" y="2.27194*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R330"/>
+            <Translation x="1.67306*m" y="3.58935*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_IntChim"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-34.5763*cm" y="3.945*m" z="19.5/2*cm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R030"/>
+            <Translation x="-2.27194*m" y="3.24359*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R060"/>
+            <Translation x="-3.58935*m" y="1.67306*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R090"/>
+            <Translation x="-3.945*m" y="-34.5764*cm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R120"/>
+            <Translation x="-3.24359*m" y="-2.27194*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R150"/>
+            <Translation x="-1.67306*m" y="-3.58935*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="34.5764*cm" y="-3.945*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R210"/>
+            <Translation x="2.27194*m" y="-3.24359*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R240"/>
+            <Translation x="3.58935*m" y="-1.67306*m" z="0*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <String name="ChildName" value="mbCommon:MBCablesBox_Int"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="12"/>
+            <Numeric name="Radius" value="3.96012*m"/>
+            <Numeric name="StartAngle" value="5.0089*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 264.9911*deg </Vector>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R270"/>
+            <Translation x="3.945*m" y="34.5763*cm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R300"/>
+            <Translation x="3.24359*m" y="2.27194*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_IntChim"/>
+            <rRotation name="rotations:R330"/>
+            <Translation x="1.67306*m" y="3.58935*m" z="-19.5/2.*cm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-34.5763*cm" y="3.945*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R030"/>
+            <Translation x="-2.27194*m" y="3.24359*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R060"/>
+            <Translation x="-3.58935*m" y="1.67306*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R090"/>
+            <Translation x="-3.945*m" y="-34.5764*cm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R120"/>
+            <Translation x="-3.24359*m" y="-2.27194*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R150"/>
+            <Translation x="-1.67306*m" y="-3.58935*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="34.5764*cm" y="-3.945*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R210"/>
+            <Translation x="2.27194*m" y="-3.24359*m" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mbCommon:MBCablesBox_Int"/>
+            <rRotation name="rotations:R240"/>
+            <Translation x="3.58935*m" y="-1.67306*m" z="0*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <String name="ChildName" value="mbCommon:MBCablesBox_Int"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="12"/>
+            <Numeric name="Radius" value="3.96012*m"/>
+            <Numeric name="StartAngle" value="5.0089*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 264.9911*deg </Vector>
+        </Algorithm>
+        <!--%%%%%%%%%%%  Cables outside wheels -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MB"/>
+            <String name="ChildName" value="mbCommon:MBCables_Wheels0_1"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="0.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1.322*m </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MB"/>
+            <String name="ChildName" value="mbCommon:MBCables_Wheels0_1"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="30.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 1.322*m </Vector>
+            <Numeric name="StartCopyNo" value="7"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MB"/>
+            <String name="ChildName" value="mbCommon:MBCables_Wheels1_2"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="0.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -3.9865*m </Vector>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MB"/>
+            <String name="ChildName" value="mbCommon:MBCables_Wheels1_2"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="30.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 3.9865*m </Vector>
+            <Numeric name="StartCopyNo" value="7"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MB"/>
+            <rChild name="mbCommon:MBCables_Ext"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="1.368*m"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MB"/>
+            <rChild name="mbCommon:MBCables_Ext"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="-1.368*m"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MB"/>
+            <rChild name="mbCommon:MBCables_Ext"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="4.064*m"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MB"/>
+            <rChild name="mbCommon:MBCables_Ext"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="0*fm" y="0*fm" z="-4.064*m"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

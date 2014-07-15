@@ -29,7 +29,7 @@ bool isFPIXFED(unsigned int fed) {return fed>=32;}
 bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
 bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
 
-std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m)
+inline std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m)
 {
   s<< (isBPIXModule(m.id) ? "BPIX " : "FPIX ") <<m.id<<" "<<m.fed<<"   "<<m.phi<<"   "<<m.x<<" "<<m.y<<" "<<m.z<<"  "<<sqrt(std::pow(m.x,2)+std::pow(m.y,2));
   return s;
@@ -97,7 +97,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
   {
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-    cabling_.reset((SiPixelFedCabling*)cablingMap->cablingTree());
+    cabling_ = cablingMap->cablingTree();
 
     edm::ESHandle<TrackerGeometry> geom;
     // get the TrackerGeom
@@ -111,7 +111,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     phiFPIXp_.reserve(512);
     phiFPIXm_.reserve(512);
 
-    std::vector<GeomDet*>::const_iterator it = geom->dets().begin();
+    auto it = geom->dets().begin();
     for ( ; it != geom->dets().end(); ++it)
     {
       int subdet = (*it)->geographicalId().subdetId();

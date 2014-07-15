@@ -9,6 +9,9 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
   ESZSdigiCollection_ = ps.getParameter<std::string>("ESZSdigiCollection");
  
   produces<ESDigiCollection>(ESZSdigiCollection_);
+
+  ES_token = consumes<ESDigiCollection>(edm::InputTag(digiProducer_));;
+
 }
 
 ESZeroSuppressionProducer::~ESZeroSuppressionProducer() { 
@@ -28,7 +31,7 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
   edm::Handle<ESDigiCollection> ESDigis;
 
   bool fullESDigis = true;
-  event.getByLabel(digiProducer_, ESDigis);
+  event.getByToken(ES_token, ESDigis);
   if (!ESDigis.isValid()) {
     edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << ESdigiCollection_.c_str() ;
     fullESDigis = false;

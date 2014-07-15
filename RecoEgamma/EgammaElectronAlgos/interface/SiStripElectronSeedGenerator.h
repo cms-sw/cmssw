@@ -44,7 +44,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
@@ -62,6 +61,7 @@ class KFUpdator;
 class MeasurementTracker;
 class MeasurementTrackerEvent;
 class NavigationSchool;
+class SiStripRecHitMatcher;
 
 class SiStripElectronSeedGenerator
 {

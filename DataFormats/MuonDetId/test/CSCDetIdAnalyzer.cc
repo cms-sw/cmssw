@@ -92,7 +92,7 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    for( CSCGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it ){
 
      // Check each DetUnit really is a CSC layer
-     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
+     auto layer = dynamic_cast<CSCLayer const*>( *it );
      
       if( layer ) {
         ++icountAll; // how many layers we see

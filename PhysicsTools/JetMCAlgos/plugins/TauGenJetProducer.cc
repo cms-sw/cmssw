@@ -34,8 +34,6 @@ TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
 
 TauGenJetProducer::~TauGenJetProducer() { }
 
-void TauGenJetProducer::beginJob() { }
-
 void TauGenJetProducer::produce(Event& iEvent,
 				const EventSetup& iSetup) {
 

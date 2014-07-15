@@ -10,8 +10,9 @@
   <class name="edm::RefVector<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >"/>
 
-  <class name="EcalRecHit" ClassVersion="10">
+  <class name="EcalRecHit" ClassVersion="11">
    <version ClassVersion="10" checksum="283504841"/>
+   <version ClassVersion="11" checksum="3356791847"/>
   </class>
   <class name="std::vector<EcalRecHit>"/>
   <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
@@ -43,7 +44,5 @@
   <class name="edm::Wrapper<edm::RefGetter<EcalRecHit> >"/>
  
   <class name="edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> >"/>
-
-  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit> > >" />
   <enum name="EcalSeverityLevel::SeverityLevel"/> 
 </lcgdict>

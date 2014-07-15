@@ -51,7 +51,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   
   const float sqrt_12 = 3.4641;
   
-  float tpeak = -99.;
+  float tpeak = -99.f;
   
   CSCRecHit2D::ADCContainer adcMap;
   CSCRecHit2D::ChannelContainer wgroups;
@@ -100,7 +100,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   
   // Find strips position and properties
   
-  CSCRecHit2D::ChannelContainer strips = sHit.strips();
+  CSCRecHit2D::ChannelContainer const &  strips = sHit.strips();
   int tmax = sHit.tmax();
   int nStrip = strips.size();
   int idCenterStrip = nStrip/2;
@@ -144,7 +144,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   }
   tpeak = peakTimeFinder_->peakTime( tmax, adcArray, tpeak ); 
   // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
-  float t_zero = tpeak - 133.;
+  float t_zero = tpeak - 133.f;
   LogTrace("CSCRecHit") << "[CSCMake2DRecHit] " << 
     id << " strip=" << centerStrip << ", t_zero=" << t_zero << ", tpeak=" << tpeak;
 
@@ -154,11 +154,11 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   int quality = -1;
   LocalPoint lp0(0., 0.);
   
-  float stripWidth = -99.;
+  float stripWidth = -99.f;
   // If at the edge, then used 1 strip cluster only
   if ( centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2 ) {
     lp0 = layergeom_->stripWireIntersection( centerStrip, centerWire);
-    positionWithinTheStrip = 0.;
+    positionWithinTheStrip = 0.f;
     stripWidth = layergeom_->stripPitch(lp0);
     sigmaWithinTheStrip = stripWidth / sqrt_12;
     quality = 2;
@@ -213,7 +213,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
 
   //Get the gas-gain correction for this rechit
-  float gasGainCorrection = -999.;   
+  float gasGainCorrection = -999.f;   
   if (useGasGainCorrections) {
     gasGainCorrection = recoConditions_->gasGainCorrection(id,centerStrip,centerWire);
   } 
@@ -226,14 +226,14 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   /// If it is an edge strip -------------------------------------->  -996.
   /// If gas-gain is OK, but the ADC vector is the wrong size  ---->  -999.
   /// If the user has created the Rechit without the energy deposit>  -995.
-  float energyDeposit = -999.;
-  if (gasGainCorrection < -998.) {
+  float energyDeposit = -999.f;
+  if (gasGainCorrection < -998.f) {
     // if the user has chosen not to use the gas gain correction, set the energy to a different nonsense value
-    energyDeposit = -998.;
+    energyDeposit = -998.f;
 
-  } else if (gasGainCorrection < 0.) {
+  } else if (gasGainCorrection < 0.f) {
     // if the gas gain correction from the database is a bad value, set the energy to yet another nonsense value
-    energyDeposit = -997.;
+    energyDeposit = -997.f;
 
   } else {
     // gas-gain correction is OK, correct the 3x3 ADC sum
@@ -245,7 +245,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
     } else if (adcMap.size()==4) {
       // if this is an edge strip, set the energy to yet another nonsense value
-      energyDeposit = -996.;
+      energyDeposit = -996.f;
     }
 
   }
@@ -253,15 +253,17 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   /// store rechit
 
    /// Retrive the L1APhase+strips combination
-   CSCRecHit2D::ChannelContainer L1A_and_strips = sHit.stripsTotal();        /// L1A
+   CSCRecHit2D::ChannelContainer const & L1A_and_strips = sHit.stripsTotal();        /// L1A
    /// Retrive the Bx + wgroups combination
-   CSCRecHit2D::ChannelContainer BX_and_wgroups = wHit.wgroupsBXandWire();   /// BX
-  // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
-     CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
-     //adcMap, wgroups, tpeak, positionWithinTheStrip,
-      adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-      sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), scaledWireTime,
-      energyDeposit);
+   CSCRecHit2D::ChannelContainer const & BX_and_wgroups = wHit.wgroupsBXandWire();   /// BX
+   // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
+
+
+   CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
+		       //adcMap, wgroups, tpeak, positionWithinTheStrip,
+		       adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
+		       sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), scaledWireTime,
+		       energyDeposit);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();
@@ -302,32 +304,32 @@ float CSCMake2DRecHit::findWireBx(const std::vector <int>& timeBinsOn, float tpe
   // so algorithm looks for bin on nearest to peak time and checks if it has a bin on consecutive with it
   float anode_bx_offset = recoConditions_->anodeBXoffset(id);
   float wireBx=-1;
-  float timeGuess=tpeak/25.+ anode_bx_offset;  
-  float diffMin=9999.;
+  float timeGuess=tpeak/25.f + anode_bx_offset;  
+  float diffMin=9999.f;
   int bestMatch=-9;
   for (int j=0; j<(int)timeBinsOn.size(); j++) {
-    double diff=timeGuess-timeBinsOn[j];
+    auto diff=timeGuess-timeBinsOn[j];
     // Find bin on closest to peak time
-    if (fabs(diff)<fabs(diffMin)) {
+    if (std::abs(diff)< std::abs(diffMin)) {
       diffMin=diff;
       bestMatch=j;
       wireBx=timeBinsOn[j];
     }
   }
-  int side=diffMin/fabs(diffMin);
+  int side= diffMin>0 ? 1 : -1;  // diffMin/fabs(diffMin);
   bool unchanged=true;
   // First check if bin on the same side as peak time is on
   if ((bestMatch+side)>-1 && (bestMatch+side)<(int)timeBinsOn.size()) {      // Make sure one next to it within vector limits
     if (timeBinsOn[bestMatch]==(timeBinsOn[bestMatch+side]-side)) {      // See if next bin on in vector is consecutive in time
       // Set time to the average of the two bins
-      wireBx=wireBx+(float)side/2.;
+      wireBx=wireBx+ 0.5f*side;
       unchanged=false;
     }
   }
   // If no match is found then check the other side
   if ((bestMatch-side)>-1 && (bestMatch-side)<(int)timeBinsOn.size() && unchanged) {       // Make sure one next to it exists
     if (timeBinsOn[bestMatch]==(timeBinsOn[bestMatch-side]+side)) {    // See if nextbin on is consecutive in time
-      wireBx=wireBx-(double)side/2.;
+      wireBx=wireBx- 0.5f*side;
       unchanged=false;
     }
   }

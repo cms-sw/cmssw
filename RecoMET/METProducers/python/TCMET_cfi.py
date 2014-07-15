@@ -8,7 +8,7 @@ tcMet = cms.EDProducer(
     electronInputTag  = cms.InputTag("gedGsfElectrons"),
     muonInputTag      = cms.InputTag("muons"),
     trackInputTag     = cms.InputTag("generalTracks"),
-    metInputTag       = cms.InputTag("met"),
+    metInputTag       = cms.InputTag("caloMet"),
     beamSpotInputTag  = cms.InputTag("offlineBeamSpot"),
     vertexInputTag    = cms.InputTag("offlinePrimaryVertices"),
     muonDepValueMap   = cms.InputTag("muonMETValueMapProducer"  , "muCorrData"),
@@ -62,5 +62,9 @@ tcMet = cms.EDProducer(
     PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
     usePFClusters = cms.bool(False)
     )
+
+##____________________________________________________________________________||
+tcMetWithPFclusters = tcMet.clone()
+tcMetWithPFclusters.usePFClusters = cms.bool(True)
 
 ##____________________________________________________________________________||

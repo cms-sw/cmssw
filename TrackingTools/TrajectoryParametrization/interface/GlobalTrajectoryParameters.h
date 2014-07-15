@@ -29,6 +29,13 @@ public:
                              TrackCharge aCharge, 
 			     const MagneticField* fieldProvider);
 
+  GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& aP,
+                             TrackCharge aCharge,
+                             const MagneticField* fieldProvider,
+                             GlobalVector fieldValue);
+
+
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 
    *  it serves only to distinguish
@@ -38,6 +45,14 @@ public:
                              const GlobalVector& direction,
                              float transverseCurvature, int, 
 			     const MagneticField* fieldProvider);
+
+
+  GlobalTrajectoryParameters(const GlobalPoint& aX,
+                             const GlobalVector& direction,
+                             float transverseCurvature, int,
+                             const MagneticField* fieldProvider,  
+                             GlobalVector fieldValue);
+
 
   /** Global position.
    */
@@ -106,6 +121,10 @@ public:
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
   GlobalVector magneticFieldInInverseGeV() const {
     return 2.99792458e-3f * cachedMagneticField;
+  }
+
+  GlobalVector magneticFieldInTesla() const {
+    return cachedMagneticField;
   }
 
   const MagneticField& magneticField() const {return *theField;}

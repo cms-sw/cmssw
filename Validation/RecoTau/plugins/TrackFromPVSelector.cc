@@ -31,7 +31,6 @@ public:
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:  
   // member data
@@ -95,10 +94,6 @@ void TrackFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSet
   
   iEvent.put(goodTracks);
   
-}
-
-void TrackFromPVSelector::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

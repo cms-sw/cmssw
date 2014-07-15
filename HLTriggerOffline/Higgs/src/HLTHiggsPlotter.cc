@@ -24,16 +24,14 @@
 
 HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
                                  const std::string & hltPath,
-                                 const std::vector<unsigned int> & objectsType,
-                                 DQMStore * dbe) :
+                                 const std::vector<unsigned int> & objectsType) :
     _hltPath(hltPath),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
     _objectsType(std::set<unsigned int>(objectsType.begin(),objectsType.end())),
     _nObjects(objectsType.size()),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
-    _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
-    _dbe(dbe)
+    _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn"))
 {
   for(std::set<unsigned int>::iterator it = _objectsType.begin();
       it != _objectsType.end(); ++it)
@@ -59,24 +57,30 @@ void HLTHiggsPlotter::beginJob()
 void HLTHiggsPlotter::beginRun(const edm::Run & iRun,
                                const edm::EventSetup & iSetup)
 {
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); 
-      it != _objectsType.end(); ++it)
-  {
-    std::vector<std::string> sources(2);
-    sources[0] = "gen";
-    sources[1] = "rec";
 
-    const std::string objTypeStr = EVTColContainer::getTypeString(*it);
-	  
-    for (size_t i = 0; i < sources.size(); i++) 
+}
+
+void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
+{
+    for (std::set<unsigned int>::iterator it = _objectsType.begin();
+         it != _objectsType.end(); ++it)
     {
-      std::string source = sources[i];
-      bookHist(source, objTypeStr, "Eta");
-      bookHist(source, objTypeStr, "Phi");
-      bookHist(source, objTypeStr, "MaxPt1");
-      bookHist(source, objTypeStr, "MaxPt2");
+        std::vector<std::string> sources(2);
+        sources[0] = "gen";
+        sources[1] = "rec";
+        
+        const std::string objTypeStr = EVTColContainer::getTypeString(*it);
+        
+        for (size_t i = 0; i < sources.size(); i++)
+        {
+            std::string source = sources[i];
+            bookHist(source, objTypeStr, "Eta", ibooker);
+            bookHist(source, objTypeStr, "Phi", ibooker);
+            bookHist(source, objTypeStr, "MaxPt1", ibooker);
+            bookHist(source, objTypeStr, "MaxPt2", ibooker);
+        }
     }
-  }
+    
 }
 
 void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
@@ -141,7 +145,8 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
 
 void HLTHiggsPlotter::bookHist(const std::string & source, 
                                const std::string & objType,
-                               const std::string & variable)
+                               const std::string & variable,
+                               DQMStore::IBooker & ibooker)
 {
   std::string sourceUpper = source; 
   sourceUpper[0] = std::toupper(sourceUpper[0]);
@@ -175,7 +180,7 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
     h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
   }
   h->Sumw2();
-  _elements[name] = _dbe->book1D(name, h);
+  _elements[name] = ibooker.book1D(name.c_str(), h);
   delete h;
 }
 

@@ -155,6 +155,9 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     setupMEtL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "metL1TriggerEfficiencies", metL1TriggerEfficiencies_);
   }
 
+  ebRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+  eeRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
 }
@@ -243,7 +246,7 @@ void MCEmbeddingValidationAnalyzer::setupElectronDistributionExtra(int minJets, 
       double dRmatch = cfgLeptonDistribution->exists("dRmatch") ? 
 	cfgLeptonDistribution->getParameter<double>("dRmatch") : 0.3;
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
-      electronDistributionExtra* electronDistribution = new electronDistributionExtra(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory, srcTheRecVertex_);
+      electronDistributionExtra* electronDistribution = new electronDistributionExtra(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory, srcTheRecVertex_, ebRHToken_, eeRHToken_);
       electronDistributionsExtra.push_back(electronDistribution);
     }
   }

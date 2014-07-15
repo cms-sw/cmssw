@@ -31,8 +31,9 @@ struct HLTTauDQMOfflineObjects {
 class HLTTauDQMPlotter {
 public:
     HLTTauDQMPlotter(const edm::ParameterSet& pset, const std::string& dqmBaseFolder);
+    HLTTauDQMPlotter(const std::string& dqmFolder, const std::string& dqmBaseFolder);
     ~HLTTauDQMPlotter();
-    bool isValid() const { return configValid_ && runValid_; }
+    bool isValid() const { return configValid_; }
 
 protected:
     //Helper functions
@@ -45,6 +46,5 @@ protected:
     
     //Validity check
     bool configValid_;
-    bool runValid_;
 };
 #endif

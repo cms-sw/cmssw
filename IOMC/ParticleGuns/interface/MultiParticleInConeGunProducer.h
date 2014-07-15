@@ -8,7 +8,7 @@
  ***************************************/
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
-#include "CLHEP/Random/RandExponential.h"
+
 namespace edm
 {
   

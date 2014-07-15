@@ -35,6 +35,7 @@ private:
   FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&);
   const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&); 
  
+  using FWSimpleProxyBuilderTemplate<RPCRecHit>::buildViewType;
   virtual void buildViewType(const RPCRecHit& iData, 
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 

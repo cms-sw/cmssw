@@ -137,7 +137,7 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
       ps.getUntrackedParameter<InputTag>("ecalEndcapRecHit", InputTag("reducedEcalRecHitsEE")));
 
   //Cuts - MultiJets
-  jetID                    = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"));
+  jetID                    = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   mj_monojet_ptPFJet_      = ps.getParameter<double>("mj_monojet_ptPFJet");
   mj_monojet_ptPFMuon_     = ps.getParameter<double>("mj_monojet_ptPFMuon");
   mj_monojet_ptPFElectron_ = ps.getParameter<double>("mj_monojet_ptPFElectron");

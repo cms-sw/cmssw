@@ -15,6 +15,10 @@ class DetId;
 
 #include<vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 /* \class EEDigitizerTraits
  * \brief Converts CaloDataFrame in CaloTimeSample and vice versa.
  *
@@ -35,6 +39,7 @@ class EcalCoder
 
       /// ctor
       EcalCoder( bool        addNoise        , 
+		 bool        PreMix1         ,
 		 Noisifier* ebCorrNoise0     ,
 		 Noisifier* eeCorrNoise0 = 0 ,
 		 Noisifier* ebCorrNoise1 = 0 ,
@@ -56,7 +61,8 @@ class EcalCoder
  
 
       /// from EcalSamples to EcalDataFrame
-      virtual void analogToDigital( const EcalSamples& clf , 
+      virtual void analogToDigital( CLHEP::HepRandomEngine*,
+                                    const EcalSamples& clf ,
 				    EcalDataFrame&     df    ) const;
  
    private:
@@ -66,7 +72,8 @@ class EcalCoder
 
       /// produce the pulse-shape
       void encode( const EcalSamples& ecalSamples , 
-		   EcalDataFrame&     df            ) const ;
+		   EcalDataFrame&     df,
+                   CLHEP::HepRandomEngine* ) const ;
 
 //      double decode( const EcalMGPASample& sample , 
 //		     const DetId&          detId    ) const ;
@@ -96,6 +103,7 @@ class EcalCoder
       double m_maxEneEE ; // max attainable energy in the ecal endcap
       
       bool m_addNoise ;   // whether add noise to the pedestals and the gains
+      bool m_PreMix1 ;   // Follow necessary steps for PreMixing input
 
       const Noisifier* m_ebCorrNoise[3] ;
       const Noisifier* m_eeCorrNoise[3] ;

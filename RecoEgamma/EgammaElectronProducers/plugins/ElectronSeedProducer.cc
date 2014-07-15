@@ -25,6 +25,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
@@ -40,6 +41,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -49,7 +51,7 @@ using namespace reco ;
 
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : //conf_(iConfig),
-   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0),
+   applyHOverECut_(true), hcalHelper_(0),
    caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
@@ -107,6 +109,10 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     esg_tokens.token_vtx = 
       mayConsume<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
   }
+  if(conf_.existsAs<edm::InputTag>("measurementTrackerEvent")) {
+    esg_tokens.token_measTrkEvt= consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  }
+
   matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
   //  get collections from config'
@@ -115,12 +121,9 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   superClusters_[1]=
     consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("endcapSuperClusters")) ;
 
-  //register your products
-  produces<ElectronSeedCollection>() ;
-}
-
-
-void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
+  // Construction of SeedFilter was in beginRun() with the comment
+  // below, but it has to be done here because of ConsumesCollector
+  //
   // FIXME: because of a bug presumably in tracker seeding,
   // perhaps in CombinedHitPairGenerator, badly caching some EventSetup product,
   // we must redo the SeedFilter for each run.
@@ -128,14 +131,20 @@ void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
     SeedFilter::Tokens sf_tokens;
     sf_tokens.token_bs  = beamSpotTag_;
     sf_tokens.token_vtx = filterVtxTag_;
-    seedFilter_ = new SeedFilter(conf_,sf_tokens) ;
+    edm::ConsumesCollector iC = consumesCollector();
+    seedFilter_.reset(new SeedFilter(conf_, sf_tokens, iC));
   }
+
+  //register your products
+  produces<ElectronSeedCollection>() ;
+}
+
+
+void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
 }
 
 void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
  {
-  delete seedFilter_ ;
-  seedFilter_ = 0 ;
  }
 
 ElectronSeedProducer::~ElectronSeedProducer()
@@ -225,7 +234,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 void ElectronSeedProducer::filterClusters
  ( const reco::BeamSpot & bs,
    const edm::Handle<reco::SuperClusterCollection> & superClusters,
-   /*HBHERecHitMetaCollection * mhbhe,*/ SuperClusterRefVector & sclRefs,
+   SuperClusterRefVector & sclRefs,
    std::vector<float> & hoe1s, std::vector<float> & hoe2s )
  {
   for (unsigned int i=0;i<superClusters->size();++i)

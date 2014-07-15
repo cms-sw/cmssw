@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.CommonInputs_cff import * # temporary, just to select the MixingMode
 
-if (MixingMode==2):
+if (MixingMode=='DigiRecoMixing'):
     mixReconstructedTracks = cms.PSet(
         input = cms.VInputTag(cms.InputTag("generalTracks")),
         type = cms.string('RecoTrack')

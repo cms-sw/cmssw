@@ -33,10 +33,10 @@ public:
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
       thePrecise(precise) { }
 
-  virtual TrackingRegion::Hits hits(
-      const edm::Event& ev,  
-      const edm::EventSetup& es, 
-      const ctfseeding::SeedingLayer* layer) const;
+  TrackingRegion::Hits hits(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
  
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  

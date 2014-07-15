@@ -1,6 +1,8 @@
 #ifndef L1TriggerScaler_h
 #define L1TriggerScaler_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include<vector>
 
@@ -57,7 +59,9 @@ public:
     
     std::vector<float> m_GTPartition0DeadTimeRatio;
     
-   };
+   
+   COND_SERIALIZABLE;
+};
    
 // the fondamental object is a vector of struct Lumi   
   L1TriggerScaler();
@@ -102,6 +106,8 @@ void SetRunNumber(int n) {
  int m_runnumber;
  // std::string  m_string_value;
  //std::vector<int>  m_GTAlgoCounts;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

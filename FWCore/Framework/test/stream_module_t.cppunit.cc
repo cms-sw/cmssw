@@ -66,8 +66,6 @@ public:
   void endRunSummaryProdTest();
   void endLumiSummaryProdTest();
 
-private:
-
   enum class Trans {
     kBeginJob, //0
     kBeginStream, //1
@@ -84,16 +82,20 @@ private:
     kEndJob //12
   };
   
-  std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
   typedef std::vector<Trans> Expectations;
+
+private:
+
+  std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
-  boost::shared_ptr<edm::ProductRegistry> m_prodReg;
-  boost::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ProductRegistry> m_prodReg;
+  std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
-  boost::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
-  boost::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
+  std::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg;
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::CPUTimer* m_timer = nullptr;
@@ -374,9 +376,9 @@ m_ep()
   
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID.run(), now, now));
+  auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(m_rp->run(), 1, now, now));
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
@@ -393,6 +395,7 @@ m_ep()
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
   m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_actReg.reset(new edm::ActivityRegistry);
 
 
   //For each transition, bind a lambda which will call the proper method of the Worker
@@ -420,7 +423,9 @@ m_ep()
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext parentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     iBase->doWork<Traits>(*m_ep,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {

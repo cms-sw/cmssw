@@ -64,7 +64,7 @@ struct CaloTauSelectorDefinition {
     }
 
     unsigned key=0;
-    static bool passedAllCuts;
+    bool passedAllCuts;
     for( collection::const_iterator calotau = hc->begin();
           calotau != hc->end();
           ++calotau, ++key)

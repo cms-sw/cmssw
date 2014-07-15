@@ -10,12 +10,12 @@
  *  implement the minimal P_t cut.
  */
 
-class MinHitsTrajectoryFilter : public TrajectoryFilter {
+class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
 
   explicit MinHitsTrajectoryFilter( int minHits=-1):theMinHits( minHits) {}
 
-  explicit MinHitsTrajectoryFilter( const edm::ParameterSet & pset): theMinHits( pset.getParameter<int>("minimumNumberOfHits")) {}
+  explicit MinHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC): theMinHits( pset.getParameter<int>("minimumNumberOfHits")) {}
     
   virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
   virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);}
@@ -28,11 +28,10 @@ public:
 protected:
 
   template<class T> bool QF(const T & traj) const{
-    if (traj.foundHits() >= theMinHits) return true;
-    else return false;
+    return (traj.foundHits() >= theMinHits);
   }
 
-  float theMinHits;
+  int theMinHits;
 
 };
 

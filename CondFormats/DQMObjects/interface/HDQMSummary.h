@@ -1,6 +1,8 @@
 #ifndef HDQMSummary_h
 #define HDQMSummary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -41,7 +43,9 @@ class HDQMSummary {
 		struct DetRegistry{
 			uint32_t detid;
 			uint32_t ibegin;
-		};
+		
+    COND_SERIALIZABLE;
+};
                 
 		class StrictWeakOrdering{
 			public:
@@ -134,7 +138,9 @@ class HDQMSummary {
 	        const short getPosition(std::string elementName) const;
 	
 	
-   };
+   
+  COND_SERIALIZABLE;
+};
 		
 
 #endif

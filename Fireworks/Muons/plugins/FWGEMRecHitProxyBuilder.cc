@@ -37,6 +37,7 @@ private:
   FWGEMRecHitProxyBuilder(const FWGEMRecHitProxyBuilder&);
   const FWGEMRecHitProxyBuilder& operator=(const FWGEMRecHitProxyBuilder&); 
  
+  using FWSimpleProxyBuilderTemplate<GEMRecHit>::buildViewType;
   virtual void buildViewType(const GEMRecHit& iData, 
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 

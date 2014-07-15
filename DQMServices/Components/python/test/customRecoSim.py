@@ -14,6 +14,7 @@ def customise(process):
       wantSummary = cms.untracked.bool(True) 
     )
 
+    #using the DQMROOT means that the recosim output will be empty
     process.RECOSIMoutput.outputCommands.append('drop *')
     process.RECOSIMoutput.outputCommands.append('keep *_MEtoEDMConverter_*_*')
 

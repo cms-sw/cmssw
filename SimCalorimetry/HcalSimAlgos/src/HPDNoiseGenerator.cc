@@ -7,10 +7,10 @@ HPDNoiseGenerator::HPDNoiseGenerator(const edm::ParameterSet & pset)
 }
 
 
-void HPDNoiseGenerator::fillNoiseSignals()
+void HPDNoiseGenerator::fillNoiseSignals(CLHEP::HepRandomEngine* engine)
 {
   theNoiseSignals.clear();
-  std::vector<std::pair <HcalDetId, const float* > > noise = theLibraryReader.getNoisyHcalDetIds();
+  std::vector<std::pair <HcalDetId, const float* > > noise = theLibraryReader.getNoisyHcalDetIds(engine);
   for(std::vector<std::pair <HcalDetId, const float* > >::const_iterator noiseItr = noise.begin();
       noiseItr != noise.end(); ++noiseItr)
   {

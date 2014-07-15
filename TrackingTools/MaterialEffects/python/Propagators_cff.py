@@ -7,3 +7,5 @@ from TrackingTools.GeomPropagators.AnalyticalPropagator_cfi import *
 from TrackingTools.GeomPropagators.OppositeAnalyticalPropagator_cfi import *
 from TrackingTools.GeomPropagators.AnyDirectionAnalyticalPropagator_cfi import *
 from TrackingTools.MaterialEffects.PropagatorsForLoopers_cff import *
+from TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff import *
+from TrackingTools.GeomPropagators.AnalyticalPropagatorParabolicMf_cff import *

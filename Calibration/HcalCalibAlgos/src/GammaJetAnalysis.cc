@@ -256,7 +256,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // Load EcalRecHits
   
     std::vector<edm::InputTag>::const_iterator i;
-    vector<CaloRecHit> theRecHits;
+    vector<std::pair<DetId, double> > theRecHits;
       
     try {
       
@@ -269,7 +269,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // EcalBarrel = 1, EcalEndcap = 2
 
 	 GlobalPoint pos = geo->getPosition(recHit->detid());
-         theRecHits.push_back(*recHit);
+         theRecHits.push_back(std::pair<DetId, double>(recHit->detid(), recHit->energy()));
 
 	 if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] )
                     (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
@@ -300,7 +300,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         GlobalPoint pos = geo->getPosition(hbheItr->detid());
         (*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
                                       " "<<pos.eta()<<" "<<iEvent.id().event()<<endl;
-        theRecHits.push_back(*hbheItr);
+        theRecHits.push_back(std::pair<DetId, double>(hbheItr->detid(), hbheItr->energy()));
 
       }
     } catch (cms::Exception& e) { // can't find it!
@@ -336,9 +336,9 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(vet>CutOnEgammaEnergy_) {
       ij++;
       float gammaiso_ecal[9] = {0.,0.,0.,0.,0.,0.,0.,0.,0.};
-     for(vector<CaloRecHit>::iterator it = theRecHits.begin(); it != theRecHits.end(); it++)
+     for(vector<std::pair<DetId, double> >::const_iterator it = theRecHits.begin(); it != theRecHits.end(); it++)
       {
-           GlobalPoint pos = geo->getPosition(it->detid());
+           GlobalPoint pos = geo->getPosition(it->first);
            double eta = pos.eta();
 	   double phi = pos.phi();
 	   double deta = fabs(eta-aClus->eta());
@@ -357,24 +357,24 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     for (int j = 0; j<3; j++)
 	     {
 	     
-	        if(it->detid().det() == DetId::Ecal ) 
+	        if(it->first.det() == DetId::Ecal ) 
 		{
-		  if(it->detid().subdetId() == 1) ecutn = ecut[0][j];
-		  if(it->detid().subdetId() == 2) ecutn = ecut[1][j];
+		  if(it->first.subdetId() == 1) ecutn = ecut[0][j];
+		  if(it->first.subdetId() == 2) ecutn = ecut[1][j];
 		  if( dr>rmin && dr<risol[i])
 		  {
-		   if((*it).energy() > ecutn) gammaiso_ecal[itype_ecal] = gammaiso_ecal[itype_ecal]+(*it).energy()/cosh(eta);
+		   if((*it).second > ecutn) gammaiso_ecal[itype_ecal] = gammaiso_ecal[itype_ecal]+(*it).second/cosh(eta);
 		  } 
 		}
 		
-		if(it->detid().det() == DetId::Hcal ) 
+		if(it->first.det() == DetId::Hcal ) 
 		{
 		   ecutn = ecut[2][j];
 		   if( dr>rmin && dr<risol[i])
 		   {
-		     if((*it).energy() > ecutn) 
+		     if((*it).first > ecutn) 
 		     {
-		        gammaiso_ecal[itype_ecal] = gammaiso_ecal[itype_ecal]+(*it).energy()/cosh(eta);
+		        gammaiso_ecal[itype_ecal] = gammaiso_ecal[itype_ecal]+(*it).second/cosh(eta);
 		     }
 		   }
 		} 

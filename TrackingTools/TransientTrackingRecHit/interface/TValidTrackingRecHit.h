@@ -15,24 +15,18 @@ class GeomDetUnit;
 class TValidTrackingRecHit : public TransientTrackingRecHit {
 public:
   
-  typedef ReferenceCountingPointer<TransientTrackingRecHit>        RecHitPointer;
-  typedef ConstReferenceCountingPointer<TransientTrackingRecHit>   ConstRecHitPointer;
-  typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
-  typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
-
-  TValidTrackingRecHit(const GeomDet * geom) : 
-    TransientTrackingRecHit(geom->geographicalId()), geom_(geom) {}
+  TValidTrackingRecHit(const GeomDet & geom) : 
+  TrackingRecHit(geom) {}
 
 
   template<typename... Args>
-  TValidTrackingRecHit(const GeomDet * geom, Args && ...args) : 
-    TransientTrackingRecHit(std::forward<Args>(args)...), geom_(geom) {}
+  TValidTrackingRecHit(Args && ...args) : 
+    TrackingRecHit(std::forward<Args>(args)...) {}
 
   // to be moved in children
   TrackingRecHit * cloneHit() const { return hit()->clone();}
 
   // Extension of the TrackingRecHit interface
-  virtual const GeomDet * det() const GCC11_FINAL {return geom_;}
   virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
 
 
@@ -72,9 +66,6 @@ public:
   virtual float clusterProbability() const { return 1.f; }
 
 private:
-  
-  const GeomDet * geom_ ;
-
  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!

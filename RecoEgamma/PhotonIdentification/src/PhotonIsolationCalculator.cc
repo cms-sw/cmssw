@@ -26,7 +26,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 //#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -45,14 +44,15 @@
 
 void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, 
 				      std::vector<int> const & flagsEB, std::vector<int> const & flagsEE, 
-				      std::vector<int> const & severitiesEB, std::vector<int> const & severitiesEE) {
+				      std::vector<int> const & severitiesEB, std::vector<int> const & severitiesEE,
+				      edm::ConsumesCollector && iC) {
 
 
-  trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
-  beamSpotProducerTag_ = conf.getParameter<edm::InputTag>("beamSpotProducer");
-  barrelecalCollection_ = conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection");
-  endcapecalCollection_ = conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection");
-  hcalCollection_ = conf.getParameter<edm::InputTag>("HcalRecHitCollection");
+  trackInputTag_ = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("trackProducer"));
+  beamSpotProducerTag_ = iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotProducer"));
+  barrelecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
+  endcapecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
+  hcalCollection_ = iC.consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("HcalRecHitCollection"));
 
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
@@ -558,7 +558,7 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
   ntrkCone =0;trkCone=0;
   //get the tracks
   edm::Handle<reco::TrackCollection> tracks;
-  e.getByLabel(trackInputTag_,tracks);
+  e.getByToken(trackInputTag_,tracks);
   if(!tracks.isValid()) {
     return;
   }
@@ -566,7 +566,7 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
   //Photon Eta and Phi.  Hope these are correct.
   reco::BeamSpot vertexBeamSpot;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByLabel(beamSpotProducerTag_,recoBeamSpotHandle);
+  e.getByToken(beamSpotProducerTag_,recoBeamSpotHandle);
   vertexBeamSpot = *recoBeamSpotHandle;
   
   PhotonTkIsolation phoIso(RCone, 
@@ -599,9 +599,9 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
   edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
-  iEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
+  iEvent.getByToken(endcapecalCollection_, ecalhitsCollEE);
  
-  iEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
+  iEvent.getByToken(barrelecalCollection_, ecalhitsCollEB);
  
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
@@ -609,10 +609,6 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
-
-
-  EcalRecHitMetaCollection RecHitsEE(*rechitsCollectionEE_);
-  EcalRecHitMetaCollection RecHitsEB(*rechitsCollectionEB_);
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
@@ -623,7 +619,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
                                  etMin,
                                  eMin,
                                  geoHandle,
-                                 &RecHitsEB,
+                                 *rechitsCollectionEB_,
                                  sevLevel,
                                  DetId::Ecal);
 
@@ -639,7 +635,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
                                  etMin,
                                  eMin,
                                  geoHandle,
-                                 &RecHitsEE,
+                                 *rechitsCollectionEE_,
                                  sevLevel,
                                  DetId::Ecal);
   
@@ -666,7 +662,7 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
 
   edm::Handle<CaloTowerCollection> hcalhitsCollH;
  
-  iEvent.getByLabel(hcalCollection_, hcalhitsCollH);
+  iEvent.getByToken(hcalCollection_, hcalhitsCollH);
   
   const CaloTowerCollection *toww = hcalhitsCollH.product();
 
@@ -697,7 +693,7 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
 
   edm::Handle<CaloTowerCollection> hcalhitsCollH;
  
-  iEvent.getByLabel(hcalCollection_, hcalhitsCollH);
+  iEvent.getByToken(hcalCollection_, hcalhitsCollH);
   
   const CaloTowerCollection *toww = hcalhitsCollH.product();
 

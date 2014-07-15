@@ -3,12 +3,12 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class MaxLostHitsTrajectoryFilter : public TrajectoryFilter {
+class MaxLostHitsTrajectoryFilter  final : public TrajectoryFilter {
 public:
 
-  explicit MaxLostHitsTrajectoryFilter( int maxHits=-1): theMaxLostHits( maxHits) {}
+  explicit MaxLostHitsTrajectoryFilter( int maxHits=0): theMaxLostHits( maxHits) {}
   
-  explicit MaxLostHitsTrajectoryFilter( const edm::ParameterSet & pset):
+  explicit MaxLostHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theMaxLostHits( pset.getParameter<int>("maxLostHits")) {}
 
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
@@ -22,11 +22,10 @@ public:
 protected:
 
   template<class T> bool TBC(const T& traj) const {
-    if (traj.lostHits() > theMaxLostHits) return false;     
-    else return true;
+    return traj.lostHits() <= theMaxLostHits;
   }
 
-  float theMaxLostHits;
+  int theMaxLostHits;
 
 };
 

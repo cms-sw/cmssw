@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,20 +38,20 @@
 // class decleration
 //
 
-class CastorJetIDProducer : public edm::EDProducer {
+class CastorJetIDProducer : public edm::stream::EDProducer<> {
    public:
 
       explicit CastorJetIDProducer(const edm::ParameterSet&);
       ~CastorJetIDProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
-  edm::InputTag                 src_;         // input jet source
-  reco::helper::CastorJetIDHelper     helper_;      // castor jet id helper algorithm
+      edm::InputTag                 src_;          // input jet source
+      reco::helper::CastorJetIDHelper     helper_; // castor jet id helper algorithm
+
+      edm::EDGetTokenT<edm::View<reco::BasicJet> > input_jet_token_;
 };
 
 

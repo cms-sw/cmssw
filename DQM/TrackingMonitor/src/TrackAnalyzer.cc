@@ -111,21 +111,16 @@ TrackAnalyzer::~TrackAnalyzer()
 { 
 }
 
-void TrackAnalyzer::beginJob(DQMStore * dqmStore_) 
-{
-  
-}
-
-void TrackAnalyzer::beginRun(DQMStore * dqmStore_) 
+void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker)
 {
 
-  bookHistosForHitProperties(dqmStore_);
-  bookHistosForBeamSpot(dqmStore_);
-  bookHistosForLScertification( dqmStore_);
+  bookHistosForHitProperties(ibooker);
+  bookHistosForBeamSpot(ibooker);
+  bookHistosForLScertification( ibooker);
   
   // book tracker specific related histograms
   // ---------------------------------------------------------------------------------//
-  if(doTrackerSpecific_ || doAllPlots_) bookHistosForTrackerSpecific(dqmStore_);
+  if(doTrackerSpecific_ || doAllPlots_) bookHistosForTrackerSpecific(ibooker);
     
   // book state related histograms
   // ---------------------------------------------------------------------------------//
@@ -134,25 +129,25 @@ void TrackAnalyzer::beginRun(DQMStore * dqmStore_)
     std::string StateName = conf_.getParameter<std::string>("MeasurementState");
     
     if (StateName == "All") {
-      bookHistosForState("OuterSurface", dqmStore_);
-      bookHistosForState("InnerSurface", dqmStore_);
-      bookHistosForState("ImpactPoint" , dqmStore_);
+      bookHistosForState("OuterSurface", ibooker);
+      bookHistosForState("InnerSurface", ibooker);
+      bookHistosForState("ImpactPoint" , ibooker);
     } else if (
 	       StateName != "OuterSurface" && 
 	       StateName != "InnerSurface" && 
 	       StateName != "ImpactPoint" &&
 	       StateName != "default" 
 	       ) {
-      bookHistosForState("default", dqmStore_);
+      bookHistosForState("default", ibooker);
 
     } else {
-      bookHistosForState(StateName, dqmStore_);
+      bookHistosForState(StateName, ibooker);
     }
     
   }
 }
 
-void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
+void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
   
     // parameters from the configuration
     std::string QualName       = conf_.getParameter<std::string>("Quality");
@@ -195,7 +190,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
     double VZMin        = conf_.getParameter<double>("VZMin");
     double VZMax        = conf_.getParameter<double>("VZMax");
 
-    dqmStore_->setCurrentFolder(TopFolder_);
+    ibooker.setCurrentFolder(TopFolder_);
 
     // book the Hit Property histograms
     // ---------------------------------------------------------------------------------//
@@ -203,25 +198,25 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
     TkParameterMEs tkmes;
     if ( doHitPropertiesPlots_ || doAllPlots_ ){
 
-      dqmStore_->setCurrentFolder(TopFolder_+"/HitProperties");
+      ibooker.setCurrentFolder(TopFolder_+"/HitProperties");
       
       histname = "NumberOfRecHitsPerTrack_";
-      NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
+      NumberOfRecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
       NumberOfRecHitsPerTrack->setAxisTitle("Number of all RecHits of each Track");
       NumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfValidRecHitsPerTrack_";
-      NumberOfValidRecHitsPerTrack = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
+      NumberOfValidRecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
       NumberOfValidRecHitsPerTrack->setAxisTitle("Number of valid RecHits for each Track");
       NumberOfValidRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfLostRecHitsPerTrack_";
-      NumberOfLostRecHitsPerTrack = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, TKLostBin, TKLostMin, TKLostMax);
+      NumberOfLostRecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLostBin, TKLostMin, TKLostMax);
       NumberOfLostRecHitsPerTrack->setAxisTitle("Number of lost RecHits for each Track");
       NumberOfLostRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfLayersPerTrack_";
-      NumberOfLayersPerTrack = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
+      NumberOfLayersPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
       NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each Track", 1);
       NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
       
@@ -229,7 +224,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
       if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ){
 	
 	histname = "NumberOfRecHitVsPhiVsEtaPerTrack_";
-	NumberOfRecHitVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CategoryName, histname+CategoryName, 
+	NumberOfRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
 								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
 	NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
 	NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
@@ -238,7 +233,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
       if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ){
 	
 	histname = "NumberOfLayersVsPhiVsEtaPerTrack_";
-	NumberOfLayersVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CategoryName, histname+CategoryName, 
+	NumberOfLayersVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
 								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
 	NumberOfLayersVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
 	NumberOfLayersVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
@@ -263,51 +258,51 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
       double Chi2ProbMax  = conf_.getParameter<double>("Chi2ProbMax");
     
 
-      dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+      ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
 
       histname = "Chi2_";
-      Chi2 = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, Chi2Bin, Chi2Min, Chi2Max);
+      Chi2 = ibooker.book1D(histname+CategoryName, histname+CategoryName, Chi2Bin, Chi2Min, Chi2Max);
       Chi2->setAxisTitle("Track #chi^{2}"  ,1);
       Chi2->setAxisTitle("Number of Tracks",2);
 
       histname = "Chi2Prob_";
-      Chi2Prob = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, Chi2ProbBin, Chi2ProbMin, Chi2ProbMax);
+      Chi2Prob = ibooker.book1D(histname+CategoryName, histname+CategoryName, Chi2ProbBin, Chi2ProbMin, Chi2ProbMax);
       Chi2Prob->setAxisTitle("Track #chi^{2} probability",1);
       Chi2Prob->setAxisTitle("Number of Tracks"        ,2);
       
       histname = "Chi2oNDF_";
-      Chi2oNDF = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
+      Chi2oNDF = ibooker.book1D(histname+CategoryName, histname+CategoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
       Chi2oNDF->setAxisTitle("Track #chi^{2}/ndf",1);
       Chi2oNDF->setAxisTitle("Number of Tracks"  ,2);
       
       if (doDCAPlots_) {
 	histname = "xPointOfClosestApproach_";
-	xPointOfClosestApproach = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
+	xPointOfClosestApproach = ibooker.book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
 	xPointOfClosestApproach->setAxisTitle("x component of Track PCA to beam line (cm)",1);
 	xPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
 	
 	histname = "yPointOfClosestApproach_";
-	yPointOfClosestApproach = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, VYBin, VYMin, VYMax);
+	yPointOfClosestApproach = ibooker.book1D(histname+CategoryName, histname+CategoryName, VYBin, VYMin, VYMax);
 	yPointOfClosestApproach->setAxisTitle("y component of Track PCA to beam line (cm)",1);
 	yPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
 	
 	histname = "zPointOfClosestApproach_";
-	zPointOfClosestApproach = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, VZBin, VZMin, VZMax);
+	zPointOfClosestApproach = ibooker.book1D(histname+CategoryName, histname+CategoryName, VZBin, VZMin, VZMax);
 	zPointOfClosestApproach->setAxisTitle("z component of Track PCA to beam line (cm)",1);
 	zPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
 	
 	histname = "xPointOfClosestApproachToPV_";
-	xPointOfClosestApproachToPV = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
+	xPointOfClosestApproachToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
 	xPointOfClosestApproachToPV->setAxisTitle("x component of Track PCA to pv (cm)",1);
 	xPointOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
 	
 	histname = "yPointOfClosestApproachToPV_";
-	yPointOfClosestApproachToPV = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, VYBin, VYMin, VYMax);
+	yPointOfClosestApproachToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, VYBin, VYMin, VYMax);
 	yPointOfClosestApproachToPV->setAxisTitle("y component of Track PCA to pv line (cm)",1);
 	yPointOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
 	
 	histname = "zPointOfClosestApproachToPV_";
-	zPointOfClosestApproachToPV = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, VZBin, VZMin, VZMax);
+	zPointOfClosestApproachToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, VZBin, VZMin, VZMax);
 	zPointOfClosestApproachToPV->setAxisTitle("z component of Track PCA to pv line (cm)",1);
 	zPointOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
       }
@@ -315,7 +310,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
       // See DataFormats/TrackReco/interface/TrackBase.h for track algorithm enum definition
       // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/TrackReco/interface/TrackBase.h?view=log
       histname = "algorithm_";
-      algorithm = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, 32, 0., 32.);
+      algorithm = ibooker.book1D(histname+CategoryName, histname+CategoryName, 32, 0., 32.);
       algorithm->setAxisTitle("Tracking algorithm",1);
       algorithm->setAxisTitle("Number of Tracks",2);
       
@@ -323,7 +318,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore * dqmStore_) {
 
 }
 
-void TrackAnalyzer::bookHistosForLScertification(DQMStore * dqmStore_) {
+void TrackAnalyzer::bookHistosForLScertification(DQMStore::IBooker & ibooker) {
 
     // parameters from the configuration
     std::string QualName       = conf_.getParameter<std::string>("Quality");
@@ -347,22 +342,22 @@ void TrackAnalyzer::bookHistosForLScertification(DQMStore * dqmStore_) {
       double Chi2NDFMax   = conf_.getParameter<double>("Chi2NDFMax");
 
       // add by Mia in order to deal w/ LS transitions  
-      dqmStore_->setCurrentFolder(TopFolder_+"/LSanalysis");
+      ibooker.setCurrentFolder(TopFolder_+"/LSanalysis");
 
       histname = "NumberOfRecHitsPerTrack_lumiFlag_";
-      NumberOfRecHitsPerTrack_lumiFlag = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
+      NumberOfRecHitsPerTrack_lumiFlag = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKHitBin, TKHitMin, TKHitMax);
       NumberOfRecHitsPerTrack_lumiFlag->setAxisTitle("Number of all RecHits of each Track");
       NumberOfRecHitsPerTrack_lumiFlag->setAxisTitle("Number of Tracks", 2);
 
       histname = "Chi2oNDF_lumiFlag_";
-      Chi2oNDF_lumiFlag = dqmStore_->book1D(histname+CategoryName, histname+CategoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
+      Chi2oNDF_lumiFlag = ibooker.book1D(histname+CategoryName, histname+CategoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
       Chi2oNDF_lumiFlag->setAxisTitle("Track #chi^{2}/ndf",1);
       Chi2oNDF_lumiFlag->setAxisTitle("Number of Tracks"  ,2);
 
     }
 }
 
-void TrackAnalyzer::bookHistosForBeamSpot(DQMStore * dqmStore_) {
+void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
 
     // parameters from the configuration
     std::string QualName       = conf_.getParameter<std::string>("Quality");
@@ -401,41 +396,41 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore * dqmStore_) {
       double VZMaxProf    = conf_.getParameter<double>("VZMaxProf");
       
       
-      dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+      ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
       
       histname = "DistanceOfClosestApproachToBS_";
-      DistanceOfClosestApproachToBS = dqmStore_->book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
+      DistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
       DistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
       
       histname = "DistanceOfClosestApproachToBSVsPhi_";
-      DistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+      DistanceOfClosestApproachToBSVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
       DistanceOfClosestApproachToBSVsPhi->getTH1()->SetBit(TH1::kCanRebin);
       DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track #phi",1);
       DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
       
       histname = "xPointOfClosestApproachVsZ0wrt000_";
-      xPointOfClosestApproachVsZ0wrt000 = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
+      xPointOfClosestApproachVsZ0wrt000 = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
       xPointOfClosestApproachVsZ0wrt000->setAxisTitle("d_{z} (cm)",1);
       xPointOfClosestApproachVsZ0wrt000->setAxisTitle("x component of Track PCA to beam line (cm)",2);
       
       histname = "yPointOfClosestApproachVsZ0wrt000_";
-      yPointOfClosestApproachVsZ0wrt000 = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
+      yPointOfClosestApproachVsZ0wrt000 = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
       yPointOfClosestApproachVsZ0wrt000->setAxisTitle("d_{z} (cm)",1);
       yPointOfClosestApproachVsZ0wrt000->setAxisTitle("y component of Track PCA to beam line (cm)",2);
       
       histname = "xPointOfClosestApproachVsZ0wrtBS_";
-      xPointOfClosestApproachVsZ0wrtBS = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
+      xPointOfClosestApproachVsZ0wrtBS = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
       xPointOfClosestApproachVsZ0wrtBS->setAxisTitle("d_{z} w.r.t. Beam Spot  (cm)",1);
       xPointOfClosestApproachVsZ0wrtBS->setAxisTitle("x component of Track PCA to BS (cm)",2);
       
       histname = "yPointOfClosestApproachVsZ0wrtBS_";
-      yPointOfClosestApproachVsZ0wrtBS = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
+      yPointOfClosestApproachVsZ0wrtBS = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
       yPointOfClosestApproachVsZ0wrtBS->setAxisTitle("d_{z} w.r.t. Beam Spot (cm)",1);
       yPointOfClosestApproachVsZ0wrtBS->setAxisTitle("y component of Track PCA to BS (cm)",2);
       
       histname = "zPointOfClosestApproachVsPhi_";
-      zPointOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, VZBinProf, VZMinProf, VZMaxProf, "");
+      zPointOfClosestApproachVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, VZBinProf, VZMinProf, VZMaxProf, "");
       zPointOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
       zPointOfClosestApproachVsPhi->setAxisTitle("y component of Track PCA to beam line (cm)",2);
     }
@@ -462,26 +457,26 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore * dqmStore_) {
       double Z0Min        = conf_.getParameter<double>("Z0Min");
       double Z0Max        = conf_.getParameter<double>("Z0Max");
       
-      dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+      ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
       
       histname = "DistanceOfClosestApproachToPV_";
-      DistanceOfClosestApproachToPV = dqmStore_->book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
+      DistanceOfClosestApproachToPV = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToPV->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
       DistanceOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
       
       histname = "DistanceOfClosestApproachToPVVsPhi_";
-      DistanceOfClosestApproachToPVVsPhi = dqmStore_->bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+      DistanceOfClosestApproachToPVVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
       DistanceOfClosestApproachToPVVsPhi->getTH1()->SetBit(TH1::kCanRebin);
       DistanceOfClosestApproachToPVVsPhi->setAxisTitle("Track #phi",1);
       DistanceOfClosestApproachToPVVsPhi->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
       
       histname = "xPointOfClosestApproachVsZ0wrtPV_";
-      xPointOfClosestApproachVsZ0wrtPV = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
+      xPointOfClosestApproachVsZ0wrtPV = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
       xPointOfClosestApproachVsZ0wrtPV->setAxisTitle("d_{z} w.r.t. Beam Spot  (cm)",1);
       xPointOfClosestApproachVsZ0wrtPV->setAxisTitle("x component of Track PCA to PV (cm)",2);
       
       histname = "yPointOfClosestApproachVsZ0wrtPV_";
-      yPointOfClosestApproachVsZ0wrtPV = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
+      yPointOfClosestApproachVsZ0wrtPV = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
       yPointOfClosestApproachVsZ0wrtPV->setAxisTitle("d_{z} w.r.t. Beam Spot (cm)",1);
       yPointOfClosestApproachVsZ0wrtPV->setAxisTitle("y component of Track PCA to PV (cm)",2);
       
@@ -499,12 +494,12 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore * dqmStore_) {
 	double PhiMax     = conf_.getParameter<double>("PhiMax");
 
 	histname = "TESTDistanceOfClosestApproachToBS_";
-	TESTDistanceOfClosestApproachToBS = dqmStore_->book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
+	TESTDistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
 	TESTDistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
 	TESTDistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
 	
 	histname = "TESTDistanceOfClosestApproachToBSVsPhi_";
-	TESTDistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+	TESTDistanceOfClosestApproachToBSVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
 	TESTDistanceOfClosestApproachToBSVsPhi->getTH1()->SetBit(TH1::kCanRebin);
 	TESTDistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track #phi",1);
 	TESTDistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
@@ -536,26 +531,26 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore * dqmStore_) {
 	  double ThetaMin   = conf_.getParameter<double>("ThetaMin");
 	  double ThetaMax   = conf_.getParameter<double>("ThetaMax");
 	  
-	  dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+	  ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
 	  histname = "DistanceOfClosestApproachVsTheta_";
-	  DistanceOfClosestApproachVsTheta = dqmStore_->bookProfile(histname+CategoryName,histname+CategoryName, ThetaBin, ThetaMin, ThetaMax, DxyMin,DxyMax,"");
+	  DistanceOfClosestApproachVsTheta = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, ThetaBin, ThetaMin, ThetaMax, DxyMin,DxyMax,"");
 	  DistanceOfClosestApproachVsTheta->setAxisTitle("Track #theta",1);
 	  DistanceOfClosestApproachVsTheta->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
 	}
 	
 	histname = "DistanceOfClosestApproachVsEta_";
-	DistanceOfClosestApproachVsEta = dqmStore_->bookProfile(histname+CategoryName,histname+CategoryName, EtaBin, EtaMin, EtaMax, DxyMin, DxyMax,"");
+	DistanceOfClosestApproachVsEta = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, EtaBin, EtaMin, EtaMax, DxyMin, DxyMax,"");
 	DistanceOfClosestApproachVsEta->setAxisTitle("Track #eta",1);
 	DistanceOfClosestApproachVsEta->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
 	// temporary patch in order to put back those MEs in Muon Workspace
 	
 	histname = "DistanceOfClosestApproach_";
-	DistanceOfClosestApproach = dqmStore_->book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
+	DistanceOfClosestApproach = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
 	DistanceOfClosestApproach->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",1);
 	DistanceOfClosestApproach->setAxisTitle("Number of Tracks",2);
 	
 	histname = "DistanceOfClosestApproachVsPhi_";
-	DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyMin,DxyMax,"");
+	DistanceOfClosestApproachVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyMin,DxyMax,"");
 	DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
 	DistanceOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
 	DistanceOfClosestApproachVsPhi->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
@@ -700,7 +695,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // book histograms at differnt measurement points
 // ---------------------------------------------------------------------------------//
-void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
+void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ibooker) 
 {
 
     // parameters from the configuration
@@ -791,7 +786,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
     double Chi2ProbMin  = conf_.getParameter<double>("Chi2ProbMin");
     double Chi2ProbMax  = conf_.getParameter<double>("Chi2ProbMax");
 
-    dqmStore_->setCurrentFolder(TopFolder_);
+    ibooker.setCurrentFolder(TopFolder_);
 
     TkParameterMEs tkmes;
 
@@ -800,197 +795,197 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
     if(doAllPlots_) {
 
       // general properties
-      dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+      ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
       
       if (doThetaPlots_) {
 	histname = "Chi2oNDFVsTheta_" + histTag;
-	tkmes.Chi2oNDFVsTheta = dqmStore_->bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, Chi2NDFMin, Chi2NDFMax,"");
+	tkmes.Chi2oNDFVsTheta = ibooker.bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, Chi2NDFMin, Chi2NDFMax,"");
 	tkmes.Chi2oNDFVsTheta->setAxisTitle("Track #theta",1);
 	tkmes.Chi2oNDFVsTheta->setAxisTitle("Track #chi^{2}/ndf",2);
       }
       histname = "Chi2oNDFVsPhi_" + histTag;
-      tkmes.Chi2oNDFVsPhi   = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, Chi2NDFMin, Chi2NDFMax,"");
+      tkmes.Chi2oNDFVsPhi   = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, Chi2NDFMin, Chi2NDFMax,"");
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #phi",1);
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #chi^{2}/ndf",2);
       
       histname = "Chi2oNDFVsEta_" + histTag;
-      tkmes.Chi2oNDFVsEta   = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
+      tkmes.Chi2oNDFVsEta   = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
       tkmes.Chi2oNDFVsEta->setAxisTitle("Track #eta",1);
       tkmes.Chi2oNDFVsEta->setAxisTitle("Track #chi^{2}/ndf",2);
       
       histname = "Chi2ProbVsPhi_" + histTag;
-      tkmes.Chi2ProbVsPhi = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, Chi2ProbMin, Chi2ProbMax);
+      tkmes.Chi2ProbVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, Chi2ProbMin, Chi2ProbMax);
       tkmes.Chi2ProbVsPhi->setAxisTitle("Tracks #phi"  ,1);
       tkmes.Chi2ProbVsPhi->setAxisTitle("Track #chi^{2} probability",2);
       
       histname = "Chi2ProbVsEta_" + histTag;
-      tkmes.Chi2ProbVsEta = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, Chi2ProbMin, Chi2ProbMax);
+      tkmes.Chi2ProbVsEta = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, Chi2ProbMin, Chi2ProbMax);
       tkmes.Chi2ProbVsEta->setAxisTitle("Tracks #eta"  ,1);
       tkmes.Chi2ProbVsEta->setAxisTitle("Track #chi^{2} probability",2);
 
     }
     
     // general properties
-    dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+    ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
 
     histname = "TrackP_" + histTag;
-    tkmes.TrackP = dqmStore_->book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
+    tkmes.TrackP = ibooker.book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
     tkmes.TrackP->setAxisTitle("Track |p| (GeV/c)", 1);
     tkmes.TrackP->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPt_" + histTag;
-    tkmes.TrackPt = dqmStore_->book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
     tkmes.TrackPt->setAxisTitle("Track p_{T} (GeV/c)", 1);
     tkmes.TrackPt->setAxisTitle("Number of Tracks",2);
 
     if (doTrackPxPyPlots_) {
       histname = "TrackPx_" + histTag;
-      tkmes.TrackPx = dqmStore_->book1D(histname, histname, TrackPxBin, TrackPxMin, TrackPxMax);
+      tkmes.TrackPx = ibooker.book1D(histname, histname, TrackPxBin, TrackPxMin, TrackPxMax);
       tkmes.TrackPx->setAxisTitle("Track p_{x} (GeV/c)", 1);
       tkmes.TrackPx->setAxisTitle("Number of Tracks",2);
 
       histname = "TrackPy_" + histTag;
-      tkmes.TrackPy = dqmStore_->book1D(histname, histname, TrackPyBin, TrackPyMin, TrackPyMax);
+      tkmes.TrackPy = ibooker.book1D(histname, histname, TrackPyBin, TrackPyMin, TrackPyMax);
       tkmes.TrackPy->setAxisTitle("Track p_{y} (GeV/c)", 1);
       tkmes.TrackPy->setAxisTitle("Number of Tracks",2);
     }
     histname = "TrackPz_" + histTag;
-    tkmes.TrackPz = dqmStore_->book1D(histname, histname, TrackPzBin, TrackPzMin, TrackPzMax);
+    tkmes.TrackPz = ibooker.book1D(histname, histname, TrackPzBin, TrackPzMin, TrackPzMax);
     tkmes.TrackPz->setAxisTitle("Track p_{z} (GeV/c)", 1);
     tkmes.TrackPz->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPhi_" + histTag;
-    tkmes.TrackPhi = dqmStore_->book1D(histname, histname, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackPhi = ibooker.book1D(histname, histname, PhiBin, PhiMin, PhiMax);
     tkmes.TrackPhi->setAxisTitle("Track #phi", 1);
     tkmes.TrackPhi->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackEta_" + histTag;
-    tkmes.TrackEta = dqmStore_->book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEta = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
     tkmes.TrackEta->setAxisTitle("Track #eta", 1);
     tkmes.TrackEta->setAxisTitle("Number of Tracks",2);
 
     if (doThetaPlots_) {  
       histname = "TrackTheta_" + histTag;
-      tkmes.TrackTheta = dqmStore_->book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
+      tkmes.TrackTheta = ibooker.book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
       tkmes.TrackTheta->setAxisTitle("Track #theta", 1);
       tkmes.TrackTheta->setAxisTitle("Number of Tracks",2);
     }
     histname = "TrackQ_" + histTag;
-    tkmes.TrackQ = dqmStore_->book1D(histname, histname, TrackQBin, TrackQMin, TrackQMax);
+    tkmes.TrackQ = ibooker.book1D(histname, histname, TrackQBin, TrackQMin, TrackQMax);
     tkmes.TrackQ->setAxisTitle("Track Charge", 1);
     tkmes.TrackQ->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPErrOverP_" + histTag;
-    tkmes.TrackPErr = dqmStore_->book1D(histname, histname, pErrBin, pErrMin, pErrMax);
+    tkmes.TrackPErr = ibooker.book1D(histname, histname, pErrBin, pErrMin, pErrMax);
     tkmes.TrackPErr->setAxisTitle("track error(p)/p", 1);
     tkmes.TrackPErr->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPtErrOverPt_" + histTag;
-    tkmes.TrackPtErr = dqmStore_->book1D(histname, histname, ptErrBin, ptErrMin, ptErrMax);
+    tkmes.TrackPtErr = ibooker.book1D(histname, histname, ptErrBin, ptErrMin, ptErrMax);
     tkmes.TrackPtErr->setAxisTitle("track error(p_{T})/p_{T}", 1);
     tkmes.TrackPtErr->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPtErrOverPtVsEta_" + histTag;
-    tkmes.TrackPtErrVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, ptErrMin, ptErrMax);
+    tkmes.TrackPtErrVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, ptErrMin, ptErrMax);
     tkmes.TrackPtErrVsEta->setAxisTitle("Track #eta",1);
     tkmes.TrackPtErrVsEta->setAxisTitle("track error(p_{T})/p_{T}", 2);
 
     if (doTrackPxPyPlots_) {
       histname = "TrackPxErrOverPx_" + histTag;
-      tkmes.TrackPxErr = dqmStore_->book1D(histname, histname, pxErrBin, pxErrMin, pxErrMax);
+      tkmes.TrackPxErr = ibooker.book1D(histname, histname, pxErrBin, pxErrMin, pxErrMax);
       tkmes.TrackPxErr->setAxisTitle("track error(p_{x})/p_{x}", 1);
       tkmes.TrackPxErr->setAxisTitle("Number of Tracks",2);
       
       histname = "TrackPyErrOverPy_" + histTag;
-      tkmes.TrackPyErr = dqmStore_->book1D(histname, histname, pyErrBin, pyErrMin, pyErrMax);
+      tkmes.TrackPyErr = ibooker.book1D(histname, histname, pyErrBin, pyErrMin, pyErrMax);
       tkmes.TrackPyErr->setAxisTitle("track error(p_{y})/p_{y}", 1);
       tkmes.TrackPyErr->setAxisTitle("Number of Tracks",2);
     }
     histname = "TrackPzErrOverPz_" + histTag;
-    tkmes.TrackPzErr = dqmStore_->book1D(histname, histname, pzErrBin, pzErrMin, pzErrMax);
+    tkmes.TrackPzErr = ibooker.book1D(histname, histname, pzErrBin, pzErrMin, pzErrMax);
     tkmes.TrackPzErr->setAxisTitle("track error(p_{z})/p_{z}", 1);
     tkmes.TrackPzErr->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPhiErr_" + histTag;
-    tkmes.TrackPhiErr = dqmStore_->book1D(histname, histname, phiErrBin, phiErrMin, phiErrMax);
+    tkmes.TrackPhiErr = ibooker.book1D(histname, histname, phiErrBin, phiErrMin, phiErrMax);
     tkmes.TrackPhiErr->setAxisTitle("track error(#phi)");
     tkmes.TrackPhiErr->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackEtaErr_" + histTag;
-    tkmes.TrackEtaErr = dqmStore_->book1D(histname, histname, etaErrBin, etaErrMin, etaErrMax);
+    tkmes.TrackEtaErr = ibooker.book1D(histname, histname, etaErrBin, etaErrMin, etaErrMax);
     tkmes.TrackEtaErr->setAxisTitle("track error(#eta)");
     tkmes.TrackEtaErr->setAxisTitle("Number of Tracks",2);
 
     // rec hit profiles
-    dqmStore_->setCurrentFolder(TopFolder_+"/GeneralProperties");
+    ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
     histname = "NumberOfRecHitsPerTrackVsPhi_" + histTag;
-    tkmes.NumberOfRecHitsPerTrackVsPhi = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecHitBin, RecHitMin, RecHitMax,"");
+    tkmes.NumberOfRecHitsPerTrackVsPhi = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecHitBin, RecHitMin, RecHitMax,"");
     tkmes.NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Track #phi",1);
     tkmes.NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Number of RecHits in each Track",2);
 
     if (doThetaPlots_) {
       histname = "NumberOfRecHitsPerTrackVsTheta_" + histTag;
-      tkmes.NumberOfRecHitsPerTrackVsTheta = dqmStore_->bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, RecHitBin, RecHitMin, RecHitMax,"");
+      tkmes.NumberOfRecHitsPerTrackVsTheta = ibooker.bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, RecHitBin, RecHitMin, RecHitMax,"");
       tkmes.NumberOfRecHitsPerTrackVsTheta->setAxisTitle("Track #phi",1);
       tkmes.NumberOfRecHitsPerTrackVsTheta->setAxisTitle("Number of RecHits in each Track",2);
     }
     histname = "NumberOfRecHitsPerTrackVsEta_" + histTag;
-    tkmes.NumberOfRecHitsPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecHitBin, RecHitMin, RecHitMax,"");
+    tkmes.NumberOfRecHitsPerTrackVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecHitBin, RecHitMin, RecHitMax,"");
     tkmes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Track #eta",1);
     tkmes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Number of RecHits in each Track",2);
 
     histname = "NumberOfValidRecHitsPerTrackVsPhi_" + histTag;
-    tkmes.NumberOfValidRecHitsPerTrackVsPhi = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecHitMin, RecHitMax,"");
+    tkmes.NumberOfValidRecHitsPerTrackVsPhi = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecHitMin, RecHitMax,"");
     tkmes.NumberOfValidRecHitsPerTrackVsPhi->setAxisTitle("Track #phi",1);
     tkmes.NumberOfValidRecHitsPerTrackVsPhi->setAxisTitle("Number of valid RecHits in each Track",2);
     
     //    std::cout << "[TrackAnalyzer::bookHistosForState] histTag: " << histTag << std::endl;
     histname = "NumberOfValidRecHitsPerTrackVsEta_" + histTag;
-    tkmes.NumberOfValidRecHitsPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecHitMin, RecHitMax,"");
+    tkmes.NumberOfValidRecHitsPerTrackVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecHitMin, RecHitMax,"");
     tkmes.NumberOfValidRecHitsPerTrackVsEta->setAxisTitle("Track #eta",1);
     tkmes.NumberOfValidRecHitsPerTrackVsEta->setAxisTitle("Number of valid RecHits in each Track",2);
     
     //////////////////////////////////////////
     histname = "NumberOfLayersPerTrackVsPhi_" + histTag;
-    tkmes.NumberOfLayersPerTrackVsPhi = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecLayBin, RecLayMin, RecLayMax,"");
+    tkmes.NumberOfLayersPerTrackVsPhi = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecLayBin, RecLayMin, RecLayMax,"");
     tkmes.NumberOfLayersPerTrackVsPhi->setAxisTitle("Track #phi",1);
     tkmes.NumberOfLayersPerTrackVsPhi->setAxisTitle("Number of Layers in each Track",2);
 
     if (doThetaPlots_) {
       histname = "NumberOfLayersPerTrackVsTheta_" + histTag;
-      tkmes.NumberOfLayersPerTrackVsTheta = dqmStore_->bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, RecLayBin, RecLayMin, RecLayMax,"");
+      tkmes.NumberOfLayersPerTrackVsTheta = ibooker.bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, RecLayBin, RecLayMin, RecLayMax,"");
       tkmes.NumberOfLayersPerTrackVsTheta->setAxisTitle("Track #phi",1);
       tkmes.NumberOfLayersPerTrackVsTheta->setAxisTitle("Number of Layers in each Track",2);
     }
     histname = "NumberOfLayersPerTrackVsEta_" + histTag;
-    tkmes.NumberOfLayersPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecLayBin, RecLayMin, RecLayMax,"");
+    tkmes.NumberOfLayersPerTrackVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecLayBin, RecLayMin, RecLayMax,"");
     tkmes.NumberOfLayersPerTrackVsEta->setAxisTitle("Track #eta",1);
     tkmes.NumberOfLayersPerTrackVsEta->setAxisTitle("Number of Layers in each Track",2);
 
     if (doThetaPlots_) {
       histname = "Chi2oNDFVsTheta_" + histTag;
-      tkmes.Chi2oNDFVsTheta = dqmStore_->bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, Chi2NDFMin, Chi2NDFMax,"");
+      tkmes.Chi2oNDFVsTheta = ibooker.bookProfile(histname, histname, ThetaBin, ThetaMin, ThetaMax, Chi2NDFMin, Chi2NDFMax,"");
       tkmes.Chi2oNDFVsTheta->setAxisTitle("Track #theta",1);
       tkmes.Chi2oNDFVsTheta->setAxisTitle("Track #chi^{2}/ndf",2);
     }
     if (doAllPlots_) {
       histname = "Chi2oNDFVsPhi_" + histTag;
-      tkmes.Chi2oNDFVsPhi   = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, Chi2NDFMin, Chi2NDFMax,"");
+      tkmes.Chi2oNDFVsPhi   = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, Chi2NDFMin, Chi2NDFMax,"");
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #phi",1);
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #chi^{2}/ndf",2);
       
       histname = "Chi2oNDFVsEta_" + histTag;
-      tkmes.Chi2oNDFVsEta   = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
+      tkmes.Chi2oNDFVsEta   = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
       tkmes.Chi2oNDFVsEta->setAxisTitle("Track #eta",1);
       tkmes.Chi2oNDFVsEta->setAxisTitle("Track #chi^{2}/ndf",2);
       
       histname = "Chi2ProbVsPhi_" + histTag;
-      tkmes.Chi2ProbVsPhi = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, Chi2ProbMin, Chi2ProbMax);
+      tkmes.Chi2ProbVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, Chi2ProbMin, Chi2ProbMax);
       tkmes.Chi2ProbVsPhi->setAxisTitle("Tracks #phi"  ,1);
       tkmes.Chi2ProbVsPhi->setAxisTitle("Track #chi^{2} probability",2);
       
       histname = "Chi2ProbVsEta_" + histTag;
-      tkmes.Chi2ProbVsEta = dqmStore_->bookProfile(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, Chi2ProbMin, Chi2ProbMax);
+      tkmes.Chi2ProbVsEta = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, Chi2ProbMin, Chi2ProbMax);
       tkmes.Chi2ProbVsEta->setAxisTitle("Tracks #eta"  ,1);
       tkmes.Chi2ProbVsEta->setAxisTitle("Track #chi^{2} probability",2);
     }
@@ -1138,7 +1133,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 }
 
 
-void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore * dqmStore_) 
+void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker) 
 {
 
     // parameters from the configuration
@@ -1158,7 +1153,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore * dqmStore_)
 
     // book hit property histograms
     // ---------------------------------------------------------------------------------//
-    dqmStore_->setCurrentFolder(TopFolder_+"/HitProperties");
+    ibooker.setCurrentFolder(TopFolder_+"/HitProperties");
 
 
 
@@ -1168,7 +1163,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore * dqmStore_)
     for ( auto det : subdetectors ) {
       
       // hits properties
-      dqmStore_->setCurrentFolder(TopFolder_+"/HitProperties/"+det);
+      ibooker.setCurrentFolder(TopFolder_+"/HitProperties/"+det);
       
       TkRecHitsPerSubDetMEs recHitsPerSubDet_mes;
 
@@ -1183,32 +1178,32 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore * dqmStore_)
       recHitsPerSubDet_mes.detectorId  = detID;
 
       histname = "NumberOfRecHitsPerTrack_" + det + "_" + CategoryName;
-      recHitsPerSubDet_mes.NumberOfRecHitsPerTrack = dqmStore_->book1D(histname, histname, detBin, -0.5, double(detBin)-0.5);
+      recHitsPerSubDet_mes.NumberOfRecHitsPerTrack = ibooker.book1D(histname, histname, detBin, -0.5, double(detBin)-0.5);
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrack->setAxisTitle("Number of " + det + " valid RecHits in each Track",1);
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfRecHitsPerTrackVsPhi_" + det + "_" + CategoryName;
-      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPhi = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, detBin, -0.5, double(detBin)-0.5,"");
+      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPhi = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, detBin, -0.5, double(detBin)-0.5,"");
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Track #phi",1);
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Number of " + det + " valid RecHits in each Track",2);
 
       histname = "NumberOfRecHitsPerTrackVsEta_" + det + "_" + CategoryName;
-      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, detBin, -0.5, double(detBin)-0.5,"");
+      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, detBin, -0.5, double(detBin)-0.5,"");
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Track #eta",1);
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Number of " + det + " valid RecHits in each Track",2);
 
       histname = "NumberOfLayersPerTrack_" + det + "_" + CategoryName;
-      recHitsPerSubDet_mes.NumberOfLayersPerTrack = dqmStore_->book1D(histname, histname, detBin, -0.5, double(detBin)-0.5);
+      recHitsPerSubDet_mes.NumberOfLayersPerTrack = ibooker.book1D(histname, histname, detBin, -0.5, double(detBin)-0.5);
       recHitsPerSubDet_mes.NumberOfLayersPerTrack->setAxisTitle("Number of " + det + " valid Layers in each Track",1);
       recHitsPerSubDet_mes.NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
 
       histname = "NumberOfLayersPerTrackVsPhi_" + det + "_" + CategoryName;
-      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPhi = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, detBin, -0.5, double(detBin)-0.5,"");
+      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPhi = ibooker.bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, detBin, -0.5, double(detBin)-0.5,"");
       recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPhi->setAxisTitle("Track #phi",1);
       recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPhi->setAxisTitle("Number of " + det + " valid Layers in each Track",2);
 
       histname = "NumberOfLayersPerTrackVsEta_" + det + "_" + CategoryName;
-      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, detBin, -0.5, double(detBin)-0.5,"");
+      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, detBin, -0.5, double(detBin)-0.5,"");
       recHitsPerSubDet_mes.NumberOfLayersPerTrackVsEta->setAxisTitle("Track #eta",1);
       recHitsPerSubDet_mes.NumberOfLayersPerTrackVsEta->setAxisTitle("Number of " + det + " valid Layers in each Track",2);
 
@@ -1293,7 +1288,7 @@ void TrackAnalyzer::doSoftReset(DQMStore * dqmStore_) {
 //
 // -- Apply Reset 
 //
-void TrackAnalyzer::doReset(DQMStore * dqmStore_) {
+void TrackAnalyzer::doReset() {
   TkParameterMEs tkmes;
   if ( Chi2oNDF_lumiFlag                ) Chi2oNDF_lumiFlag                -> Reset();
   if ( NumberOfRecHitsPerTrack_lumiFlag ) NumberOfRecHitsPerTrack_lumiFlag -> Reset();

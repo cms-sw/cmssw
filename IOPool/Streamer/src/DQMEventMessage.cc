@@ -69,7 +69,10 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
       meCountList_.push_back(meCount);
 
       // subfolder name
-      std::string subFolderName = "Subfolder " + idx;
+      std::stringstream s;
+      s.str("Subfolder ");
+      s<<idx;
+      std::string subFolderName = s.str();
       uint32 nameLen = convert32(bufPtr);
       bufPtr += sizeof(uint32);
       if (nameLen <= MAX_STRING_SIZE) // prevent something totally crazy // nameLen >= 0, since nameLen is unsigned.
@@ -108,7 +111,7 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
 /**
  * Returns a shared pointer to the list of subfolder names.
  */
-boost::shared_ptr< std::vector<std::string> >
+std::shared_ptr< std::vector<std::string> >
     DQMEventMsgView::subFolderNames() const
 {
   return nameListPtr_;

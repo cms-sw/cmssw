@@ -8,6 +8,10 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include <vector>
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 /** class L2TauPixelTrackMatch
  * this producer creates a new L2 tau jet collection with jets' vertices redefined 
@@ -30,13 +34,13 @@ private:
     math::XYZPoint vtx;
   };
 
-  edm::InputTag m_jetSrc;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_jetSrc;
   float m_jetMinPt;
   float m_jetMaxEta;
-  edm::InputTag m_trackSrc;
+  edm::EDGetTokenT<reco::TrackCollection> m_trackSrc;
   float m_trackMinPt;
   float m_deltaR;
-  edm::InputTag m_beamSpotTag;
+  edm::EDGetTokenT<reco::BeamSpot> m_beamSpotTag;
 };
 
 #endif 

@@ -13,7 +13,6 @@ int main()
   // let the code assume a muon
   collisions.setParticleDataTable(&dummyTable);
   CLHEP::HepJamesRandom engine;
-  collisions.setRandomEngine(engine);
 
   PSimHit simHit(LocalPoint(0.,0.,-0.5), LocalPoint(0.,0.,0.5),
                  4., 0., 0.000005, 13,
@@ -32,7 +31,7 @@ int main()
   for(int i = 0; i < n; ++i) {
     std::vector<LocalPoint> clusters;
     std::vector<int> electrons;
-    collisions.simulate(simHit, clusters, electrons);
+    collisions.simulate(simHit, clusters, electrons, &engine);
 
     sumElectrons += std::accumulate(electrons.begin(), electrons.end(), 0);
     sumClusters += clusters.size();

@@ -10,7 +10,7 @@ RootOutputTree.h // used by ROOT output modules
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -24,7 +24,7 @@ namespace edm {
   class WrapperInterfaceBase;
   class RootOutputTree {
   public:
-    RootOutputTree(boost::shared_ptr<TFile> filePtr,
+    RootOutputTree(std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    int splitLevel,
                    int treeMaxVirtualSize);
@@ -111,7 +111,7 @@ namespace edm {
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore, using smart pointers here will do no good.
-    boost::shared_ptr<TFile> filePtr_;
+    std::shared_ptr<TFile> filePtr_;
     TTree* tree_;
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> readBranches_;

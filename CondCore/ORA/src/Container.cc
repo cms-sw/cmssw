@@ -76,6 +76,13 @@ const std::string& ora::Container::className(){
   return m_dbContainer->className();
 }
 
+std::string ora::Container::realClassName(){
+  Reflex::Type type = ClassUtils::lookupDictionary( className() );
+  std::string ret = ClassUtils::demangledName( type.TypeInfo() ); 
+  ret.erase( std::remove( ret.begin(), ret.end(), ' ' ), ret.end() ); 
+  return ret;
+}
+
 const std::string& ora::Container::mappingVersion(){
   return m_dbContainer->mappingVersion();
 }

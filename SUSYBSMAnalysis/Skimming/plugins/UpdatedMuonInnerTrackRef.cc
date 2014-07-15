@@ -28,9 +28,9 @@ class UpdatedMuonInnerTrackRef : public edm::EDProducer {
 
       reco::TrackRef findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);
 
-      edm::InputTag muonTag_;
-      edm::InputTag oldTrackTag_;
-      edm::InputTag newTrackTag_;
+      edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+      edm::EDGetTokenT<reco::TrackCollection> oldTrackToken_;
+      edm::EDGetTokenT<reco::TrackCollection> newTrackToken_;
 
       double maxInvPtDiff;
       double minDR;
@@ -44,14 +44,14 @@ UpdatedMuonInnerTrackRef::UpdatedMuonInnerTrackRef(const edm::ParameterSet& pset
    produces<std::vector<reco::Muon> >();
 
     // Input products
-   muonTag_     = pset.getUntrackedParameter<edm::InputTag> ("MuonTag"    , edm::InputTag("muons"));
-   oldTrackTag_ = pset.getUntrackedParameter<edm::InputTag> ("OldTrackTag", edm::InputTag("generalTracks"));
-   newTrackTag_ = pset.getUntrackedParameter<edm::InputTag> ("NewTrackTag", edm::InputTag("generalTracksSkim"));
+   muonToken_     = consumes<edm::View<reco::Muon> >(pset.getUntrackedParameter<edm::InputTag> ("MuonTag"    , edm::InputTag("muons")));
+   oldTrackToken_ = consumes<reco::TrackCollection>(pset.getUntrackedParameter<edm::InputTag> ("OldTrackTag", edm::InputTag("generalTracks")));
+   newTrackToken_ = consumes<reco::TrackCollection>(pset.getUntrackedParameter<edm::InputTag> ("NewTrackTag", edm::InputTag("generalTracksSkim")));
 
     // matching criteria products
    maxInvPtDiff=pset.getUntrackedParameter<double>("maxInvPtDiff", 0.005);
    minDR=pset.getUntrackedParameter<double>("minDR", 0.1);
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 UpdatedMuonInnerTrackRef::~UpdatedMuonInnerTrackRef(){
@@ -70,20 +70,20 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
 {
       // Muon collection
       edm::Handle<edm::View<reco::Muon> > muonCollectionHandle;
-      if (!ev.getByLabel(muonTag_, muonCollectionHandle)) {
+      if (!ev.getByToken(muonToken_, muonCollectionHandle)) {
             edm::LogError("") << ">>> Muon collection does not exist !!!";
             return;
       }
 
 
       edm::Handle<reco::TrackCollection> oldTrackCollection;
-      if (!ev.getByLabel(oldTrackTag_, oldTrackCollection)) {
+      if (!ev.getByToken(oldTrackToken_, oldTrackCollection)) {
             edm::LogError("") << ">>> Old Track collection does not exist !!!";
             return;
       }
 
       edm::Handle<reco::TrackCollection> newTrackCollection;
-      if (!ev.getByLabel(newTrackTag_, newTrackCollection)) {
+      if (!ev.getByToken(newTrackToken_, newTrackCollection)) {
             edm::LogError("") << ">>> New Track collection does not exist !!!";
             return;
       }
@@ -96,7 +96,7 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
             edm::RefToBase<reco::Muon> mu = muonCollectionHandle->refAt(i);
             reco::Muon* newmu = mu->clone();
 
-            if(mu->innerTrack().isNonnull()){ 
+            if(mu->innerTrack().isNonnull()){
                reco::TrackRef newTrackRef = findNewRef(mu->innerTrack(), newTrackCollection);
 /*               printf(" %6.2f %+6.2f %+6.2f --> ",mu->innerTrack()->pt (), mu->innerTrack()->eta(), mu->innerTrack()->phi());
                if(newTrackRef.isNonnull()){
@@ -115,7 +115,7 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
 }
 
 reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection){
-   float dRMin=1000; int found = -1;   
+   float dRMin=1000; int found = -1;
    for(unsigned int i=0;i<newTrackCollection->size();i++){
       reco::TrackRef newTrackRef  = reco::TrackRef( newTrackCollection, i );
       if(newTrackRef.isNull())continue;
@@ -125,7 +125,7 @@ reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(reco::TrackRef oldTrackRef, 
       if(dR <= minDR && dR < dRMin){ dRMin=dR; found = i;}
    }
 
-   if(found>=0){     
+   if(found>=0){
       return reco::TrackRef( newTrackCollection, found );
    }else{
       return reco::TrackRef();

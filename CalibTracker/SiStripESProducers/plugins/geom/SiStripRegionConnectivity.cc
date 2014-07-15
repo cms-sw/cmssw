@@ -64,10 +64,12 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     std::vector<const FedChannelConnection *>::iterator jconn = conns.end();
 
     //Update region cabling map
-    regioncabling[reg][subdet][layer][idet->first].resize(conns.size());
+    regioncabling[reg][subdet][layer].push_back(SiStripRegionCabling::Element());
+    auto &  elem = regioncabling[reg][subdet][layer].back();
+    elem.first=idet->first; elem.second.resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {
       if ( ((*iconn) != 0) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
-	regioncabling[reg][subdet][layer][idet->first][(*iconn)->apvPairNumber()] = **iconn;
+	elem.second[(*iconn)->apvPairNumber()] = **iconn;
       }
     }
   }

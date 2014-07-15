@@ -28,6 +28,8 @@ public:
   virtual float thickness() const { return 0;}
 
 
+  using Bounds::inside;
+
   virtual bool inside( const Local3DPoint& lp) const {
     return myInside(lp,0);
   }

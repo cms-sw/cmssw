@@ -51,7 +51,7 @@ namespace edm {
     
     DetSet<T> & operator=(DetSet<T> && rh)  noexcept {
       id = rh.id;
-      data.swap(rh.data);
+      data = std::move(rh.data);
       return * this;
     }
 #endif

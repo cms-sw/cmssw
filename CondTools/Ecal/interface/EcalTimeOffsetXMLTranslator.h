@@ -16,10 +16,6 @@
 #include <string>
 
 
-static const char CVSId__EcalTimeOffsetXMLTranslator[] = 
-"$Id: $";
-
-
 class EcalTimeOffsetConstant;
 
 class EcalTimeOffsetXMLTranslator {

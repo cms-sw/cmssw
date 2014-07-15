@@ -37,7 +37,7 @@ namespace fwlite {
     //
     // static data member definitions
     //
-    typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > DataMap;
+    typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > DataMap;
     // empty object used to signal that the branch requested was not found
     static internal::Data branchNotFound;
 
@@ -45,9 +45,9 @@ namespace fwlite {
     // constructors and destructor
     //
     DataGetterHelper::DataGetterHelper(TTree* tree,
-                                       boost::shared_ptr<HistoryGetterBase> historyGetter,
-                                       boost::shared_ptr<BranchMapReader> branchMap,
-                                       boost::shared_ptr<edm::EDProductGetter> getter,
+                                       std::shared_ptr<HistoryGetterBase> historyGetter,
+                                       std::shared_ptr<BranchMapReader> branchMap,
+                                       std::shared_ptr<edm::EDProductGetter> getter,
                                        bool useCache):
         branchMap_(branchMap),
         historyGetter_(historyGetter),
@@ -154,7 +154,7 @@ namespace fwlite {
         edm::TypeID type(iInfo);
         internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
-        boost::shared_ptr<internal::Data> theData;
+        std::shared_ptr<internal::Data> theData;
         DataMap::iterator itFind = data_.find(key);
         if(itFind == data_.end()) {
             //see if such a branch actually exists
@@ -242,7 +242,7 @@ namespace fwlite {
                 if(obj.address() == 0) {
                     throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type.name();
                 }
-                boost::shared_ptr<internal::Data> newData(new internal::Data());
+                std::shared_ptr<internal::Data> newData(new internal::Data());
                 newData->branch_ = branch;
                 newData->obj_ = obj;
                 newData->lastProduct_=-1;
@@ -337,7 +337,7 @@ namespace fwlite {
     {
         typedef std::pair<edm::ProductID,edm::BranchListIndex> IDPair;
         IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes()[iID.processIndex()-1]);
-        std::map<IDPair,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
+        std::map<IDPair,std::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
 
         if(itFound == idToData_.end()) {
             edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);

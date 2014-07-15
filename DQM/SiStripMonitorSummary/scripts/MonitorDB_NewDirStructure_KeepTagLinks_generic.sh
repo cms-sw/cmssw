@@ -74,13 +74,9 @@ if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR" ]; then
 fi
 
 # Creation of Global Tag directory from scratch to have always up-to-date information (and no old links that are obsolete)
-#if [ -d "$STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR" ]; then 
-#    rm -rf $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR; 
-#fi
-
-if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR" ]; then 
-    afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR"
-    mkdir $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR; 
+if [ ! -d "$STORAGEPATH/$DB/$GLOBALTAGDIR" ]; then 
+    afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$GLOBALTAGDIR"
+    mkdir $STORAGEPATH/$DB/$GLOBALTAGDIR; 
 fi
 
 # Access of all SiStrip Tags uploaded to the given DB account
@@ -103,9 +99,11 @@ for tag in `cat $DBTAGCOLLECTION`; do
     MONITOR_QUALITY=False
     MONITOR_CABLING=False
     MONITOR_LA=False
+    MONITOR_BP=False
     MONITOR_THRESHOLD=False
     MONITOR_LATENCY=False
     MONITOR_SHIFTANDCROSSTALK=False
+    MONITOR_APVPHASEOFFSETS=False
     MONITOR_ALCARECOTRIGGERBITS=False
 
     LOGDESTINATION=cout
@@ -158,6 +156,11 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	USEACTIVEDETID=False
 	RECORD=SiStripLorentzAngleRcd
 	TAGSUBDIR=SiStripLorentzAngle
+    else if [ `echo $tag | grep "BackPlane" | wc -w` -gt 0 ]; then
+	MONITOR_BP=True
+	USEACTIVEDETID=False
+	RECORD=SiStripBackPlaneCorrectionRcd
+	TAGSUBDIR=SiStripBackPlaneCorrection
     else if [ `echo $tag | grep "Threshold" | wc -w` -gt 0 ]; then
 	MONITOR_THRESHOLD=True
 	USEACTIVEDETID=True
@@ -182,6 +185,12 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	TAGSUBDIR=SiStripShiftAndCrosstalk
 	LOGDESTINATION=Reader
 	CONDLOGDEST=ShiftAndCrosstalkInfo
+    else if [ `echo $tag | grep "APVPhaseOffsets" | wc -w` -gt 0 ]; then
+	MONITOR_APVPHASEOFFSETS=True
+	RECORD=SiStripConfObjectRcd
+	TAGSUBDIR=SiStripAPVPhaseOffsets
+	LOGDESTINATION=Reader
+	CONDLOGDEST=APVPhaseOffsetsInfo
     else if [ `echo $tag | grep "AlCaRecoTriggerBits" | wc -w` -gt 0 ]; then
 	MONITOR_ALCARECOTRIGGERBITS=True
 	RECORD=AlCaRecoTriggerBitsRcd
@@ -191,6 +200,8 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	RECORD=Unknown
 	TAGSUBDIR=Unknown
 
+    fi
+    fi
     fi
     fi
     fi
@@ -214,83 +225,6 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag;
 
 	NEWTAG=True
-    fi
-
-#    if [ -d "$STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags" ]; then
-#	rm -rf $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags; # remove former links to be safe if something has changed there
-#    fi
-
-    if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags" ]; then
-	mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags;
-    fi
-
-    # Access of all Global Tags for the given DB Tag
-    if [ -f globaltag_tmp.txt ]; then
-	rm globaltag_tmp.txt;
-    fi
-
-    if [ -f $GLOBALTAGCOLLECTION ]; then
-	rm $GLOBALTAGCOLLECTION;
-    fi
-
-    for globaltag in `cmscond_tagintrees -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$GTACCOUNT -P /afs/cern.ch/cms/DB/conddb -t $tag | grep Trees`; do # Access via Frontier
-
-	if [ "$globaltag" != "#" ] && [ "$globaltag" != "Trees" ]; then
-	    echo $globaltag >> globaltag_tmp.txt;
-	    cat globaltag_tmp.txt | sed -e "s@\[@@g" -e "s@\]@@g" -e "s@'@@g" -e "s@,@@g" > $GLOBALTAGCOLLECTION
-	fi
-	
-    done;
-    
-    # Loop on all Global Tags
-    if [ -f $GLOBALTAGCOLLECTION ]; then
-	for globaltag in `cat $GLOBALTAGCOLLECTION`; do
-
-	    afstokenchecker.sh "Processing Global Tag $globaltag"
-
-	# Creation of Global Tag directory if not existing yet
-	    if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag" ]; then 
-		afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag"
-		mkdir $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag;
-	    fi
-
-	# Creation of links between the DB-Tag and the respective Global Tags
-	    cd $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag;
-	    if [ ! -f $tag ]; then
-
-		echo Getting record and object names...
-		RECORDANDOBJECTNAME=`cmscond_tagtree_list -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$GTACCOUNT -P /afs/cern.ch/cms/DB/conddb -T $globaltag | grep $tag | awk '{printf "%s, %s",$4,$5}' | sed -e "s@record:@Record Name: @g" -e "s@object:@Object Name: @g"`
-		echo $RECORDANDOBJECTNAME 
-
-		cat >> $tag << EOF
-<html>
-<body>
-<a href="https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag">https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag</a>
-<br />
-$RECORDANDOBJECTNAME
-</body>
-</html>
-EOF
-	    fi
-
-	    #ln -s $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag $tag;
-	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/RelatedGlobalTags;
-	    if [ ! -f $globaltag ]; then
-
-		cat >> $globaltag << EOF
-<html>
-<body>
-<a href="https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag">https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag</a>
-</body>
-</html>
-EOF
-	    fi
-
-	    #ln -s $STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR/$globaltag $globaltag;
-	    cd $WORKDIR;
-
-	done;
-
     fi
 
     if [ "$RECORD" = "Unknown" ]; then
@@ -411,6 +345,10 @@ EOF
 	    mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/ShiftAndCrosstalkLog
 	fi
 
+	if [ "$MONITOR_APVPHASEOFFSETS" = "True" ]; then
+	    mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/APVPhaseOffsetsLog
+	fi
+
 	if [ "$MONITOR_ALCARECOTRIGGERBITS" = "True" ]; then
 	    mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/AlCaRecoTriggerBitsLog
 	fi
@@ -482,6 +420,10 @@ EOF
 	    continue
 	fi
 
+	if [ "$MONITOR_APVPHASEOFFSETS" = "True" ] && [ -f $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/APVPhaseOffsetsLog/APVPhaseOffsetsInfo_Run${IOV_number}.txt ]; then # Skip IOVs already processed. Take only new ones.
+	    continue
+	fi
+
 	if [ "$MONITOR_ALCARECOTRIGGERBITS" = "True" ] && [ -f $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/AlCaRecoTriggerBitsLog/AlCaRecoTriggerBitsInfo_Run${IOV_number}.txt ]; then # Skip IOVs already processed. Take only new ones.
 	    continue
 	fi
@@ -491,7 +433,7 @@ EOF
 	NEWIOV=True
 
 	afstokenchecker.sh "Executing cmsRun. Stay tuned ..."
-	CMSRUNCOMMAND="cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/test/DBReader_conddbmonitoring_generic_cfg.py print logDestination=$LOGDESTINATION qualityLogDestination=$QUALITYLOGDEST cablingLogDestination=$CABLINGLOGDEST condLogDestination=$CONDLOGDEST outputRootFile=$ROOTFILE connectionString=frontier://$FRONTIER/$ACCOUNT recordName=$RECORD recordForQualityName=$RECORDFORQUALITY tagName=$tag runNumber=$IOV_number LatencyMon=$MONITOR_LATENCY ALCARecoTriggerBitsMon=$MONITOR_ALCARECOTRIGGERBITS ShiftAndCrosstalkMon=$MONITOR_SHIFTANDCROSSTALK PedestalMon=$MONITOR_PEDESTAL NoiseMon=$MONITOR_NOISE QualityMon=$MONITOR_QUALITY CablingMon=$MONITOR_CABLING GainMon=$MONITOR_GAIN LorentzAngleMon=$MONITOR_LA ThresholdMon=$MONITOR_THRESHOLD MonitorCumulative=$MONITORCUMULATIVE ActiveDetId=$USEACTIVEDETID"
+	CMSRUNCOMMAND="cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/test/DBReader_conddbmonitoring_generic_cfg.py print logDestination=$LOGDESTINATION qualityLogDestination=$QUALITYLOGDEST cablingLogDestination=$CABLINGLOGDEST condLogDestination=$CONDLOGDEST outputRootFile=$ROOTFILE connectionString=frontier://$FRONTIER/$ACCOUNT recordName=$RECORD recordForQualityName=$RECORDFORQUALITY tagName=$tag runNumber=$IOV_number LatencyMon=$MONITOR_LATENCY ALCARecoTriggerBitsMon=$MONITOR_ALCARECOTRIGGERBITS ShiftAndCrosstalkMon=$MONITOR_SHIFTANDCROSSTALK APVPhaseOffsetsMon=$MONITOR_APVPHASEOFFSETS PedestalMon=$MONITOR_PEDESTAL NoiseMon=$MONITOR_NOISE QualityMon=$MONITOR_QUALITY CablingMon=$MONITOR_CABLING GainMon=$MONITOR_GAIN LorentzAngleMon=$MONITOR_LA BackPlaneCorrectionMon=$MONITOR_BP ThresholdMon=$MONITOR_THRESHOLD MonitorCumulative=$MONITORCUMULATIVE ActiveDetId=$USEACTIVEDETID"
 	$CMSRUNCOMMAND
 
 	afstokenchecker.sh "cmsRun finished. Now moving the files to the corresponding directories ..."
@@ -551,6 +493,13 @@ EOF
 #	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > ShiftAndCrosstalkInfo_Run${IOV_number}.txt
 	    mv $CONDLOGDEST.log ShiftAndCrosstalkInfo_Run${IOV_number}.txt
 	    mv ShiftAndCrosstalkInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/ShiftAndCrosstalkLog/
+
+	fi
+
+	if [ "$MONITOR_APVPHASEOFFSETS" = "True" ]; then
+#	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > APVPhaseOffsetsInfo_Run${IOV_number}.txt
+	    mv $CONDLOGDEST.log APVPhaseOffsetsInfo_Run${IOV_number}.txt
+	    mv APVPhaseOffsetsInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/APVPhaseOffsetsLog/
 
 	fi
 

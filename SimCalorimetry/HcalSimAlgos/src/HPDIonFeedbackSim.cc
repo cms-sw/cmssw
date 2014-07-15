@@ -15,12 +15,13 @@
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
+#include "CLHEP/Random/RandBinomial.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 
 using namespace edm;
 using namespace std;
@@ -29,34 +30,15 @@ using namespace std;
 double pe2Charge = 0.333333;    // fC/p.e.
 
 HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig, const CaloShapes * shapes)
-: theDbService(0), theShapes(shapes),
- theRandBinomial(0), theRandFlat(0), theRandGauss(0), theRandPoissonQ(0)
+: theDbService(0), theShapes(shapes)
 {
 }
 
 HPDIonFeedbackSim::~HPDIonFeedbackSim() 
 {
-    if(theRandBinomial) delete theRandBinomial;
-    if (theRandFlat) delete theRandFlat;
-    if (theRandGauss) delete theRandGauss;
-    if (theRandPoissonQ) delete theRandPoissonQ;
 }
 
-
-void HPDIonFeedbackSim::setRandomEngine(CLHEP::HepRandomEngine & engine) 
-{
-    if(theRandBinomial) delete theRandBinomial;
-    if (theRandFlat) delete theRandFlat;
-    if (theRandGauss) delete theRandGauss;
-    if (theRandPoissonQ) delete theRandPoissonQ;
-
-    theRandBinomial = new CLHEP::RandBinomial(engine);
-    theRandFlat = new CLHEP::RandFlat(engine);
-    theRandGauss = new CLHEP::RandGaussQ(engine);
-    theRandPoissonQ = new CLHEP::RandPoissonQ(engine);
-}
-
-double HPDIonFeedbackSim::getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV) 
+double HPDIonFeedbackSim::getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV, CLHEP::HepRandomEngine* engine)
 {
     
   //    HcalDetId id = detId; 
@@ -71,17 +53,18 @@ double HPDIonFeedbackSim::getIonFeedback(DetId detId, double signal, double pedW
         int npe = int (charge / pe2Charge);
         if(doThermal) {
           double electronEmission = 0.08;
-          npe += theRandPoissonQ->fire(electronEmission);
+          CLHEP::RandPoissonQ theRandPoissonQ(*engine, electronEmission);
+          npe += theRandPoissonQ.fire();
         }
 
-        noise = correctPE(detId, npe) - npe;
+        noise = correctPE(detId, npe, engine) - npe;
     }
     return (noise * GeVperfC);
 
 }
 
 
-double HPDIonFeedbackSim::correctPE(const DetId & detId, double npe) const
+double HPDIonFeedbackSim::correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine* engine) const
 {
     double rateInTail = 0.000211988;//read this from XML file
     double rateInSecondTail = 4.61579e-06;//read this from XML file
@@ -104,21 +87,21 @@ double HPDIonFeedbackSim::correctPE(const DetId & detId, double npe) const
     double p8 = 1.59696e+01;
 
     double noise = 0.;          // fC
-    int nFirst  = (int)(theRandBinomial->fire(npe, rateInTail));
-    int nSecond = (int)(theRandBinomial->fire(npe, rateInSecondTail));
+    int nFirst  = (int)(CLHEP::RandBinomial::shoot(engine, npe, rateInTail));
+    int nSecond = (int)(CLHEP::RandBinomial::shoot(engine, npe, rateInSecondTail));
 
     for (int j = 0; j < nFirst; ++j) {
-      noise += theRandGauss->fire(p4, p5);
+      noise += CLHEP::RandGaussQ::shoot(engine, p4, p5);
     }
     for (int j = 0; j < nSecond; ++j) {
-      noise += theRandGauss->fire(p7, p8);
+      noise += CLHEP::RandGaussQ::shoot(engine, p7, p8);
     }
 
     return npe + std::max(noise/pe2Charge, 0.);
 }
 
 
-void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples)
+void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples, CLHEP::HepRandomEngine* engine)
 {
   // make some chance to add a PE (with a chance of feedback)
   // for each time sample
@@ -128,12 +111,13 @@ void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples)
   const CaloVShape * shape = theShapes->shape(detId);
   for(int i = 0; i < nSamples; ++i) 
   {
-    double npe = theRandPoissonQ->fire(meanPE);
+    CLHEP::RandPoissonQ theRandPoissonQ(*engine, meanPE);
+    double npe = theRandPoissonQ.fire();
     // TODOprobably should time-smear these
     if(npe > 0.)
     {
       // chance of feedback
-      npe = correctPE(detId, npe);
+      npe = correctPE(detId, npe, engine);
       for(int j = i; j < nSamples; ++j)
       {
         double timeFromPE = (j-i) * 25.;

@@ -81,8 +81,8 @@ void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
       trigSource = (*iTr);
       for (; iHw != hwEnd; ++iHw){
 	hwSource = (*iHw);
-	std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
-	std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+	std::vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
+	std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 	for (; chambIt!=chambEnd; ++chambIt) { 
 	  DTChamberId chId = ((*chambIt)->id());
 	  bookChambHistos(chId,ratioHistoTag);
@@ -110,8 +110,8 @@ void DTLocalTriggerSynchTest::runClientDiagnostic() {
     trigSource = (*iTr);
     for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
       hwSource = (*iHw);
-      std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
-      std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+      std::vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
+      std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
       for (; chambIt!=chambEnd; ++chambIt) { 
 	DTChamberId chId = (*chambIt)->id();
 	uint32_t indexCh = chId.rawId();
@@ -160,8 +160,8 @@ void DTLocalTriggerSynchTest::endJob(){
 
     DTTPGParameters* delayMap = new DTTPGParameters();
     hwSource =  parameters.getParameter<bool>("dbFromDCC") ? "DCC" : "DDU";
-    std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
-    std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+    std::vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
+    std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
       for (; chambIt!=chambEnd; ++chambIt) { 
 
 	DTChamberId chId = (*chambIt)->id();

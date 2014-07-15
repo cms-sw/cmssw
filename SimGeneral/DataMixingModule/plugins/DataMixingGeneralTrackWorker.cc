@@ -5,10 +5,12 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -26,7 +28,7 @@ namespace edm
   DataMixingGeneralTrackWorker::DataMixingGeneralTrackWorker() { }
 
   // Constructor 
-  DataMixingGeneralTrackWorker::DataMixingGeneralTrackWorker(const edm::ParameterSet& ps)
+  DataMixingGeneralTrackWorker::DataMixingGeneralTrackWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC)
   {                                                         
 
     // get the subdetector names
@@ -39,6 +41,9 @@ namespace edm
     GeneralTrackPileInputTag_ = ps.getParameter<edm::InputTag>("GeneralTrackPileInputTag");
 
     GeneralTrackCollectionDM_  = ps.getParameter<std::string>("GeneralTrackDigiCollectionDM");
+
+    GTrackSigToken_ = iC.consumes<reco::TrackCollection>(GeneralTrackLabelSig_);
+    GTrackPileToken_ = iC.consumes<reco::TrackCollection>(GeneralTrackPileInputTag_);
 
   }
 	       
@@ -60,7 +65,7 @@ namespace edm
     //edm::Handle<reco::TrackCollection> generalTrkHandle;
     //e.getByLabel("generalTracks", generalTrkHandle);
     edm::Handle<reco::TrackCollection> tracks;
-    e.getByLabel(GeneralTrackLabelSig_, tracks);
+    e.getByToken(GTrackSigToken_, tracks);
 
     if (tracks.isValid()) {
       for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
@@ -78,7 +83,7 @@ namespace edm
     LogDebug("DataMixingGeneralTrackWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
 
-    boost::shared_ptr<Wrapper<reco::TrackCollection >  const> inputPTR =
+    std::shared_ptr<Wrapper<reco::TrackCollection >  const> inputPTR =
       getProductByTag<reco::TrackCollection >(*ep, GeneralTrackPileInputTag_, mcc);
 
     if(inputPTR ) {

@@ -23,7 +23,8 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include <atomic>
+#include <mutex>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchChildren.h"
@@ -39,6 +40,7 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 // forward declarations
@@ -46,6 +48,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
   template <typename T> class OutputModuleCommunicatorT;
   
   namespace maker {
@@ -111,6 +114,7 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+                   ActivityRegistry*,
                    ModuleCallingContext const*);
       bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                       ModuleCallingContext const*);
@@ -133,7 +137,7 @@ namespace edm {
     private:
       
       int maxEvents_;
-      int remainingEvents_;
+      std::atomic<int> remainingEvents_;
       
       // TODO: Give OutputModule
       // an interface (protected?) that supplies client code with the
@@ -175,9 +179,14 @@ namespace edm {
       
       BranchChildren branchChildren_;
       
+      SharedResourcesAcquirer resourcesAcquirer_;
+      std::mutex mutex_;
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
+      
+      virtual SharedResourcesAcquirer createAcquirer();
+      
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);

@@ -1,5 +1,7 @@
 <lcgdict>
-   <class name="HBHERecHit" ClassVersion="12">
+   <class name="HBHERecHit" ClassVersion="14">
+    <version ClassVersion="14" checksum="525320376"/>
+    <version ClassVersion="13" checksum="1684878064"/>
     <version ClassVersion="12" checksum="3812633329"/>
     <version ClassVersion="10" checksum="3145355338"/>
    </class>
@@ -19,8 +21,8 @@
    <class name="HcalCalibRecHit" ClassVersion="10">
     <version ClassVersion="10" checksum="1085028533"/>
    </class>
-   <class name="HcalSourcePositionData" ClassVersion="11">
-    <version ClassVersion="11" checksum="913740682"/>
+   <class name="HcalSourcePositionData" ClassVersion="12">
+    <version ClassVersion="12" checksum="2888252873"/>
    </class>
    <class name="std::vector<HBHERecHit>"/>
    <class name="std::vector<HORecHit>"/>

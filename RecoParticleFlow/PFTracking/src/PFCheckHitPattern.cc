@@ -22,10 +22,6 @@
 using namespace reco;
 using namespace std;
 
-// For a given subdetector & layer number, this static map stores the minimum and maximum
-// r (or z) values if it is barrel (or endcap) respectively.
-PFCheckHitPattern::RZrangeMap PFCheckHitPattern::rangeRorZ_;
-
 void PFCheckHitPattern::init(edm::ESHandle<TrackerGeometry> tkerGeomHandle_) {
 
   //

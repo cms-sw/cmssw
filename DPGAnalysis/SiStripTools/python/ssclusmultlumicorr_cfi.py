@@ -6,11 +6,7 @@ ssclusmultlumicorr = cms.EDAnalyzer('MultiplicityInvestigator',
                                     wantVtxCorrHist = cms.bool(False),
                                     wantLumiCorrHist = cms.bool(True),
                                     wantPileupCorrHist = cms.bool(False),
-                                    digiVtxCorrConfig = cms.PSet(),
-                                    digiPileupCorrConfig = cms.PSet(
-                                                                    pileupSummaryCollection=cms.InputTag(""),
-                                                                    useVisibleVertices = cms.bool(False)
-                                                                    ),
+                                    wantVtxPosCorrHist = cms.bool(False),
                                     digiLumiCorrConfig = cms.PSet(
     lumiProducer = cms.InputTag("lumiProducer"),
     wantedSubDets = cms.untracked.VPSet(    

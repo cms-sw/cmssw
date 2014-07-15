@@ -182,15 +182,21 @@ DTHitQualityUtils::findMuSimSegmentDirAndPos(const pair<const PSimHit*, const PS
 }
 
 // Find the angles from a segment direction:
-// NB: For 4D RecHits: 
-//                        Alpha = angle measured by SL RPhi
-//                        Beta  = angle measured by SL RZ
-//     For 2D RecHits: only Alpha makes sense
+// atan(dx/dz) = "phi"   angle in the chamber RF
+// atan(dy/dz) = "theta" angle in the chamber RF (note: this has opposite sign in the SLZ RF!)
 pair<double, double> DTHitQualityUtils::findSegmentAlphaAndBeta(const LocalVector& direction) {
-  //return make_pair(atan(direction.x()/direction.z()), atan(direction.y()/direction.z()));
-  return make_pair((direction.x()/direction.z()), (direction.y()/direction.z()));
+  return make_pair(atan(direction.x()/direction.z()), atan(direction.y()/direction.z()));
 }
 
+//Find error on angle (squared) from localDirectionError, which is the error on tan(Angle) 
+double DTHitQualityUtils::sigmaAngle(double Angle, double sigma2TanAngle) {
+
+  double XdivZ = tan(Angle);
+  double sigma2Angle = 1/(1+XdivZ*XdivZ);
+  sigma2Angle *= sigma2Angle*sigma2TanAngle;
+
+  return sigma2Angle;
+}
 
 
 

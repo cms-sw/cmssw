@@ -2,7 +2,7 @@
 //
 // Package:    OccupancyPlots
 // Class:      OccupancyPlots
-// 
+//
 /**\class OccupancyPlots OccupancyPlots.cc myTKAnalyses/DigiInvestigator/src/OccupancyPlots.cc
 
  Description: <one line class summary>
@@ -38,6 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
@@ -78,8 +79,8 @@ private:
 
       // ----------member data ---------------------------
 
-  std::vector<edm::InputTag> m_multiplicityMaps;
-  std::vector<edm::InputTag> m_occupancyMaps;
+  std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > m_multiplicityMapTokens;
+  std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > m_occupancyMapTokens;
   edm::FileInPath m_fp;
 
   RunHistogramManager m_rhm;
@@ -93,6 +94,8 @@ private:
 
   TProfile** m_averadius;
   TProfile** m_avez;
+  TProfile** m_avex;
+  TProfile** m_avey;
   TProfile** m_zavedr;
   TProfile** m_zavedz;
   TProfile** m_zavedrphi;
@@ -118,10 +121,10 @@ private:
 // constructors and destructor
 //
 OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
-  m_multiplicityMaps(iConfig.getParameter<std::vector<edm::InputTag> >("multiplicityMaps")),
-  m_occupancyMaps(iConfig.getParameter<std::vector<edm::InputTag> >("occupancyMaps")),
+  m_multiplicityMapTokens(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("multiplicityMaps"), [this](edm::InputTag const & tag){return consumes<std::map<unsigned int, int> >(tag);})),
+  m_occupancyMapTokens(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("occupancyMaps"), [this](edm::InputTag const & tag){return consumes<std::map<unsigned int, int> >(tag);})),
   m_fp(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"))),
-  m_rhm(), m_wantedsubdets()
+  m_rhm(consumesCollector()), m_wantedsubdets()
 {
    //now do what ever initialization is needed
 
@@ -133,6 +136,8 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
 
   m_averadius = m_rhm.makeTProfile("averadius","Average Module Radius",6000,0.5,6000.5);
   m_avez = m_rhm.makeTProfile("avez","Average Module z coordinate",6000,0.5,6000.5);
+  m_avex = m_rhm.makeTProfile("avex","Average Module x coordinate",6000,0.5,6000.5);
+  m_avey = m_rhm.makeTProfile("avey","Average Module y coordinate",6000,0.5,6000.5);
 
   m_zavedr = m_rhm.makeTProfile("zavedr","Average z unit vector dr",6000,0.5,6000.5);
   m_zavedz = m_rhm.makeTProfile("zavedz","Average z unit vector dz",6000,0.5,6000.5);
@@ -160,7 +165,7 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
 
 OccupancyPlots::~OccupancyPlots()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -176,13 +181,13 @@ void
 OccupancyPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
 
-  for(std::vector<edm::InputTag>::const_iterator map = m_multiplicityMaps.begin();map!=m_multiplicityMaps.end();++map) {
+
+  for(std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > >::const_iterator mapToken = m_multiplicityMapTokens.begin();mapToken!=m_multiplicityMapTokens.end();++mapToken) {
 
     Handle<std::map<unsigned int, int> > mults;
-    iEvent.getByLabel(*map,mults);
-  
+    iEvent.getByToken(*mapToken,mults);
+
     for(std::map<unsigned int,int>::const_iterator mult=mults->begin();mult!=mults->end();mult++) {
       if(m_avemultiplicity && *m_avemultiplicity) (*m_avemultiplicity)->Fill(mult->first,mult->second);
     }
@@ -190,11 +195,11 @@ OccupancyPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  for(std::vector<edm::InputTag>::const_iterator map = m_occupancyMaps.begin();map!=m_occupancyMaps.end();++map) {
+  for(std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > >::const_iterator mapToken = m_occupancyMapTokens.begin();mapToken!=m_occupancyMapTokens.end();++mapToken) {
 
     Handle<std::map<unsigned int, int> > occus;
-    iEvent.getByLabel(*map,occus);
-  
+    iEvent.getByToken(*mapToken,occus);
+
     for(std::map<unsigned int,int>::const_iterator occu=occus->begin();occu!=occus->end();occu++) {
       if(m_aveoccupancy && *m_aveoccupancy) (*m_aveoccupancy)->Fill(occu->first,occu->second);
     }
@@ -204,7 +209,7 @@ OccupancyPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 OccupancyPlots::beginJob()
 {
 
@@ -264,6 +269,8 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	 // average positions
 	 if(m_averadius && *m_averadius) (*m_averadius)->Fill(sel->first,position.perp());
 	 if(m_avez && *m_avez) (*m_avez)->Fill(sel->first,position.z());
+	 if(m_avex && *m_avex) (*m_avex)->Fill(sel->first,position.x());
+	 if(m_avey && *m_avey) (*m_avey)->Fill(sel->first,position.y());
 	 if(m_zavedr && *m_zavedr) (*m_zavedr)->Fill(sel->first,dzdr);
 	 if(m_zavedz && *m_zavedz) (*m_zavedz)->Fill(sel->first,dz.z());
 	 if(m_zavedrphi && *m_zavedrphi) (*m_zavedrphi)->Fill(sel->first,dzdrphi);
@@ -276,7 +283,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
        }
      }
   }
-  
+
 
   edm::ESHandle<SiStripQuality> quality;
   iSetup.get<SiStripQualityRcd>().get("",quality);
@@ -341,7 +348,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 OccupancyPlots::endJob() {
 }
 //define this as a plug-in

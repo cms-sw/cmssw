@@ -56,7 +56,7 @@ using namespace edm;
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service,
 							 edm::ConsumesCollector& iC
-							 ) : GlobalTrajectoryBuilderBase(par, service)
+							 ) : GlobalTrajectoryBuilderBase(par, service, iC)
 	   
 {
 

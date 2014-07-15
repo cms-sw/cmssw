@@ -9,6 +9,8 @@ $Author: ratnikov
 $Date: 2008/03/05 10:38:03 $
 $Revision: 1.9 $
 */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 #include <vector>
@@ -71,7 +73,9 @@ class HcalQIECoder {
   float mSlope31;
   float mSlope32;
   float mSlope33;
-  unsigned int mQIEIndex;
+  unsigned int mQIEIndex COND_TRANSIENT;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -20,11 +20,13 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
-class ConvertObjectMapRecord : public edm::EDProducer {
+
+class ConvertObjectMapRecord : public edm::stream::EDProducer<> {
 
 public:
     explicit ConvertObjectMapRecord(const edm::ParameterSet& pset);
@@ -33,7 +35,8 @@ public:
     virtual void produce(edm::Event& event, const edm::EventSetup& es);
 
 private:
-    edm::InputTag m_l1GtObjectMapTag;
+    edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
+
 };
 
 #endif

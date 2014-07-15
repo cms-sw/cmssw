@@ -1,25 +1,15 @@
 #ifndef Vx3DHLTAnalyzer_H
 #define Vx3DHLTAnalyzer_H
 
-// -*- C++ -*-
-//
+
 // Package:    Vx3DHLTAnalyzer
 // Class:      Vx3DHLTAnalyzer
-// 
-/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc interface/Vx3DHLTAnalyzer.h
-
+/*
  Description:     beam-spot monitor entirely based on pixel detector information
  Implementation:  the monitoring is based on a 3D fit to the vertex cloud
 */
-//
 // Original Author:  Mauro Dinardo, 28 S-012, +41-22-767-8302,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-
-// -*- C++ -*-
-//
-// Package:    Vx3DHLTAnalyzer
-// Class:      Vx3DHLTAnalyzer
-// 
 
 
 // system include files
@@ -33,8 +23,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -72,17 +62,17 @@ double pi;
 double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
-class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
+class Vx3DHLTAnalyzer : public DQMEDAnalyzer {
    public:
       explicit Vx3DHLTAnalyzer(const edm::ParameterSet&);
       ~Vx3DHLTAnalyzer();
 
 
    private:
-      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       virtual unsigned int HitCounter(const edm::Event& iEvent);
-      virtual char* formatTime(const time_t& t);
+      virtual std::string formatTime(const time_t& t);
       virtual int MyFit(std::vector<double>* vals);
       virtual void reset(std::string ResetType);
       virtual void writeToFile(std::vector<double>* vals,
@@ -95,8 +85,6 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
 					const edm::EventSetup& iSetup);
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
-      virtual void endJob();
-      virtual void beginRun();
 
 
       // #######################
@@ -149,6 +137,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* reportSummaryMap;
       
       MonitorElement* fitResults;
+
 
       // ######################
       // # Internal variables #

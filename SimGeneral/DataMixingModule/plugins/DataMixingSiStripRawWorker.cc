@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -26,7 +27,7 @@ namespace edm
   DataMixingSiStripRawWorker::DataMixingSiStripRawWorker() { }
 
   // Constructor 
-  DataMixingSiStripRawWorker::DataMixingSiStripRawWorker(const edm::ParameterSet& ps) : 
+  DataMixingSiStripRawWorker::DataMixingSiStripRawWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -48,6 +49,11 @@ namespace edm
 
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
+    
+    edm::InputTag tag = edm::InputTag(Sistripdigi_collectionSig_.label(),SistripLabelSig_.label());
+
+    SiStripInputTok_ = iC.consumes< edm::DetSetVector<SiStripDigi> >(tag);
+    SiStripRawInputTok_ = iC.consumes< edm::DetSetVector<SiStripRawDigi> >(SiStripRawInputTag_);
 
   }
 	       
@@ -65,14 +71,14 @@ namespace edm
     edm::Handle< edm::DetSetVector<SiStripRawDigi> >   hSSRD;
     
     if (SiStripRawDigiSource_=="SIGNAL") {
-      e.getByLabel(SiStripRawInputTag_,hSSRD);
+      e.getByToken(SiStripRawInputTok_,hSSRD);
       rawdigicollection_ = hSSRD.product();
     } else if (SiStripRawDigiSource_=="PILEUP") {
-      e.getByLabel(Sistripdigi_collectionSig_.label(),SistripLabelSig_.label(),hSSD);
+      e.getByToken(SiStripInputTok_,hSSD);
       digicollection_ =  hSSD.product();
-    } else {
-      std::cout << "you shouldn't be here" << std::endl;
-    }
+    } //else {
+      //std::cout << "you shouldn't be here" << std::endl;
+      //}
     
 
   } // end of addSiStripSignals
@@ -85,8 +91,8 @@ namespace edm
     LogDebug("DataMixingSiStripRawWorker") << "\n===============> adding pileups from event  "
 					   << ep->id() << " for bunchcrossing " << bcr;
 
-    boost::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> > const>    pSSD;
-    boost::shared_ptr<Wrapper<edm::DetSetVector<SiStripRawDigi> > const> pSSRD;
+    std::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> > const>    pSSD;
+    std::shared_ptr<Wrapper<edm::DetSetVector<SiStripRawDigi> > const> pSSRD;
     
     if (SiStripRawDigiSource_=="SIGNAL") {
       pSSD = getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_, mcc);

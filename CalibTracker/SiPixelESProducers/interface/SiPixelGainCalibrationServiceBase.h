@@ -147,7 +147,7 @@ template<class thePayloadObject, class theDBRecordType>
 void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::setESObjects( const edm::EventSetup& es ) {
 
     es.get<theDBRecordType>().get(ped);
-    ped->initialize();
+    // ped->initialize();  moved to cond infrastructure
     numberOfRowsAveragedOver_ = ped->getNumberOfRowsToAverageOver();
     ESetupInit_ = true;
 

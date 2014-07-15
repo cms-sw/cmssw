@@ -20,6 +20,10 @@ class CSCStripConditions;
 #include <vector>
 #include <string>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class CSCStripElectronicsSim : public CSCBaseElectronicsSim
 {
 public:
@@ -29,16 +33,17 @@ public:
   virtual ~CSCStripElectronicsSim();
 
   void fillDigis(CSCStripDigiCollection & digis,
-                 CSCComparatorDigiCollection & comparators);
+                 CSCComparatorDigiCollection & comparators,
+                 CLHEP::HepRandomEngine*);
 
   void fillMissingLayer(const CSCLayer * layer, const CSCComparatorDigiCollection & comparators, 
-                        CSCStripDigiCollection & digis);
+                        CSCStripDigiCollection & digis, CLHEP::HepRandomEngine*);
 
   void setStripConditions(CSCStripConditions * cond) {theStripConditions = cond;}
 
-  CSCAnalogSignal makeNoiseSignal(int element);
+  CSCAnalogSignal makeNoiseSignal(int element, CLHEP::HepRandomEngine*) override;
 
-  void createDigi(int istrip, const CSCAnalogSignal & signal, std::vector<CSCStripDigi> & result);
+  void createDigi(int istrip, const CSCAnalogSignal & signal, std::vector<CSCStripDigi> & result, CLHEP::HepRandomEngine*);
  
 private:
   /// initialization for each layer
@@ -49,10 +54,10 @@ private:
   float calculateAmpResponse(float t) const;
   CSCStripAmpResponse theAmpResponse;
 
-  void runComparator(std::vector<CSCComparatorDigi> & result);
+  void runComparator(std::vector<CSCComparatorDigi> & result, CLHEP::HepRandomEngine*);
 
   /// calculates the comparator reading, including saturation and offsets
-  float comparatorReading(const CSCAnalogSignal & signal, float time) const;
+  float comparatorReading(const CSCAnalogSignal & signal, float time, CLHEP::HepRandomEngine*) const;
 
   // tells which strips to read out around the input strip
   void getReadoutRange(int inputStrip, 
@@ -71,11 +76,12 @@ private:
   channelsToRead(const std::list<int> & keyStrips, int window) const;
 
   void fillStripDigis(const std::list<int> & keyStrips,
-                      CSCStripDigiCollection & digis);
+                      CSCStripDigiCollection & digis,
+                      CLHEP::HepRandomEngine*);
 
-  void addCrosstalk();
+  void addCrosstalk(CLHEP::HepRandomEngine*);
   void addCrosstalk(const CSCAnalogSignal & signal,
-                    int thisStrip, int otherStrip);
+                    int thisStrip, int otherStrip, CLHEP::HepRandomEngine*);
 
 
   void selfTest() const;

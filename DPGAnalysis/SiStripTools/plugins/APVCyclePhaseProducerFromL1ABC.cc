@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      APVCyclePhaseProducerFromL1ABC
-// 
+//
 /**\class APVCyclePhaseProducerFromL1ABC APVCyclePhaseProducerFromL1ABC.cc DPGAnalysis/SiStripTools/plugins/APVCyclePhaseProducerFromL1ABC.cc
 
  Description: EDproducer for APVCyclePhaseCollection which uses the configuration file to assign a phase to the run
@@ -62,13 +62,13 @@ private:
   virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
+
       // ----------member data ---------------------------
 
-  const edm::InputTag _l1abccollection;
+  edm::EDGetTokenT<L1AcceptBunchCrossingCollection> _l1abccollectionToken;
   const std::vector<std::string> _defpartnames;
   const std::vector<int> _defphases;
-  const int _orbitoffsetSOR; 
+  const int _orbitoffsetSOR;
   const bool _wantHistos;
 
   RunHistogramManager m_rhm;
@@ -96,12 +96,12 @@ private:
 // constructors and destructor
 //
 APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet& iConfig):
-  _l1abccollection(iConfig.getParameter<edm::InputTag>("l1ABCCollection")),
+  _l1abccollectionToken(mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
   _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
   _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
   _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
-  m_rhm(),
+  m_rhm(consumesCollector()),
   _hbx(0),_hdbx(0),_hdorbit(0),_firstgoodrun(110878),
   _offsets(), _curroffset(0), _curroffevent(0)
 {
@@ -122,7 +122,7 @@ APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::Parame
 
 APVCyclePhaseProducerFromL1ABC::~APVCyclePhaseProducerFromL1ABC()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -135,7 +135,7 @@ APVCyclePhaseProducerFromL1ABC::~APVCyclePhaseProducerFromL1ABC()
 
 // ------------ method called to produce the data  ------------
 void
-APVCyclePhaseProducerFromL1ABC::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
+APVCyclePhaseProducerFromL1ABC::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 {
 
@@ -150,27 +150,27 @@ APVCyclePhaseProducerFromL1ABC::beginRun(const edm::Run& iRun, const edm::EventS
     m_rhm.beginRun(iRun);
 
     if(_hbx && *_hbx) {
-      (*_hbx)->GetXaxis()->SetTitle("BX");     (*_hbx)->GetYaxis()->SetTitle("Events"); 
+      (*_hbx)->GetXaxis()->SetTitle("BX");     (*_hbx)->GetYaxis()->SetTitle("Events");
     }
 
     if(_hdbx && *_hdbx) {
-      (*_hdbx)->GetXaxis()->SetTitle("#DeltaBX");     (*_hdbx)->GetYaxis()->SetTitle("Events"); 
+      (*_hdbx)->GetXaxis()->SetTitle("#DeltaBX");     (*_hdbx)->GetYaxis()->SetTitle("Events");
     }
 
     if(_hdorbit && *_hdorbit) {
-      (*_hdorbit)->GetXaxis()->SetTitle("#Deltaorbit");     (*_hdorbit)->GetYaxis()->SetTitle("Events"); 
+      (*_hdorbit)->GetXaxis()->SetTitle("#Deltaorbit");     (*_hdorbit)->GetYaxis()->SetTitle("Events");
     }
 
   }
 
   if(iRun.run() < _firstgoodrun) {
-    edm::LogInfo("UnreliableMissingL1AcceptBunchCrossingCollection") << 
-      "In this run L1AcceptBunchCrossingCollection is missing or unreliable: default phases will be used"; 
+    edm::LogInfo("UnreliableMissingL1AcceptBunchCrossingCollection") <<
+      "In this run L1AcceptBunchCrossingCollection is missing or unreliable: default phases will be used";
   }
 
 }
 
-void 
+void
 APVCyclePhaseProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSetup&)
 {
   // summary of absolute bx offset vector
@@ -187,9 +187,9 @@ void
 APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
-  
+
   std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection() );
-  
+
 
   const std::vector<int>& phases = _defphases;
   const std::vector<std::string>& partnames = _defpartnames;
@@ -199,21 +199,21 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
   int phasechange = 0;
 
   if(iEvent.run() >= _firstgoodrun ) {
-    
+
     Handle<L1AcceptBunchCrossingCollection > pIn;
-    iEvent.getByLabel(_l1abccollection,pIn);
-    
+    iEvent.getByToken(_l1abccollectionToken,pIn);
+
     // offset computation
-    
+
     long long orbitoffset = _orbitoffsetSOR;
     int bxoffset = 0;
-    
+
     for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
       if(l1abc->l1AcceptOffset()==0) {
 	if(l1abc->eventType()!=0) {
 	  orbitoffset = (long long)iEvent.orbitNumber() - (long long)l1abc->orbitNumber() ;
 	  bxoffset = iEvent.bunchCrossing() - l1abc->bunchCrossing();
-	  
+
 	  if(_wantHistos) {
 	    if(_hbx && *_hbx) (*_hbx)->Fill(l1abc->bunchCrossing());
 	    if(_hdbx && *_hdbx) (*_hdbx)->Fill(bxoffset);
@@ -242,7 +242,7 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
        if(_curroffset != absbxoffset || iEvent.id().event() < _curroffevent ) {
 
 	 if( _curroffset != absbxoffset) {
-	   edm::LogInfo("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << "Absolute BX offset changed from " 
+	   edm::LogInfo("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << "Absolute BX offset changed from "
 									<< _curroffset << " to "
 									<< absbxoffset << " at orbit "
 									<< iEvent.orbitNumber() << " and BX "
@@ -258,15 +258,15 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
        }
      }
 
-    
+
   }
-  
+
 
 
   if(phases.size() < partnames.size() ) {
     // throw exception
-    throw cms::Exception("InvalidAPVCyclePhases") << " Inconsistent phases/partitions vector sizes: " 
-					     << phases.size() << " " 
+    throw cms::Exception("InvalidAPVCyclePhases") << " Inconsistent phases/partitions vector sizes: "
+					     << phases.size() << " "
 					     << partnames.size();
   }
 
@@ -283,13 +283,13 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 APVCyclePhaseProducerFromL1ABC::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 APVCyclePhaseProducerFromL1ABC::endJob() {
 }
 

@@ -275,27 +275,29 @@ GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
   return _temp;
 }
 
-void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
+void GeometricDet::deepComponents(ConstGeometricDetContainer & cont) const {
   //std::cout << "const deepComponents2" << std::endl;
   if (isLeaf())
-    cont.push_back(const_cast<GeometricDet*>(this));
+    cont.push_back(this);
   else 
     std::for_each(_container.begin(),_container.end(), 
-		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont))
+		  [&](const GeometricDet* iDet) {
+		    iDet->deepComponents(cont);
+		  }
 		  );
 }
 
-
 void GeometricDet::addComponents(GeometricDetContainer const & cont){
   //std::cout << "addComponents" << std::endl;
-  if (_container.empty()) {
-    _container=cont;
-    return;
-  }
   _container.reserve(_container.size()+cont.size());
   std::copy(cont.begin(), cont.end(), back_inserter(_container));
 }
 
+void GeometricDet::addComponents(ConstGeometricDetContainer const & cont){
+  //std::cout << "addComponents" << std::endl;
+  _container.reserve(_container.size()+cont.size());
+  std::copy(cont.begin(), cont.end(), back_inserter(_container));
+}
 
 void GeometricDet::addComponent(GeometricDet* det){
   //std::cout << "deepComponent" << std::endl;
@@ -333,10 +335,10 @@ GeometricDet::Rotation GeometricDet::rotationBounds() const{
   return _rotation;
 }
 
-Bounds * GeometricDet::bounds() const{
+std::unique_ptr<Bounds> GeometricDet::bounds() const{
   //std::cout << "bounds" << std::endl;
   const std::vector<double>& par = _params;
   TrackerShapeToBounds shapeToBounds;
-  return shapeToBounds.buildBounds(_shape,par);
+  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(_shape,par));
 }
 

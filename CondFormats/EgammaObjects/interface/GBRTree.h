@@ -23,6 +23,8 @@
 // terminal nodes, which are stored simply as a vector of regression responses
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 
@@ -71,7 +73,9 @@
 	std::vector<int> fRightIndices;
 	std::vector<float> fResponses;  
         
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 //_______________________________________________________________________
 inline double GBRTree::GetResponse(const float* vector) const {

@@ -58,7 +58,7 @@ class SeedFromGenericPairOrTriplet{
 	TrajectorySeed*       buildSeed(const GlobalVector& momentum,
 					int charge,
                                   	//const TrackingRecHit* firsthit,
-					std::vector<const TrackingRecHit*>& trHits,
+					std::vector<const BaseTrackerRecHit*>& trHits,
                                   	const PropagationDirection& dir) const;
 	//initial error estimate	
 	//CurvilinearTrajectoryError initialError(const TrackingRecHit* rechit);	

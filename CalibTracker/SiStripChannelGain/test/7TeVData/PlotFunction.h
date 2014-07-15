@@ -38,7 +38,7 @@ void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, doub
    T->Draw("same");
 }
 
-void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, string Style, double X=0.79, double Y=0.93, double W=0.20, double H=0.05)
+void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, string StyleCase, double X=0.79, double Y=0.93, double W=0.20, double H=0.05)
 {
    int    N             = legend.size();
    
@@ -50,7 +50,7 @@ void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, str
       //leg->SetTextAlign(32);
       if(Title!="")leg->SetHeader(Title.c_str());
 
-      if(Style=="DataMC"){
+      if(StyleCase=="DataMC"){
          for(int i=0;i<N;i++){
             TH2D* temp = (TH2D*)Histos[i]->Clone();
             temp->SetMarkerSize(1.3);
@@ -64,7 +64,7 @@ void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, str
          for(int i=0;i<N;i++){
             TH2D* temp = (TH2D*)Histos[i]->Clone();
             temp->SetMarkerSize(1.3);
-            leg->AddEntry(temp, legend[i].c_str() ,Style.c_str());
+            leg->AddEntry(temp, legend[i].c_str() ,StyleCase.c_str());
          }
       }
       leg->Draw();
@@ -104,7 +104,7 @@ void DrawStatBox(TObject** Histos, std::vector<string> legend, bool Mean, double
 
 
 
-void DrawTH2D(TH2D** Histos, std::vector<string> legend, string Style, string Xlegend, string Ylegend, double xmin, double xmax, double ymin, double ymax)
+void DrawTH2D(TH2D** Histos, std::vector<string> legend, string StyleCase, string Xlegend, string Ylegend, double xmin, double xmax, double ymin, double ymax)
 {
    int    N             = legend.size();
    
@@ -123,15 +123,15 @@ void DrawTH2D(TH2D** Histos, std::vector<string> legend, string Style, string Xl
    }
 
    char Buffer[256];
-   Histos[0]->Draw(Style.c_str());
+   Histos[0]->Draw(StyleCase.c_str());
    for(int i=1;i<N;i++){
-        sprintf(Buffer,"%s same",Style.c_str());
+        sprintf(Buffer,"%s same",StyleCase.c_str());
         Histos[i]->Draw(Buffer);
    }
 }
 
 
-void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style,  string Xlegend, string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false)
+void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string StyleCase,  string Xlegend, string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false)
 {
    int    N             = legend.size();
 
@@ -154,7 +154,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
         Histos[i]->SetMarkerSize(1.0);
         Histos[i]->SetLineColor(Color[i]);
         Histos[i]->SetLineWidth(2);
-       if(Style=="DataMC" && i==0){
+       if(StyleCase=="DataMC" && i==0){
            Histos[i]->SetFillColor(0);
            Histos[i]->SetMarkerStyle(20);
            Histos[i]->SetMarkerColor(1);
@@ -171,7 +171,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
    }
 
    char Buffer[256];
-   if(Style=="DataMC"){
+   if(StyleCase=="DataMC"){
       if(HistoHeighest==0){
          Histos[HistoHeighest]->Draw("E1");
       }else{
@@ -185,10 +185,10 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
            }
       }
    }else{
-      Histos[HistoHeighest]->Draw(Style.c_str());
+      Histos[HistoHeighest]->Draw(StyleCase.c_str());
       for(int i=0;i<N;i++){
-           if(Style!=""){
-              sprintf(Buffer,"same %s",Style.c_str());
+           if(StyleCase!=""){
+              sprintf(Buffer,"same %s",StyleCase.c_str());
            }else{
               sprintf(Buffer,"same");
            }

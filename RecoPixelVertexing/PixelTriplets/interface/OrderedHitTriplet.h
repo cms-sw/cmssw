@@ -20,9 +20,9 @@ public:
 
   OrderedHitTriplet( const InnerRecHit & ih, const MiddleRecHit & mh, const OuterRecHit & oh) : SeedingHitSet(ih,mh,oh){}
 
-  const InnerRecHit  &  inner() const { return get(0); }
-  const MiddleRecHit & middle() const { return get(1); }
-  const OuterRecHit  &  outer() const { return get(2); }
+  InnerRecHit    inner() const { return get(0); }
+  MiddleRecHit  middle() const { return get(1); }
+  OuterRecHit    outer() const { return get(2); }
 
 };
 

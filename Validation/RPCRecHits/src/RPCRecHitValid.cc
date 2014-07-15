@@ -248,7 +248,7 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
   TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
   for ( auto det : rpcDets )
   {
-    RPCChamber* rpcCh = dynamic_cast<RPCChamber*>(det);
+    auto rpcCh = dynamic_cast<const RPCChamber*>(det);
     if ( !rpcCh ) continue;
 
     std::vector<const RPCRoll*> rolls = rpcCh->rolls();

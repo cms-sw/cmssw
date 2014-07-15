@@ -12,6 +12,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 #include "DataFormats/Math/interface/approx_exp.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 // forward declarations
 
@@ -19,8 +20,6 @@
 // For the random numbers
 namespace CLHEP {
   class HepRandomEngine;
-  class RandGaussQ;
-  class RandFlat;
 }
 
 namespace edm {
@@ -43,7 +42,7 @@ class TrackerTopology;
 
 class SiPixelDigitizerAlgorithm  {
  public:
-  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf);
   ~SiPixelDigitizerAlgorithm();
 
   // initialization that cannot be done in the constructor
@@ -57,11 +56,14 @@ class SiPixelDigitizerAlgorithm  {
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
                          const PixelGeomDetUnit *pixdet,
-                         const GlobalVector& bfield);
+                         const GlobalVector& bfield,
+                         CLHEP::HepRandomEngine*);
   void digitize(const PixelGeomDetUnit *pixdet,
                 std::vector<PixelDigi>& digis,
                 std::vector<PixelDigiSimLink>& simlinks,
-		const TrackerTopology *tTopo);
+		const TrackerTopology *tTopo,
+                CLHEP::HepRandomEngine*);
+  void calculateInstlumiFactor(PileupMixingContent* puInfo);
 
  private:
   
@@ -232,10 +234,16 @@ class SiPixelDigitizerAlgorithm  {
      float thePixelEfficiency[20];     // Single pixel effciency
      float thePixelColEfficiency[20];  // Column effciency
      float thePixelChipEfficiency[20]; // ROC efficiency
+     std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
+     std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
+     std::vector<double> thePUEfficiency_BPix[20]; // Instlumi dependent efficiency
      unsigned int FPixIndex;         // The Efficiency index for FPix Disks
    };
 
  private:
+   // Needed by dynamic inefficiency 
+   // 0-3 BPix, 4-5 FPix
+   double _pu_scale[20];
 
     // Internal typedefs
     typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
@@ -348,7 +356,7 @@ class SiPixelDigitizerAlgorithm  {
     //-- additional member functions    
     // Private methods
     std::map<int,CalParameters,std::less<int> > initCal() const;
-    void primary_ionization( const PSimHit& hit, std::vector<EnergyDepositUnit>& ionization_points) const;
+    void primary_ionization( const PSimHit& hit, std::vector<EnergyDepositUnit>& ionization_points, CLHEP::HepRandomEngine*) const;
     void drift(const PSimHit& hit,
                const PixelGeomDetUnit *pixdet,
                const GlobalVector& bfield,
@@ -359,9 +367,11 @@ class SiPixelDigitizerAlgorithm  {
                        const std::vector<SignalPoint>& collection_points);
     void fluctuateEloss(int particleId, float momentum, float eloss, 
 			float length, int NumberOfSegments,
-			float elossVector[]) const;
+			float elossVector[],
+                        CLHEP::HepRandomEngine*) const;
     void add_noise(const PixelGeomDetUnit *pixdet,
-                   float thePixelThreshold);
+                   float thePixelThreshold,
+                   CLHEP::HepRandomEngine*);
     void make_digis(float thePixelThresholdInE,
                     uint32_t detID,
                     std::vector<PixelDigi>& digis,
@@ -369,7 +379,8 @@ class SiPixelDigitizerAlgorithm  {
 		    const TrackerTopology *tTopo) const;
     void pixel_inefficiency(const PixelEfficiencies& eff,
 			    const PixelGeomDetUnit* pixdet,
-			    const TrackerTopology *tTopo);
+			    const TrackerTopology *tTopo,
+                            CLHEP::HepRandomEngine*);
 
     void pixel_inefficiency_db(uint32_t detID);
 
@@ -384,16 +395,6 @@ class SiPixelDigitizerAlgorithm  {
     void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
 
     const PixelEfficiencies pixelEfficiencies_;
-
-   // For random numbers
-    const std::unique_ptr<CLHEP::RandFlat> flatDistribution_;
-    const std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution_;
-    const std::unique_ptr<CLHEP::RandGaussQ> gaussDistributionVCALNoise_;
-
-    // Threshold gaussian smearing:
-    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_FPix_;
-    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_;
-    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_L1_;
 
     double calcQ(float x) const {
       // need erf(x/sqrt2)

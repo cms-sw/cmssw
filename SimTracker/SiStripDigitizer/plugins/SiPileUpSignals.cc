@@ -1,4 +1,4 @@
-#include "SiPileUpSignals.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 void SiPileUpSignals::resetSignals(){

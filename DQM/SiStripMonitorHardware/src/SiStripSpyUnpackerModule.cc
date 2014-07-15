@@ -142,7 +142,6 @@ namespace sistrip {
 
     //retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
-    //    event.getByLabel( productLabel_, buffers ); 
     event.getByToken( productToken_, buffers ); 
     
     //create container for digis

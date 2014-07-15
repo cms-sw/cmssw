@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <memory>
 
 namespace edm {
   class ModuleCallingContext;
@@ -57,6 +58,7 @@ public:
 
   virtual void fill(edm::ModuleCallingContext const* mcc)
   {
+
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
     const COLLECTION *  digis = 0;
@@ -74,7 +76,7 @@ public:
     }
     else if(theEventPrincipal)
     {
-       boost::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
+       std::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
           edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
        if(digisPTR) {
           digis = digisPTR->product();
@@ -87,6 +89,7 @@ public:
 
     if (digis)
     {
+
       // loop over digis, adding these to the existing maps
       for(typename COLLECTION::const_iterator it  = digis->begin();
           it != digis->end(); ++it) 
@@ -96,15 +99,30 @@ public:
         {
           int startingCapId = (*it)[0].capid();
           theElectronicsSim->setStartingCapId(startingCapId);
-          theParameterMap->setFrameSize(it->id(), it->size());
+          // theParameterMap->setFrameSize(it->id(), it->size()); //don't need this
         }
-
-        theNoiseSignals.push_back(samplesInPE(*it));
+	if(validDigi(*it)) {
+	  theNoiseSignals.push_back(samplesInPE(*it));
+	}
       }
     }
   }
 
 private:
+
+
+  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+  virtual void fillNoiseSignals() override {}
+
+  bool validDigi(const DIGI & digi)
+  {
+    int DigiSum = 0;
+    for(int id = 0; id<digi.size(); id++) {
+      if(digi[id].adc() > 0) ++DigiSum;
+    }
+    return(DigiSum>0);
+  }
+
 
   CaloSamples samplesInPE(const DIGI & digi)
   {
@@ -117,6 +135,9 @@ private:
     CaloSamples result;
     coder.adc2fC(digi, result);
     fC2pe(result);
+
+    //    std::cout << " HcalSignalGenerator: noise input " << digi << std::endl;
+
     return result;
   }
 

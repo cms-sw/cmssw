@@ -7,7 +7,7 @@
 
 std::pair<bool,double> 
 GsfChi2MeasurementEstimator::estimate (const TrajectoryStateOnSurface& tsos,
-				       const TransientTrackingRecHit& hit) const {
+				       const TrackingRecHit& hit) const {
 
   std::vector<TrajectoryStateOnSurface> tsvec = tsos.components();
   if (tsvec.empty()) {

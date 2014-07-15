@@ -12,15 +12,15 @@ static const std::string kProducerType("EDProducer");
 namespace edm {
   // -----------------------------
 
-  WorkerManager::WorkerManager(boost::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions) :
+  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions) :
     workerReg_(areg),
     actionTable_(&actions),
     allWorkers_(),
     unscheduled_(new UnscheduledCallProducer) {
   } // WorkerManager::WorkerManager
 
-  WorkerManager::WorkerManager(boost::shared_ptr<ModuleRegistry> modReg,
-                               boost::shared_ptr<ActivityRegistry> areg,
+  WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                               std::shared_ptr<ActivityRegistry> areg,
                                ExceptionToActionTable const& actions) :
   workerReg_(areg,modReg),
   actionTable_(&actions),
@@ -31,7 +31,7 @@ namespace edm {
   Worker* WorkerManager::getWorker(ParameterSet& pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const & label) {
     WorkerParams params(&pset, preg, prealloc, processConfiguration, *actionTable_);
     return workerReg_.getWorker(params, label);
@@ -40,7 +40,7 @@ namespace edm {
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
                                               ProductRegistry& preg,
                                               PreallocationConfiguration const* prealloc,
-                                              boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                              std::shared_ptr<ProcessConfiguration> processConfiguration,
                                               std::string label,
                                               bool useStopwatch,
                                               std::set<std::string>& unscheduledLabels,
@@ -80,16 +80,10 @@ namespace edm {
   void WorkerManager::endJob(ExceptionCollector& collector) {
     for(auto& worker : allWorkers_) {
       try {
-        try {
+        convertException::wrap([&]() {
           worker->endJob();
-        }
-        catch (cms::Exception& e) { throw; }
-        catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch (std::string& s) { convertException::stringToEDM(s); }
-        catch (char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
-      }      
+        });
+      }
       catch (cms::Exception const& ex) {
         collector.addException(ex);
       }

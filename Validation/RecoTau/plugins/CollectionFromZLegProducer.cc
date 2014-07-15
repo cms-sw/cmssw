@@ -26,7 +26,6 @@ public:
   virtual ~CollectionFromZLegProducer();
   
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:  
   // member data
@@ -93,10 +92,6 @@ void CollectionFromZLegProducer::produce(edm::Event& iEvent,const edm::EventSetu
   } 
   iEvent.put(theTagLeg  , "theTagLeg"   ) ;
   iEvent.put(theProbeLeg, "theProbeLeg" ) ;
-}
-
-void CollectionFromZLegProducer::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

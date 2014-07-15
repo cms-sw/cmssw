@@ -8,6 +8,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandFlat.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 using namespace edm;
 
@@ -36,6 +44,9 @@ void FlatRandomPtThetaGunProducer::produce(edm::Event &e, const EventSetup& es) 
     LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Begin New Event Generation"; 
   }
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
   // event loop (well, another step in it...)
   
   // no need to clean up GenEvent memory - done in HepMCProduct
@@ -56,9 +67,9 @@ void FlatRandomPtThetaGunProducer::produce(edm::Event &e, const EventSetup& es) 
   int barcode = 1 ;
   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip) {
 
-    double pt     = fRandomGenerator->fire(fMinPt, fMaxPt) ;
-    double theta  = fRandomGenerator->fire(fMinTheta, fMaxTheta) ;
-    double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
+    double pt     = CLHEP::RandFlat::shoot(engine, fMinPt, fMaxPt);
+    double theta  = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
+    double phi    = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
     int PartID = fPartIDs[ip] ;
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;

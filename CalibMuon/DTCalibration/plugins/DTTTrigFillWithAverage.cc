@@ -50,7 +50,7 @@ DTTTrigData DTTTrigFillWithAverage::correction(const DTSuperLayerId& slId) {
 
 void DTTTrigFillWithAverage::getAverage() {
   //Get the superlayers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom_->superLayers();
+  vector<const DTSuperLayer*> dtSupLylist = muonGeom_->superLayers();
 
   float aveMean = 0.;
   float ave2Mean = 0.;
@@ -59,8 +59,8 @@ void DTTTrigFillWithAverage::getAverage() {
   float aveKFactor = 0.;
   int nIter = 0;
   
-  for(vector<DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
-                                            sl != muonGeom_->superLayers().end(); ++sl) {
+  for(auto sl = muonGeom_->superLayers().begin();
+          sl != muonGeom_->superLayers().end(); ++sl) {
     float tTrigMean,tTrigSigma,kFactor;
     int status = tTrigMap_->get((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
     if(!status){

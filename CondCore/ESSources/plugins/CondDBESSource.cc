@@ -41,20 +41,6 @@ namespace {
     return iRecordName + std::string( "@" ) + iLabelName;
   }
 
-  // required in the "bridge" mode, to be removed with the ORA based code after the transition
-  std::pair<std::string,std::string> parseTag( const std::string& tag ){
-    std::string pfn("");
-    std::string t(tag);
-    size_t pos = tag.rfind('@');
-    if( pos != std::string::npos && tag.size() >= pos+3 ){
-      if( tag[pos+1]=='[' && tag[tag.size()-1]==']' ) {
-	pfn = tag.substr( pos+2,tag.size()-pos-3 ); 
-	t = tag.substr( 0, pos );
-      }
-    }
-    return std::make_pair( t, pfn );
-  }
-
   /* utility class to return a IOVs associated to a given "name"
      This implementation return the IOV associated to a record...
      It is essentialy a workaround to get the full IOV out of the tag colector
@@ -211,7 +197,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   for(it=itBeg;it!=itEnd;++it){
     std::string connStr = m_connectionString;
     std::string tag = it->second.tagName();
-    std::pair<std::string,std::string> tagParams = parseTag( it->second.tagName() );
+    std::pair<std::string,std::string> tagParams = cond::persistency::parseTag( it->second.tagName() );
     if( !tagParams.second.empty() ) {
       connStr =  tagParams.second;
       tag = tagParams.first;
@@ -407,7 +393,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	//transId << "long" << m_lastRun;
 	transId << m_lastRun;
 	std::string connStr = m_connectionString;
-	std::pair<std::string,std::string> tagParams = parseTag( tcIter->second.tagName() );
+	std::pair<std::string,std::string> tagParams = cond::persistency::parseTag( tcIter->second.tagName() );
 	if( !tagParams.second.empty() ) connStr =  tagParams.second;
 	std::map<std::string,std::pair<cond::persistency::Session,std::string> >::iterator iSess = m_sessionPool.find( connStr );
 	bool reopen = false;

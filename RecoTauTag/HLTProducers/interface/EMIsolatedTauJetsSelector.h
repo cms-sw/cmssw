@@ -23,7 +23,7 @@ class EMIsolatedTauJetsSelector: public edm::EDProducer {
 
  private:
   std::vector<edm::InputTag> tauSrc ;
-
+  std::vector<edm::EDGetTokenT<reco::EMIsolatedTauTagInfoCollection> > tauSrc_token;  
 
 
 };

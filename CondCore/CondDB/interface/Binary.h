@@ -1,6 +1,8 @@
 #ifndef CondCore_CondDB_Binary_h
 #define CondCore_CondDB_Binary_h
 
+// for the old system, this will go away
+#include "CondCore/ORA/interface/Object.h"
 #include <string>
 #include <memory>
 // temporarely
@@ -13,18 +15,11 @@ namespace coral {
 
 namespace cond {
 
-  struct Nodelete {
-    Nodelete(){}
-    void operator()( void* ptr ){}
-  };
-  
   class Binary {
   public:
     Binary();
 
     template <typename T> explicit Binary( const T& object );
-
-    explicit Binary( const boost::shared_ptr<void>& objectPtr );
 
     Binary( const void* data, size_t size  );
 
@@ -44,16 +39,19 @@ namespace cond {
 
     size_t size() const;
 
-    boost::shared_ptr<void> share() const;
+    ora::Object oraObject() const;
+
+    void fromOraObject( const ora::Object& object );
 
   private:
     std::shared_ptr<coral::Blob> m_data;
     //
-    boost::shared_ptr<void> m_object;
+    // workaround to support the non-streamed, packed objects ( the old system )
+    ora::Object m_object;
   };
 
   template <typename T> Binary::Binary( const T& object ):
-    m_object( &const_cast<T&>(object), Nodelete() ){
+    m_object( object ){
   }
 }
 

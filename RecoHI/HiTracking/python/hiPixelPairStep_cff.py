@@ -24,8 +24,7 @@ hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi
-hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.pixellayerpairs.clone(
-            ComponentName = 'hiPixelPairSeedLayers',
+hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLayerPairs.clone(
             layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
                                     'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
                                     'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
@@ -42,7 +41,7 @@ hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0
 # sigmaZVertex is only used when usedFixedError is True -Matt
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.sigmaZVertex = 4.0
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.useFixedError = cms.bool(False)
-hiPixelPairSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('hiPixelPairSeedLayers')
+hiPixelPairSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiPixelPairSeedLayers')
 hiPixelPairSeeds.OrderedHitsFactoryPSet.maxElement = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
@@ -52,18 +51,16 @@ hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
     FilterAtHelixStage = cms.bool(True),
     FilterPixelHits = cms.bool(True),
     FilterStripHits = cms.bool(False),
-    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+    ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiPixelPairTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     #maxLostHits = 0,
     minimumNumberOfHits = 6,
     minPt = 1.0
-    )
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
@@ -74,11 +71,10 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProd
         )
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-        ComponentName = 'hiPixelPairTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
         MeasurementTrackerName = '',
-        trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
+        trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryFilter')),
         clustersToSkip = cms.InputTag('hiPixelPairClusters'),
         maxCand = 3,
         #estimator = cms.string('hiPixelPairChi2Est')
@@ -88,7 +84,7 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiPixelPairSeeds'),
-    TrajectoryBuilder = 'hiPixelPairTrajectoryBuilder'
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder'))
     )
 
 
@@ -126,6 +122,7 @@ hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
 # Final sequence
 
 hiPixelPairStep = cms.Sequence(hiPixelPairClusters*
+                               hiPixelPairSeedLayers*
                                hiPixelPairSeeds*
                                hiPixelPairTrackCandidates*
                                hiPixelPairGlobalPrimTracks*

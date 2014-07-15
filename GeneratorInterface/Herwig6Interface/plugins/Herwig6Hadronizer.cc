@@ -17,6 +17,7 @@
 #include <HepMC/IO_HERWIG.h>
 #include "HepPID/ParticleIDTranslations.hh"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -29,6 +30,7 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
@@ -36,6 +38,10 @@
 #include "GeneratorInterface/Herwig6Interface/interface/herwig.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 extern "C" {
   void hwuidt_(int *iopt, int *ipdg, int *iwig, char nwig[8]);
@@ -108,6 +114,10 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	const char *classname() const { return "Herwig6Hadronizer"; }
 
     private:
+
+        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+        virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+
 	void clear();
 
 	int pythiaStatusCode(const HepMC::GenParticle *p) const;
@@ -115,6 +125,8 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 
 	virtual void upInit() override;
 	virtual void upEvnt() override;
+
+        static const std::vector<std::string> theSharedResources;
 
 	HepMC::IO_HERWIG		conv;
 	bool				needClear;
@@ -151,6 +163,9 @@ extern "C" {
 	void mysetpdfpath_(const char *path);
 } // extern "C"
 
+const std::vector<std::string> Herwig6Hadronizer::theSharedResources = { edm::SharedResourceNames::kHerwig6,
+                                                                         gen::FortranInstance::kFortranInstance };
+
 Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params) :
 	BaseHadronizer(params),
 	needClear(false),
@@ -184,6 +199,11 @@ Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params) :
 Herwig6Hadronizer::~Herwig6Hadronizer()
 {
 	clear();
+}
+
+void Herwig6Hadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
+{
+  setHerwigRandomEngine(v);
 }
 
 void Herwig6Hadronizer::clear()

@@ -102,16 +102,16 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
   
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
+    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
+    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -120,8 +120,8 @@ namespace edm {
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
              ExceptionToActionTable const& actions,
-             boost::shared_ptr<ActivityRegistry> areg,
-             boost::shared_ptr<ProcessConfiguration> processConfiguration,
+             std::shared_ptr<ActivityRegistry> areg,
+             std::shared_ptr<ProcessConfiguration> processConfiguration,
              const ParameterSet* subProcPSet,
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);
@@ -235,10 +235,13 @@ namespace edm {
 
   private:
 
+    /// Check that the schedule is actually runable
+    void checkForCorrectness() const;
+    
     void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter> resultsInserter_;
-    boost::shared_ptr<ModuleRegistry> moduleRegistry_;
+    std::shared_ptr<ModuleRegistry> moduleRegistry_;
     std::vector<std::shared_ptr<StreamSchedule>> streamSchedules_;
     //In the future, we will have one GlobalSchedule per simultaneous transition
     std::unique_ptr<GlobalSchedule> globalSchedule_;

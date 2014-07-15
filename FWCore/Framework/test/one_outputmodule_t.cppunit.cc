@@ -57,8 +57,6 @@ public:
   void fileTest();
   void resourceTest();
 
-private:
-
   enum class Trans {
     kBeginJob,
     kGlobalOpenInputFile,
@@ -72,16 +70,20 @@ private:
     kEndJob
   };
   
-  std::map<Trans,std::function<void(edm::Worker*,edm::OutputModuleCommunicator*)>> m_transToFunc;
   typedef std::vector<Trans> Expectations;
+
+private:
+
+  std::map<Trans,std::function<void(edm::Worker*,edm::OutputModuleCommunicator*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
-  boost::shared_ptr<edm::ProductRegistry> m_prodReg;
-  boost::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ProductRegistry> m_prodReg;
+  std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
-  boost::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
-  boost::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
+  std::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg;
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::CPUTimer* m_timer = nullptr;
@@ -89,7 +91,7 @@ private:
   
   typedef edm::service::TriggerNamesService TNS;
   typedef edm::serviceregistry::ServiceWrapper<TNS> w_TNS;
-  boost::shared_ptr<w_TNS> tnsptr_;
+  std::shared_ptr<w_TNS> tnsptr_;
   edm::ServiceToken serviceToken_;
   
   template<typename T>
@@ -204,6 +206,25 @@ private:
 
 };
 
+namespace {
+  struct ShadowStreamID {
+    constexpr ShadowStreamID():value(0){}
+    unsigned int value;
+  };
+  
+  union IDUnion {
+    IDUnion(): m_shadow() {}
+    ShadowStreamID m_shadow;
+    edm::StreamID m_id;
+  };
+}
+static edm::StreamID makeID() {
+  IDUnion u;
+  assert(u.m_id.value() == 0);
+  return u.m_id;
+}
+static const edm::StreamID s_streamID0 = makeID();
+
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testOneOutputModule);
 
@@ -219,9 +240,9 @@ m_ep()
   
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID.run(), now, now));
+  auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(m_rp->run(), 1, now, now));
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
@@ -232,6 +253,7 @@ m_ep()
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
   m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
   m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
@@ -252,7 +274,9 @@ m_ep()
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext parentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     iBase->doWork<Traits>(*m_ep,*m_es,m_timer, edm::StreamID::invalidStreamID(), parentContext, nullptr); };
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {

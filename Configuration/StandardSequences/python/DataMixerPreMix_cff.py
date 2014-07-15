@@ -19,12 +19,12 @@ DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 
 # Re-define inputs to point at DataMixer output
 DMEcalTriggerPrimitiveDigis.Label = cms.string('mixData')
-DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('EBDigiCollectionDM')
-DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('EEDigiCollectionDM')
+DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('')
+DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('')
 #
 DMEcalDigis.digiProducer = cms.string('mixData')
-DMEcalDigis.EBdigiCollection = cms.string('EBDigiCollectionDM')
-DMEcalDigis.EEdigiCollection = cms.string('EEDigiCollectionDM')
+DMEcalDigis.EBdigiCollection = cms.string('')
+DMEcalDigis.EEdigiCollection = cms.string('')
 DMEcalDigis.trigPrimProducer = cms.string('DMEcalTriggerPrimitiveDigis')
 #
 DMEcalPreshowerDigis.digiProducer = cms.string('mixData')
@@ -42,7 +42,7 @@ DMHcalTTPDigis = simHcalTTPDigis.clone()
 
 # Re-define inputs to point at DataMixer output
 DMHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('mixData'),cms.InputTag('mixData'))
-DMHcalDigis.digiLabel = cms.InputTag("mixData")
+DMHcalDigis.digiLabel = cms.string('mixData')
 DMHcalTTPDigis.HFDigiCollection = cms.InputTag("mixData")
 
 hcalDigiSequenceDM = cms.Sequence(DMHcalTriggerPrimitiveDigis+DMHcalDigis*DMHcalTTPDigis)

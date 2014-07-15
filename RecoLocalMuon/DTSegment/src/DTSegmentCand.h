@@ -31,11 +31,12 @@ class DTChamberRecSegment2D;
 class DTChamber;
 class DTSuperLayer;
 
+
 class DTSegmentCand{
 
   public:
     struct AssPointLessZ ;
-    typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+    typedef std::pair<std::shared_ptr<DTHitPairForFit>, DTEnums::DTCellSide> AssPoint;
     typedef std::set<AssPoint, AssPointLessZ> AssPointCont;
 
 /// Constructor
@@ -60,10 +61,13 @@ class DTSegmentCand{
     virtual unsigned int nHits() const { return theHits.size(); }
 
     /// the chi2 (NOT chi2/NDOF) of the fit
-    virtual double chi2() const {return theChi2; }
+    virtual double chi2() const { return theChi2; }
 
     /// the chi2/NDOF of the fit
-    virtual double chi2ndof() const {return theChi2/(nHits()-2.); }
+    virtual double chi2ndof() const { return theChi2/(nHits()-2.); }
+
+    /// the t0 of the segment
+    virtual double t0() const { return thet0; }
 
     /// equality operator based on position, direction, chi2 and nHits
     virtual bool operator==(const DTSegmentCand& seg);
@@ -89,16 +93,19 @@ class DTSegmentCand{
     virtual void setPosition(LocalPoint& pos) { thePosition=pos; }
 
     /// set direction
-    virtual void setDirection(LocalVector& dir) { theDirection = dir ; }
+    virtual void setDirection(LocalVector& dir) { theDirection = dir; }
 
     /// add hits to the hit list.
-    virtual void add(DTHitPairForFit* hit, DTEnums::DTCellSide code) ;
+    virtual void add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) ;
 
     /// remove hit from the candidate
     virtual void removeHit(AssPoint hit) ;
 
     /// set chi2
-    virtual void setChi2(double& chi2) { theChi2 = chi2 ;}
+    virtual void setChi2(double& chi2) { theChi2 = chi2; }
+
+    /// set t0
+    virtual void sett0(double& t0) { thet0 = t0; }
 
     /// number of shared hit pair with other segment candidate
     virtual int nSharedHitPairs(const DTSegmentCand& seg) const;
@@ -124,24 +131,24 @@ class DTSegmentCand{
     /// convert this DTSegmentCand into a DTChamberRecSegment2D
     operator DTChamberRecSegment2D*() const;
 
-
     struct AssPointLessZ : 
       public std::binary_function<const AssPoint&, const AssPoint&, bool> {
         public:
           bool operator()(const AssPoint& pt1, 
                           const AssPoint& pt2) const ; 
       };
+
   private:
     const DTSuperLayer* theSL; // the SL
     LocalPoint  thePosition;  // in SL frame
     LocalVector theDirection; // in SL frame
     double theChi2;           // chi2 of the fit
+    double thet0;             // the t0 offset
 
     /// mat[1][1]=sigma (dx/dz)
     /// mat[2][2]=sigma (x)
     /// mat[1][2]=cov(dx/dz,x)
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-
 
     AssPointCont theHits; // the used hits
 

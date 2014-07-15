@@ -41,16 +41,14 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Random.h"
 
 //
 // constructors and destructor
@@ -373,13 +371,14 @@ void HcalTB04Analysis::update(const EndOfEvent * evt) {
   //QIE analysis
   LogDebug("HcalTBSim") << "HcalTB04Analysis::Do QIE analysis with " 
 			<< hcalHitCache.size() << " hits";
-  qieAnalysis();
+  CLHEP::HepRandomEngine* engine = CLHEP::HepRandom::getTheEngine();
+  qieAnalysis(engine);
 
   //Energy in Crystal Matrix
   if (!hcalOnly) {
     LogDebug("HcalTBSim") << "HcalTB04Analysis::Do Xtal analysis with " 
 			  << ecalHitCache.size() << " hits";
-    xtalAnalysis();
+    xtalAnalysis(engine);
   }
   
   //Final Analysis
@@ -654,7 +653,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
 
 }
 
-void HcalTB04Analysis::qieAnalysis() {
+void HcalTB04Analysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
 
   int hittot = hcalHitCache.size();
   if (hittot<=0) hittot = 1;
@@ -682,7 +681,7 @@ void HcalTB04Analysis::qieAnalysis() {
     }
     k1 += nhit;
     nhit++;
-    std::vector<int> cd = myQie->getCode(nhit,hits);
+    std::vector<int> cd = myQie->getCode(nhit, hits, engine);
     double eq = myQie->getEnergy(cd);
     LogDebug("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << id 
 			  << std::dec << " registers " << esim << " energy "
@@ -700,7 +699,7 @@ void HcalTB04Analysis::qieAnalysis() {
   // Towers with no hit
   for (int k2 = 0; k2 < nTower; k2++) {
     if (todo[k2] == 0) {
-      std::vector<int> cd = myQie->getCode(0,hits);
+      std::vector<int> cd = myQie->getCode(0, hits, engine);
       double eq = myQie->getEnergy(cd);
       esimh[k2] = 0;
       eqie[k2]  = eq;
@@ -714,17 +713,9 @@ void HcalTB04Analysis::qieAnalysis() {
   }
 }
 
-void HcalTB04Analysis::xtalAnalysis() {
+void HcalTB04Analysis::xtalAnalysis(CLHEP::HepRandomEngine* engine) {
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "HcalTB04Analysis requires the RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  CLHEP::RandGaussQ  randGauss(rng->getEngine());
+  CLHEP::RandGaussQ  randGauss(*engine);
 
   // Crystal Data
   std::vector<int> iok(nCrystal,0);

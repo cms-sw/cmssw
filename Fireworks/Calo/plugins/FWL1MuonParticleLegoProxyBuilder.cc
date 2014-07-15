@@ -23,6 +23,7 @@ private:
    FWL1MuonParticleLegoProxyBuilder( const FWL1MuonParticleLegoProxyBuilder& );    // stop default
    const FWL1MuonParticleLegoProxyBuilder& operator=( const FWL1MuonParticleLegoProxyBuilder& );    // stop default
    
+   using FWSimpleProxyBuilderTemplate<l1extra::L1MuonParticle>::build;
    virtual void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
 };
 

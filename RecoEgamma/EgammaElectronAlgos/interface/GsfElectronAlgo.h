@@ -219,7 +219,7 @@ class GsfElectronAlgo {
     void displayInternalElectrons( const std::string & title ) const ;
     void clonePreviousElectrons() ;
     void completeElectrons() ; // do not redo cloned electrons done previously
-    void addPflowInfo() ;
+    void addPflowInfo() ; // now deprecated
     void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
@@ -247,6 +247,7 @@ class GsfElectronAlgo {
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
+    void calculateShowerShape_full5x5( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
 
 
     // associations

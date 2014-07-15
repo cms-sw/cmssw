@@ -25,14 +25,7 @@ hfv6 = hfv1.clone(
 hfv7 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_DoubleMu4_Jpsi_Displaced_v")
 )
-hfv8 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Mu3")
-)
-hfv9 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_DoubleMu3")
-)
 
 heavyFlavorValidationSequence = cms.Sequence(
   hfv1+hfv2+hfv3+hfv4+hfv5+hfv6+hfv7
-  +hfv8+hfv9
 )

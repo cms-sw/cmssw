@@ -24,10 +24,7 @@ class EgammaHLTRechitInRegionsProducer : public edm::EDProducer {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-
-  int nMaxPrintout_; // max # of printouts
-  int nEvt_;         // internal counter of events
-  
+  bool useUncalib_;
   bool doIsolated_;
   edm::InputTag hitproducer_;
   std::string hitcollection_;
@@ -43,9 +40,9 @@ class EgammaHLTRechitInRegionsProducer : public edm::EDProducer {
   double regionPhiMargin_;
   
   std::vector<edm::InputTag> hitLabels;
+  std::vector<std::string> productLabels;
   std::vector<edm::EDGetTokenT<EcalRecHitCollection>> hitTokens;
-  
-  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
+  std::vector<edm::EDGetTokenT<EcalUncalibratedRecHitCollection>> uncalibHitTokens;
 };
 
 

@@ -6,11 +6,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -21,21 +22,21 @@
 
 class  BetaCalculatorTK{
    public:
-      BetaCalculatorTK(const edm::ParameterSet& iConfig);
+      BetaCalculatorTK(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
       void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      edm::InputTag m_dedxEstimator1Tag;
-      edm::InputTag m_dedxEstimator2Tag;
-      edm::InputTag m_dedxEstimator3Tag;
-      edm::InputTag m_dedxEstimator4Tag;
-      edm::InputTag m_dedxEstimator5Tag;
-      edm::InputTag m_dedxEstimator6Tag;
-      edm::InputTag m_dedxDiscriminator1Tag;
-      edm::InputTag m_dedxDiscriminator2Tag;
-      edm::InputTag m_dedxDiscriminator3Tag;
-      edm::InputTag m_dedxDiscriminator4Tag;
-      edm::InputTag m_dedxDiscriminator5Tag;
-      edm::InputTag m_dedxDiscriminator6Tag;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxEstimator1Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxEstimator2Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxEstimator3Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxEstimator4Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxEstimator5Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxEstimator6Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxDiscriminator1Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxDiscriminator2Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxDiscriminator3Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxDiscriminator4Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxDiscriminator5Token;
+      edm::EDGetTokenT<reco::DeDxDataValueMap> m_dedxDiscriminator6Token;
 };
 
 

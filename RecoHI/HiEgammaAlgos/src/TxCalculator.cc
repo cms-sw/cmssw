@@ -15,6 +15,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -31,9 +33,7 @@ TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
          "which is not present in the configuration file.  You must add the service\n"
          "in the configuration file or remove the modules that require it.";
    }
-   CLHEP::HepRandomEngine& engine = rng->getEngine();
-   theDice = new CLHEP::RandFlat(engine, 0, 1);
-   
+   theDice = &rng->getEngine(iEvent.streamID());
 } 
 
 
@@ -98,7 +98,7 @@ double TxCalculator::getTx(const reco::Photon& cluster, double x, double thresho
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
       {
-	 double diceNum = theDice->fire();
+	 double diceNum = theDice->flat();
 	 if ( (effRatio < 1 ) &&  ( diceNum > effRatio))
 	    continue;
 	 
@@ -135,7 +135,7 @@ double TxCalculator::getCTx(const reco::Photon& cluster, double x, double thresh
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
       {
-	 double diceNum = theDice->fire();
+	 double diceNum = theDice->flat();
          if ( (effRatio < 1 ) &&  ( diceNum > effRatio))
             continue;
 	 

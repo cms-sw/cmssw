@@ -12,8 +12,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,9 +30,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
 
-
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
 
@@ -52,14 +51,9 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
   }
-
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-
   theRPCSimSetUp =  new RPCSimSetUp(ps);
-  theDigitizer = new RPCDigitizer(ps,engine);
-
-
+  theDigitizer = new RPCDigitizer(ps);
+  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_,collection_for_XF));
 }
 
 RPCDigiProducer::~RPCDigiProducer() {
@@ -89,8 +83,14 @@ void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSe
 
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel(mix_, collection_for_XF, cf);
+  // Obsolate code, based on getByLabel  
+  //  e.getByLabel(mix_, collection_for_XF, cf);
+  //New code, based on tokens
+  e.getByToken(crossingFrameToken, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );
@@ -100,7 +100,7 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   std::auto_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
 
   // run the digitizer
-  theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink);
+  theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);
 
   // store them in the event
   e.put(pDigis);

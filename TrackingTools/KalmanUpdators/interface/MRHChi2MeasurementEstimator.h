@@ -18,7 +18,7 @@ public:
     Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
 
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TransientTrackingRecHit&) const;
+				     const TrackingRecHit&) const;
 
   virtual MRHChi2MeasurementEstimator* clone() const {
     return new MRHChi2MeasurementEstimator(*this);

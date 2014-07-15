@@ -137,7 +137,7 @@ namespace edm {
     return false;
   }
 
-  boost::shared_ptr<ProductHolderIndexHelper> const&
+  std::shared_ptr<ProductHolderIndexHelper> const&
   ProductRegistry::productLookup(BranchType branchType) const {
     if (branchType == InEvent) return transient_.eventProductLookup_;
     if (branchType == InLumi) return transient_.lumiProductLookup_;

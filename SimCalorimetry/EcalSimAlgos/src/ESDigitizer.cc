@@ -3,8 +3,6 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESHitResponse.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGeneral.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -17,10 +15,7 @@ ESDigitizer::ESDigitizer( EcalHitResponse*      hitResponse    ,
 			  bool                  addNoise         ) :
    EcalTDigitizer< ESDigitizerTraits >( hitResponse, electronicsSim, addNoise ) ,
    m_detIds      ( 0              ) ,
-   m_engine      ( 0              ) ,
    m_ranGeneral  ( 0              ) ,
-   m_ranPois     ( 0              ) ,
-   m_ranFlat     ( 0              ) ,
    m_ESGain      ( 0              ) ,
    m_histoBin    ( 0              ) ,
    m_histoInf    ( 0              ) ,
@@ -29,23 +24,11 @@ ESDigitizer::ESDigitizer( EcalHitResponse*      hitResponse    ,
    m_trip        (                )
 {
    m_trip.reserve( 2500 ) ; 
-
-   edm::Service<edm::RandomNumberGenerator> rng ;
-   if( !rng.isAvailable() )
-   {
-      throw cms::Exception( "Configuration" )
-	 << "ESDigitizer requires the RandomNumberGeneratorService\n"
-	 "which is not present in the configuration file.  You must add the service\n"
-	 "in the configuration file or remove the modules that require it.";
-   }
-   m_engine = &rng->getEngine() ;
 }
 
 ESDigitizer::~ESDigitizer() 
 {
    delete m_ranGeneral ;
-   delete m_ranPois    ;
-   delete m_ranFlat    ;
 }
 
 /// tell the digitizer which cells exist; cannot change during a run
@@ -76,8 +59,6 @@ ESDigitizer::setGain( const int gain )
       
       if( addNoise() ) 
       {
-	 assert( 0 != m_engine ) ; // sanity check
-
 	 double zsThresh ( 0. ) ;
 	 std::string refFile ;
 
@@ -98,9 +79,6 @@ ESDigitizer::setGain( const int gain )
 
 	 const double probabilityLeft ( result.val ) ;
 	 m_meanNoisy = probabilityLeft * m_detIds->size() ;
-
-	 m_ranPois = new CLHEP::RandPoissonQ( *m_engine, m_meanNoisy      ) ;
-	 m_ranFlat = new CLHEP::RandFlat(     *m_engine, m_detIds->size() ) ;
 
 	 std::ifstream histofile ( edm::FileInPath( refFile ).fullPath().c_str() ) ;
 	 if( !histofile.good() )
@@ -174,7 +152,7 @@ ESDigitizer::setGain( const int gain )
 	    m_histoInf -= 1000. ;
 
 	    // creating the reference distribution to extract random numbers
-	    m_ranGeneral = new CLHEP::RandGeneral( *m_engine            ,
+	    m_ranGeneral = new CLHEP::RandGeneral( nullptr              ,
 						   &t_refHistos.front() ,
 						   t_refHistos.size()   ,
 						   0             ) ;
@@ -186,24 +164,21 @@ ESDigitizer::setGain( const int gain )
 
 /// turns hits into digis
 void 
-ESDigitizer::run( ESDigiCollection&        output   )
+ESDigitizer::run( ESDigiCollection& output, CLHEP::HepRandomEngine* engine )
 {
     assert( 0 != m_detIds         &&
 	    0 != m_detIds->size() &&
 	    ( !addNoise()         ||
-	      ( 0 != m_engine     &&
-		0 != m_ranPois    &&
-		0 != m_ranFlat    &&
-		0 != m_ranGeneral        ) ) ) ; // sanity check
+	      0 != m_ranGeneral ) ) ; // sanity check
 
     // reserve space for how many digis we expect, with some cushion
     output.reserve( 2*( (int) m_meanNoisy ) + hitResponse()->samplesSize() ) ;
 
-    EcalTDigitizer< ESDigitizerTraits >::run( output ) ;
+    EcalTDigitizer< ESDigitizerTraits >::run( output, engine ) ;
 
     // random generation of channel above threshold
     std::vector<DetId> abThreshCh ;
-    if( addNoise() ) createNoisyList( abThreshCh ) ;
+    if( addNoise() ) createNoisyList( abThreshCh, engine ) ;
 
     // first make a raw digi for every cell where we have noise
     for( std::vector<DetId>::const_iterator idItr ( abThreshCh.begin() ) ;
@@ -212,7 +187,7 @@ ESDigitizer::run( ESDigiCollection&        output   )
        if( hitResponse()->findDetId( *idItr )->zero() ) // only if no true hit!
        {
 	  ESHitResponse::ESSamples analogSignal ( *idItr, 3 ) ; // space for the noise hit
-	  uint32_t myBin ( (uint32_t) m_trip.size()*m_ranGeneral->fire() ) ;
+	  uint32_t myBin ( (uint32_t) m_trip.size()*m_ranGeneral->shoot(engine) ) ;
 	  if( myBin == m_trip.size() ) --myBin ; // guard against roundup
 	  assert( myBin < m_trip.size() ) ;
 	  const Triplet& trip ( m_trip[ myBin ] ) ;
@@ -221,7 +196,8 @@ ESDigitizer::run( ESDigiCollection&        output   )
 	  analogSignal[ 2 ] = m_histoInf + m_histoWid*trip.third  ;
 	  ESDataFrame digi( *idItr ) ;
 	  const_cast<ESElectronicsSimFast*>(elecSim())->
-	     analogToDigital( analogSignal ,
+             analogToDigital( engine,
+                              analogSignal ,
 			      digi         ,
 			      true           ) ;	
 	  output.push_back( std::move(digi) ) ;  
@@ -231,9 +207,10 @@ ESDigitizer::run( ESDigiCollection&        output   )
 
 // preparing the list of channels where the noise has to be generated
 void 
-ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh )
+ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine* engine )
 {
-   const unsigned int nChan ( m_ranPois->fire() ) ;
+   CLHEP::RandPoissonQ randPoissonQ(*engine, m_meanNoisy);
+   const unsigned int nChan (randPoissonQ.fire());
    abThreshCh.reserve( nChan ) ;
 
    for( unsigned int i ( 0 ) ; i != nChan ; ++i )
@@ -243,7 +220,7 @@ ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh )
       DetId id ;
       do 
       {
-	 iChan = (uint32_t) m_ranFlat->fire() ;
+         iChan = (uint32_t) CLHEP::RandFlat::shoot(engine, m_detIds->size());
 	 if( iChan == m_detIds->size() ) --iChan ; //protect against roundup at end
 	 assert( m_detIds->size() > iChan ) ;      // sanity check
 	 id = (*m_detIds)[ iChan ] ;

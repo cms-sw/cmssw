@@ -70,6 +70,14 @@ void GEDGsfElectronCoreProducer::produceElectronCore( const reco::PFCandidate & 
   SuperClusterRef scRef = extraRef->superClusterRef();
   SuperClusterRef scBoxRef = extraRef->superClusterPFECALRef();  
 
+  for(const auto &convref : extraRef->conversionRef()) {
+    eleCore->addConversion(convref);
+  }
+  
+  for(const auto &convref : extraRef->singleLegConversionRef()) {
+    eleCore->addOneLegConversion(convref);
+  }
+  
   if (!scRef.isNull() || !scBoxRef.isNull())
   {
        eleCore->setSuperCluster(scRef) ;

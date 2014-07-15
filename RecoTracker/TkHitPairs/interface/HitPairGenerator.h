@@ -11,6 +11,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 class TrackingRegion;
 namespace edm { class Event; class EventSetup; }
@@ -21,6 +22,8 @@ public:
   explicit HitPairGenerator(unsigned int size=7500);
 
   virtual ~HitPairGenerator() { }
+
+  virtual void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) = 0;
 
   virtual const OrderedHitPairs & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);

@@ -20,8 +20,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
 #include "GeneratorInterface/Herwig6Interface/interface/herwig.h"
 #include "GeneratorInterface/Herwig6Interface/interface/Herwig6Instance.h"
 
@@ -79,14 +77,8 @@ extern "C" {
 
 // Herwig6Instance methods
 
-Herwig6Instance::Herwig6Instance(CLHEP::HepRandomEngine *randomEngine) :
-	randomEngine(randomEngine ? randomEngine : &getEngineReference()),
-	timeoutPrivate(0)
-{
-}
-
-Herwig6Instance::Herwig6Instance(int dummy) :
-	randomEngine(0),
+Herwig6Instance::Herwig6Instance() :
+	randomEngine(nullptr),
 	timeoutPrivate(0)
 {
 }

@@ -83,6 +83,8 @@ def OptionsFromItems(items):
                  "SIM":"GEN",
                  "reSIM":"SIM",
                  "DIGI":"SIM",
+                 "DIGIPREMIX":"SIM",
+                 "DIGIPREMIX_S2":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
                  "HLT":"RAW",
@@ -96,7 +98,8 @@ def OptionsFromItems(items):
                  "DATAMIX":"DIGI",
                  "DIGI2RAW":"DATAMIX",
                  "HARVESTING":"RECO",
-                 "ALCAHARVEST":"RECO"}
+                 "ALCAHARVEST":"RECO",
+                 "PAT":"RECO"}
 
     trimmedEvtType=options.evt_type.split('/')[-1]
 
@@ -127,7 +130,7 @@ def OptionsFromItems(items):
         addEndJob = False
     if ("ENDJOB" in options.step):
         addEndJob = False
-    if ('DQMROOT' in options.datatier):
+    if ('DQMIO' in options.datatier):
         addEndJob = False
     if addEndJob:    
         options.step=options.step+',ENDJOB'
@@ -203,6 +206,8 @@ def OptionsFromItems(items):
         if 'CFWRITER' in options.trimmedStep:
             options.isMC=True
         if 'DIGI' in options.trimmedStep:
+            options.isMC=True
+        if 'DIGI2RAW' in options.trimmedStep:
             options.isMC=True
         if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
             options.isMC=True

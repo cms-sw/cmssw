@@ -7,7 +7,7 @@
 #include <memory>
 
 CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
-  delete m_reverseItems;
+  delete m_reverseItems.load();
   m_reverseItems = nullptr;
 }
 CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * topology) :
@@ -60,6 +60,10 @@ void CaloTowerConstituentsMap::assign(const DetId& cell, const CaloTowerDetId& t
 
 void CaloTowerConstituentsMap::sort() {
   m_items.sort();
+  
+//  for (auto const & it : m_items)
+//    std::cout << std::hex << it.cell.rawId() << " " << it.tower.rawId() << std::dec << std::endl;
+
 }
 
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {

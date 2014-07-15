@@ -1,6 +1,8 @@
 #ifndef OpticalAlignMeasurements_H
 #define OpticalAlignMeasurements_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
 
 #include <vector>
@@ -23,6 +25,8 @@ public:
   virtual ~OpticalAlignMeasurements() {}
 
   std::vector<OpticalAlignMeasurementInfo> oaMeasurements_;
+
+  COND_SERIALIZABLE;
 };
 
 #endif // OpticalAlignMeasurements_H

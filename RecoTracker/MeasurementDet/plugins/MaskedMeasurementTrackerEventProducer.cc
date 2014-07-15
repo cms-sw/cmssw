@@ -14,27 +14,19 @@ private:
 
       typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripMask;
       typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMask;
-      typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> >      StripLazyMask;
 
       edm::EDGetTokenT<MeasurementTrackerEvent> src_;
-      bool onDemand_;
 
       edm::EDGetTokenT<StripMask> maskStrips_;
       edm::EDGetTokenT<PixelMask> maskPixels_;
-      edm::EDGetTokenT<StripLazyMask> maskStripsLazy_;
 };
 
 
 MaskedMeasurementTrackerEventProducer::MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) :
-    src_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("src"))),
-    onDemand_(iConfig.getParameter<bool>("OnDemand"))
+    src_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("src")))
 {
     edm::InputTag clustersToSkip = iConfig.getParameter<edm::InputTag>("clustersToSkip");
-    if (onDemand_) {
-        maskStripsLazy_ = consumes<StripLazyMask>(clustersToSkip);
-    } else {
-        maskStrips_ = consumes<StripMask>(clustersToSkip);
-    }
+    maskStrips_ = consumes<StripMask>(clustersToSkip);
     maskPixels_ = consumes<PixelMask>(clustersToSkip);
 
     produces<MeasurementTrackerEvent>();
@@ -52,15 +44,9 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
     edm::Handle<PixelMask> maskPixels;
     iEvent.getByToken(maskPixels_, maskPixels);
 
-    if (onDemand_) {
-        edm::Handle<StripLazyMask> maskStripsLazy;
-        iEvent.getByToken(maskStripsLazy_, maskStripsLazy);
-        out.reset(new MeasurementTrackerEvent(*mte, *maskStripsLazy, *maskPixels));
-    } else {
-        edm::Handle<StripMask> maskStrips;
-        iEvent.getByToken(maskStrips_, maskStrips);
-        out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels));
-    }
+    edm::Handle<StripMask> maskStrips;
+    iEvent.getByToken(maskStrips_, maskStrips);
+    out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels));
 
     // put into event
     iEvent.put(out);

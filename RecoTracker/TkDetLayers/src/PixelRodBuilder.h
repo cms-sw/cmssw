@@ -16,7 +16,7 @@ class PixelRodBuilder {
  public:
   PixelRodBuilder(){};
   PixelRod* build(const GeometricDet* aRod,
-		  const TrackerGeometry* theGeomDetGeometry);
+		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
   
 };
 

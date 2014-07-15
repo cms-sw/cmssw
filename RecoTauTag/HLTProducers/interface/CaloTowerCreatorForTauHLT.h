@@ -17,8 +17,10 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include <string>
-#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;
@@ -37,13 +39,13 @@ class CaloTowerCreatorForTauHLT : public edm::EDProducer {
   /// verbosity
   int mVerbose;
   /// label of source collection
- edm::InputTag mtowers;
+  edm::EDGetTokenT<CaloTowerCollection> mtowers_token;
   /// use only towers in cone mCone around L1 candidate for regional jet reco
   double mCone;
   /// label of tau trigger type analysis
-  edm::InputTag mTauTrigger;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> mTauTrigger_token;
   /// imitator of L1 seeds
-  edm::InputTag ml1seeds;
+  //edm::InputTag ml1seeds;
   /// ET threshold
   double mEtThreshold;
   /// E threshold

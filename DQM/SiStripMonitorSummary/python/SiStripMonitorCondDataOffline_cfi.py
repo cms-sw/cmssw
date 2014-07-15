@@ -14,6 +14,7 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
     MonitorSiStripHighThreshold= cms.bool(True),
     MonitorSiStripApvGain      = cms.bool(True),                              
     MonitorSiStripLorentzAngle = cms.bool(True),                            
+    MonitorSiStripBackPlaneCorrection = cms.bool(True),                            
 
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
@@ -26,6 +27,26 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
         
       #  exclude OR include a set of modules
       restrictModules         = cms.bool(False),
+      ModulesToBeIncluded_DetIdSelector = cms.vstring(
+#            "0x1e000000-0x16000000",  #TIB
+#            "0x1e000000-0x18000000",  #TID
+#            "0x1e006000-0x18002000", #TIDm
+#            "0x1e006000-0x18004000", #TIDp
+#            "0x1e000000-0x1a000000", #TOB
+#            "0x1e000000-0x1c000000", #TEC
+#            "0x1e0c0000-0x1c040000", #TECm
+#            "0x1e0c0000-0x1c080000"  #TECp
+      ),
+      ModulesToBeExcluded_DetIdSelector = cms.vstring(
+#            "0x1e000000-0x16000000",  #TIB
+#            "0x1e000000-0x18000000",  #TID
+#            "0x1e006000-0x18002000", #TIDm
+#            "0x1e006000-0x18004000", #TIDp
+#            "0x1e000000-0x1a000000", #TOB
+#            "0x1e000000-0x1c000000", #TEC
+#            "0x1e0c0000-0x1c040000", #TECm
+#            "0x1e0c0000-0x1c080000"  #TECp
+      ),
 
       ModulesToBeIncluded     = cms.vuint32(), #e.g. {369120277, 369120278, 369120282}
       ModulesToBeExcluded     = cms.vuint32(),
@@ -217,6 +238,29 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
       SummaryOfProfile_NchY        = cms.int32(50),
       SummaryOfProfile_LowY        = cms.double(0.01),
       SummaryOfProfile_HighY       = cms.double(0.06)      
+    ),
+
+    SiStripBackPlaneCorrectionDQM_PSet = cms.PSet(
+
+      CondObj_name = cms.string('bpcorrection'),
+      CondObj_fillId       = cms.string('ProfileAndCumul'),    
+      
+      FillSummaryProfileAtLayerLevel = cms.bool(True),
+      FillCumulativeSummaryAtLayerLevel = cms.bool(True),
+
+      SummaryOfCumul_description = cms.string('ProfileSummary_BackPlaneCorrectionFromCondDB'),
+      SummaryOfCumul_xTitle      = cms.string('BackPlaneCorrection from CondDB'),
+      SummaryOfCumul_yTitle      = cms.string(' '),
+      SummaryOfCumul_NchX        = cms.int32(50),      
+      SummaryOfCumul_LowX        = cms.double(0.00),
+      SummaryOfCumul_HighX       = cms.double(0.10),
+      
+      SummaryOfProfile_description = cms.string('Summary_BackPlaneCorrectionFromCondDB'),
+      SummaryOfProfile_xTitle      = cms.string('detId'),
+      SummaryOfProfile_yTitle      = cms.string('BackPlaneCorrection from CondDB'),
+      SummaryOfProfile_NchY        = cms.int32(50),
+      SummaryOfProfile_LowY        = cms.double(0.00),
+      SummaryOfProfile_HighY       = cms.double(0.10)      
     ),
 
       SiStripLowThresholdDQM_PSet = cms.PSet(

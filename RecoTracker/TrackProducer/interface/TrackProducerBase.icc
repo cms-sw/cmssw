@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -20,7 +21,7 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h>
 #include <TrackingTools/DetLayers/interface/GeometricSearchDet.h> 
@@ -56,7 +57,20 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   //get magnetic field
   //
   LogDebug("TrackProducer") << "get magnetic field" << "\n";
-  setup.get<IdealMagneticFieldRecord>().get(theMF);  
+  // 2014/02/11 mia:
+  // we should get rid of the boolean parameter useSimpleMF,
+  // and use only a string magneticField [instead of SimpleMagneticField]
+  // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
+  bool useSimpleMF = false;
+  if (conf_.exists("useSimpleMF")) useSimpleMF = conf_.getParameter<bool>("useSimpleMF");
+  std::string mfName = "";			
+  if (useSimpleMF){
+     mfName = conf_.getParameter<std::string>("SimpleMagneticField"); 
+  }
+  setup.get<IdealMagneticFieldRecord>().get(mfName, theMF);  
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  setup.get<IdealMagneticFieldRecord>().get(mfESInputTag, theMF);  
+
   //
   // get the fitter from the ES
   //
@@ -105,8 +119,8 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidate
   //get the TrackCandidateCollection from the event
   //
   LogDebug("TrackProducer") << 
-    "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
-    theEvent.getByToken(src_,theTCCollection );  
+  	"get the TrackCandidateCollection from the event, source is " << conf_.getParameter<edm::InputTag>( "src" ) <<"\n";
+  theEvent.getByToken(src_,theTCCollection );  
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -121,8 +135,8 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
   //get the TrackCollection from the event
   //
   LogDebug("TrackProducer") << 
-    "get the TrackCollection from the event, source is " << src_<<"\n";
-    theEvent.getByToken(src_,theTCollection );  
+  	"get the TrackCollection from the event, source is " << conf_.getParameter<edm::InputTag>( "src" ) <<"\n";
+  theEvent.getByToken(src_,theTCollection );  
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -149,8 +163,8 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
      traj->lastMeasurement().updatedState().isValid()){
     const FreeTrajectoryState*  outerState = traj->firstMeasurement().updatedState().freeState();    
     const FreeTrajectoryState*  innerState = traj->lastMeasurement().updatedState().freeState(); 
-    TrajectoryStateOnSurface outerTSOS = traj->firstMeasurement().updatedState();
-    TrajectoryStateOnSurface innerTSOS = traj->lastMeasurement().updatedState();
+    TrajectoryStateOnSurface const & outerTSOS = traj->firstMeasurement().updatedState();
+    TrajectoryStateOnSurface const & innerTSOS = traj->lastMeasurement().updatedState();
     const DetLayer* outerLayer = traj->firstMeasurement().layer();
     const DetLayer* innerLayer = traj->lastMeasurement().layer();
 
@@ -174,10 +188,11 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
     // ----------- this previous block of code is not very safe. It should rely less on the sorting of the trajectory measurements -----
 
    
+    
     LogDebug("TrackProducer") << "calling inner compLayers()...";
-    std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,dirForInnerLayers);
+    auto innerCompLayers = (*theSchool).compatibleLayers(*innerLayer,*innerState,dirForInnerLayers);
     LogDebug("TrackProducer") << "calling outer compLayers()...";
-    std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,dirForOuterLayers);
+    auto outerCompLayers = (*theSchool).compatibleLayers(*outerLayer,*outerState,dirForOuterLayers);
 
     LogDebug("TrackProducer")
       << "inner DetLayer  sub: " 
@@ -208,7 +223,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){	  
-	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
+	InvalidTrackingRecHit  tmpHit(*detWithState.front().first,TrackingRecHit::missing);
 	track.setTrackerExpectedHitsInner(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{
@@ -232,7 +247,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){	  
-	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
+	InvalidTrackingRecHit  tmpHit(*detWithState.front().first,TrackingRecHit::missing);
 	track.setTrackerExpectedHitsOuter(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{

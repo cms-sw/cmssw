@@ -327,16 +327,16 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon & photon, const r
       reco::TrackRef trackref = pfele.trackRef();
       
       if(debugSafeForJetMET)
-	cout << "PFEGammaFilters::isPhotonSafeForJetMET photon track:pt " << trackref->pt() << " SingleLegSize " << pfcandextra->singleLegConvTrackRef().size() << endl;
+	cout << "PFEGammaFilters::isPhotonSafeForJetMET photon track:pt " << trackref->pt() << " SingleLegSize " << pfcandextra->singleLegConvTrackRefMva().size() << endl;
    
       
       //const std::vector<reco::TrackRef>&  mySingleLeg = 
       bool singleLegConv = false;
-      for(unsigned int iconv =0; iconv<pfcandextra->singleLegConvTrackRef().size(); iconv++) {
+      for(unsigned int iconv =0; iconv<pfcandextra->singleLegConvTrackRefMva().size(); iconv++) {
 	if(debugSafeForJetMET)
-	  cout << "PFEGammaFilters::SingleLeg track:pt " << (pfcandextra->singleLegConvTrackRef()[iconv])->pt() << endl;
+	  cout << "PFEGammaFilters::SingleLeg track:pt " << (pfcandextra->singleLegConvTrackRefMva()[iconv].first)->pt() << endl;
 	
-	if(pfcandextra->singleLegConvTrackRef()[iconv] == trackref) {
+	if(pfcandextra->singleLegConvTrackRefMva()[iconv].first == trackref) {
 	  singleLegConv = true;
 	  if(debugSafeForJetMET)
 	    cout << "PFEGammaFilters::isPhotonSafeForJetMET: SingleLeg conv track " << endl;
@@ -371,6 +371,7 @@ unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::iter0:
   case TrackBase::iter1:
   case TrackBase::iter2:
+  case TrackBase::iter7:
     Algo = 0;
     break;
   case TrackBase::iter3:

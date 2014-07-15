@@ -15,7 +15,7 @@
 
             Finally, all muons that are not flagged as ghosts, or which pass a 'passthrough' selection,
             are saved in the output.
-            
+
   \author   Giovanni Petrucciani
   \version  $Id: MuonCleanerBySegments.cc,v 1.1 2012/08/11 13:00:50 gpetrucc Exp $
 */
@@ -52,14 +52,14 @@ namespace modules {
       }
       bool isBetterMuon(const T &mu1, const T &mu2) const ;
     private:
-      /// Labels for input collections
-      edm::InputTag src_;
+      /// Tokens for input collections
+      edm::EDGetTokenT<edm::View<T> > srcToken_;
 
       /// Preselection cut
       StringCutObjectSelector<T> preselection_;
       /// Always-accept cut
       StringCutObjectSelector<T> passthrough_;
-   
+
       /// Fraction of shared segments
       double sharedFraction_;
 
@@ -77,7 +77,7 @@ namespace modules {
 
 template<typename T>
 modules::MuonCleanerBySegmentsT<T>::MuonCleanerBySegmentsT(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
     preselection_(iConfig.existsAs<std::string>("preselection") ? iConfig.getParameter<std::string>("preselection") : ""),
     passthrough_(iConfig.existsAs<std::string>("passthrough") ? iConfig.getParameter<std::string>("passthrough") : "0"),
     sharedFraction_(iConfig.getParameter<double>("fractionOfSharedSegments")),
@@ -85,11 +85,11 @@ modules::MuonCleanerBySegmentsT<T>::MuonCleanerBySegmentsT(const edm::ParameterS
     bestMuonSelector_(defaultBestMuon_ ? std::string("") : iConfig.getParameter<std::string>("customArbitration"))
 {
     // this is the basic output (edm::Association is not generic)
-    produces<std::vector<T> >(); 
+    produces<std::vector<T> >();
 }
 
 template<typename T>
-void 
+void
 modules::MuonCleanerBySegmentsT<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
@@ -97,13 +97,13 @@ modules::MuonCleanerBySegmentsT<T>::produce(edm::Event & iEvent, const edm::Even
     Handle<View<T> > src;
     auto_ptr<vector<T> > out(new vector<T>());
 
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(srcToken_, src);
     unsigned int nsrc = src->size();
     out->reserve(nsrc);
     std::vector<int> good(nsrc, true);
     for (unsigned int i = 0; i < nsrc; ++i) {
         const T &mu1 = (*src)[i];
-        if (!preselection_(mu1)) good[i] = false; 
+        if (!preselection_(mu1)) good[i] = false;
         if (!good[i]) continue;
         int  nSegments1 = mu1.numberOfMatches(reco::Muon::SegmentArbitration);
         for (unsigned int j = i+1; j < nsrc; ++j) {

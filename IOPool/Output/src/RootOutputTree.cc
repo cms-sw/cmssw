@@ -25,7 +25,7 @@
 namespace edm {
 
     RootOutputTree::RootOutputTree(
-                   boost::shared_ptr<TFile> filePtr,
+                   std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    int splitLevel,
                    int treeMaxVirtualSize) :

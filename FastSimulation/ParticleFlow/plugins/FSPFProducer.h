@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 class PFCandidate;
 
 class FSPFProducer : public edm::EDProducer {
@@ -33,7 +35,8 @@ class FSPFProducer : public edm::EDProducer {
   std::vector<double> EM_HF_ScaleFactor;
   
   double energy_threshold(double eta);
-  
+
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateToken;
 };
 
 #endif

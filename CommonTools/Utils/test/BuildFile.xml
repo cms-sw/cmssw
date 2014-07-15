@@ -1,4 +1,5 @@
 <bin   name="testCommonToolsUtil" file="testSelectors.cc,testSelectIterator.cc,testComparators.cc,testCutParser.cc,testExpressionParser.cc,testRunner.cpp">
+  <use   name="Geometry/CommonDetUnit"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrackerRecHit2D"/>
   <use   name="DataFormats/Candidate"/>

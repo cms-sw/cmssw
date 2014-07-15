@@ -1,6 +1,8 @@
 #ifndef CondFormats_EcalObjects_EcalDQMStatusCode_H
 #define CondFormats_EcalObjects_EcalDQMStatusCode_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <boost/cstdint.hpp>
 
@@ -20,5 +22,7 @@ class EcalDQMStatusCode {
 
   private:
     uint32_t status_;
+
+  COND_SERIALIZABLE;
 };
 #endif

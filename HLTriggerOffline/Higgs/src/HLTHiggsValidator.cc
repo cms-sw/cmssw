@@ -24,8 +24,7 @@
 HLTHiggsValidator::HLTHiggsValidator(const edm::ParameterSet& pset) :
       	_pset(pset),
 	_analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
-	_collections(0),
-	_dbe(0)
+	_collections(0)
 {
 	_collections = new EVTColContainer;
 
@@ -47,7 +46,7 @@ HLTHiggsValidator::~HLTHiggsValidator()
 	}
 }
 
-void HLTHiggsValidator::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) 
+void HLTHiggsValidator::dqmBeginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
 	// Call the Plotter beginRun (which stores the triggers paths..:)
       	for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
@@ -57,13 +56,19 @@ void HLTHiggsValidator::beginRun(const edm::Run & iRun, const edm::EventSetup & 
 	}
 }
 	
+void HLTHiggsValidator::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup){
+    // Call the Plotter bookHistograms (which stores the triggers paths..:)
+    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin();
+        iter != _analyzers.end(); ++iter)
+	{
+        iter->bookHistograms(ibooker);
+	}
+    
+}
 
 void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-      	static int eventNumber = 0;
-      	eventNumber++;
-      	LogTrace("HiggsValidation") << "In HLTHiggsSubAnalysis::analyze,  " 
-		<< "Event: " << eventNumber;
+
 	
 	// Initialize the event collections
 	this->_collections->reset();
@@ -77,9 +82,6 @@ void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 
-void HLTHiggsValidator::beginJob()
-{
-}
 
 void HLTHiggsValidator::endRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
 {
@@ -92,9 +94,6 @@ void HLTHiggsValidator::endRun(const edm::Run & iRun, const edm::EventSetup& iSe
 }
 
 
-void HLTHiggsValidator::endJob()
-{
-}
 
 
 

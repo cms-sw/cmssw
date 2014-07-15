@@ -27,18 +27,20 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Random.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 //
 // constructors and destructor
@@ -90,15 +92,8 @@ void HcalTB02Analysis::update(const BeginOfEvent * evt) {
 
 void HcalTB02Analysis::update(const EndOfEvent * evt) {
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "HcalTB02Analysis requires the RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  CLHEP::RandGaussQ  randGauss(rng->getEngine());
+  CLHEP::HepRandomEngine* engine = CLHEP::HepRandom::getTheEngine();
+  CLHEP::RandGaussQ  randGauss(*engine);
 
   // Look for the Hit Collection
   LogDebug("HcalTBSim") << "HcalTB02Analysis::Fill event " 

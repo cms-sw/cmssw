@@ -24,9 +24,7 @@ hiRegitMuPixelLessStepClusters = RecoTracker.IterativeTracking.PixelLessStep_cff
 )
 
 # SEEDING LAYERS
-hiRegitMuPixelLessStepSeedLayers =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.clone(
-    ComponentName = 'hiRegitMuPixelLessStepSeedLayers',
-    )
+hiRegitMuPixelLessStepSeedLayers =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.clone()
 hiRegitMuPixelLessStepSeedLayers.TIB.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 hiRegitMuPixelLessStepSeedLayers.TID.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 hiRegitMuPixelLessStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
@@ -44,23 +42,20 @@ hiRegitMuPixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                
 
 
 # building: feed the new-named seeds
-hiRegitMuPixelLessStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryFilter.clone(
-    ComponentName        = 'hiRegitMuPixelLessStepTrajectoryFilter',
-    )
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minPt                = 1.7
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minimumNumberOfHits  = 6
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minHitsMinPt         = 4
+hiRegitMuPixelLessStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryFilter.clone()
+hiRegitMuPixelLessStepTrajectoryFilter.minPt                = 1.7
+hiRegitMuPixelLessStepTrajectoryFilter.minimumNumberOfHits  = 6
+hiRegitMuPixelLessStepTrajectoryFilter.minHitsMinPt         = 4
 
 hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuPixelLessStepTrajectoryBuilder',
-    trajectoryFilterName = 'hiRegitMuPixelLessStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuPixelLessStepClusters'),
     minNrOfHitsForRebuild = 6 #change from default 4
 )
 
 hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelLessStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuPixelLessStepTrajectoryBuilder',
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 
@@ -89,6 +84,7 @@ hiRegitMuPixelLessStepSelector               = RecoTracker.IterativeTracking.Pix
 )
 
 hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuPixelLessStepClusters*
+                                        hiRegitMuPixelLessStepSeedLayers*
                                         hiRegitMuPixelLessStepSeeds*
                                         hiRegitMuPixelLessStepTrackCandidates*
                                         hiRegitMuPixelLessStepTracks*

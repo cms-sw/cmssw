@@ -14,6 +14,8 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
   LogTrace("MuonAssociatorEDProducer") << "constructing  MuonAssociatorEDProducer" << parset_.dump();
   produces<reco::RecoToSimCollection>();
   produces<reco::SimToRecoCollection>();
+  tpToken_=consumes<TrackingParticleCollection>(tpTag);
+  tracksToken_=consumes<edm::View<reco::Track> >(tracksTag);
 
   /// Perform some sanity checks of the configuration
   edm::LogVerbatim("MuonAssociatorByHits") << "constructing  MuonAssociatorByHits" << parset_.dump();
@@ -57,13 +59,15 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
     }
   }
 
+  LogTrace("MuonAssociatorEDProducer") << "MuonAssociatorEDProducer::beginJob : constructing MuonAssociatorByHits";
+  associatorByHits = new MuonAssociatorByHits(parset_,consumesCollector());
+
+
 }
 
 MuonAssociatorEDProducer::~MuonAssociatorEDProducer() {}
 
 void MuonAssociatorEDProducer::beginJob() {
-  LogTrace("MuonAssociatorEDProducer") << "MuonAssociatorEDProducer::beginJob : constructing MuonAssociatorByHits";
-  associatorByHits = new MuonAssociatorByHits(parset_);
 }
 
 void MuonAssociatorEDProducer::endJob() {}
@@ -73,12 +77,12 @@ void MuonAssociatorEDProducer::produce(edm::Event& event, const edm::EventSetup&
 
    Handle<TrackingParticleCollection>  TPCollection ;
    LogTrace("MuonAssociatorEDProducer") <<"getting TrackingParticle collection - "<<tpTag;
-   event.getByLabel(tpTag, TPCollection);
+   event.getByToken(tpToken_, TPCollection);
    LogTrace("MuonAssociatorEDProducer") <<"\t... size = "<<TPCollection->size();
 
    Handle<edm::View<reco::Track> > trackCollection;
    LogTrace("MuonAssociatorEDProducer") <<"getting reco::Track collection - "<<tracksTag;
-   bool trackAvailable = event.getByLabel (tracksTag, trackCollection);
+   bool trackAvailable = event.getByToken (tracksToken_, trackCollection);
    if (trackAvailable) LogTrace("MuonAssociatorEDProducer") <<"\t... size = "<<trackCollection->size();
    else LogTrace("MuonAssociatorEDProducer") <<"\t... NOT FOUND.";
 

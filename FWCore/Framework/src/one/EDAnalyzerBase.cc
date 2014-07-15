@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -47,15 +48,27 @@ namespace edm {
     
     bool
     EDAnalyzerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+                            ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      this->analyze(e, c);
+      {
+        std::lock_guard<std::mutex> guard(mutex_);
+        std::lock_guard<SharedResourcesAcquirer> guardResources(resourcesAcquirer_);
+        EventSignalsSentry sentry(act,mcc);
+        this->analyze(e, c);
+      }
       return true;
     }
     
+    SharedResourcesAcquirer EDAnalyzerBase::createAcquirer() {
+      return SharedResourcesAcquirer{};
+    }
+
     void
     EDAnalyzerBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
+      
       this->beginJob();
     }
     

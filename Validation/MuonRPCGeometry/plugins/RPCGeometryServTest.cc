@@ -73,9 +73,9 @@ RPCGeometryServTest::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     
     //----------------------- RPCCHAMBER TEST ---------------------------
 
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
       ++iRPCCHcount;
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       
       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();

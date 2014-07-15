@@ -77,13 +77,16 @@ from FastSimulation.HighLevelTrigger.RecoLocalCalo_cff import *
 from FastSimulation.HighLevelTrigger.EcalRegionalReco_cff import *
 # Specific reconstruction sequences for FastSimulation
 from FastSimulation.HighLevelTrigger.HLTFastReco_cff import *
-HLTDoLocalPixelSequence = cms.Sequence(pixeltrackerlocalreco)
+HLTDoLocalPixelSequence           = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelDigis = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelClusters = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelRecHits = cms.Sequence(pixeltrackerlocalreco)
-HLTDoLocalStripSequence = cms.Sequence(striptrackerlocalreco)
-
-HLTDoLocalPixelSequenceRegL2Tau = cms.Sequence(pixeltrackerlocalreco)
+HLTDoLocalPixelSequenceReg        = cms.Sequence(pixeltrackerlocalreco)
+HLTDoLocalPixelSequenceRegL2Tau   = cms.Sequence(pixeltrackerlocalreco)
+HLTDoLocalPixelSequenceRegForBTag = cms.Sequence(pixeltrackerlocalreco)
+HLTDoLocalStripSequence           = cms.Sequence(striptrackerlocalreco)
+HLTDoLocalStripSequenceReg        = cms.Sequence(striptrackerlocalreco)
+HLTDoLocalStripSequenceRegForBTag = cms.Sequence(striptrackerlocalreco)
 
 from FastSimulation.Tracking.HLTIterativeTracking_cff import *
 

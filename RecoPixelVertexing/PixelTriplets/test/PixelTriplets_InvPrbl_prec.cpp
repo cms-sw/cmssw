@@ -7,7 +7,7 @@
 
 
 int main(int n, const char **) {
-  if (n<1) return 0; // protect testing
+  if (n<2) return 0; // protect testing
   std::string c("++Constr");
   std::string r("++R");
   std::string a;

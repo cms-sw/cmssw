@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -46,7 +47,7 @@ namespace edm
       DataMixingEMDigiWorker();
 
      /** standard constructor*/
-      explicit DataMixingEMDigiWorker(const edm::ParameterSet& ps);
+      explicit DataMixingEMDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
 
       /**Default destructor*/
       virtual ~DataMixingEMDigiWorker();
@@ -79,6 +80,15 @@ namespace edm
       edm::InputTag EBPileInputTag_; // complete input tag for EB pileup digis
       edm::InputTag EEPileInputTag_; // complete input tag for EE pileup digis
       edm::InputTag ESPileInputTag_; // complete input tag for ES pileup digis
+
+      edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;  // Token to retrieve information
+      edm::EDGetTokenT<EEDigiCollection> EEDigiToken_ ;  // Token to retrieve information
+      edm::EDGetTokenT<ESDigiCollection> ESDigiToken_ ;  // Token to retrieve information  
+
+      edm::EDGetTokenT<EBDigiCollection> EBDigiPileToken_ ;  // Token to retrieve information
+      edm::EDGetTokenT<EEDigiCollection> EEDigiPileToken_ ;  // Token to retrieve information
+      edm::EDGetTokenT<ESDigiCollection> ESDigiPileToken_ ;  // Token to retrieve information  
+
 
       std::string EBDigiCollectionDM_; // secondary name to be given to EB collection of hits
       std::string EEDigiCollectionDM_; // secondary name to be given to EE collection of hits

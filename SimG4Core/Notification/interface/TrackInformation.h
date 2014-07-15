@@ -76,16 +76,18 @@ private:
     friend class NewTrackAction;
 };
 
-extern G4Allocator<TrackInformation> TrackInformationAllocator;
+extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;
 
 inline void * TrackInformation::operator new(size_t)
 {
-    void * trkInfo;
-    trkInfo = (void *) TrackInformationAllocator.MallocSingle();
-    return trkInfo;
+  if (!fpTrackInformationAllocator) fpTrackInformationAllocator = 
+    new G4Allocator<TrackInformation>;
+  return (void*)fpTrackInformationAllocator->MallocSingle();
 }
 
 inline void TrackInformation::operator delete(void * trkInfo)
-{  TrackInformationAllocator.FreeSingle((TrackInformation*) trkInfo); }
+{  
+  fpTrackInformationAllocator->FreeSingle((TrackInformation*) trkInfo); 
+}
 
 #endif

@@ -1,3 +1,4 @@
+#include <FWCore/Utilities/interface/ESInputTag.h>
 #include "RecoTracker/TkNavigation/plugins/NavigationSchoolESProducer.h"
 
 
@@ -38,7 +39,12 @@ NavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord)
 
    // get the field
    edm::ESHandle<MagneticField>                field;
-   iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
+   std::string mfName = "";
+   if (theNavigationPSet.exists("SimpleMagneticField"))
+     mfName = theNavigationPSet.getParameter<std::string>("SimpleMagneticField");
+   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,field);
+   //   edm::ESInputTag mfESInputTag(mfName);
+   //   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,field);
 
    //get the geometricsearch tracker geometry
    edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;

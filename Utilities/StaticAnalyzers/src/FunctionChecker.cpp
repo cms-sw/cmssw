@@ -13,7 +13,6 @@
 #include <clang/StaticAnalyzer/Core/BugReporter/BugReporter.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 #include <llvm/ADT/SmallString.h>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -60,26 +59,26 @@ void FWalker::VisitChildren( clang::Stmt *S) {
 
 
 void FWalker::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
-  if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
+  if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
 	if ( support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 	ReportDeclRef(DRE);
-  	}
+  }
 }
 
 void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   
-
-  if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
+        const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl());
 	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
 	std::string fname(sfile);
-	if ( fname.find("stdio.h") != std::string::npos 
-		|| fname.find("iostream") != std::string::npos 
-		|| fname.find("placeholders.hpp") != std::string::npos) return;	
+	if ( fname.find("stdio.h") != std::string::npos
+		|| fname.find("iostream") != std::string::npos
+		|| fname.find("placeholders.hpp") != std::string::npos) return;
 
 	clang::QualType t =  D->getType();  
+	if ( support::isSafeClassName( t.getAsString() ) ) return;
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
 	std::string sdname =""; 
@@ -103,26 +102,25 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 	std::string vname = support::getQualifiedName(*D);
 	std::string svname = D->getNameAsString();
-
-	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
+	if ( D->getTSCSpec() == clang::ThreadStorageClassSpecifier::TSCS_thread_local ) return;
+	if ( D->isStaticLocal()  && ! clangcms::support::isConst( t ) )
 	{
-	    if ( support::isSafeClassName( t.getAsString() ) ) return;
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << svname<< "'.\n";
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '"+ sdname + "' static variable '" + vname + "'.\n";
 		std::ofstream file(tname.c_str(),std::ios::app);
 		file<<ostring;
 		return;
 	}
 
-	if ( (D->isStaticDataMember() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
+	if ( D->isStaticDataMember() && ! clangcms::support::isConst( t ) )
 	{
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << svname << "'.\n";
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
 		std::ofstream file(tname.c_str(),std::ios::app);
 		file<<ostring;
@@ -138,15 +136,13 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << svname << "'.\n";
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
 		std::ofstream file(tname.c_str(),std::ios::app);
 		file<<ostring;
 	    return;
 	
 	}
-
-  }
 
 
 }
@@ -174,8 +170,8 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                 if ( dname.compare(dname.size()-1,1,"_") != 0 ) return;
                 llvm::raw_string_ostream os(buf);
                 os << "function '"<< dname << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a 'COMMONBLOCK'.\n";
-                clang::ento::PathDiagnosticLocation FDLoc = clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
-		BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
+                clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
+//		BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
 		const char * pPath = std::getenv("LOCALRT");
 		std::string tname = ""; 
@@ -184,6 +180,15 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
 		std::ofstream file(tname.c_str(),std::ios::app);
 		file<<ostring;
         }
+
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(FD->getLocation ()).getFilename();
+   	if (!support::isCmsLocalFile(sfile)) return;
+	std::string fname(sfile);
+	if ( fname.find("/test/") != std::string::npos) return;
+	if (FD->doesThisDeclarationHaveABody()) {
+		FWalker walker(BR, mgr.getAnalysisDeclContext(FD));
+		walker.Visit(FD->getBody());
+		}
 }
 
 void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,

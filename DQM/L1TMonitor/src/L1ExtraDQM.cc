@@ -28,7 +28,7 @@
 // constructor
 L1ExtraDQM::L1ExtraDQM(const edm::ParameterSet& paramSet) :
     //
-    m_retrieveL1Extra(paramSet.getParameter<edm::ParameterSet>("L1ExtraInputTags")),
+    m_retrieveL1Extra(paramSet.getParameter<edm::ParameterSet>("L1ExtraInputTags"),consumesCollector()),
     m_dirName(paramSet.getUntrackedParameter("DirName", std::string(
                     "L1T/L1ExtraDQM"))),
     //

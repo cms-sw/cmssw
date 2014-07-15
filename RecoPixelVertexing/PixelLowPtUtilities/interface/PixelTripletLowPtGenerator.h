@@ -8,15 +8,16 @@
  */
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletFilter.h"
 
 class TrackerGeometry;
 class TripletFilter;
+class SiPixelClusterShapeCache;
 
 #include <vector>
 
@@ -25,19 +26,18 @@ class   PixelTripletLowPtGenerator :
 
 
  public:
-   PixelTripletLowPtGenerator( const edm::ParameterSet& cfg) 
-     : theTracker(0), theFilter(0), ps(cfg), thePairGenerator(0), theLayerCache(0)
-   {  }
+   PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
    virtual ~PixelTripletLowPtGenerator() { delete thePairGenerator; delete theFilter; }
 
-   virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
+
+  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
 
    virtual void hitTriplets(const TrackingRegion& region, OrderedHitTriplets & trs,  const edm::Event & ev, const edm::EventSetup& es);
 
    const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-   const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
  private:
   void getTracker (const edm::EventSetup& es);
@@ -48,8 +48,10 @@ class   PixelTripletLowPtGenerator :
 
   edm::ParameterSet         ps;
   HitPairGenerator * thePairGenerator;
-  std::vector<ctfseeding::SeedingLayer> theLayers;
+  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
   LayerCacheType * theLayerCache;
+
+  edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
 
   double nSigMultipleScattering;
   double rzTolerance;

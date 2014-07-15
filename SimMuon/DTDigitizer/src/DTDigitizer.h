@@ -11,17 +11,24 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+// SimHits
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+
 
 #include <vector>
 
 namespace CLHEP {
-  class RandGaussQ;
-  class RandFlat;
+  class HepRandomEngine;
 }
 
 class DTLayer;
@@ -62,13 +69,14 @@ class DTDigitizer : public edm::EDProducer {
   // if status flag == false, hit has to be discarded.
   std::pair<float,bool> computeTime(const DTLayer* layer,const DTWireId &wireId, 
 				    const PSimHit *hit, 
-				    const LocalVector &BLoc); //FIXME?? 
+				    const LocalVector &BLoc,
+                                    CLHEP::HepRandomEngine*); //FIXME??
   
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
   // to the conventions used for the parametrization.
   std::pair<float,bool> driftTimeFromParametrization(float x, float alpha, float By,
-						     float Bz) const;
+						     float Bz, CLHEP::HepRandomEngine*) const;
   
   // Calculate the drift time for the cases where it is not possible
   // to use the GARFIELD cell parametrization.
@@ -90,7 +98,7 @@ class DTDigitizer : public edm::EDProducer {
   void dumpHit(const PSimHit * hit, float xEntry, float xExit, const DTTopology &topo);
   
   // Double half-gaussian smearing.
-  float asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const;
+  float asymGausSmear(double mean, double sigmaLeft, double sigmaRight, CLHEP::HepRandomEngine*) const;
   
   // Allow debugging and testing.
   friend class DTDigitizerAnalysis;
@@ -112,10 +120,6 @@ class DTDigitizer : public edm::EDProducer {
   bool IdealModel;
   float theConstVDrift;  
 
-  // the random generator
-  CLHEP::RandGaussQ* theGaussianDistribution;
-  CLHEP::RandFlat* theFlatDistribution;
-
   // to configure the creation of Digi-Sim links
   bool MultipleLinks;
   float LinksTimeWindow;
@@ -123,6 +127,9 @@ class DTDigitizer : public edm::EDProducer {
   //Name of Collection use for create the XF 
   std::string mix_;
   std::string collection_for_XF;
+
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+
 
 };
 #endif

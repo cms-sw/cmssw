@@ -61,41 +61,41 @@ process.jetMETAnalyzer.processname = cms.string(trigger_set)
 
 #event cleanup stuff
 process.jetMETAnalyzer.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.tightBHFiltering       = cms.bool(False)
 
 process.jetMETAnalyzer.caloMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.caloMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.caloMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.caloMETAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.caloMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 
 process.jetMETAnalyzer.caloMETNoHFAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.caloMETNoHFAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.caloMETNoHFAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.caloMETNoHFAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.caloMETNoHFAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 
 process.jetMETAnalyzer.caloMETHOAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.caloMETHOAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.caloMETHOAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.caloMETHOAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.caloMETHOAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 
 process.jetMETAnalyzer.caloMETNoHFHOAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.caloMETNoHFHOAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.caloMETNoHFHOAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.caloMETNoHFHOAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.caloMETNoHFHOAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 
 process.jetMETAnalyzer.pfMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.pfMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.pfMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.pfMETAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.pfMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 
 process.jetMETAnalyzer.tcMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.tcMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.tcMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.tcMETAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.tcMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 
 process.jetMETAnalyzer.mucorrMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
-process.jetMETAnalyzer.mucorrMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+#process.jetMETAnalyzer.mucorrMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
 process.jetMETAnalyzer.mucorrMETAnalysis.tightBHFiltering       = cms.bool(False)
 process.jetMETAnalyzer.mucorrMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
 

@@ -17,9 +17,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/SegmentsTrackAssociator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -29,7 +29,7 @@
 
 class MuonServiceProxy;
 
-class SegmentTrackAnalyzer : public edm::EDAnalyzer {
+class SegmentTrackAnalyzer : public thread_unsafe::DQMEDAnalyzer {
  public:
 
   /// Constructor
@@ -38,25 +38,31 @@ class SegmentTrackAnalyzer : public edm::EDAnalyzer {
   /// Destructor
   virtual ~SegmentTrackAnalyzer() {};
   
-  /// Inizialize parameters for histo binning
-  void beginJob();
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-
-  /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   // ----------member data ---------------------------
-  DQMStore *theDbe;
   MuonServiceProxy *theService;
   edm::ParameterSet parameters;
   edm::EDGetTokenT<reco::TrackCollection> theMuTrackCollectionLabel_;
   
   // Switch for verbosity
   std::string metname;
+  std::string trackCollection;
   // Find the segments associated to the track
   SegmentsTrackAssociator* theSegmentsAssociator;
 
+  int    etaBin;
+  double etaMin;
+  double etaMax;
+  int    phiBin;
+  double phiMin;
+  double phiMax;
+  int     ptBin;
+  double  ptMin;
+  double  ptMax;
+  
   // the histos
   MonitorElement* hitsNotUsed;
   MonitorElement* hitsNotUsedPercentual;

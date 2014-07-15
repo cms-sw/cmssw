@@ -87,6 +87,8 @@ namespace cond {
       
       std::string payloadObjectType() const;
       
+      cond::SynchronizationType synchronizationType() const;
+
       cond::Time_t endOfValidity() const;
       
       cond::Time_t lastValidatedTime() const;

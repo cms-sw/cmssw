@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,7 +17,7 @@
 #include "boost/foreach.hpp"
 #include <numeric>
 
-class SiStripClusterToDigiProducer : public edm::EDProducer  {
+class SiStripClusterToDigiProducer : public edm::stream::EDProducer<>  {
 
   typedef   edmNew::DetSetVector<SiStripCluster> ClusterCollection;
   typedef   edmNew::DetSet<SiStripCluster> DetClusterCollection;
@@ -42,7 +42,7 @@ private:
   float gain(const uint16_t& strip)  const { return gainHandle->getStripGain( strip, gainRange ); }
   uint16_t applyGain(const uint16_t& strip,const uint16_t& adc );
 
-  const edm::InputTag _inputTag;
+  edm::EDGetTokenT<ClusterCollection> token;
   SiStripApvGain::Range gainRange;
   edm::ESHandle<SiStripGain> gainHandle;
   uint32_t gain_cache_id, detId;
@@ -52,8 +52,10 @@ private:
 
 SiStripClusterToDigiProducer::
 SiStripClusterToDigiProducer(const edm::ParameterSet& conf) 
-  : _inputTag( conf.getParameter<edm::InputTag>("ClusterProducer") ){
+{
   
+  token = consumes<ClusterCollection>(conf.getParameter<edm::InputTag>("ClusterProducer"));
+
   produces< DigiCollection > ("ZeroSuppressed");
   produces< DigiCollection > ("VirginRaw"     );
   produces< DigiCollection > ("ProcessedRaw"  );
@@ -68,7 +70,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   
   std::vector<DetDigiCollection> output_base; 
   edm::Handle<ClusterCollection> input ;
-  event.getByLabel(_inputTag,input);
+  event.getByToken(token,input);
 
   if(input.isValid())
     process(*input, output_base);

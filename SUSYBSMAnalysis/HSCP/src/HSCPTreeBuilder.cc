@@ -2,7 +2,7 @@
 //
 // Package:    HSCPTreeBuilder
 // Class:      HSCPTreeBuilder
-// 
+//
 /**\class HSCPTreeBuilder HSCPTreeBuilder.cc SUSYBSMAnalysis/HSCP/src/HSCPTreeBuilder.cc
 
  Description: <one line class summary>
@@ -130,7 +130,12 @@ class HSCPTreeBuilder : public edm::EDFilter {
 		const edm::Event*      iEvent_;
 
 		edm::Service<TFileService> tfs;
-                InputTag       m_HSCPsTag;
+
+                EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
+                EDGetTokenT<edm::TriggerResults> m_trToken;
+                EDGetTokenT<reco::VertexCollection> m_recoVertexToken;
+                EDGetTokenT<GenParticleCollection> m_genParticlesToken;
+                EDGetTokenT<susybsm::HSCParticleCollection >       m_HSCPsToken;
                 bool           reccordVertexInfo;
                 bool           reccordGenInfo;
 
@@ -172,7 +177,7 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Track_pt_err       [MAX_HSCPS];
 		float          Track_chi2         [MAX_HSCPS];
                 unsigned int   Track_ndof         [MAX_HSCPS];
-		float          Track_eta          [MAX_HSCPS];  
+		float          Track_eta          [MAX_HSCPS];
                 float          Track_eta_err      [MAX_HSCPS];
 		float          Track_phi          [MAX_HSCPS];
                 float          Track_phi_err      [MAX_HSCPS];
@@ -192,7 +197,7 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Track_dEdxD1       [MAX_HSCPS];
                 float          Track_dEdxD1_NOS   [MAX_HSCPS];
                 unsigned int   Track_dEdxD1_NOM   [MAX_HSCPS];
-                float          Track_dEdxD2       [MAX_HSCPS]; 
+                float          Track_dEdxD2       [MAX_HSCPS];
                 float          Track_dEdxD2_NOS   [MAX_HSCPS];
                 unsigned int   Track_dEdxD2_NOM   [MAX_HSCPS];
                 float          Track_dEdxD3       [MAX_HSCPS];
@@ -219,7 +224,7 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Muon_cb_IBeta_err  [MAX_HSCPS];
                 float          Muon_cb_fIBeta     [MAX_HSCPS];
                 float          Muon_cb_fIBeta_err [MAX_HSCPS];
-                int            Muon_cb_ndof       [MAX_HSCPS];          
+                int            Muon_cb_ndof       [MAX_HSCPS];
                 float          Rpc_beta           [MAX_HSCPS];
 
                 float          Calo_ecal_crossedE         [MAX_HSCPS];
@@ -259,7 +264,11 @@ class HSCPTreeBuilder : public edm::EDFilter {
 
 HSCPTreeBuilder::HSCPTreeBuilder(const edm::ParameterSet& iConfig)
 {
-   m_HSCPsTag          = iConfig.getParameter<InputTag>              ("HSCParticles");
+   m_gtReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(InputTag("gtDigis"));
+   m_trToken = consumes<edm::TriggerResults>(InputTag("TriggerResults"));
+   m_recoVertexToken = consumes<reco::VertexCollection>(InputTag("offlinePrimaryVertices"));
+   m_genParticlesToken = mayConsume<GenParticleCollection>(InputTag("genParticles"));
+   m_HSCPsToken          = consumes<susybsm::HSCParticleCollection >(iConfig.getParameter<InputTag>              ("HSCParticles"));
 
    reccordVertexInfo   = iConfig.getUntrackedParameter<bool>    ("reccordVertexInfo"  ,  true );
    reccordGenInfo      = iConfig.getUntrackedParameter<bool>    ("reccordGenInfo"     ,  false );
@@ -411,7 +420,7 @@ HSCPTreeBuilder::beginJob()
 }
 
 void
-HSCPTreeBuilder::endJob() 
+HSCPTreeBuilder::endJob()
 {
 }
 
@@ -440,7 +449,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // L1 TRIGGER part:
    edm::Handle<L1GlobalTriggerReadoutRecord> h_gtReadoutRecord;
-   iEvent.getByLabel("gtDigis", h_gtReadoutRecord);
+   iEvent.getByToken(m_gtReadoutRecordToken, h_gtReadoutRecord);
    L1GtFdlWord fdlWord = h_gtReadoutRecord->gtFdlWord();
    TechnicalTriggerWord L1technical = fdlWord.gtTechnicalTriggerWord();
    Event_PhysicsDeclared = h_gtReadoutRecord->gtFdlWord().physicsDeclared();
@@ -452,11 +461,11 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // HLT TRIGGER part:
    edm::Handle<edm::TriggerResults> trh;
-   iEvent.getByLabel("TriggerResults", trh);
+   iEvent.getByToken(m_trToken, trh);
    for(unsigned int i=0;i<trh->size() && i<128;++i){Event_triggerHLTBits[i] = trh->at(i).accept();}
 
    edm::Handle<reco::VertexCollection> recoVertexHandle;
-   iEvent.getByLabel("offlinePrimaryVertices", recoVertexHandle);
+   iEvent.getByToken(m_recoVertexToken, recoVertexHandle);
    reco::VertexCollection recoVertex = *recoVertexHandle;
 
    if(reccordVertexInfo){
@@ -472,18 +481,18 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       Vertex_chi2     [NVertices] = recoVertex[i].chi2();
       Vertex_ndof     [NVertices] = recoVertex[i].ndof();
       Vertex_isFake   [NVertices] = recoVertex[i].isFake();
-      NVertices++; 
+      NVertices++;
    }
    }
 
    // Source Collection
    edm::Handle<susybsm::HSCParticleCollection > HSCPCollectionHandle;
-   iEvent.getByLabel(m_HSCPsTag, HSCPCollectionHandle);
+   iEvent.getByToken(m_HSCPsToken, HSCPCollectionHandle);
    susybsm::HSCParticleCollection HSCPCollection = *HSCPCollectionHandle.product();
 
    NHSCPs=0;
    for(unsigned int i=0; i<HSCPCollection.size();i++){
-      susybsm::HSCParticle hscp = HSCPCollection[i]; 
+      susybsm::HSCParticle hscp = HSCPCollection[i];
       reco::MuonRef  muon  = hscp.muonRef();
       reco::TrackRef track = hscp.trackRef();;
 
@@ -507,7 +516,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          Track_d0           [NHSCPs] = -1.0f * track->dxy(recoVertex[0].position());
          Track_dz           [NHSCPs] = -1.0f * track->dz (recoVertex[0].position());
          Track_quality      [NHSCPs] = track->qualityMask();
-         Track_charge       [NHSCPs] = track->charge(); 
+         Track_charge       [NHSCPs] = track->charge();
 /*         Track_dEdxE1       [NHSCPs] = hscp.dedxEstimator1().dEdx();
          Track_dEdxE1_NOM   [NHSCPs] = hscp.dedxEstimator1().numberOfMeasurements();
          Track_dEdxE1_NOS   [NHSCPs] = hscp.dedxEstimator1().numberOfSaturatedMeasurements();
@@ -589,11 +598,11 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       NHSCPs++;
    }
-   
+
 
    if(reccordGenInfo){
    Handle<GenParticleCollection> genParticles;
-   iEvent.getByLabel("genParticles", genParticles);
+   iEvent.getByToken(m_genParticlesToken, genParticles);
    NGens=0;
    for(unsigned int i=0;i<genParticles->size();i++){
      const GenParticle & part = (*genParticles)[i];
@@ -613,9 +622,9 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         Gen_beta  [NGens]     = part.p()/part.energy();
         Gen_mass  [NGens]     = part.mass();
         NGens++;
-     }     
+     }
   }
-   
+
 
    MyTree->Fill();
    return true;

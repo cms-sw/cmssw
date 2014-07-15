@@ -45,11 +45,6 @@ namespace cond {
       m_transaction( *m_session ){      
     }
 
-    Session::Session( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString ):
-      m_session( new SessionImpl( session, connectionString ) ),
-      m_transaction( *m_session ){
-    }
-
     Session::Session( const Session& rhs ):
       m_session( rhs.m_session ),
       m_transaction( rhs.m_transaction ){
@@ -128,6 +123,16 @@ namespace cond {
       editor.load( tag );
       return editor;
     }
+
+    void Session::clearIov( const std::string& tag ){
+      m_session->openIovDb();
+      m_session->iovSchema().iovTable().erase( tag );      
+    }
+
+    bool Session::existsGlobalTag( const std::string& name ){
+      m_session->openGTDb();
+      return m_session->gtSchema().gtTable().select( name );    
+    }
     
     GTEditor Session::createGlobalTag( const std::string& name ){
       m_session->openGTDb();
@@ -159,33 +164,52 @@ namespace cond {
     }
 
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
-					  const cond::Binary& payloadData, 
+					  const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
 					  const boost::posix_time::ptime& creationTime ){
       m_session->openIovDb( SessionImpl::CREATE );
-      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadData, creationTime );
+      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadAndStreamerInfoData.first, 
+								payloadAndStreamerInfoData.second, creationTime );
     }
     
     bool Session::fetchPayloadData( const cond::Hash& payloadHash,
 				    std::string& payloadType, 
-				    cond::Binary& payloadData ){
+				    cond::Binary& payloadData,
+				    cond::Binary& streamerInfoData ){
       m_session->openIovDb();
-      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData );
+      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData, streamerInfoData );
     }
 
     bool Session::isOraSession(){
       return m_session->isOra();
     }
     
-    bool Session::checkMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, std::string& destTag ){
+    bool Session::checkMigrationLog( const std::string& sourceAccount, 
+				     const std::string& sourceTag, 
+				     std::string& destTag, 
+				     cond::MigrationStatus& status ){
+      m_session->openIovDb();
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
       //throwException( "Migration Log Table does not exist in this schema.","Session::checkMigrationLog");
-      return m_session->iovSchema().tagMigrationTable().select( sourceAccount, sourceTag, destTag );
+      return m_session->iovSchema().tagMigrationTable().select( sourceAccount, sourceTag, destTag, (int&)status );
     }
     
-    void Session::addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destTag ){
+    void Session::addToMigrationLog( const std::string& sourceAccount, 
+				     const std::string& sourceTag, 
+				     const std::string& destTag,
+				     cond::MigrationStatus status){
+      m_session->openIovDb();
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
-      m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag, 
-							 boost::posix_time::microsec_clock::universal_time() );
+      m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag,  (int)status,
+					 boost::posix_time::microsec_clock::universal_time() );
+    }
+
+    void Session::updateMigrationLog( const std::string& sourceAccount, 
+				      const std::string& sourceTag, 
+				      cond::MigrationStatus status){
+      m_session->openIovDb();
+      if(! m_session->iovSchema().tagMigrationTable().exists() )
+	throwException( "Migration Log Table does not exist in this schema.","Session::updateMigrationLog");
+      m_session->iovSchema().tagMigrationTable().updateValidationCode( sourceAccount, sourceTag, (int)status );
     }
 
     std::string Session::connectionString(){

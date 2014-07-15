@@ -636,7 +636,7 @@ bool SiStripQuality::IsStripBad(const Range& range, const short& strip) const
   SiStripBadStrip::data fs;
   for(SiStripBadStrip::ContainerIterator it=range.first;it!=range.second;++it){
     fs=decode(*it);
-    if ( fs.firstStrip<=strip && strip<fs.firstStrip+fs.range ){
+    if ( (fs.firstStrip<=strip)  & (strip<fs.firstStrip+fs.range) ){
       result=true;
       break;
     }      

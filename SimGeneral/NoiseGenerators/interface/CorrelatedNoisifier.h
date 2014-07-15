@@ -20,9 +20,12 @@ The above matrix multiplication is expedited in the
 trivial cases of a purely diagonal or identity correlation matrix.
 */
 
-#include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/Math/interface/Error.h"
 #include<vector>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 template<class M> 
 class CorrelatedNoisifier
@@ -31,11 +34,9 @@ class CorrelatedNoisifier
 
       typedef std::vector<double> VecDou ;
 
-      CorrelatedNoisifier( const M&                symCorMat , //correlation matrix
-			   CLHEP::HepRandomEngine* engine      = 0 ) ;
+      CorrelatedNoisifier( const M& symCorMat ); //correlation matrix
 
-      CorrelatedNoisifier( CLHEP::HepRandomEngine* engine    ,
-			   const M&                cholDecMat ) ; //decomposition matrix
+      CorrelatedNoisifier( int* dummy, const M& cholDecMat ); //decomposition matrix
 
       virtual ~CorrelatedNoisifier() ;
 
@@ -45,6 +46,7 @@ class CorrelatedNoisifier
 
       template<class T>
       void noisify( T& frame ,  // applies random noise to frame
+                    CLHEP::HepRandomEngine*,
 		    const VecDou* rangau = 0 ) const ; // use these 
 
       const M& cholMat() const ; // return decomposition
@@ -67,8 +69,6 @@ class CorrelatedNoisifier
       void checkOffDiagonal( const M& symCorMat ) ;
 
       mutable VecDou m_vecgau ;
-
-      CLHEP::RandGaussQ* m_rangau ;
 
       bool m_isDiagonal ;
       bool m_isIdentity ;

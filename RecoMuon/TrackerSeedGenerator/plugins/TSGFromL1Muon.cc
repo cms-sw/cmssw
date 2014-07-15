@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -34,8 +35,6 @@
 
 #include <vector>
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
@@ -56,6 +55,13 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
   edm::ParameterSet filterPSet = theConfig.getParameter<edm::ParameterSet>("FilterPSet");
   std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
   theFilter.reset(PixelTrackFilterFactory::get()->create( filterName, filterPSet, iC));
+
+  edm::ParameterSet hitsfactoryPSet =
+      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+  std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
+  theHitGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
+
+  theSourceToken=iC.consumes<L1MuonParticleCollection>(theSourceTag);
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
@@ -74,11 +80,6 @@ void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
     TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
   theRegionProducer = dynamic_cast<L1MuonRegionProducer* >(p);
 
-  edm::ParameterSet hitsfactoryPSet =
-      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
-  std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  theHitGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
-
   edm::ParameterSet fitterPSet = theConfig.getParameter<edm::ParameterSet>("FitterPSet");
   std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
   PixelFitter * f = PixelFitterFactory::get()->create( fitterName, fitterPSet);
@@ -96,7 +97,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
   edm::Handle<L1MuonParticleCollection> l1muon;
-  ev.getByLabel(theSourceTag, l1muon);
+  ev.getByToken(theSourceToken, l1muon);
 
   LogDebug("TSGFromL1Muon")<<l1muon->size()<<" l1 muons to seed from.";
 

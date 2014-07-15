@@ -244,7 +244,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
             // energy calibration for ecalDriven electrons
             if ( ele->core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3 )
             {
-                theEnCorrector->calibrate(mySimpleElectron);
+                theEnCorrector->calibrate(mySimpleElectron, event.streamID());
 
                 // E-p combination
 

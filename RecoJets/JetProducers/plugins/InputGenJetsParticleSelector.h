@@ -91,6 +91,7 @@ class InputGenJetsParticleSelector : public edm::EDProducer {
   bool			tausAsJets;
   double			ptMin;
   
+  edm::EDGetTokenT<reco::GenParticleCollection> input_genpartcoll_token_;
   
   
 };

@@ -100,7 +100,7 @@ namespace edm {
     const_iterator end() const { return transientVector().end(); }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(11)
 
   private:
     enum CacheState { kUnset, kFilling, kSet };

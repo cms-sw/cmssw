@@ -2,7 +2,7 @@
 //
 // Package:    MultiplicityCorrelator
 // Class:      MultiplicityCorrelator
-// 
+//
 /**\class MultiplicityCorrelator MultiplicityCorrelator.cc DPGAnalysis/SiStripTools/src/MultiplicityCorrelator.cc
 
  Description: <one line class summary>
@@ -58,8 +58,8 @@ private:
 
   std::vector<MultiplicityCorrelatorHistogramMaker*> m_mchms;
 
-  std::vector<edm::InputTag> m_xMultiplicityMaps;
-  std::vector<edm::InputTag> m_yMultiplicityMaps;
+  std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > m_xMultiplicityMapTokens;
+  std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > m_yMultiplicityMapTokens;
   std::vector<std::string> m_xLabels;
   std::vector<std::string> m_yLabels;
   std::vector<unsigned int> m_xSelections;
@@ -81,24 +81,24 @@ private:
 //
 MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig):
   m_mchms(),
-  m_xMultiplicityMaps(),m_yMultiplicityMaps(),
+  m_xMultiplicityMapTokens(),m_yMultiplicityMapTokens(),
   m_xLabels(),m_yLabels(), m_xSelections(),m_ySelections()
 {
    //now do what ever initialization is needed
 
-  std::vector<edm::ParameterSet> correlationConfigs = 
+  std::vector<edm::ParameterSet> correlationConfigs =
     iConfig.getParameter<std::vector<edm::ParameterSet> >("correlationConfigurations");
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=correlationConfigs.begin();ps!=correlationConfigs.end();++ps) {
 
-    m_xMultiplicityMaps.push_back(ps->getParameter<edm::InputTag>("xMultiplicityMap"));
-    m_yMultiplicityMaps.push_back(ps->getParameter<edm::InputTag>("yMultiplicityMap"));
+    m_xMultiplicityMapTokens.push_back(consumes<std::map<unsigned int, int> >(ps->getParameter<edm::InputTag>("xMultiplicityMap")));
+    m_yMultiplicityMapTokens.push_back(consumes<std::map<unsigned int, int> >(ps->getParameter<edm::InputTag>("yMultiplicityMap")));
     m_xLabels.push_back(ps->getParameter<std::string>("xDetLabel"));
     m_yLabels.push_back(ps->getParameter<std::string>("yDetLabel"));
     m_xSelections.push_back(ps->getParameter<unsigned int>("xDetSelection"));
     m_ySelections.push_back(ps->getParameter<unsigned int>("yDetSelection"));
 
-    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(*ps));
+    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(*ps, consumesCollector()));
 
   }
 
@@ -107,7 +107,7 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
 
 MultiplicityCorrelator::~MultiplicityCorrelator()
 {
- 
+
   for(unsigned int i=0;i<m_mchms.size();++i) {
     delete m_mchms[i];
   }
@@ -124,12 +124,12 @@ void
 MultiplicityCorrelator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
+
   for(unsigned int i=0;i<m_mchms.size();++i) {
     Handle<std::map<unsigned int, int> > xMults;
-    iEvent.getByLabel(m_xMultiplicityMaps[i],xMults);
+    iEvent.getByToken(m_xMultiplicityMapTokens[i],xMults);
     Handle<std::map<unsigned int, int> > yMults;
-    iEvent.getByLabel(m_yMultiplicityMaps[i],yMults);
+    iEvent.getByToken(m_yMultiplicityMapTokens[i],yMults);
 
     // check if the selection exists
 
@@ -143,17 +143,17 @@ MultiplicityCorrelator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     }
     else {
-      edm::LogWarning("DetSelectionNotFound") << " DetSelection " 
-					      << m_xSelections[i] << " " 
-					      << m_ySelections[i] << " not found"; 
+      edm::LogWarning("DetSelectionNotFound") << " DetSelection "
+					      << m_xSelections[i] << " "
+					      << m_ySelections[i] << " not found";
     }
   }
-  
+
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 MultiplicityCorrelator::beginJob()
 {
 
@@ -167,7 +167,7 @@ MultiplicityCorrelator::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
   }
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 MultiplicityCorrelator::endJob() {
 }
 //define this as a plug-in

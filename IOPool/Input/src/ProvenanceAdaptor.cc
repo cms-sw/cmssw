@@ -91,7 +91,7 @@ namespace edm {
     void
     fillListsAndIndexes(ProductRegistry& productRegistry,
 			ProcessHistoryMap const& pHistMap,
-			boost::shared_ptr<BranchIDLists const>& branchIDLists,
+			std::shared_ptr<BranchIDLists const>& branchIDLists,
 			std::vector<BranchListIndex>& branchListIndexes) {
       OrderedProducts orderedProducts;
       std::set<std::string> processNamesThatProduced;
@@ -183,7 +183,7 @@ namespace edm {
     return it->second; 
   }
 
-  boost::shared_ptr<BranchIDLists const>
+  std::shared_ptr<BranchIDLists const>
   ProvenanceAdaptor::branchIDLists() const {
     return branchIDLists_;
   }

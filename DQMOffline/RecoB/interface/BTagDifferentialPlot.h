@@ -11,6 +11,7 @@
 
 #include "DQMOffline/RecoB/interface/EtaPtBin.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class BTagDifferentialPlot {
   
@@ -18,7 +19,7 @@ class BTagDifferentialPlot {
 
   enum ConstVarType {constPT, constETA };
 
-  BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable, const std::string & tagName) ;
+  BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable, const std::string & tagName, DQMStore::IBooker & ibook) ;
 
   ~BTagDifferentialPlot () ;
 
@@ -49,9 +50,7 @@ class BTagDifferentialPlot {
   TH1F * getDifferentialHistoB_ni   () { return theDifferentialHistoB_ni->getTH1F()   ; }
   TH1F * getDifferentialHistoB_dus  () { return theDifferentialHistoB_dus->getTH1F()  ; }
   TH1F * getDifferentialHistoB_dusg () { return theDifferentialHistoB_dusg->getTH1F() ; }
-  
-  
-
+  TH1F * getDifferentialHistoB_pu   () { return theDifferentialHistoB_pu->getTH1F()   ; }
 
   
  private:
@@ -83,7 +82,7 @@ class BTagDifferentialPlot {
 
   // the common name to describe histograms
   std::string commonName ;
-
+  DQMStore::IBooker & ibook_;
 
   // the input
   std::vector<JetTagPlotter *> theBinPlotters ;
@@ -98,6 +97,7 @@ class BTagDifferentialPlot {
   MonitorElement * theDifferentialHistoB_ni   ;
   MonitorElement * theDifferentialHistoB_dus  ;
   MonitorElement * theDifferentialHistoB_dusg ;
+  MonitorElement * theDifferentialHistoB_pu   ;
 
   // the plot Canvas
 //   TCanvas * thePlotCanvas ;

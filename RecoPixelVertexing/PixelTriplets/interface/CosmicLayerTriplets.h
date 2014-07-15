@@ -44,9 +44,9 @@ private:
   LayerWithHits *lh3;
   LayerWithHits *lh4;
 
-   std::vector<BarrelDetLayer*> bl;
-   std::vector<ForwardDetLayer*> fpos;
-   std::vector<ForwardDetLayer*> fneg;
+   std::vector<BarrelDetLayer const*> bl;
+   std::vector<ForwardDetLayer const*> fpos;
+   std::vector<ForwardDetLayer const*> fneg;
    //MP
    std::vector<LayerWithHits*> allLayersWithHits;
    bool isFirstCall;

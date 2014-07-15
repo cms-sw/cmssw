@@ -45,6 +45,7 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
      
    
   m_label = iConfig.getParameter<std::string>("label");
+  consumes<RPCDigiCollection>(m_label);
 }
 
 

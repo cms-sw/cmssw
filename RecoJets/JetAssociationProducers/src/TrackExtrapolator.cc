@@ -82,20 +82,6 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( extrapolations );
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrackExtrapolator::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrackExtrapolator::endJob() {
-}
-
-
-
-
 // -----------------------------------------------------------------------------
 //
 bool TrackExtrapolator::propagateTrackToVolume( const reco::Track& fTrack,

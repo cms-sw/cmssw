@@ -2,13 +2,13 @@
 //
 // Package:    SiStripTools
 // Class:      SiStripDetWithSomething
-// 
+//
 /**\class SiStripDetWithSomething SiStripDetWithSomething.cc DPGAnalysis/SiStripTools/plugins/SiStripDetWithSomething.cc
 
  Description: template EDFilter to select events with selected modules with SiStripDigis or SiStripClusters
 
  Implementation:
-     
+
 */
 //
 // Original Author:  Andrea Venturi
@@ -54,10 +54,10 @@ class SiStripDetWithSomething : public edm::EDFilter {
       virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
-  edm::InputTag _digicollection;
+  edm::EDGetTokenT<T> _digicollectionToken;
   std::vector<unsigned int> _wantedmod;
 
 };
@@ -75,7 +75,7 @@ class SiStripDetWithSomething : public edm::EDFilter {
 //
 template <class T>
 SiStripDetWithSomething<T>::SiStripDetWithSomething(const edm::ParameterSet& iConfig):
-  _digicollection(iConfig.getParameter<edm::InputTag>("collectionName")),
+  _digicollectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
   _wantedmod(iConfig.getUntrackedParameter<std::vector<unsigned int> >("selectedModules"))
 
 {
@@ -94,7 +94,7 @@ SiStripDetWithSomething<T>::SiStripDetWithSomething(const edm::ParameterSet& iCo
 template <class T>
 SiStripDetWithSomething<T>::~SiStripDetWithSomething()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -113,7 +113,7 @@ SiStripDetWithSomething<T>::filter(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace edm;
 
    Handle<T> digis;
-   iEvent.getByLabel(_digicollection,digis);
+   iEvent.getByToken(_digicollectionToken,digis);
 
    for(typename T::const_iterator it = digis->begin();it!=digis->end();it++) {
 
@@ -121,7 +121,7 @@ SiStripDetWithSomething<T>::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	 mod!=_wantedmod.end()&&it->detId()>=*mod;
 	 mod++) {
        if(*mod == it->detId()) {
-	 edm::LogInfo("ModuleFound") << " module " << *mod << " found with " 
+	 edm::LogInfo("ModuleFound") << " module " << *mod << " found with "
 				     << it->size() << " digis/clusters";
 	 return true;
        }
@@ -133,14 +133,14 @@ SiStripDetWithSomething<T>::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
-void 
+void
 SiStripDetWithSomething<T>::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 template <class T>
-void 
+void
 SiStripDetWithSomething<T>::endJob() {
 }
 

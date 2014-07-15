@@ -25,7 +25,9 @@ class L2TauJetsMerger: public edm::EDProducer {
  private:
     
   typedef std::vector<edm::InputTag> vtag;
+  typedef std::vector<edm::EDGetTokenT<reco::CaloJetCollection> > vtoken_cjets;
   vtag jetSrc;
+  vtoken_cjets jetSrc_token;
   double mEt_Min;
   std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
 

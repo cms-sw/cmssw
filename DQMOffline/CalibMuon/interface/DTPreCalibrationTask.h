@@ -18,10 +18,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+
 #include <string>
 #include <map>
 #include <vector>
 
+using namespace edm;
+using namespace std;
 
 class DQMStore;
 class MonitorElement;
@@ -52,7 +57,7 @@ public:
 private:
 
   DQMStore* dbe;
-  std::string digiLabel;
+  edm::EDGetTokenT<DTDigiCollection> digiLabel;
   int  minTriggerWidth;
   int  maxTriggerWidth;
   bool saveFile;

@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class LooperTrajectoryFilter : public TrajectoryFilter {
+class LooperTrajectoryFilter final : public TrajectoryFilter {
 public:
 
   explicit LooperTrajectoryFilter( int minNumberOfHits=13, 
@@ -13,7 +13,7 @@ public:
   theMinNumberOfHitsPerLoop(minNumberOfHitsPerLoop),
   theExtraNumberOfHitsBeforeTheFirstLoop(extraNumberOfHitsBeforeTheFirstLoop){}
   
-  explicit LooperTrajectoryFilter( const edm::ParameterSet & pset){
+  explicit LooperTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
     theMinNumberOfHits = pset.existsAs<int>("minNumberOfHits") ? 
       pset.getParameter<int>("minNumberOfHits") : 13; 
     theMinNumberOfHitsPerLoop= pset.existsAs<int>("minNumberOfHitsPerLoop") ? 

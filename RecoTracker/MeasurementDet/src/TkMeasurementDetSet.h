@@ -9,23 +9,29 @@ class SiStripRecHitMatcher;
 class StripClusterParameterEstimator;
 class PixelClusterParameterEstimator;
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// #define VISTAT
+
+#ifdef VISTAT
+#include<iostream>
+#define COUT std::cout
+#else
+#define COUT LogDebug("")
+#endif
+
 /* Struct of arrays supporting "members of Tk...MeasurementDet
  * implemented with vectors, to be optimized...
    ITEMS THAT DO NOT DEPEND ON THE EVENT
  */
-
 class StMeasurementConditionSet {
 public:
   enum QualityFlags { BadModules=1, // for everybody
@@ -48,9 +54,8 @@ public:
   
   
   StMeasurementConditionSet(const SiStripRecHitMatcher* matcher,
-		           const StripClusterParameterEstimator* cpe,
-		           bool regional):
-    theMatcher(matcher), theCPE(cpe), regional_(regional){}
+		           const StripClusterParameterEstimator* cpe):
+    theMatcher(matcher), theCPE(cpe){}
   
   
   void init(int size);
@@ -67,7 +72,6 @@ public:
     return std::lower_bound(id_.begin()+i,id_.end(),jd)-id_.begin();
   }
   
-  bool isRegional() const { return regional_;}
   bool isActiveThisPeriod(int i) const { return activeThisPeriod_[i]; }
 
  
@@ -111,7 +115,6 @@ private:
   // globals
   const SiStripRecHitMatcher*       theMatcher;
   const StripClusterParameterEstimator* theCPE;
-  bool  regional_;
   
   bool maskBad128StripBlocks_;
   BadStripCuts badStripCuts_[4];
@@ -137,44 +140,40 @@ public:
   typedef edmNew::DetSet<SiStripCluster> StripDetset;
   typedef StripDetset::const_iterator new_const_iterator;
   
-  typedef std::vector<SiStripCluster>::const_iterator const_iterator;
-  
-  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::RefGetter<SiStripCluster> RefGetter;
 
   StMeasurementDetSet(const StMeasurementConditionSet & cond) : 
     conditionSet_(&cond),
     empty_(cond.nDet(), true),
     activeThisEvent_(cond.nDet(), true),
-    detSet_(!cond.isRegional() ? cond.nDet() : 0),
-    clusterI_(cond.isRegional() ? 2*cond.nDet() : 0),
-    refGetter_(0),
+    detSet_(cond.nDet()),
+    detIndex_(cond.nDet(),-1),
+    ready_(cond.nDet(),true),
     theRawInactiveStripDetIds_(),
-    stripDefined_(cond.isRegional() ? cond.nDet() : 0), 
-    stripUpdated_(cond.isRegional() ? cond.nDet() : 0), 
-    stripRegions_(cond.isRegional() ? cond.nDet() : 0) 
+    stripDefined_(0), 
+    stripUpdated_(0), 
+    stripRegions_(0) 
   {
+  }
+
+  ~StMeasurementDetSet() {
+    printStat();
   }
 
   const StMeasurementConditionSet & conditions() const { return *conditionSet_; } 
  
-  void setLazyGetter( edm::Handle<LazyGetter> const & lg) { regionalHandle_=lg;}
  
   void update(int i,const StripDetset & detSet ) { 
     detSet_[i] = detSet;     
     empty_[i] = false;
   }
-  
-  void update(int i, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
-    clusterI_[2*i] = begin - regionalHandle_->begin_record();
-    clusterI_[2*i+1] = end - regionalHandle_->begin_record();
-    
+
+  void update(int i, int j ) {
+    assert(j>=0); assert(empty_[i]); assert(ready_[i]); 
+    detIndex_[i] = j;
     empty_[i] = false;
-    activeThisEvent_[i] = true;
+    incReady();
   }
- 
-  bool isRegional() const { return conditions().isRegional(); }
- 
+
   int size() const { return conditions().nDet(); }
   int nDet() const { return size();}
   unsigned int id(int i) const { return conditions().id(i); }
@@ -189,8 +188,12 @@ public:
   void setUpdated(int i) { stripUpdated_[i] = true; }
   
   void setEmpty() {
+    printStat();
     std::fill(empty_.begin(),empty_.end(),true);
+    std::fill(ready_.begin(),ready_.end(),true);
+    std::fill(detIndex_.begin(),detIndex_.end(),-1);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
+    incTot(size());
   }
   
   /** \brief Turn on/off the module for reconstruction for one events.
@@ -199,22 +202,15 @@ public:
   
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_; }
   const edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() const {  return handle_; }
-  StripDetset & detSet(int i) { return detSet_[i]; }
-  const StripDetset & detSet(int i) const { return detSet_[i]; }
+  // StripDetset & detSet(int i) { return detSet_[i]; }
+  const StripDetset & detSet(int i) const { if (ready_[i]) const_cast<StMeasurementDetSet*>(this)->getDetSet(i);     return detSet_[i]; }
   
-  edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_; }
-  const edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() const { return regionalHandle_; }
-  unsigned int beginClusterI(int i) const {return clusterI_[2*i];}
-  unsigned int endClusterI(int i) const {return clusterI_[2*i+1];}
-  
-  const edm::RefGetter<SiStripCluster> & refGetter() const { return *refGetter_; }
-  void setRefGetter(const edm::RefGetter<SiStripCluster> &getter) { refGetter_ = &getter; }
 
   //// ------- pieces for on-demand unpacking -------- 
   std::vector<uint32_t> & rawInactiveStripDetIds() { return theRawInactiveStripDetIds_; } 
   const std::vector<uint32_t> & rawInactiveStripDetIds() const { return theRawInactiveStripDetIds_; } 
 
-  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripDefined_.begin(), stripDefined_.end(), false); }
+  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripUpdated_.begin(), stripUpdated_.end(), false); }
   const bool stripDefined(int i) const { return stripDefined_[i]; }
   const bool stripUpdated(int i) const { return stripUpdated_[i]; }
   void defineStrip(int i, std::pair<unsigned int, unsigned int> range) {
@@ -222,30 +218,41 @@ public:
     stripUpdated_[i] = false;
     stripRegions_[i] = range; 
   }
-  //const bool gluedUpdated(int i) const { return gluedUpdated_(i); }
-  const std::pair<unsigned int,unsigned int> & regionRange(int i) const { return stripRegions_[i]; }
 
 private:
+
+  void getDetSet(int i) {
+    if(detIndex_[i]>=0) {
+      detSet_[i].set(*handle_,handle_->item(detIndex_[i]));
+      empty_[i]=false; // better be false already
+      incAct();
+    }  else { // we should not be here
+      detSet_[i] = StripDetset();
+      empty_[i]=true;  
+    }
+    ready_[i]=false;
+    incSet();
+  }
+
+
   friend class  MeasurementTrackerImpl;
-  friend class  MeasurementTrackerSiStripRefGetterProducer;
 
   const StMeasurementConditionSet *conditionSet_; 
- 
+
+
+  // Globals, per-event
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
-  edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
-  
+
+ 
   std::vector<bool> empty_;
   std::vector<bool> activeThisEvent_;
   
   // full reco
   std::vector<StripDetset> detSet_;
+  std::vector<int> detIndex_;
+  std::vector<bool> ready_; // to be cleaned
   
-  // --- regional unpacking
-  // begin,end "pairs"
-  std::vector<unsigned int> clusterI_;
  
-  //// ------- pieces for on-demand unpacking -------- 
-  const edm::RefGetter<SiStripCluster> * refGetter_;
   // note: not aligned to the index
   std::vector<uint32_t> theRawInactiveStripDetIds_;
   // keyed on si-strip index
@@ -253,6 +260,35 @@ private:
   std::vector<std::pair<unsigned int, unsigned int> > stripRegions_;
   // keyed on glued
   // std::vector<bool> gluedUpdated_;
+
+
+
+#ifdef VISTAT
+  struct Stat {
+    int totDet=0; // all dets
+    int detReady=0; // dets "updated"
+    int detSet=0;  // det actually set not empty
+    int detAct=0;  // det actually set with content
+  };
+
+  mutable Stat stat;
+  void zeroStat() const { stat = Stat(); }
+  void incTot(int n) const { stat.totDet=n;}
+  void incReady() const { stat.detReady++;}
+  void incSet() const { stat.detSet++;}
+  void incAct() const { stat.detAct++;}
+  void printStat() const {
+    COUT << "VI detsets " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct << std::endl;
+  }
+
+#else
+  static void zeroStat(){}
+  static void incTot(int){}
+  static void incReady() {}
+  static void incSet() {}
+  static void incAct() {}
+  static void printStat(){}
+#endif
    
 };
 

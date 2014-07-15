@@ -5,8 +5,10 @@
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CSCStripConditions
 {
@@ -17,10 +19,8 @@ public:
 
   virtual ~CSCStripConditions();
 
-  void setRandomEngine(CLHEP::HepRandomEngine& engine);
-
   /// superimposes noise, in fC, on the signal
-  void noisify(const CSCDetId & detId, CSCAnalogSignal & signal);
+  void noisify(const CSCDetId & detId, CSCAnalogSignal & signal, CLHEP::HepRandomEngine*);
 
   virtual void initializeEvent(const edm::EventSetup & es) {}
 
@@ -28,7 +28,7 @@ public:
   /// gain is the ratio that takes us from fC to ADC.  Nominally around 2
   virtual float gain(const CSCDetId & detId, int channel) const = 0;
   virtual float gainSigma(const CSCDetId & detId, int channel) const = 0;
-  virtual float smearedGain(const CSCDetId & detId, int channel) const;
+  virtual float smearedGain(const CSCDetId & detId, int channel, CLHEP::HepRandomEngine*) const;
 
   /// in ADC counts
   virtual float pedestal(const CSCDetId & detId, int channel) const = 0;
@@ -48,7 +48,6 @@ protected:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip) = 0;
 
   CSCCorrelatedNoisifier * theNoisifier;
-  CLHEP::RandGaussQ * theRandGaussQ;
 };
 
 #endif
