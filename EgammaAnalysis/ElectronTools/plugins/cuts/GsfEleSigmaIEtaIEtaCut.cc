@@ -8,7 +8,7 @@ public:
     _sigmaIEtaIEtaCutValue(c.getParameter<double>("sigmaIEtaIEtaCutValue")) {
   }
   
-  result_type operator()(const reco::GsfElectron&) const override final;
+  result_type operator()(const reco::GsfElectronRef&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -24,6 +24,6 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleSimgaIEtaIEtaCut::
-operator()(const reco::GsfElectron& cand) const{  
-  return cand.sigmaIetaIeta() < _sigmaIEtaIEtaCutValue;
+operator()(const reco::GsfElectronRef& cand) const{  
+  return cand->sigmaIetaIeta() < _sigmaIEtaIEtaCutValue;
 }

@@ -7,7 +7,7 @@ public:
     _maxEta(c.getParameter<double>("maxEta")) { }
   
   result_type asCandidate(const argument_type& cand) const override final {
-    return std::abs(cand.eta()) < _maxEta;
+    return std::abs(cand->eta()) < _maxEta;
   }
 
 private:
