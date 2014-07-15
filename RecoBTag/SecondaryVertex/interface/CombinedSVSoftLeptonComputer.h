@@ -8,8 +8,6 @@
 
 class CombinedSVSoftLeptonComputer : public CombinedSVComputerV2 {
     public:
-	using CombinedSVComputerV2::operator();
-	
 	explicit CombinedSVSoftLeptonComputer(const edm::ParameterSet &params);
 	
 	template <class IPTI,class SVTI>
@@ -27,7 +25,7 @@ reco::TaggingVariableList CombinedSVSoftLeptonComputer::operator () (const IPTI 
 	using namespace reco;
 	
 	// call the inherited operator()
-	TaggingVariableList vars = (*this)(ipInfo,svInfo);
+	TaggingVariableList vars = CombinedSVComputerV2::operator()(ipInfo,svInfo);
 	
 	// the following is specific to soft leptons
 	int leptonCategory = 0; // 0 = no lepton, 1 = muon, 2 = electron
