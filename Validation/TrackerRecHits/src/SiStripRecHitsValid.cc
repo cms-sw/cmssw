@@ -180,7 +180,8 @@ void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
 void SiStripRecHitsValid::beginJob(const edm::EventSetup& es){
 }
 
-void SiStripRecHitsValid::endJob() {
+// void SiStripRecHitsValid::endJob() {
+void SiStripRecHitsValid::endStream() {
   //Only in standalone mode save local root file 
   if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
   
