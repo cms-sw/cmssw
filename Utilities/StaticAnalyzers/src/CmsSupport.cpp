@@ -104,6 +104,7 @@ bool support::isSafeClassName(const std::string &name) {
   static const std::string ceap = "class edm::AtomicPtrCache";
   static const std::string once = "std::once_flag";
   static const std::string conce = "struct std::once_flag";
+  static const std::string boostext = "boost::<anonymous namespace>::extents";
   
   if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic || name.substr(0,satomic.length()) == satomic
 	|| name.substr(0,uatomic.length()) == uatomic  || name.substr(0,cuatomic.length()) == cuatomic
@@ -113,6 +114,7 @@ bool support::isSafeClassName(const std::string &name) {
 	|| name.substr(0,ctbb.length()) == ctbb ||  name.substr(0,tbb.length()) == tbb
 	|| name.substr(0,eap.length()) == eap || name.substr(0,ceap.length()) == ceap
 	|| name.substr(0,once.length()) == once || name.substr(0,conce.length()) == conce
+	|| name.substr(0,boostext.length()) == boostext
 	) 
 	return true;	
   return false;
