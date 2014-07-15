@@ -374,7 +374,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
 
     int blockId     = 2*iBlock;
-    int blockLength = rxData.at(iBlock).size();
+    int blockLength = rxBlockLength_.at(iBlock);
 
     // write block header
     feddata.data()[iWord+2] = blockLength & 0xff;
@@ -390,12 +390,21 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       continue;
     }
 
-    for (int i=0; i<blockLength && i<(int)rxData.at(iBlock).size(); ++i) {
+    for (int i=0; i<blockLength; ++i) {
+      if(i < (int)rxData.at(iBlock).size()) {
 	feddata.data()[iWord]   = rxData.at(iBlock).at(i) & 0xff;
 	feddata.data()[iWord+1] = (rxData.at(iBlock).at(i) >> 8) & 0xff;
 	feddata.data()[iWord+2] = (rxData.at(iBlock).at(i) >> 16) & 0xff;
 	feddata.data()[iWord+3] = (rxData.at(iBlock).at(i) >> 24) & 0xff;
 	iWord+=4;
+      }
+      else {
+	feddata.data()[iWord]   = 0;
+	feddata.data()[iWord+1] = 0;
+	feddata.data()[iWord+2] = 0;
+	feddata.data()[iWord+3] = 0;
+	iWord+=4;
+      }
     }
 
   }
@@ -425,12 +434,21 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       continue;
     }
 
-    for (int i=0; i<blockLength && i<(int)txData.at(iBlock).size(); ++i) {
-      feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
-      feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
-      feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
-      feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
-      iWord+=4;
+    for (int i=0; i<blockLength; ++i) {
+      if (i<(int)txData.at(iBlock).size()) {
+	feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
+	feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
+	feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
+	feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
+	iWord+=4;
+      }
+      else {
+	feddata.data()[iWord]   = 0;
+	feddata.data()[iWord+1] = 0;
+	feddata.data()[iWord+2] = 0;
+	feddata.data()[iWord+3] = 0;
+	iWord+=4;
+      }
     }
 
   }
