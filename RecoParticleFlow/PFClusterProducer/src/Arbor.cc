@@ -62,17 +62,17 @@ void init( float CellSize, float LayerThickness ) {
 
 }
 
-void HitsCleaning( std::vector<TVector3> inputHits )
+void HitsCleaning(std::vector<TVector3> inputHits )
 {
-        cleanedHits = inputHits;        //Cannot Really do much things here. Mapping before calling
-        NHits = cleanedHits.size();
-	/*
-	for(int i = 0; i < NHits; i ++)
-	{
-		if(BarrelFlag(cleanedHits[i]))
-			cout<<cleanedHits[i].Z()<<endl; 
-	}
-	*/
+  cleanedHits = std::move(inputHits);        //Cannot Really do much things here. Mapping before calling
+  NHits = cleanedHits.size();
+  /*
+    for(int i = 0; i < NHits; i ++)
+    {
+    if(BarrelFlag(cleanedHits[i]))
+    cout<<cleanedHits[i].Z()<<endl; 
+    }
+  */
 }
 
 void HitsClassification( linkcoll inputLinks )
@@ -143,7 +143,7 @@ void HitsClassification( linkcoll inputLinks )
 	edm::LogVerbatim("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
 }
 
-linkcoll LinkClean( std::vector<TVector3> allhits, linkcoll alllinks )
+linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
 {
 	linkcoll cleanedlinks; 
 
@@ -626,11 +626,11 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 	}
 }	
 
-std::vector< std::vector<int> > Arbor( std::vector<TVector3> inputHits, float CellSize, float LayerThickness )
+std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, float CellSize, float LayerThickness )
 {
 	init(CellSize, LayerThickness);
 
-	HitsCleaning(inputHits);
+	HitsCleaning( std::move(inputHits) );
 	BuildInitLink();
 	InitLinks = LinkClean( cleanedHits, Links );
 	

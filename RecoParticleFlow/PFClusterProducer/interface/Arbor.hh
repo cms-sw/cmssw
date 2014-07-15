@@ -10,7 +10,7 @@ namespace arbor {
 
   void init(float CellSize, float LayerThickness);
   
-  void HitsCleaning( std::vector<TVector3> inputHits );
+  void HitsCleaning(std::vector<TVector3> inputHits );
   
   void HitsClassification( linkcoll inputLinks );
   
