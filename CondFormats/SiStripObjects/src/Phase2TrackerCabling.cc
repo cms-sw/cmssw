@@ -60,6 +60,18 @@ bool Phase2TrackerCabling::poweq(const Phase2TrackerModule& a, const Phase2Track
 // Phase2TrackerCabling methods
 
 Phase2TrackerCabling::Phase2TrackerCabling( const std::vector<Phase2TrackerModule>& cons ):connections_(cons) {
+  // initialize the cabling (fill the transient objects and sort.
+  initializeCabling();
+}
+
+Phase2TrackerCabling::Phase2TrackerCabling( const Phase2TrackerCabling& src ) {
+  connections_ = src.connections_;
+  fedCabling_  = src.fedCabling_;
+  detCabling_  = src.detCabling_;
+  gbtCabling_  = src.gbtCabling_;
+}
+
+void Phase2TrackerCabling::initializeCabling() {
   // fill the cabling objects
   fedCabling_.reserve(connections_.size());
   detCabling_.reserve(connections_.size());
@@ -73,13 +85,6 @@ Phase2TrackerCabling::Phase2TrackerCabling( const std::vector<Phase2TrackerModul
   std::sort(fedCabling_.begin(),fedCabling_.end(),chOrdering);
   std::sort(detCabling_.begin(),detCabling_.end(),detidOrdering);
   std::sort(gbtCabling_.begin(),gbtCabling_.end(),gbtidOrdering);
-}
-
-Phase2TrackerCabling::Phase2TrackerCabling( const Phase2TrackerCabling& src ) {
-  connections_ = src.connections_;
-  fedCabling_  = src.fedCabling_;
-  detCabling_  = src.detCabling_;
-  gbtCabling_  = src.gbtCabling_;
 }
 
 const Phase2TrackerModule& Phase2TrackerCabling::findFedCh(std::pair<unsigned int, unsigned int> fedch) const {

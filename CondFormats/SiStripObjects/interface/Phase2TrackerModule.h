@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 class Phase2TrackerModule
 {
   public:
@@ -49,6 +51,8 @@ class Phase2TrackerModule
     uint32_t powerGroup_, coolingLoop_;
     std::pair<unsigned int,unsigned int> ch_;
     std::vector<unsigned int> i2cDevices_;
+
+  COND_SERIALIZABLE;
 };
 
 #endif
