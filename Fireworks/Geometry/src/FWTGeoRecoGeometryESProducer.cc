@@ -308,6 +308,7 @@ TGeoVolume* getCSCMother(TGeoVolume* top, unsigned int rawid )
    return mother;
 }
 
+
 void
 FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
@@ -329,12 +330,15 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
    auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
    for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
    {    
+      unsigned int rawid = (*it)->geographicalId();
+      CSCDetId detId(rawid);
+      std::stringstream s;
+      s << "CSC" << detId;
+      std::string name = s.str();
+      
+
       if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
       {
-         unsigned int rawid = chamber->geographicalId();
-         std::stringstream s;
-         s << rawid;
-         std::string name = s.str();
       
          TGeoVolume* child = createVolume( name, chamber );
          getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( chamber ));
@@ -347,11 +351,6 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       }
       else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
       {
-         unsigned int rawid = layer->geographicalId();
-         std::stringstream s;
-         s << rawid;
-         std::string name = s.str();
-      
          TGeoVolume* child = createVolume( name, layer );
          getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( layer ));
          //      assembly->AddNode( child, copy, createPlacement( layer ));
