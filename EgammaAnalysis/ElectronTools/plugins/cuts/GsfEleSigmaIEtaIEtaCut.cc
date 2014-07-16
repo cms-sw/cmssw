@@ -5,7 +5,9 @@ class GsfEleSimgaIEtaIEtaCut : public CutApplicatorBase {
 public:
   GsfEleSimgaIEtaIEtaCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _sigmaIEtaIEtaCutValue(c.getParameter<double>("sigmaIEtaIEtaCutValue")) {
+    _sigmaIEtaIEtaCutValueEB(c.getParameter<double>("sigmaIEtaIEtaCutValue")),
+    _sigmaIEtaIEtaCutValueEE(c.getParameter<double>("sigmaIEtaIEtaCutValue")),
+    _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   }
   
   result_type operator()(const reco::GsfElectronRef&) const override final;
@@ -15,7 +17,7 @@ public:
   }
 
 private:
-  const double _sigmaIEtaIEtaCutValue;
+  const double _sigmaIEtaIEtaCutValueEB,_sigmaIEtaIEtaCutValueEE,_barrelCutOff;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
@@ -25,5 +27,8 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 CutApplicatorBase::result_type 
 GsfEleSimgaIEtaIEtaCut::
 operator()(const reco::GsfElectronRef& cand) const{  
-  return cand->sigmaIetaIeta() < _sigmaIEtaIEtaCutValue;
+  const float sigmaIEtaIEtaCutValue = 
+    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+      _sigmaIEtaIEtaCutValueEB : _sigmaIEtaIEtaCutValueEE );
+  return cand->sigmaIetaIeta() < sigmaIEtaIEtaCutValue;
 }

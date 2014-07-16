@@ -6,7 +6,9 @@ class GsfEleMissingHitsCut : public CutApplicatorBase {
 public:
   GsfEleMissingHitsCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _maxMissingHits(c.getParameter<unsigned>("maxMissingHits")) {
+    _maxMissingHitsEB(c.getParameter<unsigned>("maxMissingHitsEB")),
+    _maxMissingHitsEE(c.getParameter<unsigned>("maxMissingHitsEE")),
+    _barrelCutOff(c.getParameter<double>("barrelCutOff")){
   }
   
   result_type operator()(const reco::GsfElectronRef&) const override final;
@@ -16,7 +18,8 @@ public:
   }
 
 private:
-  const unsigned _maxMissingHits;
+  const unsigned _maxMissingHitsEB, _maxMissingHitsEE;
+  const double _barrelCutOff;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
@@ -26,7 +29,10 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 CutApplicatorBase::result_type 
 GsfEleMissingHitsCut::
 operator()(const reco::GsfElectronRef& cand) const{ 
+  const unsigned maxMissingHits = 
+    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+      _maxMissingHitsEB : _maxMissingHitsEE );
   const unsigned mHits = 
     cand->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-  return mHits <= _maxMissingHits;
+  return mHits <= maxMissingHits;
 }
