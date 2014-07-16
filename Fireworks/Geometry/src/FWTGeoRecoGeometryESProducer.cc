@@ -284,92 +284,98 @@ FWTGeoRecoGeometryESProducer::path( TGeoVolume* volume, const std::string& name,
 }
 
 
- TGeoVolume* getCSCMother(TGeoVolume* top, unsigned int rawid )
-    {
-        TGeoVolume* mother = top;
-        CSCDetId id(rawid);
-        // std::cerr << id << std::endl;
+ 
+TGeoVolume* getCSCMother(TGeoVolume* top, unsigned int rawid )
+{
+   TGeoVolume* mother = top;
+   CSCDetId id(rawid);
+   // std::cerr << id << std::endl;
     
-        TGeoNode* enode = mother->FindNode(Form("Endcap_%d_Station_%d_1", id.endcap(),id.station() ));
-        mother = enode->GetVolume();
-        assert(mother);
+   TGeoNode* enode = mother->FindNode(Form("Endcap_%d_Station_%d_1", id.endcap(),id.station() ));
+   mother = enode->GetVolume();
+   assert(mother);
 
-        /*
+   TGeoNode* rnode = mother->FindNode(Form("Ring_%d_1", id.ring()));
+   mother = rnode->GetVolume();
+   assert(mother);
+   /*
 
-        TGeoNode* rnode = mother->FindNode(Form("Ring_%d_1", id.ring()));
-        mother = rnode->GetVolume();
-        assert(mother);
-        TGeoNode* cnode = mother->FindNode(Form("Chamber_%d_1", id.chamber()));
-        mother = cnode->GetVolume();
-        assert(mother);
-        */
+     TGeoNode* cnode = mother->FindNode(Form("Chamber_%d_1", id.chamber()));
+     mother = cnode->GetVolume();
+     assert(mother);
+   */
 
-        return mother;
-    }
+   return mother;
+}
+
 void
 FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
 
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  if(! m_geomRecord->slaveGeometry( CSCDetId()))
-    throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   if(! m_geomRecord->slaveGeometry( CSCDetId()))
+      throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
 
    for (int endcap = CSCDetId::minEndcapId(); endcap <=  CSCDetId::maxEndcapId(); ++endcap)
       for (int station = CSCDetId::minStationId(); station <=  CSCDetId::maxStationId(); ++station) 
-         assembly->AddNode(new TGeoVolumeAssembly( Form("Endcap_%d_Station_%d", endcap, station) ),1);
-
+      {
+         TGeoVolume* es = new TGeoVolumeAssembly( Form("Endcap_%d_Station_%d", endcap, station) );
+         assembly->AddNode(es,1);
+         for (int ring = CSCDetId::minRingId(); ring <=  CSCDetId::maxRingId(); ++ring)
+            es->AddNode(new TGeoVolumeAssembly( Form("Ring_%d", ring) ),1);
+      }
   
 
-  auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
-  for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
-  {    
-    if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
-    {
-      unsigned int rawid = chamber->geographicalId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
+   auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
+   for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
+   {    
+      if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
+      {
+         unsigned int rawid = chamber->geographicalId();
+         std::stringstream s;
+         s << rawid;
+         std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, chamber );
-       getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( chamber ));
-      // assembly->AddNode( child, copy, createPlacement( chamber ));
-      child->SetLineColor( kBlue );
+         TGeoVolume* child = createVolume( name, chamber );
+         getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( chamber ));
+         // assembly->AddNode( child, copy, createPlacement( chamber ));
+         child->SetLineColor( kBlue );
 
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-    }
-    else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
-    {
-      unsigned int rawid = layer->geographicalId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
+         std::stringstream p;
+         p << path( top, iName, copy ) << "/" << name << "_" << copy;
+         m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
+      }
+      else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
+      {
+         unsigned int rawid = layer->geographicalId();
+         std::stringstream s;
+         s << rawid;
+         std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, layer );
-       getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( layer ));
-      //      assembly->AddNode( child, copy, createPlacement( layer ));
-      child->SetLineColor( kBlue );
+         TGeoVolume* child = createVolume( name, layer );
+         getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( layer ));
+         //      assembly->AddNode( child, copy, createPlacement( layer ));
+         child->SetLineColor( kBlue );
       
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
+         std::stringstream p;
+         p << path( top, iName, copy ) << "/" << name << "_" << copy;
+         m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
 
-      const CSCStripTopology* stripTopology = layer->geometry()->topology();
-      m_fwGeometry->idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
-      m_fwGeometry->idToName[rawid].topology[1] = stripTopology->centreToIntersection();
-      m_fwGeometry->idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
-      m_fwGeometry->idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
-      m_fwGeometry->idToName[rawid].topology[4] = stripTopology->stripOffset();
-      m_fwGeometry->idToName[rawid].topology[5] = stripTopology->angularWidth();
+         const CSCStripTopology* stripTopology = layer->geometry()->topology();
+         m_fwGeometry->idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
+         m_fwGeometry->idToName[rawid].topology[1] = stripTopology->centreToIntersection();
+         m_fwGeometry->idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
+         m_fwGeometry->idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
+         m_fwGeometry->idToName[rawid].topology[4] = stripTopology->stripOffset();
+         m_fwGeometry->idToName[rawid].topology[5] = stripTopology->angularWidth();
 
-      const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
-      m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
-      m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
-    }
-  }
+         const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
+         m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
+         m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
+      }
+   }
 
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 
 void
