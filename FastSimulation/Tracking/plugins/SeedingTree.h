@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
 
 template<class DATA>
 class SeedingNode
@@ -145,7 +146,7 @@ class SeedingNode
             {
                 std::cout<<" -- ";
             }
-            printf("[%s] \r\n",_data.print().c_str());
+            printf("[%s, %s] \r\n",_data.print().c_str(),_data.printN().c_str());
             
         }
         void printRecursive() const
@@ -161,10 +162,14 @@ class SeedingNode
 template<class DATA>
 class SeedingTree
 {
+    public:
+       // typedef std::unordered_set<DATA,typename DATA:: hashfct, typename DATA:: eq> SingleSet;
+         typedef std::set<DATA> SingleSet;
     protected:
         std::vector<SeedingNode<DATA>*> _roots;
         std::vector<SeedingNode<DATA>*> _allNodes;
-        std::set<DATA> _singleSet;
+        
+        SingleSet _singleSet;
     public:
         SeedingTree()
         {
@@ -196,7 +201,7 @@ class SeedingTree
             return node->insert(dataList,_allNodes);
         }
         
-        inline const std::set<DATA> getSingleSet() const
+        inline const SingleSet getSingleSet() const
         {
             return _singleSet;
         }

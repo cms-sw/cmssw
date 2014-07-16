@@ -30,35 +30,33 @@ public:
     theSplitHit(0),
     theMatchedHit(0),
     theGeomDet(0),
-    
+    seedingLayer(),
     
     theRingNumber(0), 
     theCylinderNumber(0), 
     theLocalError(0.),
     theLargerError(0.),
-    forward(false) 
+    forward(false)
+    
    {
-    seedingLayer.subDet=0;
-    seedingLayer.idLayer=0;
-    seedingLayer.side=0;
+    
    }
-
+    
   /// Soft Copy Constructor from private members
   TrackerRecHit( const SiTrackerGSRecHit2D* theSplitHit, 
 		 const TrackerRecHit& other ) : 
     theSplitHit(theSplitHit),
     theMatchedHit(0),
     theGeomDet(other.geomDet()),
-    
+    seedingLayer(other.getSeedingLayer()),
     theRingNumber(other.ringNumber()), 
     theCylinderNumber(other.cylinderNumber()), 
     theLocalError(0.),
     theLargerError(0.),
-    forward(other.isForward()) 
+    forward(other.isForward())
+    
     {
-        seedingLayer.subDet=other.subDetId();
-        seedingLayer.idLayer=other.layerNumber();
-        seedingLayer.side=0;
+        
     }
 
   /// Constructor from a GSRecHit and the Geometry
@@ -92,10 +90,10 @@ public:
   }
   
   /// The subdet Id
-  inline unsigned int subDetId() const { return seedingLayer.subDet; }
+  inline unsigned int subDetId() const { return static_cast<unsigned int>(seedingLayer.subDet); }
   
   /// The Layer Number
-  inline unsigned int layerNumber() const { return seedingLayer.idLayer; }
+  inline unsigned int layerNumber() const { return static_cast<unsigned int>(seedingLayer.layerNumber); }
   
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
@@ -118,7 +116,7 @@ public:
   inline LocalPoint localPosition() const { return hit()->localPosition(); }  
   /// Check if the hit is on one of the requested detector
   //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
-  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const; 
+
   /// request check with 1, 2 and 3 seeds
   bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets) const;
   bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
@@ -129,8 +127,8 @@ public:
   inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
     
     return 
-      seedingLayer.subDet == other.subDetId() && 
-      seedingLayer.idLayer == other.layerNumber();
+      subDetId() == other.subDetId() && 
+      layerNumber() == other.layerNumber();
   }
 
   // The smaller local error

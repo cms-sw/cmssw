@@ -113,92 +113,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
       while (pos != std::string::npos) {
         pos=line.find("+");
         std::string layer = line.substr(0, pos);
-        //
-        LayerSpec layerSpec;
-        layerSpec.name = line.substr(0, pos);;
-        // Possible names: BPix(1-3) || FPix(1-2)(pos, neg) || TIB(1-4) || TID(1-3)(pos, neg) || TOB(1-6) || TEC(1-9)(pos, neg)
-        // BPix(1-3)
-        if (layerSpec.name.substr(0,4)=="BPix" ) {
-          layerSpec.subDet=PXB;
-          layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(4,1).c_str());
-          if (layerSpec.idLayer>3 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-3" << std::endl;
-          }
-        }
-        // FPix(1-2)(pos, neg)
-        else if (layerSpec.name.substr(0,4)=="FPix" ) {
-          layerSpec.subDet=PXD;
-          if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
-            layerSpec.side = POS_ENDCAP;
-          else //no validation if it's not neg
-            layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(4,1).c_str());
-          if (layerSpec.idLayer>2 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-2" << std::endl;
-          }
-        }
-        // TIB(1-4)
-        else if (layerSpec.name.substr(0,3)=="TIB" || layerSpec.name.substr(0,4)=="MTIB") {
-          layerSpec.subDet=TIB;
-          layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(layerSpec.name.find('B')+1,1).c_str());
-          if (layerSpec.idLayer>4 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-4" << std::endl;
-          }
-        }
-        // TID(1-3)(pos, neg)
-        else if (layerSpec.name.substr(0,3)=="TID" || layerSpec.name.substr(0,4)=="MTID") {
-          layerSpec.subDet=TID;
-          if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
-            layerSpec.side = POS_ENDCAP;
-          else
-            layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(layerSpec.name.find('D')+1,1).c_str());
-          if (layerSpec.idLayer>3 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-3" << std::endl;
-          }
-        }
-        // TOB(1-6)
-        else if (layerSpec.name.substr(0,3)=="TOB" ) {
-          layerSpec.subDet=TOB;
-          layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
-          if (layerSpec.idLayer>6 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-6" << std::endl;
-          }
-        }
-        // TEC(1-9)(pos, neg)
-        else if (layerSpec.name.substr(0,3)=="TEC" || layerSpec.name.substr(0,4)=="MTEC") {
-          layerSpec.subDet=TEC;
-          if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
-            layerSpec.side = POS_ENDCAP;
-          else
-            layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(layerSpec.name.find('C')+1,1).c_str());
-          if (layerSpec.idLayer>9 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-9" << std::endl;
-          }
-        } 
-        else { 
-          throw cms::Exception("FastSimulation/Tracking/python")
-            << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-            << "Layer: " << layerSpec.name << ", shouldn't exist" << std::endl
-            << "Case sensitive names: BPix FPix TIB MTIB TID MTID TOB TEC MTEC" << std::endl;
-        }
-        //
+        LayerSpec layerSpec = LayerSpec::createFromString(layer);
+
         tempResult.push_back(layerSpec);
         line=line.substr(pos+1,std::string::npos); 
       }
@@ -581,8 +497,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 	if (!selectMuons) {
 	  if (newSyntax)
       isOndet = theSeedHits[0].isOnRequestedDet(theLayersInSets);
-	  else
-	    isOndet = theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	  
       //std::cout << firstHitSubDetectors[ialgo][0] << " | " << seedingAlgo[ialgo] << " " << std::endl;  //seedingAlgo[iAlgo]: PixelTriplet, LowPtPixelTriplets, PixelPair, DetachedPixelTriplets, MixedTriplets, PixelLessPairs, TobTecLayerPairs......
       //	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
       //	if ( !isOndet ) break;
@@ -612,8 +527,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 	    // Check if on requested detectors
 	    if (newSyntax)
         isOndet = theSeedHits[0].isOnRequestedDet(theLayersInSets, theSeedHits[1]);
-	    else
-	      isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	    
 	    if ( !isOndet ) break;
 	  }
 	  // Check if on the same layer as previous hit
@@ -670,8 +584,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 	      // Check if on requested detectors
 	      if (newSyntax) 
           isOndet = theSeedHits[0].isOnRequestedDet(theLayersInSets, theSeedHits[1], theSeedHits[2]);
-	      else 
-          isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	      
 	      //	    if ( !isOndet ) break;
 	      if ( !isOndet ) continue;
 	    }

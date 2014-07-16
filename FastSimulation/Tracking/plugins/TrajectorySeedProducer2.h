@@ -117,7 +117,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
   
   inline bool isHitOnLayer(const TrackerRecHit& trackerRecHit, const LayerSpec& layer) const
   {
-    return layer.subDet==trackerRecHit.subDetId() && layer.idLayer==trackerRecHit.layerNumber();
+    return layer==trackerRecHit.getSeedingLayer();
   }
   
 const SeedingNode<LayerSpec>* insertHit(

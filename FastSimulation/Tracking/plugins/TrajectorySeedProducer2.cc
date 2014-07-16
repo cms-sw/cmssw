@@ -57,6 +57,15 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     std::cout<<"---------"<<std::endl;
     _seedingTree.sort();
     _seedingTree.printRecursive();
+    
+    for (auto const& layer: _seedingTree.getSingleSet())
+    //for (SeedingTree<LayerSpec>::SingleSet::const_iterator it = _seedingTree.getSingleSet().begin(); it!=_seedingTree.getSingleSet().end(); ++it)
+    {
+        
+        //std::cout<<it-_seedingTree.getSingleSet().begin()<<",";
+        std::cout<<layer.print().c_str()<<" ["<<layer.printN().c_str()<<"], ";
+    }
+    std::cout<<std::endl;
     std::cout<<std::endl;
 } 
 
@@ -198,8 +207,9 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 			{
 			    if (processSkippedHits)
 			    {
-			        //std::cout<<"skipping hit: "<<inext<<std::endl;
 			        /*
+			        //std::cout<<"skipping hit: "<<inext<<std::endl;
+			        
 	                //std::cout<<"\t\t"<<trackerRecHits[inext].getSeedingLayer().subDet<<":"<<trackerRecHits[inext].getSeedingLayer().idLayer<<std::endl;//<<", pos=("<<trackerRecHits[inext].globalPosition().x()<<","<<trackerRecHits[inext].globalPosition().y()<<","<<trackerRecHits[inext].globalPosition().z()<<")"<<std::endl;
 	                //TODO: check if hit can even be on free position within tree's layer
 			        std::vector<unsigned int> seedHits = iterateHits(
@@ -256,13 +266,13 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 void 
 TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
 
-    /*
+    
     std::cout<<std::endl;
 	std::cout<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
 	std::cout<<seedingAlgo[0]<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
-    */
+    
 
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
 
@@ -317,13 +327,13 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	//std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" simtracks associated to hits"<<std::endl;
 	//std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 	
-	/*
+	
 	std::vector<std::vector<std::pair<int,TrackerRecHit >>> newhits;
 	newhits.resize(theSimTracks->size());
 	
 	std::vector<std::vector<std::pair<int,TrackerRecHit >>> oldhits;
 	oldhits.resize(theSimTracks->size());
-    */
+    
 	//if no hits -> directly write empty collection
 	if(theGSRecHits->size() == 0)
 	{
@@ -426,7 +436,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 					recHits.push_back(aTrackingRecHit);
 					
 					//DEBUG
-					//newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
+					newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
 				}
 				
 				
@@ -478,20 +488,20 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	} //end loop over simtracks
     
     
-    
+    /*
 	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
 	{
 		std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
 		e.put(p,seedingAlgo[ialgo]);
 	}
+	*/
 	
 	
 	
+	TrajectorySeedProducer::produce(e, es, oldhits);
 	
-	//TrajectorySeedProducer::produce(e, es, oldhits);
 	
 	
-	/*
 	for (unsigned int itrack = 0; itrack<newhits.size(); ++itrack)
 	{
 	    if ((newhits[itrack].size()>0 && oldhits[itrack].size()==0) || (newhits[itrack].size()==0 && oldhits[itrack].size()>0))
@@ -503,7 +513,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	            std::cout<<"simtrack = "<<itrack<<": new seed"<<std::endl;
 	            for (unsigned int ihit = 0; ihit<newhits[itrack].size(); ++ ihit)
 	            {
-	                std::cout<<"\t hit: "<<newhits[itrack][ihit].first<<", "<<newhits[itrack][ihit].second.getSeedingLayer().subDet<<":"<<newhits[itrack][ihit].second.getSeedingLayer().idLayer<<", pos=("<<newhits[itrack][ihit].second.globalPosition().x()<<","<<newhits[itrack][ihit].second.globalPosition().y()<<","<<newhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
+	                std::cout<<"\t hit: "<<newhits[itrack][ihit].first<<", "<<newhits[itrack][ihit].second.getSeedingLayer().print().c_str()<<", pos=("<<newhits[itrack][ihit].second.globalPosition().x()<<","<<newhits[itrack][ihit].second.globalPosition().y()<<","<<newhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
 	            }
 	        }
 	        if (oldhits[itrack].size()>0)
@@ -511,12 +521,12 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	            std::cout<<"simtrack = "<<itrack<<": old seed"<<std::endl;
 	            for (unsigned int ihit = 0; ihit<oldhits[itrack].size(); ++ ihit)
 	            {
-	                std::cout<<"\t hit: "<<oldhits[itrack][ihit].first<<", "<<oldhits[itrack][ihit].second.getSeedingLayer().subDet<<":"<<oldhits[itrack][ihit].second.getSeedingLayer().idLayer<<", pos=("<<oldhits[itrack][ihit].second.globalPosition().x()<<","<<oldhits[itrack][ihit].second.globalPosition().y()<<","<<oldhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
+	                std::cout<<"\t hit: "<<oldhits[itrack][ihit].first<<", "<<oldhits[itrack][ihit].second.getSeedingLayer().print().c_str()<<", pos=("<<oldhits[itrack][ihit].second.globalPosition().x()<<","<<oldhits[itrack][ihit].second.globalPosition().y()<<","<<oldhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
 	            }
 	        }
         }
 	}
-	*/
+	
   
 }
 
