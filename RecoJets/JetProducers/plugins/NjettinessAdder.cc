@@ -8,43 +8,34 @@ void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(src_token_, jets);
   
-  // prepare room for output
-  std::vector<float> tau1;         tau1.reserve(jets->size());
-  std::vector<float> tau2;         tau2.reserve(jets->size());
-  std::vector<float> tau3;         tau3.reserve(jets->size());
+  for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
+  {
+    std::ostringstream tauN_str;
+    tauN_str << "tau" << *n;
 
-  for ( typename edm::View<reco::Jet>::const_iterator jetIt = jets->begin() ; jetIt != jets->end() ; ++jetIt ) {
+    // prepare room for output
+    std::vector<float> tauN;
+    tauN.reserve(jets->size());
 
-    edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(jetIt - jets->begin());
+    for ( typename edm::View<reco::Jet>::const_iterator jetIt = jets->begin() ; jetIt != jets->end() ; ++jetIt ) {
 
-    float t1=getTau(1, jetPtr );
-    float t2=getTau(2, jetPtr );
-    float t3=getTau(3, jetPtr );
+      edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(jetIt - jets->begin());
 
-    tau1.push_back(t1);
-    tau2.push_back(t2);
-    tau3.push_back(t3);
+      float t=getTau( *n, jetPtr );
+
+      tauN.push_back(t);
+    }
+
+    std::auto_ptr<edm::ValueMap<float> > outT(new edm::ValueMap<float>());
+    edm::ValueMap<float>::Filler fillerT(*outT);
+    fillerT.insert(jets, tauN.begin(), tauN.end());
+    fillerT.fill();
+
+    iEvent.put(outT,tauN_str.str().c_str());
   }
-
-  std::auto_ptr<edm::ValueMap<float> > outT1(new edm::ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outT2(new edm::ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outT3(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerT1(*outT1);
-  edm::ValueMap<float>::Filler fillerT2(*outT2);
-  edm::ValueMap<float>::Filler fillerT3(*outT3);
-  fillerT1.insert(jets, tau1.begin(), tau1.end());
-  fillerT2.insert(jets, tau2.begin(), tau2.end());
-  fillerT3.insert(jets, tau3.begin(), tau3.end());
-  fillerT1.fill();
-  fillerT2.fill();
-  fillerT3.fill();
-  
-  iEvent.put(outT1,"tau1");
-  iEvent.put(outT2,"tau2");
-  iEvent.put(outT3,"tau3");
 }
 
-float NjettinessAdder::getTau(int num, const edm::Ptr<reco::Jet> & object) const
+float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet> & object) const
 {
   std::vector<fastjet::PseudoJet> FJparticles;
   for (unsigned k = 0; k < object->numberOfDaughters(); ++k)
