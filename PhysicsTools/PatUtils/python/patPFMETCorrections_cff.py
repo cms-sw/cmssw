@@ -132,9 +132,9 @@ producePatPFMETCorrections = cms.Sequence(
 # pat met producer modules cloned accoringly to what is needed 
 producePatPFMETCorrectionsUnc = cms.Sequence(
     patPFMet
-   * pfCandsNotInJet
+   * pfCandsNotInJetsForMetCorr
    * selectedPatJetsForMETtype1p2Corr
-   * selectedPatJetsForMETtype2Corr 
+   * selectedPatJetsForMETtype2Corr
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
    * type0PFMEtCorrectionPFCandToVertexAssociation
