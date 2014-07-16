@@ -1,8 +1,8 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
 
 GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo)
-:  GEMBaseValidation(dbe, inputTag, pbInfo)
+                                               edm::EDGetToken& inputToken, const edm::ParameterSet& pbInfo)
+:  GEMBaseValidation(dbe, inputToken, pbInfo)
 {}
 void GEMCSCPadDigiValidation::bookHisto(const GEMGeometry* geom) {
   theGEMGeometry = geom;
@@ -28,9 +28,9 @@ void GEMCSCPadDigiValidation::bookHisto(const GEMGeometry* geom) {
         label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num];
         theCSCPad_phipad[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
         theCSCPad[region_num][station_num][layer_num] = dbe_->book1D( ("pad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
-        theCSCPad_xy[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
         theCSCPad_bx[region_num][station_num][layer_num] = dbe_->book1D( ("pad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
         theCSCPad_zr[region_num][station_num][layer_num] = BookHistZR("pad_dg","Pad Digi",region_num,station_num,layer_num);
+        theCSCPad_xy[region_num][station_num][layer_num] = BookHistXY("pad_dg","Pad Digi",region_num,station_num,layer_num);
       }
     }
   }
@@ -47,10 +47,9 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<GEMCSCPadDigiCollection> gem_digis;
-  e.getByLabel(theInputTag, gem_digis);
+  e.getByToken(inputToken_, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMCSCPadDigiValidation") << "Cannot get pads by label "
-                                       << theInputTag.encode();
+    edm::LogError("GEMCSCPadDigiValidation") << "Cannot get pads by label GEMCSCPadToken.";
   }
 
   for (GEMCSCPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
@@ -58,6 +57,10 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
     GEMDetId id = (*cItr).first;
 
     const GeomDet* gdet = theGEMGeometry->idToDet(id);
+    if ( gdet == nullptr) { 
+      std::cout<<"Getting DetId failed. Discard this gem pad hit.Maybe it comes from unmatched geometry."<<std::endl;
+      continue; 
+    }
     const BoundPlane & surface = gdet->surface();
     const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
 
@@ -79,9 +82,9 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
-      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";  
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl; 
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl; 
 
       int region_num=0;
       int station_num = station-1;

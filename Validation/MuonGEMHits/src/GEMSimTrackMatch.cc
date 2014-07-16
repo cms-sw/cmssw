@@ -7,41 +7,52 @@
 #include <TH1F.h>
 
 using namespace std;
-GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg) : GEMTrackMatch(dbe, simInputLabel , cfg)
+GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, edm::EDGetToken& track, edm::EDGetToken& vertex, edm::ParameterSet cfg) : GEMTrackMatch(dbe,track, vertex,  cfg)
 {
    minPt_  = cfg_.getUntrackedParameter<double>("gemMinPt",5.0);
    minEta_ = cfg_.getUntrackedParameter<double>("gemMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.45);
 }
 
-void GEMSimTrackMatch::bookHisto() 
+void GEMSimTrackMatch::bookHisto(const GEMGeometry* geom) 
 {
-   const float PI=TMath::Pi();
-   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
+  const float PI=TMath::Pi();
+  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
 
-	 const char* l_suffix[5] = { "","_l1","_l2","_l1or2","_l1and2"};
-	 const char* c_suffix[2] = { "_even","_odd" };
+	const char* l_suffix[4] = { "_l1","_l2","_l1or2","_l1and2"};
+	const char* s_suffix[3] = { "_st1","_st2_short","_st2_long"};
+	const char* c_suffix[2] = { "_even","_odd" };
+	nstation = geom->regions()[0]->stations().size();
    
-   for( unsigned int i=0 ; i< 5; i++) {
-		for( unsigned int j=0 ; j<2 ; j++) {
-			string suffix = string(c_suffix[j]) + string(l_suffix[i]);
-
+	for( unsigned int st=0 ; st<nstation ; st++) {
+			string suffix = string(s_suffix[st]);
 			string track_eta_name = string("track_eta")+ suffix;
 			string track_eta_title = track_eta_name+";SimTrack |#eta|;# of tracks";
-			track_eta[i][j]     = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(), 140,1.5,2.5);
-	
+			track_eta[st]     = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(), 140,minEta_,maxEta_);
 			string track_phi_name = string("track_phi")+ suffix;
-			string track_phi_title = track_phi_name+";SimTrack |#phi|;# of tracks";
-			track_phi[i][j] = dbe_->book1D(track_phi_name.c_str(), track_phi_title.c_str(),100, -PI,PI);
-			
-			string gem_lx_even_name  = string("gem_lx")+ suffix;
-			string gem_lx_even_title = gem_lx_even_name+";SimTrack localX [cm] ; Entries";
-			gem_lx[i][j] = dbe_->book1D(gem_lx_even_name.c_str(), gem_lx_even_title.c_str(), 100,-100,100);
+			string track_phi_title = track_phi_name+";SimTrack #phi;# of tracks";
+			track_phi[st] = dbe_->book1D(track_phi_name.c_str(), track_phi_title.c_str(),100, -PI,PI);
 
-			string gem_ly_even_name  = string("gem_ly")+ suffix;
-			string gem_ly_even_title = gem_ly_even_name+";SimTrack localY [cm] ; Entries";
-			gem_ly[i][j] = dbe_->book1D(gem_ly_even_name.c_str(), gem_ly_even_title.c_str(), 100,-100,100);
+   	for( unsigned int layer=0 ; layer< 4; layer++) {
+			suffix = string(l_suffix[layer])+s_suffix[st];
+		
+			string sh_eta_name = string("sh_eta")+suffix;
+			string sh_eta_title = sh_eta_name+"; tracks |#eta|; # of tracks";
+			sh_eta[layer][st] = dbe_->book1D( sh_eta_name.c_str(), sh_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
+			string sh_phi_name = string("sh_phi")+suffix;
+			string sh_phi_title = sh_phi_name+"; tracks #phi; # of tracks";
+			sh_phi[layer][st] = dbe_->book1D( sh_phi_name.c_str(), sh_phi_title.c_str(), 100, -PI,PI) ;
+		}
+		for ( int chamber = 0 ; chamber <2 ; chamber++) {
+			suffix =string(s_suffix[st])+c_suffix[chamber];
+			string gem_lx_name  = string("gem_lx")+ suffix;
+			string gem_lx_title = gem_lx_name+";SimTrack localX [cm] ; Entries";
+			gem_lx[st][chamber] = dbe_->book1D(gem_lx_name.c_str(), gem_lx_title.c_str(), 100,-100,100);
+
+			string gem_ly_name  = string("gem_ly")+ suffix;
+			string gem_ly_title = gem_ly_name+";SimTrack localY [cm] ; Entries";
+			gem_ly[st][chamber] = dbe_->book1D(gem_ly_name.c_str(), gem_ly_title.c_str(), 100,-100,100);
 		}
 	}
 }
@@ -64,14 +75,22 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Float_t gem_lx_even, gem_ly_even;
     Float_t gem_lx_odd, gem_ly_odd;
     Char_t has_gem_sh_l1, has_gem_sh_l2;
+		bool track_sh[3][2][2];
+		bool station[3];
+		bool layer[2];
+		bool chamber[2];
   };
   MySimTrack track_;
 
-  iEvent.getByLabel(simInputLabel_, sim_tracks);
-  iEvent.getByLabel(simInputLabel_, sim_vertices);
+  iEvent.getByToken(simTracksToken_, sim_tracks);
+  iEvent.getByToken(simVerticesToken_, sim_vertices);
+  
+  if ( !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
+
+
 
   for (auto& t: sim_trks)
   {
@@ -94,66 +113,63 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     track_.gem_ly_even =0;
     track_.gem_lx_odd  =0;
     track_.gem_ly_odd  =0;
-    track_.has_gem_sh_l1 = 0;
-    track_.has_gem_sh_l2 = 0;
-
+		
+		for( int i=0 ; i<3 ; i++) track_.station[i] = false;
+		for( int i=0 ; i<2 ; i++) track_.layer[i]   = false;
+		for( int i=0 ; i<2 ; i++) track_.chamber[i] = false; 
 
     // check for hit chambers
     const auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
-		bool isHitLayer1 = false;
-		bool isHitLayer2 = false;
-		bool isHitOddChamber  = false;
-		bool isHitEvenChamber = false;
-
 
     for(auto d: gem_sh_ids_ch)
     {
       const GEMDetId id(d);
-      if ( id.chamber() & 1 ) isHitOddChamber = true;  // true : odd, false : even
-			else isHitEvenChamber = true;
-			if ( id.layer() == 1 ) isHitLayer1 = true;
-			if ( id.layer() == 2 ) isHitLayer2 = true;
-		}		 
-		if ( isHitEvenChamber ) {	
-	    track_eta[0][0]->Fill( fabs( track_.eta)  );
-    	if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[0][0]->Fill( track_.phi);
-		  if ( isHitLayer1 ) {
-		    track_eta[1][0]->Fill ( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[1][0]->Fill( track_.phi);
-		  }
-		  if ( isHitLayer2 ) {
-	     track_eta[2][0]->Fill( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[2][0]->Fill( track_.phi);
-	  	}
-	    if ( isHitLayer1 || isHitLayer2 ) {
-	 	    track_eta[3][0]->Fill( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[3][0]->Fill( track_.phi);
-	    }
-	    if ( isHitLayer1 && isHitLayer2 ) {
-	      track_eta[4][0]->Fill( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[4][0]->Fill( track_.phi);
-	    }
+			//std::cout<<d<<" to "<<id<<std::endl;
+			track_.station[id.station()-1] = true;
+			track_.layer[ id.layer()-1] = true;
+			track_.chamber[ id.chamber()%2] = true;
+			auto& gem_sh_list = match_sh.hitsInChamber(id);
+			for( auto sh: gem_sh_list) {
+				gem_lx[id.station()-1][id.chamber()%2]->Fill( sh.localPosition().x());
+				gem_ly[id.station()-1][id.chamber()%2]->Fill( sh.localPosition().y());
+			}
+			
 		}
-		if ( isHitOddChamber ) {	
-	    track_eta[0][1]->Fill( fabs( track_.eta)  );
-    	if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[0][1]->Fill( track_.phi);
-		  if ( isHitLayer1 ) {
-		    track_eta[1][1]->Fill ( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[1][1]->Fill( track_.phi);
-		  }
-		  if ( isHitLayer2 ) {
-	      track_eta[2][1]->Fill( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[2][1]->Fill( track_.phi);
-	  	}
-	    if ( isHitLayer1 || isHitLayer2 ) {
-	 	    track_eta[3][1]->Fill( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[3][1]->Fill( track_.phi);
-	    }
-	    if ( isHitLayer1 && isHitLayer2 ) {
-	      track_eta[4][1]->Fill( fabs(track_.eta));
-    		if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) track_phi[4][1]->Fill( track_.phi);
-	    }
+		track_eta[0]->Fill( fabs( track_.eta)) ;
+		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) track_phi[0]->Fill( track_.phi ) ;
+
+		if ( nstation >1 ) { 
+			track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
+			track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) track_phi[1]->Fill( track_.phi ) ;
+			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) track_phi[2]->Fill( track_.phi ) ;
 		}
+		
+		for( unsigned int station =0 ; station<nstation; station++) {
+			if ( track_.station[station] ) {
+				if ( track_.layer[0] ) sh_eta[0][station]->Fill( track_.eta);
+				if ( track_.layer[1] ) sh_eta[1][station]->Fill( track_.eta);
+				if ( track_.layer[0] || track_.layer[1] ) sh_eta[2][station]->Fill( track_.eta);
+				if ( track_.layer[0] && track_.layer[1] ) sh_eta[3][station]->Fill( track_.eta);
+			}
+			if( track_.station[station] && fabs(track_.eta) > getEtaRangeForPhi(station).first && fabs(track_.eta)< getEtaRangeForPhi(station).second ) {
+        if ( track_.layer[0] ) sh_phi[0][station]->Fill( track_.phi);
+        if ( track_.layer[1] ) sh_phi[1][station]->Fill( track_.phi);
+        if ( track_.layer[0] || track_.layer[1] ) sh_phi[2][station]->Fill( track_.phi);
+        if ( track_.layer[0] && track_.layer[1] ) sh_phi[3][station]->Fill( track_.phi);
+			}
+		}
+	}
+}
+
+		/*
+
+		for( int station =0 ; station<3; station++) { 
+			for( int layer = 0 ; layer <2; layer++) {
+				for( int chamber = 0 ; chamber<2; chamber++) {
+					if ( track_.station[i] ) {
+				if ( track_.
+
     // Calculation of the localXY efficiency
     GlobalPoint gp_track(match_sh.propagatedPositionGEM());
     track_.gem_trk_eta = gp_track.eta();
@@ -198,9 +214,8 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     GEMDetId id_ch_even_L2(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 2, detId_even_L1.chamber(), 0);
     GEMDetId id_ch_odd_L2(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 2, detId_odd_L1.chamber(), 0);
 
-		// Re-use flags
-    isHitLayer1 = false;
-    isHitLayer2 = false;
+    bool isHitLayer1 = false;
+    bool isHitLayer2 = false;
     bool isHitOdd = false;
     bool isHitEven = false;
 
@@ -209,13 +224,14 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) { isHitLayer2 = true; isHitEven = true; }
     if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) { isHitLayer2 = true;  isHitOdd  = true; }
 
-    bool lx__odd  = TMath::Abs( TMath::ASin( track_.gem_lx_odd/track_.gem_trk_rho)) < 5*TMath::Pi()/180.;  
-    bool lx__even = TMath::Abs( TMath::ASin( track_.gem_lx_even/track_.gem_trk_rho)) < 5*TMath::Pi()/180.; 
+    bool isOddClosed  = TMath::Abs( TMath::ASin( track_.gem_lx_odd/track_.gem_trk_rho))  < 5*TMath::DegToRad();  
+    bool isEvenClosed = TMath::Abs( TMath::ASin( track_.gem_lx_even/track_.gem_trk_rho)) < 5*TMath::DegToRad(); 
 
-    gem_lx[0][0]->Fill( track_.gem_lx_even); // Full even
-    gem_lx[0][1]->Fill( track_.gem_lx_odd);  // Full odd
-		if( lx__even) gem_ly[0][0]->Fill( track_.gem_ly_even);
-		if( lx__even) gem_ly[0][1]->Fill( track_.gem_ly_odd);
+
+    gem_lx[0][0]->Fill( track_.gem_lx_even); 
+    gem_lx[0][1]->Fill( track_.gem_lx_odd);  
+		if( isEvenClosed) gem_ly[0][0]->Fill( track_.gem_ly_even);
+		if( lsOddClosed ) gem_ly[0][1]->Fill( track_.gem_ly_odd);
 
 		if( isHitEven) { 
 	    if ( isHitLayer1 ) {
@@ -254,4 +270,7 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			}
 		}
   }
+  }
+  
 }
+*/

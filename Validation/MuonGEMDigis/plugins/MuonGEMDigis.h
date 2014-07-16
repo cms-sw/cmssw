@@ -10,10 +10,15 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMDigiTrackMatch.h"
+
+
 
 class MuonGEMDigis : public edm::EDAnalyzer
 {
@@ -44,10 +49,11 @@ private:
   GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
   GEMDigiTrackMatch* theGEMDigiTrackMatch;
     
-  edm::InputTag stripLabel_;
-  edm::InputTag cscPadLabel_;
-  edm::InputTag cscCopadLabel_;
-  std::string simInputLabel_;
+  edm::EDGetToken stripToken_;
+  edm::EDGetToken cscPadToken_;
+  edm::EDGetToken cscCopadToken_;
+  edm::EDGetToken simInputToken_;
+
   edm::ParameterSet simTrackMatching_;
 
   edm::Handle<GEMDigiCollection> gem_digis;
@@ -58,10 +64,6 @@ private:
   const GEMGeometry* gem_geometry_;
 
   bool hasGEMGeometry_;
-  
-  edm::InputTag input_tag_gem_;
-  edm::InputTag input_tag_gemcscpad_;
-  edm::InputTag input_tag_gemcsccopad_;
   
 };
 #endif

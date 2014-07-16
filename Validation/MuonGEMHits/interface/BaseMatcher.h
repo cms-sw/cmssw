@@ -20,9 +20,12 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //static const float AVERAGE_GEM_Z(587.5); // [cm]
-static const float AVERAGE_GEM_Z(568.6); // [cm]
+//static const float AVERAGE_GEM_Z(568.6); // [cm]
 
 class BaseMatcher
 {
@@ -55,7 +58,7 @@ public:
   GlobalPoint propagateToZ(float z) const;
 
   /// propagate the track to average GEM z-position                                                                            
-  GlobalPoint propagatedPositionGEM() const;
+  GlobalPoint propagatedPositionGEM(int station) const;
 
 private:
 
@@ -72,6 +75,8 @@ private:
   edm::ESHandle<MagneticField> magfield_;
   edm::ESHandle<Propagator> propagator_;
   edm::ESHandle<Propagator> propagatorOpposite_;
+  edm::ESHandle<GEMGeometry> gem_geom;
+
 };
 
 #endif

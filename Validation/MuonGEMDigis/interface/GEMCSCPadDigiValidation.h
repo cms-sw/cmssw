@@ -8,19 +8,19 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
+#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 #include <TMath.h>
 class GEMCSCPadDigiValidation : public GEMBaseValidation
 {
 public:
   GEMCSCPadDigiValidation(DQMStore* dbe,
-                         const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo);
+                         edm::EDGetToken& inputToken, const edm::ParameterSet& pbInfo);
   ~GEMCSCPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto(const GEMGeometry* geom);
