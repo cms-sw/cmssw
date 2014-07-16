@@ -147,9 +147,10 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   addCaloGeometry();
   
   geom->CloseGeometry();
+  geom->DefaultColors();
 
   m_nameToShape.clear();
-  m_nameToVolume.clear();
+  m_shapeToVolume.clear();
   m_nameToMaterial.clear();
   m_nameToMedium.clear();
 
@@ -237,26 +238,22 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
 TGeoVolume* 
 FWTGeoRecoGeometryESProducer::createVolume( const std::string& name, const GeomDet *det, const std::string& material )
 {
-  TGeoVolume* volume = m_nameToVolume[name];
-  if( 0 == volume )
-  { 
-    TGeoShape* solid = createShape( det );
-    TGeoMedium* medium = m_nameToMedium[material];
-    if( 0 == medium )
-    {
+   TGeoShape* solid = createShape( det );
+
+   std::map<TGeoShape*, TGeoVolume*>::iterator vIt = m_shapeToVolume.find(solid);
+   if (vIt != m_shapeToVolume.end()) return  vIt->second;
+   
+
+   TGeoMedium* medium = m_nameToMedium[material];
+   if( 0 == medium )
+   {
       medium = new TGeoMedium( material.c_str(), 0, createMaterial( material ));
       m_nameToMedium[material] = medium;
-    }
-    if( solid )
-    {
-      volume = new TGeoVolume( name.c_str(),
-			       solid,
-			       medium );
-      m_nameToVolume[name] = volume;
-    }
-  }  
-  
-  return volume;
+   }
+   TGeoVolume* volume = new TGeoVolume( name.c_str(),solid, medium);
+   m_shapeToVolume[solid] = volume;
+
+   return volume;
 }
 
 /** Create TGeo material based on its name */

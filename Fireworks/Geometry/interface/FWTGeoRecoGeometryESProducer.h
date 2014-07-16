@@ -55,7 +55,7 @@ private:
   void addCaloGeometry( void );
   
   std::map<std::string, TGeoShape*>    m_nameToShape;
-  std::map<std::string, TGeoVolume*>   m_nameToVolume;
+  std::map<TGeoShape*, TGeoVolume*>   m_shapeToVolume;
   std::map<std::string, TGeoMaterial*> m_nameToMaterial;
   std::map<std::string, TGeoMedium*>   m_nameToMedium;
 
