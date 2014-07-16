@@ -141,18 +141,20 @@ namespace
 	{
 	public:
 		TrackingParticleFactory( const ::DecayChain& decayChain, const edm::Handle< std::vector<reco::GenParticle> >& hGenParticles,
-				const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices, const std::vector<const PSimHit*>& simHits,
-				double volumeRadius, double volumeZ, bool allowDifferentProcessTypes );
+				const edm::Handle< edm::HepMCProduct >& hepMCproduct, const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices,
+				const std::vector<const PSimHit*>& simHits, double volumeRadius, double volumeZ, double vertexDistanceCut, bool allowDifferentProcessTypes );
 		TrackingParticle createTrackingParticle( const DecayChainTrack* pTrack ) const;
-		template<class T> TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex, const T& event ) const; /// FIXME: added code
+		TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex) const; /// FIXME: added code
 		bool vectorIsInsideVolume( const math::XYZTLorentzVectorD& vector ) const;
 	private:
 		const ::DecayChain& decayChain_;
 		const edm::Handle< std::vector<reco::GenParticle> >& hGenParticles_;
+		const edm::Handle< edm::HepMCProduct >& hepMCproduct_;
 		std::vector<int> genParticleIndices_;
 		const std::vector<const PSimHit*>& simHits_;
 		const double volumeRadius_;
 		const double volumeZ_;
+		const double vertexDistanceCut_; // distance based on which HepMC::GenVertexs are added to SimVertexs
 		std::multimap<unsigned int, size_t> trackIdToHitIndex_; ///< A multimap linking SimTrack::trackId() to the hit index in pSimHits_
 		bool allowDifferentProcessTypeForDifferentDetectors_; ///< See the comment for the same member in TrackingTruthAccumulator
 	};
@@ -218,6 +220,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		messageCategory_("TrackingTruthAccumulator"),
 		volumeRadius_( config.getParameter<double>("volumeRadius") ),
 		volumeZ_( config.getParameter<double>("volumeZ") ),
+		vertexDistanceCut_( config.getParameter<double>("vertexDistanceCut") ),
 		ignoreTracksOutsideVolume_( config.getParameter<bool>("ignoreTracksOutsideVolume") ),
 		maximumPreviousBunchCrossing_( config.getParameter<unsigned int>("maximumPreviousBunchCrossing") ),
 		maximumSubsequentBunchCrossing_( config.getParameter<unsigned int>("maximumSubsequentBunchCrossing") ),
@@ -229,6 +232,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		simVertexLabel_( config.getParameter<edm::InputTag>("simVertexCollection") ),
 		collectionTags_( ),
 		genParticleLabel_( config.getParameter<edm::InputTag>("genParticleCollection") ),
+		hepMCproductLabel_( config.getParameter<edm::InputTag>("HepMCProductLabel") ),
 		allowDifferentProcessTypeForDifferentDetectors_( config.getParameter<bool>("allowDifferentSimHitProcesses") )
 {
 	//
@@ -285,10 +289,11 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		mixMod.produces<TrackingVertexCollection>("MergedTrackTruth");
 	}
 
-        iC.consumes<std::vector<SimTrack> >(simTrackLabel_);
-        iC.consumes<std::vector<SimVertex> >(simVertexLabel_);
-        iC.consumes<std::vector<reco::GenParticle> >(genParticleLabel_);
-        iC.consumes<std::vector<int> >(genParticleLabel_);
+	iC.consumes<std::vector<SimTrack> >(simTrackLabel_);
+	iC.consumes<std::vector<SimVertex> >(simVertexLabel_);
+	iC.consumes<std::vector<reco::GenParticle> >(genParticleLabel_);
+	iC.consumes<std::vector<int> >(genParticleLabel_);
+	iC.consumes<std::vector<int> >(hepMCproductLabel_);
 
 	// Fill the collection tags
         const edm::ParameterSet& simHitCollectionConfig=config.getParameterSet("simHitCollections");
@@ -328,7 +333,11 @@ void TrackingTruthAccumulator::initializeEvent( edm::Event const& event, edm::Ev
 void TrackingTruthAccumulator::accumulate( edm::Event const& event, edm::EventSetup const& setup )
 {
 	// Call the templated version that does the same for both signal and pileup events
-	accumulateEvent( event, setup );
+	
+	edm::Handle< edm::HepMCProduct > hepmc;
+	event.getByLabel(hepMCproductLabel_, hepmc);
+	
+	accumulateEvent( event, setup, hepmc );
 }
 
 void TrackingTruthAccumulator::accumulate( PileUpEventPrincipal const& event, edm::EventSetup const& setup, edm::StreamID const& )
@@ -337,7 +346,10 @@ void TrackingTruthAccumulator::accumulate( PileUpEventPrincipal const& event, ed
 	if( event.bunchCrossing()>=-static_cast<int>(maximumPreviousBunchCrossing_) && event.bunchCrossing()<=static_cast<int>(maximumSubsequentBunchCrossing_) )
 	{
 		//edm::LogInfo(messageCategory_) << "Analysing pileup event for bunch crossing " << event.bunchCrossing();
-		accumulateEvent( event, setup );
+		
+		//simply create empty handle as we do not have a HepMCProduct in PU anyway
+		edm::Handle< edm::HepMCProduct > hepmc;
+		accumulateEvent( event, setup, hepmc );
 	}
 	else edm::LogInfo(messageCategory_) << "Skipping pileup event for bunch crossing " << event.bunchCrossing();
 }
@@ -365,7 +377,7 @@ void TrackingTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup
 
 }
 
-template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event, const edm::EventSetup& setup )
+template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct)
 {
 	//
 	// Get the collections
@@ -409,7 +421,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 
 	std::vector<const PSimHit*> simHitPointers;
 	fillSimHits( simHitPointers, event, setup );
-	TrackingParticleFactory objectFactory( decayChain, hGenParticles, hGenParticleIndices, simHitPointers, volumeRadius_, volumeZ_, allowDifferentProcessTypeForDifferentDetectors_ );
+	TrackingParticleFactory objectFactory( decayChain, hGenParticles, hepMCproduct, hGenParticleIndices, simHitPointers, volumeRadius_, volumeZ_, vertexDistanceCut_, allowDifferentProcessTypeForDifferentDetectors_ );
 
 	// While I'm testing, perform some checks.
 	// TODO - drop this call once I'm happy it works in all situations.
@@ -492,10 +504,10 @@ namespace // Unnamed namespace for things only used in this file
 	//---------------------------------------------------------------------------------
 
 	::TrackingParticleFactory::TrackingParticleFactory( const ::DecayChain& decayChain, const edm::Handle< std::vector<reco::GenParticle> >& hGenParticles,
-			const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices, const std::vector<const PSimHit*>& simHits,
-			double volumeRadius, double volumeZ, bool allowDifferentProcessTypes )
-		: decayChain_(decayChain), hGenParticles_(hGenParticles), simHits_(simHits), volumeRadius_(volumeRadius),
-		  volumeZ_(volumeZ), allowDifferentProcessTypeForDifferentDetectors_(allowDifferentProcessTypes)
+			const edm::Handle< edm::HepMCProduct >& hepMCproduct, const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices, const std::vector<const PSimHit*>& simHits,
+			double volumeRadius, double volumeZ, double vertexDistanceCut, bool allowDifferentProcessTypes )
+		: decayChain_(decayChain), hGenParticles_(hGenParticles), hepMCproduct_(hepMCproduct), simHits_(simHits), volumeRadius_(volumeRadius),
+		  volumeZ_(volumeZ), vertexDistanceCut_(vertexDistanceCut), allowDifferentProcessTypeForDifferentDetectors_(allowDifferentProcessTypes)
 	{
 		// Need to create a multimap to get from a SimTrackId to all of the hits in it. The SimTrackId
 		// is an unsigned int.
@@ -621,27 +633,33 @@ namespace // Unnamed namespace for things only used in this file
         
         /** function template specialisation because PileUpEventPrincipal::getByLabel calls T::value_type and T::iterator at some point which is not member of every class!
          *  -> maybe call PileUpEventPrincipal::principal() and work with edm::EventPrincipal?
+         * => NEW: pass HepMC::GenEvent* to createTrackingVertex and change TrackingTruthAccumulator::accumulateEvent accordingly
          */
 	
-	template<> TrackingVertex TrackingParticleFactory::createTrackingVertex<PileUpEventPrincipal>( const ::DecayChainVertex* pChainVertex, const PileUpEventPrincipal & event ) const
-        {
-                const SimVertex& simVertex=decayChain_.getSimVertex( pChainVertex );
-
-                bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
-
-                // TODO - Still need to set the truth ID properly. I'm not sure what to set
-                // the second parameter of the EncodedTruthId constructor to.
-                TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
-                
-                returnValue.addG4Vertex(simVertex);
-                
-                return returnValue;
-        }
+// 	template<> TrackingVertex TrackingParticleFactory::createTrackingVertex<PileUpEventPrincipal>( const ::DecayChainVertex* pChainVertex, const PileUpEventPrincipal & event ) const
+//         {
+//                 const SimVertex& simVertex=decayChain_.getSimVertex( pChainVertex );
+// 
+//                 bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
+// 
+//                 // TODO - Still need to set the truth ID properly. I'm not sure what to set
+//                 // the second parameter of the EncodedTruthId constructor to.
+//                 TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
+//                 
+//                 returnValue.addG4Vertex(simVertex);
+//                 
+//                 return returnValue;
+//         }
                 
         /** FIXME: until here */
 
-	template<class T> TrackingVertex TrackingParticleFactory::createTrackingVertex( const ::DecayChainVertex* pChainVertex, const T& event ) const
+	TrackingVertex TrackingParticleFactory::createTrackingVertex( const ::DecayChainVertex* pChainVertex) const
 	{
+                
+		typedef math::XYZTLorentzVectorD LorentzVector;
+		typedef math::XYZPoint Vector;
+		typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
+		
 		const SimVertex& simVertex=decayChain_.getSimVertex( pChainVertex );
 
 		bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
@@ -650,38 +668,29 @@ namespace // Unnamed namespace for things only used in this file
 		// the second parameter of the EncodedTruthId constructor to.
 		TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
                 
-                /** FIXME: added Code below */
+		returnValue.addG4Vertex(simVertex);
                 
-                typedef math::XYZTLorentzVectorD LorentzVector;
-                typedef math::XYZPoint Vector;
-                typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
+		if( simVertex.eventId().event()==0 && simVertex.eventId().bunchCrossing()==0 && hepMCproduct_.isValid()) // if this is a track in the signal event
+		{
+			const HepMC::GenEvent* genEvent = hepMCproduct_->GetEvent();
+			
+			if (genEvent != NULL)
+			{
+				Vector tvPosition(returnValue.position().x(), returnValue.position().y(), returnValue.position().z());
                 
-                returnValue.addG4Vertex(simVertex);
-                
-                if( simVertex.eventId().event()==0 && simVertex.eventId().bunchCrossing()==0 ) // if this is a track in the signal event
-                {
-                    std::string inputTag = "generator";
-                    edm::Handle<edm::HepMCProduct> hepmc;
-                    if ( event.getByLabel( inputTag, hepmc) )
-                    {   // TODO: hard-coded, change string to InputTag
-                
-                        const HepMC::GenEvent* genEvent = hepmc->GetEvent();
-                
-                        Vector tvPosition(returnValue.position().x(), returnValue.position().y(), returnValue.position().z());
-                
-                        for (HepMC::GenEvent::vertex_const_iterator iGenVertex = genEvent->vertices_begin(); iGenVertex != genEvent->vertices_end(); ++iGenVertex)
-                        {
-                            HepMC::ThreeVector rawPosition = (*iGenVertex)->position();
+				for (HepMC::GenEvent::vertex_const_iterator iGenVertex = genEvent->vertices_begin(); iGenVertex != genEvent->vertices_end(); ++iGenVertex)
+				{
+					HepMC::ThreeVector rawPosition = (*iGenVertex)->position();
                     
-                            Vector genPosition(rawPosition.x()/10.0, rawPosition.y()/10.0, rawPosition.z()/10.0);
+					Vector genPosition(rawPosition.x()/10.0, rawPosition.y()/10.0, rawPosition.z()/10.0);
                     
-                            double distance = sqrt( (tvPosition - genPosition).mag2() );
+					double distance = sqrt( (tvPosition - genPosition).mag2() );
                     
-                            if (distance < 0.003)       // TODO: hard-coded, change number to InputTag
-                                returnValue.addGenVertex( GenVertexRef(hepmc, (*iGenVertex)->barcode()) );
-                        }
-                    }
-                }
+					if (distance < vertexDistanceCut_)       // TODO: hard-coded, change number to InputTag
+					returnValue.addGenVertex( GenVertexRef(hepMCproduct_, (*iGenVertex)->barcode()) );
+				}
+			}
+		}
                 
                 /** FIXME: until here */
                 
@@ -1169,7 +1178,7 @@ namespace // Unnamed namespace for things only used in this file
 		// temporary reference to create a copy of the parent vertex, put that in the output collection,
 		// and then set the reference in the TrackingParticle properly.
 		TrackingVertexCollection dummyCollection; // Only needed to create an edm::Ref
-		dummyCollection.push_back( objectFactory.createTrackingVertex( pDecayChainTrack->pParentVertex, event) );
+		dummyCollection.push_back( objectFactory.createTrackingVertex( pDecayChainTrack->pParentVertex) );
 		TrackingVertexRef temporaryRef( &dummyCollection, 0 );
 		newTrackingParticle.setParentVertex( temporaryRef );
 
