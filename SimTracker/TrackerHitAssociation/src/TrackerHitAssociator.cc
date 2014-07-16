@@ -24,15 +24,13 @@ using namespace edm;
 // Constructor 
 //
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : 
-  myEvent_(e), 
   doPixel_( true ),
   doStrip_( true ), 
   doTrackAssoc_( false ) {
-  SimHitMap.clear();
-  trackerContainers.clear();
   //
   // Take by default all tracker SimHits
   //
+  vstring trackerContainers;
   trackerContainers.push_back("g4SimHitsTrackerHitsTIBLowTof");
   trackerContainers.push_back("g4SimHitsTrackerHitsTIBHighTof");
   trackerContainers.push_back("g4SimHitsTrackerHitsTIDLowTof");
@@ -46,42 +44,7 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   trackerContainers.push_back("g4SimHitsTrackerHitsPixelEndcapLowTof");
   trackerContainers.push_back("g4SimHitsTrackerHitsPixelEndcapHighTof");
 
-  // Step A: Get Inputs
-
-  for(auto const& trackerContainer : trackerContainers) {
-
-    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
-    edm::InputTag tag_cf("mix", trackerContainer);
-    edm::Handle<std::vector<PSimHit> > simHits;
-    edm::InputTag tag_hits("g4SimHits", trackerContainer);
-    if (e.getByLabel(tag_cf, cf_simhit)) {
-      std::auto_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
-      for (MixCollection<PSimHit>::iterator isim = thisContainerHits->begin();
-	   isim != thisContainerHits->end(); isim++) {
-	SimHitMap[(*isim).detUnitId()].push_back((*isim));
-
-	DetId theDet((*isim).detUnitId());
-	unsigned int tofBin = StripDigiSimLink::LowTof;
-	if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
-	simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
-	SimHitCollMap[theSimHitCollID].push_back((*isim));
-
-      }
-    } else {
-      e.getByLabel(tag_hits, simHits);
-      for (std::vector<PSimHit>::const_iterator isim = simHits->begin();
-	   isim != simHits->end(); isim++) {
-	SimHitMap[(*isim).detUnitId()].push_back((*isim));
-
-	DetId theDet((*isim).detUnitId());
-	unsigned int tofBin = StripDigiSimLink::LowTof;
-	if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
-	simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
-	SimHitCollMap[theSimHitCollID].push_back((*isim));
-
-      }
-    }
-  }
+  makeMaps(e, trackerContainers);
   
   if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
   if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
@@ -91,71 +54,68 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 // Constructor with configurables
 //
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
-  myEvent_(e), 
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ) {
-  SimHitMap.clear();
   
   //if track association there is no need to access the input collections
   if(!doTrackAssoc_) {
-    
-    trackerContainers.clear();
-    trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
-
-    // Step A: Get Inputs
-    //  The collections are specified via ROUList in the configuration, and can
-    //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof) 
-    //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
-
-    for(auto const& trackerContainer : trackerContainers) {
-
-      edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
-      edm::InputTag tag_cf("mix", trackerContainer);
-      edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag_hits("g4SimHits", trackerContainer);
-      int Nhits = 0;
-      if (e.getByLabel(tag_cf, cf_simhit)) {
-	std::auto_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
-	for (MixCollection<PSimHit>::iterator isim = thisContainerHits->begin();
-	     isim != thisContainerHits->end(); isim++) {
-	  DetId theDet((*isim).detUnitId());
-	  if (theDet.subdetId() == PixelSubdetector::PixelBarrel || theDet.subdetId() == PixelSubdetector::PixelEndcap) {
-	    SimHitMap[theDet].push_back((*isim));
-// 	    std::cout << "simHits from crossing frames; map size = " << SimHitMap.size() << ", Hit count = " << Nhits << std::endl;
-	  } else {
-	    unsigned int tofBin = StripDigiSimLink::LowTof;
-	    if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
-	    simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
-	    SimHitCollMap[theSimHitCollID].push_back((*isim));
-// 	    std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
-	  }
-
-	  Nhits++;
-	}
-      } else {
-	e.getByLabel(tag_hits, simHits);
-	for (std::vector<PSimHit>::const_iterator isim = simHits->begin();
-	     isim != simHits->end(); isim++) {
-	  DetId theDet((*isim).detUnitId());
-	  if (theDet.subdetId() == PixelSubdetector::PixelBarrel || theDet.subdetId() == PixelSubdetector::PixelEndcap) {
-	    SimHitMap[theDet].push_back((*isim));
-// 	    std::cout << "simHits from crossing frames; map size = " << SimHitMap.size() << ", Hit count = " << Nhits << std::endl;
-	  } else {
-	    unsigned int tofBin = StripDigiSimLink::LowTof;
-	    if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
-	    simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
-	    SimHitCollMap[theSimHitCollID].push_back((*isim));
-// 	    std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
-	  }
-	  Nhits++;
-	}
-      }
-    }
+    vstring trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+    makeMaps(e, trackerContainers);
   }
 
   if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
   if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
+}
+
+void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring trackerContainers) {
+  // Step A: Get Inputs
+  //  The collections are specified via ROUList in the configuration, and can
+  //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof) 
+  //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
+
+  for(auto const& trackerContainer : trackerContainers) {
+    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+    edm::InputTag tag_cf("mix", trackerContainer);
+    edm::Handle<std::vector<PSimHit> > simHits;
+    edm::InputTag tag_hits("g4SimHits", trackerContainer);
+    int Nhits = 0;
+    if (theEvent.getByLabel(tag_cf, cf_simhit)) {
+      std::auto_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
+      for (MixCollection<PSimHit>::iterator isim = thisContainerHits->begin();
+	   isim != thisContainerHits->end(); isim++) {
+	DetId theDet((*isim).detUnitId());
+	if (theDet.subdetId() == PixelSubdetector::PixelBarrel || theDet.subdetId() == PixelSubdetector::PixelEndcap) {
+	  SimHitMap[theDet].push_back((*isim));
+// 	  std::cout << "simHits from crossing frames; map size = " << SimHitMap.size() << ", Hit count = " << Nhits << std::endl;
+	} else {
+	  unsigned int tofBin = StripDigiSimLink::LowTof;
+	  if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
+	  simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
+	  SimHitCollMap[theSimHitCollID].push_back((*isim));
+// 	  std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+	}
+	Nhits++;
+      }
+    } else {
+      theEvent.getByLabel(tag_hits, simHits);
+      for (std::vector<PSimHit>::const_iterator isim = simHits->begin();
+	   isim != simHits->end(); isim++) {
+	DetId theDet((*isim).detUnitId());
+	if (theDet.subdetId() == PixelSubdetector::PixelBarrel || theDet.subdetId() == PixelSubdetector::PixelEndcap) {
+	  SimHitMap[theDet].push_back((*isim));
+// 	  std::cout << "simHits from crossing frames; map size = " << SimHitMap.size() << ", Hit count = " << Nhits << std::endl;
+	} else {
+	  unsigned int tofBin = StripDigiSimLink::LowTof;
+	  if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
+	  simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
+	  SimHitCollMap[theSimHitCollID].push_back((*isim));
+// 	  std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+	}
+	Nhits++;
+      }
+    }
+  }
 }
 
 std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) const
