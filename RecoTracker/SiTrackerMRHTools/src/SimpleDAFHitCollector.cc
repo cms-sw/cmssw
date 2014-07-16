@@ -76,16 +76,16 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
           if( idtemps == id && tmps.hits[i]->hit()->isValid() ) {
 
 	    //fill with the right dimension hit :: what about if was invalid ??
-//	    TrackingRecHit * righthit = rightdimension(*(tmps.hits[i]->hit()));
-//            hits.push_back(righthit);
-            if( itrajmeas->recHit()->dimension() == 1 ){
+	    TrackingRecHit * righthit = rightdimension(*(tmps.hits[i]->hit()));
+            hits.push_back(righthit);
+/*            if( itrajmeas->recHit()->dimension() == 1 ){
 	      auto const & hit1 = tmps.hits[i]->hit();
 	      auto const & thit = static_cast<BaseTrackerRecHit const&>(*hit1);
 	      hits.push_back(clone(thit));
 	    } else {
               hits.push_back(tmps.hits[i]->hit());
 	    }
-
+*/
           }
 
         }
@@ -101,7 +101,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
         } else {
           //measurements in groups are sorted with increating chi2
           //sort( *hits.begin(), *hits.end(), TrajMeasLessEstim());
-
+	  if(!itrajmeas->recHit()->isValid()) 
+	    LogTrace("MultiRecHitCollector") << " -> " << hits.size() << " valid hits for this sensor. (IT WAS INVALID!!!)";
           LogTrace("MultiRecHitCollector") << " -> " << hits.size() << " valid hits for this sensor.";
 
           //building a MultiRecHit out of each sensor group
@@ -123,8 +124,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   }
   LogTrace("MultiRecHitCollector") << " Ending SimpleDAFHitCollector::recHits >> " << result.size();
 
-  //LogTrace("MultiRecHitCollector") << "  Original measurements are:";
-  //Debug(result);
+  LogTrace("MultiRecHitCollector") << "  New measurements are:";
+  Debug(result);
 
   //adding a protection against too few hits and invalid hits 
   //(due to failed propagation on the same surface of the original hits)
@@ -162,38 +163,38 @@ void SimpleDAFHitCollector::Debug( const std::vector<TrajectoryMeasurement> TM )
 
       if(hitId.det() == DetId::Tracker) {
         if (hitId.subdetId() == StripSubdetector::TIB )
-          LogTrace("MultiRecHitCollector") << " I am TIB " << TIBDetId(hitId).layer();
+          LogTrace("MultiRecHitCollector") << "  I am TIB " << TIBDetId(hitId).layer();
         else if (hitId.subdetId() == StripSubdetector::TOB )
-          LogTrace("MultiRecHitCollector") << " I am TOB " << TOBDetId(hitId).layer();
+          LogTrace("MultiRecHitCollector") << "  I am TOB " << TOBDetId(hitId).layer();
         else if (hitId.subdetId() == StripSubdetector::TEC )
-          LogTrace("MultiRecHitCollector") << " I am TEC " << TECDetId(hitId).wheel();
+          LogTrace("MultiRecHitCollector") << "  I am TEC " << TECDetId(hitId).wheel();
         else if (hitId.subdetId() == StripSubdetector::TID )
-          LogTrace("MultiRecHitCollector") << " I am TID " << TIDDetId(hitId).wheel();
+          LogTrace("MultiRecHitCollector") << "  I am TID " << TIDDetId(hitId).wheel();
         else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
-          LogTrace("MultiRecHitCollector") << " I am PixBar " << PXBDetId(hitId).layer();
+          LogTrace("MultiRecHitCollector") << "  I am PixBar " << PXBDetId(hitId).layer();
         else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-          LogTrace("MultiRecHitCollector") << " I am PixFwd " << PXFDetId(hitId).disk();
+          LogTrace("MultiRecHitCollector") << "  I am PixFwd " << PXFDetId(hitId).disk();
         else
-          LogTrace("MultiRecHitCollector") << " UNKNOWN TRACKER HIT TYPE ";
+          LogTrace("MultiRecHitCollector") << "  UNKNOWN TRACKER HIT TYPE ";
       }
       else if(hitId.det() == DetId::Muon) {
         if(hitId.subdetId() == MuonSubdetId::DT) 
-          LogTrace("MultiRecHitCollector") << " I am DT " << DTWireId(hitId);
+          LogTrace("MultiRecHitCollector") << "  I am DT " << DTWireId(hitId);
         else if (hitId.subdetId() == MuonSubdetId::CSC )
-          LogTrace("MultiRecHitCollector") << " I am CSC " << CSCDetId(hitId);
+          LogTrace("MultiRecHitCollector") << "  I am CSC " << CSCDetId(hitId);
         else if (hitId.subdetId() == MuonSubdetId::RPC )
-          LogTrace("MultiRecHitCollector") << " I am RPC " << RPCDetId(hitId);
+          LogTrace("MultiRecHitCollector") << "  I am RPC " << RPCDetId(hitId);
         else
-          LogTrace("MultiRecHitCollector") << " UNKNOWN MUON HIT TYPE ";
+          LogTrace("MultiRecHitCollector") << "  UNKNOWN MUON HIT TYPE ";
       }
       else
-        LogTrace("MultiRecHitCollector") << " UNKNOWN HIT TYPE ";
+        LogTrace("MultiRecHitCollector") << "  UNKNOWN HIT TYPE ";
 
 
       LogTrace("MultiRecHitCollector") << "  TSOS predicted " << itrajmeas->predictedState().localPosition() ;
       LogTrace("MultiRecHitCollector") << "  TSOS smoothState " << itrajmeas->updatedState().localPosition() ;
             } else {
-              LogTrace("MultiRecHitCollector") << "   Invalid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId();
+              LogTrace("MultiRecHitCollector") << "  Invalid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId();
             }
   }
 }

@@ -2,6 +2,7 @@
 #define SiTrackerMRHTools_SimpleDAFHitCollector_h
 #include "RecoTracker/SiTrackerMRHTools/interface/MultiRecHitCollector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <vector>
 
 class Propagator;
@@ -38,13 +39,41 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 	private:
 	//TransientTrackingRecHit::ConstRecHitContainer buildMultiRecHits(const std::vector<TrajectoryMeasurementGroup>& measgroup) const;
 	//void buildMultiRecHits(const std::vector<TrajectoryMeasurement>& measgroup, std::vector<TrajectoryMeasurement>& result) const;
+
+        TrackingRecHit * rightdimension( TrackingRecHit const & hit ) const{
+          if( !hit.isValid() || ( hit.dimension()!=2) ) {
+            return hit.clone();
+          }
+          auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
+          auto const & clus = thit.firstClusterRef();
+          if (clus.isPixel()) return hit.clone();
+          else if (thit.isMatched()) {
+            edm::LogError("MultiRecHitCollector") << " SiStripMatchedRecHit2D should not be present at this stage!!!";
+            return hit.clone();
+          } else  if (thit.isProjected()) {
+            edm::LogError("MultiRecHitCollector") << " ProjectedSiStripRecHit2D should not be present at this stage!!!";
+            return hit.clone();
+          } else return clone(thit);
+       }
 	
-        TrackingRecHit * clone(BaseTrackerRecHit const & hit2D ) const {
+       TrackingRecHit * clone(BaseTrackerRecHit const & hit2D ) const {
+         auto const & detU = *hit2D.detUnit();
+         //Use 2D SiStripRecHit in endcap
+         bool endcap = detU.type().isEndcap();
+         if (endcap) return hit2D.clone();
+         return new SiStripRecHit1D(hit2D.localPosition(),
+                                LocalError(hit2D.localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
+                                *hit2D.det(), hit2D.firstClusterRef());
+ 
+        }
+
+/*        TrackingRecHit * clone(BaseTrackerRecHit const & hit2D ) const {
           return new SiStripRecHit1D(hit2D.localPosition(), 
 			       LocalError(hit2D.localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
                                *hit2D.det(), hit2D.firstClusterRef());
         }
 
+*/
 	private:
 	const SiTrackerMultiRecHitUpdator* theUpdator;
 	const MeasurementEstimator* theEstimator;
