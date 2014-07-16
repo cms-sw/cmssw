@@ -667,7 +667,8 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
     }
-    if (convention_ == FilterUnit) // store at every lumi section end
+    // store at every lumi section end only if some events have been processed
+    if (convention_ == FilterUnit && fms_->getEventsProcessedForLumi(ilumi) > 0)
     {
       char rewrite[128];
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun, ilumi, ilumi);
