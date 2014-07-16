@@ -1,4 +1,4 @@
-#include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA5GBR.h"
+#include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA5.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -8,12 +8,51 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include <TFile.h>
 
-AntiElectronIDMVA5GBR::AntiElectronIDMVA5GBR()
-  : isInitialized_(kFALSE),
-    methodName_("BDTG")
+AntiElectronIDMVA5::AntiElectronIDMVA5(const edm::ParameterSet& cfg)
+  : isInitialized_(false),
+    mva_NoEleMatch_woGwoGSF_BL_(0),
+    mva_NoEleMatch_woGwGSF_BL_(0),
+    mva_NoEleMatch_wGwoGSF_BL_(0),
+    mva_NoEleMatch_wGwGSF_BL_(0),
+    mva_woGwoGSF_BL_(0),
+    mva_woGwGSF_BL_(0),
+    mva_wGwoGSF_BL_(0),
+    mva_wGwGSF_BL_(0),
+    mva_NoEleMatch_woGwoGSF_EC_(0),
+    mva_NoEleMatch_woGwGSF_EC_(0),
+    mva_NoEleMatch_wGwoGSF_EC_(0),
+    mva_NoEleMatch_wGwGSF_EC_(0),
+    mva_woGwoGSF_EC_(0),
+    mva_woGwGSF_EC_(0),
+    mva_wGwoGSF_EC_(0),
+    mva_wGwGSF_EC_(0)
 {
+  loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB"): false;
+  if ( !loadMVAfromDB_ ) {
+    inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+  }
+  mvaName_NoEleMatch_woGwoGSF_BL_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwoGSF_BL");
+  mvaName_NoEleMatch_woGwGSF_BL_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwGSF_BL");
+  mvaName_NoEleMatch_wGwoGSF_BL_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_BL");
+  mvaName_NoEleMatch_wGwGSF_BL_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwGSF_BL");
+  mvaName_woGwoGSF_BL_ = cfg.getParameter<std::string>("mvaName_woGwoGSF_BL");
+  mvaName_woGwGSF_BL_ = cfg.getParameter<std::string>("mvaName_woGwGSF_BL");
+  mvaName_wGwoGSF_BL_ = cfg.getParameter<std::string>("mvaName_wGwoGSF_BL");
+  mvaName_wGwGSF_BL_ = cfg.getParameter<std::string>("mvaName_wGwGSF_BL");
+  mvaName_NoEleMatch_woGwoGSF_EC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwoGSF_EC");
+  mvaName_NoEleMatch_woGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwGSF_EC");
+  mvaName_NoEleMatch_wGwoGSF_EC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_EC");
+  mvaName_NoEleMatch_wGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwGSF_EC");
+  mvaName_woGwoGSF_EC_ = cfg.getParameter<std::string>("mvaName_woGwoGSF_EC");
+  mvaName_woGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_EC");
+  mvaName_wGwoGSF_EC_ = cfg.getParameter<std::string>("mvaName_wGwoGSF_EC");
+  mvaName_wGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_EC");
+
   Var_NoEleMatch_woGwoGSF_Barrel_ = new Float_t[10];
   Var_NoEleMatch_woGwGSF_Barrel_ = new Float_t[16];
   Var_NoEleMatch_wGwoGSF_Barrel_ = new Float_t[14];
@@ -30,28 +69,11 @@ AntiElectronIDMVA5GBR::AntiElectronIDMVA5GBR()
   Var_woGwGSF_Endcap_ = new Float_t[23];
   Var_wGwoGSF_Endcap_ = new Float_t[21];
   Var_wGwGSF_Endcap_ = new Float_t[27];
-
-  gbr_NoEleMatch_woGwoGSF_BL_ = 0;
-  gbr_NoEleMatch_woGwGSF_BL_ = 0;
-  gbr_NoEleMatch_wGwoGSF_BL_ = 0;
-  gbr_NoEleMatch_wGwGSF_BL_ = 0;
-  gbr_woGwoGSF_BL_= 0;
-  gbr_woGwGSF_BL_ = 0;
-  gbr_wGwoGSF_BL_ = 0;
-  gbr_wGwGSF_BL_ = 0;
-  gbr_NoEleMatch_woGwoGSF_EC_ = 0;
-  gbr_NoEleMatch_woGwGSF_EC_ = 0;
-  gbr_NoEleMatch_wGwoGSF_EC_ = 0;
-  gbr_NoEleMatch_wGwGSF_EC_ = 0;
-  gbr_woGwoGSF_EC_ = 0;
-  gbr_woGwGSF_EC_ = 0;
-  gbr_wGwoGSF_EC_ = 0;
-  gbr_wGwGSF_EC_ = 0;
     
   verbosity_ = 0;
 }
 
-AntiElectronIDMVA5GBR::~AntiElectronIDMVA5GBR()
+AntiElectronIDMVA5::~AntiElectronIDMVA5()
 {
   delete [] Var_NoEleMatch_woGwoGSF_Barrel_;
   delete [] Var_NoEleMatch_woGwGSF_Barrel_;
@@ -69,76 +91,134 @@ AntiElectronIDMVA5GBR::~AntiElectronIDMVA5GBR()
   delete [] Var_woGwGSF_Endcap_;
   delete [] Var_wGwoGSF_Endcap_;
   delete [] Var_wGwGSF_Endcap_;
-  delete fin_;
+  //delete mva_NoEleMatch_woGwoGSF_BL_;
+  //delete mva_NoEleMatch_woGwGSF_BL_;
+  //delete mva_NoEleMatch_wGwoGSF_BL_;
+  //delete mva_NoEleMatch_wGwGSF_BL_;
+  //delete mva_woGwoGSF_BL_;
+  //delete mva_woGwGSF_BL_;
+  //delete mva_wGwoGSF_BL_;
+  //delete mva_wGwGSF_BL_;
+  //delete mva_NoEleMatch_woGwoGSF_EC_;
+  //delete mva_NoEleMatch_woGwGSF_EC_;
+  //delete mva_NoEleMatch_wGwoGSF_EC_;
+  //delete mva_NoEleMatch_wGwGSF_EC_;
+  //delete mva_woGwoGSF_EC_;
+  //delete mva_woGwGSF_EC_;
+  //delete mva_wGwoGSF_EC_;
+  //delete mva_wGwGSF_EC_;
+  for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
+	it != inputFilesToDelete_.end(); ++it ) {
+    delete (*it);
+  }
 }
 
-void AntiElectronIDMVA5GBR::Initialize_from_file(const std::string& methodName, const std::string& gbrFile)
+namespace
 {
-  isInitialized_ = kTRUE;
-  methodName_    = methodName;
-
-  //open input root file
-  fin_ = new TFile(gbrFile.data(), "READ");
-  if ( fin_->IsZombie() ) 
-    throw cms::Exception("AntiElectronIDMVA5GBR") 
-      << " Failed to open File = " << gbrFile << " !!\n";
+  const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName, std::vector<TFile*>& inputFilesToDelete)
+  {
+    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA") 
+      << " Failed to find File = " << inputFileName << " !!\n";
+    TFile* inputFile = new TFile(inputFileName.fullPath().data());
   
-  //read GBRForest from file
-  gbr_NoEleMatch_woGwoGSF_BL_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_woGwoGSF_BL"));
-  gbr_NoEleMatch_woGwGSF_BL_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_woGwGSF_BL"));
-  gbr_NoEleMatch_wGwoGSF_BL_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_wGwoGSF_BL"));
-  gbr_NoEleMatch_wGwGSF_BL_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_wGwGSF_BL"));
-  gbr_woGwoGSF_BL_ = (GBRForest *)(fin_->Get("gbr_woGwoGSF_BL"));
-  gbr_woGwGSF_BL_ = (GBRForest *)(fin_->Get("gbr_woGwGSF_BL"));
-  gbr_wGwoGSF_BL_ = (GBRForest *)(fin_->Get("gbr_wGwoGSF_BL"));
-  gbr_wGwGSF_BL_ = (GBRForest *)(fin_->Get("gbr_wGwGSF_BL"));
-  gbr_NoEleMatch_woGwoGSF_EC_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_woGwoGSF_EC"));
-  gbr_NoEleMatch_woGwGSF_EC_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_woGwGSF_EC"));
-  gbr_NoEleMatch_wGwoGSF_EC_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_wGwoGSF_EC"));
-  gbr_NoEleMatch_wGwGSF_EC_ = (GBRForest *)(fin_->Get("gbr_NoEleMatch_wGwGSF_EC"));
-  gbr_woGwoGSF_EC_ = (GBRForest *)(fin_->Get("gbr_woGwoGSF_EC"));
-  gbr_woGwGSF_EC_ = (GBRForest *)(fin_->Get("gbr_woGwGSF_EC"));
-  gbr_wGwoGSF_EC_ = (GBRForest *)(fin_->Get("gbr_wGwoGSF_EC"));
-  gbr_wGwGSF_EC_ = (GBRForest *)(fin_->Get("gbr_wGwGSF_EC"));  
+    //const GBRForest* mva = dynamic_cast<GBRForest*>(inputFile->Get(mvaName.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!
+    const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
+    if ( !mva )
+      throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA")
+        << " Failed to load MVA = " << mvaName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
+
+    inputFilesToDelete.push_back(inputFile);
+
+    return mva;
+  }
+
+  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName)
+  {
+    edm::ESHandle<GBRForest> mva;
+    es.get<GBRWrapperRcd>().get(mvaName, mva);
+    return mva.product();
+  }
 }
 
-double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
-				       Float_t TauPt,
-				       Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-				       Float_t TauLeadChargedPFCandPt,
-				       Float_t TaudCrackEta,
-				       Float_t TaudCrackPhi,
-				       Float_t TauEmFraction,
-				       Float_t TauSignalPFGammaCands,
-				       Float_t TauLeadPFChargedHadrHoP,
-				       Float_t TauLeadPFChargedHadrEoP,
-				       Float_t TauVisMass,
-				       Float_t TauHadrMva,
-				       const std::vector<Float_t>& GammasdEta,
-				       const std::vector<Float_t>& GammasdPhi,
-				       const std::vector<Float_t>& GammasPt,
-				       Float_t TauKFNumHits,				   
-				       Float_t TauGSFNumHits,				   
-				       Float_t TauGSFChi2,				   
-				       Float_t TauGSFTrackResol,
-				       Float_t TauGSFTracklnPt,
-				       Float_t TauGSFTrackEta,
-				       Float_t TauPhi,
-				       Float_t TauSignalPFChargedCands,
-				       Float_t TauHasGsf,
-				       Float_t ElecEta,
-				       Float_t ElecPhi,
-				       Float_t ElecPt,
-				       Float_t ElecEe,
-				       Float_t ElecEgamma,
-				       Float_t ElecPin,
-				       Float_t ElecPout,
-				       Float_t ElecFbrem,
-				       Float_t ElecChi2GSF,
-				       Float_t ElecGSFNumHits,
-				       Float_t ElecGSFTrackResol,
-				       Float_t ElecGSFTracklnPt,
-				       Float_t ElecGSFTrackEta)
+void AntiElectronIDMVA5::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
+{
+  if ( !isInitialized_ ) {
+    if ( loadMVAfromDB_ ) {
+      mva_NoEleMatch_woGwoGSF_BL_ = loadMVAfromDB(es, mvaName_NoEleMatch_woGwoGSF_BL_);
+      mva_NoEleMatch_woGwGSF_BL_  = loadMVAfromDB(es, mvaName_NoEleMatch_woGwGSF_BL_);
+      mva_NoEleMatch_wGwoGSF_BL_  = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_BL_);
+      mva_NoEleMatch_wGwGSF_BL_   = loadMVAfromDB(es, mvaName_NoEleMatch_wGwGSF_BL_);
+      mva_woGwoGSF_BL_            = loadMVAfromDB(es, mvaName_woGwoGSF_BL_);
+      mva_woGwGSF_BL_             = loadMVAfromDB(es, mvaName_woGwGSF_BL_);
+      mva_wGwoGSF_BL_             = loadMVAfromDB(es, mvaName_wGwoGSF_BL_);
+      mva_wGwGSF_BL_              = loadMVAfromDB(es, mvaName_wGwGSF_BL_);
+      mva_NoEleMatch_woGwoGSF_EC_ = loadMVAfromDB(es, mvaName_NoEleMatch_woGwoGSF_EC_);
+      mva_NoEleMatch_woGwGSF_EC_  = loadMVAfromDB(es, mvaName_NoEleMatch_woGwGSF_EC_);
+      mva_NoEleMatch_wGwoGSF_EC_  = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_EC_);
+      mva_NoEleMatch_wGwGSF_EC_   = loadMVAfromDB(es, mvaName_NoEleMatch_wGwGSF_EC_);
+      mva_woGwoGSF_EC_            = loadMVAfromDB(es, mvaName_woGwoGSF_EC_);
+      mva_woGwGSF_EC_             = loadMVAfromDB(es, mvaName_woGwGSF_EC_);
+      mva_wGwoGSF_EC_             = loadMVAfromDB(es, mvaName_wGwoGSF_EC_);
+      mva_wGwGSF_EC_              = loadMVAfromDB(es, mvaName_wGwGSF_EC_);  
+    } else {
+      mva_NoEleMatch_woGwoGSF_BL_ = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwoGSF_BL_, inputFilesToDelete_);
+      mva_NoEleMatch_woGwGSF_BL_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwGSF_BL_, inputFilesToDelete_);
+      mva_NoEleMatch_wGwoGSF_BL_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwoGSF_BL_, inputFilesToDelete_);
+      mva_NoEleMatch_wGwGSF_BL_   = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwGSF_BL_, inputFilesToDelete_);
+      mva_woGwoGSF_BL_            = loadMVAfromFile(inputFileName_, mvaName_woGwoGSF_BL_, inputFilesToDelete_);
+      mva_woGwGSF_BL_             = loadMVAfromFile(inputFileName_, mvaName_woGwGSF_BL_, inputFilesToDelete_);
+      mva_wGwoGSF_BL_             = loadMVAfromFile(inputFileName_, mvaName_wGwoGSF_BL_, inputFilesToDelete_);
+      mva_wGwGSF_BL_              = loadMVAfromFile(inputFileName_, mvaName_wGwGSF_BL_, inputFilesToDelete_);
+      mva_NoEleMatch_woGwoGSF_EC_ = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwoGSF_EC_, inputFilesToDelete_);
+      mva_NoEleMatch_woGwGSF_EC_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwGSF_EC_, inputFilesToDelete_);
+      mva_NoEleMatch_wGwoGSF_EC_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwoGSF_EC_, inputFilesToDelete_);
+      mva_NoEleMatch_wGwGSF_EC_   = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwGSF_EC_, inputFilesToDelete_);
+      mva_woGwoGSF_EC_            = loadMVAfromFile(inputFileName_, mvaName_woGwoGSF_EC_, inputFilesToDelete_);
+      mva_woGwGSF_EC_             = loadMVAfromFile(inputFileName_, mvaName_woGwGSF_EC_, inputFilesToDelete_);
+      mva_wGwoGSF_EC_             = loadMVAfromFile(inputFileName_, mvaName_wGwoGSF_EC_, inputFilesToDelete_);
+      mva_wGwGSF_EC_              = loadMVAfromFile(inputFileName_, mvaName_wGwGSF_EC_, inputFilesToDelete_);  
+    }
+    isInitialized_ = true;
+  }
+}
+
+double AntiElectronIDMVA5::MVAValue(Float_t TauEtaAtEcalEntrance,
+				    Float_t TauPt,
+				    Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
+				    Float_t TauLeadChargedPFCandPt,
+				    Float_t TaudCrackEta,
+				    Float_t TaudCrackPhi,
+				    Float_t TauEmFraction,
+				    Float_t TauSignalPFGammaCands,
+				    Float_t TauLeadPFChargedHadrHoP,
+				    Float_t TauLeadPFChargedHadrEoP,
+				    Float_t TauVisMass,
+				    Float_t TauHadrMva,
+				    const std::vector<Float_t>& GammasdEta,
+				    const std::vector<Float_t>& GammasdPhi,
+				    const std::vector<Float_t>& GammasPt,
+				    Float_t TauKFNumHits,				   
+				    Float_t TauGSFNumHits,				   
+				    Float_t TauGSFChi2,				   
+				    Float_t TauGSFTrackResol,
+				    Float_t TauGSFTracklnPt,
+				    Float_t TauGSFTrackEta,
+				    Float_t TauPhi,
+				    Float_t TauSignalPFChargedCands,
+				    Float_t TauHasGsf,
+				    Float_t ElecEta,
+				    Float_t ElecPhi,
+				    Float_t ElecPt,
+				    Float_t ElecEe,
+				    Float_t ElecEgamma,
+				    Float_t ElecPin,
+				    Float_t ElecPout,
+				    Float_t ElecFbrem,
+				    Float_t ElecChi2GSF,
+				    Float_t ElecGSFNumHits,
+				    Float_t ElecGSFTrackResol,
+				    Float_t ElecGSFTracklnPt,
+				    Float_t ElecGSFTrackEta)
 {
   double sumPt  = 0.;
   double dEta   = 0.;
@@ -211,47 +291,47 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
 		  ElecGSFTrackEta);
 }
 
-double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
-				       Float_t TauPt,
-				       Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-				       Float_t TauLeadChargedPFCandPt,
-				       Float_t TaudCrackEta,
-				       Float_t TaudCrackPhi,
-				       Float_t TauEmFract,
-				       Float_t TauSignalPFGammaCands,				    
-				       Float_t TauLeadPFChargedHadrHoP,
-				       Float_t TauLeadPFChargedHadrEoP,
-				       Float_t TauVisMass,
-				       Float_t TauHadrMva,
-				       Float_t TauGammaEtaMom,
-				       Float_t TauGammaPhiMom,
-				       Float_t TauGammaEnFrac,
-				       Float_t TauKFNumHits,				   
-				       Float_t TauGSFNumHits,				   
-				       Float_t TauGSFChi2,				   
-				       Float_t TauGSFTrackResol,
-				       Float_t TauGSFTracklnPt,
-				       Float_t TauGSFTrackEta,
-				       Float_t TauPhi,
-				       Float_t TauSignalPFChargedCands,
-				       Float_t TauHasGsf,
-				       Float_t ElecEta,
-				       Float_t ElecPhi,
-				       Float_t ElecPt,
-				       Float_t ElecEe,
-				       Float_t ElecEgamma,
-				       Float_t ElecPin,
-				       Float_t ElecPout,
-				       Float_t ElecFbrem,
-				       Float_t ElecChi2GSF,
-				       Float_t ElecGSFNumHits,
-				       Float_t ElecGSFTrackResol,
-				       Float_t ElecGSFTracklnPt,
-				       Float_t ElecGSFTrackEta)
+double AntiElectronIDMVA5::MVAValue(Float_t TauEtaAtEcalEntrance,
+				    Float_t TauPt,
+				    Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
+				    Float_t TauLeadChargedPFCandPt,
+				    Float_t TaudCrackEta,
+				    Float_t TaudCrackPhi,
+				    Float_t TauEmFract,
+				    Float_t TauSignalPFGammaCands,				    
+				    Float_t TauLeadPFChargedHadrHoP,
+				    Float_t TauLeadPFChargedHadrEoP,
+				    Float_t TauVisMass,
+				    Float_t TauHadrMva,
+				    Float_t TauGammaEtaMom,
+				    Float_t TauGammaPhiMom,
+				    Float_t TauGammaEnFrac,
+				    Float_t TauKFNumHits,				   
+				    Float_t TauGSFNumHits,				   
+				    Float_t TauGSFChi2,				   
+				    Float_t TauGSFTrackResol,
+				    Float_t TauGSFTracklnPt,
+				    Float_t TauGSFTrackEta,
+				    Float_t TauPhi,
+				    Float_t TauSignalPFChargedCands,
+				    Float_t TauHasGsf,
+				    Float_t ElecEta,
+				    Float_t ElecPhi,
+				    Float_t ElecPt,
+				    Float_t ElecEe,
+				    Float_t ElecEgamma,
+				    Float_t ElecPin,
+				    Float_t ElecPout,
+				    Float_t ElecFbrem,
+				    Float_t ElecChi2GSF,
+				    Float_t ElecGSFNumHits,
+				    Float_t ElecGSFTrackResol,
+				    Float_t ElecGSFTracklnPt,
+				    Float_t ElecGSFTrackEta)
 {
-
   if ( !isInitialized_ ) {
-    throw cms::Exception("ClassNotInitialized") << "Error: AntiElectronMVA not properly initialized.\n";
+    throw cms::Exception("ClassNotInitialized")
+      << " AntiElectronMVA not properly initialized !!\n";
   }
 
   Float_t TauEmFraction = std::max(TauEmFract, float(0.));
@@ -259,7 +339,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
   Float_t ElecEtotOverPin = (ElecEe + ElecEgamma)/ElecPin;
   Float_t ElecEgammaOverPdif = ElecEgamma/(ElecPin - ElecPout);
 
-  double mva = -99.;
+  double mvaValue = -99.;
   if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 && TauSignalPFGammaCands == 0 && TauHasGsf < 0.5) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ){
       Var_NoEleMatch_woGwoGSF_Barrel_[0] = TauEtaAtEcalEntrance;
@@ -272,7 +352,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_woGwoGSF_Barrel_[7] = TauVisMass;
       Var_NoEleMatch_woGwoGSF_Barrel_[8] = TaudCrackEta;
       Var_NoEleMatch_woGwoGSF_Barrel_[9] = TaudCrackPhi;
-      mva = gbr_NoEleMatch_woGwoGSF_BL_->GetClassifier(Var_NoEleMatch_woGwoGSF_Barrel_);
+      mvaValue = mva_NoEleMatch_woGwoGSF_BL_->GetClassifier(Var_NoEleMatch_woGwoGSF_Barrel_);
     } else {
       Var_NoEleMatch_woGwoGSF_Endcap_[0] = TauEtaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Endcap_[1] = TauLeadChargedPFCandEtaAtEcalEntrance;
@@ -283,7 +363,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_woGwoGSF_Endcap_[6] = TauLeadPFChargedHadrEoP;
       Var_NoEleMatch_woGwoGSF_Endcap_[7] = TauVisMass;
       Var_NoEleMatch_woGwoGSF_Endcap_[8] = TaudCrackEta;
-      mva = gbr_NoEleMatch_woGwoGSF_EC_->GetClassifier(Var_NoEleMatch_woGwoGSF_Endcap_);
+      mvaValue = mva_NoEleMatch_woGwoGSF_EC_->GetClassifier(Var_NoEleMatch_woGwoGSF_Endcap_);
     }
   } else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 && TauSignalPFGammaCands == 0 && TauHasGsf > 0.5) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ){
@@ -303,7 +383,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_woGwGSF_Barrel_[13] = TauGSFTrackEta;
       Var_NoEleMatch_woGwGSF_Barrel_[14] = TaudCrackEta;
       Var_NoEleMatch_woGwGSF_Barrel_[15] = TaudCrackPhi;
-      mva = gbr_NoEleMatch_woGwGSF_BL_->GetClassifier(Var_NoEleMatch_woGwGSF_Barrel_);
+      mvaValue = mva_NoEleMatch_woGwGSF_BL_->GetClassifier(Var_NoEleMatch_woGwGSF_Barrel_);
     } else {
       Var_NoEleMatch_woGwGSF_Endcap_[0]  = TauEtaAtEcalEntrance;
       Var_NoEleMatch_woGwGSF_Endcap_[1]  = TauLeadChargedPFCandEtaAtEcalEntrance;
@@ -320,7 +400,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_woGwGSF_Endcap_[12] = TauGSFTracklnPt;
       Var_NoEleMatch_woGwGSF_Endcap_[13] = TauGSFTrackEta;
       Var_NoEleMatch_woGwGSF_Endcap_[14] = TaudCrackEta;
-      mva = gbr_NoEleMatch_woGwGSF_EC_->GetClassifier(Var_NoEleMatch_woGwGSF_Endcap_);
+      mvaValue = mva_NoEleMatch_woGwGSF_EC_->GetClassifier(Var_NoEleMatch_woGwGSF_Endcap_);
     }
   } else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 && TauSignalPFGammaCands > 0 && TauHasGsf < 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ){
@@ -338,7 +418,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_wGwoGSF_Barrel_[11] = TauGammaEnFrac;
       Var_NoEleMatch_wGwoGSF_Barrel_[12] = TaudCrackEta;
       Var_NoEleMatch_wGwoGSF_Barrel_[13] = TaudCrackPhi;
-      mva = gbr_NoEleMatch_wGwoGSF_BL_->GetClassifier(Var_NoEleMatch_wGwoGSF_Barrel_);
+      mvaValue = mva_NoEleMatch_wGwoGSF_BL_->GetClassifier(Var_NoEleMatch_wGwoGSF_Barrel_);
     } else {
       Var_NoEleMatch_wGwoGSF_Endcap_[0]  = TauEtaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Endcap_[1]  = TauLeadChargedPFCandEtaAtEcalEntrance;
@@ -353,7 +433,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_wGwoGSF_Endcap_[10] = TauGammaPhiMom;
       Var_NoEleMatch_wGwoGSF_Endcap_[11] = TauGammaEnFrac;
       Var_NoEleMatch_wGwoGSF_Endcap_[12] = TaudCrackEta;
-      mva = gbr_NoEleMatch_wGwoGSF_EC_->GetClassifier(Var_NoEleMatch_wGwoGSF_Endcap_);
+      mvaValue = mva_NoEleMatch_wGwoGSF_EC_->GetClassifier(Var_NoEleMatch_wGwoGSF_Endcap_);
     }
   } 
   else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 && TauSignalPFGammaCands > 0 && TauHasGsf > 0.5 ) {
@@ -378,7 +458,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_wGwGSF_Barrel_[17] = TauGSFTrackEta;
       Var_NoEleMatch_wGwGSF_Barrel_[18] = TaudCrackEta;
       Var_NoEleMatch_wGwGSF_Barrel_[19] = TaudCrackPhi;
-      mva =  gbr_NoEleMatch_wGwGSF_BL_->GetClassifier(Var_NoEleMatch_wGwGSF_Barrel_);
+      mvaValue =  mva_NoEleMatch_wGwGSF_BL_->GetClassifier(Var_NoEleMatch_wGwGSF_Barrel_);
     } else {
       Var_NoEleMatch_wGwGSF_Endcap_[0]  = TauEtaAtEcalEntrance;
       Var_NoEleMatch_wGwGSF_Endcap_[1]  = TauLeadChargedPFCandEtaAtEcalEntrance;
@@ -399,7 +479,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_NoEleMatch_wGwGSF_Endcap_[16] = TauGSFTracklnPt;
       Var_NoEleMatch_wGwGSF_Endcap_[17] = TauGSFTrackEta;
       Var_NoEleMatch_wGwGSF_Endcap_[18] = TaudCrackEta;
-      mva = gbr_NoEleMatch_wGwGSF_EC_->GetClassifier(Var_NoEleMatch_wGwGSF_Endcap_);
+      mvaValue = mva_NoEleMatch_wGwGSF_EC_->GetClassifier(Var_NoEleMatch_wGwGSF_Endcap_);
     } 
   } else if ( TauSignalPFGammaCands == 0 && TauHasGsf < 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ) {
@@ -421,7 +501,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_woGwoGSF_Barrel_[15] = TauVisMass;
       Var_woGwoGSF_Barrel_[16] = TaudCrackEta;
       Var_woGwoGSF_Barrel_[17] = TaudCrackPhi;
-      mva = gbr_woGwoGSF_BL_->GetClassifier(Var_woGwoGSF_Barrel_);
+      mvaValue = mva_woGwoGSF_BL_->GetClassifier(Var_woGwoGSF_Barrel_);
     } else {
       Var_woGwoGSF_Endcap_[0]  = ElecEtotOverPin;
       Var_woGwoGSF_Endcap_[1]  = ElecEgammaOverPdif;
@@ -440,7 +520,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_woGwoGSF_Endcap_[14] = TauLeadPFChargedHadrEoP;
       Var_woGwoGSF_Endcap_[15] = TauVisMass;
       Var_woGwoGSF_Endcap_[16] = TaudCrackEta;
-      mva = gbr_woGwoGSF_EC_->GetClassifier(Var_woGwoGSF_Endcap_);
+      mvaValue = mva_woGwoGSF_EC_->GetClassifier(Var_woGwoGSF_Endcap_);
     }
   } else if ( TauSignalPFGammaCands == 0 && TauHasGsf > 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ) {
@@ -468,7 +548,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_woGwGSF_Barrel_[21] = TauGSFTrackEta;
       Var_woGwGSF_Barrel_[22] = TaudCrackEta;
       Var_woGwGSF_Barrel_[23] = TaudCrackPhi;
-      mva = gbr_woGwGSF_BL_->GetClassifier(Var_woGwGSF_Barrel_);
+      mvaValue = mva_woGwGSF_BL_->GetClassifier(Var_woGwGSF_Barrel_);
     } else {
       Var_woGwGSF_Endcap_[0]  = ElecEtotOverPin;
       Var_woGwGSF_Endcap_[1]  = ElecEgammaOverPdif;
@@ -493,7 +573,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_woGwGSF_Endcap_[20] = TauGSFTracklnPt;
       Var_woGwGSF_Endcap_[21] = TauGSFTrackEta;
       Var_woGwGSF_Endcap_[22] = TaudCrackEta;
-      mva = gbr_woGwGSF_EC_->GetClassifier(Var_woGwGSF_Endcap_);
+      mvaValue = mva_woGwGSF_EC_->GetClassifier(Var_woGwGSF_Endcap_);
     } 
   } else if ( TauSignalPFGammaCands > 0 && TauHasGsf < 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ) {
@@ -519,7 +599,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_wGwoGSF_Barrel_[19] = TauGammaEnFrac;
       Var_wGwoGSF_Barrel_[20] = TaudCrackEta;
       Var_wGwoGSF_Barrel_[21] = TaudCrackPhi;
-      mva = gbr_wGwoGSF_BL_->GetClassifier(Var_wGwoGSF_Barrel_);
+      mvaValue = mva_wGwoGSF_BL_->GetClassifier(Var_wGwoGSF_Barrel_);
     } else {
       Var_wGwoGSF_Endcap_[0]  = ElecEtotOverPin;
       Var_wGwoGSF_Endcap_[1]  = ElecEgammaOverPdif;
@@ -542,7 +622,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_wGwoGSF_Endcap_[18] = TauGammaPhiMom;
       Var_wGwoGSF_Endcap_[19] = TauGammaEnFrac;
       Var_wGwoGSF_Endcap_[20] = TaudCrackEta;
-      mva = gbr_wGwoGSF_EC_->GetClassifier(Var_wGwoGSF_Endcap_);
+      mvaValue = mva_wGwoGSF_EC_->GetClassifier(Var_wGwoGSF_Endcap_);
     }
   } else if ( TauSignalPFGammaCands > 0 && TauHasGsf > 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ) {
@@ -574,7 +654,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_wGwGSF_Barrel_[25] = TauGSFTrackEta;
       Var_wGwGSF_Barrel_[26] = TaudCrackEta;
       Var_wGwGSF_Barrel_[27] = TaudCrackPhi;
-      mva = gbr_wGwGSF_BL_->GetClassifier(Var_wGwGSF_Barrel_);
+      mvaValue = mva_wGwGSF_BL_->GetClassifier(Var_wGwGSF_Barrel_);
     } else {
       Var_wGwGSF_Endcap_[0]  = ElecEtotOverPin;
       Var_wGwGSF_Endcap_[1]  = ElecEgammaOverPdif;
@@ -603,14 +683,14 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
       Var_wGwGSF_Endcap_[24] = TauGSFTracklnPt;
       Var_wGwGSF_Endcap_[25] = TauGSFTrackEta;
       Var_wGwGSF_Endcap_[26] = TaudCrackEta;
-      mva = gbr_wGwGSF_EC_->GetClassifier(Var_wGwGSF_Endcap_);
+      mvaValue = mva_wGwGSF_EC_->GetClassifier(Var_wGwGSF_Endcap_);
     } 
   }
-  return mva;
+  return mvaValue;
 }
 
-double AntiElectronIDMVA5GBR::MVAValue(const reco::PFTau& thePFTau,
-				       const reco::GsfElectron& theGsfEle)
+double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau,
+				    const reco::GsfElectron& theGsfEle)
 
 {
   Float_t TauEtaAtEcalEntrance = -99.;
@@ -776,7 +856,7 @@ double AntiElectronIDMVA5GBR::MVAValue(const reco::PFTau& thePFTau,
 		  ElecGSFTrackEta);
 }
 
-double AntiElectronIDMVA5GBR::MVAValue(const reco::PFTau& thePFTau)
+double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau)
 {
   Float_t TauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
@@ -909,7 +989,7 @@ double AntiElectronIDMVA5GBR::MVAValue(const reco::PFTau& thePFTau)
 		  0.);
 }
 
-double AntiElectronIDMVA5GBR::minimum(double a, double b)
+double AntiElectronIDMVA5::minimum(double a, double b)
 {
   if ( std::abs(b) < std::abs(a) ) return b;
   else return a;
@@ -936,7 +1016,7 @@ namespace {
 
 
 
-double AntiElectronIDMVA5GBR::dCrackPhi(double phi, double eta)
+double AntiElectronIDMVA5::dCrackPhi(double phi, double eta)
 {
 //--- compute the (unsigned) distance to the closest phi-crack in the ECAL barrel  
 
@@ -985,7 +1065,7 @@ double AntiElectronIDMVA5GBR::dCrackPhi(double phi, double eta)
   return std::abs(retVal);
 }
 
-double AntiElectronIDMVA5GBR::dCrackEta(double eta)
+double AntiElectronIDMVA5::dCrackEta(double eta)
 {
 //--- compute the (unsigned) distance to the closest eta-crack in the ECAL barrel
   
