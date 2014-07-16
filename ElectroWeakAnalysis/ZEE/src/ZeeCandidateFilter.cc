@@ -821,7 +821,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useValidFirstPXBHit1_ || calculateValidFirstPXBHit1_ ) {
 
-        Bool_t fail = ( ! maxETelec1.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ) ;
+        Bool_t fail = !maxETelec1.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
 
         if ( useValidFirstPXBHit1_ && fail ) {    std::cout << "Filter: there is no valid hit for electron #1 in 1st layer PXB" << std::endl;
             delete [] sorted;
@@ -846,7 +846,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useValidFirstPXBHit2_ || calculateValidFirstPXBHit2_ ) {
 
-        Bool_t fail = ( ! maxETelec2.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel() );
+        Bool_t fail = !maxETelec2.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
 
         if ( useValidFirstPXBHit2_ && fail ) {   std::cout << "Filter: there is no valid hit for electron #1 in 1st layer PXB" << std::endl;
             delete [] sorted;
@@ -871,7 +871,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useExpectedMissingHits1_ || calculateExpectedMissingHits1_ ) {
 
-        Int_t numberOfInnerHits = (Int_t)( maxETelec1.gsfTrack()->trackerExpectedHitsInner().numberOfHits() );
+        Int_t numberOfInnerHits = (Int_t)( maxETelec1.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
 
         if ( ( numberOfInnerHits > maxNumberOfExpectedMissingHits1_ ) && useExpectedMissingHits1_ ) {
             delete [] sorted;
@@ -887,7 +887,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useExpectedMissingHits2_ || calculateExpectedMissingHits2_ ) {
 
-        Int_t numberOfInnerHits = (Int_t)( maxETelec2.gsfTrack()->trackerExpectedHitsInner().numberOfHits() );
+        Int_t numberOfInnerHits = (Int_t)( maxETelec2.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) );
 
         if ( ( numberOfInnerHits > maxNumberOfExpectedMissingHits2_ ) && useExpectedMissingHits2_ ) {
             delete [] sorted;

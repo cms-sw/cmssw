@@ -134,9 +134,9 @@ namespace
   void countHits(const reco::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
   {
     if ( muon.outerTrack().isNonnull() ) {
-      const reco::HitPattern& muonHitPattern = muon.outerTrack()->hitPattern();
-      for ( int iHit = 0; iHit < muonHitPattern.numberOfHits(); ++iHit ) {
-	uint32_t hit = muonHitPattern.getHitPattern(iHit);
+      const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
+      for (int iHit = 0; iHit < muonHitPattern.numberOfHits(HitPattern::TRACK_HITS); ++iHit) {
+          uint32_t hit = muonHitPattern.getHitPattern(HitPattern::TRACK_HITS, iHit);
 	if ( hit == 0 ) break;	    
 	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
 	  int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3

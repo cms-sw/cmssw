@@ -96,7 +96,6 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::Track & track = selTracks->back();
     track.setExtra( teref );
-    
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
@@ -121,38 +120,36 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     assert(ih==hidx);
     t2t(*theTraj,*selHits,useSplitting);
     auto ie = selHits->size();
-    size_t il = 0;
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
-      track.setHitPattern( hit, il ++ );
+      track.appendHitPattern(hit);
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
     
     /*
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    size_t ih = 0;
     TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits, useSplitting);
     if (theTraj->direction() == alongMomentum) {
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
-	   j != transHits.end(); j ++ ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
+                j != transHits.end(); j++) {
+            if ((**j).hit() != 0){
+                TrackingRecHit *hit = (**j).hit()->clone();
+                track.appendHitPattern(*hit);
+                selHits->push_back(hit);
+                tx.add(TrackingRecHitRef(rHits, hidx++));
+            }
+        }
     }else{
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end()-1;
-	   j != transHits.begin()-1; --j ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end() - 1;
+                j != transHits.begin() - 1; --j) {
+            if ((**j).hit() != 0){
+                TrackingRecHit * hit = (**j).hit()->clone();
+                track.appendHitPattern(*hit);
+                selHits->push_back(hit);
+                tx.add(TrackingRecHitRef(rHits, hidx++));
+            }
+        }
     }
     */
 

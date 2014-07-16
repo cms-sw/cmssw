@@ -311,7 +311,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement();
   uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement() +
     tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-  uint32_t nlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement();
+  uint32_t nlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   LogDebug("TrackSelection") << "cuts on nlayers: " << nlayers << " " << nlayers3D << " " << nlayersLost << " vs " 
 			     << min_layers_[tsNum] << " " << min_3Dlayers_[tsNum] << " " << max_lostLayers_[tsNum];
   if (nlayers < min_layers_[tsNum]) return false;
@@ -351,8 +351,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   if(relpterr > max_relpterr_[tsNum]) return false;
   if(nhits < min_nhits_[tsNum]) return false;
 
-  int lostIn = tk.trackerExpectedHitsInner().numberOfLostTrackerHits();
-  int lostOut = tk.trackerExpectedHitsOuter().numberOfLostTrackerHits();
+  int lostIn = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+  int lostOut = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
   int minLost = std::min(lostIn,lostOut);
   if (minLost > max_minMissHitOutOrIn_[tsNum]) return false;
   float lostMidFrac = tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
@@ -514,8 +514,9 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
     const Track & trk = * it;
     tmva_ndof_ = trk.ndof();
     tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
-    tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement() + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-    tmva_nlayerslost_ = trk.hitPattern().trackerLayersWithoutMeasurement();
+    tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement()
+        + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    tmva_nlayerslost_ = trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
     float chi2n =  trk.normalizedChi2();
     float chi2n_no1Dmod = chi2n;
     
@@ -536,8 +537,8 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
     tmva_eta_ = trk.eta();
     tmva_relpterr_ = float(trk.ptError())/std::max(float(trk.pt()),0.000001f);
     tmva_nhits_ = trk.numberOfValidHits();
-    int lostIn = trk.trackerExpectedHitsInner().numberOfLostTrackerHits();
-    int lostOut = trk.trackerExpectedHitsOuter().numberOfLostTrackerHits();
+    int lostIn = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+    int lostOut = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
     int minLost = std::min(lostIn,lostOut);      tmva_minlost_ = minLost;
     tmva_lostmidfrac_ = trk.numberOfLostHits() / (trk.numberOfValidHits() + trk.numberOfLostHits());
 

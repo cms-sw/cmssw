@@ -17,33 +17,33 @@
  * Parameters associated to the 5D curvilinear covariance matrix: <BR>
  * <B> (qoverp, lambda, phi, dxy, dsz) </B><BR>
  * defined as:  <BR>
- *   <DT> qoverp = q / abs(p) = signed inverse of momentum [1/GeV] </DT> 
+ *   <DT> qoverp = q / abs(p) = signed inverse of momentum [1/GeV] </DT>
  *   <DT> lambda = pi/2 - polar angle at the given point </DT>
  *   <DT> phi = azimuth angle at the given point </DT>
  *   <DT> dxy = -vx*sin(phi) + vy*cos(phi) [cm] </DT>
  *   <DT> dsz = vz*cos(lambda) - (vx*cos(phi)+vy*sin(phi))*sin(lambda) [cm] </DT>
  *
  * Geometrically, dxy is the signed distance in the XY plane between the
- * the straight line passing through (vx,vy) with azimuthal angle phi and 
+ * the straight line passing through (vx,vy) with azimuthal angle phi and
  * the point (0,0).<BR>
  * The dsz parameter is the signed distance in the SZ plane between the
- * the straight line passing through (vx,vy,vz) with angles (phi, lambda) and 
- * the point (s=0,z=0). The S axis is defined by the projection of the 
- * straight line onto the XY plane. The convention is to assign the S 
- * coordinate for (vx,vy) as the value vx*cos(phi)+vy*sin(phi). This value is 
+ * the straight line passing through (vx,vy,vz) with angles (phi, lambda) and
+ * the point (s=0,z=0). The S axis is defined by the projection of the
+ * straight line onto the XY plane. The convention is to assign the S
+ * coordinate for (vx,vy) as the value vx*cos(phi)+vy*sin(phi). This value is
  * zero when (vx,vy) is the point of minimum transverse distance to (0,0).
  *
- * Note that dxy and dsz provide sensible estimates of the distance from 
+ * Note that dxy and dsz provide sensible estimates of the distance from
  * the true particle trajectory to (0,0,0) ONLY in two cases:<BR>
- *   <DT> When (vx,vy,vz) already correspond to the point of minimum transverse 
- *   distance to (0,0,0) or is close to it (so that the differences 
- *   between considering the exact trajectory or a straight line in this range 
+ *   <DT> When (vx,vy,vz) already correspond to the point of minimum transverse
+ *   distance to (0,0,0) or is close to it (so that the differences
+ *   between considering the exact trajectory or a straight line in this range
  *   are negligible). This is usually true for Tracker tracks. </DT>
  *   <DT> When the track has infinite or extremely high momentum </DT>
  *
  * More details about this parametrization are provided in the following document: <BR>
  * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_001.pdf">A. Strandlie, W. Wittek, "Propagation of Covariance Matrices...", CMS Note 2006/001</a> <BR>
- * 
+ *
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
  */
@@ -56,254 +56,291 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-namespace reco {
+namespace reco
+{
 
-  class TrackBase {
-  public:
+class TrackBase
+{
+
+public:
     /// parameter dimension
     enum { dimension = 5 };
+
     /// error matrix size
-    enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
+    enum { covarianceSize = dimension * (dimension + 1) / 2 };
+
     /// parameter vector
     typedef math::Vector<dimension>::type ParameterVector;
+
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
+
     /// spatial vector
     typedef math::XYZVector Vector;
+
     /// point in the space
     typedef math::XYZPoint Point;
+
     /// enumerator provided indices to the five parameters
-    enum { i_qoverp = 0 , i_lambda, i_phi, i_dxy, i_dsz }; 
+    enum {
+        i_qoverp = 0,
+        i_lambda,
+        i_phi,
+        i_dxy,
+        i_dsz
+    };
+
     /// index type
     typedef unsigned int index;
+
     /// track algorithm
-    enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, iter0=4, 
-			  iter1=5, iter2=6, iter3=7, iter4=8, iter5=9, iter6=10, iter7=11, iter8=12, iter9=13,iter10=14,
-			  outInEcalSeededConv=15, inOutEcalSeededConv=16, 
-			  nuclInter=17,
-			  standAloneMuon=18,globalMuon=19,cosmicStandAloneMuon=20,cosmicGlobalMuon=21,
-                          iter1LargeD0=22,iter2LargeD0=23,iter3LargeD0=24,iter4LargeD0=25,iter5LargeD0=26,
-			  bTagGhostTracks=27,
-			  beamhalo=28, 
-			  gsf=29,
-			  algoSize=30 };
+    enum TrackAlgorithm {
+        undefAlgorithm = 0, ctf = 1, rs = 2, cosmics = 3, iter0 = 4,
+        iter1 = 5, iter2 = 6, iter3 = 7, iter4 = 8, iter5 = 9, iter6 = 10, iter7 = 11, iter8 = 12, iter9 = 13, iter10 = 14,
+        outInEcalSeededConv = 15, inOutEcalSeededConv = 16,
+        nuclInter = 17,
+        standAloneMuon = 18, globalMuon = 19, cosmicStandAloneMuon = 20, cosmicGlobalMuon = 21,
+        iter1LargeD0 = 22, iter2LargeD0 = 23, iter3LargeD0 = 24, iter4LargeD0 = 25, iter5LargeD0 = 26,
+        bTagGhostTracks = 27,
+        beamhalo = 28,
+        gsf = 29,
+        algoSize = 30
+    };
+
     static const std::string algoNames[];
 
     /// track quality
-    enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2, confirmed=3, goodIterative=4, looseSetWithPV=5, highPuritySetWithPV=6, qualitySize=7 };
+    enum TrackQuality {
+        undefQuality = -1,
+        loose = 0,
+        tight = 1,
+        highPurity = 2,
+        confirmed = 3,
+        goodIterative = 4,
+        looseSetWithPV = 5,
+        highPuritySetWithPV = 6,
+        qualitySize = 7
+    };
+
     static const std::string qualityNames[];
 
     /// default constructor
     TrackBase();
+
     /// constructor from fit parameters and error matrix
-    TrackBase( double chi2, double ndof, const Point & referencePoint,
-	       const Vector & momentum, int charge, const CovarianceMatrix &,
-	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality,signed char nloops=0);
-    /// virtual destructor   
+    TrackBase(double chi2, double ndof, const Point &vertex,
+              const Vector &momentum, int charge, const CovarianceMatrix &cov,
+              TrackAlgorithm = undefAlgorithm, TrackQuality quality = undefQuality,
+              signed char nloops = 0);
+
+    /// virtual destructor
     virtual ~TrackBase();
+
     /// chi-squared of the fit
-    double chi2() const { return chi2_; }
+    double chi2() const;
+
     /// number of degrees of freedom of the fit
-    double ndof() const { return ndof_; }
+    double ndof() const;
+
     /// chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
-    double normalizedChi2() const { return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6; }
+    double normalizedChi2() const;
+
     /// track electric charge
-    int charge() const { return charge_; }
-    /// q/p 
-    double qoverp() const { return charge() / p(); }
-    /// polar angle  
-    double theta() const { return momentum_.theta(); }
+    int charge() const;
+
+    /// q / p
+    double qoverp() const;
+
+    /// polar angle
+    double theta() const;
+
     /// Lambda angle
-    double lambda() const { return M_PI/2 - momentum_.theta(); }
-    /// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) ONLY if refPoint is close to (0,0,0): see parametrization definition above for details). See also function dxy(myBeamSpot) below.
-    double dxy() const { return ( - vx() * py() + vy() * px() ) / pt(); }
-    /// dxy parameter in perigee convention (d0 = - dxy)
-    double d0() const { return - dxy(); }
-    /// dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
-    double dsz() const { return vz()*pt()/p() - (vx()*px()+vy()*py())/pt() * pz()/p(); }
-    /// dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot) below.
-    double dz() const { return vz() - (vx()*px()+vy()*py())/pt() * (pz()/pt()); }
+    double lambda() const;
+
+    /// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) ONLY if refPoint is close to (0,0,0): see parametrization definition above for details). See also function dxy(myBeamSpot).
+    double dxy() const;
+
+    /// dxy parameter in perigee convention (d0 = -dxy)
+    double d0() const;
+
+    /// dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from  (0,0,0): see parametrization definition above for details)
+    double dsz() const;
+
+    /// dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot)
+    double dz() const;
+
     /// momentum vector magnitude
-    double p() const { return momentum_.R(); }
+    double p() const;
+
     /// track transverse momentum
-    double pt() const { return sqrt( momentum_.Perp2() ); }
+    double pt() const;
+
     /// x coordinate of momentum vector
-    double px() const { return momentum_.x(); }
+    double px() const;
+
     /// y coordinate of momentum vector
-    double py() const { return momentum_.y(); }
+    double py() const;
+
     /// z coordinate of momentum vector
-    double pz() const { return momentum_.z(); }
+    double pz() const;
+
     /// azimuthal angle of momentum vector
-    double phi() const { return momentum_.Phi(); }
+    double phi() const;
+
     /// pseudorapidity of momentum vector
-    double eta() const { return momentum_.Eta(); }
+    double eta() const;
+
     /// x coordinate of the reference point on track
-    double vx() const { return vertex_.x(); }
+    double vx() const;
+
     /// y coordinate of the reference point on track
-    double vy() const { return vertex_.y(); }
+    double vy() const;
+
     /// z coordinate of the reference point on track
-    double vz() const { return vertex_.z(); }
+    double vz() const;
 
     /// track momentum vector
-    const Vector & momentum() const { return momentum_; }
+    const Vector &momentum() const;
 
     /// Reference point on the track
-    const Point & referencePoint() const { return vertex_; }
+    const Point &referencePoint() const;
 
     /// reference point on the track. This method is DEPRECATED, please use referencePoint() instead
-    const Point & vertex() const { return vertex_; }
+    const Point &vertex() const ;
+    //__attribute__((deprecated("This method is DEPRECATED, please use referencePoint() instead.")));
 
-    /// dxy parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
-    double dxy(const Point& myBeamSpot) const { 
-      return ( - (vx()-myBeamSpot.x()) * py() + (vy()-myBeamSpot.y()) * px() ) / pt(); 
-    }
+    /// dxy parameter with respect to a user-given beamSpot  (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
+    double dxy(const Point &myBeamSpot) const;
 
-    /// dxy parameter with respect to the beamSpot taking into account the beamspot slopes WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
-    double dxy(const BeamSpot& theBeamSpot) const { 
-      return dxy(theBeamSpot.position(vz()));
-    }
+    /// dxy parameter with respect to the beamSpot taking into account the beamspot slopes (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
+    double dxy(const BeamSpot &theBeamSpot) const;
 
     /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
-    double dsz(const Point& myBeamSpot) const { 
-      return (vz()-myBeamSpot.z())*pt()/p() - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() *pz()/p(); 
-    }
+    double dsz(const Point &myBeamSpot) const;
+
     /// dz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as the track z0, if the beamSpot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
-    double dz(const Point& myBeamSpot) const { 
-      return (vz()-myBeamSpot.z()) - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() * pz()/pt(); 
-    }
+    double dz(const Point &myBeamSpot) const;
 
     /// Track parameters with one-to-one correspondence to the covariance matrix
-    ParameterVector parameters() const { 
-      return ParameterVector(qoverp(),lambda(),phi(),dxy(),dsz());
-    }
+    ParameterVector parameters() const;
+
     /// return track covariance matrix
-    CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
+    CovarianceMatrix covariance() const;
 
     /// i-th parameter ( i = 0, ... 4 )
-    double parameter(int i) const { return parameters()[i]; }
-    /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    double covariance( int i, int j ) const { return covariance_[ covIndex( i, j ) ]; }
+    double parameter(int i) const;
+    
+    /// (i,j)-th element of covariance matrix (i, j = 0, ... 4)
+    double covariance(int i, int j) const;
+
     /// error on specified element
-    double error( int i ) const { return sqrt( covariance_[ covIndex( i, i ) ] ); }
+    double error(int i) const;
 
     /// error on signed transverse curvature
-    double qoverpError() const { return error( i_qoverp ); }
+    double qoverpError() const;
+
     /// error on Pt (set to 1000 TeV if charge==0 for safety)
-    double ptError() const { 
-      return (charge()!=0) ?  sqrt( 
-            pt()*pt()*p()*p()/charge()/charge() * covariance(i_qoverp,i_qoverp)
-          + 2*pt()*p()/charge()*pz() * covariance(i_qoverp,i_lambda)
-          + pz()*pz() * covariance(i_lambda,i_lambda) ) : 1.e6;
-    }
+    double ptError() const;
+
     /// error on theta
-    double thetaError() const { return error( i_lambda ); }
+    double thetaError() const;
+
     /// error on lambda
-    double lambdaError() const { return error( i_lambda ); }
+    double lambdaError() const;
+
     /// error on eta
-    double etaError() const { return error( i_lambda ) * p()/pt(); }
+    double etaError() const;
+
     /// error on phi
-    double phiError() const { return error( i_phi ); }
+    double phiError() const;
+
     /// error on dxy
-    double dxyError() const { return error( i_dxy ); }
+    double dxyError() const;
+
     /// error on d0
-    double d0Error() const { return error( i_dxy ); }
+    double d0Error() const;
+
     /// error on dsz
-    double dszError() const { return error( i_dsz ); }
+    double dszError() const;
+
     /// error on dz
-    double dzError() const { return error( i_dsz ) * p()/pt(); }
+    double dzError() const;
 
     /// fill SMatrix
-    CovarianceMatrix & fill( CovarianceMatrix & v ) const;
+    CovarianceMatrix &fill(CovarianceMatrix &v) const;
+
     /// covariance matrix index in array
-    static index covIndex( index i, index j );
-   
-    ///  Access the hit pattern, indicating in which Tracker layers the track has hits.
-    const HitPattern & hitPattern() const { return hitPattern_; }
-    /// Access the hit pattern counting (in the Tracker) the number of expected crossed layers  before the first trajectory's hit
-    const HitPattern & trackerExpectedHitsInner() const { return trackerExpectedHitsInner_; }
-    /// Access the hit pattern counting (in the Tracker) the number of expected crossed layers  after the last trajectory's hit
-    const HitPattern & trackerExpectedHitsOuter() const { return trackerExpectedHitsOuter_; }
+    static index covIndex(index i, index j);
 
+    /// Access the hit pattern, indicating in which Tracker layers the track has hits.
+    const HitPattern &hitPattern() const;
 
+    /// number of valid hits found
+    unsigned short numberOfValidHits() const;
 
-    /// number of valid hits found 
-    unsigned short numberOfValidHits() const { return hitPattern_.numberOfValidHits(); }
     /// number of cases where track crossed a layer without getting a hit.
-    unsigned short numberOfLostHits() const { return hitPattern_.numberOfLostHits(); }
+    unsigned short numberOfLostHits() const;
+
     /// fraction of valid hits on the track
-    double validFraction() const {
-      int valid = hitPattern_.numberOfValidTrackerHits();
-      int lost  = hitPattern_.numberOfLostTrackerHits();
-      int lostIn = trackerExpectedHitsInner_.numberOfLostTrackerHits();
-      int lostOut = trackerExpectedHitsOuter_.numberOfLostTrackerHits();
-      if ((valid+lost+lostIn+lostOut)==0) return -1;
-      return valid/(1.0*(valid+lost+lostIn+lostOut));
-    }
-    /// set hit patterns from vector of hit references
-    template<typename C>
-    void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
-    template<typename C>
-    void setTrackerExpectedHitsInner( const C & c ) { trackerExpectedHitsInner_.set( c.begin(), c.end() ); }
-    template<typename C>
-    void setTrackerExpectedHitsOuter( const C & c ) { trackerExpectedHitsOuter_.set( c.begin(), c.end() ); }
-    
-    template<typename I>
-    void setHitPattern( const I & begin, const I & end ) { hitPattern_.set( begin, end ); }
-    template<typename I>
-    void setTrackerExpectedHitsInner( const I & begin, const I & end ) { trackerExpectedHitsInner_.set( begin, end ); }
-    template<typename I>
-    void setTrackerExpectedHitsOuter( const I & begin, const I & end ) { trackerExpectedHitsOuter_.set( begin, end ); }
+    double validFraction() const;
 
-    /// set hit pattern for specified hit
-    void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
-    void appendHitPattern( const TrackingRecHit & hit) { hitPattern_.appendHit( hit); }
-    void setTrackerExpectedHitsInner( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsInner_.set( hit, i ); }
-    void setTrackerExpectedHitsOuter( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsOuter_.set( hit, i ); }
+    /// append hit patterns from vector of hit references
+    template<typename C>
+    bool appendHits(const C &c);
 
-    /// set hitPattern from pre-defined hitPattern
-    void setHitPattern( const HitPattern& hitP) {hitPattern_ = hitP;}
-    void setTrackerExpectedHitsInner( const HitPattern& hitP ) {trackerExpectedHitsInner_ = hitP;}
-    void setTrackerExpectedHitsOuter( const HitPattern& hitP ) {trackerExpectedHitsOuter_ = hitP;}
+    template<typename I>
+    bool appendHits(const I &begin, const I &end);
 
-    /// position index 
+    /// append a single hit to the HitPattern
+    bool appendHitPattern(const TrackingRecHit &hit);
+    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType);
+
+    /// Sets HitPattern as empty
+    void resetHitPattern();
 
     ///Track algorithm
-    void setAlgorithm(const TrackAlgorithm a, bool set=true) { if (set) algorithm_=a; else algorithm_=undefAlgorithm;}
+    void setAlgorithm(const TrackAlgorithm a, bool set = true);
+
     TrackAlgorithm algo() const ;
+
     std::string algoName() const;
+
     static std::string algoName(TrackAlgorithm);
+
     static TrackAlgorithm algoByName(const std::string &name);
 
     ///Track quality
-    bool quality(const TrackQuality ) const;
-    void setQuality(const TrackQuality, bool set=true); 
+    bool quality(const TrackQuality) const;
+
+    void setQuality(const TrackQuality, bool set = true);
+
     static std::string qualityName(TrackQuality);
+
     static TrackQuality qualityByName(const std::string &name);
 
+    int qualityMask() const;
 
-    int qualityMask() const { return quality_; }
-    void setQualityMask(int qualMask) {quality_ = qualMask;}
+    void setQualityMask(int qualMask);
 
-   
-    void setNLoops(signed char value) { nLoops_=value;}
+    void setNLoops(signed char value);
 
-    bool isLooper() const { return (nLoops_>0);}
-    signed char nLoops() const {return nLoops_;}
-   
-  private:
+    bool isLooper() const;
+
+    signed char nLoops() const;
+
+private:
     /// hit pattern
     HitPattern hitPattern_;
-    /// hit pattern used for expected crossed layers after the last trajectory's hit
-    HitPattern trackerExpectedHitsInner_; 
-    /// hit pattern used for expected crossed layers before the first trajectory's hit
-    HitPattern trackerExpectedHitsOuter_;
 
     /// perigee 5x5 covariance matrix
-    float covariance_[ covarianceSize ];
+    float covariance_[covarianceSize];
+
     /// chi-squared
     float chi2_;
-     /// innermost (reference) point on track
+
+    /// innermost (reference) point on track
     Point vertex_;
+
     /// momentum vector at innermost point
     Vector momentum_;
 
@@ -312,107 +349,512 @@ namespace reco {
 
     /// electric charge
     char charge_;
+
     /// track algorithm
     uint8_t algorithm_;
+
     /// track quality
     uint8_t quality_;
 
     /// number of loops made during the building of the trajectory of a looper particle
-    signed char nLoops_; ///I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose
+    signed char nLoops_; // I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose.
+};
 
-  };
+//  Access the hit pattern, indicating in which Tracker layers the track has hits.
+inline const HitPattern & TrackBase::hitPattern() const
+{
+    return hitPattern_;
+}
 
-  inline TrackBase::index TrackBase::covIndex( index i, index j )  {
-    int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-    return b * ( b + 1 ) / 2 + a;
-  }
+inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType)
+{
+    return hitPattern_.appendHit(id, hitType);
+}
 
-  inline TrackBase::TrackAlgorithm TrackBase::algo() const {
+inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
+{
+    return hitPattern_.appendHit(hit);
+}
+
+inline void TrackBase::resetHitPattern()
+{
+    hitPattern_.clear();
+}
+
+template<typename I>
+bool TrackBase::appendHits(const I &begin, const I &end)
+{
+    return hitPattern_.appendHits(begin, end);
+}
+
+template<typename C>
+bool TrackBase::appendHits(const C &c)
+{
+    return setHitPattern(c.begin(), c.end());
+}
+
+inline TrackBase::index TrackBase::covIndex(index i, index j)
+{
+    int a = (i <= j ? i : j);
+    int b = (i <= j ? j : i);
+    return b * (b + 1) / 2 + a;
+}
+
+inline TrackBase::TrackAlgorithm TrackBase::algo() const
+{
     return (TrackAlgorithm) algorithm_;
-  }
+}
 
-  inline std::string TrackBase::algoName() const{
+inline std::string TrackBase::algoName() const
+{
     // I'd like to do:
     // return TrackBase::algoName(algorithm_);
     // but I cannot define a const static function. Why???
 
-    switch(algorithm_)
-      {
-      case undefAlgorithm: return "undefAlgorithm";
-      case ctf: return "ctf";
-      case rs: return "rs";
-      case cosmics: return "cosmics";
-      case beamhalo: return "beamhalo";
-      case iter0: return "iter0";
-      case iter1: return "iter1";
-      case iter2: return "iter2";
-      case iter3: return "iter3";
-      case iter4: return "iter4";
-      case iter5: return "iter5";
-      case iter6: return "iter6";
-      case iter7: return "iter7";
-      case iter8: return "iter8";
-      case iter9: return "iter9";
-      case iter10: return "iter10";
-      case outInEcalSeededConv: return "outInEcalSeededConv";
-      case inOutEcalSeededConv: return "inOutEcalSeededConv";
-      case nuclInter: return "nuclInter";
-      case standAloneMuon: return "standAloneMuon";
-      case globalMuon: return "globalMuon";
-      case cosmicStandAloneMuon: return "cosmicStandAloneMuon";
-      case cosmicGlobalMuon: return "cosmicGlobalMuon";
-      case iter1LargeD0: return "iter1LargeD0";
-      case iter2LargeD0: return "iter2LargeD0";
-      case iter3LargeD0: return "iter3LargeD0";
-      case iter4LargeD0: return "iter4LargeD0";
-      case iter5LargeD0: return "iter5LargeD0";
-      case bTagGhostTracks: return "bTagGhostTracks";
-      case gsf: return "gsf";
-      }
-    return "undefAlgorithm";
-  }
-      
-  inline bool TrackBase::quality( const TrackBase::TrackQuality q) const{
-    switch(q){
-    case undefQuality: return (quality_==0);
-    case goodIterative: 
-      {
-        return ( ((quality_ & (1<<TrackBase::confirmed))>>TrackBase::confirmed) ||
-                 ((quality_ & (1<<TrackBase::highPurity))>>TrackBase::highPurity));
-      }
-     default:
-      {
-	return (quality_ & (1<<q))>>q;
-      }
+    switch (algorithm_) {
+    case undefAlgorithm:
+        return "undefAlgorithm";
+    case ctf:
+        return "ctf";
+    case rs:
+        return "rs";
+    case cosmics:
+        return "cosmics";
+    case beamhalo:
+        return "beamhalo";
+    case iter0:
+        return "iter0";
+    case iter1:
+        return "iter1";
+    case iter2:
+        return "iter2";
+    case iter3:
+        return "iter3";
+    case iter4:
+        return "iter4";
+    case iter5:
+        return "iter5";
+    case iter6:
+        return "iter6";
+    case iter7:
+        return "iter7";
+    case iter8:
+        return "iter8";
+    case iter9:
+        return "iter9";
+    case iter10:
+        return "iter10";
+    case outInEcalSeededConv:
+        return "outInEcalSeededConv";
+    case inOutEcalSeededConv:
+        return "inOutEcalSeededConv";
+    case nuclInter:
+        return "nuclInter";
+    case standAloneMuon:
+        return "standAloneMuon";
+    case globalMuon:
+        return "globalMuon";
+    case cosmicStandAloneMuon:
+        return "cosmicStandAloneMuon";
+    case cosmicGlobalMuon:
+        return "cosmicGlobalMuon";
+    case iter1LargeD0:
+        return "iter1LargeD0";
+    case iter2LargeD0:
+        return "iter2LargeD0";
+    case iter3LargeD0:
+        return "iter3LargeD0";
+    case iter4LargeD0:
+        return "iter4LargeD0";
+    case iter5LargeD0:
+        return "iter5LargeD0";
+    case bTagGhostTracks:
+        return "bTagGhostTracks";
+    case gsf:
+        return "gsf";
     }
-    return false;
-  }
-
-  inline void TrackBase::setQuality( const TrackBase::TrackQuality q, bool set){
-    switch(q){
-    case undefQuality: quality_=0;
-    default: 
-      {
-	if (set)//regular OR if setting value to true
-	  quality_= quality_ | (1<<q) ;
-	else // doing "half-XOR" if unsetting value
-	  quality_= quality_ & (~(1<<q));
-      }
-    }
-  }
-
-  inline std::string TrackBase::qualityName(TrackQuality q) {
-    if(int(q) < int(qualitySize) && int(q)>=0) return qualityNames[int(q)];
-    return "undefQuality";
-  }
-
-  inline std::string TrackBase::algoName(TrackAlgorithm a){
-    if(int(a) < int(algoSize) && int(a)>0) return algoNames[int(a)];
     return "undefAlgorithm";
-  }
-
-
-
 }
 
+inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
+{
+    switch (q) {
+    case undefQuality:
+        return (quality_ == 0);
+    case goodIterative:
+        return (((quality_ & (1 << TrackBase::confirmed))  >> TrackBase::confirmed) ||
+                ((quality_ & (1 << TrackBase::highPurity)) >> TrackBase::highPurity));
+    default:
+        return (quality_ & (1 << q)) >> q;
+    }
+    return false;
+}
+
+inline void TrackBase::setQuality(const TrackBase::TrackQuality q, bool set)
+{
+    if (q == undefQuality) {
+        quality_ = 0;
+    } else {
+        //regular OR if setting value to true
+        if (set) {
+            quality_ |= (1 << q);
+        } else {
+            // doing "half-XOR" if unsetting value
+            quality_ &= (~(1 << q));
+        }
+    }
+}
+
+inline std::string TrackBase::qualityName(TrackQuality q)
+{
+    if (int(q) < int(qualitySize) && int(q) >= 0) {
+        return qualityNames[int(q)];
+    }
+    return "undefQuality";
+}
+
+inline std::string TrackBase::algoName(TrackAlgorithm a)
+{
+    if (int(a) < int(algoSize) && int(a) > 0) {
+        return algoNames[int(a)];
+    }
+    return "undefAlgorithm";
+}
+
+// chi-squared of the fit
+inline double TrackBase::chi2() const
+{
+    return chi2_;
+}
+
+// number of degrees of freedom of the fit
+inline double TrackBase::ndof() const
+{
+    return ndof_;
+}
+
+// chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
+inline double TrackBase::normalizedChi2() const
+{
+    return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6;
+}
+
+// track electric charge
+inline int TrackBase::charge() const
+{
+    return charge_;
+}
+
+// q / p
+inline double TrackBase::qoverp() const
+{
+    return charge() / p();
+}
+
+// polar angle
+inline double TrackBase::theta() const
+{
+    return momentum_.theta();
+}
+
+// Lambda angle
+inline double TrackBase::lambda() const
+{
+    return M_PI_2 - momentum_.theta();
+}
+
+// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) ONLY if refPoint is close to (0,0,0): see parametrization definition above for details). See also function dxy(myBeamSpot) below.
+inline double TrackBase::dxy() const
+{
+    return (-vx() * py() + vy() * px()) / pt();
+}
+
+// dxy parameter in perigee convention (d0 = -dxy)
+inline double TrackBase::d0() const
+{
+    return -dxy();
+}
+
+// dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
+inline double TrackBase::dsz() const
+{
+    return vz() * pt() / p() - (vx() * px() + vy() * py()) / pt() * pz() / p();
+}
+
+// dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot) below.
+inline double TrackBase::dz() const
+{
+    return vz() - (vx() * px() + vy() * py()) / pt() * (pz() / pt());
+}
+
+// momentum vector magnitude
+inline double TrackBase::p() const
+{
+    return momentum_.R();
+}
+
+// track transverse momentum
+inline double TrackBase::pt() const
+{
+    return sqrt(momentum_.Perp2());
+}
+
+// x coordinate of momentum vector
+inline double TrackBase::px() const
+{
+    return momentum_.x();
+}
+
+// y coordinate of momentum vector
+inline double TrackBase::py() const
+{
+    return momentum_.y();
+}
+
+// z coordinate of momentum vector
+inline double TrackBase::pz() const
+{
+    return momentum_.z();
+}
+
+// azimuthal angle of momentum vector
+inline double TrackBase::phi() const
+{
+    return momentum_.Phi();
+}
+
+// pseudorapidity of momentum vector
+inline double TrackBase::eta() const
+{
+    return momentum_.Eta();
+}
+
+// x coordinate of the reference point on track
+inline double TrackBase::vx() const
+{
+    return vertex_.x();
+}
+
+// y coordinate of the reference point on track
+inline double TrackBase::vy() const
+{
+    return vertex_.y();
+}
+
+// z coordinate of the reference point on track
+inline double TrackBase::vz() const
+{
+    return vertex_.z();
+}
+
+// track momentum vector
+inline const TrackBase::Vector & TrackBase::momentum() const
+{
+    return momentum_;
+}
+
+// Reference point on the track
+inline const TrackBase::Point & TrackBase::referencePoint() const
+{
+    return vertex_;
+}
+
+// reference point on the track. This method is DEPRECATED, please use referencePoint() instead
+inline const TrackBase::Point & TrackBase::vertex() const
+{
+    return vertex_;
+}
+
+// dxy parameter with respect to a user-given beamSpot
+// (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved).
+// This is a good approximation for Tracker tracks.
+inline double TrackBase::dxy(const Point &myBeamSpot) const
+{
+    return (-(vx() - myBeamSpot.x()) * py() + (vy() - myBeamSpot.y()) * px()) / pt();
+}
+
+// dxy parameter with respect to the beamSpot taking into account the beamspot slopes
+// (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved).
+// This is a good approximation for Tracker tracks.
+inline double TrackBase::dxy(const BeamSpot &theBeamSpot) const
+{
+    return dxy(theBeamSpot.position(vz()));
+}
+
+// dsz parameter with respect to a user-given beamSpot
+// (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved).
+// This is a good approximation for Tracker tracks.
+inline double TrackBase::dsz(const Point &myBeamSpot) const
+{
+    return (vz() - myBeamSpot.z()) * pt() / p() - ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / pt() * pz() / p();
+}
+
+// dz parameter with respect to a user-given beamSpot
+// (WARNING: this quantity can only be interpreted as the track z0, if the beamSpot is reasonably close to the refPoint, since linear approximations are involved).
+// This is a good approximation for Tracker tracks.
+inline double TrackBase::dz(const Point &myBeamSpot) const
+{
+    return (vz() - myBeamSpot.z()) - ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / pt() * pz() / pt();
+}
+
+// Track parameters with one-to-one correspondence to the covariance matrix
+inline TrackBase::ParameterVector TrackBase::parameters() const
+{
+    return TrackBase::ParameterVector(qoverp(), lambda(), phi(), dxy(), dsz());
+}
+
+// return track covariance matrix
+inline TrackBase::CovarianceMatrix TrackBase::covariance() const
+{
+    CovarianceMatrix m;
+    fill(m);
+    return m;
+}
+
+// i-th parameter ( i = 0, ... 4 )
+inline double TrackBase::parameter(int i) const
+{
+    return parameters()[i];
+}
+
+// (i,j)-th element of covariance matrix (i, j = 0, ... 4)
+inline double TrackBase::covariance(int i, int j) const
+{
+    return covariance_[covIndex(i, j)];
+}
+
+// error on specified element
+inline double TrackBase::error(int i) const
+{
+    return sqrt(covariance_[covIndex(i, i)]);
+}
+
+// error on signed transverse curvature
+inline double TrackBase::qoverpError() const
+{
+    return error(i_qoverp);
+}
+
+// error on Pt (set to 1000 TeV if charge==0 for safety)
+inline double TrackBase::ptError() const
+{
+    return (charge() != 0) ?  sqrt(
+               pt() * pt() * p() * p() / charge() / charge() * covariance(i_qoverp, i_qoverp)
+               + 2 * pt() * p() / charge() * pz() * covariance(i_qoverp, i_lambda)
+               + pz() * pz() * covariance(i_lambda, i_lambda)) : 1.e6;
+}
+
+// error on theta
+inline double TrackBase::thetaError() const
+{
+    return error(i_lambda);
+}
+
+// error on lambda
+inline double TrackBase::lambdaError() const
+{
+    return error(i_lambda);
+}
+
+// error on eta
+inline double TrackBase::etaError() const
+{
+    return error(i_lambda) * p() / pt();
+}
+
+// error on phi
+inline double TrackBase::phiError() const
+{
+    return error(i_phi);
+}
+
+// error on dxy
+inline double TrackBase::dxyError() const
+{
+    return error(i_dxy);
+}
+
+// error on d0
+inline double TrackBase::d0Error() const
+{
+    return error(i_dxy);
+}
+
+// error on dsz
+inline double TrackBase::dszError() const
+{
+    return error(i_dsz);
+}
+
+// error on dz
+inline double TrackBase::dzError() const
+{
+    return error(i_dsz) * p() / pt();
+}
+
+// number of valid hits found
+inline unsigned short TrackBase::numberOfValidHits() const
+{
+    return hitPattern_.numberOfValidHits();
+}
+
+// number of cases where track crossed a layer without getting a hit.
+inline unsigned short TrackBase::numberOfLostHits() const
+{
+    return hitPattern_.numberOfLostHits(HitPattern::TRACK_HITS);
+}
+
+// fraction of valid hits on the track
+inline double TrackBase::validFraction() const
+{
+    int valid = hitPattern_.numberOfValidTrackerHits();
+    int lost  = hitPattern_.numberOfLostTrackerHits(HitPattern::TRACK_HITS);
+    int lostIn = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
+    int lostOut = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
+
+    if ((valid + lost + lostIn + lostOut) == 0) {
+        return -1;
+    }
+
+    return valid / (double)(valid + lost + lostIn + lostOut);
+}
+
+//Track algorithm
+inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
+{
+    if (set) {
+        algorithm_ = a;
+    } else {
+        algorithm_ = TrackBase::undefAlgorithm;
+    }
+}
+
+inline int TrackBase::qualityMask() const
+{
+    return quality_;
+}
+
+inline void TrackBase::setQualityMask(int qualMask)
+{
+    quality_ = qualMask;
+}
+
+inline void TrackBase::setNLoops(signed char value)
+{
+    nLoops_ = value;
+}
+
+inline bool TrackBase::isLooper() const
+{
+    return (nLoops_ > 0);
+}
+
+inline signed char TrackBase::nLoops() const
+{
+    return nLoops_;
+}
+
+} // namespace reco
+
 #endif
+

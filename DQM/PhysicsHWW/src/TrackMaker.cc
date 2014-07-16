@@ -137,11 +137,10 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       typedef Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
       typedef Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > pixel_ClusterRef;
 
-
       for(trackingRecHit_iterator ihit = i->recHitsBegin(); ihit != i->recHitsEnd(); ++ihit){
         if(i_layer > 1) break;
         int k = ihit-i->recHitsBegin();
-        hit_pattern = pattern.getHitPattern(k);
+        hit_pattern = pattern.getHitPattern(reco::HitPattern::TRACK_HITS, k);
         valid_hit = pattern.validHitFilter(hit_pattern);
         pixel_hit = pattern.pixelHitFilter(hit_pattern);
         strip_hit = pattern.stripHitFilter(hit_pattern);
@@ -154,7 +153,6 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
           } 
           if(i_layer == 1){
             i_layer++;
-
           }
         }
         else if (strip_hit){
