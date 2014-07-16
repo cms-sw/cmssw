@@ -146,7 +146,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 
   addCaloGeometry();
   
-  geom->CloseGeometry();
+
   geom->DefaultColors();
 
   m_nameToShape.clear();
