@@ -105,7 +105,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         int charge = state.localParameters().charge();
         out->push_back(reco::Track(1.0,1.0,x,p,charge,reco::Track::CovarianceMatrix()));
         TrajectorySeed::range hits = getHits(mu);
-        out->back().setHitPattern(hits.first, hits.second);
+        out->back().appendHits(hits.first, hits.second);
         // Now Track Extra
         const TrackingRecHit *hit0 =  &*hits.first;
         const TrackingRecHit *hit1 = &*(hits.second-1);

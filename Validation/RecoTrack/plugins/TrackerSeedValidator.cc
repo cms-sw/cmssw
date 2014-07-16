@@ -249,7 +249,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  //GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
 	  PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
 	  matchedTrackPointer = new reco::Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix());
-	  matchedTrackPointer->setHitPattern(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second);
+	  matchedTrackPointer->appendHits(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second);
 	}
 
 	double dR=0;//fixme: plots vs dR not implemented for now
@@ -297,7 +297,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
 	//fixme
 	reco::Track* trackFromSeed = new reco::Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix());
-	trackFromSeed->setHitPattern(seed->recHits().first,seed->recHits().second);
+	trackFromSeed->appendHits(seed->recHits().first,seed->recHits().second);
 
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
