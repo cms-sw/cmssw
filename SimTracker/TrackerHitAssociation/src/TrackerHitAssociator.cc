@@ -104,13 +104,13 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring tr
 	DetId theDet((*isim).detUnitId());
 	if (theDet.subdetId() == PixelSubdetector::PixelBarrel || theDet.subdetId() == PixelSubdetector::PixelEndcap) {
 	  SimHitMap[theDet].push_back((*isim));
-// 	  std::cout << "simHits from crossing frames; map size = " << SimHitMap.size() << ", Hit count = " << Nhits << std::endl;
+// 	  std::cout << "simHits from prompt collections; map size = " << SimHitMap.size() << ", Hit count = " << Nhits << std::endl;
 	} else {
 	  unsigned int tofBin = StripDigiSimLink::LowTof;
 	  if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
 	  simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
 	  SimHitCollMap[theSimHitCollID].push_back((*isim));
-// 	  std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+// 	  std::cout << "simHits from prompt collections; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
 	}
 	Nhits++;
       }
@@ -490,7 +490,7 @@ void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrech
 	    simHitCollectionID theSimHitCollID = std::make_pair(detid.subdetId(), tofBin);
 	    simhitAddr currentAddr = std::make_pair(theSimHitCollID, currentCFPos);
 
-	    if(find(CFposcachev.begin(), CFposcachev.end(), currentAddr ) == CFposcachev.end()) {
+	    if(find(CFposcachev.begin(), CFposcachev.end(), currentAddr) == CFposcachev.end()) {
 	      CFposcachev.push_back(currentAddr);
 	      simhitCFPos->push_back(currentAddr);
 	    }

@@ -214,6 +214,7 @@ namespace cms
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
       // Note that this is only used for creating digi-sim links (if configured to do so).
+      std::cout << "index offset, current hit count = " << crossingSimHitIndexOffset_[tag.encode()] << ", " << simHits->size() << std::endl;
       if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }
