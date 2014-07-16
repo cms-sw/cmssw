@@ -52,6 +52,8 @@ float NjettinessAdder::getTau(int num, const edm::Ptr<reco::Jet> & object) const
     const reco::CandidatePtr & dp = object->daughterPtr(k);
     if ( dp.isNonnull() && dp.isAvailable() )
       FJparticles.push_back( fastjet::PseudoJet( dp->px(), dp->py(), dp->pz(), dp->energy() ) );
+    else
+      edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
 
   fastjet::contrib::NsubParameters paraNsub = fastjet::contrib::NsubParameters(1.0, cone_);
