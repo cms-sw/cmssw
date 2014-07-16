@@ -167,10 +167,10 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	int data=0;
 
         // get tower ieta, iphi for link
-	unsigned iLink = (iQuad*nChan_)+iChan;
+	int iLink = (iQuad*nChan_)+iChan;
 	int ietaSgn = (iLink % 2==0 ? +1 : -1);
-	int ieta = ietaSgn * iFrame;
-	int iphi = (int) iLink/2;
+	int ieta = ietaSgn * (iFrame + 1);
+	int iphi = 1+(iLink % 2==0 ? iLink : iLink-1);
 
 	// get tower 1 data
 	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
@@ -179,8 +179,7 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	data |= (tower.hwQual() & 0xf)<<12;
 
 	// get tower 2
-	ieta = ietaSgn * iFrame;
-	iphi = ((int) iLink/2) + 1;
+	iphi = iphi + 1;
 	tower = l1t::CaloTools::getTower(towers, ieta, iphi);
 	data |= (tower.hwPt() & 0xff)<<16;
 	data |= (tower.hwEtRatio() & 0x7)<<24;
@@ -268,7 +267,7 @@ Stage2InputPatternWriter::endJob()
 
   // then the data
   for ( unsigned iFrame=0; iFrame<nFrame_; ++iFrame ) {
-    file << "Frame " << std::setw(4) << std::setfill('0') << iFrame << " : ";
+    file << "Frame " << std::dec << std::setw(4) << std::setfill('0') << iFrame << " : ";
     for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
       for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
 	unsigned iLink = (iQuad*nChan_)+iChan;
