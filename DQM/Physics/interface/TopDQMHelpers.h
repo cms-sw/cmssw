@@ -204,8 +204,6 @@ private:
   /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
   //int eidPattern_;
   double eidCutValue_;
-  //rho for Effective Area corrections
-  //edm::EDGetTokenT<double> eventrhoToken_;
   /// jet corrector as extra selection type
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
@@ -231,7 +229,6 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
   jetIDSelect_( 0)
 {
   
-  //  eventrhoToken_ = iC.consumes<double>(edm::InputTag("fixedGridRhoFastjetAll"));
 
   src_ = iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
   // exist otherwise they are initialized with -1
@@ -272,10 +269,6 @@ bool SelectionStep<Object>::select(const edm::Event& event)
     if( !event.getByToken(electronId_, electronId) ) return false;
   }
 
-  //fill rho for EA corrections
-  //edm::Handle<double> rho_;
-  //if( !event.getByToken(eventrhoToken_,rho_) ) return false;
-  //double rho = *(rho_.product());
 
   // determine multiplicity of selected objects
   int n=0;
