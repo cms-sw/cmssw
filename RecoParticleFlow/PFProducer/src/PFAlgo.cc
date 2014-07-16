@@ -1145,7 +1145,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	if ( isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
 	unsigned nHits =  elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
-	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement();
+	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
 
 	if ( debug_ ) 
 	  std::cout << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum 

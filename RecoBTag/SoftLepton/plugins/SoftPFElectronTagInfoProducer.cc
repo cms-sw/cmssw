@@ -129,10 +129,14 @@ reco::SoftLeptonProperties SoftPFElectronTagInfoProducer::fillElecProperties(con
 
 bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent,const reco::PFCandidate* PFcandidate)
 {
-	const reco::HitPattern& hitPattern = PFcandidate->gsfTrackRef().get()->hitPattern();
-        //check that the first hit is a pixel hit
-        uint32_t hit = hitPattern.getHitPattern(0);
-        bool hitCondition= !(hitPattern.validHitFilter(hit) && ( (hitPattern.pixelBarrelHitFilter(hit) && hitPattern.getLayer(hit) < 3) || hitPattern.pixelEndcapHitFilter(hit))); 
+    using namespace reco;
+	const HitPattern &hitPattern = PFcandidate->gsfTrackRef().get()->hitPattern();
+    //check that the first hit is a pixel hit
+    uint32_t hit = hitPattern.getHitPattern(HitPattern::TRACK_HITS, 0);
+    bool hitCondition = !(HitPattern::validHitFilter(hit) 
+            && ((HitPattern::pixelBarrelHitFilter(hit) 
+                        && HitPattern::getLayer(hit) < 3) 
+                    || HitPattern::pixelEndcapHitFilter(hit))); 
 	if(hitCondition) return false;
    //     if(PFcandidate->mva_e_pi()<0.6)return false;
 

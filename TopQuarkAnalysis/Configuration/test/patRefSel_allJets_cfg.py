@@ -98,7 +98,7 @@ useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMu
 #pfMuonIsoConeR03 = False
 #pfMuonCombIsoCut = 0.2
 # electrons
-#pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
+#pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') < 2'
 useElectronCutBasePF  = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
 #pfElectronIsoConeR03 = True
 #pfElectronCombIsoCut  = 0.2

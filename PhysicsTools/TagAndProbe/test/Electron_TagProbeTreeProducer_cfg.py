@@ -318,7 +318,7 @@ process.GsfMatchedPhotonCands.src = cms.InputTag("goodPhotons")
 process.PassingWP95 = process.goodElectrons.clone()
 process.PassingWP95.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 1)"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') <= 1)"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt < 0.15 && dr03EcalRecHitSumEt/p4.Pt < 2.0 && dr03HcalTowerSumEt/p4.Pt < 0.12 )" 
     " && (sigmaIetaIeta<0.01)"
@@ -337,7 +337,7 @@ process.PassingWP95.cut = cms.string(
 process.PassingWP90 = process.goodElectrons.clone()
 process.PassingWP90.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"
@@ -356,7 +356,7 @@ process.PassingWP90.cut = cms.string(
 process.PassingWP85 = process.goodElectrons.clone()
 process.PassingWP85.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.08 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"
@@ -375,7 +375,7 @@ process.PassingWP85.cut = cms.string(
 process.PassingWP80 = process.goodElectrons.clone()
 process.PassingWP80.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"
@@ -394,7 +394,7 @@ process.PassingWP80.cut = cms.string(
 process.PassingWP70 = process.goodElectrons.clone()
 process.PassingWP70.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
     " && (sigmaIetaIeta<0.01)"
@@ -413,7 +413,7 @@ process.PassingWP70.cut = cms.string(
 process.PassingWP60 = process.goodElectrons.clone()
 process.PassingWP60.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.04 && dr03EcalRecHitSumEt/p4.Pt < 0.04 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
     " && (sigmaIetaIeta<0.01)"
@@ -894,11 +894,11 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_theta  = cms.string("theta"),    
     probe_gsfEle_charge = cms.string("charge"),
     probe_gsfEle_rapidity  = cms.string("rapidity"),
-    probe_gsfEle_missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+    probe_gsfEle_missingHits = cms.string("gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')"),
     probe_gsfEle_convDist = cms.string("convDist"),
     probe_gsfEle_convDcot = cms.string("convDcot"),
     probe_gsfEle_convRadius = cms.string("convRadius"),        
-    probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
+    probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel()"),
     ## super cluster quantities
     probe_sc_energy = cms.string("superCluster.energy"),
     probe_sc_et    = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
@@ -972,11 +972,11 @@ TagVariablesToStore = cms.PSet(
     gsfEle_theta  = cms.string("theta"),    
     gsfEle_charge = cms.string("charge"),
     gsfEle_rapidity  = cms.string("rapidity"),
-    gsfEle_missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+    gsfEle_missingHits = cms.string("gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')"),
     gsfEle_convDist = cms.string("convDist"),
     gsfEle_convDcot = cms.string("convDcot"),
     gsfEle_convRadius = cms.string("convRadius"),     
-    gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
+    gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel()"),
     ## super cluster quantities
     sc_energy = cms.string("superCluster.energy"),
     sc_et     = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
