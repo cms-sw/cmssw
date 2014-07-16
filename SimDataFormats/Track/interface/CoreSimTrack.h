@@ -11,12 +11,12 @@ class CoreSimTrack
 public:
 
     /// constructors
-    CoreSimTrack() : thePID(0) {}
+    CoreSimTrack() : tId(0), thePID(0) {}
     CoreSimTrack( int ipart, const math::XYZTLorentzVectorD& p ) :
-       thePID(ipart), theMomentum(p) {}
+      tId(0), thePID(ipart), theMomentum(p) {}
 
     CoreSimTrack( int ipart, math::XYZVectorD& ip, double ie ) :
-       thePID(ipart)
+      tId(0), thePID(ipart)
     { theMomentum.SetXYZT( ip.x(), ip.y(), ip.z(), ie ) ; }
 
     const math::XYZTLorentzVectorD& momentum() const { return theMomentum; }
