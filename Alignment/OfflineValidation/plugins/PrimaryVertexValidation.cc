@@ -669,20 +669,19 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
 // ------------ method to check the presence of pixel hits  ------------
 bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack track)
 {
-  bool accepted = false;
-  // hit pattern of the track
-  const reco::HitPattern& p = track.hitPattern();      
-  for (int i=0; i<p.numberOfHits(); i++) {
-    uint32_t pattern = p.getHitPattern(i);   
-    if (p.pixelBarrelHitFilter(pattern) || p.pixelEndcapHitFilter(pattern) ) {
-      if (p.getLayer(pattern) == 1) {
-	if (p.validHitFilter(pattern)) {
-	  accepted = true;
-	}
-      }
-     }
-  }
-  return accepted;
+    using namespace reco;
+    const HitPattern &p = track.hitPattern();
+    for (int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++) {
+        uint32_t pattern = p.getHitPattern(HitPattern::TRACK_HITS, i);
+        if (p.pixelBarrelHitFilter(pattern) || p.pixelEndcapHitFilter(pattern) ) {
+            if (p.getLayer(pattern) == 1) {
+                if (p.validHitFilter(pattern)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 } 
 
 // ------------ method called once each job before begining the event loop  ------------

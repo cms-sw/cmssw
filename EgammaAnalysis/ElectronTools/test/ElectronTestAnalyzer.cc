@@ -503,7 +503,7 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
 
   myMVAVar_fbrem           =  ele.fbrem();
   myMVAVar_kfchi2          =  (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  myMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
+  myMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
   //  myMVAVar_kfhits          =  (validKF) ? myTrackRef->numberOfValidHits() : -1. ;   // for analysist save also this
   myMVAVar_gsfchi2         =  ele.gsfTrack()->normalizedChi2();  // to be checked
 
@@ -665,7 +665,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
        ele.dr03TkSumPt()/ele.pt() < 0.2 &&
        ele.dr03EcalRecHitSumEt()/ele.pt() < 0.2 &&
        ele.dr03HcalTowerSumEt()/ele.pt() < 0.2 &&
-       ele.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() == 0)
+       ele.gsfTrack()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) == 0)
       myTrigPresel = true;
   }
   else {
@@ -674,7 +674,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
        ele.dr03TkSumPt()/ele.pt() < 0.2 &&
        ele.dr03EcalRecHitSumEt()/ele.pt() < 0.2 &&
        ele.dr03HcalTowerSumEt()/ele.pt() < 0.2 &&
-       ele.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() == 0)
+       ele.gsfTrack()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) == 0)
       myTrigPresel = true;
   }
 

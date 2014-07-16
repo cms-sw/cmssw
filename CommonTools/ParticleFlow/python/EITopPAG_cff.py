@@ -89,7 +89,7 @@ pfIsolatedElectronsEI = cms.EDFilter(
     src = cms.InputTag("pfElectronsFromVertexEI"),
     cut = cms.string('''abs(eta)<2.5 && pt>20. &&
     gsfTrackRef.isAvailable() &&
-    gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 &&
+    gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2 &&
     (gsfElectronRef.pfIsolationVariables().sumChargedHadronPt+
     max(0.,gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt+
     gsfElectronRef.pfIsolationVariables().sumPhotonEt-
@@ -97,7 +97,6 @@ pfIsolatedElectronsEI = cms.EDFilter(
     '''),
     makeClones = cms.bool(True)
 )
-
 
 
 pfNoElectron.topCollection    = 'pfIsolatedElectronsEI'
