@@ -89,9 +89,9 @@ class TrackerHitAssociator {
   simhit_collectionMap SimHitCollMap;
  
  private:
-  const edm::Event& myEvent_;
   typedef std::vector<std::string> vstring;
-  vstring trackerContainers;
+
+  void makeMaps(const edm::Event& theEvent, const vstring trackerContainers);
 
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
