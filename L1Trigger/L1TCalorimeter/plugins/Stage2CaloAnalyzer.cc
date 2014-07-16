@@ -193,13 +193,13 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::CaloTower> > towers;
     iEvent.getByToken(m_towerToken,towers);
 
-    for ( int ibx=towers->getFirstBX(); ibx!=towers->getLastBX(); ++ibx) {
+    for ( int ibx=towers->getFirstBX(); ibx<towers->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-	hbx_.at(Tower)->Fill( towers->size(ibx) );
+	hbx_.at(Tower)->Fill( ibx );
       }
 
-      for ( auto itr = towers->begin(ibx); itr != towers->end(ibx); ++itr ) {
+      for ( auto itr = towers->begin(ibx); itr !=towers->end(ibx); ++itr ) {
 	het_.at(Tower)->Fill( itr->hwPt() );
 	heta_.at(Tower)->Fill( itr->hwEta() );
 	hphi_.at(Tower)->Fill( itr->hwPhi() );
@@ -218,10 +218,10 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::CaloCluster> > clusters;
     iEvent.getByToken(m_clusterToken,clusters);
 
-    for ( int ibx=clusters->getFirstBX(); ibx!=clusters->getLastBX(); ++ibx) {
+    for ( int ibx=clusters->getFirstBX(); ibx<clusters->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-  	hbx_.at(Cluster)->Fill( clusters->size(ibx) );
+  	hbx_.at(Cluster)->Fill( ibx );
       }
     
       for ( auto itr = clusters->begin(ibx); itr !=clusters->end(ibx); ++itr ) {
@@ -240,10 +240,10 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::EGamma> > egs;
     iEvent.getByToken(m_egToken,egs);
     
-    for ( int ibx=egs->getFirstBX(); ibx!=egs->getLastBX(); ++ibx) {
+    for ( int ibx=egs->getFirstBX(); ibx<egs->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-        hbx_.at(EG)->Fill( egs->size(ibx) );
+        hbx_.at(EG)->Fill( ibx );
       }
       
       for ( auto itr = egs->begin(ibx); itr != egs->end(ibx); ++itr ) {
@@ -262,10 +262,10 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::Tau> > taus;
     iEvent.getByToken(m_tauToken,taus);
     
-    for ( int ibx=taus->getFirstBX(); ibx!=taus->getLastBX(); ++ibx) {
+    for ( int ibx=taus->getFirstBX(); ibx<taus->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-        hbx_.at(Tau)->Fill( taus->size(ibx) );
+        hbx_.at(Tau)->Fill( ibx );
       }
 
       for ( auto itr = taus->begin(ibx); itr != taus->end(ibx); ++itr ) {
@@ -284,10 +284,10 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::Jet> > jets;
     iEvent.getByToken(m_jetToken,jets);
     
-    for ( int ibx=jets->getFirstBX(); ibx!=jets->getLastBX(); ++ibx) {
+    for ( int ibx=jets->getFirstBX(); ibx<jets->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-        hbx_.at(Jet)->Fill( jets->size(ibx) );
+        hbx_.at(Jet)->Fill( ibx );
       }
 
       for ( auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr ) {
@@ -306,10 +306,10 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::EtSum> > sums;
     iEvent.getByToken(m_sumToken,sums);
     
-    for ( int ibx=sums->getFirstBX(); ibx!=sums->getLastBX(); ++ibx) {
+    for ( int ibx=sums->getFirstBX(); ibx<sums->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-        hbx_.at(Sum)->Fill( sums->size(ibx) );
+        hbx_.at(Sum)->Fill( ibx );
       }
       
       for ( auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr ) {
@@ -340,16 +340,16 @@ Stage2CaloAnalyzer::beginJob()
     
     dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
     
-    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 50, 0., 100.) ));
-    heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 70, -35., 35.) ));
-    hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0., 72.) ));
+    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 101, -0.5, 100.5) ));
+    heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
+    hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 73, 0.5, 72.5) ));
     hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
-    hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41., 41., 72, 1., 72.) ));
+    hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
     
     if (*itr==Tower) {
-      hem_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("em", "", 50, 0., 100.) ));
-      hhad_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("had", "", 50, 0., 100.) ));
-      hratio_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("ratio", "", 10, 0., 10.) ));
+      hem_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("em", "", 101, -0.5, 100.5) ));
+      hhad_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("had", "", 101, -0.5, 100.5) ));
+      hratio_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("ratio", "", 11, -0.5, 10.5) ));
     }
 
   }
