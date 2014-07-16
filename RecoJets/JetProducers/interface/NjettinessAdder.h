@@ -7,13 +7,14 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 class NjettinessAdder : public edm::EDProducer { 
  public:
   explicit NjettinessAdder(const edm::ParameterSet& iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
-    src_token_(consumes<edm::View<reco::PFJet>>(src_)),
+    src_token_(consumes<edm::View<reco::Jet>>(src_)),
     cone_(iConfig.getParameter<double>("cone"))
       {
 	produces<edm::ValueMap<float> >("tau1");
@@ -24,11 +25,11 @@ class NjettinessAdder : public edm::EDProducer {
     virtual ~NjettinessAdder() {}
     
     void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
-    float getTau(int num,edm::Ptr<reco::PFJet> object) const;
+    float getTau(int num, const edm::Ptr<reco::Jet> & object) const;
     
  private:	
     edm::InputTag src_ ;
-    edm::EDGetTokenT<edm::View<reco::PFJet>> src_token_;
+    edm::EDGetTokenT<edm::View<reco::Jet>> src_token_;
     double cone_ ;
 };
 
