@@ -14,7 +14,7 @@ process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
 #Adding Timing service:
 process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(False)
     )
 
 process.source = cms.Source("EmptySource")
