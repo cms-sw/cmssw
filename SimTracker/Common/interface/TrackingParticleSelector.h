@@ -25,7 +25,7 @@ public:
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const {
     auto pdgid = tp.pdgId();
-    if (chargedOnly_ && tp.threeCharge()==0) return false;//select only if charge!=0
+    if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
 
     bool testId = false;
     unsigned int idSize = pdgId_.size();

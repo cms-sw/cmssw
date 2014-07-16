@@ -91,7 +91,7 @@ public:
     ///< @brief Electric charge. Note this is taken from the first SimTrack only.
     float charge() const { return g4Tracks_[0].charge(); }
     ///< Gives charge in unit of quark charge (should be 3 time the abaove)
-    int threeCharge() const { return g4Tracks_[0].threeCharge(); }
+    int threeCharge() const { return lrintf(3.f*charge()); }
 
     const LorentzVector& p4() const; ///< @brief Four-momentum Lorentz vector. Note this is taken from the first SimTrack only.
 

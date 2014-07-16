@@ -1,7 +1,7 @@
 #include "SimDataFormats/Track/interface/CoreSimTrack.h"
 
 float CoreSimTrack::charge()const { 
-  return float(CoreSimTrack::chargeValue(thePID))/3.f;
+  return float(CoreSimTrack::chargeValue(thePID)/3.);
 }
 
 
@@ -17,7 +17,7 @@ int CoreSimTrack::chargeValue(const int& Id)const{
   int hepchg;
 
 
-  constexpr int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
+  int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
 -3,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,3,6,0,0,3,6,0,0,-1,2,-1,2,-1,2,0,0,0,0,
 -3,0,-3,0,-3,0,0,0,0,0,-1,2,-1,2,-1,2,0,0,0,0,
 -3,0,-3,0,-3,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -25,7 +25,7 @@ int CoreSimTrack::chargeValue(const int& Id)const{
 
   //...Initial values. Simple case of direct readout.
   hepchg=0;
-  kqa=std::abs(Id);
+  kqa=abs(Id);
   kqn=kqa/1000000000%10;
   kqx=kqa/1000000%10;
   kq3=kqa/1000%10;
@@ -36,7 +36,7 @@ int CoreSimTrack::chargeValue(const int& Id)const{
 
   //...illegal or ion
   //...set ion charge to zero - not enough information
-  if( (kqa==0) | (kqa >= 10000000) ) {
+  if(kqa==0 || kqa >= 10000000) {
 
     if(kqn==1) {hepchg=0;}
   }
@@ -49,7 +49,7 @@ int CoreSimTrack::chargeValue(const int& Id)const{
   //... KS and KL (and undefined)
   else if(kqj == 0) {hepchg = 0;}
   //C... direct translation
-  else if( kqx>0 && irt<100)
+  else if(kqx>0 && irt<100)
     {
       hepchg = ichg[irt-1];
       if(kqa==1000017 || kqa==1000018) {hepchg = 0;}
@@ -76,7 +76,7 @@ int CoreSimTrack::chargeValue(const int& Id)const{
   }
 
   //... fix sign of charge
-  if(Id<0) {hepchg = -hepchg;}
+  if(Id<0 && hepchg!=0) {hepchg = -1*hepchg;}
 
   // cout << hepchg<< endl;
   return hepchg;
