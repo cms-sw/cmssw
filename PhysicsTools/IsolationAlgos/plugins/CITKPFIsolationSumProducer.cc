@@ -62,6 +62,7 @@ DEFINE_FWK_MODULE(CITKPFIsolationSumProducer);
 namespace citk {
   PFIsolationSumProducer::PFIsolationSumProducer(const edm::ParameterSet& c) :
     _typeMap( { {"h+",1},
+	        {"PUh+",1},
 	        {"h0",5},
 		{"gamma",4},
 		{"electron",2},
@@ -73,7 +74,7 @@ namespace citk {
     _isolate_with = 
       consumes<CandView>(c.getParameter<edm::InputTag>("srcForIsolationCone"));
     const std::vector<edm::ParameterSet>& isoDefs = 
-      c.getParameterSetVector("isolationConeDefintions");
+      c.getParameterSetVector("isolationConeDefinitions");
     for( const auto& isodef : isoDefs ) {
       const std::string& name = 
 	isodef.getParameter<std::string>("isolationAlgo");
@@ -95,7 +96,7 @@ namespace citk {
 	  << "list of allowed isolations!.";
       }
       _isolation_types[thetype->second].emplace_back(theisolator);
-      _product_names[thetype->second].emplace_back(name+coneName+isotype);
+      _product_names[thetype->second].emplace_back(isotype+coneName);
       produces<edm::ValueMap<float> >(_product_names[thetype->second].back());
     }
   }
