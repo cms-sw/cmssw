@@ -1,4 +1,4 @@
-#include "PhysicsTools/IsolationAlgos/interface/CITKIsolationSumCalculator.h"
+#include "PhysicsTools/IsolationAlgos/interface/CITKIsolationConeDefinitionBase.h"
 
 EDM_REGISTER_PLUGINFACTORY(CITKIsolationConeDefinitionFactory,
 			   "CITKIsolationConeDefinitionFactory");
