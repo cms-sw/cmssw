@@ -388,12 +388,24 @@ namespace SingleTopTChannelLepton {
     StringCutObjectSelector<reco::PFCandidate, true> *elecIso = new StringCutObjectSelector<reco::PFCandidate, true>(elecIso_);
     reco::GsfElectronRef elec;
     
-    if( !event.getByToken(elecs_, elecs) ) return;
-    if( !event.getByToken(elecs_gsf_, elecs_gsf) ) return;
+    if( !event.getByToken(elecs_, elecs) ){ 
+	delete elecSelect;
+	delete elecIso;
+	return;
+    }
+    if( !event.getByToken(elecs_gsf_, elecs_gsf) ){ 
+	delete elecSelect;
+	delete elecIso;
+	return;
+    }
     // check availability of electron id
     edm::Handle<edm::ValueMap<float> > electronId; 
     if(!electronId_.isUninitialized()){
-      if( !event.getByToken(electronId_, electronId) ) return;
+      if( !event.getByToken(electronId_, electronId) ){ 
+	delete elecSelect;
+	delete elecIso;
+	return;
+      }
     }
     // loop electron collection
     unsigned int eMult=0, eMultIso=0;
