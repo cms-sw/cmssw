@@ -1,3 +1,6 @@
+<architecture name="slc[6-9]_amd64">
+  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
+</architecture>
 <bin   name="cmsRunGlibC" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="tbb"/>

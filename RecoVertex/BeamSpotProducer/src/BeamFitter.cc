@@ -256,13 +256,11 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   double eventZ = 0;
   double averageZ = 0;
 
-  for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	track != tracks->end();
-	++track ) {
+  for (reco::TrackCollection::const_iterator track = tracks->begin();
+          track != tracks->end(); ++track){
 
-    if ( ! isMuon_) {
-
-      const reco::HitPattern& trkHP = track->hitPattern();
+    if (!isMuon_) {
+      const reco::HitPattern &trkHP = track->hitPattern();
 
       fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
       fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
@@ -274,9 +272,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
       fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
     } else {
-
       fnTotLayerMeas = track->numberOfValidHits();
-
     }
 
     fpt = track->pt();

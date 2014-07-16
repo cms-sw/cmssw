@@ -524,11 +524,12 @@ void DAClusterizerInZ::dump(const double beta, const vector<vertex_t> & y, const
       cout <<  setw (3)<< i << ")" <<  setw (8) << fixed << setprecision(4)<<  tz << " +/-" <<  setw (6)<< sqrt(tks[i].dz2);
 
       if(tks[i].tt->track().quality(reco::TrackBase::highPurity)){ cout << " *";}else{cout <<"  ";}
-      if(tks[i].tt->track().hitPattern().hasValidHitInFirstPixelBarrel()){cout <<"+";}else{cout << "-";}
+      if(tks[i].tt->track().hitPattern().hasValidHitInFirstPixelBarrel()){ cout <<"+"; }else{ cout << "-"; }
       cout << setw(1) << tks[i].tt->track().hitPattern().pixelBarrelLayersWithMeasurement(); // see DataFormats/TrackReco/interface/HitPattern.h
       cout << setw(1) << tks[i].tt->track().hitPattern().pixelEndcapLayersWithMeasurement(); 
-      cout << setw(1) << hex << tks[i].tt->track().hitPattern().trackerLayersWithMeasurement()-tks[i].tt->track().hitPattern().pixelLayersWithMeasurement() <<dec; 
-      cout << "=" << setw(1)<<hex <<tks[i].tt->track().trackerExpectedHitsOuter().numberOfHits() << dec;
+      cout << setw(1) << hex << tks[i].tt->track().hitPattern().trackerLayersWithMeasurement() -
+          tks[i].tt->track().hitPattern().pixelLayersWithMeasurement() << dec; 
+      cout << "=" << setw(1) << hex << tks[i].tt->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << dec;
 
       Measurement1D IP=tks[i].tt->stateAtBeamLine().transverseImpactParameter();
       cout << setw (8) << IP.value() << "+/-" << setw (6) << IP.error();
