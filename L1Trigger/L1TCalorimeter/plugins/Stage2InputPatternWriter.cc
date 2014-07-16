@@ -179,8 +179,7 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	data |= (tower.hwQual() & 0xf)<<12;
 
 	// get tower 2
-	ieta = ietaSgn * iFrame;
-	iphi = ((int) iLink/2) + 1;
+	iphi = iphi + 1;
 	tower = l1t::CaloTools::getTower(towers, ieta, iphi);
 	data |= (tower.hwPt() & 0xff)<<16;
 	data |= (tower.hwEtRatio() & 0x7)<<24;
