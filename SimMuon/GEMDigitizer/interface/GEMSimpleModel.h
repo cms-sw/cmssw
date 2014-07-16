@@ -20,7 +20,6 @@ namespace CLHEP
   class RandFlat;
   class RandPoissonQ;
   class RandGaussQ;
-  class RandGamma;
   class RandBinomial;
 }
 
@@ -52,8 +51,7 @@ private:
   double timeResolution_;
   double timeJitter_;
   double averageNoiseRate_;
-// double averageClusterSize_;
-  std::vector<double> clsParametrization_;
+//  std::vector<double> clsParametrization_;
   double signalPropagationSpeed_;
   bool cosmics_;
   int bxwidth_;
@@ -63,7 +61,6 @@ private:
   bool doBkgNoise_;
   bool doNoiseCLS_;
   bool fixedRollRadius_;
-  double minPabsNoiseCLS_;
   bool simulateIntrinsicNoise_;
   bool simulateElectronBkg_;
   bool simulateLowNeutralRate_;
@@ -72,10 +69,10 @@ private:
   CLHEP::RandFlat* flat2_;
   CLHEP::RandFlat* flat3_;
   CLHEP::RandFlat* flat4_;
+  CLHEP::RandFlat* flat5_;
   CLHEP::RandPoissonQ* poisson_;
   CLHEP::RandGaussQ* gauss1_;
   CLHEP::RandGaussQ* gauss2_;
-  CLHEP::RandGamma* gamma1_;
 
 //parameters from the fit:
 //params for pol3 model of electron bkg for GE1/1:
