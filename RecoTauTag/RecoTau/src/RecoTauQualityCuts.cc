@@ -268,10 +268,10 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   minTrackVertexWeight_ = getDouble("minTrackVertexWeight");
   
   // Use bit-wise & to avoid conditional code
-  checkHitPattern_ = (minTrackPixelHits_ > 0) & (minTrackHits_ > 0);
-  checkPV_ = (maxTransverseImpactParameter_ >= 0) &
-             (maxDeltaZ_ >= 0) &
-             (maxDeltaZToLeadTrack_ >= 0) &
+  checkHitPattern_ = (minTrackPixelHits_ > 0) || (minTrackHits_ > 0);
+  checkPV_ = (maxTransverseImpactParameter_ >= 0) ||
+             (maxDeltaZ_ >= 0) ||
+             (maxDeltaZToLeadTrack_ >= 0) ||
              (minTrackVertexWeight_ >= 0);
 
   // Build the QCuts for gammas
