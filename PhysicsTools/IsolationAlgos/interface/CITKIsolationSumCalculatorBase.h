@@ -20,6 +20,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <unordered_map>
+
 namespace citk {
   class IsolationSumCalculatorBase {
   public:
@@ -31,8 +33,10 @@ namespace citk {
     
     virtual void getEventSetupInfo(const edm::EventSetup&) {}
     virtual void getEventInfo(const edm::Event&) {}
+    virtual void setConsumes(edm::ConsumesCollector&) = 0;
 
-    virtual double calculateIsolation(const reco::Candidate&) const = 0;
+    virtual bool isInIsolationCone(const reco::CandidateBaseRef& physob,
+				   const reco::CandidateBaseRef& other) const = 0;
 
     const std::string& name() const { return name; }
 
@@ -41,11 +45,11 @@ namespace citk {
 
   protected:
     const double _coneSize;
-    const std::string _name;
-
-  private:
+    
+  private:    
     IsolationSumCalculatorBase(const IsolationSumCalculatorBase&) {}
     IsolationSumCalculatorBase& operator=(const IsolationSumCalculatorBase) {}
+    const std::string _name;
   };
 }// ns citk
 
