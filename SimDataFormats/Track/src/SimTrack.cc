@@ -10,7 +10,7 @@ SimTrack::SimTrack(int ipart, const math::XYZTLorentzVectorD& p, int iv, int ig)
 
 SimTrack::SimTrack(int ipart, const math::XYZTLorentzVectorD& p, int iv, int ig,
 		   const math::XYZVectorD&  tkp, const math::XYZTLorentzVectorD& tkm) :
-    Core(ipart, p), ivert(iv), igenpart(ig),tkposition(tkp), tkmomentum(tkm)  {}
+    Core(ipart, p), ivert(iv), igenpart(ig),tkposition(tkp),tkmomentum(tkm)  {}
  
 SimTrack::SimTrack(const CoreSimTrack & t, int iv, int ig) :
     Core(t), ivert(iv), igenpart(ig) {}
