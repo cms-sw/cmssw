@@ -176,11 +176,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
-  const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
+  TrackingParticleCollection const & tPCeff = *(TPCollectionHeff.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByToken(label_tp_fake,TPCollectionHfake);
-  const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
@@ -190,14 +189,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
 
-  //if (tPCeff.size()==0) {edm::LogInfo("TrackValidator")
-  //<< "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
-  //if (tPCfake.size()==0) {edm::LogInfo("TrackValidator")
-  //<< "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   event.getByToken(bsSrc,recoBeamSpotHandle);
-  reco::BeamSpot bs = *recoBeamSpotHandle;
+  reco::BeamSpot const & bs = *recoBeamSpotHandle;
 
   edm::Handle< vector<PileupSummaryInfo> > puinfoH;
   event.getByToken(label_pileupinfo,puinfoH);
@@ -210,9 +205,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     }
   }
 
+  /*
   edm::Handle<TrackingVertexCollection> tvH;
   event.getByToken(label_tv,tvH);
-  TrackingVertexCollection tv = *tvH;
+  TrackingVertexCollection const & tv = *tvH;
+  */
 
   //calculate dR for TPs
   std::vector<double> dR_tPCeff;
