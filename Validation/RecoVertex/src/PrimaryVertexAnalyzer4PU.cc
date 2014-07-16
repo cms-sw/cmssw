@@ -1111,13 +1111,13 @@ void PrimaryVertexAnalyzer4PU::fillTrackHistos(std::map<std::string, TH1*> & h, 
     //
     
     // collect some info on hits and clusters
-    Fill(h,"nbarrelLayers_"+ttype,t.hitPattern().pixelBarrelLayersWithMeasurement());
-    Fill(h,"nPxLayers_"+ttype,t.hitPattern().pixelLayersWithMeasurement());
-    Fill(h,"nSiLayers_"+ttype,t.hitPattern().trackerLayersWithMeasurement());
-    Fill(h,"expectedInner_"+ttype,t.trackerExpectedHitsInner().numberOfHits());
-    Fill(h,"expectedOuter_"+ttype,t.trackerExpectedHitsOuter().numberOfHits());
-    Fill(h,"trackAlgo_"+ttype,t.algo());
-    Fill(h,"trackQuality_"+ttype,t.qualityMask());
+    Fill(h, "nbarrelLayers_" + ttype, t.hitPattern().pixelBarrelLayersWithMeasurement());
+    Fill(h, "nPxLayers_" + ttype, t.hitPattern().pixelLayersWithMeasurement());
+    Fill(h, "nSiLayers_" + ttype ,t.hitPattern().trackerLayersWithMeasurement());
+    Fill(h, "expectedInner_" + ttype, t.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
+    Fill(h, "expectedOuter_" + ttype, t.hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS));
+    Fill(h, "trackAlgo_" + ttype, t.algo());
+    Fill(h, "trackQuality_" + ttype, t.qualityMask());
 
     //
     int longesthit=0, nbarrel=0;
@@ -1266,17 +1266,31 @@ void PrimaryVertexAnalyzer4PU::printRecTrks(const Handle<reco::TrackCollection> 
 
 
     cout << Form(" found=%6d  lost=%6d   chi2/ndof=%10.3f ",t->found(), t->lost(),t->normalizedChi2())<<endl;
-    const reco::HitPattern & p= t->hitPattern();
+    const reco::HitPattern &p = t->hitPattern();
+
     cout << "subdet layers valid lost" << endl;
-    cout << Form(" barrel  %2d  %2d  %2d",p.pixelBarrelLayersWithMeasurement(),p.numberOfValidPixelBarrelHits(), p.numberOfLostPixelBarrelHits()) << endl;
-    cout << Form(" fwd     %2d  %2d  %2d",p.pixelEndcapLayersWithMeasurement(),p.numberOfValidPixelEndcapHits(), p.numberOfLostPixelEndcapHits()) << endl;
-    cout << Form(" pixel   %2d  %2d  %2d",p.pixelLayersWithMeasurement(), p.numberOfValidPixelHits(), p.numberOfLostPixelHits()) << endl;
-    cout << Form(" tracker %2d  %2d  %2d",p.trackerLayersWithMeasurement(), p.numberOfValidTrackerHits(), p.numberOfLostTrackerHits()) << endl;
+    cout << Form(" barrel  %2d  %2d  %2d",
+            p.pixelBarrelLayersWithMeasurement(),
+            p.numberOfValidPixelBarrelHits(),
+            p.numberOfLostPixelBarrelHits(HitPattern::TRACK_HITS))
+        << endl;
+
+    cout << Form(" fwd     %2d  %2d  %2d", 
+            p.pixelEndcapLayersWithMeasurement(),
+            p.numberOfValidPixelEndcapHits(),
+            p.numberOfLostPixelEndcapHits(HitPattern::TRACK_HITS))
+        << endl;
+    cout << Form(" pixel   %2d  %2d  %2d",
+            p.pixelLayersWithMeasurement(),
+            p.numberOfValidPixelHits(),
+            p.numberOfLostPixelHits(HitPattern::TRACK_HITS))
+        << endl;
+    cout << Form(" tracker %2d  %2d  %2d",
+            p.trackerLayersWithMeasurement(),
+            p.numberOfValidTrackerHits(),
+            p.numberOfLostTrackerHits(HitPattern::TRACK_HITS))
+        << endl;
     cout << endl;
-    const reco::HitPattern & pinner= t->trackerExpectedHitsInner();
-    const reco::HitPattern & pouter= t->trackerExpectedHitsOuter();
-    int ninner=pinner.numberOfHits();
-    int nouter=pouter.numberOfHits();
 
     //    double d0Error=t.d0Error();
     //    double d0=t.dxy(myBeamSpot);
@@ -1301,12 +1315,22 @@ void PrimaryVertexAnalyzer4PU::printRecTrks(const Handle<reco::TrackCollection> 
        }
       }
     }
+
     cout << "hitpattern" << endl;
-    for(int i=0; i<p.numberOfHits(); i++){      p.printHitPattern(i,std::cout);    }
-    cout << "expected inner " << ninner << endl;
-    for(int i=0; i<pinner.numberOfHits(); i++){      pinner.printHitPattern(i,std::cout);    }
-    cout << "expected outer " << nouter << endl;
-    for(int i=0; i<pouter.numberOfHits(); i++){      pouter.printHitPattern(i,std::cout);    }
+    for(int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++){
+        p.printHitPattern(HitPattern::TRACK_HITS, i, std::cout);
+    }
+    
+    cout << "expected inner " << p.numberOfHits(HitPattern::MISSING_INNER_HITS) << endl;
+    for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_INNER_HITS); i++){
+        p.printHitPattern(HitPattern::MISSING_INNER_HITS, i, std::cout);
+    }
+
+    cout << "expected outer " << p.numberOfHits(HitPattern::MISSING_OUTER_HITS) << endl;
+    for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_OUTER_HITS); i++){
+        p.printHitPattern(HitPattern::MISSING_OUTER_HITS, i, std::cout);
+    }
+
   }
 }
 
@@ -1400,11 +1424,12 @@ void PrimaryVertexAnalyzer4PU::printPVTrks(const Handle<reco::TrackCollection> &
 
     // track quality and hit information, see DataFormats/TrackReco/interface/HitPattern.h
     if(selTrks[i].track().quality(reco::TrackBase::highPurity)){ cout << " *";}else{cout <<"  ";}
-    if(selTrks[i].track().hitPattern().hasValidHitInFirstPixelBarrel()){cout <<"+";}else{cout << "-";}
+    if(selTrks[i].track().hitPattern().hasValidHitInFirstPixelBarrel()){ cout << "+"; } else { cout << "-"; }
     cout << setw(1) << selTrks[i].track().hitPattern().pixelBarrelLayersWithMeasurement();
     cout << setw(1) << selTrks[i].track().hitPattern().pixelEndcapLayersWithMeasurement(); 
-    cout << setw(1) << hex << selTrks[i].track().hitPattern().trackerLayersWithMeasurement()-selTrks[i].track().hitPattern().pixelLayersWithMeasurement()<<dec;
-    cout << "-" << setw(1)<<hex <<selTrks[i].track().trackerExpectedHitsOuter().numberOfHits() << dec;
+    cout << setw(1) << hex << selTrks[i].track().hitPattern().trackerLayersWithMeasurement()
+        - selTrks[i].track().hitPattern().pixelLayersWithMeasurement() << dec;
+    cout << "-" << setw(1) << hex << selTrks[i].track().hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS) << dec;
 
     
     Measurement1D IP=selTrks[i].stateAtBeamLine().transverseImpactParameter();
