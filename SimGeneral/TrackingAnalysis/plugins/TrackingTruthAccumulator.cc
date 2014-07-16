@@ -144,7 +144,7 @@ namespace
 				const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices, const std::vector<const PSimHit*>& simHits,
 				double volumeRadius, double volumeZ, bool allowDifferentProcessTypes );
 		TrackingParticle createTrackingParticle( const DecayChainTrack* pTrack ) const;
-		TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex ) const;
+		template<class T> TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex, const T& event ) const; /// FIXME: added code
 		bool vectorIsInsideVolume( const math::XYZTLorentzVectorD& vector ) const;
 	private:
 		const ::DecayChain& decayChain_;
@@ -196,7 +196,7 @@ namespace
 	 * @author Mark Grimes (mark.grimes@bristol.ac.uk)
 	 * @date 05/Nov/2012
 	 */
-	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors );
+	template<class T> void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const T& event );     /// FIXME: added code
 
 } // end of the unnamed namespace
 
@@ -447,7 +447,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 		// This function creates the TrackinParticle and adds it to the collection if it
 		// passes the selection criteria specified in the configuration. If the config
 		// specifies adding ancestors, the function is called recursively to do that.
-		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_ );
+		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_, event );    /// FIXME: added code
 	}
 }
 
@@ -616,8 +616,31 @@ namespace // Unnamed namespace for things only used in this file
 
 		return returnValue;
 	}
+                
+        /** FIXME: added Code below */
+        
+        /** function template specialisation because PileUpEventPrincipal::getByLabel calls T::value_type and T::iterator at some point which is not member of every class!
+         *  -> maybe call PileUpEventPrincipal::principal() and work with edm::EventPrincipal?
+         */
+	
+	template<> TrackingVertex TrackingParticleFactory::createTrackingVertex<PileUpEventPrincipal>( const ::DecayChainVertex* pChainVertex, const PileUpEventPrincipal & event ) const
+        {
+                const SimVertex& simVertex=decayChain_.getSimVertex( pChainVertex );
 
-	TrackingVertex TrackingParticleFactory::createTrackingVertex( const ::DecayChainVertex* pChainVertex ) const
+                bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
+
+                // TODO - Still need to set the truth ID properly. I'm not sure what to set
+                // the second parameter of the EncodedTruthId constructor to.
+                TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
+                
+                returnValue.addG4Vertex(simVertex);
+                
+                return returnValue;
+        }
+                
+        /** FIXME: until here */
+
+	template<class T> TrackingVertex TrackingParticleFactory::createTrackingVertex( const ::DecayChainVertex* pChainVertex, const T& event ) const
 	{
 		const SimVertex& simVertex=decayChain_.getSimVertex( pChainVertex );
 
@@ -626,6 +649,42 @@ namespace // Unnamed namespace for things only used in this file
 		// TODO - Still need to set the truth ID properly. I'm not sure what to set
 		// the second parameter of the EncodedTruthId constructor to.
 		TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
+                
+                /** FIXME: added Code below */
+                
+                typedef math::XYZTLorentzVectorD LorentzVector;
+                typedef math::XYZPoint Vector;
+                typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
+                
+                returnValue.addG4Vertex(simVertex);
+                
+                if( simVertex.eventId().event()==0 && simVertex.eventId().bunchCrossing()==0 ) // if this is a track in the signal event
+                {
+                    std::string inputTag = "generator";
+                    edm::Handle<edm::HepMCProduct> hepmc;
+                    if ( event.getByLabel( inputTag, hepmc) )
+                    {   // TODO: hard-coded, change string to InputTag
+                
+                        const HepMC::GenEvent* genEvent = hepmc->GetEvent();
+                
+                        Vector tvPosition(returnValue.position().x(), returnValue.position().y(), returnValue.position().z());
+                
+                        for (HepMC::GenEvent::vertex_const_iterator iGenVertex = genEvent->vertices_begin(); iGenVertex != genEvent->vertices_end(); ++iGenVertex)
+                        {
+                            HepMC::ThreeVector rawPosition = (*iGenVertex)->position();
+                    
+                            Vector genPosition(rawPosition.x()/10.0, rawPosition.y()/10.0, rawPosition.z()/10.0);
+                    
+                            double distance = sqrt( (tvPosition - genPosition).mag2() );
+                    
+                            if (distance < 0.003)       // TODO: hard-coded, change number to InputTag
+                                returnValue.addGenVertex( GenVertexRef(hepmc, (*iGenVertex)->barcode()) );
+                        }
+                    }
+                }
+                
+                /** FIXME: until here */
+                
 		return returnValue;
 	}
 
@@ -1079,7 +1138,7 @@ namespace // Unnamed namespace for things only used in this file
 		return pTrackingParticle;
 	}
 
-	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors )
+	template<class T> void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const T& event )      /// FIXME: added code
 	{
 		if( pDecayChainTrack==NULL ) return; // This is required for when the addAncestors_ recursive call reaches the top of the chain
 
@@ -1110,7 +1169,7 @@ namespace // Unnamed namespace for things only used in this file
 		// temporary reference to create a copy of the parent vertex, put that in the output collection,
 		// and then set the reference in the TrackingParticle properly.
 		TrackingVertexCollection dummyCollection; // Only needed to create an edm::Ref
-		dummyCollection.push_back( objectFactory.createTrackingVertex( pDecayChainTrack->pParentVertex ) );
+		dummyCollection.push_back( objectFactory.createTrackingVertex( pDecayChainTrack->pParentVertex, event) );
 		TrackingVertexRef temporaryRef( &dummyCollection, 0 );
 		newTrackingParticle.setParentVertex( temporaryRef );
 
@@ -1124,7 +1183,7 @@ namespace // Unnamed namespace for things only used in this file
 		// order. I don't know how important that is but other code might assume chronological order.
 		// If adding ancestors, no selection is applied. Note that I've already checked that all
 		// DecayChainTracks have a pParentVertex.
-		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors );
+		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors, event ); /// FIXME: added code
 
 		// If creation of the unmerged collection has been turned off in the config this pointer
 		// will be null.
