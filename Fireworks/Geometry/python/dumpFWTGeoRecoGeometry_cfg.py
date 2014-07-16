@@ -7,6 +7,8 @@ process.GlobalTag.globaltag = autoCond['mc']
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
+
 process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
 
 #Adding Timing service:
