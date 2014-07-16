@@ -5,7 +5,9 @@ class GsfEleDEtaInCut : public CutApplicatorBase {
 public:
   GsfEleDEtaInCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _dEtaInCutValue(c.getParameter<double>("dEtaInCutValue")) {    
+    _dEtaInCutValueEB(c.getParameter<double>("dEtaInCutValueEB")),
+    _dEtaInCutValueEE(c.getParameter<double>("dEtaInCutValueEE")),
+    _barrelCutOff(c.getParameter<double>("barrelCutOff")){    
   }
   
   result_type operator()(const reco::GsfElectronRef&) const override final;
@@ -15,7 +17,7 @@ public:
   }
 
 private:
-  const double _dEtaInCutValue;
+  const double _dEtaInCutValueEB,_dEtaInCutValueEE,_barrelCutOff;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
@@ -25,5 +27,8 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 CutApplicatorBase::result_type 
 GsfEleDEtaInCut::
 operator()(const reco::GsfElectronRef& cand) const{  
-  return cand->deltaEtaSuperClusterTrackAtVtx() < _dEtaInCutValue;
+  const float dEtaInCutValue = 
+    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+      _dEtaInCutValueEB : _dEtaInCutValueEE );
+  return std::abs(cand->deltaEtaSuperClusterTrackAtVtx()) < dEtaInCutValue;
 }
