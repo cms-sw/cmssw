@@ -199,7 +199,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 			    if (processSkippedHits)
 			    {
 			        //std::cout<<"skipping hit: "<<inext<<std::endl;
-			        
+			        /*
 	                //std::cout<<"\t\t"<<trackerRecHits[inext].getSeedingLayer().subDet<<":"<<trackerRecHits[inext].getSeedingLayer().idLayer<<std::endl;//<<", pos=("<<trackerRecHits[inext].globalPosition().x()<<","<<trackerRecHits[inext].globalPosition().y()<<","<<trackerRecHits[inext].globalPosition().z()<<")"<<std::endl;
 	                //TODO: check if hit can even be on free position within tree's layer
 			        std::vector<unsigned int> seedHits = iterateHits(
@@ -213,7 +213,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 	                {
 	                    return seedHits;
 	                }
-	                
+	                */
 	                
                 }
                 irecHit+=1; //skipping all following hits on the same layer
@@ -317,13 +317,13 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	//std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" simtracks associated to hits"<<std::endl;
 	//std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 	
-	
+	/*
 	std::vector<std::vector<std::pair<int,TrackerRecHit >>> newhits;
 	newhits.resize(theSimTracks->size());
 	
 	std::vector<std::vector<std::pair<int,TrackerRecHit >>> oldhits;
 	oldhits.resize(theSimTracks->size());
-
+    */
 	//if no hits -> directly write empty collection
 	if(theGSRecHits->size() == 0)
 	{
@@ -426,7 +426,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 					recHits.push_back(aTrackingRecHit);
 					
 					//DEBUG
-					newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
+					//newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
 				}
 				
 				
