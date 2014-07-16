@@ -283,12 +283,42 @@ FWTGeoRecoGeometryESProducer::path( TGeoVolume* volume, const std::string& name,
   return outs.str();
 }
 
+
+ TGeoVolume* getCSCMother(TGeoVolume* top, unsigned int rawid )
+    {
+        TGeoVolume* mother = top;
+        CSCDetId id(rawid);
+        // std::cerr << id << std::endl;
+    
+        TGeoNode* enode = mother->FindNode(Form("Endcap_%d_Station_%d_1", id.endcap(),id.station() ));
+        mother = enode->GetVolume();
+        assert(mother);
+
+        /*
+
+        TGeoNode* rnode = mother->FindNode(Form("Ring_%d_1", id.ring()));
+        mother = rnode->GetVolume();
+        assert(mother);
+        TGeoNode* cnode = mother->FindNode(Form("Chamber_%d_1", id.chamber()));
+        mother = cnode->GetVolume();
+        assert(mother);
+        */
+
+        return mother;
+    }
 void
 FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
+
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
   if(! m_geomRecord->slaveGeometry( CSCDetId()))
     throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
+
+   for (int endcap = CSCDetId::minEndcapId(); endcap <=  CSCDetId::maxEndcapId(); ++endcap)
+      for (int station = CSCDetId::minStationId(); station <=  CSCDetId::maxStationId(); ++station) 
+         assembly->AddNode(new TGeoVolumeAssembly( Form("Endcap_%d_Station_%d", endcap, station) ),1);
+
+  
 
   auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
   for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
@@ -301,7 +331,8 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       std::string name = s.str();
       
       TGeoVolume* child = createVolume( name, chamber );
-      assembly->AddNode( child, copy, createPlacement( chamber ));
+       getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( chamber ));
+      // assembly->AddNode( child, copy, createPlacement( chamber ));
       child->SetLineColor( kBlue );
 
       std::stringstream p;
@@ -316,7 +347,8 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       std::string name = s.str();
       
       TGeoVolume* child = createVolume( name, layer );
-      assembly->AddNode( child, copy, createPlacement( layer ));
+       getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( layer ));
+      //      assembly->AddNode( child, copy, createPlacement( layer ));
       child->SetLineColor( kBlue );
       
       std::stringstream p;
