@@ -23,9 +23,9 @@
 #include <unordered_map>
 
 namespace citk {
-  class IsolationSumCalculatorBase {
+  class IsolationConeDefinitionBase {
   public:
-  IsolationSumCalculatorBase(const edm::ParameterSet& c,
+  IsolationConeDefinitionBase(const edm::ParameterSet& c,
 			     edm::ConsumesCollector& cc) :
     _coneSize(c.getParameter<double>("coneSize")),
     _name(c.getParameter<std::string>("isolationAlgo")) {
@@ -41,19 +41,19 @@ namespace citk {
     const std::string& name() const { return name; }
 
     //! Destructor
-    virtual ~IsolationSumCalculatorBase(){};
+    virtual ~IsolationConeDefinitionBase(){};
 
   protected:
     const double _coneSize;
     
   private:    
-    IsolationSumCalculatorBase(const IsolationSumCalculatorBase&) {}
-    IsolationSumCalculatorBase& operator=(const IsolationSumCalculatorBase) {}
+    IsolationConeDefinitionBase(const IsolationConeDefinitionBase&) {}
+    IsolationConeDefinitionBase& operator=(const IsolationConeDefinitionBase) {}
     const std::string _name;
   };
 }// ns citk
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< citk::IsolationSumCalculatorBase* (const edm::ParameterSet&,edm::ConsumesCollector&) > CITKIsolationSumCalculatorFactory;
+typedef edmplugin::PluginFactory< citk::IsolationConeDefinitionBase* (const edm::ParameterSet&,edm::ConsumesCollector&) > CITKIsolationConeDefintionFactory;
 
 #endif
