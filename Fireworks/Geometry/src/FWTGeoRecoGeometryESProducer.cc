@@ -4,6 +4,7 @@
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -147,7 +148,8 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   addCaloGeometry();
   
 
-  geom->DefaultColors();
+  // geom->DefaultColors();
+  geom->CloseGeometry();
 
   m_nameToShape.clear();
   m_shapeToVolume.clear();
@@ -513,33 +515,60 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
   top->AddNode( assembly, copy );
 }
 
+
+TGeoVolume* getPXBMother(TGeoVolume* top, unsigned int rawid)
+{
+   PXBDetId id(rawid);
+   
+   TGeoNode* layerNode = 0;
+   if (top->GetNdaughters()) layerNode = top->FindNode(Form("Layer_%d_1", id.layer()));
+   if (!layerNode) {
+      TGeoVolume* v = new TGeoVolumeAssembly( Form("Layer_%d", id.layer()) );
+      top->AddNode(v, 1); 
+      layerNode = top->FindNode(Form("Layer_%d_1", id.layer()));
+   }
+
+   TGeoVolume* moduleMotherVol = layerNode->GetVolume();
+   TGeoNode* moduleNode = 0;
+   if (moduleMotherVol->GetNdaughters()) 
+      moduleNode = moduleMotherVol->FindNode(Form("Module_%d_1", id.module()));
+
+   if (!moduleNode) {
+      TGeoVolume* v = new TGeoVolumeAssembly( Form("Module_%d", id.module()) );
+      moduleMotherVol->AddNode(v, 1); 
+      moduleNode = moduleMotherVol->FindNode(Form("Module_%d_1", id.module()));
+   }
+
+   return moduleNode->GetVolume();
+}
+
 void
 FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
-						    end = m_trackerGeom->detsPXB().end();
-       it != end; ++it)
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
+           end = m_trackerGeom->detsPXB().end();
+        it != end; ++it)
+   {
+      DetId detid = ( *it )->geographicalId();
+      unsigned int rawid = detid.rawId();
 
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+        PXBDetId xx(rawid);
+        std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
+        TGeoVolume* child = createVolume( name, *it );
+      getPXBMother(assembly, rawid)->AddNode( child, copy, createPlacement( *it ));
+      //assembly->AddNode( child, copy, createPlacement( *it ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
 
-    ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
-  }
+      ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
+   }
   
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 
 void
