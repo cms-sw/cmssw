@@ -264,7 +264,8 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
     }
 }
 
-void SiPixelRecHitsValid::endJob() {
+// void SiPixelRecHitsValid::endJob() {
+void SiPixelRecHitsValid::endStream() {
   //Save histos in local root file only in standalone mode
   if (  runStandalone && outputFile_.size() != 0 && dbe_ ){ dbe_->save(outputFile_);}
 }

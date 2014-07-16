@@ -38,7 +38,8 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 	void beginJob();
 	void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
-	void endJob();
+/* 	void endJob(); */
+	void endStream();
 
    private:
 	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	
