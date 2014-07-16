@@ -5,7 +5,9 @@ class GsfEleEInverseMinusPInverseCut : public CutApplicatorBase {
 public:
   GsfEleEInverseMinusPInverseCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _ooemoopCutValue(c.getParameter<double>("eInverseMinusPInverseCutValue")) {
+    _ooemoopCutValueEB(c.getParameter<double>("eInverseMinusPInverseCutValueEB")),
+    _ooemoopCutValueEE(c.getParameter<double>("eInverseMinusPInverseCutValueEE")),
+    _barrelCutOff(c.getParameter<double>("barrelCutOff")){
   }
   
   result_type operator()(const reco::GsfElectronRef&) const override final;
@@ -15,7 +17,7 @@ public:
   }
 
 private:
-  const double _ooemoopCutValue;
+  const double _ooemoopCutValueEB,_ooemoopCutValueEE,_barrelCutOff;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
@@ -25,7 +27,10 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 CutApplicatorBase::result_type 
 GsfEleEInverseMinusPInverseCut::
 operator()(const reco::GsfElectronRef& cand) const{
+  const float ooemoopCutValue = 
+    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+      _ooemoopCutValueEB : _ooemoopCutValueEE );
   const float ecal_energy_inverse = 1.0/cand->ecalEnergy();
   const float eSCoverP = cand->eSuperClusterOverP();
-  return std::abs(1.0 - eSCoverP)*ecal_energy_inverse < _ooemoopCutValue;
+  return std::abs(1.0 - eSCoverP)*ecal_energy_inverse < ooemoopCutValue;
 }

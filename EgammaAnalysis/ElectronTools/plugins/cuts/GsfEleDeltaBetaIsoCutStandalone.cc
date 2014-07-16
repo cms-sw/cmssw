@@ -16,8 +16,10 @@ public:
   }
 
 private:
-  float _deltaBetaConstant;
-  bool _relativeIso;
+  const float _isoCutEBLowPt,_isoCutEBHighPt,_isoCutEELowPt,_isoCutEEHighPt;
+  const float _deltaBetaConstant,_ptCutOff,_barrelCutOff;
+  const bool _relativeIso;
+  
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
@@ -26,13 +28,25 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 GsfEleDeltaBetaIsoCutStandalone::GsfEleDeltaBetaIsoCutStandalone(const edm::ParameterSet& c) :
   CutApplicatorBase(c),
+  _isoCutEBLowPt(c.getParameter<double>("isoCutEBLowPt")),
+  _isoCutEBHighPt(c.getParameter<double>("isoCutEBHighPt")),
+  _isoCutEELowPt(c.getParameter<double>("isoCutEELowPt")),
+  _isoCutEEHighPt(c.getParameter<double>("isoCutEEHighPt")),
   _deltaBetaConstant(c.getParameter<double>("deltaBetaConstant")),
+  _ptCutOff(c.getParameter<double>("ptCutOff")),
+  _barrelCutOff(c.getParameter<double>("barrelCutOff")),
   _relativeIso(c.getParameter<bool>("isRelativeIso")) {  
 }
 
 CutApplicatorBase::result_type 
 GsfEleDeltaBetaIsoCutStandalone::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronRef& cand) const{
+  const float isoCut = 
+    ( cand->p4().pt() < _ptCutOff ? 
+      ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?
+	_isoCutEBLowPt : _isoCutEELowPt ) :
+      ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?
+	_isoCutEBHighPt : _isoCutEEHighPt ) );
   const reco::GsfElectron::PflowIsolationVariables& pfIso = 
     cand->pfIsolationVariables();
   const float chad = pfIso.sumChargedHadronPt;
@@ -41,5 +55,5 @@ operator()(const reco::GsfElectronRef& cand) const{
   const float puchad = pfIso.sumPUPt;
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
-  return iso;
+  return iso < isoCut;
 }
