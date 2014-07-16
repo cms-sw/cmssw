@@ -24,7 +24,6 @@
 #include <vector>
 #include <memory>
 #include <cstring>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -37,6 +36,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
@@ -59,7 +59,7 @@ namespace fwlite {
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as Run
          Run(TFile* iFile);
-         Run(boost::shared_ptr<BranchMapReader> branchMap);
+         Run(std::shared_ptr<BranchMapReader> branchMap);
          virtual ~Run();
 
          const Run& operator++();
@@ -115,7 +115,7 @@ namespace fwlite {
          void updateAux(Long_t runIndex) const;
 
          // ---------- member data --------------------------------
-         mutable boost::shared_ptr<BranchMapReader> branchMap_;
+         mutable std::shared_ptr<BranchMapReader> branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<char const*> labels_;

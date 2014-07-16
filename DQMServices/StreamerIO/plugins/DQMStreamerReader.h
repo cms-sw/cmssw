@@ -5,8 +5,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMFileIterator.h"
+#include "TriggerSelector.h"
 
-#include "boost/shared_ptr.hpp"
 #include "boost/filesystem.hpp"
 
 #include <memory>
@@ -36,14 +36,13 @@ class DQMStreamerReader : public StreamerInputSource {
   bool newHeader();
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
+  typedef std::vector<std::string> Strings;
+
  protected:
   virtual bool checkNextEvent(); /* from raw input source */
   virtual void skip(int toSkip); /* from raw input source */
 
  private:
-  void delay_();
-  void update_watchdog_();
-
   // our own, but we do inherit reset(),
   // which will break things if called
   void reset_();
@@ -57,23 +56,25 @@ class DQMStreamerReader : public StreamerInputSource {
 
   EventMsgView const* prepareNextEvent();
   bool prepareNextFile();
+  bool acceptEvent( const EventMsgView*);
 
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
+  Strings hltSel_;
 
   unsigned int processedEventPerLs_;
   unsigned int minEventsPerLs_;
-  unsigned int delayMillis_;
 
   bool flagSkipFirstLumis_;
   bool flagEndOfRunKills_;
   bool flagDeleteDatFiles_;
 
-  std::unique_ptr<StreamerInputFile> streamReader_;
-  boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
-
   DQMFileIterator fiterator_;
+
+  std::unique_ptr<StreamerInputFile> streamReader_;
+  std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+  TriggerSelectorPtr eventSelector_;
 };
 
 }  //end-of-namespace-def

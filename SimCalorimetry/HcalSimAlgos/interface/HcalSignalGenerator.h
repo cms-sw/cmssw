@@ -13,6 +13,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 /** Converts digis back into analog signals, to be used
  *  as noise 
@@ -75,8 +76,8 @@ public:
     }
     else if(theEventPrincipal)
     {
-       boost::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
-          edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
+       std::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
+	 edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
        if(digisPTR) {
           digis = digisPTR->product();
        }
@@ -133,13 +134,43 @@ private:
     HcalCoderDb coder (*channelCoder, *channelShape);
     CaloSamples result;
     coder.adc2fC(digi, result);
-    fC2pe(result);
 
-    //    std::cout << " HcalSignalGenerator: noise input " << digi << std::endl;
+    // first, check if there was an overflow in this fake digi:
+    bool overflow = false;
+    // find and list them
+
+    for(int isample=0; isample<digi.size(); ++isample) {
+      if(digi[isample].er()) overflow = true; 
+    }
+ 
+    if(overflow) {  // do full conversion, go back and overwrite fake entries
+ 
+      const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
+      const HcalQIEShape* channelShape = theConditions->getHcalShape (cell);
+      HcalCoderDb coder (*channelCoder, *channelShape);
+      coder.adc2fC(digi, result);
+ 
+      // overwrite with coded information
+      for(int isample=0; isample<digi.size(); ++isample) {
+	if(!digi[isample].er()) result[isample] = float(digi[isample].adc())/10.;
+      }
+    }
+    else {  // saves creating the coder, etc., every time
+      // use coded information
+      for(int isample=0; isample<digi.size(); ++isample) {
+	result[isample] = float(digi[isample].adc())/10.;
+      }
+      result.setPresamples(digi.presamples());
+    }
+ 
+    // std::cout << " HcalSignalGenerator: noise input ADC " << digi << std::endl;
+    // std::cout << " HcalSignalGenerator: noise input in fC " << result << std::endl;
+ 
+    // translation done in fC, convert to pe: 
+    fC2pe(result);
 
     return result;
   }
-
     
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;

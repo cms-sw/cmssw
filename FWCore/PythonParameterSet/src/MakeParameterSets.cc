@@ -38,13 +38,13 @@ makePSetsFromString(std::string const& module, boost::python::object& mainNamesp
 
 namespace edm {
 
-  boost::shared_ptr<ParameterSet>
+  std::shared_ptr<ParameterSet>
   readConfig(std::string const& config) {
     PythonProcessDesc pythonProcessDesc(config);
     return pythonProcessDesc.parameterSet();
   }
 
-  boost::shared_ptr<ParameterSet>
+  std::shared_ptr<ParameterSet>
   readConfig(std::string const& config, int argc, char* argv[]) {
     PythonProcessDesc pythonProcessDesc(config, argc, argv);
     return pythonProcessDesc.parameterSet();
@@ -52,12 +52,12 @@ namespace edm {
 
   void
   makeParameterSets(std::string const& configtext,
-                  boost::shared_ptr<ParameterSet>& main) {
+                  std::shared_ptr<ParameterSet>& main) {
     PythonProcessDesc pythonProcessDesc(configtext);
     main = pythonProcessDesc.parameterSet();
   }
 
-  boost::shared_ptr<ParameterSet>
+  std::shared_ptr<ParameterSet>
   readPSetsFrom(std::string const& module) {
     python::initializeModule();
 
@@ -79,7 +79,7 @@ namespace edm {
       pythonToCppException("Configuration");
       Py_Finalize();
     }
-    boost::shared_ptr<ParameterSet> returnValue(new ParameterSet);
+    auto returnValue = std::make_shared<ParameterSet>();
     theProcessPSet.pset().swap(*returnValue);
     return returnValue;
   }

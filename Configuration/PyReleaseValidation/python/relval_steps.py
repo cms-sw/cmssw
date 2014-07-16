@@ -256,6 +256,7 @@ def gen2015(fragment,howMuch):
 ### Production test: 13 TeV equivalents
 steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
 steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
+steps['ProdZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
 # GF include branched wf comparing relVal and prod
 
@@ -322,7 +323,7 @@ steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
     'CMSSW_7_1_0_pre7-PRE_STA71_V3-v1', # run1 samples; keep GEN-SIM fixed to 710_pre7, for samples not routinely produced
-    'CMSSW_7_1_0_pre6-PRE_SHI71_V3-v1', # Run1 HI GEN-SIM (only MB = wf 140)
+    'CMSSW_7_1_0_pre8-PRE_SHI71_V7-v1', # Run1 HI GEN-SIM (only MB = wf 140)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1', # for fastsim id test
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2', # Run1 HI GEN-SIM (only HydjetQ_B3_2760)
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1', # Run1 HI GEN-SIM (only HydjetQ_B0_2760)
@@ -332,7 +333,8 @@ baseDataSetRelease=[
     'CMSSW_7_1_0_pre5-START71_V1-v1',   # 8 TeV , for the one sample which is part of the routine relval production (MinBias)
     'CMSSW_7_1_0_pre5-START71_V1-v2',   # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                         # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_1_0_pre6-PRE_LS171_V5-v1', # 13 TeV samples with GEN-SIM from 710pre6; geometry is the updated one provuded by the 710pre6 GT
+    'CMSSW_7_1_0_pre8-PRE_LS171_V9-v1', # 13 TeV samples with GEN-SIM from 710pre8;
+    'CMSSW_7_1_0_pre8-PRE_LS171_V9_finesplit-v2', #SingleMu GEN-SIM from 710pre8
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -400,8 +402,7 @@ steps['ZmumuJets_Pt_20_300_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJet
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Pythia6_BuJpsiK_TuneZ2star_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPythia6_BuJpsiK_TuneZ2star_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-# new wf, GEN-SIM being made in 71x_pre6: GF uncomment when they'll be available
-#steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['BeamHalo_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 # particle guns with postLS1 geometry recycle GEN-SIM input
 steps['SingleElectronPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
@@ -410,10 +411,10 @@ steps['SingleElectronPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingl
 steps['SingleElectronFlatPt1To100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronFlatPt1To100_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['SingleGammaPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['SingleGammaPt35_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt1_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['SingleMuPt1_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
+steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
+steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
+steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
 
 #input for fast sim workflows to be added - TODO
 
@@ -828,6 +829,16 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                            step1Defaults])
+step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECO',
+                           '--fast':'',
+                           '--conditions'  :'auto:run2_mc',
+                           '--magField'    :'38T_PostLS1',
+                           '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                           '--eventcontent':'FASTPU',
+                           '--datatier':'GEN-SIM-RECO',
+                           '--relval':'27000,3000'},
+                           step1Defaults])
+
 
 #step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},Kby(100,1000),step1FastDefaults])
@@ -855,6 +866,9 @@ steps['QCD_Pt_3000_3500FS_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_cfi'},Kby(1
 steps['H130GGgluonfusionFS_13']=merge([{'cfg':'H130GGgluonfusion_13TeV_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt10FS_UP15']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastUpg2015Defaults])
+
+#step1FastPU
+steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_cfi'},Kby(100,1000),step1FastPUNewMixing])
 
 steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                         {'-s':'GEN,SIM',
@@ -999,6 +1013,47 @@ steps['DIGIUP17']=merge([step2Upg2017Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
+
+# PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
+premixUp2015Defaults = {
+    '--evt_type'    : 'SingleNuE10_cfi',
+    '-s'            : 'GEN,SIM,DIGIPREMIX,L1,DIGI2RAW',
+    '-n'            : '10',
+    '--conditions'  : 'auto:upgradePLS1', # 25ns GT; dedicated dict for 50ns
+    '--datatier'    : 'GEN-SIM-DIGI-RAW',
+    '--eventcontent': 'PREMIX',
+    '--magField'    : '38T_PostLS1',
+    '--geometry'    : 'Extended2015',
+    '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1' # temporary replacement for premix; to be brought back to customisePostLS1
+}
+premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
+
+steps['PREMIXUP15_PU25']=merge([PU25,Kby(100,100),premixUp2015Defaults])
+steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
+
+digiPremixUp2015Defaults25ns = { 
+    '--conditions'   : 'auto:upgradePLS1',
+    '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[9],
+    '--eventcontent' : 'FEVTDEBUGHLT',
+    '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
+    '--datamix'      : 'PreMix',
+    '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1', # temporary replacement for premix; to be brought back to customisePostLS1
+    '--geometry'     : 'Extended2015',
+    '--magField'     : '38T_PostLS1',
+    }
+digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
+                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[10]},
+                                    digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
+premixProd = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+              '--eventcontent' : 'PREMIXRAW',
+              '--datatier'     : 'PREMIXRAW'} #GF: check this datatier name
+steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd,digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd,digiPremixUp2015Defaults50ns])
+
+
 dataReco={'--conditions':'auto:run1_data',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMIO',
@@ -1124,11 +1179,28 @@ steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults50ns])
 
+recoPremixUp15prod = merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI'},
+        {'--datatier' : 'GEN-SIM-RECO,AODSIM'}, 
+        {'--eventcontent' : 'RECOSIM,AODSIM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
+        step3Up2015Defaults])
+
+steps['RECOPRMXUP15PROD_PU25']=merge([
+        recoPremixUp15prod])
+steps['RECOPRMXUP15PROD_PU50']=merge([
+        {'--conditions':'auto:upgradePLS150ns'},
+        recoPremixUp15prod])
 
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
@@ -1371,3 +1443,42 @@ steps['COPYPASTE']={'-s':'NONE',
                     '--conditions':'auto:run1_mc',
                     '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
                     '--customise_commands':'"process.ALLRAWoutput.fastCloning=cms.untracked.bool(False)"'}
+
+#miniaod
+stepMiniAODDefaults = { '-s'              : 'PAT',
+                        '--runUnscheduled': '',
+                        '-n'              : '100'
+                        }
+stepMiniAODData = merge([{'--conditions'   : 'auto:run1_data',
+                          '--data'         : '',
+                          '--datatier'     : 'MINIAOD',
+                          '--eventcontent' : 'MINIAOD'
+                          },stepMiniAODDefaults])
+stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
+                        '--mc'           : '',
+                        '--datatier'     : 'MINIAODSIM',
+                        '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMC50ns = merge([{'--conditions'   : 'auto:run2_mc_50ns',
+                            '--mc'           : '',
+                            '--datatier'     : 'MINIAODSIM',
+                            '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMCFS = merge([{'--conditions'   : 'auto:run2_mc',
+                          '--mc'           : '',
+                          '--fast'         : '',
+                          '--datatier'     : 'MINIAODSIM',
+                          '--eventcontent' : 'MINIAODSIM'
+                          },stepMiniAODDefaults])
+stepMiniAODMCFS50ns = merge([{'--conditions'   : 'auto:run2_mc_50ns',
+                              '--mc'           : '',
+                              '--fast'         : '',
+                              '--datatier'     : 'MINIAODSIM',
+                              '--eventcontent' : 'MINIAODSIM'
+                              },stepMiniAODDefaults])
+
+steps['MINIAODDATA']=merge([{'--filein':'file:step3.root'},stepMiniAODData])
+steps['MINIAODMC']=merge([{'--filein':'file:step3.root'},stepMiniAODMC])
+steps['MINIAODMC50']=merge([{'--filein':'file:step3.root'},stepMiniAODMC50ns])
+steps['MINIAODMCFS']=merge([{'--filein':'file:step1.root'},stepMiniAODMCFS])
+steps['MINIAODMCFS50']=merge([{'--filein':'file:step1.root'},stepMiniAODMCFS50ns])

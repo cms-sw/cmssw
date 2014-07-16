@@ -20,7 +20,7 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iostream>
 
@@ -45,8 +45,8 @@ public:
   void testProductRegistration();
 
  private:
-  boost::shared_ptr<edm::BranchDescription> intBranch_;
-  boost::shared_ptr<edm::BranchDescription> floatBranch_;
+  std::shared_ptr<edm::BranchDescription> intBranch_;
+  std::shared_ptr<edm::BranchDescription> floatBranch_;
 };
 
 ///registration of the test so that the runner can find it
@@ -72,8 +72,7 @@ namespace {
       void respond(edm::BranchDescription const& iDesc) {
          edm::ParameterSet dummyProcessPset;
          dummyProcessPset.registerIt();
-         boost::shared_ptr<edm::ProcessConfiguration> pc(
-           new edm::ProcessConfiguration());
+         auto pc = std::make_shared<edm::ProcessConfiguration>();
          pc->setParameterSetID(dummyProcessPset.id());
 
          edm::BranchDescription prod(iDesc.branchType(),
@@ -101,8 +100,7 @@ void testProductRegistry::setUp() {
   edm::RootAutoLibraryLoader::enable();
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
-    new edm::ProcessConfiguration());
+  auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ParameterSet pset;
@@ -120,7 +118,7 @@ void testProductRegistry::setUp() {
 }
 
 namespace {
-  template <class T> void kill_and_clear(boost::shared_ptr<T>& p) { p.reset(); }
+  template <class T> void kill_and_clear(std::shared_ptr<T>& p) { p.reset(); }
 }
 
 void testProductRegistry::tearDown() {

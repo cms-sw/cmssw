@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("recHitsTest")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -25,7 +25,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("PoolSource",
 #    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/digis.root')
    fileNames =  cms.untracked.vstring(
-    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/rechits/rechits1.root'
+    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_postls171.root'
    )
 )
 
@@ -42,7 +42,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
 # 2012
 #process.GlobalTag.globaltag = 'GR_P_V40::All'
-# MC 2913
+# MC 2014
 process.GlobalTag.globaltag = 'MC_70_V1::All'
 
 # read rechits
@@ -50,17 +50,18 @@ process.analysis = cms.EDAnalyzer("ReadPixelRecHit",
     Verbosity = cms.untracked.bool(True),
     src = cms.InputTag("siPixelRecHits"),
 )
-# test the DB object, works
-process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
-#process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
-#process.load("CalibTracker.SiPixelESProducers.SiPixelFakeTemplateDBObjectESSource_cfi"
-#process.load("CalibTracker.SiPixelESProducers.SiPixelFakeCPEGenericErrorParmESSource_cfi"
-process.test = cms.EDAnalyzer("CPEAccessTester",
-#    PixelCPE = cms.string('PixelCPEGeneric'),
-    PixelCPE = cms.string('PixelCPETemplateReco'),
-)
 
 process.p = cms.Path(process.analysis)
+
+# test the DB object, works
+#process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
+##process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+##process.load("CalibTracker.SiPixelESProducers.SiPixelFakeTemplateDBObjectESSource_cfi"
+##process.load("CalibTracker.SiPixelESProducers.SiPixelFakeCPEGenericErrorParmESSource_cfi"
+#process.test = cms.EDAnalyzer("CPEAccessTester",
+##    PixelCPE = cms.string('PixelCPEGeneric'),
+#    PixelCPE = cms.string('PixelCPETemplateReco'),
+#)
 #process.p = cms.Path(process.test)
 
 

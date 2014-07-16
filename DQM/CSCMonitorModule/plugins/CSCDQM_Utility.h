@@ -34,6 +34,8 @@
 #include <TString.h>
 #include <TPRegexp.h>
 
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
 namespace cscdqm {
 
   /**
@@ -89,6 +91,8 @@ namespace cscdqm {
       static bool   checkError(const unsigned int N, const unsigned int n, const double threshold, const double sigfail);
       static double SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps);
       static double SignificanceLevelHigh(const unsigned int N, const unsigned int n);
+
+      static int getRUIfromDDUId(unsigned ddu_id);
 
   };
 

@@ -60,7 +60,6 @@
 #include "MessageForSource.h"
 #include "MessageForParent.h"
 
-#include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 
 #include <exception>
@@ -97,9 +96,9 @@ namespace edm {
   makeInput(ParameterSet& params,
             CommonParams const& common,
             ProductRegistry& preg,
-            boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
-            boost::shared_ptr<ActivityRegistry> areg,
-            boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+            std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+            std::shared_ptr<ActivityRegistry> areg,
+            std::shared_ptr<ProcessConfiguration const> processConfiguration,
             PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
@@ -227,8 +226,8 @@ namespace edm {
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
     eventSetupDataToExcludeFromPrefetching_() {
-    boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-    boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
+    std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
+    auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
@@ -271,13 +270,13 @@ namespace edm {
   nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
     eventSetupDataToExcludeFromPrefetching_()
   {
-    boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-    boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
+    std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
+    auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
 
-  EventProcessor::EventProcessor(boost::shared_ptr<ProcessDesc>& processDesc,
+  EventProcessor::EventProcessor(std::shared_ptr<ProcessDesc>& processDesc,
                  ServiceToken const& token,
                  serviceregistry::ServiceLegacy legacy) :
     actReg_(),
@@ -356,18 +355,18 @@ namespace edm {
     eventSetupDataToExcludeFromPrefetching_()
 {
     if(isPython) {
-      boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-      boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
+      std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
+      auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
     else {
-      boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(config));
+      auto processDesc = std::make_shared<ProcessDesc>(config);
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
   }
 
   void
-  EventProcessor::init(boost::shared_ptr<ProcessDesc>& processDesc,
+  EventProcessor::init(std::shared_ptr<ProcessDesc>& processDesc,
                         ServiceToken const& iToken,
                         serviceregistry::ServiceLegacy iLegacy) {
 
@@ -381,11 +380,11 @@ namespace edm {
     // register the empty parameter set, once and for all.
     ParameterSet().registerIt();
 
-    boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
+    std::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
     //std::cerr << parameterSet->dump() << std::endl;
 
     // If there is a subprocess, pop the subprocess parameter set out of the process parameter set
-    boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*parameterSet).release());
+    std::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*parameterSet).release());
 
     // Now set some parameters specific to the main process.
     ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
@@ -459,7 +458,7 @@ namespace edm {
     ScheduleItems items;
 
     //initialize the services
-    boost::shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
+    std::shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     ServiceToken token = items.initServices(*pServiceSets, *parameterSet, iToken, iLegacy, true);
     serviceToken_ = items.addCPRandTNS(*parameterSet, token);
 
@@ -472,7 +471,7 @@ namespace edm {
     }
 
     // intialize miscellaneous items
-    boost::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
+    std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
     // intialize the event setup provider
     esp_ = espController_->makeProvider(*parameterSet);
@@ -511,11 +510,7 @@ namespace edm {
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
     for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
       // Reusable event principal
-      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
-                                                              branchIDListHelper_,
-                                                              *processConfiguration_,
-                                                              historyAppender_.get(),
-                                                              index));
+      auto ep = std::make_shared<EventPrincipal>(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(), index);
       ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
@@ -619,11 +614,11 @@ namespace edm {
     }
     schedule_->endJob(c);
     if(hasSubProcess()) {
-      c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
+      c.call(std::bind(&SubProcess::doEndJob, subProcess_.get()));
     }
-    c.call(boost::bind(&InputSource::doEndJob, input_.get()));
+    c.call(std::bind(&InputSource::doEndJob, input_.get()));
     if(looper_) {
-      c.call(boost::bind(&EDLooperBase::endOfJob, looper_));
+      c.call(std::bind(&EDLooperBase::endOfJob, looper_));
     }
     auto actReg = actReg_.get();
     c.call([actReg](){actReg->postEndJobSignal_();});
@@ -1069,7 +1064,7 @@ namespace edm {
         jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
         actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
 
-        boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(sockets[1], pipes[1]));
+        auto receiver = std::make_shared<multicore::MessageReceiverForSource>(sockets[1], pipes[1]);
         input_->doPostForkReacquireResources(receiver);
         schedule_->postForkReacquireResources(childIndex, kMaxChildren);
         //NOTE: sources have to reset themselves by listening to the post fork message
@@ -1692,11 +1687,7 @@ namespace edm {
         << "Illegal attempt to insert run into cache\n"
         << "Contact a Framework Developer\n";
     }
-    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(input_->runAuxiliary(),
-                                                        preg_,
-                                                        *processConfiguration_,
-                                                        historyAppender_.get(),
-                                                        0));
+    auto rp = std::make_shared<RunPrincipal>(input_->runAuxiliary(), preg_, *processConfiguration_, historyAppender_.get(), 0);
     input_->readRun(*rp, *historyAppender_);
     assert(input_->reducedProcessHistoryID() == rp->reducedProcessHistoryID());
     principalCache_.insert(rp);
@@ -1725,11 +1716,7 @@ namespace edm {
         << "Run is invalid\n"
         << "Contact a Framework Developer\n";
     }
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(input_->luminosityBlockAuxiliary(),
-                                                                                 preg_,
-                                                                                 *processConfiguration_,
-                                                                                 historyAppender_.get(),
-                                                                                 0));
+    auto lbp = std::make_shared<LuminosityBlockPrincipal>(input_->luminosityBlockAuxiliary(), preg_, *processConfiguration_, historyAppender_.get(), 0);
     input_->readLuminosityBlock(*lbp, *historyAppender_);
     lbp->setRunPrincipal(principalCache_.runPrincipalPtr());
     principalCache_.insert(lbp);

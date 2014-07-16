@@ -187,6 +187,14 @@ namespace edm {
   std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
 
   class TypeBases {
+  // NOTE: Any use of class TypeBases in ROOT 5 is not thread safe without use
+  // of a properly scoped CINT mutex as in this example:
+  // {
+  //     R__LOCKGUARD(gCintMutex);
+  //     TypeBases bases(myType);
+  //     // use of bases goes here
+  // }
+  // The situation in ROOT 6 is not yet determined.
   public:
     explicit TypeBases(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
     IterWithDict<TBaseClass> begin() const;

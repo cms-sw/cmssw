@@ -10,8 +10,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
-#include "boost/bind.hpp"
-
 #include <map>
 #include <memory>
 #include <set>
@@ -53,11 +51,11 @@ namespace edm {
       std::set<std::string> caseLabels;
       std::set<ParameterTypes> caseParameterTypes;
       std::set<ParameterTypes> caseWildcardTypes;
-      for_all(cases_, boost::bind(&ParameterSwitch::checkCaseLabels,
-                                  _1,
-                                  boost::ref(caseLabels),
-                                  boost::ref(caseParameterTypes),
-                                  boost::ref(caseWildcardTypes)));
+      for_all(cases_, std::bind(&ParameterSwitch::checkCaseLabels,
+                                  std::placeholders::_1,
+                                  std::ref(caseLabels),
+                                  std::ref(caseParameterTypes),
+                                  std::ref(caseWildcardTypes)));
 
       insertAndCheckLabels(switch_.label(),
                            usedLabels,
@@ -138,12 +136,12 @@ namespace edm {
       printNestedContentBase(os, dfh, new_dfh, switch_.label());
 
       switch_.print(os, optional, true, new_dfh);
-      for_all(cases_, boost::bind(&ParameterSwitchBase::printCaseT<T>,
-                                  _1,
-                                  boost::ref(os),
+      for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
+                                  std::placeholders::_1,
+                                  std::ref(os),
                                   optional,
-                                  boost::ref(new_dfh),
-                                  boost::cref(switch_.label())));
+                                  std::ref(new_dfh),
+                                  std::cref(switch_.label())));
 
       new_dfh.setPass(1);
       new_dfh.setCounter(0);
@@ -151,23 +149,23 @@ namespace edm {
       new_dfh.indent(os);
       os << "switch:\n";
       switch_.print(os, optional, true, new_dfh);
-      for_all(cases_, boost::bind(&ParameterSwitchBase::printCaseT<T>,
-                                  _1,
-                                  boost::ref(os),
+      for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
+                                  std::placeholders::_1,
+                                  std::ref(os),
                                   optional,
-                                  boost::ref(new_dfh),
-                                  boost::cref(switch_.label())));
+                                  std::ref(new_dfh),
+                                  std::cref(switch_.label())));
 
       new_dfh.setPass(2);
       new_dfh.setCounter(0);
 
       switch_.printNestedContent(os, optional, new_dfh);
-      for_all(cases_, boost::bind(&ParameterSwitchBase::printCaseT<T>,
-                                  _1,
-                                  boost::ref(os),
+      for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
+                                  std::placeholders::_1,
+                                  std::ref(os),
                                   optional,
-                                  boost::ref(new_dfh),
-                                  boost::cref(switch_.label())));
+                                  std::ref(new_dfh),
+                                  std::cref(switch_.label())));
     }
 
     virtual bool exists_(ParameterSet const& pset) const { return switch_.exists(pset); }

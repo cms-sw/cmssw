@@ -4,15 +4,15 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 corrMETtestInputFiles = pickRelValInputFiles(
     useDAS = True,
-    cmsswVersion = 'CMSSW_7_1_0_pre4_AK4',
+    cmsswVersion = 'CMSSW_7_1_0_pre8',
     dataTier = 'GEN-SIM-RECO',
     relVal = 'RelValTTbar_13',
-    globalTag = 'PU50ns_POSTLS171_V2',
+    globalTag = 'PU50ns_PRE_LS171_V10',
     maxVersions = 2
     )
 
 # corrMETtestInputFiles = [
-#     '/store/relval/CMSSW_7_1_0_pre4_AK4/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS171_V2-v2/00000/1487CD0E-A4B3-E311-96D2-0025904C678A.root',
+#     '/store/relval/CMSSW_7_1_0_pre8/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS171_V10-v1/00000/342381E4-6BE7-E311-AEF0-0025905A60AA.root',
 #     ]
 
 ##____________________________________________________________________________||

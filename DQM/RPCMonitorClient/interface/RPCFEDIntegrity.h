@@ -7,17 +7,19 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 
 #include <memory>
 #include <string>
-#include <map>
+//#include <map>
 
 class DQMStore;
 class MonitorElement;
 
-class RPCFEDIntegrity:public edm::EDAnalyzer {
+class RPCFEDIntegrity:public DQMEDAnalyzer{
+
 public:
 
   /// Constructor
@@ -26,37 +28,24 @@ public:
   /// Destructor
   virtual ~RPCFEDIntegrity();
 
-  /// BeginJob
-  void beginJob();
-
-  //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);  
   
+    
   /// Begin Lumi block 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Analyze  
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-
-  /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-  
-  void endJob();
-  
+    
  private:
   
   void labelBins( MonitorElement * myMe);
   edm::EDGetTokenT<RPCRawDataCounts> rawCountsLabel_;
-  void reset(void);
-  void bookFEDMe(void);
+  void bookFEDMe(DQMStore::IBooker &);
 
   std::string  prefixDir_;
   
   bool merge_, init_;
-
-  DQMStore* dbe_;
 
   int FATAL_LIMIT;
 

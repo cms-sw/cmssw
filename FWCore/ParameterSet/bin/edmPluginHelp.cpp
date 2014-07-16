@@ -21,7 +21,6 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
-#include "boost/bind.hpp"
 
 #include <vector>
 #include <string>
@@ -337,12 +336,12 @@ try {
 
     std::string previousName;
 
-    edm::for_all(infos, boost::bind(&getMatchingPlugins,
-                                    _1,
-                                    boost::ref(matchingInfos),
-                                    boost::ref(previousName),
-                                    boost::cref(library),
-                                    boost::cref(plugin)));
+    edm::for_all(infos, std::bind(&getMatchingPlugins,
+                                    std::placeholders::_1,
+                                    std::ref(matchingInfos),
+                                    std::ref(previousName),
+                                    std::cref(library),
+                                    std::cref(plugin)));
   }
   catch(cms::Exception& e) {
     std::cerr << "The executable \"edmPluginHelp\" failed while selecting plugins.\n"
@@ -363,15 +362,15 @@ try {
 
     int iPlugin = 0;
  
-    edm::for_all(matchingInfos, boost::bind(&writeDocForPlugin,
-                                            _1,
+    edm::for_all(matchingInfos, std::bind(&writeDocForPlugin,
+                                            std::placeholders::_1,
                                             factory,
-                                            boost::cref(moduleLabel),
+                                            std::cref(moduleLabel),
                                             brief,
                                             printOnlyLabels,
                                             printOnlyPlugins,
                                             lineWidth,
-                                            boost::ref(iPlugin)));
+                                            std::ref(iPlugin)));
   } catch(cms::Exception& e) {
     std::cerr << "\nThe executable \"edmPluginHelp\" failed. The following problem occurred:\n" 
               << e.what() << std::endl;

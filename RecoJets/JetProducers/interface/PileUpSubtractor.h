@@ -2,6 +2,7 @@
 #define __PUSubtractor__
 
 #include <vector>
+#include "boost/shared_ptr.hpp"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"

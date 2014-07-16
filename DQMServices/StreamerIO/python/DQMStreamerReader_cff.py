@@ -55,6 +55,7 @@ options.parseArguments()
 
 # Input source
 DQMStreamerReader = cms.Source("DQMStreamerReader",
+    SelectEvents = cms.untracked.vstring("*"),
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string(options.streamLabel),

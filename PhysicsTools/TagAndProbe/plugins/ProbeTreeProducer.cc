@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <ctype.h>
+#include "boost/bind.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"

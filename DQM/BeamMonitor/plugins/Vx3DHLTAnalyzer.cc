@@ -1,14 +1,9 @@
-// -*- C++ -*-
-//
 // Package:    Vx3DHLTAnalyzer
 // Class:      Vx3DHLTAnalyzer
-// 
-/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc plugins/Vx3DHLTAnalyzer.cc
-
+/*
  Description:     beam-spot monitor entirely based on pixel detector information
  Implementation:  the monitoring is based on a 3D fit to the vertex cloud
 */
-//
 // Original Author:  Mauro Dinardo, 28 S-012, +41-22-767-8302,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
 
@@ -63,6 +58,19 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   zStep              = iConfig.getParameter<double>("zStep");
   VxErrCorr          = iConfig.getParameter<double>("VxErrCorr");
   fileName           = iConfig.getParameter<string>("fileName");
+
+
+  // ### Set internal variables ###
+  reset("scratch");
+  prescaleHistory      = 1;    // Set the number of lumis to update historical plot
+  maxLumiIntegration   = 15;   // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
+  minVxDoF             = 10.;  // Good vertex selection cut
+  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
+  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
+  internalDebug        = false;
+  considerVxCovariance = true; // Deconvolute vertex covariance matrix
+  pi = 3.141592653589793238;
+  // ##############################
 }
 
 
@@ -154,7 +162,7 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 {
   edm::Handle<SiPixelRecHitCollection> rechitspixel;
   iEvent.getByToken(pixelHitCollection, rechitspixel);
-
+  
   unsigned int counter = 0;
   
   for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
@@ -164,12 +172,14 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 }
 
 
-char* Vx3DHLTAnalyzer::formatTime (const time_t& t)
+std::string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
-  static char ts[25];
+  char ts[25];
   strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
+  
+  std::string ts_string(ts);
 
-  return ts;
+  return ts_string;
 }
 
 
@@ -1057,143 +1067,120 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 }
 
 
-void Vx3DHLTAnalyzer::beginJob()
+
+void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
 {
-  // ### Set internal variables ###
-  reset("scratch");
-  prescaleHistory      = 1;    // Set the number of lumis to update historical plot
-  maxLumiIntegration   = 15;   // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
-  minVxDoF             = 10.;  // Good vertex selection cut
-  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
-  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
-  internalDebug        = false;
-  considerVxCovariance = true; // Deconvolute vertex covariance matrix
-  pi = 3.141592653589793238;
-  // ##############################
-}
-
-
-void Vx3DHLTAnalyzer::endJob() { reset("scratch"); }
-
-
-void Vx3DHLTAnalyzer::beginRun()
-{
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
- 
   // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
   nBinsWholeHistory   = 3000; // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
   // ##############################
 
-  if ( dbe ) 
-    {
-      dbe->setCurrentFolder("BeamPixel");
 
-      Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-      Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-      Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
-      Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
-      Vx_X->setAxisTitle("Entries [#]",2);
-      Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
-      Vx_Y->setAxisTitle("Entries [#]",2);
-      Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_Z->setAxisTitle("Entries [#]",2);
+  ibooker.setCurrentFolder("BeamPixel");
+
+  Vx_X = ibooker.book1D("vertex x", "Primary Vertex X Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_Y = ibooker.book1D("vertex y", "Primary Vertex Y Coordinate Distribution", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_Z = ibooker.book1D("vertex z", "Primary Vertex Z Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
+  Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
+  Vx_X->setAxisTitle("Entries [#]",2);
+  Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
+  Vx_Y->setAxisTitle("Entries [#]",2);
+  Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_Z->setAxisTitle("Entries [#]",2);
  
-      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mXlumi->setAxisTitle("Lumisection [#]",1);
-      mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
-      mXlumi->getTH1()->SetOption("E1");
-      mYlumi->setAxisTitle("Lumisection [#]",1);
-      mYlumi->setAxisTitle("\\mu_{y} [cm]",2);
-      mYlumi->getTH1()->SetOption("E1");
-      mZlumi->setAxisTitle("Lumisection [#]",1);
-      mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
-      mZlumi->getTH1()->SetOption("E1");
+  mXlumi = ibooker.book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  mYlumi = ibooker.book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  mZlumi = ibooker.book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  mXlumi->setAxisTitle("Lumisection [#]",1);
+  mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
+  mXlumi->getTH1()->SetOption("E1");
+  mYlumi->setAxisTitle("Lumisection [#]",1);
+  mYlumi->setAxisTitle("\\mu_{y} [cm]",2);
+  mYlumi->getTH1()->SetOption("E1");
+  mZlumi->setAxisTitle("Lumisection [#]",1);
+  mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
+  mZlumi->getTH1()->SetOption("E1");
 
-      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sXlumi->setAxisTitle("Lumisection [#]",1);
-      sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
-      sXlumi->getTH1()->SetOption("E1");
-      sYlumi->setAxisTitle("Lumisection [#]",1);
-      sYlumi->setAxisTitle("\\sigma_{y} [cm]",2);
-      sYlumi->getTH1()->SetOption("E1");
-      sZlumi->setAxisTitle("Lumisection [#]",1);
-      sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
-      sZlumi->getTH1()->SetOption("E1");
+  sXlumi = ibooker.book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  sYlumi = ibooker.book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  sZlumi = ibooker.book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  sXlumi->setAxisTitle("Lumisection [#]",1);
+  sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
+  sXlumi->getTH1()->SetOption("E1");
+  sYlumi->setAxisTitle("Lumisection [#]",1);
+  sYlumi->setAxisTitle("\\sigma_{y} [cm]",2);
+  sYlumi->getTH1()->SetOption("E1");
+  sZlumi->setAxisTitle("Lumisection [#]",1);
+  sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
+  sZlumi->getTH1()->SetOption("E1");
 
-      dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      dxdzlumi->setAxisTitle("Lumisection [#]",1);
-      dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
-      dxdzlumi->getTH1()->SetOption("E1");
-      dydzlumi->setAxisTitle("Lumisection [#]",1);
-      dydzlumi->setAxisTitle("dY/dZ [rad]",2);
-      dydzlumi->getTH1()->SetOption("E1");
+  dxdzlumi = ibooker.book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  dydzlumi = ibooker.book1D("dydz vs lumi", "dY/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  dxdzlumi->setAxisTitle("Lumisection [#]",1);
+  dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
+  dxdzlumi->getTH1()->SetOption("E1");
+  dydzlumi->setAxisTitle("Lumisection [#]",1);
+  dydzlumi->setAxisTitle("dY/dZ [rad]",2);
+  dydzlumi->getTH1()->SetOption("E1");
 
-      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep/5.)), -zRange/2., zRange/2., int(rint(xRange/xStep/5.)), -xRange/2., xRange/2.);
-      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep/5.)), -zRange/2., zRange/2., int(rint(yRange/yStep/5.)), -yRange/2., yRange/2.);
-      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep/5.)), -xRange/2., xRange/2., int(rint(yRange/yStep/5.)), -yRange/2., yRange/2.);
-      Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
-      Vx_ZX->setAxisTitle("Entries [#]",3);
-      Vx_ZY->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_ZY->setAxisTitle("Primary Vertices Y [cm]",2);
-      Vx_ZY->setAxisTitle("Entries [#]",3);
-      Vx_XY->setAxisTitle("Primary Vertices X [cm]",1);
-      Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
-      Vx_XY->setAxisTitle("Entries [#]",3);
+  Vx_ZX = ibooker.book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep/5.)), -zRange/2., zRange/2., int(rint(xRange/xStep/5.)), -xRange/2., xRange/2.);
+  Vx_ZY = ibooker.book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep/5.)), -zRange/2., zRange/2., int(rint(yRange/yStep/5.)), -yRange/2., yRange/2.);
+  Vx_XY = ibooker.book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep/5.)), -xRange/2., xRange/2., int(rint(yRange/yStep/5.)), -yRange/2., yRange/2.);
+  Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
+  Vx_ZX->setAxisTitle("Entries [#]",3);
+  Vx_ZY->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_ZY->setAxisTitle("Primary Vertices Y [cm]",2);
+  Vx_ZY->setAxisTitle("Entries [#]",3);
+  Vx_XY->setAxisTitle("Primary Vertices X [cm]",1);
+  Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
+  Vx_XY->setAxisTitle("Entries [#]",3);
 
-      hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      hitCounter->setAxisTitle("Lumisection [#]",1);
-      hitCounter->setAxisTitle("Pixel-Hits [#]",2);
-      hitCounter->getTH1()->SetOption("E1");
+  hitCounter = ibooker.book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  hitCounter->setAxisTitle("Lumisection [#]",1);
+  hitCounter->setAxisTitle("Pixel-Hits [#]",2);
+  hitCounter->getTH1()->SetOption("E1");
 
-      hitCountHistory = dbe->book1D("hist pixelHits vs lumi", "History: # Pixel-Hits vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
-      hitCountHistory->setAxisTitle("Lumisection [#]",1);
-      hitCountHistory->setAxisTitle("Pixel-Hits [#]",2);
-      hitCountHistory->getTH1()->SetOption("E1");
+  hitCountHistory = ibooker.book1D("hist pixelHits vs lumi", "History: # Pixel-Hits vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
+  hitCountHistory->setAxisTitle("Lumisection [#]",1);
+  hitCountHistory->setAxisTitle("Pixel-Hits [#]",2);
+  hitCountHistory->getTH1()->SetOption("E1");
 
-      goodVxCounter = dbe->book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      goodVxCounter->setAxisTitle("Lumisection [#]",1);
-      goodVxCounter->setAxisTitle("Good vertices [#]",2);
-      goodVxCounter->getTH1()->SetOption("E1");
+  goodVxCounter = ibooker.book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+  goodVxCounter->setAxisTitle("Lumisection [#]",1);
+  goodVxCounter->setAxisTitle("Good vertices [#]",2);
+  goodVxCounter->getTH1()->SetOption("E1");
 
-      goodVxCountHistory = dbe->book1D("hist good vx vs lumi", "History: # Good vx vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
-      goodVxCountHistory->setAxisTitle("Lumisection [#]",1);
-      goodVxCountHistory->setAxisTitle("Good vertices [#]",2);
-      goodVxCountHistory->getTH1()->SetOption("E1");
+  goodVxCountHistory = ibooker.book1D("hist good vx vs lumi", "History: # Good vx vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
+  goodVxCountHistory->setAxisTitle("Lumisection [#]",1);
+  goodVxCountHistory->setAxisTitle("Good vertices [#]",2);
+  goodVxCountHistory->getTH1()->SetOption("E1");
 
-      fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
-      fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
-      fitResults->setBinLabel(9, "X", 2);
-      fitResults->setBinLabel(8, "Y", 2);
-      fitResults->setBinLabel(7, "Z", 2);
-      fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
-      fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
-      fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
-      fitResults->setBinLabel(3, "\\sigma_{X}", 2);
-      fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
-      fitResults->setBinLabel(1, "Vertices", 2);
-      fitResults->setBinLabel(1, "Value", 1);
-      fitResults->setBinLabel(2, "Stat. Error", 1);
-      fitResults->getTH1()->SetOption("text");
+  fitResults = ibooker.book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
+  fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
+  fitResults->setBinLabel(9, "X", 2);
+  fitResults->setBinLabel(8, "Y", 2);
+  fitResults->setBinLabel(7, "Z", 2);
+  fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
+  fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
+  fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
+  fitResults->setBinLabel(3, "\\sigma_{X}", 2);
+  fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
+  fitResults->setBinLabel(1, "Vertices", 2);
+  fitResults->setBinLabel(1, "Value", 1);
+  fitResults->setBinLabel(2, "Stat. Error", 1);
+  fitResults->getTH1()->SetOption("text");
 
-      dbe->setCurrentFolder("BeamPixel/EventInfo");
-      reportSummary = dbe->bookFloat("reportSummary");
-      reportSummary->Fill(0.);
-      reportSummaryMap = dbe->book2D("reportSummaryMap","Pixel-Vertices Beam Spot: % Good Fits", 1, 0., 1., 1, 0., 1.);
-      reportSummaryMap->Fill(0.5, 0.5, 0.);
-      dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
+  ibooker.setCurrentFolder("BeamPixel/EventInfo");
+  reportSummary = ibooker.bookFloat("reportSummary");
+  reportSummary->Fill(0.);
+  reportSummaryMap = ibooker.book2D("reportSummaryMap","Pixel-Vertices Beam Spot: % Good Fits", 1, 0., 1., 1, 0., 1.);
+  reportSummaryMap->Fill(0.5, 0.5, 0.);
+  ibooker.setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
 
-      // Convention for reportSummary and reportSummaryMap:
-      // - 0%  at the moment of creation of the histogram
-      // - n%  numberGoodFits / numberFits
-    }
+  // Convention for reportSummary and reportSummaryMap:
+  // - 0%  at the moment of creation of the histogram
+  // - n%  numberGoodFits / numberFits
 }
 
 

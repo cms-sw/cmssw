@@ -1637,7 +1637,7 @@ void  PhotonValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetu
 
 void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup ) {
 
-
+  thePhotonMCTruthFinder_->clear();
   using namespace edm;
   //  const float etaPhiDistance=0.01;
   // Fiducial region

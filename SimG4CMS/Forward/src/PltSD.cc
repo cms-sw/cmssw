@@ -34,7 +34,7 @@
 
 PltSD::PltSD(std::string name,
              const DDCompactView & cpv,
-             SensitiveDetectorCatalog & clg,
+             const SensitiveDetectorCatalog & clg,
              edm::ParameterSet const & p,
              const SimTrackManager* manager) :
 SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(0),
@@ -51,9 +51,9 @@ oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
     slave  = new TrackingSlaveSD(name);
     
     // Now attach the right detectors (LogicalVolumes) to me
-    std::vector<std::string>  lvNames = clg.logicalNames(name);
+    const std::vector<std::string>&  lvNames = clg.logicalNames(name);
     this->Register();
-    for (std::vector<std::string>::iterator it = lvNames.begin();
+    for (std::vector<std::string>::const_iterator it = lvNames.begin();
          it != lvNames.end(); it++)  {
         edm::LogInfo("PltSD")<< name << " attaching LV " << *it;
         this->AssignSD(*it);

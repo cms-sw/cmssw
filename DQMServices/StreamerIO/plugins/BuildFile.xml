@@ -2,6 +2,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="IOPool/Streamer"/>
 <use   name="EventFilter/Utilities"/>
+<use   name="DQMServices/Core"/>
 
 <library   file="*.cc" name="DQMServicesStreamerIOPlugins">
   <flags   EDM_PLUGIN="1"/>

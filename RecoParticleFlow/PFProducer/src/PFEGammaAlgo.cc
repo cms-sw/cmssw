@@ -1097,7 +1097,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 // link tests in the gap region can current split a gap electron
 	 // HEY THIS IS A WORK AROUND FOR A KNOWN BUG IN PFBLOCKALGO
 	 // MAYBE WE SHOULD FIX IT??????????????????????????????????
-	 LOGERR("PFEGammaAlgo")
+	 LOGDRESSED("PFEGammaAlgo")
 	   << "Encountered the known GSF-SC splitting bug "
 	   << " in PFBlockAlgo! We should really fix this!" << std::endl; 
        } else { // SC was not in a earlier proto-object	
@@ -2519,6 +2519,7 @@ unsigned int PFEGammaAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::iter0:
   case TrackBase::iter1:
   case TrackBase::iter2:
+  case TrackBase::iter7:
     Algo = 0;
     break;
   case TrackBase::iter3:

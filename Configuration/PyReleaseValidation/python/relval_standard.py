@@ -87,11 +87,11 @@ workflows[4.66] = ['',['ZMuSkim2012C','RECOSKIM','HARVESTD']]
 workflows[4.67] = ['',['ZElSkim2012C','RECOSKIM','HARVESTD']]
 workflows[4.68] = ['',['WElSkim2012C','RECOSKIM','HARVESTD']]
 
-workflows[4.71] = ['',['RunMinBias2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.72] = ['',['RunMu2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.73] = ['',['RunPhoton2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.74] = ['',['RunEl2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.75] = ['',['RunJet2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.71] = ['',['RunMinBias2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.72] = ['',['RunMu2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.73] = ['',['RunPhoton2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.74] = ['',['RunEl2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.75] = ['',['RunJet2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
 workflows[4.76] = ['',['ZMuSkim2012D','RECOSKIM','HARVESTD']]
 workflows[4.77] = ['',['ZElSkim2012D','RECOSKIM','HARVESTD']]
 workflows[4.78] = ['',['WElSkim2012D','RECOSKIM','HARVESTD']]
@@ -120,6 +120,8 @@ workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS']]
 workflows[135.6]  = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP15FS']]
 workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS']]
 
+### MinBias fastsim_13 TeV for mixing ###
+workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
 
 ### standard set ###
 ## particle guns

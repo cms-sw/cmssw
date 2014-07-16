@@ -11,11 +11,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
-
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
@@ -179,15 +174,17 @@ void DQMStreamerOutputModule::stop() const {
   ptree pt;
   ptree data;
 
-  ptree child1, child2, child3;
+  ptree child1, child2, child3, child4;
 
   child1.put("", processed_);    // Processed
-  child2.put("", processed_);    // Accepted
-  child3.put("", currentLumi_);  // number of lumi
+  child2.put("", processed_);    // Processed
+  child3.put("", processed_);    // Accepted
+  child4.put("", currentLumi_);  // number of lumi
 
   data.push_back(std::make_pair("", child1));
   data.push_back(std::make_pair("", child2));
   data.push_back(std::make_pair("", child3));
+  data.push_back(std::make_pair("", child4));
 
   pt.add_child("data", data);
   pt.put("definition", "/non-existant/");

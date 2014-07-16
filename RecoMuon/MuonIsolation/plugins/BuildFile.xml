@@ -24,6 +24,5 @@
   <use   name="TrackingTools/Records"/>
   <use   name="TrackingTools/TrackAssociator"/>
   <use   name="TrackingTools/TransientTrack"/>
-  <use   name="Utilities/Timing"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

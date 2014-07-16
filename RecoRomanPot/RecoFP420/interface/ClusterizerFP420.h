@@ -59,8 +59,6 @@ namespace cms
 
     ClusterCollectionFP420* soutput;
    
-    FP420NumberingScheme * theFP420NumberingScheme;
-    
     std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
     int sn0, pn0, dn0, rn0;

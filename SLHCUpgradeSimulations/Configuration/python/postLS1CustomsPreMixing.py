@@ -35,7 +35,7 @@ def customisePostLS1(process):
 def digiEventContent(process):
     #extend the event content
 
-    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
+    alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
@@ -60,14 +60,18 @@ def customise_Validation(process):
     #process.validation_step.remove(process.hltHiggsValidator)
     return process
 
-
 def customise_Digi(process):
     process=digiEventContent(process)
-    if hasattr(process,"mix.digitizers.hcal.ho"):
-        process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-        process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
-        process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
-        process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
+            process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+            process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
+            process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
+            process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
+            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
+            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
     return process
 
 

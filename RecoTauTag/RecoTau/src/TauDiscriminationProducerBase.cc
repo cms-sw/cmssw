@@ -109,7 +109,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
       // get reference to tau
       TauRef tauRef(taus, iTau);
 
-      bool passesPrediscriminants = true;
+      bool passesPrediscriminants = ( andPrediscriminants_ ? 1 : 0 );
       // check tau passes prediscriminants
       for( size_t iDisc = 0; iDisc < nPrediscriminants; ++iDisc )
       {

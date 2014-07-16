@@ -194,7 +194,7 @@ namespace edm {
     std::string fallbackName = fileIter_->fallbackFileName();
     bool hasFallbackUrl = !fallbackName.empty() && fallbackName != fileIter_->fileName();
 
-    boost::shared_ptr<InputFile> filePtr;
+    std::shared_ptr<InputFile> filePtr;
     try {
       std::unique_ptr<InputSource::FileOpenSentry>
         sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
@@ -239,7 +239,7 @@ namespace edm {
       }
     }
     if(filePtr) {
-      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
+      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(
           fileIter_->fileName(),
           processConfiguration(),
@@ -257,7 +257,7 @@ namespace edm {
           noEventSort_,
           productSelectorRules_,
           inputType_,
-          (inputType_ == InputType::SecondarySource ?  boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper()) :  input_.branchIDListHelper()),
+          (inputType_ == InputType::SecondarySource ?  std::make_shared<BranchIDListHelper>() :  input_.branchIDListHelper()),
           duplicateChecker_,
           dropDescendants_,
           processHistoryRegistryForUpdate(),
@@ -288,13 +288,13 @@ namespace edm {
     }
   }
 
-  boost::shared_ptr<ProductRegistry const>
+  std::shared_ptr<ProductRegistry const>
   RootInputFileSequence::fileProductRegistry() const {
     assert(rootFile_);
     return rootFile_->productRegistry();
   }
 
-  boost::shared_ptr<BranchIDListHelper const>
+  std::shared_ptr<BranchIDListHelper const>
   RootInputFileSequence::fileBranchIDListHelper() const {
     assert(rootFile_);
     return rootFile_->branchIDListHelper();
@@ -352,13 +352,13 @@ namespace edm {
   RootInputFileSequence::~RootInputFileSequence() {
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   RootInputFileSequence::readRunAuxiliary_() {
     assert(rootFile_);
     return rootFile_->readRunAuxiliary_();
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   RootInputFileSequence::readLuminosityBlockAuxiliary_() {
     assert(rootFile_);
     return rootFile_->readLuminosityBlockAuxiliary_();
@@ -490,7 +490,7 @@ namespace edm {
       IndexIntoFile::IndexIntoFileItr originalPosition = rootFile_->indexIntoFileIter();
 
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
+      typedef std::vector<std::shared_ptr<IndexIntoFile> >::const_iterator Iter;
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
         if(*it && (*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
           // We found it. Close the currently open file, and open the correct one.
@@ -530,7 +530,7 @@ namespace edm {
   bool
   RootInputFileSequence::skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
     // Look for item in files not yet opened.
-    typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
+    typedef std::vector<std::shared_ptr<IndexIntoFile> >::const_iterator Iter;
     for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
       if(!*it) {
         fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
@@ -556,7 +556,7 @@ namespace edm {
         return false;
       }
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
+      typedef std::vector<std::shared_ptr<IndexIntoFile> >::const_iterator Iter;
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
         if(*it && (*it)->containsItem(run, lumi, event)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -608,7 +608,7 @@ namespace edm {
     return input_.productRegistryUpdate();
   }
 
-  boost::shared_ptr<ProductRegistry const>
+  std::shared_ptr<ProductRegistry const>
   RootInputFileSequence::productRegistry() const{
     return input_.productRegistry();
   }
