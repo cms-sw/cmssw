@@ -3,6 +3,7 @@
 
 // Finds the towers behind a super-cluster using the CaloTowerConstituentMap
 // Florian Beaudette 22 Jun 2011
+// F.B. 17 Jul 2014. Added thresholds
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
