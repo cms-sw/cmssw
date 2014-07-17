@@ -32,36 +32,6 @@
 #include "TTree.h"
 #include "TError.h"
 
-# define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
-  const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
-  if( det )							\
-  {      							\
-    const PixelTopology& topo = det->specificTopology();        \
-    m_fwGeometry->idToName[rawid].topology[0] = topo.nrows();	\
-    m_fwGeometry->idToName[rawid].topology[1] = topo.ncolumns(); \
-  }								\
-
-# define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
-  const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( detUnit ); \
-  if( det )                                                     \
-  {                                                             \
-    const StripTopology* topo = dynamic_cast<const StripTopology*>( &det->specificTopology()); \
-    m_fwGeometry->idToName[rawid].topology[0] = topo->nstrips();            \
-    m_fwGeometry->idToName[rawid].topology[1] = topo->stripLength();        \
-    if( const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>( topo )) \
-    {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[2] = rtop->phiPitch();	\
-    }                                                                   \
-    else if( dynamic_cast<const RectangularStripTopology*>( topo ))     \
-    {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[2] = topo->pitch();	\
-    }									\
-    else if( dynamic_cast<const TrapezoidalStripTopology*>( topo ))     \
-    {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[2] = topo->pitch();	\
-    }									\
-}									\
-
 FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& /*pset*/ )
 {
   setWhatProduced( this );
@@ -116,61 +86,61 @@ namespace
 boost::shared_ptr<FWTGeoRecoGeometry> 
 FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
-  using namespace edm;
+   using namespace edm;
 
-  m_fwGeometry =  boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
+  m_fwGeometry = boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
 
-  record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
-  DetId detId( DetId::Tracker, 0 );
-  m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+   DetId detId( DetId::Tracker, 0 );
+   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   
-  record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+   record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
-  TGeoManager *geom = new TGeoManager( "cmsGeo", "CMS Detector" );
-  // NOTE: The default constructor does not create an identity matrix
-  if( 0 == gGeoIdentity )
-  {
-    gGeoIdentity = new TGeoIdentity( "Identity" );
-  }
+   //  TGeoManager *geom = new TGeoManager( "cmsGeo", "CMS Detector" );
+
+   TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
+   // NOTE: The default constructor does not create an identity matrix
+   if( 0 == gGeoIdentity )
+   {
+      gGeoIdentity = new TGeoIdentity( "Identity" );
+   }
 
   m_fwGeometry->manager( geom );
   
-  // Default material is Vacuum
-  TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
-  // so is default medium
-  TGeoMedium *vacuum = new TGeoMedium( "Vacuum", 1, matVacuum );
-  TGeoVolume *top = geom->MakeBox( "CMS", vacuum, 270., 270., 120. );
+   // Default material is Vacuum
+   TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
+   // so is default medium
+   TGeoMedium *vacuum = new TGeoMedium( "Vacuum", 1, matVacuum );
+   TGeoVolume *top = geom->MakeBox( "CMS", vacuum, 270., 270., 120. );
   
-  if( 0 == top )
-  {
-    return boost::shared_ptr<FWTGeoRecoGeometry>();
-  }
-  geom->SetTopVolume( top );
-  // ROOT chokes unless colors are assigned
-  top->SetVisibility( kFALSE );
-  top->SetLineColor( kBlue );
+   if( 0 == top )
+   {
+     return boost::shared_ptr<FWTGeoRecoGeometry>();
+   }
+   geom->SetTopVolume( top );
+   // ROOT chokes unless colors are assigned
+   top->SetVisibility( kFALSE );
+   top->SetLineColor( kBlue );
 
-  addPixelBarrelGeometry( top );
-  addPixelForwardGeometry( top );
-  addTIBGeometry( top );
-  addTIDGeometry( top );
-  addTOBGeometry( top );
-  addTECGeometry( top );
-  addDTGeometry( top );
-  addCSCGeometry( top );
-  addRPCGeometry( top );
+   addPixelBarrelGeometry( top );
+   addPixelForwardGeometry( top );
+   addTIBGeometry( top );
+   addTIDGeometry( top );
+   addTOBGeometry( top );
+   addTECGeometry( top );
+   addDTGeometry( top );
+   addCSCGeometry( top );
+   addRPCGeometry( top );
 
-  addCaloGeometry();
+   addCaloGeometry();
   
+   geom->CloseGeometry();
 
-  // geom->DefaultColors();
-  geom->CloseGeometry();
-
-  m_nameToShape.clear();
-  m_shapeToVolume.clear();
-  m_nameToMaterial.clear();
-  m_nameToMedium.clear();
+   m_nameToShape.clear();
+   m_shapeToVolume.clear();
+   m_nameToMaterial.clear();
+   m_nameToMedium.clear();
 
   return m_fwGeometry;
 }
@@ -323,41 +293,13 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       TGeoVolume* child = 0;
 
       if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
-      {    
          child = createVolume( name, chamber );
-         /*    
-         std::stringstream p;
-         p << path( top, iName, copy ) << "/" << name << "_" << copy;
-         m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-         */
-
-      }
       else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
-      {
-        
          child = createVolume( name, layer );
-         /*
-         std::stringstream p;
-         p << path( top, iName, copy ) << "/" << name << "_" << copy;
-         m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
 
-         const CSCStripTopology* stripTopology = layer->geometry()->topology();
-         m_fwGeometry->idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
-         m_fwGeometry->idToName[rawid].topology[1] = stripTopology->centreToIntersection();
-         m_fwGeometry->idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
-         m_fwGeometry->idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
-         m_fwGeometry->idToName[rawid].topology[4] = stripTopology->stripOffset();
-         m_fwGeometry->idToName[rawid].topology[5] = stripTopology->angularWidth();
-
-         const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
-         m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
-         m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
-         */
-      }
 
 
       if (child) {
-
          TGeoVolume* holder  = GetDaughter(assembly, "Endcap", detId.endcap());
          holder = GetDaughter(holder, "Station", detId.station());
          holder = GetDaughter(holder, "Ring", detId.ring());
@@ -392,11 +334,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
       TGeoVolume* child = createVolume( name, chamber );
       assembly->AddNode( child, copy, createPlacement( chamber ));
       child->SetLineColor( kRed );
-      
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-    }
+     }
   }
   top->AddNode( assembly, copy );
 
@@ -416,16 +354,6 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
       TGeoVolume* child = createVolume( name, superlayer );
       assembly->AddNode( child, copy, createPlacement( superlayer ));
       child->SetLineColor( kBlue );
-      
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-      const BoundPlane& surf = superlayer->surface();
-      // Bounds W/H/L:
-      m_fwGeometry->idToName[rawid].topology[0] = surf.bounds().width();
-      m_fwGeometry->idToName[rawid].topology[1] = surf.bounds().thickness();
-      m_fwGeometry->idToName[rawid].topology[2] = surf.bounds().length();
     }
   }
 
@@ -445,25 +373,6 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
       TGeoVolume* child = createVolume( name, layer );
       assembly->AddNode( child, copy, createPlacement( layer ));
       child->SetLineColor( kBlue );
-      
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-      const DTTopology& topo = layer->specificTopology();
-      const BoundPlane& surf = layer->surface();
-      // Topology W/H/L:
-      m_fwGeometry->idToName[rawid].topology[0] = topo.cellWidth();
-      m_fwGeometry->idToName[rawid].topology[1] = topo.cellHeight();
-      m_fwGeometry->idToName[rawid].topology[2] = topo.cellLenght();
-      m_fwGeometry->idToName[rawid].topology[3] = topo.firstChannel();
-      m_fwGeometry->idToName[rawid].topology[4] = topo.lastChannel();
-      m_fwGeometry->idToName[rawid].topology[5] = topo.channels();
-
-      // Bounds W/H/L:
-      m_fwGeometry->idToName[rawid].topology[6] = surf.bounds().width();
-      m_fwGeometry->idToName[rawid].topology[7] = surf.bounds().thickness();
-      m_fwGeometry->idToName[rawid].topology[8] = surf.bounds().length();
     }
   }  
 }
@@ -491,16 +400,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
       
       TGeoVolume* child = createVolume( name, roll );
       assembly->AddNode( child, copy, createPlacement( roll ));
-      child->SetLineColor( kYellow );
-      
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-      const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[rawid].topology[0] = roll->nstrips();
-      m_fwGeometry->idToName[rawid].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[rawid].topology[2] = topo.pitch();
+      child->SetLineColor( kYellow );     
     }
   }
   top->AddNode( assembly, copy );
@@ -530,12 +430,6 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std
        holder = GetDaughter(holder, "Module", xx.module());
                                        
        holder->AddNode(child, 1);
-
-       std::stringstream p;
-       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-       m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-       ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
    }
   
    top->AddNode( assembly, copy );
@@ -560,11 +454,6 @@ FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const st
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-    
-    ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -587,12 +476,6 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string
     TGeoVolume* child = createVolume( name, *it );
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
-
-    std::stringstream p;
-    p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -616,12 +499,6 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string
     TGeoVolume* child = createVolume( name, *it );
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
-
-    std::stringstream p;
-    p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -645,12 +522,6 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string
     TGeoVolume* child = createVolume( name, *it );
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
-
-    std::stringstream p;
-    p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -674,12 +545,6 @@ FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string
     TGeoVolume* child = createVolume( name, *it );
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
-
-    std::stringstream p;
-    p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
-
-    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -688,12 +553,12 @@ FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string
 void
 FWTGeoRecoGeometryESProducer::addCaloGeometry( void )
 {
-  std::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
+  /*td::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
   for( std::vector<DetId>::const_iterator it = vid.begin(),
 					 end = vid.end();
        it != end; ++it )
   {
     const CaloCellGeometry::CornersVec& cor( m_caloGeom->getGeometry( *it )->getCorners());
     m_fwGeometry->idToName[ it->rawId()].fillPoints( cor.begin(), cor.end());
-  }
+    }*/
 }
