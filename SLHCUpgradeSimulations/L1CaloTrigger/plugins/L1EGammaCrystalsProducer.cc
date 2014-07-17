@@ -153,7 +153,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",pcalohits);
    for(auto& hit : *pcalohits.product())
    {
-      if(hit.energy() > 0.2)
+      if(hit.energy() > 0.2 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
       {
          auto cell = geometryHelper.getEcalBarrelGeometry()->getGeometry(hit.id());
          SimpleCaloHit ehit;
@@ -175,7 +175,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",pcalohitsEndcap);
       for(auto& hit : *pcalohitsEndcap.product())
       {
-         if(hit.energy() > 0.2)
+         if(hit.energy() > 0.2 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
          {
             auto cell = geometryHelper.getEcalEndcapGeometry()->getGeometry(hit.id());
             SimpleCaloHit ehit;
