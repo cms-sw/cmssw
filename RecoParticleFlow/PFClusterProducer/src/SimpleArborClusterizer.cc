@@ -41,7 +41,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     arbor_points.emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
   }
 
-  branches = arbor::Arbor(arbor_points,_cellSize,_layerThickness);
+  branches = arbor::Arbor(arbor_points,_cellSize,_layerThickness,_distSeedForMerge);
   output.reserve(branches.size());
   
   for( auto& branch : branches ) {

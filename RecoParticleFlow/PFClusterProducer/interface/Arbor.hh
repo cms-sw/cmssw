@@ -18,7 +18,7 @@ namespace arbor {
   
   void LinkIteration(float Threshold);
   
-  void BranchBuilding();
+  void BranchBuilding(const float distSeedForMerge);
   
   void BushMerging();
   
@@ -26,7 +26,7 @@ namespace arbor {
   
   void MakingCMSCluster();
   
-  branchcoll Arbor( std::vector<TVector3>, float CellSize, float LayerThickness );
+  branchcoll Arbor( std::vector<TVector3>, const float CellSize, const float LayerThickness, const float distSeedForMerge );
 }
 
 #endif

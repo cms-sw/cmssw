@@ -426,7 +426,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
 
 }
 
-void BranchBuilding()
+void BranchBuilding(const float distSeedForMerge)
 {
 	edm::LogVerbatim("ArborInfo") <<"Build Branch"<<endl;
 
@@ -566,7 +566,7 @@ void BranchBuilding()
 				FlagSBMerge[i7][j7] = 1.0;
 				FlagSBMerge[j7][i7] = 1.0;
 			}
-			else if( DisSeed.Mag() < 20 )
+			else if( DisSeed.Mag() < distSeedForMerge )
 			{
 				FlagSBMerge[i7][j7] = 2.0;
 				FlagSBMerge[j7][i7] = 2.0;
@@ -626,7 +626,7 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 	}
 }	
 
-std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, float CellSize, float LayerThickness )
+  std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, const float CellSize, const float LayerThickness, const float distSeedForMerge )
 {
 	init(CellSize, LayerThickness);
 
@@ -644,7 +644,7 @@ std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, float Cel
 
 	//IterLinks = InitLinks; 
 
-	BranchBuilding();	
+	BranchBuilding(distSeedForMerge);	
 	BushMerging();
 
 	return Trees;

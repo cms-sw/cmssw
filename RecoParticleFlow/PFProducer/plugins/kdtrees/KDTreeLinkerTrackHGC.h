@@ -13,7 +13,7 @@
 // This class is used to find all links between Tracks and ECAL clusters
 // using a KDTree algorithm.
 // It is used in PFBlockAlgo.cc in the function links().
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 class KDTreeLinkerTrackHGC : public KDTreeLinkerBase
 {
  public:
@@ -63,30 +63,30 @@ class KDTreeLinkerTrackHGC : public KDTreeLinkerBase
 
 };
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
-KDTreeLinkerTrackHGC<the_layer>::KDTreeLinkerTrackHGC()
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
+  KDTreeLinkerTrackHGC<the_layer,RHscaling>::KDTreeLinkerTrackHGC()
   : KDTreeLinkerBase()
 {}
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
-KDTreeLinkerTrackHGC<the_layer>::~KDTreeLinkerTrackHGC()
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
+KDTreeLinkerTrackHGC<the_layer,RHscaling>::~KDTreeLinkerTrackHGC()
 {
   clear();
 }
 
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 void
-KDTreeLinkerTrackHGC<the_layer>::insertTargetElt(reco::PFBlockElement	*track)
+KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertTargetElt(reco::PFBlockElement	*track)
 {
   if( track->trackRefPF()->extrapolatedPoint( the_layer ).isValid() ) {
     targetSet_.insert(track);
   }
 }
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 void
-KDTreeLinkerTrackHGC<the_layer>::insertFieldClusterElt(reco::PFBlockElement	*hgcCluster)
+KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockElement	*hgcCluster)
 {
   reco::PFClusterRef clusterref = hgcCluster->clusterRef();
 
@@ -151,9 +151,9 @@ KDTreeLinkerTrackHGC<the_layer>::insertFieldClusterElt(reco::PFBlockElement	*hgc
   }
 }
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 void 
-KDTreeLinkerTrackHGC<the_layer>::buildTree()
+  KDTreeLinkerTrackHGC<the_layer,RHscaling>::buildTree()
 {
   // List of pseudo-rechits that will be used to create the KDTree
   std::vector<KDTreeNodeInfo> eltList;
@@ -193,9 +193,9 @@ KDTreeLinkerTrackHGC<the_layer>::buildTree()
   tree_.build(eltList, region);
 }
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 void
-KDTreeLinkerTrackHGC<the_layer>::searchLinks()
+  KDTreeLinkerTrackHGC<the_layer,RHscaling>::searchLinks()
 {
   // Must of the code has been taken from LinkByRecHit.cc
   //std::cout << "running searchLinks() for : " << the_layer 
@@ -274,16 +274,16 @@ KDTreeLinkerTrackHGC<the_layer>::searchLinks()
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
 	//double clusterz = clusterref->position().Z();
-	int fracsNbr = clusterref->recHitFractions().size();
+	//int fracsNbr = clusterref->recHitFractions().size();
 
 	double x[5];
 	double y[5];
 	for ( unsigned jc=0; jc<4; ++jc ) {
 	  math::XYZPoint cornerposxyz = cornersxyz[jc];
 	  x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	    * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
+	    * (1.00+RHscaling/(0.1*trackPt));
 	  y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-	    * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
+	    * (1.00+RHscaling/(0.1*trackPt));
 	  //std::cout << "hit corner x/y/z: " << cornerposxyz << std::endl;
 	}
 	
@@ -307,9 +307,9 @@ KDTreeLinkerTrackHGC<the_layer>::searchLinks()
 }
 
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 void
-KDTreeLinkerTrackHGC<the_layer>::updatePFBlockEltWithLinks()
+KDTreeLinkerTrackHGC<the_layer,RHscaling>::updatePFBlockEltWithLinks()
 {
   //TODO YG : Check if cluster positionREP() is valid ?
 
@@ -331,9 +331,9 @@ KDTreeLinkerTrackHGC<the_layer>::updatePFBlockEltWithLinks()
   }
 }
 
-template<reco::PFTrajectoryPoint::LayerType the_layer>
+template<reco::PFTrajectoryPoint::LayerType the_layer,unsigned RHscaling>
 void
-KDTreeLinkerTrackHGC<the_layer>::clear()
+KDTreeLinkerTrackHGC<the_layer,RHscaling>::clear()
 {
   targetSet_.clear();
   fieldClusterSet_.clear();

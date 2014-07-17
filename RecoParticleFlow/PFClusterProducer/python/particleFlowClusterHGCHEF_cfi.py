@@ -24,7 +24,8 @@ _manqiArborClusterizer_HGCHEF = cms.PSet(
     algoName = cms.string("SimpleArborClusterizer"), 
     # use basic pad sizes in HGCEE
     cellSize = cms.double(10.0),
-    layerThickness = cms.double(55.0),
+    layerThickness = cms.double(45.0),
+    distSeedForMerge = cms.double(20.0),
     killNoiseClusters = cms.bool(True),
     maxNoiseClusterSize = cms.uint32(3),
     thresholdsByDetector = cms.VPSet( )

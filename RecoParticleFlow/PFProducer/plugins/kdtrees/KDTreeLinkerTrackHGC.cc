@@ -1,8 +1,8 @@
 #include "KDTreeLinkerTrackHGC.h"
 
-typedef KDTreeLinkerTrackHGC<reco::PFTrajectoryPoint::HGC_ECALEntrance> KDTreeTrackAndHGCEELinker;
-typedef KDTreeLinkerTrackHGC<reco::PFTrajectoryPoint::HGC_HCALFEntrance> KDTreeTrackAndHGCHEFLinker;
-typedef KDTreeLinkerTrackHGC<reco::PFTrajectoryPoint::HGC_HCALBEntrance> KDTreeTrackAndHGCHEBLinker;
+typedef KDTreeLinkerTrackHGC<reco::PFTrajectoryPoint::HGC_ECALEntrance,2> KDTreeTrackAndHGCEELinker;
+typedef KDTreeLinkerTrackHGC<reco::PFTrajectoryPoint::HGC_HCALFEntrance,2> KDTreeTrackAndHGCHEFLinker;
+typedef KDTreeLinkerTrackHGC<reco::PFTrajectoryPoint::HGC_HCALBEntrance,2> KDTreeTrackAndHGCHEBLinker;
 
 DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, 
 		  KDTreeTrackAndHGCEELinker, 
