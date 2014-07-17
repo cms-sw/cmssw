@@ -80,7 +80,7 @@ double EgammaHadTower::getDepth1HcalESum(const std::vector<CaloTowerDetId> & tow
   for( ;  trItr != trItrEnd ; ++trItr){
     std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), trItr->id());
     if( itcheck != towers.end() ) {
-      if(trItr->emEt()+trItr->hadEt()>EtMin)
+      if(trItr->hadEt()>EtMin)
 	esum += trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer() ;
     }
   }
@@ -94,7 +94,7 @@ double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId> & tow
   for( ;  trItr != trItrEnd ; ++trItr){
     std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), trItr->id());
     if( itcheck != towers.end() ) {
-      if(trItr->emEt()+trItr->hadEt()>EtMin)
+      if(trItr->hadEt()>EtMin)
 	esum += trItr->hadEnergyHeOuterLayer();
     }
   }
