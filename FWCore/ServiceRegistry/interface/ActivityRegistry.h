@@ -30,18 +30,16 @@ unscheduled execution. The tests are in FWCore/Integration/test:
 
 // system include files
 //#include "boost/signal.hpp"
+#include <functional>
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "boost/bind.hpp"
-#include "boost/mem_fn.hpp"
-#include "boost/utility.hpp"
 
 // user include files
 
-#define AR_WATCH_USING_METHOD_0(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject)); }
-#define AR_WATCH_USING_METHOD_1(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1)); }
-#define AR_WATCH_USING_METHOD_2(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1, _2)); }
-#define AR_WATCH_USING_METHOD_3(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1, _2, _3)); }
+#define AR_WATCH_USING_METHOD_0(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject)); }
+#define AR_WATCH_USING_METHOD_1(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1)); }
+#define AR_WATCH_USING_METHOD_2(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1, std::placeholders::_2)); }
+#define AR_WATCH_USING_METHOD_3(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); }
 // forward declarations
 namespace edm {
    class EventID;
@@ -84,9 +82,11 @@ namespace edm {
 
       };
    }
-   class ActivityRegistry : private boost::noncopyable {
+   class ActivityRegistry {
    public:
       ActivityRegistry() {}
+      ActivityRegistry(ActivityRegistry const&) = delete; // Disallow copying and moving
+      ActivityRegistry& operator=(ActivityRegistry const&) = delete; // Disallow copying and moving
 
       // ---------- signals ------------------------------------
       typedef signalslot::Signal<void(service::SystemBounds const&)> Preallocate;

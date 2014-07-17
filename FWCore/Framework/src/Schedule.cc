@@ -22,9 +22,6 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 
-#include "boost/bind.hpp"
-#include "boost/ref.hpp"
-
 #include "boost/graph/graph_traits.hpp"
 #include "boost/graph/adjacency_list.hpp"
 #include "boost/graph/depth_first_search.hpp"
@@ -43,6 +40,8 @@
 
 namespace edm {
   namespace {
+    using std::placeholders::_1;
+
     bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
       return std::binary_search(v.begin(), v.end(), s);
     }
@@ -295,10 +294,10 @@ namespace edm {
                          labelsToBeDropped.end());
 
       // drop the parameter sets used to configure the modules
-      for_all(labelsToBeDropped, boost::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, boost::ref(proc_pset), _1));
+      for_all(labelsToBeDropped, std::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, std::ref(proc_pset), _1));
       
       // drop the labels from @all_modules
-      vstring::iterator endAfterRemove = std::remove_if(modulesInConfig.begin(), modulesInConfig.end(), boost::bind(binary_search_string, boost::ref(labelsToBeDropped), _1));
+      vstring::iterator endAfterRemove = std::remove_if(modulesInConfig.begin(), modulesInConfig.end(), std::bind(binary_search_string, std::ref(labelsToBeDropped), _1));
       modulesInConfig.erase(endAfterRemove, modulesInConfig.end());
       proc_pset.addParameter<vstring>(std::string("@all_modules"), modulesInConfig);
       
@@ -337,13 +336,13 @@ namespace edm {
       sort_all(endPathsToBeDropped);
       
       // remove empty end paths from @paths
-      endAfterRemove = std::remove_if(scheduledPaths.begin(), scheduledPaths.end(), boost::bind(binary_search_string, boost::ref(endPathsToBeDropped), _1));
+      endAfterRemove = std::remove_if(scheduledPaths.begin(), scheduledPaths.end(), std::bind(binary_search_string, std::ref(endPathsToBeDropped), _1));
       scheduledPaths.erase(endAfterRemove, scheduledPaths.end());
       proc_pset.addParameter<vstring>(std::string("@paths"), scheduledPaths);
       
       // remove empty end paths from @end_paths
       vstring scheduledEndPaths = proc_pset.getParameter<vstring>("@end_paths");
-      endAfterRemove = std::remove_if(scheduledEndPaths.begin(), scheduledEndPaths.end(), boost::bind(binary_search_string, boost::ref(endPathsToBeDropped), _1));
+      endAfterRemove = std::remove_if(scheduledEndPaths.begin(), scheduledEndPaths.end(), std::bind(binary_search_string, std::ref(endPathsToBeDropped), _1));
       scheduledEndPaths.erase(endAfterRemove, scheduledEndPaths.end());
       proc_pset.addParameter<vstring>(std::string("@end_paths"), scheduledEndPaths);
       
@@ -431,7 +430,7 @@ namespace edm {
     moduleRegistry_->forAllModuleHolders([this](maker::ModuleHolder* iHolder){
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
-        all_output_communicators_.emplace_back(boost::shared_ptr<OutputModuleCommunicator>{comm.release()});
+        all_output_communicators_.emplace_back(std::shared_ptr<OutputModuleCommunicator>{comm.release()});
       }      
     });
     // Now that the output workers are filled in, set any output limits or information.
@@ -450,6 +449,37 @@ namespace edm {
     for (auto c : all_output_communicators_) {
       c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
       c->selectProducts(preg);
+    }
+    
+    if(wantSummary_) {
+      std::vector<const ModuleDescription*> modDesc;
+      const auto& workers = allWorkers();
+      modDesc.reserve(workers.size());
+      
+      std::transform(workers.begin(),workers.end(),
+                     std::back_inserter(modDesc),
+                     [](const Worker* iWorker) -> const ModuleDescription* {
+                       return iWorker->descPtr();
+                     });
+      
+      summaryTimeKeeper_.reset(new SystemTimeKeeper(prealloc.numberOfStreams(),
+                                                    modDesc,
+                                                    tns));
+      auto timeKeeperPtr = summaryTimeKeeper_.get();
+      
+      areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
+      areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
+      areg->watchPostModuleEventDelayedGet(timeKeeperPtr,&SystemTimeKeeper::restartModuleEvent);
+      
+      areg->watchPreSourceEvent(timeKeeperPtr, &SystemTimeKeeper::startEvent);
+      areg->watchPostEvent(timeKeeperPtr, &SystemTimeKeeper::stopEvent);
+      
+      areg->watchPrePathEvent(timeKeeperPtr, &SystemTimeKeeper::startPath);
+      areg->watchPostPathEvent(timeKeeperPtr, &SystemTimeKeeper::stopPath);
+      //areg->preModuleEventSignal_.connect([timeKeeperPtr](StreamContext const& iContext, ModuleCallingContext const& iMod) {
+      //timeKeeperPtr->startModuleEvent(iContext,iMod);
+      //});
     }
 
   } // Schedule::Schedule
@@ -860,38 +890,46 @@ namespace edm {
   }
 
   void Schedule::closeOutputFiles() {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::closeFile, _1));
+    using std::placeholders::_1;
+    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
   }
 
   void Schedule::openNewOutputFilesIfNeeded() {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::openNewFileIfNeeded, _1));
+    using std::placeholders::_1;
+    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openNewFileIfNeeded, _1));
   }
 
   void Schedule::openOutputFiles(FileBlock& fb) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::openFile, _1, boost::cref(fb)));
+    using std::placeholders::_1;
+    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
   void Schedule::writeRun(RunPrincipal const& rp, ProcessContext const* processContext) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeRun, _1, boost::cref(rp), processContext));
+    using std::placeholders::_1;
+    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeRun, _1, std::cref(rp), processContext));
   }
 
   void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
-    for_all(all_output_communicators_, boost::bind(&OutputModuleCommunicator::writeLumi, _1, boost::cref(lbp), processContext));
+    using std::placeholders::_1;
+    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeLumi, _1, std::cref(lbp), processContext));
   }
 
   bool Schedule::shouldWeCloseOutput() const {
+    using std::placeholders::_1;
     // Return true iff at least one output module returns true.
     return (std::find_if (all_output_communicators_.begin(), all_output_communicators_.end(),
-                     boost::bind(&OutputModuleCommunicator::shouldWeCloseFile, _1))
+                     std::bind(&OutputModuleCommunicator::shouldWeCloseFile, _1))
                      != all_output_communicators_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToOpenInputFile, _1, boost::cref(fb)));
+    using std::placeholders::_1;
+    for_all(allWorkers(), std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
-    for_all(allWorkers(), boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
+    using std::placeholders::_1;
+    for_all(allWorkers(), std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
@@ -911,14 +949,17 @@ namespace edm {
   }
 
   void Schedule::preForkReleaseResources() {
-    for_all(allWorkers(), boost::bind(&Worker::preForkReleaseResources, _1));
+    using std::placeholders::_1;
+    for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));
   }
   void Schedule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    for_all(allWorkers(), boost::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
+    using std::placeholders::_1;
+    for_all(allWorkers(), std::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
   }
 
   bool Schedule::changeModule(std::string const& iLabel,
-                              ParameterSet const& iPSet) {
+                              ParameterSet const& iPSet,
+                              const ProductRegistry& iRegistry) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
       if (worker->description().moduleLabel() == iLabel) {
@@ -931,12 +972,23 @@ namespace edm {
     }
     
     auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet,preallocConfig_);
-
+    
     globalSchedule_->replaceModule(newMod,iLabel);
 
     for(auto s: streamSchedules_) {
       s->replaceModule(newMod,iLabel);
     }
+    
+    {
+      //Need to updateLookup in order to make getByToken work
+      auto const runLookup = iRegistry.productLookup(InRun);
+      auto const lumiLookup = iRegistry.productLookup(InLumi);
+      auto const eventLookup = iRegistry.productLookup(InEvent);
+      found->updateLookup(InRun,*runLookup);
+      found->updateLookup(InLumi,*lumiLookup);
+      found->updateLookup(InEvent,*eventLookup);
+    }
+
     return true;
   }
 
@@ -996,9 +1048,7 @@ namespace edm {
     rep.eventSummary.totalEvents = 0;
     rep.eventSummary.cpuTime = 0.;
     rep.eventSummary.realTime = 0.;
-    for(auto& s: streamSchedules_) {
-      s->getTriggerTimingReport(rep);
-    }
+    summaryTimeKeeper_->fillTriggerTimingReport(rep);
   }
 
   int

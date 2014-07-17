@@ -7,6 +7,8 @@
 #include <assert.h>
 
 #include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 using namespace Pythia8;
 
@@ -48,11 +50,21 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
 
   const std::vector<float> &scales = event->scales();
   
+  unsigned int iscale = 0;
   for(int i = 0; i < hepeup.NUP; i++) {
     //retrieve scale corresponding to each particle
     double scalein = -1.;
-    if (scales.size()) {
-      scalein = scales[i];
+    
+    //handle clustering scales if present,
+    //applies to outgoing partons only
+    if (scales.size()>0 && hepeup.ISTUP[i]==1) {
+      if (iscale>=scales.size()) {
+        edm::LogError("InvalidLHEInput") << "Pythia8 requires"
+                                    << "cluster scales for all outgoing partons or for none" 
+                                    << std::endl;
+      }
+      scalein = scales[iscale];
+      ++iscale;
     }
     addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
                 hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,

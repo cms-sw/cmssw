@@ -19,8 +19,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -45,7 +44,7 @@ namespace edm {
     
     template <class TObj, class TMemFunc>
     ESWatcher(TObj const& iObj, TMemFunc iFunc):
-    callback_(boost::bind(iFunc,iObj,_1)),
+    callback_(std::bind(iFunc,iObj,std::placeholders::_1)),
     cacheId_(0)
      {}
       //virtual ~ESWatcher();
@@ -70,7 +69,7 @@ namespace edm {
       const ESWatcher& operator=(const ESWatcher&); // stop default
 
       // ---------- member data --------------------------------
-      boost::function<void (const T&)> callback_;
+      std::function<void (const T&)> callback_;
       unsigned long long cacheId_;
 };
 }

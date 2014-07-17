@@ -15,12 +15,12 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
 
 class SiPixelFedCablingTree;
 class SiPixelFedCabling;
 class SiPixelQuality;
 class TH1D;
-class R2DTimerObserver;
 class PixelUnpackingRegions;
 
 class SiPixelRawToDigi : public edm::stream::EDProducer<> {
@@ -44,7 +44,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
 
   TH1D *hCPU, *hDigi;
-  R2DTimerObserver * theTimer;
+  std::unique_ptr<edm::CPUTimer> theTimer;
   bool includeErrors;
   bool useQuality;
   bool debug;

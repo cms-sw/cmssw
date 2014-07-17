@@ -40,6 +40,13 @@ HLT_PFHT650_v*						# JIRA: CMSHLT-67
 HLT_IterativeTracking_v*				# JIRA: CMSHLT-68
 HLT_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68
 
+HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v*	# JIRA: CMSHLT-77
+HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v*		# JIRA: CMSHLT-77
+HLT_Ele27_WP80_Gsf_TriCentralPFJet40_v*			# JIRA: CMSHLT-77
+HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v*		# JIRA: CMSHLT-77
+HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77
+HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77
+
 #DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath

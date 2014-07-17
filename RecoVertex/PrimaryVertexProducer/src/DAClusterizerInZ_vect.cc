@@ -751,7 +751,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 					- tks.tt[i]->track().hitPattern().pixelLayersWithMeasurement()
 					<< dec;
 			LogDebug("DAClusterizerinZ_vectorized")  << "=" << setw(1) << hex
-					<< tks.tt[i]->track().trackerExpectedHitsOuter().numberOfHits()
+					<< tks.tt[i]->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS)
 					<< dec;
 
 			Measurement1D IP =

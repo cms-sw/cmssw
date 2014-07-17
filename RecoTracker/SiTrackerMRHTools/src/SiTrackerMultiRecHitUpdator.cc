@@ -192,7 +192,6 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
 
   // define variables that will be used to setup the KfComponentsHolder
   ProjectMatrix<double,5,N>  pf;
-  typename AlgebraicROOTObject<N,5>::Matrix H;
   typename AlgebraicROOTObject<N>::Vector r, rMeas;
   typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas, W;
   AlgebraicVector5 x = tsos.localParameters().vector();
@@ -200,7 +199,7 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
 
   // setup the holder with the correct dimensions and get the values
   KfComponentsHolder holder;
-  holder.template setup<N>(&r, &V, &H, &pf, &rMeas, &VMeas, x, C);
+  holder.template setup<N>(&r, &V,  &pf, &rMeas, &VMeas, x, C);
   aRecHit.getKfComponents(holder);
 
   typename AlgebraicROOTObject<N>::Vector diff;
@@ -289,7 +288,6 @@ std::pair<AlgebraicVector2,AlgebraicSymMatrix22> SiTrackerMultiRecHitUpdator::Co
 
   // define variables that will be used to setup the KfComponentsHolder
   ProjectMatrix<double,5,N>  pf;
-  typename AlgebraicROOTObject<N,5>::Matrix H;
   typename AlgebraicROOTObject<N>::Vector r, rMeas;
   typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas, Wtemp;
   AlgebraicVector5 x = tsos.localParameters().vector();
@@ -297,7 +295,7 @@ std::pair<AlgebraicVector2,AlgebraicSymMatrix22> SiTrackerMultiRecHitUpdator::Co
 
   // setup the holder with the correct dimensions and get the values
   KfComponentsHolder holder;
-  holder.template setup<N>(&r, &V, &H, &pf, &rMeas, &VMeas, x, C);
+  holder.template setup<N>(&r, &V, &pf, &rMeas, &VMeas, x, C);
   aRecHit.getKfComponents(holder);
 
   Wtemp = V;

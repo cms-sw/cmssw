@@ -16,8 +16,6 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/bind.hpp"
-
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -746,13 +744,14 @@ namespace edm {
 
   std::vector<std::string>
   ParameterSet::getParameterNames() const {
+    using std::placeholders::_1;
     std::vector<std::string> returnValue;
     std::transform(tbl_.begin(), tbl_.end(), back_inserter(returnValue),
-                   boost::bind(&std::pair<std::string const, Entry>::first, _1));
+                   std::bind(&std::pair<std::string const, Entry>::first, _1));
     std::transform(psetTable_.begin(), psetTable_.end(), back_inserter(returnValue),
-                   boost::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
+                   std::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
     std::transform(vpsetTable_.begin(), vpsetTable_.end(), back_inserter(returnValue),
-                   boost::bind(&std::pair<std::string const, VParameterSetEntry>::first, _1));
+                   std::bind(&std::pair<std::string const, VParameterSetEntry>::first, _1));
     return returnValue;
   }
 
@@ -794,8 +793,9 @@ namespace edm {
   // Comment out unneeded function
   size_t
   ParameterSet::getAllParameterSetNames(std::vector<std::string>& output) const {
+    using std::placeholders::_1;
     std::transform(psetTable_.begin(), psetTable_.end(), back_inserter(output),
-                   boost::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
+                   std::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
     return output.size();
   }
 */

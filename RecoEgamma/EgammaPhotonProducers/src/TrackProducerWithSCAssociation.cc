@@ -354,21 +354,19 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     assert(ih==hidx);
     t2t(*theTraj,*selHits,false);
     auto ie = selHits->size();
-    size_t il = 0;
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
-      track.setHitPattern( hit, il ++ );
+      track.appendHitPattern(hit);
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
 
     /*
-    size_t k = 0;
     if (theTraj->direction() == alongMomentum) {
       for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
            j != transHits.end(); j ++ ) {
         if ((**j).hit()!=0){
           TrackingRecHit * hit = (**j).hit()->clone();
-          track.setHitPattern( * hit, k++ );
+          track.appendHitPattern(*hit);
           selHits->push_back( hit );
           tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
         }
@@ -378,7 +376,7 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
            j != transHits.begin()-1; --j ) {
         if ((**j).hit()!=0){
           TrackingRecHit * hit = (**j).hit()->clone();
-          track.setHitPattern( * hit, k++ );
+          track.appendHitPattern(*hit);
           selHits->push_back( hit );
         tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
         }
