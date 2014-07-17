@@ -75,12 +75,13 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
    {
     ElectronHcalHelper::Configuration hcalCfg ;
     hcalCfg.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+    hcalCfg.hOverEMethod = conf_.getParameter<int>("hOverEMethod") ;
     if (hcalCfg.hOverEConeSize>0)
      {
       hcalCfg.useTowers = true ;
       hcalCfg.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
-      hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
      }
+    hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
     hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
     maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
@@ -220,7 +221,7 @@ void ElectronSeedProducer::filterClusters
 //      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
        double had1, had2, had, scle ;
        bool HoeVeto = false ;
-       if (applyHOverECut_==true)
+       if (applyHOverECut_)
         {
          had1 = hcalHelper_->hcalESumDepth1(scl);
          had2 = hcalHelper_->hcalESumDepth2(scl);

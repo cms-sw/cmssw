@@ -19,10 +19,10 @@ class EgammaHadTower {
 
   EgammaHadTower(const edm::EventSetup &es,HoeMode mode=SingleTower);
   ~EgammaHadTower(){;}
-  double getDepth1HcalESum( const reco::SuperCluster & sc ) const ;
-  double getDepth2HcalESum( const reco::SuperCluster & sc ) const ;
-  double getDepth1HcalESum( const std::vector<CaloTowerDetId> & towers ) const ;
-  double getDepth2HcalESum( const std::vector<CaloTowerDetId> & towers ) const ;
+  double getDepth1HcalESum( const reco::SuperCluster & sc, float EtMin=0.) const ;
+  double getDepth2HcalESum( const reco::SuperCluster & sc, float EtMin=0.) const ;
+  double getDepth1HcalESum( const std::vector<CaloTowerDetId> & towers, float EtMin=0.) const ;
+  double getDepth2HcalESum( const std::vector<CaloTowerDetId> & towers, float EtMin=0.) const ;
   std::vector<CaloTowerDetId> towersOf(const reco::SuperCluster& sc) const ;
   CaloTowerDetId  towerOf(const reco::CaloCluster& cluster) const ;
   void setTowerCollection(const CaloTowerCollection* towercollection);

@@ -20,6 +20,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
 
     # H/E
     applyHOverECut = cms.bool(True),
+    hOverEMethod = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
     hOverEConeSize = cms.double(0.15),
     #maxHOverE = cms.double(0.1),
     maxHOverEBarrel = cms.double(0.15),

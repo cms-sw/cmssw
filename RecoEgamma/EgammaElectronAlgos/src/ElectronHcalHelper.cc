@@ -18,12 +18,13 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
   if (cfg_.hOverEConeSize==0)
    { return ; }
 
-  if (cfg_.useTowers)
-   {
-    delete hadTower_ ;
-    hadTower_ = new EgammaHadTower(es) ;
-   }
-  else
+  if(hadTower_) delete hadTower_ ;
+  if(cfg_.hOverEMethod==1)
+    hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
+  if(cfg_.hOverEMethod==2)
+    hadTower_ = new EgammaHadTower(es,EgammaHadTower::TowersBehindCluster) ;
+   
+  if (!cfg_.useTowers)
    {
     unsigned long long newCaloGeomCacheId_
      = es.get<CaloGeometryRecord>().cacheIdentifier() ;
@@ -71,12 +72,12 @@ std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters( const 
  { return hadTower_->towersOf(sc) ; }
 
 double ElectronHcalHelper::hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers )
- { return hadTower_->getDepth1HcalESum(towers) ; }
+{ return hadTower_->getDepth1HcalESum(towers, cfg_.hOverEPtMin) ; }
 
 double ElectronHcalHelper::hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers )
- { return hadTower_->getDepth2HcalESum(towers) ; }
+{ return hadTower_->getDepth2HcalESum(towers, cfg_.hOverEPtMin) ; }
 
-double ElectronHcalHelper::hcalESum( const SuperCluster & sc, const std::vector<CaloTowerDetId > * excludeTowers )
+double ElectronHcalHelper::hcalESumCone( const SuperCluster & sc, const std::vector<CaloTowerDetId > * excludeTowers )
  {
   if (cfg_.hOverEConeSize==0)
    { return 0 ; }
@@ -86,7 +87,7 @@ double ElectronHcalHelper::hcalESum( const SuperCluster & sc, const std::vector<
    { return hcalIso_->getHcalESum(&sc) ; }
  }
 
-double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers )
+double ElectronHcalHelper::hcalESumDepth1Cone( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers )
  {
   if (cfg_.hOverEConeSize==0)
    { return 0 ; }
@@ -96,7 +97,7 @@ double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc ,const std::v
    { return hcalIso_->getHcalESumDepth1(&sc) ; }
  }
 
-double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers  )
+double ElectronHcalHelper::hcalESumDepth2Cone( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers  )
  {
   if (cfg_.hOverEConeSize==0)
    { return 0 ; }
@@ -105,6 +106,30 @@ double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc ,const std::v
   else
    { return hcalIso_->getHcalESumDepth2(&sc) ; }
  }
+
+double ElectronHcalHelper::hcalESum( const reco::SuperCluster & sc, const std::vector<CaloTowerDetId> * excludeTowers ) {
+  if(cfg_.hOverEMethod==0)
+    return hcalESumCone(sc,excludeTowers);
+  // other cases
+  std::vector<CaloTowerDetId> towers(hcalTowersBehindClusters(sc));
+  // Et threshold is applied in these sums
+  return hcalESumDepth1BehindClusters(towers) + hcalESumDepth2BehindClusters(towers);  
+}
+
+double ElectronHcalHelper::hcalESumDepth1( const reco::SuperCluster & sc, const std::vector<CaloTowerDetId> * excludeTowers ) {
+  if(cfg_.hOverEMethod==0)
+    return hcalESumDepth1Cone(sc, excludeTowers);  
+
+  // Et threshold is applied in this sum
+  return hcalESumDepth1BehindClusters(hcalTowersBehindClusters(sc));
+}
+
+double ElectronHcalHelper::hcalESumDepth2( const reco::SuperCluster & sc, const std::vector<CaloTowerDetId> * excludeTowers ) {
+  if(cfg_.hOverEMethod==0)
+    return hcalESumDepth2Cone(sc, excludeTowers);  
+  // Et threshold is applied in this sum
+  return hcalESumDepth2BehindClusters(hcalTowersBehindClusters(sc));
+}
 
 ElectronHcalHelper::~ElectronHcalHelper()
  {

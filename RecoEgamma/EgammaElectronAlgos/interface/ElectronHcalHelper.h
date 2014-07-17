@@ -26,6 +26,9 @@ class ElectronHcalHelper
       // common parameters
       double hOverEConeSize ;
 
+      // method (0 = cone; 1 = single tower ; 2 towers behind cluster)
+      int hOverEMethod ; 
+
       // strategy
       bool useTowers ;
 
@@ -47,6 +50,10 @@ class ElectronHcalHelper
     double hcalESum( const reco::SuperCluster & , const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
     double hcalESumDepth1( const reco::SuperCluster &, const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
     double hcalESumDepth2( const reco::SuperCluster & ,const std::vector<CaloTowerDetId> * excludeTowers = 0 ) ;
+
+    double hcalESumCone( const reco::SuperCluster & , const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
+    double hcalESumDepth1Cone( const reco::SuperCluster &, const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
+    double hcalESumDepth2Cone( const reco::SuperCluster & ,const std::vector<CaloTowerDetId> * excludeTowers = 0 ) ;
     double hOverEConeSize() const { return cfg_.hOverEConeSize ; }
 
     // Behind clusters
