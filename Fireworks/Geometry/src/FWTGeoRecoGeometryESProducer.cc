@@ -5,6 +5,12 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -303,25 +309,31 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std
 void
 FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
-						    end = m_trackerGeom->detsPXF().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
+           end = m_trackerGeom->detsPXF().end();
+        it != end; ++it )
+   {
+      PXFDetId detid = ( *it )->geographicalId();
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+      std::stringstream s;
+      s << detid;
+      std::string name = s.str();
 
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( name, *it );
 
-  }
+
+      TGeoVolume* holder  = GetDaughter(assembly, "Side", detid.side());
+      holder = GetDaughter(holder, "Disk", detid.disk());
+      holder = GetDaughter(holder, "Blade", detid.blade());
+      holder = GetDaughter(holder, "Panel", detid.panel());
+   
+      holder->AddNode( child, copy, createPlacement( *it ));
+      child->SetLineColor( kGreen );
+
+   }
   
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 
 //______________________________________________________________________________
@@ -330,23 +342,27 @@ FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const st
 void
 FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string& iName, int copy ) 
 {
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
-						    end = m_trackerGeom->detsTIB().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
+           end = m_trackerGeom->detsTIB().end();
+        it != end; ++it )
+   {
+      TIBDetId detid(( *it )->geographicalId());
 
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
+      std::stringstream s;
+      s << detid;
+      std::string name = s.str();
+
+      TGeoVolume* child = createVolume( name, *it );
+
+      TGeoVolume* holder  = GetDaughter(assembly, "Module", detid.module());
+      holder = GetDaughter(holder, "Order", detid.order());
+      holder = GetDaughter(holder, "Side", detid.side());
+      holder->AddNode( child, copy, createPlacement( *it ));
+      child->SetLineColor( kGreen );
+   }
   
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 
 //______________________________________________________________________________
@@ -355,24 +371,27 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string
 void
 FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
-						    end = m_trackerGeom->detsTID().end();
-       it != end; ++it)
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
+           end = m_trackerGeom->detsTID().end();
+        it != end; ++it)
+   {
+      TIDDetId detid = ( *it )->geographicalId();
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+      std::stringstream s;
+      s << detid;
+      std::string name = s.str();
 
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
+      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* holder  = GetDaughter(assembly, "Side", detid.side());
+      holder = GetDaughter(holder, "Wheel", detid.wheel());
+      holder = GetDaughter(holder, "Ring", detid.ring());
+      holder->AddNode( child, copy, createPlacement( *it ));
+   
+      child->SetLineColor( kGreen );
+   }
   
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 
 //______________________________________________________________________________
@@ -380,24 +399,27 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string
 void
 FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
-						    end = m_trackerGeom->detsTOB().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
+           end = m_trackerGeom->detsTOB().end();
+        it != end; ++it )
+   {
+      TOBDetId detid(( *it )->geographicalId());
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+      std::stringstream s;
+      s << detid;
+      std::string name = s.str();
 
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
+      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* holder  = GetDaughter(assembly, "Rod", detid.rodNumber());
+      holder = GetDaughter(holder, "Side", detid.side());
+      holder = GetDaughter(holder, "Module", detid.moduleNumber());
+      holder->AddNode( child, copy, createPlacement( *it ));
+   
+      child->SetLineColor( kGreen );
+   }
   
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 //______________________________________________________________________________
 
@@ -405,24 +427,27 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string
 void
 FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
-						    end = m_trackerGeom->detsTEC().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
+           end = m_trackerGeom->detsTEC().end();
+        it != end; ++it )
+   {
+      TECDetId detid = ( *it )->geographicalId();
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+      std::stringstream s;
+      s << detid;
+      std::string name = s.str();
 
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
+      TGeoVolume* child = createVolume( name, *it );
+
+      TGeoVolume* holder  = GetDaughter(assembly, "Order", detid.order());
+      holder = GetDaughter(holder, "Ring", detid.ring());
+      holder = GetDaughter(holder, "Module", detid.module());
+      holder->AddNode( child, copy, createPlacement( *it ));
+      child->SetLineColor( kGreen );
+   }
   
-  top->AddNode( assembly, copy );
+   top->AddNode( assembly, copy );
 }
 //______________________________________________________________________________
 
@@ -430,66 +455,90 @@ FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string
 void
 FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  //
-  // DT chambers geometry
-  //
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  auto const & dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
-  for( auto it = dtChamberGeom.begin(),
-					     end = dtChamberGeom.end(); 
-       it != end; ++it )
-  {
-    if( auto chamber = dynamic_cast< const DTChamber *>(*it))
-    {      
-      unsigned int rawid = chamber->geographicalId().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
+   //
+   // DT chambers geometry
+   //
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   auto const & dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
+   for( auto it = dtChamberGeom.begin(),
+           end = dtChamberGeom.end(); 
+        it != end; ++it )
+   {
+      if( auto chamber = dynamic_cast< const DTChamber *>(*it))
+      {      
+         DTChamberId detid = chamber->geographicalId();
+         std::stringstream s;
+         s << detid;
+         std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, chamber );
-      assembly->AddNode( child, copy, createPlacement( chamber ));
-      child->SetLineColor( kRed );
-     }
-  }
-  top->AddNode( assembly, copy );
+         TGeoVolume* child = createVolume( name, chamber );
+         TGeoVolume* holder  = GetDaughter(assembly, "Wheel", detid.wheel());
+         holder = GetDaughter(holder, "Station", detid.station());
+         holder = GetDaughter(holder, "Sector", detid.sector());
+   
+         holder->AddNode( child, copy, createPlacement( chamber ));
+         child->SetLineColor( kRed );
+      }
+   }
+   top->AddNode( assembly, copy );
 
-  // Fill in DT super layer parameters
-  auto const & dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTLayerId())->dets();
-  for( auto it = dtSuperLayerGeom.begin(),
-					    end = dtSuperLayerGeom.end(); 
-       it != end; ++it )
-  {
-    if( auto * superlayer = dynamic_cast<const DTSuperLayer*>(*it))
-    {
-      unsigned int rawid = superlayer->id().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
-      
-      TGeoVolume* child = createVolume( name, superlayer );
-      assembly->AddNode( child, copy, createPlacement( superlayer ));
-      child->SetLineColor( kBlue );
-    }
-  }
 
-  // Fill in DT layer parameters
-  auto const & dtLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
-  for( auto it = dtLayerGeom.begin(),
-					    end = dtLayerGeom.end(); 
-       it != end; ++it )
-  {
-    if(auto layer = dynamic_cast<const DTLayer*>(*it))
-    {
-      unsigned int rawid = layer->id().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
+
+   // Fill in DT super layer parameters
+   auto const & dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
+   for( auto it = dtSuperLayerGeom.begin(),
+           end = dtSuperLayerGeom.end(); 
+        it != end; ++it )
+   {
+      if( auto * superlayer = dynamic_cast<const DTSuperLayer*>(*it))
+      {
+         //         DetId detidx = superlayer->geographicalId();
+         DTSuperLayerId detid( DetId(superlayer->geographicalId()));
+         std::stringstream s;
+         s << detid;
+         std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, layer );
-      assembly->AddNode( child, copy, createPlacement( layer ));
-      child->SetLineColor( kBlue );
-    }
-  }  
+         TGeoVolume* child = createVolume( name, superlayer );
+
+         TGeoVolume* holder  = GetDaughter(assembly, "Wheel", detid.wheel());
+         holder = GetDaughter(holder, "Station", detid.station());
+         holder = GetDaughter(holder, "Sector", detid.sector());
+         holder = GetDaughter(holder, "SuperLayer", detid.superlayer());
+         // holder = GetDaughter(holder, "Layer", detid.layer());
+
+         holder->AddNode( child, copy, createPlacement( superlayer ));
+         child->SetLineColor( kBlue );
+      }
+   }
+   
+   // Fill in DT layer parameters
+   auto const & dtLayerGeom = m_geomRecord->slaveGeometry( DTLayerId())->dets();
+   for( auto it = dtLayerGeom.begin(),
+           end = dtLayerGeom.end(); 
+        it != end; ++it )
+   {
+      if(auto layer = dynamic_cast<const DTLayer*>(*it))
+      {
+
+         DTLayerId detid( DetId(layer->geographicalId()));
+
+         std::stringstream s;
+         s << detid;
+         std::string name = s.str();
+      
+         TGeoVolume* child = createVolume( name, layer );
+
+         TGeoVolume* holder  = GetDaughter(assembly, "Wheel", detid.wheel());
+         holder = GetDaughter(holder, "Station", detid.station());
+         holder = GetDaughter(holder, "Sector", detid.sector());
+         holder = GetDaughter(holder, "SuperLayer", detid.superlayer());
+         holder = GetDaughter(holder, "Layer", detid.layer());
+
+         holder->AddNode( child, copy, createPlacement( layer ));
+         child->SetLineColor( kBlue );
+      }
+   } 
+
 }
 //______________________________________________________________________________
 
