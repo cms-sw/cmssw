@@ -177,6 +177,14 @@ def cust_2023HGCal(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+        # Also need to tell the MixingModule to make the correct collections available from
+        # the pileup, even if not creating CrossingFrames.
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchebackDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchefrontDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
         process.particleFlowCluster += process.particleFlowClusterHGC
@@ -232,6 +240,14 @@ def cust_2023HGCalMuon(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+        # Also need to tell the MixingModule to make the correct collections available from
+        # the pileup, even if not creating CrossingFrames.
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchebackDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchefrontDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
         process.particleFlowCluster += process.particleFlowClusterHGC
