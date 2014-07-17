@@ -754,6 +754,7 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
     TH1 *histoY =  histo->ProjectionY(" ", i, i);
     double cont = histoY->GetEntries();
     double rms = histoY->GetRMS();
+    double rmsErr = histoY->GetRMSError();
 
     if (cont >= cont_min) {
       float minfit = histoY->GetMean() - histoY->GetRMS();
@@ -780,6 +781,7 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 //       sigmaME->setBinError(i,sqrt(err[2]*err[2]+par[2]*par[2]));
 
       rmsME->setBinContent(i, rms);
+      rmsME->setBinError(i, rmsErr);
 
       if(fitFcn) delete fitFcn;
       if(histoY) delete histoY;
