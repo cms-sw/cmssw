@@ -10,7 +10,7 @@ class LayerSpec
     public:
         struct hashfct
         {
-            size_t operator()(const LayerSpec &layerSpec) const 
+            inline size_t operator()(const LayerSpec &layerSpec) const 
             {
                 return layerSpec.getSubDet()*10000+layerSpec.getLayerNumber()*100+layerSpec.getSide()+1;
             }
@@ -18,7 +18,7 @@ class LayerSpec
         struct eq
         {
             static hashfct gethash;
-            bool operator()(const LayerSpec &l1, const LayerSpec &l2) const 
+            inline bool operator()(const LayerSpec &l1, const LayerSpec &l2) const 
             {
                 return gethash(l1)==gethash(l2);
             }

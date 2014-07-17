@@ -266,20 +266,14 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 void 
 TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
 
-    
+    /*
     std::cout<<std::endl;
 	std::cout<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
 	std::cout<<seedingAlgo[0]<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
-    
+    */
 
-  //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
-
-#ifdef FAMOS_DEBUG
-  std::cout << "################################################################" << std::endl;
-  std::cout << " TrajectorySeedProducer produce init " << std::endl;
-#endif
 
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHand;
@@ -328,11 +322,11 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	//std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 	
 	
-	std::vector<std::vector<std::pair<int,TrackerRecHit >>> newhits;
-	newhits.resize(theSimTracks->size());
+	//std::vector<std::vector<std::pair<int,TrackerRecHit >>> newhits;
+	//newhits.resize(theSimTracks->size());
 	
-	std::vector<std::vector<std::pair<int,TrackerRecHit >>> oldhits;
-	oldhits.resize(theSimTracks->size());
+	//std::vector<std::vector<std::pair<int,TrackerRecHit >>> oldhits;
+	//oldhits.resize(theSimTracks->size());
     
 	//if no hits -> directly write empty collection
 	if(theGSRecHits->size() == 0)
@@ -436,7 +430,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 					recHits.push_back(aTrackingRecHit);
 					
 					//DEBUG
-					newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
+					//newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
 				}
 				
 				
@@ -488,20 +482,20 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	} //end loop over simtracks
     
     
-    /*
+    
 	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
 	{
 		std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
 		e.put(p,seedingAlgo[ialgo]);
 	}
-	*/
 	
 	
 	
-	TrajectorySeedProducer::produce(e, es, oldhits);
+	
+	//TrajectorySeedProducer::produce(e, es, oldhits);
 	
 	
-	
+	/*
 	for (unsigned int itrack = 0; itrack<newhits.size(); ++itrack)
 	{
 	    if ((newhits[itrack].size()>0 && oldhits[itrack].size()==0) || (newhits[itrack].size()==0 && oldhits[itrack].size()>0))
@@ -526,7 +520,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	        }
         }
 	}
-	
+	*/
   
 }
 

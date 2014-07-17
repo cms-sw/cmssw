@@ -163,8 +163,8 @@ template<class DATA>
 class SeedingTree
 {
     public:
-       // typedef std::unordered_set<DATA,typename DATA:: hashfct, typename DATA:: eq> SingleSet;
-         typedef std::set<DATA> SingleSet;
+        typedef std::unordered_set<DATA,typename DATA:: hashfct, typename DATA:: eq> SingleSet;
+         //typedef std::set<DATA> SingleSet;
     protected:
         std::vector<SeedingNode<DATA>*> _roots;
         std::vector<SeedingNode<DATA>*> _allNodes;
