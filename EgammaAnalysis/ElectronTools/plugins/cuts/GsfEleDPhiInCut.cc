@@ -6,8 +6,8 @@ class GsfEleDPhiInCut : public CutApplicatorBase {
 public:
   GsfEleDPhiInCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _dPhiInCutValueEB(c.getParameter<double>("dPhiInCutValue")),
-    _dPhiInCutValueEE(c.getParameter<double>("dPhiInCutValue")),
+    _dPhiInCutValueEB(c.getParameter<double>("dPhiInCutValueEB")),
+    _dPhiInCutValueEE(c.getParameter<double>("dPhiInCutValueEE")),
     _barrelCutOff(c.getParameter<double>("barrelCutOff")) {    
   }
   
