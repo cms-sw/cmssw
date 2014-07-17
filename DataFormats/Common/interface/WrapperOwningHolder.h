@@ -7,7 +7,8 @@
 
 #include "DataFormats/Common/interface/WrapperHolder.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class WrapperOwningHolder : private WrapperHolder {
@@ -22,9 +23,9 @@ namespace edm {
 
     WrapperOwningHolder(void const* wrapper, WrapperInterfaceBase const* interface);
 
-    WrapperOwningHolder(boost::shared_ptr<void const> wrapper, WrapperInterfaceBase const* interface);
+    WrapperOwningHolder(std::shared_ptr<void const> wrapper, WrapperInterfaceBase const* interface);
 
-    boost::shared_ptr<void const> makeWrapper(void const* wrapper, WrapperInterfaceBase const* interface);
+    std::shared_ptr<void const> makeWrapper(void const* wrapper, WrapperInterfaceBase const* interface);
 
     using WrapperHolder::dynamicTypeInfo;
     using WrapperHolder::fillPtrVector;
@@ -40,7 +41,7 @@ namespace edm {
     using WrapperHolder::wrappedTypeInfo;
     using WrapperHolder::wrapper;
 
-    boost::shared_ptr<void const> product() const {
+    std::shared_ptr<void const> product() const {
       return wrapperOwner_;
     }
 
@@ -50,7 +51,7 @@ namespace edm {
     }
 
   private:  
-    boost::shared_ptr<void const> wrapperOwner_;
+    std::shared_ptr<void const> wrapperOwner_;
   };
 
 }

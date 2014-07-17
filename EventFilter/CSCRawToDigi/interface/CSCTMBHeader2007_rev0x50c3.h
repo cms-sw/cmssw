@@ -20,6 +20,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   virtual uint16_t L1ANumber() const {return bits.l1aNumber;}
   virtual uint16_t NTBins() const {return bits.nTBins;}
   virtual uint16_t NCFEBs() const {return bits.nCFEBs;}
+  virtual void setNCFEBs(uint16_t ncfebs) {bits.nCFEBs = ncfebs & 0x1F;}
   virtual uint16_t firmwareRevision() const {return bits.firmRevCode;}
 
   ///returns CLCT digis

@@ -6,7 +6,7 @@
 InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 ----------------------------------------------------------------------*/
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 
@@ -28,8 +28,8 @@ namespace edm {
 
     InputSourceDescription(ModuleDescription const& md,
                            ProductRegistry& preg,
-                           boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
-                           boost::shared_ptr<ActivityRegistry> areg,
+                           std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                           std::shared_ptr<ActivityRegistry> areg,
                            int maxEvents,
                            int maxLumis,
                            PreallocationConfiguration const& allocations) :
@@ -44,8 +44,8 @@ namespace edm {
 
     ModuleDescription moduleDescription_;
     ProductRegistry* productRegistry_;
-    boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    std::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxLumis_;
     PreallocationConfiguration const* allocations_;

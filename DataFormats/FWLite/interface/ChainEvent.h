@@ -19,14 +19,15 @@
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
+#include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
@@ -100,7 +101,7 @@ namespace fwlite {
       Long64_t eventIndex() const { return eventIndex_; }
       virtual Long64_t fileIndex() const { return eventIndex_; }
 
-      void setGetter(boost::shared_ptr<edm::EDProductGetter> getter){
+      void setGetter(std::shared_ptr<edm::EDProductGetter> getter){
          event_->setGetter(getter);
       }
 
@@ -131,11 +132,11 @@ namespace fwlite {
       void switchToFile(Long64_t);
       // ---------- member data --------------------------------
       std::vector<std::string> fileNames_;
-      boost::shared_ptr<TFile> file_;
-      boost::shared_ptr<Event> event_;
+      std::shared_ptr<TFile> file_;
+      std::shared_ptr<Event> event_;
       Long64_t eventIndex_;
       std::vector<Long64_t> accumulatedSize_;
-      boost::shared_ptr<edm::EDProductGetter> getter_;
+      std::shared_ptr<edm::EDProductGetter> getter_;
 
 };
 

@@ -21,7 +21,6 @@
 <use   name="EventFilter/HcalRawToDigi"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="Utilities/Timing"/>
 <use   name="rootphysics"/>
 <export>
   <lib   name="1"/>

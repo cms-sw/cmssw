@@ -29,7 +29,7 @@
 //#define debugLog
 
 CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
-		   SensitiveDetectorCatalog & clg, 
+		   const SensitiveDetectorCatalog & clg,
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0), lvC3EF(0),

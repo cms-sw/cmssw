@@ -275,10 +275,12 @@ m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
 m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
-m_enableMultiThread(pset.getUntrackedParameter<bool>("enableMultiThread", false)),
+m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
+  edm::Service<DQMStore> dstore;  
+  m_enableMultiThread = dstore->enableMultiThread_;
 }
 
 // DQMRootOutputModule::DQMRootOutputModule(const DQMRootOutputModule& rhs)

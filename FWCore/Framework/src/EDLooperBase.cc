@@ -26,9 +26,6 @@
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
-#include "boost/bind.hpp"
-
-
 namespace edm {
 
   EDLooperBase::EDLooperBase() : iCounter_(0), act_table_(nullptr), moduleChanger_(nullptr),
@@ -83,8 +80,8 @@ namespace edm {
 
     std::set<edm::eventsetup::EventSetupRecordKey> const& keys = modifyingRecords();
     for_all(keys,
-      boost::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
-                  esp, _1));
+      std::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
+                  esp, std::placeholders::_1));
   }
 
   void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob();}

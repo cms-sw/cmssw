@@ -22,7 +22,6 @@
 
 namespace edm {
   class BranchIDListHelper;
-  class EDLooperBase;
   class HistoryAppender;
   class IOVSyncValue;
   class ParameterSet;
@@ -36,8 +35,8 @@ namespace edm {
   public:
     SubProcess(ParameterSet& parameterSet,
                ParameterSet const& topLevelParameterSet,
-               boost::shared_ptr<ProductRegistry const> parentProductRegistry,
-               boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+               std::shared_ptr<ProductRegistry const> parentProductRegistry,
+               std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
                ServiceToken const& token,
@@ -220,11 +219,11 @@ namespace edm {
 
     
     ServiceToken                                  serviceToken_;
-    boost::shared_ptr<ProductRegistry const>      parentPreg_;
-    boost::shared_ptr<ProductRegistry const>	    preg_;
-    boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
+    std::shared_ptr<ProductRegistry const>      parentPreg_;
+    std::shared_ptr<ProductRegistry const>	    preg_;
+    std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
-    boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext                                processContext_;
     //We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run

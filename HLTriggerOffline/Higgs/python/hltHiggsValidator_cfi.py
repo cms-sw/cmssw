@@ -126,7 +126,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
 		    ),
 	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
-	    recCaloMETLabel = cms.string("met"),
+	    recCaloMETLabel = cms.string("caloMet"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(2), 
 	    ),

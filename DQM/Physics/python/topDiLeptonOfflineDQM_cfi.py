@@ -18,7 +18,7 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet")
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
     monitoring = cms.PSet(
@@ -168,7 +168,7 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet")
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
     monitoring = cms.PSet(
@@ -317,7 +317,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet")
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
     monitoring = cms.PSet(
@@ -470,7 +470,7 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet")
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
     monitoring = cms.PSet(

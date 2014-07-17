@@ -40,6 +40,7 @@ class TH2D;
 class TH3F;
 class TProfile;
 class TProfile2D;
+class TNamed;
 
 /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -193,6 +194,11 @@ class DQMStore
     std::vector<MonitorElement *> getContents(Args && ... args) {
       return owner_->getContents(std::forward<Args>(args)...);
     }
+    // for the supported syntaxes, see the declarations of DQMStore::removeElements
+    template <typename... Args>
+      void removeElement(Args && ... args) {
+      return owner_->removeElement(std::forward<Args>(args)...);
+    }
 
     MonitorElement * get(const std::string &path);
     std::vector<std::string> getSubdirs(void);
@@ -233,21 +239,21 @@ class DQMStore
     std::lock_guard<std::mutex> guard(book_mutex_);
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
-       initialization in DQMSTore constructor. */
-    uint32_t oldRun=0,oldStreamId=0,oldModuleId=0;
+       initialization in DQMStore constructor. */
     if (enableMultiThread_) {
-      oldRun = run_;
       run_ = run;
-      oldStreamId = streamId_;
       streamId_ = streamId;
-      oldModuleId = moduleId_;
       moduleId_ = moduleId;
     }
     f(*ibooker_);
+
+    /* Initialize to 0 the run_, streamId_ and moduleId_ variables
+       in case we run in mixed conditions with DQMEDAnalyzers and
+       legacy modules */
     if (enableMultiThread_) {
-      run_ = oldRun;
-      streamId_ = oldStreamId;
-      moduleId_ = oldModuleId;
+      run_ = 0;
+      streamId_ = 0;
+      moduleId_ = 0;
     }
   }
   // Signature needed in the harvesting where the booking is done
@@ -519,15 +525,20 @@ class DQMStore
   //-------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
   void                          savePB(const std::string &filename,
-                                       const std::string &path = "");
+                                       const std::string &path = "",
+				       const uint32_t run = 0,
+				       const uint32_t lumi = 0,
+				       const bool resetMEsAfterWriting = false);
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
                                      const std::string &rewrite = "",
                                      const uint32_t run = 0,
+                                     const uint32_t lumi = 0,
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
-                                     const std::string &fileupdate = "RECREATE");
+                                     const std::string &fileupdate = "RECREATE",
+				     const bool resetMEsAfterWriting = false);
   bool                          open(const std::string &filename,
                                      bool overwrite = false,
                                      const std::string &path ="",
@@ -589,10 +600,11 @@ class DQMStore
                                            const uint32_t lumi = 0,
                                            const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
+
   void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
                                          std::string & dirname,
                                          std::string & objname,
-                                         TH1 ** obj);
+                                         TObject ** obj);
 
  public:
   void                          getAllTags(std::vector<std::string> &into) const;
@@ -613,10 +625,10 @@ class DQMStore
 
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
-  void                          reset(void);
+  void        reset(void);
   void        forceReset(void);
 
-  bool        extract(TObject *obj, const std::string &dir, bool overwrite);
+  bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------
@@ -677,6 +689,8 @@ class DQMStore
   double                        scaleFlag_;
   bool                          collateHistograms_;
   bool                          enableMultiThread_;
+  bool                          LSbasedMode_;
+  bool                          forceResetOnBeginLumi_;
   std::string                   readSelectedDirectory_;
   uint32_t                      run_;
   uint32_t                      streamId_;
@@ -699,6 +713,9 @@ class DQMStore
   friend class DQMNet;
   friend class DQMArchiver;
   friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
+  friend class DQMRootOutputModule;
+  friend class DQMFileSaver;
+  friend class MEtoEDMConverter;
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H

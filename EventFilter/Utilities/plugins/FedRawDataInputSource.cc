@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/file.h>
@@ -288,7 +289,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::nextEvent()
 
 inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 {
-  const size_t headerSize = (4 + 1024) * sizeof(uint32); //minimal size to fit any version of FRDEventHeader
+  const size_t headerSize[4] = {0,2*sizeof(uint32),(4 + 1024) * sizeof(uint32),7*sizeof(uint32)}; //size per version of FRDEventHeader
 
   if (setExceptionState_) threadError(); 
   if (!currentFile_)
@@ -391,12 +392,11 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
 
   //file is too short
-  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < headerSize)
+  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < headerSize[detectedFRDversion_])
   {
     throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
       "Premature end of input file while reading event header";
   }
-
   if (singleBufferMode_) {
 
     //should already be there
@@ -406,13 +406,20 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     }
 
     unsigned char *dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
- 
-    if (bufferInputRead_ < headerSize)
+
+
+    if (!bufferInputRead_ || bufferInputRead_ < headerSize[detectedFRDversion_])
     {
       readNextChunkIntoBuffer(currentFile_);
+
+      if (detectedFRDversion_==0) {
+        detectedFRDversion_=*((uint32*)dataPosition);
+        assert(detectedFRDversion_>=1 && detectedFRDversion_<=3);
+      }
+
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
-      if ( bufferInputRead_ < headerSize )
+      if ( bufferInputRead_ < headerSize[detectedFRDversion_])
       {
       throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
 	"Premature end of input file while reading event header";
@@ -427,7 +434,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
     }
 
-    const uint32_t msgSize = event_->size()-headerSize;
+    const uint32_t msgSize = event_->size()-headerSize[detectedFRDversion_];
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
@@ -459,7 +466,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     unsigned char *dataPosition;
 
     //read header, copy it to a single chunk if necessary
-    bool chunkEnd = currentFile_->advance(dataPosition,headerSize);
+    bool chunkEnd = currentFile_->advance(dataPosition,headerSize[detectedFRDversion_]);
 
     event_.reset( new FRDEventMsgView(dataPosition) );
     if (event_->size()>eventChunkSize_) {
@@ -469,7 +476,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
     }
 
-    const uint32_t msgSize = event_->size()-headerSize;
+    const uint32_t msgSize = event_->size()-headerSize[detectedFRDversion_];
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
@@ -479,16 +486,16 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     if (chunkEnd) {
       //header was at the chunk boundary, we will have to move payload as well
-      currentFile_->moveToPreviousChunk(msgSize,headerSize);
+      currentFile_->moveToPreviousChunk(msgSize,headerSize[detectedFRDversion_]);
       chunkIsFree_ = true;
     }
     else {
       //header was contiguous, but check if payload fits the chunk
       if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
 	//rewind to header start position
-	currentFile_->rewindChunk(headerSize);
+	currentFile_->rewindChunk(headerSize[detectedFRDversion_]);
 	//copy event to a chunk start and move pointers
-	chunkEnd = currentFile_->advance(dataPosition,headerSize+msgSize);
+	chunkEnd = currentFile_->advance(dataPosition,headerSize[detectedFRDversion_]+msgSize);
 	assert(chunkEnd);
 	chunkIsFree_=true;
 	//header is moved
@@ -752,7 +759,7 @@ void FedRawDataInputSource::renameToNextFree(std::string const& fileName) const
 void FedRawDataInputSource::preForkReleaseResources()
 {}
 
-void FedRawDataInputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>)
+void FedRawDataInputSource::postForkReacquireResources(std::shared_ptr<edm::multicore::MessageReceiverForSource>)
 {
   InputSource::rewind();
   setRunAuxiliary(
@@ -823,6 +830,11 @@ void FedRawDataInputSource::readSupervisor()
       if( getLSFromFilename_ && ls > currentLumiSection) {
 	currentLumiSection = ls;
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
+      }
+
+      if( getLSFromFilename_ && currentLumiSection>0 && ls < currentLumiSection) {
+          edm::LogError("FedRawDataInputSource") << "Got old LS ("<<ls<<") file from EvFDAQDirector! Expected LS:" << currentLumiSection<<". Aborting execution."<<std::endl;
+          _exit(-1);
       }
 
       int dbgcount=0;
@@ -970,7 +982,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     int fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
     off_t pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
 
-    if (fileDescriptor>=1)
+
+    if (fileDescriptor>=0)
       LogDebug("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos;
     else
     {
@@ -1000,6 +1013,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     LogDebug("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
     close(fileDescriptor);
 
+    if (detectedFRDversion_==0 && chunk->offset_==0) detectedFRDversion_=*((uint32*)chunk->buf_);
+    assert(detectedFRDversion_<=3);
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)
     file->chunks_[chunk->fileIndex_]=chunk;//put the completed chunk in the file chunk vector at predetermined index
 

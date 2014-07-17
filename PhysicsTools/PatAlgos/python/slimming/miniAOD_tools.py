@@ -102,10 +102,6 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
 
     #
-    ## PU JetID
-    process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
-    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
-    #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
     process.patTrigger.packTriggerPathNames = cms.bool(True)
@@ -115,6 +111,7 @@ def miniAOD_customizeCommon(process):
     # FIXME: this and the typeI MET should become AK4 once we have the proper JEC?
     from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK5PF', jetSource = cms.InputTag('ak5PFJets'), jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
+    process.patJetsAK5PFForMetUnc.getJetMCFlavour = False
     runMEtUncertainties(process,jetCollection="selectedPatJetsAK5PFForMetUnc", outputModule=None)
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
@@ -128,6 +125,10 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig')
     process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfos"))
     process.patJets.addTagInfos = cms.bool(True)
+    #
+    ## PU JetID
+    process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
+    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
 
 
 def miniAOD_customizeMC(process):

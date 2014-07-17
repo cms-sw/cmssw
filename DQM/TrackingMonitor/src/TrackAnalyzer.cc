@@ -566,7 +566,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   double phi   = track.phi();
   double eta   = track.eta();
 
-  int nRecHits      = track.hitPattern().numberOfHits();
+  int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();
   int nLostRecHits  = track.numberOfLostHits();
 
@@ -584,7 +584,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ )
       NumberOfRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nRecHits);
     
-    int nLayers = track.hitPattern().trackerLayersWithMeasurement();    
+    int nLayers = track.hitPattern().trackerLayersWithMeasurement();
     // layers
     NumberOfLayersPerTrack->Fill(nLayers);
 
@@ -1093,7 +1093,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       tkmes.TrackPhiErr->Fill(phierror);
       tkmes.TrackEtaErr->Fill(etaerror);
       
-      int nRecHits      = track.hitPattern().numberOfHits();
+      int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
       int nValidRecHits = track.numberOfValidHits();
       // rec hits 
       tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi,    nRecHits);

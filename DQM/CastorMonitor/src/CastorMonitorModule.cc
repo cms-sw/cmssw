@@ -21,7 +21,6 @@
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   {
 
-
    ////---- get steerable variables
   inputLabelRaw_ 			= ps.getParameter<edm::InputTag>("rawLabel");
   inputLabelReport_        	= ps.getParameter<edm::InputTag>("unpackerReportLabel");
@@ -33,7 +32,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   dump2database_   			= ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
 
   if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
-
   ////---- initialize Run, LS, Event number and other parameters
   irun_=0; 
   ilumisec_=0; 

@@ -30,6 +30,7 @@ namespace CLHEP {
 
 namespace sim {
   class FieldBuilder;
+  class ChordFinderSetter;
 }
 
 class PrimaryTransformer;
@@ -55,7 +56,7 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-class ExceptionHandler;
+//class ExceptionHandler;
 
 class RunManager
 {
@@ -141,7 +142,7 @@ private:
   edm::ParameterSet m_pSteppingAction;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  ExceptionHandler* m_CustomExceptionHandler ;
+  //ExceptionHandler* m_CustomExceptionHandler ;
 
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
@@ -153,6 +154,7 @@ private:
     
   std::auto_ptr<SimTrackManager> m_trackManager;
   sim::FieldBuilder             *m_fieldBuilder;
+  sim::ChordFinderSetter        *m_chordFinderSetter;
     
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;

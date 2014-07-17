@@ -31,6 +31,7 @@
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 
+#include "boost/shared_ptr.hpp"
 #include <vector>
 
 namespace reco { namespace tau {

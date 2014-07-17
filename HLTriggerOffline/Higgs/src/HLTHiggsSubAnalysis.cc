@@ -254,16 +254,10 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
     {
         std::string nameGlobalEfficiency = "SummaryPaths_"+_analysisname+"_"+sources[i];
         
-        TH1F *hSummary = new TH1F(nameGlobalEfficiency.c_str(),nameGlobalEfficiency.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
-        hSummary->Sumw2();
-        _elements[nameGlobalEfficiency] = ibooker.book1D(nameGlobalEfficiency, hSummary);
-        delete hSummary;
+        _elements[nameGlobalEfficiency] = ibooker.book1D(nameGlobalEfficiency.c_str(),nameGlobalEfficiency.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
         
         std::string nameGlobalEfficiencyPassing= nameGlobalEfficiency+"_passingHLT";
-        TH1F *hSummaryPassing = new TH1F(nameGlobalEfficiencyPassing.c_str(),nameGlobalEfficiencyPassing.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
-        hSummaryPassing->Sumw2();
-        _elements[nameGlobalEfficiencyPassing] = ibooker.book1D(nameGlobalEfficiencyPassing, hSummaryPassing);
-        delete hSummaryPassing;
+        _elements[nameGlobalEfficiencyPassing] = ibooker.book1D(nameGlobalEfficiencyPassing.c_str(),nameGlobalEfficiencyPassing.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
         
         std::string title = "nb of interations in the event";
         std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+sources[i];
@@ -271,10 +265,10 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
         int    nBins = (int)params[0];
         double min   = params[1];
         double max   = params[2];
-        TH1F *hPu = new TH1F(nameVtxPlot.c_str(), title.c_str(), nBins, min, max);
-        hPu->Sumw2();
-        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot, hPu);
+
+        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), title.c_str(), nBins, min, max);
         for (size_t j = 0 ; j < _hltPathsToCheck.size() ; j++){
+                //declare the efficiency vs interaction plots
                 std::string path = _hltPathsToCheck[j];
                 std::string shortpath = path;
                 if(path.rfind("_v") < path.length())
@@ -282,10 +276,12 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
                         shortpath = path.substr(0, path.rfind("_v"));
                 }
             std::string titlePassing = "nb of interations in the event passing path " + shortpath;
-            hPu->SetTitle(titlePassing.c_str());
-        	_elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, hPu);
+        	_elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassing.c_str(), nBins, min, max);
+            
+               //fill the bin labels of the summary plot
+            _elements[nameGlobalEfficiency]->setBinLabel(j+1,shortpath);
+            _elements[nameGlobalEfficiencyPassing]->setBinLabel(j+1,shortpath);
         }
-        delete hPu;
     }
 }
 
@@ -442,22 +438,26 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
         std::string SummaryName = "SummaryPaths_"+_analysisname+"_"+u2str[it->first];
 		const std::string source = u2str[it->first];
-        TH1F* hGlobalEffic = _elements[SummaryName]->getTH1F();
-        TH1F* hGlobalEfficTrig = _elements[SummaryName+"_passingHLT"]->getTH1F();
 		for(std::vector<HLTHiggsPlotter>::iterator an = _analyzers.begin();
 				an != _analyzers.end(); ++an)
 		{
 			const std::string hltPath = _shortpath2long[an->gethltpath()];
-            		const std::string fillShortPath = an->gethltpath();
+            const std::string fillShortPath = an->gethltpath();
 			const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 			an->analyze(ispassTrigger,source,it->second);
-            		hGlobalEffic->Fill(fillShortPath.c_str(),1);
-           		if (ispassTrigger) {
-				hGlobalEfficTrig->Fill(fillShortPath.c_str(),1);
+            int refOfThePath = -1;
+            for (size_t itePath = 0 ; itePath< _hltPathsToCheck.size() ; itePath++){
+                refOfThePath++;
+                if (TString(hltPath).Contains(_hltPathsToCheck[itePath])) break;
+            }
+            _elements[SummaryName]->Fill(refOfThePath);
+            if (ispassTrigger) {
+                _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,1);
 				_elements[nameVtxPlot+"_"+fillShortPath.c_str()]->Fill(nbMCvtx);
 			}
-            		else { 
-				hGlobalEfficTrig->Fill(fillShortPath.c_str(),0);
+            else {
+                _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,0);
+
 			}
 		}
 	}

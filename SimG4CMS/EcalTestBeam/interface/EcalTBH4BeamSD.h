@@ -21,7 +21,7 @@ class EcalTBH4BeamSD : public CaloSD {
 
 public:    
 
-  EcalTBH4BeamSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &,
+  EcalTBH4BeamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 		 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~EcalTBH4BeamSD();
   virtual double getEnergyDeposit(G4Step*);

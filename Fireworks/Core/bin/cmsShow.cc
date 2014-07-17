@@ -91,7 +91,7 @@ void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 void run_app(TApplication &app, int argc, char **argv)
 {
    //Remove when FWLite handles the MessageLogger
-   edm::MessageLoggerQ::setMLscribe_ptr(boost::shared_ptr<edm::service::AbstractMLscribe>(new SilentMLscribe));
+   edm::MessageLoggerQ::setMLscribe_ptr(std::shared_ptr<edm::service::AbstractMLscribe>(std::make_shared<SilentMLscribe>()));
    edm::MessageDrop::instance()->messageLoggerScribeIsRunning = edm::MLSCRIBE_RUNNING_INDICATOR;
    //---------------------
    std::auto_ptr<CmsShowMain> pMain( new CmsShowMain(argc,argv) );

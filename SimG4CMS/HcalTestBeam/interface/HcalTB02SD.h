@@ -29,7 +29,7 @@
 class HcalTB02SD : public CaloSD {
 
 public:
-  HcalTB02SD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+  HcalTB02SD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	     edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HcalTB02SD();
   virtual double getEnergyDeposit(G4Step*);

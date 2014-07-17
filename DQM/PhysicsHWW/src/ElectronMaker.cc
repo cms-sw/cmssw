@@ -434,9 +434,7 @@ void ElectronMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
       // Hit Pattern //
       /////////////////
 
-      const HitPattern& p_inner = el_track->trackerExpectedHitsInner(); 
-
-      hww.els_exp_innerlayers().push_back(p_inner.numberOfHits());
+      hww.els_exp_innerlayers().push_back(el_track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
 
 
       /////////////////

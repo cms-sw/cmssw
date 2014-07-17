@@ -527,12 +527,11 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
     
-    const reco::HitPattern& hitp    = pTrack->hitPattern();
-    const reco::HitPattern& hitpIn  = pTrack->trackerExpectedHitsInner();
-    const reco::HitPattern& hitpOut = pTrack->trackerExpectedHitsOuter();
+    const reco::HitPattern &hitp = pTrack->hitPattern();
 
-    int nLayersCrossed = hitp.trackerLayersWithMeasurement() ;        
-    int nOuterHits     = hitp.stripTOBLayersWithMeasurement()+hitp.stripTECLayersWithMeasurement() ;
+    int nLayersCrossed = hitp.trackerLayersWithMeasurement();
+    int nOuterHits     = hitp.stripTOBLayersWithMeasurement()
+        + hitp.stripTECLayersWithMeasurement();
     
     bool   ifGood      = pTrack->quality(trackQuality_);
     double pt1         = pTrack->pt();
@@ -820,31 +819,42 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_trackChiSq            ->push_back( chisq1 );	
 	t_trackNOuterHits       ->push_back( nOuterHits );
 	t_NLayersCrossed        ->push_back( nLayersCrossed );
-	
-	t_trackHitsTOB          ->push_back( hitp.stripTOBLayersWithMeasurement()       ); 
-	t_trackHitsTEC          ->push_back( hitp.stripTECLayersWithMeasurement()       );
-	t_trackHitInMissTOB     ->push_back( hitpIn.stripTOBLayersWithoutMeasurement()  ); 
-	t_trackHitInMissTEC     ->push_back( hitpIn.stripTECLayersWithoutMeasurement()  );  
-	t_trackHitInMissTIB     ->push_back( hitpIn.stripTIBLayersWithoutMeasurement()  );  
-	t_trackHitInMissTID     ->push_back( hitpIn.stripTIDLayersWithoutMeasurement()  );
-	t_trackHitInMissTIBTID  ->push_back( hitpIn.stripTIBLayersWithoutMeasurement() + hitpIn.stripTIDLayersWithoutMeasurement() );  
+    using namespace reco;	
+	t_trackHitsTOB          ->push_back(hitp.stripTOBLayersWithMeasurement()); 
+	t_trackHitsTEC          ->push_back(hitp.stripTECLayersWithMeasurement());
 
-	t_trackHitOutMissTOB    ->push_back( hitpOut.stripTOBLayersWithoutMeasurement() );
-	t_trackHitOutMissTEC    ->push_back( hitpOut.stripTECLayersWithoutMeasurement() ); 
-	t_trackHitOutMissTIB    ->push_back( hitpOut.stripTIBLayersWithoutMeasurement() );
-	t_trackHitOutMissTID    ->push_back( hitpOut.stripTIDLayersWithoutMeasurement() );
-	t_trackHitOutMissTOBTEC ->push_back( hitpOut.stripTOBLayersWithoutMeasurement() + hitpOut.stripTECLayersWithoutMeasurement() );
+	t_trackHitInMissTOB     ->push_back(hitp.stripTOBLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTEC     ->push_back(hitp.stripTECLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTIB     ->push_back(hitp.stripTIBLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTID     ->push_back(hitp.stripTIDLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTIBTID  ->push_back(hitp.stripTIBLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)
+            + hitp.stripTIDLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)); 
 
-	t_trackHitInMeasTOB     ->push_back( hitpIn.stripTOBLayersWithMeasurement()  ); 
-	t_trackHitInMeasTEC     ->push_back( hitpIn.stripTECLayersWithMeasurement()  );  
-	t_trackHitInMeasTIB     ->push_back( hitpIn.stripTIBLayersWithMeasurement()  );  
-	t_trackHitInMeasTID     ->push_back( hitpIn.stripTIDLayersWithMeasurement()  );
-	t_trackHitOutMeasTOB    ->push_back( hitpOut.stripTOBLayersWithMeasurement() );
-	t_trackHitOutMeasTEC    ->push_back( hitpOut.stripTECLayersWithMeasurement() ); 
-	t_trackHitOutMeasTIB    ->push_back( hitpOut.stripTIBLayersWithMeasurement() );
-	t_trackHitOutMeasTID    ->push_back( hitpOut.stripTIDLayersWithMeasurement() );
-	t_trackOutPosOutHitDr   ->push_back( trackOutPosOutHitDr                     );
-	t_trackL                ->push_back( trackL                                  );
+	t_trackHitOutMissTOB    ->push_back(hitp.stripTOBLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTEC    ->push_back(hitp.stripTECLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)); 
+	t_trackHitOutMissTIB    ->push_back(hitp.stripTIBLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTID    ->push_back(hitp.stripTIDLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTOBTEC ->push_back(hitp.stripTOBLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)
+            + hitp.stripTECLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+
+    // The following push_back(0) where calls to methods XYZLayersWithMeasurement() on
+    // HiPatterns ExpectedMissingInner and ExpectedMissingOuter. Since those HitPatterns
+    // only contain MISSING_HITS, any call to XYZLayersWithMeasuremnt() whould return 0.
+    // As example:
+    //      t_trackHitInMeasTOB     ->push_back( hitpIn.stripTOBLayersWithMeasurement()  );
+    // where hitpIn was expectedInnerHits.
+	t_trackHitInMeasTOB     ->push_back(0);
+	t_trackHitInMeasTEC     ->push_back(0);
+	t_trackHitInMeasTIB     ->push_back(0);
+	t_trackHitInMeasTID     ->push_back(0);
+
+	t_trackHitOutMeasTOB    ->push_back(0);
+	t_trackHitOutMeasTEC    ->push_back(0);
+	t_trackHitOutMeasTIB    ->push_back(0);
+	t_trackHitOutMeasTID    ->push_back(0);
+
+	t_trackOutPosOutHitDr   ->push_back(trackOutPosOutHitDr                     );
+	t_trackL                ->push_back(trackL                                  );
 
 	t_maxNearP31x31         ->push_back( maxNearP31x31 );
 	t_maxNearP21x21         ->push_back( maxNearP21x21 );
@@ -1732,53 +1742,61 @@ double IsolatedTracksNxN::DeltaR(double eta1, double phi1, double eta2, double p
   return std::sqrt(deta*deta + dphi*dphi);
 }
 
-void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) {
-  
-  std::string theTrackQuality = "highPurity";
-  reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality);
+void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) 
+{
+    using namespace reco; 
+    std::string theTrackQuality = "highPurity";
+    reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality);
 
-  std::cout << " Reference Point " << pTrack->referencePoint() <<"\n"
-	    << " TrackMmentum " << pTrack->momentum()
-	    << " (pt,eta,phi)(" << pTrack->pt()<<","<<pTrack->eta()<<","<<pTrack->phi()<<")"
-	    << " p " << pTrack->p() << "\n"
-	    << " Normalized chi2 " << pTrack->normalizedChi2() <<"  charge " << pTrack->charge()
-	    << " qoverp() " << pTrack->qoverp() <<"+-" << pTrack->qoverpError()
-	    << " d0 " << pTrack->d0() << "\n"
-	    << " NValidHits " << pTrack->numberOfValidHits() << "  NLostHits " << pTrack->numberOfLostHits()
-	    << " TrackQuality " << pTrack->qualityName(trackQuality_) << " " << pTrack->quality(trackQuality_) 
-	    << std::endl;
-  
-  if( printTrkHitPattern_ ) {
-    const reco::HitPattern& p = pTrack->hitPattern();
-    const reco::HitPattern& p1 = pTrack->trackerExpectedHitsInner();
-    const reco::HitPattern& p2 = pTrack->trackerExpectedHitsOuter();
+    std::cout << " Reference Point " << pTrack->referencePoint() <<"\n"
+        << " TrackMmentum " << pTrack->momentum()
+        << " (pt,eta,phi)(" << pTrack->pt()<<","<<pTrack->eta()<<","<<pTrack->phi()<<")"
+        << " p " << pTrack->p() << "\n"
+        << " Normalized chi2 " << pTrack->normalizedChi2() <<"  charge " << pTrack->charge()
+        << " qoverp() " << pTrack->qoverp() <<"+-" << pTrack->qoverpError()
+        << " d0 " << pTrack->d0() << "\n"
+        << " NValidHits " << pTrack->numberOfValidHits() << "  NLostHits " << pTrack->numberOfLostHits()
+        << " TrackQuality " << pTrack->qualityName(trackQuality_) << " " << pTrack->quality(trackQuality_) 
+        << std::endl;
 
-    std::cout<<"default " << std::endl;
-    for (int i=0; i<p.numberOfHits(); i++) {
-      p.printHitPattern(i, std::cout);
+    if( printTrkHitPattern_ ) {
+        const reco::HitPattern &p = pTrack->hitPattern();
+
+        std::cout<<"default " << std::endl;
+        for(int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++){
+            p.printHitPattern(HitPattern::TRACK_HITS, i, std::cout);
+        }
+
+        std::cout<<"trackerExpectedHitsInner() " << std::endl;
+        for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_INNER_HITS); i++){
+            p.printHitPattern(HitPattern::MISSING_INNER_HITS, i, std::cout);
+        } 
+
+        std::cout<<"trackerExpectedHitsOuter() " << std::endl;
+        for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_OUTER_HITS); i++){
+            p.printHitPattern(HitPattern::MISSING_OUTER_HITS, i, std::cout);
+        }
+
+        std::cout << "\n \t trackerLayersWithMeasurement() "
+            << p.trackerLayersWithMeasurement() 
+            << "\n \t pixelLayersWithMeasurement() "
+            << p.pixelLayersWithMeasurement() 
+            << "\n \t stripLayersWithMeasurement() "
+            << p.stripLayersWithMeasurement()  
+            << "\n \t pixelBarrelLayersWithMeasurement() "
+            << p.pixelBarrelLayersWithMeasurement()
+            << "\n \t pixelEndcapLayersWithMeasurement() "
+            << p.pixelEndcapLayersWithMeasurement()
+            << "\n \t stripTIBLayersWithMeasurement() "
+            << p.stripTIBLayersWithMeasurement()
+            << "\n \t stripTIDLayersWithMeasurement() "
+            << p.stripTIDLayersWithMeasurement()
+            << "\n \t stripTOBLayersWithMeasurement() "
+            << p.stripTOBLayersWithMeasurement()
+            << "\n \t stripTECLayersWithMeasurement() "
+            << p.stripTECLayersWithMeasurement()
+            << std::endl;
     }
-    std::cout<<"trackerExpectedHitsInner() " << std::endl;
-    for (int i=0; i<p1.numberOfHits(); i++) {
-      p1.printHitPattern(i, std::cout);
-    }
-    std::cout<<"trackerExpectedHitsOuter() " << std::endl;
-    for (int i=0; i<p2.numberOfHits(); i++) {
-      p2.printHitPattern(i, std::cout);
-    }
-
-
-    std::cout << "\n \t trackerLayersWithMeasurement() "     << p.trackerLayersWithMeasurement() 
-	      << "\n \t pixelLayersWithMeasurement() "       << p.pixelLayersWithMeasurement() 
-	      << "\n \t stripLayersWithMeasurement() "       << p.stripLayersWithMeasurement()  
-	      << "\n \t pixelBarrelLayersWithMeasurement() " << p.pixelBarrelLayersWithMeasurement()
-	      << "\n \t pixelEndcapLayersWithMeasurement() " << p.pixelEndcapLayersWithMeasurement()
-	      << "\n \t stripTIBLayersWithMeasurement() "    << p.stripTIBLayersWithMeasurement()
-	      << "\n \t stripTIDLayersWithMeasurement() "    << p.stripTIDLayersWithMeasurement()
-	      << "\n \t stripTOBLayersWithMeasurement() "    << p.stripTOBLayersWithMeasurement()
-	      << "\n \t stripTECLayersWithMeasurement() "    << p.stripTECLayersWithMeasurement()
-	      << std::endl;
-
-  }
 }
 
 //define this as a plug-in

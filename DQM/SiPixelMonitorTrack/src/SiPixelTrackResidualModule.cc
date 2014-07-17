@@ -48,8 +48,7 @@ SiPixelTrackResidualModule::~SiPixelTrackResidualModule() {
 }
 
 
-void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool reducedSet, int type, bool isUpgrade) {
-  DQMStore* dbe = edm::Service<DQMStore>().operator->();
+void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, bool reducedSet, int type, bool isUpgrade) {
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -68,51 +67,51 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());
     hisID = theHistogramId->setHistoId("residualX",id_);
-    meResidualX_ = dbe->book1D(hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualX_ = iBooker.book1D(hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualX_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
     hisID = theHistogramId->setHistoId("residualY",id_);
-    meResidualY_ = dbe->book1D(hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualY_ = iBooker.book1D(hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualY_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
     hisID = theHistogramId->setHistoId("nclusters_OnTrack",id_);
-    meNClusters_onTrack_ = dbe->book1D(hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrack_ = iBooker.book1D(hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrack_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in ke
     hisID = theHistogramId->setHistoId("charge_OnTrack",id_);
-    meCharge_onTrack_ = dbe->book1D(hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrack_ = iBooker.book1D(hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrack_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
     hisID = theHistogramId->setHistoId("size_OnTrack",id_);
-    meSize_onTrack_ = dbe->book1D(hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrack_ = iBooker.book1D(hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrack_->setAxisTitle("Cluster size [number of pixels]",1);
     // Number of clusters
     hisID = theHistogramId->setHistoId("nclusters_OffTrack",id_);
-    meNClusters_offTrack_ = dbe->book1D(hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrack_ = iBooker.book1D(hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrack_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in ke
     hisID = theHistogramId->setHistoId("charge_OffTrack",id_);
-    meCharge_offTrack_ = dbe->book1D(hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrack_ = iBooker.book1D(hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrack_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
     hisID = theHistogramId->setHistoId("size_OffTrack",id_);
-    meSize_offTrack_ = dbe->book1D(hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrack_ = iBooker.book1D(hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrack_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
       hisID = theHistogramId->setHistoId("sizeX_OnTrack",id_);
-      meSizeX_onTrack_ = dbe->book1D(hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrack_ = iBooker.book1D(hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrack_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
       hisID = theHistogramId->setHistoId("sizeY_OnTrack",id_);
-      meSizeY_onTrack_ = dbe->book1D(hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrack_ = iBooker.book1D(hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrack_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
       hisID = theHistogramId->setHistoId("sizeX_OffTrack",id_);
-      meSizeX_offTrack_ = dbe->book1D(hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrack_ = iBooker.book1D(hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrack_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
       hisID = theHistogramId->setHistoId("sizeY_OffTrack",id_);
-      meSizeY_offTrack_ = dbe->book1D(hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrack_ = iBooker.book1D(hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrack_->setAxisTitle("Cluster y-size [columns]",1);
     }
     delete theHistogramId;
@@ -126,40 +125,40 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     hisID = src.label() + "_" + sladder;
     if(isHalfModule) hisID += "H";
     else hisID += "F";
-    meResidualXLad_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXLad_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualXLad_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
-    meResidualYLad_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYLad_ = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualYLad_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
-    meNClusters_onTrackLad_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrackLad_ = iBooker.book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackLad_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in MeV
-    meCharge_onTrackLad_ = dbe->book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrackLad_ = iBooker.book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrackLad_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_onTrackLad_ = dbe->book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrackLad_ = iBooker.book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrackLad_->setAxisTitle("Cluster size [number of pixels]",1);
     // Number of clusters
-    meNClusters_offTrackLad_ = dbe->book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrackLad_ = iBooker.book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrackLad_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in MeV
-    meCharge_offTrackLad_ = dbe->book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrackLad_ = iBooker.book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrackLad_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_offTrackLad_ = dbe->book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrackLad_ = iBooker.book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrackLad_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
-      meSizeX_offTrackLad_ = dbe->book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrackLad_ = iBooker.book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrackLad_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_offTrackLad_ = dbe->book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrackLad_ = iBooker.book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrackLad_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
-      meSizeX_onTrackLad_ = dbe->book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrackLad_ = iBooker.book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrackLad_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_onTrackLad_ = dbe->book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrackLad_ = iBooker.book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrackLad_->setAxisTitle("Cluster y-size [columns]",1);
     }
   }
@@ -170,40 +169,40 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     else { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hisID = src.label() + "_" + slayer;
-    meResidualXLay_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXLay_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualXLay_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
-    meResidualYLay_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYLay_ = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualYLay_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
-    meNClusters_onTrackLay_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrackLay_ = iBooker.book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackLay_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in MeV
-    meCharge_onTrackLay_ = dbe->book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrackLay_ = iBooker.book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrackLay_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_onTrackLay_ = dbe->book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrackLay_ = iBooker.book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrackLay_->setAxisTitle("Cluster size [number of pixels]",1);    
     // Number of clusters
-    meNClusters_offTrackLay_ = dbe->book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrackLay_ = iBooker.book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrackLay_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in MeV
-    meCharge_offTrackLay_ = dbe->book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrackLay_ = iBooker.book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrackLay_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_offTrackLay_ = dbe->book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrackLay_ = iBooker.book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrackLay_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
-      meSizeX_onTrackLay_ = dbe->book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrackLay_ = iBooker.book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrackLay_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_onTrackLay_ = dbe->book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrackLay_ = iBooker.book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrackLay_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
-      meSizeX_offTrackLay_ = dbe->book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrackLay_ = iBooker.book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrackLay_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_offTrackLay_ = dbe->book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrackLay_ = iBooker.book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrackLay_->setAxisTitle("Cluster y-size [columns]",1);
     }
   }
@@ -214,40 +213,40 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     else { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hisID = src.label() + "_" + smodule;
-    meResidualXPhi_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXPhi_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualXPhi_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
-    meResidualYPhi_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYPhi_ = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualYPhi_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
-    meNClusters_onTrackPhi_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrackPhi_ = iBooker.book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackPhi_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in MeV
-    meCharge_onTrackPhi_ = dbe->book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrackPhi_ = iBooker.book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrackPhi_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_onTrackPhi_ = dbe->book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrackPhi_ = iBooker.book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrackPhi_->setAxisTitle("Cluster size [number of pixels]",1);    
     // Number of clusters
-    meNClusters_offTrackPhi_ = dbe->book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrackPhi_ = iBooker.book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrackPhi_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in MeV
-    meCharge_offTrackPhi_ = dbe->book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrackPhi_ = iBooker.book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrackPhi_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_offTrackPhi_ = dbe->book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrackPhi_ = iBooker.book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrackPhi_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
-      meSizeX_onTrackPhi_ = dbe->book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrackPhi_ = iBooker.book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrackPhi_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_onTrackPhi_ = dbe->book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrackPhi_ = iBooker.book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrackPhi_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
-      meSizeX_offTrackPhi_ = dbe->book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrackPhi_ = iBooker.book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrackPhi_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_offTrackPhi_ = dbe->book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrackPhi_ = iBooker.book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrackPhi_->setAxisTitle("Cluster y-size [columns]",1);
     }
   }
@@ -258,40 +257,40 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     else { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
-    meResidualXBlade_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXBlade_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualXBlade_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
-    meResidualYBlade_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYBlade_ = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualYBlade_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
-    meNClusters_onTrackBlade_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrackBlade_ = iBooker.book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackBlade_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in MeV
-    meCharge_onTrackBlade_ = dbe->book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrackBlade_ = iBooker.book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrackBlade_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_onTrackBlade_ = dbe->book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrackBlade_ = iBooker.book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrackBlade_->setAxisTitle("Cluster size [number of pixels]",1);    
     // Number of clusters
-    meNClusters_offTrackBlade_ = dbe->book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrackBlade_ = iBooker.book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrackBlade_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in MeV
-    meCharge_offTrackBlade_ = dbe->book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrackBlade_ = iBooker.book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrackBlade_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_offTrackBlade_ = dbe->book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrackBlade_ = iBooker.book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrackBlade_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
-      meSizeX_onTrackBlade_ = dbe->book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrackBlade_ = iBooker.book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrackBlade_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_onTrackBlade_ = dbe->book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrackBlade_ = iBooker.book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrackBlade_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
-      meSizeX_offTrackBlade_ = dbe->book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrackBlade_ = iBooker.book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrackBlade_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_offTrackBlade_ = dbe->book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrackBlade_ = iBooker.book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrackBlade_->setAxisTitle("Cluster y-size [columns]",1);
     }
   }
@@ -303,40 +302,40 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hisID = src.label() + "_" + sdisk;
-    meResidualXDisk_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXDisk_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualXDisk_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
-    meResidualYDisk_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYDisk_ = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualYDisk_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
-    meNClusters_onTrackDisk_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrackDisk_ = iBooker.book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackDisk_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in MeV
-    meCharge_onTrackDisk_ = dbe->book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrackDisk_ = iBooker.book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrackDisk_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_onTrackDisk_ = dbe->book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrackDisk_ = iBooker.book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrackDisk_->setAxisTitle("Cluster size [number of pixels]",1);    
     // Number of clusters
-    meNClusters_offTrackDisk_ = dbe->book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrackDisk_ = iBooker.book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrackDisk_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in MeV
-    meCharge_offTrackDisk_ = dbe->book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrackDisk_ = iBooker.book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrackDisk_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_offTrackDisk_ = dbe->book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrackDisk_ = iBooker.book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrackDisk_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
-      meSizeX_onTrackDisk_ = dbe->book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrackDisk_ = iBooker.book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrackDisk_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_onTrackDisk_ = dbe->book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrackDisk_ = iBooker.book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrackDisk_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
-      meSizeX_offTrackDisk_ = dbe->book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrackDisk_ = iBooker.book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrackDisk_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_offTrackDisk_ = dbe->book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrackDisk_ = iBooker.book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrackDisk_->setAxisTitle("Cluster y-size [columns]",1);
     }
   }
@@ -354,40 +353,40 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
     
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hisID = src.label() + "_" + slab;
-    meResidualXRing_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+    meResidualXRing_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
     meResidualXRing_->setAxisTitle("hit-to-track residual in r-phi (um)",1);
-    meResidualYRing_ = dbe->book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+    meResidualYRing_ = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
     meResidualYRing_->setAxisTitle("hit-to-track residual in z (um)",1);
     // Number of clusters
-    meNClusters_onTrackRing_ = dbe->book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
+    meNClusters_onTrackRing_ = iBooker.book1D("nclusters_OnTrack_" + hisID,"Number of Clusters (on Track)",10,0.,10.);
     meNClusters_onTrackRing_->setAxisTitle("Number of Clusters on Track",1);
     // Total cluster charge in MeV
-    meCharge_onTrackRing_ = dbe->book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
+    meCharge_onTrackRing_ = iBooker.book1D("charge_OnTrack_" + hisID,"Normalized Cluster charge (on Track)",100,0.,200.);
     meCharge_onTrackRing_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_onTrackRing_ = dbe->book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
+    meSize_onTrackRing_ = iBooker.book1D("size_OnTrack_" + hisID,"Total cluster size (on Track)",30,0.,30.);
     meSize_onTrackRing_->setAxisTitle("Cluster size [number of pixels]",1);    
     // Number of clusters
-    meNClusters_offTrackRing_ = dbe->book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
+    meNClusters_offTrackRing_ = iBooker.book1D("nclusters_OffTrack_" + hisID,"Number of Clusters (off Track)",35,0.,35.);
     meNClusters_offTrackRing_->setAxisTitle("Number of Clusters off Track",1);
     // Total cluster charge in MeV
-    meCharge_offTrackRing_ = dbe->book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
+    meCharge_offTrackRing_ = iBooker.book1D("charge_OffTrack_" + hisID,"Cluster charge (off Track)",100,0.,200.);
     meCharge_offTrackRing_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSize_offTrackRing_ = dbe->book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
+    meSize_offTrackRing_ = iBooker.book1D("size_OffTrack_" + hisID,"Total cluster size (off Track)",30,0.,30.);
     meSize_offTrackRing_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Cluster width on the x-axis
-      meSizeX_onTrackRing_ = dbe->book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
+      meSizeX_onTrackRing_ = iBooker.book1D("sizeX_OnTrack_" + hisID,"Cluster x-width (rows) (on Track)",10,0.,10.);
       meSizeX_onTrackRing_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_onTrackRing_ = dbe->book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
+      meSizeY_onTrackRing_ = iBooker.book1D("sizeY_OnTrack_" + hisID,"Cluster y-width (columns) (on Track)",15,0.,15.);
       meSizeY_onTrackRing_->setAxisTitle("Cluster y-size [columns]",1);
       // Cluster width on the x-axis
-      meSizeX_offTrackRing_ = dbe->book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
+      meSizeX_offTrackRing_ = iBooker.book1D("sizeX_OffTrack_" + hisID,"Cluster x-width (rows) (off Track)",10,0.,10.);
       meSizeX_offTrackRing_->setAxisTitle("Cluster x-size [rows]",1);
       // Cluster width on the y-axis
-      meSizeY_offTrackRing_ = dbe->book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
+      meSizeY_offTrackRing_ = iBooker.book1D("sizeY_OffTrack_" + hisID,"Cluster y-width (columns) (off Track)",15,0.,15.);
       meSizeY_offTrackRing_->setAxisTitle("Cluster y-size [columns]",1);
     }
   }

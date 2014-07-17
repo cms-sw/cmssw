@@ -53,13 +53,6 @@ DQMExample_Step1::~DQMExample_Step1()
 }
 
 //
-// -------------------------------------- beginJob --------------------------------------------
-//
-void DQMExample_Step1::beginJob()
-{
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginJob " << std::endl;
-}
-//
 // -------------------------------------- beginRun --------------------------------------------
 //
 void DQMExample_Step1::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
@@ -323,14 +316,6 @@ void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endRun" << std::endl;
 }
 
-//
-// -------------------------------------- endJob --------------------------------------------
-//
-void DQMExample_Step1::endJob()
-{
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endJob" << std::endl;
-}
-
 
 //
 // -------------------------------------- book histograms --------------------------------------------
@@ -417,7 +402,7 @@ bool DQMExample_Step1::MediumEle (const edm::Event & iEvent, const edm::EventSet
   float HOverE        = electron.hadronicOverEm();
   float ooemoop       = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
   
-  int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  int mishits             = electron.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
   int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
   
   reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;

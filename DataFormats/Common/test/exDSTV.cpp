@@ -1,7 +1,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
-#include <boost/function.hpp>
+#include <functional>
 
 struct T {
 
@@ -40,7 +40,7 @@ int main()  try {
   DST d2 = dstv.insert(4,3);
   d2[0].v=4.15;
 
-  std::for_each(dstv.begin(),dstv.end(),boost::function<void(DST const&)>(print0));
+  std::for_each(dstv.begin(),dstv.end(),std::function<void(DST const&)>(print0));
 
   return 0;
 } catch(cms::Exception const& e) {

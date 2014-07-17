@@ -121,7 +121,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
 bool PFEGammaFilters::isElectron(const reco::GsfElectron & electron) {
  
-  unsigned int nmisshits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int nmisshits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   if(nmisshits > ele_missinghits_)
     return false;
 
@@ -194,7 +194,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       unsigned int Algo = whichTrackAlgo(trackref);
       // iter0, iter1, iter2, iter3 = Algo < 3
       // algo 4,5,6,7
-      int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+      int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS); 
       
       bool trackIsFromPrimaryVertex = false;
       for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
@@ -371,6 +371,7 @@ unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::iter0:
   case TrackBase::iter1:
   case TrackBase::iter2:
+  case TrackBase::iter7:
     Algo = 0;
     break;
   case TrackBase::iter3:

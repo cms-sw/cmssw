@@ -2,10 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 ##______________________________________________________ Full Event content __||
 RecoMETFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
-                                           'keep recoCaloMETs_metNoHF_*_*',
-                                           'keep recoCaloMETs_metHO_*_*',
+    outputCommands = cms.untracked.vstring('keep recoCaloMETs_caloMet_*_*',
+                                           'keep recoCaloMETs_caloMetBE_*_*',
+                                           'keep recoCaloMETs_caloMetBEFO_*_*',
                                            'keep recoCaloMETs_corMetGlobalMuons_*_*',
+                                           'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
                                            'keep recoPFMETs_pfChMet_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
@@ -28,10 +29,11 @@ RecoHcalNoiseFEVT = cms.PSet(
 
 ##____________________________________________________________ RECO content __||
 RecoMETRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
-                                           'keep recoCaloMETs_metNoHF_*_*',
-                                           'keep recoCaloMETs_metHO_*_*',
+    outputCommands = cms.untracked.vstring('keep recoCaloMETs_caloMet_*_*',
+                                           'keep recoCaloMETs_caloMetBE_*_*',
+                                           'keep recoCaloMETs_caloMetBEFO_*_*',
                                            'keep recoCaloMETs_corMetGlobalMuons_*_*',
+                                           'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
                                            'keep recoPFMETs_pfChMet_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
@@ -54,10 +56,11 @@ RecoHcalNoiseRECO = cms.PSet(
 
 ##_____________________________________________________________ AOD content __||
 RecoMETAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
-                                           'keep recoCaloMETs_metNoHF_*_*',
-                                           'keep recoCaloMETs_metHO_*_*',
+    outputCommands = cms.untracked.vstring('keep recoCaloMETs_caloMet_*_*',
+                                           'keep recoCaloMETs_caloMetBE_*_*',
+                                           'keep recoCaloMETs_caloMetBEFO_*_*',
                                            'keep recoCaloMETs_corMetGlobalMuons_*_*',
+                                           'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
                                            'keep recoPFMETs_pfChMet_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',

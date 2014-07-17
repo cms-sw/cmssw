@@ -37,4 +37,5 @@ namespace examples {
 
 }
 
+template<> atomic_TClass_ptr TFWLiteSelector<examples::TrackAnalysisAlgorithm>::fgIsA;
 #endif

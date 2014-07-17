@@ -11,8 +11,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include "TRandom.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -95,12 +93,12 @@ namespace edm {
     int  intFixed_OOT_;
     int  intFixed_ITPU_;
 
-    boost::shared_ptr<ProductRegistry> productRegistry_;
+    std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;
-    boost::shared_ptr<ProcessConfiguration> processConfiguration_;
+    std::shared_ptr<ProcessConfiguration> processConfiguration_;
     std::unique_ptr<EventPrincipal> eventPrincipal_;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
-    boost::shared_ptr<RunPrincipal> runPrincipal_;
+    std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
+    std::shared_ptr<RunPrincipal> runPrincipal_;
     std::unique_ptr<SecondaryEventProvider> provider_;
     std::vector<std::unique_ptr<CLHEP::RandPoissonQ> > vPoissonDistribution_;
     std::vector<std::unique_ptr<CLHEP::RandPoisson> > vPoissonDistr_OOT_;

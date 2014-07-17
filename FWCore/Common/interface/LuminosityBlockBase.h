@@ -140,7 +140,7 @@ namespace edm {
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
-    boost::shared_ptr<Run const> const run_;
+    std::shared_ptr<Run const> const run_;
 */
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const = 0;
 

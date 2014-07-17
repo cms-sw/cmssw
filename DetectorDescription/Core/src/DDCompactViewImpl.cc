@@ -33,8 +33,7 @@ DDCompactViewImpl::~DDCompactViewImpl()
 
 graphwalker<DDLogicalPart,DDPosData*> DDCompactViewImpl::walker() const
 {
-   DCOUT('C',"DDCompactView::walker() root_=" << root_);
-   return graphwalker<DDLogicalPart,DDPosData*>(graph_,root_);
+  return graphwalker<DDLogicalPart,DDPosData*>(graph_,root_);
 }
 
 // calculates the weight and caches it in LogicalPartImpl

@@ -38,12 +38,16 @@ public:
   /// from the header or trailer
   int sizeInWords() const {return theSizeInWords;}
 
-  void addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID);
+  void addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID, uint16_t format_version = 2005);
 
   ///packs data into bits
   boost::dynamic_bitset<> pack();  
 
-  static std::atomic<bool> debug;
+#ifdef LOCAL_UNPACK
+  static bool debug;
+#else
+  static std::atomic<bool> debug;  
+#endif
 
 
 protected:
@@ -53,6 +57,7 @@ protected:
   std::vector<CSCDDUEventData> theDDUData;
   CSCDCCTrailer theDCCTrailer;
   int theSizeInWords;
+  
 };
 
 #endif

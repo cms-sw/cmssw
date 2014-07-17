@@ -17,7 +17,7 @@
 #include "G4SystemOfUnits.hh"
 
 HFWedgeSD::HFWedgeSD(std::string name, const DDCompactView & cpv, 
-		 SensitiveDetectorCatalog & clg, edm::ParameterSet const & p, 
+		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
   m_trackManager(manager), hcID(-1), theHC(0), currentHit(0) {
@@ -35,9 +35,9 @@ HFWedgeSD::HFWedgeSD(std::string name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
+  const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it=lvNames.begin();
+  for (std::vector<std::string>::const_iterator it=lvNames.begin();
        it !=lvNames.end(); it++){
     this->AssignSD(*it);
     LogDebug("FiberSim") << "HFWedgeSD : Assigns SD to LV " << (*it);

@@ -6,17 +6,17 @@
 WrapperInterfaceBase: The base class of all things that will be inserted into the Event.
 /
 ----------------------------------------------------------------------*/
-#include "boost/shared_ptr.hpp"
-
+#include <memory>
 #include <typeinfo>
 #include <vector>
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class ProductID;
   namespace reftobase {
     class RefVectorHolderBase;
   }
-  typedef boost::shared_ptr<reftobase::RefVectorHolderBase> helper_vector_ptr;
+  typedef std::shared_ptr<reftobase::RefVectorHolderBase> helper_vector_ptr;
   class WrapperInterfaceBase {
   public:
     WrapperInterfaceBase();

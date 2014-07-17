@@ -33,7 +33,6 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('promptrecoCosmics.root')
 )
 
-process.FEVT.outputCommands.append('keep CaloTowersSorted_calotoweroptmaker_*_*')
 process.FEVT.outputCommands.append('keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*')
 process.FEVT.outputCommands.append('keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*')
 process.FEVT.outputCommands.append('keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_MuonCSCComparatorDigi_*')
@@ -50,7 +49,6 @@ process.FEVT.outputCommands.append('keep L1MuDTChambPhContainer_dttfDigis_*_*')
 process.FEVT.outputCommands.append('keep L1MuDTChambThContainer_dttfDigis_*_*')
 process.FEVT.outputCommands.append('keep L1MuDTTrackContainer_dttfDigis_DATA_*')
 process.FEVT.outputCommands.append('keep PixelDigiedmDetSetVector_siPixelDigis_*_*')
-process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(

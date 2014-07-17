@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 metAnalyzer = cms.EDAnalyzer(
     "METTester",
     OutputFile = cms.untracked.string(''),
-    InputMETLabel = cms.InputTag("met"),
+    InputMETLabel = cms.InputTag("caloMet"),
     METType = cms.untracked.string("calo")
     )
 
@@ -65,7 +65,7 @@ pfMetAnalyzer = cms.EDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("tcMet"),
-#    InputCaloMETLabel = cms.InputTag("met"),
+#    InputCaloMETLabel = cms.InputTag("caloMet"),
 #    InputTrackLabel = cms.InputTag("generalTracks"),
 #    InputMuonLabel = cms.InputTag("muons"),
 #    InputElectronLabel = cms.InputTag("gedGsfElectrons"),

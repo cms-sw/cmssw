@@ -18,7 +18,7 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("particleFlow"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -147,7 +147,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     elecs_gsf = cms.InputTag("gedGsfElectrons"),
     elecs = cms.InputTag("particleFlow"),
     jets  = cms.InputTag("ak4PFJetsCHS"),
-    mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+    mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
     pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -306,7 +306,7 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
       elecs_gsf = cms.InputTag("gedGsfElectrons"),
       elecs = cms.InputTag("particleFlow"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
     ),

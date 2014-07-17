@@ -118,9 +118,9 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
 	  if(measDet->isActive()){    
 	    // Hence record that the track should have produced a hit here, but did not.
 	    // Store the information in a HitPattern.
-	    InvalidTrackingRecHit  tmpHit(id, TrackingRecHit::missing);
-	    newHitPattern.set(tmpHit, counter);      
-            counter++; 
+	    InvalidTrackingRecHit tmpHit(id, inOut == INNER ? TrackingRecHit::missing_inner : TrackingRecHit::missing_outer);
+	    newHitPattern.appendHit(tmpHit);
+        counter++;
 	  } else {
 	    // Missing hit expected here, since sensor was not functioning.
 	  }
@@ -135,8 +135,8 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
       }
 
       // Print result for debugging.
-      LogDebug("FTHP")<<"Number of missing hits "<<newHitPattern.numberOfHits()<<"/"<<counter<<endl;
-      for (int j = 0; j < std::max(newHitPattern.numberOfHits(), counter); j++) {
+      LogDebug("FTHP")<<"Number of missing hits "<<newHitPattern.numberOfHits(HitPattern::ALL_HITS)<<"/"<<counter<<endl;
+      for (int j = 0; j < std::max(newHitPattern.numberOfHits(HitPattern::ALL_HITS), counter); j++) {
 	uint32_t hp = newHitPattern.getHitPattern(j);
 	uint32_t subDet = newHitPattern.getSubStructure(hp);
 	uint32_t layer = newHitPattern.getLayer(hp);
@@ -147,8 +147,7 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
     } else {
       LogDebug("FTHP")<<"WARNING: could not calculate inner/outer hit pattern as trajectory info for inner/out hit missing"<<endl;
     }
-
-  }
 #endif
-  return result;
+    return result;
 }
+

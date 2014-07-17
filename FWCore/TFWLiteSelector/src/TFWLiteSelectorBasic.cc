@@ -59,7 +59,7 @@ namespace edm {
       FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr), reg_() {}
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
-      void set(boost::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
+      void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
       WrapperOwningHolder getTheProduct(BranchKey const& k) const;
       virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
@@ -70,7 +70,7 @@ namespace edm {
       virtual void reset_() override {}
       Long64_t entry_;
       TTree* eventTree_;
-      boost::shared_ptr<ProductRegistry const>(reg_);
+      std::shared_ptr<ProductRegistry const>(reg_);
     };
 
     WrapperOwningHolder
@@ -130,18 +130,18 @@ namespace edm {
         reader_->setTree(iTree);
       }
       TTree* tree_;
-      boost::shared_ptr<ProductRegistry> reg_;
-      boost::shared_ptr<ProcessHistoryRegistry> phreg_;
-      boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+      std::shared_ptr<ProductRegistry> reg_;
+      std::shared_ptr<ProcessHistoryRegistry> phreg_;
+      std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
       ProcessHistory processNames_;
-      boost::shared_ptr<FWLiteDelayedReader> reader_;
+      std::shared_ptr<FWLiteDelayedReader> reader_;
       std::vector<EventEntryDescription> prov_;
       std::vector<EventEntryDescription*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
 
-      boost::shared_ptr<edm::ProductProvenanceRetriever> provRetriever_;
+      std::shared_ptr<edm::ProductProvenanceRetriever> provRetriever_;
       edm::ProcessConfiguration pc_;
-      boost::shared_ptr<edm::EventPrincipal> ep_;
+      std::shared_ptr<edm::EventPrincipal> ep_;
       edm::ModuleDescription md_;
     };
   }
@@ -285,12 +285,10 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 
       try {
          m_->reader_->setEntry(iEntry);
-         boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(aux.run(), aux.time(), aux.time()));
-         boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, m_->reg_, m_->pc_, nullptr, 0));
-         boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(
-                new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
-         boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
-                new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr, 0));
+         auto runAux = std::make_shared<edm::RunAuxiliary>(aux.run(), aux.time(), aux.time());
+         auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg_, m_->pc_, nullptr, 0);
+         auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, aux.time(), aux.time());
+         auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, m_->reg_, m_->pc_, nullptr, 0);
         m_->ep_->fillEventPrincipal(*eaux,
                                     *m_->phreg_,
                                     std::move(eventSelectionIDs),
@@ -381,7 +379,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
      metaDataTree->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
   }
 
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListsHelper(new edm::BranchIDListHelper);
+  auto branchIDListsHelper = std::make_shared<edm::BranchIDListHelper>();
   edm::BranchIDLists const* branchIDListsPtr = &branchIDListsHelper->branchIDLists();
   if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != nullptr) {
     metaDataTree->SetBranchAddress(edm::poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);

@@ -23,7 +23,7 @@ namespace edm {
   RawInputSource::~RawInputSource() {
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   RawInputSource::readRunAuxiliary_() {
     assert(newRun());
     assert(runAuxiliary());
@@ -31,7 +31,7 @@ namespace edm {
     return runAuxiliary();
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   RawInputSource::readLuminosityBlockAuxiliary_() {
     assert(!newRun());
     assert(newLumi());

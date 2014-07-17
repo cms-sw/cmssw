@@ -7,6 +7,8 @@
 #include <assert.h>
 
 #include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 using namespace Pythia8;
 
@@ -46,14 +48,32 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
   setProcess(hepeup.IDPRUP, hepeup.XWGTUP, hepeup.SCALUP,
              hepeup.AQEDUP, hepeup.AQCDUP);
 
-  for(int i = 0; i < hepeup.NUP; i++)
+  const std::vector<float> &scales = event->scales();
+  
+  unsigned int iscale = 0;
+  for(int i = 0; i < hepeup.NUP; i++) {
+    //retrieve scale corresponding to each particle
+    double scalein = -1.;
+    
+    //handle clustering scales if present,
+    //applies to outgoing partons only
+    if (scales.size()>0 && hepeup.ISTUP[i]==1) {
+      if (iscale>=scales.size()) {
+        edm::LogError("InvalidLHEInput") << "Pythia8 requires"
+                                    << "cluster scales for all outgoing partons or for none" 
+                                    << std::endl;
+      }
+      scalein = scales[iscale];
+      ++iscale;
+    }
     addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
                 hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
                 hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
                 hepeup.PUP[i][0], hepeup.PUP[i][1],
                 hepeup.PUP[i][2], hepeup.PUP[i][3],
                 hepeup.PUP[i][4], hepeup.VTIMUP[i],
-                hepeup.SPINUP[i]);
+                hepeup.SPINUP[i],scalein);
+  }
 
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
