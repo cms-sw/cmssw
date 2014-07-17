@@ -261,56 +261,171 @@ FWTGeoRecoGeometryESProducer::createMaterial( const std::string& name )
   return material;
 }
 
-const std::string
-FWTGeoRecoGeometryESProducer::path( TGeoVolume* volume, const std::string& name, int copy )
-{
-  std::stringstream outs;
-  outs << volume->GetName() << "_" << volume->GetNumber() << "/"
-       << name << "_" << copy;
 
-  return outs.str();
-}
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 
 void
-FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-   if(! m_geomRecord->slaveGeometry( CSCDetId()))
-      throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
-
-   
    TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
 
-   auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
-   for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
-   {    
-      unsigned int rawid = (*it)->geographicalId();
-      CSCDetId detId(rawid);
-      std::stringstream s;
-      s << "CSC" << detId;
-      std::string name = s.str();
-      
-      TGeoVolume* child = 0;
+   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
+           end = m_trackerGeom->detsPXB().end();
+        it != end; ++it)
+   {
+       DetId detid = ( *it )->geographicalId();
+       unsigned int rawid = detid.rawId();
 
-      if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
-         child = createVolume( name, chamber );
-      else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
-         child = createVolume( name, layer );
+       PXBDetId xx(rawid);
+       std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
+       TGeoVolume* child = createVolume( name, *it );
+       child->SetLineColor( kGreen );
 
-
-
-      if (child) {
-         TGeoVolume* holder  = GetDaughter(assembly, "Endcap", detId.endcap());
-         holder = GetDaughter(holder, "Station", detId.station());
-         holder = GetDaughter(holder, "Ring", detId.ring());
-      
-         child->SetLineColor( kBlue );
-         holder->AddNode(child, 1,  createPlacement( *it ));
-      }
+       TGeoVolume* holder  = GetDaughter(assembly, "Layer", xx.layer());
+       holder = GetDaughter(holder, "Module", xx.module());
+                                       
+       holder->AddNode(child, 1);
    }
-
+  
    top->AddNode( assembly, copy );
 }
+//______________________________________________________________________________
+
+
+void
+FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName, int copy )
+{
+  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
+						    end = m_trackerGeom->detsPXF().end();
+       it != end; ++it )
+  {
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
+    std::stringstream s;
+    s << rawid;
+    std::string name = s.str();
+
+    TGeoVolume* child = createVolume( name, *it );
+    assembly->AddNode( child, copy, createPlacement( *it ));
+    child->SetLineColor( kGreen );
+
+  }
+  
+  top->AddNode( assembly, copy );
+}
+
+//______________________________________________________________________________
+
+
+void
+FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string& iName, int copy ) 
+{
+  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
+						    end = m_trackerGeom->detsTIB().end();
+       it != end; ++it )
+  {
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+    std::stringstream s;
+    s << rawid;
+    std::string name = s.str();
+
+    TGeoVolume* child = createVolume( name, *it );
+    assembly->AddNode( child, copy, createPlacement( *it ));
+    child->SetLineColor( kGreen );
+  }
+  
+  top->AddNode( assembly, copy );
+}
+
+//______________________________________________________________________________
+
+
+void
+FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string& iName, int copy )
+{
+  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
+						    end = m_trackerGeom->detsTID().end();
+       it != end; ++it)
+  {
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
+    std::stringstream s;
+    s << rawid;
+    std::string name = s.str();
+
+    TGeoVolume* child = createVolume( name, *it );
+    assembly->AddNode( child, copy, createPlacement( *it ));
+    child->SetLineColor( kGreen );
+  }
+  
+  top->AddNode( assembly, copy );
+}
+
+//______________________________________________________________________________
+
+void
+FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string& iName, int copy )
+{
+  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
+						    end = m_trackerGeom->detsTOB().end();
+       it != end; ++it )
+  {
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
+    std::stringstream s;
+    s << rawid;
+    std::string name = s.str();
+
+    TGeoVolume* child = createVolume( name, *it );
+    assembly->AddNode( child, copy, createPlacement( *it ));
+    child->SetLineColor( kGreen );
+  }
+  
+  top->AddNode( assembly, copy );
+}
+//______________________________________________________________________________
+
+
+void
+FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string& iName, int copy )
+{
+  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
+						    end = m_trackerGeom->detsTEC().end();
+       it != end; ++it )
+  {
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
+    std::stringstream s;
+    s << rawid;
+    std::string name = s.str();
+
+    TGeoVolume* child = createVolume( name, *it );
+    assembly->AddNode( child, copy, createPlacement( *it ));
+    child->SetLineColor( kGreen );
+  }
+  
+  top->AddNode( assembly, copy );
+}
+//______________________________________________________________________________
+
 
 void
 FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy )
@@ -376,6 +491,49 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
     }
   }  
 }
+//______________________________________________________________________________
+
+void
+FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
+{
+   if(! m_geomRecord->slaveGeometry( CSCDetId()))
+      throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
+
+   
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+
+   auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
+   for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
+   {    
+      unsigned int rawid = (*it)->geographicalId();
+      CSCDetId detId(rawid);
+      std::stringstream s;
+      s << "CSC" << detId;
+      std::string name = s.str();
+      
+      TGeoVolume* child = 0;
+
+      if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
+         child = createVolume( name, chamber );
+      else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
+         child = createVolume( name, layer );
+
+
+
+      if (child) {
+         TGeoVolume* holder  = GetDaughter(assembly, "Endcap", detId.endcap());
+         holder = GetDaughter(holder, "Station", detId.station());
+         holder = GetDaughter(holder, "Ring", detId.ring());
+      
+         child->SetLineColor( kBlue );
+         holder->AddNode(child, 1,  createPlacement( *it ));
+      }
+   }
+
+   top->AddNode( assembly, copy );
+}
+//______________________________________________________________________________
+
 
 void
 FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& iName, int copy )
@@ -408,147 +566,6 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
 
 
 
-
-void
-FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName, int copy )
-{
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-
-   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
-           end = m_trackerGeom->detsPXB().end();
-        it != end; ++it)
-   {
-       DetId detid = ( *it )->geographicalId();
-       unsigned int rawid = detid.rawId();
-
-       PXBDetId xx(rawid);
-       std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
-       TGeoVolume* child = createVolume( name, *it );
-       child->SetLineColor( kGreen );
-
-       TGeoVolume* holder  = GetDaughter(assembly, "Layer", xx.layer());
-       holder = GetDaughter(holder, "Module", xx.module());
-                                       
-       holder->AddNode(child, 1);
-   }
-  
-   top->AddNode( assembly, copy );
-}
-
-void
-FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName, int copy )
-{
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
-						    end = m_trackerGeom->detsPXF().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
-
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-
-  }
-  
-  top->AddNode( assembly, copy );
-}
-
-void
-FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string& iName, int copy ) 
-{
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
-						    end = m_trackerGeom->detsTIB().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
-
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
-  
-  top->AddNode( assembly, copy );
-}
-
-void
-FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string& iName, int copy )
-{
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
-						    end = m_trackerGeom->detsTOB().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
-
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
-  
-  top->AddNode( assembly, copy );
-}
-
-void
-FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string& iName, int copy )
-{
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
-						    end = m_trackerGeom->detsTID().end();
-       it != end; ++it)
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
-
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
-  
-  top->AddNode( assembly, copy );
-}
-
-void
-FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string& iName, int copy )
-{
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
-						    end = m_trackerGeom->detsTEC().end();
-       it != end; ++it )
-  {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
-
-    TGeoVolume* child = createVolume( name, *it );
-    assembly->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
-  }
-  
-  top->AddNode( assembly, copy );
-}
 
 void
 FWTGeoRecoGeometryESProducer::addCaloGeometry( void )
