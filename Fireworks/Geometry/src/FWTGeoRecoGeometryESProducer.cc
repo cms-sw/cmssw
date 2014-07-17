@@ -95,6 +95,22 @@ namespace
      
     return new TGeoCombiTrans( trans, rotation );
   }
+
+    TGeoVolume* GetDaughter(TGeoVolume* mother, const char* prefix, int id)
+    {
+        TGeoVolume* res = 0;
+        if (mother->GetNdaughters()) { 
+            TGeoNode* n = mother->FindNode(Form("%s_%d_1", prefix, id));
+            if ( n ) res = n->GetVolume();
+        }
+
+        if (!res) {
+            res = new TGeoVolumeAssembly( Form("%s_%d", prefix, id ));
+            mother->AddNode(res, 1);
+        }
+
+        return res;
+    }
 }
 
 boost::shared_ptr<FWTGeoRecoGeometry> 
@@ -286,48 +302,14 @@ FWTGeoRecoGeometryESProducer::path( TGeoVolume* volume, const std::string& name,
 }
 
 
- 
-TGeoVolume* getCSCMother(TGeoVolume* top, unsigned int rawid )
-{
-   TGeoVolume* mother = top;
-   CSCDetId id(rawid);
-   // std::cerr << id << std::endl;
-    
-   TGeoNode* enode = mother->FindNode(Form("Endcap_%d_Station_%d_1", id.endcap(),id.station() ));
-   mother = enode->GetVolume();
-   assert(mother);
-
-   TGeoNode* rnode = mother->FindNode(Form("Ring_%d_1", id.ring()));
-   mother = rnode->GetVolume();
-   assert(mother);
-   /*
-
-     TGeoNode* cnode = mother->FindNode(Form("Chamber_%d_1", id.chamber()));
-     mother = cnode->GetVolume();
-     assert(mother);
-   */
-
-   return mother;
-}
-
-
 void
 FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
    if(! m_geomRecord->slaveGeometry( CSCDetId()))
       throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
 
-   for (int endcap = CSCDetId::minEndcapId(); endcap <=  CSCDetId::maxEndcapId(); ++endcap)
-      for (int station = CSCDetId::minStationId(); station <=  CSCDetId::maxStationId(); ++station) 
-      {
-         TGeoVolume* es = new TGeoVolumeAssembly( Form("Endcap_%d_Station_%d", endcap, station) );
-         assembly->AddNode(es,1);
-         for (int ring = CSCDetId::minRingId(); ring <=  CSCDetId::maxRingId(); ++ring)
-            es->AddNode(new TGeoVolumeAssembly( Form("Ring_%d", ring) ),1);
-      }
-  
+   
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
 
    auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
    for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
@@ -338,26 +320,23 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       s << "CSC" << detId;
       std::string name = s.str();
       
+      TGeoVolume* child = 0;
 
       if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
-      {
-      
-         TGeoVolume* child = createVolume( name, chamber );
-         getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( chamber ));
-         // assembly->AddNode( child, copy, createPlacement( chamber ));
-         child->SetLineColor( kBlue );
-
+      {    
+         child = createVolume( name, chamber );
+         /*    
          std::stringstream p;
          p << path( top, iName, copy ) << "/" << name << "_" << copy;
          m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
+         */
+
       }
       else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
       {
-         TGeoVolume* child = createVolume( name, layer );
-         getCSCMother(assembly, rawid)->AddNode( child, copy, createPlacement( layer ));
-         //      assembly->AddNode( child, copy, createPlacement( layer ));
-         child->SetLineColor( kBlue );
-      
+        
+         child = createVolume( name, layer );
+         /*
          std::stringstream p;
          p << path( top, iName, copy ) << "/" << name << "_" << copy;
          m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
@@ -373,6 +352,18 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
          const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
          m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
          m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
+         */
+      }
+
+
+      if (child) {
+
+         TGeoVolume* holder  = GetDaughter(assembly, "Endcap", detId.endcap());
+         holder = GetDaughter(holder, "Station", detId.station());
+         holder = GetDaughter(holder, "Ring", detId.ring());
+      
+         child->SetLineColor( kBlue );
+         holder->AddNode(child, 1,  createPlacement( *it ));
       }
    }
 
@@ -516,31 +507,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
 }
 
 
-TGeoVolume* getPXBMother(TGeoVolume* top, unsigned int rawid)
-{
-   PXBDetId id(rawid);
-   
-   TGeoNode* layerNode = 0;
-   if (top->GetNdaughters()) layerNode = top->FindNode(Form("Layer_%d_1", id.layer()));
-   if (!layerNode) {
-      TGeoVolume* v = new TGeoVolumeAssembly( Form("Layer_%d", id.layer()) );
-      top->AddNode(v, 1); 
-      layerNode = top->FindNode(Form("Layer_%d_1", id.layer()));
-   }
 
-   TGeoVolume* moduleMotherVol = layerNode->GetVolume();
-   TGeoNode* moduleNode = 0;
-   if (moduleMotherVol->GetNdaughters()) 
-      moduleNode = moduleMotherVol->FindNode(Form("Module_%d_1", id.module()));
-
-   if (!moduleNode) {
-      TGeoVolume* v = new TGeoVolumeAssembly( Form("Module_%d", id.module()) );
-      moduleMotherVol->AddNode(v, 1); 
-      moduleNode = moduleMotherVol->FindNode(Form("Module_%d_1", id.module()));
-   }
-
-   return moduleNode->GetVolume();
-}
 
 void
 FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName, int copy )
@@ -551,21 +518,24 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std
            end = m_trackerGeom->detsPXB().end();
         it != end; ++it)
    {
-      DetId detid = ( *it )->geographicalId();
-      unsigned int rawid = detid.rawId();
+       DetId detid = ( *it )->geographicalId();
+       unsigned int rawid = detid.rawId();
 
-        PXBDetId xx(rawid);
-        std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
-        TGeoVolume* child = createVolume( name, *it );
-      getPXBMother(assembly, rawid)->AddNode( child, copy, createPlacement( *it ));
-      //assembly->AddNode( child, copy, createPlacement( *it ));
-      child->SetLineColor( kGreen );
+       PXBDetId xx(rawid);
+       std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
+       TGeoVolume* child = createVolume( name, *it );
+       child->SetLineColor( kGreen );
 
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
+       TGeoVolume* holder  = GetDaughter(assembly, "Layer", xx.layer());
+       holder = GetDaughter(holder, "Module", xx.module());
+                                       
+       holder->AddNode(child, 1);
 
-      ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
+       std::stringstream p;
+       p << path( top, iName, copy ) << "/" << name << "_" << copy;
+       m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
+
+       ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
    }
   
    top->AddNode( assembly, copy );
