@@ -43,11 +43,12 @@ process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 process.ak5JetTracksAssociatorAtVertexPF.jets = cms.InputTag("ak5PFJetsCHS")
 process.ak5JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackedTracksAndVertices")
 process.impactParameterTagInfos.primaryVertex = cms.InputTag("unpackedTracksAndVertices")
+process.inclusiveSecondaryVertexFinderTagInfos.extSVCollection = cms.InputTag("unpackedTracksAndVertices","secondary","")
 process.combinedSecondaryVertex.trackMultiplicityMin = 1 #silly sv, uses un filtered tracks.. i.e. any pt
 
 
 process.p = cms.Path(
-    process.patJets + process.patMETs
+    process.patJets + process.patMETs + process.inclusiveSecondaryVertexFinderTagInfos
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -58,7 +59,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.OUT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test.root'),
-    outputCommands = cms.untracked.vstring(['drop *','keep patJets_patJets_*_*','keep *_*_*_PAT'])
+    outputCommands = cms.untracked.vstring(['drop *','keep patJets_patJets_*_*','keep *_*_*_PAT','keep recoTracks_unp*_*_*','keep recoVertexs_unp*_*_*'])
 )
 process.endpath= cms.EndPath(process.OUT)
 

@@ -1,5 +1,5 @@
 <lcgdict>
-
+  <enum name="reco::btau::TaggingVariableName"/>
   <class name="reco::BaseTagInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="2760058808"/>
   </class>

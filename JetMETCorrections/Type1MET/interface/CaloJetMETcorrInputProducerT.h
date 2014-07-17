@@ -108,8 +108,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       cfg.getParameter<double>("type2ExtraCorrFactor") : 1.;
     if ( cfg.exists("type2ResidualCorrFileName") ) {
       edm::FileInPath residualCorrFileName = cfg.getParameter<edm::FileInPath>("type2ResidualCorrFileName");
-      //if ( !residualCorrFileName.isLocal()) 
-      if ( residualCorrFileName.location()!=edm::FileInPath::Local) 
+      if ( !residualCorrFileName.isLocal()) 
 	throw cms::Exception("PFJetMETcorrInputProducer") 
 	  << " Failed to find File = " << residualCorrFileName << " !!\n";
       JetCorrectorParameters residualCorr(residualCorrFileName.fullPath().data());
@@ -207,9 +206,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
       static CaloJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
-      
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_);
-
+    
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 	if ( verbosity_ ) {
 	  std::cout << "jet #" << jetIndex << " (Type-1): Pt(corr) = " << corrJetP4.pt() << " (raw = " << rawJetP4.pt() << ")," 

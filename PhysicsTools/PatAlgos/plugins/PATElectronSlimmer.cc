@@ -22,7 +22,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace pat {
 
@@ -43,6 +44,7 @@ namespace pat {
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
       edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
       bool linkToPackedPF_;
+      StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
   };
 
 } // namespace
@@ -60,7 +62,8 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     dropShapes_(iConfig.getParameter<std::string>("dropShapes")),
     dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
     dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
-    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
+    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes"))
 {
     produces<std::vector<pat::Electron> >();
     if (linkToPackedPF_) {
@@ -68,6 +71,8 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
         pf2pc_   = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
         pc_   = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
     }
+    mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+    mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
 }
 
 void 
@@ -86,6 +91,9 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         iEvent.getByToken(pf2pc_, pf2pc);
         iEvent.getByToken(pc_, pc);
     }
+    edm::InputTag  reducedBarrelRecHitCollection("reducedEcalRecHitsEB");
+    edm::InputTag  reducedEndcapRecHitCollection("reducedEcalRecHitsEE");
+    noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollection, reducedEndcapRecHitCollection);
 
     auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
     out->reserve(src->size());
@@ -97,7 +105,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropBasicClusters_(electron)) { electron.basicClusters_.clear();  }
 	if (dropSuperClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowSuperCluster_.clear(); electron.embeddedPflowSuperCluster_ = false; }
 	if (dropBasicClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowBasicClusters_.clear(); }
-	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear(); electron.embeddedSuperCluster_ = false; }
+	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear();  }
 	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
@@ -123,7 +131,24 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
             } else {
                 electron.refToOrig_ = reco::CandidatePtr(pc.id());
             }
-       }
+        }
+        if (saveNonZSClusterShapes_(electron)) {
+            reco::GsfElectron::ShowerShape ss;
+            const auto & seedCluster = *electron.superCluster()->seed();
+            std::vector<float> vCov = lazyToolsNoZS.localCovariances(seedCluster);
+            std::vector<float> Cov  = lazyToolsNoZS.covariances(seedCluster);
+            ss.sigmaEtaEta   = ( !edm::isNotFinite(Cov[0]) ) ? sqrt(Cov[0]) : 0;
+            ss.sigmaIetaIeta = ( !edm::isNotFinite(vCov[0]) ) ? sqrt(vCov[0]) : 0;
+            ss.sigmaIphiIphi = ( !edm::isNotFinite(vCov[2]) ) ? sqrt(vCov[2]) : 0;
+            float sigmaIetaIphi = vCov[1]; // this is missing in the struct
+            ss.r9 = lazyToolsNoZS.e3x3(seedCluster) / electron.superCluster()->rawEnergy() ;
+            ss.e1x5 = lazyToolsNoZS.e1x5(seedCluster);
+            ss.e2x5Max = lazyToolsNoZS.e2x5Max(seedCluster);
+            ss.e5x5 = lazyToolsNoZS.e5x5(seedCluster);
+            // hcal stuff is not filled
+            electron.full5x5_setShowerShape(ss);
+            electron.full5x5_setSigmaIetaIphi(sigmaIetaIphi);
+        }
 
     }
 

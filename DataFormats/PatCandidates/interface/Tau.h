@@ -254,7 +254,50 @@ namespace pat {
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool muonDecision() const { return pfSpecific().muonDecision_; }
-      
+     
+      /// ----- Methods returning associated PFCandidates that work on PAT+AOD, PAT+embedding and miniAOD -----
+      /// return the PFCandidate if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      const reco::CandidatePtr leadChargedHadrCand() const;
+      /// return the PFCandidate if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      const reco::CandidatePtr leadNeutralCand() const;
+      /// return the PFCandidate if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      const reco::CandidatePtr leadCand() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector signalCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector signalChargedHadrCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector signalNeutrHadrCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector signalGammaCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector isolationCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector isolationChargedHadrCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector isolationNeutrHadrCands() const;
+      /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+      /// note that the vector is returned by value.
+      reco::CandidatePtrVector isolationGammaCands() const;
+
+      /// setters for the PtrVectors (for miniAOD)
+      void setSignalCands(const reco::CandidatePtrVector &ptrs) { signalCandPtrs_ = ptrs; }
+      void setIsolationCands(const reco::CandidatePtrVector &ptrs) { isolationCandPtrs_ = ptrs; }
+
+      /// ----- Top Projection business ------- 
+      /// get the number of non-null PFCandidates
+      size_t numberOfSourceCandidatePtrs() const ;
+      /// get the source candidate pointer with index i
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+
+
       /// ---- Tau lifetime information ----
       /// Filled from PFTauTIPAssociation.
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau	
@@ -435,6 +478,12 @@ namespace pat {
       unsigned int currentJECSet_;
       // currently applied jet energy correction level
       unsigned int currentJECLevel_;
+
+      // ---- references to packed pf candidates -----
+      reco::CandidatePtrVector signalCandPtrs_;
+      reco::CandidatePtrVector isolationCandPtrs_;
+
+
   };
 }
 

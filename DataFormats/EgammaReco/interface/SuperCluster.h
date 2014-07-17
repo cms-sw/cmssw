@@ -104,6 +104,9 @@ namespace reco {
     //(re)-set preshower clusters
     void setPreshowerClusters(const CaloClusterPtrVector &clusters) { preshowerClusters_ = clusters; }
     
+    //clear hits and fractions vector (for slimming)
+    void clearHitsAndFractions() { hitsAndFractions_.clear(); }
+    
     /// add reference to constituent BasicCluster
     void addCluster( const CaloClusterPtr & r ) { 
       clusters_.push_back( r ); 
