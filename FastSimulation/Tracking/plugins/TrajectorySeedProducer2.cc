@@ -207,7 +207,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 			{
 			    if (processSkippedHits)
 			    {
-			        /*
+			        
 			        //std::cout<<"skipping hit: "<<inext<<std::endl;
 			        
 	                //std::cout<<"\t\t"<<trackerRecHits[inext].getSeedingLayer().subDet<<":"<<trackerRecHits[inext].getSeedingLayer().idLayer<<std::endl;//<<", pos=("<<trackerRecHits[inext].globalPosition().x()<<","<<trackerRecHits[inext].globalPosition().y()<<","<<trackerRecHits[inext].globalPosition().z()<<")"<<std::endl;
@@ -223,7 +223,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 	                {
 	                    return seedHits;
 	                }
-	                */
+	                
 	                
                 }
                 irecHit+=1; //skipping all following hits on the same layer
@@ -266,13 +266,13 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 void 
 TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
 
-    /*
+    
     std::cout<<std::endl;
 	std::cout<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
 	std::cout<<seedingAlgo[0]<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
-    */
+    
 
 
 	//Retrieve tracker topology from geometry
@@ -322,11 +322,11 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	//std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 	
 	
-	//std::vector<std::vector<std::pair<int,TrackerRecHit >>> newhits;
-	//newhits.resize(theSimTracks->size());
+	std::vector<std::vector<std::pair<int,TrackerRecHit >>> newhits;
+	newhits.resize(theSimTracks->size());
 	
-	//std::vector<std::vector<std::pair<int,TrackerRecHit >>> oldhits;
-	//oldhits.resize(theSimTracks->size());
+	std::vector<std::vector<std::pair<int,TrackerRecHit >>> oldhits;
+	oldhits.resize(theSimTracks->size());
     
 	//if no hits -> directly write empty collection
 	if(theGSRecHits->size() == 0)
@@ -430,7 +430,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 					recHits.push_back(aTrackingRecHit);
 					
 					//DEBUG
-					//newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
+					newhits[currentSimTrackId].push_back(std::pair<int,TrackerRecHit >(seedHitNumbers[ihit],trackerRecHits[seedHitNumbers[ihit]]));
 				}
 				
 				
@@ -482,45 +482,58 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	} //end loop over simtracks
     
     
-    
+    /*
 	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
 	{
 		std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
 		e.put(p,seedingAlgo[ialgo]);
 	}
+	*/
 	
 	
 	
+	TrajectorySeedProducer::produce(e, es, oldhits);
 	
-	//TrajectorySeedProducer::produce(e, es, oldhits);
 	
-	
-	/*
+	int new_seeds=0;
+	int missed_seeds=0;
+	int total_seeds=0;
 	for (unsigned int itrack = 0; itrack<newhits.size(); ++itrack)
 	{
+	    if (newhits[itrack].size()>0 || oldhits[itrack].size()>0)
+	    {
+	        ++total_seeds;
+	    }
 	    if ((newhits[itrack].size()>0 && oldhits[itrack].size()==0) || (newhits[itrack].size()==0 && oldhits[itrack].size()>0))
 	    {
-	        //std::cout<<"summary: track="<<itrack<<std::endl;
+
 	        
 	        if (newhits[itrack].size()>0)
 	        {
+	            /*
 	            std::cout<<"simtrack = "<<itrack<<": new seed"<<std::endl;
 	            for (unsigned int ihit = 0; ihit<newhits[itrack].size(); ++ ihit)
 	            {
 	                std::cout<<"\t hit: "<<newhits[itrack][ihit].first<<", "<<newhits[itrack][ihit].second.getSeedingLayer().print().c_str()<<", pos=("<<newhits[itrack][ihit].second.globalPosition().x()<<","<<newhits[itrack][ihit].second.globalPosition().y()<<","<<newhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
 	            }
+	            */
+	            ++new_seeds;
 	        }
 	        if (oldhits[itrack].size()>0)
 	        {
+	            /*
 	            std::cout<<"simtrack = "<<itrack<<": old seed"<<std::endl;
 	            for (unsigned int ihit = 0; ihit<oldhits[itrack].size(); ++ ihit)
 	            {
 	                std::cout<<"\t hit: "<<oldhits[itrack][ihit].first<<", "<<oldhits[itrack][ihit].second.getSeedingLayer().print().c_str()<<", pos=("<<oldhits[itrack][ihit].second.globalPosition().x()<<","<<oldhits[itrack][ihit].second.globalPosition().y()<<","<<oldhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
 	            }
+	            */
+	            ++missed_seeds;
 	        }
         }
 	}
-	*/
+	std::cout<<"summary: total seeds="<<total_seeds<<", missed seeds="<<missed_seeds<<", new seed="<<new_seeds<<std::endl;
+	
   
 }
 
