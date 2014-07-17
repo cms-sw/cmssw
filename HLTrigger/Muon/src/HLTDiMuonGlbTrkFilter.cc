@@ -63,8 +63,8 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<unsigned int>("trkMuonId",0);
   desc.add<double>("minPtMuon1",17);
   desc.add<double>("minPtMuon2",8);
-  desc.add<double>("maxEtaMuon",100);
-  desc.add<double>("maxYDimuon",100);
+  desc.add<double>("maxEtaMuon",1e99);
+  desc.add<double>("maxYDimuon",1e99);
   desc.add<double>("minMass",1);
   desc.add<double>("maxMass",1e99);
   desc.add<int>("ChargeOpt",0);
