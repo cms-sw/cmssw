@@ -66,10 +66,10 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxEtaMuon",100);
   desc.add<double>("maxYDimuon",100);
   desc.add<double>("minMass",1);
-  desc.add<double>("maxMass",10000000);
+  desc.add<double>("maxMass",1e99);
   desc.add<int>("ChargeOpt",0);
-  desc.add<double>("maxDCAMuMu",99999.9);
-  desc.add<double>("maxdEtaMuMu",99999.9);
+  desc.add<double>("maxDCAMuMu",1e99);
+  desc.add<double>("maxdEtaMuMu",1e99);
   descriptions.add("hltDiMuonGlbTrkFilter",desc);
 }
 
@@ -105,10 +105,6 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
   std::set<unsigned int> mus;
   if ( filteredMuons.size()>1 ){
 
-    // Needed for DCA calculation
-    edm::ESHandle<MagneticField> bFieldHandle;
-    iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
-
     for ( unsigned int i=0; i < filteredMuons.size()-1; ++i )
       for ( unsigned int j=i+1; j < filteredMuons.size(); ++j ){
 	const reco::Muon& mu1(muons->at(filteredMuons.at(i)));
@@ -125,7 +121,12 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 		if (mu1.charge()*mu2.charge()<0) continue;
 	  }
 
-	  if (m_maxDCAMuMu < 9999.9) {
+	  if (m_maxDCAMuMu < 1e98) {
+
+		// Needed for DCA calculation
+		edm::ESHandle<MagneticField> bFieldHandle;
+		iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+
 		reco::TrackRef tk1 = mu1.get<reco::TrackRef>();
 		reco::TrackRef tk2 = mu2.get<reco::TrackRef>();
 		reco::TransientTrack mu1TT(*tk1, &(*bFieldHandle));
