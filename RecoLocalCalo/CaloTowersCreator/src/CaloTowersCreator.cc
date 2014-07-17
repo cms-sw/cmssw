@@ -237,7 +237,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     if ( (ec_tmp->begin()->detid()).subdetId() == EcalBarrel ) {
       ebHandle = ec_tmp;
     }
-    else if ((ec_tmp->begin()->detid()).subdetId() == EcalEndcap ) {
+    else if ((ec_tmp->begin()->detid()).subdetId() == EcalEndcap || (ec_tmp->begin()->detid()).subdetId() == EcalShashlik) {
       eeHandle = ec_tmp;
     }
 
