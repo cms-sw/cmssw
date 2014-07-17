@@ -103,10 +103,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   
    record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
-   //  TGeoManager *geom = new TGeoManager( "cmsGeo", "CMS Detector" );
-
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
-   // NOTE: The default constructor does not create an identity matrix
    if( 0 == gGeoIdentity )
    {
       gGeoIdentity = new TGeoIdentity( "Identity" );
@@ -129,15 +126,15 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
 
-   addPixelBarrelGeometry( top );
-   addPixelForwardGeometry( top );
-   addTIBGeometry( top );
-   addTIDGeometry( top );
-   addTOBGeometry( top );
-   addTECGeometry( top );
-   addDTGeometry( top );
-   addCSCGeometry( top );
-   addRPCGeometry( top );
+   addPixelBarrelGeometry();
+   addPixelForwardGeometry();
+   addTIBGeometry();
+   addTIDGeometry();
+   addTOBGeometry();
+   addTECGeometry();
+   addDTGeometry();
+   addCSCGeometry();
+   addRPCGeometry();
 
    addCaloGeometry();
   
@@ -279,9 +276,9 @@ FWTGeoRecoGeometryESProducer::createMaterial( const std::string& name )
 
 
 void
-FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("PXB");
 
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
            end = m_trackerGeom->detsPXB().end();
@@ -301,15 +298,16 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std
        holder->AddNode(child, 1);
    }
   
-   top->AddNode( assembly, copy );
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
 
 void
-FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addPixelForwardGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("PXB");
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
            end = m_trackerGeom->detsPXF().end();
         it != end; ++it )
@@ -328,21 +326,22 @@ FWTGeoRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const st
       holder = GetDaughter(holder, "Blade", detid.blade());
       holder = GetDaughter(holder, "Panel", detid.panel());
    
-      holder->AddNode( child, copy, createPlacement( *it ));
+      holder->AddNode( child, 1, createPlacement( *it ));
       child->SetLineColor( kGreen );
 
    }
   
-   top->AddNode( assembly, copy );
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
 
 
 void
-FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string& iName, int copy ) 
+FWTGeoRecoGeometryESProducer::addTIBGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("TIB");
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
            end = m_trackerGeom->detsTIB().end();
         it != end; ++it )
@@ -358,20 +357,21 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string
       TGeoVolume* holder  = GetDaughter(assembly, "Module", detid.module());
       holder = GetDaughter(holder, "Order", detid.order());
       holder = GetDaughter(holder, "Side", detid.side());
-      holder->AddNode( child, copy, createPlacement( *it ));
+      holder->AddNode( child, 1, createPlacement( *it ));
       child->SetLineColor( kGreen );
    }
   
-   top->AddNode( assembly, copy );
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
 
 
 void
-FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addTIDGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("TID");
+
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
            end = m_trackerGeom->detsTID().end();
         it != end; ++it)
@@ -386,20 +386,21 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string
       TGeoVolume* holder  = GetDaughter(assembly, "Side", detid.side());
       holder = GetDaughter(holder, "Wheel", detid.wheel());
       holder = GetDaughter(holder, "Ring", detid.ring());
-      holder->AddNode( child, copy, createPlacement( *it ));
+      holder->AddNode( child, 1, createPlacement( *it ));
    
       child->SetLineColor( kGreen );
    }
-  
-   top->AddNode( assembly, copy );
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
 
 void
-FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addTOBGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("TOB");
+
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
            end = m_trackerGeom->detsTOB().end();
         it != end; ++it )
@@ -414,20 +415,21 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string
       TGeoVolume* holder  = GetDaughter(assembly, "Rod", detid.rodNumber());
       holder = GetDaughter(holder, "Side", detid.side());
       holder = GetDaughter(holder, "Module", detid.moduleNumber());
-      holder->AddNode( child, copy, createPlacement( *it ));
+      holder->AddNode( child, 1, createPlacement( *it ));
    
       child->SetLineColor( kGreen );
    }
-  
-   top->AddNode( assembly, copy );
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
 
 void
-FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addTECGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("TEC");
+
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
            end = m_trackerGeom->detsTEC().end();
         it != end; ++it )
@@ -443,22 +445,23 @@ FWTGeoRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string
       TGeoVolume* holder  = GetDaughter(assembly, "Order", detid.order());
       holder = GetDaughter(holder, "Ring", detid.ring());
       holder = GetDaughter(holder, "Module", detid.module());
-      holder->AddNode( child, copy, createPlacement( *it ));
+      holder->AddNode( child, 1, createPlacement( *it ));
       child->SetLineColor( kGreen );
    }
-  
-   top->AddNode( assembly, copy );
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
 
 void
-FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addDTGeometry(  )
 {
    //
    // DT chambers geometry
    //
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly( "DT");
+
    auto const & dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
    for( auto it = dtChamberGeom.begin(),
            end = dtChamberGeom.end(); 
@@ -476,13 +479,10 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
          holder = GetDaughter(holder, "Station", detid.station());
          holder = GetDaughter(holder, "Sector", detid.sector());
    
-         holder->AddNode( child, copy, createPlacement( chamber ));
+         holder->AddNode( child, 1, createPlacement( chamber ));
          child->SetLineColor( kRed );
       }
    }
-   top->AddNode( assembly, copy );
-
-
 
    // Fill in DT super layer parameters
    auto const & dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
@@ -506,7 +506,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
          holder = GetDaughter(holder, "SuperLayer", detid.superlayer());
          // holder = GetDaughter(holder, "Layer", detid.layer());
 
-         holder->AddNode( child, copy, createPlacement( superlayer ));
+         holder->AddNode( child, 1, createPlacement( superlayer ));
          child->SetLineColor( kBlue );
       }
    }
@@ -534,22 +534,24 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
          holder = GetDaughter(holder, "SuperLayer", detid.superlayer());
          holder = GetDaughter(holder, "Layer", detid.layer());
 
-         holder->AddNode( child, copy, createPlacement( layer ));
+         holder->AddNode( child, 1, createPlacement( layer ));
          child->SetLineColor( kBlue );
       }
    } 
 
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
 void
-FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addCSCGeometry()
 {
    if(! m_geomRecord->slaveGeometry( CSCDetId()))
       throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
 
    
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("CSC");
 
    auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
    for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
@@ -579,15 +581,16 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       }
    }
 
-   top->AddNode( assembly, copy );
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
 
 void
-FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& iName, int copy )
+FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   TGeoVolume *assembly = new TGeoVolumeAssembly("RPC");
+
    DetId detId( DetId::Muon, 3 );
    const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
    for( auto it = rpcGeom->rolls().begin(),
@@ -603,15 +606,6 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
          std::string name = s.str();
       
          TGeoVolume* child = createVolume( name, roll );
-         /*
-         TGeoVolume* holder  = GetDaughter(assembly, "Region", detid.region());
-         holder = GetDaughter(holder, "Ring", detid.ring());
-         holder = GetDaughter(holder, "Wheel", detid.wheel()); 
-         holder = GetDaughter(holder, "Station", detid.station()); 
-         holder = GetDaughter(holder, "Disk", detid.disk());   
-         holder = GetDaughter(holder, "Sector", detid.sector()); 
-         holder = GetDaughter(holder, "Layer", detid.layer()); 
-         */
 
          TGeoVolume* holder  = GetDaughter(assembly, "Region", detid.region());
          holder = GetDaughter(holder, "Ring", detid.ring());
@@ -620,11 +614,12 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
          holder = GetDaughter(holder, "Layer", detid.layer()); 
          holder = GetDaughter(holder, "Subsector", detid.subsector()); 
 
-         holder->AddNode( child, copy, createPlacement( roll ));
+         holder->AddNode( child, 1, createPlacement( roll ));
          child->SetLineColor( kYellow );     
       }
    }
-   top->AddNode( assembly, copy );
+
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
 
 
