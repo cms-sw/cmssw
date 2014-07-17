@@ -1,0 +1,120 @@
+--- protobuf-2.4.1/java/pom.xml.orig	2011-04-30 12:23:04.000000000 -0500
++++ protobuf-2.4.1/java/pom.xml	2011-06-09 14:47:09.554188809 -0500
+@@ -3,11 +3,6 @@
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+-  <parent>
+-    <groupId>com.google</groupId>
+-    <artifactId>google</artifactId>
+-    <version>1</version>
+-  </parent>
+   <groupId>com.google.protobuf</groupId>
+   <artifactId>protobuf-java</artifactId>
+   <version>2.4.1</version>
+@@ -32,26 +27,6 @@
+       scm:svn:http://protobuf.googlecode.com/svn/trunk/
+     </connection>
+   </scm>
+-  <dependencies>
+-    <dependency>
+-      <groupId>junit</groupId>
+-      <artifactId>junit</artifactId>
+-      <version>4.4</version>
+-      <scope>test</scope>
+-    </dependency>
+-    <dependency>
+-      <groupId>org.easymock</groupId>
+-      <artifactId>easymock</artifactId>
+-      <version>2.2</version>
+-      <scope>test</scope>
+-    </dependency>
+-    <dependency>
+-      <groupId>org.easymock</groupId>
+-      <artifactId>easymockclassextension</artifactId>
+-      <version>2.2.1</version>
+-      <scope>test</scope>
+-    </dependency>
+-  </dependencies>
+   <build>
+     <plugins>
+       <plugin>
+@@ -62,14 +37,6 @@
+         </configuration>
+       </plugin>
+       <plugin>
+-        <artifactId>maven-surefire-plugin</artifactId>
+-        <configuration>
+-          <includes>
+-            <include>**/*Test.java</include>
+-          </includes>
+-        </configuration>
+-      </plugin>
+-      <plugin>
+         <artifactId>maven-antrun-plugin</artifactId>
+         <executions>
+           <execution>
+@@ -90,44 +57,6 @@
+               <goal>run</goal>
+             </goals>
+           </execution>
+-          <execution>
+-            <id>generate-test-sources</id>
+-            <phase>generate-test-sources</phase>
+-            <configuration>
+-              <tasks>
+-                <mkdir dir="target/generated-test-sources" />
+-                <exec executable="../src/protoc">
+-                  <arg value="--java_out=target/generated-test-sources" />
+-                  <arg value="--proto_path=../src" />
+-                  <arg value="--proto_path=src/test/java" />
+-                  <arg value="../src/google/protobuf/unittest.proto" />
+-                  <arg value="../src/google/protobuf/unittest_import.proto" />
+-                  <arg value="../src/google/protobuf/unittest_mset.proto" />
+-                  <arg
+-                    value="src/test/java/com/google/protobuf/multiple_files_test.proto" />
+-                  <arg value="src/test/java/com/google/protobuf/nested_builders_test.proto" />
+-                  <arg value="src/test/java/com/google/protobuf/nested_extension.proto" />
+-                  <arg value="src/test/java/com/google/protobuf/nested_extension_lite.proto" />
+-                  <arg value="src/test/java/com/google/protobuf/non_nested_extension.proto" />
+-                  <arg value="src/test/java/com/google/protobuf/non_nested_extension_lite.proto" />
+-                  <arg value="src/test/java/com/google/protobuf/test_bad_identifiers.proto" />
+-                  <arg
+-                    value="../src/google/protobuf/unittest_optimize_for.proto" />
+-                  <arg
+-                    value="../src/google/protobuf/unittest_custom_options.proto" />
+-                  <arg value="../src/google/protobuf/unittest_lite.proto" />
+-                  <arg value="../src/google/protobuf/unittest_import_lite.proto" />
+-                  <arg value="../src/google/protobuf/unittest_lite_imports_nonlite.proto" />
+-                  <arg value="../src/google/protobuf/unittest_enormous_descriptor.proto" />
+-                  <arg value="../src/google/protobuf/unittest_no_generic_services.proto" />
+-                </exec>
+-              </tasks>
+-              <testSourceRoot>target/generated-test-sources</testSourceRoot>
+-            </configuration>
+-            <goals>
+-              <goal>run</goal>
+-            </goals>
+-          </execution>
+         </executions>
+       </plugin>
+     </plugins>
+@@ -159,18 +88,6 @@
+                 <include>**/UnmodifiableLazyStringList.java</include>
+                 <include>**/WireFormat.java</include>
+               </includes>
+-              <testIncludes>
+-                <testInclude>**/LiteTest.java</testInclude>
+-                <testInclude>**/*Lite.java</testInclude>
+-              </testIncludes>
+-            </configuration>
+-          </plugin>
+-          <plugin>
+-            <artifactId>maven-surefire-plugin</artifactId>
+-            <configuration>
+-              <includes>
+-                <include>**/LiteTest.java</include>
+-              </includes>
+             </configuration>
+           </plugin>
+           <plugin>
