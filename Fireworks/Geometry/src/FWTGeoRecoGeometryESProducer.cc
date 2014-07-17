@@ -587,30 +587,44 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
 void
 FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
-  //
-  // RPC chambers geometry
-  //
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  DetId detId( DetId::Muon, 3 );
-  const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( auto it = rpcGeom->rolls().begin(),
-	     end = rpcGeom->rolls().end(); 
-       it != end; ++it )
-  {
-    RPCRoll const* roll = (*it);
-    if( roll )
-    {
-      unsigned int rawid = roll->geographicalId().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
+   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+   DetId detId( DetId::Muon, 3 );
+   const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
+   for( auto it = rpcGeom->rolls().begin(),
+           end = rpcGeom->rolls().end(); 
+        it != end; ++it )
+   {
+      RPCRoll const* roll = (*it);
+      if( roll )
+      {
+         RPCDetId detid = roll->geographicalId();
+         std::stringstream s;
+         s << detid;
+         std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, roll );
-      assembly->AddNode( child, copy, createPlacement( roll ));
-      child->SetLineColor( kYellow );     
-    }
-  }
-  top->AddNode( assembly, copy );
+         TGeoVolume* child = createVolume( name, roll );
+         /*
+         TGeoVolume* holder  = GetDaughter(assembly, "Region", detid.region());
+         holder = GetDaughter(holder, "Ring", detid.ring());
+         holder = GetDaughter(holder, "Wheel", detid.wheel()); 
+         holder = GetDaughter(holder, "Station", detid.station()); 
+         holder = GetDaughter(holder, "Disk", detid.disk());   
+         holder = GetDaughter(holder, "Sector", detid.sector()); 
+         holder = GetDaughter(holder, "Layer", detid.layer()); 
+         */
+
+         TGeoVolume* holder  = GetDaughter(assembly, "Region", detid.region());
+         holder = GetDaughter(holder, "Ring", detid.ring());
+         holder = GetDaughter(holder, "Station", detid.station()); 
+         holder = GetDaughter(holder, "Sector", detid.sector()); 
+         holder = GetDaughter(holder, "Layer", detid.layer()); 
+         holder = GetDaughter(holder, "Subsector", detid.subsector()); 
+
+         holder->AddNode( child, copy, createPlacement( roll ));
+         child->SetLineColor( kYellow );     
+      }
+   }
+   top->AddNode( assembly, copy );
 }
 
 
