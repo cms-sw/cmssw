@@ -384,26 +384,20 @@ namespace SingleTopTChannelLepton {
     edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
     edm::Handle<edm::View<reco::PFCandidate> > elecs;
     edm::View<reco::PFCandidate>::const_iterator elec_it;
-    StringCutObjectSelector<reco::PFCandidate, true> *elecSelect = new StringCutObjectSelector<reco::PFCandidate, true>(elecSelect_); 
-    StringCutObjectSelector<reco::PFCandidate, true> *elecIso = new StringCutObjectSelector<reco::PFCandidate, true>(elecIso_);
+    StringCutObjectSelector<reco::PFCandidate, true> elecSelect(elecSelect_); 
+    StringCutObjectSelector<reco::PFCandidate, true> elecIso(elecIso_);
     reco::GsfElectronRef elec;
     
-    if( !event.getByToken(elecs_, elecs) ){ 
-	delete elecSelect;
-	delete elecIso;
+    if( !event.getByToken(elecs_, elecs) ) 
 	return;
-    }
-    if( !event.getByToken(elecs_gsf_, elecs_gsf) ){ 
-	delete elecSelect;
-	delete elecIso;
+    
+    if( !event.getByToken(elecs_gsf_, elecs_gsf) ) 
 	return;
-    }
+    
     // check availability of electron id
     edm::Handle<edm::ValueMap<float> > electronId; 
     if(!electronId_.isUninitialized()){
       if( !event.getByToken(electronId_, electronId) ){ 
-	delete elecSelect;
-	delete elecIso;
 	return;
       }
     }
@@ -421,7 +415,7 @@ namespace SingleTopTChannelLepton {
       
       // restrict to electrons with good electronId
       if( electronId_.isUninitialized() ? true : ((double)(*electronId)[elec] >= eidCutValue_) ){
-	if(!elecSelect || (*elecSelect)(*elec_it)){
+	if((elecSelect)(*elec_it)){
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
 	  
 	  double isolationChHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumChargedHadronPt);
@@ -445,7 +439,7 @@ namespace SingleTopTChannelLepton {
 	  }
 	  // in addition to the multiplicity counter buffer the iso 
 	  // electron candidates for later overlap check with jets
-	  ++eMult; if( !elecIso || (*elecIso)(*elec_it)){  if(eMultIso == 0) e = *elec; isoElecs.push_back(&(*elec)); ++eMultIso; }
+	  ++eMult; if( (elecIso)(*elec_it)){  if(eMultIso == 0) e = *elec; isoElecs.push_back(&(*elec)); ++eMultIso; }
 	}
       }
       idx_gsf++;
@@ -454,8 +448,6 @@ namespace SingleTopTChannelLepton {
     fill("elecMult_",    eMult   );
     fill("elecMultIso_", eMultIso);
     
-    delete elecSelect;
-    delete elecIso;
     
 
     /* 
