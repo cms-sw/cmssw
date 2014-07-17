@@ -92,7 +92,7 @@ def miniAOD_customizeCommon(process):
                                jetCollection="selectedPatJetsAK5PFForMetUnc",
                                electronCollection="",
                                muonCollection="selectedPatMuons",
-                               tauCollection"selectedPatTaus",
+                               tauCollection="selectedPatTaus",
                                outputModule=None)
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
