@@ -15,6 +15,11 @@
  * @date circa Oct/2012 to Feb/2013
  *
  * Changelog:
+ * 17/Jul/2014 Dominik Nowatschin (dominik.nowatschin@cern.ch) - added SimVertex and a ref to
+ * HepMC::Genvertex to TrackingVertex in TrackingParticleFactory::createTrackingVertex; handle to
+ * edm::HepMCProduct is created directly in TrackingTruthAccumulator::accumulate and not in 
+ * accumulateEvent as edm::Event and PileUpEventPrincipal have different ::getByLabel() functions
+ * 
  * 07/Feb/2013 Mark Grimes - Reorganised and added a bit more documentation. Still not enough
  * though.
  * 12/Mar/2012 (branch NewTrackingParticle only) Mark Grimes - Updated TrackingParticle creation
@@ -144,7 +149,7 @@ namespace
 				const edm::Handle< edm::HepMCProduct >& hepMCproduct, const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices,
 				const std::vector<const PSimHit*>& simHits, double volumeRadius, double volumeZ, double vertexDistanceCut, bool allowDifferentProcessTypes );
 		TrackingParticle createTrackingParticle( const DecayChainTrack* pTrack ) const;
-		TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex) const; /// FIXME: added code
+		TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex) const;
 		bool vectorIsInsideVolume( const math::XYZTLorentzVectorD& vector ) const;
 	private:
 		const ::DecayChain& decayChain_;
@@ -198,7 +203,7 @@ namespace
 	 * @author Mark Grimes (mark.grimes@bristol.ac.uk)
 	 * @date 05/Nov/2012
 	 */
-	template<class T> void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const T& event );     /// FIXME: added code
+	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors);
 
 } // end of the unnamed namespace
 
@@ -330,6 +335,11 @@ void TrackingTruthAccumulator::initializeEvent( edm::Event const& event, edm::Ev
 	}
 }
 
+/// create handle to edm::HepMCProduct here because event.getByLabel with edm::HepMCProduct only works for edm::Event
+/// but not for PileUpEventPrincipal; PileUpEventPrincipal::getByLabel tries to call T::value_type and T::iterator
+/// (where T is the type of the object one wants to get a handle to) which is only implemented for container-like objects
+/// like std::vector but not for edm::HepMCProduct!
+
 void TrackingTruthAccumulator::accumulate( edm::Event const& event, edm::EventSetup const& setup )
 {
 	// Call the templated version that does the same for both signal and pileup events
@@ -459,7 +469,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 		// This function creates the TrackinParticle and adds it to the collection if it
 		// passes the selection criteria specified in the configuration. If the config
 		// specifies adding ancestors, the function is called recursively to do that.
-		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_, event );    /// FIXME: added code
+		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_ );
 	}
 }
 
@@ -650,8 +660,6 @@ namespace // Unnamed namespace for things only used in this file
 //                 
 //                 return returnValue;
 //         }
-                
-        /** FIXME: until here */
 
 	TrackingVertex TrackingParticleFactory::createTrackingVertex( const ::DecayChainVertex* pChainVertex) const
 	{
@@ -667,9 +675,11 @@ namespace // Unnamed namespace for things only used in this file
 		// TODO - Still need to set the truth ID properly. I'm not sure what to set
 		// the second parameter of the EncodedTruthId constructor to.
 		TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
-                
+		
+		// add the SimVertex to the TrackingVertex
 		returnValue.addG4Vertex(simVertex);
                 
+		// also add refs to nearby HepMC::GenVertexs; the way this is done (i.e. based on the position) is transcribed over from the old TrackingTruthProducer
 		if( simVertex.eventId().event()==0 && simVertex.eventId().bunchCrossing()==0 && hepMCproduct_.isValid()) // if this is a track in the signal event
 		{
 			const HepMC::GenEvent* genEvent = hepMCproduct_->GetEvent();
@@ -686,13 +696,11 @@ namespace // Unnamed namespace for things only used in this file
                     
 					double distance = sqrt( (tvPosition - genPosition).mag2() );
                     
-					if (distance < vertexDistanceCut_)       // TODO: hard-coded, change number to InputTag
-					returnValue.addGenVertex( GenVertexRef(hepMCproduct_, (*iGenVertex)->barcode()) );
+					if (distance < vertexDistanceCut_)
+						returnValue.addGenVertex( GenVertexRef(hepMCproduct_, (*iGenVertex)->barcode()) );
 				}
 			}
 		}
-                
-                /** FIXME: until here */
                 
 		return returnValue;
 	}
@@ -1147,7 +1155,7 @@ namespace // Unnamed namespace for things only used in this file
 		return pTrackingParticle;
 	}
 
-	template<class T> void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const T& event )      /// FIXME: added code
+	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors )
 	{
 		if( pDecayChainTrack==NULL ) return; // This is required for when the addAncestors_ recursive call reaches the top of the chain
 
@@ -1192,7 +1200,7 @@ namespace // Unnamed namespace for things only used in this file
 		// order. I don't know how important that is but other code might assume chronological order.
 		// If adding ancestors, no selection is applied. Note that I've already checked that all
 		// DecayChainTracks have a pParentVertex.
-		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors, event ); /// FIXME: added code
+		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors );
 
 		// If creation of the unmerged collection has been turned off in the config this pointer
 		// will be null.

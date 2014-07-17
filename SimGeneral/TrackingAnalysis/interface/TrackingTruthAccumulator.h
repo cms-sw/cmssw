@@ -85,6 +85,7 @@ private:
 
 	const double volumeRadius_;
 	const double volumeZ_;
+	/// maximum distance for HepMC::GenVertex to be added to SimVertex
 	const double vertexDistanceCut_;
 	const bool ignoreTracksOutsideVolume_;
 
@@ -106,7 +107,8 @@ private:
 	const edm::InputTag simVertexLabel_;
         std::vector<edm::InputTag> collectionTags_;
 	edm::InputTag genParticleLabel_;
-	edm::InputTag hepMCproductLabel_; /// FIXME
+	/// Needed to add HepMC::GenVertex to SimVertex
+	edm::InputTag hepMCproductLabel_;
 
 	bool selectorFlag_;
 	TrackingParticleSelector selector_;
