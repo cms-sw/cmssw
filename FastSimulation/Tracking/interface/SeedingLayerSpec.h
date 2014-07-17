@@ -57,30 +57,86 @@ class LayerSpec
         {
             LayerSpec seedingLayer;
             uint32_t subdet=detId.subdetId();
+            //BPix
             if ( subdet == PixelSubdetector::PixelBarrel )
+            {
                 seedingLayer.subDet=Det::PXB;
                 seedingLayer.side=Side::BARREL;
                 seedingLayer.layerNumber = trackerTopology.pxbLayer(detId);
-            if ( subdet == PixelSubdetector::PixelEndcap )
+            }
+            //FPix
+            else if ( subdet == PixelSubdetector::PixelEndcap )
+            {
                 seedingLayer.subDet=Det::PXD;
-                seedingLayer.side=Side::BARREL;
+                if(trackerTopology.pxfSide(detId)==1)
+                {
+                    seedingLayer.side=Side::NEG_ENDCAP;
+                }
+                else if(trackerTopology.pxfSide(detId)==2)
+                {
+                    seedingLayer.side=Side::POS_ENDCAP;
+                }
+                else
+                {
+                    throw cms::Exception("FastSimulation/Tracking") <<"Tracker hit for seeding in FPix seems neither on positive nor on negative disk side: "<<trackerTopology.print(detId).c_str();
+                }
                 seedingLayer.layerNumber = trackerTopology.pxfDisk(detId);
-            if ( subdet == StripSubdetector::TIB )
+            }
+            //TIB
+            else if ( subdet == StripSubdetector::TIB )
+            {
                 seedingLayer.subDet=Det::TIB;
                 seedingLayer.side=Side::BARREL;
                 seedingLayer.layerNumber = trackerTopology.tibLayer(detId);
-            if ( subdet == StripSubdetector::TID )
+            }
+            //TID
+            else if ( subdet == StripSubdetector::TID )
+            {
                 seedingLayer.subDet=Det::TID;
-                seedingLayer.side=Side::BARREL;
+                if(trackerTopology.tidSide(detId)==1)
+                {
+                    seedingLayer.side=Side::NEG_ENDCAP;
+                }
+                else if(trackerTopology.tidSide(detId)==2)
+                {
+                    seedingLayer.side=Side::POS_ENDCAP;
+                }
+                else
+                {
+                    throw cms::Exception("FastSimulation/Tracking") <<"Tracker hit for seeding in TID seems neither on positive nor on negative disk side: "<<trackerTopology.print(detId).c_str();
+                }
                 seedingLayer.layerNumber = trackerTopology.tidWheel(detId);
-            if ( subdet == StripSubdetector::TOB )
+            }
+            //TOB
+            else if ( subdet == StripSubdetector::TOB )
+            {
                 seedingLayer.subDet=Det::TOB;
                 seedingLayer.side=Side::BARREL;
                 seedingLayer.layerNumber = trackerTopology.tobLayer(detId);
-            if ( subdet == StripSubdetector::TEC )
+            }
+            //TEC
+            else if ( subdet == StripSubdetector::TEC )
+            {
                 seedingLayer.subDet=Det::TEC;
-                seedingLayer.side=Side::BARREL;
+                if(trackerTopology.tecSide(detId)==1)
+                {
+                    seedingLayer.side=Side::NEG_ENDCAP;
+                }
+                else if(trackerTopology.tecSide(detId)==2)
+                {
+                    seedingLayer.side=Side::POS_ENDCAP;
+                }
+                else
+                {
+                    throw cms::Exception("FastSimulation/Tracking") <<"Tracker hit for seeding in TEC seems neither on positive nor on negative disk side: "<<trackerTopology.print(detId).c_str();
+                }
                 seedingLayer.layerNumber = trackerTopology.tecWheel(detId);
+            }
+            else
+            {
+                throw cms::Exception("FastSimulation/Tracking") << "Cannot determine seeding layer from DetId:"<<trackerTopology.print(detId).c_str()<<std::endl;
+            }    
+            //std::cout<<"LayerSpec::createFromDetId: "<<trackerTopology.print(detId).c_str()<<", parsed="<<seedingLayer.print().c_str()<<std::endl;
             return seedingLayer;
         }
         
@@ -211,6 +267,8 @@ class LayerSpec
                     << "Bad data naming in seeding layer configuration."
                     << "no case sensitive name of ['BPix','FPix','TIB','MTIB','TID','MTID','TOB','TEC','MTEC'] matches '"<<layerSpecification.c_str()<<"'";
             }
+            //std::cout<<"LayerSpec::createFromString: "<<layerSpecification.c_str()<<", parsed="<<seedingLayer.print().c_str()<<std::endl;
+            
             return seedingLayer;
         }
     
