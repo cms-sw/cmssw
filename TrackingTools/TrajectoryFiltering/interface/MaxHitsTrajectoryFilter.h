@@ -8,10 +8,9 @@ public:
 
   explicit MaxHitsTrajectoryFilter( int maxHits=10000): theMaxHits( maxHits) {}
     
-  explicit MaxHitsTrajectoryFilter(const edm::ParameterSet & pset):
+  explicit MaxHitsTrajectoryFilter(const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theMaxHits( pset.getParameter<int>("maxNumberOfHits")) {if (theMaxHits<0) theMaxHits=10000;  }
 
-  
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
   virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
 

@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
@@ -14,7 +15,6 @@
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
-#include "G4UrbanMscModel93.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -64,8 +64,11 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysics95msc93::CMSEmStandardPhysics95msc93(const G4String& name, G4int ver, std::string reg):
-  G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+#include "G4SystemOfUnits.hh"
+
+CMSEmStandardPhysics95msc93::CMSEmStandardPhysics95msc93(const G4String& name, 
+							 G4int ver, std::string reg)
+: G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4LossTableManager::Instance();
 }
 
@@ -121,9 +124,9 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
 {
   // Add standard EM Processes
 
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
+  aParticleIterator->reset();
+  while( (*aParticleIterator)() ){
+    G4ParticleDefinition* particle = aParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
     if(verbose > 1)
@@ -146,7 +149,7 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0,new G4UrbanMscModel93());
+      msc->AddEmModel(0,new UrbanMscModel93());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
 
@@ -160,7 +163,7 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0,new G4UrbanMscModel93());
+      msc->AddEmModel(0,new UrbanMscModel93());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
 

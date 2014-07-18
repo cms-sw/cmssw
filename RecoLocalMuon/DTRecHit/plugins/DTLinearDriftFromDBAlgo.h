@@ -99,6 +99,10 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
   // (when off, Step 2 does nothing)
   const bool stepTwoFromDigi;
 
+  // Assign hit uncertainties based on new uncertainties DB 
+  // If false, the value taken from vdrift DB is used instead.
+  bool useUncertDB;
+
   // Switch on/off the verbosity
   const bool debug;
 };

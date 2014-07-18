@@ -61,7 +61,7 @@ struct LCPUTime {
   };
   
   static double oneTick() {
-    static OneTick local;
+    static const OneTick local;
     return local.one;
   };
 

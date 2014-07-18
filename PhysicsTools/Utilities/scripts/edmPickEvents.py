@@ -3,20 +3,16 @@
 # Anzar Afaq         June 17, 2008
 # Oleksiy Atramentov June 21, 2008
 # Charles Plager     Sept  7, 2010
+# Volker Adler       Apr  16, 2014
 
 import os
 import sys
 import optparse
 import re
 import commands
-import xml.sax
-import xml.sax.handler
 from FWCore.PythonUtilities.LumiList   import LumiList
-from xml.sax import SAXParseException
-from DBSAPI.dbsException import *
-from DBSAPI.dbsApiException import *
-from DBSAPI.dbsOptions import DbsOptionParser
-from DBSAPI.dbsApi import DbsApi
+import das_client
+import json
 from pprint import pprint
 
 
@@ -25,7 +21,7 @@ How to use:
 
 edmPickEvent.py dataset run1:lumi1:event1 run2:lumi2:event2
 
-- or - 
+- or -
 
 edmPickEvent.py dataset listOfEvents.txt
 
@@ -49,7 +45,7 @@ dataset: it just a name of the physics dataset, if you don't know exact name
     you can provide a mask, e.g.: *QCD*RAW
 
 For updated information see Wiki:
-https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents 
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents
 """
 
 
@@ -82,56 +78,31 @@ class Event (dict):
         return "run = %(run)i, lumi = %(lumi)i, event = %(event)i, dataset = %(dataset)s"  % self
 
 
-######################
-## XML parser class ##
-######################
-
-class Handler (xml.sax.handler.ContentHandler):
-
-    def __init__(self):
-        self.inFile = 0
-        self.files = []
-
-    def startElement(self, name, attrs):
-        if name == 'file':
-            self.inFile = 1
-
-    def endElement(self, name):
-        if name == 'file':
-            self.inFile = 0
-
-    def characters(self, data):
-        if self.inFile:
-            self.files.append(str(data))
-    
-
 #################
 ## Subroutines ##
 #################
 
-def getFileNames (event, dbsOptions = {}):
-    # Query DBS
-    try:
-        api = DbsApi (dbsOptions)
-        query = "find file where dataset=%(dataset)s and run=%(run)i and lumi=%(lumi)i" % event
-
-        xmldata = api.executeQuery(query)
-    except DbsApiException, ex:
-        print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
-        if ex.getErrorCode() not in (None, ""):
-            print "DBS Exception Error Code: ", ex.getErrorCode()
-
-    # Parse the resulting xml output.
+def getFileNames (event):
     files = []
-    try:
-        handler = Handler()
-        xml.sax.parseString (xmldata, handler)
-    except SAXParseException, ex:
-        msg = "Unable to parse XML response from DBS Server"
-        msg += "\n  Server has not responded as desired, try setting level=DBSDEBUG"
-        raise DbsBadXMLData(args=msg, code="5999")
+    # Query DAS
+    query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i | grep file.name" % event
+    jsondict = das_client.get_data('https://cmsweb.cern.ch', query, 0, 0, False)
+    status = jsondict['status']
+    if status != 'ok':
+        print "DAS query status: %s"%(status)
+        return files
 
-    return handler.files
+    mongo_query = jsondict['mongo_query']
+    filters = mongo_query['filters']
+    data = jsondict['data']
+
+    files = []
+    for row in data:
+        file = [r for r in das_client.get_value(row, filters['grep'])][0]
+        if len(file) > 0 and not file in files:
+            files.append(file)
+
+    return files
 
 
 def fullCPMpath():
@@ -166,10 +137,11 @@ def setupCrabDict (options):
     crab['email']         = options.email
     if options.crabCondor:
         crab['scheduler'] = 'condor'
-        crab['useServer'] = ''
+#        crab['useServer'] = ''
     else:
-        crab['scheduler'] = 'glite'
-        crab['useServer'] = 'use_server              = 1'
+        crab['scheduler'] = 'remoteGlidein'
+#        crab['useServer'] = 'use_server              = 1'
+    crab['useServer'] = ''
     return crab
 
 
@@ -203,7 +175,7 @@ email                   = %(email)s
 [CRAB]
 # use "glite" in general; you can "condor" if you run on CAF at FNAL or USG
 # site AND you know the files are available locally
-scheduler               = %(scheduler)s  
+scheduler               = %(scheduler)s
 jobtype                 = cmssw
 %(useServer)s
 '''
@@ -217,7 +189,9 @@ jobtype                 = cmssw
 
 if __name__ == "__main__":
     email = guessEmail()
-    parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program facilitates picking specific events from a data set.  For full details, please visit https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
+    parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program
+facilitates picking specific events from a data set.  For full details, please visit
+https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
     parser.add_option ('--output', dest='base', type='string',
                        default='pickevents',
                        help='Base name to use for output files (root, JSON, run and event list, etc.; default "%default")')
@@ -234,7 +208,7 @@ if __name__ == "__main__":
                        help="Specify email for CRAB (default '%s')" % email )
     (options, args) = parser.parse_args()
 
-    
+
     if len(args) < 2:
         parser.print_help()
         sys.exit(0)
@@ -300,7 +274,7 @@ if __name__ == "__main__":
 
         #################
         ## Interactive ##
-        #################    
+        #################
         files = []
         for event in eventList:
             files.extend( getFileNames (event) )
@@ -323,3 +297,4 @@ if __name__ == "__main__":
         print "\n%s" % command
         if options.runInteractive and not options.printInteractive:
             os.system (command)
+

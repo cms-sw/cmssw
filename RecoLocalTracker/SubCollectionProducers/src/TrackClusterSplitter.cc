@@ -116,10 +116,10 @@ private:
 
   // Template declarations
   // Pixel templates
-  mutable SiPixelTemplate         templ_  ;
-  mutable SiPixelTemplate2D       templ2D_; 
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
+  std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
   // Strip template
-  mutable SiStripTemplate   strip_templ_  ;
+  std::vector< SiStripTemplateStore > theStripTemp_;
 
   // A pointer to a track and a state on the detector
   struct TrackAndState 
@@ -280,18 +280,18 @@ TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
   */
 
   // Load template; 40 for barrel and 41 for endcaps
-  templ_.pushfile( 40 );
-  templ_.pushfile( 41 );
-  templ2D_.pushfile( 40 );
-  templ2D_.pushfile( 41 );
+  SiPixelTemplate::pushfile( 40, thePixelTemp_ );
+  SiPixelTemplate::pushfile( 41, thePixelTemp_ );
+  SiPixelTemplate2D::pushfile( 40, thePixelTemp2D_ );
+  SiPixelTemplate2D::pushfile( 41, thePixelTemp2D_ );
 
   // Load strip templates
-  strip_templ_.pushfile( 11 );
-  strip_templ_.pushfile( 12 );
-  strip_templ_.pushfile( 13 );
-  strip_templ_.pushfile( 14 );
-  strip_templ_.pushfile( 15 );
-  strip_templ_.pushfile( 16 );
+  SiStripTemplate::pushfile( 11, theStripTemp_ );
+  SiStripTemplate::pushfile( 12, theStripTemp_ );
+  SiStripTemplate::pushfile( 13, theStripTemp_ );
+  SiStripTemplate::pushfile( 14, theStripTemp_ );
+  SiStripTemplate::pushfile( 15, theStripTemp_ );
+  SiStripTemplate::pushfile( 16, theStripTemp_ );
 
 }
 
@@ -734,7 +734,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		      //cout << "thisAmpl = " << (int)thisAmpl << endl;
 		    }
 		  
-		  newCluster.push_back( SiStripCluster( detId, 
+		  newCluster.push_back( SiStripCluster( 
 							firstStrip[i],
 							trackAmp[i].begin(), 
 							trackAmp[i].end() ) );
@@ -996,6 +996,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 	   
 	      //cout << endl;
 	      //cout << "Calling strip qbin to see if the strip cluster has to be split..." << endl;	      
+              SiStripTemplate strip_templ_(theStripTemp_);
 	      int strip_templQbin_ = strip_templ_.qbin( ID, cotalpha_, cotbeta_, strip_cluster_charge );
 
 	      if ( strip_templQbin_ < 0 || strip_templQbin_ > 5 )
@@ -1166,7 +1167,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			  if ( SiStripDigiIterBegin1 != SiStripDigiIterEnd1 )
 			    {    
 			      // gavril : Raw id ?
-			      SiStripCluster cl1( detId.rawId(), SiStripDigiRange1 );
+			      SiStripCluster cl1( SiStripDigiRange1 );
 
 			      cl1.setSplitClusterError( stripTemplSigmaX_ );
 
@@ -1183,7 +1184,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			  if ( SiStripDigiIterBegin2 != SiStripDigiIterEnd2 )
 			    {
 			      // gavril : Raw id ?
-			      SiStripCluster cl2( detId.rawId(), SiStripDigiRange2 );
+			      SiStripCluster cl2( SiStripDigiRange2 );
 			      cl2.setSplitClusterError( stripTemplSigmaX_ );
 			      output.push_back( cl2 ); 
 		
@@ -1480,6 +1481,8 @@ void TrackClusterSplitter::splitCluster<SiPixelCluster> (const SiPixelClusterWit
 
 	      
 	      //cout << "Calling qbin to see if the cluster has to be split..." << endl;	      
+              SiPixelTemplate templ_(thePixelTemp_);
+              SiPixelTemplate2D templ2D_(thePixelTemp2D_);
 	      int templQbin_ = templ_.qbin( ID, cotalpha_, cotbeta_, thePixelCluster->charge() );
 
 	      if ( templQbin_ < 0 || templQbin_ > 5  )

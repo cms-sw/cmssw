@@ -360,8 +360,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	if ( !expTrajMeasurements.empty()) {
 	  for(uint p=0; p<expTrajMeasurements.size();p++){
 	    TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
-	    ConstReferenceCountingPointer<TransientTrackingRecHit> pxb1Hit;
-	    pxb1Hit = pxb1TM.recHit();
+	    auto pxb1Hit = pxb1TM.recHit();
 	    //remove hits with rawID == 0
 	    if(pxb1Hit->geographicalId().rawId()==0){
 	      expTrajMeasurements.erase(expTrajMeasurements.begin()+p);
@@ -698,8 +697,8 @@ float y=predTrajState.globalPosition().y();
 		      edmNew::DetSet<SiPixelCluster>::const_iterator itCluster=itClusterSet->begin();
 		      for( ; itCluster!=itClusterSet->end(); ++itCluster){
 		        LocalPoint lp(itCluster->x(), itCluster->y(), 0.);
-			PixelClusterParameterEstimator::LocalValues params=cpe.localParameters(*itCluster,*pixdet);
-			lp=params.first;
+			PixelClusterParameterEstimator::ReturnType params=cpe.getParameters(*itCluster,*pixdet);
+			lp=std::get<0>(params);
 			float D = sqrt((lp.x()-lx)*(lp.x()-lx)+(lp.y()-ly)*(lp.y()-ly));
 			if(D<minD[0]){
 			  minD[1]=minD[0];

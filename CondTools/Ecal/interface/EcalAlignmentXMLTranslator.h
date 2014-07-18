@@ -15,8 +15,6 @@
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
 
-static const char CVSId__EcalAlignmentXMLTranslator[] = 
-"$Id: EcalAlignmentXMLTranslator.h,v 1.1 2010/10/15 17:13:36 fay Exp $";
 
 class AlignTransform;
 

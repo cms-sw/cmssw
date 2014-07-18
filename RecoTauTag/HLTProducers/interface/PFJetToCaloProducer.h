@@ -22,6 +22,6 @@ class PFJetToCaloProducer: public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-  edm::InputTag tauSrc_;
+  edm::EDGetTokenT<reco::PFJetCollection> tauSrc_;
 };
 #endif

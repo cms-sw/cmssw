@@ -8,9 +8,12 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR10_P_V7::All"
+process.GlobalTag.globaltag = "MC_70_V4::All"
+#process.GlobalTag.globaltag = "START71_V1::All"
 
 MagFieldValue = float(sys.argv[2])
+
+print '\nMagField = %f \n' % (MagFieldValue)
 #version = 'v2'
 version = sys.argv[3]
 
@@ -30,8 +33,10 @@ elif ( MagFieldValue==4 or MagFieldValue==40 ):
 elif ( MagFieldValue==3.8 or MagFieldValue==38 ):
     MagFieldString = '38'
     files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0021.out")
+#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
+#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0021.out")
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0030.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0031.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(20,21)
 elif ( MagFieldValue==2 or MagFieldValue==20 ):

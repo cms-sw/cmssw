@@ -13,7 +13,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/EDProducer.h"
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -34,7 +34,7 @@ class MuonSeedProducer: public edm::EDProducer {
   // Operations
 
   /// Get event properties to send to builder to fill seed collection
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

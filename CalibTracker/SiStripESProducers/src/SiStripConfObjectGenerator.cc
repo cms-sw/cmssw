@@ -24,8 +24,17 @@ SiStripConfObject* SiStripConfObjectGenerator::createObject()
     else if( parIt->getParameter<std::string>("ParameterType") == "double" ) {
       obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<double>("ParameterValue"));
     }
-    if( parIt->getParameter<std::string>("ParameterType") == "string" ) {
+    else if( parIt->getParameter<std::string>("ParameterType") == "string" ) {
       obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<std::string>("ParameterValue"));
+    }
+    else if( parIt->getParameter<std::string>("ParameterType") == "bool" ) {
+      obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<bool>("ParameterValue"));
+    }
+    else if( parIt->getParameter<std::string>("ParameterType") == "vint32" ) {
+      obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<std::vector<int> >("ParameterValue"));
+    }
+    else if( parIt->getParameter<std::string>("ParameterType") == "vstring" ) {
+      obj->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<std::vector<std::string> >("ParameterValue"));
     }
   }
   return obj;

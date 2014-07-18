@@ -58,6 +58,10 @@ public:
 				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
+  virtual void setHitCloner(TkCloner const * hc) {
+  }
+
+
 private:
   GsfPropagatorWithMaterial* thePropagator;
   const GsfPropagatorAdapter* theGeomPropagator;

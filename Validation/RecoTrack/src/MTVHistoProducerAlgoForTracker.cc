@@ -398,188 +398,188 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
 
 }
 
-void MTVHistoProducerAlgoForTracker::bookSimHistos(){
-  h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
-  h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
-  h_tracksSIM.push_back( dbe_->book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
-  h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
-  h_bunchxSIM.push_back( dbe_->book1D("bunchxSIM", "bunch crossing", 22, -5, 5 ) );
+void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
+  h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
+  h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
+  h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
+  h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
+  h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 22, -5, 5 ) );
 }
 
 
-void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
-  h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",401,-0.5,400.5) );
-  h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",101,-0.5,100.5) );
-  h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
+void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
+  h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks",401,-0.5,400.5) );
+  h_fakes.push_back( ibook.book1D("fakes","number of fake reco tracks",101,-0.5,100.5) );
+  h_charge.push_back( ibook.book1D("charge","charge",3,-1.5,1.5) );
 
-  h_hits.push_back( dbe_->book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
-  h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
-  h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
-  h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
+  h_hits.push_back( ibook.book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
+  h_losthits.push_back( ibook.book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
+  h_nchi2.push_back( ibook.book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
+  h_nchi2_prob.push_back( ibook.book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
-  h_nmisslayers_inner.push_back( dbe_->book1D("missing_inner_layers", "number of missing inner layers", nintLayers,minLayers,maxLayers ) );
-  h_nmisslayers_outer.push_back( dbe_->book1D("missing_outer_layers", "number of missing outer layers", nintLayers,minLayers,maxLayers ) );
+  h_nmisslayers_inner.push_back( ibook.book1D("missing_inner_layers", "number of missing inner layers", nintLayers,minLayers,maxLayers ) );
+  h_nmisslayers_outer.push_back( ibook.book1D("missing_outer_layers", "number of missing outer layers", nintLayers,minLayers,maxLayers ) );
 
-  h_algo.push_back( dbe_->book1D("h_algo","Tracks by algo",15,0.0,15.0) );
+  h_algo.push_back( ibook.book1D("h_algo","Tracks by algo",15,0.0,15.0) );
 
   /// these are needed to calculate efficiency during the harvesting for the automated validation
-  h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
-  h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nintEta,minEta,maxEta) );
-  h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nintEta,minEta,maxEta) );
-  h_simuleta.push_back( dbe_->book1D("num_simul_eta","N of simulated tracks vs eta",nintEta,minEta,maxEta) );
-  h_loopereta.push_back( dbe_->book1D("num_duplicate_eta","N of associated (recoToSim) duplicate tracks vs eta",nintEta,minEta,maxEta) );
-  h_misideta.push_back( dbe_->book1D("num_chargemisid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
-  h_recopT.push_back( dbe_->book1D("num_reco_pT","N of reco track vs pT",nintPt,minPt,maxPt) );
-  h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintPt,minPt,maxPt) );
-  h_assoc2pT.push_back( dbe_->book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintPt,minPt,maxPt) );
-  h_simulpT.push_back( dbe_->book1D("num_simul_pT","N of simulated tracks vs pT",nintPt,minPt,maxPt) );
-  h_looperpT.push_back( dbe_->book1D("num_duplicate_pT","N of associated (recoToSim) duplicate tracks vs pT",nintPt,minPt,maxPt) );
-  h_misidpT.push_back( dbe_->book1D("num_chargemisid_pT","N of associated (recoToSim) charge misIDed tracks vs pT",nintPt,minPt,maxPt) );
+  h_recoeta.push_back( ibook.book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
+  h_assoceta.push_back( ibook.book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nintEta,minEta,maxEta) );
+  h_assoc2eta.push_back( ibook.book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nintEta,minEta,maxEta) );
+  h_simuleta.push_back( ibook.book1D("num_simul_eta","N of simulated tracks vs eta",nintEta,minEta,maxEta) );
+  h_loopereta.push_back( ibook.book1D("num_duplicate_eta","N of associated (recoToSim) duplicate tracks vs eta",nintEta,minEta,maxEta) );
+  h_misideta.push_back( ibook.book1D("num_chargemisid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
+  h_recopT.push_back( ibook.book1D("num_reco_pT","N of reco track vs pT",nintPt,minPt,maxPt) );
+  h_assocpT.push_back( ibook.book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintPt,minPt,maxPt) );
+  h_assoc2pT.push_back( ibook.book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintPt,minPt,maxPt) );
+  h_simulpT.push_back( ibook.book1D("num_simul_pT","N of simulated tracks vs pT",nintPt,minPt,maxPt) );
+  h_looperpT.push_back( ibook.book1D("num_duplicate_pT","N of associated (recoToSim) duplicate tracks vs pT",nintPt,minPt,maxPt) );
+  h_misidpT.push_back( ibook.book1D("num_chargemisid_pT","N of associated (recoToSim) charge misIDed tracks vs pT",nintPt,minPt,maxPt) );
   //
-  h_recohit.push_back( dbe_->book1D("num_reco_hit","N of reco track vs hit",nintHit,minHit,maxHit) );
-  h_assochit.push_back( dbe_->book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
-  h_assoc2hit.push_back( dbe_->book1D("num_assoc(recoToSim)_hit","N of associated (recoToSim) tracks vs hit",nintHit,minHit,maxHit) );
-  h_simulhit.push_back( dbe_->book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
-  h_looperhit.push_back( dbe_->book1D("num_duplicate_hit","N of associated (recoToSim) duplicate tracks vs hit",nintHit,minHit,maxHit) );
-  h_misidhit.push_back( dbe_->book1D("num_chargemisid_hit","N of associated (recoToSim) charge misIDed tracks vs hit",nintHit,minHit,maxHit) );
+  h_recohit.push_back( ibook.book1D("num_reco_hit","N of reco track vs hit",nintHit,minHit,maxHit) );
+  h_assochit.push_back( ibook.book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
+  h_assoc2hit.push_back( ibook.book1D("num_assoc(recoToSim)_hit","N of associated (recoToSim) tracks vs hit",nintHit,minHit,maxHit) );
+  h_simulhit.push_back( ibook.book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
+  h_looperhit.push_back( ibook.book1D("num_duplicate_hit","N of associated (recoToSim) duplicate tracks vs hit",nintHit,minHit,maxHit) );
+  h_misidhit.push_back( ibook.book1D("num_chargemisid_hit","N of associated (recoToSim) charge misIDed tracks vs hit",nintHit,minHit,maxHit) );
   //
-  h_recophi.push_back( dbe_->book1D("num_reco_phi","N of reco track vs phi",nintPhi,minPhi,maxPhi) );
-  h_assocphi.push_back( dbe_->book1D("num_assoc(simToReco)_phi","N of associated tracks (simToReco) vs phi",nintPhi,minPhi,maxPhi) );
-  h_assoc2phi.push_back( dbe_->book1D("num_assoc(recoToSim)_phi","N of associated (recoToSim) tracks vs phi",nintPhi,minPhi,maxPhi) );
-  h_simulphi.push_back( dbe_->book1D("num_simul_phi","N of simulated tracks vs phi",nintPhi,minPhi,maxPhi) );
-  h_looperphi.push_back( dbe_->book1D("num_duplicate_phi","N of associated (recoToSim) duplicate tracks vs phi",nintPhi,minPhi,maxPhi) );
-  h_misidphi.push_back( dbe_->book1D("num_chargemisid_phi","N of associated (recoToSim) charge misIDed tracks vs phi",nintPhi,minPhi,maxPhi) );
+  h_recophi.push_back( ibook.book1D("num_reco_phi","N of reco track vs phi",nintPhi,minPhi,maxPhi) );
+  h_assocphi.push_back( ibook.book1D("num_assoc(simToReco)_phi","N of associated tracks (simToReco) vs phi",nintPhi,minPhi,maxPhi) );
+  h_assoc2phi.push_back( ibook.book1D("num_assoc(recoToSim)_phi","N of associated (recoToSim) tracks vs phi",nintPhi,minPhi,maxPhi) );
+  h_simulphi.push_back( ibook.book1D("num_simul_phi","N of simulated tracks vs phi",nintPhi,minPhi,maxPhi) );
+  h_looperphi.push_back( ibook.book1D("num_duplicate_phi","N of associated (recoToSim) duplicate tracks vs phi",nintPhi,minPhi,maxPhi) );
+  h_misidphi.push_back( ibook.book1D("num_chargemisid_phi","N of associated (recoToSim) charge misIDed tracks vs phi",nintPhi,minPhi,maxPhi) );
 
-  h_recodxy.push_back( dbe_->book1D("num_reco_dxy","N of reco track vs dxy",nintDxy,minDxy,maxDxy) );
-  h_assocdxy.push_back( dbe_->book1D("num_assoc(simToReco)_dxy","N of associated tracks (simToReco) vs dxy",nintDxy,minDxy,maxDxy) );
-  h_assoc2dxy.push_back( dbe_->book1D("num_assoc(recoToSim)_dxy","N of associated (recoToSim) tracks vs dxy",nintDxy,minDxy,maxDxy) );
-  h_simuldxy.push_back( dbe_->book1D("num_simul_dxy","N of simulated tracks vs dxy",nintDxy,minDxy,maxDxy) );
-  h_looperdxy.push_back( dbe_->book1D("num_duplicate_dxy","N of associated (recoToSim) looper tracks vs dxy",nintDxy,minDxy,maxDxy) );
-  h_misiddxy.push_back( dbe_->book1D("num_chargemisid_dxy","N of associated (recoToSim) charge misIDed tracks vs dxy",nintDxy,minDxy,maxDxy) );
+  h_recodxy.push_back( ibook.book1D("num_reco_dxy","N of reco track vs dxy",nintDxy,minDxy,maxDxy) );
+  h_assocdxy.push_back( ibook.book1D("num_assoc(simToReco)_dxy","N of associated tracks (simToReco) vs dxy",nintDxy,minDxy,maxDxy) );
+  h_assoc2dxy.push_back( ibook.book1D("num_assoc(recoToSim)_dxy","N of associated (recoToSim) tracks vs dxy",nintDxy,minDxy,maxDxy) );
+  h_simuldxy.push_back( ibook.book1D("num_simul_dxy","N of simulated tracks vs dxy",nintDxy,minDxy,maxDxy) );
+  h_looperdxy.push_back( ibook.book1D("num_duplicate_dxy","N of associated (recoToSim) looper tracks vs dxy",nintDxy,minDxy,maxDxy) );
+  h_misiddxy.push_back( ibook.book1D("num_chargemisid_dxy","N of associated (recoToSim) charge misIDed tracks vs dxy",nintDxy,minDxy,maxDxy) );
 
-  h_recodz.push_back( dbe_->book1D("num_reco_dz","N of reco track vs dz",nintDz,minDz,maxDz) );
-  h_assocdz.push_back( dbe_->book1D("num_assoc(simToReco)_dz","N of associated tracks (simToReco) vs dz",nintDz,minDz,maxDz) );
-  h_assoc2dz.push_back( dbe_->book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
-  h_simuldz.push_back( dbe_->book1D("num_simul_dz","N of simulated tracks vs dz",nintDz,minDz,maxDz) );
-  h_looperdz.push_back( dbe_->book1D("num_duplicate_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
-  h_misiddz.push_back( dbe_->book1D("num_chargemisid_versus_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
+  h_recodz.push_back( ibook.book1D("num_reco_dz","N of reco track vs dz",nintDz,minDz,maxDz) );
+  h_assocdz.push_back( ibook.book1D("num_assoc(simToReco)_dz","N of associated tracks (simToReco) vs dz",nintDz,minDz,maxDz) );
+  h_assoc2dz.push_back( ibook.book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
+  h_simuldz.push_back( ibook.book1D("num_simul_dz","N of simulated tracks vs dz",nintDz,minDz,maxDz) );
+  h_looperdz.push_back( ibook.book1D("num_duplicate_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
+  h_misiddz.push_back( ibook.book1D("num_chargemisid_versus_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
 
-  h_assocvertpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertpos",
+  h_assocvertpos.push_back( ibook.book1D("num_assoc(simToReco)_vertpos",
 					 "N of associated tracks (simToReco) vs transverse vert position",
 					 nintVertpos,minVertpos,maxVertpos) );
-  h_simulvertpos.push_back( dbe_->book1D("num_simul_vertpos","N of simulated tracks vs transverse vert position",
+  h_simulvertpos.push_back( ibook.book1D("num_simul_vertpos","N of simulated tracks vs transverse vert position",
 					 nintVertpos,minVertpos,maxVertpos) );
 
-  h_assoczpos.push_back( dbe_->book1D("num_assoc(simToReco)_zpos","N of associated tracks (simToReco) vs z vert position",
+  h_assoczpos.push_back( ibook.book1D("num_assoc(simToReco)_zpos","N of associated tracks (simToReco) vs z vert position",
 				      nintZpos,minZpos,maxZpos) );
-  h_simulzpos.push_back( dbe_->book1D("num_simul_zpos","N of simulated tracks vs z vert position",nintZpos,minZpos,maxZpos) );
+  h_simulzpos.push_back( ibook.book1D("num_simul_zpos","N of simulated tracks vs z vert position",nintZpos,minZpos,maxZpos) );
 
 
-  h_reco_vertcount_entire.push_back( dbe_->book1D("num_reco_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc_vertcount_entire.push_back( dbe_->book1D("num_assoc(simToReco)_vertcount_entire","N of associated tracks (simToReco) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_vertcount_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_vertcount_entire","N of associated (recoToSim) tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_simul_vertcount_entire.push_back( dbe_->book1D("num_simul_vertcount_entire","N of simulated tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_vertcount_entire.push_back( ibook.book1D("num_reco_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc_vertcount_entire.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_entire","N of associated tracks (simToReco) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_vertcount_entire.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_entire","N of associated (recoToSim) tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_simul_vertcount_entire.push_back( ibook.book1D("num_simul_vertcount_entire","N of simulated tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_reco_vertcount_barrel.push_back( dbe_->book1D("num_reco_vertcount_barrel","N of reco tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc_vertcount_barrel.push_back( dbe_->book1D("num_assoc(simToReco)_vertcount_barrel","N of associated tracks (simToReco) in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_vertcount_barrel.push_back( dbe_->book1D("num_assoc(recoToSim)_vertcount_barrel","N of associated (recoToSim) tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_simul_vertcount_barrel.push_back( dbe_->book1D("num_simul_vertcount_barrel","N of simulated tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_vertcount_barrel.push_back( ibook.book1D("num_reco_vertcount_barrel","N of reco tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc_vertcount_barrel.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_barrel","N of associated tracks (simToReco) in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_vertcount_barrel.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_barrel","N of associated (recoToSim) tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_simul_vertcount_barrel.push_back( ibook.book1D("num_simul_vertcount_barrel","N of simulated tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_reco_vertcount_fwdpos.push_back( dbe_->book1D("num_reco_vertcount_fwdpos","N of reco tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc_vertcount_fwdpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertcount_fwdpos","N of associated tracks (simToReco) in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_vertcount_fwdpos.push_back( dbe_->book1D("num_assoc(recoToSim)_vertcount_fwdpos","N of associated (recoToSim) tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_simul_vertcount_fwdpos.push_back( dbe_->book1D("num_simul_vertcount_fwdpos","N of simulated tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_vertcount_fwdpos.push_back( ibook.book1D("num_reco_vertcount_fwdpos","N of reco tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc_vertcount_fwdpos.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_fwdpos","N of associated tracks (simToReco) in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_vertcount_fwdpos.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_fwdpos","N of associated (recoToSim) tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_simul_vertcount_fwdpos.push_back( ibook.book1D("num_simul_vertcount_fwdpos","N of simulated tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_reco_vertcount_fwdneg.push_back( dbe_->book1D("num_reco_vertcount_fwdneg","N of reco tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc_vertcount_fwdneg.push_back( dbe_->book1D("num_assoc(simToReco)_vertcount_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_vertcount_fwdneg.push_back( dbe_->book1D("num_assoc(recoToSim)_vertcount_fwdneg","N of associated (recoToSim) tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_simul_vertcount_fwdneg.push_back( dbe_->book1D("num_simul_vertcount_fwdneg","N of simulated tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_vertcount_fwdneg.push_back( ibook.book1D("num_reco_vertcount_fwdneg","N of reco tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc_vertcount_fwdneg.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_vertcount_fwdneg.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_fwdneg","N of associated (recoToSim) tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_simul_vertcount_fwdneg.push_back( ibook.book1D("num_simul_vertcount_fwdneg","N of simulated tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_assoc_vertz_entire.push_back( dbe_->book1D("num_assoc(simToReco)_vertz_entire","N of associated tracks (simToReco) in entire vs z of primary intercation vertex",nintZpos,minZpos,maxZpos) );
-  h_simul_vertz_entire.push_back( dbe_->book1D("num_simul_vertz_entire","N of simulated tracks in entire vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
+  h_assoc_vertz_entire.push_back( ibook.book1D("num_assoc(simToReco)_vertz_entire","N of associated tracks (simToReco) in entire vs z of primary intercation vertex",nintZpos,minZpos,maxZpos) );
+  h_simul_vertz_entire.push_back( ibook.book1D("num_simul_vertz_entire","N of simulated tracks in entire vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
 
-  h_assoc_vertz_barrel.push_back( dbe_->book1D("num_assoc(simToReco)_vertz_barrel","N of associated tracks (simToReco) in barrel vs z of primary intercation vertex",nintZpos,minZpos,maxZpos) );
-  h_simul_vertz_barrel.push_back( dbe_->book1D("num_simul_vertz_barrel","N of simulated tracks in barrel vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
+  h_assoc_vertz_barrel.push_back( ibook.book1D("num_assoc(simToReco)_vertz_barrel","N of associated tracks (simToReco) in barrel vs z of primary intercation vertex",nintZpos,minZpos,maxZpos) );
+  h_simul_vertz_barrel.push_back( ibook.book1D("num_simul_vertz_barrel","N of simulated tracks in barrel vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
 
-  h_assoc_vertz_fwdpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertz_fwdpos","N of associated tracks (simToReco) in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  h_simul_vertz_fwdpos.push_back( dbe_->book1D("num_simul_vertz_fwdpos","N of simulated tracks in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_assoc_vertz_fwdpos.push_back( ibook.book1D("num_assoc(simToReco)_vertz_fwdpos","N of associated tracks (simToReco) in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_simul_vertz_fwdpos.push_back( ibook.book1D("num_simul_vertz_fwdpos","N of simulated tracks in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
-  h_assoc_vertz_fwdneg.push_back( dbe_->book1D("num_assoc(simToReco)_vertz_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
-  h_simul_vertz_fwdneg.push_back( dbe_->book1D("num_simul_vertz_fwdneg","N of simulated tracks in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_assoc_vertz_fwdneg.push_back( ibook.book1D("num_assoc(simToReco)_vertz_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
+  h_simul_vertz_fwdneg.push_back( ibook.book1D("num_simul_vertz_fwdneg","N of simulated tracks in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 /*
-  h_assoc2_itpu_eta.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_eta_entire","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
-  h_assoc2_itpu_sig_eta.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_eta_entire_signal","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
-  h_assoc2_itpu_vertcount.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_vertcount_entire","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_itpu_sig_vertcount.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_vertcount_entire_signal","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );*/
+  h_assoc2_itpu_eta.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_eta_entire","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
+  h_assoc2_itpu_sig_eta.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_eta_entire_signal","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
+  h_assoc2_itpu_vertcount.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_vertcount_entire","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_itpu_sig_vertcount.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_vertcount_entire_signal","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );*/
 
-  h_reco_ootpu_eta.push_back( dbe_->book1D("num_reco_ootpu_eta_entire","N of reco tracks vs eta",nintEta,minEta,maxEta) );
-  h_reco_ootpu_vertcount.push_back( dbe_->book1D("num_reco_ootpu_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_ootpu_eta.push_back( ibook.book1D("num_reco_ootpu_eta_entire","N of reco tracks vs eta",nintEta,minEta,maxEta) );
+  h_reco_ootpu_vertcount.push_back( ibook.book1D("num_reco_ootpu_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_assoc2_ootpu_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_eta_entire","N of associated tracks (simToReco) from out of time pileup vs eta",nintEta,minEta,maxEta) );
-  h_assoc2_ootpu_vertcount.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_vertcount_entire","N of associated tracks (simToReco) from out of time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_ootpu_entire.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_eta_entire","N of associated tracks (simToReco) from out of time pileup vs eta",nintEta,minEta,maxEta) );
+  h_assoc2_ootpu_vertcount.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_vertcount_entire","N of associated tracks (simToReco) from out of time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_reco_ootpu_entire.push_back( dbe_->book1D("num_reco_ootpu_entire","N of reco tracks vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_ootpu_barrel.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_barrel","N of associated tracks (simToReco) from out of time pileup in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_reco_ootpu_barrel.push_back( dbe_->book1D("num_reco_ootpu_barrel","N of reco tracks in barrel vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_ootpu_fwdpos.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_fwdpos","N of associated tracks (simToReco) from out of time pileup in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_reco_ootpu_fwdpos.push_back( dbe_->book1D("num_reco_ootpu_fwdpos","N of reco tracks in endcap(+) vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_ootpu_fwdneg.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_fwdneg","N of associated tracks (simToReco) from out of time pileup in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_reco_ootpu_fwdneg.push_back( dbe_->book1D("num_reco_ootpu_fwdneg","N of reco tracks in endcap(-) vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_ootpu_entire.push_back( ibook.book1D("num_reco_ootpu_entire","N of reco tracks vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_ootpu_barrel.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_barrel","N of associated tracks (simToReco) from out of time pileup in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_ootpu_barrel.push_back( ibook.book1D("num_reco_ootpu_barrel","N of reco tracks in barrel vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_ootpu_fwdpos.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_fwdpos","N of associated tracks (simToReco) from out of time pileup in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_ootpu_fwdpos.push_back( ibook.book1D("num_reco_ootpu_fwdpos","N of reco tracks in endcap(+) vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_ootpu_fwdneg.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_fwdneg","N of associated tracks (simToReco) from out of time pileup in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_ootpu_fwdneg.push_back( ibook.book1D("num_reco_ootpu_fwdneg","N of reco tracks in endcap(-) vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
 
 
   /////////////////////////////////
 
-  h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
-  h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
-  h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of #theta parameter",250,-25,25) );
-  h_pullPhi.push_back( dbe_->book1D("pullPhi","pull of #phi parameter",250,-25,25) );
-  h_pullDxy.push_back( dbe_->book1D("pullDxy","pull of dxy parameter",250,-25,25) );
-  h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
-  h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
+  h_eta.push_back( ibook.book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
+  h_pt.push_back( ibook.book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
+  h_pullTheta.push_back( ibook.book1D("pullTheta","pull of #theta parameter",250,-25,25) );
+  h_pullPhi.push_back( ibook.book1D("pullPhi","pull of #phi parameter",250,-25,25) );
+  h_pullDxy.push_back( ibook.book1D("pullDxy","pull of dxy parameter",250,-25,25) );
+  h_pullDz.push_back( ibook.book1D("pullDz","pull of dz parameter",250,-25,25) );
+  h_pullQoverp.push_back( ibook.book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
 
   /* TO BE FIXED -----------
   if (associators[ww]=="TrackAssociatorByChi2"){
-    h_assochi2.push_back( dbe_->book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
-    h_assochi2_prob.push_back(dbe_->book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
+    h_assochi2.push_back( ibook.book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
+    h_assochi2_prob.push_back(ibook.book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
   } else if (associators[ww]=="quickTrackAssociatorByHits"){
-    h_assocFraction.push_back( dbe_->book1D("assocFraction","fraction of shared hits",200,0,2) );
-    h_assocSharedHit.push_back(dbe_->book1D("assocSharedHit","number of shared hits",20,0,20));
+    h_assocFraction.push_back( ibook.book1D("assocFraction","fraction of shared hits",200,0,2) );
+    h_assocSharedHit.push_back(ibook.book1D("assocSharedHit","number of shared hits",20,0,20));
   }
   */
-  h_assocFraction.push_back( dbe_->book1D("assocFraction","fraction of shared hits",200,0,2) );
-  h_assocSharedHit.push_back(dbe_->book1D("assocSharedHit","number of shared hits",41,-0.5,40.5));
+  h_assocFraction.push_back( ibook.book1D("assocFraction","fraction of shared hits",200,0,2) );
+  h_assocSharedHit.push_back(ibook.book1D("assocSharedHit","number of shared hits",41,-0.5,40.5));
   // ----------------------
 
-  chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
+  chi2_vs_nhits.push_back( ibook.book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
 
-  etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
-  nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec vs nsim",401,-0.5,400.5,401,-0.5,400.5) );
+  etares_vs_eta.push_back( ibook.book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
+  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","nrec vs nsim",401,-0.5,400.5,401,-0.5,400.5) );
 
-  chi2_vs_eta.push_back( dbe_->book2D("chi2_vs_eta","chi2_vs_eta",nintEta,minEta,maxEta, 200, 0, 20 ));
-  chi2_vs_phi.push_back( dbe_->book2D("chi2_vs_phi","#chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20 ) );
+  chi2_vs_eta.push_back( ibook.book2D("chi2_vs_eta","chi2_vs_eta",nintEta,minEta,maxEta, 200, 0, 20 ));
+  chi2_vs_phi.push_back( ibook.book2D("chi2_vs_phi","#chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20 ) );
 
-  nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nPXBhits_vs_eta.push_back( dbe_->book2D("nPXBhits_vs_eta","# PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nPXFhits_vs_eta.push_back( dbe_->book2D("nPXFhits_vs_eta","# PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTIBhits_vs_eta.push_back( dbe_->book2D("nTIBhits_vs_eta","# TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTIDhits_vs_eta.push_back( dbe_->book2D("nTIDhits_vs_eta","# TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTOBhits_vs_eta.push_back( dbe_->book2D("nTOBhits_vs_eta","# TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTEChits_vs_eta.push_back( dbe_->book2D("nTEChits_vs_eta","# TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nhits_vs_eta.push_back( ibook.book2D("nhits_vs_eta","nhits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nPXBhits_vs_eta.push_back( ibook.book2D("nPXBhits_vs_eta","# PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nPXFhits_vs_eta.push_back( ibook.book2D("nPXFhits_vs_eta","# PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nTIBhits_vs_eta.push_back( ibook.book2D("nTIBhits_vs_eta","# TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nTIDhits_vs_eta.push_back( ibook.book2D("nTIDhits_vs_eta","# TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nTOBhits_vs_eta.push_back( ibook.book2D("nTOBhits_vs_eta","# TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nTEChits_vs_eta.push_back( ibook.book2D("nTEChits_vs_eta","# TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
 
-  nLayersWithMeas_vs_eta.push_back( dbe_->book2D("nLayersWithMeas_vs_eta","# Layers with measurement vs eta",
+  nLayersWithMeas_vs_eta.push_back( ibook.book2D("nLayersWithMeas_vs_eta","# Layers with measurement vs eta",
 						nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nPXLlayersWithMeas_vs_eta.push_back( dbe_->book2D("nPXLlayersWithMeas_vs_eta","# PXL Layers with measurement vs eta",
+  nPXLlayersWithMeas_vs_eta.push_back( ibook.book2D("nPXLlayersWithMeas_vs_eta","# PXL Layers with measurement vs eta",
 						   nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nSTRIPlayersWithMeas_vs_eta.push_back( dbe_->book2D("nSTRIPlayersWithMeas_vs_eta","# STRIP Layers with measurement vs eta",
+  nSTRIPlayersWithMeas_vs_eta.push_back( ibook.book2D("nSTRIPlayersWithMeas_vs_eta","# STRIP Layers with measurement vs eta",
 						      nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nSTRIPlayersWith1dMeas_vs_eta.push_back( dbe_->book2D("nSTRIPlayersWith1dMeas_vs_eta","# STRIP Layers with 1D measurement vs eta",
+  nSTRIPlayersWith1dMeas_vs_eta.push_back( ibook.book2D("nSTRIPlayersWith1dMeas_vs_eta","# STRIP Layers with 1D measurement vs eta",
 							nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nSTRIPlayersWith2dMeas_vs_eta.push_back( dbe_->book2D("nSTRIPlayersWith2dMeas_vs_eta","# STRIP Layers with 2D measurement vs eta",
+  nSTRIPlayersWith2dMeas_vs_eta.push_back( ibook.book2D("nSTRIPlayersWith2dMeas_vs_eta","# STRIP Layers with 2D measurement vs eta",
 						       nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
 
-  nhits_vs_phi.push_back( dbe_->book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
+  nhits_vs_phi.push_back( ibook.book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
 
-  nlosthits_vs_eta.push_back( dbe_->book2D("nlosthits_vs_eta","nlosthits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nlosthits_vs_eta.push_back( ibook.book2D("nlosthits_vs_eta","nlosthits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
 
   //resolution of track parameters
   //                       dPt/Pt    cotTheta        Phi            TIP            LIP
@@ -587,81 +587,81 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   // 0.5<log10(pt)<1.5    100,0.1    120,0.01     100,0.003      100,0.0100    150,0.0500
   // >1.5                 100,0.3    100,0.005    100,0.0008     100,0.0060    120,0.0300
 
-  ptres_vs_eta.push_back(dbe_->book2D("ptres_vs_eta","ptres_vs_eta",
+  ptres_vs_eta.push_back(ibook.book2D("ptres_vs_eta","ptres_vs_eta",
 				      nintEta,minEta,maxEta, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
 
-  ptres_vs_phi.push_back( dbe_->book2D("ptres_vs_phi","p_{t} res vs #phi",
+  ptres_vs_phi.push_back( ibook.book2D("ptres_vs_phi","p_{t} res vs #phi",
 				       nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
 
-  ptres_vs_pt.push_back(dbe_->book2D("ptres_vs_pt","ptres_vs_pt",nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+  ptres_vs_pt.push_back(ibook.book2D("ptres_vs_pt","ptres_vs_pt",nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
 
-  cotThetares_vs_eta.push_back(dbe_->book2D("cotThetares_vs_eta","cotThetares_vs_eta",
+  cotThetares_vs_eta.push_back(ibook.book2D("cotThetares_vs_eta","cotThetares_vs_eta",
 					    nintEta,minEta,maxEta,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
 
 
-  cotThetares_vs_pt.push_back(dbe_->book2D("cotThetares_vs_pt","cotThetares_vs_pt",
+  cotThetares_vs_pt.push_back(ibook.book2D("cotThetares_vs_pt","cotThetares_vs_pt",
 					   nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
 
 
-  phires_vs_eta.push_back(dbe_->book2D("phires_vs_eta","phires_vs_eta",
+  phires_vs_eta.push_back(ibook.book2D("phires_vs_eta","phires_vs_eta",
 				       nintEta,minEta,maxEta, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
 
-  phires_vs_pt.push_back(dbe_->book2D("phires_vs_pt","phires_vs_pt",
+  phires_vs_pt.push_back(ibook.book2D("phires_vs_pt","phires_vs_pt",
 				      nintPt,minPt,maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
 
-  phires_vs_phi.push_back(dbe_->book2D("phires_vs_phi","#phi res vs #phi",
+  phires_vs_phi.push_back(ibook.book2D("phires_vs_phi","#phi res vs #phi",
 				       nintPhi,minPhi,maxPhi,phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
 
-  dxyres_vs_eta.push_back(dbe_->book2D("dxyres_vs_eta","dxyres_vs_eta",
+  dxyres_vs_eta.push_back(ibook.book2D("dxyres_vs_eta","dxyres_vs_eta",
 				       nintEta,minEta,maxEta,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
 
-  dxyres_vs_pt.push_back( dbe_->book2D("dxyres_vs_pt","dxyres_vs_pt",
+  dxyres_vs_pt.push_back( ibook.book2D("dxyres_vs_pt","dxyres_vs_pt",
 				       nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
 
-  dzres_vs_eta.push_back(dbe_->book2D("dzres_vs_eta","dzres_vs_eta",
+  dzres_vs_eta.push_back(ibook.book2D("dzres_vs_eta","dzres_vs_eta",
 				      nintEta,minEta,maxEta,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
 
-  dzres_vs_pt.push_back(dbe_->book2D("dzres_vs_pt","dzres_vs_pt",nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
+  dzres_vs_pt.push_back(ibook.book2D("dzres_vs_pt","dzres_vs_pt",nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
 
-  ptmean_vs_eta_phi.push_back(dbe_->bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",
+  ptmean_vs_eta_phi.push_back(ibook.bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",
 						  nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,1000,0,1000));
-  phimean_vs_eta_phi.push_back(dbe_->bookProfile2D("phimean_vs_eta_phi","mean #phi vs #eta and #phi",
+  phimean_vs_eta_phi.push_back(ibook.bookProfile2D("phimean_vs_eta_phi","mean #phi vs #eta and #phi",
 						   nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,nintPhi,minPhi,maxPhi));
 
   //pulls of track params vs eta: to be used with fitslicesytool
-  dxypull_vs_eta.push_back(dbe_->book2D("dxypull_vs_eta","dxypull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  ptpull_vs_eta.push_back(dbe_->book2D("ptpull_vs_eta","ptpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  dzpull_vs_eta.push_back(dbe_->book2D("dzpull_vs_eta","dzpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  thetapull_vs_eta.push_back(dbe_->book2D("thetapull_vs_eta","thetapull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  dxypull_vs_eta.push_back(ibook.book2D("dxypull_vs_eta","dxypull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  ptpull_vs_eta.push_back(ibook.book2D("ptpull_vs_eta","ptpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  dzpull_vs_eta.push_back(ibook.book2D("dzpull_vs_eta","dzpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  phipull_vs_eta.push_back(ibook.book2D("phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  thetapull_vs_eta.push_back(ibook.book2D("thetapull_vs_eta","thetapull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
 
-  //      h_ptshiftetamean.push_back( dbe_->book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
+  //      h_ptshiftetamean.push_back( ibook.book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
 
 
   //pulls of track params vs phi
-  ptpull_vs_phi.push_back(dbe_->book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
-  phipull_vs_phi.push_back(dbe_->book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
-  thetapull_vs_phi.push_back(dbe_->book2D("thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
+  ptpull_vs_phi.push_back(ibook.book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
+  phipull_vs_phi.push_back(ibook.book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
+  thetapull_vs_phi.push_back(ibook.book2D("thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
 
 
-  nrecHit_vs_nsimHit_sim2rec.push_back( dbe_->book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
+  nrecHit_vs_nsimHit_sim2rec.push_back( ibook.book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
-  nrecHit_vs_nsimHit_rec2sim.push_back( dbe_->book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",
+  nrecHit_vs_nsimHit_rec2sim.push_back( ibook.book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
 
   // dE/dx stuff
   // FIXME: it would be nice to have an array
-  h_dedx_estim1.push_back( dbe_->book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx) );
-  h_dedx_estim2.push_back( dbe_->book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx) );
-  h_dedx_nom1.push_back( dbe_->book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit) );
-  h_dedx_nom2.push_back( dbe_->book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit) );
-  h_dedx_sat1.push_back( dbe_->book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
-  h_dedx_sat2.push_back( dbe_->book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
+  h_dedx_estim1.push_back( ibook.book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx) );
+  h_dedx_estim2.push_back( ibook.book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx) );
+  h_dedx_nom1.push_back( ibook.book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit) );
+  h_dedx_nom2.push_back( ibook.book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit) );
+  h_dedx_sat1.push_back( ibook.book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
+  h_dedx_sat2.push_back( ibook.book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
 
   // PU special stuff
-  h_con_eta.push_back( dbe_->book1D("num_con_eta","N of PU tracks vs eta",nintEta,minEta,maxEta) );
-  h_con_vertcount.push_back( dbe_->book1D("num_con_vertcount","N of PU tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_con_zpos.push_back( dbe_->book1D("num_con_zpos","N of PU tracks vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_con_eta.push_back( ibook.book1D("num_con_eta","N of PU tracks vs eta",nintEta,minEta,maxEta) );
+  h_con_vertcount.push_back( ibook.book1D("num_con_vertcount","N of PU tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_con_zpos.push_back( ibook.book1D("num_con_zpos","N of PU tracks vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
 
   if(useLogPt){
@@ -679,129 +679,129 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   }
 }
 
-void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
-  h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nintEta,minEta,maxEta) );
-  h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintPt,minPt,maxPt) );
-  h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
-  h_effic_vs_phi.push_back( dbe_->book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
-  h_effic_vs_dxy.push_back( dbe_->book1D("effic_vs_dxy","effic vs dxy",nintDxy,minDxy,maxDxy) );
-  h_effic_vs_dz.push_back( dbe_->book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
-  h_effic_vs_vertpos.push_back( dbe_->book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
-  h_effic_vs_zpos.push_back( dbe_->book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
-  h_effic_vertcount_entire.push_back( dbe_->book1D("effic_vertcount_entire","efficiency vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_effic_vertcount_barrel.push_back( dbe_->book1D("effic_vertcount_barrel","efficiency in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_effic_vertcount_fwdpos.push_back( dbe_->book1D("effic_vertcount_fwdpos","efficiency in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_effic_vertcount_fwdneg.push_back( dbe_->book1D("effic_vertcount_fwdneg","efficiency in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_effic_vertz_entire.push_back( dbe_->book1D("effic_vertz_entire","efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  h_effic_vertz_barrel.push_back( dbe_->book1D("effic_vertz_barrel","efficiency in barrel vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  h_effic_vertz_fwdpos.push_back( dbe_->book1D("effic_vertz_fwdpos","efficiency in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  h_effic_vertz_fwdneg.push_back( dbe_->book1D("effic_vertz_fwdneg","efficiency in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook){
+  h_effic.push_back( ibook.book1D("effic","efficiency vs #eta",nintEta,minEta,maxEta) );
+  h_efficPt.push_back( ibook.book1D("efficPt","efficiency vs pT",nintPt,minPt,maxPt) );
+  h_effic_vs_hit.push_back( ibook.book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
+  h_effic_vs_phi.push_back( ibook.book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
+  h_effic_vs_dxy.push_back( ibook.book1D("effic_vs_dxy","effic vs dxy",nintDxy,minDxy,maxDxy) );
+  h_effic_vs_dz.push_back( ibook.book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
+  h_effic_vs_vertpos.push_back( ibook.book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
+  h_effic_vs_zpos.push_back( ibook.book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
+  h_effic_vertcount_entire.push_back( ibook.book1D("effic_vertcount_entire","efficiency vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_effic_vertcount_barrel.push_back( ibook.book1D("effic_vertcount_barrel","efficiency in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_effic_vertcount_fwdpos.push_back( ibook.book1D("effic_vertcount_fwdpos","efficiency in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_effic_vertcount_fwdneg.push_back( ibook.book1D("effic_vertcount_fwdneg","efficiency in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_effic_vertz_entire.push_back( ibook.book1D("effic_vertz_entire","efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_effic_vertz_barrel.push_back( ibook.book1D("effic_vertz_barrel","efficiency in barrel vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_effic_vertz_fwdpos.push_back( ibook.book1D("effic_vertz_fwdpos","efficiency in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_effic_vertz_fwdneg.push_back( ibook.book1D("effic_vertz_fwdneg","efficiency in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
-  h_looprate.push_back( dbe_->book1D("duplicatesRate","loop rate vs #eta",nintEta,minEta,maxEta) );
-  h_misidrate.push_back( dbe_->book1D("chargeMisIdRate","misid rate vs #eta",nintEta,minEta,maxEta) );
-  h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
-  h_loopratepT.push_back( dbe_->book1D("duplicatesRate_Pt","loop rate vs pT",nintPt,minPt,maxPt) );
-  h_misidratepT.push_back( dbe_->book1D("chargeMisIdRate_Pt","misid rate vs pT",nintPt,minPt,maxPt) );
-  h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
-  h_loopratehit.push_back( dbe_->book1D("duplicatesRate_hit","loop rate vs hit",nintHit,minHit,maxHit) );
-  h_misidratehit.push_back( dbe_->book1D("chargeMisIdRate_hit","misid rate vs hit",nintHit,minHit,maxHit) );
-  h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
-  h_loopratephi.push_back( dbe_->book1D("duplicatesRate_phi","loop rate vs #phi",nintPhi,minPhi,maxPhi) );
-  h_misidratephi.push_back( dbe_->book1D("chargeMisIdRate_phi","misid rate vs #phi",nintPhi,minPhi,maxPhi) );
-  h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs #phi",nintPhi,minPhi,maxPhi) );
-  h_loopratedxy.push_back( dbe_->book1D("duplicatesRate_dxy","loop rate vs dxy",nintDxy,minDxy,maxDxy) );
-  h_misidratedxy.push_back( dbe_->book1D("chargeMisIdRate_dxy","misid rate vs dxy",nintDxy,minDxy,maxDxy) );
-  h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
-  h_loopratedz.push_back( dbe_->book1D("duplicatesRate_dz","loop rate vs dz",nintDz,minDz,maxDz) );
-  h_misidratedz.push_back( dbe_->book1D("chargeMisIdRate_dz","misid rate vs dz",nintDz,minDz,maxDz) );
-  h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
-  h_fakerate_vertcount_entire.push_back( dbe_->book1D("fakerate_vertcount_entire","fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_vertcount_barrel.push_back( dbe_->book1D("fakerate_vertcount_barrel","fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_vertcount_fwdpos.push_back( dbe_->book1D("fakerate_vertcount_fwdpos","fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_vertcount_fwdneg.push_back( dbe_->book1D("fakerate_vertcount_fwdneg","fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_ootpu_entire.push_back( dbe_->book1D("fakerate_ootpu_eta_entire","Out of time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_ootpu_barrel.push_back( dbe_->book1D("fakerate_ootpu_barrel","Out of time pileup fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_ootpu_fwdpos.push_back( dbe_->book1D("fakerate_ootpu_fwdpos","Out of time pileup fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_ootpu_fwdneg.push_back( dbe_->book1D("fakerate_ootpu_fwdneg","Out of time pileup fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_looprate.push_back( ibook.book1D("duplicatesRate","loop rate vs #eta",nintEta,minEta,maxEta) );
+  h_misidrate.push_back( ibook.book1D("chargeMisIdRate","misid rate vs #eta",nintEta,minEta,maxEta) );
+  h_fakerate.push_back( ibook.book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
+  h_loopratepT.push_back( ibook.book1D("duplicatesRate_Pt","loop rate vs pT",nintPt,minPt,maxPt) );
+  h_misidratepT.push_back( ibook.book1D("chargeMisIdRate_Pt","misid rate vs pT",nintPt,minPt,maxPt) );
+  h_fakeratePt.push_back( ibook.book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
+  h_loopratehit.push_back( ibook.book1D("duplicatesRate_hit","loop rate vs hit",nintHit,minHit,maxHit) );
+  h_misidratehit.push_back( ibook.book1D("chargeMisIdRate_hit","misid rate vs hit",nintHit,minHit,maxHit) );
+  h_fake_vs_hit.push_back( ibook.book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
+  h_loopratephi.push_back( ibook.book1D("duplicatesRate_phi","loop rate vs #phi",nintPhi,minPhi,maxPhi) );
+  h_misidratephi.push_back( ibook.book1D("chargeMisIdRate_phi","misid rate vs #phi",nintPhi,minPhi,maxPhi) );
+  h_fake_vs_phi.push_back( ibook.book1D("fakerate_vs_phi","fake vs #phi",nintPhi,minPhi,maxPhi) );
+  h_loopratedxy.push_back( ibook.book1D("duplicatesRate_dxy","loop rate vs dxy",nintDxy,minDxy,maxDxy) );
+  h_misidratedxy.push_back( ibook.book1D("chargeMisIdRate_dxy","misid rate vs dxy",nintDxy,minDxy,maxDxy) );
+  h_fake_vs_dxy.push_back( ibook.book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
+  h_loopratedz.push_back( ibook.book1D("duplicatesRate_dz","loop rate vs dz",nintDz,minDz,maxDz) );
+  h_misidratedz.push_back( ibook.book1D("chargeMisIdRate_dz","misid rate vs dz",nintDz,minDz,maxDz) );
+  h_fake_vs_dz.push_back( ibook.book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
+  h_fakerate_vertcount_entire.push_back( ibook.book1D("fakerate_vertcount_entire","fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_vertcount_barrel.push_back( ibook.book1D("fakerate_vertcount_barrel","fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_vertcount_fwdpos.push_back( ibook.book1D("fakerate_vertcount_fwdpos","fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_vertcount_fwdneg.push_back( ibook.book1D("fakerate_vertcount_fwdneg","fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_ootpu_entire.push_back( ibook.book1D("fakerate_ootpu_eta_entire","Out of time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_ootpu_barrel.push_back( ibook.book1D("fakerate_ootpu_barrel","Out of time pileup fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_ootpu_fwdpos.push_back( ibook.book1D("fakerate_ootpu_fwdpos","Out of time pileup fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fakerate_ootpu_fwdneg.push_back( ibook.book1D("fakerate_ootpu_fwdneg","Out of time pileup fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_fomt_eta.push_back( dbe_->book1D("fomt","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
-  h_fomt_sig_eta.push_back( dbe_->book1D("fomt_signal","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
-  h_fomt_vertcount.push_back( dbe_->book1D("fomt_vertcount","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fomt_sig_vertcount.push_back( dbe_->book1D("fomt_vertcount_signal","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fomt_ootpu_eta.push_back( dbe_->book1D("fomt_ootpu_eta","Out of time pileup fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
-  h_fomt_ootpu_vertcount.push_back( dbe_->book1D("fomt_ootpu_vertcount","Out of time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fomt_itpu_eta.push_back( dbe_->book1D("fomt_itpu_eta","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
-  h_fomt_itpu_vertcount.push_back( dbe_->book1D("fomt_itpu_vertcount","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_eta.push_back( ibook.book1D("fomt","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
+  h_fomt_sig_eta.push_back( ibook.book1D("fomt_signal","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
+  h_fomt_vertcount.push_back( ibook.book1D("fomt_vertcount","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_sig_vertcount.push_back( ibook.book1D("fomt_vertcount_signal","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_ootpu_eta.push_back( ibook.book1D("fomt_ootpu_eta","Out of time pileup fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
+  h_fomt_ootpu_vertcount.push_back( ibook.book1D("fomt_ootpu_vertcount","Out of time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_itpu_eta.push_back( ibook.book1D("fomt_itpu_eta","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
+  h_fomt_itpu_vertcount.push_back( ibook.book1D("fomt_itpu_vertcount","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_effic_PU_eta.push_back( dbe_->book1D("effic_PU_eta","PU efficiency vs #eta",nintEta,minEta,maxEta) );
-  h_effic_PU_vertcount.push_back( dbe_->book1D("effic_PU_vertcount","PU efficiency s N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_effic_PU_zpos.push_back( dbe_->book1D("effic_PU_zpos","PU efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+  h_effic_PU_eta.push_back( ibook.book1D("effic_PU_eta","PU efficiency vs #eta",nintEta,minEta,maxEta) );
+  h_effic_PU_vertcount.push_back( ibook.book1D("effic_PU_vertcount","PU efficiency s N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_effic_PU_zpos.push_back( ibook.book1D("effic_PU_zpos","PU efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
-  h_chi2meanhitsh.push_back( dbe_->bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
-  h_chi2meanh.push_back( dbe_->bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20) );
-  h_chi2mean_vs_phi.push_back( dbe_->bookProfile("chi2mean_vs_phi","mean of #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20) );
+  h_chi2meanhitsh.push_back( ibook.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
+  h_chi2meanh.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20) );
+  h_chi2mean_vs_phi.push_back( ibook.bookProfile("chi2mean_vs_phi","mean of #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20) );
 
-  h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_PXBhits_eta.push_back( dbe_->bookProfile("PXBhits_eta","mean # PXB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_PXFhits_eta.push_back( dbe_->bookProfile("PXFhits_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TIBhits_eta.push_back( dbe_->bookProfile("TIBhits_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TIDhits_eta.push_back( dbe_->bookProfile("TIDhits_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TOBhits_eta.push_back( dbe_->bookProfile("TOBhits_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TEChits_eta.push_back( dbe_->bookProfile("TEChits_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_hits_eta.push_back( ibook.bookProfile("hits_eta","mean #hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_PXBhits_eta.push_back( ibook.bookProfile("PXBhits_eta","mean # PXB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_PXFhits_eta.push_back( ibook.bookProfile("PXFhits_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TIBhits_eta.push_back( ibook.bookProfile("TIBhits_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TIDhits_eta.push_back( ibook.bookProfile("TIDhits_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TOBhits_eta.push_back( ibook.bookProfile("TOBhits_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TEChits_eta.push_back( ibook.bookProfile("TEChits_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
 
-  h_LayersWithMeas_eta.push_back(dbe_->bookProfile("LayersWithMeas_eta","mean # LayersWithMeas vs eta",
+  h_LayersWithMeas_eta.push_back(ibook.bookProfile("LayersWithMeas_eta","mean # LayersWithMeas vs eta",
                            nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_PXLlayersWithMeas_eta.push_back(dbe_->bookProfile("PXLlayersWith2dMeas_eta","mean # PXLlayersWithMeas vs eta",
+  h_PXLlayersWithMeas_eta.push_back(ibook.bookProfile("PXLlayersWith2dMeas_eta","mean # PXLlayersWithMeas vs eta",
                               nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_STRIPlayersWithMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWithMeas_eta","mean # STRIPlayersWithMeas vs eta",
+  h_STRIPlayersWithMeas_eta.push_back(ibook.bookProfile("STRIPlayersWithMeas_eta","mean # STRIPlayersWithMeas vs eta",
                             nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_STRIPlayersWith1dMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWith1dMeas_eta","mean # STRIPlayersWith1dMeas vs eta",
+  h_STRIPlayersWith1dMeas_eta.push_back(ibook.bookProfile("STRIPlayersWith1dMeas_eta","mean # STRIPlayersWith1dMeas vs eta",
                               nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_STRIPlayersWith2dMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWith2dMeas_eta","mean # STRIPlayersWith2dMeas vs eta",
+  h_STRIPlayersWith2dMeas_eta.push_back(ibook.bookProfile("STRIPlayersWith2dMeas_eta","mean # STRIPlayersWith2dMeas vs eta",
                               nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_hits_phi.push_back( dbe_->bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
-  h_losthits_eta.push_back( dbe_->bookProfile("losthits_eta","losthits_eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_hits_phi.push_back( ibook.bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
+  h_losthits_eta.push_back( ibook.bookProfile("losthits_eta","losthits_eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
 
-  h_ptrmsh.push_back( dbe_->book1D("ptres_vs_eta_Sigma","#sigma(#deltap_{t}/p_{t}) vs #eta",nintEta,minEta,maxEta) );
-  h_ptmeanhPhi.push_back( dbe_->book1D("ptres_vs_phi_Mean","mean of p_{t} resolution vs #phi",nintPhi,minPhi,maxPhi));
-  h_ptrmshPhi.push_back( dbe_->book1D("ptres_vs_phi_Sigma","#sigma(#deltap_{t}/p_{t}) vs #phi",nintPhi,minPhi,maxPhi) );
-  h_ptmeanhPt.push_back( dbe_->book1D("ptres_vs_pt_Mean","mean of p_{t} resolution vs p_{t}",nintPt,minPt,maxPt));
-  h_ptrmshPt.push_back( dbe_->book1D("ptres_vs_pt_Sigma","#sigma(#deltap_{t}/p_{t}) vs pT",nintPt,minPt,maxPt) );
-  h_cotThetameanh.push_back( dbe_->book1D("cotThetares_vs_eta_Mean","#sigma(cot(#theta)) vs #eta Mean",nintEta,minEta,maxEta) );
-  h_cotThetarmsh.push_back( dbe_->book1D("cotThetares_vs_eta_Sigma","#sigma(cot(#theta)) vs #eta Sigma",nintEta,minEta,maxEta) );
-  h_cotThetameanhPt.push_back( dbe_->book1D("cotThetares_vs_pt_Mean","#sigma(cot(#theta)) vs pT Mean",nintPt,minPt,maxPt) );
-  h_cotThetarmshPt.push_back( dbe_->book1D("cotThetares_vs_pt_Sigma","#sigma(cot(#theta)) vs pT Sigma",nintPt,minPt,maxPt) );
-  h_phimeanh.push_back(dbe_->book1D("phires_vs_eta_Mean","mean of #phi res vs #eta",nintEta,minEta,maxEta));
-  h_phirmsh.push_back( dbe_->book1D("phires_vs_eta_Sigma","#sigma(#delta#phi) vs #eta",nintEta,minEta,maxEta) );
-  h_phimeanhPt.push_back(dbe_->book1D("phires_vs_pt_Mean","mean of #phi res vs pT",nintPt,minPt,maxPt));
-  h_phirmshPt.push_back( dbe_->book1D("phires_vs_pt_Sigma","#sigma(#delta#phi) vs pT",nintPt,minPt,maxPt) );
-  h_phimeanhPhi.push_back(dbe_->book1D("phires_vs_phi_Mean","mean of #phi res vs #phi",nintPhi,minPhi,maxPhi));
-  h_phirmshPhi.push_back( dbe_->book1D("phires_vs_phi_Sigma","#sigma(#delta#phi) vs #phi",nintPhi,minPhi,maxPhi) );
-  h_dxymeanh.push_back( dbe_->book1D("dxyres_vs_eta_Mean","mean of dxyres vs #eta",nintEta,minEta,maxEta) );
-  h_dxyrmsh.push_back( dbe_->book1D("dxyres_vs_eta_Sigma","#sigma(#deltadxy) vs #eta",nintEta,minEta,maxEta) );
-  h_dxymeanhPt.push_back( dbe_->book1D("dxyres_vs_pt_Mean","mean of dxyres vs pT",nintPt,minPt,maxPt) );
-  h_dxyrmshPt.push_back( dbe_->book1D("dxyres_vs_pt_Sigma","#sigmadxy vs pT",nintPt,minPt,maxPt) );
-  h_dzmeanh.push_back( dbe_->book1D("dzres_vs_eta_Mean","mean of dzres vs #eta",nintEta,minEta,maxEta) );
-  h_dzrmsh.push_back( dbe_->book1D("dzres_vs_eta_Sigma","#sigma(#deltadz) vs #eta",nintEta,minEta,maxEta) );
-  h_dzmeanhPt.push_back( dbe_->book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintPt,minPt,maxPt) );
-  h_dzrmshPt.push_back( dbe_->book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintPt,minPt,maxPt) );
-  h_dxypulletamean.push_back( dbe_->book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nintEta,minEta,maxEta) );
-  h_ptpulletamean.push_back( dbe_->book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nintEta,minEta,maxEta) );
-  h_dzpulletamean.push_back( dbe_->book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nintEta,minEta,maxEta) );
-  h_phipulletamean.push_back( dbe_->book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nintEta,minEta,maxEta) );
-  h_thetapulletamean.push_back( dbe_->book1D("h_thetapulleta_Mean","mean of #theta pull vs #eta",nintEta,minEta,maxEta) );
-  h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nintEta,minEta,maxEta) );
-  h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nintEta,minEta,maxEta) );
-  h_dzpulleta.push_back( dbe_->book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nintEta,minEta,maxEta) );
-  h_phipulleta.push_back( dbe_->book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nintEta,minEta,maxEta) );
-  h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta_Sigma","#sigma of #theta pull vs #eta",nintEta,minEta,maxEta) );
-  h_ptshifteta.push_back( dbe_->book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
-  h_ptpullphimean.push_back( dbe_->book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_phipullphimean.push_back( dbe_->book1D("h_phipullphi_Mean","mean of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_thetapullphimean.push_back( dbe_->book1D("h_thetapullphi_Mean","mean of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_ptrmsh.push_back( ibook.book1D("ptres_vs_eta_Sigma","#sigma(#deltap_{t}/p_{t}) vs #eta",nintEta,minEta,maxEta) );
+  h_ptmeanhPhi.push_back( ibook.book1D("ptres_vs_phi_Mean","mean of p_{t} resolution vs #phi",nintPhi,minPhi,maxPhi));
+  h_ptrmshPhi.push_back( ibook.book1D("ptres_vs_phi_Sigma","#sigma(#deltap_{t}/p_{t}) vs #phi",nintPhi,minPhi,maxPhi) );
+  h_ptmeanhPt.push_back( ibook.book1D("ptres_vs_pt_Mean","mean of p_{t} resolution vs p_{t}",nintPt,minPt,maxPt));
+  h_ptrmshPt.push_back( ibook.book1D("ptres_vs_pt_Sigma","#sigma(#deltap_{t}/p_{t}) vs pT",nintPt,minPt,maxPt) );
+  h_cotThetameanh.push_back( ibook.book1D("cotThetares_vs_eta_Mean","#sigma(cot(#theta)) vs #eta Mean",nintEta,minEta,maxEta) );
+  h_cotThetarmsh.push_back( ibook.book1D("cotThetares_vs_eta_Sigma","#sigma(cot(#theta)) vs #eta Sigma",nintEta,minEta,maxEta) );
+  h_cotThetameanhPt.push_back( ibook.book1D("cotThetares_vs_pt_Mean","#sigma(cot(#theta)) vs pT Mean",nintPt,minPt,maxPt) );
+  h_cotThetarmshPt.push_back( ibook.book1D("cotThetares_vs_pt_Sigma","#sigma(cot(#theta)) vs pT Sigma",nintPt,minPt,maxPt) );
+  h_phimeanh.push_back(ibook.book1D("phires_vs_eta_Mean","mean of #phi res vs #eta",nintEta,minEta,maxEta));
+  h_phirmsh.push_back( ibook.book1D("phires_vs_eta_Sigma","#sigma(#delta#phi) vs #eta",nintEta,minEta,maxEta) );
+  h_phimeanhPt.push_back(ibook.book1D("phires_vs_pt_Mean","mean of #phi res vs pT",nintPt,minPt,maxPt));
+  h_phirmshPt.push_back( ibook.book1D("phires_vs_pt_Sigma","#sigma(#delta#phi) vs pT",nintPt,minPt,maxPt) );
+  h_phimeanhPhi.push_back(ibook.book1D("phires_vs_phi_Mean","mean of #phi res vs #phi",nintPhi,minPhi,maxPhi));
+  h_phirmshPhi.push_back( ibook.book1D("phires_vs_phi_Sigma","#sigma(#delta#phi) vs #phi",nintPhi,minPhi,maxPhi) );
+  h_dxymeanh.push_back( ibook.book1D("dxyres_vs_eta_Mean","mean of dxyres vs #eta",nintEta,minEta,maxEta) );
+  h_dxyrmsh.push_back( ibook.book1D("dxyres_vs_eta_Sigma","#sigma(#deltadxy) vs #eta",nintEta,minEta,maxEta) );
+  h_dxymeanhPt.push_back( ibook.book1D("dxyres_vs_pt_Mean","mean of dxyres vs pT",nintPt,minPt,maxPt) );
+  h_dxyrmshPt.push_back( ibook.book1D("dxyres_vs_pt_Sigma","#sigmadxy vs pT",nintPt,minPt,maxPt) );
+  h_dzmeanh.push_back( ibook.book1D("dzres_vs_eta_Mean","mean of dzres vs #eta",nintEta,minEta,maxEta) );
+  h_dzrmsh.push_back( ibook.book1D("dzres_vs_eta_Sigma","#sigma(#deltadz) vs #eta",nintEta,minEta,maxEta) );
+  h_dzmeanhPt.push_back( ibook.book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintPt,minPt,maxPt) );
+  h_dzrmshPt.push_back( ibook.book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintPt,minPt,maxPt) );
+  h_dxypulletamean.push_back( ibook.book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nintEta,minEta,maxEta) );
+  h_ptpulletamean.push_back( ibook.book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nintEta,minEta,maxEta) );
+  h_dzpulletamean.push_back( ibook.book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nintEta,minEta,maxEta) );
+  h_phipulletamean.push_back( ibook.book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nintEta,minEta,maxEta) );
+  h_thetapulletamean.push_back( ibook.book1D("h_thetapulleta_Mean","mean of #theta pull vs #eta",nintEta,minEta,maxEta) );
+  h_dxypulleta.push_back( ibook.book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nintEta,minEta,maxEta) );
+  h_ptpulleta.push_back( ibook.book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nintEta,minEta,maxEta) );
+  h_dzpulleta.push_back( ibook.book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nintEta,minEta,maxEta) );
+  h_phipulleta.push_back( ibook.book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nintEta,minEta,maxEta) );
+  h_thetapulleta.push_back( ibook.book1D("h_thetapulleta_Sigma","#sigma of #theta pull vs #eta",nintEta,minEta,maxEta) );
+  h_ptshifteta.push_back( ibook.book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
+  h_ptpullphimean.push_back( ibook.book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_phipullphimean.push_back( ibook.book1D("h_phipullphi_Mean","mean of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_thetapullphimean.push_back( ibook.book1D("h_thetapullphi_Mean","mean of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_ptpullphi.push_back( ibook.book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_phipullphi.push_back( ibook.book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_thetapullphi.push_back( ibook.book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
 
   if(useLogPt){
     BinLogX(h_dzmeanhPt.back()->getTH1F());

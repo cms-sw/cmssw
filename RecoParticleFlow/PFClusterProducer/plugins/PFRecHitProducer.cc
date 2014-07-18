@@ -67,18 +67,6 @@ void
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
- PFRecHitProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
- PFRecHitProducer::endJob() {
-}
-
-
 void
  PFRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

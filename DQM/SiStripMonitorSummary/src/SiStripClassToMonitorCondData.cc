@@ -31,6 +31,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripQualityDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h" 
+#include "DQM/SiStripMonitorSummary/interface/SiStripBackPlaneCorrectionDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
 #include "DQM/SiStripMonitorSummary/interface/SiStripThresholdDQM.h"
 
@@ -38,6 +39,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
@@ -68,6 +70,7 @@ SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet c
   monitorQuality_        = iConfig.getParameter<bool>("MonitorSiStripQuality");
   monitorApvGains_       = iConfig.getParameter<bool>("MonitorSiStripApvGain");
   monitorLorentzAngle_   = iConfig.getParameter<bool>("MonitorSiStripLorentzAngle");
+  monitorBackPlaneCorrection_   = iConfig.getParameter<bool>("MonitorSiStripBackPlaneCorrection");
   monitorLowThreshold_   = iConfig.getParameter<bool>("MonitorSiStripLowThreshold");
   monitorHighThreshold_  = iConfig.getParameter<bool>("MonitorSiStripHighThreshold");
   monitorCabling_        = iConfig.getParameter<bool>("MonitorSiStripCabling"); 
@@ -87,6 +90,7 @@ SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData(){
   if(monitorQuality_)      { delete qualityDQM_;  }
   if(monitorApvGains_)     { delete apvgainsDQM_; }
   if(monitorLorentzAngle_) { delete lorentzangleDQM_; }
+  if(monitorBackPlaneCorrection_) { delete bpcorrectionDQM_; }
   if(monitorLowThreshold_) { delete lowthresholdDQM_ ;}
   if(monitorHighThreshold_){ delete highthresholdDQM_;}
   if(monitorCabling_)      { delete cablingDQM_;}
@@ -134,6 +138,12 @@ void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
                                                   conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
                                                   conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
+
+  if(monitorBackPlaneCorrection_){
+    bpcorrectionDQM_ = new SiStripBackPlaneCorrectionDQM(eSetup,
+                                                  conf_.getParameter<edm::ParameterSet>("SiStripBackPlaneCorrectionDQM_PSet"),
+                                                  conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
   
   if(monitorLowThreshold_){
     lowthresholdDQM_ = new SiStripThresholdDQM(eSetup,
@@ -174,6 +184,7 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const& eSe
                               qualityDQM_       ->fillGrandSummaryMEs(eSetup)                  ;}//fillGrand. for SiStripquality
   if(monitorApvGains_)       { apvgainsDQM_      ->analysisOnDemand(eSetup,requestedDetId);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysisOnDemand(eSetup,requestedDetId);} 
+  if(monitorBackPlaneCorrection_)   { bpcorrectionDQM_  ->analysisOnDemand(eSetup,requestedDetId);} 
   if(monitorCabling_)        { cablingDQM_       ->analysisOnDemand(eSetup,requestedDetId);}   
   if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysisOnDemand(eSetup,requestedDetId);}
   if(monitorHighThreshold_)  { highthresholdDQM_ ->analysisOnDemand(eSetup,requestedDetId);}
@@ -193,6 +204,7 @@ void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const& e
   qualityDQM_       ->fillGrandSummaryMEs(eSetup);}
   if(monitorApvGains_)       { apvgainsDQM_      ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
+  if(monitorBackPlaneCorrection_)   { bpcorrectionDQM_  ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
   if(monitorCabling_)        { cablingDQM_       ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
   if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
   if(monitorHighThreshold_)  { highthresholdDQM_ ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
@@ -209,6 +221,7 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const& eSetu
   if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup); qualityDQM_->fillGrandSummaryMEs(eSetup);}//fillGrand. for SiStripquality
   if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);} 
+  if(monitorBackPlaneCorrection_)   { bpcorrectionDQM_  ->analysis(eSetup);} 
   if(monitorCabling_)        { cablingDQM_       ->analysis(eSetup);}   
   if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysis(eSetup);} 
   if(monitorHighThreshold_)  { highthresholdDQM_ ->analysis(eSetup);} 

@@ -1,6 +1,7 @@
 #ifndef InputTagDistributor_H
 #define InputTagDistributor_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,12 +13,12 @@
 
 class InputTagDistributor{
  public:
-  InputTagDistributor(const edm::ParameterSet & pset){
+  InputTagDistributor(const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
     std::vector< std::string > inpuTags = pset.getParameterNamesForType<edm::InputTag>();
     for (std::vector< std::string >::iterator i=inpuTags.begin();i!=inpuTags.end();++i)
       inputTags_[*i]=pset.getParameter<edm::InputTag>(*i);
   }
-  const edm::InputTag & inputTag(std::string s){ 
+  const edm::InputTag & inputTag(std::string s){
     std::map<std::string, edm::InputTag>::iterator findMe = inputTags_.find(s);
     if (findMe!=inputTags_.end())
       return findMe->second;
@@ -46,11 +47,11 @@ class InputTagDistributorService{
   };
   ~InputTagDistributorService(){};
 
-  InputTagDistributor & init(std::string user, const edm::ParameterSet & iConfig){
+  InputTagDistributor & init(std::string user, const edm::ParameterSet & iConfig, edm::ConsumesCollector&& iC){
     if (multipleInstance_.find(user)!=multipleInstance_.end()){
       std::cerr<<user<<" InputTagDistributor user already defined."<<std::endl;
       throw;}
-    else SetInputTagDistributorUniqueInstance_ = new InputTagDistributor(iConfig);
+    else SetInputTagDistributorUniqueInstance_ = new InputTagDistributor(iConfig, iC);
     multipleInstance_[user] = SetInputTagDistributorUniqueInstance_;
     return (*SetInputTagDistributorUniqueInstance_);
   }
@@ -85,7 +86,7 @@ class InputTagDistributorService{
     //if used without setting any InputTag mapping
     if (multipleInstance_.size()==0)
       return pset.getParameter<edm::InputTag>(src);
-    
+
     // some mapping was setup
     InputTagDistributor & which=get();
     std::map<std::string, InputTagDistributor*>::iterator inverseMap=multipleInstance_.begin();
@@ -103,7 +104,7 @@ class InputTagDistributorService{
       return which.inputTag(pset.getParameter<std::string>(src));
     else
       return pset.getParameter<edm::InputTag>(src);
-  }    
+  }
 };
 
 

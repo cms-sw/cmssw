@@ -3,14 +3,13 @@
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
+#include <functional>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/ImpactParameter/interface/TauA1NuConstrainedFitter.h"
 #include "RecoTauTag/ImpactParameter/interface/PDGInfo.h"
 #include <iostream>
 
 using namespace tauImpactParameter;
-
-unsigned int TauA1NuConstrainedFitter::static_amb;
 
 TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,const LorentzVectorParticle& A1,const TVector3& PVertex, const TMatrixTSym<double>& VertexCov):
   MultiProngTauSolver(),
@@ -198,7 +197,6 @@ bool TauA1NuConstrainedFitter::fit(){
   TVector3 TauDir(cos(phi)*sin(theta),sin(phi)*sin(theta),cos(theta));
   bool isReal;
   solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_plus,nu_minus,isReal);
-  static_amb=ambiguity_;
 
   //check that the do product of the a1 and tau is positive, otherwise there is no information for tau direction -> use zero solution
   if(TauDir.Dot(a1.Vect())<0){
@@ -208,22 +206,22 @@ bool TauA1NuConstrainedFitter::fit(){
   //case 1: is real then solve analytically
   if(isReal && (ambiguity_==plus || ambiguity_==minus)){
     // popogate errors
-    TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(par);
-    cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::SolveAmbiguityAnalytically,par,cov_0);
+    TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(par,ambiguity_);
+    cov=ErrorMatrixPropagator::propagateError(std::bind(TauA1NuConstrainedFitter::SolveAmbiguityAnalytically,std::placeholders::_1,ambiguity_),par,cov_0);
     for(int i=0; i<npar;i++) par(i)=par_tmp(i);
     return true;
   }
   // case 2 is in unphsyical region - rotate and substitue \theta_{GJ} with \theta_{GJ}^{Max} and then solve analytically
   else if(!isReal && ambiguity_==zero){
-    TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(par);
-    cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot,par,cov_0);
+    TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(par,ambiguity_);
+    cov=ErrorMatrixPropagator::propagateError(std::bind(TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot,std::placeholders::_1,ambiguity_),par,cov_0);
     for(int i=0; i<npar;i++) par(i)=par_tmp(i);
     return true;
   }
   return false;
 }
 
-TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(const TVectorT<double>& inpar){
+TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(const TVectorT<double>& inpar, unsigned int amb){
   // Solve equation quadratic equation
   TVectorT<double> outpar(inpar.GetNrows());
   TLorentzVector a1,nu;
@@ -235,7 +233,7 @@ TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(const TVec
   TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus;
   bool isReal;
   solveByRotation(TauDir,a1_d,Tau_plus,Tau_minus,nu_plus,nu_minus,isReal,true);
-  if(static_amb==plus)nu=nu_plus;
+  if(amb==plus)nu=nu_plus;
   else nu=nu_minus;
   for(int i=0; i<outpar.GetNrows();i++){ outpar(i)=inpar(i);}
   outpar(nu_px)=nu.Px(); 
@@ -244,7 +242,7 @@ TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(const TVec
   return outpar;
 }
 
-TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(const TVectorT<double>& inpar){
+TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(const TVectorT<double>& inpar, unsigned int ambiguity){
   // Rotate and subsitute \theta_{GJ} with \theta_{GJ}^{Max} - assumes uncertianty on thata and phi of the a1 or small compared to the tau direction. 
   TVectorT<double> outpar(inpar.GetNrows());
   TLorentzVector a1,nu;
@@ -261,7 +259,7 @@ TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(con
   for(int i=0; i<outpar.GetNrows();i++) outpar(i)=inpar(i);
   outpar(tau_phi)=TauDir.Phi();
   outpar(tau_theta)=TauDir.Theta();
-  return SolveAmbiguityAnalytically(outpar);
+  return SolveAmbiguityAnalytically(outpar,ambiguity);
 }
 
 // Return the significance of the rotation when the tau direction is in the unphysical region

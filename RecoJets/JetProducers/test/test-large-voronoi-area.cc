@@ -52,7 +52,7 @@ int main (int argc, char ** argv) {
 
   double inputEtaMax = 5.0;
   double rhoEtaMax = 6.0;
-  int nev=1, iev=0;
+  int nev=0, iev=0;
   if ( argc > 1 ) {
     inputEtaMax = atof( argv[1] );
     cout << "inputEtaMax is now set to " << inputEtaMax << endl;

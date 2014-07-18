@@ -56,6 +56,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
   usesResource("CSCTriggerGeometry");
+  consumes<CSCComparatorDigiCollection>(compDigiProducer_);
+  consumes<CSCWireDigiCollection>(wireDigiProducer_);
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {

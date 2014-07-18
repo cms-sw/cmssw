@@ -20,7 +20,7 @@ namespace cond {
       std::string tag;
       cond::TimeType timeType;
       std::string payloadType;
-      cond::SynchronizationType synchronizationType; 
+      cond::SynchronizationType synchronizationType = cond::OFFLINE; 
       std::string description;
       cond::Time_t endOfValidity = cond::time::MAX_VAL;
       cond::Time_t lastValidatedTime = cond::time::MIN_VAL; 
@@ -28,6 +28,7 @@ namespace cond {
       bool exists = false;
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> > iovBuffer;
+      bool validationMode = false;
     };
 
     IOVEditor::IOVEditor():
@@ -126,7 +127,11 @@ namespace cond {
 	m_data->change = true;
       }
     }
-    
+
+    void IOVEditor::setValidationMode(){
+      if( m_data.get() ) m_data->validationMode = true;
+    }
+   
     void IOVEditor::insert( cond::Time_t since, const cond::Hash& payloadHash, bool checkType ){
       boost::posix_time::ptime now = boost::posix_time::microsec_clock::universal_time();
       insert( since, payloadHash, now, checkType ); 
@@ -144,6 +149,7 @@ namespace cond {
       checkTransaction( "IOVEditor::flush" );
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty description string is mandatory.","IOVEditor::flush" );
+	if( m_data->validationMode ) m_session->iovSchema().tagTable().setValidationMode();
 	if( !m_data->exists ){
 	  m_session->iovSchema().tagTable().insert( m_data->tag, m_data->timeType, m_data->payloadType, 
 						    m_data->synchronizationType, m_data->endOfValidity, 

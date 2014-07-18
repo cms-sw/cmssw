@@ -23,6 +23,15 @@ process.MessageLogger.categories.append("HLTTauDQMOffline")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
+# # remember to compile with USER_CXXFLAGS="-DEDM_ML_DEBUG"
+# process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
+# process.MessageLogger.debugModules.extend([
+#         "hltTauOfflineMonitor_PFTaus",
+#         "hltTauOfflineMonitor_Inclusive",
+#         "HLTTauPostAnalysis_PFTaus",
+#         "HLTTauPostAnalysis_Inclusive",
+#         ])
+
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10', '') # for data

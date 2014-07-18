@@ -125,7 +125,7 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event)
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva = it->mva_e_pi();
       // at the moment, undefined
-      myMvaOutput.status = 0;
+      myMvaOutput.status = it->egammaExtraRef()->electronStatus() ;
       gsfMVAOutputMap_[it->gsfTrackRef()] = myMvaOutput;
 
       reco::GsfElectron::MvaInput myMvaInput;

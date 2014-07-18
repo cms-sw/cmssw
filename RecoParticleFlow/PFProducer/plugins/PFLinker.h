@@ -15,7 +15,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +31,7 @@
 
 #include <string>
 
-class PFLinker : public edm::EDProducer {
+class PFLinker : public edm::stream::EDProducer<> {
  public:
 
   explicit PFLinker(const edm::ParameterSet&);
@@ -82,5 +82,7 @@ class PFLinker : public edm::EDProducer {
   bool fillMuonRefs_;
 
 };
+
+DEFINE_FWK_MODULE(PFLinker);
 
 #endif

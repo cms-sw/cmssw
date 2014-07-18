@@ -55,7 +55,6 @@ namespace edm
       void addHcalPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
                           const edm::EventSetup& ES, edm::ModuleCallingContext const*);
 
-    
 
     private:
       // data specifiers

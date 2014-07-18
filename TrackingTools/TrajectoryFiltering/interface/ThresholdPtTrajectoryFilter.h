@@ -20,7 +20,7 @@ public:
 
   explicit ThresholdPtTrajectoryFilter( double ptThreshold, float nSigma = 5.F, int nH=3): thePtThreshold( ptThreshold), theNSigma(nSigma), theMinHits(nH) {}
 
-  explicit ThresholdPtTrajectoryFilter( const edm::ParameterSet & pset) :
+  explicit ThresholdPtTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
     thePtThreshold(pset.getParameter<double>("thresholdPt")),
     theNSigma(pset.getParameter<double>("nSigmaThresholdPt")),
     theMinHits(pset.getParameter<int>("minHitsThresholdPt"))

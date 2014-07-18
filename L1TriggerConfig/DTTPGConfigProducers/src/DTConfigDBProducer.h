@@ -35,6 +35,8 @@
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
 
+#include "CondTools/DT/interface/DTKeyedConfigCache.h"
+
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
@@ -95,6 +97,7 @@ class DTConfigDBProducer : public edm::ESProducer{
 
   bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;  
 
+  DTKeyedConfigCache cfgCache;
 };
 
 #endif

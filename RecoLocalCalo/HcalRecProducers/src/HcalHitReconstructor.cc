@@ -15,7 +15,6 @@
 #include <iostream>
 #include <fstream>
 
-
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
 
 HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
@@ -386,15 +385,28 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
-	// Set auxiliary flag
-	int auxflag=0;
+	// Fill first auxiliary word
+	unsigned int auxflag=0;
         int fTS = firstAuxTS_;
 	if (fTS<0) fTS=0; // silly protection against time slice <0
-	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx) {
+          int adcv = i->sample(xx).adc();
+	  auxflag+=((adcv&0x7F)<<(7*(xx-fTS))); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	}
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
+
+	// Fill second auxiliary word
+	auxflag=0;
+        int fTS2 = (firstAuxTS_-4 < 0) ? 0 : firstAuxTS_-4;  
+	for (int xx = fTS2; xx < fTS2+4 && xx<i->size(); ++xx) {
+          int adcv = i->sample(xx).adc();
+	  auxflag+=((adcv&0x7F)<<(7*(xx-fTS2))); 
+	}
+	auxflag+=((i->sample(fTS2).capid())<<28);
+	(rec->back()).setAuxHBHE(auxflag);
+
 
 	(rec->back()).setFlags(0);  // this sets all flag bits to 0
 	// Set presample flag

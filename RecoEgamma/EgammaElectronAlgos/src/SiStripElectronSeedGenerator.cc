@@ -584,12 +584,6 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   // seed checks borrowed from pixel-based algoritm
 
 
-  /* Some of this code could be better optimized.  The Pixel algorithm natively
-     takes Transient rec hits, so to recycle code we have to build them.
-  */
-
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
 
   typedef TrajectoryStateOnSurface TSOS;
 
@@ -606,20 +600,20 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   if (!helix.isValid()) return false;
 
   FreeTrajectoryState fts(helix.stateAtVertex());
-  TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
+  TSOS propagatedState = thePropagator->propagate(fts,(*hit1)->det()->surface());
 
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);
-  TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
+  TSOS updatedState = theUpdator->update(propagatedState, **hit1);
+  TSOS propagatedState_out = thePropagator->propagate(fts,(*hit2)->det()->surface()) ;
 
   if (!propagatedState_out.isValid()) return false;
 
   // the seed has now passed all the cuts
 
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
+  TSOS updatedState_out = theUpdator->update(propagatedState_out, **hit2);
 
-  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, (*hit2)->geographicalId().rawId());
 
   return true;
 }
@@ -665,12 +659,6 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
  
 
-  /* Some of this code could be better optimized.  The Pixel algorithm natively
-     takes Transient rec hits, so to recycle code we have to build them.
-  */
-
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
 
   typedef TrajectoryStateOnSurface TSOS;
 
@@ -687,20 +675,20 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   if (!helix.isValid()) return false;
 
   FreeTrajectoryState fts(helix.stateAtVertex());
-  TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
+  TSOS propagatedState = thePropagator->propagate(fts,(*hit1)->det()->surface());
 
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);
-  TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
+  TSOS updatedState = theUpdator->update(propagatedState, **hit1);
+  TSOS propagatedState_out = thePropagator->propagate(fts,(*hit2)->det()->surface()) ;
 
   if (!propagatedState_out.isValid()) return false;
 
   // the seed has now passed all the cuts
 
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
+  TSOS updatedState_out = theUpdator->update(propagatedState_out, **hit2);
 
-  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, (*hit2)->geographicalId().rawId());
 
   return true;
 }

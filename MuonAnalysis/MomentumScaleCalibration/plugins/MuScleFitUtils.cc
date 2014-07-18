@@ -1994,13 +1994,13 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
 
   // Cleanup
   // -------
-  delete x;
-  delete ym;
-  delete eym;
-  delete yw;
-  delete eyw;
-  delete yc;
-  delete e;
+  delete[] x;
+  delete[] ym;
+  delete[] eym;
+  delete[] yw;
+  delete[] eyw;
+  delete[] yc;
+  delete[] e;
   delete fitFcn;
 
   results.push_back(grM);
@@ -2104,13 +2104,13 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
 
   // Cleanup
   // -------
-  delete x;
-  delete ym;
-  delete eym;
-  delete yw;
-  delete eyw;
-  delete yc;
-  delete e;
+  delete[] x;
+  delete[] ym;
+  delete[] eym;
+  delete[] yw;
+  delete[] eyw;
+  delete[] yc;
+  delete[] e;
   delete fitFcn;
 
   results.push_back (grM);

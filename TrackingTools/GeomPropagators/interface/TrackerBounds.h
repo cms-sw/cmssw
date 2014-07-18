@@ -24,9 +24,9 @@ class Disk;
 class TrackerBounds {
 public:
 
-  static const Cylinder& barrelBound()    {check(); return *theCylinder;}
-  static const Disk& negativeEndcapDisk() {check(); return *theNegativeDisk;}
-  static const Disk& positiveEndcapDisk() {check(); return *thePositiveDisk;}
+  static const Cylinder& barrelBound()    {return *theCylinder;}
+  static const Disk& negativeEndcapDisk() {return *theNegativeDisk;}
+  static const Disk& positiveEndcapDisk() {return *thePositiveDisk;}
 
   /** Hard-wired numbers defining the envelope of the sensitive volumes.
    */
@@ -36,14 +36,9 @@ public:
 
 private:
 
-  static ReferenceCountingPointer<Cylinder>  theCylinder;
-  static ReferenceCountingPointer<Disk>      theNegativeDisk;
-  static ReferenceCountingPointer<Disk>      thePositiveDisk;
-  static bool theInit;
-
-  static void check() {if (!theInit) initialize();}
-
-  static void initialize();
+  static const ReferenceCountingPointer<Cylinder>  theCylinder;
+  static const ReferenceCountingPointer<Disk>      theNegativeDisk;
+  static const ReferenceCountingPointer<Disk>      thePositiveDisk;
 };
 
 #endif

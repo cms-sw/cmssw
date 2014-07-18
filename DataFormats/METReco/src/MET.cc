@@ -1,30 +1,32 @@
-// File: MET.cc
-// Description: see MET.h
-// Author: Michael Schmitt, R. Cavanaugh University of Florida
-// Creation Date:  MHS MAY 30, 2005 initial version
+// -*- C++ -*-
 
+// Package:    METReco
+// Class:      MET
+//
+// Original authors: Michael Schmitt, Richard Cavanaugh The University of Florida
+// changes by: Freya Blekman, Cornell University
+//
+
+//____________________________________________________________________________||
 #include "DataFormats/METReco/interface/MET.h"
 #include "TVector.h"
 
+//____________________________________________________________________________||
 using namespace std;
 using namespace reco;
 
-//---------------------------------------------------------------------------
-// Default Constructor;
-//-----------------------------------
+//____________________________________________________________________________||
 MET::MET()
 {
   sumet = 0.0;
   elongit = 0.0;
   signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
 }
-//---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
 // Constructer for the case when only p4_ =  (mEx, mEy, 0, mEt) is known.
 // The vertex information is currently not used (but may be in the future)
 // and is required by the RecoCandidate constructer.
-//-----------------------------------
+//____________________________________________________________________________||
 MET::MET( const LorentzVector& p4_, const Point& vtx_ ) : 
   RecoCandidate( 0, p4_, vtx_ )
 {
@@ -32,13 +34,11 @@ MET::MET( const LorentzVector& p4_, const Point& vtx_ ) :
   elongit = 0.0;
   signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
 }
-//---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
 // Constructer for the case when the SumET is known in addition to 
 // p4_ = (mEx, mEy, 0, mEt).  The vertex information is currently not used
 // (but see above).
-//-----------------------------------
+//____________________________________________________________________________||
 MET::MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ ) : 
   RecoCandidate( 0, p4_, vtx_ ) 
 {
@@ -46,13 +46,11 @@ MET::MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ ) :
   elongit = 0.0;
   signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
 }
-//---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
 // Constructor for the case when the SumET, the corrections which
 // were applied to the MET, as well the MET itself p4_ = (mEx, mEy, 0, mEt)
 // are all known.  See above concerning the vertex information. 
-//-----------------------------------
+//____________________________________________________________________________||
 MET::MET( double sumet_, const std::vector<CorrMETData>& corr_, 
 	  const LorentzVector& p4_, const Point& vtx_ ) : 
   RecoCandidate( 0, p4_, vtx_ )
@@ -69,17 +67,14 @@ MET::MET( double sumet_, const std::vector<CorrMETData>& corr_,
       corr.push_back( *i );
     }
 }
-//---------------------------------------------------------------------------
 
-
-//----------------------------------------------------------------- 
-//explicit clone function
+//____________________________________________________________________________||
 MET * MET::clone() const {
      return new MET( * this );
 }
-//----------------------------------------------------------------- 
 
 // function that calculates the MET significance from the vector information.
+//____________________________________________________________________________||
 double MET::significance() const {
   if(signif_dxx==0 && signif_dyy==0 && signif_dxy==0 && signif_dyx==0)
     return -1;
@@ -95,10 +90,9 @@ double MET::significance() const {
   return signif;
 }
 
-//---------------------------------------------------------------------------
 // Returns the vector of all corrections applied to the x component of the
 // missing transverse momentum, mEx
-//-----------------------------------
+//____________________________________________________________________________||
 std::vector<double> MET::dmEx() const 
 {
   std::vector<double> deltas;
@@ -109,12 +103,10 @@ std::vector<double> MET::dmEx() const
     }
   return deltas;
 }
-//---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
 // Returns the vector of all corrections applied to the y component of the
 // missing transverse momentum, mEy
-//-----------------------------------
+//____________________________________________________________________________||
 std::vector<double> MET::dmEy() const 
 {
   std::vector<double> deltas;
@@ -125,12 +117,10 @@ std::vector<double> MET::dmEy() const
     }
   return deltas;
 }
-//---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
 // Returns the vector of all corrections applied to the scalar sum of the 
 // transverse energy (over all objects)
-//-----------------------------------
+//____________________________________________________________________________||
 std::vector<double> MET::dsumEt() const 
 {
   std::vector<double> deltas;
@@ -142,10 +132,8 @@ std::vector<double> MET::dsumEt() const
   return deltas;
 }
 
-//---------------------------------------------------------------------------
 // returns the significance matrix
-//---------------------------------------------------------------------------
-
+//____________________________________________________________________________||
 TMatrixD MET::getSignificanceMatrix(void) const
 {
   TMatrixD result(2,2);
@@ -156,36 +144,21 @@ TMatrixD MET::getSignificanceMatrix(void) const
   return result;
 }
 
-//---------------------------------------------------------------------------
-// Returns the vector of all corrections applied to the significance of the 
-// transverse energy (over all objects)
-//-----------------------------------
-std::vector<double> MET::dSignificance() const
-{
-  std::vector<double> deltas;
-  std::vector<CorrMETData>::const_iterator i;
-  for( i = corr.begin(); i != corr.end(); i++ )
-    {
-      deltas.push_back( i->significance );
-    }
-  return deltas;
-}
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
 // Required RecoCandidate polymorphism
-//-----------------------------------
+//____________________________________________________________________________||
 bool MET::overlap( const Candidate & ) const 
 {
   return false;
 }
-//---------------------------------------------------------------------------
 
-void
-MET::setSignificanceMatrix(const TMatrixD &inmatrix){
+//____________________________________________________________________________||
+void MET::setSignificanceMatrix(const TMatrixD &inmatrix)
+{
   signif_dxx=inmatrix(0,0);
   signif_dxy=inmatrix(0,1);
   signif_dyx=inmatrix(1,0);
   signif_dyy=inmatrix(1,1);
   return;
 }
+
+//____________________________________________________________________________||

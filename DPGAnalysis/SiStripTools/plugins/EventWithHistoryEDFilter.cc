@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      EventWithHistoryEDFilter
-// 
+//
 /**\class EventWithHistoryEDFilter EventWithHistoryEDFilter.cc DPGAnalysis/SiStripTools/plugins/EventWithHistoryEDFilter.cc
 
  Description: <one line class summary>
@@ -45,15 +45,15 @@ class EventWithHistoryEDFilter : public edm::EDFilter {
 public:
   explicit EventWithHistoryEDFilter(const edm::ParameterSet&);
   ~EventWithHistoryEDFilter();
-  
+
 private:
-  
+
   virtual void beginJob() override ;
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
+
   // ----------member data ---------------------------
-  
+
   std::vector<EventWithHistoryFilter> _ehfilters;
   bool _debu;
 };
@@ -77,13 +77,13 @@ EventWithHistoryEDFilter::EventWithHistoryEDFilter(const edm::ParameterSet& iCon
 
   std::vector<edm::ParameterSet> filterconfigs(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >
 					       ("filterConfigurations",std::vector<edm::ParameterSet>()));
-  
+
   for(std::vector<edm::ParameterSet>::iterator ps=filterconfigs.begin();
       ps!=filterconfigs.end();++ps) {
 
     ps->augment(iConfig.getUntrackedParameter<edm::ParameterSet>("commonConfiguration",edm::ParameterSet()));
-    
-    const EventWithHistoryFilter filter(*ps);
+
+    const EventWithHistoryFilter filter(*ps, consumesCollector());
     _ehfilters.push_back(filter);
 
   }
@@ -94,7 +94,7 @@ EventWithHistoryEDFilter::EventWithHistoryEDFilter(const edm::ParameterSet& iCon
 
 EventWithHistoryEDFilter::~EventWithHistoryEDFilter()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -120,18 +120,18 @@ EventWithHistoryEDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   if(_debu && selected ) edm::LogInfo("SELECTED") << "selected event";
- 
+
   return selected;
 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 EventWithHistoryEDFilter::beginJob()
 {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 EventWithHistoryEDFilter::endJob() {
 }
 

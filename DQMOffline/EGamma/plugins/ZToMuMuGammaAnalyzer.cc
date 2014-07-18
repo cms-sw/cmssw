@@ -32,6 +32,8 @@ ZToMuMuGammaAnalyzer::ZToMuMuGammaAnalyzer( const edm::ParameterSet& pset )
   
   //    triggerEvent_           = pset.getParameter<edm::InputTag>("triggerEvent");
   triggerEvent_token_     = consumes<trigger::TriggerEvent>(pset.getParameter<edm::InputTag>("triggerEvent"));
+
+  offline_pvToken_ = consumes<reco::VertexCollection>(pset.getUntrackedParameter<edm::InputTag>("offlinePV", edm::InputTag("offlinePrimaryVertices")));
   
   useTriggerFiltering_    = pset.getParameter<bool>("useTriggerFiltering");
   splitHistosEBEE_        = pset.getParameter<bool>("splitHistosEBEE");
@@ -179,7 +181,7 @@ void ZToMuMuGammaAnalyzer::beginJob()
     ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
 
     //// 1D Histograms ////
-
+    h_nRecoVtx_ =  dbe_->book1D("nOfflineVtx","# of Offline Vertices",80, -0.5, 79.5);  
     
     //ENERGY
     h_phoE_[0]  = dbe_->book1D("phoE","Energy;E (GeV)",eBin,eMin,eMax);
@@ -447,7 +449,11 @@ void ZToMuMuGammaAnalyzer::beginJob()
       p_hOverEVsEt_[1]   = dbe_->bookProfile("p_hOverEVsEtBarrel","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
       p_hOverEVsEt_[2]   = dbe_->bookProfile("p_hOverEVsEtEndcap","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
       p_hOverEVsEta_[0]  = dbe_->bookProfile("p_hOverEVsEta","Avg H/E vs #eta;#eta;H/E",etaBin,etaMin,etaMax,hOverEBin,hOverEMin,hOverEMax);
-
+      // sigmaE/E
+      histname = "sigmaEoverEVsNVtx";
+      p_phoSigmaEoverEVsNVtx_[1] = dbe_->bookProfile(histname+"Barrel","Photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
+      p_phoSigmaEoverEVsNVtx_[2] = dbe_->bookProfile(histname+"Endcap","Photons #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+      
       
 
     }
@@ -611,6 +617,11 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       else ++i ;
     }
 
+  edm::Handle<reco::VertexCollection> vtxH;
+  e.getByToken(offline_pvToken_, vtxH);
+  h_nRecoVtx_ ->Fill (float(vtxH->size()));
+
+
   //photon counters
   int nPho = 0;
   int nPhoBarrel = 0;
@@ -686,6 +697,7 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         h_phoEt_[0] ->Fill (aPho->et());
         h_phoE_[iDet]  ->Fill (aPho->energy());
 	h_phoSigmaEoverE_[iDet] ->Fill( aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy() ); 
+	p_phoSigmaEoverEVsNVtx_[iDet] ->Fill( float(vtxH->size()), aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy() ); 
         h_phoEt_[iDet] ->Fill (aPho->et());
         //GEOMETRICAL
         h_phoEta_[0] ->Fill (aPho->eta());

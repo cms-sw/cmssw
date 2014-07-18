@@ -143,21 +143,9 @@ float EcalClusterLazyTools::e1x3( const reco::BasicCluster &cluster )
 }
 
 
-float EcalClusterLazyTools::e1x3( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e1x3( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
-
-
-
 float EcalClusterLazyTools::e3x1( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::e3x1( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
-float EcalClusterLazyTools::e3x1( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e3x1( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -166,21 +154,10 @@ float EcalClusterLazyTools::e1x5( const reco::BasicCluster &cluster )
         return EcalClusterTools::e1x5( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e1x5( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e1x5( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
-
-
 
 float EcalClusterLazyTools::e5x1( const reco::BasicCluster &cluster )
 {
   return EcalClusterTools::e5x1( cluster, getEcalRecHitCollection(cluster), topology_ );
-	}
-
-float EcalClusterLazyTools::e5x1( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-  return EcalClusterTools::e5x1( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 	}
 
 
@@ -189,20 +166,10 @@ float EcalClusterLazyTools::e2x2( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x2( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e2x2( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2x2( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
-
 
 float EcalClusterLazyTools::e3x2( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::e3x2( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
-float EcalClusterLazyTools::e3x2( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e3x2( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -211,31 +178,17 @@ float EcalClusterLazyTools::e3x3( const reco::BasicCluster &cluster )
         return EcalClusterTools::e3x3( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e3x3( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e3x3( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
-
 
 float EcalClusterLazyTools::e4x4( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::e4x4( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e4x4( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e4x4( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
 
 
 float EcalClusterLazyTools::e5x5( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::e5x5( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
-float EcalClusterLazyTools::e5x5( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e5x5( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -244,10 +197,6 @@ float EcalClusterLazyTools::e2x5Right( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x5Right( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e2x5Right( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2x5Right( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
 
 
 float EcalClusterLazyTools::e2x5Left( const reco::BasicCluster &cluster )
@@ -255,10 +204,6 @@ float EcalClusterLazyTools::e2x5Left( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x5Left( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e2x5Left( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2x5Left( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
 
 
 float EcalClusterLazyTools::e2x5Top( const reco::BasicCluster &cluster )
@@ -266,10 +211,6 @@ float EcalClusterLazyTools::e2x5Top( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x5Top( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e2x5Top( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2x5Top( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
 
 
 float EcalClusterLazyTools::e2x5Bottom( const reco::BasicCluster &cluster )
@@ -277,20 +218,11 @@ float EcalClusterLazyTools::e2x5Bottom( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x5Bottom( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::e2x5Bottom( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2x5Bottom( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
 
 // Energy in 2x5 strip containing the max crystal.
 float EcalClusterLazyTools::e2x5Max( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::e2x5Max( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
-float EcalClusterLazyTools::e2x5Max( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2x5Max( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -299,20 +231,10 @@ float EcalClusterLazyTools::eLeft( const reco::BasicCluster &cluster )
         return EcalClusterTools::eLeft( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::eLeft( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::eLeft( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
-
 
 float EcalClusterLazyTools::eRight( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::eRight( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
-float EcalClusterLazyTools::eRight( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::eRight( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -321,20 +243,11 @@ float EcalClusterLazyTools::eTop( const reco::BasicCluster &cluster )
         return EcalClusterTools::eTop( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-float EcalClusterLazyTools::eTop( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::eTop( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
-}
 
 
 float EcalClusterLazyTools::eBottom( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::eBottom( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
-float EcalClusterLazyTools::eBottom( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::eBottom( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -343,30 +256,16 @@ float EcalClusterLazyTools::eMax( const reco::BasicCluster &cluster )
         return EcalClusterTools::eMax( cluster, getEcalRecHitCollection(cluster) );
 }
 
-float EcalClusterLazyTools::eMax( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::eMax( cluster, getEcalRecHitCollection(cluster), flagsexcl, severitiesexcl, sevLv );
-}
-
 
 float EcalClusterLazyTools::e2nd( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::e2nd( cluster, getEcalRecHitCollection(cluster) );
 }
 
-float EcalClusterLazyTools::e2nd( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::e2nd( cluster, getEcalRecHitCollection(cluster), flagsexcl, severitiesexcl, sevLv );
-}
 
 std::pair<DetId, float> EcalClusterLazyTools::getMaximum( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::getMaximum( cluster, getEcalRecHitCollection(cluster) );
-}
-
-std::pair<DetId, float> EcalClusterLazyTools::getMaximum( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::getMaximum( cluster, getEcalRecHitCollection(cluster), flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -375,20 +274,11 @@ std::vector<float> EcalClusterLazyTools::energyBasketFractionEta( const reco::Ba
         return EcalClusterTools::energyBasketFractionEta( cluster, getEcalRecHitCollection(cluster) );
 }
 
-std::vector<float> EcalClusterLazyTools::energyBasketFractionEta( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::energyBasketFractionEta( cluster, getEcalRecHitCollection(cluster), flagsexcl, severitiesexcl, sevLv );
-}
 
 
 std::vector<float> EcalClusterLazyTools::energyBasketFractionPhi( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::energyBasketFractionPhi( cluster, getEcalRecHitCollection(cluster) );
-}
-
-std::vector<float> EcalClusterLazyTools::energyBasketFractionPhi( const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-        return EcalClusterTools::energyBasketFractionPhi( cluster, getEcalRecHitCollection(cluster), flagsexcl, severitiesexcl, sevLv );
 }
 
 
@@ -408,30 +298,18 @@ std::vector<float> EcalClusterLazyTools::covariances(const reco::BasicCluster &c
         return EcalClusterTools::covariances( cluster, getEcalRecHitCollection(cluster), topology_, geometry_, w0 );
 }
 
-std::vector<float> EcalClusterLazyTools::covariances(const reco::BasicCluster &cluster,const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0 )
-{
-        return EcalClusterTools::covariances( cluster, getEcalRecHitCollection(cluster), topology_, geometry_, flagsexcl, severitiesexcl, sevLv, w0 );
-}
 
 std::vector<float> EcalClusterLazyTools::localCovariances(const reco::BasicCluster &cluster, float w0 )
 {
         return EcalClusterTools::localCovariances( cluster, getEcalRecHitCollection(cluster), topology_, w0 );
 }
 
-std::vector<float> EcalClusterLazyTools::localCovariances(const reco::BasicCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0 )
-{
-        return EcalClusterTools::localCovariances( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv, w0 );
-}
 
 std::vector<float> EcalClusterLazyTools::scLocalCovariances(const reco::SuperCluster &cluster, float w0 )
 {
         return EcalClusterTools::scLocalCovariances( cluster, getEcalRecHitCollection(cluster), topology_, w0 );
 }
 
-std::vector<float> EcalClusterLazyTools::scLocalCovariances(const reco::SuperCluster &cluster, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0 )
-{
-        return EcalClusterTools::scLocalCovariances( cluster, getEcalRecHitCollection(cluster), topology_, flagsexcl, severitiesexcl, sevLv, w0 );
-}
 
 double EcalClusterLazyTools::zernike20( const reco::BasicCluster &cluster, double R0, bool logW, float w0 )
 {
@@ -452,11 +330,6 @@ std::vector<DetId> EcalClusterLazyTools::matrixDetId( DetId id, int ixMin, int i
 float EcalClusterLazyTools::matrixEnergy( const reco::BasicCluster &cluster, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
   return EcalClusterTools::matrixEnergy( cluster, getEcalRecHitCollection(cluster), topology_, id, ixMin, ixMax, iyMin, iyMax );
-}
-
-float EcalClusterLazyTools::matrixEnergy( const reco::BasicCluster &cluster, DetId id, int ixMin, int ixMax, int iyMin, int iyMax,const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
-{
-  return EcalClusterTools::matrixEnergy( cluster, getEcalRecHitCollection(cluster), topology_, id, ixMin, ixMax, iyMin, iyMax, flagsexcl, severitiesexcl, sevLv );
 }
 
 

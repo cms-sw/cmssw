@@ -13,12 +13,12 @@
 HadronPhysicsCMS::HadronPhysicsCMS(const G4String& name, G4bool quasiElastic) :
   G4VPhysicsConstructor("hadron"), theNeutrons(0), theBertiniNeutron(0),
   theBinaryNeutron(0), theFTFPNeutron(0), 
-  theLHEPNeutron(0), theQGSPNeutron(0), thePiK(0), theBertiniPiK(0),
-  theBinaryPiK(0), theFTFPPiK(0), theLHEPPiK(0),
+  theQGSPNeutron(0), thePiK(0), theBertiniPiK(0),
+  theBinaryPiK(0), theFTFPPiK(0), 
   theQGSPPiK(0), thePro(0),theBertiniPro(0),
-  theBinaryPro(0), theFTFPPro(0), theLHEPPro(0),
+  theBinaryPro(0), theFTFPPro(0), 
   theQGSPPro(0),
-  theMiscLHEP(), theFTFNeutron(0), theFTFPiK(0), theFTFPro(0), 
+  theFTFNeutron(0), theFTFPiK(0), theFTFPro(0), 
   modelName(name), 
   QuasiElastic(quasiElastic) {}
 
@@ -58,13 +58,6 @@ void HadronPhysicsCMS::CreateModels() {
     theFTFPPiK     = new G4FTFPPiKBuilder();
     theFTFPPiK->SetMinEnergy(0.1*GeV);
     thePiK->RegisterMe(theFTFPPiK);
-  }  else if (modelName == "LHEP") {
-    theLHEPNeutron = new G4LHEPNeutronBuilder();
-    theNeutrons->RegisterMe(theLHEPNeutron);
-    theLHEPPro     = new G4LHEPProtonBuilder();
-    thePro->RegisterMe(theLHEPPro);
-    theLHEPPiK     = new G4LHEPPiKBuilder();
-    thePiK->RegisterMe(theLHEPPiK);
   } else if (modelName == "FTF") {
     theFTFNeutron  = new G4FTFBinaryNeutronBuilder();
     theNeutrons->RegisterMe(theFTFNeutron);
@@ -84,29 +77,24 @@ void HadronPhysicsCMS::CreateModels() {
     thePiK->RegisterMe(theQGSPPiK);
   }
   
-  theMiscLHEP=new G4MiscLHEPBuilder;
 }
 
 HadronPhysicsCMS::~HadronPhysicsCMS() {
-  delete theMiscLHEP;
   if (theBertiniNeutron)   delete theBertiniNeutron;
   if (theBinaryNeutron)    delete theBinaryNeutron;
   if (theFTFPNeutron)      delete theFTFPNeutron;
-  if (theLHEPNeutron)      delete theLHEPNeutron;
   if (theQGSPNeutron)      delete theQGSPNeutron;
   if (theFTFNeutron)       delete theFTFNeutron;
   delete theNeutrons;
   if (theBertiniPro)       delete theBertiniPro;
   if (theBinaryPro)        delete theBinaryPro;
   if (theFTFPPro)          delete theFTFPPro;
-  if (theLHEPPro)          delete theLHEPPro;
   if (theQGSPPro)          delete theQGSPPro; 
   if (theFTFPro)           delete theFTFPro;
   delete thePro;
   if (theBertiniPiK)       delete theBertiniPiK;
   if (theBinaryPiK)        delete theBinaryPiK;
   if (theFTFPPiK)          delete theFTFPPiK;
-  if (theLHEPPiK)          delete theLHEPPiK;
   if (theQGSPPiK)          delete theQGSPPiK;
   if (theFTFPiK)           delete theFTFPiK;
   delete thePiK;
@@ -132,6 +120,6 @@ void HadronPhysicsCMS::ConstructProcess() {
   theNeutrons->Build();
   thePro->Build();
   thePiK->Build();
-  theMiscLHEP->Build();
+  //  theMiscLHEP->Build();
 }
 

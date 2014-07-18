@@ -33,7 +33,7 @@ class StandAloneMuonProducer : public edm::EDProducer {
   virtual ~StandAloneMuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
  private:
   

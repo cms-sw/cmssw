@@ -18,9 +18,10 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 class MuonServiceProxy;
-class RectangularEtaPhiTrackingRegion;
+class MeasurementTrackerEvent;
 
 namespace edm {class ParameterSet; class Event;}
 
@@ -78,8 +79,8 @@ class MuonTrackingRegionBuilder {
 
     GlobalPoint theVertexPos;
 
-    double theOnDemand;
-    std::string theMeasurementTrackerName;
+    RectangularEtaPhiTrackingRegion::UseMeasurementTracker theOnDemand;
+    edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerToken;
     edm::EDGetTokenT<reco::BeamSpot> bsHandleToken;
     edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken;
 };

@@ -59,16 +59,19 @@ public:
 
   const Propagator* propagatorOpposite() const {return &*theService->propagator(thePropagatorOppositeName);}
 
-  KFUpdator* updator() const {return theUpdator;}
+  const KFUpdator* updator() const {return theUpdator;}
 
-  CosmicMuonUtilities* utilities() const {return theUtilities; } 
+  const CosmicMuonUtilities* utilities() const {return theUtilities; } 
 
-  Chi2MeasurementEstimator* estimator() const {return theEstimator;}
+  const Chi2MeasurementEstimator* estimator() const {return theEstimator;}
 
   std::vector<Trajectory> fit(const Trajectory&) const;
   std::vector<Trajectory> fit(const TrajectorySeed& seed,
                               const ConstRecHitContainer& hits,
                               const TrajectoryStateOnSurface& firstPredTsos) const;
+
+
+  virtual void setHitCloner(TkCloner const * hc) {}
 
 private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;

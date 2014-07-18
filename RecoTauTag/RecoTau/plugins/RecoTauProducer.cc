@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class RecoTauProducer : public edm::EDProducer 
+class RecoTauProducer : public edm::stream::EDProducer<> 
 {
  public:
   typedef reco::tau::RecoTauBuilderPlugin Builder;
@@ -106,7 +106,6 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Build the plugin
     reco::tau::RecoTauModifierPlugin* plugin = 0;
     plugin = RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector());
-    plugin->beginJob(this);
     modifiers_.push_back(plugin);
   }
 

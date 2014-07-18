@@ -91,10 +91,10 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   
   //! Propagate to Plane given a starting point
   virtual TrajectoryStateOnSurface 
-    propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
+    propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const override;
   //! Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
   virtual TrajectoryStateOnSurface 
-    propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
+    propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const override;
   //! Propagate to PCA to point given a starting point 
   virtual FreeTrajectoryState 
     propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
@@ -105,23 +105,23 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   //! Propagate to PCA to a line determined by BeamSpot position and slope given a starting point 
   virtual FreeTrajectoryState 
     propagate(const FreeTrajectoryState& ftsStart, 
-	      const reco::BeamSpot& beamSpot) const;
+	      const reco::BeamSpot& beamSpot) const override;
 
   //! Propagate to Plane given a starting point: return final 
   //! TrajectoryState and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
-    propagateWithPath(const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
+    propagateWithPath(const FreeTrajectoryState& ftsStart, const Plane& pDest) const override;
   //! Propagate to Cylinder given a starting point: return final TrajectoryState 
   //!and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
-    propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
+    propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const override;
   //! Propagate to PCA to point given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
   //! Propagate to PCA to a line (given by 2 points) given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
-		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const override;
   //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
@@ -129,20 +129,20 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
     
     
   //! Propagate to Plane given a starting point
-  const SteppingHelixStateInfo& 
-    propagate(const SteppingHelixStateInfo& ftsStart, const Surface& sDest) const;
-  const SteppingHelixStateInfo& 
-    propagate(const SteppingHelixStateInfo& ftsStart, const Plane& pDest) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const Surface& sDest, SteppingHelixStateInfo& out) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const Plane& pDest, SteppingHelixStateInfo& out) const;
   //! Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
-  const SteppingHelixStateInfo& 
-    propagate(const SteppingHelixStateInfo& ftsStart, const Cylinder& cDest) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const Cylinder& cDest, SteppingHelixStateInfo& out) const;
   //! Propagate to PCA to point given a starting point 
-  const SteppingHelixStateInfo& 
-    propagate(const SteppingHelixStateInfo& ftsStart, const GlobalPoint& pDest) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const GlobalPoint& pDest, SteppingHelixStateInfo& out) const;
   //! Propagate to PCA to a line (given by 2 points) given a starting point 
-  const SteppingHelixStateInfo& 
+  void
     propagate(const SteppingHelixStateInfo& ftsStart, 
-	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+	      const GlobalPoint& pDest1, const GlobalPoint& pDest2, SteppingHelixStateInfo& out) const;
 
   
   //! Switch debug printouts (to cout) .. very verbose
@@ -195,13 +195,20 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
 
  protected:
   typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
+  static const int MAX_POINTS = 7;
+  typedef StateInfo StateArray[MAX_POINTS+1];
+
+  //! (Internals) set defaults needed for states used inside propagate methods
+  void initStateArraySHPSpecific(StateArray& svBuf, bool flagsOnly) const;
+
   //! (Internals) Init starting point
-  void setIState(const SteppingHelixStateInfo& sStart) const;
+  void setIState(const SteppingHelixStateInfo& sStart,
+		 StateArray& svBuff, int& nPoints) const;
 
   //! propagate: chose stop point by type argument
   //! propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
   //! propagate to plane by [x0,y0,z0, n_x, n_y, n_z] parameters
-  Result propagate(SteppingHelixPropagator::DestType type, 
+  Result propagate(StateArray& svBuff, int& nPoints, SteppingHelixPropagator::DestType type, 
 		   const double pars[6], double epsilon = 1e-3) const;
 
   //! (Internals) compute transient values for initial point (resets step counter).
@@ -264,9 +271,8 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
   typedef std::pair<FreeTrajectoryState, double> FtsPP;
   static const int MAX_STEPS = 10000;
-  static const int MAX_POINTS = 7;
-  mutable int nPoints_;
-  mutable StateInfo svBuf_[MAX_POINTS+1];
+  //mutable int nPoints_;
+  //mutable StateInfo svBuf_[MAX_POINTS+1];
 
   StateInfo invalidState_;
 

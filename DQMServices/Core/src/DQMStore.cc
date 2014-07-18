@@ -1,3 +1,4 @@
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "DQMServices/Core/interface/Standalone.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
@@ -275,10 +276,8 @@ void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
     stream into the global ROOT Object. Since this involves de-facto a
     booking action in the case in which the global object is not yet
     there, the function requires the acquisition of the central lock
-    into the DQMStore. A double 'find' is done on the internal data_
-    since we have no guarantee that a previous module holding the lock
-    have booked what we looked for before requiring the lock. In case
-    we book the global object for the first time, no Add action is
+    into the DQMStore.
+    In case we book the global object for the first time, no Add action is
     needed since the ROOT histograms is cloned starting from the local
     one. */
 
@@ -308,25 +307,20 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
 
     MonitorElement global_me(*i);
     global_me.globalize();
+    // Since this accesses the data, the operation must be
+    // be locked.
+    std::lock_guard<std::mutex> guard(book_mutex_);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
       if (verbose_ > 1)
         std::cout << "Found global Object, using it. ";
       me->getTH1()->Add(i->getTH1());
     } else {
-      // Since this is equivalent to a real booking operation it must
-      // be locked.
       if (verbose_ > 1)
         std::cout << "No global Object found. ";
-      std::lock_guard<std::mutex> guard(book_mutex_);
-      me = data_.find(global_me);
-      if (me != data_.end()) {
-        me->getTH1()->Add(i->getTH1());
-      } else {
-        std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
-        gme = data_.insert(global_me);
-        assert(gme.second);
-      }
+      std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
+      gme = data_.insert(global_me);
+      assert(gme.second);
     }
     // TODO(rovere): eventually reset the local object and mark it as reusable??
     ++i;
@@ -361,25 +355,20 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     MonitorElement global_me(*i);
     global_me.globalize();
     global_me.setLumi(lumi);
+    // Since this accesses the data, the operation must be
+    // be locked.
+    std::lock_guard<std::mutex> guard(book_mutex_);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
       if (verbose_ > 1)
         std::cout << "Found global Object, using it --> ";
       me->getTH1()->Add(i->getTH1());
     } else {
-      // Since this is equivalent to a real booking operation it must
-      // be locked.
       if (verbose_ > 1)
         std::cout << "No global Object found. ";
-      std::lock_guard<std::mutex> guard(book_mutex_);
-      me = data_.find(global_me);
-      if (me != data_.end()) {
-        me->getTH1()->Add(i->getTH1());
-      } else {
-        std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
-        gme = data_.insert(global_me);
-        assert(gme.second);
-      }
+      std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
+      gme = data_.insert(global_me);
+      assert(gme.second);
     }
     const_cast<MonitorElement*>(&*i)->Reset();
     // TODO(rovere): eventually reset the local object and mark it as reusable??
@@ -399,14 +388,23 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     streamId_(0),
     moduleId_(0),
     pwd_ (""),
-    ibooker_(0)
+    ibooker_(0),
+    igetter_(0)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
+  if (!igetter_)
+    igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
+  ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
+      if(iBounds.maxNumberOfStreams() > 1 ) {
+	enableMultiThread_ = true;
+      }
+    });
+
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -420,10 +418,13 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     streamId_(0),
     moduleId_(0),
     pwd_ (""),
-    ibooker_(0)
+    ibooker_(0),
+    igetter_(0)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
+  if (!igetter_)
+    igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 }
 

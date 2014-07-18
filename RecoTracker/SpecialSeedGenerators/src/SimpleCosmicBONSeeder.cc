@@ -10,18 +10,25 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 
 #include <numeric>
 
+namespace {
+  std::string seedingLayersToString(const SeedingLayerSetsHits::SeedingLayerSet& layer) {
+    return layer[0].name() + "+" + layer[1].name() + "+" + layer[2].name();
+  }
+}
+
 using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) : 
   conf_(conf),
-  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet"), consumesCollector()),
+  seedingLayerToken_(consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("TripletsSrc"))),
   writeTriplets_(conf.getParameter<bool>("writeTriplets")),
   seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
   rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
-  tripletsVerbosity_(conf.getParameter<edm::ParameterSet>("TripletsPSet").getUntrackedParameter<uint32_t>("debugLevel",0)),
+  tripletsVerbosity_(conf.getUntrackedParameter<uint32_t>("TripletsDebugLevel",0)),
   seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel",0)),
   helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel",0)),
   check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), consumesCollector()),
@@ -45,8 +52,6 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
 
   produces<TrajectorySeedCollection>();
   if (writeTriplets_) produces<edm::OwnVector<TrackingRecHit> >("cosmicTriplets");
-
-  layerTripletNames_ = conf_.getParameter<edm::ParameterSet>("TripletsPSet").getParameter<std::vector<std::string> >("layerList");
 
   if (conf.existsAs<edm::ParameterSet>("ClusterChargeCheck")) {
       edm::ParameterSet cccc = conf.getParameter<edm::ParameterSet>("ClusterChargeCheck");
@@ -172,27 +177,24 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
 
     hitTriplets.clear();
     hitTriplets.reserve(0);
-    if(theLsb.check(es)) {
-      theLss = theLsb.layers(es);
-    }
-    SeedingLayerSets::const_iterator iLss;
+    edm::Handle<SeedingLayerSetsHits> hlayers;
+    e.getByToken(seedingLayerToken_, hlayers);
+    const SeedingLayerSetsHits& layers = *hlayers;
+    if(layers.numberOfLayersInSet() != 3)
+      throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << layers.numberOfLayersInSet() <<" layers in set instead of 3 ";
 
     double minRho = region_.ptMin() / ( 0.003 * magfield->inTesla(GlobalPoint(0,0,0)).z() );
 
-    for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
-        SeedingLayers ls = *iLss;
-        if (ls.size() != 3){
-            throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 3 ";
-        }
-
+    for(SeedingLayerSetsHits::LayerSetIndex layerIndex=0; layerIndex < layers.size(); ++layerIndex) {
+        SeedingLayerSetsHits::SeedingLayerSet ls = layers[layerIndex];
         /// ctfseeding SeedinHits and their iterators
-        auto innerHits  = region_.hits(e, es, &ls[0]);
-        auto middleHits = region_.hits(e, es, &ls[1]);
-        auto outerHits  = region_.hits(e, es, &ls[2]);
+        auto innerHits  = region_.hits(e, es, ls[0]);
+        auto middleHits = region_.hits(e, es, ls[1]);
+        auto outerHits  = region_.hits(e, es, ls[2]);
 
         if (tripletsVerbosity_ > 0) {
-            std::cout << "GenericTripletGenerator iLss = " << layerTripletNames_[iLss - theLss.begin()]
-                    << " (" << (iLss - theLss.begin()) << "): # = " 
+            std::cout << "GenericTripletGenerator iLss = " << seedingLayersToString(ls)
+                    << " (" << layerIndex << "): # = " 
                     << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() << std::endl;
         }
 
@@ -296,8 +298,8 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
             }
         }
         if ((tripletsVerbosity_ > 0) && (hitTriplets.size() > sizBefore)) {
-            std::cout << "                        iLss = " << layerTripletNames_[iLss - theLss.begin()]
-                << " (" << (iLss - theLss.begin()) << "): # = " 
+            std::cout << "                        iLss = " << seedingLayersToString(ls)
+                << " (" << layerIndex << "): # = " 
                 << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() 
                 << ": Found " << (hitTriplets.size() - sizBefore) << " seeds [running total: " << hitTriplets.size() << "]"
                 << std::endl ;
@@ -331,7 +333,7 @@ bool SimpleCosmicBONSeeder::checkCharge(const TrackingRecHit *hit) const {
 
 // to be fixed to use OmniCluster
 bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid) const {
-    const SiStripCluster *clust = (hit.cluster().isNonnull() ?  hit.cluster().get() : hit.cluster_regional().get());
+    const SiStripCluster *clust = hit.cluster().get();
     int charge = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(), int(0));
     if (tripletsVerbosity_ > 1) {
         std::cerr << "Hit on " << subdetid << ", charge = " << charge << ", threshold = " << chargeThresholds_[subdetid] 

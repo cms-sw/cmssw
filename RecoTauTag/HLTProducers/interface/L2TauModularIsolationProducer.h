@@ -63,14 +63,14 @@ class L2TauModularIsolationProducer : public edm::EDProducer {
       //retrieve towers / crystals / clusters around the jet
       math::PtEtaPhiELorentzVectorCollection getECALHits(const reco::CaloJet&,const edm::Event&,const edm::EventSetup& iSetup);
       math::PtEtaPhiELorentzVectorCollection getHCALHits(const reco::CaloJet&,const edm::Event&);  
-      math::PtEtaPhiELorentzVectorCollection getPFClusters(const reco::CaloJet&,const edm::Event&,const edm::InputTag&);  
+      math::PtEtaPhiELorentzVectorCollection getPFClusters(const reco::CaloJet&,const edm::Event&,const edm::EDGetTokenT<reco::PFClusterCollection>&);  
 
-      edm::InputTag l2CaloJets_;//label for the readout Collection
-      edm::InputTag EBRecHits_;//Label for ECAL Barrel Hits
-      edm::InputTag EERecHits_;//Label for ECAL EndCAP Hits
-      edm::InputTag caloTowers_;//Label for ECAL EndCAP Hits
-      edm::InputTag pfClustersECAL_;//Label for ECAL PF Clusters
-      edm::InputTag pfClustersHCAL_;//Label for HCAL PF Clusters
+      edm::EDGetTokenT<reco::CaloJetCollection> l2CaloJets_;//label for the readout Collection
+      edm::EDGetTokenT<EBRecHitCollection> EBRecHits_;//Label for ECAL Barrel Hits
+      edm::EDGetTokenT<EERecHitCollection> EERecHits_;//Label for ECAL EndCAP Hits
+      edm::EDGetTokenT<CaloTowerCollection> caloTowers_;//Label for ECAL EndCAP Hits
+      edm::EDGetTokenT<reco::PFClusterCollection> pfClustersECAL_;//Label for ECAL PF Clusters
+      edm::EDGetTokenT<reco::PFClusterCollection> pfClustersHCAL_;//Label for HCAL PF Clusters
 
       //Algorithm Configuration Variables
       std::string ecalIsolationAlg_;

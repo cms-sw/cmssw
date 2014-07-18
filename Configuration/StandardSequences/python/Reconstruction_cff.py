@@ -7,6 +7,7 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 # Global  reco
 from RecoEcal.Configuration.RecoEcal_cff import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
@@ -48,6 +49,7 @@ from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
 globalreco = cms.Sequence(offlineBeamSpot*
                           MeasurementTrackerEvent* # unclear where to put this
+                          siPixelClusterShapeCache* # unclear where to put this
                           standalonemuontracking*
                           recopixelvertexing*
                           trackingGlobalReco*

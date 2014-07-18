@@ -24,6 +24,8 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <iostream>
 //
 // constructors and destructor
@@ -54,7 +56,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
      theDepositIsolator=0;
        }else{
      std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-     theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet);
+     theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
    }
 
    if (theDepositIsolator) produces<edm::ValueMap<bool> >();

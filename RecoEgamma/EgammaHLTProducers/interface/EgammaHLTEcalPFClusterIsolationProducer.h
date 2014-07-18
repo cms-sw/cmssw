@@ -33,6 +33,7 @@ class EgammaHLTEcalPFClusterIsolationProducer : public edm::EDProducer {
 
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
+  edm::EDGetTokenT<double> rhoProducer_;
 
   double drMax_;
   double drVetoBarrel_;
@@ -42,6 +43,11 @@ class EgammaHLTEcalPFClusterIsolationProducer : public edm::EDProducer {
   double energyBarrel_;
   double energyEndcap_;
 
+  float effectiveAreaBarrel_;
+  float effectiveAreaEndcap_;
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
 };
 
 #endif

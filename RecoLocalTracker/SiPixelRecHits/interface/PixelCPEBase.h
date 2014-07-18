@@ -18,6 +18,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -32,10 +33,13 @@
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
+
+// new errors 
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+// old errors
+//#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-
-
 
 #include <unordered_map>
 
@@ -46,104 +50,152 @@ class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
 {
  public:
-  struct Param 
+  struct DetParam
   {
-    Param() : bz(-9e10f) {}
+    DetParam() {}
+    const PixelGeomDetUnit * theDet;
+    // gavril : replace RectangularPixelTopology with PixelTopology
+    const PixelTopology * theTopol;
+    const RectangularPixelTopology * theRecTopol;
+
+    GeomDetType::SubDetector thePart;
+    Local3DPoint theOrigin;
+    float theThickness;
+    float thePitchX;
+    float thePitchY;
+    //float theDetR;
+    //float theDetZ;
+    //float theNumOfRow; //Not used, AH
+    //float theNumOfCol; //Not used, AH
+    //float theSign; //Not used, AH
+
     float bz; // local Bz
-    LocalVector drift;
-    float widthLAFraction; // Width-LA to Offset-LA
+    LocalVector driftDirection;
+    float widthLAFractionX;    // Width-LA to Offset-LA in X
+    float widthLAFractionY;    // same in Y
+    float lorentzShiftInCmX;   // a FULL shift, in cm
+    float lorentzShiftInCmY;   // a FULL shift, in cm
+    int   detTemplateId;       // det if for templates & generic errors
+  };
+
+  struct ClusterParam
+  {
+    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0),
+      probabilityX_(0.0), probabilityY_(0.0), probabilityQ_(0.0), qBin_(0.0),
+      isOnEdge_(false), hasBadPixels_(false), spansTwoROCs_(false), hasFilledProb_(false) {}
+    const SiPixelCluster * theCluster;
+
+    //--- Cluster-level quantities (may need more)
+    float cotalpha;
+    float cotbeta;
+    //bool  zneg; // Not used, AH
+
+    // G.Giurgiu (05/14/08) track local coordinates
+    float trk_lp_x;
+    float trk_lp_y;
+
+    // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
+    // with track angles to handle surface deformations (bows/kinks)
+    Topology::LocalTrackPred loc_trk_pred;
+    //LocalTrajectoryParameters loc_traj_param; // Not used, AH
+
+    // ggiurgiu@jhu.edu (10/18/2008)
+    bool with_track_angle; 
+
+    //--- Probability
+    float probabilityX_ ; 
+    float probabilityY_ ; 
+    float probabilityQ_ ; 
+    float qBin_ ;
+    bool  isOnEdge_ ;
+    bool  hasBadPixels_ ;
+    bool  spansTwoROCs_ ;
+    bool  hasFilledProb_ ;
   };
 
 public:
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
-	       const SiPixelLorentzAngle * lorentzAngle = 0, 
-	       const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
-	       const SiPixelTemplateDBObject * templateDBobject = 0,
-	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
-	       );
-  
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
+	       const SiPixelLorentzAngle * lorentzAngle, 
+	       const SiPixelGenErrorDBObject * genErrorDBObject, 
+	       const SiPixelTemplateDBObject * templateDBobject,
+	       const SiPixelLorentzAngle * lorentzAngleWidth,
+	       int flag=0  // flag=0 for generic, =1 for templates
+	       );  // NEW
 
- //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
   //--------------------------------------------------------------------------
-  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
+  //inline void setMagField(const MagneticField *mag) const { magfield_ = mag; } // Not used, AH
  
 
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
-  // LocalValues is typedef for pair<LocalPoint,LocalError> 
   //--------------------------------------------------------------------------
-  inline LocalValues localParameters( const SiPixelCluster & cl, 
-				      const GeomDetUnit    & det ) const 
+
+  inline ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det ) const
     {
+#ifdef EDM_ML_DEBUG
       nRecHitsTotal_++ ;
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
-      setTheDet( det, cl );
-      computeAnglesFromDetPosition(cl);
+#endif 
+
+      DetParam const & theDetParam = detParam(det);
+      ClusterParam * theClusterParam = createClusterParam(cl);
+      setTheClu( theDetParam, *theClusterParam );
+      computeAnglesFromDetPosition(theDetParam, *theClusterParam);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl);
-      LocalError le = localError( cl);        
+      LocalPoint lp = localPosition(theDetParam, *theClusterParam);
+      LocalError le = localError(theDetParam, *theClusterParam);        
+      SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
+      auto tuple = std::make_tuple(lp, le , rqw);
+      delete theClusterParam;
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
-
-      return std::make_pair( lp, le );
+      return tuple;
     }
   
   //--------------------------------------------------------------------------
   // In principle we could use the track too to obtain alpha and beta.
   //--------------------------------------------------------------------------
-  LocalValues localParameters( const SiPixelCluster & cl,
-			       const GeomDetUnit    & det, 
-			       const LocalTrajectoryParameters & ltp) const 
+  inline ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det, 
+				   const LocalTrajectoryParameters & ltp ) const
   {
+#ifdef EDM_ML_DEBUG
     nRecHitsTotal_++ ;
-
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
+#endif 
 
-    setTheDet( det, cl );
-    computeAnglesFromTrajectory(cl, ltp);
+    DetParam const & theDetParam = detParam(det);
+    ClusterParam *  theClusterParam = createClusterParam(cl);
+    setTheClu( theDetParam, *theClusterParam );
+    computeAnglesFromTrajectory(theDetParam, *theClusterParam, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl); 
-    LocalError le = localError( cl);        
+    LocalPoint lp = localPosition(theDetParam, *theClusterParam); 
+    LocalError le = localError(theDetParam, *theClusterParam);        
+    SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
+    auto tuple = std::make_tuple(lp, le , rqw);
+    delete theClusterParam;
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
-    
-    return std::make_pair( lp, le );
+    return tuple;
   } 
   
   
   
 private:
+  virtual ClusterParam * createClusterParam(const SiPixelCluster & cl) const = 0;
+
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(const SiPixelCluster& cl) const = 0;
-  virtual LocalError localError   (const SiPixelCluster& cl) const = 0;
+  virtual LocalPoint localPosition(DetParam const & theDetParam, ClusterParam & theClusterParam) const = 0;
+  virtual LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const = 0;
   
-  
-public:  
-  //--------------------------------------------------------------------------
-  //--- Accessors of other auxiliary quantities
-  inline float probabilityX()  const { return probabilityX_ ;  }
-  inline float probabilityY()  const { return probabilityY_ ;  }
-  inline float probabilityXY() const {
-    if ( probabilityX_ !=0 && probabilityY_ !=0 ) 
-      {
-	return probabilityX_ * probabilityY_ * (1.f - std::log(probabilityX_ * probabilityY_) ) ;
-      }
-    else 
-      return 0;
-  }
-  
-  inline float probabilityQ()  const { return probabilityQ_ ;  }
-  inline float qBin()          const { return qBin_ ;          }
-  inline bool  isOnEdge()      const { return isOnEdge_ ;      }
-  inline bool  hasBadPixels()  const { return hasBadPixels_ ;  }
-  inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
-  inline bool  hasFilledProb() const { return hasFilledProb_ ; }
-  
+  void fillDetParams();
   
   //-----------------------------------------------------------------------------
   //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
@@ -151,8 +203,7 @@ public:
   //! code and not expose the Transient SiPixelRecHit to it as well.  The name
   //! of this function is chosen to match the one in SiPixelRecHit.
   //-----------------------------------------------------------------------------
-  SiPixelRecHitQuality::QualWordType rawQualityWord() const;
-
+  SiPixelRecHitQuality::QualWordType rawQualityWord(ClusterParam & theClusterParam) const;
 
  protected:
   //--- All methods and data members are protected to facilitate (for now)
@@ -163,121 +214,67 @@ public:
   //---------------------------------------------------------------------------
   //  Data members
   //---------------------------------------------------------------------------
-  //--- Detector-level quantities
-  mutable const PixelGeomDetUnit * theDet;
-  
-  // gavril : replace RectangularPixelTopology with PixelTopology
-  mutable const PixelTopology * theTopol;
-  mutable const RectangularPixelTopology * theRecTopol;
-
-  mutable Param const * theParam;
-
-  mutable GeomDetType::SubDetector thePart;
-  mutable  Local3DPoint theOrigin;
-  mutable float theThickness;
-  mutable float thePitchX;
-  mutable float thePitchY;
-  mutable float theNumOfRow;
-  mutable float theNumOfCol;
-  mutable float theDetZ;
-  mutable float theDetR;
-  mutable float theSign;
-
-  //--- Cluster-level quantities (may need more)
-  mutable float cotalpha_;
-  mutable float cotbeta_;
-  mutable bool  zneg;
-
-  // G.Giurgiu (05/14/08) track local coordinates
-  mutable float trk_lp_x;
-  mutable float trk_lp_y;
 
   //--- Counters
-  mutable int    nRecHitsTotal_ ;
-  mutable int    nRecHitsUsedEdge_ ;
-
-  // ggiurgiu@jhu.edu (10/18/2008)
-  mutable bool with_track_angle; 
-
-  //--- Probability
-  mutable float probabilityX_ ; 
-  mutable float probabilityY_ ; 
-  mutable float probabilityQ_ ; 
-  mutable float qBin_ ;
-  mutable bool  isOnEdge_ ;
-  mutable bool  hasBadPixels_ ;
-  mutable bool  spansTwoROCs_ ;
-  mutable bool  hasFilledProb_ ;
-
-
-  //---------------------------
-  mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
-  mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
+#ifdef EDM_ML_DEBUG
+  mutable int    nRecHitsTotal_ ; //for debugging only
+  mutable int    nRecHitsUsedEdge_ ; //for debugging only
+#endif 
 
   // Added new members
   float lAOffset_; // la used to calculate the offset from configuration (for testing) 
   float lAWidthBPix_;  // la used to calculate the cluster width from conf.  
   float lAWidthFPix_;  // la used to calculate the cluster width from conf.
-  mutable float lAWidth_;  // la used to calculate the cluster width from conf.
-  bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
+  //bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
   bool useLAOffsetFromConfig_; // lorentz angle used to calculate the offset
   bool useLAWidthFromConfig_; // lorentz angle used to calculate the cluster width
   bool useLAWidthFromDB_;     // lorentz angle used to calculate the cluster width
-  mutable float widthLAFraction_; // ratio of with-LA to offset-LA 
 
   //--- Global quantities
   int     theVerboseLevel;                    // algorithm's verbosity
+  int     theFlag_;   // flag to recognice if we are in generic or templates
 
-  mutable const MagneticField * magfield_;          // magnetic field
+  const MagneticField * magfield_;          // magnetic field
+  const TrackerGeometry & geom_;          // geometry
   
-  mutable const SiPixelLorentzAngle * lorentzAngle_;
-  mutable const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
+  const SiPixelLorentzAngle * lorentzAngle_;
+  const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
-  mutable const SiPixelCPEGenericErrorParm * genErrorParm_;
+  const SiPixelGenErrorDBObject * genErrorDBObject_;  // NEW
+  //const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
   
-  mutable const SiPixelTemplateDBObject * templateDBobject_;
-  
+  const SiPixelTemplateDBObject * templateDBobject_;
   bool  alpha2Order;                          // switch on/off E.B effect.
   
-  // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
-  // with track angles to handle surface deformations (bows/kinks)
-  mutable Topology::LocalTrackPred loc_trk_pred_;
-
-  mutable LocalTrajectoryParameters loc_traj_param_;
+  bool DoLorentz_;
+  bool LoadTemplatesFromDB_;
 
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
 private:
-  void computeAnglesFromDetPosition(const SiPixelCluster & cl ) const;
+  void computeAnglesFromDetPosition( DetParam const & theDetParam, ClusterParam & theClusterParam ) const;
   
-  void computeAnglesFromTrajectory (const SiPixelCluster & cl, 
+  void computeAnglesFromTrajectory ( DetParam const & theDetParam, ClusterParam & theClusterParam,
 				    const LocalTrajectoryParameters & ltp) const;
 
-protected:
-  void  setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
+  void  setTheClu( DetParam const &, ClusterParam & theClusterParam ) const ;
 
-  LocalVector driftDirection       ( GlobalVector bfield ) const ; 
-  LocalVector driftDirection       ( LocalVector bfield ) const ; 
-  void computeLorentzShifts() const ;
+  LocalVector driftDirection       (DetParam & theDetParam, GlobalVector bfield ) const ; 
+  LocalVector driftDirection       (DetParam & theDetParam, LocalVector bfield ) const ; 
+  void computeLorentzShifts(DetParam &) const ;
 
-  bool isFlipped() const;              // is the det flipped or not?
+  bool isFlipped(DetParam const & theDetParam) const;              // is the det flipped or not?
 
   //---------------------------------------------------------------------------
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
-  LocalVector const & getDrift() const {return  driftDirection_ ;}
+  DetParam const & detParam(const GeomDetUnit & det) const;
  
-  Param const & param() const;
- 
- private:
-  using Params=std::vector<Param>;
+  using DetParams=std::vector<DetParam>;
   
-  mutable Params m_Params=Params(1440);
-  
-
+  DetParams m_DetParams=DetParams(1440);
 
 };
 

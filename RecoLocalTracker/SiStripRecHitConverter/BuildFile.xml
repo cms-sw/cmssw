@@ -15,7 +15,7 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
 </export>

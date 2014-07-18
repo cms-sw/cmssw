@@ -29,136 +29,63 @@ using namespace std;
 
 ESRawDataTask::ESRawDataTask(const ParameterSet& ps) {
 
-   init_ = false;
-
-   dqmStore_ = Service<DQMStore>().operator->();
-
    prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
-   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-   mergeRuns_     = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
    FEDRawDataCollection_ = consumes<FEDRawDataCollection>(ps.getParameter<InputTag>("FEDRawDataCollection"));
    dccCollections_       = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
 
-}
-
-ESRawDataTask::~ESRawDataTask() {
-}
-
-void ESRawDataTask::beginJob(void) {
-
    ievt_ = 0;
-
-   if ( dqmStore_ ) {
-      dqmStore_->setCurrentFolder(prefixME_ + "/ESRawDataTask");
-      dqmStore_->rmdir(prefixME_ + "/ESRawDataTask");
-   }
-
 }
 
-void ESRawDataTask::beginRun(const Run& r, const EventSetup& c) {
-
-   if ( ! mergeRuns_ ) this->reset();
-
-}
-
-void ESRawDataTask::endRun(const Run& r, const EventSetup& c) {
-
-}
-
-void ESRawDataTask::reset(void) {
-
-}
-
-void ESRawDataTask::setup(void){
-
-   init_ = true;
-
+void ESRawDataTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&)
+{
    char histo[200];
 
-   if (dqmStore_) {
-      dqmStore_->setCurrentFolder(prefixME_ + "/ESRawDataTask");
+   iBooker.setCurrentFolder(prefixME_ + "/ESRawDataTask");
 
-      //sprintf(histo, "ES run number errors");
-      //meRunNumberErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
-      //meRunNumberErrors_->setAxisTitle("ES FED", 1);
-      //meRunNumberErrors_->setAxisTitle("Num of Events", 2);
+   //sprintf(histo, "ES run number errors");
+   //meRunNumberErrors_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5); 
+   //meRunNumberErrors_->setAxisTitle("ES FED", 1);
+   //meRunNumberErrors_->setAxisTitle("Num of Events", 2);
 
-      sprintf(histo, "ES L1A DCC errors");
-      meL1ADCCErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
-      meL1ADCCErrors_->setAxisTitle("ES FED", 1);
-      meL1ADCCErrors_->setAxisTitle("Num of Events", 2);
+   sprintf(histo, "ES L1A DCC errors");
+   meL1ADCCErrors_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5); 
+   meL1ADCCErrors_->setAxisTitle("ES FED", 1);
+   meL1ADCCErrors_->setAxisTitle("Num of Events", 2);
 
-      sprintf(histo, "ES BX DCC errors");
-      meBXDCCErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
-      meBXDCCErrors_->setAxisTitle("ES FED", 1);
-      meBXDCCErrors_->setAxisTitle("Num of Events", 2);
+   sprintf(histo, "ES BX DCC errors");
+   meBXDCCErrors_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5); 
+   meBXDCCErrors_->setAxisTitle("ES FED", 1);
+   meBXDCCErrors_->setAxisTitle("Num of Events", 2);
 
-      sprintf(histo, "ES Orbit Number DCC errors");
-      meOrbitNumberDCCErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
-      meOrbitNumberDCCErrors_->setAxisTitle("ES FED", 1);
-      meOrbitNumberDCCErrors_->setAxisTitle("Num of Events", 2);
+   sprintf(histo, "ES Orbit Number DCC errors");
+   meOrbitNumberDCCErrors_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5); 
+   meOrbitNumberDCCErrors_->setAxisTitle("ES FED", 1);
+   meOrbitNumberDCCErrors_->setAxisTitle("Num of Events", 2);
       
-      sprintf(histo, "Difference between ES and GT L1A");
-      meL1ADiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
-      meL1ADiff_->setAxisTitle("ES - GT L1A", 1);
-      meL1ADiff_->setAxisTitle("Num of Events", 2);
+   sprintf(histo, "Difference between ES and GT L1A");
+   meL1ADiff_ = iBooker.book1D(histo, histo, 201, -100.5, 100.5);
+   meL1ADiff_->setAxisTitle("ES - GT L1A", 1);
+   meL1ADiff_->setAxisTitle("Num of Events", 2);
 
-      sprintf(histo, "Difference between ES and GT BX");
-      meBXDiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
-      meBXDiff_->setAxisTitle("ES - GT BX", 1);
-      meBXDiff_->setAxisTitle("Num of Events", 2);
+   sprintf(histo, "Difference between ES and GT BX");
+   meBXDiff_ = iBooker.book1D(histo, histo, 201, -100.5, 100.5);
+   meBXDiff_->setAxisTitle("ES - GT BX", 1);
+   meBXDiff_->setAxisTitle("Num of Events", 2);
 
-      sprintf(histo, "Difference between ES and GT Orbit Number");
-      meOrbitNumberDiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
-      meOrbitNumberDiff_->setAxisTitle("ES - GT orbit number", 1);
-      meOrbitNumberDiff_->setAxisTitle("Num of Events", 2);
-   }
-
-}
-
-void ESRawDataTask::cleanup(void){
-
-   if ( ! init_ ) return;
-
-   if ( dqmStore_ ) {
-     //if ( meRunNumberErrors_ ) dqmStore_->removeElement( meRunNumberErrors_->getName() );
-     //meRunNumberErrors_ = 0;
-
-     if ( meL1ADCCErrors_ ) dqmStore_->removeElement( meL1ADCCErrors_->getName() );
-     meL1ADCCErrors_ = 0;
-
-     if ( meBXDCCErrors_ ) dqmStore_->removeElement( meBXDCCErrors_->getName() );
-     meBXDCCErrors_ = 0;
-
-     if ( meOrbitNumberDCCErrors_ ) dqmStore_->removeElement( meOrbitNumberDCCErrors_->getName() );
-     meOrbitNumberDCCErrors_ = 0;
-
-     if ( meL1ADiff_ ) dqmStore_->removeElement( meL1ADiff_->getName() );
-     meL1ADiff_ = 0;
-
-     if ( meBXDiff_ ) dqmStore_->removeElement( meBXDiff_->getName() );
-     meBXDiff_ = 0;
-
-     if ( meOrbitNumberDiff_ ) dqmStore_->removeElement( meOrbitNumberDiff_->getName() );
-     meOrbitNumberDiff_ = 0;
-   }
-
-   init_ = false;
-
+   sprintf(histo, "Difference between ES and GT Orbit Number");
+   meOrbitNumberDiff_ = iBooker.book1D(histo, histo, 201, -100.5, 100.5);
+   meOrbitNumberDiff_->setAxisTitle("ES - GT orbit number", 1);
+   meOrbitNumberDiff_->setAxisTitle("Num of Events", 2);
 }
 
 void ESRawDataTask::endJob(void){
 
    LogInfo("ESRawDataTask") << "analyzed " << ievt_ << " events";
 
-   if ( enableCleanup_ ) this->cleanup();
-
 }
 
 void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
-
-   if ( ! init_ ) this->setup();
 
    ievt_++;
    runNum_ = e.id().run();

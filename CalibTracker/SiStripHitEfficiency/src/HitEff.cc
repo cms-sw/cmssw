@@ -306,8 +306,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       double xglob,yglob,zglob;
       
       for (itm=TMeas.begin();itm!=TMeas.end();itm++){
-	ConstReferenceCountingPointer<TransientTrackingRecHit> theInHit;
-	theInHit = (*itm).recHit();
+	auto theInHit = (*itm).recHit();
 	
 	if(DEBUG) cout << "theInHit is valid = " << theInHit->isValid() << endl;
 	
@@ -379,8 +378,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	    // if no detId is available, ie detId==0, then no compatible layer was crossed
 	    // otherwise, use that TM for the efficiency measurement
 	    TrajectoryMeasurement tob6TM(tmp.back());
-	    ConstReferenceCountingPointer<TransientTrackingRecHit> tob6Hit;
-	    tob6Hit = tob6TM.recHit();
+	    auto tob6Hit = tob6TM.recHit();
 	    
 	    if (tob6Hit->geographicalId().rawId()!=0) {
 	      if (DEBUG) cout << "tob6 hit actually being added to TM vector" << endl;
@@ -426,8 +424,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	    // if no detId is available, ie detId==0, then no compatible layer was crossed
 	    // otherwise, use that TM for the efficiency measurement
 	    TrajectoryMeasurement tec9TM(tmp.back());
-	    ConstReferenceCountingPointer<TransientTrackingRecHit> tec9Hit;
-	    tec9Hit = tec9TM.recHit();
+	    auto tec9Hit = tec9TM.recHit();
 	    
 	    unsigned int tec9id = tec9Hit->geographicalId().rawId();
 	    if (DEBUG) cout << "tec9id = " << tec9id << " is Double sided = " <<  isDoubleSided(tec9id, tTopo) << "  and 0x3 = " << (tec9id & 0x3) << endl;

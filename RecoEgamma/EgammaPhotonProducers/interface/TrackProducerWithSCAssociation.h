@@ -9,6 +9,7 @@
  ** 
  ***/
 
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -21,7 +22,7 @@ public:
   explicit TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig);
 
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
@@ -46,7 +47,7 @@ private:
 		std::auto_ptr<reco::TrackCollection>& selTracks,
 		std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 		std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-		AlgoProductCollection& algoResults);
+		AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder);
 };
 
 #endif

@@ -27,12 +27,12 @@ namespace reco {
               const char* tab = " " ) const;
     
 
-    GsfPFRecTrackRef GsftrackRefPF() const {
+    const GsfPFRecTrackRef& GsftrackRefPF() const {
       return GsftrackRefPF_;
     }
     
     /// \return reference to the corresponding Track
-    reco::GsfTrackRef GsftrackRef() const {
+    const reco::GsfTrackRef& GsftrackRef() const {
       return GsftrackRef_;
     }
     

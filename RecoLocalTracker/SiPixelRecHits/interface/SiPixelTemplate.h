@@ -225,16 +225,17 @@ struct SiPixelTemplateStore { //!< template storage structure
 // ******************************************************************************************
 class SiPixelTemplate {
  public:
-  SiPixelTemplate() {id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.;} //!< Default constructor
-  bool pushfile(int filenum);     // load the private store with info from the 
+  SiPixelTemplate(const std::vector< SiPixelTemplateStore > & thePixelTemp) : thePixelTemp_(thePixelTemp) { id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.; } //!< Constructor for cases in which template store already exists
+  
+  static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-  bool pushfile(const SiPixelTemplateDBObject& dbobject);     // load the private store with info from db
+  static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from db
 #endif
   
   // initialize the rest;
-  void postInit();
+  static void postInit(std::vector< SiPixelTemplateStore > & thePixelTemp_);
 
 	
 // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
@@ -479,6 +480,8 @@ class SiPixelTemplate {
   float chi2xminone() {return chi2xminone_;}                        //!< //!< minimum of x chi^2 for 1 pixel clusters 
   float lorywidth() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
   float lorxwidth() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
+  float lorybias() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
+  float lorxbias() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
   float mpvvav() {return mpvvav_;}                                  //!< most probable charge in Vavilov distribution (not actually for larger kappa)
   float sigmavav() {return sigmavav_;}                              //!< "sigma" scale fctor for Vavilov distribution
   float kappavav() {return kappavav_;}                              //!< kappa parameter for Vavilov distribution
@@ -588,7 +591,7 @@ class SiPixelTemplate {
   
   // The actual template store is a std::vector container
 
-  std::vector< SiPixelTemplateStore > thePixelTemp_;
+  const std::vector< SiPixelTemplateStore > & thePixelTemp_;
 } ;
 
 

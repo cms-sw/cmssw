@@ -122,8 +122,6 @@ cond::XMLUtilities::~XMLUtilities(){
 }
 
 int cond::XMLUtilities::execute(){
-  initializePluginManager();
-  
   cond::DbSession session = openDbSession( "connect", Auth::COND_READER_ROLE, true );
 
   std::string tag = getOptionValue<std::string>("tag");

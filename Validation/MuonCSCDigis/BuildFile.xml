@@ -9,7 +9,7 @@
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimMuon/MCTruth"/>
+<use   name="SimMuon/MCTruth"/> 
 <export>
   <lib   name="1"/>
 </export>

@@ -3,13 +3,14 @@
 typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <map>
 using namespace ctfseeding;
 
 
 GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
-  theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet"), iC) {
+  theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("LayerSrc"))) {
 	edm::LogInfo("CtfSpecialSeedGenerator|GenericTripletGenerator") << "Constructing GenericTripletGenerator";
 } 
 
@@ -19,21 +20,18 @@ const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& reg
                               				     const edm::EventSetup& es){
 	hitTriplets.clear();
 	hitTriplets.reserve(0);
-        if(theLsb.check(es)) {
-          theLss = theLsb.layers(es);
-        }
-	SeedingLayerSets::const_iterator iLss;
+	edm::Handle<SeedingLayerSetsHits> hlayers;
+	e.getByToken(theSeedingLayerToken, hlayers);
+	const SeedingLayerSetsHits& layers = *hlayers;
+        if(layers.numberOfLayersInSet() != 3)
+          throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << layers.numberOfLayersInSet() <<" layers in set instead of 3 ";
 	std::map<float, OrderedHitTriplet> radius_triplet_map;
-	for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
-		SeedingLayers ls = *iLss;
-		if (ls.size() != 3){
-                	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 3 ";
-        	}	
-		auto innerHits  = region.hits(e, es, &ls[0]);
+        for(SeedingLayerSetsHits::SeedingLayerSet ls: layers) {
+		auto innerHits  = region.hits(e, es, ls[0]);
 		//std::cout << "innerHits.size()=" << innerHits.size() << std::endl;
-		auto middleHits = region.hits(e, es, &ls[1]);
+		auto middleHits = region.hits(e, es, ls[1]);
 		//std::cout << "middleHits.size()=" << middleHits.size() << std::endl;
-		auto outerHits  = region.hits(e, es, &ls[2]);
+		auto outerHits  = region.hits(e, es, ls[2]);
 		//std::cout << "outerHits.size()=" << outerHits.size() << std::endl;
 		//std::cout << "trying " << innerHits.size()*middleHits.size()*outerHits.size() << " combinations "<<std::endl;
 		for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++){
@@ -66,7 +64,7 @@ const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& reg
 
 std::pair<bool,float> GenericTripletGenerator::qualityFilter(const OrderedHitTriplet& oht, 
 							     const std::map<float, OrderedHitTriplet>& map,
-							     const SeedingLayers& ls) const{
+							     const SeedingLayerSetsHits::SeedingLayerSet& ls) const{
   //first check the radius
   GlobalPoint innerpos  = oht.inner()->globalPosition();
   GlobalPoint middlepos = oht.middle()->globalPosition();

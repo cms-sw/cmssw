@@ -45,6 +45,8 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
   if (doSynchro_) produces<RPCRawSynchro::ProdItem>();
+  fedToken_=consumes<FEDRawDataCollection>(dataLabel_);
+
 }
 
 RPCUnpackingModule::~RPCUnpackingModule()
@@ -73,7 +75,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   if (debug) LogDebug ("RPCUnpacker::produce") <<"Beginning To Unpack Event: "<<eventCounter_;
  
   Handle<FEDRawDataCollection> allFEDRawData; 
-  ev.getByLabel(dataLabel_,allFEDRawData); 
+  ev.getByToken(fedToken_,allFEDRawData); 
 
 
   std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);

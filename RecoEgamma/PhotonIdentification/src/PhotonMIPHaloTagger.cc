@@ -45,11 +45,11 @@
 #include <TMath.h>
 
 
-void PhotonMIPHaloTagger::setup(const edm::ParameterSet& conf) {
+void PhotonMIPHaloTagger::setup(const edm::ParameterSet& conf,edm::ConsumesCollector && iC) {
 
 
-  EBecalCollection_ = conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection");
-  EEecalCollection_ = conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection");
+  EBecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
+  EEecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
 
 
   yRangeFit_             = conf.getParameter<double>("YRangeFit");
@@ -89,10 +89,10 @@ void PhotonMIPHaloTagger::MIPcalculate(const reco::Photon* pho,
   bool validEcalRecHits=true;
 
   edm::Handle<EcalRecHitCollection> barrelHitHandle;
-  e.getByLabel(EBecalCollection_, barrelHitHandle);
+  e.getByToken(EBecalCollection_, barrelHitHandle);
 
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("MIPcalculate") << "Error! Can't get the product "<<EBecalCollection_.label();
+    edm::LogError("MIPcalculate") << "Error! Can't get the barrel hits product ";//<<EBecalCollection_.label(); (cant be bothered tracking the input tag just for this error message)
     validEcalRecHits=false;
   }
 

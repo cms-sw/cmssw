@@ -12,8 +12,8 @@ POOL object to store QIE coder parameters for one channel
 namespace {
   // pack range/capId in the plain index
   unsigned index (unsigned fRange, unsigned fCapId) {return fCapId * 4 + fRange;}
-  unsigned range (unsigned fIndex) {return fIndex % 4;}
-  unsigned capId (unsigned fIndex) {return fIndex / 4;}
+  inline unsigned range (unsigned fIndex) {return fIndex % 4;}
+  inline unsigned capId (unsigned fIndex) {return fIndex / 4;}
 }
 
 float CastorQIECoder::charge (const CastorQIEShape& fShape, unsigned fAdc, unsigned fCapId) const {

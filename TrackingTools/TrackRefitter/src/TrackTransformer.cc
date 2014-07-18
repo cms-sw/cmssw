@@ -53,9 +53,12 @@ void TrackTransformer::setServices(const EventSetup& setup){
   
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
-  setup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
-  setup.get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
-
+  edm::ESHandle<TrajectoryFitter> aFitter;
+  edm::ESHandle<TrajectorySmoother> aSmoother;
+  setup.get<TrajectoryFitter::Record>().get(theFitterName,aFitter);
+  setup.get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
+  theFitter = aFitter->clone();
+  theSmoother.reset(aSmoother->clone());
   
   unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
 
@@ -88,7 +91,11 @@ void TrackTransformer::setServices(const EventSetup& setup){
     LogTrace(metname) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
+  theFitter->setHitCloner(&hitCloner);
+  theSmoother->setHitCloner(&hitCloner);
+
 }
 
 
@@ -105,7 +112,7 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       if ( (*hit)->geographicalId().det() == DetId::Tracker ) {
-	result.push_back(theTrackerRecHitBuilder->build(&**hit));
+	result.emplace_back((**hit).cloneSH());
       } else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
 	  LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 

@@ -29,8 +29,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig) :
-            recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
-            emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
+            recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag > ("recHitsLabel"))),
+	    emObjectToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter< edm::InputTag > ("emObjectLabel"))),
+	    recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
+	    emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
             energyCut_(iConfig.getParameter<double>("energyCut")),
             etCut_(iConfig.getParameter<double>("etCut")),
             etCandCut_(iConfig.getParameter<double> ("etCandCut")),
@@ -81,11 +83,11 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
 
     //Get EM Object
     Handle<reco::GsfElectronCollection> emObjectH;
-    iEvent.getByLabel(emObjectLabel_,emObjectH);
+    iEvent.getByToken(emObjectToken_,emObjectH);
 
     // take EcalRecHits
     Handle<EcalRecHitCollection> recHitsH;
-    iEvent.getByLabel(recHitsLabel_,recHitsH);
+    iEvent.getByToken(recHitsToken_,recHitsH);
 
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    
@@ -115,35 +117,31 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
             if(emObj->et() < etCandCut_) continue; //don't calculate if object hasn't enough energy
             
             GlobalPoint pclu (emObj->caloPosition().x(),emObj->caloPosition().y(),emObj->caloPosition().z());
-            std::auto_ptr<EcalRecHitCollection> chosen = doubleConeSel_->select(pclu,*recHitsH);
+            doubleConeSel_->selectCallback(pclu, *recHitsH, [&](const EcalRecHit& recIt) {
+              if (recIt.energy() < energyCut_) 
+                return;  //dont fill if below E noise value
 
-            EcalRecHitCollection::const_iterator recIt;
-            for (recIt = chosen->begin(); recIt!= chosen->end () ; ++recIt) { // Select RecHits 
-
-              if (recIt->energy() < energyCut_) 
-                continue;  //dont fill if below E noise value
-
-              double et = recIt->energy() * 
-                caloGeom->getPosition(recIt->detid()).perp() / 
-                caloGeom->getPosition(recIt->detid()).mag();
+              double et = recIt.energy() * 
+                caloGeom->getPosition(recIt.detid()).perp() / 
+                caloGeom->getPosition(recIt.detid()).mag();
 
               bool isBarrel = false;
-              if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479)) 
+              if (fabs(caloGeom->getPosition(recIt.detid()).eta() < 1.479)) 
                 isBarrel = true;
               
               if (et < etCut_) 
-                continue;  //dont fill if below ET noise value
+                return;  //dont fill if below ET noise value
 
               std::vector<int>::const_iterator sit;
-              int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
+              int severityFlag = sevLevel->severityLevel(recIt.detid(), *recHitsH);
               if (isBarrel) {
                 sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
                 if (sit != severitiesexclEB_.end())
-                  continue;
+                  return;
               } else {
                 sit = std::find(severitiesexclEE_.begin(), severitiesexclEE_.end(), severityFlag);
                 if (sit != severitiesexclEE_.end())
-                  continue;
+                  return;
               }
 
               std::vector<int>::const_iterator vit;
@@ -152,9 +150,9 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
                 //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
                 //if (vit != flagsexclEB_.end())
                 //  continue;
-                if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
-                  if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEB_)) {                
-                    continue;
+                if (!(recIt.checkFlag(EcalRecHit::kGood))) {
+                  if (recIt.checkFlags(flagsexclEB_)) {                
+                    return;
                   }
                 }
               } else {
@@ -162,16 +160,16 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
                 //vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
                 //if (vit != flagsexclEE_.end())
                 //  continue;
-                if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
-                  if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEE_)) {                
-                    continue;
+                if (!(recIt.checkFlag(EcalRecHit::kGood))) {
+                  if (recIt.checkFlags(flagsexclEE_)) {                
+                    return;
                   }
                 }
               }
 
-              if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
-                detIdCollection->push_back(recIt->detid()); 
-            } //end rechits
+              if (std::find(detIdCollection->begin(),detIdCollection->end(),recIt.detid()) == detIdCollection->end()) 
+                detIdCollection->push_back(recIt.detid()); 
+            }); //end rechits
             
         } //end candidates
         

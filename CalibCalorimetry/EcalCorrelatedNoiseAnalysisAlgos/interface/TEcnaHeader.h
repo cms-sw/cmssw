@@ -109,6 +109,7 @@ public:
   void HeaderParameters( const TString&,      const Int_t&, const Int_t&,
 			 const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
+  using TNamed::Print;
   void Print();
   ClassDef(TEcnaHeader,1)  //Header of CNA ROOT file
 };

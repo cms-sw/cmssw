@@ -55,12 +55,8 @@ else:
   inputfiles = os.environ.get('INPUTFILES',
 #'/store/relval/CMSSW_7_0_0_pre8/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PU_START70_V2_eg-v1/00000/FEFD7ED7-D952-E311-962B-0025905A605E.root'
 ###'/store/relval/CMSSW_5_3_6-GR_R_53_V15_RelVal_jet2012B/JetHT/RECO/v2/00000/FEC61CBE-062A-E211-AA5D-0026189438E4.root').split(",")
-'/store/relval/CMSSW_7_0_0_pre11/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/F0127B3E-8A6A-E311-9A07-002590593902.root'
-#'/store/relval/CMSSW_5_3_6-GR_R_53_V15_RelVal_jet2012B/JetHT/RECO/v2/00000/FEC61CBE-062A-E211-AA5D-0026189438E4.root'
-###'/store/relval/CMSSW_5_2_0_pre4/Jet/RECO/GR_R_52_V1_RelVal_jet2011B-v1/0034/7E4E91B0-C651-E111-9197-001A92971B36.root').split(",")
-###'/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
-###'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
-###'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
+#'/store/relval/CMSSW_7_0_0_pre11/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/F0127B3E-8A6A-E311-9A07-002590593902.root'
+'/store/relval/CMSSW_7_1_0_pre2/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v1/00000/FAA1E1EE-BE8F-E311-B633-0026189438BC.root'
 )
 print 'List of input files'
 print inputfiles
@@ -113,10 +109,10 @@ process.jetDQMAnalyzerAk5CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
 process.jetDQMAnalyzerAk5CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
 process.jetDQMAnalyzerAk5CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
 process.jetDQMAnalyzerAk5CaloUncleaned.processname = cms.string(trigger_set)
-process.tcMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.tcMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.tcMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.tcMetDQMAnalyzer.processname = cms.string(trigger_set)
+#process.tcMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
+#process.tcMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+#process.tcMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+#process.tcMetDQMAnalyzer.processname = cms.string(trigger_set)
 process.caloMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.caloMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
 process.caloMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)

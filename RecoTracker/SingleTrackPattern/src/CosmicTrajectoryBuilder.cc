@@ -36,6 +36,7 @@ CosmicTrajectoryBuilder::~CosmicTrajectoryBuilder() {
 
 void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
+  // FIXME: this is a memory leak generator
 
   //services
   es.get<IdealMagneticFieldRecord>().get(magfield);
@@ -63,19 +64,19 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
 
   RHBuilder=   theBuilder.product();
-
+  hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(RHBuilder)->cloner();
 
 
 
   theFitter=        new KFTrajectoryFitter(*thePropagator,
 					   *theUpdator,	
 					   *theEstimator) ;
-  
+  theFitter->setHitCloner(&hitCloner);
 
   theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
 					     *theUpdator,	
 					     *theEstimator);
-  
+  theSmoother->setHitCloner(&hitCloner);
 }
 
 void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
@@ -129,14 +130,9 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
 Trajectory CosmicTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  Trajectory result( seed, seed.direction());
-  std::vector<TM> seedMeas = seedMeasurements(seed);
-  if ( !seedMeas.empty()) {
-    for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);
-    }
-  }
- 
+  Trajectory result( seed, seed.direction()); 
+  std::vector<TM> && seedMeas = seedMeasurements(seed);
+  for (auto & i : seedMeas) result.push(std::move(i));
   return result;
 }
 
@@ -151,15 +147,14 @@ CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = (&(*tracker))->idToDet( ihit->geographicalId());
-    TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
+    TSOS invalidState(new BasicSingleTrajectoryState( hitGeomDet->surface()));
 
     if (ihit == hitRange.second - 1) {
       TSOS  updatedState=startingTSOS(seed);
-      result.push_back(TM( invalidState, updatedState, recHit));
-
+      result.emplace_back(invalidState, updatedState, recHit);
     } 
     else {
-      result.push_back(TM( invalidState, recHit));
+      result.emplace_back(invalidState, recHit);
     }
     
   }
@@ -311,15 +306,15 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	   TSOS UpdatedState= theUpdator->update( prSt, *tmphitbestdet);
 	   if (UpdatedState.isValid()){
 
-	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
-			  , chi2min));
+	     traj.push(std::move(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
+			  , chi2min)));
 	     LogDebug("CosmicTrackFinder") <<
 	       "STATE UPDATED WITH HIT AT POSITION "
 					   <<tmphitbestdet->globalPosition()
 					   <<UpdatedState<<" "
 					   <<traj.chiSquared();
 
-	     hits.push_back(&(*tmphitbestdet));
+	     hits.push_back(tmphitbestdet);
 	   }
 	 }else LogDebug("CosmicTrackFinder")<<" Hits outside module surface "<< prLoc;
        }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position " <<gphit;
@@ -347,9 +342,8 @@ bool
 CosmicTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
-    for(hit=hits.begin();hit!=hits.end();hit++){
+    auto hits = traj.recHits();
+    for(auto hit=hits.begin();hit!=hits.end();hit++){
       unsigned int iid=(*hit)->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if(((iid>>0)&0x3)!=1) ngoodhits++;

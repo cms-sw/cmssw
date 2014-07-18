@@ -20,11 +20,13 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerCondition.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -76,7 +78,9 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   labelHltPrescaleTable_(),
   hltPrescaleTableRun_(),
   hltPrescaleTableLumi_(),
-  addPathModuleLabels_( false )
+  addPathModuleLabels_( false ),
+  packPathNames_( iConfig.existsAs<bool>("packTriggerPathNames") ? iConfig.getParameter<bool>("packTriggerPathNames") : false ),
+  packPrescales_( iConfig.existsAs<bool>("packTriggerPrescales") ? iConfig.getParameter<bool>("packTriggerPrescales") : true )
 {
 
   // L1 configuration parameters
@@ -190,6 +194,9 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     produces< TriggerPathCollection >();
     produces< TriggerFilterCollection >();
     produces< TriggerObjectCollection >();
+  }
+  if (packPrescales_) {
+    produces< PackedTriggerPrescales >();
   }
   produces< TriggerObjectStandAloneCollection >();
 
@@ -309,6 +316,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
   std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
+  std::auto_ptr< PackedTriggerPrescales > packedPrescales;
 
   // HLT
 
@@ -550,6 +558,15 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       }
       // put HLT filters to event
       iEvent.put( triggerFilters );
+    }
+
+    if (packPrescales_) {
+        packedPrescales.reset(new PackedTriggerPrescales(handleTriggerResults)); 
+        const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+        for (unsigned int i = 0, n = names.size(); i < n; ++i) {
+            packedPrescales->addPrescaledTrigger(i, hltConfig_.prescaleValue(set, names.triggerName(i)));
+        }
+        iEvent.put( packedPrescales );
     }
 
   } // if ( goodHlt )
@@ -977,6 +994,13 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     iEvent.put( triggerConditions );
   }
 
+
+  if (packPathNames_) {
+    const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+    for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
+      obj.packPathNames(names);
+    }
+  }
   // Put (finally) stand-alone trigger objects to event
   iEvent.put( triggerObjectsStandAlone );
 

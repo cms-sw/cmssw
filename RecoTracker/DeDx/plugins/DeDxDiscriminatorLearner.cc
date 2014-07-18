@@ -186,7 +186,7 @@ void DeDxDiscriminatorLearner::Learn(const SiStripCluster*   cluster,TrajectoryS
    LocalVector             trackDirection = trajState.localDirection();
    double                  cosine         = trackDirection.z()/trackDirection.mag();
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
-   uint32_t                detId          = cluster->geographicalId();
+   uint32_t                detId          = 0; // zero since long time cluster->geographicalId();
    int                     firstStrip     = cluster->firstStrip();
    stModInfo* MOD                         = MODsColl[detId];
    // Sanity Checks

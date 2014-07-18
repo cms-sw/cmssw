@@ -97,7 +97,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
   {
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-    cabling_.reset((SiPixelFedCabling*)cablingMap->cablingTree());
+    cabling_ = cablingMap->cablingTree();
 
     edm::ESHandle<TrackerGeometry> geom;
     // get the TrackerGeom

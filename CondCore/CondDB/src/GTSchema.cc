@@ -90,6 +90,8 @@ namespace cond {
       q.addOrderClause<RECORD>();
       q.addOrderClause<LABEL>();
       for ( auto row : q ) {
+	std::string& label = std::get<1>( row );
+	if( label == "-" ) label = "";
 	tags.push_back( row );
       }
       return q.retrievedRows();

@@ -7,6 +7,7 @@
  *  \author cerati
  */
 
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 

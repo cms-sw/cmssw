@@ -6,7 +6,7 @@
  */
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,7 +38,7 @@ class VertexTrackPtSumFilter : public std::unary_function<reco::Vertex, bool> {
 
 }
 
-class RecoTauPileUpVertexSelector : public edm::EDFilter {
+class RecoTauPileUpVertexSelector : public edm::stream::EDFilter<> {
   public:
     explicit RecoTauPileUpVertexSelector(const edm::ParameterSet &pset);
     ~RecoTauPileUpVertexSelector() {}

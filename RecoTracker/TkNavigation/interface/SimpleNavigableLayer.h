@@ -24,7 +24,7 @@ public:
   typedef std::vector<ForwardDetLayer*>             FDLC;
 
   SimpleNavigableLayer( const MagneticField* field,float eps,bool checkCrossingSide=true) :
-    thePropagator(field), theEpsilon(eps),theCheckCrossingSide(checkCrossingSide),theSelfSearch(false) {}
+    theField(field), theEpsilon(eps),theCheckCrossingSide(checkCrossingSide),theSelfSearch(false) {}
 
   virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
   
@@ -39,7 +39,7 @@ public:
   
 protected:
   
-  mutable AnalyticalPropagator     thePropagator;
+  const MagneticField * theField;
   float                     theEpsilon;
   bool theCheckCrossingSide;
 public:
@@ -68,9 +68,10 @@ protected:
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
 		   ConstFDLI begin, ConstFDLI end, DLC& result) const dso_internal;
 
-  Propagator& propagator( PropagationDirection dir) const{
-    thePropagator.setPropagationDirection(dir);
-    return thePropagator;
+  AnalyticalPropagator propagator( PropagationDirection dir) const{
+    AnalyticalPropagator aPropagator(theField);
+    aPropagator.setPropagationDirection(dir);
+    return aPropagator;
   }
 
   TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const dso_internal;

@@ -16,17 +16,38 @@ class FDumper : public clang::StmtVisitor<FDumper> {
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
 
+  enum Kind { NotVisited,
+              Visited };
+
+  /// A DenseMap that records visited states of CallExpr.
+  llvm::DenseMap<const clang::Expr *, Kind> VisitedExpr;
+
 public:
   FDumper(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
     : BR(br),
       AC(ac) {}
+
+
+  /// This method adds a CallExpr to the worklist 
+  void setVisited(Expr * E) {
+    Kind &K = VisitedExpr[E];
+    if ( K = NotVisited ) {
+	VisitedExpr[E] = Visited;
+	return;
+	}
+  }
+
+  bool wasVisited(Expr * E) {
+    Kind &K = VisitedExpr[E];
+    if ( K = Visited ) return true;
+    return false;
+  }	
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
   	const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
 	if (!P) return 0;
 	return P;
   }
-
 
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
@@ -43,6 +64,8 @@ void FDumper::VisitChildren( clang::Stmt *S) {
 }
 
 void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
+//	if (wasVisited(CCE)) return;
+//	setVisited(CCE);
 	LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	PrintingPolicy Policy(LangOpts);
@@ -52,7 +75,6 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	CXXConstructorDecl * CCD = CCE->getConstructor();
 	if (!CCD) return;
 	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
-	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
 	std::string mname = support::getQualifiedName(*CCD);
@@ -62,11 +84,14 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	tname+="/tmp/function-dumper.txt.unsorted";
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	std::ofstream file(tname.c_str(),std::ios::app);
-	file<<ostring;
+	file<<ostring;	
+	VisitChildren(CCE);
 }
 
 
 void FDumper::VisitCallExpr( CallExpr *CE ) {
+//	if (wasVisited(CE)) return;
+//	setVisited(CE);
 	LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	PrintingPolicy Policy(LangOpts);
@@ -76,7 +101,6 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	FunctionDecl * FD = CE->getDirectCallee();
 	if (!FD) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
- 	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
  	std::string mname = support::getQualifiedName(*FD);
@@ -88,13 +112,13 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	std::ofstream file(tname.c_str(),std::ios::app);
 	file<<ostring;
 	Visit(CE->getCallee()->IgnoreParens());
+	VisitChildren(CE);
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
 	if (!MD->doesThisDeclarationHaveABody()) return;
@@ -118,7 +142,6 @@ void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManage
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
   

@@ -12,7 +12,7 @@ PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const
 
 const GeomDetType& PixelGeomDetUnit::type() const { return theTopology->type(); }
 
-PixelGeomDetType& PixelGeomDetUnit::specificType() const { return theTopology->specificType(); }
+const PixelGeomDetType& PixelGeomDetUnit::specificType() const { return theTopology->specificType(); }
 
 const Topology& PixelGeomDetUnit::topology() const { return *theTopology; }
 

@@ -9,7 +9,6 @@
 #include "DQMServices/ClientConfig/interface/DQMGenericClient.h"
 
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -273,9 +272,15 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   isWildcardUsed_ = false;
 }
 
-void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
+void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   typedef vector<string> vstring;
+
+  // Update 2014-04-02
+  // Migrated back to the endJob. the DQMFileSaver logic has
+  // to be reviewed to guarantee that the endJob is properly
+  // considered. The splitting per run is done centrally when
+  // running the harvesting in production
 
   // Update 2009-09-23
   // Migrated all code from endJob to this function
@@ -285,15 +290,9 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   // It more robust to do the histogram manipulation in
   // this endRun function
 
-
-  
+  // needed to access the DQMStore::save method
   theDQM = 0;
   theDQM = Service<DQMStore>().operator->();
-
-  if ( ! theDQM ) {
-    LogInfo("DQMGenericClient") << "Cannot create DQMStore instance\n";
-    return;
-  }
 
   // Process wildcard in the sub-directory
   set<string> subDirSet;
@@ -312,7 +311,7 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
       const string pattern    = subDir.substr(shiftPos + 1, subDir.length());
       //std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
       
-      findAllSubdirectories (searchPath, &subDirSet, pattern);
+      findAllSubdirectories (ibooker, igetter, searchPath, &subDirSet, pattern);
 
     }
     else {
@@ -327,7 +326,7 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
     for ( vector<EfficOption>::const_iterator efficOption = efficOptions_.begin();
           efficOption != efficOptions_.end(); ++efficOption )
     {
-      computeEfficiency(dirName, efficOption->name, efficOption->title, 
+      computeEfficiency(ibooker, igetter, dirName, efficOption->name, efficOption->title, 
                         efficOption->numerator, efficOption->denominator,
                         efficOption->type, efficOption->isProfile);
     }
@@ -335,43 +334,30 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
     for ( vector<ResolOption>::const_iterator resolOption = resolOptions_.begin();
           resolOption != resolOptions_.end(); ++resolOption )
     {
-      computeResolution(dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
+      computeResolution(ibooker, igetter, dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
     }
 
     for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
           normOption != normOptions_.end(); ++normOption )
     {
-      normalizeToEntries(dirName, normOption->name, normOption->normHistName);
+      normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
     }
 
     for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
           cdOption != cdOptions_.end(); ++cdOption )
     {
-      makeCumulativeDist(dirName, cdOption->name);
+      makeCumulativeDist(ibooker, igetter, dirName, cdOption->name);
     }
   }
-
-  //if ( verbose_ > 0 ) theDQM->showDirStructure();
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
   
 }
 
-void DQMGenericClient::endJob()
+void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const string& startDir, const string& efficMEName,
+					 const string& efficMETitle, const string& recoMEName, const string& simMEName, const int type, const bool makeProfile)
 {
-
-  // Update 2009-09-23
-  // Migrated all code from here to endRun
-
-  LogTrace ("DQMGenericClient") << "inside of DQMGenericClient::endJob()"
-                                << endl;
-
-}
-
-void DQMGenericClient::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle, 
-                                         const string& recoMEName, const string& simMEName, const int type, const bool makeProfile)
-{
-  if ( ! theDQM->dirExists(startDir) ) {
+  if ( ! igetter.dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogInfo("DQMGenericClient") << "computeEfficiency() : "
                                   << "Cannot find sub-directory " << startDir << endl; 
@@ -379,10 +365,10 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     return;
   }
 
-  theDQM->cd();
+  ibooker.cd();
 
-  ME* simME  = theDQM->get(startDir+"/"+simMEName);
-  ME* recoME = theDQM->get(startDir+"/"+recoMEName);
+  ME* simME  = igetter.get(startDir+"/"+simMEName);
+  ME* recoME = igetter.get(startDir+"/"+recoMEName);
 
   if ( !simME ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -420,7 +406,7 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     efficDir += "/"+efficMEName.substr(0, shiftPos);
     newEfficMEName.erase(0, shiftPos+1);
   }
-  theDQM->setCurrentFolder(efficDir);
+  ibooker.setCurrentFolder(efficDir);
 
   if (makeProfile) {
     TProfile * efficHist = (hReco->GetXaxis()->GetXbins()->GetSize()==0) ?
@@ -482,7 +468,7 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
       }
     }
 #endif
-    theDQM->bookProfile(newEfficMEName.c_str(),efficHist);
+    ibooker.bookProfile(newEfficMEName.c_str(),efficHist);
     delete efficHist;  
   }
 
@@ -502,11 +488,11 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     TString histClassName = myHistClass->GetName();
   
     if (histClassName == "TH1F"){
-      efficME = theDQM->book1D(newEfficMEName, (TH1F*)efficHist);
+      efficME = ibooker.book1D(newEfficMEName, (TH1F*)efficHist);
     } else if (histClassName == "TH2F"){
-      efficME = theDQM->book2D(newEfficMEName, (TH2F*)efficHist);    
+      efficME = ibooker.book2D(newEfficMEName, (TH2F*)efficHist);    
     } else if (histClassName == "TH3F"){
-      efficME = theDQM->book3D(newEfficMEName, (TH3F*)efficHist);    
+      efficME = ibooker.book3D(newEfficMEName, (TH3F*)efficHist);    
     } 
   
 
@@ -538,8 +524,8 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   }
 
   // Global efficiency
-  ME* globalEfficME = theDQM->get(efficDir+"/globalEfficiencies");
-  if ( !globalEfficME ) globalEfficME = theDQM->book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
+  ME* globalEfficME = igetter.get(efficDir+"/globalEfficiencies");
+  if ( !globalEfficME ) globalEfficME = ibooker.book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
   if ( !globalEfficME ) {
     LogInfo("DQMGenericClient") << "computeEfficiency() : "
                               << "Cannot book globalEffic-ME from the DQM\n";
@@ -564,10 +550,10 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   hGlobalEffic->SetBinError(iBin, errorAll);
 }
 
-void DQMGenericClient::computeResolution(const string& startDir, const string& namePrefix, const string& titlePrefix,
+void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const string& startDir, const string& namePrefix, const string& titlePrefix,
                                          const std::string& srcName)
 {
-  if ( ! theDQM->dirExists(startDir) ) {
+  if ( ! igetter.dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogInfo("DQMGenericClient") << "computeResolution() : "
                                   << "Cannot find sub-directory " << startDir << endl;
@@ -575,9 +561,9 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
     return;
   }
 
-  theDQM->cd();
+  ibooker.cd();
 
-  ME* srcME = theDQM->get(startDir+"/"+srcName);
+  ME* srcME = igetter.get(startDir+"/"+srcName);
   if ( !srcME ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogInfo("DQMGenericClient") << "computeResolution() : "
@@ -605,7 +591,7 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
     newPrefix.erase(0, shiftPos+1);
   }
 
-  theDQM->setCurrentFolder(newDir);
+  ibooker.setCurrentFolder(newDir);
 
   float * lowedgesfloats = new float[nBin+1];
   ME* meanME;
@@ -614,15 +600,15 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   {
     for (int j=0; j<nBin+1; ++j)
       lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
-    meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, lowedgesfloats);
-    sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, lowedgesfloats);
+    meanME = ibooker.book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, lowedgesfloats);
+    sigmaME = ibooker.book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, lowedgesfloats);
   }
   else
   {
-    meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin,
+    meanME = ibooker.book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin,
 			    hSrc->GetXaxis()->GetXmin(),
 			    hSrc->GetXaxis()->GetXmax());
-    sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin,
+    sigmaME = ibooker.book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin,
 			    hSrc->GetXaxis()->GetXmin(),
 			    hSrc->GetXaxis()->GetXmax());			     
   }
@@ -644,9 +630,10 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   delete[] lowedgesfloats;
 }
 
-void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName) 
+void DQMGenericClient::normalizeToEntries(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& histName,
+					  const std::string& normHistName) 
 {
-  if ( ! theDQM->dirExists(startDir) ) {
+  if ( ! igetter.dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogInfo("DQMGenericClient") << "normalizeToEntries() : "
                                      << "Cannot find sub-directory " << startDir << endl;
@@ -654,10 +641,10 @@ void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std
     return;
   }
 
-  theDQM->cd();
+  ibooker.cd();
 
-  ME* element = theDQM->get(startDir+"/"+histName);
-  ME* normME = theDQM->get(startDir+"/"+normHistName);
+  ME* element = igetter.get(startDir+"/"+histName);
+  ME* normME = igetter.get(startDir+"/"+normHistName);
 
   if ( !element ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -705,9 +692,9 @@ void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std
   return;
 }
 
-void DQMGenericClient::makeCumulativeDist(const std::string& startDir, const std::string& cdName) 
+void DQMGenericClient::makeCumulativeDist(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& cdName) 
 {
-  if ( ! theDQM->dirExists(startDir) ) {
+  if ( ! igetter.dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogInfo("DQMGenericClient") << "makeCumulativeDist() : "
                                      << "Cannot find sub-directory " << startDir << endl;
@@ -715,9 +702,9 @@ void DQMGenericClient::makeCumulativeDist(const std::string& startDir, const std
     return;
   }
 
-  theDQM->cd();
+  ibooker.cd();
 
-  ME* element_cd = theDQM->get(startDir+"/"+cdName);
+  ME* element_cd = igetter.get(startDir+"/"+cdName);
 
   if ( !element_cd ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -798,31 +785,32 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
 //=================================
 
-void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, const TString& _pattern = TString("")) {
+void DQMGenericClient::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string dir, std::set<std::string> * myList,
+					      const TString& _pattern = TString("")) {
   TString pattern = _pattern;
-  if (!theDQM->dirExists(dir)) {
+  if (!igetter.dirExists(dir)) {
     LogError("DQMGenericClient") << " DQMGenericClient::findAllSubdirectories ==> Missing folder " << dir << " !!!"; 
     return;
   }
   if (pattern != "") {
     if (pattern.Contains(nonPerlWildcard)) pattern.ReplaceAll("*",".*");
     TPRegexp regexp(pattern);
-    theDQM->cd(dir);
-    vector <string> foundDirs = theDQM->getSubdirs();
+    ibooker.cd(dir);
+    vector <string> foundDirs = igetter.getSubdirs();
     for(vector<string>::const_iterator iDir = foundDirs.begin();
         iDir != foundDirs.end(); ++iDir) {
       TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
       if (dirName.Contains(regexp))
-        findAllSubdirectories ( *iDir, myList);
+        findAllSubdirectories (ibooker, igetter, *iDir, myList);
     }
   }
   //std::cout << "Looking for directory " << dir ;
-  else if (theDQM->dirExists(dir)){
+  else if (igetter.dirExists(dir)){
     //std::cout << "... it exists! Inserting it into the list ";
     myList->insert(dir);
     //std::cout << "... now list has size " << myList->size() << std::endl;
-    theDQM->cd(dir);
-    findAllSubdirectories (dir, myList, "*");
+    ibooker.cd(dir);
+    findAllSubdirectories (ibooker, igetter, dir, myList, "*");
   } else {
     //std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
     

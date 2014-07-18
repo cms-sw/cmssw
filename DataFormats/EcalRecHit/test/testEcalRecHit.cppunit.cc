@@ -25,9 +25,7 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEcalRecHit);
 
-void testEcalRecHit::testOne(){
-  
-
+void testEcalRecHit::testOne() {
   // test flagbit setter
   EcalRecHit rh (EBDetId(1,1),0.,0.);
   rh.setFlag(EcalRecHit::kTPSaturated);
@@ -47,33 +45,8 @@ void testEcalRecHit::testOne(){
   CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kUnknown) );
   CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kGood) );
  
-  
-  // test chi2
-  float chi2=1.8;
-  rh.setChi2(chi2);  
-  
-  std::cout << " chi2 " << rh.chi2() << std::endl;
-  //CPPUNIT_ASSERT(rh.chi2() == chi2);
-   
-  // test timerr
-  float timerr = 0.02;
-  EcalUncalibratedRecHit urh;
-  urh.setJitterError(timerr);
-  rh.setTimeError(urh.jitterErrorBits());
-
-  // mhh, timeError apparantly returns ns
-  // chi2 has rounding error
-
-  //std::cout << " timerr " << timerr << " " <<rh.timeError() <<  " " <<urh.jitterError() <<std::endl;
-  
-  //std::cout << " **** WARNING : SOMETHING WRONG MIGHT BE GOING ON HERE "<<std::endl;
-
-  //CPPUNIT_ASSERT(rh.timeError() == timerr);
-  //CPPUNIT_ASSERT(urh.jitterError()== rh.timeError());
-
   // did we modify some bit by mistake ?
   CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated) );
-
 
   // check unsetting of flag
   EcalRecHit rh2(EBDetId(1,1),0.,0.);
@@ -85,4 +58,33 @@ void testEcalRecHit::testOne(){
   rh2.unsetFlag(EcalRecHit::kGood);
   CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kGood) );
 
+  // test packing of values
+  CPPUNIT_ASSERT_EQUAL((uint32_t)0, EcalRecHit::getMasked(0, 8, 16));
+  // setting value of 12 at offset of 8; pack width=16
+  CPPUNIT_ASSERT_EQUAL((uint32_t)3072, EcalRecHit::setMasked(0, 12, 8, 16));
+  CPPUNIT_ASSERT_EQUAL((uint32_t)12, EcalRecHit::getMasked(3072, 8, 16));
+  // check if setting clears the old value
+  CPPUNIT_ASSERT_EQUAL((uint32_t)(3072 + 0xff), EcalRecHit::setMasked(0x00aaffff, 12, 8, 16));
+  CPPUNIT_ASSERT_EQUAL((uint32_t)12, EcalRecHit::getMasked(3072 + 0xff, 8, 16));
+
+  // test chi2
+  rh.setChi2(1.8);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.8, rh.chi2(), 0.5);
+  rh.setChi2(50.8);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(50.8, rh.chi2(), 0.5);
+
+  // test timeError
+  float timerr = 0.12;
+  EcalUncalibratedRecHit urh;
+  urh.setJitterError(timerr);
+  rh.setTimeError(urh.jitterErrorBits());
+
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(timerr*25, rh.timeError(), 0.5);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(urh.jitterError()*25, rh.timeError(), 0.00001);
+
+  // test outOfTimeEnergy
+  rh.setOutOfTimeEnergy(1.8);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.8, rh.outOfTimeEnergy(), 0.01);
+  rh.setOutOfTimeEnergy(50.8);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(50.8, rh.outOfTimeEnergy(), 0.01);
 }

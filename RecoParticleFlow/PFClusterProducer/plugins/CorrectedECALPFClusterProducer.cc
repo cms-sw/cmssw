@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,7 +49,7 @@ namespace {
   }
 }
 
-class CorrectedECALPFClusterProducer : public edm::EDProducer {
+class CorrectedECALPFClusterProducer : public edm::stream::EDProducer<> {
 public: 
   CorrectedECALPFClusterProducer(const edm::ParameterSet& conf):
     _minimumPSEnergy(conf.getParameter<double>("minimumPSEnergy")) {

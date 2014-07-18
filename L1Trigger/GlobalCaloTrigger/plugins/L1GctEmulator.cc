@@ -106,6 +106,8 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   if (m_verbose) {
     m_gct->print();
   }
+  consumes<L1CaloEmCollection>(m_inputLabel);
+  consumes<L1CaloRegionCollection>(m_inputLabel);
 }
 
 L1GctEmulator::~L1GctEmulator() {

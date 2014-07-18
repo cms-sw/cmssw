@@ -5,13 +5,13 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTimeSelected_
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 
-particleFlowClusterECALWithTime = particleFlowClusterECAL.clone(
-    inputECAL = cms.InputTag('particleFlowClusterECALWithTimeSelected')
-    )
+# particleFlowClusterECALWithTime = particleFlowClusterECAL.clone(
+#     inputECAL = cms.InputTag('particleFlowClusterECALWithTimeSelected')
+#     )
 
 particleFlowClusterECALWithTimeSequence = cms.Sequence(    
     particleFlowClusterECALWithTimeUncorrected +
     particleFlowClusterECALWithTimeSelected +
-    particleFlowClusterECALWithTime
+    particleFlowClusterECAL
     )
                                                    

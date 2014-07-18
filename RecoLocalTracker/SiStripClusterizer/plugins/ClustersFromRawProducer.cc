@@ -52,7 +52,7 @@ namespace {
     if unlikely( !rawData.data() ) {
 	if (edm::isDebugEnabled()) {
 	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
+	    << "[ClustersFromRawProducer::" 
 	    << __func__ 
 	    << "]"
 	    << " NULL pointer to FEDRawData for FED id " 
@@ -65,7 +65,7 @@ namespace {
     if unlikely( !rawData.size() ) {
 	if (edm::isDebugEnabled()) {
 	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
+	    << "[ClustersFromRawProducer::" 
 	    << __func__ << "]"
 	    << " FEDRawData has zero size for FED id " 
 	    << fedId;
@@ -179,12 +179,12 @@ class SiStripClusterizerFromRaw final : public edm::EDProducer  {
   
   explicit SiStripClusterizerFromRaw(const edm::ParameterSet& conf) :
     onDemand(conf.getParameter<bool>("onDemand")),
-    productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(nullptr),
     clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
     rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck") : true)
       {
+	productToken_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"));
 	produces< edmNew::DetSetVector<SiStripCluster> > ();
 	assert(clusterizer_.get());
 	assert(rawAlgos_.get());
@@ -202,7 +202,7 @@ class SiStripClusterizerFromRaw final : public edm::EDProducer  {
     
     // get raw data
     edm::Handle<FEDRawDataCollection> rawData;
-    ev.getByLabel( productLabel_, rawData); 
+    ev.getByToken( productToken_, rawData); 
     
     
     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > 
@@ -242,7 +242,7 @@ private:
 
   bool  onDemand;
 
-  edm::InputTag productLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> productToken_;  
   
   SiStripDetCabling const * cabling_;
   
@@ -426,7 +426,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
 	}
       } else {
 	edm::LogWarning(sistrip::mlRawToCluster_)
-	  << "[sistrip::RawToClustersLazyGetter::" 
+	  << "[ClustersFromRawProducer::" 
 	  << __func__ << "]"
 	  << " FEDRawData readout mode "
 	  << mode

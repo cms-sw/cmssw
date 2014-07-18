@@ -5,7 +5,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
@@ -40,9 +40,13 @@ class Trajectory
 public:
 
   typedef std::vector<TrajectoryMeasurement>                   DataContainer;
-  typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  using ConstRecHitContainer = TrackingRecHit::ConstRecHitContainer;
+  using RecHitContainer = ConstRecHitContainer;
+#else
+  typedef TrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
   typedef ConstRecHitContainer                                 RecHitContainer;
-
+#endif
 
   /** Default constructor of an empty trajectory with undefined seed and 
    * undefined direction. This constructor is necessary in order to transiently
@@ -107,15 +111,9 @@ public:
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
- Trajectory(Trajectory const & rh) :
-   theSeed(rh.theSeed), seedRef_(rh.seedRef_),
-    theData(rh.theData),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-     theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops) 
-  {}
-
+ 
+  Trajectory(Trajectory const & rh) = default;
+  Trajectory & operator=(Trajectory const & rh) = default;
 
   Trajectory(Trajectory && rh) : 
     theSeed(std::move(rh.theSeed)), seedRef_(std::move(rh.seedRef_)),
@@ -145,25 +143,11 @@ public:
 
   }
 
- Trajectory & operator=(Trajectory const & rh) {
-    theData = rh.theData;
-    theChiSquared=rh.theChiSquared;
-    theChiSquaredBad=rh.theChiSquaredBad;
-    theValid=rh.theValid;
-    theDPhiCache=rh.theDPhiCache; 
-    theNLoops=rh.theNLoops;  
-    theNumberOfFoundHits=rh.theNumberOfFoundHits;
-    theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection;
-    theDirectionValidity=rh.theDirectionValidity;
-    theSeed = rh.theSeed;
-    seedRef_ = rh.seedRef_;
-
-    return *this;
-
-  }
-
-
+#else
+//  private:
+//  Trajectory(Trajectory const & rh){}	
+//  Trajectory & operator=(Trajectory const & rh){ return *this;}
+//  public:
 #endif
 
   /** Reserves space in the vector to avoid lots of allocations when 
@@ -174,12 +158,16 @@ public:
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
-  void push( const TrajectoryMeasurement& tm);
-
-  /** same as the one-argument push, but the trajectory Chi2 is incremented 
+  void push(const TrajectoryMeasurement& tm);
+  /** same as the one-argument push, but the trajectory Chi2 is incremented
    *  by chi2Increment. Useful e.g. in trajectory smoothing.
    */
-  void push( const TrajectoryMeasurement& tm, double chi2Increment);
+  void push(const TrajectoryMeasurement & tm, double chi2Increment);
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  void push(TrajectoryMeasurement&& tm);
+  void push(TrajectoryMeasurement&& tm, double chi2Increment);
+#endif
 
   /** Remove the last measurement from the trajectory.
    */
@@ -213,19 +201,29 @@ public:
   /** Return all measurements in a container.
    */
   DataContainer const & measurements() const { return theData;}
+  DataContainer & measurements() { return theData;}
+
   /// obsolete name, use measurements() instead.
   DataContainer const & data() const { return measurements();}
 
   /** Return all RecHits in a container.
    */
-  ConstRecHitContainer recHits(bool splitting=false) const;
-
-  void recHitsV(ConstRecHitContainer & cont,bool splitting = false) const;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  ConstRecHitContainer recHits() const {
+    ConstRecHitContainer hits;
+    hits.reserve(theData.size());
+    for (Trajectory::DataContainer::const_iterator itm
+           = theData.begin(); itm != theData.end(); itm++){
+      hits.push_back((*itm).recHit());
+    }
+    return hits;
+  }
 
   /** Just valid hits..
    *
    */
   void validRecHits(ConstRecHitContainer & cont) const;
+#endif
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since
@@ -285,12 +283,12 @@ public:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
-  static bool lost( const TransientTrackingRecHit& hit);
+  static bool lost( const TrackingRecHit& hit);
 
   /** Returns true if the hit type is TrackingRecHit::bad
    *  Used in stand-alone trajectory construction
    */
-  static bool isBad( const TransientTrackingRecHit& hit);
+  static bool isBad( const TrackingRecHit& hit);
 
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
@@ -335,6 +333,9 @@ public:
    void incrementLoops() {theNLoops++;}
 
 private:
+
+  void pushAux(double chi2Increment);
+
 
   boost::shared_ptr<const TrajectorySeed>    theSeed;
   edm::RefToBase<TrajectorySeed> seedRef_;

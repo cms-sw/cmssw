@@ -74,16 +74,21 @@ process.source = cms.Source("PoolSource",
 
 process.source.fileNames = cms.untracked.vstring(options.inputFiles)
 
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
-process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi")
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
+process.APVPhases.wantHistos = cms.untracked.bool(True)
 
 process.load("DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_AlCaReco_cfi")
 
 process.load("DPGAnalysis.SiStripTools.eventtimedistribution_cfi")
 
-process.p0 = cms.Path(process.consecutiveHEs + process.APVPhases +
+process.p0 = cms.Path(process.scalersRawToDigi + process.consecutiveHEs + process.APVPhases +
                       ~process.PotentialTIBTECHugeEvents +
                       process.eventtimedistribution
                       )

@@ -56,7 +56,7 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
   //  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() ));
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngleProduct,templateDBobject.product() ));
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),*pDD.product(),lorentzAngleProduct,templateDBobject.product() ));
   return cpe_;
 }
 

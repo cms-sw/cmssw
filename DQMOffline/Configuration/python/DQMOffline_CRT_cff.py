@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
-from DQM.EcalBarrelMonitorClient.EcalCertification_cfi import *
+from DQM.EcalMonitorClient.EcalCertification_cfi import *
 from DQM.HcalMonitorClient.HcalDataCertification_cfi import *
 from DQM.DTMonitorClient.dtDQMOfflineCertification_cff import *
 from DQM.RPCMonitorClient.RPCDataCertification_cfi import *

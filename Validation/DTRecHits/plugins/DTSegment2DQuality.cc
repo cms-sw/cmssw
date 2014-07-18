@@ -40,8 +40,10 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   DTHitQualityUtils::debug = debug;
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
   // the name of the 2D rec hit collection
   segment2DLabel = pset.getUntrackedParameter<InputTag>("segment2DLabel");
+  segment2DToken_ = consumes<DTRecSegment2DCollection>(pset.getUntrackedParameter<InputTag>("segment2DLabel"));
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
@@ -125,7 +127,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
-  event.getByLabel(simHitLabel, simHits); //FIXME: second string to be removed
+  event.getByToken(simHitToken_, simHits); //FIXME: second string to be removed
 
   //Map simHits by sl
   map<DTSuperLayerId, PSimHitContainer > simHitsPerSl;
@@ -139,7 +141,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> segment2Ds;
-  event.getByLabel(segment2DLabel, segment2Ds);
+  event.getByToken(segment2DToken_, segment2Ds);
 
   if(!segment2Ds.isValid()) {
     if(debug) cout << "[DTSegment2DQuality]**Warning: no 2DSegments with label: " << segment2DLabel

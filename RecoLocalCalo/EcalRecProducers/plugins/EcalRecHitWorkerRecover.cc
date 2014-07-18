@@ -15,8 +15,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryAlgos.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -38,11 +36,12 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps, edm
 
 	dbStatusToBeExcludedEE_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEE");
 	dbStatusToBeExcludedEB_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEB");
-	
-        tpDigiToken_        = 
-	  c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
+
         logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
         logWarningEtThreshold_EE_FE_ = ps.getParameter<double>("logWarningEtThreshold_EE_FE");
+
+        tpDigiToken_ = 
+          c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
 }
 
 
@@ -129,19 +128,36 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         }
 
         if ( flags == EcalRecHitWorkerRecover::EB_single ) {
-                // recover as single dead channel
-                const EcalRecHitCollection * hit_collection = &result;
-                EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
+                    // recover as single dead channel
+                    ebDeadChannelCorrector.setCaloTopology(caloTopology_.product());
 
-                // channel recovery
-                EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
-                if ( hit.energy() != 0 ) {
-		  hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
-                } else {
-		  // recovery failed
-		  hit.setFlag( EcalRecHit::kDead ) ;
-                }
-                insertRecHit( hit, result );
+                    // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
+                    bool AcceptRecHit=true;
+                    EcalRecHit hit = ebDeadChannelCorrector.correct( detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+
+                    if ( hit.energy() != 0 and AcceptRecHit == true ) {
+                        hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
+                    } else {
+                        // recovery failed
+                        hit.setFlag( EcalRecHit::kDead ) ;
+                    }
+                    insertRecHit( hit, result );
+                
+        } else if ( flags == EcalRecHitWorkerRecover::EE_single ) {
+                    // recover as single dead channel
+		    eeDeadChannelCorrector.setCaloTopology(caloTopology_.product());
+
+                    // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
+                    bool AcceptRecHit=true;
+                    EcalRecHit hit = eeDeadChannelCorrector.correct( detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+                    if ( hit.energy() != 0 and AcceptRecHit == true ) {
+                        hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
+                    } else {
+                       // recovery failed
+                       hit.setFlag( EcalRecHit::kDead ) ;
+                    }
+                    insertRecHit( hit, result );
+                
         } else if ( flags == EcalRecHitWorkerRecover::EB_VFE ) {
                 // recover as dead VFE
                 EcalRecHit hit( detId, 0., 0.);

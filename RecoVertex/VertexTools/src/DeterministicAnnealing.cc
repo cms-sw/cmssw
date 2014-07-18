@@ -6,30 +6,20 @@
 
 using namespace std;
 
-namespace {
-  vector < float > temperatures;
-}
-
 DeterministicAnnealing::DeterministicAnnealing ( float cutoff ) :
+  theTemperatures({256,64,16,4,2,1}),
   theIndex(0), theChi2cut ( cutoff*cutoff ), theIsAnnealed ( false )
 {
-  temperatures.push_back(256);
-  temperatures.push_back(64);
-  temperatures.push_back(16);
-  temperatures.push_back(4);
-  temperatures.push_back(2);
-  temperatures.push_back(1);
 }
 
-DeterministicAnnealing::DeterministicAnnealing( const vector < float > & sched,
-     float cutoff ) : theIndex(0), theChi2cut ( cutoff*cutoff ), theIsAnnealed ( false )
+DeterministicAnnealing::DeterministicAnnealing( const vector < float > & sched, float cutoff ) :
+  theTemperatures(sched),theIndex(0), theChi2cut ( cutoff*cutoff ), theIsAnnealed ( false )
 {
-  temperatures = sched;
 }
 
 void DeterministicAnnealing::anneal()
 {
-  if ( theIndex < ( temperatures.size() - 1 ) )
+  if ( theIndex < ( theTemperatures.size() - 1 ) )
   {
     theIndex++; 
   } else {
@@ -62,7 +52,7 @@ void DeterministicAnnealing::resetAnnealing()
 
 inline double DeterministicAnnealing::phi( double chi2 ) const
 {
-  return exp ( -.5 * chi2 / temperatures[theIndex] );
+  return exp ( -.5 * chi2 / theTemperatures[theIndex] );
 }
 
 double DeterministicAnnealing::cutoff() const
@@ -72,12 +62,12 @@ double DeterministicAnnealing::cutoff() const
 
 double DeterministicAnnealing::currentTemp() const
 {
-  return temperatures[theIndex];
+  return theTemperatures[theIndex];
 }
 
 double DeterministicAnnealing::initialTemp() const
 {
-  return temperatures[0];
+  return theTemperatures[0];
 }
 
 bool DeterministicAnnealing::isAnnealed() const
@@ -88,8 +78,8 @@ bool DeterministicAnnealing::isAnnealed() const
 void DeterministicAnnealing::debug() const
 {
   cout << "[DeterministicAnnealing] schedule=";
-  for ( vector< float >::const_iterator i=temperatures.begin(); 
-        i!=temperatures.end() ; ++i )
+  for ( vector< float >::const_iterator i=theTemperatures.begin(); 
+        i!=theTemperatures.end() ; ++i )
   {
     cout << *i << " ";
   };

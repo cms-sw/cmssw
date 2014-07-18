@@ -53,7 +53,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
-  if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
+  if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
   else dcsStatus_ = 0;
 }
 
@@ -64,29 +64,32 @@ SiStripMonitorTrack::~SiStripMonitorTrack() {
 }
 
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es)
+void SiStripMonitorTrack::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es)
 {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   //get geom
   es.get<TrackerDigiGeometryRecord>().get( tkgeom );
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::beginRun] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;
   es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 
-  book(tTopo);
 
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() )genTriggerEventFlag_->initRun( run, es );
+}
+
+void SiStripMonitorTrack::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & es)
+{
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+  book(ibooker , tTopo);
 }
 
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::endJob(void)
 {
   if(conf_.getParameter<bool>("OutputMEsInRootFile")){
-    dbe->showDirStructure();
+    //dbe->showDirStructure();
     dbe->save(conf_.getParameter<std::string>("OutputFileName"));
   }
 }
@@ -141,16 +144,16 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 }
 
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::book(const TrackerTopology* tTopo)
+void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopology* tTopo)
 {
 
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
-    tkhisto_StoNCorrOnTrack = new TkHistoMap(topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
-    tkhisto_NumOnTrack      = new TkHistoMap(topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
-    tkhisto_NumOffTrack     = new TkHistoMap(topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
+    tkhisto_StoNCorrOnTrack = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
+    tkhisto_NumOnTrack      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
+    tkhisto_NumOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
   }
   //******** TkHistoMaps
 
@@ -176,24 +179,24 @@ void SiStripMonitorTrack::book(const TrackerTopology* tTopo)
     std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(layer_id);
     if(iLayerME==LayerMEsMap.end()){
       folder_organizer.setLayerFolder(detid, tTopo, det_layer_pair.second, flag_ring);
-      bookLayerMEs(detid, layer_id);
+      bookLayerMEs(ibooker , detid, layer_id);
     }
     // book sub-detector plots
     std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
     if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
-      dbe->setCurrentFolder(sdet_pair.first);
-      bookSubDetMEs(sdet_pair.second);
+      ibooker.setCurrentFolder(sdet_pair.first);
+      bookSubDetMEs(ibooker , sdet_pair.second);
     }
     // book module plots
     if(Mod_On_) {
       folder_organizer.setDetectorFolder(detid,tTopo);
-      bookModMEs(*detid_iter);
+      bookModMEs(ibooker , *detid_iter);
     }
   }//end loop on detectors detid
 }
 
 //--------------------------------------------------------------------------------
-void SiStripMonitorTrack::bookModMEs(const uint32_t & id)//Histograms at MODULE level
+void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker & ibooker , const uint32_t & id)//Histograms at MODULE level
 {
   std::string name = "det";
   SiStripHistoId hidmanager;
@@ -209,24 +212,24 @@ void SiStripMonitorTrack::bookModMEs(const uint32_t & id)//Histograms at MODULE 
     theModMEs.ClusterPGV        = 0;
 
     // Cluster Width
-    theModMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoId("ClusterWidth_OnTrack",name,id).c_str());
-    dbe->tag(theModMEs.ClusterWidth,id);
+    theModMEs.ClusterWidth=bookME1D(ibooker , "TH1ClusterWidth", hidmanager.createHistoId("ClusterWidth_OnTrack",name,id).c_str());
+    ibooker.tag(theModMEs.ClusterWidth,id);
     // Cluster Charge
-    theModMEs.ClusterCharge=bookME1D("TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name,id).c_str());
-    dbe->tag(theModMEs.ClusterCharge,id);
+    theModMEs.ClusterCharge=bookME1D(ibooker , "TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name,id).c_str());
+    ibooker.tag(theModMEs.ClusterCharge,id);
     // Cluster Charge Corrected
-    theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name,id).c_str());
-    dbe->tag(theModMEs.ClusterChargeCorr,id);
+    theModMEs.ClusterChargeCorr=bookME1D(ibooker , "TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name,id).c_str());
+    ibooker.tag(theModMEs.ClusterChargeCorr,id);
     // Cluster StoN Corrected
-    theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorrMod", hidmanager.createHistoId("ClusterStoNCorr_OnTrack",name,id).c_str());
-    dbe->tag(theModMEs.ClusterStoNCorr,id);
+    theModMEs.ClusterStoNCorr=bookME1D(ibooker , "TH1ClusterStoNCorrMod", hidmanager.createHistoId("ClusterStoNCorr_OnTrack",name,id).c_str());
+    ibooker.tag(theModMEs.ClusterStoNCorr,id);
     // Cluster Position
     short total_nr_strips = SiStripDetCabling_->nApvPairs(id) * 2 * 128;
-    theModMEs.ClusterPos=dbe->book1D(hidmanager.createHistoId("ClusterPosition_OnTrack",name,id).c_str(),hidmanager.createHistoId("ClusterPosition_OnTrack",name,id).c_str(),total_nr_strips,0.5,total_nr_strips+0.5);
-    dbe->tag(theModMEs.ClusterPos,id);
+    theModMEs.ClusterPos=ibooker.book1D(hidmanager.createHistoId("ClusterPosition_OnTrack",name,id).c_str(),hidmanager.createHistoId("ClusterPosition_OnTrack",name,id).c_str(),total_nr_strips,0.5,total_nr_strips+0.5);
+    ibooker.tag(theModMEs.ClusterPos,id);
     // Cluster PGV
-    theModMEs.ClusterPGV=bookMEProfile("TProfileClusterPGV", hidmanager.createHistoId("PGV_OnTrack",name,id).c_str());
-    dbe->tag(theModMEs.ClusterPGV,id);
+    theModMEs.ClusterPGV=bookMEProfile(ibooker , "TProfileClusterPGV", hidmanager.createHistoId("PGV_OnTrack",name,id).c_str());
+    ibooker.tag(theModMEs.ClusterPGV,id);
 
     ModMEsMap[hid]=theModMEs;
   }
@@ -234,7 +237,7 @@ void SiStripMonitorTrack::bookModMEs(const uint32_t & id)//Histograms at MODULE 
 //
 // -- Book Layer Level Histograms and Trend plots
 //
-void SiStripMonitorTrack::bookLayerMEs(const uint32_t& mod_id, std::string& layer_id)
+void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker & ibooker , const uint32_t& mod_id, std::string& layer_id)
 {
   std::string name = "layer";
   std::string hname;
@@ -254,42 +257,42 @@ void SiStripMonitorTrack::bookLayerMEs(const uint32_t& mod_id, std::string& laye
 
   // Cluster StoN Corrected
   hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterStoNCorrOnTrack = bookME1D("TH1ClusterStoNCorr", hname.c_str());
+  theLayerMEs.ClusterStoNCorrOnTrack = bookME1D(ibooker , "TH1ClusterStoNCorr", hname.c_str());
 
   // Cluster Charge Corrected
   hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterChargeCorrOnTrack = bookME1D("TH1ClusterChargeCorr", hname.c_str());
+  theLayerMEs.ClusterChargeCorrOnTrack = bookME1D(ibooker , "TH1ClusterChargeCorr", hname.c_str());
 
   // Cluster Charge (On and Off Track)
   hname = hidmanager.createHistoLayer("Summary_ClusterCharge",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterChargeOnTrack = bookME1D("TH1ClusterCharge", hname.c_str());
+  theLayerMEs.ClusterChargeOnTrack = bookME1D(ibooker , "TH1ClusterCharge", hname.c_str());
 
   hname = hidmanager.createHistoLayer("Summary_ClusterCharge",name,layer_id,"OffTrack");
-  theLayerMEs.ClusterChargeOffTrack = bookME1D("TH1ClusterCharge", hname.c_str());
+  theLayerMEs.ClusterChargeOffTrack = bookME1D(ibooker , "TH1ClusterCharge", hname.c_str());
 
   // Cluster Noise (On and Off Track)
   hname = hidmanager.createHistoLayer("Summary_ClusterNoise",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterNoiseOnTrack = bookME1D("TH1ClusterNoise", hname.c_str());
+  theLayerMEs.ClusterNoiseOnTrack = bookME1D(ibooker , "TH1ClusterNoise", hname.c_str());
 
   hname = hidmanager.createHistoLayer("Summary_ClusterNoise",name,layer_id,"OffTrack");
-  theLayerMEs.ClusterNoiseOffTrack = bookME1D("TH1ClusterNoise", hname.c_str());
+  theLayerMEs.ClusterNoiseOffTrack = bookME1D(ibooker , "TH1ClusterNoise", hname.c_str());
 
   // Cluster Width (On and Off Track)
   hname = hidmanager.createHistoLayer("Summary_ClusterWidth",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterWidthOnTrack = bookME1D("TH1ClusterWidth", hname.c_str());
+  theLayerMEs.ClusterWidthOnTrack = bookME1D(ibooker , "TH1ClusterWidth", hname.c_str());
 
   hname = hidmanager.createHistoLayer("Summary_ClusterWidth",name,layer_id,"OffTrack");
-  theLayerMEs.ClusterWidthOffTrack = bookME1D("TH1ClusterWidth", hname.c_str());
+  theLayerMEs.ClusterWidthOffTrack = bookME1D(ibooker , "TH1ClusterWidth", hname.c_str());
 
   //Cluster Position
   short total_nr_strips = SiStripDetCabling_->nApvPairs(mod_id) * 2 * 128;
   if (layer_id.find("TEC") != std::string::npos && !flag_ring)  total_nr_strips = 3 * 2 * 128;
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterPosOnTrack = dbe->book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  theLayerMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OffTrack");
-  theLayerMEs.ClusterPosOffTrack = dbe->book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  theLayerMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   //bookeeping
   LayerMEsMap[layer_id]=theLayerMEs;
@@ -297,7 +300,7 @@ void SiStripMonitorTrack::bookLayerMEs(const uint32_t& mod_id, std::string& laye
 //
 // -- Book Histograms at Sub-Detector Level
 //
-void SiStripMonitorTrack::bookSubDetMEs(std::string& name){
+void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::string& name){
 
   std::string subdet_tag;
   subdet_tag = "__" + name;
@@ -316,44 +319,44 @@ void SiStripMonitorTrack::bookSubDetMEs(std::string& name){
 
   // TotalNumber of Cluster OnTrack
   completeName = "Summary_TotalNumberOfClusters_OnTrack" + subdet_tag;
-  theSubDetMEs.nClustersOnTrack = bookME1D("TH1nClustersOn", completeName.c_str());
+  theSubDetMEs.nClustersOnTrack = bookME1D(ibooker , "TH1nClustersOn", completeName.c_str());
   theSubDetMEs.nClustersOnTrack->getTH1()->StatOverflows(kTRUE);
 
   // TotalNumber of Cluster OffTrack
   completeName = "Summary_TotalNumberOfClusters_OffTrack" + subdet_tag;
-  theSubDetMEs.nClustersOffTrack = bookME1D("TH1nClustersOff", completeName.c_str());
+  theSubDetMEs.nClustersOffTrack = bookME1D(ibooker , "TH1nClustersOff", completeName.c_str());
   theSubDetMEs.nClustersOffTrack->getTH1()->StatOverflows(kTRUE);
 
   // Cluster StoN On Track
   completeName = "Summary_ClusterStoNCorr_OnTrack"  + subdet_tag;
-  theSubDetMEs.ClusterStoNCorrOnTrack = bookME1D("TH1ClusterStoNCorr", completeName.c_str());
+  theSubDetMEs.ClusterStoNCorrOnTrack = bookME1D(ibooker , "TH1ClusterStoNCorr", completeName.c_str());
 
   // Cluster Charge Off Track
   completeName = "Summary_ClusterCharge_OffTrack" + subdet_tag;
-  theSubDetMEs.ClusterChargeOffTrack=bookME1D("TH1ClusterCharge", completeName.c_str());
+  theSubDetMEs.ClusterChargeOffTrack=bookME1D(ibooker , "TH1ClusterCharge", completeName.c_str());
 
   // Cluster Charge StoN Off Track
   completeName = "Summary_ClusterStoN_OffTrack"  + subdet_tag;
-  theSubDetMEs.ClusterStoNOffTrack = bookME1D("TH1ClusterStoN", completeName.c_str());
+  theSubDetMEs.ClusterStoNOffTrack = bookME1D(ibooker , "TH1ClusterStoN", completeName.c_str());
 
   if(Trend_On_){
     // TotalNumber of Cluster
     completeName = "Trend_TotalNumberOfClusters_OnTrack"  + subdet_tag;
-    theSubDetMEs.nClustersTrendOnTrack = bookMETrend("TH1nClustersOn", completeName.c_str());
+    theSubDetMEs.nClustersTrendOnTrack = bookMETrend(ibooker , "TH1nClustersOn", completeName.c_str());
     completeName = "Trend_TotalNumberOfClusters_OffTrack"  + subdet_tag;
-    theSubDetMEs.nClustersTrendOffTrack = bookMETrend("TH1nClustersOff", completeName.c_str());
+    theSubDetMEs.nClustersTrendOffTrack = bookMETrend(ibooker , "TH1nClustersOff", completeName.c_str());
   }
   //bookeeping
   SubDetMEsMap[name]=theSubDetMEs;
 }
 //--------------------------------------------------------------------------------
 
-MonitorElement* SiStripMonitorTrack::bookME1D(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorTrack::bookME1D(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   //  std::cout << "[SiStripMonitorTrack::bookME1D] pwd: " << dbe->pwd() << std::endl;
   //  std::cout << "[SiStripMonitorTrack::bookME1D] HistoName: " << HistoName << std::endl;
-  return dbe->book1D(HistoName,HistoName,
+  return ibooker.book1D(HistoName,HistoName,
 		         Parameters.getParameter<int32_t>("Nbinx"),
 		         Parameters.getParameter<double>("xmin"),
 		         Parameters.getParameter<double>("xmax")
@@ -361,10 +364,10 @@ MonitorElement* SiStripMonitorTrack::bookME1D(const char* ParameterSetLabel, con
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookME2D(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorTrack::bookME2D(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-  return dbe->book2D(HistoName,HistoName,
+  return ibooker.book2D(HistoName,HistoName,
 		     Parameters.getParameter<int32_t>("Nbinx"),
 		     Parameters.getParameter<double>("xmin"),
 		     Parameters.getParameter<double>("xmax"),
@@ -375,10 +378,10 @@ MonitorElement* SiStripMonitorTrack::bookME2D(const char* ParameterSetLabel, con
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookME3D(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorTrack::bookME3D(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-  return dbe->book3D(HistoName,HistoName,
+  return ibooker.book3D(HistoName,HistoName,
 		     Parameters.getParameter<int32_t>("Nbinx"),
 		     Parameters.getParameter<double>("xmin"),
 		     Parameters.getParameter<double>("xmax"),
@@ -392,10 +395,10 @@ MonitorElement* SiStripMonitorTrack::bookME3D(const char* ParameterSetLabel, con
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookMEProfile(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorTrack::bookMEProfile(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName)
 {
     Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-    return dbe->bookProfile(HistoName,HistoName,
+    return ibooker.bookProfile(HistoName,HistoName,
                             Parameters.getParameter<int32_t>("Nbinx"),
                             Parameters.getParameter<double>("xmin"),
                             Parameters.getParameter<double>("xmax"),
@@ -406,11 +409,11 @@ MonitorElement* SiStripMonitorTrack::bookMEProfile(const char* ParameterSetLabel
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   edm::ParameterSet ParametersTrend =  conf_.getParameter<edm::ParameterSet>("Trending");
-  MonitorElement* me = dbe->bookProfile(HistoName,HistoName,
+  MonitorElement* me = ibooker.bookProfile(HistoName,HistoName,
 					ParametersTrend.getParameter<int32_t>("Nbins"),
 					0,
 					ParametersTrend.getParameter<int32_t>("Nbins"),

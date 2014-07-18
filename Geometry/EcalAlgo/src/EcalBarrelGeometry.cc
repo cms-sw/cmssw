@@ -41,9 +41,9 @@ EcalBarrelGeometry::~EcalBarrelGeometry()
         if(v) delete v;
         v = nullptr;
     }
-    delete m_borderPtrVec ;
+    delete m_borderPtrVec.load() ;
   }
-  delete m_borderMgr ;
+  delete m_borderMgr.load() ;
 }
 
 

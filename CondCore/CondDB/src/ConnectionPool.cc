@@ -87,42 +87,43 @@ namespace cond {
       std::string authPath = m_authPath;
       // authentication
       if( authPath.empty() ){
-	// first try to check the env...
-	const char* authEnv = ::getenv( cond::Auth::COND_AUTH_PATH );
-	if(authEnv){
-	  authPath += authEnv;
-	} 
+	    // first try to check the env...
+	    const char* authEnv = ::getenv( cond::Auth::COND_AUTH_PATH );
+	    if(authEnv){
+	      authPath += authEnv;
+	    } 
       }
       int authSys = m_authSys;
       // first attempt, look at the env...
       const char* authSysEnv = ::getenv( cond::Auth::COND_AUTH_SYS );
       if( authSysEnv ){
-	authSys = ::atoi( authSysEnv );
+	      authSys = ::atoi( authSysEnv );
       }
       if( authSys !=CondDbKey && authSys != CoralXMLFile ){
-	// take the default
-	authSys = CondDbKey;
+	      // take the default
+	      authSys = CondDbKey;
       }  
       std::string servName("");
       if( authSys == CondDbKey ){
-	if( authPath.empty() ){
-	  const char* authEnv = ::getenv("HOME");
-	  if(authEnv){
-	    authPath += authEnv;
-	  } 
-	}
-	servName = "COND/Services/RelationalAuthenticationService";     
+	      if( authPath.empty() ){
+	          const char* authEnv = ::getenv("HOME");
+	          if(authEnv){
+	              authPath += authEnv;
+	          } 
+	      }
+	      servName = "COND/Services/RelationalAuthenticationService";     
       } else if( authSys == CoralXMLFile ){
-	if( authPath.empty() ){
-	  authPath = ".";
-	}
-	servName = "COND/Services/XMLAuthenticationService";  
+	      if( authPath.empty() ){
+	          authPath = ".";
+	      }
+	      servName = "COND/Services/XMLAuthenticationService";  
       }
       if( !authPath.empty() ){
-	authServiceName = servName;    
-	coral::Context::instance().PropertyManager().property(cond::Auth::COND_AUTH_PATH_PROPERTY)->set(authPath);  
-	coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
+	      authServiceName = servName;    
+	      coral::Context::instance().PropertyManager().property(cond::Auth::COND_AUTH_PATH_PROPERTY)->set(authPath);  
+          coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
       }
+      
       coralConfig.setAuthenticationService( authServiceName );
     }
     
@@ -157,7 +158,7 @@ namespace cond {
       if( it == m_dbTypes.end() ){
 	bt = checkBackendType( coralSession, connectionString );
 	if( bt == UNKNOWN_DB && writeCapable) bt = backType;
-	m_dbTypes.insert( std::make_pair( connectionString, bt ) ).first;
+	m_dbTypes.insert( std::make_pair( connectionString, bt ) );
       } else {
 	bt = (BackendType) it->second;
       }

@@ -29,7 +29,7 @@ CaloCellGeometry::~CaloCellGeometry()
 
 
 CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
-				    const CornersMgr*           mgr,
+				    CornersMgr*                 mgr,
 				    const CCGFloat*             par ) :
    m_refPoint ( gp  ),
    m_corners  ( mgr ),
@@ -46,18 +46,6 @@ CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
    m_parms    ( par ),
    m_eta( m_refPoint.eta()), m_phi(m_refPoint.phi())
 {}
-
-CaloCellGeometry::CornersVec& 
-CaloCellGeometry::setCorners() const 
-{
-   return m_corners ; 
-}
-
-const CaloCellGeometry::CornersVec&
-CaloCellGeometry::getCorners() const
-{
-   return m_corners ;
-}
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) 
 {

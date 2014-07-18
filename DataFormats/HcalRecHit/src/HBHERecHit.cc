@@ -1,17 +1,21 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 
 
-HBHERecHit::HBHERecHit() : CaloRecHit() {
+HBHERecHit::HBHERecHit() : CaloRecHit(), rawEnergy_(-1.0e21) {
 }
 
 HBHERecHit::HBHERecHit(const HcalDetId& id, float energy, float timeRising, float timeFalling) :
   CaloRecHit(id,energy,timeRising),
-  timeFalling_(timeFalling)	
+  timeFalling_(timeFalling),
+  rawEnergy_(-1.0e21)
 {
 }
 
 std::ostream& operator<<(std::ostream& s, const HBHERecHit& hit) {
   s << hit.id() << ": " << hit.energy() << " GeV";
+  if (hit.eraw() > -0.9e21) {
+    s << ", eraw=" << hit.eraw() << " GeV";
+  }
   if(hit.time() > -998) {
     s << ", t= " << hit.time() << " to " << hit.timeFalling() << " ns";
   }

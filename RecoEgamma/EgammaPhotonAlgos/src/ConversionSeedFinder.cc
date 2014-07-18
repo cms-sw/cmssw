@@ -131,7 +131,7 @@ void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
 
   StartingLayerFinder starter(&prop, this->getMeasurementTracker() );
  
-  LayerCollector collector(&prop, &starter, 5., 5.);
+  LayerCollector collector(theNavigationSchool_, &prop, &starter, 5., 5.);
 
   theLayerList_ = collector.allLayers(traj);
 

@@ -130,6 +130,14 @@ G4VSolid * DDG4SolidConverter::polycone_rz(const DDSolid & s)
     count++;
    }
    LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
+   /*
+   std::cout << "### Polycone_RZ: " << "sp=" << (*par_)[0]/deg 
+	     << " ep=" << (*par_)[1]/deg 
+	     << " N= " << count << std::endl;
+   for(int i=0; i<count; ++i) { 
+     std::cout << " R= " << r[i] << " Z= " << z[i] << std::endl;
+   }
+   */
    return new G4Polycone(s.name().name(), (*par_)[0], (*par_)[1], // start,delta-phi
 			 count, // numRZ
 			 &(r[0]),
@@ -155,6 +163,14 @@ G4VSolid * DDG4SolidConverter::polycone_rrz(const DDSolid & s)
       count++;
     }
     LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
+    /*
+    std::cout << "### Polycone_RRZ: " << "sp=" << (*par_)[0]/deg 
+	      << " ep=" << (*par_)[1]/deg 
+	      << " N= " << count << std::endl;
+    for(int i=0; i<count; ++i) { 
+      std::cout << " R1= " << rmin_p[i] << " R1= " << rmax_p[i] << " Z= " << z_p[i] << std::endl;
+    }
+    */
     return new G4Polycone(s.name().name(), (*par_)[0], (*par_)[1], // start,delta-phi
                         count, // sections
 			&(z_p[0]),

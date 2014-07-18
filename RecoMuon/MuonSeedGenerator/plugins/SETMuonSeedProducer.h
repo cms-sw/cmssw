@@ -40,7 +40,7 @@ class SETMuonSeedProducer : public edm::EDProducer {
   virtual ~SETMuonSeedProducer();
   
   // Operations
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  protected:
 

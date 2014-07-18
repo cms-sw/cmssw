@@ -29,6 +29,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 //
 #include <map>
@@ -54,7 +56,7 @@ class SimTrack;
 
 
 
-class PhotonValidator : public edm::EDAnalyzer
+class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
 {
 
  public:
@@ -65,11 +67,11 @@ class PhotonValidator : public edm::EDAnalyzer
 
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob();
-  virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
+  //  virtual void beginJob();
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
   virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endJob() ;
-  void bookHistograms(void);
+  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
 
  private:
   //
@@ -248,7 +250,6 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h_EtR9Less093_[3][3];
   MonitorElement* h_r9_[3][3];
-  MonitorElement* h2_r9VsEta_[3];
   MonitorElement* p_r9VsEta_[3];
   MonitorElement* h2_r9VsEt_[3];
   MonitorElement* p_r9VsEt_[3];
@@ -322,11 +323,18 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_phoE_[2][3];
   MonitorElement* h_phoEt_[2][3];
   MonitorElement* h_phoERes_[3][3];
+  MonitorElement* h_phoSigmaEoE_[3][3];
+
 
   MonitorElement* h2_eResVsEta_[3];
   MonitorElement* p_eResVsEta_[3];
+  MonitorElement* p_sigmaEoEVsEta_[3];
   MonitorElement* h2_eResVsEt_[3][3];
   MonitorElement* p_eResVsEt_[3][3];
+  MonitorElement* p_eResVsNVtx_[3][3];
+
+  MonitorElement* p_sigmaEoEVsEt_[3][3];
+  MonitorElement* p_sigmaEoEVsNVtx_[3][3];
 
   MonitorElement* h2_eResVsR9_[3];
   MonitorElement* p_eResVsR9_[3];

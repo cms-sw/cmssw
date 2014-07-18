@@ -2,7 +2,7 @@
 // Generic LX jet corrector class.
 
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +34,7 @@ LXXXCorrector::LXXXCorrector(const JetCorrectorParameters& fParam, const edm::Pa
     throw cms::Exception("LXXXCorrector")<<" unknown correction level "<<level; 
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);
-  mCorrector = new FactorizedJetCorrector(vParam);
+  mCorrector = new FactorizedJetCorrectorCalculator(vParam);
 }
 //------------------------------------------------------------------------ 
 //--- LXXXCorrector destructor -------------------------------------------
@@ -53,13 +53,14 @@ double LXXXCorrector::correction(const LorentzVector& fJet) const
     throw cms::Exception("Invalid jet type") << "L4EMFCorrection is applicable to CaloJets only";
     return 1;
   }
-  else {
-      mCorrector->setJetEta(fJet.eta()); 
-      mCorrector->setJetE(fJet.energy());
-      mCorrector->setJetPt(fJet.pt());
-      mCorrector->setJetPhi(fJet.phi());
-  } 
-  return mCorrector->getCorrection();
+
+  FactorizedJetCorrectorCalculator::VariableValues values;
+  values.setJetEta(fJet.eta()); 
+  values.setJetE(fJet.energy());
+  values.setJetPt(fJet.pt());
+  values.setJetPhi(fJet.phi());
+
+  return mCorrector->getCorrection(values);
 }
 //------------------------------------------------------------------------ 
 //--- Returns correction for a given jet ---------------------------------
@@ -70,10 +71,11 @@ double LXXXCorrector::correction(const reco::Jet& fJet) const
   // L4 correction applies to Calojets only
   if (mLevel == 4) {
       const reco::CaloJet& caloJet = dynamic_cast <const reco::CaloJet&> (fJet);
-      mCorrector->setJetEta(fJet.eta()); 
-      mCorrector->setJetPt(fJet.pt());
-      mCorrector->setJetEMF(caloJet.emEnergyFraction());
-      result = mCorrector->getCorrection();
+      FactorizedJetCorrectorCalculator::VariableValues values;
+      values.setJetEta(fJet.eta()); 
+      values.setJetPt(fJet.pt());
+      values.setJetEMF(caloJet.emEnergyFraction());
+      result = mCorrector->getCorrection(values);
   }
   else
     result = correction(fJet.p4());

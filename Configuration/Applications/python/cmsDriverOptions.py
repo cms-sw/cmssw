@@ -97,7 +97,8 @@ def OptionsFromItems(items):
                  "DATAMIX":"DIGI",
                  "DIGI2RAW":"DATAMIX",
                  "HARVESTING":"RECO",
-                 "ALCAHARVEST":"RECO"}
+                 "ALCAHARVEST":"RECO",
+                 "PAT":"RECO"}
 
     trimmedEvtType=options.evt_type.split('/')[-1]
 
@@ -128,7 +129,7 @@ def OptionsFromItems(items):
         addEndJob = False
     if ("ENDJOB" in options.step):
         addEndJob = False
-    if ('DQMROOT' in options.datatier):
+    if ('DQMIO' in options.datatier):
         addEndJob = False
     if addEndJob:    
         options.step=options.step+',ENDJOB'

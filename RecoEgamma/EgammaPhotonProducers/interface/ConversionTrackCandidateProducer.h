@@ -17,7 +17,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -28,7 +27,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -44,8 +43,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   ~ConversionTrackCandidateProducer();
   
   virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void endRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 
@@ -65,7 +63,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
-  edm::ParameterSet conf_;
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
@@ -92,14 +89,12 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
 
-  std::string                      trajectoryBuilderName_;
-  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilder_;
+  std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder_;
 
-  const NavigationSchool*     theNavigationSchool_;
-  OutInConversionSeedFinder*  theOutInSeedFinder_;
-  OutInConversionTrackFinder* theOutInTrackFinder_;
-  InOutConversionSeedFinder*  theInOutSeedFinder_;
-  InOutConversionTrackFinder* theInOutTrackFinder_;
+  std::unique_ptr<OutInConversionSeedFinder>  theOutInSeedFinder_;
+  std::unique_ptr<OutInConversionTrackFinder> theOutInTrackFinder_;
+  std::unique_ptr<InOutConversionSeedFinder>  theInOutSeedFinder_;
+  std::unique_ptr<InOutConversionTrackFinder> theInOutTrackFinder_;
 
 
   std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecOutIn_; 

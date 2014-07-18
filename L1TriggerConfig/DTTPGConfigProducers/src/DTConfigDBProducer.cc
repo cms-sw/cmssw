@@ -10,7 +10,6 @@
 #include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
-#include "CondFormats/DTObjects/interface/DTConfigAbstractHandler.h"
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 #include "L1TriggerConfig/DTTPGConfigProducers/src/DTPosNegType.h"
@@ -274,7 +273,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd & iRecord,
   iRecord.getRecord<DTCCBConfigRcd>().get(ccb_conf);
   int ndata = std::distance( ccb_conf->begin(), ccb_conf->end() );
 
-  DTConfigAbstractHandler* cfgCache = DTConfigAbstractHandler::getInstance();
   const DTKeyedConfigListRcd& keyRecord = iRecord.getRecord<DTKeyedConfigListRcd>();
 
   if(m_debugDB)
@@ -352,7 +350,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd & iRecord,
 
 		// create strings list
         	std::vector<std::string> list;
-                cfgCache->getData( keyRecord, id, list );
+                cfgCache.getData( keyRecord, id, list );
 
 		// loop over strings
         	std::vector<std::string>::const_iterator s_iter = list.begin();

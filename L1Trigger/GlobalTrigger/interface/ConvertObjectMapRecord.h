@@ -20,11 +20,11 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class ConvertObjectMapRecord : public edm::EDProducer {
+class ConvertObjectMapRecord : public edm::stream::EDProducer<> {
 
 public:
     explicit ConvertObjectMapRecord(const edm::ParameterSet& pset);

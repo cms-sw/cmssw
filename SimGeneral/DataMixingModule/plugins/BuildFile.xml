@@ -1,5 +1,8 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="CalibTracker/Records"/>
+<use   name="CalibFormats/SiStripObjects"/>
 <use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DTDigi"/>
@@ -19,6 +22,8 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Mixing/Base"/>
+<use   name="SimTracker/SiStripDigitizer"/>
+<use   name="RecoLocalTracker/SiStripZeroSuppression"/>
 <use   name="SimCalorimetry/CaloSimAlgos"/>
 <use   name="SimCalorimetry/HcalSimAlgos"/>
 <use   name="SimCalorimetry/HcalSimProducers"/>

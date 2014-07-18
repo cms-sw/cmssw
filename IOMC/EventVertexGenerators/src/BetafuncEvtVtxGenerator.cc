@@ -58,8 +58,6 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
 	<< "Illegal resolution in Z (SigmaZ is negative)";
     }
   }
-
-  
 }
 
 BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator() 

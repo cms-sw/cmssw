@@ -13,6 +13,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"

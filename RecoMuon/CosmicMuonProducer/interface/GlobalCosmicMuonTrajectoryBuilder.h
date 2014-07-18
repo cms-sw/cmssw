@@ -70,7 +70,7 @@ private:
 
   CosmicMuonSmoother* smoother() const {return theSmoother;}
 
-  CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
+  const CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
 
   bool isTraversing(const reco::Track& tk) const;
 

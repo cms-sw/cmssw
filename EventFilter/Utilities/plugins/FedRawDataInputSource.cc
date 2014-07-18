@@ -4,6 +4,7 @@
 #include <sstream>
 #include <sys/types.h>
 #include <sys/file.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <vector>
 #include <fstream>
@@ -26,6 +27,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/fed_header.h"
@@ -47,7 +49,7 @@ using namespace jsoncollector;
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
-  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd")),
+  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/budef.jsd")),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)*1048576),
   eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
@@ -55,8 +57,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
-  buInputDir_(edm::Service<evf::EvFDaqDirector>()->buBaseDir()),
-  fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->fuBaseDir()),
+  fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
   eventID_(),
   processHistoryID_(),
@@ -183,8 +184,10 @@ bool FedRawDataInputSource::checkNextEvent()
           const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
           bool found = (stat(fuEoLS.c_str(), &buf) == 0);
           if ( !found ) {
+            daqDirector_->lockFULocal2();
             int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
             close(eol_fd);
+            daqDirector_->lockFULocal2();
           }
         }
       }
@@ -238,8 +241,10 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
+        daqDirector_->lockFULocal2();
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
+        daqDirector_->unlockFULocal2();
       }
     }
 
@@ -508,7 +513,29 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
   const boost::filesystem::path filePath(fileName);
   if (!testModeNoBuilderUnit_) {
     edm::LogInfo("FedRawDataInputSource") << "Deleting input file " << fileName;
-    boost::filesystem::remove(filePath); // won't work in case of forked children
+    try {
+      //sometimes this fails but file gets deleted
+      boost::filesystem::remove(filePath);
+    }
+    catch (const boost::filesystem::filesystem_error& ex)
+    {
+      edm::LogError("FedRawDataInputSource") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+                                               << ". Trying again.";
+      usleep(100000);
+      try {
+        boost::filesystem::remove(filePath);
+      }
+      catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    }
+    catch (std::exception& ex)
+    {
+      edm::LogError("FedRawDataInputSource") << " - deleteFile std::exception CAUGHT: " << ex.what()
+                                               << ". Trying again.";
+      usleep(100000);
+      try {
+	boost::filesystem::remove(filePath);
+      } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    }
   } else {
     edm::LogInfo("FedRawDataInputSource") << "Renaming input file " << fileName;
     renameToNextFree(fileName);
@@ -598,11 +625,10 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     // assemble json destination path
     boost::filesystem::path jsonDestPath(fuOutputDir_);
 
-    //should be ported to use fffnaming
+    //TODO:should be ported to use fffnaming
     std::ostringstream fileNameWithPID;
     fileNameWithPID << jsonSourcePath.stem().string() << "_pid"
                     << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
-    const boost::filesystem::path filePathWithPID(fileNameWithPID.str());
     jsonDestPath /= fileNameWithPID.str();
 
     edm::LogInfo("FedRawDataInputSource") << " JSON rename " << jsonSourcePath << " to "
@@ -611,7 +637,6 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     if ( testModeNoBuilderUnit_ )
       boost::filesystem::copy(jsonSourcePath,jsonDestPath);
     else {
-      //boost::filesystem::rename(jsonSourcePath,jsonDestPath);
       try {
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
@@ -623,7 +648,24 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
         sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
-      boost::filesystem::remove(jsonSourcePath);
+      daqDirector_->unlockFULocal();
+
+
+      try {
+        //sometimes this fails but file gets deleted
+        boost::filesystem::remove(jsonSourcePath);
+      }
+      catch (const boost::filesystem::filesystem_error& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what();
+      }
+      catch (std::exception& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << " - grabNextFile std::exception CAUGHT: " << ex.what();
+      }
+
     }
 
     boost::filesystem::ifstream ij(jsonDestPath);
@@ -653,29 +695,32 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 	  " error reading number of events from BU JSON: No input value" << data;
     }
     return boost::lexical_cast<int>(data);
-  }
 
+  }
   catch (const boost::filesystem::filesystem_error& ex)
   {
     // Input dir gone?
-    edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+    daqDirector_->unlockFULocal();
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
                   << " - Maybe the BU run dir disappeared? Ending process with code 0...";
     _exit(-1);
   }
   catch (std::runtime_error e)
   {
     // Another process grabbed the file and NFS did not register this
-     edm::LogError("FedRawDataInputSource") << " - grabNextFile runtime Exception: " << e.what();
+    daqDirector_->unlockFULocal();
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - runtime Exception: " << e.what();
   }
 
   catch( boost::bad_lexical_cast const& ) {
-    edm::LogError("FedRawDataInputSource") << " error parsing number of events from BU JSON. Input value is " << data;
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - error parsing number of events from BU JSON. Input value is " << data;
   }
 
   catch (std::exception e)
   {
     // BU run directory disappeared?
-    edm::LogError("FedRawDataInputSource") << " - grabNextFileSOME OTHER EXCEPTION OCCURED!!!! ->" << e.what();
+    daqDirector_->unlockFULocal();
+    edm::LogError("FedRawDataInputSource") << " - grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! ->" << e.what();
   }
 
   return -1;
@@ -733,7 +778,7 @@ void FedRawDataInputSource::readSupervisor()
       else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
       }
-      if (quit_threads_) {stop=true;break;}
+      if (quit_threads_ || edm::shutdown_flag.load(std::memory_order_relaxed)) {stop=true;break;}
     }
 
     //look for a new file
@@ -748,7 +793,7 @@ void FedRawDataInputSource::readSupervisor()
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
 
     while (status == evf::EvFDaqDirector::noFile) {
-      if (quit_threads_) {
+      if (quit_threads_ || edm::shutdown_flag.load(std::memory_order_relaxed)) {
 	stop=true;
 	break;
       }
@@ -760,7 +805,9 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      if( getLSFromFilename_ && ls > currentLumiSection ) {
+
+      //queue new lumisection
+      if( getLSFromFilename_ && ls > currentLumiSection) {
 	currentLumiSection = ls;
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
       }
@@ -776,11 +823,11 @@ void FedRawDataInputSource::readSupervisor()
     if ( status == evf::EvFDaqDirector::newFile ) {
       edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-      if (fms_) fms_->stoppedLookingForFile(ls);
 
       boost::filesystem::path jsonFile(nextFile);
       jsonFile.replace_extension(".jsn");
       int eventsInNewFile = grabNextJsonFile(jsonFile);
+      if (fms_) fms_->stoppedLookingForFile(ls);
       assert( eventsInNewFile>=0 );
       assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
 
@@ -910,6 +957,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     }
 
     unsigned int bufferLeft = 0;
+    auto start = std::chrono::high_resolution_clock::now();
     for (unsigned int i=0;i<readBlocks_;i++)
     {
       const ssize_t last = ::read(fileDescriptor,( void*) (chunk->buf_+bufferLeft), eventChunkBlock_);
@@ -920,6 +968,10 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
 	break;
       }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end-start;
+    std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+    edm::LogInfo("FedRawDataInputSource") << " finished reading block of " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
     close(fileDescriptor);
 
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)

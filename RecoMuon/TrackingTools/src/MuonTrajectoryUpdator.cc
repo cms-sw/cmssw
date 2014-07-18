@@ -173,11 +173,11 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	  
 	  LogTrace(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
 	  
-	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
+	  TrajectoryMeasurement && updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
 									*recHit, thisChi2.second, detLayer, 
 									measurement);
 	  // FIXME: check!
-	  trajectory.push(updatedMeasurement, thisChi2.second);	
+	  trajectory.push(std::move(updatedMeasurement), thisChi2.second);	
 	  }
 	  else {
 	    LogTrace(metname) << "  Compatible RecHit with good chi2 but made with RPC when it was decided to not include it in the fit"
@@ -185,8 +185,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	      
 	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
 	    invalidRhPtr->invalidateHit();
-	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
-	    trajectory.push(invalidRhMeasurement, thisChi2.second);	  	    
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr,  thisChi2.second, detLayer);
+	    trajectory.push(std::move(invalidRhMeasurement), thisChi2.second);	  	    
 	  }
 	}
 	else {
@@ -196,8 +196,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 
 	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
 	    invalidRhPtr->invalidateHit();
-	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
-	    trajectory.push(invalidRhMeasurement, thisChi2.second);	  
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr, thisChi2.second, detLayer);
+	    trajectory.push(std::move(invalidRhMeasurement), thisChi2.second);	  
           }
 	}
       }

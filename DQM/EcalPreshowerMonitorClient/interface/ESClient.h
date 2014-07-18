@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 class DQMStore;
 
 class ESClient {
@@ -22,7 +24,32 @@ class ESClient {
 
       virtual ~ESClient(void) {}
 
+      template<typename T> T* getHisto(MonitorElement*, bool = false, T* = 0) const;
+
 };
+
+template<typename T>
+T*
+ESClient::getHisto(MonitorElement* _me, bool _clone/* = false*/, T* _current/* = 0*/) const
+{
+  if(!_me){
+    if(_clone) return _current;
+    else return 0;
+  }
+
+  TObject* obj(_me->getRootObject());
+
+  if(!obj) return 0;
+
+  if(_clone){
+    delete _current;
+    _current = dynamic_cast<T*>(obj->Clone(("ME " + _me->getName()).c_str()));
+    if(_current) _current->SetDirectory(0);
+    return _current;
+  }
+  else
+    return dynamic_cast<T*>(obj);
+}
 
 #endif // ESClient_H
 

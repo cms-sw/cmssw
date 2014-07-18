@@ -45,7 +45,7 @@ void edmChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Analy
 						}
 						clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD, SM );
 						clang::SourceLocation SL = MD->getLocStart();
-						BR.EmitBasicReport(MD, "Class Checker : inherits from edm::EDProducer or edm::EDFilter","optional",os.str(),ELoc,SL);
+						BR.EmitBasicReport(MD, "Class Checker : inherits from edm::EDProducer or edm::EDFilter","optional",os.str(),ELoc);
 						}
 					}
 			}

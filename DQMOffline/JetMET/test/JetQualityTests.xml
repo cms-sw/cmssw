@@ -44,19 +44,6 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<QTEST name="meanNTracksTest">
-        <TYPE>MeanWithinExpected</TYPE> 
-        <PARAM name="mean">2</PARAM>
-        <PARAM name="useRMS">0</PARAM>
-        <PARAM name="useSigma">0</PARAM>
-        <PARAM name="useRange">1</PARAM>
-        <PARAM name="xmin">0</PARAM>
-        <PARAM name="xmax">10</PARAM>
-        <PARAM name="error">0.10</PARAM>
-        <PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-
 <LINK name="JetMET/Jet/*/Eta*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
@@ -79,11 +66,5 @@
    <TestName activate="true">KolmogorovTest</TestName>
    <TestName activate="true">meanEMFractionTest</TestName>
 </LINK>
-
-<LINK name="JetMET/Jet/*JetPlusTrack*/nTracks">
-   <TestName activate="true">KolmogorovTest</TestName>
-   <TestName activate="true">meanNTracksTest</TestName>
-</LINK>
-
 
 </TESTSCONFIGURATION>

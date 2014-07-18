@@ -105,7 +105,8 @@ ProduceIsolationMap::ProduceIsolationMap(const edm::ParameterSet& iConfig)
 
    // TrackAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   parameters_.loadParameters( parameters );
+   edm::ConsumesCollector iC = consumesCollector();
+   parameters_.loadParameters( parameters, iC );
    trackAssociator_.useDefaultPropagator();
 
    //register your products

@@ -62,5 +62,5 @@ process.dqmSaver.saveAtJobEnd = True
 process.ppost = cms.EndPath(process.post+process.dqmSaver)
 
 #----------------------------------------
-# End of original testEmDQMFeeder_cfg.py
+# End of original testEmDQM_cfg.py
 #----------------------------------------

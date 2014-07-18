@@ -25,7 +25,7 @@
 #include <TrackingTools/KalmanUpdators/interface/KFUpdator.h>
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
-TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par,edm::ConsumesCollector& IC){
+TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par,edm::ConsumesCollector& iC){
 
   theOption = par.getParameter<unsigned int>("option");
   theCopyMuonRecHit = par.getParameter<bool>("copyMuonRecHit");
@@ -52,7 +52,10 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par,edm::ConsumesCo
 
   theMeasurementTrackerEventTag = par.getParameter<edm::InputTag>("MeasurementTrackerEvent");
   theMeasurementTrackerEvent = 0;
+
+  theMeasurementTrackerEventToken=iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag);
 }
+
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
   if (theUpdator)  delete theUpdator;
@@ -73,7 +76,7 @@ void TSGForRoadSearch::setEvent(const edm::Event &event){
   theProxyService->eventSetup().get<TrackerRecoGeometryRecord>().get(theGeometricSearchTracker);
 
   edm::Handle<MeasurementTrackerEvent> data;
-  event.getByLabel(theMeasurementTrackerEventTag, data);
+  event.getByToken(theMeasurementTrackerEventToken, data);
   theMeasurementTrackerEvent = &*data;
 }
 

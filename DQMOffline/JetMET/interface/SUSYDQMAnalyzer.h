@@ -18,7 +18,7 @@
 
 #include <string>
 
-//class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+
 class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
@@ -37,8 +37,8 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollectionToken;
 
   edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollectionToken;
-  edm::EDGetTokenT<reco::JPTJetCollection> theJPTJetCollectionToken;
-  edm::EDGetTokenT<reco::METCollection> theTCMETCollectionToken;
+  //edm::EDGetTokenT<reco::JPTJetCollection> theJPTJetCollectionToken;
+  //edm::EDGetTokenT<reco::METCollection> theTCMETCollectionToken;
 
   double _ptThreshold;
   double _maxNJets;
@@ -50,21 +50,22 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   DQMStore* dqm;
 
   //Susy DQM storing elements
+  //remove TCMET and JPT related variables
 
   MonitorElement* hCaloHT;
-  MonitorElement* hJPTHT;
+  //MonitorElement* hJPTHT;
   MonitorElement* hPFHT;
 
   MonitorElement* hCaloMET;
   MonitorElement* hPFMET;
-  MonitorElement* hTCMET;
+  //MonitorElement* hTCMET;
   
   MonitorElement* hCaloMHT;
-  MonitorElement* hJPTMHT;
+  //MonitorElement* hJPTMHT;
   MonitorElement* hPFMHT;  
 
   MonitorElement* hCaloAlpha_T;
-  MonitorElement* hJPTAlpha_T;
+  //MonitorElement* hJPTAlpha_T;
   MonitorElement* hPFAlpha_T;
   
 };

@@ -169,8 +169,6 @@ int cond::TestGTLoad::execute(){
   Time_t stepLumi= 10000000000;
   if(hasOptionValue("step_lumi")) stepLumi = getOptionValue<Time_t>("step_lumi");
 
-  initializePluginManager();
-
   ConnectionPool connPool;
   if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
   connPool.configure();

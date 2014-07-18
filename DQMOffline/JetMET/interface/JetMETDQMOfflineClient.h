@@ -46,7 +46,7 @@
 class DQMStore;
 class MonitorElement;
 
-class JetMETDQMOfflineClient : public DQMEDAnalyzer {
+class JetMETDQMOfflineClient : public edm::EDAnalyzer {
  
  private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
@@ -68,8 +68,7 @@ class JetMETDQMOfflineClient : public DQMEDAnalyzer {
   
   virtual void beginJob(void);
   virtual void endJob();
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  //  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  //virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);

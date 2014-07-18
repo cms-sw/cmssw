@@ -168,8 +168,8 @@ def customise_Reco(process,pileup):
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),
     )
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix10+BPix9')  # Optimize later
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.BPix = cms.PSet(
+    process.regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix10+BPix9')  # Optimize later
+    process.regionalCosmicTrackerSeedingLayers.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),

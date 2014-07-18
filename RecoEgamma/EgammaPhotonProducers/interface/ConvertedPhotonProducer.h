@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,7 +17,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
@@ -33,7 +32,7 @@
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
 class ConversionVertexFinder;
-class ConvertedPhotonProducer : public edm::EDProducer {
+class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
 
  public:
 

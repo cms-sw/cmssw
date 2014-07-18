@@ -6,7 +6,7 @@ using namespace reco;
 
 TaggingVariablePlotter::VariableConfig::VariableConfig(
 		const string &name, const ParameterSet &pSet, const bool& update,
-		const string &category, const string& label, const unsigned int& mc) :
+		const string &category, const string& label, const unsigned int& mc, DQMStore::IBooker & ibook) :
 	var(getTaggingVariableName(name)),
 	nBins(pSet.getParameter<unsigned int>("nBins")),
 	min(pSet.getParameter<double>("min")),
@@ -35,8 +35,8 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 							       name + (*iter ? Form("%d", *iter) : "")
 							       + (category.empty() ? "_" + label
 								  : ("_" + category) + "_" + label),
-			TaggingVariableDescription[var], nBins, min, max,
-			false, logScale, true, "b", update,label,mc));
+							       TaggingVariableDescription[var], nBins, min, max,
+							       false, logScale, true, "b", update,label,mc,ibook));
 		plot.index = *iter;
 		plots.push_back(plot);
 	}
@@ -44,7 +44,7 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 
 TaggingVariablePlotter::TaggingVariablePlotter(const std::string &tagName,
 					       const EtaPtBin &etaPtBin, const ParameterSet &pSet, const bool& update,
-					       const unsigned int& mc,
+					       const unsigned int& mc, DQMStore::IBooker & ibook,
 					       const string &category) : BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
 {
   const std::string tagVarDir(theExtensionString.substr(1));
@@ -54,7 +54,7 @@ TaggingVariablePlotter::TaggingVariablePlotter(const std::string &tagName,
 	    iter != pSets.end(); ++iter) {
 		VariableConfig var(*iter,
 		                   pSet.getParameter<ParameterSet>(*iter),
-		                   update, category,tagVarDir, mcPlots_);
+		                   update, category,tagVarDir, mcPlots_, ibook);
 		variables.push_back(var);
 	}
 }
@@ -65,13 +65,14 @@ TaggingVariablePlotter::~TaggingVariablePlotter ()
 }
 
 
-void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo,
+void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo, const double & jec, 
 	const int &jetFlavour)
 {
   analyzeTag(baseTagInfo->taggingVariables(), jetFlavour,1.);
 }
 
 void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo,
+					 const double & jec, 
 					 const int &jetFlavour,
 					 const float & w)
 {

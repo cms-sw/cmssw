@@ -10,7 +10,7 @@ public:
   theMaxLostHitsFraction( maxLostHitsFraction), 
   theConstantValue( constantValue) {}
   
-  explicit LostHitsFractionTrajectoryFilter( const edm::ParameterSet & pset){
+  explicit LostHitsFractionTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
     theMaxLostHitsFraction = pset.existsAs<double>("maxLostHitsFraction") ? 
       pset.getParameter<double>("maxLostHitsFraction") : 999; 
     theConstantValue =  pset.existsAs<double>("constantValueForLostHitsFractionFilter") ? 

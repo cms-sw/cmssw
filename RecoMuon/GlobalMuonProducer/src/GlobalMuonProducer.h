@@ -40,7 +40,7 @@ class GlobalMuonProducer : public edm::EDProducer {
   virtual ~GlobalMuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

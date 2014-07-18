@@ -14,11 +14,11 @@
 template <class T>
 class CaloConeSelector {
 public:
-  CaloConeSelector(double dR, const CaloGeometry* geom);
-  CaloConeSelector(double dR, const CaloGeometry* geom, DetId::Detector detector, int subdet=0);
+  CaloConeSelector(double dR, const CaloGeometry* geom) :
+    geom_(geom),deltaR_(dR),detector_(DetId::Detector(0)),subdet_(0) {}
 
-  std::auto_ptr<edm::SortedCollection<T> > select(double eta, double phi, const edm::SortedCollection<T>& inputCollection);
-  std::auto_ptr<edm::SortedCollection<T> > select(const GlobalPoint& p, const edm::SortedCollection<T>& inputCollection);
+  CaloConeSelector(double dR, const CaloGeometry* geom, DetId::Detector detector, int subdet=0) :
+    geom_(geom),deltaR_(dR),detector_(detector),subdet_(subdet) {}
 
   void inline selectCallback(double eta, double phi, const edm::SortedCollection<T>& inputCollection, std::function<void(const T&)> callback) {
     GlobalPoint p(GlobalPoint::Cylindrical(1,phi,tanh(eta)));

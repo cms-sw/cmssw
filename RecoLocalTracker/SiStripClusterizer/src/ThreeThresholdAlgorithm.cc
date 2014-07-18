@@ -79,8 +79,7 @@ endCandidate(T& out) {
   if(candidateAccepted()) {
     applyGains();
     appendBadNeighbors();
-    out.push_back(SiStripCluster(currentId(), firstStrip(), ADCs.begin(), ADCs.end()));
-    if (_setDetId) out.back().setId(currentId());
+    out.push_back(SiStripCluster(firstStrip(), ADCs.begin(), ADCs.end()));
   }
   clearCandidate();  
 }

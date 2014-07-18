@@ -125,8 +125,6 @@ cond::ListIOVUtilities::~ListIOVUtilities(){
 }
 
 int cond::ListIOVUtilities::execute(){
-  initializePluginManager();
-  
   bool listAll = hasOptionValue("all");
   bool dump = hasOptionValue("outputfile");
   std::auto_ptr<std::ofstream> outFile;

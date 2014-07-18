@@ -106,7 +106,7 @@ namespace {
   }
 
 
-  void checkState(const  BasicTrajectoryStateOnSurface & bstate, const MagneticField* mf, const GlobalPoint & origin)
+  inline void checkState(const  BasicTrajectoryStateOnSurface & bstate, const MagneticField* mf, const GlobalPoint & origin)
   {
     TrajectoryStateOnSurface state(bstate.clone());
     

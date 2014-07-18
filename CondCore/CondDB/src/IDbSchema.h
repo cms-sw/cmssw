@@ -25,6 +25,7 @@ namespace cond {
 			   cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime ) = 0;
       virtual void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, 
 				   const boost::posix_time::ptime& updateTime ) = 0;
+      virtual void setValidationMode() = 0;
     };
 
     class IPayloadTable {
@@ -60,6 +61,7 @@ namespace cond {
 			      const boost::posix_time::ptime& insertTime ) = 0;
       virtual void insertMany( const std::string& tag, 
 			       const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs ) = 0;
+      virtual void erase( const std::string& tag ) = 0;
     };
     
     class ITagMigrationTable {
@@ -67,9 +69,10 @@ namespace cond {
       virtual ~ITagMigrationTable(){}
       virtual bool exists() = 0;
       virtual void create() = 0;
-      virtual bool select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName ) = 0;
+      virtual bool select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName, int& statusCode ) = 0;
       virtual void insert( const std::string& sourceAccount, const std::string& sourceTag, const std::string& tagName, 
-			   const boost::posix_time::ptime& insertionTime ) = 0;
+			   int statusCode, const boost::posix_time::ptime& insertionTime ) = 0;
+      virtual void updateValidationCode( const std::string& sourceAccount, const std::string& sourceTag, int statusCode ) = 0;
     };
     
     class IIOVSchema {

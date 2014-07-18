@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -1763,6 +1765,7 @@ namespace edm {
     StoredProductProvenanceVector* pProvVector_;
     std::vector<ParentageID> const& parentageIDLookup_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
+    mutable SharedResourcesAcquirer resourceAcquirer_;
   };
 
   ReducedProvenanceReader::ReducedProvenanceReader(
@@ -1773,15 +1776,20 @@ namespace edm {
       rootTree_(iRootTree),
       pProvVector_(&provVector_),
       parentageIDLookup_(iParentageIDLookup),
-      daqProvenanceHelper_(daqProvenanceHelper) {
+      daqProvenanceHelper_(daqProvenanceHelper),
+      resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader())
+  {
     provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
   }
 
   void
   ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
-    ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
-    setRefCoreStreamer(true);
+    {
+      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
+      me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
+      setRefCoreStreamer(true);
+    }
     if(daqProvenanceHelper_) {
       for(auto const& prov : provVector_) {
         BranchID bid(prov.branchID_);
@@ -1812,6 +1820,7 @@ namespace edm {
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
+    mutable SharedResourcesAcquirer resourceAcquirer_;
   };
 
   FullProvenanceReader::FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1819,13 +1828,17 @@ namespace edm {
          rootTree_(rootTree),
          infoVector_(),
          pInfoVector_(&infoVector_),
-         daqProvenanceHelper_(daqProvenanceHelper) {
+         daqProvenanceHelper_(daqProvenanceHelper),
+         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
   }
 
   void
   FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
-    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
-    setRefCoreStreamer(true);
+    {
+      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
+      setRefCoreStreamer(true);
+    }
     if(daqProvenanceHelper_) {
       for(auto const& info : infoVector_) {
         provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(info.branchID()),
@@ -1849,6 +1862,7 @@ namespace edm {
     mutable std::vector<EventEntryInfo> *pInfoVector_;
     EntryDescriptionMap const& entryDescriptionMap_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
+    mutable SharedResourcesAcquirer resourceAcquirer_;
   };
 
   OldProvenanceReader::OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1857,14 +1871,18 @@ namespace edm {
          infoVector_(),
          pInfoVector_(&infoVector_),
          entryDescriptionMap_(theMap),
-         daqProvenanceHelper_(daqProvenanceHelper) {
+         daqProvenanceHelper_(daqProvenanceHelper),
+         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
   }
 
   void
   OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
-    rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
-    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
-    setRefCoreStreamer(true);
+    {
+      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
+      roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
+      setRefCoreStreamer(true);
+    }
     for(auto const& info : infoVector_) {
       EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
       assert(iter != entryDescriptionMap_.end());

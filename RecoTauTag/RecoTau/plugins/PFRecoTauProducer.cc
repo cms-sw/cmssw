@@ -37,9 +37,9 @@ class PFRecoTauProducer : public EDProducer {
   ~PFRecoTauProducer();
   virtual void produce(edm::Event&,const edm::EventSetup&) override;
  private:
-  edm::InputTag PFTauTagInfoProducer_;
+  edm::EDGetTokenT<PFTauTagInfoCollection> PFTauTagInfoProducer_;
   edm::InputTag ElectronPreIDProducer_;
-  edm::InputTag PVProducer_;
+  edm::EDGetTokenT<VertexCollection> PVProducer_;
   std::string Algorithm_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
@@ -49,9 +49,9 @@ class PFRecoTauProducer : public EDProducer {
 };
 
 PFRecoTauProducer::PFRecoTauProducer(const edm::ParameterSet& iConfig){
-  PFTauTagInfoProducer_   = iConfig.getParameter<edm::InputTag>("PFTauTagInfoProducer");
+  PFTauTagInfoProducer_   = consumes<PFTauTagInfoCollection>(iConfig.getParameter<edm::InputTag>("PFTauTagInfoProducer") );
   ElectronPreIDProducer_  = iConfig.getParameter<edm::InputTag>("ElectronPreIDProducer");
-  PVProducer_             = iConfig.getParameter<edm::InputTag>("PVProducer");
+  PVProducer_             = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("PVProducer") );
   Algorithm_              = iConfig.getParameter<std::string>("Algorithm");
   smearedPVsigmaX_        = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_        = iConfig.getParameter<double>("smearedPVsigmaY");
@@ -96,7 +96,7 @@ void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
   */
   // query a rec/sim PV
   edm::Handle<VertexCollection> thePVs;
-  iEvent.getByLabel(PVProducer_,thePVs);
+  iEvent.getByToken(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
   if(vertCollection.size()) thePV=*(vertCollection.begin());
@@ -112,7 +112,7 @@ void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
   }
   
   edm::Handle<PFTauTagInfoCollection> thePFTauTagInfoCollection;
-  iEvent.getByLabel(PFTauTagInfoProducer_,thePFTauTagInfoCollection);
+  iEvent.getByToken(PFTauTagInfoProducer_,thePFTauTagInfoCollection);
   int iinfo=0;
   for(PFTauTagInfoCollection::const_iterator i_info=thePFTauTagInfoCollection->begin();i_info!=thePFTauTagInfoCollection->end();i_info++) { 
     if((*i_info).pfjetRef()->pt()>JetMinPt_){

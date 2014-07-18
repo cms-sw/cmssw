@@ -18,6 +18,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class Chi2MeasurementEstimator;
 class Propagator;
@@ -154,7 +155,8 @@ private:
 
   edm::Handle<reco::BeamSpot> beamSpot;
   edm::InputTag theBeamSpotInputTag;
-
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
 };
 
 #endif 

@@ -8,7 +8,7 @@ from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 from HLTriggerOffline.Higgs.HiggsValidation_cff import *
 from HLTriggerOffline.Top.topHLTValidation_cff import *
-
+from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -21,7 +21,8 @@ from DQMOffline.Trigger.HLTMonTau_cfi import *
  
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
-hltassociation = cms.Sequence( egammaSelectors )
+hltassociation = cms.Sequence( egammaSelectors
+                               +ExoticaValidationProdSeq )
 
 
 hltvalidation = cms.Sequence(
@@ -35,6 +36,7 @@ hltvalidation = cms.Sequence(
     +HLTJetMETValSeq
     +HLTSusyExoValSeq
     +HiggsValidationSequence
+    +ExoticaValidationSequence
     )
 
 

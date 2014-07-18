@@ -217,7 +217,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
 
 }
 
-void  DeDxDiscriminatorProducer::endJob()
+void  DeDxDiscriminatorProducer::endStream()
 {
    MODsColl.clear();
 }

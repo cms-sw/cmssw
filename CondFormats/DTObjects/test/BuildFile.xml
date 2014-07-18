@@ -8,6 +8,8 @@
 <use   name="FWCore/Framework"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/MuonDetId"/>
+<bin   file="testDTBufferTree.cc">
+</bin>
 <library   file="stubs/*.cc" name="CondFormatsDTObjectsTest">
   <flags   EDM_PLUGIN="1"/>
 </library>

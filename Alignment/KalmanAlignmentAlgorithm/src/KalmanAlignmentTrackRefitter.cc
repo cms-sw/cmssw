@@ -32,7 +32,7 @@ KalmanAlignmentTrackRefitter::KalmanAlignmentTrackRefitter( const edm::Parameter
   TrackProducerBase< reco::Track >::setConf( config );
   // --- GPetrucc: I can't understand where anything is read from the event, and who's the consumer.
   //               If there is one anywhere, it should do the consumes<T> calls and pass that to the setSrc
-  //TrackProducerBase< reco::Track >::setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+  //TrackProducerBase< reco::Track >::setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )),
   //                                          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
 }
 
@@ -54,7 +54,13 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
   edm::ESHandle<MeasurementTracker> theMeasTk;
   edm::ESHandle< TransientTrackingRecHitBuilder > aRecHitBuilder;
 
-  getFromES( setup, aGeometry, aMagneticField, aTrajectoryFitter, aPropagator, theMeasTk, aRecHitBuilder );
+  getFromES( setup,
+             aGeometry,
+             aMagneticField,
+             aTrajectoryFitter,
+             aPropagator,
+             theMeasTk,
+             aRecHitBuilder );
 
   TrackletCollection result;
   TrackCollection fullTracks;
@@ -87,7 +93,7 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
  	try
 	{
 	  //if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
-	  theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
+	  theNavigator->alignableFromDetId( (*itHits)->geographicalId() );
 	} catch(...) { continue; }
 
 	if ( (*itSetup)->useForTracking( *itHits ) )
@@ -120,7 +126,7 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 	     ( trackingRecHits.size() >= (*itSetup)->minTrackingHits() ) )
 	{
 	  TrajTrackPairCollection refitted = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
-								  (*itSetup)->fitter(), (*itSetup)->propagator(), 
+								  (*itSetup)->fitter(), (*itSetup)->propagator(),
 								  aRecHitBuilder.product(), fullTrack,
 								  trackingRecHits, beamSpot,
 								  (*itSetup)->sortingDirection(), false, true );
@@ -142,7 +148,7 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 	else { continue; } // Expected external hits but found none or not enough hits.
       }
       else if ( ( trackingRecHits.size() >= (*itSetup)->minTrackingHits() ) &&
-		( externalTrackingRecHits.size() >= (*itSetup)->minExternalHits() ) ) 
+		( externalTrackingRecHits.size() >= (*itSetup)->minExternalHits() ) )
       {
 	// Create an instance of KalmanAlignmentTracklet with an external prediction.
 
@@ -225,7 +231,7 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
   AnalyticalPropagator firstStatePropagator( magneticField, anyDirection );
   TrajectoryStateOnSurface firstState = firstStatePropagator.propagate( fullTrack.impactPointState(), firstHit->det()->surface() );
 
-  KalmanAlignmentDataCollector::fillHistogram( identifier + string("_IPPt"), 
+  KalmanAlignmentDataCollector::fillHistogram( identifier + string("_IPPt"),
 					       1e-2*fullTrack.impactPointState().globalParameters().momentum().perp() );
 
   if ( !firstState.isValid() ) return result;
@@ -274,7 +280,7 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
   TrajectorySeed seed( PTrajectoryStateOnDet(), recHits, propagator->propagationDirection() );
 
   // Generate track candidate.
-  
+
   PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState( tsos, firstHit->det()->geographicalId().rawId() );
   TrackCandidate candidate( recHits, seed, state );
 
@@ -349,7 +355,7 @@ bool KalmanAlignmentTrackRefitter::rejectTrack( const Track* track ) const
 
   GENFUNCTION cumulativeChi2 = Genfun::CumulativeChiSquare( ndof );
   double chi2Prob = 1. - cumulativeChi2( trackChi2 );
-  return ( chi2Prob < minChi2Prob ) || ( chi2Prob > maxChi2Prob ); 
+  return ( chi2Prob < minChi2Prob ) || ( chi2Prob > maxChi2Prob );
 }
 
 

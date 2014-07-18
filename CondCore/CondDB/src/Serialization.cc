@@ -67,34 +67,37 @@ public:
   void read( void* destinationInstance, const TClass* ptrClass ){
     // first "load" the available streaminfo(s) 
     // code imported from TSocket::RecvStreamerInfos
-    TList *list = (TList*)m_streamerInfoBuff.ReadObject( TList::Class() );
-    TIter next(list);
-    TStreamerInfo *info;
-    TObjLink *lnk = list->FirstLink();
+    TList *list = 0;
+    if(m_streamerInfoBuff.Length()){
+      list = (TList*)m_streamerInfoBuff.ReadObject( TList::Class() );
+      TIter next(list);
+      TStreamerInfo *info;
+      TObjLink *lnk = list->FirstLink();
       // First call BuildCheck for regular class
-    while (lnk) {
-      info = (TStreamerInfo*)lnk->GetObject();
-      TObject *element = info->GetElements()->UncheckedAt(0);
-      Bool_t isstl = element && strcmp("This",element->GetName())==0;
-      if (!isstl) {
-	info->BuildCheck();
+      while (lnk) {
+	info = (TStreamerInfo*)lnk->GetObject();
+	TObject *element = info->GetElements()->UncheckedAt(0);
+	Bool_t isstl = element && strcmp("This",element->GetName())==0;
+	if (!isstl) {
+	  info->BuildCheck();
+	}
+	lnk = lnk->Next();
       }
-      lnk = lnk->Next();
+      // Then call BuildCheck for stl class
+      lnk = list->FirstLink();
+      while (lnk) {
+	info = (TStreamerInfo*)lnk->GetObject();
+	TObject *element = info->GetElements()->UncheckedAt(0);
+	Bool_t isstl = element && strcmp("This",element->GetName())==0;
+	if (isstl) {
+	  info->BuildCheck();
+	}
+	lnk = lnk->Next();
+      }
     }
-    // Then call BuildCheck for stl class
-    lnk = list->FirstLink();
-    while (lnk) {
-      info = (TStreamerInfo*)lnk->GetObject();
-      TObject *element = info->GetElements()->UncheckedAt(0);
-      Bool_t isstl = element && strcmp("This",element->GetName())==0;
-      if (isstl) {
-	info->BuildCheck();
-      }
-      lnk = lnk->Next();
-     }
-    delete list;
     // then read the object data
     StreamObject(destinationInstance, ptrClass);
+    if( list ) delete list;
   }
 
   void copy( std::ostream& destForData, std::ostream& destForStreamerInfo ){

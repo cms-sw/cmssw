@@ -49,7 +49,7 @@ namespace helper {
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
-  dbe_(edm::Service<DQMStore>().operator->()),	
+  dbe_(edm::Service<DQMStore>().operator->()),
   conf_(ps),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
@@ -65,6 +65,12 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
   SubDetList_ = conf_.getParameter<std::vector<std::string> >("SubDetList");
+  
+  outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+  
+  outputFileName = conf_.getParameter<std::string>("outputFile");
+
+  runStandalone = conf_.getParameter<bool>("runStandalone");
 
   edm::ParameterSet ParametersNumTotrphi =  conf_.getParameter<edm::ParameterSet>("TH1NumTotrphi");
   switchNumTotrphi = ParametersNumTotrphi.getParameter<bool>("switchon");
@@ -156,11 +162,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
 }
 
 SiStripRecHitsValid::~SiStripRecHitsValid(){
-  // if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
 
   unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
@@ -168,23 +173,17 @@ void SiStripRecHitsValid::beginRun(const edm::Run& run, const edm::EventSetup& e
     edm::LogInfo("SiStripRecHitsValid") <<"SiStripRecHitsValid::beginRun: " 
 					  << " Creating MEs for new Cabling ";     
     
-    createMEs(es);
+    createMEs(ibooker,es);
   }
 }
 
-
 void SiStripRecHitsValid::beginJob(const edm::EventSetup& es){
-  
 }
 
 void SiStripRecHitsValid::endJob() {
-
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("outputFile");
- 
-  // save histos in a file
-  if(outputMEsInRootFile) dbe_->save(outputFileName);
-
+  //Only in standalone mode save local root file 
+  if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
+  
 }
 
 
@@ -573,7 +572,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createMEs(const edm::EventSetup& es){
+void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -597,7 +596,7 @@ void SiStripRecHitsValid::createMEs(const edm::EventSetup& es){
 
   // std::cout << "curfold " << curfold << std::endl;
 
-  createTotalMEs();
+  createTotalMEs(ibooker);
 
   // loop over detectors and book MEs
   edm::LogInfo("SiStripTkRecHits|SiStripRecHitsValid")<<"nr. of activeDets:  "<<activeDets.size();
@@ -642,14 +641,14 @@ void SiStripRecHitsValid::createMEs(const edm::EventSetup& es){
       // std::stringstream ss;
       // folder_organizer.getLayerFolderName(ss, detid, tTopo, true); 
       // std::cout << "Folder Name " << ss.str().c_str() << std::endl;
-       createLayerMEs(label);
+      createLayerMEs(ibooker,label);
     }
     // book sub-detector plots 
     std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
     // std::cout << "sdet_pair " << sdet_pair.first << " " << sdet_pair.second << std::endl;
     if (SubDetMEsMap.find(det_layer_pair.first) == SubDetMEsMap.end()){
-      dbe_->setCurrentFolder(sdet_pair.first);
-      createSubDetMEs(det_layer_pair.first);        
+      ibooker.setCurrentFolder(sdet_pair.first);
+      createSubDetMEs(ibooker,det_layer_pair.first);        
     }
     //Create StereoAndMatchedMEs
     std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
@@ -688,7 +687,7 @@ void SiStripRecHitsValid::createMEs(const edm::EventSetup& es){
 	// folder_organizer.getLayerFolderName(ss1, detid, tTopo, true);  
 	// std::cout << "Folder Name stereo " <<  ss1.str().c_str() << std::endl;
 	//Create the Monitor Elements only when we have a stereo module
-	createStereoAndMatchedMEs(label);
+	createStereoAndMatchedMEs(ibooker,label);
       }
     }
  
@@ -696,7 +695,7 @@ void SiStripRecHitsValid::createMEs(const edm::EventSetup& es){
   }//end of loop over detectors
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createTotalMEs() 
+void SiStripRecHitsValid::createTotalMEs(DQMStore::IBooker & ibooker) 
 {
   totalMEs.meNumTotrphi = 0;
   totalMEs.meNumTotStereo = 0;
@@ -704,23 +703,23 @@ void SiStripRecHitsValid::createTotalMEs()
 
   //NumTotrphi
   if(switchNumTotrphi) {
-    totalMEs.meNumTotrphi = bookME1D("TH1NumTotrphi", "TH1NumTotrphi" ,"Num of RecHits");
+    totalMEs.meNumTotrphi = bookME1D(ibooker,"TH1NumTotrphi", "TH1NumTotrphi" ,"Num of RecHits");
     totalMEs.meNumTotrphi->setAxisTitle("Total number of RecHits");
   }
   //NumTotStereo
   if(switchNumTotStereo) {
-    totalMEs.meNumTotStereo = bookME1D("TH1NumTotStereo", "TH1NumTotStereo","Num of RecHits stereo");
+    totalMEs.meNumTotStereo = bookME1D(ibooker,"TH1NumTotStereo", "TH1NumTotStereo","Num of RecHits stereo");
     totalMEs.meNumTotStereo ->setAxisTitle("Total number of RecHits (stereo)");
   }
   //NumTotMatched
   if(switchNumTotMatched) {
-    totalMEs.meNumTotMatched = bookME1D("TH1NumTotMatched","TH1NumTotMatched","Num of RecHits rmatched"); 
+    totalMEs.meNumTotMatched = bookME1D(ibooker,"TH1NumTotMatched","TH1NumTotMatched","Num of RecHits rmatched"); 
     totalMEs.meNumTotMatched->setAxisTitle("Total number of matched RecHits");
   }
        
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createLayerMEs(std::string label) 
+void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std::string label) 
 {
   SiStripHistoId hidmanager;
   LayerMEs layerMEs; 
@@ -736,42 +735,42 @@ void SiStripRecHitsValid::createLayerMEs(std::string label)
 
   //Wclusrphi
   if(switchWclusrphi) {
-    layerMEs.meWclusrphi = bookME1D("TH1Wclusrphi", hidmanager.createHistoLayer("Wclus_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
+    layerMEs.meWclusrphi = bookME1D(ibooker,"TH1Wclusrphi", hidmanager.createHistoLayer("Wclus_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
     layerMEs.meWclusrphi->setAxisTitle(("Cluster Width [nr strips] in "+ label).c_str());
   }
   //Adcrphi
   if(switchAdcrphi) {
-    layerMEs.meAdcrphi = bookME1D("TH1Adcrphi", hidmanager.createHistoLayer("Adc_rphi","layer",label,"").c_str() ,"RecHit Cluster Charge");
+    layerMEs.meAdcrphi = bookME1D(ibooker,"TH1Adcrphi", hidmanager.createHistoLayer("Adc_rphi","layer",label,"").c_str() ,"RecHit Cluster Charge");
     layerMEs.meAdcrphi->setAxisTitle(("cluster charge [ADC] in " + label).c_str());
   }
   //Posxrphi
   if(switchPosxrphi) {
-    layerMEs.mePosxrphi = bookME1D("TH1Posxrphi", hidmanager.createHistoLayer("Posx_rphi","layer",label,"").c_str() ,"RecHit x coord."); 
+    layerMEs.mePosxrphi = bookME1D(ibooker,"TH1Posxrphi", hidmanager.createHistoLayer("Posx_rphi","layer",label,"").c_str() ,"RecHit x coord."); 
     layerMEs.mePosxrphi->setAxisTitle(("x RecHit coord. (local frame) in " + label).c_str());
   }
   //Resolxrphi
   if(switchResolxrphi) {
-    layerMEs.meResolxrphi = bookME1D("TH1Resolxrphi", hidmanager.createHistoLayer("Resolx_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
+    layerMEs.meResolxrphi = bookME1D(ibooker,"TH1Resolxrphi", hidmanager.createHistoLayer("Resolx_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
     layerMEs.meResolxrphi->setAxisTitle(("resol(x) RecHit coord. (local frame) in " + label).c_str());
   }
   //Resrphi
   if(switchResrphi) {
-    layerMEs.meResrphi = bookME1D("TH1Resrphi", hidmanager.createHistoLayer("Res_rphi","layer",label,"").c_str() ,"Residuals of the hit x coordinate"); 
+    layerMEs.meResrphi = bookME1D(ibooker,"TH1Resrphi", hidmanager.createHistoLayer("Res_rphi","layer",label,"").c_str() ,"Residuals of the hit x coordinate"); 
     layerMEs.meResrphi->setAxisTitle(("RecHit Res(x) in " + label).c_str());
   }
   //PullLFrphi
   if(switchPullLFrphi) {
-    layerMEs.mePullLFrphi = bookME1D("TH1PullLFrphi", hidmanager.createHistoLayer("Pull_LF_rphi","layer",label,"").c_str() ,"Pull distribution");  
+    layerMEs.mePullLFrphi = bookME1D(ibooker,"TH1PullLFrphi", hidmanager.createHistoLayer("Pull_LF_rphi","layer",label,"").c_str() ,"Pull distribution");  
     layerMEs.mePullLFrphi->setAxisTitle(("Pull distribution (local frame) in " + label).c_str());
   }
   //PullMFrphi
   if(switchPullMFrphi) {
-    layerMEs.mePullMFrphi = bookME1D("TH1PullMFrphi", hidmanager.createHistoLayer("Pull_MF_rphi","layer",label,"").c_str() ,"Pull distribution");  
+    layerMEs.mePullMFrphi = bookME1D(ibooker,"TH1PullMFrphi", hidmanager.createHistoLayer("Pull_MF_rphi","layer",label,"").c_str() ,"Pull distribution");  
     layerMEs.mePullMFrphi->setAxisTitle(("Pull distribution (measurement frame) in " + label).c_str());
   }
   //Chi2rphi
   if(switchChi2rphi) {
-    layerMEs.meChi2rphi = bookME1D("TH1Chi2rphi", hidmanager.createHistoLayer("Chi2_rphi","layer",label,"").c_str() ,"RecHit Chi2 test"); 
+    layerMEs.meChi2rphi = bookME1D(ibooker,"TH1Chi2rphi", hidmanager.createHistoLayer("Chi2_rphi","layer",label,"").c_str() ,"RecHit Chi2 test"); 
     layerMEs.meChi2rphi->setAxisTitle(("RecHit Chi2 test in " + label).c_str()); 
   }
 
@@ -779,7 +778,7 @@ void SiStripRecHitsValid::createLayerMEs(std::string label)
  
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createStereoAndMatchedMEs(std::string label) 
+void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label) 
 {
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs; 
@@ -802,77 +801,77 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(std::string label)
 
   //WclusStereo
   if(switchWclusStereo) {
-    stereoandmatchedMEs.meWclusStereo = bookME1D("TH1WclusStereo", hidmanager.createHistoLayer("Wclus_stereo","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
+    stereoandmatchedMEs.meWclusStereo = bookME1D(ibooker,"TH1WclusStereo", hidmanager.createHistoLayer("Wclus_stereo","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
     stereoandmatchedMEs.meWclusStereo->setAxisTitle(("Cluster Width [nr strips] in stereo modules in "+ label).c_str());
   }
   //AdcStereo
   if(switchAdcStereo) {
-    stereoandmatchedMEs.meAdcStereo = bookME1D("TH1AdcStereo", hidmanager.createHistoLayer("Adc_stereo","layer",label,"").c_str() ,"RecHit Cluster Charge"); 
+    stereoandmatchedMEs.meAdcStereo = bookME1D(ibooker,"TH1AdcStereo", hidmanager.createHistoLayer("Adc_stereo","layer",label,"").c_str() ,"RecHit Cluster Charge"); 
     stereoandmatchedMEs.meAdcStereo->setAxisTitle(("cluster charge [ADC] in stereo modules in " + label).c_str());
   }
   //PosxStereo
   if(switchPosxStereo) {
-    stereoandmatchedMEs.mePosxStereo = bookME1D("TH1PosxStereo", hidmanager.createHistoLayer("Posx_stereo","layer",label,"").c_str() ,"RecHit x coord."); 
+    stereoandmatchedMEs.mePosxStereo = bookME1D(ibooker,"TH1PosxStereo", hidmanager.createHistoLayer("Posx_stereo","layer",label,"").c_str() ,"RecHit x coord."); 
     stereoandmatchedMEs.mePosxStereo->setAxisTitle(("x RecHit coord. (local frame) in stereo modules in " + label).c_str());
   }
   //ResolxStereo
   if(switchResolxStereo) {
-    stereoandmatchedMEs.meResolxStereo = bookME1D("TH1ResolxStereo", hidmanager.createHistoLayer("Resolx_stereo","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
+    stereoandmatchedMEs.meResolxStereo = bookME1D(ibooker,"TH1ResolxStereo", hidmanager.createHistoLayer("Resolx_stereo","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
     stereoandmatchedMEs.meResolxStereo->setAxisTitle(("resol(x) RecHit coord. (local frame) in stereo modules in " + label).c_str());
   }
   //ResStereo
   if(switchResStereo) {
-    stereoandmatchedMEs.meResStereo = bookME1D("TH1ResStereo", hidmanager.createHistoLayer("Res_stereo","layer",label,"").c_str() ,"Residuals of the hit x coordinate"); 
+    stereoandmatchedMEs.meResStereo = bookME1D(ibooker,"TH1ResStereo", hidmanager.createHistoLayer("Res_stereo","layer",label,"").c_str() ,"Residuals of the hit x coordinate"); 
     stereoandmatchedMEs.meResStereo->setAxisTitle(("RecHit Res(x) in stereo modules in " + label).c_str());
   }
   //PullLFStereo
   if(switchPullLFStereo) {
-    stereoandmatchedMEs.mePullLFStereo = bookME1D("TH1PullLFStereo", hidmanager.createHistoLayer("Pull_LF_stereo","layer",label,"").c_str() ,"Pull distribution");  
+    stereoandmatchedMEs.mePullLFStereo = bookME1D(ibooker,"TH1PullLFStereo", hidmanager.createHistoLayer("Pull_LF_stereo","layer",label,"").c_str() ,"Pull distribution");  
     stereoandmatchedMEs.mePullLFStereo->setAxisTitle(("Pull distribution (local frame) in stereo modules in " + label).c_str());
   }
   //PullMFStereo
   if(switchPullMFStereo) {
-    stereoandmatchedMEs.mePullMFStereo = bookME1D("TH1PullMFStereo", hidmanager.createHistoLayer("Pull_MF_stereo","layer",label,"").c_str() ,"Pull distribution");  
+    stereoandmatchedMEs.mePullMFStereo = bookME1D(ibooker,"TH1PullMFStereo", hidmanager.createHistoLayer("Pull_MF_stereo","layer",label,"").c_str() ,"Pull distribution");  
     stereoandmatchedMEs.mePullMFStereo->setAxisTitle(("Pull distribution (measurement frame) in stereo modules in " + label).c_str());
   }
   //Chi2Stereo
   if(switchChi2Stereo) {
-    stereoandmatchedMEs.meChi2Stereo = bookME1D("TH1Chi2Stereo", hidmanager.createHistoLayer("Chi2_stereo","layer",label,"").c_str() ,"RecHit Chi2 test");  
+    stereoandmatchedMEs.meChi2Stereo = bookME1D(ibooker,"TH1Chi2Stereo", hidmanager.createHistoLayer("Chi2_stereo","layer",label,"").c_str() ,"RecHit Chi2 test");  
     stereoandmatchedMEs.meChi2Stereo->setAxisTitle(("RecHit Chi2 test in stereo modules in " + label).c_str()); 
   }
   //PosxMatched
   if(switchPosxMatched) {
-    stereoandmatchedMEs.mePosxMatched = bookME1D("TH1PosxMatched", hidmanager.createHistoLayer("Posx_matched","layer",label,"").c_str() ,"RecHit x coord.");  
+    stereoandmatchedMEs.mePosxMatched = bookME1D(ibooker,"TH1PosxMatched", hidmanager.createHistoLayer("Posx_matched","layer",label,"").c_str() ,"RecHit x coord.");  
     stereoandmatchedMEs.mePosxMatched->setAxisTitle(("x coord. matched RecHit (local frame) in " + label).c_str());
   }
   //PosyMatched
   if(switchPosyMatched) {
-    stereoandmatchedMEs.mePosyMatched = bookME1D("TH1PosyMatched", hidmanager.createHistoLayer("Posy_matched","layer",label,"").c_str() ,"RecHit y coord."); 
+    stereoandmatchedMEs.mePosyMatched = bookME1D(ibooker,"TH1PosyMatched", hidmanager.createHistoLayer("Posy_matched","layer",label,"").c_str() ,"RecHit y coord."); 
     stereoandmatchedMEs.mePosyMatched->setAxisTitle(("y coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResolxMatched
   if(switchResolxMatched) {
-    stereoandmatchedMEs.meResolxMatched = bookME1D("TH1ResolxMatched", hidmanager.createHistoLayer("Resolx_matched","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
+    stereoandmatchedMEs.meResolxMatched = bookME1D(ibooker,"TH1ResolxMatched", hidmanager.createHistoLayer("Resolx_matched","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
     stereoandmatchedMEs.meResolxMatched->setAxisTitle(("resol(x) coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResolyMatched
   if(switchResolyMatched) {
-    stereoandmatchedMEs.meResolyMatched = bookME1D("TH1ResolyMatched", hidmanager.createHistoLayer("Resoly_matched","layer",label,"").c_str() ,"RecHit resol(y) coord."); 
+    stereoandmatchedMEs.meResolyMatched = bookME1D(ibooker,"TH1ResolyMatched", hidmanager.createHistoLayer("Resoly_matched","layer",label,"").c_str() ,"RecHit resol(y) coord."); 
     stereoandmatchedMEs.meResolyMatched->setAxisTitle(("resol(y) coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResxMatched
   if(switchResxMatched) {
-    stereoandmatchedMEs.meResxMatched = bookME1D("TH1ResxMatched", hidmanager.createHistoLayer("Resx_matched","layer",label,"").c_str() ,"Residuals of the hit x coord."); 
+    stereoandmatchedMEs.meResxMatched = bookME1D(ibooker,"TH1ResxMatched", hidmanager.createHistoLayer("Resx_matched","layer",label,"").c_str() ,"Residuals of the hit x coord."); 
     stereoandmatchedMEs.meResxMatched->setAxisTitle(("Res(x) in matched RecHit in " + label).c_str());
   }
   //ResyMatched
   if(switchResyMatched) {
-    stereoandmatchedMEs.meResyMatched = bookME1D("TH1ResyMatched", hidmanager.createHistoLayer("Resy_matched","layer",label,"").c_str() ,"Residuals of the hit y coord."); 
+    stereoandmatchedMEs.meResyMatched = bookME1D(ibooker,"TH1ResyMatched", hidmanager.createHistoLayer("Resy_matched","layer",label,"").c_str() ,"Residuals of the hit y coord."); 
     stereoandmatchedMEs.meResyMatched->setAxisTitle(("Res(y) in matched RecHit in " + label).c_str());
   }
   //Chi2Matched
   if(switchChi2Matched) {
-    stereoandmatchedMEs.meChi2Matched = bookME1D("TH1Chi2Matched", hidmanager.createHistoLayer("Chi2_matched","layer",label,"").c_str() ,"RecHit Chi2 test"); 
+    stereoandmatchedMEs.meChi2Matched = bookME1D(ibooker,"TH1Chi2Matched", hidmanager.createHistoLayer("Chi2_matched","layer",label,"").c_str() ,"RecHit Chi2 test"); 
     stereoandmatchedMEs.meChi2Matched->setAxisTitle(("Matched RecHit Chi2 test in " + label).c_str()); 
   }
 
@@ -880,7 +879,7 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(std::string label)
  
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createSubDetMEs(std::string label) {
+void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker & ibooker,std::string label) {
 
   SubDetMEs subdetMEs;
   subdetMEs.meNumrphi = 0;
@@ -891,29 +890,29 @@ void SiStripRecHitsValid::createSubDetMEs(std::string label) {
   //Numrphi
   if (switchNumrphi){
     HistoName = "TH1Numrphi__" + label;
-    subdetMEs.meNumrphi = bookME1D("TH1Numrphi",HistoName.c_str(),"Num of RecHits");
+    subdetMEs.meNumrphi = bookME1D(ibooker,"TH1Numrphi",HistoName.c_str(),"Num of RecHits");
     subdetMEs.meNumrphi->setAxisTitle(("Total number of RecHits in "+ label).c_str());
   }  
   //NumStereo
   if (switchNumStereo){
     HistoName = "TH1NumStereo__" + label;
-    subdetMEs.meNumStereo = bookME1D("TH1NumStereo",HistoName.c_str(),"Num of RecHits in stereo modules");
+    subdetMEs.meNumStereo = bookME1D(ibooker,"TH1NumStereo",HistoName.c_str(),"Num of RecHits in stereo modules");
     subdetMEs.meNumStereo->setAxisTitle(("Total number of RecHits in stereo modules in "+ label).c_str());
   }  
   //NumMatched
   if (switchNumMatched){
     HistoName = "TH1NumMatched__" + label;
-    subdetMEs.meNumMatched = bookME1D("TH1NumMatched",HistoName.c_str(),"Num of matched RecHits" );
+    subdetMEs.meNumMatched = bookME1D(ibooker,"TH1NumMatched",HistoName.c_str(),"Num of matched RecHits" );
     subdetMEs.meNumMatched->setAxisTitle(("Total number of matched RecHits in "+ label).c_str());
   }  
 
   SubDetMEsMap[label]=subdetMEs;
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripRecHitsValid::bookME1D(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker & ibooker, const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-  return dbe_->book1D(HistoName,HistoTitle,
+  return ibooker.book1D(HistoName,HistoTitle,
 			   Parameters.getParameter<int32_t>("Nbinx"),
 			   Parameters.getParameter<double>("xmin"),
 			   Parameters.getParameter<double>("xmax")

@@ -36,6 +36,8 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
+#include "G4SystemOfUnits.hh"
+
 CMSGlauberGribovXS::CMSGlauberGribovXS(G4int ver) :
   G4VPhysicsConstructor("GlauberGribov XS"), verbose(ver) 
 {}
@@ -50,9 +52,9 @@ void CMSGlauberGribovXS::ConstructProcess()
   G4GlauberGribovCrossSection* gg = new G4GlauberGribovCrossSection();
   gg->SetEnergyLowerLimit(90.*GeV);
 
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
+  aParticleIterator->reset();
+  while( (*aParticleIterator)() ){
+    G4ParticleDefinition* particle = aParticleIterator->value();
     G4String particleName = particle->GetParticleName();
     if(verbose > 1) {
       G4cout << "### " << GetPhysicsName() << " instantiates for " 

@@ -10,8 +10,11 @@ common_heavy_suppression = cms.PSet(
 
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0,0.,0.)
+    MaxTimeNames  = cms.vstring('ZDCRegion'),
+    MaxTrackTimes = cms.vdouble(2000.0),
+    DeadRegions   = cms.vstring('QuadRegion','CastorRegion','InterimRegion'),
+    CriticalEnergyForVacuum = cms.double(2.0),
+    CriticalDensity         = cms.double(1e-15)
 )
 
 common_UsePMT = cms.PSet(
@@ -44,8 +47,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
     RestorePhysicsTables = cms.bool(False),
     CheckOverlap = cms.untracked.bool(False),
     G4Commands = cms.vstring(),
+    FileNameField = cms.untracked.string(''),
     FileNameGDML = cms.untracked.string(''),
     Watchers = cms.VPSet(),
+    HepMCProductLabel = cms.InputTag("generator"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
@@ -76,6 +81,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     Physics = cms.PSet(
+        common_maximum_time,
         # NOTE : if you want EM Physics only,
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
@@ -94,12 +100,12 @@ g4SimHits = cms.EDProducer("OscarProducer",
         MonopoleTransport    = cms.untracked.bool(True),
         MonopoleMass         = cms.untracked.double(0),
         Region      = cms.string(' '),
-	TrackingCut = cms.bool(True),
+	TrackingCut = cms.bool(False),
         SRType      = cms.bool(True),
+        FlagMuNucl  = cms.bool(False),
         EMPhysics   = cms.untracked.bool(True),
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),
-        FlagCHIPS   = cms.untracked.bool(False),
         FlagFTF     = cms.untracked.bool(False),
         FlagGlauber = cms.untracked.bool(False),
         FlagHP      = cms.untracked.bool(False),
@@ -108,13 +114,6 @@ g4SimHits = cms.EDProducer("OscarProducer",
         energyScaleEB = cms.double(1.032),
         energyScaleEE = cms.double(1.024),
         GflashHcal    = cms.bool(False),
-        RusRoGammaEnergyLimit  = cms.double(0.0),
-        RusRoEcalGamma         = cms.double(1.0),
-        RusRoHcalGamma         = cms.double(1.0),
-        RusRoMuonIronGamma     = cms.double(1.0),
-        RusRoPreShowerGamma    = cms.double(1.0),
-        RusRoCastorGamma       = cms.double(1.0),
-        RusRoWorldGamma        = cms.double(1.0),
         RusRoElectronEnergyLimit  = cms.double(0.0),
         RusRoEcalElectron         = cms.double(1.0),
         RusRoHcalElectron         = cms.double(1.0),
@@ -158,10 +157,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
         TrackNeutrino = cms.bool(False),
         KillHeavy     = cms.bool(False),
         SaveFirstLevelSecondary = cms.untracked.bool(False),
-        SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
+        SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
-        SaveAllPrimaryDecayProductsAndConversions = cms.untracked.bool(False),
+        SaveAllPrimaryDecayProductsAndConversions = cms.untracked.bool(True),
         RusRoGammaEnergyLimit  = cms.double(5.0),
         RusRoEcalGamma         = cms.double(0.3),
         RusRoHcalGamma         = cms.double(0.3),
@@ -190,13 +189,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        KillBeamPipe            = cms.bool(True),
-        CriticalEnergyForVacuum = cms.double(2.0),
-        CriticalDensity         = cms.double(1e-15),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
-        EkinParticles           = cms.vstring(),
-        Verbosity = cms.untracked.int32(0)
+        EkinParticles           = cms.vstring()
     ),
     TrackerSD = cms.PSet(
         ZeroEnergyLoss = cms.bool(False),
@@ -349,7 +344,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FillHisto       = cms.untracked.bool(True)
     ),
     CastorSD = cms.PSet(
-        useShowerLibrary               = cms.bool(True),
+        useShowerLibrary               = cms.bool(False),
         minEnergyInGeVforUsingSLibrary = cms.double(1.0),
         nonCompensationFactor          = cms.double(0.85),
         Verbosity                      = cms.untracked.int32(0)
@@ -383,6 +378,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
     PltSD = cms.PSet(
         EnergyThresholdForPersistencyInGeV = cms.double(0.2),
         EnergyThresholdForHistoryInGeV = cms.double(0.05)
+    ),
+    Bcm1fSD = cms.PSet(
+        EnergyThresholdForPersistencyInGeV = cms.double(0.010),
+        EnergyThresholdForHistoryInGeV = cms.double(0.005)
     ),
     HcalTB02SD = cms.PSet(
         UseBirkLaw = cms.untracked.bool(False),

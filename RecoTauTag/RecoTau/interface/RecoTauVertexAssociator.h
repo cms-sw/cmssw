@@ -75,6 +75,7 @@ class RecoTauVertexAssociator {
     //PJ adding quality cuts
     RecoTauQualityCuts qcuts_;
     bool recoverLeadingTrk;
+    bool vxTrkFiltering;
 
     edm::EDGetTokenT<reco::VertexCollection> vx_token;
 

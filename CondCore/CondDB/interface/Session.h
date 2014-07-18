@@ -109,6 +109,8 @@ namespace cond {
       IOVEditor createIovForPayload( const Hash& payloadHash, 
 				     const std::string& tag, cond::TimeType timeType,
 				     cond::SynchronizationType synchronizationType=cond::OFFLINE );
+
+      void clearIov( const std::string& tag );
       
       // update an existing iov sequence with the specified tag.
       // timeType and payloadType can't be modified.
@@ -129,6 +131,8 @@ namespace cond {
       // internal functions. creates proxies without loading a specific tag.  
       IOVProxy iovProxy();
       
+      bool existsGlobalTag( const std::string& name );
+
       GTEditor createGlobalTag( const std::string& name );
       GTEditor editGlobalTag( const std::string& name );
       
@@ -141,10 +145,16 @@ namespace cond {
       
       bool checkMigrationLog( const std::string& sourceAccount, 
 			      const std::string& sourceTag, 
-			      std::string& destinationTag );
+			      std::string& destinationTag,
+			      cond::MigrationStatus& status );
       void addToMigrationLog( const std::string& sourceAccount, 
 			      const std::string& sourceTag, 
-			      const std::string& destinationTag );
+			      const std::string& destinationTag,
+			      cond::MigrationStatus status);
+      void updateMigrationLog( const std::string& sourceAccount, 
+			       const std::string& sourceTag, 
+			       cond::MigrationStatus status);
+
 
       std::string connectionString();
 

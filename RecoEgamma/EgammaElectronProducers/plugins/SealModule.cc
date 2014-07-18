@@ -16,7 +16,7 @@
 
 #include "GEDGsfElectronCoreProducer.h"
 #include "GEDGsfElectronProducer.h"
-#include "PFIsolationFiller.h"
+#include "GEDGsfElectronFinalizer.h"
 
 DEFINE_FWK_MODULE(SiStripElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronAssociator);
@@ -30,4 +30,4 @@ DEFINE_FWK_MODULE(GsfElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronSeedProducer);
 DEFINE_FWK_MODULE(GEDGsfElectronCoreProducer);
 DEFINE_FWK_MODULE(GEDGsfElectronProducer);
-DEFINE_FWK_MODULE(PFIsolationFiller);
+DEFINE_FWK_MODULE(GEDGsfElectronFinalizer);

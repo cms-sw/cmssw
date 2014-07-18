@@ -103,7 +103,7 @@ namespace edm {
   class RunStopwatch;
   class UnscheduledCallProducer;
   class WorkerInPath;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
   class PreallocationConfiguration;

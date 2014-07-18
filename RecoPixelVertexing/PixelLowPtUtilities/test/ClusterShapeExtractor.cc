@@ -3,8 +3,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -12,6 +14,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -56,13 +59,13 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 
    // Sim
    void processSim(const SiPixelRecHit &   recHit,
-                   const PSimHit & simHit, vector<TH2F *> & hspc);
+                   const PSimHit & simHit, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & hspc);
    void processSim(const SiStripRecHit2D & recHit,
                    const PSimHit & simHit, vector<TH1F *> & hssc);
 
    // Rec
    void processRec(const SiPixelRecHit &   recHit,
-                   LocalVector ldir, vector<TH2F *> & hrpc);
+                   LocalVector ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & hrpc);
    void processRec(const SiStripRecHit2D & recHit,
                    LocalVector ldir, vector<TH1F *> & hrsc);
 
@@ -71,7 +74,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
      pair<unsigned int, float> & key);
 
    void processPixelRecHits
-     (const SiPixelRecHitCollection::DataContainer * recHits);
+     (const SiPixelRecHitCollection::DataContainer * recHits, const SiPixelClusterShapeCache& clusterShapeCache);
    void processStripRecHits
      (const SiStripRecHit2DCollection::DataContainer * recHits);
    void processMatchedRecHits
@@ -86,6 +89,8 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    string trackProducer;
    bool hasSimHits;
    bool hasRecTracks;
+
+   edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
 
    const TrackerGeometry * theTracker;
    TrackerHitAssociator  * theHitAssociator;
@@ -148,7 +153,8 @@ void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
 
 /*****************************************************************************/
 ClusterShapeExtractor::ClusterShapeExtractor
-  (const edm::ParameterSet& pset) : theConfig(pset)
+  (const edm::ParameterSet& pset) : theConfig(pset),
+                                    theClusterShapeCacheToken(consumes<SiPixelClusterShapeCache>(pset.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
 {
   trackProducer = pset.getParameter<string>("trackProducer"); 
   hasSimHits    = pset.getParameter<bool>("hasSimHits"); 
@@ -220,13 +226,13 @@ void ClusterShapeExtractor::processRec(const SiStripRecHit2D & recHit,
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
-     LocalVector ldir, vector<TH2F *> & histo)
+    LocalVector ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo)
 {
   int part;
-  vector<pair<int,int> > meas;
+  ClusterData::ArrayType meas;
   pair<float,float> pred;
  
-  if(theClusterShape->getSizes(recHit,ldir, part,meas,pred))
+  if(theClusterShape->getSizes(recHit,ldir,clusterShapeCache, part,meas,pred))
    if(meas.size() == 1)
     if(meas.front().first  <= exMax && 
        meas.front().second <= eyMax)
@@ -240,10 +246,10 @@ void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processSim(const SiPixelRecHit & recHit,
-     const PSimHit & simHit, vector<TH2F *> & histo)
+     const PSimHit & simHit, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo)
 {
   LocalVector ldir = simHit.exitPoint() - simHit.entryPoint();
-  processRec(recHit, ldir, histo);
+  processRec(recHit, ldir, clusterShapeCache, histo);
 }
 
 /*****************************************************************************/
@@ -278,7 +284,7 @@ bool ClusterShapeExtractor::checkSimHits
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processPixelRecHits
-  (const SiPixelRecHitCollection::DataContainer * recHits)
+  (const SiPixelRecHitCollection::DataContainer * recHits, const SiPixelClusterShapeCache& clusterShapeCache)
 {
   map<pair<unsigned int, float>, const SiPixelRecHit *> simHitMap;
 
@@ -304,7 +310,7 @@ void ClusterShapeExtractor::processPixelRecHits
   {
     // Check whether the present rechit is the largest
     if(&(*recHit) == simHitMap[key])
-      processSim(*recHit, simHit, hspc);
+      processSim(*recHit, simHit, clusterShapeCache, hspc);
   }
 }
 
@@ -416,9 +422,12 @@ void ClusterShapeExtractor::analyzeSimHits
     edm::Handle<SiPixelRecHitCollection> coll;
     ev.getByLabel("siPixelRecHits", coll);
   
+    edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
+    ev.getByToken(theClusterShapeCacheToken, clusterShapeCache);
+
     const SiPixelRecHitCollection::DataContainer * recHits =
           & coll.product()->data();
-    processPixelRecHits(recHits);
+    processPixelRecHits(recHits, *clusterShapeCache);
   }
 
   // Strip hits
@@ -461,6 +470,9 @@ void ClusterShapeExtractor::analyzeRecTracks
   ev.getByLabel(trackProducer,     trajeHandle);
   const vector<Trajectory> & trajeCollection = *(trajeHandle.product());
 
+  edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
+  ev.getByToken(theClusterShapeCacheToken, clusterShapeCache);
+
   // Take all trajectories
   for(vector<Trajectory>::const_iterator trajectory = trajeCollection.begin();
                                          trajectory!= trajeCollection.end();
@@ -486,7 +498,7 @@ void ClusterShapeExtractor::analyzeRecTracks
           dynamic_cast<const SiPixelRecHit *>(recHit);
 
         if(pixelRecHit != 0)
-          processRec(*pixelRecHit, ldir, hrpc);
+          processRec(*pixelRecHit, ldir, *clusterShapeCache, hrpc);
       }
       else
       {

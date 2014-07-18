@@ -19,6 +19,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+#include "SharedResourcesRegistry.h"
+
 #include <cassert>
 #include <iostream>
 
@@ -58,6 +60,9 @@ namespace edm {
                                                     process_name_,
                                                     getAllTriggerNames(),
                                                     selectors_);
+    SharedResourcesRegistry::instance()->registerSharedResource(
+                                                                SharedResourcesRegistry::kLegacyModuleResourceName);
+
   }
 
   void OutputModule::configure(OutputModuleDescription const& desc) {
@@ -155,6 +160,9 @@ namespace edm {
   OutputModule::~OutputModule() { }
 
   void OutputModule::doBeginJob() {
+    std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
+    resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
+
     this->beginJob();
   }
 
@@ -173,17 +181,24 @@ namespace edm {
   OutputModule::doEvent(EventPrincipal const& ep,
                         EventSetup const&,
                         ModuleCallingContext const* mcc) {
-    detail::TRBESSentry products_sentry(selectors_);
 
     FDEBUG(2) << "writeEvent called\n";
 
-    if(!wantAllEvents_) {
-      if(!selectors_.wantEvent(ep, mcc)) {
-        return true;
+    {
+      std::lock_guard<std::mutex> guard(mutex_);
+      detail::TRBESSentry products_sentry(selectors_);
+      if(!wantAllEvents_) {
+        if(!selectors_.wantEvent(ep, mcc)) {
+          return true;
+        }
       }
+      
+      {
+        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+        write(ep, mcc);
+      }
+      updateBranchParents(ep);
     }
-    write(ep, mcc);
-    updateBranchParents(ep);
     if(remainingEvents_ > 0) {
       --remainingEvents_;
     }

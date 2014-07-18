@@ -16,7 +16,7 @@
 #include<iomanip>
 #include<fstream>
 
-int main() 
+int main()
 {
   edm::MessageDrop::instance()->debugEnabled = false;
 

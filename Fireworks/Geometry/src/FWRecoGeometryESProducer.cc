@@ -94,7 +94,18 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addDTGeometry();
   addCSCGeometry();
   addRPCGeometry();
-  addGEMGeometry();
+
+  try 
+  {
+    addGEMGeometry();
+  }
+  catch( cms::Exception& exception )
+  {
+   edm::LogWarning("FWRecoGeometryProducerException")
+     << "Exception caught while building GEM geometry: " << exception.what()
+     << std::endl; 
+  }
+  
   addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );

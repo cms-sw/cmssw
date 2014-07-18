@@ -8,6 +8,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="CondFormats/SiStripObjects"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiPixelCluster"/>

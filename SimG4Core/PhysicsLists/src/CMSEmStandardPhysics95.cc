@@ -66,6 +66,8 @@
 #include "G4GenericIon.hh"
 #include "G4BuilderType.hh"
 
+#include "G4SystemOfUnits.hh"
+
 CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String& name, G4int ver, std::string reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4LossTableManager::Instance();
@@ -134,9 +136,9 @@ void CMSEmStandardPhysics95::ConstructProcess()
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // Add standard EM Processes
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
+  aParticleIterator->reset();
+  while( (*aParticleIterator)() ){
+    G4ParticleDefinition* particle = aParticleIterator->value();
     G4String particleName = particle->GetParticleName();
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 

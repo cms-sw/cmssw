@@ -43,7 +43,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoTracker/TkNavigation/interface/CosmicNavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 
 
@@ -275,7 +274,6 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(theSTATracksToken_, staTracks);
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get("CosmicNavigationSchool", nav); 
-  NavigationSetter setter(*nav.product());
   iSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
  
   nCompatibleLayers = 0; 
@@ -315,10 +313,10 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
       if ((fabs(mudd0)<15.0)&&(fabs(mudphi)<0.045)&&(fabs(muddsz)<20.0)&&(fabs(mudeta)<0.060))  isGoodMuon = true;
      }
      
-    if(isGoodMuon) testTrackerTracks(tkTracks,staTracks);
+    if(isGoodMuon) testTrackerTracks(tkTracks,staTracks, *nav.product());
   
   }
-  else if ( staTracks->size() == 1 || staTracks->size() == 2) testTrackerTracks(tkTracks,staTracks);
+  else if ( staTracks->size() == 1 || staTracks->size() == 2) testTrackerTracks(tkTracks,staTracks, *nav.product());
   }
   
   
@@ -353,7 +351,7 @@ void TrackEfficiencyMonitor::endJob(void)
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks)
+void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks, const NavigationSchool& navigationSchool)
 //-----------------------------------------------------------------------------------
 {
   
@@ -402,7 +400,7 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
     //---------------------------------------------------st
     //count the number of compatible layers
     //---------------------------------------------------       
-    nCompatibleLayers = compatibleLayers(theTSOSCompLayers);
+    nCompatibleLayers = compatibleLayers(navigationSchool, theTSOSCompLayers);
     
     if(isInTrackerAcceptance && (*staTracks)[idxUpMuon].hitPattern().numberOfValidHits() > 28)
     {
@@ -642,7 +640,7 @@ bool TrackEfficiencyMonitor::trackerAcceptance( TrajectoryStateOnSurface theTSOS
 
 
 //-----------------------------------------------------------------------------------
-int TrackEfficiencyMonitor::compatibleLayers( TrajectoryStateOnSurface theTSOS)
+int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationSchool,  TrajectoryStateOnSurface theTSOS)
 //-----------------------------------------------------------------------------------
 {  
   //---------------------------------------------------   
@@ -691,7 +689,7 @@ int TrackEfficiencyMonitor::compatibleLayers( TrajectoryStateOnSurface theTSOS)
 	  firstdtep = false;
 	}
 	else{
-	  trackCompatibleLayers =  firstLay->nextLayers(*(startTSOS.freeState()),alongMomentum);
+	  trackCompatibleLayers = navigationSchool.nextLayers(*firstLay, *(startTSOS.freeState()),alongMomentum);
           if (trackCompatibleLayers.size()!=0 ){ 
 	    std::pair<TrajectoryStateOnSurface, const  DetLayer* > nextLayer = findNextLayer(startTSOS, trackCompatibleLayers, isUpMuon );
 	    if (firstLay != nextLayer.second ){

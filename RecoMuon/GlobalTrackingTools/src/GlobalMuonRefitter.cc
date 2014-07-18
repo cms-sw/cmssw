@@ -105,7 +105,11 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
-  theDYTthrs = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTthrs     = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTselector = par.existsAs<int>("DYTselector")?par.getParameter<int>("DYTselector"):1;
+  theDYTupdator = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
+  theDYTuseAPE = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
+  dytInfo        = new reco::DYTInfo();
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
     theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");
@@ -126,6 +130,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 //--------------
 
 GlobalMuonRefitter::~GlobalMuonRefitter() {
+  delete dytInfo;
 }
 
 
@@ -144,7 +149,10 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
 void GlobalMuonRefitter::setServices(const EventSetup& setup) {
 
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
+  edm::ESHandle<TrajectoryFitter> aFitter;
+  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,aFitter);
+  theFitter = aFitter->clone();
+  
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
@@ -152,7 +160,10 @@ void GlobalMuonRefitter::setServices(const EventSetup& setup) {
     LogDebug(theCategory) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
+  theFitter->setHitCloner(&hitCloner);
+
 }
 
 
@@ -240,12 +251,17 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     }     
 
     if (theMuonHitsOption == 4 ) {
-      // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
-	
+      //
+      // DYT 2.0 
+      //
       DynamicTruncation dytRefit(*theEvent,*theService);
-      dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
       dytRefit.setProd(all4DSegments, CSCSegments);
+      dytRefit.setSelector(theDYTselector);
+      dytRefit.setThr(theDYTthrs);
+      dytRefit.setUpdateState(theDYTupdator);
+      dytRefit.setUseAPE(theDYTuseAPE);
       DYTRecHits = dytRefit.filter(globalTraj.front());
+      dytInfo->CopyFrom(dytRefit.getDYTInfo());
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
       outputTraj = transform(globalTrack, track, DYTRecHits);
@@ -462,7 +478,7 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       muonRecHits.push_back((*im).recHit());
       continue;
     }  
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
+    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
 
     DetId id = immrh->geographicalId();
     DetId chamberId;

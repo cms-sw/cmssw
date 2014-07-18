@@ -96,20 +96,7 @@ setupEnv()
    fi
    
    # see if we are running in standalone mode
-   FROM_RELEASE=""
-   if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
-     FROM_RELEASE='true'
-   elif [ -n "$CMSSW_RELEASE_BASE" ]; then
-     if [ `expr "$SHELLDIR" : "$CMSSW_RELEASE_BASE"` -gt 0 ]; then
-       FROM_RELEASE='true'
-     else
-       NO_PATCH_CMSSWRB=`echo $CMSSW_RELEASE_BASE | sed 's/cmssw-patch/cmssw/; s/\(CMSSW_[0-9_]*\)_patch[0-9]\+/\1/;'`
-       if [ `expr "$SHELLDIR" : "$NO_PATCH_CMSSWRB"` -gt 0 ]; then
-         FROM_RELEASE='true'
-       fi
-     fi
-   fi
-   if [ -z "$FROM_RELEASE" ]; then 
+   if [ ! -d $SHELLDIR/../../.SCRAM ] ; then
      export CMSSW_BASE=$SHELLDIR
      export CMSSW_SEARCH_PATH="."
      export CMSSW_DATA_PATH="."

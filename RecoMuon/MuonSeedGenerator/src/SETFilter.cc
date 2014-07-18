@@ -341,7 +341,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
       */
       trajectoryMeasurementsInTheSet.push_back( TrajectoryMeasurement
 						( lastUpdatedTSOS,
-						  muonRecHit.get(),
+						  muonRecHit,
 						  chi2_intermed,
 						  layer ) );
     }

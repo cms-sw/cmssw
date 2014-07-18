@@ -233,7 +233,7 @@ private:
     double                      summary_postmodules;
     double                      summary_overhead;
     double                      summary_total;
-    uint32_t                    last_run;           // index of the last module run in this path
+    uint32_t                    last_run;           // index of the last module run in this path, plus one
     uint32_t                    index;              // index of the Path or EndPath in the "schedule"
     bool                        accept;             // flag indicating if the path acepted the event
     TH1F *                      dqm_active;         // see time_active

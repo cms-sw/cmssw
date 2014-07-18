@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      APVShotsAnalyzer
-// 
+//
 /**\class APVShotsAnalyzer APVShotsAnalyzer.cc DPGAnalysis/SiStripTools/plugins/APVShotsAnalyzer.cc
 
  Description: <one line class summary>
@@ -52,7 +52,7 @@
 
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 //******** Single include for the TkMap *************
-#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 //***************************************************
 
 //******** includes for the cabling *************
@@ -84,9 +84,9 @@ private:
 
       // ----------member data ---------------------------
 
-  const edm::InputTag _digicollection;
-  const edm::InputTag _historyProduct;
-  const edm::InputTag _apvphasecoll;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > _digicollectionToken;
+  edm::EDGetTokenT<EventWithHistory> _historyProductToken;
+  edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollToken;
   const std::string _phasepart;
   bool _zs;
   std::string _suffix;
@@ -120,13 +120,13 @@ private:
   TH1F** _subDetectorrun;
   TH1F** _fedrun;
 
-  TkHistoMap *tkhisto,*tkhisto2; 
+  TkHistoMap *tkhisto,*tkhisto2;
 
   // DetCabling
   bool _useCabling;
   uint32_t _cacheIdDet;  //!< DB cache ID used to establish if the cabling has changed during the run.
   const SiStripDetCabling* _detCabling;  //!< The cabling object.
-  
+
 };
 
 //
@@ -141,14 +141,14 @@ private:
 // constructors and destructor
 //
 APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
-  _digicollection(iConfig.getParameter<edm::InputTag>("digiCollection")),
-  _historyProduct(iConfig.getParameter<edm::InputTag>("historyProduct")),
-  _apvphasecoll(iConfig.getParameter<edm::InputTag>("apvPhaseCollection")),
+  _digicollectionToken(consumes<edm::DetSetVector<SiStripDigi> >(iConfig.getParameter<edm::InputTag>("digiCollection"))),
+  _historyProductToken(consumes<EventWithHistory>(iConfig.getParameter<edm::InputTag>("historyProduct"))),
+  _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
   _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition","None")),
   _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed",true)),
   _suffix(iConfig.getParameter<std::string>("mapSuffix")),
   _nevents(0),
-  _rhm(),
+  _rhm(consumesCollector()),
   _useCabling(iConfig.getUntrackedParameter<bool>("useCabling",true)),
   _cacheIdDet(0),
   _detCabling(0)
@@ -160,11 +160,11 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
  edm::Service<TFileService> tfserv;
 
  _nShots = tfserv->make<TH1F>("nShots","Number of Shots per event",200,-0.5,199.5);
- _nShots->GetXaxis()->SetTitle("Shots");  _nShots->GetYaxis()->SetTitle("Events"); 
+ _nShots->GetXaxis()->SetTitle("Shots");  _nShots->GetYaxis()->SetTitle("Events");
  _nShots->StatOverflows(kTRUE);
 
  _whichAPV = tfserv->make<TH1F>("whichAPV","APV with shots",6,-0.5,5.5);
- _whichAPV->GetXaxis()->SetTitle("APV");  _whichAPV->GetYaxis()->SetTitle("Shots"); 
+ _whichAPV->GetXaxis()->SetTitle("APV");  _whichAPV->GetYaxis()->SetTitle("Shots");
 
  _stripMult = tfserv->make<TH1F>("stripMultiplicity","Shot Strip Multiplicity",129,-0.5,128.5);
  _stripMult->GetXaxis()->SetTitle("Number of Strips");  _stripMult->GetYaxis()->SetTitle("Shots");
@@ -176,22 +176,22 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
  _subDetector->GetYaxis()->SetTitle("Shots");
 
  _nShotsbxcycle = tfserv->make<TProfile>("nShotsBXcycle","Number of shots vs APV cycle bin",70,-0.5,69.5);
- _nShotsbxcycle->GetXaxis()->SetTitle("Event BX mod(70)");  _nShotsbxcycle->GetYaxis()->SetTitle("APV shots"); 
+ _nShotsbxcycle->GetXaxis()->SetTitle("Event BX mod(70)");  _nShotsbxcycle->GetYaxis()->SetTitle("APV shots");
 
  _nShotsdbx = tfserv->make<TProfile>("nShotsDBX","Number of shots vs #Delta(BX)",1000,-0.5,999.5);
- _nShotsdbx->GetXaxis()->SetTitle("Event #Delta(BX)");  _nShotsdbx->GetYaxis()->SetTitle("APV shots"); 
+ _nShotsdbx->GetXaxis()->SetTitle("Event #Delta(BX)");  _nShotsdbx->GetYaxis()->SetTitle("APV shots");
 
  _nShotsdbxincycle = tfserv->make<TProfile>("nShotsDBXincycle","Number of shots vs #Delta(BX) w.r.t. APV cycle",1000,-0.5,999.5);
- _nShotsdbxincycle->GetXaxis()->SetTitle("Event #Delta(BX) w.r.t. APV cycle");  _nShotsdbxincycle->GetYaxis()->SetTitle("APV shots"); 
+ _nShotsdbxincycle->GetXaxis()->SetTitle("Event #Delta(BX) w.r.t. APV cycle");  _nShotsdbxincycle->GetYaxis()->SetTitle("APV shots");
 
  _nShotsbxcycleprev = tfserv->make<TProfile>("nShotsBXcycleprev","Number of shots vs APV cycle bin of previous L1A",70,-0.5,69.5);
- _nShotsbxcycleprev->GetXaxis()->SetTitle("Previous L1A BX mod(70)");  _nShotsbxcycleprev->GetYaxis()->SetTitle("APV shots"); 
+ _nShotsbxcycleprev->GetXaxis()->SetTitle("Previous L1A BX mod(70)");  _nShotsbxcycleprev->GetYaxis()->SetTitle("APV shots");
 
  _nShotsdbxprev = tfserv->make<TProfile>("nShotsDBXprev","Number of shots vs #Delta(BX) of previous L1A",1000,-0.5,999.5);
- _nShotsdbxprev->GetXaxis()->SetTitle("Previous L1A #Delta(BX)");  _nShotsdbxprev->GetYaxis()->SetTitle("APV shots"); 
+ _nShotsdbxprev->GetXaxis()->SetTitle("Previous L1A #Delta(BX)");  _nShotsdbxprev->GetYaxis()->SetTitle("APV shots");
 
  _nShotsdbxincycleprev = tfserv->make<TProfile>("nShotsDBXincycleprev","Number of shots vs #Delta(BX) w.r.t. APV cycle of previous L1A",1000,-0.5,999.5);
- _nShotsdbxincycleprev->GetXaxis()->SetTitle("Previous L1A #Delta(BX) w.r.t. APV cycle");  _nShotsdbxincycleprev->GetYaxis()->SetTitle("APV shots"); 
+ _nShotsdbxincycleprev->GetXaxis()->SetTitle("Previous L1A #Delta(BX) w.r.t. APV cycle");  _nShotsdbxincycleprev->GetYaxis()->SetTitle("APV shots");
 
  _nShotsrun = _rhm.makeTH1F("nShotsrun","Number of Shots per event",200,-0.5,199.5);
  _nShotsVsTimerun  = _rhm.makeTProfile("nShotsVsTimerun","Mean number of shots vs orbit number",4*500,0,500*262144);
@@ -217,14 +217,14 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
    _medianVsFED->GetXaxis()->SetTitle("fedId");_medianVsFED->GetYaxis()->SetTitle("Charge [ADC]");  _median->GetZaxis()->SetTitle("Shots");
  }
 
- tkhisto      =new TkHistoMap("ShotMultiplicity","ShotMultiplicity",-1); 
- tkhisto2      =new TkHistoMap("StripMultiplicity","StripMultiplicity",-1); 
+ tkhisto      =new TkHistoMap("ShotMultiplicity","ShotMultiplicity",-1);
+ tkhisto2      =new TkHistoMap("StripMultiplicity","StripMultiplicity",-1);
 }
 
 
 APVShotsAnalyzer::~APVShotsAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   if ( _detCabling ) _detCabling = 0;
@@ -250,10 +250,10 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    _nevents++;
 
    edm::Handle<EventWithHistory> he;
-   iEvent.getByLabel(_historyProduct,he);
+   iEvent.getByToken(_historyProductToken,he);
 
    edm::Handle<APVCyclePhaseCollection> apvphase;
-   iEvent.getByLabel(_apvphasecoll,apvphase);
+   iEvent.getByToken(_apvphasecollToken,apvphase);
 
    int thephase = APVCyclePhaseCollection::invalid;
    if(apvphase.isValid() && !apvphase.failedToGet()) {
@@ -264,7 +264,7 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		     thephase!=APVCyclePhaseCollection::nopartition);
 
    Handle<edm::DetSetVector<SiStripDigi> > digis;
-   iEvent.getByLabel(_digicollection,digis);
+   iEvent.getByToken(_digicollectionToken,digis);
 
    // loop on detector with digis
 
@@ -314,7 +314,7 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     lFedId = conns[ch]->fedId();
 	     LogDebug("FEDid") << "obtained FED id " << ch << " " << lFedId;
 	     //uint16_t lFedCh = conns[ch]->fedCh();
-	     
+
 	     if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
 	       edm::LogWarning("InvalidFEDid") << lFedId << " for detid " << det << " connection " << ch;
 	       continue;
@@ -328,20 +328,20 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 }
 
 	 if(lFedId != thelFEDId) {
-	   edm::LogWarning("FEDidMismatch") << " Mismatch in FED id for det " << det << " APV pair " 
+	   edm::LogWarning("FEDidMismatch") << " Mismatch in FED id for det " << det << " APV pair "
 					    << apvPair << " : " << lFedId << " vs " << thelFEDId;
 	 }
 
-	 LogDebug("FillingArray") << nshotsperFed.size() << " " << lFedId-sistrip::FED_ID_MIN;  
+	 LogDebug("FillingArray") << nshotsperFed.size() << " " << lFedId-sistrip::FED_ID_MIN;
 	 ++nshotsperFed[lFedId-sistrip::FED_ID_MIN];
-	 
+
 	 LogDebug("ReadyToBeFilled") << " ready to be filled with " << thelFEDId << " " << lChannelId;
 	 _channelvsfed->Fill(thelFEDId,lChannelId);
 	 LogDebug("Filled") << " filled with " << thelFEDId << " " << lChannelId;
 
 	 _fed->Fill(lFedId);
 
-	 if(_fedrun && *_fedrun) (*_fedrun)->Fill(lFedId); 
+	 if(_fedrun && *_fedrun) (*_fedrun)->Fill(lFedId);
 	 _medianVsFED->Fill(lFedId,shot->median());
 
 
@@ -363,8 +363,8 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        tkhisto2->fill(det,shot->nStrips());;
        tkhisto->add(det,1);
 
-       
-       
+
+
      }
    }
 
@@ -387,66 +387,66 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    }
 
    if(_nShotsVsTimerun && *_nShotsVsTimerun) (*_nShotsVsTimerun)->Fill(iEvent.orbitNumber(),nshots);
-   
+
 
 }
 
-void 
+void
 APVShotsAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 
 
   _rhm.beginRun(iRun);
-  
+
   if(_nShotsrun && *_nShotsrun) {
-    (*_nShotsrun)->GetXaxis()->SetTitle("Shots");  (*_nShotsrun)->GetYaxis()->SetTitle("Events"); 
+    (*_nShotsrun)->GetXaxis()->SetTitle("Shots");  (*_nShotsrun)->GetYaxis()->SetTitle("Events");
     (*_nShotsrun)->StatOverflows(kTRUE);
   }
-  
+
   if(_nShotsVsTimerun && *_nShotsVsTimerun) {
     (*_nShotsVsTimerun)->GetXaxis()->SetTitle("Orbit");  (*_nShotsVsTimerun)->GetYaxis()->SetTitle("Number of Shots");
     (*_nShotsVsTimerun)->SetBit(TH1::kCanRebin);
   }
-  
+
   if(_whichAPVrun && *_whichAPVrun) {
-    (*_whichAPVrun)->GetXaxis()->SetTitle("APV");  (*_whichAPVrun)->GetYaxis()->SetTitle("Shots"); 
-  }    
-  
+    (*_whichAPVrun)->GetXaxis()->SetTitle("APV");  (*_whichAPVrun)->GetYaxis()->SetTitle("Shots");
+  }
+
   if(_stripMultrun && *_stripMultrun) {
     (*_stripMultrun)->GetXaxis()->SetTitle("Number of Strips");  (*_stripMultrun)->GetYaxis()->SetTitle("Shots");
   }
-  
+
   if(_medianrun && *_medianrun) {
     (*_medianrun)->GetXaxis()->SetTitle("Charge [ADC]");  (*_medianrun)->GetYaxis()->SetTitle("Shots");
   }
-  
+
   if(_subDetectorrun && *_subDetectorrun) {
     (*_subDetectorrun)->GetYaxis()->SetTitle("Shots");
   }
-  
+
   if (_useCabling) {
     if(_fedrun && *_fedrun) {
       (*_fedrun)->GetYaxis()->SetTitle("Shots");
     }
   }
-  
+
 }
 
-void 
+void
 APVShotsAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 APVShotsAnalyzer::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 APVShotsAnalyzer::endJob() {
 
   edm::LogInfo("EndOfJob") << _nevents << " analyzed events";
@@ -473,7 +473,7 @@ void APVShotsAnalyzer::updateDetCabling( const edm::EventSetup& setup )
 {
   if (_useCabling){
     uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();//.get( cabling_ );
-   
+
     if ( _cacheIdDet != cache_id ) { // If the cache ID has changed since the last update...
       // Update the cabling object
       edm::ESHandle<SiStripDetCabling> c;

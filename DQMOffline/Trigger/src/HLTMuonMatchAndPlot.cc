@@ -11,14 +11,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <iostream>
 
@@ -35,7 +28,7 @@ typedef std::vector<std::string> vstring;
 
 
 //////////////////////////////////////////////////////////////////////////////
-//////// Class Members ///////////////////////////////////////////////////////
+//////// HLTMuonMatchAndPlot Class Members ///////////////////////////////////
 
 /// Constructor
 HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset, 
@@ -59,15 +52,8 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
 {
 
   // Create std::map<string, T> from ParameterSets. 
-  fillMapFromPSet(inputTags_, pset, "inputTags");
   fillMapFromPSet(binParams_, pset, "binParams");
   fillMapFromPSet(plotCuts_, pset, "plotCuts");
-
-  // Set HLT process name for TriggerResults and TriggerSummary.
-  InputTag & resTag = inputTags_["triggerResults"];
-  resTag = InputTag(resTag.label(), resTag.instance(), hltProcessName_);
-  InputTag & sumTag = inputTags_["triggerSummary"];
-  sumTag = InputTag(sumTag.label(), sumTag.instance(), hltProcessName_);
 
   // Prepare the DQMStore object.
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -93,6 +79,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
     cutMinPt_ = ceil(cutMinPt_ * plotCuts_["minPtFactor"]);
   }
   delete objArray;
+
 }
 
 void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun, 
@@ -155,47 +142,17 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
 void HLTMuonMatchAndPlot::endRun(const edm::Run& iRun, 
                                  const edm::EventSetup& iSetup)
 {
+
 }
 
 
 
-void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
-                                  const edm::EventSetup& iSetup)
-
+void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons, 
+				  Handle<BeamSpot>         & beamSpot,
+				  Handle<VertexCollection> & vertices,
+				  Handle<TriggerEvent>     & triggerSummary,  
+				  Handle<TriggerResults>   & triggerResults)
 {
-
-  // Get objects from the event.
-  Handle<MuonCollection> allMuons;
-  iEvent.getByLabel(inputTags_["recoMuon"], allMuons);
-
-  Handle<BeamSpot> beamSpot;
-  iEvent.getByLabel(inputTags_["beamSpot"], beamSpot);
-  
-  Handle<TriggerEvent> triggerSummary;
-  iEvent.getByLabel(inputTags_["triggerSummary"], triggerSummary);
-  Handle<TriggerResults> triggerResults;
-
-  edm::Handle<VertexCollection> vertices;
-  iEvent.getByLabel("offlinePrimaryVertices", vertices);
-
-  //edm::Handle<GenParticleCollection> gen;
-  //iEvent.getByLabel("genParticles", gen);
-  //GenParticleCollection::const_iterator g_part;
-  //std::vector<const GenParticle *> gen_leptsp;
-  //std::vector<const GenParticle *> gen_momsp;
-
-
-  if(!triggerSummary.isValid()) 
-  {
-    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerSummary with label " << inputTags_["triggerSummary"] <<std::endl;
-    return;
-  }
-  iEvent.getByLabel(inputTags_["triggerResults"], triggerResults);
-  if(!triggerResults.isValid()) 
-  {
-    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults with label " << inputTags_["triggerResults"] <<std::endl;
-    return;
-  }
 
   /*
   if(gen != 0) {
@@ -380,7 +337,8 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 // Method to fill binning parameters from a vector of doubles.
 void 
 HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges, 
-                               const vector<double>& binning) {
+                               const vector<double>& binning) 
+{
 
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!"; 
@@ -413,7 +371,8 @@ HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges,
 template <class T>
 void 
 HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T> & m, 
-                                     const ParameterSet& pset, string target) {
+                                     const ParameterSet& pset, string target) 
+{
 
   // Get the ParameterSet with name 'target' from 'pset'
   ParameterSet targetPset;
@@ -442,7 +401,8 @@ template <class T1, class T2>
 vector<size_t> 
 HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1, 
                                    const vector<T2> & collection2,
-                                   const double maxDeltaR) {
+                                   const double maxDeltaR) 
+{
 
   const size_t n1 = collection1.size();
   const size_t n2 = collection2.size();
@@ -490,6 +450,7 @@ HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons,
                                    const StringCutObjectSelector<reco::Muon> &selector,
                                    double d0Cut, double z0Cut)
 {
+
   // If there is no selector (recoCuts does not exists), return an empty collection. 
   if (!hasRecoCuts)
     return MuonCollection();
@@ -550,6 +511,7 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
 void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
 {
+
   /* Properly delete the array of floats that has been allocated on
    * the heap by fillEdges.  Avoid multiple copies and internal ROOT
    * clones by simply creating the histograms directly in the DQMStore
@@ -567,6 +529,7 @@ void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
 
   if (edges)
     delete [] edges;
+
 }
 
 
@@ -600,5 +563,7 @@ HLTMuonMatchAndPlot::book2D(string name, string binningTypeX,
     delete [] edgesX;
   if (edgesY)
     delete [] edgesY;
+
 }
+
 

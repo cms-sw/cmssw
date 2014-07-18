@@ -8,21 +8,21 @@
 
 #include <string>
 
-class RunManager;
+class SimRunInterface;
 class BeginOfRun;
 class EndOfRun;
 
 class RunAction: public G4UserRunAction
 {
 public:
-    RunAction(const edm::ParameterSet & ps, RunManager*);
+    RunAction(const edm::ParameterSet & ps, SimRunInterface*);
     void BeginOfRunAction(const G4Run * aRun);
     void EndOfRunAction(const G4Run * aRun);
     
     SimActivityRegistry::BeginOfRunSignal m_beginOfRunSignal;
     SimActivityRegistry::EndOfRunSignal m_endOfRunSignal; 
 private:
-    RunManager* m_runManager;
+    SimRunInterface* m_runInterface;
     std::string m_stopFile;
 };
 

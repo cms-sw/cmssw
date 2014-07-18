@@ -12,6 +12,7 @@
 
 class DetLayer;
 class FreeTrajectoryState;
+class NavigationSchool;
 
 /** The navigation component of the DetLayer.
  *  If navigation is not setup the DetLayer has a zero pointer to
@@ -51,6 +52,12 @@ public:
   virtual DetLayer* detLayer() const = 0;
   virtual void   setDetLayer( DetLayer* dl) = 0;
 
+  void setSchool(NavigationSchool const * sh) {school = sh;}
+
+protected :
+
+  NavigationSchool const * school=nullptr;
+  
 };
 
 #endif 

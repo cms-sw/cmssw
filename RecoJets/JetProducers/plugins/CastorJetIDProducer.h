@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@
 // class decleration
 //
 
-class CastorJetIDProducer : public edm::EDProducer {
+class CastorJetIDProducer : public edm::stream::EDProducer<> {
    public:
 
       explicit CastorJetIDProducer(const edm::ParameterSet&);

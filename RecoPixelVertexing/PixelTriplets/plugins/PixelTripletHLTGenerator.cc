@@ -29,7 +29,7 @@ typedef PixelRecoRange<float> Range;
 using namespace std;
 using namespace ctfseeding;
 
-PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg)
+PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : thePairGenerator(0),
     theLayerCache(0),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
@@ -44,13 +44,13 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
   edm::ParameterSet comparitorPSet =
     cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
-  theComparitor = (comparitorName == "none") ?
-    0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);
+  if(comparitorName != "none") {
+    theComparitor.reset( SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC) );
+  }
 }
 
 PixelTripletHLTGenerator::~PixelTripletHLTGenerator() { 
   delete thePairGenerator;
-  delete theComparitor;
 }
 
 void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
@@ -72,7 +72,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 					   const edm::EventSetup& es)
 {
 
-  if (theComparitor) theComparitor->init(es);
+  if (theComparitor) theComparitor->init(ev, es);
   
   auto const & doublets = thePairGenerator->doublets(region,ev,es);
   

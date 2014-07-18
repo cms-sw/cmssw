@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelLessLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('TIB1+TIB2', 
+from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
+
+PixelLessLayerPairs = seedingLayersEDProducer.clone()
+PixelLessLayerPairs.layerList = cms.vstring('TIB1+TIB2', 
         'TIB1+TID1_pos', 
 #        'TIB1+TID2_pos', 
         'TIB1+TID1_neg', 
@@ -21,30 +23,31 @@ PixelLessLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
         'TEC2_neg+TEC3_neg',
         'TEC3_neg+TEC4_neg',
         'TEC3_neg+TEC5_neg',
-        'TEC4_neg+TEC5_neg'),
+        'TEC4_neg+TEC5_neg'
+)
 
 # WARNING: in the old implemenation, all the 3 rings of  TID were used.
 # we need a different configuaration of rings for TID disks. Is it feasible 
 # in the current framework?? 
 
-    TIB = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
-    ),
-    TID = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        minRing = cms.int32(1),
-        maxRing = cms.int32(2)
-    ),
-    TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        minRing = cms.int32(1),
-        maxRing = cms.int32(2)
-    )
+PixelLessLayerPairs.TIB = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    TTRHBuilder = cms.string('WithTrackAngle')
 )
+PixelLessLayerPairs.TID = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    useRingSlector = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    minRing = cms.int32(1),
+    maxRing = cms.int32(2)
+)
+PixelLessLayerPairs.TEC = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    useRingSlector = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    minRing = cms.int32(1),
+    maxRing = cms.int32(2)
+)
+
 
 

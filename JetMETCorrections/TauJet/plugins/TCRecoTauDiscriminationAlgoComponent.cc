@@ -13,7 +13,7 @@ using namespace reco;
 class TCRecoTauDiscriminationAlgoComponent : public CaloTauDiscriminationProducerBase {
     public:
       	explicit TCRecoTauDiscriminationAlgoComponent(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-		tcTauAlgorithm = new TCTauAlgorithm(iConfig);
+	  tcTauAlgorithm = new TCTauAlgorithm(iConfig, consumesCollector());
       	}
       	~TCRecoTauDiscriminationAlgoComponent(){} 
       	double discriminate(const CaloTauRef& theCaloTauRef) override;

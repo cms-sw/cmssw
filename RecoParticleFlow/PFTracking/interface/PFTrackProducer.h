@@ -1,7 +1,7 @@
 #ifndef PFTrackProducer_H
 #define PFTrackProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,7 +23,7 @@
 
 
 class PFTrackTransformer;
-class PFTrackProducer : public edm::EDProducer {
+class PFTrackProducer : public edm::stream::EDProducer<> {
 public:
   
   ///Constructor

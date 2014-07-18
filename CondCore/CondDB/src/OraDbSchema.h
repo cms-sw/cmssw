@@ -25,10 +25,17 @@ namespace cond {
       void addTag( const std::string& tag, const std::string token );
       std::string getToken( const std::string& tag );
       bool load( const std::string& tag );
+      void setValidationMode(){
+	m_validationMode = true;
+      }
+      bool validationMode(){
+	return m_validationMode;
+      }
     private:
       cond::IOVEditor m_iovAccess ;
       std::string m_tag;
       std::string m_token;
+      bool m_validationMode = false;
     };
     
     class OraTagTable : public ITagTable {
@@ -53,6 +60,7 @@ namespace cond {
 		   cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime );
       void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, 
 			   const boost::posix_time::ptime& updateTime );
+      void setValidationMode();
     private:
       IOVCache& m_cache;
     };
@@ -99,6 +107,7 @@ namespace cond {
 		      const boost::posix_time::ptime& insertTime );
       void insertMany( const std::string& tag, 
 		       const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs );
+      void erase( const std::string& tag );
     private:
       IOVCache& m_cache;
     };

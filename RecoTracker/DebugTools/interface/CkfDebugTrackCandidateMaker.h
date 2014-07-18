@@ -27,7 +27,7 @@ namespace cms {
 
     void initDebugger(edm::EventSetup const & es){
       dbg = new CkfDebugger(es);
-      myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder);
+      myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder.get());
       if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg);
       else throw cms::Exception("CkfDebugger") << "please use CkfDebugTrajectoryBuilder";
 	//theTrajectoryBuilder->setDebugger( dbg);

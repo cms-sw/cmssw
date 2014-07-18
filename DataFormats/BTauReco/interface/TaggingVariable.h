@@ -19,6 +19,7 @@ namespace reco {
     enum TaggingVariableName {
       jetEnergy = 0,                            // jet energy
       jetPt,                                    // jet transverse momentum
+      trackJetPt,                               // track-based jet transverse momentum
       jetEta,                                   // jet pseudorapidity
       jetPhi,                                   // jet polar angle
       jetNTracks,                               // tracks associated to jet

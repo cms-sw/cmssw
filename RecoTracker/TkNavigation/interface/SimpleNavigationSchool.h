@@ -26,7 +26,7 @@ public:
   ~SimpleNavigationSchool(){cleanMemory();}
 
   // from base class
-  virtual StateType navigableLayers() const;
+  virtual StateType navigableLayers() override;
 
 protected:
 

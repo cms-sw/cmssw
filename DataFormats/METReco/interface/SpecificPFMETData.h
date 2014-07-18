@@ -17,21 +17,21 @@ struct SpecificPFMETData
 		      , Type6Fraction(0.0), Type7Fraction(0.0) { }
 
   // Data Members (should be renamed with "Et" in them to avoid ambiguities, see below)
-  double NeutralEMFraction;
-  double NeutralHadFraction;
-  double ChargedEMFraction;
-  double ChargedHadFraction;
-  double MuonFraction;
-  double Type6Fraction;
-  double Type7Fraction;
+  float NeutralEMFraction;
+  float NeutralHadFraction;
+  float ChargedEMFraction;
+  float ChargedHadFraction;
+  float MuonFraction;
+  float Type6Fraction;
+  float Type7Fraction;
 
-  // double NeutralEMEtFraction;
-  // double NeutralHadEtFraction;
-  // double ChargedEMEtFraction;
-  // double ChargedHadEtFraction;
-  // double MuonEtFraction;
-  // double Type6EtFraction;
-  // double Type7EtFraction;
+  // float NeutralEMEtFraction;
+  // float NeutralHadEtFraction;
+  // float ChargedEMEtFraction;
+  // float ChargedHadEtFraction;
+  // float MuonEtFraction;
+  // float Type6EtFraction;
+  // float Type7EtFraction;
 
 };
 

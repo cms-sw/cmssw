@@ -1,6 +1,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -10,7 +10,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 
-class SeedingLayersEDProducer: public edm::EDProducer {
+class SeedingLayersEDProducer: public edm::stream::EDProducer<> {
 public:
   SeedingLayersEDProducer(const edm::ParameterSet& iConfig);
   ~SeedingLayersEDProducer();

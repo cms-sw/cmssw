@@ -39,7 +39,7 @@ class MuonNavigationSchool : public NavigationSchool {
     /// Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
-    virtual StateType navigableLayers() const;
+    virtual StateType navigableLayers() override;
   private:
     /// add barrel layer
     void addBarrelLayer(BarrelDetLayer*);
@@ -50,7 +50,7 @@ class MuonNavigationSchool : public NavigationSchool {
     /// link endcap layers
     void linkEndcapLayers(const MapE&,std::vector<MuonForwardNavigableLayer*>&);
     /// establish inward links
-    void createInverseLinks() const;
+    void createInverseLinks();
     float calculateEta(const float&, const float& ) const;
 
   private: 
