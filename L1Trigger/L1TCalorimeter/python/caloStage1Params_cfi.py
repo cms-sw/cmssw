@@ -8,7 +8,7 @@ import L1Trigger.L1TCalorimeter.caloParams_cfi
 #caloStage1ParamsSource = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParamsSource.clone()
 caloStage1Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
-caloStage1Params.regionPUSType    = cms.string("PUM0")       #"None" for no PU subtraction, "PUM0"
+caloStage1Params.regionPUSType    = cms.string("PUM0")       #"None" for no PU subtraction, "PUM0", "HICaloRingSub"
 caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 
 # EG
