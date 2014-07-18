@@ -37,12 +37,12 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                           "Name of ROOT file containing histogram with jet smearing factors", Type=str) 
         self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT', 
                           "Name of histogram with jet smearing factors", Type=str) 
-	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK5PF', 
-                          "Use AK5PF for PFJets, AK5Calo for CaloJets", Type=str)
-        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3', 'ak5PFL1FastL2L3',
-                          "Use ak5PFL1FastL2L3 (ak5PFchsL1FastL2L3) for PFJets with (without) charged hadron subtraction, ak5CaloL1FastL2L3 for CaloJets", Type=str)
-        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3Res', 'ak5PFL1FastL2L3Residual',
-                          "Use ak5PFL1FastL2L3Residual (ak5PFchsL1FastL2L3Residual) for PFJets with (without) charged hadron subtraction, ak5CaloL1FastL2L3Residual for CaloJets", Type=str)
+	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK4PF', 
+                          "Use AK4PF for PFJets, AK4Calo for CaloJets", Type=str)
+        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3', 'ak4PFL1FastL2L3',
+                          "Use ak4PFL1FastL2L3 (ak4PFchsL1FastL2L3) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3 for CaloJets", Type=str)
+        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3Res', 'ak4PFL1FastL2L3Residual',
+                          "Use ak4PFL1FastL2L3Residual (ak4PFchsL1FastL2L3Residual) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Residual for CaloJets", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', "PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt",
                           "Name of file containing jet energy uncertainty parameters", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',

@@ -150,7 +150,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         ##getattr(process, "patPfMetT1" + postfix).verbosity = cms.int32(1)  
         
         # add "nominal" (unshifted) pat::MET collections        
-        getattr(process, "pfCandsNotInJet" + postfix).bottomCollection = pfCandCollection
+        getattr(process, "pfCandsNotInJetsForMetCorr" + postfix).bottomCollection = pfCandCollection
         getattr(process, "selectedPatJetsForMETtype1p2Corr" + postfix).src = shiftedParticleCollections['lastJetCollection']
         getattr(process, "selectedPatJetsForMETtype2Corr" + postfix).src = shiftedParticleCollections['lastJetCollection']
         
