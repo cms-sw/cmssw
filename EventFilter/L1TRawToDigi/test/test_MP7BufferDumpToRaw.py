@@ -5,7 +5,7 @@
 # with command line options: SingleElectronPt10_cfi.py -s GEN,SIM,DIGI,L1 --pileup=NoPileUp --geometry DB --conditions=auto:startup -n 1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('L1')
+process = cms.Process('L1ALEX')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -82,15 +82,22 @@ process.load('EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi')
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("mp7BufferDumpToRaw"),
-    feds = cms.untracked.vint32 ( 1 ),
+    feds = cms.untracked.vint32 ( 2 ),
     dumpPayload = cms.untracked.bool ( True )
 )
 
 # raw to digi
 import EventFilter.L1TRawToDigi.l1tRawToDigi_cfi
 process.l1tDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
-process.l1tDigis.FedId = cms.int32(1)
+process.l1tDigis.FedId = cms.int32(2)
 process.l1tDigis.InputLabel = cms.InputTag("mp7BufferDumpToRaw")
+process.l1tDigis.Unpackers = cms.vstring(["l1t::CaloTowerUnpackerFactory",
+                                          "l1t::MPLink0UnpackerFactory",
+                                          "l1t::MPLink1UnpackerFactory",
+                                          "l1t::MPLink2UnpackerFactory",
+                                          "l1t::MPLink3UnpackerFactory",
+                                          "l1t::MPLink4UnpackerFactory",
+                                          "l1t::MPLink5UnpackerFactory"])
 
 # upgrade calo stage 2
 #process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
@@ -101,17 +108,17 @@ process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("l1tDigis")
 #process.l1tStage2CaloAnalyzer.towerPreCompressionToken = cms.InputTag("l1tDigis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("l1tDigis")
+process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("l1tDigis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
     process.mp7BufferDumpToRaw
-    +process.dumpRaw
+#    +process.dumpRaw
     +process.l1tDigis
-    +process.l1tStage2CaloAnalyzer
+#    +process.l1tStage2CaloAnalyzer
 )
 
 process.out = cms.EndPath(

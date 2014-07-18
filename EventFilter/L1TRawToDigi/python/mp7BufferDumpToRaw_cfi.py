@@ -8,12 +8,12 @@ mp7BufferDumpToRaw = cms.EDProducer(
     # buffer dump file input parameters
     nTextHeaderLines = cms.untracked.int32(3),
     nFramesPerEvent  = cms.untracked.int32(45),
-    txLatency        = cms.untracked.int32(4),
+    txLatency        = cms.untracked.int32(54),
     nRxLinks         = cms.untracked.int32(72),
     nTxLinks         = cms.untracked.int32(72),
 
     # DAQ parameters
-    fedId            = cms.untracked.int32(1),
+    fedId            = cms.untracked.int32(2),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(16),  # length in 8 bit words !
@@ -35,7 +35,7 @@ mp7BufferDumpToRaw = cms.EDProducer(
                                             41,41,41,41,41,41,41,41,41,
                                             41,41,41,41,41,41,41,41,41,
                                             41,41,41,41,41,41,41,41,41),
-    txBlockLength    = cms.untracked.vint32(12,4,12,8,0,0,0,0,0,
+    txBlockLength    = cms.untracked.vint32(39,39,39,39,39,39,0,0,0,
                                             0,0,0,0,0,0,0,0,0,
                                             0,0,0,0,0,0,0,0,0,
                                             0,0,0,0,0,0,0,0,0,
