@@ -15,8 +15,8 @@ switchJetCollection(process,
 
 # apply type I/type I + II PFMEt corrections to pat::MET object
 # and estimate systematic uncertainties on MET
-from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
-runMEtUncertainties(process)
+from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
+runType1PFMEtUncertainties(process,addToPatDefaultSequence=False)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
