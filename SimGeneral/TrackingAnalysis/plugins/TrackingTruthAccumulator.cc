@@ -18,7 +18,7 @@
  * 17/Jul/2014 Dominik Nowatschin (dominik.nowatschin@cern.ch) - added SimVertex and a ref to
  * HepMC::Genvertex to TrackingVertex in TrackingParticleFactory::createTrackingVertex; handle to
  * edm::HepMCProduct is created directly in TrackingTruthAccumulator::accumulate and not in 
- * accumulateEvent as edm::Event and PileUpEventPrincipal have different ::getByLabel() functions
+ * accumulateEvent as edm::Event and PileUpEventPrincipal have different getByLabel() functions
  * 
  * 07/Feb/2013 Mark Grimes - Reorganised and added a bit more documentation. Still not enough
  * though.
@@ -638,28 +638,6 @@ namespace // Unnamed namespace for things only used in this file
 
 		return returnValue;
 	}
-                
-        /** FIXME: added Code below */
-        
-        /** function template specialisation because PileUpEventPrincipal::getByLabel calls T::value_type and T::iterator at some point which is not member of every class!
-         *  -> maybe call PileUpEventPrincipal::principal() and work with edm::EventPrincipal?
-         * => NEW: pass HepMC::GenEvent* to createTrackingVertex and change TrackingTruthAccumulator::accumulateEvent accordingly
-         */
-	
-// 	template<> TrackingVertex TrackingParticleFactory::createTrackingVertex<PileUpEventPrincipal>( const ::DecayChainVertex* pChainVertex, const PileUpEventPrincipal & event ) const
-//         {
-//                 const SimVertex& simVertex=decayChain_.getSimVertex( pChainVertex );
-// 
-//                 bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
-// 
-//                 // TODO - Still need to set the truth ID properly. I'm not sure what to set
-//                 // the second parameter of the EncodedTruthId constructor to.
-//                 TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
-//                 
-//                 returnValue.addG4Vertex(simVertex);
-//                 
-//                 return returnValue;
-//         }
 
 	TrackingVertex TrackingParticleFactory::createTrackingVertex( const ::DecayChainVertex* pChainVertex) const
 	{
