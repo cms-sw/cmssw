@@ -1,0 +1,37 @@
+<lcgdict>
+  <class name="CorrelationTemplate"/>
+  <class name="CorrelationTemplate::CorrelationParameter"/>
+  <class name="std::vector<CorrelationTemplate>"/>
+  <class name="std::vector<std::vector<CorrelationTemplate> >"/>
+  <class name="TriggerMenu" class_version="TriggerMenu_V01">
+    <field name="m_conditionMap" transient="true" />
+    <field name="m_algorithmAliasMap" mapping="blob" />
+    <field name="m_algorithmMap" mapping="blob" />
+    <field name="m_corCaloTemplate" mapping="blob" />
+    <field name="m_corEnergySumTemplate" mapping="blob" />
+    <field name="m_corMuonTemplate" mapping="blob" />
+    <field name="m_technicalTriggerMap" mapping="blob" />
+    <field name="m_vecBptxTemplate" mapping="blob" />
+    <field name="m_vecCaloTemplate" mapping="blob" />
+    <field name="m_vecCastorTemplate" mapping="blob" />
+    <field name="m_vecCorrelationTemplate" mapping="blob" />
+    <field name="m_vecEnergySumTemplate" mapping="blob" />
+    <field name="m_vecExternalTemplate" mapping="blob" />
+    <field name="m_vecHfBitCountsTemplate" mapping="blob" />
+    <field name="m_vecHfRingEtSumsTemplate" mapping="blob" />
+    <field name="m_vecJetCountsTemplate" mapping="blob" />
+    <field name="m_vecMuonTemplate" mapping="blob" />
+  </class>
+  <class name="MuonTemplate"/>
+  <class name="MuonTemplate::ObjectParameter"/>
+  <class name="std::vector<MuonTemplate::ObjectParameter>"/>
+  <class name="MuonTemplate::CorrelationParameter"/>
+  <class name="std::vector<MuonTemplate>"/>
+  <class name="std::vector<std::vector<MuonTemplate> >"/>
+  <class name="CaloTemplate"/>
+  <class name="CaloTemplate::ObjectParameter"/>
+  <class name="std::vector<CaloTemplate::ObjectParameter>"/>
+  <class name="CaloTemplate::CorrelationParameter"/>
+  <class name="std::vector<CaloTemplate>"/>
+  <class name="std::vector<std::vector<CaloTemplate> >"/>
+</lcgdict>
