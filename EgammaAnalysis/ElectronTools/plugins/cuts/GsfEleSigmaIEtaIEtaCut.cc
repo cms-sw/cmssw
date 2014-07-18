@@ -1,9 +1,9 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-class GsfEleSimgaIEtaIEtaCut : public CutApplicatorBase {
+class GsfEleSigmaIEtaIEtaCut : public CutApplicatorBase {
 public:
-  GsfEleSimgaIEtaIEtaCut(const edm::ParameterSet& c) :
+  GsfEleSigmaIEtaIEtaCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
     _sigmaIEtaIEtaCutValueEB(c.getParameter<double>("sigmaIEtaIEtaCutValue")),
     _sigmaIEtaIEtaCutValueEE(c.getParameter<double>("sigmaIEtaIEtaCutValue")),
@@ -21,11 +21,11 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
-		  GsfEleSimgaIEtaIEtaCut,
-		  "GsfEleSimgaIEtaIEtaCut");
+		  GsfEleSigmaIEtaIEtaCut,
+		  "GsfEleSigmaIEtaIEtaCut");
 
 CutApplicatorBase::result_type 
-GsfEleSimgaIEtaIEtaCut::
+GsfEleSigmaIEtaIEtaCut::
 operator()(const reco::GsfElectronRef& cand) const{  
   const float sigmaIEtaIEtaCutValue = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
