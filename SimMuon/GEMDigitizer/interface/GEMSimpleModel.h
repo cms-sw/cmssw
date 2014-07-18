@@ -1,14 +1,14 @@
 #ifndef GEMDigitizer_GEMSimpleModel_h
 #define GEMDigitizer_GEMSimpleModel_h
 
-/**
-* \class GEMSimpleModel
-*
-* Class for the GEM strip response simulation based on a very simple model
-*
-* \author Sven Dildick
-* \modified by Roumyana Hadjiiska
-*/
+/** 
+ * \class GEMSimpleModel
+ *
+ * Class for the GEM strip response simulation based on a very simple model
+ *
+ * \author Sven Dildick
+ * \modified by Roumyana Hadjiiska
+ */
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
 
@@ -45,7 +45,7 @@ private:
   double timeResolution_;
   double timeJitter_;
   double averageNoiseRate_;
-// double averageClusterSize_;
+//  double averageClusterSize_;
   std::vector<double> clsParametrization_;
   double signalPropagationSpeed_;
   bool cosmics_;
@@ -58,6 +58,7 @@ private:
   bool fixedRollRadius_;
   double minPabsNoiseCLS_;
   bool simulateIntrinsicNoise_;
+  double scaleLumi_;
   bool simulateElectronBkg_;
   double constNeuGE11_;
   double slopeNeuGE11_;
@@ -66,5 +67,7 @@ private:
   std::vector<double> GE21ElecBkgParams_;
 };
 #endif
+
+
 
 
