@@ -261,15 +261,17 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
    {
     hcalCfg_.useTowers = true ;
     hcalCfg_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
-    hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
    }
+  hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
+  hcalCfg_.hOverEMethod = cfg.getParameter<int>("hOverEMethod") ;
   hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
   if (hcalCfgPflow_.hOverEConeSize>0)
    {
     hcalCfgPflow_.useTowers = true ;
     hcalCfgPflow_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
-    hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
    }
+  hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
+  hcalCfg_.hOverEMethod = cfg.getParameter<int>("hOverEMethod") ;
 
   // Ecal rec hits configuration
   GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg ;

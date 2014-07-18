@@ -19,10 +19,15 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
    { return ; }
 
   if(hadTower_) delete hadTower_ ;
-  if(cfg_.hOverEMethod==1)
-    hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
-  if(cfg_.hOverEMethod==2)
+  if(cfg_.hOverEMethod<=1)
+    {
+      hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
+      //      std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
+    }
+  if(cfg_.hOverEMethod==2) {
     hadTower_ = new EgammaHadTower(es,EgammaHadTower::TowersBehindCluster) ;
+    //    std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
+  }
    
   if (!cfg_.useTowers)
    {
@@ -50,9 +55,12 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
     towersH_ = new edm::Handle<CaloTowerCollection>() ;
     if (!evt.getByLabel(cfg_.hcalTowers,*towersH_))
      { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the hcal towers of label "<<cfg_.hcalTowers ; }
-    hadTower_->setTowerCollection(towersH_->product());
-    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,1,towersH_->product()) ;
-    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,2,towersH_->product()) ;
+    if(hadTower_) hadTower_->setTowerCollection(towersH_->product());    
+    //    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,1,towersH_->product()) ;
+    //    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,2,towersH_->product()) ;
+    // Set hOverETPtMin to 0 otherwise it will crash because of an assert
+    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,0.,1,towersH_->product()) ;
+    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,0.,2,towersH_->product()) ;
    }
   else
    {
@@ -69,7 +77,8 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
  }
 
 std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters( const reco::SuperCluster & sc )
- { return hadTower_->towersOf(sc) ; }
+{ 
+  return hadTower_->towersOf(sc) ; }
 
 double ElectronHcalHelper::hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers )
 { return hadTower_->getDepth1HcalESum(towers, cfg_.hOverEPtMin) ; }
@@ -108,26 +117,34 @@ double ElectronHcalHelper::hcalESumDepth2Cone( const SuperCluster & sc ,const st
  }
 
 double ElectronHcalHelper::hcalESum( const reco::SuperCluster & sc, const std::vector<CaloTowerDetId> * excludeTowers ) {
-  if(cfg_.hOverEMethod==0)
+  if(cfg_.hOverEMethod==0) {
+    //    std::cout << "ElectronHcalHelper::hcalESum - default" << std::endl;
     return hcalESumCone(sc,excludeTowers);
+  }
   // other cases
   std::vector<CaloTowerDetId> towers(hcalTowersBehindClusters(sc));
   // Et threshold is applied in these sums
+  //  std::cout << "ElectronHcalHelper::hcalESum - FB" << std::endl;
   return hcalESumDepth1BehindClusters(towers) + hcalESumDepth2BehindClusters(towers);  
 }
 
 double ElectronHcalHelper::hcalESumDepth1( const reco::SuperCluster & sc, const std::vector<CaloTowerDetId> * excludeTowers ) {
-  if(cfg_.hOverEMethod==0)
+  if(cfg_.hOverEMethod==0) {
+    //    std::cout << "ElectronHcalHelper::hcalESumDepth1 - default " << std::endl;
     return hcalESumDepth1Cone(sc, excludeTowers);  
-
+  }
   // Et threshold is applied in this sum
+  //  std::cout << "ElectronHcalHelper::hcalESumDepth1 - FB " << std::endl;
   return hcalESumDepth1BehindClusters(hcalTowersBehindClusters(sc));
 }
 
 double ElectronHcalHelper::hcalESumDepth2( const reco::SuperCluster & sc, const std::vector<CaloTowerDetId> * excludeTowers ) {
-  if(cfg_.hOverEMethod==0)
-    return hcalESumDepth2Cone(sc, excludeTowers);  
+  if(cfg_.hOverEMethod==0)     {
+    //      std::cout << "ElectronHcalHelper::hcalESumDepth2 - default " << std::endl;
+      return hcalESumDepth2Cone(sc, excludeTowers);  
+    }
   // Et threshold is applied in this sum
+  //  std::cout << "ElectronHcalHelper::hcalESumDepth2 - FB " << std::endl;
   return hcalESumDepth2BehindClusters(hcalTowersBehindClusters(sc));
 }
 
