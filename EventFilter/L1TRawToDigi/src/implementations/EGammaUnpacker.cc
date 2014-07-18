@@ -110,7 +110,7 @@ namespace l1t {
    std::vector<UnpackerItem>
    EGammaUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid)
    {
-      return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(cfg_, ev)))};
+     return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(cfg_, ev)))};
    };
 }
 

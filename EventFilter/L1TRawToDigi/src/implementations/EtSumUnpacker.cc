@@ -135,7 +135,7 @@ namespace l1t {
 
    std::vector<UnpackerItem>
    EtSumUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
-      return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker(cfg_, ev)))};
+     return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker(cfg_, ev)))};
    };
 }
 

@@ -145,18 +145,18 @@ namespace l1t {
    std::vector<UnpackerItem>
    CaloTowerUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid)
    {
-    std::vector<UnpackerItem> towersMap;
+       std::vector<UnpackerItem> towersMap;
     
-     // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
-     // which receives the block_ID and can convert this to phi
+       // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
+       // which receives the block_ID and can convert this to phi
 
-     auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(cfg_, ev));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(cfg_, ev));
 
-     for (int link = 0; link < 144; link++){
-       if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 
-     }
+       for (int link = 0; link < 144; link++){
+         if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 
+       }
      
-     return towersMap;
+       return towersMap;
 
    };
 };
