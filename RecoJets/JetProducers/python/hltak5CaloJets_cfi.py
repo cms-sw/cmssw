@@ -57,5 +57,5 @@ hltak5CaloJets = cms.EDProducer( "FastjetJetProducer",
     dRMin = cms.double(-1.0),
     dRmax = cms.double(-1.0),
     maxDepth = cms.int(-1),
-                                 
+    subjetPtMin = cms.dobule(-1.0),            
 )
