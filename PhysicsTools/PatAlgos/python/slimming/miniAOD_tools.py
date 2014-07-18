@@ -90,7 +90,7 @@ def miniAOD_customizeCommon(process):
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
                                jetCollection="selectedPatJetsAK5PFForMetUnc",
-                               electronCollection="selectedPatelectrons",
+                               electronCollection="selectedPatElectrons",
                                muonCollection="selectedPatMuons",
                                tauCollection="selectedPatTaus",
                                outputModule=None)
