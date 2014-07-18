@@ -86,7 +86,7 @@ private:
 	const double volumeRadius_;
 	const double volumeZ_;
 	/// maximum distance for HepMC::GenVertex to be added to SimVertex
-	const double vertexDistanceCut_;
+	const double vertexDistanceCut2_;
 	const bool ignoreTracksOutsideVolume_;
 
 	/** The maximum bunch crossing BEFORE the signal crossing to create TrackinParticles for. Use positive values. If set to zero no
