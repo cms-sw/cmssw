@@ -99,8 +99,8 @@ process.Layer2 = cms.Sequence(
         *process.Layer2HW
         *process.Layer2Phys
         *process.Layer2gctFormat
-        *process.l1tDigiToRaw
-        *process.l1tRawToDigi
+        ## *process.l1tDigiToRaw
+        ## *process.l1tRawToDigi
         )
 
 
