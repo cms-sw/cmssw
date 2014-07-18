@@ -225,7 +225,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		messageCategory_("TrackingTruthAccumulator"),
 		volumeRadius_( config.getParameter<double>("volumeRadius") ),
 		volumeZ_( config.getParameter<double>("volumeZ") ),
-		vertexDistanceCut2_( config.getParameter<double>("vertexDistanceCut") ),
+		vertexDistanceCut_( config.getParameter<double>("vertexDistanceCut") ),
 		ignoreTracksOutsideVolume_( config.getParameter<bool>("ignoreTracksOutsideVolume") ),
 		maximumPreviousBunchCrossing_( config.getParameter<unsigned int>("maximumPreviousBunchCrossing") ),
 		maximumSubsequentBunchCrossing_( config.getParameter<unsigned int>("maximumSubsequentBunchCrossing") ),
@@ -431,7 +431,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 
 	std::vector<const PSimHit*> simHitPointers;
 	fillSimHits( simHitPointers, event, setup );
-	TrackingParticleFactory objectFactory( decayChain, hGenParticles, hepMCproduct, hGenParticleIndices, simHitPointers, volumeRadius_, volumeZ_, vertexDistanceCut2_, allowDifferentProcessTypeForDifferentDetectors_ );
+	TrackingParticleFactory objectFactory( decayChain, hGenParticles, hepMCproduct, hGenParticleIndices, simHitPointers, volumeRadius_, volumeZ_, vertexDistanceCut_, allowDifferentProcessTypeForDifferentDetectors_ );
 
 	// While I'm testing, perform some checks.
 	// TODO - drop this call once I'm happy it works in all situations.
@@ -517,7 +517,7 @@ namespace // Unnamed namespace for things only used in this file
 			const edm::Handle< edm::HepMCProduct >& hepMCproduct, const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices, const std::vector<const PSimHit*>& simHits,
 			double volumeRadius, double volumeZ, double vertexDistanceCut, bool allowDifferentProcessTypes )
 		: decayChain_(decayChain), hGenParticles_(hGenParticles), hepMCproduct_(hepMCproduct), simHits_(simHits), volumeRadius_(volumeRadius),
-		  volumeZ_(volumeZ), vertexDistanceCut2_(vertexDistanceCut), allowDifferentProcessTypeForDifferentDetectors_(allowDifferentProcessTypes)
+		  volumeZ_(volumeZ), vertexDistanceCut2_(vertexDistanceCut*vertexDistanceCut), allowDifferentProcessTypeForDifferentDetectors_(allowDifferentProcessTypes)
 	{
 		// Need to create a multimap to get from a SimTrackId to all of the hits in it. The SimTrackId
 		// is an unsigned int.
@@ -674,7 +674,7 @@ namespace // Unnamed namespace for things only used in this file
                     
 					auto distance2 = (tvPosition - genPosition).mag2();
                     
-					if (distance2 < vertexDistanceCut2_*vertexDistanceCut2_)
+					if (distance2 < vertexDistanceCut2_)
 						returnValue.addGenVertex( GenVertexRef(hepMCproduct_, (*iGenVertex)->barcode()) );
 				}
 			}
