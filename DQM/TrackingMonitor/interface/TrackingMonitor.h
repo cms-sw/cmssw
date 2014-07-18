@@ -21,6 +21,8 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -33,6 +35,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class DQMStore;
 class TrackAnalyzer;
@@ -42,7 +45,7 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public edm::EDAnalyzer 
+class TrackingMonitor : public DQMEDAnalyzer 
 {
     public:
         explicit TrackingMonitor(const edm::ParameterSet&);
@@ -55,7 +58,8 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
+	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
         virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
@@ -78,7 +82,6 @@ class TrackingMonitor : public edm::EDAnalyzer
 	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
 	edm::EDGetTokenT<reco::TrackCollection> allTrackToken_;
-
 	edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
@@ -156,6 +159,10 @@ class TrackingMonitor : public edm::EDAnalyzer
 	bool doFractionPlot_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
+
+	StringCutObjectSelector<reco::Track,true> numSelection_;
+	StringCutObjectSelector<reco::Track,true> denSelection_;
+
 };
 
 #endif //define TrackingMonitor_H

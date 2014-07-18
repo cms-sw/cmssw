@@ -11,6 +11,10 @@ VectorInputSource: Abstract interface for vector input sources.
 #include <string>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace edm {
   class EventPrincipal;
   struct InputSourceDescription;
@@ -22,11 +26,11 @@ namespace edm {
     virtual ~VectorInputSource();
 
     template<typename T>
-    size_t loopRandom(EventPrincipal& cache, size_t number, T eventOperator);
+    size_t loopRandom(EventPrincipal& cache, size_t number, T eventOperator, CLHEP::HepRandomEngine*);
     template<typename T>
     size_t loopSequential(EventPrincipal& cache, size_t number, T eventOperator);
     template<typename T>
-    size_t loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator);
+    size_t loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator, CLHEP::HepRandomEngine*);
     template<typename T>
     size_t loopSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator);
     template<typename T, typename Collection>
@@ -37,8 +41,8 @@ namespace edm {
   private:
 
     void clearEventPrincipal(EventPrincipal& cache);
-    virtual void readOneRandom(EventPrincipal& cache) = 0;
-    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id) = 0;
+    virtual void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*) = 0;
+    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, CLHEP::HepRandomEngine*) = 0;
     virtual bool readOneSequential(EventPrincipal& cache) = 0;
     virtual bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id) = 0;
     virtual void readOneSpecified(EventPrincipal& cache, EventID const& event) = 0;
@@ -47,11 +51,11 @@ namespace edm {
   };
 
   template<typename T>
-  size_t VectorInputSource::loopRandom(EventPrincipal& cache, size_t number, T eventOperator) {
+  size_t VectorInputSource::loopRandom(EventPrincipal& cache, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine) {
     size_t i = 0U;
     for(; i < number; ++i) {
       clearEventPrincipal(cache);
-      readOneRandom(cache);
+      readOneRandom(cache, engine);
       eventOperator(cache);
     }
     return i;
@@ -70,11 +74,11 @@ namespace edm {
   }
 
   template<typename T>
-  size_t VectorInputSource::loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator) {
+  size_t VectorInputSource::loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine) {
     size_t i = 0U;
     for(; i < number; ++i) {
       clearEventPrincipal(cache);
-      bool found = readOneRandomWithID(cache, id);
+      bool found = readOneRandomWithID(cache, id, engine);
       if(!found) break;
       eventOperator(cache);
     }

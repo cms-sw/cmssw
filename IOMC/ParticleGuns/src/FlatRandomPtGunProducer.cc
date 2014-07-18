@@ -11,7 +11,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -39,6 +42,8 @@ FlatRandomPtGunProducer::~FlatRandomPtGunProducer()
 
 void FlatRandomPtGunProducer::produce(Event &e, const EventSetup& es) 
 {
+   edm::Service<edm::RandomNumberGenerator> rng;
+   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
    if ( fVerbosity > 0 )
    {
@@ -64,10 +69,9 @@ void FlatRandomPtGunProducer::produce(Event &e, const EventSetup& es)
    int barcode = 1 ;
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
-
-       double pt     = fRandomGenerator->fire(fMinPt, fMaxPt) ;
-       double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
-       double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
+       double pt     = CLHEP::RandFlat::shoot(engine, fMinPt, fMaxPt) ;
+       double eta    = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta) ;
+       double phi    = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi) ;
        int PartID = fPartIDs[ip] ;
        const HepPDT::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;

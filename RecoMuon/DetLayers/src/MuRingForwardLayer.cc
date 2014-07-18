@@ -22,6 +22,7 @@
 using namespace std;
 
 MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& rings) :
+  RingedForwardLayer(false),
   theRings(rings),
   theComponents(theRings.begin(),theRings.end()),
   theBinFinder(0),
@@ -211,11 +212,6 @@ MuRingForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& start
   return vector<DetGroup>();
 }
 
-
-bool MuRingForwardLayer::hasGroups() const {
-  // FIXME : depending on isOverlapping?
-  return false;
-}
 
 
 GeomDetEnumerators::SubDetector MuRingForwardLayer::subDetector() const {

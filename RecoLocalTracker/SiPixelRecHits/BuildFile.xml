@@ -8,7 +8,7 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="boost"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
 
 <export>
   <lib   name="1"/>

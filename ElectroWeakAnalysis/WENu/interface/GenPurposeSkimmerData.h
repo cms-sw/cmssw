@@ -48,6 +48,9 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
@@ -77,28 +80,36 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  
+
   std::string outputFile_;
   int tree_fills_;
 
-  edm::InputTag ElectronCollection_;
+  edm::EDGetTokenT<pat::ElectronCollection> ElectronCollectionToken_;
   edm::InputTag MCCollection_;
+  edm::EDGetTokenT<reco::GenParticleCollection> MCCollectionToken_;
   edm::InputTag MetCollectionTag_;
-  edm::InputTag mcMetCollectionTag_;
-  edm::InputTag tcMetCollectionTag_;
-  edm::InputTag pfMetCollectionTag_;
-  edm::InputTag t1MetCollectionTag_;
-  edm::InputTag t1MetCollectionTagTwiki_;
-  edm::InputTag genMetCollectionTag_;
+  edm::EDGetTokenT<reco::CaloMETCollection> MetCollectionToken_;
+  edm::EDGetTokenT<pat::METCollection> mcMetCollectionToken_;
+  edm::EDGetTokenT<reco::METCollection> tcMetCollectionToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> pfMetCollectionToken_;
+  edm::EDGetTokenT<pat::METCollection> t1MetCollectionToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMetCollectionToken_;
   //
   edm::InputTag HLTCollectionE29_;
+  edm::EDGetTokenT<trigger::TriggerEvent> HLTCollectionE29Token_;
   edm::InputTag HLTCollectionE31_;
+  edm::EDGetTokenT<trigger::TriggerEvent> HLTCollectionE31Token_;
   edm::InputTag HLTTriggerResultsE29_;
+  edm::EDGetTokenT<edm::TriggerResults> HLTTriggerResultsE29Token_;
   edm::InputTag HLTTriggerResultsE31_;
+  edm::EDGetTokenT<edm::TriggerResults> HLTTriggerResultsE31Token_;
   edm::InputTag HLTFilterType_[25];
   //  std::string HLTPath_[25];
-  edm::InputTag ctfTracksTag_;
-  edm::InputTag corHybridsc_, multi5x5sc_;
+  edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> corHybridscToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> multi5x5scToken_;
+  edm::EDGetTokenT<reco::BeamSpot> offlineBeamSpotToken_;
+  edm::EDGetTokenT<pat::MuonCollection> pMuonsToken_;
 
   TTree * probe_tree;
   TFile * histofile;
@@ -109,9 +120,9 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   double probe_sc_eta_for_tree[4];
   double probe_sc_phi_for_tree[4];
   double probe_sc_et_for_tree[4];
-  int probe_sc_pass_fiducial_cut[4]; 
-  int probe_sc_pass_et_cut[4]; 
-  
+  int probe_sc_pass_fiducial_cut[4];
+  int probe_sc_pass_et_cut[4];
+
   //probe electron variables
   double probe_ele_eta_for_tree[4];
   double probe_ele_phi_for_tree[4];
@@ -122,15 +133,15 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   double probe_ele_tip[4];
   int probe_charge_for_tree[4];
   int probe_index_for_tree[4];
-  
+
   //efficiency cuts
-  int probe_ele_pass_fiducial_cut[4]; 
-  int probe_ele_pass_et_cut[4]; 
-  int probe_pass_recoEle_cut[4]; 
-  int probe_pass_iso_cut[4]; 
+  int probe_ele_pass_fiducial_cut[4];
+  int probe_ele_pass_et_cut[4];
+  int probe_pass_recoEle_cut[4];
+  int probe_pass_iso_cut[4];
   //
-  double probe_isolation_value[4]; 
-  double probe_iso_user[4]; 
+  double probe_isolation_value[4];
+  double probe_iso_user[4];
   //
   double probe_ecal_isolation_value[4];
   double probe_ecal_iso_user[4];
@@ -138,7 +149,7 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   double probe_hcal_isolation_value[4];
   double probe_hcal_iso_user[4];
   //
-  int probe_classification_index_for_tree[4]; 
+  int probe_classification_index_for_tree[4];
   int probe_pass_tip_cut[4];
   //
   int probe_pass_id_robust_loose[4];
@@ -158,7 +169,7 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   double probe_ele_e1x5[4];
 
   //
-  int probe_pass_trigger_cut[4][25];   
+  int probe_pass_trigger_cut[4][25];
   double probe_hlt_matched_dr[4];
   //
   double MCMatch_Deta_;
@@ -168,35 +179,35 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   double probe_mc_matched_dphi[4];
   double probe_mc_matched_denergy[4];
   int probe_mc_matched_mother[4];
-  
+
  //event variables
   int numberOfHLTFilterObjects[25];
 
   int event_HLTPath[25];
-  
+
   double BarrelMaxEta;
   double EndcapMinEta;
   double EndcapMaxEta;
 
   double ProbeSCMinEt;
-  double ProbeRecoEleSCMaxDE; 
+  double ProbeRecoEleSCMaxDE;
 
   double ProbeHLTObjMaxDR;
   double RecoEleSeedBCMaxDE;
   double GsfTrackMinInnerPt;
 
-  int elec_number_in_event;      
+  int elec_number_in_event;
   int elec_1_duplicate_removal;
 
-  double    event_MET, event_MET_sig; 
+  double    event_MET, event_MET_sig;
   //  double    event_MET_eta;
   double    event_MET_phi;
   double    event_tcMET, event_tcMET_sig, event_tcMET_phi;
-  double    event_pfMET, event_pfMET_sig; 
+  double    event_pfMET, event_pfMET_sig;
   //  double    event_pfMET_eta;
   double    event_pfMET_phi;
-  //double    event_genMET, event_genMET_sig; 
-  //  double    event_genMET_eta; 
+  //double    event_genMET, event_genMET_sig;
+  //  double    event_genMET_eta;
   //double    event_genMET_phi;
   //
   double event_t1MET, event_t1MET_phi, event_t1MET_sig;

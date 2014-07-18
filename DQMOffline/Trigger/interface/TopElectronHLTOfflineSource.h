@@ -21,6 +21,9 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -147,14 +150,14 @@ class TopElectronHLTOfflineSource : public edm::EDAnalyzer
   std::vector<std::string> superTriggerNames_;
   std::vector<std::string> electronTriggerNames_;
   
-  edm::InputTag triggerSummaryLabel_;
-  edm::InputTag triggerResultsLabel_;
-  edm::InputTag triggerJetLabel_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsLabel_;
   edm::InputTag triggerJetFilterLabel_;
   edm::InputTag triggerElectronFilterLabel_;
-  edm::InputTag electronLabel_;
-  edm::InputTag primaryVertexLabel_;
-  edm::InputTag beamSpot_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVertexLabel_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > eleIdTokenCollection_;
 
   edm::Handle<trigger::TriggerEvent> triggerEvent_;
   

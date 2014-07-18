@@ -52,7 +52,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps) {
+L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesCollector && iC) {
 
   // set configuration parameters
   if ( m_config == 0 ) m_config = new L1MuDTTFConfig(ps);
@@ -69,6 +69,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps) {
   _cache.reserve(4*17);
   _cache0.reserve(144*17);
 
+  iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
 }
 
 

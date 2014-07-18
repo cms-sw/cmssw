@@ -59,48 +59,33 @@ SiStripBaselineValidator::~SiStripBaselineValidator()
 {
 }
 
+void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & es)
+{
+  ///Setting the DQM top directories
+  ibooker.setCurrentFolder("SiStrip/BaselineValidator");
+  
+  h1NumbadAPVsRes_ = ibooker.book1D("ResAPVs",";#ResAPVs", 100, 1.0, 10001);
+  //dbe->tag(h1NumbadAPVsRes_->getFullname(),1);
+  ibooker.tag(h1NumbadAPVsRes_,1);
+  
+  h1ADC_vs_strip_ = ibooker.book2D("ADCvsAPVs",";ADCvsAPVs", 768,-0.5,767.5,  1023, -0.5, 1022.5);
+  ibooker.tag(h1ADC_vs_strip_,2);
+  
+  return;
+}
+
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripBaselineValidator::beginJob()
 {
-
- if(dbe){
-    ///Setting the DQM top directories
-    dbe->setCurrentFolder("SiStrip/BaselineValidator");
-
-
-    h1NumbadAPVsRes_ = dbe->book1D("ResAPVs",";#ResAPVs", 100, 1.0, 10001);
-    dbe->tag(h1NumbadAPVsRes_->getFullname(),1);
-
-    h1ADC_vs_strip_ = dbe->book2D("ADCvsAPVs",";ADCvsAPVs", 768,-0.5,767.5,  1023, -0.5, 1022.5);
-    dbe->tag(h1ADC_vs_strip_->getFullname(),2);
-
-
- }  
-  
-   return;
 
 }
 
 void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-  /* edm::Handle<reco::TrackCollection> tracks;
-   e.getByLabel("hiSelectedTracks", tracks);
-
-   int ntracks =0;
-   for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); track++) {
-   ntracks++;
-    
-   }
-*/
-
-
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
-  //  e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
   e.getByToken( moduleRawDigiToken_, moduleRawDigi );
   edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
  
-  //  uint32_t Nmodule = moduleRawDigi->size();     
-
    int NumResAPVs=0;
    for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {   ///loop over modules
      

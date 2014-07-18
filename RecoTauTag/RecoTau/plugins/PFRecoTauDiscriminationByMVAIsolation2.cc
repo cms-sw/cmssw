@@ -200,14 +200,14 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
         
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
     if ( verbosity_ ) {
-      std::cout << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:" << std::endl;
-      std::cout << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << std::endl;
-      std::cout << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum << std::endl;
-      std::cout << " decay mode = " << tauDecayMode << std::endl;
-      std::cout << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig() << std::endl;
-      std::cout << " has decay vertex = " << tauLifetimeInfo.hasSecondaryVertex() << ":"
-		<< " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig() << std::endl;
-      std::cout << "--> mvaValue = " << mvaValue << std::endl;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:" ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig() ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " has decay vertex = " << tauLifetimeInfo.hasSecondaryVertex() << ":"
+		<< " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig() ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue ;
     }
     return mvaValue;
   } else {

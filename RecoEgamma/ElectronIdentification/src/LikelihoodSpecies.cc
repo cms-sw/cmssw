@@ -6,7 +6,7 @@ LikelihoodSpecies::LikelihoodSpecies(const char* name, float prior) {
 }
 
 LikelihoodSpecies::~LikelihoodSpecies() {
-  std::vector<LikelihoodPdf*>::iterator pdfItr;
+  std::vector<const LikelihoodPdf*>::iterator pdfItr;
   for(pdfItr=_pdfList.begin(); pdfItr!=_pdfList.end(); pdfItr++) {
     delete *pdfItr;
   }
@@ -16,7 +16,7 @@ void LikelihoodSpecies::setName(const char* name) {
   _name = std::string(name);
 }
 
-void LikelihoodSpecies::addPdf(LikelihoodPdf* pdf) {
+void LikelihoodSpecies::addPdf(const LikelihoodPdf* pdf) {
   _pdfList.push_back(pdf);
 }
 
@@ -28,19 +28,19 @@ void LikelihoodSpecies::setSplitFraction(std::pair<std::string,float> splitfrac)
   _splitFractions.insert(splitfrac);
 }
 
-std::vector<LikelihoodPdf*> LikelihoodSpecies::getListOfPdfs() {
+std::vector<const LikelihoodPdf*> const& LikelihoodSpecies::getListOfPdfs() const {
   return _pdfList;
 }
 
-const char* LikelihoodSpecies::getName() {
+const char* LikelihoodSpecies::getName() const {
   return _name.c_str();
 }
 
-float LikelihoodSpecies::getPrior() {
+float LikelihoodSpecies::getPrior() const {
   return _prior;
 }
 
-std::map<std::string,float> LikelihoodSpecies::getSplitFractions() {
+std::map<std::string,float> const& LikelihoodSpecies::getSplitFractions() const {
   return _splitFractions;
 }
 

@@ -56,7 +56,8 @@ namespace edm {
     cacheSize_(cacheSize),
     treeAutoFlush_(0),
     enablePrefetching_(enablePrefetching),
-    enableTriggerCache_(branchType_ == InEvent),
+    //enableTriggerCache_(branchType_ == InEvent),
+    enableTriggerCache_(false), // Disable, for now. Using the trigger cache in the multithreaded environment causes the assert on line 331 to fire occasionally.
     rootDelayedReader_(new RootDelayedReader(*this, filePtr, inputType)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : nullptr)) // backward compatibility

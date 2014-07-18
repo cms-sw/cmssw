@@ -14,6 +14,7 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <vector>
 #include <map>
@@ -29,6 +30,10 @@ class DTHitAssociator {
   typedef std::map<DTWireId, std::vector<DTDigiSimLink> > LinksMap;
 
   DTHitAssociator(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&, bool printRtS); 
+  DTHitAssociator(const edm::ParameterSet&, edm::ConsumesCollector && iC); 
+
+  void initEvent(const edm::Event&, const edm::EventSetup& );
+
   virtual ~DTHitAssociator(){}
 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & hit);

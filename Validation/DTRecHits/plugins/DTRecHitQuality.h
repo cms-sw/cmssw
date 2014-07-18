@@ -23,6 +23,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Histograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -60,8 +61,10 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   // Write the histos to file
 
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+
   void endJob();
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 					 edm::EventSetup const& c);
 
 protected:
@@ -75,6 +78,11 @@ private:
   bool debug;
   // Root file name
   std::string rootFileName;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
+  edm::EDGetTokenT<DTRecHitCollection> recHitToken_;
+  edm::EDGetTokenT<DTRecSegment2DCollection> segment2DToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;;
+
   edm::InputTag simHitLabel;
   edm::InputTag recHitLabel;
   edm::InputTag segment2DLabel;

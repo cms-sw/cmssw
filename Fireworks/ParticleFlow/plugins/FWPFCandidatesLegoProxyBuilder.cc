@@ -42,6 +42,7 @@ class FWPFCandidatesLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco:
       const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&); // stop default
       
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCandidate> ::build;
       void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*);
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

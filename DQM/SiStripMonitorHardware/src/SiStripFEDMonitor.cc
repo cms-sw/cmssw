@@ -209,7 +209,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
@@ -218,7 +217,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   //add the deltaBX value if the product exist
 
   edm::Handle<EventWithHistory> he;
-  //  iEvent.getByLabel("consecutiveHEs",he);
   iEvent.getByToken(heToken_,he);
 
   if(he.isValid() && !he.failedToGet()) {
@@ -381,13 +379,15 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   }
 
-  FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
-  FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
+  //FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
+  //FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
+  fedErrors_.getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
+  fedErrors_.getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
   //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
-  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
-  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
+  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
+  else fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
 
   nEvt_++;
 

@@ -98,8 +98,8 @@ void DTChamberEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetu
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     // histo booking
     bookHistos((*ch_it)->id());
@@ -178,8 +178,8 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
 
     DTChamberId ch = (*ch_it)->id();

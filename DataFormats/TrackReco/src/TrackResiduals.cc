@@ -126,16 +126,6 @@ unsigned char TrackResiduals::pack_pull (double pull)
      return sgn + mag;
 }
 
-static const double residual_char_to_double[8][2] = { 
-     { 0,   0.5 },
-     { 0.5, 1   },
-     { 1,   1.5 },
-     { 1.5, 2   },
-     { 2,   2.5 },
-     { 2.5, 3.5 },
-     { 3.5, 4.5 },
-     { 4.5, 5.5 },
-};
 
 double TrackResiduals::unpack_residual (unsigned char pull)
 {

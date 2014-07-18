@@ -73,6 +73,9 @@ namespace edm {
     };
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
+    void modulesDependentUpon(const std::string& iProcessName,
+                              std::vector<const char*>& oModuleLabels) const;
+    
   protected:
     friend class ConsumesCollector;
     template<typename T> friend class WillGetIfMatch;
@@ -82,22 +85,22 @@ namespace edm {
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,true)};
+      return EDGetTokenT<ProductType>{recordConsumes(B,tid, checkIfEmpty(tag),true)};
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(InEvent, id, tag, true)};
+      return EDGetToken{recordConsumes(InEvent, id, checkIfEmpty(tag), true)};
     }
 
     template <BranchType B>
     EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B, id, tag, true)};
+      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
     }
 
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B, tid, tag, false)};
+      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
     }
 
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
@@ -106,7 +109,7 @@ namespace edm {
 
     template <BranchType B>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B,id,tag,false)};
+      return EDGetToken{recordConsumes(B,id,checkIfEmpty(tag),false)};
     }
 
     template <typename ProductType, BranchType B=InEvent>
@@ -136,6 +139,7 @@ namespace edm {
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
     void throwConsumesCallAfterFrozen(TypeToGet const&, InputTag const&) const;
 
+    edm::InputTag const& checkIfEmpty(edm::InputTag const& tag);
     // ---------- member data --------------------------------
 
     struct TokenLookupInfo {

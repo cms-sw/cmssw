@@ -23,6 +23,7 @@
 #include "G4VProcess.hh"
 
 //#define DebugLog
+//using namespace std;
 
 //
 // constants, enums and typedefs
@@ -304,8 +305,6 @@ void SimTrackManager::fillMotherList()
 
 void SimTrackManager::cleanTracksWithHistory(){
 
-  using namespace std;
-
   if ((*m_trksForThisEvent).size() == 0 && idsave.size() == 0) { return; }
 
 #ifdef DebugLog
@@ -324,7 +323,7 @@ void SimTrackManager::cleanTracksWithHistory(){
   stable_sort(m_trksForThisEvent->begin()+lastTrack,m_trksForThisEvent->end(),trkIDLess());
   
   stable_sort(idsave.begin(),idsave.end());
-  
+ 
 #ifdef DebugLog
   LogDebug("SimTrackManager")  
     << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
@@ -366,7 +365,7 @@ void SimTrackManager::cleanTracksWithHistory(){
     }
   
   (*m_trksForThisEvent).resize(num);
-  
+
 #ifdef DebugLog
   LogDebug("SimTrackManager")  
     << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
@@ -376,14 +375,15 @@ void SimTrackManager::cleanTracksWithHistory(){
       << " Track in position " << it
       << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
       << " mother " << (*m_trksForThisEvent)[it]->parentID()
-      << " Status " << (*m_trksForThisEvent)[it]->saved();
+      << " Status " << (*m_trksForThisEvent)[it]->saved() 
+      << " id " << (*m_trksForThisEvent)[it]->particleID()
+      << " E(MeV)= " <<  (*m_trksForThisEvent)[it]->totalEnergy();
   }
 #endif  
 
   fillMotherList();
 
   lastTrack = (*m_trksForThisEvent).size();
-
 }
 
 void SimTrackManager::resetGenID() 

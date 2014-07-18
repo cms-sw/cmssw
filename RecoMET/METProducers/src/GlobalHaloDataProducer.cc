@@ -1,4 +1,5 @@
 #include "RecoMET/METProducers/interface/GlobalHaloDataProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 /*
   [class]:  GlobalHaloDataProducer
@@ -29,7 +30,15 @@ GlobalHaloDataProducer::GlobalHaloDataProducer(const edm::ParameterSet& iConfig)
   HcalMinMatchingRadius = (float)iConfig.getParameter<double>("HcalMinMatchingRadiusParam");
   HcalMaxMatchingRadius = (float)iConfig.getParameter<double>("HcalMaxMatchingRadiusParam");
   CaloTowerEtThreshold  = (float)iConfig.getParameter<double>("CaloTowerEtThresholdParam");
-  
+
+  calotower_token_  = consumes<edm::View<Candidate> >(IT_CaloTower);
+  calomet_token_    = consumes<reco::CaloMETCollection>(IT_met);
+  cscsegment_token_ = consumes<CSCSegmentCollection>(IT_CSCSegment);
+  cscrechit_token_  = consumes<CSCRecHit2DCollection>(IT_CSCRecHit);
+  cschalo_token_    = consumes<CSCHaloData>(IT_CSCHaloData);
+  ecalhalo_token_   = consumes<EcalHaloData>(IT_EcalHaloData);
+  hcalhalo_token_   = consumes<HcalHaloData>(IT_HcalHaloData);
+
   produces<GlobalHaloData>();
 }
 
@@ -49,31 +58,38 @@ void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //Get CaloTowers
   edm::Handle<edm::View<Candidate> > TheCaloTowers;
-  iEvent.getByLabel(IT_CaloTower,TheCaloTowers);
+  //  iEvent.getByLabel(IT_CaloTower,TheCaloTowers);
+  iEvent.getByToken(calotower_token_, TheCaloTowers);
 
   //Get MET
   edm::Handle< reco::CaloMETCollection > TheCaloMET;
-  iEvent.getByLabel(IT_met, TheCaloMET);
+  //  iEvent.getByLabel(IT_met, TheCaloMET);
+  iEvent.getByToken(calomet_token_, TheCaloMET);
 
   //Get CSCSegments
   edm::Handle<CSCSegmentCollection> TheCSCSegments;
-  iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
+  //  iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
+  iEvent.getByToken(cscsegment_token_, TheCSCSegments);
 
   //Get CSCRecHits
   edm::Handle<CSCRecHit2DCollection> TheCSCRecHits;
-  iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits );
+  //  iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits );
+  iEvent.getByToken(cscrechit_token_, TheCSCRecHits);
 
   //Get CSCHaloData
   edm::Handle<reco::CSCHaloData> TheCSCHaloData;
-  iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData );
+  //  iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData );
+  iEvent.getByToken(cschalo_token_, TheCSCHaloData);
 
   // Get EcalHaloData
   edm::Handle<reco::EcalHaloData> TheEcalHaloData;
-  iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData );
-  
+  //  iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData );
+  iEvent.getByToken(ecalhalo_token_, TheEcalHaloData);
+
   // Get HcalHaloData
   edm::Handle<reco::HcalHaloData> TheHcalHaloData;
-  iEvent.getByLabel(IT_HcalHaloData, TheHcalHaloData );
+  //  iEvent.getByLabel(IT_HcalHaloData, TheHcalHaloData );
+  iEvent.getByToken(hcalhalo_token_, TheHcalHaloData);
 
   // Run the GlobalHaloAlgo to reconstruct the GlobalHaloData object 
   GlobalHaloAlgo GlobalAlgo;

@@ -10,15 +10,9 @@ process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 switchJetCollection(process,
-                    jetSource = cms.InputTag('ak5PFJets'),
+                    jetSource = cms.InputTag('ak4PFJets'),
                     jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], '')
                     )
-
-## let it run
-process.p = cms.Path(
-    process.selectedPatCandidates*
-    process.cleanPatCandidates
-)
 
 # apply type I/type I + II PFMEt corrections to pat::MET object
 # and estimate systematic uncertainties on MET

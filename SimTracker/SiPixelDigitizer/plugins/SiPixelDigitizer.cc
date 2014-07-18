@@ -51,6 +51,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -67,8 +68,13 @@
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 
 //
 // constants, enums and typedefs
@@ -91,7 +97,9 @@ namespace cms
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers(iConfig.getParameter<std::vector<std::string> >("ROUList")),
-    geometryType(iConfig.getParameter<std::string>("GeometryType"))
+    geometryType(iConfig.getParameter<std::string>("GeometryType")),
+    pilotBlades(iConfig.exists("enablePilotBlades")?iConfig.getParameter<bool>("enablePilotBlades"):false),
+    NumberOfEndcapDisks(iConfig.exists("NumPixelEndcap")?iConfig.getParameter<int>("NumPixelEndcap"):2)
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
@@ -110,10 +118,8 @@ namespace cms
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
     }
-  
-    rndEngine       = &(rng->getEngine());
-    _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig,(*rndEngine)));
 
+    _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
   }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  
@@ -126,7 +132,7 @@ namespace cms
   //
 
   void
-  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits) {
+  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits, CLHEP::HepRandomEngine* engine) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
@@ -136,12 +142,14 @@ namespace cms
            // The insert succeeded, so this detector element has not yet been processed.
            unsigned int isub = DetId(detId).subdetId();
            if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
-             PixelGeomDetUnit* pixdet = detectorUnits[detId];
+	     std::map<unsigned int, PixelGeomDetUnit const *>::iterator itDet = detectorUnits.find(detId);	     
+	     if (itDet == detectorUnits.end()) continue;
+             auto pixdet = itDet->second;
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
                                           << pSetup->inTesla(pixdet->surface().position());
-             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield);
+             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield, engine);
            }
          }
        }
@@ -157,6 +165,9 @@ namespace cms
     _pixeldigialgo->initializeEvent();
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
 
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
     if(true) { // Replace with ESWatcher 
@@ -166,8 +177,13 @@ namespace cms
         DetId idet=DetId(detId);
         unsigned int isub=idet.subdetId();
         if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
-          PixelGeomDetUnit* pixdet = dynamic_cast<PixelGeomDetUnit*>((*iu));
+          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
           assert(pixdet != 0);
+	  if (isub==PixelSubdetector::PixelEndcap) {
+	    unsigned int disk = tTopo->pxfDisk(detId);
+	    //if using pilot blades, then allowing it for current detector only
+	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
+	  }
           detectorUnits.insert(std::make_pair(detId, pixdet));
         }
       }
@@ -182,19 +198,19 @@ namespace cms
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
+      accumulatePixelHits(simHits, randomEngine(iEvent.streamID()));
     }
   }
 
   void
-  SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup) {
+  SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
     // Step A: Get Inputs
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
+      accumulatePixelHits(simHits, randomEngine(streamID));
     }
   }
 
@@ -202,29 +218,36 @@ namespace cms
   void
   SiPixelDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
     edm::ESHandle<TrackerTopology> tTopoHand;
     iSetup.get<IdealGeometryRecord>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
+ 
+    PileupInfo_ = getEventPileupInfo();
+    _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
       unsigned int isub=idet.subdetId();
       
-      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
-        
-        //
-        
+      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+
+	//
+
         edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
         edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
         
         
-        _pixeldigialgo->digitize(dynamic_cast<PixelGeomDetUnit*>((*iu)),
+        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>((*iu)),
                                  collector.data,
                                  linkcollector.data,
-				 tTopo);
+				 tTopo,
+                                 engine);
         if(collector.data.size() > 0) {
           theDigiVector.push_back(std::move(collector));
         }
@@ -245,8 +268,19 @@ namespace cms
     iEvent.put(outputlink);
   }
 
-
-
+  CLHEP::HepRandomEngine* SiPixelDigitizer::randomEngine(edm::StreamID const& streamID) {
+    unsigned int index = streamID.value();
+    if(index >= randomEngines_.size()) {
+      randomEngines_.resize(index + 1, nullptr);
+    }
+    CLHEP::HepRandomEngine* ptr = randomEngines_[index];
+    if(!ptr) {
+      edm::Service<edm::RandomNumberGenerator> rng;
+      ptr = &rng->getEngine(streamID);
+      randomEngines_[index] = ptr;
+    }
+    return ptr;
+  }
 
 }// end namespace cms::
 

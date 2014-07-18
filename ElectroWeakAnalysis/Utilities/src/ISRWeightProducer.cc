@@ -27,16 +27,15 @@ class ISRWeightProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-      edm::InputTag genTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       std::vector<double> isrBinEdges_;
       std::vector<double> ptWeights_;
 };
 
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 ISRWeightProducer::ISRWeightProducer(const edm::ParameterSet& pset) {
-      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genPArticles"));
+      genToken_ = consumes<reco::GenParticleCollection>(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles")));
 
   // Pt bin edges
       std::vector<double> defPtEdges;
@@ -54,7 +53,7 @@ ISRWeightProducer::ISRWeightProducer(const edm::ParameterSet& pset) {
       }
 
       produces<double>();
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 ISRWeightProducer::~ISRWeightProducer(){}
@@ -71,7 +70,7 @@ void ISRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel(genTag_, genParticles);
+      iEvent.getByToken(genToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
       std::auto_ptr<double> weight (new double);

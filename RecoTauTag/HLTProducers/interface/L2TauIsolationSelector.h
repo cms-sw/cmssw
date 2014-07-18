@@ -16,7 +16,7 @@ e-mail: bachtis@hep.wisc.edu
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 
 class L2TauIsolationSelector : public edm::EDProducer {
    public:
@@ -28,7 +28,7 @@ class L2TauIsolationSelector : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
-      edm::InputTag associationInput_;  
+      edm::EDGetTokenT<reco::L2TauInfoAssociation> associationInput_;  
       
       //Create vars for Cuts
       double ECALIsolEt_;

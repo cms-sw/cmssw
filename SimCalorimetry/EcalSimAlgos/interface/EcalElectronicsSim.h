@@ -1,17 +1,18 @@
-
 #ifndef EcalSimAlgos_EcalElectronicsSim_h
 #define EcalSimAlgos_EcalElectronicsSim_h 1
 
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 
 class EcalCoder           ;
 class EcalDataFrame       ;
 class EcalSimParameterMap ;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 /* \class EcalElectronicsSim
  * \brief Converts CaloDataFrame in CaloTimeSample and vice versa.
@@ -32,7 +33,7 @@ class EcalElectronicsSim
       ~EcalElectronicsSim() ;
 
       /// from EcalSamples to EcalDataFrame
-      void analogToDigital( EcalSamples& clf, EcalDataFrame& df ) const ;
+      void analogToDigital( CLHEP::HepRandomEngine*, EcalSamples& clf, EcalDataFrame& df ) const ;
 
       void newEvent() {}
 
@@ -43,7 +44,7 @@ class EcalElectronicsSim
    private:
 
       /// input signal is in pe.  Converted in GeV
-      void amplify( EcalSamples& clf ) const ;
+      void amplify( EcalSamples& clf, CLHEP::HepRandomEngine* ) const ;
 
       /// map of parameters
 
@@ -53,7 +54,8 @@ class EcalElectronicsSim
 
       EcalCoder*                 m_theCoder ;
 
-      CLHEP::RandGaussQ*         m_gaussQDistribution ;
+      const double               m_thisCT;
+      const bool                 m_applyConstantTerm;
 } ;
 
 

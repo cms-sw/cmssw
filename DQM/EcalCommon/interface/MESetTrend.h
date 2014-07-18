@@ -3,50 +3,53 @@
 
 #include "MESetEcal.h"
 
-// correct way is to have MESetDet which inherits from MESetEcal and implements fill functions
-// this way MESetEcal can focus only on generateNames etc. (object properties)
-
 namespace ecaldqm
 {
+  /* class MESetTrend
+     time on xaxis
+     channel id is used to identify the plot
+  */
+
   class MESetTrend : public MESetEcal
   {
   public :
-    MESetTrend(std::string const&, MEData const&, bool _readOnly = false);
-    ~MESetTrend();
+    MESetTrend(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
+    MESetTrend(MESetTrend const&);
+    ~MESetTrend() {}
 
-    void book();
+    MESet& operator=(MESet const&) override;
 
-    void fill(DetId const&, double, double _wy = 1., double _w = 1.);
-    void fill(unsigned, double, double _wy = 1., double _w = 1.);
-    void fill(double, double _wy = 1., double _w = 1.);
+    MESet* clone(std::string const& = "") const override;
 
-    void setBinContent(DetId const&, double, double _err = 0.) {}
-    void setBinContent(unsigned, double, double _err = 0.) {}
+    void book(DQMStore&) override;
+    void book(DQMStore::IBooker&) override;
 
-    void setBinEntries(DetId const&, double) {}
-    void setBinEntries(unsigned, double) {}
+    void fill(DetId const&, double, double = 1., double = 1.) override;
+    void fill(EcalElectronicsId const&, double, double = 1., double = 1.) override;
+    void fill(int, double, double = 1., double = 1.) override;
+    void fill(double, double = 1., double = 1.) override;
 
-    double getBinContent(DetId const&, int _bin = 0) const { return 0.; }
-    double getBinContent(unsigned, int _bin = 0) const { return 0.; }
+    int findBin(DetId const&, double, double = 0.) const override;
+    int findBin(EcalElectronicsId const&, double, double = 0.) const override;
+    int findBin(int, double, double = 0.) const override;
+    int findBin(double, double = 0.) const;
 
-    double getBinError(DetId const&, int _bin = 0) const { return 0.; }
-    double getBinError(unsigned, int _bin = 0) const { return 0.; }
+    bool isVariableBinning() const override { return true; }
 
-    double getBinEntries(DetId const&, int _bin = 0) const { return 0.; }
-    double getBinEntries(unsigned, int _bin = 0) const { return 0.; }
-
-    void setTimeZero(time_t _t0) { t0_ = _t0; }
-    time_t getTimeZero() const { return t0_; }
-    void setMinutely(bool _minutely) { minutely_ = _minutely; }
-    bool getMinutely() const { return minutely_; }
+    void setMinutely() { minutely_ = true; }
+    void setShiftAxis() { shiftAxis_ = true; }
+    void setCumulative();
+    bool isMinutely() const { return minutely_; }
+    bool canShiftAxis() const { return shiftAxis_; }
+    bool isCumulative() const { return currentBin_ > 0; }
 
   private:
-    bool shift_(time_t);
+    template<class Bookable> void doBook_(Bookable&);
+    bool shift_(unsigned);
 
-    time_t t0_;
-    bool minutely_;
-
-    time_t tLow_;
+    bool minutely_; // if true, bins in minutes instead of lumis
+    bool shiftAxis_; // if true, shift x values
+    int currentBin_; // only used for cumulative case
   };
 }
 

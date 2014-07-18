@@ -28,17 +28,16 @@ class FSRWeightProducer : public edm::EDProducer {
       virtual void endJob() override ;
       double alphaRatio(double) ;
 
-      edm::InputTag genTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
 };
 
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 FSRWeightProducer::FSRWeightProducer(const edm::ParameterSet& pset) {
-      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"));
+      genToken_ = consumes<reco::GenParticleCollection>(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles")));
 
       produces<double>();
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 FSRWeightProducer::~FSRWeightProducer(){}
@@ -55,7 +54,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel(genTag_, genParticles);
+      iEvent.getByToken(genToken_, genParticles);
 
       std::auto_ptr<double> weight (new double);
 
@@ -80,9 +79,9 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             double leptonPhi = lepton.phi();
 
             int trueKey = i;
-            if (lepton.numberOfDaughters()==0) { 
+            if (lepton.numberOfDaughters()==0) {
                   continue;
-            } else if (lepton.numberOfDaughters()==1) { 
+            } else if (lepton.numberOfDaughters()==1) {
                   int otherleptonKey = lepton.daughterRef(0).key();
                   const reco::GenParticle& otherlepton = (*genParticles)[otherleptonKey];
                   if (otherlepton.pdgId()!=leptonId) continue;
@@ -107,7 +106,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   if (bosonId==24) {
                         double betaLepton = sqrt(1-pow(leptonMass/leptonEnergy,2));
                         double delta = - 8*photonEnergy *(1-betaLepton*costheta)
-                          / pow(bosonMass,3) 
+                          / pow(bosonMass,3)
                           / (1-pow(leptonMass/bosonMass,2))
                           / (4-pow(leptonMass/bosonMass,2))
                           * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
@@ -140,9 +139,9 @@ double FSRWeightProducer::alphaRatio(double pt) {
       // Hadronic vaccum contribution
       // Using simple effective parametrization from Physics Letters B 513 (2001) 46.
       // Top contribution neglected
-      double A = 0.; 
-      double B = 0.; 
-      double C = 0.; 
+      double A = 0.;
+      double B = 0.;
+      double C = 0.;
       if (pt<0.7) {
             A = 0.0; B = 0.0023092; C = 3.9925370;
       } else if (pt<2.0) {

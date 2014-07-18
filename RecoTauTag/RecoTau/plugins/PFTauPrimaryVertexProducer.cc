@@ -23,6 +23,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -87,12 +88,14 @@ class PFTauPrimaryVertexProducer : public EDProducer {
   edm::EDGetTokenT<reco::TrackCollection> TrackCollectionToken_;
   edm::InputTag TracksTag_;
   int Algorithm_;
+  edm::ParameterSet qualityCutsPSet_;
   bool useBeamSpot_;
   bool useSelectedTaus_;
   bool RemoveMuonTracks_;
   bool RemoveElectronTracks_;
   DiscCutPairVec discriminators_;
   std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
+  std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 };
 
 PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& iConfig):
@@ -109,6 +112,7 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
   TrackCollectionToken_(consumes<reco::TrackCollection>(TrackCollectionTag_)),
   Algorithm_(iConfig.getParameter<int>("Algorithm")),
+  qualityCutsPSet_(iConfig.getParameter<edm::ParameterSet>("qualityCuts")),
   useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot")),
   useSelectedTaus_(iConfig.getParameter<bool>("useSelectedTaus")),
   RemoveMuonTracks_(iConfig.getParameter<bool>("RemoveMuonTracks")),
@@ -120,6 +124,7 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   BOOST_FOREACH(const edm::ParameterSet &pset, discriminators) {
     DiscCutPair* newCut = new DiscCutPair();
     newCut->inputToken_ =consumes<reco::PFTauDiscriminator>(pset.getParameter<edm::InputTag>("discriminator"));
+
     if ( pset.existsAs<std::string>("selectionCut") ) newCut->cutFormula_ = new TFormula("selectionCut", pset.getParameter<std::string>("selectionCut").data());
     else newCut->cut_ = pset.getParameter<double>("selectionCut");
     discriminators_.push_back(newCut);
@@ -129,6 +134,8 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   produces<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > >();
   produces<VertexCollection>("PFTauPrimaryVertices"); 
+
+  vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCutsPSet_,consumesCollector()));
 }
 
 PFTauPrimaryVertexProducer::~PFTauPrimaryVertexProducer(){
@@ -172,21 +179,14 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 
   // For each Tau Run Algorithim 
   if(Tau.isValid()){
-    unsigned int index(0);
     for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
-      std::vector<reco::TrackBaseRef> SignalTracks;
       reco::PFTauRef tau(Tau, iPFTau);
       reco::Vertex thePV;
       if(useInputPV==Algorithm_){
-	if(Tau->size()==PV->size()){
-	  thePV=PV->at(index);
-	}
-	else{
-	  thePV=PV->front();
-	  edm::LogError("PFTauPrimaryVertexProducer") <<"PFTauPrimaryVertexProducer Number of Tau do not match Number of Primary Vertices for useInputPV Algorithim. Using Tau Primary Vertes Instead";
-	}
+	vertexAssociator_->setEvent(iEvent);
+	thePV =(*( vertexAssociator_->associatedVertex(*tau)));
       }
-      if(useFontPV==Algorithm_){
+      else if(useFontPV==Algorithm_){
 	thePV=PV->front();
       }
       ///////////////////////
@@ -201,6 +201,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       }
       if (passed && cut_.get()){passed = (*cut_)(*tau);}
       if (passed){
+	std::vector<reco::TrackBaseRef> SignalTracks;
 	for(reco::PFTauCollection::size_type jPFTau = 0; jPFTau < Tau->size(); jPFTau++) {
 	  if(useSelectedTaus_ || iPFTau==jPFTau){
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);

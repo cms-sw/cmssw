@@ -65,7 +65,7 @@ HepMCConverter<HepMCEventT,Traits>::
 HepMCConverter(const Event & ev, bool nocopies, Energy eunit, Length lunit)
   : energyUnit(eunit), lengthUnit(lunit) {
 
-  geneve = Traits::newEvent(ev.number(), ev.weight());
+  geneve = Traits::newEvent(ev.number(), ev.weight(), ev.optionalWeights());
 
   init(ev, nocopies);
 

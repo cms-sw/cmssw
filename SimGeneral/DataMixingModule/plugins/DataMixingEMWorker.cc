@@ -27,7 +27,7 @@ namespace edm
   DataMixingEMWorker::DataMixingEMWorker() { }
 
   // Constructor 
-  DataMixingEMWorker::DataMixingEMWorker(const edm::ParameterSet& ps) : 
+  DataMixingEMWorker::DataMixingEMWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -41,6 +41,10 @@ namespace edm
     EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
     ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
 
+    EBRecHitToken_ = iC.consumes<EBRecHitCollection>(EBProducerSig_);
+    EERecHitToken_ = iC.consumes<EERecHitCollection>(EEProducerSig_);
+    ESRecHitToken_ = iC.consumes<ESRecHitCollection>(ESProducerSig_);
+
 
     EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
     EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
@@ -50,19 +54,14 @@ namespace edm
     EEPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("EEPileRecHitInputTag");
     ESPileRecHitInputTag_ = ps.getParameter<edm::InputTag>("ESPileRecHitInputTag");
 
+    EBPileRecHitToken_ = iC.consumes<EBRecHitCollection>(EBPileRecHitInputTag_);
+    EEPileRecHitToken_ = iC.consumes<EERecHitCollection>(EEPileRecHitInputTag_);
+    ESPileRecHitToken_ = iC.consumes<ESRecHitCollection>(ESPileRecHitInputTag_);
+
 
     EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
     EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
     ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
-   //   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
-
-   //EBalgo_ = new EcalRecHitSimpleAlgo();
-   //EEalgo_ = new EcalRecHitSimpleAlgo();
-
-   // don't think I can "produce" in a sub-class...
-
-   //produces< EBRecHitCollection >(EBRecHitCollectionDM_);
-   //produces< EERecHitCollection >(EERecHitCollectionDM_);
 
   }
 	       
@@ -82,7 +81,7 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   if(e.getByLabel(EBProducerSig_, pEBRecHits) ){
+   if(e.getByToken(EBRecHitToken_, pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
    }
@@ -110,7 +109,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if(e.getByLabel(EEProducerSig_, pEERecHits) ){
+   if(e.getByToken(EERecHitToken_, pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
    } 
@@ -138,7 +137,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if(e.getByLabel( ESProducerSig_, pESRecHits) ){
+   if(e.getByToken( ESRecHitToken_, pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
@@ -389,3 +388,5 @@ namespace edm
   }
 
 } //edm
+
+//  LocalWords:  ESProducerSig

@@ -16,7 +16,7 @@ class TIBRingBuilder {
  public:
   TIBRingBuilder(){};
   TIBRing* build(const std::vector<const GeometricDet*>& detsInRing,
-		 const TrackerGeometry* theGeomDetGeometry);
+		 const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
 
   
 };

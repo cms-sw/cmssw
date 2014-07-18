@@ -1,7 +1,7 @@
 // Authors: F. Ambroglini, L. Fano'
 #include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducer.h>
 #include "FWCore/Common/interface/TriggerNames.h"
- 
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -33,7 +33,7 @@ public:
     return a.pt() > b.pt();
   }
 };
- 
+
 
 void AnalysisRootpleProducer::store(){
 
@@ -105,16 +105,16 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   onlyRECO = pset.getUntrackedParameter<bool>("OnlyRECO",false);
 
   // particle, track and jet collections
-  mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
-  genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
-  chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
-  tracksJetCollName = pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string(""));
-  recoCaloJetCollName = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
-  chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
-  tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
+  mcEventToken = mayConsume<edm::HepMCProduct>(pset.getUntrackedParameter<InputTag>("MCEvent",std::string("")));
+  genJetCollToken = mayConsume<reco::GenJetCollection>(pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string("")));
+  chgJetCollToken = mayConsume<reco::GenJetCollection>(pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string("")));
+  tracksJetCollToken = consumes<reco::BasicJetCollection>(pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string("")));
+  recoCaloJetCollToken = consumes<reco::CaloJetCollection>(pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string("")));
+  chgGenPartCollToken = mayConsume<std::vector<reco::GenParticle> >(pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string("")));
+  tracksCollToken = consumes<reco::CandidateCollection>(pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string("")));
 
   // trigger results
-  triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
+  triggerResultsToken = consumes<edm::TriggerResults>(pset.getParameter<InputTag>("triggerResults"));
   //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
@@ -129,7 +129,7 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 
 void AnalysisRootpleProducer::beginJob()
 {
- 
+
   // use TFileService for output to root file
   AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");
 
@@ -137,48 +137,48 @@ void AnalysisRootpleProducer::beginJob()
 
   // store p, pt, eta, phi for particles and jets
 
-  // GenParticles at hadron level  
+  // GenParticles at hadron level
   AnalysisTree->Branch("NumberMCParticles",&NumberMCParticles,"NumberMCParticles/I");
   AnalysisTree->Branch("MomentumMC",MomentumMC,"MomentumMC[NumberMCParticles]/F");
   AnalysisTree->Branch("TransverseMomentumMC",TransverseMomentumMC,"TransverseMomentumMC[NumberMCParticles]/F");
   AnalysisTree->Branch("EtaMC",EtaMC,"EtaMC[NumberMCParticles]/F");
   AnalysisTree->Branch("PhiMC",PhiMC,"PhiMC[NumberMCParticles]/F");
-  
+
   // tracks
   AnalysisTree->Branch("NumberTracks",&NumberTracks,"NumberTracks/I");
   AnalysisTree->Branch("MomentumTK",MomentumTK,"MomentumTK[NumberTracks]/F");
   AnalysisTree->Branch("TrasverseMomentumTK",TransverseMomentumTK,"TransverseMomentumTK[NumberTracks]/F");
   AnalysisTree->Branch("EtaTK",EtaTK,"EtaTK[NumberTracks]/F");
   AnalysisTree->Branch("PhiTK",PhiTK,"PhiTK[NumberTracks]/F");
-  
+
   // GenJets
   AnalysisTree->Branch("NumberInclusiveJet",&NumberInclusiveJet,"NumberInclusiveJet/I");
   AnalysisTree->Branch("MomentumIJ",MomentumIJ,"MomentumIJ[NumberInclusiveJet]/F");
   AnalysisTree->Branch("TrasverseMomentumIJ",TransverseMomentumIJ,"TransverseMomentumIJ[NumberInclusiveJet]/F");
   AnalysisTree->Branch("EtaIJ",EtaIJ,"EtaIJ[NumberInclusiveJet]/F");
   AnalysisTree->Branch("PhiIJ",PhiIJ,"PhiIJ[NumberInclusiveJet]/F");
-  
+
   // jets from charged GenParticles
   AnalysisTree->Branch("NumberChargedJet",&NumberChargedJet,"NumberChargedJet/I");
   AnalysisTree->Branch("MomentumCJ",MomentumCJ,"MomentumCJ[NumberChargedJet]/F");
   AnalysisTree->Branch("TrasverseMomentumCJ",TransverseMomentumCJ,"TransverseMomentumCJ[NumberChargedJet]/F");
   AnalysisTree->Branch("EtaCJ",EtaCJ,"EtaCJ[NumberChargedJet]/F");
   AnalysisTree->Branch("PhiCJ",PhiCJ,"PhiCJ[NumberChargedJet]/F");
-  
+
   // jets from tracks
   AnalysisTree->Branch("NumberTracksJet",&NumberTracksJet,"NumberTracksJet/I");
   AnalysisTree->Branch("MomentumTJ",MomentumTJ,"MomentumTJ[NumberTracksJet]/F");
   AnalysisTree->Branch("TrasverseMomentumTJ",TransverseMomentumTJ,"TransverseMomentumTJ[NumberTracksJet]/F");
   AnalysisTree->Branch("EtaTJ",EtaTJ,"EtaTJ[NumberTracksJet]/F");
   AnalysisTree->Branch("PhiTJ",PhiTJ,"PhiTJ[NumberTracksJet]/F");
-  
+
   // jets from calorimeter towers
   AnalysisTree->Branch("NumberCaloJet",&NumberCaloJet,"NumberCaloJet/I");
   AnalysisTree->Branch("MomentumEHJ",MomentumEHJ,"MomentumEHJ[NumberCaloJet]/F");
   AnalysisTree->Branch("TrasverseMomentumEHJ",TransverseMomentumEHJ,"TransverseMomentumEHJ[NumberCaloJet]/F");
   AnalysisTree->Branch("EtaEHJ",EtaEHJ,"EtaEHJ[NumberCaloJet]/F");
   AnalysisTree->Branch("PhiEHJ",PhiEHJ,"PhiEHJ[NumberCaloJet]/F");
-  
+
 
   // alternative storage method:
   // save TClonesArrays of TLorentzVectors
@@ -207,20 +207,20 @@ void AnalysisRootpleProducer::beginJob()
 
 }
 
-  
+
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
-  
-  e.getByLabel( triggerResultsTag, triggerResults );
+
+  e.getByToken( triggerResultsToken, triggerResults );
   const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
 
   acceptedTriggers->Clear();
-  unsigned int iAcceptedTriggers( 0 ); 
+  unsigned int iAcceptedTriggers( 0 );
   if ( triggerResults.product()->wasrun() )
     {
       //cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
-  
-      if ( triggerResults.product()->accept() ) 
+
+      if ( triggerResults.product()->accept() )
 	{
 	  //cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
 
@@ -247,20 +247,20 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   // skipped, if onlyRECO flag set to true
 
   if(!onlyRECO){
-    
-    e.getByLabel( mcEvent           , EvtHandle        );
-    e.getByLabel( chgGenPartCollName, CandHandleMC     );
-    e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
-    e.getByLabel( genJetCollName    , GenJetsHandle    );
-    
+
+    e.getByToken( mcEventToken       , EvtHandle        );
+    e.getByToken( chgGenPartCollToken, CandHandleMC     );
+    e.getByToken( chgJetCollToken    , ChgGenJetsHandle );
+    e.getByToken( genJetCollToken    , GenJetsHandle    );
+
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
-    
+
     EventKind = Evt->signal_process_id();
 
     std::vector<math::XYZTLorentzVector> GenPart;
     std::vector<GenJet> ChgGenJetContainer;
     std::vector<GenJet> GenJetContainer;
-    
+
     GenPart.clear();
     ChgGenJetContainer.clear();
     GenJetContainer.clear();
@@ -310,7 +310,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
     // hadron level particles
     if (CandHandleMC->size()){
-      
+
       for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	   it != itEnd;it++)
 	{
@@ -327,23 +327,23 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	}
     }
 
-  } 
+  }
 
-  
+
   // reco level analysis
-  
-  e.getByLabel( tracksCollName     , CandHandleRECO     );
-  e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle );
-  e.getByLabel( tracksJetCollName  , TracksJetsHandle   );
-  
+
+  e.getByToken( tracksCollToken     , CandHandleRECO     );
+  e.getByToken( recoCaloJetCollToken, RecoCaloJetsHandle );
+  e.getByToken( tracksJetCollToken  , TracksJetsHandle   );
+
   std::vector<math::XYZTLorentzVector> Tracks;
   std::vector<BasicJet> TracksJetContainer;
   std::vector<CaloJet> RecoCaloJetContainer;
-  
+
   Tracks.clear();
   TracksJetContainer.clear();
   RecoCaloJetContainer.clear();
-  
+
   Track->Clear();
   TracksJet->Clear();
   CalorimeterJet->Clear();
@@ -364,7 +364,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
       }
     }
-    
+
   if(TracksJetsHandle->size())
     {
       for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
@@ -373,7 +373,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	  TracksJetContainer.push_back(*it);
 	}
       std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
-    
+
       std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
       for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
 	{
@@ -381,7 +381,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	  new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
-  
+
   if(CandHandleRECO->size())
     {
       for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
@@ -390,7 +390,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	  Tracks.push_back(it->p4());
 	}
       std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
-    
+
       std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
       for(int iTracks(0); it != itEnd; ++it, ++iTracks)
 	{
@@ -398,7 +398,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	  new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
 	}
     }
-  
+
   store();
 }
 

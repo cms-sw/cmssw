@@ -10,11 +10,11 @@ public:
   RKPropagatorInR( const MagVolume& vol, PropagationDirection dir = alongMomentum) : 
     Propagator(dir), theVolume( &vol) {}
 
-  virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Plane&) const;
+  TrajectoryStateOnSurface 
+  myPropagate (const FreeTrajectoryState&, const Plane&) const;
 
-  virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Cylinder&) const;
+  TrajectoryStateOnSurface 
+  myPropagate (const FreeTrajectoryState&, const Cylinder&) const;
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
   propagateWithPath (const FreeTrajectoryState&, const Plane&) const;

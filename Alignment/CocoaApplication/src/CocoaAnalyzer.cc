@@ -34,6 +34,7 @@ CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset)
   GlobalOptionMgr::getInstance()->setGlobalOption("maxEvents",maxEvents);
   GlobalOptionMgr::getInstance()->setGlobalOption("writeDBAlign",1);
   GlobalOptionMgr::getInstance()->setGlobalOption("writeDBOptAlign",1);
+  usesResource("CocoaAnalyzer");
 }
 
 //----------------------------------------------------------------------

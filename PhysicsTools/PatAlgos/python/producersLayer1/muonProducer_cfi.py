@@ -47,7 +47,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedCaloMETMuonCorrs = cms.bool(True),
     caloMETMuonCorrs = cms.InputTag("muonMETValueMapProducer"  , "muCorrData"),
     # embedding of muon MET corrections for tcMET
-    embedTcMETMuonCorrs   = cms.bool(True),
+    embedTcMETMuonCorrs   = cms.bool(False), # removed from RECO/AOD!
     tcMETMuonCorrs   = cms.InputTag("muonTCMETValueMapProducer", "muCorrData"),
 
     # embed IsoDeposits

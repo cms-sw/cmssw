@@ -23,39 +23,40 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 class EgammaSuperClusters : public edm::EDAnalyzer
 {
-	public:
-      	explicit EgammaSuperClusters( const edm::ParameterSet& );
-      	~EgammaSuperClusters();
-
-      	virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      	virtual void beginJob();
-      	virtual void endJob();
-
-	private:
-	std::string outputFile_;
-	//std::string CMSSW_Version_;
-
-	bool verboseDBE_;
-	DQMStore* dbe_;
-
-	// mc truth
-      	edm::InputTag MCTruthCollection_;
-
-	// barrel clusters
-      	edm::InputTag barrelRawSuperClusterCollection_;
-	edm::InputTag barrelCorSuperClusterCollection_;
-
-	// endcap clusters
-      	edm::InputTag endcapRawSuperClusterCollection_;
-        edm::InputTag endcapPreSuperClusterCollection_;
-        edm::InputTag endcapCorSuperClusterCollection_;
-
-	// collections of hits
-      	edm::InputTag barrelRecHitCollection_;
-      	edm::InputTag endcapRecHitCollection_;
+ public:
+  explicit EgammaSuperClusters( const edm::ParameterSet& );
+  ~EgammaSuperClusters();
+  
+  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void beginJob();
+  virtual void endJob();
+  
+ private:
+  std::string outputFile_;
+  //std::string CMSSW_Version_;
+  
+  bool verboseDBE_;
+  DQMStore* dbe_;
+  
+  // mc truth
+  edm::EDGetTokenT<edm::HepMCProduct> MCTruthCollectionToken_;
+  
+  // barrel clusters
+  edm::EDGetTokenT<reco::SuperClusterCollection> barrelRawSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> barrelCorSuperClusterCollectionToken_;
+  
+  // endcap clusters
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapRawSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapPreSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapCorSuperClusterCollectionToken_;
+  
+  // collections of hits
+  edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollectionToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollectionToken_;
 
       	MonitorElement* hist_EB_RawSC_Size_;
       	MonitorElement* hist_EE_RawSC_Size_;

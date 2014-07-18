@@ -30,17 +30,23 @@ int main(int argc, char**argv)
   std::string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
   std::vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
   std::vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
-  if (!c1.check()) return 0; 
+  if (!c1.check()) return 0;
   c1.print();
   /////////////////////////////////////////////////////////////////////////
- const int MAX_NREFPTBINS = 30; 
- int NRefPtBins = pt_vec.size()-1; 
+ const int MAX_NREFPTBINS = 30;
+ int NRefPtBins = pt_vec.size()-1;
  char name[100];
  int i,auxi_cor,auxi_resp;
- double Correction[MAX_NREFPTBINS],CorrectionError[MAX_NREFPTBINS],Response[MAX_NREFPTBINS],ResponseError[MAX_NREFPTBINS];
- double xCaloPt[MAX_NREFPTBINS],exCaloPt[MAX_NREFPTBINS],xRefPt[MAX_NREFPTBINS],exRefPt[MAX_NREFPTBINS];
+ double Correction[MAX_NREFPTBINS] = {};
+ double CorrectionError[MAX_NREFPTBINS] = {};
+ double Response[MAX_NREFPTBINS] = {};
+ double ResponseError[MAX_NREFPTBINS] = {};
+ double xCaloPt[MAX_NREFPTBINS] = {};
+ double exCaloPt[MAX_NREFPTBINS] = {};
+ double xRefPt[MAX_NREFPTBINS] = {};
+ double exRefPt[MAX_NREFPTBINS] = {};
  double MinCaloPt,MaxCaloPt,MinRefPt,MaxRefPt;
- double cor,e_cor,resp,e_resp; 
+ double cor,e_cor,resp,e_resp;
  TFile *inf;
  TFile *outf;
  TH1F *hCor,*hResp,*hRef,*hCalo;
@@ -56,13 +62,13 @@ int main(int argc, char**argv)
  TKey *key;
  std::vector<std::string> HistoNamesList;
  inf = new TFile(FitterFilename.c_str(),"r");
- if (inf->IsZombie()) return(0); 
+ if (inf->IsZombie()) return(0);
  TIter next(inf->GetListOfKeys());
  while ((key = (TKey*)next()))
    HistoNamesList.push_back(key->GetName());
  ///////////// CaloPt /////////////////////////////////////
  sprintf(name,"MeanCaloPt");
- if (!HistoExists(HistoNamesList,name)) return(0); 
+ if (!HistoExists(HistoNamesList,name)) return(0);
  hCalo = (TH1F*)inf->Get(name);
  ///////////// RefPt /////////////////////////////////////
  sprintf(name,"MeanRefPt");
@@ -77,9 +83,9 @@ int main(int argc, char**argv)
  hResp = (TH1F*)inf->Get(name);
  auxi_cor=0;
  auxi_resp=0;
- std::cout<<"RefPt bin"<<setw(12)<<"<CaloPt>"<<setw(12)<<"Correction"<<setw(12)<<"Error"<<setw(12)<<"<RefPt>"<<setw(12)<<"Response"<<setw(12)<<"Error"<<std::endl; 
+ std::cout<<"RefPt bin"<<setw(12)<<"<CaloPt>"<<setw(12)<<"Correction"<<setw(12)<<"Error"<<setw(12)<<"<RefPt>"<<setw(12)<<"Response"<<setw(12)<<"Error"<<std::endl;
  for(i=0;i<NRefPtBins;i++)
-   { 
+   {
      cor = hCor->GetBinContent(i+1);
      e_cor = hCor->GetBinError(i+1);
      std::cout<<"["<<pt_vec[i]<<","<<pt_vec[i+1]<<"]"<<setw(12)<<hCalo->GetBinContent(i+1)<<setw(12)<<cor<<setw(12)<<e_cor;
@@ -87,7 +93,7 @@ int main(int argc, char**argv)
      e_resp = hResp->GetBinError(i+1);
      std::cout<<setw(12)<<hRef->GetBinContent(i+1)<<setw(12)<<resp<<setw(12)<<e_resp<<std::endl;
      if (cor>0 && e_cor>0.000001 && e_cor<0.2)
-       {    
+       {
          Correction[auxi_cor] = cor;
          CorrectionError[auxi_cor] = e_cor;
          xCaloPt[auxi_cor] = hCalo->GetBinContent(i+1);
@@ -95,7 +101,7 @@ int main(int argc, char**argv)
          auxi_cor++;
        }
      if (resp>0 && e_resp>0.000001 && e_resp<0.2)
-       {    
+       {
          Response[auxi_resp] = resp;
          ResponseError[auxi_resp] = e_resp;
          xRefPt[auxi_resp] = hRef->GetBinContent(i+1);
@@ -105,7 +111,7 @@ int main(int argc, char**argv)
    }
  g_Cor = new TGraphErrors(auxi_cor,xCaloPt,Correction,exCaloPt,CorrectionError);
  sprintf(name,"CorFit");
- CorFit = new TF1(name,"[0]+[1]/(pow(log10(x),[2])+[3])",xCaloPt[1],xCaloPt[auxi_cor-1]); 
+ CorFit = new TF1(name,"[0]+[1]/(pow(log10(x),[2])+[3])",xCaloPt[1],xCaloPt[auxi_cor-1]);
  CorFit->SetParameter(0,1.);
  CorFit->SetParameter(1,7.);
  CorFit->SetParameter(2,4.);
@@ -116,7 +122,7 @@ int main(int argc, char**argv)
  COV_Cor = new TMatrixD(4,4,fitter->GetCovarianceMatrix());
  g_Resp = new TGraphErrors(auxi_resp,xRefPt,Response,exRefPt,ResponseError);
  sprintf(name,"RespFit");
- RespFit = new TF1(name,"[0]-[1]/(pow(log10(x),[2])+[3])+[4]/x",xRefPt[0],xRefPt[auxi_resp-1]); 
+ RespFit = new TF1(name,"[0]-[1]/(pow(log10(x),[2])+[3])+[4]/x",xRefPt[0],xRefPt[auxi_resp-1]);
  RespFit->SetParameter(0,1.);
  RespFit->SetParameter(1,1.);
  RespFit->SetParameter(2,1.);
@@ -128,23 +134,23 @@ int main(int argc, char**argv)
  COV_Resp = new TMatrixD(5,5,fitter->GetCovarianceMatrix());
  /////////////////////////////////////////////////////////
  MinCaloPt = 4.;
- MaxCaloPt = 5000.; 
+ MaxCaloPt = 5000.;
  MinRefPt = 4.;
- MaxRefPt = 5000.; 
+ MaxRefPt = 5000.;
  CorFit->SetRange(MinCaloPt,MaxCaloPt);
  RespFit->SetRange(MinRefPt,MaxRefPt);
- //////////////////////////// Writing ///////////////////////////////////////////// 
+ //////////////////////////// Writing /////////////////////////////////////////////
  L3CorrectionFile.setf(ios::left);
  L3CorrectionFile <<setw(12)<<-5.191
                      <<setw(12)<<5.191
-                     <<setw(12)<<(int)6 
+                     <<setw(12)<<(int)6
                      <<setw(12)<<MinCaloPt
                      <<setw(12)<<MaxCaloPt
                      <<setw(12)<<CorFit->GetParameter(0)
                      <<setw(12)<<CorFit->GetParameter(1)
                      <<setw(12)<<CorFit->GetParameter(2)
                      <<setw(12)<<CorFit->GetParameter(3);
- L3CorrectionFile.close(); 
+ L3CorrectionFile.close();
 
  L3ResponseFile.setf(ios::left);
  L3ResponseFile <<setw(12)<<RespFit->GetParameter(0)
@@ -152,11 +158,11 @@ int main(int argc, char**argv)
                    <<setw(12)<<RespFit->GetParameter(2)
                    <<setw(12)<<RespFit->GetParameter(3)
                    <<setw(12)<<RespFit->GetParameter(4);
- L3ResponseFile.close(); 
+ L3ResponseFile.close();
 
- outf = new TFile(L3OutputROOTFilename.c_str(),"RECREATE");      
+ outf = new TFile(L3OutputROOTFilename.c_str(),"RECREATE");
  g_Cor->Write("Correction_vs_CaloPt");
- COV_Cor->Write("CovMatrix_Correction");    
+ COV_Cor->Write("CovMatrix_Correction");
  g_Resp->Write("Response_vs_RefPt");
  COV_Resp->Write("CovMatrix_Resp");
  outf->Close();

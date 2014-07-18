@@ -486,13 +486,15 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
   countAllEvents++;
   if(printHeaders) cout<<" Event = "<<countEvents<<endl;
   
+  edm::DetSetVector<PixelDigi> collection;
+
+
   // Loop over FEDs
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("findHotPixels")<< " GET DATA FOR FED: " <<  fedId ;
     if(printHeaders) cout<<" For FED = "<<fedId<<endl;
-    
-    PixelDataFormatter::Digis digis;
-    PixelDataFormatter::Errors errors;
+
+     PixelDataFormatter::Errors errors;
     
     //get event data for this fed
     const FEDRawData& rawData = buffers->FEDData( fedId );
@@ -535,7 +537,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
     countErrors += countErrorsInFed;
     
     //convert data to digi (dummy for the moment)
-    formatter.interpretRawData( dummyErrorBool, fedId, rawData, digis, errors);
+    formatter.interpretRawData( dummyErrorBool, fedId, rawData,  collection, errors);
     //cout<<dummyErrorBool<<" "<<digis.size()<<" "<<errors.size()<<endl;
     
     if(countPixelsInFed>0)  {

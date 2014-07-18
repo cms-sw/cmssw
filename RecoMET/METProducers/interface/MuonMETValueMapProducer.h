@@ -20,7 +20,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -36,16 +36,14 @@
 namespace cms
 {
 
-class MuonMETValueMapProducer : public edm::EDProducer
+class MuonMETValueMapProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit MuonMETValueMapProducer(const edm::ParameterSet&);
   ~MuonMETValueMapProducer() { }
 
 private:
-  virtual void beginJob() { }
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() { }
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   void determine_deltax_deltay(double& deltax, double& deltay, const reco::Muon& muon, double bfield, edm::Event& iEvent, const edm::EventSetup& iSetup);
   reco::MuonMETCorrectionData::Type decide_correction_type(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition);

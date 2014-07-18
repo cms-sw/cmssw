@@ -147,7 +147,6 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   addCaloGeometry();
   
   geom->CloseGeometry();
-  geom->DefaultColors();
 
   m_nameToShape.clear();
   m_nameToVolume.clear();
@@ -294,10 +293,10 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
   if(! m_geomRecord->slaveGeometry( CSCDetId()))
     throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
 
-  const std::vector<GeomDet*>& cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
+  auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
+  for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
   {    
-    if( CSCChamber* chamber = dynamic_cast<CSCChamber*>(*it))
+    if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
     {
       unsigned int rawid = chamber->geographicalId();
       std::stringstream s;
@@ -312,7 +311,7 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
       m_fwGeometry->idToName.insert( std::pair<unsigned int, FWTGeoRecoGeometry::Info>( rawid, FWTGeoRecoGeometry::Info( p.str())));
     }
-    else if( CSCLayer* layer = dynamic_cast<CSCLayer*>(*it))
+    else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
     {
       unsigned int rawid = layer->geographicalId();
       std::stringstream s;
@@ -351,12 +350,12 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
   // DT chambers geometry
   //
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  const std::vector<GeomDet*>& dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = dtChamberGeom.begin(),
+  auto const & dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
+  for( auto it = dtChamberGeom.begin(),
 					     end = dtChamberGeom.end(); 
        it != end; ++it )
   {
-    if( DTChamber* chamber = dynamic_cast< DTChamber *>(*it))
+    if( auto chamber = dynamic_cast< const DTChamber *>(*it))
     {      
       unsigned int rawid = chamber->geographicalId().rawId();
       std::stringstream s;
@@ -375,12 +374,12 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
   top->AddNode( assembly, copy );
 
   // Fill in DT super layer parameters
-  const std::vector<GeomDet*>& dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTLayerId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = dtSuperLayerGeom.begin(),
+  auto const & dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTLayerId())->dets();
+  for( auto it = dtSuperLayerGeom.begin(),
 					    end = dtSuperLayerGeom.end(); 
        it != end; ++it )
   {
-    if( DTSuperLayer* superlayer = dynamic_cast<DTSuperLayer*>(*it))
+    if( auto * superlayer = dynamic_cast<const DTSuperLayer*>(*it))
     {
       unsigned int rawid = superlayer->id().rawId();
       std::stringstream s;
@@ -404,12 +403,12 @@ FWTGeoRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string&
   }
 
   // Fill in DT layer parameters
-  const std::vector<GeomDet*>& dtLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = dtLayerGeom.begin(),
+  auto const & dtLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
+  for( auto it = dtLayerGeom.begin(),
 					    end = dtLayerGeom.end(); 
        it != end; ++it )
   {
-    if( DTLayer* layer = dynamic_cast<DTLayer*>(*it))
+    if(auto layer = dynamic_cast<const DTLayer*>(*it))
     {
       unsigned int rawid = layer->id().rawId();
       std::stringstream s;
@@ -451,11 +450,11 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
   DetId detId( DetId::Muon, 3 );
   const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
-					     end = rpcGeom->rolls().end(); 
+  for( auto it = rpcGeom->rolls().begin(),
+	     end = rpcGeom->rolls().end(); 
        it != end; ++it )
   {
-    RPCRoll* roll = (*it);
+    RPCRoll const* roll = (*it);
     if( roll )
     {
       unsigned int rawid = roll->geographicalId().rawId();

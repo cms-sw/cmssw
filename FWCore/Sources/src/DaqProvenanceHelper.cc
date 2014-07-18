@@ -24,7 +24,7 @@ namespace edm {
                                                   , "FEDRawDataCollection"
                                                   , "FEDRawDataCollection"
                                                   , ""
-                                                  , "DaqSource"
+                                                  , "FedRawDataInputSource"
                                                   , ParameterSetID()
                                                   , TypeWithDict(rawDataType.typeInfo())
                                                   , false))
@@ -193,4 +193,9 @@ namespace edm {
   DaqProvenanceHelper::mapBranchID(BranchID const& branchID) const {
     return(branchID == oldBranchID_ ? newBranchID_ : branchID);
   }
+
+  void DaqProvenanceHelper::setOldParentageIDToNew(ParentageID const& iOld, ParentageID const& iNew) {
+    parentageIDMap_.insert(std::make_pair(iOld, iNew));
+  }
+
 }

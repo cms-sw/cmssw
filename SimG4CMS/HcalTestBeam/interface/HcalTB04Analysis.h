@@ -44,6 +44,10 @@ class EndOfEvent;
 
 class PHcalTB04Info;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalTB04Analysis : public SimProducer,
 			 public Observer<const BeginOfRun *>,
 			 public Observer<const BeginOfEvent *>,
@@ -72,8 +76,8 @@ private:
 
   //User methods
   void fillBuffer(const EndOfEvent * evt);
-  void qieAnalysis();
-  void xtalAnalysis();
+  void qieAnalysis(CLHEP::HepRandomEngine*);
+  void xtalAnalysis(CLHEP::HepRandomEngine*);
   void finalAnalysis();
   void fillEvent(PHcalTB04Info&);
 

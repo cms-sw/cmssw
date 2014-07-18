@@ -22,7 +22,7 @@
 
 PlaneBuilderFromGeometricDet::ResultType PlaneBuilderFromGeometricDet::plane(const GeometricDet* gd) const {
    // gd->bounds() returns a pointer owned by the caller!                                                  
-  return ResultType( new Plane( gd->positionBounds(), gd->rotationBounds(), gd->bounds())); 
+  return ResultType( new Plane( gd->positionBounds(), gd->rotationBounds(), gd->bounds().release())); 
 }	      
 
 

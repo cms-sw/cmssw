@@ -126,7 +126,11 @@ public:
 	     undeflow=0;
           }
    void   reset1(){
-             Xe1=XXe1=Xt1=XXt1=n1=0;
+             Xe1=0;
+             XXe1=0;
+             Xt1=0;
+             XXt1=0;
+             n1=0;
 	     overflow1=0;
 	     undeflow1=0;
           }
@@ -1752,7 +1756,7 @@ char   Subdet[10],str[500];
    for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)   he_data[i][j][k].reset1();
    for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)   ho_data[i][j][k].reset1();
    for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)   hf_data[i][j][k].reset1();
-   for(int i=1;i<=4;i++)for(int j=-2;j<=2;j++)for(int k=1;k<=72;k++)calib_data[i][j][k].reset1();
+   for(int i=0;i<5;i++)for(int j=0;j<5;j++)for(int k=0;k<72;k++)calib_data[i][j][k].reset1();
    ievt_=0;
    dataset_seq_number++;
 }

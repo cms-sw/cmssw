@@ -155,7 +155,6 @@ namespace edm {
       edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
       edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
 
-
       bool MergeHcalDigis_;
       bool MergeHcalDigisProd_;
 

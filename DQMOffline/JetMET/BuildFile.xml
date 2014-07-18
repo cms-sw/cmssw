@@ -1,4 +1,5 @@
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="MagneticField/Engine"/>
 <use   name="DQMServices/Core"/>
 <use   name="DQMServices/Components"/>
@@ -31,11 +32,13 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="RecoMuon/TrackingTools"/>
-#<flags   CXXFLAGS="-O0 -g3 -fno-inline"/>
+<use   name="CommonTools/RecoAlgos"/> 
+<use   name="JetMETCorrections/Objects"/>
 <flags   EDM_PLUGIN="1"/>

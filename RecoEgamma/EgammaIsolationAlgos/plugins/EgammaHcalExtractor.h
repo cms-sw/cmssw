@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -30,6 +29,7 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 
 
@@ -60,8 +60,6 @@ namespace egammaisolation {
          double etLow_ ;
 
          edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitProducerToken_;
-         //HBHERecHitMetaCollection* mhbhe_ ;    // to recover later when we add begin(), end()
-
    };
 }
 #endif

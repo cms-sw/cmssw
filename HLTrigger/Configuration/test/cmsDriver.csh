@@ -11,9 +11,9 @@ rehash
 
 #
 # gen sim input files for Monte-Carlo tests
-set InputGenSimGRun = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
+set InputGenSimGRun = /store/relval/CMSSW_7_1_0_pre4_AK4/RelValProdTTbar/GEN-SIM/START71_V1-v2/00000/0ADB94C0-62B4-E311-8EC4-002618943985.root
 set InputGenSimHIon = /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
-set InputGenSimPIon = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
+set InputGenSimPIon = /store/relval/CMSSW_7_1_0_pre4_AK4/RelValProdTTbar/GEN-SIM/START71_V1-v2/00000/0ADB94C0-62B4-E311-8EC4-002618943985.root
 #
 # lhc raw input files for Real-Data tests
 set InputLHCRawGRun = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
@@ -88,7 +88,7 @@ foreach gtag ( STARTUP DATA )
     continue
   endif
 
-  foreach table ( GRun PIon 8E33v2 2013 HIon )
+  foreach table ( GRun PIon 2013 HIon )
 
     set name = ${table}_${gtag}  
 
@@ -96,14 +96,6 @@ foreach gtag ( STARTUP DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
       set GTAG = ${GTAGPP}_GRun
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun
-      set InputLHCRaw = $InputLHCRawGRun
-    else if ( $table == 8E33v2 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:8E33v2
-      set GTAG = ${GTAGPP}_8E33v2
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun

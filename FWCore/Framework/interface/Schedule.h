@@ -102,7 +102,7 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
   
@@ -228,13 +228,16 @@ namespace edm {
 
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet, const ProductRegistry& iRegistry);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
 
   private:
 
+    /// Check that the schedule is actually runable
+    void checkForCorrectness() const;
+    
     void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter> resultsInserter_;

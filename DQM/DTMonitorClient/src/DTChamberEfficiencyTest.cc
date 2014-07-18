@@ -77,8 +77,8 @@ void DTChamberEfficiencyTest::beginRun(const edm::Run& run, const edm::EventSetu
   setup.get<MuonGeometryRecord>().get(muonGeom);
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     // histo booking
     bookHistos((*ch_it)->id());
@@ -116,8 +116,8 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: "<<nLumiSegs<<" updates";
   
 
-  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: ChamberEfficiency tests results"; 
   

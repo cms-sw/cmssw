@@ -34,11 +34,22 @@ hltFastPrimaryVertexbbPhi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dumm
 hltPixelTracksFastPVbbPhi = hltPixelTracks.clone()
 hltPixelTracksRecoverbbPhi = hltPixelTracks.clone()
 
+hltPixelTracksReg = hltPixelTracks.clone()
+hltPixelTracksHybrid = hltPixelTracks.clone()
+hltPixelTracksL3Muon = hltPixelTracks.clone()
+hltPixelTracksGlbTrkMuon = hltPixelTracks.clone()
+hltPixelTracksHighPtTkMuIso = hltPixelTracks.clone()
+hltPixelTracksForPhotons = hltPixelTracks.clone()
+hltPixelTracksForEgamma = hltPixelTracks.clone()
+hltPixelTracksElectrons = hltPixelTracks.clone()
+
+
 hltFastPixelHitsVertexVHbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltFastPixelTracksVHbb = hltPixelTracks.clone()
 hltFastPixelTracksRecoverVHbb = hltPixelTracks.clone()
 
 hltFastPrimaryVertex = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltFastPVPixelVertexFilter = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltFastPVPixelTracks = hltPixelTracks.clone()
 hltFastPVPixelTracksRecover = hltPixelTracks.clone()
 

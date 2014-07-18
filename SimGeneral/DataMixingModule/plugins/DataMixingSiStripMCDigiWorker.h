@@ -46,14 +46,10 @@
 #include <vector>
 #include <string>
 
-namespace CLHEP {
-    class HepRandomEngine;
-}
-
 namespace edm
 {
   class ModuleCallingContext;
-
+  class ConsumesCollector;
  
   class DataMixingSiStripMCDigiWorker
     {
@@ -62,7 +58,7 @@ namespace edm
       DataMixingSiStripMCDigiWorker();
 
      /** standard constructor*/
-      explicit DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps);
+      explicit DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
 
       /**Default destructor*/
       virtual ~DataMixingSiStripMCDigiWorker();
@@ -75,7 +71,7 @@ namespace edm
 
       virtual void initializeEvent(const edm::Event &e, edm::EventSetup const& iSetup);
 
-      void DMinitializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup );
+      void DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup );
 
     private:
       // data specifiers
@@ -126,7 +122,6 @@ namespace edm
       std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
       std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
 
-      CLHEP::HepRandomEngine*  rndEngine;
 
       edm::ESHandle<TrackerGeometry> pDD;
 

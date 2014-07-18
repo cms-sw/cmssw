@@ -451,25 +451,18 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	TString myTitle = "Surface Shape, ";
 	myTitle += subDetName;
 	if (layer!=0) {
-	  myTitle += TString(", layer ");
+	  // TEC and TID have discs, the rest have layers
+	  if (iSubDet==4 || iSubDet==6)
+	    myTitle += TString(", disc ");
+	  else {
+	    myTitle += TString(", layer ");
+	  }
 	  myTitle += Form("%d",layer); 
 	}
 	if (isTEC && iTEC==0)
 	  myTitle += TString(" R1-4");
 	if (isTEC && iTEC>0)
 	  myTitle += TString(" R5-7");
-
-	// Save plot to file
-	std::ostringstream plotName;
-	plotName << outputDir << "/SurfaceShape_" << subDetName << "_";
-	plotName << residType; 
-	if (layer!=0)
-	  plotName << "_" << "layer" << layer;
-	if (isTEC && iTEC==0)
-	  plotName << "_" << "R1-4";
-	if (isTEC && iTEC>0)
-	  plotName << "_" << "R5-7";
-	plotName << ".eps";
 
 	// Generate histograms with selection
 	THStack *hs = addHists(selection, residType);
@@ -490,6 +483,24 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	hs->GetHistogram()->GetYaxis()->SetTitle( yName ); 
 
 	// Save to file
+	std::ostringstream plotName;
+	plotName << outputDir << "/SurfaceShape_" << subDetName << "_";
+	plotName << residType; 
+	if (layer!=0) {
+	  plotName << "_";
+	  // TEC and TID have discs, the rest have layers
+	  if (iSubDet==4 || iSubDet==6)
+	    plotName << "disc";
+	  else {
+	    plotName << "layer";
+	  }
+	  plotName << layer;
+	}
+	if (isTEC && iTEC==0)
+	  plotName << "_" << "R1-4";
+	if (isTEC && iTEC>0)
+	  plotName << "_" << "R5-7";
+	plotName << ".eps";
 	c.Update(); 
 	c.Print(plotName.str().c_str());
       }
@@ -670,7 +681,12 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	    float deltamu = factor*(plotinfo.h2->GetMean(1) - plotinfo.h1->GetMean(1));
 	    legend << plotinfo.vars->getName();
 	    if (layer > 0) {
-	      legend << ", layer " << layer;
+	      // TEC and TID have discs, the rest have layers
+	      if (i==4 || i==6)
+	        legend << ", disc ";
+	      else
+	        legend << ", layer ";
+	      legend << layer;
 	    }
 	    legend << ": #Delta#mu = " << deltamu << unit;
 	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), ""); 
@@ -717,8 +733,22 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
       if (plotPlain && !plotSplits) { plotName << "_plain"; }
       else if (!plotPlain && plotSplits) { plotName << "_split"; }
-      if (plotLayers) { plotName << "_layers"; }
-      if (plotLayerN > 0) { plotName << "_layer" << plotLayerN; }
+      if (plotLayers) {
+        // TEC and TID have discs, the rest have layers
+        if (i==4 || i==6)
+          plotName << "_discs";
+
+	else
+	  plotName << "_layers";
+      }
+      if (plotLayerN > 0) {
+        // TEC and TID have discs, the rest have layers
+        if (i==4 || i==6)
+          plotName << "_disc";
+	else
+	  plotName << "_layer";
+	plotName << plotLayerN;
+      }
  
       plotName << ".eps";
 
@@ -1157,7 +1187,12 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   else {
     legend  << plotinfo.vars->getName();
     if (layer > 0) {
-      legend << ", layer " << layer << "";
+      // TEC and TID have discs, the rest have layers
+      if (plotinfo.subDetId==4 || plotinfo.subDetId==6)
+        legend << ", disc ";
+      else
+        legend << ", layer ";
+      legend << layer << "";
     }
     legend << ":";
   }
@@ -1166,15 +1201,15 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" ||
       plotinfo.variable == "medianY" || plotinfo.variable == "meanY") {
     if (useFit_) {
-      legend << "#mu = " << fitResults.first << " #mum, #sigma = " << fitResults.second << " #mum";
+      legend << " #mu = " << fitResults.first << " #mum, #sigma = " << fitResults.second << " #mum";
     } else {
-      legend << "#mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
+      legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
     }
   } else if (plotinfo.variable == "rmsX" || plotinfo.variable == "rmsY") {
-    legend << "#mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
+    legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
   } else if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
 	     plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
-    legend << "#mu = " << h->GetMean(1) << ", rms = " << h->GetRMS(1);
+    legend << " #mu = " << h->GetMean(1) << ", rms = " << h->GetRMS(1);
   }
 
   // Legend: Delta mu for split plots

@@ -56,7 +56,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) : 
   gainLabel(conf.getParameter<std::string>("Gain")),
@@ -89,10 +88,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::one::EDPr
       "which is not present in the configuration file.  You must add the service\n"
       "in the configuration file or remove the modules that require it.";
   }
-  
-  rndEngine = &(rng->getEngine());
-  theDigiAlgo.reset(new SiStripDigitizerAlgorithm(conf,(*rndEngine)));
-
+  theDigiAlgo.reset(new SiStripDigitizerAlgorithm(conf));
 }
 
 // Virtual destructor needed.
@@ -100,7 +96,7 @@ SiStripDigitizer::~SiStripDigitizer() {
 }  
 
 void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hSimHits,
-					   const TrackerTopology *tTopo, size_t globalSimHitIndex ) {
+					   const TrackerTopology *tTopo, size_t globalSimHitIndex, CLHEP::HepRandomEngine* engine ) {
   // globalSimHitIndex is the index the sim hit will have when it is put in a collection
   // of sim hits for all crossings. This is only used when creating digi-sim links if
   // configured to do so.
@@ -114,12 +110,12 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
         // The insert succeeded, so this detector element has not yet been processed.
 	unsigned int isub = DetId(detId).subdetId();
         if((isub == StripSubdetector::TIB) || (isub == StripSubdetector::TID) || (isub == StripSubdetector::TOB) || (isub == StripSubdetector::TEC)) {
-	  StripGeomDetUnit* stripdet = detectorUnits[detId];
+	  auto stripdet = detectorUnits[detId];
 	  //access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
 	  LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
 				  << pSetup->inTesla(stripdet->surface().position());
-	  theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, stripdet, bfield, tTopo);
+	  theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, stripdet, bfield, tTopo, engine);
 	}
       }
     } // end of loop over sim hits
@@ -140,7 +136,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
       edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
+      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()], randomEngine(iEvent.streamID()));
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -150,7 +146,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
   }
 
   void
-  SiStripDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup) {
+  SiStripDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
 
     edm::ESHandle<TrackerTopology> tTopoHand;
     iSetup.get<IdealGeometryRecord>().get(tTopoHand);
@@ -162,7 +158,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
       edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
+      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()], randomEngine(streamID));
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -205,7 +201,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
        (isub == StripSubdetector::TID) ||
        (isub == StripSubdetector::TOB) ||
        (isub == StripSubdetector::TEC)) {
-      StripGeomDetUnit* stripdet = dynamic_cast<StripGeomDetUnit*>((*iu));
+      auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
       assert(stripdet != 0);
       if(changes) { // Replace with ESWatcher
         detectorUnits.insert(std::make_pair(detId, stripdet));
@@ -239,13 +235,13 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
       if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
         continue;
     }
-    StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+    auto sgd = dynamic_cast<StripGeomDetUnit const*>((*iu));
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
       edm::DetSet<StripDigiSimLink> collectorLink((*iu)->geographicalId().rawId());
       theDigiAlgo->digitize(collectorZS,collectorRaw,collectorLink,sgd,
-	 	       gainHandle,thresholdHandle,noiseHandle,pedestalHandle);
+                            gainHandle,thresholdHandle,noiseHandle,pedestalHandle, randomEngine(iEvent.streamID()));
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);
@@ -285,4 +281,18 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(output_processedraw, PRDigi);
     if( makeDigiSimLinks_ ) iEvent.put( pOutputDigiSimLink ); // The previous EDProducer didn't name this collection so I won't either
   }
+}
+
+CLHEP::HepRandomEngine* SiStripDigitizer::randomEngine(edm::StreamID const& streamID) {
+  unsigned int index = streamID.value();
+  if(index >= randomEngines_.size()) {
+    randomEngines_.resize(index + 1, nullptr);
+  }
+  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
+  if(!ptr) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    ptr = &rng->getEngine(streamID);
+    randomEngines_[index] = ptr;
+  }
+  return ptr;
 }

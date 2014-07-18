@@ -32,7 +32,8 @@ public:
   FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 		     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 		     const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-		     const std::string& plotFirst_ , const bool& update, const std::string& folder, const unsigned int& mc) ;
+		     const std::string& plotFirst_ , const bool& update, const std::string& folder, 
+		     const unsigned int& mc, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms () ;
 
@@ -88,6 +89,7 @@ public:
   inline TH1F * histo_ni   () const { return theHisto_ni->getTH1F()   ; }
   inline TH1F * histo_dus  () const { return theHisto_dus->getTH1F()  ; }
   inline TH1F * histo_dusg () const { return theHisto_dusg->getTH1F() ; }
+  inline TH1F * histo_pu () const { return theHisto_pu->getTH1F() ; }
 
   std::vector<TH1F*> getHistoVector() const;
   
@@ -129,6 +131,7 @@ protected:
   MonitorElement *theHisto_ni   ;
   MonitorElement *theHisto_dus  ;
   MonitorElement *theHisto_dusg ;
+  MonitorElement *theHisto_pu ;
 
   //  DQMStore * dqmStore_; 
 
@@ -146,7 +149,8 @@ template <class T>
 FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 					 const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 					 const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-					 const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc) :
+					 const std::string& plotFirst_, const bool& update, const std::string& folder, 
+					 const unsigned int& mc, DQMStore::IBooker & ibook) :
   // BaseFlavourHistograms () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
@@ -170,7 +174,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
 
   if (!update) {
     // book histos
-    HistoProviderDQM prov("Btag",folder);
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(mcPlots_%2==0) theHisto_all   = (prov.book1D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBins , theLowerBound , theUpperBound )) ; 
     else theHisto_all = 0;
     if (mcPlots_) {
@@ -192,6 +196,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
       theHisto_b     = (prov.book1D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
       theHisto_ni    = (prov.book1D ( theBaseNameTitle + "NI"   , theBaseNameDescription + " ni-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
       theHisto_dusg  = (prov.book1D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBins , theLowerBound , theUpperBound )) ;
+      theHisto_pu    = (prov.book1D ( theBaseNameTitle + "PU"   , theBaseNameDescription + " pu-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
     }else{
       theHisto_d = 0;
       theHisto_u = 0;
@@ -202,6 +207,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
       theHisto_ni = 0;
       theHisto_dus = 0;
       theHisto_dusg = 0;
+      theHisto_pu = 0;
     }
 
       // statistics if requested
@@ -219,10 +225,12 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
 	theHisto_b   ->getTH1F()->Sumw2() ; 
 	theHisto_ni  ->getTH1F()->Sumw2() ; 
 	theHisto_dusg->getTH1F()->Sumw2() ;
+	theHisto_pu  ->getTH1F()->Sumw2() ;
       }
     }
   } else {
-    HistoProviderDQM prov("Btag",folder);
+    //is it useful? anyway access function is deprecated... 
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(theHisto_all) theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
     if (mcPlots_) {  
       if (mcPlots_>2 ) {
@@ -236,6 +244,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
       theHisto_b     = prov.access(theBaseNameTitle + "B"   ) ; 
       theHisto_ni    = prov.access(theBaseNameTitle + "NI"  ) ; 
       theHisto_dusg  = prov.access(theBaseNameTitle + "DUSG") ;
+      theHisto_pu  = prov.access(theBaseNameTitle + "PU") ;
     }
   }
 
@@ -317,6 +326,7 @@ void FlavourHistograms<T>::settitle(const char* title) {
       theHisto_b   ->setAxisTitle(title) ;
       theHisto_ni  ->setAxisTitle(title) ;
       theHisto_dusg->setAxisTitle(title) ;
+      theHisto_pu->setAxisTitle(title) ;
     }
 }
 
@@ -490,6 +500,7 @@ void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
       theHisto_b    ->getTH1F()-> Divide ( theHisto_b ->getTH1F()   , bHD.histo_b   () , 1.0 , 1.0 , "b" ) ;
       theHisto_ni   ->getTH1F()-> Divide ( theHisto_ni->getTH1F()   , bHD.histo_ni  () , 1.0 , 1.0 , "b" ) ;
       theHisto_dusg ->getTH1F()-> Divide ( theHisto_dusg->getTH1F() , bHD.histo_dusg() , 1.0 , 1.0 , "b" ) ;
+      theHisto_pu   ->getTH1F()-> Divide ( theHisto_pu->getTH1F() , bHD.histo_pu() , 1.0 , 1.0 , "b" ) ;
     }
 }
   
@@ -541,6 +552,9 @@ void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , 
     case 12321:
       if (theBaseNameDescription == "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
+    case 20:
+      theHisto_pu->Fill( var ,w);
+      return;
     default:
       theHisto_ni->Fill( var ,w);
       return;
@@ -564,6 +578,7 @@ std::vector<TH1F*> FlavourHistograms<T>::getHistoVector() const
       histoVector.push_back ( theHisto_b->getTH1F()   );
       histoVector.push_back ( theHisto_ni->getTH1F()  );
       histoVector.push_back ( theHisto_dusg->getTH1F());
+      histoVector.push_back ( theHisto_pu->getTH1F());
     }
   return histoVector;
 }

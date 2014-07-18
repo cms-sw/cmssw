@@ -46,7 +46,7 @@
 // forward declarations
 
 // constructor
-L1GlobalTriggerPSB::L1GlobalTriggerPSB()
+L1GlobalTriggerPSB::L1GlobalTriggerPSB(const edm::InputTag & m_caloGctInputTag, const std::vector<edm::InputTag>& m_technicalTriggersInputTags, edm::ConsumesCollector && iC)
         :
         m_candL1NoIsoEG ( new std::vector<const L1GctCand*>),
         m_candL1IsoEG   ( new std::vector<const L1GctCand*>),
@@ -63,7 +63,23 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB()
         m_isDebugEnabled(edm::isDebugEnabled())
 
 {
+    iC.consumes<L1GctEmCandCollection>(edm::InputTag(m_caloGctInputTag.label(),"nonIsoEm",""));
+    iC.consumes<L1GctEmCandCollection>(edm::InputTag(m_caloGctInputTag.label(),"isoEm",""));
+    iC.consumes<L1GctJetCandCollection>(edm::InputTag(m_caloGctInputTag.label(),"cenJets",""));
+    iC.consumes<L1GctJetCandCollection>(edm::InputTag(m_caloGctInputTag.label(),"forJets",""));
+    iC.consumes<L1GctJetCandCollection>(edm::InputTag(m_caloGctInputTag.label(),"tauJets",""));
+    iC.consumes<L1GctEtMissCollection>(m_caloGctInputTag);
+    iC.consumes<L1GctEtTotalCollection>(m_caloGctInputTag);
+    iC.consumes<L1GctEtHadCollection>(m_caloGctInputTag);
+    iC.consumes<L1GctHtMissCollection>(m_caloGctInputTag);
+    iC.consumes<L1GctJetCountsCollection>(m_caloGctInputTag);
+    iC.consumes<L1GctHFBitCountsCollection>(m_caloGctInputTag);
+    iC.consumes<L1GctHFRingEtSumsCollection>(m_caloGctInputTag);
 
+    for (std::vector<edm::InputTag>::const_iterator it = m_technicalTriggersInputTags.begin(); it
+	                != m_technicalTriggersInputTags.end(); it++) {
+	iC.consumes<L1GtTechnicalTriggerRecord>((*it));
+    }
     // empty
 
 }

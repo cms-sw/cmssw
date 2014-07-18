@@ -22,7 +22,7 @@ namespace
     return std::fabs( a - b ) < epsilon;
   }
 
-  double
+  inline double
   round( double n, int digits )
   {
     double mult = pow( 10, digits );

@@ -9,24 +9,19 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Random/RandGaussQ.h"
+
 #include<iostream>
 
 CastorAmplifier::CastorAmplifier(const CastorSimParameterMap * parameters, bool addNoise) :
-  theDbService(0), 
-  theRandGaussQ(0),
+  theDbService(0),
   theParameterMap(parameters),
-  theStartingCapId(0), 
+  theStartingCapId(0),
   addNoise_(addNoise)
 {
 }
 
-
-void CastorAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
-}
-
-void CastorAmplifier::amplify(CaloSamples & frame) const {
+void CastorAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const {
   const CastorSimParameters & parameters = theParameterMap->castorParameters();
   assert(theDbService != 0);
   HcalGenericDetId hcalGenDetId(frame.id());
@@ -41,7 +36,7 @@ void CastorAmplifier::amplify(CaloSamples & frame) const {
   double noise [32]; //big enough
   double fCperPE = parameters.photoelectronsToAnalog(frame.id());
 
-  for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
+  for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
   pwidths->makeNoise (frame.size(), gauss, noise);
   for(int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId + tbin)%4;

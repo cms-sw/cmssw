@@ -1,7 +1,6 @@
 #include <memory>
 #include "RecoParticleFlow/PFTracking/interface/PFNuclearProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -14,8 +13,12 @@ PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig):
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFNuclearInteractionCollection>();
 
-  nuclearContainers_ = 
+  std::vector<edm::InputTag> tags= 
     iConfig.getParameter< vector < InputTag > >("nuclearColList");
+
+  for (unsigned int i=0;i<tags.size();++i) 
+    nuclearContainers_.push_back(consumes<reco::NuclearInteractionCollection>(tags[i]));
+
   likelihoodCut_
      = iConfig.getParameter<double>("likelihoodCut");
 }
@@ -43,7 +46,7 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for (unsigned int istr=0; istr<nuclearContainers_.size();istr++){
     
     Handle<reco::NuclearInteractionCollection> nuclCollH;
-    iEvent.getByLabel(nuclearContainers_[istr], nuclCollH);
+    iEvent.getByToken(nuclearContainers_[istr], nuclCollH);
     const reco::NuclearInteractionCollection& nuclColl = *(nuclCollH.product());
 
     // loop on all NuclearInteraction 

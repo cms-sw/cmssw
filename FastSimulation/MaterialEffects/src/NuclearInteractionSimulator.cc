@@ -42,12 +42,9 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   theRatios(ratios),
   theIDMap(idMap),
   theDistAlgo(distAlgo),
-  theDistCut(distCut)
-
+  theDistCut(distCut),
+  currentValuesWereSet(false)
 {
-
-  gROOT->cd();
-
   std::string fullPath;
 
   // Prepare the map of files
@@ -86,8 +83,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   } 
 
   // Read the information from a previous run (to keep reproducibility)
-  bool input = this->read(inputFile);
-  if ( input ) 
+  currentValuesWereSet = this->read(inputFile);
+  if ( currentValuesWereSet )
     std::cout << "***WARNING*** You are reading nuclear-interaction information from the file "
 	      << inputFile << " created in an earlier run."
 	      << std::endl;
@@ -132,33 +129,12 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
       //
       theNumberOfEntries[iname][iene] = theTrees[iname][iene]->GetEntries();
 
-      // Add some randomness (if there was no input file)
-      if ( !input ) {
-        // RANDOM_NUMBER_ERROR
-        // Random numbers should only be generated in the beginLuminosityBlock method
-        // or event methods of a module
-        RandomEngineAndDistribution random;
-	theCurrentEntry[iname][iene] = (unsigned) (theNumberOfEntries[iname][iene] * random.flatShoot());
+      if(currentValuesWereSet) {
+        theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
+        unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
+        theNumberOfInteractions[iname][iene] = NInteractions;
       }
-      theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
-      unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
-      theNumberOfInteractions[iname][iene] = NInteractions;
-      // Add some randomness (if there was no input file)
-      if ( !input ) {
-        // RANDOM_NUMBER_ERROR
-        // Random numbers should only be generated in the beginLuminosityBlock method
-        // or event methods of a module
-        RandomEngineAndDistribution random;
-	theCurrentInteraction[iname][iene] = (unsigned) (theNumberOfInteractions[iname][iene] * random.flatShoot());
-      }
-      /*
-      std::cout << "File " << theFileNames[iname][iene]
-		<< " is opened with " << theNumberOfEntries[iname][iene] 
-		<< " entries and will be read from Entry/Interaction "
-		<< theCurrentEntry[iname][iene] << "/" << theCurrentInteraction[iname][iene] 
-		<< std::endl;
-      */
-      
+
       //
       // Compute the corresponding cm energies of the nuclear interactions
       XYZTLorentzVector Proton(0.,0.,0.,0.986);
@@ -178,7 +154,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   ien4 = 0;
   while ( thePionEN[ien4] < 4.0 ) ++ien4;
 
-  // Return Loot in the same state as it was when entering. 
   gROOT->cd();
 
   // Information (Should be on LogInfo)
@@ -212,15 +187,26 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
   // Close the output file
   myOutputFile.close();
 
-  // And return Loot in the same state as it was when entering. 
-  gROOT->cd();
-
   //  dbe->save("test.root");
 
 }
 
 void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random)
 {
+  if(!currentValuesWereSet) {
+    currentValuesWereSet = true;
+    for ( unsigned iname=0; iname<thePionNA.size(); ++iname ) {
+      for ( unsigned iene=0; iene<thePionEN.size(); ++iene ) {
+        theCurrentEntry[iname][iene] = (unsigned) (theNumberOfEntries[iname][iene] * random->flatShoot());
+
+        theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
+        unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
+        theNumberOfInteractions[iname][iene] = NInteractions;
+
+        theCurrentInteraction[iname][iene] = (unsigned) (theNumberOfInteractions[iname][iene] * random->flatShoot());
+      }
+    }
+  }
 
   // Read a Nuclear Interaction in a random manner
 
@@ -510,6 +496,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	    hAfter3->Fill(eBefore,eAfter/eBefore);
 	  }
 	  */
+
+         // ERROR The way this loops through the events breaks
+         // replay. Which events are retrieved depends on
+         // which previous events were processed.
 
 	  // Increment for next time
 	  ++aCurrentInteraction[ene];

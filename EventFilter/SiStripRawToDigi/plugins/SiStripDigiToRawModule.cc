@@ -8,10 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include <cstdlib>
 
@@ -65,7 +62,14 @@ namespace sistrip {
 
     // Create instance of DigiToRaw formatter
     digiToRaw_ = new DigiToRaw( mode_, pset.getParameter<bool>("UseFedKey") );
-  
+
+    if (rawdigi_) {
+      tokenRawDigi = consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));
+    } else {
+      tokenDigi = consumes< edm::DetSetVector<SiStripDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));
+
+    }
+
     produces<FEDRawDataCollection>();
 
   }
@@ -100,11 +104,11 @@ namespace sistrip {
 
     if( rawdigi_ ) {
       edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawdigis;
-      iEvent.getByLabel( inputModuleLabel_, inputDigiLabel_, rawdigis );
+      iEvent.getByToken( tokenRawDigi, rawdigis );
       digiToRaw_->createFedBuffers( iEvent, cabling, rawdigis, buffers );
     } else {
       edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
-      iEvent.getByLabel( inputModuleLabel_, inputDigiLabel_, digis );
+      iEvent.getByToken( tokenDigi, digis );
       digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
     }
 

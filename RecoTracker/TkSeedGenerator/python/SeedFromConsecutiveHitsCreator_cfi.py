@@ -7,6 +7,6 @@ SeedFromConsecutiveHitsCreator = cms.PSet(
   SeedMomentumForBOFF = cms.double(5.0),
   OriginTransverseErrorMultiplier = cms.double(1.0),
   MinOneOverPtError = cms.double(1.0),
-  SimpleMagneticField = cms.string('')
-#  SimpleMagneticField = cms.string('ParabolicMf')
+  SimpleMagneticField = cms.string('ParabolicMf'),
+  TTRHBuilder = cms.string('WithTrackAngle')
 )

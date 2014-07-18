@@ -275,17 +275,17 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   es.get<TrackerRecoGeometryRecord>().get( htracker );
   const GeometricSearchTracker& tracker = *htracker;
 
-  const std::vector<BarrelDetLayer*>&  bpx  = tracker.barrelLayers();
-  const std::vector<BarrelDetLayer*>&  tib  = tracker.tibLayers();
-  const std::vector<BarrelDetLayer*>&  tob  = tracker.tobLayers();
+  const std::vector<BarrelDetLayer const*>&  bpx  = tracker.barrelLayers();
+  const std::vector<BarrelDetLayer const*>&  tib  = tracker.tibLayers();
+  const std::vector<BarrelDetLayer const*>&  tob  = tracker.tobLayers();
 
-  const std::vector<ForwardDetLayer*>& fpx_pos = tracker.posForwardLayers();
-  const std::vector<ForwardDetLayer*>& tid_pos = tracker.posTidLayers();
-  const std::vector<ForwardDetLayer*>& tec_pos = tracker.posTecLayers();
+  const std::vector<ForwardDetLayer const*>& fpx_pos = tracker.posForwardLayers();
+  const std::vector<ForwardDetLayer const*>& tid_pos = tracker.posTidLayers();
+  const std::vector<ForwardDetLayer const*>& tec_pos = tracker.posTecLayers();
 
-  const std::vector<ForwardDetLayer*>& fpx_neg = tracker.negForwardLayers();
-  const std::vector<ForwardDetLayer*>& tid_neg = tracker.negTidLayers();
-  const std::vector<ForwardDetLayer*>& tec_neg = tracker.negTecLayers();
+  const std::vector<ForwardDetLayer const*>& fpx_neg = tracker.negForwardLayers();
+  const std::vector<ForwardDetLayer const*>& tid_neg = tracker.negTidLayers();
+  const std::vector<ForwardDetLayer const*>& tec_neg = tracker.negTecLayers();
 
   for(size_t i=0, n=theLayers.size(); i<n; ++i) {
     const LayerSpec& layer = theLayers[i];
@@ -362,17 +362,17 @@ bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
   return geometryWatcher_.check(es) | trhWatcher_.check(es);
 }
 
-std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) const {
-  std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> ret;
-  ret.first.reserve(theLayers.size());
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+void
+SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es,
+			      std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const {
+  indices.reserve(theLayers.size());
   for(unsigned int i=0; i<theLayers.size(); ++i) {
     // The index of the first hit of this layer
-    ret.first.push_back(ret.second.size());
+    indices.push_back(hits.size());
 
     // Obtain and copy the hits
-    ctfseeding::SeedingLayer::Hits tmp = theLayers[i].extractor->hits(*theTTRHBuilders[i], ev, es);
-    std::copy(tmp.begin(), tmp.end(), std::back_inserter(ret.second));
+    ctfseeding::SeedingLayer::Hits && tmp = theLayers[i].extractor->hits((const TkTransientTrackingRecHitBuilder &)(*theTTRHBuilders[i]), ev, es);
+    std::move(tmp.begin(), tmp.end(), std::back_inserter(hits));
   }
-
-  return ret;
 }

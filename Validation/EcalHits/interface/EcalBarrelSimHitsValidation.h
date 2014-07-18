@@ -8,17 +8,17 @@
  *
 */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -79,7 +79,10 @@ private:
  std::string g4InfoLabel;
  std::string EBHitsCollection;
  std::string ValidationCollection;
- 
+
+ edm::EDGetTokenT<edm::PCaloHitContainer> EBHitsToken;
+ edm::EDGetTokenT<PEcalValidInfo> ValidationCollectionToken;
+
  bool verbose_;
  
  DQMStore* dbe_;

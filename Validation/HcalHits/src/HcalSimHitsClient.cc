@@ -22,7 +22,7 @@ HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet& iConfig):conf_(iCo
   }
  
   debug_ = false;
-  verbose_ = true;
+  verbose_ = false;
 
   dirName_= iConfig.getParameter<std::string>("DQMDirName");
   if (dbe_) dbe_->setCurrentFolder(dirName_);

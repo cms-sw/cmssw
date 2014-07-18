@@ -1,5 +1,5 @@
 #include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 Exhume::TwoSpace::TwoSpace(const edm::ParameterSet& pset):
   CrossSection(pset){

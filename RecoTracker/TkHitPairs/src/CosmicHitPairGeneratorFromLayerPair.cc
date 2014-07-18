@@ -11,7 +11,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 using namespace std;
-typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
+// typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 
 CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
 							     const LayerWithHits* outer, 
@@ -73,12 +73,11 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   iSetup.get<TransientRecHitRecord>().get(builderName, builder);
 
   
-  std::vector<const TrackingRecHit*>::const_iterator ohh;
-  for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-    TkHitPairsCachedHit oh= builder->build(*ohh);
-    std::vector<const TrackingRecHit*>::const_iterator ihh;
-    for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-      TkHitPairsCachedHit ih= builder->build(*ihh);
+
+  for( auto ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
+    for(auto ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
+     auto oh = static_cast<BaseTrackerRecHit const * const>(*ohh);
+     auto ih = static_cast<BaseTrackerRecHit const * const>(*ihh);
       
       float z_diff =ih->globalPosition().z()-oh->globalPosition().z();
       float inny=ih->globalPosition().y();

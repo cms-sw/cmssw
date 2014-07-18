@@ -10,6 +10,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "CommonTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
@@ -30,12 +31,13 @@ class PdfWeightProducer : public edm::EDProducer {
       std::string fixPOWHEG_;
       bool useFirstAsDefault_;
       edm::InputTag genTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       edm::InputTag pdfInfoTag_;
+      edm::EDGetTokenT<GenEventInfoProduct> pdfInfoToken_;
       std::vector<std::string> pdfSetNames_;
       std::vector<std::string> pdfShortNames_;
 };
 
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 namespace LHAPDF {
       void initPDFSet(int nset, const std::string& filename, int member=0);
       int numberPDF(int nset);
@@ -53,7 +55,9 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
  fixPOWHEG_(pset.getUntrackedParameter<std::string> ("FixPOWHEG", "")),
  useFirstAsDefault_(pset.getUntrackedParameter<bool>("useFirstAsDefault",false)),
  genTag_(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"))),
+ genToken_(mayConsume<reco::GenParticleCollection>(genTag_)),
  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
+ pdfInfoToken_(consumes<GenEventInfoProduct>(pdfInfoTag_)),
  pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
 {
       if (fixPOWHEG_ != "") pdfSetNames_.insert(pdfSetNames_.begin(),fixPOWHEG_);
@@ -73,7 +77,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
             }
             produces<std::vector<double> >(pdfShortNames_[k].data());
       }
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 PdfWeightProducer::~PdfWeightProducer(){}
@@ -94,7 +98,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       if (iEvent.isRealData()) return;
 
       edm::Handle<GenEventInfoProduct> pdfstuff;
-      if (!iEvent.getByLabel(pdfInfoTag_, pdfstuff)) {
+      if (!iEvent.getByToken(pdfInfoToken_, pdfstuff)) {
             edm::LogError("PDFWeightProducer") << ">>> PdfInfo not found: " << pdfInfoTag_.encode() << " !!!";
             return;
       }
@@ -107,7 +111,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
       int id2 = pdfstuff->pdf()->id.second;
       double x2 = pdfstuff->pdf()->x.second;
-      double pdf2 = pdfstuff->pdf()->xPDF.second; 
+      double pdf2 = pdfstuff->pdf()->xPDF.second;
       if (useFirstAsDefault_ && pdf1 == -1. && pdf2 == -1. ) {
          LHAPDF::usePDFMember(1,0);
          pdf1 = LHAPDF::xfx(1, x1, Q, id1)/x1;
@@ -117,7 +121,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       // Ad-hoc fix for POWHEG
       if (fixPOWHEG_!="") {
             edm::Handle<reco::GenParticleCollection> genParticles;
-            if (!iEvent.getByLabel(genTag_, genParticles)) {
+            if (!iEvent.getByToken(genToken_, genParticles)) {
                   edm::LogError("PDFWeightProducer") << ">>> genParticles  not found: " << genTag_.encode() << " !!!";
                   return;
             }
@@ -144,7 +148,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             unsigned int nweights = 1;
             if (LHAPDF::numberPDF(k)>1) nweights += LHAPDF::numberPDF(k);
             weights->reserve(nweights);
-        
+
             for (unsigned int i=0; i<nweights; ++i) {
                   LHAPDF::usePDFMember(k,i);
                   double newpdf1 = LHAPDF::xfx(k, x1, Q, id1)/x1;

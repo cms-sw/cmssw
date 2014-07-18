@@ -51,9 +51,9 @@ class MixEvtVtxGenerator : public edm::EDProducer
   
   private :
   
-  edm::InputTag            signalLabel;
-  edm::InputTag            hiLabel;
-  edm::InputTag            cfLabel;
+  edm::EDGetTokenT<reco::VertexCollection>   hiLabel;
+  edm::EDGetTokenT<HepMCProduct>  signalLabel;
+  edm::EDGetTokenT<CrossingFrame<HepMCProduct> >   cfLabel;
   
    bool                     useRecVertex;
    std::vector<double>      vtxOffset;
@@ -63,8 +63,6 @@ class MixEvtVtxGenerator : public edm::EDProducer
 
 MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset ) 
 	: fVertex(0), boost_(0),
-	  signalLabel(pset.getParameter<edm::InputTag>("signalLabel")),
-          hiLabel(pset.getParameter<edm::InputTag>("heavyIonLabel")),
 	  useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 	  
 {   
@@ -75,8 +73,12 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
    if(useRecVertex) useCF_ = 0;
    else{
      useCF_ = pset.getUntrackedParameter<bool>("useCF",false);
-     cfLabel = pset.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mixGen","generator"));
+     cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mixGen","generator")));
    }
+   signalLabel = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"));
+   hiLabel = consumes<reco::VertexCollection>(pset.getParameter<edm::InputTag>("heavyIonLabel"));
+
+
 }
 
 MixEvtVtxGenerator::~MixEvtVtxGenerator() 
@@ -96,7 +98,7 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
   
   if(useCF_){
     Handle<CrossingFrame<HepMCProduct> > cf;
-    evt.getByLabel(cfLabel,cf);
+    evt.getByToken(cfLabel,cf);
     MixCollection<HepMCProduct> mix(cf.product());
     if(mix.size() < 2){
       cout<<"Less than 2 sub-events, mixing seems to have failed!"<<endl;
@@ -110,7 +112,7 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
   }else{
     //cout<<" hiLabel "<<hiLabel<<endl;
     Handle<HepMCProduct> input;
-    evt.getByLabel(hiLabel,input);
+    evt.getByToken(signalLabel,input);
     inev = input->GetEvent();
   }
 
@@ -149,7 +151,7 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
 HepMC::FourVector* MixEvtVtxGenerator::getRecVertex( Event& evt){
 
   Handle<reco::VertexCollection> input;
-  evt.getByLabel(hiLabel,input);
+  evt.getByToken(hiLabel,input);
 
   double aX,aY,aZ;
 
@@ -185,7 +187,7 @@ void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    
    Handle<HepMCProduct> HepMCEvt ;
    
-   evt.getByLabel( signalLabel, HepMCEvt ) ;
+   evt.getByToken( signalLabel, HepMCEvt ) ;
    
    // generate new vertex & apply the shift 
    //

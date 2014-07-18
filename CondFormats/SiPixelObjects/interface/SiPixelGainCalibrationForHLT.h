@@ -19,6 +19,8 @@
 // $Id: SiPixelGainCalibrationForHLT.h,v 1.5 2009/02/10 17:25:58 rougny Exp $
 //
 //
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -38,7 +40,9 @@ class SiPixelGainCalibrationForHLT {
     uint32_t ibegin;
     uint32_t iend;
     int      ncols;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   class StrictWeakOrdering{
   public:
@@ -55,7 +59,7 @@ class SiPixelGainCalibrationForHLT {
   SiPixelGainCalibrationForHLT(float minPed, float maxPed, float minGain, float maxGain);
   ~SiPixelGainCalibrationForHLT(){}
 
-  void initialize() const;
+  void initialize();
 
   bool  put(const uint32_t& detID,Range input, const int& nCols);
   const Range getRange(const uint32_t& detID) const;
@@ -91,12 +95,14 @@ class SiPixelGainCalibrationForHLT {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
-  mutable float pedPrecision, gainPrecision;
+  float pedPrecision, gainPrecision;
 
   unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
   unsigned int noisyFlag_;
+
+ COND_SERIALIZABLE;
 };
     
 #endif

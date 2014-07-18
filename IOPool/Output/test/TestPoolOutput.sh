@@ -2,6 +2,8 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+pushd ${LOCAL_TMP_DIR}
+
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py' $?
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolParallelOutputCopy_cfg.py || die 'Failure using PoolParallelOutputCopy_cfg.py' $?
@@ -36,3 +38,5 @@ cmsRun ${LOCAL_TEST_DIR}/TestProvC_cfg.py || die 'Failure using TestProvC_cfg.py
 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestUnscheduled_cfg.py || die 'Failure using PoolOutputTestUnscheduled_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestUnscheduledRead_cfg.py || die 'Failure using PoolOutputTestUnscheduledRead_cfg.py' $?
+
+popd

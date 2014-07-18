@@ -2,7 +2,7 @@
 //
 // Package:    Validation/RecoVertex
 // Class:      BSvsPVAnalyzer
-// 
+//
 /**\class BSvsPVAnalyzer BSvsPVAnalyzer.cc Validation/RecoVertex/plugins/BSvsPVAnalyzer.cc
 
  Description: <one line class summary>
@@ -81,7 +81,7 @@ private:
 // constructors and destructor
 //
 BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig)
-  : _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet"))
+  : _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet"), consumesCollector())
   , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
   , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
   , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
@@ -97,7 +97,7 @@ BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig)
 
 BSvsPVAnalyzer::~BSvsPVAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -112,7 +112,7 @@ BSvsPVAnalyzer::~BSvsPVAnalyzer()
 void
 BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
+
   // get BS
 
   edm::Handle<reco::BeamSpot> bs;
@@ -135,7 +135,7 @@ BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 BSvsPVAnalyzer::beginJob()
 { }
 
@@ -151,7 +151,7 @@ BSvsPVAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 BSvsPVAnalyzer::endJob() {
 }
 

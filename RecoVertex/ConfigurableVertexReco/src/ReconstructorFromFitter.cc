@@ -3,8 +3,8 @@
 
 using namespace std;
 
-ReconstructorFromFitter::ReconstructorFromFitter ( const AbstractConfFitter & f ) :
-  theFitter ( f.clone() )
+ReconstructorFromFitter::ReconstructorFromFitter ( std::unique_ptr<AbstractConfFitter>&& f ) :
+  theFitter ( f.release() )
 {}
 
 vector < TransientVertex > ReconstructorFromFitter::vertices

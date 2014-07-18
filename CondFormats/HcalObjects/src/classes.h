@@ -1,6 +1,5 @@
-#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "CondFormats/HcalObjects/src/headers.h"
 
-#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 namespace CondFormats_HcalObjects {
   struct dictionary {

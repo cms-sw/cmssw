@@ -56,10 +56,10 @@ int precision( const double & value )
 /// Helper function to extract and format the text for the fitted parameters
 void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & fit3 )
 {
-  stringstream a;
+  std::stringstream a;
 
   double error = func->GetParError(1);
-  a << setprecision(precision(error)) << fixed << func->GetParameter(1);
+  a << std::setprecision(precision(error)) << std::fixed << func->GetParameter(1);
   fit1 += a.str() + "+-";
   a.str("");
   a << error;
@@ -68,16 +68,16 @@ void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & 
 
   error = func->GetParError(2);
 
-  a << setprecision(precision(error)) << fixed << func->GetParameter(2);
+  a << std::setprecision(precision(error)) << std::fixed << func->GetParameter(2);
   fit2 += a.str() + "+-";
   a.str("");
   a << func->GetParError(2);
   fit2 += a.str();
   a.str("");
-  a << setprecision(1) << fixed << func->GetChisquare();
+  a << std::setprecision(1) << std::fixed << func->GetChisquare();
   fit3 += a.str() + "/";
   a.str("");
-  a << setprecision(0) << fixed << func->GetNDF();
+  a << std::setprecision(0) << std::fixed << func->GetNDF();
   fit3 += a.str();
 }
 

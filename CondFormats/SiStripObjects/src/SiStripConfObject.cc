@@ -1,4 +1,21 @@
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+#include <string>
+
+template <>
+std::string SiStripConfObject::get<std::string>( const std::string & name ) const
+{
+  std::string returnValue;
+  parMap::const_iterator it = parameters.find(name);
+  std::stringstream ss;
+  if( it != parameters.end() ) {
+    ss << it->second;
+    ss >> returnValue;
+  }
+  else {
+    std::cout << "WARNING: parameter " << name << " not found. Returning default value" << std::endl;
+  }
+  return returnValue;
+}
 
 template <>
 bool SiStripConfObject::put<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue )

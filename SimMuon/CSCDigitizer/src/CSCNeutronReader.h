@@ -3,6 +3,10 @@
 
 #include "SimMuon/Neutron/interface/SubsystemNeutronReader.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class CSCNeutronReader : public SubsystemNeutronReader
 {
 public:
@@ -10,7 +14,7 @@ public:
   : SubsystemNeutronReader(pset) {}
   virtual ~CSCNeutronReader() {}
 
-  void addHits(std::map<int, edm::PSimHitContainer> & hitMap);
+  void addHits(std::map<int, edm::PSimHitContainer> & hitMap, CLHEP::HepRandomEngine*);
 
   virtual int detId(int chamberIndex, int localDetId );
 

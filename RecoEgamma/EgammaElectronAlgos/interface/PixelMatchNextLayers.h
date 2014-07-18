@@ -28,6 +28,7 @@ class FreeTrajectoryState;
 class PropagatorWithMaterial;
 class LayerMeasurements;
 class TrackerTopology;
+class NavigationSchool;
 
 class PixelMatchNextLayers {
 
@@ -37,6 +38,7 @@ public:
 		       const BarrelMeasurementEstimator *aBarrelMeas,
 		       const ForwardMeasurementEstimator *aForwardMeas,
 		       const TrackerTopology *tTopo,
+                       const NavigationSchool& navigationSchool,
 		       bool searchInTIDTEC);
   std::vector<TrajectoryMeasurement> measurementsInNextLayers() const;
   std::vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;

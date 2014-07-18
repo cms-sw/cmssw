@@ -7,10 +7,14 @@
 */
 #include "DataFormats/DetId/interface/DetId.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class CaloVPECorrection
 {
 public:
-  virtual double correctPE(const DetId & detId, double npe) const = 0;
+  virtual double correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine*) const = 0;
 };
 
 #endif

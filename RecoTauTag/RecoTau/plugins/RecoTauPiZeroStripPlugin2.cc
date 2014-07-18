@@ -171,7 +171,7 @@ void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& cand
 }
 
 namespace {
-  const reco::TrackBaseRef getTrack(const PFCandidate& cand) 
+  inline const reco::TrackBaseRef getTrack(const PFCandidate& cand)
   {
     if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());
     else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());

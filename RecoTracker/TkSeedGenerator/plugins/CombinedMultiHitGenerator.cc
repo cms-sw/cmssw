@@ -29,6 +29,8 @@ void CombinedMultiHitGenerator::hitSets(
   if(layers.numberOfLayersInSet() != 3)
     throw cms::Exception("Configuration") << "CombinedMultiHitGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 3, got " << layers.numberOfLayersInSet();
 
+  theGenerator->initES(es);
+
   std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(layers);
   for(const auto& setAndLayers: trilayers) {
     theGenerator->setSeedingLayers(setAndLayers.first, setAndLayers.second);

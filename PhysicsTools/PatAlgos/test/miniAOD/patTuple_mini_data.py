@@ -14,7 +14,11 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-process.source.fileNames = {'/store/relval/CMSSW_7_0_0/SingleMu/RECO/GR_R_70_V1_RelVal_zMu2012D-v2/00000/0259E46E-F698-E311-8CFD-003048FF9AC6.root'}
+process.source.fileNames = [
+	'/store/relval/CMSSW_7_1_0_pre6/JetHT/RECO/PRE_R_71_V2_RelVal_jet2012C-v1/00000/2CBD40F5-E2C7-E311-8206-003048678AC0.root',
+	'/store/relval/CMSSW_7_1_0_pre6/JetHT/RECO/PRE_R_71_V2_RelVal_jet2012C-v1/00000/A4DAA3A4-E0C7-E311-A427-00304867BFBC.root',
+	'/store/relval/CMSSW_7_1_0_pre6/JetHT/RECO/PRE_R_71_V2_RelVal_jet2012C-v1/00000/E86E08F2-DDC7-E311-8EAC-0025905A6090.root',
+]
 
 #                                         ##
 process.maxEvents.input = 10000

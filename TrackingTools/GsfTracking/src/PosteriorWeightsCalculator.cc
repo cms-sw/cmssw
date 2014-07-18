@@ -6,7 +6,7 @@
 
 #include <cfloat>
 
-std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingRecHit& recHit) const {
+std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& recHit) const {
         switch (recHit.dimension()) {
                 case 1: return weights<1>(recHit);
                 case 2: return weights<2>(recHit);
@@ -18,7 +18,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
 }
 
 template<unsigned int D>
-std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingRecHit& recHit) const {
+std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& recHit) const {
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
@@ -40,6 +40,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
   VecD r, rMeas; 
   SMatDD V, R;
   AlgebraicVector5 x;
+  ProjectMatrix<double,5,D> p;
   //
   // calculate chi2 and determinant / component and find
   //   minimum / maximum of chi2
@@ -57,7 +58,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
 
     KfComponentsHolder holder; 
     x = predictedComponents[i].localParameters().vector();
-    holder.template setup<D>(&r, &V, &H, &rMeas, &R, 
+    holder.template setup<D>(&r, &V, &H, &p, &rMeas, &R, 
 			     x, predictedComponents[i].localError().matrix());
     recHit.getKfComponents(holder);
 

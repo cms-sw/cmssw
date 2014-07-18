@@ -148,7 +148,7 @@ namespace edm {
     }
     bool newFile = (fileIndex() > index);
     setEventCached();
-    if(eventID_.run() != oldEventID.run()) {
+    if(newRun() || eventID_.run() != oldEventID.run()) {
       // New Run
       setNewRun();
       setNewLumi();
@@ -161,7 +161,7 @@ namespace edm {
       return newFile ? IsFile : IsLumi;
     }
     // Same Run
-    if (eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
+    if (newLumi() || eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
       // New Lumi
       setNewLumi();
       return newFile ? IsFile : IsLumi;

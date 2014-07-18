@@ -37,7 +37,10 @@ private:
    FWElectronDetailView(const FWElectronDetailView&); // stop default
    const FWElectronDetailView& operator=(const FWElectronDetailView&); // stop default
 
+   using FWDetailViewGL<reco::GsfElectron>::build;
    virtual void build (const FWModelId &id, const reco::GsfElectron*);
+
+   using FWDetailViewGL<reco::GsfElectron>::setTextInfo;
    virtual void setTextInfo(const FWModelId &id, const reco::GsfElectron*);
 
    double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);

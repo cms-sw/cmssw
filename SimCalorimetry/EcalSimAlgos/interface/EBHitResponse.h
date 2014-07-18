@@ -7,6 +7,10 @@
 
 class APDSimParameters ;
 
+namespace CLHEP {
+   class HepRandomEngine;
+}
+
 class EBHitResponse : public EcalHitResponse
 {
    public:
@@ -25,19 +29,20 @@ class EBHitResponse : public EcalHitResponse
 
       virtual ~EBHitResponse() ;
 
+      void initialize(CLHEP::HepRandomEngine*);
+
       virtual bool keepBlank() const { return false ; }
 
       void setIntercal( const EcalIntercalibConstantsMC* ical ) ;
 
-      const VecD& offsets() const { return m_timeOffVec ; }
 
-      virtual void add( const PCaloHit&  hit ) ;
+      virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) override;
 
       virtual void initializeHits() ;
 
       virtual void finalizeHits() ;
 
-      virtual void run( MixCollection<PCaloHit>& hits ) ;
+      virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) override;
 
       virtual unsigned int samplesSize() const ;
 
@@ -59,6 +64,8 @@ class EBHitResponse : public EcalHitResponse
 
    private:
 
+      const VecD& offsets() const { return m_timeOffVec ; }
+
       const double nonlFunc( double enr ) const {
 	 return ( pelo > enr ? pext :
 		  ( pehi > enr ? nonlFunc1( enr ) : 
@@ -73,7 +80,7 @@ class EBHitResponse : public EcalHitResponse
       const APDSimParameters* apdParameters() const ;
       const CaloVShape*       apdShape()      const ;
 
-      double apdSignalAmplitude( const PCaloHit& hit ) const ;
+      double apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* ) const ;
 
       void findIntercalibConstant( const DetId& detId, 
 				   double&      icalconst ) const ;
@@ -91,6 +98,8 @@ class EBHitResponse : public EcalHitResponse
       const double pcub, pqua, plin, pcon, pelo, pehi, pasy, pext, poff, pfac ;
 
       std::vector<EBSamples> m_vSam ;
+
+      bool m_isInitialized;
 };
 #endif
 

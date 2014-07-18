@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -9,13 +11,33 @@
 
 #include <iostream>
  
+  //using namespace edm;
+  //using namespace std;
+  //using namespace reco;
+
 //
 // -- Constructor
 //
-JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset ) {
+JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) {
    verbose_       = pset.getUntrackedParameter<bool>( "DebugOn", false );
    detectorTypes_ = pset.getUntrackedParameter<std::string>( "DetectorTypes", "ecal:hcal");
-   filter_        = pset.getUntrackedParameter<bool>( "Filter", true );
+   filter_        = !pset.getUntrackedParameter<bool>( "alwaysPass", false );
+ 
+   detectorOn_    = false;
+   if (verbose_) std::cout << "JetMETDQMDCSFilter constructor: " << detectorTypes_ << std::endl;
+
+   passPIX = false, passSiStrip = false;
+   passECAL = false, passES = false;
+   passHBHE = false, passHF = false, passHO = false;
+   passMuon = false;
+   scalarsToken = iC.consumes<DcsStatusCollection > (std::string("scalersRawToDigi"));
+}
+JetMETDQMDCSFilter::JetMETDQMDCSFilter( const std::string & detectorTypes, edm::ConsumesCollector& iC, const bool verbose, const bool alwaysPass) {
+   verbose_       = verbose;
+   detectorTypes_ = detectorTypes;
+   filter_        = !alwaysPass;
+   scalarsToken = iC.consumes<DcsStatusCollection > (std::string("scalersRawToDigi"));
+
    detectorOn_    = false;
    if (verbose_) std::cout << "JetMETDQMDCSFilter constructor: " << detectorTypes_ << std::endl;
 
@@ -24,6 +46,7 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset ) {
    passHBHE = false, passHF = false, passHO = false;
    passMuon = false;
 }
+
 //
 // -- Destructor
 //
@@ -39,7 +62,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
   if (!filter_) return detectorOn_;
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  evt.getByLabel("scalersRawToDigi", dcsStatus);
+  evt.getByToken(scalarsToken, dcsStatus);
 
   if (dcsStatus.isValid() && dcsStatus->size() != 0) {
 
@@ -115,9 +138,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
     }    
 
   }
-
   return detectorOn_;
-
 }
 
 //#include "FWCore/Framework/interface/MakerMacros.h"

@@ -8,6 +8,8 @@
 #include <ctime>
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
+
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -15,10 +17,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "GeneratorInterface/HiGenCommon/interface/HiGenEvtSelectorFactory.h"
 
@@ -30,6 +31,9 @@ using namespace edm;
 using namespace std;
 
 HepMC::IO_HEPEVT hepevtio;
+
+const std::vector<std::string> PyquenHadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6,
+                                                                        gen::FortranInstance::kFortranInstance };
 
 PyquenHadronizer :: PyquenHadronizer(const ParameterSet & pset):
    BaseHadronizer(pset),
@@ -85,6 +89,13 @@ PyquenHadronizer::~PyquenHadronizer()
 
   delete pythia6Service_;
 
+}
+
+
+//_____________________________________________________________________
+void PyquenHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
+{
+  pythia6Service_->setRandomEngine(v);
 }
 
 

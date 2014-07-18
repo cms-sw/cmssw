@@ -107,7 +107,8 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
 
     std::string payloadType("");
     Binary data; 
-    loaded = m_session.fetchPayloadData( m_data->current.payloadId, payloadType, data );
+    Binary streamerInfo; 
+    loaded = m_session.fetchPayloadData( m_data->current.payloadId, payloadType, data, streamerInfo );
     m_session.transaction().commit();
     if( !loaded ){
       std::cout <<"ERROR: payload with id "<<m_data->current.payloadId<<" could not be loaded."<<std::endl;
@@ -167,8 +168,6 @@ int cond::TestGTLoad::execute(){
   if(hasOptionValue("start_lumi")) startLumi = getOptionValue<Time_t>("start_lumi");
   Time_t stepLumi= 10000000000;
   if(hasOptionValue("step_lumi")) stepLumi = getOptionValue<Time_t>("step_lumi");
-
-  initializePluginManager();
 
   ConnectionPool connPool;
   if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );

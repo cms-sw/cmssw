@@ -445,18 +445,18 @@ ConvBremSeedProducer::initializeLayerMap()
   /// ATTENTION: HARD CODED LOGIC! If Famos layer numbering changes this logic needs to 
   /// be adapted to the new numbering!
     
-    std::vector< BarrelDetLayer*>   barrelLayers = 
+    const std::vector< const BarrelDetLayer*>&   barrelLayers = 
       geomSearchTracker_->barrelLayers();
     LogDebug("FastTracker") << "Barrel DetLayer dump: ";
-    for (std::vector< BarrelDetLayer*>::const_iterator bl=barrelLayers.begin();
+    for (auto bl=barrelLayers.begin();
 	 bl != barrelLayers.end(); ++bl) {
       LogDebug("FastTracker")<< "radius " << (**bl).specificSurface().radius(); 
     }
 
-  std::vector< ForwardDetLayer*>  posForwardLayers = 
+  const std::vector< const ForwardDetLayer*>&  posForwardLayers = 
     geomSearchTracker_->posForwardLayers();
   LogDebug("FastTracker") << "Positive Forward DetLayer dump: ";
-  for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
+  for (auto fl=posForwardLayers.begin();
        fl != posForwardLayers.end(); ++fl) {
     LogDebug("FastTracker") << "Z pos "
 			    << (**fl).surface().position().z()
@@ -485,7 +485,7 @@ ConvBremSeedProducer::initializeLayerMap()
       LogDebug("FastTracker") << " cylinder radius " << cyl->radius();
       bool found = false;
 
-      for (std::vector< BarrelDetLayer*>::const_iterator 
+      for (auto
 	     bl=barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
 
 	if (fabs( cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
@@ -508,7 +508,7 @@ ConvBremSeedProducer::initializeLayerMap()
 
       bool found = false;
 
-      for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
+      for (auto fl=posForwardLayers.begin();
 	   fl != posForwardLayers.end(); ++fl) {
 	if (fabs( disk->position().z() - (**fl).surface().position().z()) < zTolerance) {
 	  layerMap_[i->layerNumber()] = *fl;

@@ -20,6 +20,10 @@ PoolSource: This is an InputSource
 #include <string>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace edm {
 
   class ConfigurationDescriptions;
@@ -49,8 +53,8 @@ namespace edm {
     virtual void skip(int offset);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();
-    virtual void readOneRandom(EventPrincipal& cache);
-    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID);
+    virtual void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*) override;
+    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine*) override;
     virtual bool readOneSequential(EventPrincipal& cache);
     virtual bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID);
     virtual void readOneSpecified(EventPrincipal& cache, EventID const& id);
@@ -60,6 +64,9 @@ namespace edm {
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
 
+    SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const override;
+
+    
     RootServiceChecker rootServiceChecker_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
     std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
@@ -67,6 +74,8 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+    
+    std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

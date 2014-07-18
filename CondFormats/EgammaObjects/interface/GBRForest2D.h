@@ -16,6 +16,8 @@
 //  Josh Bendavid - MIT                                                 //
 //////////////////////////////////////////////////////////////////////////
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include "GBRTree2D.h"
 #include <stdio.h>
@@ -39,7 +41,9 @@
       double                 fInitialResponseY;
       std::vector<GBRTree2D> fTrees;  
       
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 //_______________________________________________________________________
 inline void GBRForest2D::GetResponse(const float* vector, double &x, double &y) const {

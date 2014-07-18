@@ -12,17 +12,14 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 
 L2TauPixelIsoTagProducer::L2TauPixelIsoTagProducer(const edm::ParameterSet& conf)
 {
-  m_jetSrc      = conf.getParameter<edm::InputTag>("JetSrc");
-  m_vertexSrc   = conf.getParameter<edm::InputTag>("VertexSrc");
-  m_trackSrc    = conf.getParameter<edm::InputTag>("TrackSrc");  // for future use (now tracks are taken directly from PV)
-  m_beamSpotSrc = conf.getParameter<edm::InputTag>("BeamSpotSrc");
+  m_jetSrc_token      = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("JetSrc") );
+  m_vertexSrc_token   = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexSrc") );
+  m_trackSrc_token    = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackSrc") );  // for future use (now tracks are taken directly from PV)
+  m_beamSpotSrc_token = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpotSrc") );
 
   m_maxNumberPV = conf.getParameter<int>("MaxNumberPV"); // for future use, now is assumed to be = 1
 
@@ -30,7 +27,7 @@ L2TauPixelIsoTagProducer::L2TauPixelIsoTagProducer(const edm::ParameterSet& conf
   m_trackMaxDxy   = conf.getParameter<double>("TrackMaxDxy");
   m_trackMaxNChi2 = conf.getParameter<double>("TrackMaxNChi2");
   m_trackMinNHits = conf.getParameter<int>("TrackMinNHits");
-  m_trackPVMaxDZ    = conf.getParameter<double>("TrackPVMaxDZ"); // for future use with tracks not from PV
+  m_trackPVMaxDZ  = conf.getParameter<double>("TrackPVMaxDZ"); // for future use with tracks not from PV
 
   m_isoCone2Min  = std::pow(conf.getParameter<double>("IsoConeMin"), 2);
   m_isoCone2Max  = std::pow(conf.getParameter<double>("IsoConeMax"), 2);
@@ -44,15 +41,15 @@ void L2TauPixelIsoTagProducer::produce(edm::Event& ev, const edm::EventSetup& es
   using namespace reco;
   using namespace std;
   using namespace edm;
-  m_trackSrc.encode();
+  //m_trackSrc.encode();
 
   edm::Handle<BeamSpot> bs;
-  ev.getByLabel( m_beamSpotSrc, bs);
+  ev.getByToken( m_beamSpotSrc_token, bs);
 
 
   // Get jets
   Handle< View<Jet> > jets_h;
-  ev.getByLabel (m_jetSrc, jets_h);
+  ev.getByToken (m_jetSrc_token, jets_h);
   vector<RefToBase<Jet> > jets;
   jets.reserve (jets_h->size());
   for (size_t i = 0; i < jets_h->size(); ++i)  jets.push_back( jets_h->refAt(i) );
@@ -74,7 +71,7 @@ void L2TauPixelIsoTagProducer::produce(edm::Event& ev, const edm::EventSetup& es
 
   // Get pixel vertices (their x,y positions are already supposed to be defined from the BeamSpot)
   Handle<VertexCollection> vertices;
-  ev.getByLabel(m_vertexSrc, vertices);
+  ev.getByToken(m_vertexSrc_token, vertices);
 
   // find the primary vertex (the 1st valid non-fake vertex in the collection)
   const Vertex *pv = 0;

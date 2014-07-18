@@ -468,7 +468,7 @@ void Electron::setDB(double dB, double edB, IpType type){
   }
 }
 
-/// Set additional missing mva input variables for new mva ID : (updated for 70X)
+/// Set additional missing mva input variables for new mva ID (71X update)
 void Electron::setMvaVariables( double sigmaIetaIphi, double ip3d){
   sigmaIetaIphi_ = sigmaIetaIphi;
   ip3d_ = ip3d;

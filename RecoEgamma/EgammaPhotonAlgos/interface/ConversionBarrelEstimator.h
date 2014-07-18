@@ -29,7 +29,7 @@ public:
 
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
-                               const TransientTrackingRecHit& hit	) const;
+                               const TrackingRecHit& hit	) const;
   virtual bool  estimate( const TrajectoryStateOnSurface& ts, 
 				       const Plane& plane) const;
   virtual ConversionBarrelEstimator* clone() const {

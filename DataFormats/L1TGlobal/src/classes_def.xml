@@ -1,0 +1,16 @@
+<lcgdict>
+  <class name="GlobalAlgBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="2404151857"/>
+  </class>
+  <class name="GlobalAlgBlkBxCollection"/>
+  <class name="edm::Wrapper<GlobalAlgBlkBxCollection>"/>
+
+  <class name="GlobalExtBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="3371214087"/>
+  </class>
+  <class name="GlobalExtBlkBxCollection"/>
+  <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
+
+</lcgdict>
+
+

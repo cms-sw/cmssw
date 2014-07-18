@@ -262,6 +262,8 @@ namespace reco {
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
 
+    CMS_CLASS_VERSION(11)
+
   private:
     // const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;

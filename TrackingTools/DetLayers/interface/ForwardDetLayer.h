@@ -13,6 +13,9 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+
 
 #include <vector>
 #include <algorithm>
@@ -20,7 +23,7 @@
 class ForwardDetLayer : public DetLayer {
 public:
 
-  ForwardDetLayer(): DetLayer(false),  theDisk(0){}
+  ForwardDetLayer(bool doHaveGroups): DetLayer(doHaveGroups,false) {}
 
   virtual ~ForwardDetLayer();
 
@@ -40,18 +43,19 @@ public:
   bool contains( const Local3DPoint& p) const;  
   
  protected:
-  void setSurface( BoundDisk* cp);
 
   virtual void initialize();
 
+
   float rmin() const { return theDisk->innerRadius();}
   float rmax() const { return theDisk->outerRadius();}
-  float zmin() const { return (theDisk->position().z() - theDisk->bounds().thickness()*0.5f);}
-  float zmax() const { return (theDisk->position().z() + theDisk->bounds().thickness()*0.5f);}
+  float zmin() const { return (theDisk->position().z() - bounds().thickness()*0.5f);}
+  float zmax() const { return (theDisk->position().z() + bounds().thickness()*0.5f);}
 
-
+  void setSurface( BoundDisk* cp);
   virtual BoundDisk* computeSurface();
 
+  SimpleDiskBounds const & bounds() const { return static_cast<SimpleDiskBounds const &>(theDisk->bounds());} 
 
  private:
   ReferenceCountingPointer<BoundDisk> theDisk;

@@ -21,17 +21,22 @@ output stream.
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <array>
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
+#include <mutex>
 
 namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -97,6 +102,7 @@ namespace edm {
     void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+                 ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const* mcc);
@@ -119,7 +125,7 @@ namespace edm {
   private:
 
     int maxEvents_;
-    int remainingEvents_;
+    std::atomic<int> remainingEvents_;
 
     // TODO: Give OutputModule
     // an interface (protected?) that supplies client code with the
@@ -160,6 +166,9 @@ namespace edm {
     BranchParents branchParents_;
 
     BranchChildren branchChildren_;
+
+    SharedResourcesAcquirer resourceAcquirer_;
+    std::mutex mutex_;
 
     //------------------------------------------------------------------
     // private member functions

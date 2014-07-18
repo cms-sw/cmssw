@@ -176,14 +176,18 @@ SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 # Event History Producer
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 
-# APV Phase Producer (configuration from DB)
+# APV Phase Producer
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 
 # Sequences 
 SiStripDQMTier0_cosmicTk = cms.Sequence(APVPhases*consecutiveHEs*SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk*TrackEffMon_cosmicTk)
 
+#removed modules using TkDetMap
+#SiStripDQMTier0_ckf = cms.Sequence(APVPhases*consecutiveHEs*MonitorTrackResiduals_ckf*TrackMon_ckf*TrackEffMon_ckf)
 SiStripDQMTier0_ckf = cms.Sequence(APVPhases*consecutiveHEs*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_ckf*TrackEffMon_ckf)
 
 #SiStripDQMTier0_rs = cms.Sequence(APVPhases*consecutiveHEs*SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs*TrackEffMon_rs)
 
+#removed modules using TkDetMap
+#SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)
 SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)

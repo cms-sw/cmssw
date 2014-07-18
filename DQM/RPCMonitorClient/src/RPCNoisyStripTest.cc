@@ -16,7 +16,7 @@ RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps ){
   edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Constructor";
  
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
   useRollInfo_ = ps.getUntrackedParameter<bool>("UseRollInfo", false);
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);

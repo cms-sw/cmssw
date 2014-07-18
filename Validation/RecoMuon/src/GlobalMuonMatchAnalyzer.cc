@@ -28,20 +28,23 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 #include <TH2.h>
 
 
-GlobalMuonMatchAnalyzer::GlobalMuonMatchAnalyzer(const edm::ParameterSet& iConfig)
+GlobalMuonMatchAnalyzer::GlobalMuonMatchAnalyzer(const edm::ParameterSet& ps)
 
 {
+  iConfig = ps;
   //now do what ever initialization is needed
   tkAssociatorName_ = iConfig.getUntrackedParameter<std::string>("tkAssociator");
   muAssociatorName_ = iConfig.getUntrackedParameter<std::string>("muAssociator");
 
+subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   tpName_ = iConfig.getUntrackedParameter<edm::InputTag>("tpLabel");
   tkName_ = iConfig.getUntrackedParameter<edm::InputTag>("tkLabel");
   staName_ = iConfig.getUntrackedParameter<edm::InputTag>("muLabel");
@@ -87,15 +90,12 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    Handle<View<Track> > staHandle;
    iEvent.getByToken(staToken_,staHandle);
-   //   const reco::TrackCollection staColl = *(staHandle.product());
 
    Handle<View<Track> > glbHandle;
    iEvent.getByToken(glbToken_,glbHandle);
-   //   const reco::TrackCollection glbColl = *(glbHandle.product());
 
    Handle<View<Track> > tkHandle;
    iEvent.getByToken(tkToken_,tkHandle);
-   //   const reco::TrackCollection mtkColl = *(tkHandle.product());
 
    reco::RecoToSimCollection tkrecoToSimCollection;
    reco::SimToRecoCollection tksimToRecoCollection;
@@ -240,35 +240,41 @@ void GlobalMuonMatchAnalyzer::endRun() {
   if( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
-void GlobalMuonMatchAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& setup)
+//void GlobalMuonMatchAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& setup)
+
+void GlobalMuonMatchAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & iRun,
+                                  edm::EventSetup const & iSetup )
 {
   // Tk Associator
+
   edm::ESHandle<TrackAssociatorBase> tkassociatorHandle;
-  setup.get<TrackAssociatorRecord>().get(tkAssociatorName_,tkassociatorHandle);
+  iSetup.get<TrackAssociatorRecord>().get(tkAssociatorName_,tkassociatorHandle);
   tkAssociator_ = tkassociatorHandle.product();
 
   // Mu Associator
   edm::ESHandle<TrackAssociatorBase> muassociatorHandle;
-  setup.get<TrackAssociatorRecord>().get(muAssociatorName_,muassociatorHandle);
+  iSetup.get<TrackAssociatorRecord>().get(muAssociatorName_,muassociatorHandle);
   muAssociator_ = muassociatorHandle.product();
-  dbe_->cd();
+  ibooker.cd();
   std::string dirName="Matcher/";
-  dbe_->setCurrentFolder("RecoMuonV/Matcher");
+  //  ibooker.setCurrentFolder("RecoMuonV/Matcher");
+  ibooker.setCurrentFolder(dirName.c_str()) ;
 
-  h_shouldMatch = dbe_->book2D("h_shouldMatch","SIM associated to Tk and Sta",50,-2.5,2.5,100,0.,500.);
-  h_goodMatchSim = dbe_->book2D("h_goodMatchSim","SIM associated to Glb Sta Tk",50,-2.5,2.5,100,0.,500.);
-  h_tkOnlySim = dbe_->book2D("h_tkOnlySim","SIM associated to Glb Tk",50,-2.5,2.5,100,0.,500.);
-  h_staOnlySim = dbe_->book2D("h_staOnlySim","SIM associated to Glb Sta",50,-2.5,2.5,100,0.,500.);
+  h_shouldMatch = ibooker.book2D("h_shouldMatch","SIM associated to Tk and Sta",50,-2.5,2.5,100,0.,500.);
+  h_goodMatchSim = ibooker.book2D("h_goodMatchSim","SIM associated to Glb Sta Tk",50,-2.5,2.5,100,0.,500.);
+  h_tkOnlySim = ibooker.book2D("h_tkOnlySim","SIM associated to Glb Tk",50,-2.5,2.5,100,0.,500.);
+  h_staOnlySim = ibooker.book2D("h_staOnlySim","SIM associated to Glb Sta",50,-2.5,2.5,100,0.,500.);
 
-  h_totReco = dbe_->book2D("h_totReco","Total Glb Reconstructed",50,-2.5,2.5,100,0.,500.);
-  h_goodMatch = dbe_->book2D("h_goodMatch","Sta and Tk from same SIM",50,-2.5,2.5,100, 0., 500.);
-  h_fakeMatch = dbe_->book2D("h_fakeMatch","Sta and Tk not from same SIM",50,-2.5,2.5,100,0.,500.);
+  h_totReco = ibooker.book2D("h_totReco","Total Glb Reconstructed",50,-2.5,2.5,100,0.,500.);
+  h_goodMatch = ibooker.book2D("h_goodMatch","Sta and Tk from same SIM",50,-2.5,2.5,100, 0., 500.);
+  h_fakeMatch = ibooker.book2D("h_fakeMatch","Sta and Tk not from same SIM",50,-2.5,2.5,100,0.,500.);
 
-  h_effic = dbe_->book1D("h_effic","Efficiency vs #eta",50,-2.5,2.5);
-  h_efficPt = dbe_->book1D("h_efficPt","Efficiency vs p_{T}",100,0.,100.);
+  h_effic = ibooker.book1D("h_effic","Efficiency vs #eta",50,-2.5,2.5);
+  h_efficPt = ibooker.book1D("h_efficPt","Efficiency vs p_{T}",100,0.,100.);
 
-  h_fake = dbe_->book1D("h_fake","Fake fraction vs #eta",50,-2.5,2.5);
-  h_fakePt = dbe_->book1D("h_fakePt","Fake fraction vs p_{T}",100,0.,100.);
+  h_fake = ibooker.book1D("h_fake","Fake fraction vs #eta",50,-2.5,2.5);
+  h_fakePt = ibooker.book1D("h_fakePt","Fake fraction vs p_{T}",100,0.,100.);
 
 }
 

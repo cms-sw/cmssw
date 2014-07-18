@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <string>
 
@@ -23,7 +24,7 @@ class PixelGeomDetUnit;
 class SiPixelRecHit;
 class TrackerTopology;
 
-class SiPixelRecHitsValid : public edm::EDAnalyzer {
+class SiPixelRecHitsValid : public DQMEDAnalyzer {
 
    public:
 	//Constructor
@@ -36,7 +37,7 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 	void beginJob();
-        void beginRun( const edm::Run& r, const edm::EventSetup& c );
+	void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
 	void endJob();
 
    private:
@@ -46,6 +47,7 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 			 const TrackerTopology *tTopo);
 
 	std::string outputFile_;
+	bool runStandalone;
 
 	//Clusters BPIX
 	MonitorElement* clustYSizeModule[8];

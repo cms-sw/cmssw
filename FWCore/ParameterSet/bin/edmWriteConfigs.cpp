@@ -87,15 +87,9 @@ namespace {
     edm::ConfigurationDescriptions descriptions(filler->baseType());
 
     try {
-      try {
+      edm::convertException::wrap([&]() {
         filler->fill(descriptions);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { edm::convertException::badAllocToEDM(); }
-      catch (std::exception& e) { edm::convertException::stdToEDM(e); }
-      catch(std::string& s) { edm::convertException::stringToEDM(s); }
-      catch(char const* c) { edm::convertException::charPtrToEDM(c); }
-      catch (...) { edm::convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& e) {
       std::ostringstream ost;
@@ -105,15 +99,9 @@ namespace {
     }
 
     try {
-      try {
+      edm::convertException::wrap([&]() {
         descriptions.writeCfis(baseType, pluginName);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { edm::convertException::badAllocToEDM(); }
-      catch (std::exception& e) { edm::convertException::stdToEDM(e); }
-      catch(std::string& s) { edm::convertException::stringToEDM(s); }
-      catch(char const* c) { edm::convertException::charPtrToEDM(c); }
-      catch (...) { edm::convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& e) {
       std::ostringstream ost;
@@ -201,7 +189,7 @@ try {
   std::string library;
 
   try {
-    try {
+    edm::convertException::wrap([&]() {
 
       if(vm.count(kLibraryOpt)) {
         library = vm[kLibraryOpt].as<std::string>();
@@ -229,7 +217,7 @@ try {
         CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
 
         // No plugins in this category at all
-        if(itPlugins == catToInfos.end() ) return 0;
+        if(itPlugins == catToInfos.end() ) return;
 
         std::vector<edmplugin::PluginInfo> const& infos = itPlugins->second;
         std::string previousName;
@@ -272,7 +260,7 @@ try {
                       << "The executable will return success (0) so scram will continue,\n"
                       << "but no cfi files will be written.\n"
                       << iException.what() << std::endl;
-            return 0;
+            return;
           }
           else {
             throw;
@@ -293,13 +281,7 @@ try {
       edm::for_all(pluginNames, boost::bind(&writeCfisForPlugin,
                                             _1,
                                             factory));
-    }
-    catch (cms::Exception& e) { throw; }
-    catch(std::bad_alloc& bda) { edm::convertException::badAllocToEDM(); }
-    catch (std::exception& e) { edm::convertException::stdToEDM(e); }
-    catch(std::string& s) { edm::convertException::stringToEDM(s); }
-    catch(char const* c) { edm::convertException::charPtrToEDM(c); }
-    catch (...) { edm::convertException::unknownToEDM(); }
+    });
   }
   catch (cms::Exception & iException) {
     std::ostringstream ost;

@@ -25,6 +25,8 @@
 #include "G4EmProcessOptions.hh"
 #include "G4PhysicsListHelper.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4UAtomicDeexcitation.hh"
+#include "G4LossTableManager.hh"
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
@@ -68,9 +70,9 @@ void ParametrisedEMPhysics::ConstructProcess() {
       << gem << "  " << ghad;
     G4FastSimulationManagerProcess * theFastSimulationManagerProcess = 
       new G4FastSimulationManagerProcess();
-    theParticleIterator->reset();
-    while ((*theParticleIterator)()) {
-      G4ParticleDefinition * particle = theParticleIterator->value();
+    aParticleIterator->reset();
+    while ((*aParticleIterator)()) {
+      G4ParticleDefinition * particle = aParticleIterator->value();
       G4ProcessManager * pmanager = particle->GetProcessManager();
       G4String pname = particle->GetParticleName();
       if(pname == "e-" || pname == "e+") {
@@ -79,7 +81,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
     }
 
     if(gem) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion");
+      G4Region* aRegion = 
+	G4RegionStore::GetInstance()->GetRegion("EcalRegion");
 
       if(!aRegion){
 	edm::LogInfo("SimG4CoreApplication") 
@@ -95,7 +98,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }    
     }
     if(ghad) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+      G4Region* aRegion = 
+	G4RegionStore::GetInstance()->GetRegion("HcalRegion");
       if(!aRegion) {
 	edm::LogInfo("SimG4CoreApplication") 
 	  << "ParametrisedEMPhysics::ConstructProcess: " 
@@ -118,28 +122,9 @@ void ParametrisedEMPhysics::ConstructProcess() {
 				"DefaultRegionForTheWorld"};
   G4double rrfact[NREG] = { 1.0 };
 
-  // Russian roulette for gamma
-  G4double energyLim = theParSet.getParameter<double>("RusRoGammaEnergyLimit")*MeV;
-  if(energyLim > 0.0) {
-    rrfact[0] = theParSet.getParameter<double>("RusRoEcalGamma");
-    rrfact[1] = theParSet.getParameter<double>("RusRoHcalGamma");
-    rrfact[2] = theParSet.getParameter<double>("RusRoMuonIronGamma");
-    rrfact[3] = theParSet.getParameter<double>("RusRoPreShowerGamma");
-    rrfact[4] = theParSet.getParameter<double>("RusRoCastorGamma");
-    rrfact[5] = theParSet.getParameter<double>("RusRoWorldGamma");
-    for(int i=0; i<NREG; ++i) {
-      if(rrfact[i] < 1.0) {
-	opt.ActivateSecondaryBiasing("eBrem",rname[i],rrfact[i],energyLim);
-	edm::LogInfo("SimG4CoreApplication") 
-	  << "ParametrisedEMPhysics: Russian Roulette"
-	  << " for gamma Prob= " << rrfact[i]  
-	  << " Elimit(MeV)= " << energyLim/CLHEP::MeV
-	  << " inside " << rname[i];
-      }
-    }
-  }
   // Russian roulette for e-
-  energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit")*MeV;
+  double energyLim = 
+    theParSet.getParameter<double>("RusRoElectronEnergyLimit")*MeV;
   if(energyLim > 0.0) {
     rrfact[0] = theParSet.getParameter<double>("RusRoEcalElectron");
     rrfact[1] = theParSet.getParameter<double>("RusRoHcalElectron");
@@ -185,5 +170,12 @@ void ParametrisedEMPhysics::ConstructProcess() {
       thePositronLimiter->SetFieldCheckFlag(pLimiter);
       ph->RegisterProcess(theElectronLimiter, G4Positron::Positron());
     }
+  }
+  // enable fluorescence
+  bool fluo = theParSet.getParameter<bool>("FlagFluo");
+  if(fluo) {
+    G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
+    G4LossTableManager::Instance()->SetAtomDeexcitation(de);
+    de->SetFluo(true);
   }
 }

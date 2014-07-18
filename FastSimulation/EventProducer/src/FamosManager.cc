@@ -94,8 +94,7 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
   mySimEvent->initializePdt(&(*pdt));
-  ParticleTable::instance(&(*pdt));
-
+  
   // Initialize the full (misaligned) tracker geometry 
   // (only if tracking is requested)
   std::string misAligned = m_Alignment ? "MisAligned" : "";
@@ -157,7 +156,6 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 			  const TrackerTopology *tTopo,
                           RandomEngineAndDistribution const* random)
 {
-
   //  myGenEvent = evt;
   
   if (evt != 0 || particles != 0) {

@@ -87,11 +87,11 @@ workflows[4.66] = ['',['ZMuSkim2012C','RECOSKIM','HARVESTD']]
 workflows[4.67] = ['',['ZElSkim2012C','RECOSKIM','HARVESTD']]
 workflows[4.68] = ['',['WElSkim2012C','RECOSKIM','HARVESTD']]
 
-workflows[4.71] = ['',['RunMinBias2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.72] = ['',['RunMu2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.73] = ['',['RunPhoton2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.74] = ['',['RunEl2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
-workflows[4.75] = ['',['RunJet2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.71] = ['',['RunMinBias2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.72] = ['',['RunMu2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.73] = ['',['RunPhoton2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.74] = ['',['RunEl2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
+workflows[4.75] = ['',['RunJet2012D','HLTD','RECODreHLT','HARVESTDreHLT','MINIAODDATA']]
 workflows[4.76] = ['',['ZMuSkim2012D','RECOSKIM','HARVESTD']]
 workflows[4.77] = ['',['ZElSkim2012D','RECOSKIM','HARVESTD']]
 workflows[4.78] = ['',['WElSkim2012D','RECOSKIM','HARVESTD']]
@@ -112,12 +112,16 @@ workflows[5.7] = ['H130GGgluonfusion', ['H130GGgluonfusionFS','HARVESTFS']]
 
 ### fastsim_13 TeV ###
 workflows[135.1] = ['TTbar_13', ['TTbarFS_13','HARVESTUP15FS']]
+workflows[135.2] = ['SingleMuPt10', ['SingleMuPt10FS_UP15','HARVESTUP15FS']]
+workflows[135.3] = ['SingleMuPt100', ['SingleMuPt100FS_UP15','HARVESTUP15FS']]
 workflows[135.4] = ['ZEE_13', ['ZEEFS_13','HARVESTUP15FS']]
 workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS']]
 
 workflows[135.6]  = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP15FS']]
 workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS']]
 
+### MinBias fastsim_13 TeV for mixing ###
+workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
 
 ### standard set ###
 ## particle guns
@@ -163,6 +167,7 @@ workflows[33] = ['', ['PhotonJets_Pt_10','DIGI','RECO','HARVEST']]
 workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO','HARVEST']]
 workflows[46] = ['', ['ZmumuJets_Pt_20_300']]
 
+# wip gen-sim being made in 71x_pre7: GF wf uncomment once available 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
@@ -198,6 +203,7 @@ workflows[1333] = ['', ['PhotonJets_Pt_10_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows[1334] = ['', ['QQH1352T_Tauola_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1346] = ['', ['ZmumuJets_Pt_20_300_13']]
 
+workflows[1307]  = ['', ['Cosmics_UP15','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
 workflows[1308]  = ['', ['BeamHalo_13','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
 workflows[1311] = ['', ['MinBias_13','DIGIUP15','RECOMINUP15','HARVESTUP15','ALCAMIN']]
 workflows[1328] = ['', ['QCD_Pt_80_120_13','DIGIUP15','RECOUP15','HARVESTUP15']]
@@ -208,8 +214,8 @@ workflows[1310] = ['', ['ADDMonoJet_d3MD3_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows[1312] = ['', ['ZpMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1314] = ['', ['WpM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
-workflows[1340] = ['', ['RelValPythia6_BuJpsiK_TuneZ2star_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1341] = ['', ['RelValRSKKGluon_m3000GeV_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1340] = ['', ['Pythia6_BuJpsiK_TuneZ2star_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1341] = ['', ['RSKKGluon_m3000GeV_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 workflows[1343] = ['', ['ZpMM_2250_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1344] = ['', ['ZpEE_2250_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTUP15']]

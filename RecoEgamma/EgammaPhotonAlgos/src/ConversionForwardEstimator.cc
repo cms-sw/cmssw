@@ -10,7 +10,7 @@
 
   // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-							const TransientTrackingRecHit& hit) const {
+							const TrackingRecHit& hit) const {
   LogDebug("ConversionForwardEstimator") << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   //  std::cout  << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   

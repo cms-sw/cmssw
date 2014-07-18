@@ -10,6 +10,8 @@ $Date: 2008/03/05 10:38:03 $
 $Revision: 1.9 $
 Modified for CASTOR by L. Mundim
 */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 #include <vector>
@@ -75,6 +77,8 @@ class CastorQIECoder {
   float mSlope31;
   float mSlope32;
   float mSlope33;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

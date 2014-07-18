@@ -34,7 +34,7 @@ namespace {
 }
 
 
-OutInConversionSeedFinder::OutInConversionSeedFinder( const edm::ParameterSet& conf ): ConversionSeedFinder( conf ), conf_(conf)  
+OutInConversionSeedFinder::OutInConversionSeedFinder( const edm::ParameterSet& conf,edm::ConsumesCollector && iC): ConversionSeedFinder( conf,iC ), conf_(conf)  
 {
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      

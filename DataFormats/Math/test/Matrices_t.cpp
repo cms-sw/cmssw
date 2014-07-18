@@ -1,5 +1,6 @@
 // test of Matrices
 
+#define SMATRIX_USE_CONSTEXPR
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "Math/SMatrix.h"
 #include "Math/SVector.h"

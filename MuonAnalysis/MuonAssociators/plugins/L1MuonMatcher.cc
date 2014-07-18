@@ -3,8 +3,8 @@
 
 /**
   \class    pat::L1MuonMatcher L1MuonMatcher.h "MuonAnalysis/MuonAssociators/interface/L1MuonMatcher.h"
-  \brief    Matcher of reconstructed objects to L1 Muons 
-            
+  \brief    Matcher of reconstructed objects to L1 Muons
+
   \author   Giovanni Petrucciani
   \version  $Id: L1MuonMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
 */
@@ -45,8 +45,9 @@ namespace pat {
 
       L1MuonMatcherAlgo matcher_;
 
-      /// Labels for input collections
-      edm::InputTag reco_, l1_;
+      /// Tokens for input collections
+      edm::EDGetTokenT<edm::View<reco::Candidate> > recoToken_;
+      edm::EDGetTokenT<std::vector<l1extra::L1MuonParticle> > l1Token_;
 
       /// Labels to set as filter names in the output
       std::string labelL1_, labelProp_;
@@ -56,7 +57,7 @@ namespace pat {
 
       /// Store extra information in a ValueMap
       template<typename Hand, typename T>
-      void storeExtraInfo(edm::Event &iEvent, 
+      void storeExtraInfo(edm::Event &iEvent,
                      const Hand & handle,
                      const std::vector<T> & values,
                      const std::string    & label) const ;
@@ -66,8 +67,8 @@ namespace pat {
 
 pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
     matcher_(iConfig),
-    reco_(iConfig.getParameter<edm::InputTag>("src")),
-    l1_(iConfig.getParameter<edm::InputTag>("matched")),
+    recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
+    l1Token_(consumes<std::vector<l1extra::L1MuonParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
     labelL1_(iConfig.getParameter<std::string>(  "setL1Label")),
     labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
     writeExtraInfo_(iConfig.getParameter<bool>("writeExtraInfo"))
@@ -87,7 +88,7 @@ pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
     }
 }
 
-void 
+void
 pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
@@ -95,13 +96,13 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Handle<View<reco::Candidate> > reco;
     Handle<vector<l1extra::L1MuonParticle> > l1s;
 
-    iEvent.getByLabel(reco_, reco);
-    iEvent.getByLabel(l1_, l1s);
+    iEvent.getByToken(recoToken_, reco);
+    iEvent.getByToken(l1Token_, l1s);
 
     auto_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
     auto_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
     std::vector<edm::Ptr<reco::Candidate> > l1rawMatches(reco->size());
-    vector<int>   isSelected(l1s->size(), -1); 
+    vector<int>   isSelected(l1s->size(), -1);
     std::vector<edm::Ptr<reco::Candidate> > whichRecoMatch(l1s->size());
     vector<int>   propMatches(reco->size(), -1);
     vector<int>   fullMatches(reco->size(), -1);
@@ -120,7 +121,7 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         }
         if (match != -1) {
             const l1extra::L1MuonParticle & l1 = (*l1s)[match];
-            whichRecoMatch[match] = reco->ptrAt(i); 
+            whichRecoMatch[match] = reco->ptrAt(i);
             if (isSelected[match] == -1) { // copy to output if needed
                 isSelected[match] = l1Out->size();
                 l1Out->push_back(PATPrimitive(l1.polarP4()));
@@ -177,7 +178,7 @@ pat::L1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
 }
 
 
-void 
+void
 pat::L1MuonMatcher::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) {
     matcher_.init(iSetup);
 }

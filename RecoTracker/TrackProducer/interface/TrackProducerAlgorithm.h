@@ -16,14 +16,26 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+
 
 class MagneticField;
 class TrackingGeometry;
-class TrajectoryFitter;
 class Propagator;
 class Trajectory;
 class TrajectoryStateOnSurface;
-class TransientTrackingRecHitBuilder;
+
+struct FitterCloner {
+   std::unique_ptr<TrajectoryFitter> fitter;
+   TkClonerImpl hitCloner;
+
+  FitterCloner(const TrajectoryFitter * theFitter,const TransientTrackingRecHitBuilder* builder):
+    fitter(theFitter->clone()),
+    hitCloner(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner()){
+    fitter->setHitCloner(&hitCloner);
+  }
+};
 
 
 template <class T>

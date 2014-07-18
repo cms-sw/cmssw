@@ -7,7 +7,7 @@ using namespace std;
 
 pair<bool,double>
 Chi2Strip1DEstimator::estimate(const TrajectoryStateOnSurface& state,
-			       const TransientTrackingRecHit& hit) const {
+			       const TrackingRecHit& hit) const {
 
   if(//hit.isMatched() || 
      hit.detUnit()->type().isTrackerPixel() 

@@ -12,7 +12,7 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_BERT_HP.hh"
+#include "G4HadronPhysicsQGSP_BERT_HP.hh"
 
 QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -25,6 +25,7 @@ QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  bool munucl  = p.getParameter<bool>("FlagMuNucl");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_HP_EML with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
@@ -35,7 +36,9 @@ QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics(ver));
+    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
+    RegisterPhysics(gn);
   }
 
   // Decays
@@ -48,7 +51,7 @@ QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysicsHP(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsQGSP_BERT_HP(ver));
+    RegisterPhysics(  new G4HadronPhysicsQGSP_BERT_HP(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));

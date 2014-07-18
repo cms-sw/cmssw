@@ -20,6 +20,8 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -30,7 +32,7 @@
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
-// MC particles
+// MC data
 #include <SimDataFormats/GeneratorProducts/interface/HepMCProduct.h>
 
 // MC tests
@@ -127,6 +129,21 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
 
+  simHit_token_     = consumes<edm::PSimHitContainer>(simHitProducer_);
+  wireDigi_token_   = consumes<CSCWireDigiCollection>(wireDigiProducer_);
+  compDigi_token_   = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
+
+  alcts_d_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerData_));
+  clcts_d_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerData_));
+  lcts_tmb_d_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerData_));
+
+  alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_));
+  clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
+  lcts_tmb_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
+  lcts_mpc_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "MPCSORTED"));
+ 
+  consumesMany<edm::HepMCProduct>();
+
   resultsFileNamesPrefix_ = conf.getUntrackedParameter<string>("resultsFileNamesPrefix","");
   
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers",true);
@@ -201,9 +218,12 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   // Data
   if (dataLctsIn_) {
     HotWires(ev);
-    ev.getByLabel(lctProducerData_,  alcts_data);
-    ev.getByLabel(lctProducerData_,  clcts_data);
-    ev.getByLabel(lctProducerData_,  lcts_tmb_data);
+    //    ev.getByLabel(lctProducerData_,  alcts_data);
+    //    ev.getByLabel(lctProducerData_,  clcts_data);
+    //    ev.getByLabel(lctProducerData_,  lcts_tmb_data);
+    ev.getByToken(alcts_d_token_, alcts_data);  
+    ev.getByToken(clcts_d_token_, clcts_data);  
+    ev.getByToken(lcts_tmb_d_token_, lcts_tmb_data);  
 
     if (!alcts_data.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
@@ -228,10 +248,14 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
 
   // Emulator
   if (emulLctsIn_) {
-    ev.getByLabel(lctProducerEmul_,              alcts_emul);
-    ev.getByLabel(lctProducerEmul_,              clcts_emul);
-    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
-    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
+    //    ev.getByLabel(lctProducerEmul_,              alcts_emul);
+    //    ev.getByLabel(lctProducerEmul_,              clcts_emul);
+    //    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
+    //    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
+    ev.getByToken(alcts_e_token_, alcts_emul);  
+    ev.getByToken(clcts_e_token_, clcts_emul);  
+    ev.getByToken(lcts_tmb_e_token_, lcts_tmb_emul);  
+    ev.getByToken(lcts_mpc_e_token_, lcts_mpc_emul);  
 
     if (!alcts_emul.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
@@ -1784,8 +1808,9 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
 void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent) {
   if (!bookedHotWireHistos) bookHotWireHistos();
   edm::Handle<CSCWireDigiCollection> wires;
-  iEvent.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wires);
-  
+  //  iEvent.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wires);
+  iEvent.getByToken(wireDigi_token_, wires);  
+
   int serial_old=-1;
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;
@@ -1830,6 +1855,7 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
   vector<edm::Handle<edm::HepMCProduct> > allhepmcp;
   // Use "getManyByType" to be able to check the existence of MC info.
   ev.getManyByType(allhepmcp);
+
   //cout << "HepMC info: " << allhepmcp.size() << endl;
   if (allhepmcp.size() > 0) {
     const HepMC::GenEvent& mc = allhepmcp[0]->getHepMCData();
@@ -1855,12 +1881,16 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     edm::Handle<CSCWireDigiCollection>       wireDigis;
     edm::Handle<CSCComparatorDigiCollection> compDigis;
     edm::Handle<edm::PSimHitContainer>       simHits;
-    ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(),
-		  wireDigis);
-    ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(),
-		  compDigis);
-    ev.getByLabel(simHitProducer_.label(), simHitProducer_.instance(),
-		  simHits);
+    //    ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(),
+    //		  wireDigis);
+    //    ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(),
+    //		  compDigis);
+    //    ev.getByLabel(simHitProducer_.label(), simHitProducer_.instance(),
+    //		  simHits);
+    ev.getByToken(wireDigi_token_, wireDigis);
+    ev.getByToken(compDigi_token_, compDigis);
+    ev.getByToken(simHit_token_, simHits);
+
     if (!wireDigis.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of wire digis with label"

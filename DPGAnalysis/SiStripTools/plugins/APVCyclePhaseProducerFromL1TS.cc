@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      APVCyclePhaseProducerFromL1TS
-// 
+//
 /**\class APVCyclePhaseProducerFromL1TS APVCyclePhaseProducerFromL1TS.cc DPGAnalysis/SiStripTools/plugins/APVCyclePhaseProducerFromL1TS.cc
 
  Description: EDproducer for APVCyclePhaseCollection which uses the configuration file to assign a phase to the run
@@ -66,10 +66,8 @@ class APVCyclePhaseProducerFromL1TS : public edm::EDProducer {
       ~APVCyclePhaseProducerFromL1TS();
 
 private:
-  virtual void beginJob() override ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
   bool isBadRun(const unsigned int) const;
   void printConfiguration(std::stringstream& ss) const;
@@ -77,7 +75,7 @@ private:
       // ----------member data ---------------------------
 
   edm::ESWatcher<SiStripConfObjectRcd> m_eswatcher;
-  const edm::InputTag _l1tscollection;
+  edm::EDGetTokenT<Level1TriggerScalersCollection> _l1tscollectionToken;
   const bool m_ignoreDB;
   const std::string m_rcdLabel;
   std::vector<std::string> _defpartnames;
@@ -103,7 +101,7 @@ private:
   TH1F** _hdlresynclHR;
 
   std::vector<std::pair<unsigned int, unsigned int> > m_badruns;
-  
+
   long long _lastResync;
   long long _lastHardReset;
   long long _lastStart;
@@ -128,7 +126,7 @@ private:
 //
 APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::ParameterSet& iConfig):
   m_eswatcher(),
-  _l1tscollection(iConfig.getParameter<edm::InputTag>("l1TSCollection")),
+  _l1tscollectionToken(consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
   m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB",false)),
   m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel","apvphaseoffsets")),
   _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
@@ -139,7 +137,7 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   m_badRun(false),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
-  m_rhm(),
+  m_rhm(consumesCollector()),
   _hsize(0),_hlresync(0),_hlOC0(0),_hlTE(0),_hlstart(0),_hlEC0(0),_hlHR(0),_hdlec0lresync(0),_hdlresynclHR(0),
   m_badruns(),
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
@@ -178,7 +176,7 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
 
 APVCyclePhaseProducerFromL1TS::~APVCyclePhaseProducerFromL1TS()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -191,7 +189,7 @@ APVCyclePhaseProducerFromL1TS::~APVCyclePhaseProducerFromL1TS()
 
 // ------------ method called to produce the data  ------------
 void
-APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
+APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 {
 
@@ -251,20 +249,20 @@ APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSe
       (*_hlHR)->GetXaxis()->SetTitle("Orbit");     (*_hlHR)->GetYaxis()->SetTitle("Events");
       (*_hlHR)->SetBit(TH1::kCanRebin);
     }
-    
+
     if(_hdlec0lresync && *_hdlec0lresync) {
-      (*_hdlec0lresync)->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+      (*_hdlec0lresync)->GetXaxis()->SetTitle("lastEC0-lastResync");
     }
 
     if(_hdlresynclHR && *_hdlresynclHR) {
-      (*_hdlresynclHR)->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+      (*_hdlresynclHR)->GetXaxis()->SetTitle("lastEC0-lastResync");
     }
 
   }
 
   if(isBadRun(iRun.run())) {
-    LogDebug("UnreliableMissingL1TriggerScalers") << 
-      "In this run L1TriggerScalers is missing or unreliable for phase determination: invlid phase will be returned"; 
+    LogDebug("UnreliableMissingL1TriggerScalers") <<
+      "In this run L1TriggerScalers is missing or unreliable for phase determination: invlid phase will be returned";
   }
 
 }
@@ -274,9 +272,9 @@ void
 APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
-  
+
   std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection() );
-  
+
 
   std::vector<int> phases(_defphases.size(),APVCyclePhaseCollection::invalid);
 
@@ -284,22 +282,22 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
 
   int phasechange = 0;
 
-    
+
   Handle<Level1TriggerScalersCollection> l1ts;
-  iEvent.getByLabel(_l1tscollection,l1ts);
-  
+  iEvent.getByToken(_l1tscollectionToken,l1ts);
+
   if(_wantHistos && _hsize && *_hsize) (*_hsize)->Fill(l1ts->size());
-  
+
   // offset computation
-  
+
   long long orbitoffset = 0;
-  
+
   if(l1ts->size()>0) {
-    
+
     if((*l1ts)[0].lastResync()!=0) {
       orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
     }
-    
+
     if(_wantHistos) {
       if(_hlresync && *_hlresync) (*_hlresync)->Fill((*l1ts)[0].lastResync());
       if(_hlOC0 && *_hlOC0) (*_hlOC0)->Fill((*l1ts)[0].lastOrbitCounter0());
@@ -308,7 +306,7 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
       if(_hlEC0 && *_hlEC0) (*_hlEC0)->Fill((*l1ts)[0].lastEventCounter0());
       if(_hlHR && *_hlHR) (*_hlHR)->Fill((*l1ts)[0].lastHardReset());
     }
-    
+
     if(_lastResync != (*l1ts)[0].lastResync()) {
       _lastResync = (*l1ts)[0].lastResync();
       if(_wantHistos && _hdlec0lresync && *_hdlec0lresync) (*_hdlec0lresync)->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
@@ -335,22 +333,22 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
       _lastStart = (*l1ts)[0].lastStart();
       LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
     }
-    
+
     if(!isBadRun(iEvent.run())) {
       phasechange = ((long long)(orbitoffset*3564))%70;
-      
+
       for(unsigned int ipart=0;ipart<phases.size();++ipart) {
 	phases[ipart] = (_defphases[ipart]+phasechange)%70;
       }
-      
+
     }
   }
-  
+
 
   if(phases.size() < partnames.size() ) {
     // throw exception
-    throw cms::Exception("InvalidAPVCyclePhases") << " Inconsistent phases/partitions vector sizes: " 
-					     << phases.size() << " " 
+    throw cms::Exception("InvalidAPVCyclePhases") << " Inconsistent phases/partitions vector sizes: "
+					     << phases.size() << " "
 					     << partnames.size();
   }
 
@@ -367,18 +365,7 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-APVCyclePhaseProducerFromL1TS::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-APVCyclePhaseProducerFromL1TS::endJob() {
-}
-
-bool 
+bool
 APVCyclePhaseProducerFromL1TS::isBadRun(const unsigned int run) const {
 
   for(std::vector<std::pair<unsigned int, unsigned int> >::const_iterator runpair = m_badruns.begin();runpair!=m_badruns.end();++runpair) {

@@ -29,6 +29,7 @@ private:
    const FWMuonProxyBuilder& operator=( const FWMuonProxyBuilder& );
 
 
+   using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
    virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,

@@ -177,7 +177,7 @@
   <use   name="FWCore/Utilities"/>
   <use   name="cppunit"/>
 </bin>
-<bin   name="TestFWCoreFrameworkeventprincipal" file="testRunner.cpp,eventprincipal_t.cppunit.cc">
+<bin   name="TestFWCoreFrameworkeventprincipal" file="testRunner.cpp,eventprincipal_t.cppunit.cc,sharedresourcesregistry_t.cppunit.cc">
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/TestObjects"/>

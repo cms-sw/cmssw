@@ -5,6 +5,9 @@
 #include <fstream>
 #include <TMath.h>
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -26,12 +29,13 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngle.h"
+#include "SiPixelLorentzAngle.h"
 int lower_bin_;
 
 using namespace std;
 using namespace edm;
 using namespace reco;
+using namespace analyzer;
 
 SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) : 
   conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData")),	normChi2Max_(conf.getParameter<double>("normChi2Max")), clustSizeYMin_(conf.getParameter<int>("clustSizeYMin")), residualMax_(conf.getParameter<double>("residualMax")), clustChargeMax_(conf.getParameter<double>("clustChargeMax")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift"))
@@ -541,3 +545,5 @@ void SiPixelLorentzAngle::findMean(int i, int i_ring)
   _h_mean_[i_ring]->SetBinError(i, error);
 
 }
+
+DEFINE_FWK_MODULE(SiPixelLorentzAngle);

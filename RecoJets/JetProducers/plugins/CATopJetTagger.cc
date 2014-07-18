@@ -24,6 +24,9 @@ CATopJetTagger::CATopJetTagger(const edm::ParameterSet& iConfig):
   verbose_(iConfig.getParameter<bool>("verbose") )
 {
   produces<CATopJetTagInfoCollection>();
+  
+  input_jet_token_ = consumes<edm::View<reco::Jet> >(src_);
+
 }
 
 
@@ -46,7 +49,7 @@ CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get the input list of basic jets corresponding to the hard jets
   Handle<View<Jet> > pBasicJets;
-  iEvent.getByLabel(src_, pBasicJets);
+  iEvent.getByToken(input_jet_token_, pBasicJets);
 
   // Get a convenient handle
   View<Jet> const & hardJets = *pBasicJets;

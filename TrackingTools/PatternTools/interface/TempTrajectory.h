@@ -3,7 +3,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include <vector>
@@ -41,7 +41,7 @@ class TempTrajectory
 public:
 
   typedef cmsutils::bqueue<TrajectoryMeasurement>              DataContainer;
-  typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
+  typedef TrackingRecHit::ConstRecHitContainer                 ConstRecHitContainer;
   typedef ConstRecHitContainer                                 RecHitContainer;
 
 
@@ -71,8 +71,6 @@ public:
   {}
 
   
-  
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   
   TempTrajectory(TempTrajectory const & rh) : 
     theData(rh.theData),
@@ -127,17 +125,14 @@ public:
   }
 
 
-#endif
-
-
-
   /// construct TempTrajectory from standard Trajectory
-  explicit TempTrajectory( const Trajectory& traj);
+  explicit TempTrajectory(Trajectory && traj);
+
 
   /// destruct a TempTrajectory 
   ~TempTrajectory() {}
 
-    /** Add a new measurement to a Trajectory.
+  /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
@@ -219,33 +214,26 @@ public:
   /** Return all measurements in a container.
    */
   const DataContainer & measurements() const { return theData; }
-  /// obsolete name, use measurements() instead.
-  //DataContainer data() const { return measurements();}
 
-  /** Return all RecHits in a container.
-   */
-  //ConstRecHitContainer recHits() const;
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since
    *  detector layers crossed without using RecHits from them are also 
    *  stored as measurements.
    */
-
   int foundHits() const { return theNumberOfFoundHits;}
 
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
-
   int lostHits() const { return theNumberOfLostHits;}
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
 
   /// Value of the raw Chi2 of the trajectory, not normalised to the N.D.F.
-  double chiSquared() const { return theChiSquared;}
+  float chiSquared() const { return theChiSquared;}
 
   /** Direction of "growing" of the trajectory. 
    *  Possible values are alongMomentum (outwards) and 
@@ -299,7 +287,7 @@ private:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
-  static bool lost( const TransientTrackingRecHit& hit) dso_internal;
+  static bool lost( const TrackingRecHit& hit) dso_internal;
 
 
   void pushAux(double chi2Increment);

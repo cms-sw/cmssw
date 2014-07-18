@@ -264,7 +264,7 @@ done
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
   log "Extracting setup_cff dump"
-  edmConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService > setup_cff.py
+  edmConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 
@@ -302,9 +302,11 @@ make -f .makefile -j$JOBS -k
 
 # compare HLT results
 log "Comparing the results of running each path by itself with those from the full menu"
-if hltCompareResults; then
-  log "done"
-fi
+hltCompareResults
+STATUS=$?
+log "exit status: $STATUS"
+log "done"
 
 # done
 cd ..
+exit $STATUS

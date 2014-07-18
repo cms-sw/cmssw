@@ -23,8 +23,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 class HiggsToZZ4LeptonsPreFilter : public edm::EDFilter {
-  
+
  public:
   // Constructor
   explicit HiggsToZZ4LeptonsPreFilter(const edm::ParameterSet&);
@@ -38,9 +40,11 @@ class HiggsToZZ4LeptonsPreFilter : public edm::EDFilter {
 
  private:
   int evt, ikept;
-  
+
   bool debug;
   int leptonFlavour;
+
+  edm::EDGetTokenT<reco::GenParticleCollection> genToken;
 };
 
 #endif

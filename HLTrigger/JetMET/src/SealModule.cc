@@ -20,10 +20,13 @@
 #include "HLTrigger/JetMET/interface/HLTNVFilter.h"
 #include "HLTrigger/JetMET/interface/HLTCaloJetIDProducer.h"
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
+#include "HLTrigger/JetMET/interface/HLTMETCleanerUsingJetID.h"
 
 //Work with all jet collections without changing the module name
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
+#include "HLTrigger/JetMET/interface/HLTTrackMETProducer.h"
+#include "HLTrigger/JetMET/interface/HLTMinDPhiMETFilter.h"
 
 //Template
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -55,6 +58,8 @@
 //
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsForLeptonPlusJets.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsForLeptonPlusJets.cc"
+//
+#include "HLTrigger/JetMET/interface/HLTJetsCleanedFromLeadingLeptons.h"
 //
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsFilter.cc"
@@ -101,6 +106,9 @@ typedef HLTJetCollectionsForElePlusJets<  PFJet> HLTPFJetCollectionsForElePlusJe
 typedef HLTJetCollectionsForLeptonPlusJets<CaloJet> HLTCaloJetCollectionsForLeptonPlusJets;
 typedef HLTJetCollectionsForLeptonPlusJets<  PFJet> HLTPFJetCollectionsForLeptonPlusJets;
 
+typedef HLTJetsCleanedFromLeadingLeptons<CaloJet> HLTCaloJetsCleanedFromLeadingLeptons;
+typedef HLTJetsCleanedFromLeadingLeptons<  PFJet> HLTPFJetsCleanedFromLeadingLeptons;
+
 typedef HLTJetCollectionsFilter<CaloJet> HLTCaloJetCollectionsFilter;
 typedef HLTJetCollectionsFilter<  PFJet> HLTPFJetCollectionsFilter;
 
@@ -138,10 +146,13 @@ DEFINE_FWK_MODULE(HLTHcalLaserFilter);
 DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleaner);
 DEFINE_FWK_MODULE(HLTNVFilter);
 DEFINE_FWK_MODULE(PFJetsMatchedToFilteredCaloJetsProducer);
+DEFINE_FWK_MODULE(HLTMETCleanerUsingJetID);
 
 //Work with all jet collections without changing the module name
 DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
+DEFINE_FWK_MODULE(HLTTrackMETProducer);
+DEFINE_FWK_MODULE(HLTMinDPhiMETFilter);
 
 //Templates
 
@@ -169,6 +180,9 @@ DEFINE_FWK_MODULE(HLTPFJetCollectionsForElePlusJets);
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusJets);
 
+DEFINE_FWK_MODULE(HLTCaloJetsCleanedFromLeadingLeptons);
+DEFINE_FWK_MODULE(HLTPFJetsCleanedFromLeadingLeptons);
+
 DEFINE_FWK_MODULE(HLTDiCaloJetAveFilter);
 DEFINE_FWK_MODULE(HLTDiPFJetAveFilter);
 
@@ -186,9 +200,3 @@ DEFINE_FWK_MODULE(HLTFatPFJetMassFilter);
 
 DEFINE_FWK_MODULE(HLTExclDiCaloJetFilter);
 DEFINE_FWK_MODULE(HLTExclDiPFJetFilter);
-
-// 2011 resurrection
-#include "HLTrigger/JetMET/interface/HLTMhtHtFilter.h"
-#include "HLTrigger/JetMET/src/HLTMhtHtFilter.cc"
-typedef HLTMhtHtFilter<CaloJet> HLTCaloMhtHtFilter;
-DEFINE_FWK_MODULE(HLTCaloMhtHtFilter);

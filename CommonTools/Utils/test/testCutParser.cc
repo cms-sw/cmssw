@@ -10,6 +10,32 @@
 #include <typeinfo>
 #include "Cintex/Cintex.h"
 
+
+
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+
+// A fake Det class
+
+class MyDet : public GeomDet {
+ public:
+  MyDet(BoundPlane * bp) :
+    GeomDet(bp){}
+  
+  virtual DetId geographicalId() const {return DetId();}
+  virtual std::vector< const GeomDet*> components() const {
+    return std::vector< const GeomDet*>();
+  }
+  
+  /// Which subdetector
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+  
+};  
+
+
+
+
 class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCutParser);
   CPPUNIT_TEST(checkAll);
@@ -83,7 +109,12 @@ void testCutParser::checkAll() {
   reco::TrackBase::CovarianceMatrix cov(e, e + 15);
   trk = reco::Track(chi2, ndof, v, p, -1, cov);
 
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, SiStripRecHit2D::ClusterRef());
+
+  GlobalPoint gp(0,0,0);
+  BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
+  MyDet mdet(plane);
+ 
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), mdet, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);
@@ -196,14 +227,14 @@ void testCutParser::checkAll() {
   checkHit( "hasPositionAndError" , false, hitThrow );
   CPPUNIT_ASSERT(hitOk.localPosition().x() == 1);
   checkHit( ".99 < localPosition.x < 1.01", true, hitOk);
-  CPPUNIT_ASSERT_THROW(hitThrow.localPosition().x(), cms::Exception);
-  CPPUNIT_ASSERT_THROW( checkHit(".99 < localPosition.x < 1.01", true, hitThrow) , cms::Exception);
+  checkHit( ".99 < localPosition.x < 1.01", false, hitThrow);
 
-  // check underscores
-  checkHit("cluster_regional.isNull()",true,hitOk);
+  // check underscores (would be better to build your own stub...)
   checkHit("cluster.isNull()",true,hitOk);
-  checkHit("cluster_regional.isNonnull()",false,hitOk);
+  checkHit("cluster_strip.isNull()",true,hitOk);
   checkHit("cluster.isNonnull()",false,hitOk);  
+  checkHit("cluster_strip.isNonnull()",false,hitOk);
+
 
   // check short cirtcuit logics
   CPPUNIT_ASSERT( hitOk.hasPositionAndError() && (hitOk.localPosition().x() == 1) );

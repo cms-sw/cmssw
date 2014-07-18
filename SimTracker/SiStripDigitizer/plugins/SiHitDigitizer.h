@@ -19,18 +19,19 @@
 
 class TrackerTopology;
 
-namespace CLHEP {
+class SiStripDetType;
+
+namespace CLHEP{
   class HepRandomEngine;
 }
 
-class SiStripDetType;
 /**
 * Digitizes the response for a single SimHit.
 */
 class SiHitDigitizer {
  public:
 
-  SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEngine&);
+  SiHitDigitizer(const edm::ParameterSet& conf);
 
   ~SiHitDigitizer();
 
@@ -52,7 +53,7 @@ class SiHitDigitizer {
 
   void processHit(const PSimHit*, const StripGeomDetUnit&, GlobalVector,float,
 		  std::vector<float>&, size_t&, size_t&,
-		  const TrackerTopology *tTopo);
+		  const TrackerTopology *tTopo, CLHEP::HepRandomEngine*);
   
  private:
   const double depletionVoltage;

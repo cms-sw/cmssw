@@ -1,9 +1,7 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
-  //detId_(detid),
-  detId_(0),
+SiStripCluster::SiStripCluster(const SiStripDigiRange& range) :
   firstStrip_(range.first->strip()),
   error_x(-99999.9)
 {

@@ -51,7 +51,7 @@ public:
     unsigned int iev = 0;
     for( ; muonPairIt != savedPair->end(); ++muonPairIt, ++iev ) {
 
-      if( saveAll || ( (muonPairIt->mu1 != emptyLorentzVector) && (muonPairIt->mu2 != emptyLorentzVector) ) ) {
+      if( saveAll || ( (muonPairIt->mu1.p4() != emptyLorentzVector) && (muonPairIt->mu2.p4() != emptyLorentzVector) ) ) {
 
 	// muonPair->setPair(muonType, std::make_pair(muonPairIt->first, muonPairIt->second));
 	muonPair->copy(*muonPairIt);
@@ -85,7 +85,7 @@ public:
   // void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
   //           	    const int muonType, MuonPairVector * genPair = 0 )
   void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
-		 const int muonType, std::vector<std::pair<int, int> > * evtRun, MuonPairVector * genPair = 0 )
+		 const int muonType, std::vector<std::pair<int, int>  > * evtRun, MuonPairVector * genPair = 0 )
   {
     TFile * file = TFile::Open(fileName, "READ");
     if( file->IsOpen() ) {
@@ -102,11 +102,13 @@ public:
       if( (maxEvents != -1) && (nentries > maxEvents) ) nentries = maxEvents;
       for( Long64_t i=0; i<nentries; ++i ) {
         tree->GetEntry(i);
-        savedPair->push_back(std::make_pair(muonPair->mu1, muonPair->mu2));
-	evtRun->push_back(std::make_pair(muonPair->event, muonPair->run));
+	//std::cout << "Reco muon1, pt = " << muonPair->mu1 << "; Reco muon2, pt = " << muonPair->mu2 << std::endl;
+        savedPair->push_back(std::make_pair(muonPair->mu1.p4(), muonPair->mu2.p4()));
+	evtRun->push_back(std::make_pair(muonPair->event.event(), muonPair->event.run()));
         // savedPair->push_back(muonPair->getPair(muonType));
         if( genPair != 0 ) {
-          genPair->push_back(std::make_pair(genMuonPair->mu1, genMuonPair->mu2));
+          genPair->push_back(std::make_pair(genMuonPair->mu1.p4(), genMuonPair->mu2.p4()));
+	  //std::cout << "Gen muon1, pt = " << genMuonPair->mu1 << "; Gen muon2, pt = " << genMuonPair->mu2 << std::endl;
           // genPair->push_back(genMuonPair->getPair(muonId));
         }
       }

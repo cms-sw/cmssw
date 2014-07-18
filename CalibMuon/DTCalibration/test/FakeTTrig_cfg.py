@@ -36,10 +36,9 @@ process.calibDB = cms.ESSource("PoolDBESSource",
 #)
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        FaketTrig = cms.untracked.uint32(563)
-    ),
-    sourceSeed = cms.untracked.uint32(98765)
+    FaketTrig = cms.PSet(
+        initialSeed = cms.untracked.uint32(563)
+    )
 )
  
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

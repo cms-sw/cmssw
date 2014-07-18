@@ -331,7 +331,7 @@ void TrackingTruthAccumulator::accumulate( edm::Event const& event, edm::EventSe
 	accumulateEvent( event, setup );
 }
 
-void TrackingTruthAccumulator::accumulate( PileUpEventPrincipal const& event, edm::EventSetup const& setup )
+void TrackingTruthAccumulator::accumulate( PileUpEventPrincipal const& event, edm::EventSetup const& setup, edm::StreamID const& )
 {
 	// If this bunch crossing is outside the user configured limit, don't do anything.
 	if( event.bunchCrossing()>=-static_cast<int>(maximumPreviousBunchCrossing_) && event.bunchCrossing()<=static_cast<int>(maximumSubsequentBunchCrossing_) )

@@ -831,16 +831,18 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	    photonCand.addElementInBlock(blockRef,*it);
 	    if( elements[*it].type() == reco::PFBlockElement::TRACK  )
 	      {
-		if(elements[*it].convRef().isNonnull())
-		  {
-		    //make sure it is not stored already as the partner track
-		    bool matched=false;
-		    for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
-		      {
-			if(ConversionsRef_[ic]==elements[*it].convRef())matched=true;
-		      }
-		    if(!matched)ConversionsRef_.push_back(elements[*it].convRef());
-		  }
+		for( const auto& convref : elements[*it].convRefs() ) {
+		  if(convref.isNonnull())
+		    {
+		      //make sure it is not stored already as the partner track
+		      bool matched=false;
+		      for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+			{
+			  if(ConversionsRef_[ic]==convref)matched=true;
+			}
+		      if(!matched)ConversionsRef_.push_back(convref);
+		    }
+		}
 	      }
 	  }
 	active[*it] = false;	

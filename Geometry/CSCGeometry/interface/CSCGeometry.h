@@ -26,10 +26,11 @@ class CSCGeometry : public TrackingGeometry {
   typedef std::map<DetId, GeomDet*> CSCDetMap;
   // The buffer for specs need not really be a map. Could do it with a vector!
   typedef std::map<int, const CSCChamberSpecs*, std::less<int> > CSCSpecsContainer;
-  typedef std::vector<CSCChamber*> ChamberContainer;
-  typedef std::vector<CSCLayer*> LayerContainer;
 
  public:
+
+  typedef std::vector<const CSCChamber*> ChamberContainer;
+  typedef std::vector<const CSCLayer*> LayerContainer;
 
   friend class CSCGeometryBuilder; //FromDDD;
   friend class GeometryAligner;
@@ -46,25 +47,25 @@ class CSCGeometry : public TrackingGeometry {
   //---- Base class' interface
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const;
+  virtual const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const;
+  virtual const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet (including all GeomDetUnits)
-  virtual const DetContainer& dets() const;
+  virtual const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer&    detUnitIds() const;
+  virtual const DetIdContainer&    detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds (including those of GeomDetUnits)
-  virtual const DetIdContainer& detIds() const;
+  virtual const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const;
+  virtual const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const;
+  virtual const GeomDet* idToDet(DetId) const override;
 
   //---- Extension of the interface
 

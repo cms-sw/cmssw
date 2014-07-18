@@ -245,6 +245,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   vInputTag srcOtherWeights_;
   edm::InputTag srcGenFilterInfo_;
 
+  edm::EDGetTokenT<EcalRecHitCollection> ebRHToken_, eeRHToken_;
+
   std::string dqmDirectory_;
 
   MonitorElement* histogramEventCounter_;
@@ -737,16 +739,20 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   struct electronDistributionExtra
   {
     electronDistributionExtra(int minJets, int maxJets, 
-			      const edm::InputTag& srcGen, const std::string& cutGen, const edm::InputTag& srcRec, const std::string& cutRec, double dRmatch, const std::string& dqmDirectory,
-			      const edm::InputTag& srcTheRecVertex)
-      : minJets_(minJets),
-	maxJets_(maxJets),
-	srcGen_(srcGen),
-	cutGen_(0),
-	srcRec_(srcRec),
-	cutRec_(0),
-        dRmatch_(dRmatch),
-        srcTheRecVertex_(srcTheRecVertex)
+			      const edm::InputTag& srcGen, const std::string& cutGen, const edm::InputTag& srcRec, const std::string& cutRec, 
+			      double dRmatch, const std::string& dqmDirectory,
+			      const edm::InputTag& srcTheRecVertex, 
+			      edm::EDGetTokenT<EcalRecHitCollection> tk1, edm::EDGetTokenT<EcalRecHitCollection> tk2)
+    : minJets_(minJets),
+      maxJets_(maxJets),
+      srcGen_(srcGen),
+      cutGen_(0),
+      srcRec_(srcRec),
+      cutRec_(0),
+      dRmatch_(dRmatch),
+      srcTheRecVertex_(srcTheRecVertex),
+      ebRHToken_(tk1),
+      eeRHToken_(tk2)
     {
       if ( cutGen != "" ) cutGen_ = new StringCutObjectSelector<reco::Candidate>(cutGen);
       if ( cutRec != "" ) cutRec_ = new StringCutObjectSelector<pat::Electron>(cutRec);
@@ -853,7 +859,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	      if ( !trackBuilder ) 
 		throw cms::Exception("MCEmbeddingValidationAnalyzer")
 		  << " Failed to access TransientTrackBuilder !!\n";
-	      EcalClusterLazyTools myEcalCluster(evt, es, edm::InputTag("reducedEcalRecHitsEB"), edm::InputTag("reducedEcalRecHitsEE"));
+	      EcalClusterLazyTools myEcalCluster(evt, es, ebRHToken_, eeRHToken_);
 	      /*double mva = fMVA_->mvaValue(*recLepton, theVertex->front(), *trackBuilder, myEcalCluster);
 	      if ( recLepton->pt() < 20. ) {
 		if      ( TMath::Abs(recLepton->eta()) < 0.8   ) histogramMVAptLt20AbsEtaLt0_8_->Fill(mva, evtWeight);
@@ -917,6 +923,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     /*static EGammaMvaEleEstimator* fMVA_;
     static bool fMVA_isInitialized_;*/
     edm::InputTag srcTheRecVertex_;
+    edm::EDGetTokenT<EcalRecHitCollection> ebRHToken_, eeRHToken_;
     MonitorElement* histogramMVAptLt20AbsEtaLt0_8_;
     MonitorElement* histogramMVAptLt20AbsEta0_8to1_479_;
     MonitorElement* histogramMVAptLt20AbsEtaGt1_479_;

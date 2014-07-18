@@ -82,8 +82,8 @@ LikelihoodPdf::initFromDB(const ElectronLikelihoodCalibration *calibration) {
 
 
 float 
-LikelihoodPdf::getVal(float x, std::string gsfClass, 
-		      bool normalized) {
+LikelihoodPdf::getVal(float x, std::string const& gsfClass, 
+		      bool normalized) const {
   const PhysicsTools::Calibration::HistogramF *thePdf=0;
   if(_splitPdf.size()>1) {
     edm::LogInfo("LikelihoodPdf") << "The PDF " << _name
@@ -121,7 +121,7 @@ LikelihoodPdf::getVal(float x, std::string gsfClass,
 
 // Histogram::normalization() gives the integral excluding the over-underflow...
 float
-LikelihoodPdf::normalization(const PhysicsTools::Calibration::HistogramF *thePdf) {
+LikelihoodPdf::normalization(const PhysicsTools::Calibration::HistogramF *thePdf) const {
   int nBins = thePdf->numberOfBins();
   float sum=0.;
   for(int i=0; i<=nBins+1; i++) {

@@ -50,6 +50,11 @@ namespace edm {
   class EventSetup;
   template<typename T> class Handle;
   class ParameterSet;
+  class StreamID;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
 }
 
 class EcalDigiProducer : public DigiAccumulatorMixMod {
@@ -61,8 +66,9 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
       virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
       virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
       void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
       void setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
@@ -74,13 +80,15 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const { }
 
       typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
-      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing);
+      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing, CLHEP::HepRandomEngine*);
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 
       void updateGeometry() ;
 
       void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
+
+      CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
       const APDShape m_APDShape ;
       const EBShape  m_EBShape  ;
@@ -139,6 +147,8 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       CorrelatedNoisifier<EcalCorrMatrix>* m_EBCorrNoise[3] ;
       CorrelatedNoisifier<EcalCorrMatrix>* m_EECorrNoise[3] ;
+
+      std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #endif 

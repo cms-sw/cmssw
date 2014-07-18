@@ -9,37 +9,39 @@
 
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/Quad.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 class FreeTrajectoryState;
+class SeedComparitor;
+namespace edm {class ConsumesCollector;}
 
 class SeedForPhotonConversionFromQuadruplets {
 public:
   static const int cotTheta_Max=99999;
   
-  SeedForPhotonConversionFromQuadruplets( const edm::ParameterSet & cfg):
-    thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
-      {}
+  SeedForPhotonConversionFromQuadruplets( const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::ParameterSet& SeedComparitorPSet);
 
-  SeedForPhotonConversionFromQuadruplets( 
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0) 
-   : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
+  SeedForPhotonConversionFromQuadruplets(edm::ConsumesCollector& iC, const edm::ParameterSet& SeedComparitorPSet,
+      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0);
 
   //dtor
-  ~SeedForPhotonConversionFromQuadruplets(){}
+  ~SeedForPhotonConversionFromQuadruplets();
 
   const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
 						 const SeedingHitSet & phits,
 						 const SeedingHitSet & mhits,
 						 const TrackingRegion & region,
+                                                 const edm::Event& ev,
 						 const edm::EventSetup& es,
 						 std::stringstream& ss, std::vector<Quad> & quadV,
-						 edm::ParameterSet& SeedComparitorPSet,
 						 edm::ParameterSet& QuadCutPSet);
 
   
-  double simpleGetSlope(const TransientTrackingRecHit::ConstRecHitPointer &ohit, const TransientTrackingRecHit::ConstRecHitPointer &nohit, const TransientTrackingRecHit::ConstRecHitPointer &ihit, const TransientTrackingRecHit::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0);
+  double simpleGetSlope(const SeedingHitSet::ConstRecHitPointer &ohit, const SeedingHitSet::ConstRecHitPointer &nohit, const SeedingHitSet::ConstRecHitPointer &ihit, const SeedingHitSet::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0);
   double verySimpleFit(int size, double* ax, double* ay, double* e2y, double& p0, double& e2p0, double& p1);
-  double getSqrEffectiveErrorOnZ(const TransientTrackingRecHit::ConstRecHitPointer &hit, const TrackingRegion & region);
+  double getSqrEffectiveErrorOnZ(const SeedingHitSet::ConstRecHitPointer &hit, const TrackingRegion & region);
 
   //
   // Some utility methods added by sguazz
@@ -59,7 +61,7 @@ public:
 
   bool checkHit(
 			const TrajectoryStateOnSurface &,
-			const TransientTrackingRecHit::ConstRecHitPointer &hit,
+			const SeedingHitSet::ConstRecHitPointer &hit,
 			const edm::EventSetup& es) const { return true; }
 
   GlobalTrajectoryParameters initialKinematic(
@@ -90,8 +92,8 @@ public:
       const TrackingRegion & region,
       double dzcut) const;
   
-  TransientTrackingRecHit::RecHitPointer refitHit(
-							  const TransientTrackingRecHit::ConstRecHitPointer &hit, 
+  SeedingHitSet::RecHitPointer refitHit(
+							  SeedingHitSet::ConstRecHitPointer hit, 
 							  const TrajectoryStateOnSurface &state) const;
 
   bool similarQuadExist(Quad & thisQuad, std::vector<Quad>& quadV);
@@ -104,7 +106,11 @@ protected:
   double theBOFFMomentum;
   double  kPI_;
 
+  // FIXME (well the whole class needs to be fixed!)
+  mutable TkClonerImpl cloner;
+
   std::stringstream * pss;
   PrintRecoObjects po;
+  std::unique_ptr<SeedComparitor> theComparitor;
 };
 #endif 

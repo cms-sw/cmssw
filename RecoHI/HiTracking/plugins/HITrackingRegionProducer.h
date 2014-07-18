@@ -104,7 +104,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     // tracking region selection
     std::vector<TrackingRegion* > result;
     if(estTracks>regTracking) {  // regional tracking
-      result.push_back( new RectangularEtaPhiTrackingRegion(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, 0, thePrecise) );
+      result.push_back( new RectangularEtaPhiTrackingRegion(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever, thePrecise) );
     }
     else {                       // global tracking
       LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";

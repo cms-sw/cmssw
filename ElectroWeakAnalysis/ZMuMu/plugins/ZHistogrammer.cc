@@ -1,13 +1,18 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "TH1.h"
 
 class ZHistogrammer : public edm::EDAnalyzer {
 public:
-  ZHistogrammer(const edm::ParameterSet& pset); 
+  ZHistogrammer(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  edm::InputTag  z_, gen_, match_;
+  edm::EDGetTokenT<reco::CandidateCollection>  zToken_;
+  edm::EDGetTokenT<reco::CandidateCollection>  genToken_;
+  edm::EDGetTokenT<reco::CandMatchMap>  matchToken_;
   unsigned int nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
   double massMax_, ptMax_, angMax_, massResMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
@@ -20,9 +25,6 @@ private:
   TH1F *h_mResZMuMuMC_, *h_mRatioZMuMuMC_;
 };
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,17 +40,17 @@ using namespace reco;
 using namespace edm;
 
 ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
-  z_(pset.getParameter<InputTag>("z")),
-  gen_(pset.getParameter<InputTag>("gen")), 
-  match_(pset.getParameter<InputTag>("match")), 
+  zToken_(consumes<CandidateCollection>(pset.getParameter<InputTag>("z"))),
+  genToken_(consumes<CandidateCollection>(pset.getParameter<InputTag>("gen"))),
+  matchToken_(consumes<CandMatchMap>(pset.getParameter<InputTag>("match"))),
   nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
   nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
   nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
   nbinsMassRes_(pset.getUntrackedParameter<unsigned int>("nbinsMassRes")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
-  angMax_(pset.getUntrackedParameter<double>("angMax")), 
-  massResMax_(pset.getUntrackedParameter<double>("massResMax")) { 
+  angMax_(pset.getUntrackedParameter<double>("angMax")),
+  massResMax_(pset.getUntrackedParameter<double>("massResMax")) {
   cout << ">>> Z Histogrammer constructor" << endl;
   Service<TFileService> fs;
   TFileDirectory ZHisto = fs->mkdir( "ZRecoHisto" );
@@ -62,7 +64,7 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   h_thetaZ_ = ZHisto.make<TH1F>("Ztheta", "Z #theta", nbinsAng_,  0, angMax_);
   h_etaZ_ = ZHisto.make<TH1F>("ZEta", "Z #eta", nbinsAng_,  -angMax_, angMax_);
   h_rapidityZ_ = ZHisto.make<TH1F>("ZRapidity", "Z rapidity", nbinsAng_,  -angMax_, angMax_);
-  h_invmMuMu_ = ZHisto.make<TH1F>("MuMuMass", "#mu #mu invariant mass", 
+  h_invmMuMu_ = ZHisto.make<TH1F>("MuMuMass", "#mu #mu invariant mass",
 				  nbinsMass_,  0, massMax_);
   h_nZMC_ = ZMCHisto.make<TH1F>("ZMCNumber", "number of Z MC particles", 11, -0.5, 10.5);
   h_mZMC_ = ZMCHisto.make<TH1F>("ZMCMass", "Z MC mass (GeV/c^{2})", nbinsMass_,  0, massMax_);
@@ -70,58 +72,58 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   h_phiZMC_ = ZMCHisto.make<TH1F>("ZMCPhi", "Z MC #phi", nbinsAng_,  -angMax_, angMax_);
   h_thetaZMC_ = ZMCHisto.make<TH1F>("ZMCTheta", "Z MC #theta", nbinsAng_,  0, angMax_);
   h_etaZMC_ = ZMCHisto.make<TH1F>("ZMCEta", "Z MC #eta", nbinsAng_,  -angMax_, angMax_);
-  h_rapidityZMC_ = ZMCHisto.make<TH1F>("ZMCRapidity", "Z MC rapidity", 
+  h_rapidityZMC_ = ZMCHisto.make<TH1F>("ZMCRapidity", "Z MC rapidity",
 				       nbinsAng_,  -angMax_, angMax_);
-  h_invmMuMuMC_ = ZMCHisto.make<TH1F>("MuMuMCMass", "#mu #mu MC invariant mass", 
+  h_invmMuMuMC_ = ZMCHisto.make<TH1F>("MuMuMCMass", "#mu #mu MC invariant mass",
 				      nbinsMass_,  0, massMax_);
   /*
-  h_mZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCMass", "Z MC st 2 vs st 3 mass (GeV/c^{2})", 
+  h_mZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCMass", "Z MC st 2 vs st 3 mass (GeV/c^{2})",
 					nbinsMassRes_, -massResMax_, massResMax_);
-  h_ptZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCPt", "Z MC st 2 vs st 3 p_{t} (GeV/c)", 
+  h_ptZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCPt", "Z MC st 2 vs st 3 p_{t} (GeV/c)",
 					 nbinsPt_, -ptMax_, ptMax_);
-  h_phiZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCPhi", "Z MC st 2 vs st 3 #phi", 
+  h_phiZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCPhi", "Z MC st 2 vs st 3 #phi",
 					  nbinsAng_,  -angMax_, angMax_);
-  h_thetaZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCTheta", "Z MC st 2 vs st 3 #theta", 
+  h_thetaZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCTheta", "Z MC st 2 vs st 3 #theta",
 					    nbinsAng_,  -angMax_, angMax_);
-  h_etaZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCEta", "Z MC st 2 vs st 3 #eta", 
+  h_etaZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCEta", "Z MC st 2 vs st 3 #eta",
 					  nbinsAng_,  -angMax_, angMax_);
-  h_rapidityZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCRapidity", "Z MC st 2 vs st 3 rapidity", 
+  h_rapidityZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCRapidity", "Z MC st 2 vs st 3 rapidity",
 				       nbinsAng_,  -angMax_, angMax_);
   */
-  h_mResZ_ = ZResHisto.make<TH1F>("ZMassResolution", "Z mass Resolution (GeV/c^{2})", 
+  h_mResZ_ = ZResHisto.make<TH1F>("ZMassResolution", "Z mass Resolution (GeV/c^{2})",
 				  nbinsMassRes_, -massResMax_, massResMax_);
-  h_ptResZ_ = ZResHisto.make<TH1F>("ZPtResolution", "Z p_{t} Resolution (GeV/c)", 
+  h_ptResZ_ = ZResHisto.make<TH1F>("ZPtResolution", "Z p_{t} Resolution (GeV/c)",
 				   nbinsPt_, -ptMax_, ptMax_);
-  h_phiResZ_ = ZResHisto.make<TH1F>("ZPhiResolution", "Z #phi Resolution", 
+  h_phiResZ_ = ZResHisto.make<TH1F>("ZPhiResolution", "Z #phi Resolution",
 				    nbinsAng_,  -angMax_, angMax_);
-  h_thetaResZ_ = ZResHisto.make<TH1F>("ZThetaResolution", "Z #theta Resolution", 
+  h_thetaResZ_ = ZResHisto.make<TH1F>("ZThetaResolution", "Z #theta Resolution",
 				      nbinsAng_, -angMax_, angMax_);
-  h_etaResZ_ = ZResHisto.make<TH1F>("ZEtaResolution", "Z #eta Resolution", 
+  h_etaResZ_ = ZResHisto.make<TH1F>("ZEtaResolution", "Z #eta Resolution",
 				    nbinsAng_,  -angMax_, angMax_);
-  h_rapidityResZ_ = ZResHisto.make<TH1F>("ZRapidityResolution", "Z rapidity Resolution", 
+  h_rapidityResZ_ = ZResHisto.make<TH1F>("ZRapidityResolution", "Z rapidity Resolution",
 					 nbinsAng_,  -angMax_, angMax_);
-  h_mResZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassResolution", 
-				      "Z Reco vs matched final state #mu #mu mass Difference (GeV/c^{2})", 
+  h_mResZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassResolution",
+				      "Z Reco vs matched final state #mu #mu mass Difference (GeV/c^{2})",
 				      nbinsMassRes_, -massResMax_, massResMax_);
-  h_mRatioZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassRatio", 
-					"Z Reco vs matched final state #mu #mu mass Ratio", 
+  h_mRatioZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassRatio",
+					"Z Reco vs matched final state #mu #mu mass Ratio",
 					4000, 0, 2);
-  h_mResZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassResolution", 
-					"Z vs final state #mu #mu MC mass Difference (GeV/c^{2})", 
+  h_mResZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassResolution",
+					"Z vs final state #mu #mu MC mass Difference (GeV/c^{2})",
 					nbinsMassRes_/2 + 1, -2*massResMax_/nbinsMassRes_, massResMax_);
-  h_mRatioZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassRatio", 
-					  "Z vs final state #mu #mu MC mass Ratio", 
+  h_mRatioZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassRatio",
+					  "Z vs final state #mu #mu MC mass Ratio",
 					  2002, 0.999, 2);
 }
 
-void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
+void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   cout << ">>> Z Histogrammer analyze" << endl;
   Handle<CandidateCollection> z;
   Handle<CandidateCollection> gen;
   Handle<CandMatchMap> match;
-  event.getByLabel(z_, z);
-  event.getByLabel(gen_, gen);
-  event.getByLabel(match_, match);
+  event.getByToken(zToken_, z);
+  event.getByToken(genToken_, gen);
+  event.getByToken(matchToken_, match);
   h_nZ_->Fill(z->size());
   for(unsigned int i = 0; i < z->size(); ++i) {
     const Candidate &zCand = (*z)[i];
@@ -166,10 +168,10 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
   for(unsigned int i = 0; i < gen->size(); ++i) {
     const Candidate &genCand = (*gen)[i];
     if((genCand.pdgId() == 23) && (genCand.status() == 2)) //this is an intermediate Z0
-      cout << ">>> intermediate Z0 found, with " << genCand.numberOfDaughters() 
+      cout << ">>> intermediate Z0 found, with " << genCand.numberOfDaughters()
 	   << " daughters" << endl;
     if((genCand.pdgId() == 23)&&(genCand.status() == 3)) { //this is a Z0
-      cout << ">>> Z0 found, with " << genCand.numberOfDaughters() 
+      cout << ">>> Z0 found, with " << genCand.numberOfDaughters()
 	   << " daughters" << endl;
       h_mZMC_->Fill(genCand.mass());
       h_ptZMC_->Fill(genCand.pt());
@@ -179,10 +181,10 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
       h_rapidityZMC_->Fill(genCand.rapidity());
       Particle::LorentzVector pZ(0, 0, 0, 0);
       int nMu = 0;
-      for(unsigned int j = 0; j < genCand.numberOfDaughters(); ++j) { 
+      for(unsigned int j = 0; j < genCand.numberOfDaughters(); ++j) {
 	const Candidate *dauGen = genCand.daughter(j);
 	/*
-	if((dauGen->pdgId() == 23) && (dauGen->status() == 2)) { 
+	if((dauGen->pdgId() == 23) && (dauGen->status() == 2)) {
 	  h_mZ2vs3MC_->Fill(genCand.mass() - dauGen->mass());
 	  h_ptZ2vs3MC_->Fill(genCand.pt() - dauGen->pt());
 	  h_phiZ2vs3MC_->Fill(genCand.phi() - dauGen->phi());
@@ -193,15 +195,15 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
 	*/
 	if((abs(dauGen->pdgId()) == 13) && (dauGen->numberOfDaughters() != 0)) {
 	  //we are looking for photons of final state radiation
-	  cout << ">>> The muon " << j 
+	  cout << ">>> The muon " << j
 	       << " has " << dauGen->numberOfDaughters() << " daughters" <<endl;
 	  for(unsigned int k = 0; k < dauGen->numberOfDaughters(); ++k) {
 	    const Candidate * dauMuGen = dauGen->daughter(k);
-	    cout << ">>> Mu " << j 
-		 << " daughter MC " << k 
-		 << " PDG Id " << dauMuGen->pdgId() 
-		 << ", status " << dauMuGen->status() 
-		 << ", charge " << dauMuGen->charge() 
+	    cout << ">>> Mu " << j
+		 << " daughter MC " << k
+		 << " PDG Id " << dauMuGen->pdgId()
+		 << ", status " << dauMuGen->status()
+		 << ", charge " << dauMuGen->charge()
 		 << endl;
 	    if(abs(dauMuGen->pdgId()) == 13 && dauMuGen->status() ==1) {
 	      pZ += dauMuGen->p4();

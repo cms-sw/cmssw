@@ -9,6 +9,11 @@
 // #include "Utilities/Notification/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+
+
 GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
 					 const TrajectoryStateUpdator& aUpdator,
 					 const MeasurementEstimator& aEstimator,
@@ -77,8 +82,11 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
   TSOS currTsos;
   if(hits.front()->isValid()) {
+     auto const & ihit = hits.front();
     //update
-    TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
+     assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
+     assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
+     auto preciseHit = theHitCloner->makeShared(ihit,predTsos);
     {
       //       TimeMe t(*updateTimer,false);
       currTsos = updator()->update(predTsos, *preciseHit);
@@ -148,7 +156,9 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     
     if((**ihit).isValid()) {
       //update
-      TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
+       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
+       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+       auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
       {
 	// 	TimeMe t(*updateTimer,false);
 	currTsos = updator()->update(predTsos, *preciseHit);

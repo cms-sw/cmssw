@@ -8,7 +8,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 //Pixel Specific stuff
@@ -57,6 +56,7 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) :
   
   // The name of the seed producer
   seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");
+  seedProducerToken = consumes<TrajectorySeedCollection>(seedProducer);
 
 }
 
@@ -84,7 +84,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   TracksWithRecHits cleanedTracks;
   
   edm::Handle<TrajectorySeedCollection> theSeeds;
-  e.getByLabel(seedProducer,theSeeds);
+  e.getByToken(seedProducerToken,theSeeds);
 
   // No seed -> output an empty track collection
   if(theSeeds->size() == 0) {

@@ -1,91 +1,56 @@
 #! /usr/bin/env python
 import re
-warning = re.compile("^function ")
-tab = re.compile("\s+")
-topfunc = re.compile("::produce\(|::analyze\(|::filter\(")
-edmns = re.compile("::ED(Producer|Analyzer|Filter)")
-keyword = re.compile("calls|overrides|variable|edmplugin")
-paths = re.compile(".*?\s*src/([A-Z].*?/[A-z].*?)(/.*?):(.*?):(.*?)")
-from collections import defaultdict
+topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun)\(")
+baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyzer)(Base)?")
+farg = re.compile("\(.*\)")
+statics = set()
+toplevelfuncs = set()
+skipfunc = re.compile("(edm::EDProductGetter::getIt|edm::Event::|edm::eventsetup::EventSetupRecord::get|edm::eventsetup::DataProxy::getImpl|edm::EventPrincipal::unscheduledFill|edm::ServiceRegistry::get|edm::eventsetup::EventSetupRecord::getImplementation|edm::eventsetup::EventSetupRecord::getFromProxy|edm::eventsetup::DataProxy::get)")
+skipfuncs=set()
 
-gets = defaultdict(set)
-callby = defaultdict(set)
-calls = defaultdict(set)
-plugins = set()
+import networkx as nx
+G=nx.DiGraph()
 
 f = open('db.txt')
 
 for line in f :
 	fields = line.split("'")
-	if keyword.search(line) :
-		if fields[2] == ' calls function ' :
-			if fields[1] not in callby[fields[3]]:
-				callby[fields[3]].add(fields[1])
-			if fields[3] not in calls[fields[1]]:
-				calls[fields[1]].add(fields[3])
-		if fields[2] == ' overrides function ' :
-			if fields[3] not in callby[fields[1]] and not edmns.search(fields[3]) :
-				callby[fields[1]].add(fields[3])
-		if fields[2] == ' static variable ' :
-				if fields[1] not in gets[fields[3]]:
-					gets[fields[3]].add(fields[1])
-		if fields[0].strip() == 'edmplugin type':
-			plugins.add(fields[1])
+	if fields[2] == ' calls function ' :
+		if skipfunc.search(line) : skipfuncs.add(line)
+		else : G.add_edge(fields[1],fields[3],kind=fields[2])
+	if fields[2] == ' overrides function ' :
+		if baseclass.search(fields[3]) :
+			if topfunc.search(fields[3]) : toplevelfuncs.add(fields[1])
+			G.add_edge(fields[1],fields[3],kind=' overrides function ')
+		else :
+			if skipfunc.search(line) : skipfuncs.add(line)
+			else : G.add_edge(fields[3],fields[1],kind=' calls function ')
+	if fields[2] == ' static variable ' :
+		G.add_edge(fields[1],fields[3],kind=' static variable ')
+		statics.add(fields[3])
 f.close()
 
-def stackup(str):
-	for call in callby[str]:
-		if call not in stack:
-			stack.append(call)
-			stackup(call)
-	return
-
-
-funcs=defaultdict(list)
-
-for key in gets: 
-	for get in gets[key]:
-		func = get+"#"+key
-		stack = list()
-		stack.append(get)
-		stackup(get)
-		funcs[func].append(stack)
-
-import copy
-
-for func in sorted(funcs.keys()):
-	get,var = func.split("#")
-	clone = copy.deepcopy(funcs[func])
-	for fields in clone:
-		found = ""
-		while fields:
-			field = fields.pop()
-			if topfunc.search(field) and not found:
-				fqn = topfunc.split(field)[0]
-				if fqn in plugins:
-					print "Non-const static var '"+var+"' is accessed in call stack '"+field+"->",
-					found = field
-			if field in calls[found] and found :
-				print field+"->",
-				found = field
-			if field == get and found :
-				print field 
-
-for func in sorted(funcs.keys()):
-	get,var = func.split("#")
-	clone = copy.deepcopy(funcs[func])
-	for fields in clone: 
-		found = ""
-		while fields:
-			field = fields.pop()
-			if topfunc.search(field) and not found:
-				fqn = topfunc.split(field)[0]
-				if fqn in plugins:
-					print "In call stack '"+field+"->",
-					found = field
-			if field in calls[found] and found :
-				print field+"->",
-				found = field
-			if field == get and found :
-				print field + "' non-const static var '"+var+"' is accessed."
+for static in statics:
+	for tfunc in toplevelfuncs:
+		if nx.has_path(G,tfunc,static): 
+			path = nx.shortest_path(G,tfunc,static)
+			print "Non-const static variable \'"+re.sub(farg,"()",static)+"\' is accessed in call stack ",
+			print " \'",
+			for p in path :			
+				print re.sub(farg,"()",p)+"; ",
+			print " \'. ",
+			for key in  G[tfunc].keys() :
+				if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
+					print "'"+re.sub(farg,"()",tfunc)+"'"+G[tfunc][key]['kind']+"'"+re.sub(farg,"()",key)+"'",
+			print ""
+			path = nx.shortest_path(G,tfunc,static)
+			print "In call stack ' ",
+			for p in path:
+				print re.sub(farg,"()",p)+"; ",
+			print "\'",
+			print " non-const static variable \'"+re.sub(farg,"()",static)+"\' is accessed. ",
+			for key in  G[tfunc].keys() :
+				if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
+					print "'"+re.sub(farg,"()",tfunc)+"'"+G[tfunc][key]['kind']+"'"+re.sub(farg,"()",key)+"'",
+			print
 

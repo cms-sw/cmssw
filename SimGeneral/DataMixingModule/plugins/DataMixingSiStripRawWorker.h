@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -42,7 +43,7 @@ namespace edm
       DataMixingSiStripRawWorker();
 
      /** standard constructor*/
-      explicit DataMixingSiStripRawWorker(const edm::ParameterSet& ps);
+      explicit DataMixingSiStripRawWorker(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC);
 
       /**Default destructor*/
       virtual ~DataMixingSiStripRawWorker();
@@ -59,7 +60,9 @@ namespace edm
       edm::InputTag Sistripdigi_collectionSig_ ; // primary name given to collection of SiStrip digis
       edm::InputTag SistripLabelSig_ ;           // secondary name given to collection of SiStrip digis
       edm::InputTag SiStripPileInputTag_;        // InputTag for pileup strips
-      edm::InputTag SiStripRawInputTag_ ;        // InputTag for strips with rawdigis
+      edm::InputTag SiStripRawInputTag_;         // InputTag for strips with rawdigis
+      edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> SiStripInputTok_ ; // InputToken for strips with rawdigis
+      edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> SiStripRawInputTok_ ; // InputToken for strips with rawdigis
       std::string SiStripDigiCollectionDM_  ;    // secondary name to be given to new SiStrip raw digis
       std::string SiStripRawDigiSource_ ;        // which collection is rawdigis: either "SIGNAL" or "PILEUP" 
 

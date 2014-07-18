@@ -23,14 +23,14 @@
 
   expectedMeanHisto = (TH1D*)meanHisto->Clone("expectedMeanHisto");
 
-  cout << "NbinsX = " << meanHisto->GetNbinsX() << endl;
+  std::cout << "NbinsX = " << meanHisto->GetNbinsX() << std::endl;
   for( int i=1; i<=meanHisto->GetNbinsX(); ++i ) {
     double sigma = sigmaHisto->GetBinContent(i);
     expectedMeanHisto->SetBinContent(i, 0);
     if( sigma != 0 ) {
-      cout << "mean("<<i<<") = " << meanHisto->GetBinContent(i) << endl;
-      // cout << "sigma("<<i<<") = " << sigma << endl;
-      cout << "expected mean("<<i<<") = " << func->Eval(sigma*1000) << endl;
+      std::cout << "mean("<<i<<") = " << meanHisto->GetBinContent(i) << std::endl;
+      // std::cout << "sigma("<<i<<") = " << sigma << std::endl;
+      std::cout << "expected mean("<<i<<") = " << func->Eval(sigma*1000) << std::endl;
       expectedMeanHisto->SetBinContent(i, func->Eval(sigma*1000));
       expectedMeanHisto->SetBinError(i, 0);
     }

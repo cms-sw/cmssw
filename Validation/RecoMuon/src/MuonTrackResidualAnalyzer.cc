@@ -34,8 +34,9 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-MuonTrackResidualAnalyzer::MuonTrackResidualAnalyzer(const edm::ParameterSet& pset){
-  
+
+MuonTrackResidualAnalyzer::MuonTrackResidualAnalyzer(const edm::ParameterSet& ps){
+  pset = ps;
     // service parameters
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   // the services
@@ -54,6 +55,7 @@ MuonTrackResidualAnalyzer::MuonTrackResidualAnalyzer(const edm::ParameterSet& ps
   dbe_ = edm::Service<DQMStore>().operator->();
   out = pset.getUntrackedParameter<string>("rootFileName");
   dirName_ = pset.getUntrackedParameter<std::string>("dirName");
+  subsystemname_ = pset.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   
   // Sim or Real
   theDataType = pset.getParameter<InputTag>("DataType"); 
@@ -67,6 +69,7 @@ MuonTrackResidualAnalyzer::MuonTrackResidualAnalyzer(const edm::ParameterSet& ps
   theEstimator = new Chi2MeasurementEstimator(100000.);
 
   theMuonSimHitNumberPerEvent = 0;
+
 }
 
 /// Destructor
@@ -81,14 +84,15 @@ void MuonTrackResidualAnalyzer::beginJob(){
  
 }
 
-void MuonTrackResidualAnalyzer::endJob(){
-}
-void MuonTrackResidualAnalyzer::beginRun(){
+void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & iRun,
+                                  edm::EventSetup const & /* iSetup */) 
+{
  LogDebug("MuonTrackResidualAnalyzer")<<"Begin Run";
   
-  dbe_->showDirStructure();
+ //ibooker.showDirStructure();
   
-  dbe_->cd();
+  ibooker.cd();
   InputTag algo = theMuonTrackLabel;
   string dirName=dirName_;
   if (algo.process()!="")
@@ -101,10 +105,10 @@ void MuonTrackResidualAnalyzer::beginRun(){
     dirName.replace(dirName.find("Tracks"),6,"");
   }
   std::replace(dirName.begin(), dirName.end(), ':', '_');
-  dbe_->setCurrentFolder(dirName.c_str());
+  ibooker.setCurrentFolder(dirName.c_str());
   
   
-  hDPtRef = dbe_->book1D("DeltaPtRef","P^{in}_{t}-P^{in ref}",10000,-20,20);
+  hDPtRef = ibooker.book1D("DeltaPtRef","P^{in}_{t}-P^{in ref}",10000,-20,20);
   
   // Resolution wrt the 1D Rec Hits
   //  h1DRecHitRes = new HResolution1DRecHit("TotalRec");
@@ -112,10 +116,10 @@ void MuonTrackResidualAnalyzer::beginRun(){
   // Resolution wrt the 1d Sim Hits
   //  h1DSimHitRes = new HResolution1DRecHit("TotalSim");
   
-  hSimHitsPerTrack  = dbe_->book1D("SimHitsPerTrack","Number of sim hits per track",55,0,55);
-  hSimHitsPerTrackVsEta  = dbe_->book2D("SimHitsPerTrackVsEta","Number of sim hits per track VS #eta",120,-3.,3.,55,0,55);
-  hDeltaPtVsEtaSim = dbe_->book2D("DeltaPtVsEtaSim","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
-  hDeltaPtVsEtaSim2 = dbe_->book2D("DeltaPtVsEtaSim2","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
+  hSimHitsPerTrack  = ibooker.book1D("SimHitsPerTrack","Number of sim hits per track",55,0,55);
+  hSimHitsPerTrackVsEta  = ibooker.book2D("SimHitsPerTrackVsEta","Number of sim hits per track VS #eta",120,-3.,3.,55,0,55);
+  hDeltaPtVsEtaSim = ibooker.book2D("DeltaPtVsEtaSim","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
+  hDeltaPtVsEtaSim2 = ibooker.book2D("DeltaPtVsEtaSim2","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
 }
 
 void MuonTrackResidualAnalyzer::endRun(){

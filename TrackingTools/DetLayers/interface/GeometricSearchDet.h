@@ -23,7 +23,7 @@ class GeometricSearchDet {
   typedef BoundSurface::RotationType        RotationType;
   typedef TrajectoryStateOnSurface          TrajectoryState;
   
-  GeometricSearchDet() : theCompatibilityChecker(){}
+  GeometricSearchDet(bool doHaveGroups ) : haveGroups(doHaveGroups) {}
   virtual ~GeometricSearchDet();
   
   /// The surface of the GeometricSearchDet
@@ -104,27 +104,13 @@ class GeometricSearchDet {
 			  std::vector<DetGroup> & result) const; // = 0;
 
 
-  virtual bool hasGroups() const = 0; 
+  bool hasGroups() const { return haveGroups; } 
 
  protected:
   GeomDetCompatibilityChecker theCompatibilityChecker;
-
+  bool haveGroups;
  
 };
 
-
-class GeometricSearchDetWithGroups : public virtual GeometricSearchDet {
-public:
-typedef GeometricSearchDet::DetWithState DetWithState;
-  
-  void
-  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		   const Propagator& prop, 
-		   const MeasurementEstimator& est,
-		   std::vector<DetWithState> & result) const;
-
-  bool hasGroups() const {return true;}
-  
-};
 
 #endif

@@ -11,7 +11,7 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
   
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
 }
 
 RPCDaqInfo::~RPCDaqInfo(){}

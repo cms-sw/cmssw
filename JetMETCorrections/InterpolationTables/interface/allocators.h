@@ -49,6 +49,49 @@ namespace npstat {
         }
     }
 
+    /**
+    // Copy a buffer (with possible type conversion on the fly)
+    // transposing it in the process (treating as a square matrix)
+    */
+    template <typename T1, typename T2>
+    inline void transposeBuffer(T1* dest, const T2* source,
+                                const unsigned long dim)
+    {
+        if (dim)
+        {
+            assert(dest);
+            assert(source);
+            for (unsigned long i=0; i<dim; ++i)
+            {
+                for (unsigned long j=0; j<dim; ++j)
+                    dest[j*dim] = static_cast<T1>(*source++);
+                ++dest;
+            }
+        }
+    }
+
+    /**
+    // Copy a buffer (with possible type conversion on the fly)
+    // transposing it in the process (treating as an M x N matrix)
+    */
+    template <typename T1, typename T2>
+    inline void transposeBuffer(T1* dest, const T2* source,
+                                const unsigned long M,
+                                const unsigned long N)
+    {
+        if (M && N)
+        {
+            assert(dest);
+            assert(source);
+            for (unsigned long i=0; i<M; ++i)
+            {
+                for (unsigned long j=0; j<N; ++j)
+                    dest[j*M] = static_cast<T1>(*source++);
+                ++dest;
+            }
+        }
+    }
+
     /** 
     // Clear a buffer (set all elements to the value produced by the
     // default constructor)

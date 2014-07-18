@@ -17,5 +17,7 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    recoToPFMap = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap"),
    packedPFCandidates = cms.InputTag("packedPFCandidates"), 
    saveNonZSClusterShapes = cms.string("pt > 5"), # save additional user floats: (sigmaIetaIeta,sigmaIphiIphi,sigmaIetaIphi,r9,e1x5_over_e5x5)_NoZS 
+   reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+   reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
 )
 

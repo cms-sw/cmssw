@@ -1,5 +1,5 @@
 #include "SimMuon/Neutron/interface/SubsystemNeutronReader.h"
-#include "TRandom.h"
+#include "CLHEP/Random/JamesRandom.h"
 
 
 class TestNeutronReader : public SubsystemNeutronReader
@@ -14,6 +14,9 @@ public:
 
 
 int main() {
+
+  CLHEP::HepJamesRandom engine;
+
   edm::ParameterSet p;
   p.addParameter("luminosity", 1.);
   p.addParameter("startTime", -50.);
@@ -31,7 +34,7 @@ std::cout << "BUILT " << std::endl;
     reader.clear();
     for(int ch = 1; ch <= 10; ++ch) {
       edm::PSimHitContainer cont;
-      reader.generateChamberNoise(ch, ch, cont);
+      reader.generateChamberNoise(ch, ch, cont, &engine);
       std::cout << "This event has " << cont.size() << " SimHits " << std::endl;
     }
   }

@@ -48,7 +48,7 @@ public:
 private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
-  edm::EDGetTokenT<edm::RefGetter<SiStripCluster> > inputToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterInputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
   int max_clusTp_; // Maximum number of TEC+ clusters
   int max_clusTm_; // Maximum number of TEC- clusters

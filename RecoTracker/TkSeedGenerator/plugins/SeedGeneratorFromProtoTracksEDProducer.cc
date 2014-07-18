@@ -29,7 +29,7 @@ using namespace edm;
 using namespace reco;
 
 template <class T> T sqr( T t) {return t*t;}
-typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
+typedef SeedingHitSet::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 
@@ -83,8 +83,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 
     // check the compatibility with a primary vertex
     bool keepTrack = false;
-    if ( !foundVertices ) { 
-	  if (useEventsWithNoVertex) keepTrack = true;
+    if ( (!foundVertices) || vertices->empty() ) { 
+      if (useEventsWithNoVertex) keepTrack = true;
     } 
     else if (usePV_){
  
@@ -95,7 +95,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         keepTrack = true;
       }
     }
-
     else { 
       for (reco::VertexCollection::const_iterator iv=vertices->begin(); iv!= vertices->end(); ++iv) {
         GlobalPoint aPV(iv->position().x(),iv->position().y(),iv->position().z());
@@ -118,7 +117,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
         TrackingRecHitRef refHit = proto.recHit(iHit);
-        if(refHit->isValid()) hits.push_back(ttrhbESH->build(  &(*refHit) ));
+        if(refHit->isValid()) hits.push_back((Hit)&(*refHit));
       }
       sort(hits.begin(), hits.end(), HitLessByRadius());
       assert(hits.size()<4);

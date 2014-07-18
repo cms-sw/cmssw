@@ -28,6 +28,9 @@ namespace cond {
     class GTEditor {
     public:
       
+      // default ctor
+      GTEditor();
+
       // ctor
       explicit GTEditor( const std::shared_ptr<SessionImpl>& session );
       

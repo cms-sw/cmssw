@@ -108,10 +108,10 @@ TestMisalign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 
   // Now loop on detector units, and store position and orientation
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = pDT->dets().begin();
+  for ( auto iGeomDet = pDT->dets().begin();
 		iGeomDet != pDT->dets().end(); iGeomDet++ )
 	this->fillTree( *iGeomDet );
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = pCSC->dets().begin();
+  for ( auto iGeomDet = pCSC->dets().begin();
 		iGeomDet != pCSC->dets().end(); iGeomDet++ )
 	this->fillTree( *iGeomDet );
 

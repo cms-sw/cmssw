@@ -5,8 +5,6 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2010/01/20 18:20:07 $
- *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,15 +17,19 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
-#include <map>
+#include <utility>
+
+class DTBufferTreeUniquePtr;
 
 //              ---------------------
 //              -- Class Interface --
@@ -44,6 +46,8 @@ class DTCCBId {
   int stationId;
   int  sectorId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -57,6 +61,8 @@ class DTConfigKey {
   int confType;
   int confKey;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -64,18 +70,11 @@ class DTCCBConfig {
 
  public:
 
-  /** Constructor
-   */
   DTCCBConfig();
   DTCCBConfig( const std::string& version );
 
-  /** Destructor
-   */
   virtual ~DTCCBConfig();
 
-  /** Operations
-   */
-  /// get content
   std::vector<DTConfigKey> fullKey() const;
   int stamp() const;
   int configKey( int   wheelId,
@@ -119,22 +118,20 @@ class DTCCBConfig {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTCCBConfig(DTCCBConfig const&);
+  DTCCBConfig& operator=(DTCCBConfig const&);
 
   int timeStamp;
   std::string dataVersion;
   std::vector<DTConfigKey> fullConfigKey;
   std::vector< std::pair<DTCCBId,int> > dataList;
 
-  DTBufferTree< int,std::vector<int>* >* dBuf;
+  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> dBuf COND_TRANSIENT;
 
-  /// read and store full content
-  void cacheMap() const;
-  void resetMap() const;
-//  std::string mapName() const;
-
+ COND_SERIALIZABLE;
 };
-
-
 #endif // DTCCBConfig_H
-

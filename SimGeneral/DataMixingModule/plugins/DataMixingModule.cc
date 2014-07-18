@@ -10,12 +10,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -39,10 +39,7 @@ namespace edm
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
-
   {  
-                                                       // what's "label_"?
-
     // prepare for data access in DataMixingEcalDigiWorkerProd
     tok_eb_ = consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_);
     tok_ee_ = consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_);
@@ -53,7 +50,6 @@ namespace edm
     tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
     tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
     tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
-
 
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -90,7 +86,7 @@ namespace edm
       produces< EERecHitCollection >(EERecHitCollectionDM_);
       produces< ESRecHitCollection >(ESRecHitCollectionDM_);
 
-      EMWorker_ = new DataMixingEMWorker(ps);
+      EMWorker_ = new DataMixingEMWorker(ps, consumesCollector() );
 
       //Hcal:
 
@@ -104,7 +100,7 @@ namespace edm
       produces< HFRecHitCollection >(HFRecHitCollectionDM_);
       produces< ZDCRecHitCollection >(ZDCRecHitCollectionDM_);
 
-      HcalWorker_ = new DataMixingHcalWorker(ps);
+      HcalWorker_ = new DataMixingHcalWorker(ps, consumesCollector());
 
       //Muons:
 
@@ -120,13 +116,13 @@ namespace edm
       produces< CSCWireDigiCollection >(CSCWireDigiCollectionDM_);
       produces< CSCComparatorDigiCollection >(CSCComparatorDigiCollectionDM_);
 
-      MuonWorker_ = new DataMixingMuonWorker(ps);
+      MuonWorker_ = new DataMixingMuonWorker(ps, consumesCollector());
 
       //Tracks:
 
       GeneralTrackCollectionDM_  = ps.getParameter<std::string>("GeneralTrackDigiCollectionDM");
       produces< reco::TrackCollection >(GeneralTrackCollectionDM_);
-      GeneralTrackWorker_ = new DataMixingGeneralTrackWorker(ps);
+      GeneralTrackWorker_ = new DataMixingGeneralTrackWorker(ps, consumesCollector());
 
     }
     else{  // Full Simulation options
@@ -156,7 +152,7 @@ namespace edm
         EcalDigiWorkerProd_->setEEAccess(tok_ee_);
         EcalDigiWorkerProd_->setESAccess(tok_es_);
       }
-      else { EMDigiWorker_ = new DataMixingEMDigiWorker(ps); }
+      else { EMDigiWorker_ = new DataMixingEMDigiWorker(ps, consumesCollector()); }
     }
     else { // merge RecHits 
       EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
@@ -168,7 +164,7 @@ namespace edm
       produces< EERecHitCollection >(EERecHitCollectionDM_);
       produces< ESRecHitCollection >(ESRecHitCollectionDM_);
 
-      EMWorker_ = new DataMixingEMWorker(ps);
+      EMWorker_ = new DataMixingEMWorker(ps, consumesCollector());
     }
     // Hcal next
 
@@ -190,14 +186,10 @@ namespace edm
 
 
       if(MergeHcalDigisProd_) {
-        edm::ConsumesCollector iC(consumesCollector());
-	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, iC);
-	HcalDigiWorkerProd_->setHBHEAccess(tok_hbhe_);
-	HcalDigiWorkerProd_->setHOAccess(tok_ho_);
-	HcalDigiWorkerProd_->setHFAccess(tok_hf_);
-	HcalDigiWorkerProd_->setZDCAccess(tok_zdc_);
+	//        edm::ConsumesCollector iC(consumesCollector());
+	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
       }
-      else {HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps);
+      else {HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
       }
 
 
@@ -213,7 +205,7 @@ namespace edm
       produces< HFRecHitCollection >(HFRecHitCollectionDM_);
       produces< ZDCRecHitCollection >(ZDCRecHitCollectionDM_);
 
-      HcalWorker_ = new DataMixingHcalWorker(ps);
+      HcalWorker_ = new DataMixingHcalWorker(ps, consumesCollector());
     }
 
     // Muons
@@ -231,7 +223,7 @@ namespace edm
     produces< CSCWireDigiCollection >(CSCWireDigiCollectionDM_);
     produces< CSCComparatorDigiCollection >(CSCComparatorDigiCollectionDM_);
 
-    MuonWorker_ = new DataMixingMuonWorker(ps);
+    MuonWorker_ = new DataMixingMuonWorker(ps, consumesCollector());
 
     // Si-Strips
 
@@ -244,17 +236,18 @@ namespace edm
     if(useSiStripRawDigi_) {
 
       produces< edm::DetSetVector<SiStripRawDigi> > (SiStripDigiCollectionDM_);
-      SiStripRawWorker_ = new DataMixingSiStripRawWorker(ps);
+      SiStripRawWorker_ = new DataMixingSiStripRawWorker(ps, consumesCollector());
 
     } else {
 
       produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
+      SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 
       if( addMCDigiNoise_ ) {
-	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps);
+	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
       }
       else {
-	SiStripWorker_ = new DataMixingSiStripWorker(ps);
+	SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
       }
     }
 
@@ -264,7 +257,7 @@ namespace edm
 
     produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
 
-    SiPixelWorker_ = new DataMixingSiPixelWorker(ps);
+    SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
 
     }
 
@@ -276,7 +269,7 @@ namespace edm
       produces< std::vector<PileupSummaryInfo> >();
       produces<CrossingFramePlaybackInfoExtended>();
 
-      PUWorker_ = new DataMixingPileupCopy(ps);
+      PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
 
   }
@@ -330,11 +323,10 @@ namespace edm
   }
 
   void DataMixingModule::beginRun(edm::Run const& run, const edm::EventSetup& ES) { 
-    //std::cout << " DM calling begin run " << std::endl;
     BMixingModule::beginRun( run, ES);
     if( addMCDigiNoise_ ) {
       EcalDigiWorkerProd_->beginRun( ES );
-      HcalDigiWorkerProd_->beginRun( ES );
+      HcalDigiWorkerProd_->beginRun( run, ES );
     }
   }
 
@@ -485,7 +477,7 @@ namespace edm
           continue;
 
 	if (isource==0) 
-          source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);
+          source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_, e.streamID());
 
 	int NumPU_Events = 0;
 	if (isource ==0) { 
@@ -500,7 +492,8 @@ namespace edm
                 recordEventID,
                 boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
                             _1, bunchCrossing, _2, boost::cref(ES), mcc),
-		NumPU_Events
+		NumPU_Events,
+                e.streamID()
                 );
       }
     }

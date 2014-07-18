@@ -24,23 +24,14 @@ ________________________________________________________________**/
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// ----------------------------------------------------------------------
-// Useful function:
-// ----------------------------------------------------------------------
-const char * BeamFitter::formatBTime(const std::time_t & t)  {
-  struct std::tm * ptm;
-  ptm = gmtime(&t);
-  static char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
-  // This value should be taken directly from edm::Event::time(), which
-  // returns GMT (to be confirmed)
-  strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S GMT",ptm);
-  return ts;
-}
 // Update the string representations of the time
 void BeamFitter::updateBTime() {
-  const char* fbeginTime = formatBTime(freftime[0]);
+  char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
+  char* fbeginTime = ts;
+  strftime(fbeginTime,sizeof(ts),"%Y.%m.%d %H:%M:%S GMT",gmtime(&freftime[0]));
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
-  const char* fendTime = formatBTime(freftime[1]);
+  char* fendTime = ts;
+  strftime(fendTime,sizeof(ts),"%Y.%m.%d %H:%M:%S GMT",gmtime(&freftime[1]));
   sprintf(fendTimeOfFit,"%s",fendTime);
 }
 

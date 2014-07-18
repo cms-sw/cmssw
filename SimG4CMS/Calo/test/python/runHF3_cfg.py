@@ -17,7 +17,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'HcalSim', 'HFShower'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -40,7 +40,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         )
     )
 )
@@ -104,4 +104,7 @@ process.g4SimHits.HFShower.TrackEM          = False
 process.g4SimHits.HFShower.OnlyLong         = False
 process.g4SimHits.HFShower.EminLibrary      = 0.0
 process.g4SimHits.HFShower.ApplyFiducialCut = True
-
+process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'
+process.g4SimHits.HFShowerLibrary.BranchPost= '_R.obj'
+process.g4SimHits.HFShowerLibrary.BranchPre = 'HFShowerPhotons_hfshowerlib_'
+process.g4SimHits.HFShowerLibrary.BranchEvt = 'HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'

@@ -170,6 +170,7 @@ StripCPEfromTemplate::localParameters( const SiStripCluster& cluster,
 	    = p.topology->localPosition( measurement_position_first_strip_center, ltp.vector() );
 	  
 
+          SiStripTemplate templ(theStripTemp_);
 	  ierr = SiStripTemplateReco::StripTempReco1D( id, 
 						       cotalpha, 
 						       cotbeta, 

@@ -29,9 +29,7 @@ class TauGenJetProducer : public edm::EDProducer {
 
   ~TauGenJetProducer();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-
-  virtual void beginJob();
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

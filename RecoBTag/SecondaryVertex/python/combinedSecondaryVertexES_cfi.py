@@ -31,6 +31,3 @@ combinedSecondaryVertexV2 = cms.ESProducer("CombinedSecondaryVertexESProducerV2"
 		'CombinedSVMVANoVertex'),
 	categoryVariableName = cms.string('vertexCategory')
 )
-combinedSecondaryVertexV2.trackSelection.qualityClass = cms.string('any')
-combinedSecondaryVertexV2.trackPseudoSelection.qualityClass = cms.string('any')
-combinedSecondaryVertexV2.trackMultiplicityMin = cms.uint32(2)

@@ -24,8 +24,9 @@ namespace cond {
 	if (keys[i]!=0) {
 	  auto p = m_proxy.find(keys[i]);
 	  if ( p!= m_proxy.end()) {
-	    auto item = m_data.insert( std::make_pair( i, std::make_pair("",cond::Binary()) ) );
-	    if( ! s.fetchPayloadData( (*p).payloadId, item.first->second.first, item.first->second.second ) )
+	    auto item = m_data.insert( std::make_pair( i, std::make_pair("",std::make_pair(cond::Binary(),cond::Binary()) ) ) );
+				       if( ! s.fetchPayloadData( (*p).payloadId, item.first->second.first, 
+								 item.first->second.second.first, item.first->second.second.second ) )
 	      cond::throwException("The Iov contains a broken payload reference.","KeyList::load");    
 	  }
 	}

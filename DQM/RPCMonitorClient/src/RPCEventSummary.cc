@@ -29,7 +29,7 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   prefixFolder_  =  subsystemFolder +"/"+  recHitTypeFolder ;
 
   minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
-  numberDisk_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberDisk_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   doEndcapCertification_ = ps.getUntrackedParameter<bool>("EnableEndcapSummary", false);
 
   FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);

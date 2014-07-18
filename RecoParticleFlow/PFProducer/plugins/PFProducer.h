@@ -6,13 +6,25 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 class PFAlgo;
 class PFEnergyCalibrationHF;
@@ -27,7 +39,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 \date   July 2006
 */
 
-class PFProducer : public edm::EDProducer {
+class PFProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFProducer(const edm::ParameterSet&);
   ~PFProducer();
@@ -36,20 +48,22 @@ class PFProducer : public edm::EDProducer {
   virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:
+  edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
+  edm::EDGetTokenT<reco::MuonCollection>     inputTagMuons_;
+  edm::EDGetTokenT<reco::VertexCollection>   vertices_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> inputTagEgammaElectrons_;
 
-  edm::InputTag  inputTagBlocks_;
-  edm::InputTag  inputTagMuons_;
-  edm::InputTag  vertices_;
-  edm::InputTag  inputTagEgammaElectrons_;
-  std::vector<edm::InputTag>  inputTagCleanedHF_;
+
+  std::vector<edm::EDGetTokenT<reco::PFRecHitCollection> >  inputTagCleanedHF_;
   std::string electronOutputCol_;
   std::string electronExtraOutputCol_;
   std::string photonExtraOutputCol_;
 
   // NEW EGamma Filters
-  edm::InputTag inputTagValueMapGedElectrons_;
-  edm::InputTag inputTagValueMapGedPhotons_;
-  edm::InputTag inputTagPFEGammaCandidates_;
+  edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> >inputTagValueMapGedElectrons_;
+  edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef> > inputTagValueMapGedPhotons_;
+  edm::EDGetTokenT<edm::View<reco::PFCandidate> > inputTagPFEGammaCandidates_;
+
   bool use_EGammaFilters_;
 
 
@@ -96,5 +110,8 @@ class PFProducer : public edm::EDProducer {
   std::auto_ptr<PFAlgo>      pfAlgo_;
 
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFProducer);
 
 #endif

@@ -298,7 +298,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
    //
    edm::ESHandle<TrackerGeometry> trackerGeometry;
    iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-   GeomDet* testGeomDet = trackerGeometry->detsTOB().front();
+   auto testGeomDet = trackerGeometry->detsTOB().front();
    std::cout << testGeomDet->position() << std::endl;
    
    

@@ -30,6 +30,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 // forward declarations
 class FEDRawDataCollection;
 class L1MuGMTReadoutRecord;
@@ -99,9 +101,11 @@ private:
     int m_daqGtFedId;
 
     /// input tag for GT DAQ record
-    edm::InputTag m_daqGtInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_daqGtInputToken;
 
     /// input tag for GMT record
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
+    edm::InputTag m_daqGtInputTag;
     edm::InputTag m_muGmtInputTag;
 
     /// mask for active boards

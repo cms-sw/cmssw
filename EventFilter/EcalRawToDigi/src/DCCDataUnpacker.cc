@@ -6,7 +6,7 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 #include <set>
 
-bool DCCDataUnpacker::silentMode_ = false;
+std::atomic<bool> DCCDataUnpacker::silentMode_(false);
 
 DCCDataUnpacker::DCCDataUnpacker( 
   EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck, bool feIdCheck, bool forceToKeepFRdata

@@ -21,7 +21,6 @@ examples:
 parser.add_option("--firstRun",  dest="firstRun",  help="first run", type="int", metavar="RUN", default="1")
 parser.add_option("--lastRun",   dest="lastRun",   help="last run",  type="int", metavar="RUN", default="9999999")
 parser.add_option("--groupName", dest="groupName", help="select runs of name like NAME", metavar="NAME", default="Collisions%")
-parser.add_option("--rrurl",     dest="rrurl",     help="run registry xmlrpc url", metavar="URL", default="http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc")
 parser.add_option("--overwrite", dest="overwrite", help="force overwriting of output CSV file", action="store_true", default=False)
 
 parser.add_option("--path",
@@ -85,20 +84,7 @@ def getProcessObjectFromConfDB(hlt_key):
    return process
 
 #----------------------------------------------------------------------
-def queryRR():
-   """ returns a dict of run number mapping to the HLT key """
-
-   stderr.write("Querying run registry for range [%d, %d], group name like %s ...\n" % (options.firstRun, options.lastRun, options.groupName))
-   import xmlrpclib
-   import xml.dom.minidom
-   server = xmlrpclib.ServerProxy(options.rrurl)
-   run_data = server.DataExporter.export('RUN', 'GLOBAL', 'xml_datasets', "{runNumber} >= %d AND {runNumber} <= %d AND {groupName} like '%s' AND {datasetName} = '/Global/Online/ALL'"  % (options.firstRun, options.lastRun, options.groupName))
-   ret = {}
-   xml_data = xml.dom.minidom.parseString(run_data)
-   xml_runs = xml_data.documentElement.getElementsByTagName("RUN_DATASET")
-   for xml_run in xml_runs:
-       ret[xml_run.getElementsByTagName("RUN_NUMBER")[0].firstChild.nodeValue] = xml_run.getElementsByTagName("RUN_HLTKEY")[0].firstChild.nodeValue
-   return ret
+from queryRR import queryRR
 
 #----------------------------------------------------------------------
 # main
@@ -109,7 +95,7 @@ if os.system("which edmConfigFromDB") != 0:
    print >> stderr,"could not find the command edmConfigFromDB. Did you initialize your CMSSW runtime environment ?"
    exit(1)
 
-runKeys = queryRR()
+runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 
 # maps from HLT key to prescale information. 
 # indexed as: prescaleTable[hlt_key][hlt_path_name]

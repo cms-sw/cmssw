@@ -42,6 +42,7 @@ class FWPFPatJet3DProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
       const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&); // Stop default
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<T>::build;
       void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
 };
 #endif

@@ -56,7 +56,7 @@ void SiStripDetInfoFileWriter::beginRun(const edm::EventSetup& iSetup){
     
     for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
   
-      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit*>(*it);
+      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const *>(*it);
 
       if(mit!=0){
 

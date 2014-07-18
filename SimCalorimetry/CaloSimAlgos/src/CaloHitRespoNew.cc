@@ -8,13 +8,9 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+#include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
 #include<iostream>
@@ -30,8 +26,6 @@ CaloHitRespoNew::CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
    m_PECorrection  ( 0            ) ,
    m_hitFilter     ( 0            ) ,
    m_geometry      ( 0            ) ,
-   m_RandPoisson   ( 0            ) ,
-   m_RandGauss     ( 0            ) ,
    m_minBunch      ( -10          ) ,
    m_maxBunch      (  10          ) ,
    m_phaseShift    ( 1            ) 
@@ -41,44 +35,6 @@ CaloHitRespoNew::CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
 
 CaloHitRespoNew::~CaloHitRespoNew()
 {
-   delete m_RandPoisson ;
-   delete m_RandGauss   ;
-}
-
-CLHEP::RandPoissonQ* 
-CaloHitRespoNew::ranPois() const
-{
-   if( 0 == m_RandPoisson )
-   {
-      edm::Service<edm::RandomNumberGenerator> rng ;
-      if ( !rng.isAvailable() ) 
-      {
-	 throw cms::Exception("Configuration")
-	    << "CaloHitRespoNew requires the RandomNumberGeneratorService\n"
-	    "which is not present in the configuration file.  You must add the service\n"
-	    "in the configuration file or remove the modules that require it.";
-      }
-      m_RandPoisson = new CLHEP::RandPoissonQ( rng->getEngine() );
-   }
-   return m_RandPoisson ;
-}
-
-CLHEP::RandGaussQ* 
-CaloHitRespoNew::ranGauss() const
-{
-   if( 0 == m_RandGauss )
-   {
-      edm::Service<edm::RandomNumberGenerator> rng ;
-      if ( !rng.isAvailable() ) 
-      {
-	 throw cms::Exception("Configuration")
-	    << "CaloHitRespoNew requires the RandomNumberGeneratorService\n"
-	    "which is not present in the configuration file.  You must add the service\n"
-	    "in the configuration file or remove the modules that require it.";
-      }
-      m_RandGauss = new CLHEP::RandGaussQ( rng->getEngine() );
-   }
-   return m_RandGauss ;
 }
 
 const CaloSimParameters*
@@ -146,13 +102,6 @@ CaloHitRespoNew::setPECorrection( const CaloVPECorrection* peCorrection )
    m_PECorrection = peCorrection ;
 }
 
-void 
-CaloHitRespoNew::setRandomEngine( CLHEP::HepRandomEngine& engine ) const
-{
-   m_RandPoisson = new CLHEP::RandPoissonQ( engine ) ;
-   m_RandGauss   = new CLHEP::RandGaussQ(   engine ) ;
-}
-
 const CaloSamples& 
 CaloHitRespoNew::operator[]( unsigned int i ) const 
 {
@@ -200,7 +149,7 @@ CaloHitRespoNew::blankOutUsedSamples()  // blank out previously used elements
 }
 
 void 
-CaloHitRespoNew::run( MixCollection<PCaloHit>& hits ) 
+CaloHitRespoNew::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engine )
 {
    if( 0 != m_index.size() ) blankOutUsedSamples() ;
 
@@ -208,33 +157,33 @@ CaloHitRespoNew::run( MixCollection<PCaloHit>& hits )
 	hitItr != hits.end() ; ++hitItr )
    {
       if(withinBunchRange(hitItr.bunch())) {
-        add(*hitItr);
+        add(*hitItr, engine);
       }
 
    }
 }
 
 void 
-CaloHitRespoNew::add( const PCaloHit& hit ) 
+CaloHitRespoNew::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
       if( !edm::isNotFinite( hit.time() ) &&
 	  ( 0 == m_hitFilter ||
-	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
+	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit, engine ) ;
 }
 
 void
-CaloHitRespoNew::putAnalogSignal( const PCaloHit& hit )
+CaloHitRespoNew::putAnalogSignal( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
    const DetId detId ( hit.id() ) ;
 
    const CaloSimParameters* parameters ( params( detId ) ) ;
 
-   const double signal ( analogSignalAmplitude( detId, hit.energy() ) ) ;
+   const double signal ( analogSignalAmplitude( detId, hit.energy(), engine ) ) ;
 
    double time = hit.time();
 
    if( m_hitCorrection ) {
-     time += m_hitCorrection->delay( hit ) ;
+     time += m_hitCorrection->delay( hit, engine ) ;
    }
 
    const double jitter ( time - timeOfFlight( detId ) ) ;
@@ -266,7 +215,7 @@ CaloHitRespoNew::findSignal( const DetId& detId )
 }
 
 double 
-CaloHitRespoNew::analogSignalAmplitude( const DetId& detId, float energy ) const
+CaloHitRespoNew::analogSignalAmplitude( const DetId& detId, float energy, CLHEP::HepRandomEngine* engine ) const
 {
    const CaloSimParameters& parameters ( *params( detId ) ) ;
 
@@ -276,9 +225,12 @@ CaloHitRespoNew::analogSignalAmplitude( const DetId& detId, float energy ) const
    double npe ( energy*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
-   if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;
+   if( parameters.doPhotostatistics() ) {
+     CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
+     npe = randPoissonQ.fire();
+   }
 
-   if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe ) ;
+   if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe, engine ) ;
 
    return npe ;
 }

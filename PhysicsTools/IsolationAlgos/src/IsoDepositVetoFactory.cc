@@ -9,7 +9,7 @@ namespace reco { namespace isodeposit {
 
     class SwitchingEcalVeto : public AbsVeto {
         public:
-            // creates SwitchingEcalVeto from another AbsVeto (which becomes owned by this veto) 
+            // creates SwitchingEcalVeto from another AbsVeto (which becomes owned by this veto)
             SwitchingEcalVeto(AbsVeto *veto, bool isBarrel) :
                 veto_(veto), barrel_(isBarrel) {}
             virtual bool veto(double eta, double phi, float value) const override {
@@ -20,7 +20,7 @@ namespace reco { namespace isodeposit {
 	    }
         private:
             std::auto_ptr<AbsVeto> veto_;
-            bool barrel_;   
+            bool barrel_;
     };
 
     class NumCrystalVeto : public AbsVeto {
@@ -41,12 +41,12 @@ namespace reco { namespace isodeposit {
     class NumCrystalEtaPhiVeto : public AbsVeto {
         public:
             NumCrystalEtaPhiVeto(const math::XYZVectorD& dir, double iEta, double iPhi) :
-                vetoDir_(dir.eta(),dir.phi()), 
-                iEta_(iEta), 
+                vetoDir_(dir.eta(),dir.phi()),
+                iEta_(iEta),
                 iPhi_(iPhi) {}
-            NumCrystalEtaPhiVeto(Direction dir, double iEta, double iPhi) : 
-                vetoDir_(dir.eta(),dir.phi()), 
-                iEta_(iEta), 
+            NumCrystalEtaPhiVeto(Direction dir, double iEta, double iPhi) :
+                vetoDir_(dir.eta(),dir.phi()),
+                iEta_(iEta),
                 iPhi_(iPhi) {}
             virtual bool veto(double eta, double phi, float value) const override {
                 double dPhi = phi - vetoDir_.phi();
@@ -56,7 +56,7 @@ namespace reco { namespace isodeposit {
                 if( fabs(vetoDir_.eta()) < 1.479) {
                     return ( (fabs(dEta) < 0.0174*iEta_) && (fabs(dPhi) < 0.0174*iPhi_) );
                 } else {
-                    return ( (fabs(dEta) < 0.00864*fabs(sinh(eta))*iEta_) && 
+                    return ( (fabs(dEta) < 0.00864*fabs(sinh(eta))*iEta_) &&
                              (fabs(dPhi) < 0.00864*fabs(sinh(eta))*iPhi_) );
                 }
             }
@@ -70,20 +70,20 @@ namespace reco { namespace isodeposit {
 
 // ---------- THEN THE ACTUAL FACTORY CODE ------------
 reco::isodeposit::AbsVeto *
-IsoDepositVetoFactory::make(const char *string) {
+IsoDepositVetoFactory::make(const char *string, edm::ConsumesCollector& iC) {
     reco::isodeposit::EventDependentAbsVeto * evdep = 0;
-    std::auto_ptr<reco::isodeposit::AbsVeto> ret(make(string,evdep));
+    std::auto_ptr<reco::isodeposit::AbsVeto> ret(make(string,evdep, iC));
     if (evdep != 0) {
-        throw cms::Exception("Configuration") << "The resulting AbsVeto depends on the edm::Event.\n" 
+        throw cms::Exception("Configuration") << "The resulting AbsVeto depends on the edm::Event.\n"
                                               << "Please use the two-arguments IsoDepositVetoFactory::make.\n";
     }
     return ret.release();
 }
 
 reco::isodeposit::AbsVeto *
-IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependentAbsVeto *&evdep) {
+IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependentAbsVeto *&evdep, edm::ConsumesCollector& iC) {
     using namespace reco::isodeposit;
-    static boost::regex 
+    static boost::regex
         ecalSwitch("^Ecal(Barrel|Endcaps):(.*)"),
         threshold("Threshold\\((\\d+\\.\\d+)\\)"),
         thresholdtransverse("ThresholdFromTransverse\\((\\d+\\.\\d+)\\)"),
@@ -100,13 +100,13 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         otherCand("^(.*?):(.*)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
     boost::cmatch match;
-    
+
     //std::cout << "<IsoDepositVetoFactory::make>:" << std::endl;
     //std::cout << " string = " << string << std::endl;
 
     evdep = 0; // by default it does not depend on this
     if (regex_match(string, match, ecalSwitch)) {
-        return new SwitchingEcalVeto(make(match[2].first), (match[1] == "Barrel") );
+        return new SwitchingEcalVeto(make(match[2].first, iC), (match[1] == "Barrel") );
     } else if (regex_match(string, match, threshold)) {
         return new ThresholdVeto(atof(match[1].first));
     } else if (regex_match(string, match, thresholdtransverse)) {
@@ -124,27 +124,29 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
     } else if (regex_match(string, match, angleVeto)) {
         return new AngleConeVeto(Direction(), atof(match[1].first));
     } else if (regex_match(string, match, rectangularEtaPhiVeto)) {
-        return new RectangularEtaPhiVeto(Direction(), 
-                    atof(match[1].first), atof(match[2].first), 
+        return new RectangularEtaPhiVeto(Direction(),
+                    atof(match[1].first), atof(match[2].first),
                     atof(match[3].first), atof(match[4].first));
     } else if (regex_match(string, match, numCrystal)) {
         return new NumCrystalVeto(Direction(), atof(match[1].first));
     } else if (regex_match(string, match, numCrystalEtaPhi)) {
         return new NumCrystalEtaPhiVeto(Direction(),atof(match[1].first),atof(match[2].first));
     } else if (regex_match(string, match, otherCandidatesDR)) {
-        OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), 
-                                                                        atof(match[2].first));
+        OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]),
+                                                                        atof(match[2].first),
+                                                                        iC);
         evdep = ret;
-        return ret;    
+        return ret;
     } else if (regex_match(string, match, otherJetConstituentsDR)) {
-        OtherJetConstituentsDeltaRVeto *ret = new OtherJetConstituentsDeltaRVeto(Direction(), 
+        OtherJetConstituentsDeltaRVeto *ret = new OtherJetConstituentsDeltaRVeto(Direction(),
 						   edm::InputTag(match[1]), atof(match[2].first),
-						   edm::InputTag(match[3]), atof(match[4].first));
+						   edm::InputTag(match[3]), atof(match[4].first),
+						   iC);
         evdep = ret;
         return ret;
     } else if (regex_match(string, match, otherCand)) {
-        OtherCandVeto *ret = new OtherCandVeto(edm::InputTag(match[1]), 
-                                                           make(match[2].first));
+        OtherCandVeto *ret = new OtherCandVeto(edm::InputTag(match[1]),
+                                                           make(match[2].first, iC), iC);
         evdep = ret;
         return ret;
     } else {

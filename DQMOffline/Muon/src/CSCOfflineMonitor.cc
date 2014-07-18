@@ -1437,7 +1437,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   if(theSeg.size()){
     std::map <int , GlobalPoint> extrapolatedPoint;
     std::map <int , GlobalPoint>::iterator it;
-    const std::vector<CSCChamber*> ChamberContainer = cscGeom->chambers();
+    const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
     // Pick which chamber with which segment to test
     for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];
@@ -1613,13 +1613,9 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
       std::stringstream examiner_out, examiner_err;
       goodEvent = true;
       examiner = new CSCDCCExaminer();
-      examiner->output1().redirect(examiner_out);
-      examiner->output2().redirect(examiner_err);
       if( examinerMask&0x40000 ) examiner->crcCFEB(1);
       if( examinerMask&0x8000  ) examiner->crcTMB (1);
       if( examinerMask&0x0400  ) examiner->crcALCT(1);
-      examiner->output1().show();
-      examiner->output2().show();
       examiner->setMask(examinerMask);
       const short unsigned int *data = (short unsigned int *)fedData.data();
  

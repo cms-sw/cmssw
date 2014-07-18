@@ -15,11 +15,13 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandExponential.h"
 
 #include <vector>
 #include <string>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CSCGasCollisions {
 public:
@@ -29,10 +31,8 @@ public:
 
    void setParticleDataTable(const ParticleDataTable * pdt);
 
-   void setRandomEngine(CLHEP::HepRandomEngine & engine);
-
    void simulate(const PSimHit&, 
-      std::vector<LocalPoint>& clusters, std::vector<int>& electrons );
+                 std::vector<LocalPoint>& clusters, std::vector<int>& electrons, CLHEP::HepRandomEngine* );
 
    static const int N_GAMMA = 21;
    static const int N_ENERGY = 63;
@@ -43,9 +43,10 @@ private:
    void readCollisionTable();
    void fillCollisionsForThisGamma( float, std::vector<float>& ) const;
    float lnEnergyLoss( float, const std::vector<float>& ) const;
-   double generateStep( double avCollisions ) const;
+   double generateStep( double avCollisions, CLHEP::HepRandomEngine* ) const;
    float generateEnergyLoss( double avCollisions, 
-      double anmin, double anmax, const std::vector<float>& collisions ) const;
+                             double anmin, double anmax, const std::vector<float>& collisions,
+                             CLHEP::HepRandomEngine* ) const;
 
    void ionize( double energyTransferred, LocalPoint startHere) const;
 	
@@ -69,8 +70,6 @@ private:
 
    CSCCrossGap* theCrossGap; // Owned by CSCGasCollisions
    const ParticleDataTable * theParticleDataTable;
-   CLHEP::RandFlat * theRandFlat;
-   CLHEP::RandExponential * theRandExponential;
    bool saveGasCollisions; // Simple Configurable to flag saving info w. debugV
 };
 

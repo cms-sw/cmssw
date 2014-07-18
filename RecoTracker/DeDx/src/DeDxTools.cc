@@ -51,18 +51,17 @@ using namespace reco;
         }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
            if(!useStrip) continue;
 
-           const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
            RawHits mono;
 
            mono.trajectoryMeasurement = &(*it);
 
            mono.angleCosine = cosine; 
-           const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
+           const std::vector<uint8_t> & amplitudes = projectedHit->cluster()->amplitudes();
            mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
            mono.NSaturating =0;
            for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
 
-           mono.detId= singleHit->geographicalId();
+           mono.detId= projectedHit->originalId();
            hits.push_back(mono);
       
         }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){

@@ -27,19 +27,13 @@
 
 using namespace std;
 
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
+  CkfTrajectoryBuilder(conf,
+                       BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))
+{}
 
-CkfTrajectoryBuilder::
-  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-		       const TrajectoryStateUpdator*         updator,
-		       const Propagator*                     propagatorAlong,
-		       const Propagator*                     propagatorOpposite,
-		       const Chi2MeasurementEstimatorBase*   estimator,
-		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const TrajectoryFilter*               filter):
-
-    BaseCkfTrajectoryBuilder(conf,
-			     updator, propagatorAlong,propagatorOpposite,
-			     estimator, recHitBuilder, filter)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):
+  BaseCkfTrajectoryBuilder(conf, filter)
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
@@ -60,6 +54,9 @@ CkfTrajectoryBuilder::
   theMeasurementTracker->update(event);
   }
 */
+
+void CkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {  
+}
 
 CkfTrajectoryBuilder::TrajectoryContainer 
 CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
@@ -155,7 +152,7 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&see
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  
-  TempTrajectory startingTraj = createStartingTrajectory( seed );
+  TempTrajectory && startingTraj = createStartingTrajectory( seed );
   
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
@@ -187,20 +184,26 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 {
   unsigned int nIter=1;
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
+  newCand.reserve(2*theMaxCand);
 
+  
+  auto trajCandLess = [&](TempTrajectory const & a, TempTrajectory const & b) {
+    return  (a.chiSquared() + a.lostHits()*theLostHitPenalty)  <
+    (b.chiSquared() + b.lostHits()*theLostHitPenalty);
+  };
+  
  
   while ( !candidates.empty()) {
 
     newCand.clear();
-    for (TempTrajectoryContainer::iterator traj=candidates.begin();
-	 traj!=candidates.end(); traj++) {
+    for (auto traj=candidates.begin(); traj!=candidates.end(); traj++) {
       std::vector<TM> meas;
       findCompatibleMeasurements(*sharedSeed, *traj, meas);
 
       // --- method for debugging
       if(!analyzeMeasurementsDebugger(*traj,meas,
 				      theMeasurementTracker,
-				      theForwardPropagator,theEstimator,
+				      forwardPropagator(*sharedSeed),theEstimator,
 				      theTTRHBuilder)) return;
       // ---
 
@@ -217,27 +220,74 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	  else last = meas.end();
 	}
 
-	for( std::vector<TM>::const_iterator itm = meas.begin(); 
-	     itm != last; itm++) {
+	for(auto itm = meas.begin(); itm != last; itm++) {
 	  TempTrajectory newTraj = *traj;
-	  updateTrajectory( newTraj, *itm);
+	  updateTrajectory( newTraj, std::move(*itm));
 
 	  if ( toBeContinued(newTraj)) {
-	    newCand.push_back(newTraj);
+	    newCand.push_back(std::move(newTraj));  std::push_heap(newCand.begin(),newCand.end(),trajCandLess);
 	  }
 	  else {
-	    if ( qualityFilter(newTraj)) addToResult(sharedSeed, newTraj, result);
+	    if ( qualityFilter(newTraj))  addToResult(sharedSeed, newTraj, result);
 	    //// don't know yet
 	  }
 	}
       }
 
-      if ((int)newCand.size() > theMaxCand) {
-	sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
-	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
-      }
-    }
 
+      /*
+      auto trajVal = [&](TempTrajectory const & a) {
+      	return  a.chiSquared() + a.lostHits()*theLostHitPenalty;
+      };
+
+      // safe (stable?) logig: always sort, kill exceeding only if worse than last to keep
+      // if ((int)newCand.size() > theMaxCand) std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' <<  trajVal(newCand.front());
+      int toCut = int(newCand.size()) - int(theMaxCand);
+      if (toCut>0) {
+        // move largest "toCut" to the end
+        for (int i=0; i<toCut; ++i)
+          std::pop_heap(newCand.begin(),newCand.end()-i,trajCandLess);
+        auto fval = trajVal(newCand.front());
+        // remove till equal to highest to keep
+        for (int i=0; i<toCut; ++i) {
+           if (fval==trajVal(newCand.back())) break;
+           newCand.pop_back();
+        }
+	//assert((int)newCand.size() >= theMaxCand);
+	//std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back());
+
+	// std::make_heap(newCand.begin(),newCand.end(),trajCandLess);
+        // push_heap again the one left
+        for (auto iter = newCand.begin()+theMaxCand+1; iter<=newCand.end(); ++iter  )
+	  std::push_heap(newCand.begin(),iter,trajCandLess);
+
+	// std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
+      }
+
+      */
+
+      
+      // intermedeate login: always sort,  kill all exceeding
+      while ((int)newCand.size() > theMaxCand) {
+	std::pop_heap(newCand.begin(),newCand.end(),trajCandLess);
+	// if ((int)newCand.size() == theMaxCand+1) std::cout << " " << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
+	newCand.pop_back();
+       }
+      
+      /*
+      //   original logic: sort only if > theMaxCand, kill all exceeding
+      if ((int)newCand.size() > theMaxCand) {
+	std::sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
+	// std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
+	std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' '
+	<< trajVal(newCand.back()) << ' ' << trajVal(newCand[theMaxCand-1]) << ' ' << trajVal(newCand[theMaxCand])  << std::endl;
+	newCand.resize(theMaxCand);
+      }
+      */
+
+    } // end loop on candidates
+
+    std::sort_heap(newCand.begin(),newCand.end(),trajCandLess);
     if (theIntermediateCleaning) IntermediateTrajectoryCleaner::clean(newCand);
 
     candidates.swap(newCand);
@@ -253,18 +303,17 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 
 
 void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
-					     const TM& tm) const
+					     TM && tm) const
 {
-  TSOS predictedState = tm.predictedState();
-  TM::ConstRecHitPointer hit = tm.recHit();
- 
+  auto && predictedState = tm.predictedState();
+  auto  && hit = tm.recHit();
   if ( hit->isValid()) {
-    TM tmp = TM( predictedState, theUpdator->update( predictedState, *hit),
-		 hit, tm.estimate(), tm.layer()); 
-    traj.push(tmp );
+    auto && upState = theUpdator->update( predictedState, *hit);
+    traj.emplace( std::move(predictedState), std::move(upState),
+		 std::move(hit), tm.estimate(), tm.layer()); 
   }
   else {
-    traj.push( TM( predictedState, hit, 0, tm.layer()));
+    traj.emplace( std::move(predictedState), std::move(hit), 0, tm.layer());
   }
 }
 
@@ -275,39 +324,39 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 						 std::vector<TrajectoryMeasurement> & result) const
 {
   int invalidHits = 0;
-  std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
+  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(traj);
   if (stateAndLayers.second.empty()) return;
 
-  vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
-  vector<const DetLayer*>::iterator layerEnd  = stateAndLayers.second.end();
+  auto layerBegin = stateAndLayers.second.begin();
+  auto layerEnd  = stateAndLayers.second.end();
   LogDebug("CkfPattern")<<"looping on "<< stateAndLayers.second.size()<<" layers.";
-  for (vector<const DetLayer*>::iterator il = layerBegin; 
-       il != layerEnd; il++) {
+  const Propagator *fwdPropagator = forwardPropagator(seed);
+  for (auto il = layerBegin;  il != layerEnd; il++) {
 
     LogDebug("CkfPattern")<<"looping on a layer in findCompatibleMeasurements.\n last layer: "<<traj.lastLayer()<<" current layer: "<<(*il);
 
     TSOS stateToUse = stateAndLayers.first;
-    if ((*il)==traj.lastLayer())
-      {
+    if unlikely ((*il)==traj.lastLayer()) {
 	LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
 	//self navigation case
 	// go to a middle point first
 	TransverseImpactPointExtrapolator middle;
 	GlobalPoint center(0,0,0);
-	stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
 	
 	if (!stateToUse.isValid()) continue;
 	LogDebug("CkfPattern")<<"to: "<<stateToUse;
       }
     
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
-    vector<TrajectoryMeasurement> tmp = layerMeasurements.measurements((**il),stateToUse, *theForwardPropagator, *theEstimator);
+    std::vector<TrajectoryMeasurement> && tmp = layerMeasurements.measurements((**il),stateToUse, *fwdPropagator, *theEstimator);
     
     if ( !tmp.empty()) {
-      if ( result.empty()) result = tmp;
+      if ( result.empty()) result.swap(tmp);
       else {
 	// keep one dummy TM at the end, skip the others
-	result.insert( result.end()-invalidHits, tmp.begin(), tmp.end());
+	result.insert( result.end()-invalidHits, 
+		       std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
       }
       invalidHits++;
     }
@@ -315,7 +364,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 
   // sort the final result, keep dummy measurements at the end
   if ( result.size() > 1) {
-    sort( result.begin(), result.end()-invalidHits, TrajMeasLessEstim());
+    std::sort( result.begin(), result.end()-invalidHits, TrajMeasLessEstim());
   }
 
   LogDebug("CkfPattern")<<"starting from:\n"

@@ -1,6 +1,8 @@
 #ifndef PerformancePayloadFromTable_h
 #define PerformancePayloadFromTable_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
@@ -68,6 +70,8 @@ const PhysicsPerformancePayload & payLoad() const {return pl;}
   std::vector<PerformanceResult::ResultType> results_;
   std::vector<BinningVariables::BinningVariablesType> binning_;
   
+
+ COND_SERIALIZABLE;
 };
 
 #endif

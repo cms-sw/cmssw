@@ -41,10 +41,10 @@ public:
   virtual const GeomDet*           idToDet(DetId)     const;
 
 
-  void addType(GeomDetType* p);
-  void addDetUnit(GeomDetUnit* p);
+  void addType(GeomDetType const * p);
+  void addDetUnit(GeomDetUnit const * p);
   void addDetUnitId(DetId p);
-  void addDet(GeomDet* p);
+  void addDet(GeomDet const * p);
   void addDetId(DetId p);
 
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}

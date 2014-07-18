@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 # This is standard pixel-pair seeding, but making use of TEC disks
 # in forward region to boost acceptance.
 
-MixedLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('BPix1+BPix2', 
+from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
+
+MixedLayerPairs = seedingLayersEDProducer.clone()
+MixedLayerPairs.layerList = cms.vstring('BPix1+BPix2', 
         'BPix1+BPix3', 
         'BPix2+BPix3', 
         'BPix1+FPix1_pos', 
@@ -24,22 +26,23 @@ MixedLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
         'FPix2_neg+TEC1_neg', 
         'FPix2_neg+TEC2_neg', 
         'TEC1_neg+TEC2_neg', 
-        'TEC2_neg+TEC3_neg'),
-    TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        minRing = cms.int32(1),
-        maxRing = cms.int32(1)
-    ),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
-        HitProducer = cms.string('siPixelRecHits'),
-    ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
-        HitProducer = cms.string('siPixelRecHits'),
-    )
+        'TEC2_neg+TEC3_neg'
 )
+MixedLayerPairs.TEC = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    useRingSlector = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    minRing = cms.int32(1),
+    maxRing = cms.int32(1)
+)
+MixedLayerPairs.BPix = cms.PSet(
+    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+    HitProducer = cms.string('siPixelRecHits'),
+)
+MixedLayerPairs.FPix = cms.PSet(
+    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+    HitProducer = cms.string('siPixelRecHits'),
+)
+
 
 

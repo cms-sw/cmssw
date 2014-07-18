@@ -3,22 +3,23 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 
-TempTrajectory::TempTrajectory( const Trajectory& traj):
+TempTrajectory::TempTrajectory(Trajectory && traj):
   theChiSquared(0),
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(traj.direction()), theDirectionValidity(true),
   theValid(traj.isValid()),
   theNLoops(traj.nLoops()),
   theDPhiCache(traj.dPhiCacheForLoopersReconstruction()) {
-  
+
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
   Trajectory::DataContainer::const_iterator end=traj.measurements().end();
-  
+
   for(Trajectory::DataContainer::const_iterator it=begin; it!=end; ++it){
-    push(*it);
+    push(std::move(*it));
   }
 
 }
+
 
 
 void TempTrajectory::pop() { 
@@ -86,20 +87,6 @@ void TempTrajectory::join( TempTrajectory& segment) {
 }
 
 
-/*
-Trajectory::RecHitContainer Trajectory::recHits() const {
-  RecHitContainer hits;
-  hits.reserve(theData.size());
-
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++) {
-    hits.push_back((*itm).recHit());
-  }
-  return hits;
-}
-
-*/
-
 PropagationDirection TempTrajectory::direction() const {
   if (theDirectionValidity) return PropagationDirection(theDirection);
   else throw cms::Exception("TrackingTools/PatternTools","Trajectory::direction() requested but not set");
@@ -110,7 +97,7 @@ void TempTrajectory::check() const {
     throw cms::Exception("TrackingTools/PatternTools","Trajectory::check() - information requested from empty Trajectory");
 }
 
-bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
+bool TempTrajectory::lost( const TrackingRecHit& hit)
 {
   if  likely(hit.isValid()) return false;
 

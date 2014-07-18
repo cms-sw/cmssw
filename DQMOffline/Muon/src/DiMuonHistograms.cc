@@ -34,27 +34,11 @@ DiMuonHistograms::DiMuonHistograms(const edm::ParameterSet& pSet){
   // initialise parameters:
   parameters = pSet;
 
-  theDbe = edm::Service<DQMStore>().operator->();
   
   // declare consumes:
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theBeamSpotLabel_       = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
   theVertexLabel_         = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
-}
-
-DiMuonHistograms::~DiMuonHistograms() { }
-
-void DiMuonHistograms::beginJob(){
-  metname = "DiMuonhistograms";
-  LogTrace(metname)<<"[DiMuonHistograms] beginJob()";
-  
-}
-
-void DiMuonHistograms::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  LogTrace(metname)<<"[DiMuonHistograms] beginRun()";
-  
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/DiMuonHistograms");  
 
   etaBin = parameters.getParameter<int>("etaBin");
   etaBBin = parameters.getParameter<int>("etaBBin");
@@ -70,25 +54,36 @@ void DiMuonHistograms::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
   HighMassMin = parameters.getParameter<double>("HighMassMin");
   HighMassMax = parameters.getParameter<double>("HighMassMax");
 
+}
+
+DiMuonHistograms::~DiMuonHistograms() { }
+
+void DiMuonHistograms::bookHistograms(DQMStore::IBooker & ibooker,
+				      edm::Run const & /*iRun*/,
+				      edm::EventSetup const & /* iSetup */){
+  
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/DiMuonHistograms");  
+
   int nBin = 0;
   for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
     if (iEtaRegion==0) { EtaName = "";         nBin = etaBin;} 
     if (iEtaRegion==1) { EtaName = "_Barrel";  nBin = etaBBin;}
     if (iEtaRegion==2) { EtaName = "_EndCap";  nBin = etaEBin;}
     
-    GlbGlbMuon_LM.push_back(theDbe->book1D("GlbGlbMuon_LM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, LowMassMin, LowMassMax));
-    TrkTrkMuon_LM.push_back(theDbe->book1D("TrkTrkMuon_LM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
-    StaTrkMuon_LM.push_back(theDbe->book1D("StaTrkMuon_LM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
+    GlbGlbMuon_LM.push_back(ibooker.book1D("GlbGlbMuon_LM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, LowMassMin, LowMassMax));
+    TrkTrkMuon_LM.push_back(ibooker.book1D("TrkTrkMuon_LM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
+    StaTrkMuon_LM.push_back(ibooker.book1D("StaTrkMuon_LM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
     
-    GlbGlbMuon_HM.push_back(theDbe->book1D("GlbGlbMuon_HM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, HighMassMin, HighMassMax));
-    TrkTrkMuon_HM.push_back(theDbe->book1D("TrkTrkMuon_HM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));
-    StaTrkMuon_HM.push_back(theDbe->book1D("StaTrkMuon_HM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));
+    GlbGlbMuon_HM.push_back(ibooker.book1D("GlbGlbMuon_HM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, HighMassMin, HighMassMax));
+    TrkTrkMuon_HM.push_back(ibooker.book1D("TrkTrkMuon_HM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));
+    StaTrkMuon_HM.push_back(ibooker.book1D("StaTrkMuon_HM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));
     
     // arround the Z peak
-    TightTightMuon.push_back(theDbe->book1D("TightTightMuon"+EtaName,"InvMass_{Tight,Tight}"+EtaName,nBin, 55.0, 125.0));
+    TightTightMuon.push_back(ibooker.book1D("TightTightMuon"+EtaName,"InvMass_{Tight,Tight}"+EtaName,nBin, 55.0, 125.0));
 
     // low-mass resonances
-    SoftSoftMuon.push_back(theDbe->book1D("SoftSoftMuon"+EtaName,"InvMass_{Soft,Soft}"+EtaName,nBin, 5.0, 55.0));
+    SoftSoftMuon.push_back(ibooker.book1D("SoftSoftMuon"+EtaName,"InvMass_{Soft,Soft}"+EtaName,nBin, 5.0, 55.0));
   }
 }
 

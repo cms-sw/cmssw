@@ -13,10 +13,7 @@
 
 FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
 : BaseEvtVtxGenerator(p)
-{ 
-  
-  fRandom = new CLHEP::RandFlat(getEngine()) ;
-  
+{
   fMinX = p.getParameter<double>("MinX")*cm;
   fMinY = p.getParameter<double>("MinY")*cm;
   fMinZ = p.getParameter<double>("MinZ")*cm;
@@ -42,23 +39,22 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
   }
 }
 
-FlatEvtVtxGenerator::~FlatEvtVtxGenerator() 
+FlatEvtVtxGenerator::~FlatEvtVtxGenerator()
 {
-  delete fRandom; 
 }
 
-
 //Hep3Vector * FlatEvtVtxGenerator::newVertex() {
-HepMC::FourVector* FlatEvtVtxGenerator::newVertex() {
-  double aX,aY,aZ;
-  aX = fRandom->fire(fMinX,fMaxX) ;
-  aY = fRandom->fire(fMinY,fMaxY) ;
-  aZ = fRandom->fire(fMinZ,fMaxZ) ;
+HepMC::FourVector* FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+  double aX,aY,aZ,aT;
+  aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
+  aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
+  aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
+  aT = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
 
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   //fVertex->set(aX,aY,aZ);
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(aX,aY,aZ,fTimeOffset);
+  fVertex->set(aX,aY,aZ,aT+fTimeOffset);
 
   return fVertex;
 }

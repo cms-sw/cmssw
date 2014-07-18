@@ -195,7 +195,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   edm::InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
   //EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollection_, reducedEndcapRecHitCollection_);
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;
@@ -394,7 +394,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
           // add missing mva variables
           std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-          anElectron.setMvaVariables( vCov[1], ip3d);
+          anElectron.setMvaVariables(vCov[1], ip3d);
 
 	  std::vector<DetId> selectedCells;
           bool barrel = itElectron->isEB();
@@ -607,7 +607,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
       // add mva variables
       std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-      anElectron.setMvaVariables( vCov[1], ip3d);
+      anElectron.setMvaVariables(vCov[1], ip3d);
 
       std::vector<DetId> selectedCells;
       bool barrel = itElectron->isEB();

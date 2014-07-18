@@ -1,53 +1,40 @@
 #ifndef ESIntegrityTask_H
 #define ESIntegrityTask_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-class MonitorElement;
-class DQMStore;
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class ESIntegrityTask : public edm::EDAnalyzer {
+class MonitorElement;
+
+class ESIntegrityTask : public DQMEDAnalyzer {
 
    public:
 
       ESIntegrityTask(const edm::ParameterSet& ps);
-      virtual ~ESIntegrityTask();
+      virtual ~ESIntegrityTask() {}
 
    protected:
 
-      /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c);
+      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-      /// BeginJob
-      void beginJob(void);
+      /// Analyze
+      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
       /// EndJob
       void endJob(void);
 
-      /// BeginRun
-      void beginRun(const edm::Run & r, const edm::EventSetup & c);
-
       /// EndRun
-      void endRun(const edm::Run & r, const edm::EventSetup & c);
+      void endRun(const edm::Run & r, const edm::EventSetup & c) override;
 
       /// Begin Lumi
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c);
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c) override;
 
       /// End Lumi
-      void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c);
-
-      /// Reset
-      void reset(void);
-
-      /// Setup
-      void setup(void);
-
-      /// Cleanup
-      void cleanup(void);
+      void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c) override;
 
       /// Calculate Data Integrity Fraction
       void calculateDIFraction(void);
@@ -56,12 +43,7 @@ class ESIntegrityTask : public edm::EDAnalyzer {
 
       int ievt_;
 
-      DQMStore* dqmStore_;
-
       std::string prefixME_;
-
-      bool enableCleanup_;
-      bool mergeRuns_;
 
       edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
       edm::EDGetTokenT<ESLocalRawDataCollection> kchipCollections_;
@@ -87,7 +69,6 @@ class ESIntegrityTask : public edm::EDAnalyzer {
 
       edm::FileInPath lookup_;
 
-      bool init_;
       int runNum_, eCount_, runtype_, seqtype_, dac_, gain_, precision_;
       int firstDAC_, nDAC_, isPed_, vDAC_[5]; 
       int fed_[2][2][40][40], kchip_[2][2][40][40], fiber_[2][2][40][40];

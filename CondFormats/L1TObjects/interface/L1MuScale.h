@@ -19,6 +19,8 @@
 #ifndef CondFormatsL1TObjects_L1MuScale_h
 #define CondFormatsL1TObjects_L1MuScale_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -66,6 +68,8 @@ class L1MuScale {
   virtual std::string print() const = 0;
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 //
@@ -229,6 +233,8 @@ class L1MuBinnedScale : public L1MuScale {
   int m_NBins;
   int m_idxoffset;
   std::vector<float> m_Scale;
+
+ COND_SERIALIZABLE;
 };
 
 /**
@@ -360,6 +366,8 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
   L1MuPseudoSignedPacking m_packing;
   int m_NBins;
   std::vector<float> m_Scale;
+
+ COND_SERIALIZABLE;
 };
 #endif
 

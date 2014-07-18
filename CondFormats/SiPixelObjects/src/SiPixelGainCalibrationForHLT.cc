@@ -39,7 +39,7 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float m
 }
 
 
-void SiPixelGainCalibrationForHLT::initialize() const {
+void SiPixelGainCalibrationForHLT::initialize() {
   pedPrecision  = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
   gainPrecision = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
 

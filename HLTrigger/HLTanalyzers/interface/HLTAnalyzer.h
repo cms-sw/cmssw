@@ -185,6 +185,8 @@ private:
   edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoPhoTrackIsolToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection>         HFECALClustersToken_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection>    HFElectronsToken_;
+  edm::EDGetTokenT<EcalRecHitCollection>                 EcalRecHitEBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection>                 EcalRecHitEEToken_;
 
     // ECAL Activity
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection>    ECALActivityToken_;

@@ -103,7 +103,7 @@ cond::TBufferBlobStreamingService::~TBufferBlobStreamingService(){
 
 #include <boost/bind.hpp>
 namespace {
-  char * reallocInBlob( boost::shared_ptr<coral::Blob> theBlob, char* p, size_t newsize, size_t oldsize) {
+  inline char * reallocInBlob( boost::shared_ptr<coral::Blob> theBlob, char* p, size_t newsize, size_t oldsize) {
     // various checks missing....
     theBlob->resize(newsize);
     return (char*)theBlob->startingAddress();

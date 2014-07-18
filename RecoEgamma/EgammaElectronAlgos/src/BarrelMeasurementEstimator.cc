@@ -26,7 +26,7 @@
 
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
-							     const TransientTrackingRecHit& hit) const {
+							     const TrackingRecHit& hit) const {
   LocalPoint lp = hit.localPosition();
   GlobalPoint gp = hit.det()->surface().toGlobal( lp);
   return this->estimate(ts,gp);
@@ -34,32 +34,31 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
 
 //usable in case we have no TransientTrackingRecHit
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
-					   GlobalPoint &gp) const {
-  float tsPhi = ts.globalParameters().position().phi();
-  float myR = gp.perp();
+					   const GlobalPoint &gp) const {
+  
   float myZ = gp.z();
+  float myR = gp.perp();
+  float zDiff = ts.globalParameters().position().z() - myZ;
 
   float myZmax =  theZMax;
   float myZmin =  theZMin;
 
-  if(std::abs(myZ)<30. && myR>8.)
-    {
-      myZmax = 0.09;
-      myZmin = -0.09;
-    }
+  if(std::abs(myZ)<30. && myR>8.) {
+    myZmax = 0.09;
+    myZmin = -0.09;
+  }
+
+  if( zDiff >= myZmax || zDiff <= myZmin ) return std::pair<bool,double>(false,0.);
+
+  float tsPhi = ts.globalParameters().position().phi();  
 
   float rhPhi = gp.phi();
-
-  float zDiff = ts.globalParameters().position().z() - gp.z();
+  
   float phiDiff = tsPhi - rhPhi;
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi;
 
-
-
-
-  if ( phiDiff < thePhiMax && phiDiff > thePhiMin &&
-       zDiff < myZmax && zDiff > myZmin) {
+  if ( phiDiff < thePhiMax && phiDiff > thePhiMin ) {
 
     return std::pair<bool,double>(true,1.);
      } else {
@@ -72,29 +71,30 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
 std::pair<bool,double> BarrelMeasurementEstimator::estimate
  ( const GlobalPoint & vprim,
    const TrajectoryStateOnSurface & absolute_ts,
-   GlobalPoint& absolute_gp ) const
+   const GlobalPoint& absolute_gp ) const
  {
   GlobalVector ts = absolute_ts.globalParameters().position() - vprim ;
   GlobalVector gp = absolute_gp - vprim ;
-
-  float tsPhi = ts.phi();
+  
   float myR = gp.perp();
   float myZ = gp.z();
-
+  float zDiff = myZ -ts.z() ;  
   float myZmax =  theZMax;
   float myZmin =  theZMin;
-
   if(std::abs(myZ)<30. && myR>8.)
     {
       myZmax = 0.09;
       myZmin = -0.09;
     }
+  
+
+  if( zDiff >= myZmax || zDiff <= myZmin ) return std::pair<bool,double>(false,0.);
 
   float rhPhi = gp.phi() ;
-  float zDiff = gp.z()-ts.z() ;
+  float tsPhi = ts.phi();  
   float phiDiff = normalized_phi(rhPhi-tsPhi) ;
 
-  if ( phiDiff < thePhiMax && phiDiff > thePhiMin && zDiff < myZmax && zDiff > myZmin)
+  if ( phiDiff < thePhiMax && phiDiff > thePhiMin )
    { return std::pair<bool,double>(true,1.) ; }
   else
    { return std::pair<bool,double>(false,0.) ; }

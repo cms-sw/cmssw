@@ -126,7 +126,7 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const e
   EBremOverDeltaP       	=(etot-eEcal)/dP;
   logSigmaEtaEta        	=log(myElectron.sigmaEtaEta());
   DeltaEtaTrackEcalSeed 	=myElectron.deltaEtaEleClusterTrackAtCalo();
-  HoE                   	=myElectron.hadronicOverEm();
+  HoE                   	=myElectron.hcalOverEcalBc();
 
   bool validKF= false;
   reco::TrackRef myTrackRef     = myElectron.closestCtfTrackRef();
@@ -139,13 +139,41 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const e
   dphi                  	=myElectron.deltaPhiSuperClusterTrackAtVtx();
   detacalo              	=myElectron.deltaEtaSeedClusterTrackAtCalo();
   see                   	=myElectron.sigmaIetaIeta();
+  spp				=myElectron.sigmaIphiIphi();
+  R9                    =myElectron.r9();
+  IoEmIoP               =  (1.0/myElectron.ecalEnergy()) - (1.0 / myElectron.p());
   etawidth              	=myElectron.superCluster()->etaWidth();
   phiwidth              	=myElectron.superCluster()->phiWidth();
   OneMinusE1x5E5x5      	=(myElectron.e5x5()) !=0. ? 1.-(myElectron.e1x5()/myElectron.e5x5()) : -1. ;
   pt                    	=myElectron.pt();
   eta                   	=myElectron.eta();
   nPV=pvc.size();
+  PreShowerOverRaw=myElectron.superCluster()->preshowerEnergy() / myElectron.superCluster()->rawEnergy();
 
+/*
+  std::cout<<"fbrem "<<fbrem<<std::endl;
+  std::cout<<"EtotOvePin "<<EtotOvePin<<std::endl;
+  std::cout<<"eleEoPout "<<eleEoPout<<std::endl;
+  std::cout<<"EBremOverDeltaP "<<EBremOverDeltaP<<std::endl;
+  std::cout<<"logSigmaEtaEta "<<logSigmaEtaEta<<std::endl;
+  std::cout<<"DeltaEtaTrackEcalSeed "<<DeltaEtaTrackEcalSeed<<std::endl;
+  std::cout<<"HoE "<<HoE<<std::endl;
+  std::cout<<"kfchi2 "<<kfchi2<<std::endl;
+  std::cout<<"kfhits "<<kfhits<<std::endl;
+  std::cout<<"gsfchi2 "<<gsfchi2<<std::endl;
+  std::cout<<"SigmaPtOverPt "<<SigmaPtOverPt<<std::endl;
+  std::cout<<"deta "<<deta<<std::endl;
+  std::cout<<"dphi "<<dphi<<std::endl;
+  std::cout<<"detacalo "<<detacalo<<std::endl;
+  std::cout<<"see "<<see<<std::endl;
+  std::cout<< "spp "             <<          spp<< std::endl;
+  std::cout<< "R9 "             <<         R9<< std::endl;
+  std::cout<< "IoEmIoP "        <<         IoEmIoP<< std::endl;
+  std::cout<<"etawidth "<<etawidth<<std::endl;
+  std::cout<<"phiwidth "<<phiwidth<<std::endl;
+  std::cout<<"OneMinusE1x5E5x5 "<<OneMinusE1x5E5x5<<std::endl;
+  std::cout<<"PreShowerOverRaw "<<PreShowerOverRaw<<std::endl;
+*/
   bindVariables();
 //  double result= fmvaReader[GetMVABin(nPV,eta,pt)]->EvaluateMVA("BDT");
   double result= fmvaReader[0]->EvaluateMVA("BDT");

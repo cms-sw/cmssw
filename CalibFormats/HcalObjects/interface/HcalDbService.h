@@ -8,9 +8,7 @@
 
 #include <memory>
 #include <map>
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
-#endif
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
@@ -91,14 +89,8 @@ class HcalDbService {
   const HcalPFCorrs* mPFCorrs;
   const HcalLutMetadata* mLutMetadata;
   //  bool mPedestalInADC;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   mutable std::atomic<HcalCalibrationsSet*> mCalibSet;
   mutable std::atomic<HcalCalibrationWidthsSet*> mCalibWidthSet;
-#else
-  mutable HcalCalibrationsSet mCalibSet;
-  mutable HcalCalibrationWidthsSet mCalibWidthSet;
-  mutable bool mUpdateCalibrations, mUpdateCalibWidths;
-#endif
 };
 
 #endif

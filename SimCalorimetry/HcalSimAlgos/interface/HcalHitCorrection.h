@@ -12,9 +12,12 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "CLHEP/Random/RandGaussQ.h"
 #include <map>
 #include <vector>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class HcalHitCorrection : public CaloVHitCorrection
 {
@@ -33,7 +36,7 @@ public:
   double charge(const PCaloHit & hit) const;
 
   /// how much delay this hit will get
-  virtual double delay(const PCaloHit & hit) const;
+  virtual double delay(const PCaloHit & hit, CLHEP::HepRandomEngine*) const;
 
   /// which time bin the peak of the signal will fall in
   int timeBin(const PCaloHit & hit) const;
@@ -41,16 +44,11 @@ public:
   /// simple average approximation
   double timeOfFlight(const DetId & id) const;
 
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
-
 private:
 
   const CaloVSimParameterMap * theParameterMap;
 
   ChargeSumsByChannel theChargeSumsForTimeBin[10];
-
-  CLHEP::RandGaussQ* theRandGaussQ;
-
 };
 
 #endif

@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -63,7 +65,11 @@ namespace edm {
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
     secondaryEventPrincipals_(),
-    branchIDsToReplace_() {
+    branchIDsToReplace_(),
+    resourceSharedWithDelayedReaderPtr_(primary()?
+                                        new SharedResourcesAcquirer{SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()}:
+                                        static_cast<SharedResourcesAcquirer*>(nullptr))
+  {
     if(secondaryFileSequence_) {
       unsigned int nStreams = desc.allocations_->numberOfStreams();
       assert(primary());
@@ -241,6 +247,11 @@ namespace edm {
   PoolSource::preForkReleaseResources() {
     primaryFileSequence_->closeFile_();
   }
+  
+  SharedResourcesAcquirer*
+  PoolSource::resourceSharedWithDelayedReader_() const {
+    return resourceSharedWithDelayedReaderPtr_.get();
+  }
 
   // Rewind to before the first event that was read.
   void
@@ -260,15 +271,15 @@ namespace edm {
   }
 
   void
-  PoolSource::readOneRandom(EventPrincipal& cache) {
+  PoolSource::readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine* engine) {
     assert(!secondaryFileSequence_);
-    primaryFileSequence_->readOneRandom(cache);
+    primaryFileSequence_->readOneRandom(cache, engine);
   }
 
   bool
-  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID) {
+  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine* engine) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneRandomWithID(cache, lumiID);
+    return primaryFileSequence_->readOneRandomWithID(cache, lumiID, engine);
   }
 
   bool

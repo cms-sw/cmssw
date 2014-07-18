@@ -108,7 +108,6 @@ namespace sistrip {
   void SpyEventMatcherModule::findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const
   {
     edm::Handle<FEDRawDataCollection> fedRawDataHandle;
-    //    event.getByLabel(primaryStreamRawDataTag_,fedRawDataHandle);
     event.getByToken(primaryStreamRawDataToken_,fedRawDataHandle);
     const FEDRawDataCollection& fedRawData = *fedRawDataHandle;
     for (auto iFedId = cabling.fedIds().begin(); iFedId != cabling.fedIds().end(); ++iFedId) {

@@ -69,6 +69,14 @@ ThePEGInterface::~ThePEGInterface()
 	edm::LogInfo("ThePEGInterface") << "Event generator finalized";
 }
 
+void ThePEGInterface::setPEGRandomEngine(CLHEP::HepRandomEngine* v) {
+        randomEngineGlueProxy_->setRandomEngine(v);
+        ThePEG::RandomEngineGlue *rnd = randomEngineGlueProxy_->getInstance();
+        if(rnd) {
+          rnd->setRandomEngine(v);
+        }
+}
+
 string ThePEGInterface::dataFile(const string &fileName) const
 {
 	if (fileName.empty() || fileName[0] == '/')

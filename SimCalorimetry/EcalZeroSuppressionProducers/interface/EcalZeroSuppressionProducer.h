@@ -1,6 +1,7 @@
 #ifndef ECALZEROSUPPRESSIONPRODUCER_H
 #define ECALZEROSUPPRESSIONPRODUCER_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -48,6 +49,9 @@ private:
 
   EcalZeroSuppressor<EBDataFrame> theBarrelZeroSuppressor_;
   EcalZeroSuppressor<EEDataFrame> theEndcapZeroSuppressor_;
+
+  edm::EDGetTokenT<EBDigiCollection> EB_token;
+  edm::EDGetTokenT<EEDigiCollection> EE_token;
  
 };
 

@@ -1,5 +1,5 @@
 #include <EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h>
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
 
 #include <math.h>
 #include <iostream>

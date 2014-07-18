@@ -26,7 +26,7 @@ namespace edm {
   class LuminosityBlock;
   class LuminosityBlockPrincipal;
   class OutputModule;
-  class OutputModuleDescription;
+  struct OutputModuleDescription;
   class ParameterSet;
   class Principal;
   class PrincipalCache;

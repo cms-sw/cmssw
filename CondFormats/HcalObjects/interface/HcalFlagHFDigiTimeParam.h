@@ -17,6 +17,8 @@ Flag parameters stored are:
 
 **/
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include <vector>
 
@@ -63,6 +65,8 @@ class HcalFlagHFDigiTimeParam{
     uint32_t mHFdigiflagExpectedPeak;        // expected peak position; used for calculating TS(peak)
     double    mHFdigiflagMinEthreshold;       // minimum energy for flagged rechit
     std::vector<double> mHFdigiflagCoefficients; // coefficients used to parameterize TS(peak)/NTS threshold:  [0]-exp([1]+[2]*E+....)
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -6,7 +6,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "CLHEP/Random/RandPoissonQ.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVPECorrection.h"
 
 #include<map>
@@ -20,6 +19,10 @@
 
 */
 #define ChangeHcalEnergyScale
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CaloVShape;
 class CaloShapes;
@@ -57,13 +60,13 @@ public:
   virtual void initializeHits() {}
 
   /// Finalize hits
-  virtual void finalizeHits() {}
+  virtual void finalizeHits(CLHEP::HepRandomEngine*) {}
 
   /// Complete cell digitization.
-  virtual void run(MixCollection<PCaloHit> & hits);
+  virtual void run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*);
 
   /// process a single SimHit
-  virtual void add(const PCaloHit & hit);
+  virtual void add(const PCaloHit & hit, CLHEP::HepRandomEngine*);
 
   /// add a signal, in units of pe
   void add(const CaloSamples & signal);
@@ -83,8 +86,6 @@ public:
     thePECorrection = peCorrection;
   }
 
-  virtual void setRandomEngine(CLHEP::HepRandomEngine & engine);
-
   /// frees up memory
   void clear() {theAnalogSignalMap.clear();}
  
@@ -92,11 +93,11 @@ public:
   void addHit(const PCaloHit * hit, CaloSamples & frame) const;
 
   /// creates the signal corresponding to this hit
-  virtual CaloSamples makeAnalogSignal(const PCaloHit & inputHit) const;
+  virtual CaloSamples makeAnalogSignal(const PCaloHit & inputHit, CLHEP::HepRandomEngine*) const;
 
   /// finds the amplitude contribution from this hit, applying
   /// photostatistics, if needed.  Results are in photoelectrons
-  double analogSignalAmplitude(const DetId & id, float energy, const CaloSimParameters & parameters) const;
+  double analogSignalAmplitude(const DetId & id, float energy, const CaloSimParameters & parameters, CLHEP::HepRandomEngine*) const;
 
   /// users can look for the signal for a given cell
   CaloSamples * findSignal(const DetId & detId);
@@ -134,8 +135,6 @@ protected:
 
   const CaloGeometry * theGeometry;
 
-  mutable CLHEP::RandPoissonQ * theRandPoisson;
-
   int theMinBunch;
   int theMaxBunch;
 
@@ -145,9 +144,7 @@ protected:
   bool  changeScale;
 #ifdef ChangeHcalEnergyScale
   float hcal_en_scale[100][72][4];
-#endif  
+#endif
 };
 
 #endif
-
-

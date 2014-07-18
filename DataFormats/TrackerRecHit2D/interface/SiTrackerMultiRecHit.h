@@ -20,7 +20,7 @@ public:
   virtual ~SiTrackerMultiRecHit(){}	
   
   
-  SiTrackerMultiRecHit(const LocalPoint&, const LocalError&, const DetId&, 
+  SiTrackerMultiRecHit(const LocalPoint&, const LocalError&, GeomDet const & idet,
 		       const std::vector< std::pair<const TrackingRecHit*, float> >&);
   
   virtual SiTrackerMultiRecHit* clone() const {return new SiTrackerMultiRecHit(*this);}

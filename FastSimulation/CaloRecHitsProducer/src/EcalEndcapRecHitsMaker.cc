@@ -311,7 +311,7 @@ void EcalEndcapRecHitsMaker::randomNoisifier(RandomEngineAndDistribution const* 
 	  energy *= calib;
 	  theCalorimeterHits_[cellindex]=energy;	  
 	  theFiredCells_.push_back(cellindex);
-	  EEDetId myDetId(EEDetId::unhashIndex(cellindex));
+	  // EEDetId myDetId(EEDetId::unhashIndex(cellindex));
 	  // now get the TT 	  
 	  int TThashedindex=towerOf_[cellindex];
 	  //	  std::cout << " myDetIds " << myDetId << " "TTHI " << TThashedindex<< std::endl;

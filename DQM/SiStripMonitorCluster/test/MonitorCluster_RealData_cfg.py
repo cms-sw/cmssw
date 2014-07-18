@@ -72,9 +72,9 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
 # APV Phase Producer
+#nwe one
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
-#new one
-#process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
 #APVPhases = cms.EDProducer("APVCyclePhaseProducerFromL1TS",
 #                            defaultPartitionNames = cms.vstring("TI",
 #                            "TO",

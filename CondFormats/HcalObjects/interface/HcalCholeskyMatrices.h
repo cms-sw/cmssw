@@ -1,6 +1,8 @@
 #ifndef HcalCholeskyMatrices_h
 #define HcalCholeskyMatrices_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
 #include <iostream>
@@ -34,6 +36,8 @@ class HcalCholeskyMatrices : public HcalCondObjectContainerBase
       std::vector<HcalCholeskyMatrix> HEcontainer;
       std::vector<HcalCholeskyMatrix> HOcontainer;
       std::vector<HcalCholeskyMatrix> HFcontainer;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -28,25 +28,25 @@ class GEMGeometry : public TrackingGeometry {
   virtual ~GEMGeometry();
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const;
+  virtual const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const;
+  virtual const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
-  virtual const DetContainer& dets() const;
+  virtual const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer& detUnitIds() const;
+  virtual const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
-  virtual const DetIdContainer& detIds() const;
+  virtual const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const;
+  virtual const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const;
+  virtual const GeomDet* idToDet(DetId) const override;
 
 
   //---- Extension of the interface
@@ -55,7 +55,7 @@ class GEMGeometry : public TrackingGeometry {
   //  const std::vector<GEMChamber*>& chambers() const;
 
   /// Return a vector of all GEM eta partitions
-  const std::vector<GEMEtaPartition*>& etaPartitions() const;
+  const std::vector<const GEMEtaPartition*>& etaPartitions() const;
 
   // Return a GEMChamber given its id
   //  const GEMChamber* chamber(GEMDetId id) const;
@@ -79,7 +79,7 @@ class GEMGeometry : public TrackingGeometry {
   // Map for efficient lookup by DetId 
   mapIdToDet theMap;
 
-  std::vector<GEMEtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
+  std::vector<const GEMEtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
   //  std::vector<GEMChamber*> allChambers; // Are owned by this class.
 
 };

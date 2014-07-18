@@ -10,7 +10,7 @@ process = cms.Process("JEC")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source(
     'PoolSource',
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/GEN-SIM-RECO/START70_V4-v1/00000/0EA82C3C-646A-E311-9CB3-0025905A6070.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_1_0_pre1/RelValProdTTbar/GEN-SIM-RECO/START70_V5-v1/00000/14842A6B-2086-E311-B5CB-02163E00E8DA.root')
     )
 
 #!
@@ -59,7 +59,7 @@ process.ak7PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak7PFJetsL2L3')
 process.kt4PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt4PFJetsL2L3')
 #process.kt6PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt6PFJetsL2L3')
 
-process.ak5JPTL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5JPTJetsL2L3')
+process.ak4JPTL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak4JPTJetsL2L3')
 process.ak5TrackL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5TrackJetsL2L3')
 
 #
@@ -75,7 +75,7 @@ process.ak5PFJetsL2L3 * process.ak5PFL2L3Histos * process.ak7PFJetsL2L3 * proces
 process.kt4PFJetsL2L3 * process.kt4PFL2L3Histos *
 #process.kt6PFJetsL2L3 * process.kt6PFL2L3Histos *
 #------ create the corrected jptjet collection and run the histogram module -------
-process.ak5JPTJetsL2L3 * process.ak5JPTL2L3Histos *
+process.ak4JPTJetsL2L3 * process.ak4JPTL2L3Histos *
 #------ create the corrected trackjet collection and run the histogram module -----
 process.ak5TrackJetsL2L3 * process.ak5TrackL2L3Histos
 )

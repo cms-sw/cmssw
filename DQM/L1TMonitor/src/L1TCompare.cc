@@ -71,12 +71,6 @@ const float PHIMAX = 17.5;
 const unsigned int R6BINS = 64;
 const float R6MIN = -0.5;
 const float R6MAX = 63.5;
-const unsigned int R10BINS = 1024;
-const float R10MIN = -0.5;
-const float R10MAX = 1023.5;
-const unsigned int R12BINS = 4096;
-const float R12MIN = -0.5;
-const float R12MAX = 4095.5;
 
 // For GCT this should be 15 bins, -14.5 to 14.5
 //

@@ -71,21 +71,21 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
 	{
 	  if(match[1] == "Barrel") {
 	    //	    std::cout << " Adding Barrel veto " << std::string(match[2]) << std::endl;
-	    barrelVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep)); // I don't know a better syntax
+	    barrelVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep, iC)); // I don't know a better syntax
 	  }
 	  if(match[1] == "Endcaps") {
 	    //	    std::cout << " Adding Endcap veto " << std::string(match[2]) << std::endl;
-	    endcapVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep));
+	    endcapVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep, iC));
 	  }
 	}
       else
 	{
-	  barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
-	  endcapVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+	  barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
+	  endcapVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
 	}
     } else {
       //only one serie of vetoes, just barrel
-      barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+      barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
     }
     if (evdep) evdepVetos_.push_back(evdep);
   }

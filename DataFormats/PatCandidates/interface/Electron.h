@@ -192,11 +192,14 @@ namespace pat {
 
       /// additional mva input variables
       /// sigmaIEtaIPhi
-      float sigmaIetaIphi() const { return sigmaIetaIphi_; };
+      float sigmaIetaIphi() const { return sigmaIetaIphi_; }
+      /// sigmaIEtaIPhi (from full 5x5 non-ZS clusters without fractions, a la 5.3.X)
+      float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
       /// ip3d
       double ip3d() const { return ip3d_; }
       /// set missing mva input variables
       void setMvaVariables( double sigmaIetaIphi, double ip3d );
+      void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
 
       const EcalRecHitCollection * recHits() const { return &recHits_;}
 
@@ -230,28 +233,6 @@ namespace pat {
       /// vertex fit combined with missing number of hits method
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
-
-      // non-zero-suppressed and no-fractions shower shapes (as in 7.1.X reco::GsfElectron)
-      // ecal energy is always that from the full 5x5 
-      float full5x5_sigmaEtaEta() const { return full5x5_showerShape_.sigmaEtaEta; }
-      float full5x5_sigmaIetaIeta() const { return full5x5_showerShape_.sigmaIetaIeta; }
-      float full5x5_sigmaIphiIphi() const { return full5x5_showerShape_.sigmaIphiIphi; }
-      float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
-      float full5x5_e1x5() const { return full5x5_showerShape_.e1x5; }
-      float full5x5_e2x5Max() const { return full5x5_showerShape_.e2x5Max; }
-      float full5x5_e5x5() const { return full5x5_showerShape_.e5x5; }
-      float full5x5_r9() const { return full5x5_showerShape_.r9; }
-      // the hcal ones only differ in the denominator and so aren't really worth saving
-      float full5x5_hcalDepth1OverEcal() const { return showerShape().hcalDepth1OverEcal; /* this is identical to the ZS one */ }
-      float full5x5_hcalDepth2OverEcal() const { return showerShape().hcalDepth2OverEcal; /* this is identical to the ZS one */ }
-      float full5x5_hcalOverEcal() const { return full5x5_hcalDepth1OverEcal() + full5x5_hcalDepth2OverEcal() ; }    
-      float full5x5_hcalDepth1OverEcalBc() const { return showerShape().hcalDepth1OverEcalBc * (superCluster()->energy()/full5x5_e5x5()); }
-      float full5x5_hcalDepth2OverEcalBc() const { return showerShape().hcalDepth2OverEcalBc * (superCluster()->energy()/full5x5_e5x5()); }
-      float full5x5_hcalOverEcalBc() const { return full5x5_hcalDepth1OverEcalBc() + full5x5_hcalDepth2OverEcalBc() ; }
-      /// note: the hcal variables are empty
-      const ShowerShape & full5x5_showerShape() const { return full5x5_showerShape_; }
-      void full5x5_setShowerShape(const ShowerShape &s) { full5x5_showerShape_ = s; }
-      void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
 
       /// References to PFCandidates (e.g. to recompute isolation)
       void setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) ; 
@@ -331,10 +312,9 @@ namespace pat {
       /// Impact paramater uncertainty at the primary vertex
       double  edB_;
 
-      /// additional missing mva variables (updated in 70X: r9 and sigmaIphiIphi are already available; also, added full5x5 one)
+      /// additional missing mva variables : 14/04/2012
       float sigmaIetaIphi_, full5x5_sigmaIetaIphi_;
       double ip3d_;
-      
 
       /// output of regression
       double ecalRegressionEnergy_;
@@ -352,9 +332,7 @@ namespace pat {
       double ecalTrackRegressionScale_;
       double ecalTrackRegressionSmear_;
       
-      /// full 5x5 shower shapes (as in 7.1.x reco::GsfElectron)
-      ShowerShape full5x5_showerShape_;
- 
+      
       /// conversion veto
       bool passConversionVeto_;
 

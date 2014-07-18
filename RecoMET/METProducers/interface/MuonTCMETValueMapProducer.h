@@ -19,7 +19,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -38,7 +38,7 @@ class TCMETAlgo;
 namespace cms
 {
 
-class MuonTCMETValueMapProducer : public edm::EDProducer
+class MuonTCMETValueMapProducer : public edm::stream::EDProducer<>
 {
 
 public:
@@ -47,9 +47,7 @@ public:
 
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
   edm::Handle<reco::MuonCollection>    muons_;
   edm::Handle<reco::BeamSpot>          beamSpot_;

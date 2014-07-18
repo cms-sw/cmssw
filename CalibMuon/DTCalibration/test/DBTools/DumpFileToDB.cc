@@ -23,7 +23,7 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 using namespace edm;
@@ -38,8 +38,13 @@ DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
 
   mapFileName = pset.getUntrackedParameter<ParameterSet>("calibFileConfig").getUntrackedParameter<string>("calibConstFileName", "dummy.txt");
 
-  if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && 
-     dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")
+  if(dbToDump != "VDriftDB" &&
+     dbToDump != "TTrigDB" &&
+     dbToDump != "TZeroDB" && 
+     dbToDump != "NoiseDB" &&
+     dbToDump != "DeadDB" &&
+     dbToDump != "ChannelsDB" &&
+     dbToDump != "RecoUncertDB")
     cout << "[DumpFileToDB] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 
   diffMode = pset.getUntrackedParameter<bool>("differentialMode", false);
@@ -233,11 +238,42 @@ void DumpFileToDB::endJob() {
     }
     string record = "DTReadOutMappingRcd";
     DTCalibDBUtils::writeToDB<DTReadOutMapping>(record, ro_map);
+  } else if(dbToDump == "RecoUncertDB") { // Write the Uncertainties
+
+    // Create the object to be written to DB
+    DTRecoUncertainties* uncert = new DTRecoUncertainties();
+
+    // FIXME: should come from the configuration; to be changed whenever a new schema for values is introduced.
+    uncert->setVersion(1); // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
+
+    // Loop over file entries
+    for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+	keyAndCalibs != theCalibFile->keyAndConsts_end();
+	++keyAndCalibs) {
+
+      //DTSuperLayerId slId = (*keyAndCalibs).first.superlayerId();
+      
+      vector<float> values = (*keyAndCalibs).second;
+
+      vector<float> uncerts(values.begin()+8, values.end());
+
+      uncert->set((*keyAndCalibs).first, uncerts);
+
+      cout << endl;
+      
+
+    }
+
+    cout << "[DumpFileToDB]Writing RecoUncertainties object to DB!" << endl;
+    string record = "DTRecoUncertaintiesRcd";
+    DTCalibDBUtils::writeToDB<DTRecoUncertainties>(record, uncert);
   }
 }
 
+
+
   
-vector <int> DumpFileToDB::readChannelsMap (stringstream &linestr){
+vector <int> DumpFileToDB::readChannelsMap (stringstream &linestr) {
   //The hardware channel
   int ddu_id = 0;
   int ros_id = 0;

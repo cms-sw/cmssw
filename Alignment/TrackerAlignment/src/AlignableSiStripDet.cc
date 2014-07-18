@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <math.h>
+#include <cmath>
 
 AlignableSiStripDet::AlignableSiStripDet(const GluedGeomDet *gluedDet) 
   : AlignableDet(gluedDet, true), // true: adding DetUnits

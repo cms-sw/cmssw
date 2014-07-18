@@ -1,5 +1,5 @@
 #include "FTFPCMS_BERT_HP_EML.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,7 +12,7 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsFTFP_BERT_HP.hh"
+#include "G4HadronPhysicsFTFP_BERT_HP.hh"
 
 FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -25,6 +25,7 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  bool munucl  = p.getParameter<bool>("FlagMuNucl");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTFP_BERT_EML with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
@@ -32,10 +33,12 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+    RegisterPhysics( new CMSEmStandardPhysicsXS(ver));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics(ver));
+    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
+    RegisterPhysics(gn);
   }
 
   // Decays
@@ -48,7 +51,7 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsFTFP_BERT_HP(ver));
+    RegisterPhysics(  new G4HadronPhysicsFTFP_BERT_HP(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));

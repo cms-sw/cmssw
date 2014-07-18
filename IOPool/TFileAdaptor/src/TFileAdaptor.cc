@@ -175,7 +175,6 @@
 
     // set our own root plugins
     TPluginManager* mgr = gROOT->GetPluginManager();
-    mgr->LoadHandlersFromPluginDirs();
 
     if (!native("file"))      addType(mgr, "^file:");
     if (!native("http"))      addType(mgr, "^http:");

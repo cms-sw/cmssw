@@ -91,7 +91,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //--- PSimHit Containers
   //  trackerContainers.clear();
   //  trackerContainers = conf.getParameter<std::vector<edm::InputTag> >("ROUList");
-  inputSimHits = conf.getParameter<edm::InputTag>("InputSimHits"); 
+  simHitLabel = conf.getParameter<edm::InputTag>("InputSimHits"); 
+  simHitToken = consumes<edm::PSimHitContainer>(simHitLabel);
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
 
@@ -615,7 +616,7 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   */
 
   edm::Handle<edm::PSimHitContainer> allTrackerHits_handle;
-  e.getByLabel(inputSimHits,allTrackerHits_handle);
+  e.getByToken(simHitToken,allTrackerHits_handle);
   const edm::PSimHitContainer& allTrackerHits=*allTrackerHits_handle;
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
@@ -693,6 +694,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
     ++simHitCounter;
     
     DetId det((*isim).detUnitId());
+    const GeomDetUnit & theDetUnit = *geometry->idToDetUnit(det);
     unsigned trackID = (*isim).trackId();
     uint32_t eeID = (*isim).eventId().rawId(); //get the rawId of the eeid for pileup treatment
 
@@ -777,17 +779,20 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       }
       else{  if(subdet>2) position = Local3DPoint(position.x(),0.,0.);    }  // no matching, set y=0 on strips
 
-      // Inflate errors in case of geometry misalignment
+      
+      // Inflate errors in case of geometry misaligniment  
+      // (still needed! what done in constructor of BaseTrackerRecHit is not effective ad geometry is not missaligned)
       const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
       if ( theMADet->alignmentPositionError() != 0 ) { 
 	LocalError lape = 
 	  ErrorFrameTransformer().transform ( theMADet->alignmentPositionError()->globalError(),
 					      theMADet->surface() );
+        // std::cout << "ori lape " << det.rawId() << ' ' <<  lape << " det lape " << theDetUnit.localAlignmentError() << std::endl;
 	error = LocalError ( error.xx()+lape.xx(),
 			     error.xy()+lape.xy(),
 			     error.yy()+lape.yy() );
       }
-      
+
       float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
 
       //create cluster
@@ -812,7 +817,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       
       // create rechit
       temporaryRecHits[trackID].push_back(
-					  new SiTrackerGSRecHit2D(position, error, det, 
+					  new SiTrackerGSRecHit2D(position, error, theDetUnit, 
 								  simHitCounter, trackID, 
 								  eeID, 
 								  ClusterRef(FastTrackerClusterRefProd, simHitCounter),
@@ -1386,7 +1391,7 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	else{ //need to copy the original in a "matched" type rechit
 
 	  SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
-										rit->geographicalId(), 
+										*rit->det(), 
 										rit->simhitId(), rit->simtrackId(), rit->eeId(),
                                                                                 rit->cluster(),
                                                                                 rit->simMultX(), rit->simMultY()); 
@@ -1401,7 +1406,7 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
       else { //need to copy the original in a "matched" type rechit
 
 	SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
-									      rit->geographicalId(), 
+									      *rit->det(), 
 									      rit->simhitId(), rit->simtrackId(), rit->eeId(), 
                                                                               rit->cluster(),
 									      rit->simMultX(), rit->simMultY());	

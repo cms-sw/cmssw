@@ -11,7 +11,7 @@
 
 namespace rpcdqm{
 
-  enum RPCMeFLag{OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY =3};
+  enum RPCMeFLag{OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY =3, BX=4};
 
   class utils{
   public:
@@ -244,7 +244,6 @@ namespace rpcdqm{
 	xLabel<<"Sec"<<x;
 	myMe->setBinLabel(x, xLabel.str(), 1);
       }
-      
     }
 
     //use only with RingvsSegment MEs

@@ -73,7 +73,7 @@ namespace
       cout << endl;
   }
 
-  void run ( const vector < Cluster1D<string> > & input )
+  inline void run ( const vector < Cluster1D<string> > & input )
   {
     cout << endl << "Input: " << endl;
     print ( input );

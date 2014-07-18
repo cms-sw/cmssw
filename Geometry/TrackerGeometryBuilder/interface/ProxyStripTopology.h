@@ -34,7 +34,7 @@ class Plane;
 class ProxyStripTopology GCC11_FINAL : public StripTopology {
 public:
 
-  ProxyStripTopology(StripGeomDetType* type, Plane * bp);
+  ProxyStripTopology(StripGeomDetType const * type, Plane * bp);
 
   virtual LocalPoint localPosition( const MeasurementPoint& mp ) const { return specificTopology().localPosition(mp);}
   /// conversion taking also the predicted track state 
@@ -89,7 +89,7 @@ public:
   virtual float localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
   
   virtual const GeomDetType& type() const  { return *theType;}
-  virtual StripGeomDetType& specificType() const  { return *theType;}
+  virtual StripGeomDetType const & specificType() const  { return *theType;}
 
   const SurfaceDeformation * surfaceDeformation() const {
     return theSurfaceDeformation.operator->();
@@ -110,7 +110,7 @@ private:
   SurfaceDeformation::Local2DVector
     positionCorrection(const Topology::LocalTrackPred &trk) const;
 
-  StripGeomDetType* theType;
+  StripGeomDetType const * theType;
   float theLength, theWidth;
   DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
 };

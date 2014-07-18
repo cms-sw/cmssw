@@ -17,6 +17,10 @@
 #include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
 #include "Utilities/General/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CLHEP/Random/RandExponential.h"
+#include "CLHEP/Random/RandFlat.h"
+
 #include <iostream>
 #include <fstream>
 #include <cassert>
@@ -50,8 +54,6 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
   theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
   theParticleDataTable(0),
-  theRandFlat(0),
-  theRandExponential(0),
   saveGasCollisions ( false )
 {
 
@@ -70,8 +72,6 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
 CSCGasCollisions::~CSCGasCollisions() {
   edm::LogInfo(me) << "Destructing a " << me;
   delete theCrossGap;
-  delete theRandFlat;
-  delete theRandExponential;
 }
 
 void CSCGasCollisions::readCollisionTable() {
@@ -149,15 +149,9 @@ void CSCGasCollisions::setParticleDataTable(const ParticleDataTable * pdt)
 }
 
 
-void CSCGasCollisions::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
-  theRandFlat = new CLHEP::RandFlat(engine);
-  theRandExponential = new CLHEP::RandExponential(engine);
-}
-
-
 void CSCGasCollisions::simulate( const PSimHit& simHit, 
-  std::vector<LocalPoint>& positions, std::vector<int>& electrons ) {
+                                 std::vector<LocalPoint>& positions, std::vector<int>& electrons,
+                                 CLHEP::HepRandomEngine* engine ) {
 
   const float epsilonL = 0.01;                     // Shortness of simhit 'length'
   //  const float max_gap_z = 1.5;                     // Gas gaps are 0.5 or 1.0 cm
@@ -228,10 +222,10 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
            << ", sum_steps=" << sum_steps << ", n_steps=" << n_steps;
         break;
     }
-    step = generateStep( amu );
+    step = generateStep( amu, engine );
     if ( sum_steps + step > gapSize ) break;
 
-    float eloss = generateEnergyLoss( amu, anmin, anmax, collisions );
+    float eloss = generateEnergyLoss( amu, anmin, anmax, collisions, engine );
 
     // Is the eloss too large? (then GEANT should have produced hits!)
     if ( eloss > deCut ) {
@@ -274,10 +268,10 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   return;
 }
 
-double CSCGasCollisions::generateStep( double avCollisions ) const
+double CSCGasCollisions::generateStep( double avCollisions, CLHEP::HepRandomEngine* engine ) const
 {
 // Generate a m.f.p.  (1/avCollisions = cm/collision)
-  double step = (theRandExponential->fire())/avCollisions;
+  double step = (CLHEP::RandExponential::shoot(engine))/avCollisions;
 
 // Without using CLHEP: approx random exponential by...
 //    double da = double(rand())/double(RAND_MAX);
@@ -290,10 +284,11 @@ double CSCGasCollisions::generateStep( double avCollisions ) const
 }
 
 float CSCGasCollisions::generateEnergyLoss( double avCollisions,
-   double anmin, double anmax, const std::vector<float>& collisions ) const
+                                            double anmin, double anmax, const std::vector<float>& collisions,
+                                            CLHEP::HepRandomEngine* engine ) const
 {
 // Generate a no. of collisions between collisions[0] and [N_ENERGY-1]
-    float lnColl = log(theRandFlat->fire(anmin, anmax));
+   float lnColl = log(CLHEP::RandFlat::shoot(engine, anmin, anmax));
 
 // Without using CLHEP: approx random between anmin and anmax
 //    double ra = double(rand())/double(RAND_MAX)*avCollisions;

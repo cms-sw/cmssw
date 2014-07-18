@@ -24,13 +24,14 @@ hiRegitMuTobTecStepClusters = RecoTracker.IterativeTracking.TobTecStep_cff.tobTe
 )
 
 # SEEDING LAYERS
-hiRegitMuTobTecStepSeedLayers =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayers.clone()
+hiRegitMuTobTecStepSeedLayers =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.clone()
+hiRegitMuTobTecStepSeedLayers.layerList.append('TOB1+TOB2')
 hiRegitMuTobTecStepSeedLayers.TOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 hiRegitMuTobTecStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 
 
 # seeding
-hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.clone()
+hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.clone()
 hiRegitMuTobTecStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuTobTecStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
@@ -41,31 +42,26 @@ hiRegitMuTobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                   
 
 
 # building: feed the new-named seeds
-hiRegitMuTobTecStepInOutTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepInOutTrajectoryFilter.clone(
-    ComponentName = 'hiRegitMuTobTecStepInOutTrajectoryFilter',
-    )
-hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minPt = 1.7
-hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minHitsMinPt        = 4
+hiRegitMuTobTecStepInOutTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepInOutTrajectoryFilter.clone()
+hiRegitMuTobTecStepInOutTrajectoryFilter.minPt = 1.7
+hiRegitMuTobTecStepInOutTrajectoryFilter.minimumNumberOfHits = 6
+hiRegitMuTobTecStepInOutTrajectoryFilter.minHitsMinPt        = 4
 
 
-hiRegitMuTobTecStepTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryFilter.clone(
-    ComponentName = 'hiRegitMuTobTecStepTrajectoryFilter',
-      )
-hiRegitMuTobTecStepTrajectoryFilter.filterPset.minPt               = 1.7
-hiRegitMuTobTecStepTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-hiRegitMuTobTecStepTrajectoryFilter.filterPset.minHitsMinPt        = 4   
+hiRegitMuTobTecStepTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryFilter.clone()
+hiRegitMuTobTecStepTrajectoryFilter.minPt               = 1.7
+hiRegitMuTobTecStepTrajectoryFilter.minimumNumberOfHits = 6
+hiRegitMuTobTecStepTrajectoryFilter.minHitsMinPt        = 4   
 
 hiRegitMuTobTecStepTrajectoryBuilder = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryBuilder.clone(
-    ComponentName             = 'hiRegitMuTobTecStepTrajectoryBuilder',
-    trajectoryFilterName      = 'hiRegitMuTobTecStepTrajectoryFilter',
-    inOutTrajectoryFilterName = 'hiRegitMuTobTecStepInOutTrajectoryFilter',
+    trajectoryFilter          = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryFilter')),
+    inOutTrajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepInOutTrajectoryFilter')),
     clustersToSkip            = cms.InputTag('hiRegitMuTobTecStepClusters'),
 )
 
 hiRegitMuTobTecStepTrackCandidates        =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuTobTecStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuTobTecStepTrajectoryBuilder',
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

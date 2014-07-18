@@ -139,11 +139,16 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
-  edm::InputTag caloJetsTag_;
-  edm::InputTag caloMETTag_;
-  edm::InputTag pfJetsTag_;
-  edm::InputTag pfMETTag_;
-  
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsFUToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
+  edm::EDGetTokenT <reco::PFJetCollection> pfJetsToken;
+  edm::EDGetTokenT <reco::PFMETCollection> pfMetToken;
+  edm::EDGetTokenT <reco::CaloJetCollection> caloJetsToken;
+  edm::EDGetTokenT <reco::CaloMETCollection> caloMetToken;
+  edm::EDGetTokenT <reco::VertexCollection> vertexToken;
+
   edm::Handle<reco::CaloJetCollection> calojetColl_;
   edm::Handle<reco::CaloMETCollection> calometColl_; 
   edm::Handle<reco::PFJetCollection>   pfjetColl_;

@@ -202,7 +202,6 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   

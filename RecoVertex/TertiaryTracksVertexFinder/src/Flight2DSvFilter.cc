@@ -14,7 +14,7 @@ Flight2DSvFilter::Flight2DSvFilter () {
 }
 
 
-Flight2DSvFilter::Flight2DSvFilter ( double maxDist2D=2.5 , double minDist2D=0.01 , double  minSign2D=3.0 , int  minTracks=2 ) {
+Flight2DSvFilter::Flight2DSvFilter ( double maxDist2D, double minDist2D, double  minSign2D, int  minTracks) {
   // init. data members
   maxFlightDist2D                = maxDist2D ;  // cm             
   minFlightDist2D                = minDist2D ;  // cm           

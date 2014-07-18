@@ -225,6 +225,7 @@ class ConfigBuilder(object):
         self.productionFilterSequence = None
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
+	self.excludedPaths=[]
 
     def profileOptions(self):
 	    """
@@ -515,7 +516,7 @@ class ConfigBuilder(object):
 				                     dataTier = cms.untracked.string(theTier),
 						     filterName = cms.untracked.string(theFilterName))
 						  )
-			if not theSelectEvent and hasattr(self.process,'generation_step'):
+			if not theSelectEvent and hasattr(self.process,'generation_step') and theStreamType!='LHE':
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 			if not theSelectEvent and hasattr(self.process,'filtering_step'):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
@@ -576,18 +577,13 @@ class ConfigBuilder(object):
                                                                        filterName = cms.untracked.string(theFilterName)
                                                                        )
                                           )
-                if hasattr(self.process,"generation_step"):
+                if hasattr(self.process,"generation_step") and streamType!='LHE':
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 		if hasattr(self.process,"filtering_step"):
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
 
                 if streamType=='ALCARECO':
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
-
-                if "MINIAOD" in streamType:
-                    output.dropMetaData = cms.untracked.string('ALL')
-                    output.fastCloning= cms.untracked.bool(False)
-                    output.overrideInputFileSplitLevels = cms.untracked.bool(True)                      
 
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)
@@ -1254,6 +1250,7 @@ class ConfigBuilder(object):
 	    
 	    #schedule it
 	    self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+	    self.excludedPaths.append("lhe_step")
 	    self.schedule.append( self.process.lhe_step )
 
     def prepare_GEN(self, sequence = None):
@@ -1280,6 +1277,11 @@ class ConfigBuilder(object):
 	if not loadFailure:
 		generatorModule=sys.modules[loadFragment]
 		genModules=generatorModule.__dict__
+		#remove lhe producer module since this should have been
+		#imported instead in the LHE step
+		if self.LHEDefaultSeq in genModules:
+                        del genModules[self.LHEDefaultSeq]
+
 		if self._options.hideGen:
 			self.loadAndRemember(loadFragment)
 		else:
@@ -1689,38 +1691,56 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
+	    print sequence,"in preparing validation"
             self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
+	    from Validation.Configuration.autoValidation import autoValidation
             #in case VALIDATION:something:somethingelse -> something,somethingelse
             sequence=sequence.split('.')[-1]
             if sequence.find(',')!=-1:
-                    prevalSeqName=sequence.split(',')[0]
-                    valSeqName=sequence.split(',')[1]
+                    prevalSeqName=sequence.split(',')[0].split('+')
+                    valSeqName=sequence.split(',')[1].split('+')
+		    self.expandMapping(prevalSeqName,autoValidation,index=0)
+		    self.expandMapping(valSeqName,autoValidation,index=1)
             else:
-                    postfix=''
-                    if sequence:
-                            postfix='_'+sequence
-                    prevalSeqName='prevalidation'+postfix
-                    valSeqName='validation'+postfix
-                    if not hasattr(self.process,valSeqName):
-                            prevalSeqName=''
-                            valSeqName=sequence
+		    if '@' in sequence:
+			    prevalSeqName=sequence.split('+')
+			    valSeqName=sequence.split('+')
+			    self.expandMapping(prevalSeqName,autoValidation,index=0)
+			    self.expandMapping(valSeqName,autoValidation,index=1)
+		    else:
+			    postfix=''
+			    if sequence:
+				    postfix='_'+sequence
+			    prevalSeqName=['prevalidation'+postfix]
+			    valSeqName=['validation'+postfix]
+			    if not hasattr(self.process,valSeqName[0]):
+				    prevalSeqName=['']
+				    valSeqName=[sequence]
 
-            if not 'DIGI' in self.stepMap and not self._options.fast and not valSeqName.startswith('genvalid'):
+	    def NFI(index):
+		    ##name from index, required to keep backward compatibility
+		    if index==0:
+			    return ''
+		    else:
+			    return '%s'%index
+		    
+            if not 'DIGI' in self.stepMap and not self._options.fast and not any(map( lambda s : s.startswith('genvalid'), valSeqName)):
 		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
 			    self._options.restoreRNDSeeds=True
 
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not self._options.fast) or self._options.hltProcess:
-		    self.renameHLTprocessInSequence(valSeqName)
-                    if prevalSeqName:
-                            self.renameHLTprocessInSequence(prevalSeqName)
-
-            if prevalSeqName:
-                    self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
-                    self.schedule.append(self.process.prevalidation_step)
-
-	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
-            self.schedule.append(self.process.validation_step)
+		    for s in valSeqName+prevalSeqName:
+			    if s:
+				    self.renameHLTprocessInSequence(s)
+	    for (i,s) in enumerate(prevalSeqName):
+		    if s:
+			    setattr(self.process,'prevalidation_step%s'%NFI(i),  cms.Path( getattr(self.process, s)) )
+			    self.schedule.append(getattr(self.process,'prevalidation_step%s'%NFI(i)))
+			    
+	    for (i,s) in enumerate(valSeqName):
+		    setattr(self.process,'validation_step%s'%NFI(i), cms.EndPath( getattr(self.process, s)))
+		    self.schedule.append(getattr(self.process,'validation_step%s'%NFI(i)))
 
 	    if not 'DIGI' in self.stepMap and not self._options.fast:
 		    self.executeAndRemember("process.mix.playback = True")
@@ -1730,7 +1750,8 @@ class ConfigBuilder(object):
 
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly
-		    self.process.validation_step._seq = self.process.genstepfilter * self.process.validation_step._seq
+		    for (i,s) in enumerate(valSeqName):
+			    getattr(self.process,'validation_step%s'%NFI(i))._seq = self.process.genstepfilter * getattr(self.process,'validation_step%s'%NFI(i))._seq
 
             return
 
@@ -1879,7 +1900,11 @@ class ConfigBuilder(object):
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
 	from DQMOffline.Configuration.autoDQM import autoDQM
-	self.expandMapping(harvestingList,autoDQM,index=1)
+	from Validation.Configuration.autoValidation import autoValidation
+	import copy
+	combined_mapping = copy.deepcopy( autoDQM )
+	combined_mapping.update( autoValidation )
+	self.expandMapping(harvestingList,combined_mapping,index=-1)
 	
 	if len(set(harvestingList))!=len(harvestingList):
 		harvestingList=list(set(harvestingList))
@@ -2140,10 +2165,13 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='for path in process.paths:\n'
 		if len(self.conditionalPaths):
 			self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
+                if len(self.excludedPaths):
+                        self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 		pfs = getattr(self.process,self.productionFilterSequence)
 		for path in self.process.paths:
 			if not path in self.conditionalPaths: continue
+                        if path in self.excludedPaths: continue
 			getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
 			
 

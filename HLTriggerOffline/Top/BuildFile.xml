@@ -1,8 +1,11 @@
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Common"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/Common"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="PhysicsTools/UtilAlgos"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/Track"/>

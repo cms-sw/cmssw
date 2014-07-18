@@ -22,44 +22,44 @@ PhiSort( const GeometricDet* Panel1, const GeometricDet* Panel2 )
 }
 
 void
-CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
-						  std::vector< GeometricDet const *>::iterator end )
+CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( GeometricDet::ConstGeometricDetContainer::iterator begin,
+						  GeometricDet::ConstGeometricDetContainer::iterator end )
 {
   // first sort in phi, lowest first (-pi to +pi)
   std::sort( begin, end, PhiSort );
 
   // now put positive phi (in order) ahead of negative phi as in std geometry
-  std::vector<const GeometricDet*> theCompsPosNeg;
+  GeometricDet::ConstGeometricDetContainer theCompsPosNeg;
   theCompsPosNeg.empty();
   theCompsPosNeg.clear();
   // also find the average radius (used to split inner and outer disk panels)
   double theRmin = (**begin).rho();
   double theRmax = theRmin;
-  for(vector<const GeometricDet*>::const_iterator it=begin;
+  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=begin;
       it!=end;it++){
     if((**it).phi() >= 0) theCompsPosNeg.push_back(*it);
     theRmin = std::min( theRmin, (**it).rho());
     theRmax = std::max( theRmax, (**it).rho());
   }
-  for(vector<const GeometricDet*>::const_iterator it=begin;
+  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=begin;
       it!=end;it++){
     if((**it).phi() < 0) theCompsPosNeg.push_back(*it);
   }
 
   // now put inner disk panels first
   double radius_split = 0.5 * (theRmin + theRmax);
-  std::vector<const GeometricDet*> theCompsInnerOuter;
+  GeometricDet::ConstGeometricDetContainer theCompsInnerOuter;
   theCompsInnerOuter.empty();
   theCompsInnerOuter.clear();
   //unsigned int num_inner = 0;
-  for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
+  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
     if((**it).rho() <= radius_split) {
       theCompsInnerOuter.push_back(*it);
       //num_inner++;
     }
   }
-  for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
+  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
     if((**it).rho() > radius_split) theCompsInnerOuter.push_back(*it);
   }
@@ -87,7 +87,7 @@ CmsTrackerDiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std:
 void
 CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   switch( det->components().front()->type())
   {
@@ -114,14 +114,14 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   {
     if( fabs( comp[2*j]->translation().z()) > fabs( comp[ 2*j +1 ]->translation().z()))
     {
-      zmaxpanels.push_back( comp[2*j] );
-      zminpanels.push_back( comp[2*j+1] );
+      zmaxpanels.push_back( det->component(2*j) );
+      zminpanels.push_back( det->component(2*j+1) );
 
     }
     else if( fabs( comp[2*j]->translation().z()) < fabs( comp[ 2*j +1 ]->translation().z()))
     {
-      zmaxpanels.push_back( comp[2*j+1] );
-      zminpanels.push_back( comp[2*j] );
+      zmaxpanels.push_back( det->component(2*j+1) );
+      zminpanels.push_back( det->component(2*j) );
     }
     else
     {

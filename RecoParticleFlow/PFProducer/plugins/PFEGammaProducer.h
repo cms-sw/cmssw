@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -48,7 +48,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 */
 
 
-class PFEGammaProducer : public edm::EDProducer {
+class PFEGammaProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFEGammaProducer(const edm::ParameterSet&);
   ~PFEGammaProducer();
@@ -63,6 +63,9 @@ class PFEGammaProducer : public edm::EDProducer {
   void setPFVertexParameters(bool useVertex,
 			     const reco::VertexCollection*  primaryVertices);	  
    
+  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd);
+  
+  
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
   edm::EDGetTokenT<reco::VertexCollection>  vertices_;
@@ -117,6 +120,7 @@ class PFEGammaProducer : public edm::EDProducer {
   
   std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
   std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::auto_ptr<reco::ConversionCollection>             singleLegConv_;
   std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
 
   /// the unfiltered electron collection 
@@ -132,5 +136,8 @@ class PFEGammaProducer : public edm::EDProducer {
   std::string esClustersCollection_;
 
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFEGammaProducer);
 
 #endif

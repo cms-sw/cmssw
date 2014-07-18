@@ -1,17 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from RecoMET.METProducers.METSigParams_cfi import *
-
-##____________________________________________________________________________||
 met = cms.EDProducer(
     "CaloMETProducer",
-    METSignificance_params,
     src = cms.InputTag("towerMaker"),
     alias = cms.string('RawCaloMET'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(0.3),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
     )
 
 ##____________________________________________________________________________||
@@ -22,12 +18,11 @@ metHO.alias = 'RawCaloMETHO'
 ##____________________________________________________________________________||
 metOpt = cms.EDProducer(
     "CaloMETProducer",
-    METSignificance_params,
     src = cms.InputTag("calotoweroptmaker"),
     alias = cms.string('RawCaloMETOpt'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
     )
 
 ##____________________________________________________________________________||
@@ -38,12 +33,11 @@ metOptHO.alias = 'RawCaloMETOptHO'
 ##____________________________________________________________________________||
 metNoHF = cms.EDProducer(
     "CaloMETProducer",
-    METSignificance_params,
     src = cms.InputTag("towerMaker"),
     alias = cms.string('RawCaloMETNoHF'),
     noHF = cms.bool(True),
     globalThreshold = cms.double(0.3),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
 )
 
 ##____________________________________________________________________________||
@@ -54,12 +48,11 @@ metNoHFHO.alias = 'RawCaloMETNoHFHO'
 ##____________________________________________________________________________||
 metOptNoHF = cms.EDProducer(
     "CaloMETProducer",
-    METSignificance_params,
     src = cms.InputTag("calotoweroptmaker"),
     alias = cms.string('RawCaloMETOptNoHF'),
     noHF = cms.bool(True),
     globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
     )
 
 ##____________________________________________________________________________||

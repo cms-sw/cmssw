@@ -41,7 +41,10 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >( "Deta" ).setBranchAlias( "deta" );
-  produces < reco::RecoEcalCandidateIsolationMap >( "Dphi" ).setBranchAlias( "dphi" ); 
+  produces < reco::RecoEcalCandidateIsolationMap >( "Dphi" ).setBranchAlias( "dphi" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "OneOESuperMinusOneOP" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "OneOESeedMinusOneOP" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "MissingHits" ).setBranchAlias( "missinghits" );
 }
 
 EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer()
@@ -81,7 +84,10 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
 
   reco::RecoEcalCandidateIsolationMap dEtaMap;
   reco::RecoEcalCandidateIsolationMap dPhiMap;
-  
+  reco::RecoEcalCandidateIsolationMap oneOverESuperMinusOneOverPMap;
+  reco::RecoEcalCandidateIsolationMap oneOverESeedMinusOneOverPMap;
+  reco::RecoEcalCandidateIsolationMap missingHitsMap;
+
   for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
    
@@ -107,37 +113,64 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
       }
       
     }
+
+    float missingHitsValue = 9999999;
     float dEtaInValue=999999;
     float dPhiInValue=999999;
+    float oneOverESuperMinusOneOverPValue=999999;
+    float oneOverESeedMinusOneOverPValue=999999;
     
     if(static_cast<int>(gsfTracks.size())>=upperTrackNrToRemoveCut_){
       dEtaInValue=0;
       dPhiInValue=0;
+      missingHitsValue = 0;
     }else if(static_cast<int>(gsfTracks.size())<=lowerTrackNrToRemoveCut_){
       dEtaInValue=0;
       dPhiInValue=0;
+      missingHitsValue = 0;
     }else{
       for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
       
 	GlobalPoint scPos(scRef->x(),scRef->y(),scRef->z());
 	GlobalPoint trackExtrapToSC = trackExtrapolator_.extrapolateTrackPosToPoint(*gsfTracks[trkNr],scPos);
 	EleRelPointPair scAtVtx(scRef->position(),trackExtrapToSC,beamSpot.position());
+
 	
-	if(fabs(scAtVtx.dEta())<dEtaInValue) dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
-	if(fabs(scAtVtx.dPhi())<dPhiInValue) dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
+	float trkP = gsfTracks[trkNr]->p();
+	if(scRef->energy()!=0 && trkP!=0){
+	  if(fabs(1/scRef->energy() - 1/trkP)<oneOverESuperMinusOneOverPValue) oneOverESuperMinusOneOverPValue =fabs(1/scRef->energy() - 1/trkP);
+	}
+	if(scRef->seed().isNonnull() && scRef->seed()->energy()!=0 && trkP!=0){
+	  if(fabs(1/scRef->seed()->energy() - 1/trkP)<oneOverESeedMinusOneOverPValue) oneOverESeedMinusOneOverPValue =fabs(1/scRef->seed()->energy() - 1/trkP);
+	}
+
+	if (gsfTracks[trkNr]->trackerExpectedHitsInner().numberOfLostHits() < missingHitsValue) 
+	  missingHitsValue = gsfTracks[trkNr]->trackerExpectedHitsInner().numberOfLostHits();
+	if (fabs(scAtVtx.dEta())<dEtaInValue) 
+	  dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
+	if (fabs(scAtVtx.dPhi())<dPhiInValue) 
+	  dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
       }	
     }
-    
+   
     dEtaMap.insert(recoEcalCandRef, dEtaInValue);
     dPhiMap.insert(recoEcalCandRef, dPhiInValue);
+    oneOverESuperMinusOneOverPMap.insert(recoEcalCandRef,oneOverESuperMinusOneOverPValue);   
+    oneOverESeedMinusOneOverPMap.insert(recoEcalCandRef,oneOverESeedMinusOneOverPValue);
+    missingHitsMap.insert(recoEcalCandRef, missingHitsValue);
   }
 
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dEtaMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaMap));
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dPhiMapForEvent(new reco::RecoEcalCandidateIsolationMap(dPhiMap));
+  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESuperMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESuperMinusOneOverPMap));
+  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESeedMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESeedMinusOneOverPMap));
+  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> missingHitsForEvent(new reco::RecoEcalCandidateIsolationMap(missingHitsMap));
   iEvent.put(dEtaMapForEvent, "Deta" );
   iEvent.put(dPhiMapForEvent, "Dphi" );
+  iEvent.put(oneOverESuperMinusOneOverPMapForEvent,"OneOESuperMinusOneOP");
+  iEvent.put(oneOverESeedMinusOneOverPMapForEvent,"OneOESeedMinusOneOP");
+  iEvent.put(missingHitsForEvent, "MissingHits");
 }
-
 
 
 EgammaHLTGsfTrackVarProducer::TrackExtrapolator::TrackExtrapolator(const EgammaHLTGsfTrackVarProducer::TrackExtrapolator& rhs):

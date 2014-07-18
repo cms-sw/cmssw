@@ -16,15 +16,15 @@ using namespace reco;
 class EventVtxInfoNtupleDumper : public edm::EDProducer {
 public:
   EventVtxInfoNtupleDumper( const edm::ParameterSet & );
-   
+
 private:
   void produce( edm::Event &, const edm::EventSetup & ) override;
-  edm::InputTag primaryVertices_;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken_;
 
 };
 
-EventVtxInfoNtupleDumper::EventVtxInfoNtupleDumper( const ParameterSet & cfg ) : 
-  primaryVertices_(cfg.getParameter<InputTag>("primaryVertices")) {
+EventVtxInfoNtupleDumper::EventVtxInfoNtupleDumper( const ParameterSet & cfg ) :
+  primaryVerticesToken_(consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("primaryVertices")) ){
   produces<int>( "numPV" ).setBranchAlias( "numPV" );
   produces<int>( "nTrkPV" ).setBranchAlias( "nTrkPV" );
   produces<float>( "chi2PV" ).setBranchAlias( "chi2PV" );
@@ -39,9 +39,9 @@ EventVtxInfoNtupleDumper::EventVtxInfoNtupleDumper( const ParameterSet & cfg ) :
 
 
 void EventVtxInfoNtupleDumper::produce( Event & evt, const EventSetup & ) {
-  
+
   Handle<reco::VertexCollection> primaryVertices;  // Collection of primary Vertices
-  evt.getByLabel(primaryVertices_, primaryVertices);
+  evt.getByToken(primaryVerticesToken_, primaryVertices);
   auto_ptr<int> nVtxs( new int );
   auto_ptr<int> nTrkVtx( new int );
   auto_ptr<float> chi2Vtx( new float );

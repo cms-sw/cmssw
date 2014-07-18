@@ -74,7 +74,7 @@ void testEvent::beginRun(edm::Run const&, edm::EventSetup const& es)
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  
   if ( isGeant ) mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 
@@ -83,6 +83,8 @@ void testEvent::beginRun(edm::Run const&, edm::EventSetup const& es)
 void
 testEvent::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  ParticleTable::Sentry ptable(mySimEvent[1]->theTable()); // one sentry is fine
+
   if ( isGeant ) { 
     edm::Handle<std::vector<SimTrack> > fullSimTracks;
     iEvent.getByLabel("g4SimHits","",fullSimTracks);

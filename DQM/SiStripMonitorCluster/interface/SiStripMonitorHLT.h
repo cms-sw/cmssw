@@ -14,17 +14,15 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 class DQMStore;
 
-class SiStripMonitorHLT : public edm::EDAnalyzer {
+class SiStripMonitorHLT : public DQMEDAnalyzer {
    public:
       explicit SiStripMonitorHLT(const edm::ParameterSet&);
       ~SiStripMonitorHLT(){};
@@ -32,6 +30,7 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob() ;
        virtual void endJob() ;
+       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
    private:
 

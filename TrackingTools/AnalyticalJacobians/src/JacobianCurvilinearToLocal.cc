@@ -8,7 +8,7 @@
 JacobianCurvilinearToLocal::
 JacobianCurvilinearToLocal(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
-			   const MagneticField& magField) : theJacobian() {
+			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixNoInit()) {
  
   GlobalPoint  x = surface.toGlobal(localParameters.position());
   GlobalVector h  = magField.inInverseGeV(x);
@@ -34,7 +34,7 @@ JacobianCurvilinearToLocal::
 JacobianCurvilinearToLocal(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
 			   const GlobalTrajectoryParameters& globalParameters,
-			   const MagneticField& magField) : theJacobian() {
+			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixNoInit()) {
  
   // GlobalPoint  x =  globalParameters.position();
   // GlobalVector h  = magField.inInverseGeV(x);
@@ -78,10 +78,17 @@ void JacobianCurvilinearToLocal::compute(Surface::RotationType const & rot, Glob
   double t3r = t1r*t2r;
 
   theJacobian(0,0) = 1.;
+  for (auto i=1;i<5; ++i) theJacobian(0,i)=0.; 
+  theJacobian(1,0) = 0.;
+  theJacobian(2,0) = 0.;
+ 
   theJacobian(1,1) = -u[k]*t2r;
   theJacobian(1,2) = v[k]*(cosl*t2r);
   theJacobian(2,1) = u[j]*t2r;
   theJacobian(2,2) = -v[j]*(cosl*t2r);
+
+  for (auto i=0;i<3; ++i) { theJacobian(3,i)=0.; theJacobian(4,i)=0.; }
+
   theJacobian(3,3) = v[k]*t1r;
   theJacobian(3,4) = -u[k]*t1r;
   theJacobian(4,3) = -v[j]*t1r;

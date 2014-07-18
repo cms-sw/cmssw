@@ -1,7 +1,6 @@
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PixelVertexProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveVertexFinder.h"
@@ -12,7 +11,7 @@
 #include <cmath>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
-  : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
+  : verbose_(0), dvf_(0), ptMin_(1.0)
 {
   // Register my product
   produces<reco::VertexCollection>();
@@ -26,11 +25,34 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   double zSeparation = conf.getParameter<double>("ZSeparation"); // 0.05 cm
   int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 3
   // Tracking requirements before sending a track to be considered for vtx
-  ptMin_ = conf_.getParameter<double>("PtMin"); // 1.0 GeV
+  ptMin_ = conf.getParameter<double>("PtMin"); // 1.0 GeV
+  trackCollName = conf.getParameter<edm::InputTag>("TrackCollection");
+  token_Tracks = consumes<reco::TrackCollection>(trackCollName);
+  token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
+  method2 = conf.getParameter<bool>("Method2");
+
+  double track_pt_min   = ptMin_;
+  double track_pt_max   = 10.;
+  double track_chi2_max = 9999999.;
+  double track_prob_min = -1.;
+
+  if ( conf.exists("PVcomparer") ) {
+    edm::ParameterSet PVcomparerPSet = conf.getParameter<edm::ParameterSet>("PVcomparer");
+    track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");    
+    if (track_pt_min != ptMin_) {
+      if (track_pt_min < ptMin_)
+	edm::LogWarning("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
+      else
+	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") !!!";
+    }
+    track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
+    track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
+    track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+  }
 
   if (finder == "DivisiveVertexFinder") {
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
-    dvf_ = new DivisiveVertexFinder(zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
+    dvf_ = new DivisiveVertexFinder(track_pt_min,track_pt_max,track_chi2_max,track_prob_min,zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
   }
   else { // Finder not supported, or you made a mistake in your request
     // throw an exception once I figure out how CMSSW does this
@@ -46,8 +68,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // First fish the pixel tracks out of the event
   edm::Handle<reco::TrackCollection> trackCollection;
-  edm::InputTag trackCollName = conf_.getParameter<edm::InputTag>("TrackCollection");
-  e.getByLabel(trackCollName,trackCollection);
+  e.getByToken(token_Tracks,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
   if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Found " << tracks.size() << " tracks in TrackCollection called " << trackCollName << "\n";
   
@@ -61,15 +82,14 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Selected " << trks.size() << " of these tracks for vertexing\n";
 
   edm::Handle<reco::BeamSpot> bsHandle;
-  edm::InputTag bsName = conf_.getParameter<edm::InputTag>("beamSpot");
-  e.getByLabel(bsName,bsHandle);
+  e.getByToken(token_BeamSpot,bsHandle);
   math::XYZPoint myPoint(0.,0.,0.);
   if (bsHandle.isValid()) myPoint = math::XYZPoint(bsHandle->x0(),bsHandle->y0(), 0. ); //FIXME: fix last coordinate with vertex.z() at same time
 
   // Third, ship these tracks off to be vertexed
   std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
   bool ok;
-  if (conf_.getParameter<bool>("Method2")) {
+  if (method2) {
     ok = dvf_->findVertexesAlt(trks,       // input
 			     *vertexes,myPoint); // output
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << "Method2 returned status of " << ok;

@@ -10,8 +10,8 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
 # the new TopProjectors now work with Ptrs
 # a conversion is needed if objects are not available
 # add them upfront of the sequence
-ak5PFJetsPtrs = cms.EDProducer("PFJetFwdPtrProducer",
-   src = cms.InputTag("ak5PFJets")
+ak4PFJetsPtrs = cms.EDProducer("PFJetFwdPtrProducer",
+   src = cms.InputTag("ak4PFJets")
 )
 # this one is needed only if the input file doesn't have it
 # solved automatically with unscheduled execution
@@ -23,7 +23,7 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 # downstream operates with View<reco::Candidate>, I wish one could read
 # it from std::vector<PFCandidateFwdPtr> directly
 pfCandsNotInJetPtrs = pfNoJet.clone(
-    topCollection = cms.InputTag('ak5PFJetsPtrs'),
+    topCollection = cms.InputTag('ak4PFJetsPtrs'),
     bottomCollection = cms.InputTag('particleFlowPtrs')
 )
 pfCandsNotInJet = cms.EDProducer("PFCandidateFromFwdPtrProducer",
@@ -35,23 +35,23 @@ pfCandsNotInJet = cms.EDProducer("PFCandidateFromFwdPtrProducer",
 #--------------------------------------------------------------------------------
 # produce Type 1 + 2 MET corrections for PFJets
 pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
-    src = cms.InputTag('ak5PFJets'),
-    offsetCorrLabel = cms.string("ak5PFL1Fastjet"),
-    jetCorrLabel = cms.string("ak5PFL1FastL2L3"), # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
+    src = cms.InputTag('ak4PFJets'),
+    offsetCorrLabel = cms.string("ak4PFL1Fastjet"),
+    jetCorrLabel = cms.string("ak4PFL1FastL2L3"), # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(10.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
     skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
-)                                         
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # produce Type 2 MET corrections for selected PFCandidates
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
-    src = cms.InputTag('pfCandsNotInJet')                         
-)   
+    src = cms.InputTag('pfCandsNotInJet')
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ pfchsMETcorr = cms.EDProducer("PFchsMETcorrInputProducer",
     src = cms.InputTag('offlinePrimaryVertices'),
     goodVtxNdof = cms.uint32(4),
     goodVtxZ = cms.double(24)
-)   
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
         cms.InputTag('pfJetMETcorr', 'type1')
     ),
     applyType2Corrections = cms.bool(False)
-)   
+)
 
 pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
@@ -94,20 +94,20 @@ pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('pfJetMETcorr', 'type2'),
         cms.InputTag('pfJetMETcorr', 'offset'),
-        cms.InputTag('pfCandMETcorr')                                    
-    ),                              
+        cms.InputTag('pfCandMETcorr')
+    ),
     type2CorrFormula = cms.string("A"),
     type2CorrParameter = cms.PSet(
         A = cms.double(1.4)
     )
-)   
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # define sequence to run all modules
 producePFMETCorrections = cms.Sequence(
-    ak5PFJetsPtrs
-   * particleFlowPtrs 
+    ak4PFJetsPtrs
+   * particleFlowPtrs
    * pfCandsNotInJetPtrs
    * pfCandsNotInJet
    * pfJetMETcorr

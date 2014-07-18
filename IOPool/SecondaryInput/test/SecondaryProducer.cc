@@ -31,10 +31,18 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "boost/bind.hpp"
 
 #include <memory>
 #include <string>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace edm {
 
@@ -74,6 +82,7 @@ namespace edm {
 
   // Functions that get called by framework every event
   void SecondaryProducer::produce(Event& e, EventSetup const&) {
+
     if(sequential_) {
       if(lumiSpecified_) {
         // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
@@ -86,11 +95,23 @@ namespace edm {
       std::vector<EventID> events(1, e.id());
       secInput_->loopSpecified(*eventPrincipal_, events, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
     } else {
+
+      edm::Service<edm::RandomNumberGenerator> rng;
+      if ( ! rng.isAvailable()) {
+        throw cms::Exception("Configuration")
+          << "SecondaryProducer in its random mode requires the RandomNumberGeneratorService\n"
+             "which is not present in the configuration file.  You must add the service\n"
+             "in the configuration file or remove the modules that require it.";
+      }
+      CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
       if(lumiSpecified_) {
         // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopRandomWithID(*eventPrincipal_, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+        secInput_->loopRandomWithID(*eventPrincipal_, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1,
+                                    boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)),
+                                    engine);
       } else {
-        secInput_->loopRandom(*eventPrincipal_, 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+        secInput_->loopRandom(*eventPrincipal_, 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)), engine);
       }
     }
   }

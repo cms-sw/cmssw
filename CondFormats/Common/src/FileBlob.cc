@@ -71,11 +71,11 @@ void FileBlob::write(std::ostream & os) const {
   }
 }
 
-std::vector<unsigned char>* FileBlob::getUncompressedBlob() const { 
-  std::vector<unsigned char>*  newblob;
+std::unique_ptr<std::vector<unsigned char> > FileBlob::getUncompressedBlob() const {
+  std::unique_ptr<std::vector<unsigned char> >  newblob;
   if(compressed)
   {
-    newblob = new std::vector<unsigned char>(isize);
+    newblob.reset(new std::vector<unsigned char>(isize));
     uLongf destLen = newblob->size();
     //    std::cout<<"Store isize = "<<isize<<"; newblob->size() = "<<newblob->size()<<"; destLen = "<<destLen<<std::endl;
     int zerr =  uncompress(&*(newblob->begin()),  &destLen,
@@ -85,7 +85,7 @@ std::vector<unsigned char>* FileBlob::getUncompressedBlob() const {
                                    << " original size was " << isize
                                    << " new size is " << destLen;
   }else{
-    newblob = new std::vector<unsigned char>(blob);
+    newblob.reset(new std::vector<unsigned char>(blob));
   }
   return newblob;
  }

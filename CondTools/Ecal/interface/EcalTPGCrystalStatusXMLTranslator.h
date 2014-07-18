@@ -14,11 +14,6 @@
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
 
-static const char CVSId__EcalTPGCrystalStatusXMLTranslator[] = 
-"$Id: EcalTPGCrystalStatusXMLTranslator.h,v 1.1 2011/04/04 fay Exp $";
-
-
-//class EcalTPGCrystalStatus;
 
 class EcalTPGCrystalStatusXMLTranslator {
 

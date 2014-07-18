@@ -62,22 +62,49 @@ def miniAOD_customizeCommon(process):
     process.selectedPatJets.cut = cms.string("pt > 10")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))") 
     process.selectedPatElectrons.cut = cms.string("") 
-    process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
+    process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFinding')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
     #
     from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-    #switch to AK4 for CSA14/70X release (should be default in 71X)
+    #switch to AK4 (though it should soon be unnecessary as ak4 should become the 71X default)
+    #FIXME: still using AK5PFchs for jet energy corrections, while waiting for a new globalTag
     switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
-    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
+    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
     #add CA8   
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+    addJetCollection(process, labelName = 'AK8', jetSource = cms.InputTag('ak8PFJetsCHS'),algo= 'AK', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
+    process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
+    process.selectedPatJetsAK8.cut = cms.string("pt > 100")
+    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
+    ## AK8 groomed masses
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
+    process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
+    process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
+    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
+    process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
+    ### CA8 groomed masses (for the matched jet): doesn't seem to work, it produces tons of warnings "Matched jets separated by dR greater than distMax=0.8"
+    # from RecoJets.Configuration.RecoPFJets_cff import ca8PFJetsCHSFiltered, ca8PFJetsCHSTrimmed # ca8PFJetsCHSPruned is already in AOD
+    # process.ca8PFJetsCHSTrimmed  = ca8PFJetsCHSTrimmed.clone()
+    # process.ca8PFJetsCHSFiltered = ca8PFJetsCHSFiltered.clone()
+    # process.load("RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi")
+    # process.ca8PFJetsCHSPrunedLinks.src   = cms.InputTag("ak8PFJetsCHS")
+    # process.ca8PFJetsCHSTrimmedLinks.src  = cms.InputTag("ak8PFJetsCHS")
+    # process.ca8PFJetsCHSFilteredLinks.src = cms.InputTag("ak8PFJetsCHS")
+    # process.patJetsAK8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
+    ## cmsTopTagger (note: it is already run in RECO, we just add the value)
+    process.cmsTopTagPFJetsCHSLinksAK8 = process.ak8PFJetsCHSPrunedLinks.clone()
+    process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
+    process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
+
     #
-    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS'),algo= 'CA', rParam = 0.8)
-    process.selectedPatJetsCA8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
+    ## PU JetID
+    process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
+    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
@@ -85,7 +112,8 @@ def miniAOD_customizeCommon(process):
     #
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
-    from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
+    # FIXME: this and the typeI MET should become AK4 once we have the proper JEC?
+    from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK5PF', jetSource = cms.InputTag('ak5PFJets'), jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
@@ -106,10 +134,7 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig')
     process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfos"))
     process.patJets.addTagInfos = cms.bool(True)
-    #
-    ## PU JetID
-    process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
-    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
+
 
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"
@@ -128,10 +153,6 @@ def miniAOD_customizeMC(process):
     process.patJets.embedGenPartonMatch = False
     #also jet flavour must be switched to ak4
     process.patJetFlavourAssociation.rParam = 0.4
-    #only for 70X/CSA14 to get ak4
-    process.load("RecoJets.JetProducers.ak4GenJets_cfi")
-    process.load("RecoJets.Configuration.GenJetParticles_cff") 
-    process.slimmedGenJets.src =  'ak4GenJets'
 
 def miniAOD_customizeOutput(out):
     out.dropMetaData = cms.untracked.string('ALL')

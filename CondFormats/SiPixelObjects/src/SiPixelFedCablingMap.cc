@@ -5,7 +5,17 @@
 #include <iostream>
 #include <algorithm>
 
+#include <iostream>
+
 using namespace sipixelobjects;
+
+
+void SiPixelFedCablingMap::initializeRocs() {
+  //  std::cout << "initialize PixelRocs" << std::endl;
+  for (auto & v : theMap) v.second.initFrameConversion();
+
+}
+
 
 bool SiPixelFedCablingMap::Key::operator < (const Key & other) const 
 {
@@ -50,9 +60,9 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab)
   }  
 }
 
-SiPixelFedCablingTree * SiPixelFedCablingMap::cablingTree() const
+std::unique_ptr<SiPixelFedCablingTree>  SiPixelFedCablingMap::cablingTree() const
 {
-  SiPixelFedCablingTree * tree = new SiPixelFedCablingTree(theVersion); 
+  std::unique_ptr<SiPixelFedCablingTree>  tree(new SiPixelFedCablingTree(theVersion)); 
   for (Map::const_iterator im = theMap.begin(); im != theMap.end(); im++) {
     const sipixelobjects::PixelROC & roc = im->second;
     unsigned int fedId = im->first.fed;

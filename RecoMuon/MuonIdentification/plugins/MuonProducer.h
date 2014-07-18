@@ -11,7 +11,7 @@
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -44,7 +44,7 @@ namespace reco {class Track;}
 class MuPFIsoHelper;
 
 
-class MuonProducer : public edm::EDProducer {
+class MuonProducer : public edm::stream::EDProducer<> {
 public:
 
   /// Constructor

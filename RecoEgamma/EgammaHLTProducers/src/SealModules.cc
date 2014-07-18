@@ -39,6 +39,11 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPFChargedIsolationProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPFNeutralIsolationProducer.h"
 
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalPFClusterIsolationProducer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalPFClusterIsolationProducer.h"
+
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCaloTowerProducer.h"
+
 DEFINE_FWK_MODULE(EgammaHLTElectronTrackIsolationProducers);
 DEFINE_FWK_MODULE(EgammaHLTElectronDetaDphiProducer);
 DEFINE_FWK_MODULE(EgammaHLTGsfTrackVarProducer);
@@ -71,3 +76,8 @@ DEFINE_FWK_MODULE(EgammaHLTRechitInRegionsProducer);
 DEFINE_FWK_MODULE(EgammaHLTPFPhotonIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTPFChargedIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTPFNeutralIsolationProducer);
+
+DEFINE_FWK_MODULE(EgammaHLTEcalPFClusterIsolationProducer);
+DEFINE_FWK_MODULE(EgammaHLTHcalPFClusterIsolationProducer);
+
+DEFINE_FWK_MODULE(EgammaHLTCaloTowerProducer);

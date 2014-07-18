@@ -71,6 +71,7 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
                                                                                
     fractionShared = cms.double(0.5),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('TrajectoryBuilderForConversions')),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('alongMomElePropagator'),
         propagatorOppositeTISE = cms.string('oppositeToMomElePropagator'),

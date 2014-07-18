@@ -80,16 +80,10 @@ namespace edm {
   void WorkerManager::endJob(ExceptionCollector& collector) {
     for(auto& worker : allWorkers_) {
       try {
-        try {
+        convertException::wrap([&]() {
           worker->endJob();
-        }
-        catch (cms::Exception& e) { throw; }
-        catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch (std::string& s) { convertException::stringToEDM(s); }
-        catch (char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
-      }      
+        });
+      }
       catch (cms::Exception const& ex) {
         collector.addException(ex);
       }

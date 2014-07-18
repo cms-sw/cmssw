@@ -51,7 +51,7 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
  public:
   explicit CosmicRegionalSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
 
-  virtual ~CosmicRegionalSeedGenerator() {};
+  virtual ~CosmicRegionalSeedGenerator() {}
   
   virtual std::vector<TrackingRegion* > regions(const edm::Event& event, const edm::EventSetup& es) const;
 

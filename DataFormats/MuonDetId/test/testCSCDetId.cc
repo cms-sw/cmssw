@@ -6,8 +6,6 @@
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCDetId.cc,v 1.4 2006/02/13 14:28:45 ptc Exp $";
-
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
@@ -92,7 +90,9 @@ void testCSCDetId::testFail(){
   try {
     // Invalid layer
     CSCDetId detid(3,1,1,1,7);
+#ifdef EDM_ML_DEBUG
     CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
+#endif
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     //    std::cout << "\ntestCSCDetId: testFail exception caught " << std::endl;
@@ -104,7 +104,9 @@ void testCSCDetId::testFail(){
   // contruct using an invalid input id
   try {
     CSCDetId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+#ifdef EDM_ML_DEBUG
+    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+#endif
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK

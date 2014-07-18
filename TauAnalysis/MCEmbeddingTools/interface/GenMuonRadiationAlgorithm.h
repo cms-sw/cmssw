@@ -24,8 +24,10 @@
  */
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-#include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 
 #include<string>
 
@@ -37,7 +39,7 @@ class GenMuonRadiationAlgorithm
   explicit GenMuonRadiationAlgorithm(const edm::ParameterSet&);
   ~GenMuonRadiationAlgorithm();
 
-  reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&, int&);
+  reco::Candidate::LorentzVector compFSR(const edm::StreamID& streamID, const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&, int&);
 
  private:
   double beamEnergy_;
@@ -45,7 +47,7 @@ class GenMuonRadiationAlgorithm
   enum { kPYTHIA, kPHOTOS };
   int mode_;
 
-  gen::PhotosInterface* photos_;
+  gen::PhotosInterfaceBase* photos_;
   static bool photos_isInitialized_;
 
   myPythia6ServiceWithCallback* pythia_;

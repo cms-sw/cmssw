@@ -29,6 +29,8 @@ class SimpleZSPJPTJetCorrector {
   SimpleZSPJPTJetCorrector& operator= (const SimpleZSPJPTJetCorrector&);
   JetCorrectorParameters* mParameters; 
   TFormula*               mFunc;   
+  bool debug_; //removing statics - just add it to the class for now
+
 };
 
 #endif

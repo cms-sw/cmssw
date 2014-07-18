@@ -2,10 +2,10 @@
 //
 // Package:    PF_PU_AssoMap
 // Class:      PF_PU_FirstVertexTracks
-// 
+//
 /**\class PF_PU_AssoMap PF_PU_FirstVertexTracks.cc CommonTools/RecoUtils/plugins/PF_PU_FirstVertexTracks.cc
 
-  Description: Produces collection of tracks associated to the first vertex based on the pf_pu Association Map 
+  Description: Produces collection of tracks associated to the first vertex based on the pf_pu Association Map
 */
 //
 // Original Author:  Matthias Geisler
@@ -23,16 +23,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -40,13 +35,10 @@
 //
 // constants, enums and typedefs
 //
-   
+
 using namespace edm;
 using namespace std;
 using namespace reco;
-
-typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, int> > TrackToVertexAssMap;
-typedef AssociationMap<OneToManyWithQuality< TrackCollection, VertexCollection, int> > VertexToTrackAssMap;
 
 typedef vector<pair<TrackRef, int> > TrackQualityPairVector;
 
@@ -64,11 +56,12 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
 
   	input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  	input_AssociationMap_ = iConfig.getParameter<InputTag>("AssociationMap");
+  	token_TrackToVertexAssMap_ = mayConsume<TrackToVertexAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
+  	token_VertexToTrackAssMap_ = mayConsume<VertexToTrackAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
 
-  	input_generalTracksCollection_ = iConfig.getParameter<InputTag>("TrackCollection");
+  	token_generalTracksCollection_ = consumes<TrackCollection>(iConfig.getParameter<InputTag>("TrackCollection"));
 
-  	input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
+  	token_VertexCollection_ = mayConsume<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
 
   	input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
 
@@ -95,7 +88,7 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
 
 PF_PU_FirstVertexTracks::~PF_PU_FirstVertexTracks()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -116,21 +109,21 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	bool t2vassmap = false;
 	bool v2tassmap = false;
-  
+
 	//get the input vertex<->general track association map
   	Handle<TrackToVertexAssMap> t2vAM;
   	Handle<VertexToTrackAssMap> v2tAM;
-	
+
 	string asstype = input_AssociationType_.label();
 
 	if ( ( asstype == "TracksToVertex" ) || ( asstype == "Both" ) ) {
-          if ( iEvent.getByLabel(input_AssociationMap_, t2vAM ) ) {
+          if ( iEvent.getByToken(token_TrackToVertexAssMap_, t2vAM ) ) {
 	    t2vassmap = true;
 	  }
 	}
 
 	if ( ( asstype == "VertexToTracks" ) || ( asstype == "Both" ) ) {
-          if ( iEvent.getByLabel(input_AssociationMap_, v2tAM ) ) {
+          if ( iEvent.getByToken(token_VertexToTrackAssMap_, v2tAM ) ) {
 	    v2tassmap = true;
 	  }
 	}
@@ -139,10 +132,10 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	  cout << "No input collection could be found" << endl;
 	  return;
 	}
- 
+
 	//get the input track collection
   	Handle<TrackCollection> input_trckcollH;
-  	iEvent.getByLabel(input_generalTracksCollection_,input_trckcollH);
+  	iEvent.getByToken(token_generalTracksCollection_,input_trckcollH);
 
 	if ( t2vassmap ){
 
@@ -153,7 +146,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	    float quality = trckcoll[trckcoll_ite].second;
 
-	    if ( quality>=input_MinQuality_ ) { 
+	    if ( quality>=input_MinQuality_ ) {
 
  	      TrackRef AMtrkref = trckcoll[trckcoll_ite].first;
 
@@ -165,8 +158,8 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	          t2v_firstvertextracks->push_back(*AMtrkref);
 	          break;
-	 	   	      
-	        } 
+
+	        }
 
 	      }
 
@@ -176,13 +169,13 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
           iEvent.put( t2v_firstvertextracks, "T2V" );
 
-	} 
+	}
 
 	if ( v2tassmap ) {
- 
+
 	  //get the input vertex collection
   	  Handle<VertexCollection> input_vtxcollH;
-  	  iEvent.getByLabel(input_VertexCollection_,input_vtxcollH);
+  	  iEvent.getByToken(token_VertexCollection_,input_vtxcollH);
 
 	  VertexRef firstVertexRef(input_vtxcollH,0);
 
@@ -197,7 +190,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	      TrackRef input_trackref = TrackRef(input_trckcollH,index_input_trck);
 
    	      if(TrackMatch(*AMtrkref,*input_trackref)){
-    
+
     	        for(unsigned v_ite = 0; v_ite<(v2t_ite->val).size(); v_ite++){
 
       		  VertexRef vtxref = (v2t_ite->val)[v_ite].first;
@@ -221,7 +214,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 }
 
-bool 
+bool
 PF_PU_FirstVertexTracks::TrackMatch(const Track& track1,const Track& track2)
 {
 

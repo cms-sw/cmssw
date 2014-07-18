@@ -18,6 +18,14 @@
 #include <math.h>
 #include "TROOT.h"
 #include "OccupancyPlotMacros.h"
+#include <vector>
+
+void printFrame(TCanvas* c, TH1D* h, TText* t, const int frame, const int min, const int max) {
+  c->cd(frame);
+  h->SetAxisRange(min,max);
+  h->DrawCopy();
+  t->SetY(h->GetMaximum()); t->SetX((max+min)/2); t->DrawClone();
+}
 
 void PlotOccupancyMap(TFile* ff, const char* module, const float min, const float max, const float mmin, const float mmax, const int color) {
 
@@ -278,11 +286,14 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 
       }
       // eta boundaries lines
+      double etavalext[] = {3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
       TList etalines;
       TList etalabels;
       TList paperlabels;
       for(int i=0;i<8;++i) {
-	double eta = 3.0-i*0.2;
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
 	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -293,7 +304,8 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	etalabels.Add(label);
       }
       for(int i=0;i<8;++i) {
-	double eta = -3.0+i*0.2;
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
 	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -304,7 +316,8 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	etalabels.Add(label);
       }
       for(int i=0;i<15;++i) {
-	double eta = -1.4+i*0.2;
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
 	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
 	etalines.Add(lin);
 	char lab[100];
@@ -397,6 +410,320 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
   }
 
 }
+void PlotOccupancyMapPhase2(TFile* ff, const char* module, const float min, const float max, const float mmin, const float mmax, const int color) {
+
+  gROOT->SetStyle("Plain");
+
+  if(color == 1) {
+    // A not-so-great color version
+    const Int_t NRGBs = 5;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.25, 0.50, 0.75, 1.00 };
+    Double_t red[NRGBs]   = { 0.00, 0.00, 0.40, 1.00, 1.00 };
+    Double_t green[NRGBs] = { 0.00, 0.40, 0.70, 0.60, 1.00 };
+    Double_t blue[NRGBs]  = { 0.30, 0.60, 0.00, 0.00, 0.20 };
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
+  else if(color==2) {
+    // Gray scale
+    const Int_t NRGBs = 3;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.50, 1.00 };
+    Double_t red[NRGBs]   = { 0.90, 0.50, 0.00};
+    Double_t green[NRGBs] = { 0.90, 0.50, 0.00};
+    Double_t blue[NRGBs]  = { 0.90, 0.50, 0.00};
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
+  else if(color==3) {
+    // used by Kevin in the TRK-11-001 paper
+    const Int_t NRGBs = 7;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.15, 0.30, 0.45, 0.65, 0.85, 1.00 };
+    Double_t red[NRGBs]   = { 0.60, 0.30, 0.00, 0.00, 0.60, 0.40, 0.00 };
+    Double_t green[NRGBs] = { 1.00, 0.90, 0.80, 0.75, 0.20, 0.00, 0.00 };
+    Double_t blue[NRGBs]  = { 1.00, 1.00, 1.00, 0.30, 0.00, 0.00, 0.00 };
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
+
+  int ncol = gStyle->GetNumberOfColors();
+  std::cout << "Number of colors "  << ncol << std::endl;
+  
+  if(ff->cd(module)) {
+
+    TProfile* aveoccu= (TProfile*)gDirectory->Get("aveoccu");
+    TProfile* avemult= (TProfile*)gDirectory->Get("avemult");
+    TH1F* nchannels = (TH1F*)gDirectory->Get("nchannels_real");
+
+    TProfile* averadius = (TProfile*)gDirectory->Get("averadius"); 
+    TProfile* avez = (TProfile*)gDirectory->Get("avez"); 
+
+    std::cout << "pointers " << aveoccu << " " << avemult << " " << nchannels << " " << averadius << " " << avez << std::endl;
+
+    if(aveoccu && avemult && nchannels && averadius && avez) {
+
+      nchannels->Sumw2();
+      for(int i=1;i<nchannels->GetNbinsX()+1;++i) {
+	nchannels->SetBinError(i,0.);
+      }
+
+      TH1D* haveoccu = aveoccu->ProjectionX("haveoccu");
+      haveoccu->SetDirectory(0);
+      haveoccu->Divide(nchannels);
+      TH1D* havemult = avemult->ProjectionX("havemult");
+      havemult->SetDirectory(0);
+      havemult->Divide(nchannels);
+
+      TH1D* havewidth = (TH1D*)haveoccu->Clone("havewidth");
+      havewidth->SetDirectory(0);
+      havewidth->SetTitle("Average Cluster Size");
+      havewidth->Divide(havemult);
+
+
+      new TCanvas("occupancy","occupancy",1200,500);
+      gPad->SetLogy(1);
+      haveoccu->SetStats(0);
+      haveoccu->DrawCopy();
+      TLine* l1 = new TLine(1000,0,1000,haveoccu->GetMaximum()); l1->DrawClone(); 
+      TLine* l2 = new TLine(2000,0,2000,haveoccu->GetMaximum()); l2->DrawClone(); 
+      TLine* l3 = new TLine(3000,0,3000,haveoccu->GetMaximum()); l3->DrawClone(); 
+      TLine* l4 = new TLine(4000,0,4000,haveoccu->GetMaximum()); l4->DrawClone(); 
+      TLine* l5 = new TLine(5000,0,5000,haveoccu->GetMaximum()); l5->DrawClone(); 
+      TText* tpix = new TText(1500,haveoccu->GetMaximum(),"BPIX+FPIX"); tpix->SetTextAlign(22); tpix->DrawClone();
+      //      TText* ttib = new TText(1500,haveoccu->GetMaximum(),"TIB"); ttib->SetTextAlign(22); ttib->DrawClone();
+      //      TText* ttid = new TText(2500,haveoccu->GetMaximum(),"TID"); ttid->SetTextAlign(22); ttid->DrawClone();
+      TText* ttob = new TText(2500,haveoccu->GetMaximum(),"TOB"); ttob->SetTextAlign(22); ttob->DrawClone();
+      TText* ttecm = new TText(3500,haveoccu->GetMaximum(),"TEC-"); ttecm->SetTextAlign(22); ttecm->DrawClone();
+      TText* ttecp = new TText(4500,haveoccu->GetMaximum(),"TEC+"); ttecp->SetTextAlign(22); ttecp->DrawClone();
+      
+      new TCanvas("multiplicity","multiplicity",1200,500);
+      gPad->SetLogy(1);
+      havemult->SetStats(0);
+      havemult->DrawCopy();
+      tpix->SetY(havemult->GetMaximum()); tpix->DrawClone();
+      //      ttib->SetY(havemult->GetMaximum()); ttib->DrawClone();
+      //      ttid->SetY(havemult->GetMaximum()); ttid->DrawClone();
+      ttob->SetY(havemult->GetMaximum()); ttob->DrawClone();
+      ttecm->SetY(havemult->GetMaximum()); ttecm->DrawClone();
+      ttecp->SetY(havemult->GetMaximum()); ttecp->DrawClone();
+      l1->SetY2(havemult->GetMaximum()); l1->DrawClone(); 
+      l2->SetY2(havemult->GetMaximum()); l2->DrawClone(); 
+      l3->SetY2(havemult->GetMaximum()); l3->DrawClone(); 
+      l4->SetY2(havemult->GetMaximum()); l4->DrawClone(); 
+      l5->SetY2(havemult->GetMaximum()); l5->DrawClone(); 
+      
+      new TCanvas("width","width",1200,500);
+      havewidth->SetStats(0);
+      havewidth->DrawCopy();
+      tpix->SetY(havewidth->GetMaximum()); tpix->DrawClone();
+      //      ttib->SetY(havewidth->GetMaximum()); ttib->DrawClone();
+      //      ttid->SetY(havewidth->GetMaximum()); ttid->DrawClone();
+      ttob->SetY(havewidth->GetMaximum()); ttob->DrawClone();
+      ttecm->SetY(havewidth->GetMaximum()); ttecm->DrawClone();
+      ttecp->SetY(havewidth->GetMaximum()); ttecp->DrawClone();
+      l1->SetY2(havewidth->GetMaximum()); l1->DrawClone(); 
+      l2->SetY2(havewidth->GetMaximum()); l2->DrawClone(); 
+      l3->SetY2(havewidth->GetMaximum()); l3->DrawClone(); 
+      l4->SetY2(havewidth->GetMaximum()); l4->DrawClone(); 
+      l5->SetY2(havewidth->GetMaximum()); l5->DrawClone();
+      
+      TCanvas * o2 = new TCanvas("occupancy2","occupancy2",1200,800);
+      o2->Divide(2,2);
+      printFrame(o2,haveoccu,tpix,1,1000,1090);
+      printFrame(o2,haveoccu,ttob,2,2000,2900);
+      printFrame(o2,haveoccu,ttecm,3,3100,3300);
+      printFrame(o2,haveoccu,ttecp,4,4100,4300);
+
+      TCanvas * m2 = new TCanvas("multiplicity2","multiplicity2",1200,800);
+      m2->Divide(2,2);
+      printFrame(m2,havemult,tpix,1,1000,1090);
+      printFrame(m2,havemult,ttob,2,2000,2900);
+      printFrame(m2,havemult,ttecm,3,3100,3300);
+      printFrame(m2,havemult,ttecp,4,4100,4300);
+
+      TCanvas * w2 = new TCanvas("width2","width2",1200,800);
+      w2->Divide(2,2);
+      printFrame(w2,havewidth,tpix,1,1000,1090);
+      printFrame(w2,havewidth,ttob,2,2000,2900);
+      printFrame(w2,havewidth,ttecm,3,3100,3300);
+      printFrame(w2,havewidth,ttecp,4,4100,4300);
+
+      // Loop on bins and creation of boxes
+
+      TList modulesoccu;
+      TList modulesmult;
+
+      for(int i=1;i<haveoccu->GetNbinsX();++i) {
+
+	if(i<1000) continue;
+
+	if(averadius->GetBinEntries(i)*avez->GetBinEntries(i)) {
+
+	  double dz = 2.;
+	  double dr = 1.;
+	  // determine module size
+	  
+	  if(i > 1000 && i < 1040) { dz=3.33;dr=0.4;}
+	  if(i > 1040 && i < 1130) { dr=3.33;dz=0.4;}
+
+	  if(i > 2000 && i < 2550) { dz=2.5;dr=0.1;}
+	  if(i > 2550 && i < 3000) { dz=5.0;dr=0.1;}
+
+	  if(i > 3000 && i < 5000) { dz=0.2;dr=5.0;}
+
+	  if(i > 3100 && i < 3119) { dz=0.2;dr=2.5;}
+	  if(i > 3140 && i < 3159) { dz=0.2;dr=2.5;}
+	  if(i > 3180 && i < 3199) { dz=0.2;dr=2.5;}
+	  if(i > 3220 && i < 3239) { dz=0.2;dr=2.5;}
+	  if(i > 3260 && i < 3279) { dz=0.2;dr=2.5;}
+
+	  if(i > 4100 && i < 4119) { dz=0.2;dr=2.5;}
+	  if(i > 4140 && i < 4159) { dz=0.2;dr=2.5;}
+	  if(i > 4180 && i < 4199) { dz=0.2;dr=2.5;}
+	  if(i > 4220 && i < 4239) { dz=0.2;dr=2.5;}
+	  if(i > 4260 && i < 4279) { dz=0.2;dr=2.5;}
+
+
+
+	  /*
+
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 1) { dz=0.8;dr=5.647;} 
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 2) { dz=0.8;dr=4.512;} 
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 3) { dz=0.8;dr=5.637;} 
+
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 1) { dz=0.8;dr=4.362;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 2) { dz=0.8;dr=4.512;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 3) { dz=0.8;dr=5.637;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 4) { dz=0.8;dr=5.862;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 5) { dz=0.8;dr=7.501;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 6) { dz=0.8;dr=9.336;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 7) { dz=0.8;dr=10.373;} 
+	  */	
+	  {  
+	    TBox* modoccu = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz,averadius->GetBinContent(i)+dr);
+	    modoccu->SetFillStyle(1001);
+	    int icol=int(ncol*(log(haveoccu->GetBinContent(i))-log(min))/(log(max)-log(min)));
+	    if(icol < 0) icol=0;
+	    if(icol > (ncol-1)) icol=(ncol-1);
+	    std::cout << i << " " << icol << " " << haveoccu->GetBinContent(i) << std::endl; 
+	    modoccu->SetFillColor(gStyle->GetColorPalette(icol));
+	    modulesoccu.Add(modoccu);
+	  }
+	  {
+	    TBox* modmult = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz,averadius->GetBinContent(i)+dr);
+	    modmult->SetFillStyle(1001);
+	    int icol=int(ncol*(log(havemult->GetBinContent(i))-log(mmin))/(log(mmax)-log(mmin)));
+	    if(icol < 0) icol=0;
+	    if(icol > (ncol-1)) icol=(ncol-1);
+	    std::cout << i << " " << icol << " " << havemult->GetBinContent(i) << std::endl; 
+	    modmult->SetFillColor(gStyle->GetColorPalette(icol));
+	    modulesmult.Add(modmult);
+	  }
+
+	}
+
+      }
+      // eta boundaries lines
+      double etavalext[] = {4.,3.5,3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
+      TList etalines;
+      TList etalabels;
+      for(int i=0;i<10;++i) {
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
+	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(285,2*285/(exp(eta)-exp(-eta)),lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      for(int i=0;i<10;++i) {
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
+	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(-285,-2*285/(exp(eta)-exp(-eta)),lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      for(int i=0;i<15;++i) {
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
+	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(125.*(exp(eta)-exp(-eta))/2.,125,lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+
+
+      TGaxis *raxis = new TGaxis(-310,0,-310,140,0,140,10,"S");
+      TGaxis *zaxis = new TGaxis(-310,0,310,0,-310,310,10,"S");
+      raxis->SetTickSize(.01);      zaxis->SetTickSize(.01);
+      raxis->SetTitle("R (cm)"); zaxis->SetTitle("Z (cm)");
+
+      TList palette;
+      TList mpalette;
+
+      for(int i = 0;i< ncol ; ++i) {
+	TBox* box= new TBox(315,0+140./ncol*i,330,0+140./ncol*(i+1));
+	box->SetFillStyle(1001);
+	box->SetFillColor(gStyle->GetColorPalette(i));
+	palette.Add(box);
+	mpalette.Add(box);
+
+      }
+
+      TGaxis *paxis = new TGaxis(330,0,330,140,min,max,510,"SLG+");
+      paxis->SetTickSize(.02);
+      paxis->SetLabelOffset(paxis->GetLabelOffset()*0.5);
+      palette.Add(paxis);
+
+      TGaxis *mpaxis = new TGaxis(330,0,330,140,mmin,mmax,510,"SLG+");
+      mpaxis->SetTickSize(.02);
+      mpaxis->SetLabelOffset(paxis->GetLabelOffset()*0.5);
+      mpalette.Add(mpaxis);
+
+      TCanvas* cc1 = new TCanvas("occumap","occumap",1000,500);
+      cc1->Range(-370.,-20.,390.,150.);
+      TFrame* fr1 = new TFrame(-310,0,310,140);
+      fr1->UseCurrentStyle();
+      fr1->Draw();
+      raxis->Draw(); zaxis->Draw();
+      std::cout << modulesoccu.GetSize() << std::endl;
+      etalines.Draw();
+      etalabels.Draw();
+      palette.Draw();
+      modulesoccu.Draw();
+
+      TCanvas* cc2 = new TCanvas("multmap","multmap",1000,500); 
+      cc2->Range(-370.,-20.,390.,150.);
+      TFrame* fr2 = new TFrame(-310,0,310,140);
+      fr2->UseCurrentStyle();
+      fr2->Draw();
+      raxis->Draw(); zaxis->Draw();
+      std::cout << modulesmult.GetSize() << std::endl;
+      etalines.Draw();
+      etalabels.Draw();
+      mpalette.Draw();
+      modulesmult.Draw();
+
+    }
+
+
+  }
+}
 
 float combinedOccupancy(TFile* ff, const char* module, const int lowerbin, const int upperbin) {
 
@@ -426,4 +753,270 @@ float combinedOccupancy(TFile* ff, const char* module, const int lowerbin, const
 
   return cumoccu;
 
+}
+
+void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrkmod, const float mmin, const float mmax, const int color) {
+
+  if(color == 1) {
+    // A not-so-great color version
+    const Int_t NRGBs = 5;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.25, 0.50, 0.75, 1.00 };
+    Double_t red[NRGBs]   = { 0.00, 0.00, 0.40, 1.00, 1.00 };
+    Double_t green[NRGBs] = { 0.00, 0.40, 0.70, 0.60, 1.00 };
+    Double_t blue[NRGBs]  = { 0.30, 0.60, 0.00, 0.00, 0.20 };
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
+  else if(color==2) {
+    // Gray scale
+    const Int_t NRGBs = 3;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.50, 1.00 };
+    Double_t red[NRGBs]   = { 0.90, 0.50, 0.00};
+    Double_t green[NRGBs] = { 0.90, 0.50, 0.00};
+    Double_t blue[NRGBs]  = { 0.90, 0.50, 0.00};
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
+  else if(color==3) {
+    // used by Kevin in the TRK-11-001 paper
+    const Int_t NRGBs = 7;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.15, 0.30, 0.45, 0.65, 0.85, 1.00 };
+    Double_t red[NRGBs]   = { 0.60, 0.30, 0.00, 0.00, 0.60, 0.40, 0.00 };
+    Double_t green[NRGBs] = { 1.00, 0.90, 0.80, 0.75, 0.20, 0.00, 0.00 };
+    Double_t blue[NRGBs]  = { 1.00, 1.00, 1.00, 0.30, 0.00, 0.00, 0.00 };
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
+
+  int ncol = gStyle->GetNumberOfColors();
+  std::cout << "Number of colors "  << ncol << std::endl;
+  
+  gROOT->SetStyle("Plain");
+
+  TProfile* avemult=0;
+  TProfile* aveontrkmult=0;
+  TProfile* averadius =0;
+  TProfile* avez =0;
+
+  if(ff->cd(module)) {
+    avemult= (TProfile*)gDirectory->Get("avemult");
+    averadius = (TProfile*)gDirectory->Get("averadius"); 
+    avez = (TProfile*)gDirectory->Get("avez"); 
+  }
+  if(ff->cd(ontrkmod)) aveontrkmult= (TProfile*)gDirectory->Get("avemult");
+
+  std::cout << "pointers " <<  avemult << " " << aveontrkmult << " " << averadius << " " << avez << std::endl;
+
+  if( averadius && avez && avemult && aveontrkmult) {
+
+    TH1D* havemult = avemult->ProjectionX("havemult");
+    TH1D* haveontrkmult = aveontrkmult->ProjectionX("haveontrkmult");
+      havemult->SetDirectory(0);
+      haveontrkmult->SetDirectory(0);
+      haveontrkmult->Divide(havemult);
+
+      new TCanvas("ontrkmult","ontrkmult",1200,500);
+      gPad->SetLogy(1);
+      haveontrkmult->SetStats(0);
+      haveontrkmult->SetLineColor(kRed);
+      haveontrkmult->SetMarkerColor(kRed);
+      haveontrkmult->SetMarkerSize(.5);
+      haveontrkmult->SetMarkerStyle(20);
+      haveontrkmult->DrawCopy();
+      TLine* l1 = new TLine(1000,0,1000,haveontrkmult->GetMaximum()); l1->DrawClone(); 
+      TLine* l2 = new TLine(2000,0,2000,haveontrkmult->GetMaximum()); l2->DrawClone(); 
+      TLine* l3 = new TLine(3000,0,3000,haveontrkmult->GetMaximum()); l3->DrawClone(); 
+      TLine* l4 = new TLine(4000,0,4000,haveontrkmult->GetMaximum()); l4->DrawClone(); 
+      TLine* l5 = new TLine(5000,0,5000,haveontrkmult->GetMaximum()); l5->DrawClone(); 
+      TText* tpix = new TText(1500,haveontrkmult->GetMaximum(),"BPIX+FPIX"); tpix->SetTextAlign(22); tpix->DrawClone();
+      //      TText* ttib = new TText(1500,haveontrkmult->GetMaximum(),"TIB"); ttib->SetTextAlign(22); ttib->DrawClone();
+      //      TText* ttid = new TText(2500,haveontrkmult->GetMaximum(),"TID"); ttid->SetTextAlign(22); ttid->DrawClone();
+      TText* ttob = new TText(2500,haveontrkmult->GetMaximum(),"TOB"); ttob->SetTextAlign(22); ttob->DrawClone();
+      TText* ttecm = new TText(3500,haveontrkmult->GetMaximum(),"TEC-"); ttecm->SetTextAlign(22); ttecm->DrawClone();
+      TText* ttecp = new TText(4500,haveontrkmult->GetMaximum(),"TEC+"); ttecp->SetTextAlign(22); ttecp->DrawClone();
+      
+      TCanvas * o2 = new TCanvas("ontrkmult2","ontrkmult2",1200,800);
+      o2->Divide(2,2);
+      printFrame(o2,haveontrkmult,tpix,1,1000,1090);
+      printFrame(o2,haveontrkmult,ttob,2,2000,2900);
+      printFrame(o2,haveontrkmult,ttecm,3,3100,3300);
+      printFrame(o2,haveontrkmult,ttecp,4,4100,4300);
+      
+      // Loop on bins and creation of boxes
+      
+      TList modulesmult;
+      
+      for(int i=1;i<haveontrkmult->GetNbinsX();++i) {
+	
+	if(i<1000) continue;
+	
+	if(averadius->GetBinEntries(i)*avez->GetBinEntries(i)) {
+	  
+	  double dz = 2.;
+	  double dr = 1.;
+	  // determine module size
+	  
+	  if(i > 1000 && i < 1040) { dz=3.33;dr=0.4;}
+	  if(i > 1040 && i < 1130) { dr=3.33;dz=0.4;}
+	  
+	  if(i > 2000 && i < 2550) { dz=2.5;dr=0.1;}
+	  if(i > 2550 && i < 3000) { dz=5.0;dr=0.1;}
+	  
+	  if(i > 3000 && i < 5000) { dz=0.2;dr=5.0;}
+	  
+	  if(i > 3100 && i < 3119) { dz=0.2;dr=2.5;}
+	  if(i > 3140 && i < 3159) { dz=0.2;dr=2.5;}
+	  if(i > 3180 && i < 3199) { dz=0.2;dr=2.5;}
+	  if(i > 3220 && i < 3239) { dz=0.2;dr=2.5;}
+	  if(i > 3260 && i < 3279) { dz=0.2;dr=2.5;}
+	  
+	  if(i > 4100 && i < 4119) { dz=0.2;dr=2.5;}
+	  if(i > 4140 && i < 4159) { dz=0.2;dr=2.5;}
+	  if(i > 4180 && i < 4199) { dz=0.2;dr=2.5;}
+	  if(i > 4220 && i < 4239) { dz=0.2;dr=2.5;}
+	  if(i > 4260 && i < 4279) { dz=0.2;dr=2.5;}
+	  
+	  {
+	    TBox* modmult = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz,averadius->GetBinContent(i)+dr);
+	    modmult->SetFillStyle(1001);
+	    int icol=int(ncol*(haveontrkmult->GetBinContent(i)-mmin)/(mmax-mmin));
+	    if(icol < 0) icol=0;
+	    if(icol > (ncol-1)) icol=(ncol-1);
+	    std::cout << i << " " << icol << " " << haveontrkmult->GetBinContent(i) << std::endl; 
+	    modmult->SetFillColor(gStyle->GetColorPalette(icol));
+	    modulesmult.Add(modmult);
+	  }
+	  
+	}
+	
+      }
+      // eta boundaries lines
+      double etavalext[] = {4.,3.5,3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
+      TList etalines;
+      TList etalabels;
+      for(int i=0;i<10;++i) {
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
+	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(285,2*285/(exp(eta)-exp(-eta)),lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      for(int i=0;i<10;++i) {
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
+	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(-285,-2*285/(exp(eta)-exp(-eta)),lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      for(int i=0;i<15;++i) {
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
+	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(125.*(exp(eta)-exp(-eta))/2.,125,lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      
+      
+      TGaxis *raxis = new TGaxis(-310,0,-310,140,0,140,10,"S");
+      TGaxis *zaxis = new TGaxis(-310,0,310,0,-310,310,10,"S");
+      raxis->SetTickSize(.01);      zaxis->SetTickSize(.01);
+      raxis->SetTitle("R (cm)"); zaxis->SetTitle("Z (cm)");
+      
+      TList mpalette;
+      
+      for(int i = 0;i< ncol ; ++i) {
+	TBox* box= new TBox(315,0+140./ncol*i,330,0+140./ncol*(i+1));
+	box->SetFillStyle(1001);
+	box->SetFillColor(gStyle->GetColorPalette(i));
+	mpalette.Add(box);
+	
+      }
+      
+      TGaxis *mpaxis = new TGaxis(330,0,330,140,mmin,mmax,510,"SL+");
+      mpaxis->SetTickSize(.02);
+      mpaxis->SetLabelOffset(mpaxis->GetLabelOffset()*0.5);
+      mpalette.Add(mpaxis);
+      
+      TCanvas* cc2 = new TCanvas("multmap","multmap",1000,500); 
+      cc2->Range(-370.,-20.,390.,150.);
+      TFrame* fr2 = new TFrame(-310,0,310,140);
+      fr2->UseCurrentStyle();
+      fr2->Draw();
+      raxis->Draw(); zaxis->Draw();
+      std::cout << modulesmult.GetSize() << std::endl;
+      etalines.Draw();
+      etalabels.Draw();
+      mpalette.Draw();
+      modulesmult.Draw();
+      
+  }
+  
+}
+
+void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int ioffset, const char* name) {
+
+  gROOT->SetStyle("Plain");
+
+  TCanvas* cc = new TCanvas(name,name,750,750);
+  cc->Range(-25,-25,25,25);
+  TFrame* fr1 = new TFrame(-20,-20,20,20);
+  fr1->UseCurrentStyle();
+  fr1->Draw();
+  ff->cd(module);
+  gDirectory->ls();
+  TProfile* avex = (TProfile*)gDirectory->Get("avex");
+  TProfile* avey = (TProfile*)gDirectory->Get("avey");
+  TProfile* avez = (TProfile*)gDirectory->Get("avez");
+
+  if(avex && avey && avez) {
+    TText* tittext = new TText(0,0,name);
+    tittext->SetTextSize(.04); tittext->SetTextAlign(22); 
+    tittext->Draw();
+    for(unsigned int mod=ioffset+1;mod<ioffset+57;++mod) {
+      double x = avex->GetBinContent(mod);
+      double y = avey->GetBinContent(mod);
+      //      TBox* modbox = new TBox(x-1,y-1,x+1,y+1);
+      char modstring[30];
+      sprintf(modstring,"%d",mod%100);
+      TText* modtext = new TText(x,y,modstring);
+      modtext->SetTextAngle(atan(y/x)*180/3.14159);
+      modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kRed);
+      std::cout << mod << " " << x << " " << y << std::endl;
+      //      modbox->Draw();
+      modtext->Draw();
+    }
+    for(unsigned int mod=ioffset+101;mod<ioffset+157;++mod) {
+      double x = avex->GetBinContent(mod);
+      double y = avey->GetBinContent(mod);
+      //      TBox* modbox = new TBox(x-1,y-1,x+1,y+1);
+      char modstring[30];
+      sprintf(modstring,"%d",mod%100);
+      TText* modtext = new TText(x,y,modstring);
+      modtext->SetTextAngle(atan(y/x)*180/3.14159);
+      modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kBlue);
+      std::cout << mod << " " << x << " " << y << " " << atan(y/x) << std::endl;
+      //      modbox->Draw();
+      modtext->Draw();
+    }
+
+  }
 }

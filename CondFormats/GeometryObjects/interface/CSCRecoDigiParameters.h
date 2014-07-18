@@ -10,6 +10,8 @@
  *  Michael Case (MEC) One per Chamber Type.
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 //#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <string>
 #include <vector>
@@ -27,6 +29,8 @@ public:
   //  std::vector<CSCDetId> pCSCDetIds;  // 
   std::vector<int> pChamberType;
   std::vector<float> pfupars;   // user parameters
+
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -29,8 +29,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/JPTJet.h"
-#include "DataFormats/JetReco/interface/JPTJetCollection.h"
+//#include "DataFormats/JetReco/interface/JPTJet.h"
+//#include "DataFormats/JetReco/interface/JPTJetCollection.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -74,68 +74,68 @@ SUSYDQMAnalyzer::SUSYDQMAnalyzer( const edm::ParameterSet& pSet)
   iConfig = pSet;
   
   SUSYFolder = iConfig.getParameter<std::string>("folderName");
-  dqm = edm::Service<DQMStore>().operator->();
-}
-
-const char* SUSYDQMAnalyzer::messageLoggerCatregory = "SUSYDQM";
-
-void SUSYDQMAnalyzer::beginJob(void){
   // Load parameters 
-  thePFMETCollectionLabel     = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
-  theCaloMETCollectionLabel   = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel");
-  theTCMETCollectionLabel     = iConfig.getParameter<edm::InputTag>("TCMETCollectionLabel");
+  thePFMETCollectionToken     = consumes<reco::PFMETCollection>   (iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel"));
+  theCaloMETCollectionToken   = consumes<reco::CaloMETCollection> (iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"));
 
-  theCaloJetCollectionLabel   = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
-  theJPTJetCollectionLabel    = iConfig.getParameter<edm::InputTag>("JPTJetCollectionLabel");
-  thePFJetCollectionLabel     = iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel");
+  //remove TCMET and JPT related variables due to anticipated changes in RECO
+  //theTCMETCollectionToken     = consumes<reco::METCollection>     (iConfig.getParameter<edm::InputTag>("TCMETCollectionLabel"));
+
+  theCaloJetCollectionToken   = consumes<reco::CaloJetCollection>   (iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel"));
+  //theJPTJetCollectionToken    = consumes<reco::JPTJetCollection>    (iConfig.getParameter<edm::InputTag>("JPTJetCollectionLabel"));
+  thePFJetCollectionToken     = consumes<std::vector<reco::PFJet> > (iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel"));
 
   _ptThreshold = iConfig.getParameter<double>("ptThreshold");
   _maxNJets = iConfig.getParameter<double>("maxNJets");
   _maxAbsEta = iConfig.getParameter<double>("maxAbsEta");
+
 }
 
-void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  if( dqm ) {
-    //===========================================================  
-    // book HT histos.
+const char* SUSYDQMAnalyzer::messageLoggerCatregory = "SUSYDQM";
 
+
+void SUSYDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
+  //  if( dqm ) {
+    //===========================================================                                                                                 
+    // book HT histos.                                                                                                                           
     std::string dir=SUSYFolder;
-    dir+="HT";
-    dqm->setCurrentFolder(dir);
-    hCaloHT = dqm->book1D("Calo_HT", "", 500, 0., 2000);
-    hPFHT   = dqm->book1D("PF_HT"  , "", 500, 0., 2000);
-    hJPTHT  = dqm->book1D("JPT_HT" , "", 500, 0., 2000);
-
-    //===========================================================  
-    // book MET histos.
+    dir+="HT"; 
+    ibooker.setCurrentFolder(dir);
+    hCaloHT = ibooker.book1D("Calo_HT", "", 500, 0., 2000);
+    hPFHT   = ibooker.book1D("PF_HT"  , "", 500, 0., 2000);
+    //hJPTHT  = ibooker.book1D("JPT_HT" , "", 500, 0., 2000);
+    //===========================================================                                                                                 
+    // book MET histos.                                                                                                                           
 
     dir=SUSYFolder;
     dir+="MET";
-    dqm->setCurrentFolder(dir);
-    hCaloMET = dqm->book1D("Calo_MET", "", 500, 0., 1000);
-    hPFMET   = dqm->book1D("PF_MET"  , "", 500, 0., 1000);
-    hTCMET   = dqm->book1D("TC_MET"  , "", 500, 0., 1000);
+    ibooker.setCurrentFolder(dir);
+    hCaloMET = ibooker.book1D("Calo_MET", "", 500, 0., 1000);
+    hPFMET   = ibooker.book1D("PF_MET"  , "", 500, 0., 1000);
+    //hTCMET   = ibooker.book1D("TC_MET"  , "", 500, 0., 1000);
 
-    //===========================================================  
-    // book MHT histos.
+    //===========================================================                                                                                 
+    // book MHT histos.                                                                                                                           
 
     dir=SUSYFolder;
-    dir+="MHT"; 
-    dqm->setCurrentFolder(dir);
-    hCaloMHT = dqm->book1D("Calo_MHT", "", 500, 0., 1000);
-    hPFMHT   = dqm->book1D("PF_MHT"  , "", 500, 0., 1000);
-    hJPTMHT  = dqm->book1D("JPT_MHT" , "", 500, 0., 1000);
-   
-    //===========================================================  
-    // book alpha_T histos.
+    dir+="MHT";
+    ibooker.setCurrentFolder(dir);
+    hCaloMHT = ibooker.book1D("Calo_MHT", "", 500, 0., 1000);
+    hPFMHT   = ibooker.book1D("PF_MHT"  , "", 500, 0., 1000);
+    //hJPTMHT  = ibooker.book1D("JPT_MHT" , "", 500, 0., 1000);
+
+    //===========================================================                                                                                 
+    // book alpha_T histos.                                                                                                                       
 
     dir=SUSYFolder;
     dir+="Alpha_T";
-    dqm->setCurrentFolder(dir);
-    hCaloAlpha_T = dqm->book1D("Calo_AlphaT", "", 100, 0., 1.);
-    hJPTAlpha_T  = dqm->book1D("PF_AlphaT"  , "", 100, 0., 1.);
-    hPFAlpha_T   = dqm->book1D("JPT_AlphaT"  , "", 100, 0., 1.);
-  }
+    ibooker.setCurrentFolder(dir);
+    hCaloAlpha_T = ibooker.book1D("Calo_AlphaT", "", 100, 0., 1.);
+    //hJPTAlpha_T  = ibooker.book1D("PF_AlphaT"  , "", 100, 0., 1.);
+    hPFAlpha_T   = ibooker.book1D("PF_AlphaT"  , "", 100, 0., 1.);
+    //  }
 }
 
 void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -148,7 +148,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::CaloJetCollection> CaloJetcoll;
 
-  iEvent.getByLabel(theCaloJetCollectionLabel, CaloJetcoll);
+  iEvent.getByToken(theCaloJetCollectionToken, CaloJetcoll);
 
   if(!CaloJetcoll.isValid()) return;
   
@@ -175,7 +175,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::PFJetCollection> PFjetcoll;
 
-  iEvent.getByLabel(thePFJetCollectionLabel, PFjetcoll);
+  iEvent.getByToken(thePFJetCollectionToken, PFjetcoll);
 
   if(!PFjetcoll.isValid()) return;
 
@@ -199,28 +199,28 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //===========================================================
   // JPT HT, MHT and alpha_T
 
-  edm::Handle<reco::JPTJetCollection> JPTjetcoll;
+  //edm::Handle<reco::JPTJetCollection> JPTjetcoll;
 
-  iEvent.getByLabel(theJPTJetCollectionLabel, JPTjetcoll);
+  //iEvent.getByToken(theJPTJetCollectionToken, JPTjetcoll);
 
-  if(!JPTjetcoll.isValid()) return;
+  //if(!JPTjetcoll.isValid()) return;
 
-  Ps.clear();
-  for (reco::JPTJetCollection::const_iterator jet = JPTjetcoll->begin(); jet!=JPTjetcoll->end(); ++jet){
-    if ((jet->pt()>_ptThreshold) && (abs(jet->eta())<_maxAbsEta)){
-      if(Ps.size()>_maxNJets) {
-	edm::LogInfo(messageLoggerCatregory)<<"NMax Jets exceded..";
-        break;
-      }
-      Ps.push_back(jet->p4());
-    }
-  }
-  hJPTAlpha_T->Fill( alpha_T()(Ps));
+  //Ps.clear();
+  //for (reco::JPTJetCollection::const_iterator jet = JPTjetcoll->begin(); jet!=JPTjetcoll->end(); ++jet){
+  //if ((jet->pt()>_ptThreshold) && (abs(jet->eta())<_maxAbsEta)){
+  //  if(Ps.size()>_maxNJets) {
+  //	edm::LogInfo(messageLoggerCatregory)<<"NMax Jets exceded..";
+  //    break;
+  //  }
+  //  Ps.push_back(jet->p4());
+  //}
+  //}
+  //hJPTAlpha_T->Fill( alpha_T()(Ps));
 
-  HT<reco::JPTJetCollection> JPTHT(JPTjetcoll, _ptThreshold, _maxAbsEta);
+  //HT<reco::JPTJetCollection> JPTHT(JPTjetcoll, _ptThreshold, _maxAbsEta);
 
-  hJPTHT->Fill(JPTHT.ScalarSum);
-  hJPTMHT->Fill(JPTHT.v.Mod());
+  //hJPTHT->Fill(JPTHT.ScalarSum);
+  //hJPTMHT->Fill(JPTHT.v.Mod());
 
   //###########################################################
   // MET
@@ -229,7 +229,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Calo MET
 
   edm::Handle<reco::CaloMETCollection> calometcoll;
-  iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
+  iEvent.getByToken(theCaloMETCollectionToken, calometcoll);
 
   if(!calometcoll.isValid()) return;
 
@@ -243,7 +243,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // PF MET
 
   edm::Handle<reco::PFMETCollection> pfmetcoll;
-  iEvent.getByLabel(thePFMETCollectionLabel, pfmetcoll);
+  iEvent.getByToken(thePFMETCollectionToken, pfmetcoll);
   
   if(!pfmetcoll.isValid()) return;
 
@@ -256,21 +256,19 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //===========================================================
   // TC MET
 
-  edm::Handle<reco::METCollection> tcmetcoll;
-  iEvent.getByLabel(theTCMETCollectionLabel, tcmetcoll);
+  //edm::Handle<reco::METCollection> tcmetcoll;
+  //iEvent.getByToken(theTCMETCollectionToken, tcmetcoll);
   
-  if(!tcmetcoll.isValid()) return;
+  //if(!tcmetcoll.isValid()) return;
 
-  const METCollection *tcmetcol = tcmetcoll.product();
-  const MET *tcmet;
-  tcmet = &(tcmetcol->front());
+  //const METCollection *tcmetcol = tcmetcoll.product();
+  //const MET *tcmet;
+  //tcmet = &(tcmetcol->front());
 
-  hTCMET->Fill(tcmet->pt());
+  //hTCMET->Fill(tcmet->pt());
 
 }
 
-void SUSYDQMAnalyzer::endRun(const edm::Run&, const edm::EventSetup&){  
-}
 
 SUSYDQMAnalyzer::~SUSYDQMAnalyzer(){
 }

@@ -19,7 +19,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -120,7 +120,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
  
  private:
   //
-
+  bool  photonSelection (  const reco::PhotonRef & p );
   float  phiNormalization( float& a);
 
   MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
@@ -162,8 +162,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
   
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
+
+  edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   
   double minPhoEtCut_;
+  double photonMaxEta_;
   double invMassEtCut_;
 
   double cutStep_;
@@ -207,6 +210,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* totalNumberOfHistos_photonsFolder;
   MonitorElement* totalNumberOfHistos_conversionsFolder;
 
+  MonitorElement* h_nRecoVtx_;
 
   MonitorElement* h_phoEta_Loose_;
   MonitorElement* h_phoEta_Tight_;
@@ -263,6 +267,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_hcalSumEBarrel_;
   std::vector<std::vector<MonitorElement*> > h_hcalSumEEndcap_;
 
+  std::vector<std::vector<MonitorElement*> > h_phoIsoBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_phoIsoEndcap_;
+  std::vector<std::vector<MonitorElement*> > h_chHadIsoBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_chHadIsoEndcap_;
+  std::vector<std::vector<MonitorElement*> > h_nHadIsoBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_nHadIsoEndcap_;
+
+
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
@@ -274,6 +286,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
+
+  
+
 
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
@@ -354,6 +369,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<std::vector<MonitorElement*> > > p_hcalSumVsEt_;
 
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoE_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoSigmaEoverE_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > p_phoSigmaEoverEvsNVtx_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoEt_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_r9_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoPhi_;

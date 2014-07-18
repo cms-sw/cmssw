@@ -1,30 +1,7 @@
 #include "RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h"
 #include <iostream>
 
-CSCStripHit::CSCStripHit() :
-  theDetId(),
-  theStripHitPosition(),
-  theStripHitTmax(),     
-  theStrips(),
-  theStripHitADCs(),
-  theStripHitRawADCs(),
-  theConsecutiveStrips(),
-  theClosestMaximum(),
-  theDeadStrip()
-{
 
-/// Extract the lower byte for strip number
-theStripsLowBits.clear();
-for(int i=0; i<(int)theStrips.size(); i++){
-        theStripsLowBits.push_back(theStrips[i] & 0x000000FF);
-	}
-/// Extract the middle byte for L1A phase
-theStripsHighBits.clear();
-for(int i=0; i<(int)theStrips.size(); i++){
-        theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
-	}
-	
-}
 
 CSCStripHit::CSCStripHit( const CSCDetId& id, 
                           const float& sHitPos, 
@@ -59,7 +36,6 @@ for(int i=0; i<(int)theStrips.size(); i++){
 	
 }
 
-CSCStripHit::~CSCStripHit() {}
 
 
 /// Debug

@@ -16,7 +16,7 @@ engine that this class uses in its flat method.
 \author W. David Dagenhart, created 26 November 2013
 */
 
-#include "Basics.h"
+#include "Pythia8/Basics.h"
 
 namespace CLHEP {
   class HepRandomEngine;

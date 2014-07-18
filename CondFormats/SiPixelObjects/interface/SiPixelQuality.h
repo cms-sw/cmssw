@@ -8,18 +8,23 @@
 #ifndef SiPixelQuality_H
 #define SiPixelQuality_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <utility>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+
+namespace edm {
+  class EventSetup;
+}
 
 class TrackerGeometry;
 
@@ -30,7 +35,9 @@ class SiPixelQuality {
     uint32_t DetID;  
     int      errorType;
     unsigned short BadRocs;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
       //////////////////////////////////////
       //  errortype "whole" = int 0 in DB //
@@ -116,6 +123,8 @@ class SiPixelQuality {
   std::vector<disabledModuleType> theDisabledModules;
   bool IsFedBad(const uint32_t & detid) const; 
 
+
+ COND_SERIALIZABLE;
 }; // class SiPixelQuality
 
 

@@ -23,6 +23,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -51,10 +52,20 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false);
+  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool reducedSet=false, bool isUpgrade=false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             const TrackerGeometry* tracker,
+	    MonitorElement* layer1,
+	    MonitorElement* layer2,
+	    MonitorElement* layer3,
+	    MonitorElement* layer4,
+	    MonitorElement* disk1pz,
+	    MonitorElement* disk2pz,
+	    MonitorElement* disk3pz,
+	    MonitorElement* disk1mz,
+	    MonitorElement* disk2mz,
+	    MonitorElement* disk3mz,
             bool modon=true, 
 	    bool ladon=false, 
 	    bool layon=false, 
@@ -64,7 +75,8 @@ class SiPixelClusterModule {
 	    bool ringon=false, 
 	    bool twoD=true,
 	    bool reducedSet=false,
-	    bool smileyon=false);
+	    bool smileyon=false,
+	    bool isUpgrade=false);
   
  private:
 
@@ -90,10 +102,13 @@ class SiPixelClusterModule {
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;
   MonitorElement* meClPosLayer3;
+  MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk3pz;
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
+  MonitorElement* meClPosDisk3mz;
   
   //barrel
   MonitorElement* meNClustersLad_;

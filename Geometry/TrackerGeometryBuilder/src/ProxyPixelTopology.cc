@@ -5,7 +5,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-ProxyPixelTopology::ProxyPixelTopology(PixelGeomDetType* type, BoundPlane * bp)
+ProxyPixelTopology::ProxyPixelTopology(PixelGeomDetType const * type, BoundPlane * bp)
   :theType(type), theLength(bp->bounds().length()), theWidth(bp->bounds().width())
 {
   

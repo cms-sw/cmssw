@@ -1,6 +1,7 @@
 ////////// Header section /////////////////////////////////////////////
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class WeakEffectsWeightProducer: public edm::EDProducer {
 public:
@@ -10,7 +11,7 @@ public:
       virtual void produce(edm::Event &, const edm::EventSetup&) override;
       virtual void endJob() override ;
 private:
-      edm::InputTag genParticlesTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
       double rhoParameter_;
 
       double alphaQED(double q2);
@@ -26,12 +27,11 @@ private:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 /////////////////////////////////////////////////////////////////////////////////////
 WeakEffectsWeightProducer::WeakEffectsWeightProducer(const edm::ParameterSet& pset) :
-      genParticlesTag_(pset.getUntrackedParameter<edm::InputTag> ("GenParticlesTag", edm::InputTag("genParticles"))), 
-      rhoParameter_(pset.getUntrackedParameter<double> ("RhoParameter", 1.004)) 
+//       genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getUntrackedParameter<edm::InputTag> ("GenParticlesTag", edm::InputTag("genParticles")))),
+      genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
+      rhoParameter_(pset.getUntrackedParameter<double> ("RhoParameter", 1.004))
 {
       produces<double>();
 }
@@ -52,7 +52,7 @@ void WeakEffectsWeightProducer::produce(edm::Event & iEvent, const edm::EventSet
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel("genParticles", genParticles);
+      iEvent.getByToken(genParticlesToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
       std::auto_ptr<double> weight (new double);
@@ -79,7 +79,7 @@ void WeakEffectsWeightProducer::produce(edm::Event & iEvent, const edm::EventSet
             break;
       }
 
-      //printf(" \t >>>>> WeakEffectsWeightProducer: Final weight = %f\n", (*weight)); 
+      //printf(" \t >>>>> WeakEffectsWeightProducer: Final weight = %f\n", (*weight));
       iEvent.put(weight);
 }
 

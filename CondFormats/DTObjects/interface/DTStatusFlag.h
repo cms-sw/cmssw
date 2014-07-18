@@ -6,8 +6,6 @@
  *       Class to hold drift tubes status
  *             ( cell by cell noise and masks )
  *
- *  $Date: 2009/09/25 12:03:19 $
- *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,14 +18,19 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -47,6 +50,8 @@ class DTStatusFlagId {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -64,6 +69,8 @@ class DTStatusFlagData {
   bool  deadFlag;
   bool  nohvFlag;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -256,20 +263,22 @@ class DTStatusFlag {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTStatusFlag(DTStatusFlag const&);
+  DTStatusFlag& operator=(DTStatusFlag const&);
 
   std::string dataVersion;
 
   std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
-  /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
-
-
 #endif // DTStatusFlag_H
-

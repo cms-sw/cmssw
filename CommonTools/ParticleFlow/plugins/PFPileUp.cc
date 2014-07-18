@@ -50,9 +50,6 @@ PFPileUp::~PFPileUp() { }
 
 
 
-void PFPileUp::beginJob() { }
-
-
 void PFPileUp::produce(Event& iEvent,
 			  const EventSetup& iSetup) {
 

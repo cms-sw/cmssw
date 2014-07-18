@@ -45,8 +45,6 @@ MicroEventContent = cms.PSet(
         'keep patPackedCandidates_packedPFCandidates_*_*',
 
         'keep double_fixedGridRho*__*', 
-        'keep double_ak5*_rho_*', 
-        'keep doubles_ak5*_rhos_*', 
 
         'keep *_selectedPatTrigger_*_PAT',
         'keep patPackedTriggerPrescales_patTrigger__PAT',
@@ -55,7 +53,7 @@ MicroEventContent = cms.PSet(
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_PAT', # for MET filters
 	'keep patPackedCandidates_lostTracks_*_PAT',
-        'keep HcalNoiseSummary_hcalnoise__*',
+	'keep HcalNoiseSummary_hcalnoise__*'
     )
 )
 MicroEventContentMC = cms.PSet(

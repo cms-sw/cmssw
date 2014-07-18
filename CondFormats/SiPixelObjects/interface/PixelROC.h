@@ -2,6 +2,8 @@
 #define SiPixelObjects_PixelROC_H
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
@@ -22,14 +24,8 @@ class PixelROC {
 public:
 
   /// dummy
-  PixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0), theFrameConverter(0) {} 
+  PixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {} 
 
-  ~PixelROC();
-
-  PixelROC(const PixelROC & o);
-  const PixelROC& operator=(const PixelROC&);
-
-  void swap(PixelROC&);
 
   /// ctor with DetUnit id, 
   /// ROC number in DU (given by token passage), 
@@ -48,23 +44,36 @@ public:
   /// converts DU position to local. 
   /// If GlobalPixel is outside ROC the resulting LocalPixel is not inside ROC.
   /// (call to inside(..) recommended)
-  LocalPixel  toLocal(const GlobalPixel & gp) const;
+  LocalPixel  toLocal(const GlobalPixel & glo) const {
+    int rocRow = theFrameConverter.row().inverse(glo.row);
+    int rocCol = theFrameConverter.collumn().inverse(glo.col);
+    
+    LocalPixel::RocRowCol rocRowCol = {rocRow, rocCol};
+    return LocalPixel(rocRowCol);
+
+  }
 
   /// converts LocalPixel in ROC to DU coordinates. 
   /// LocalPixel must be inside ROC. Otherwise result is meaningless
-  GlobalPixel toGlobal(const LocalPixel & loc) const;
+  GlobalPixel toGlobal(const LocalPixel & loc) const {
+    GlobalPixel result;
+    result.col    = theFrameConverter.collumn().convert(loc.rocCol());
+    result.row    = theFrameConverter.row().convert(loc.rocRow());
+    return result;
+  }
 
   /// printout for debug
   std::string print(int depth = 0) const;
 
-private:
-  void initFrameConversion() const;
+  void initFrameConversion();
 
 private:
   uint32_t theDetUnit;
   unsigned int theIdDU, theIdLk;
-  mutable const FrameConversion * theFrameConverter;
+  FrameConversion theFrameConverter COND_TRANSIENT;
 
+
+  COND_SERIALIZABLE;
 };
 
 }

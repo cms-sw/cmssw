@@ -63,6 +63,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
       std::string label;      
       branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
       produces<PCrossingFrame<SimTrack> >(label);
+      consumes<std::vector<SimTrack>>(tag);
       LogInfo("MixingModule") <<"Add PCrossingFrame<SimTrack> "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
       
      } 
@@ -75,6 +76,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
       std::string label;             
       branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
       produces<PCrossingFrame<SimVertex> >(label);
+      consumes<std::vector<SimVertex>>(tag);
       LogInfo("MixingModule") <<"Add SimVertexContainer "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
      
     }  
@@ -91,6 +93,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
 
 	branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
 	produces<PCrossingFrame<PCaloHit> >(label);
+	consumes<std::vector<PCaloHit>>(tag);
 	LogInfo("MixingModule") <<"Add PCrossingFrame<PCaloHit> "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	 
 	// fill table with labels
@@ -112,6 +115,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
 	
 	branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 	produces<PCrossingFrame<PSimHit> >(label);
+	consumes<std::vector<PSimHit>>(tag);
 	LogInfo("MixingModule") <<"Add PSimHitContainer "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	
 	// fill table with labels
@@ -129,6 +133,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
 
       branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
       produces<PCrossingFrame<edm::HepMCProduct> >(label);
+      consumes<HepMCProduct>(tag);
       LogInfo("MixingModule") <<"Add HepMCProduct "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;      
     }  
     else LogWarning("MixingModule") <<"You did not mix a type of object("<<object<<").";

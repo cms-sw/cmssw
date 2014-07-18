@@ -9,16 +9,9 @@
 
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalRecIsolationProducer.h"
-
-
-// Framework
-//#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//nclude "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -29,14 +22,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
-  // use configuration file to setup input/output collection names
-  //inputs
+
   recoEcalCandidateProducer_      = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   ecalBarrelRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer"));
   ecalEndcapRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer"));
-  rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
 
   doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
+  if (doRhoCorrection_)
+    rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   rhoMax_                         = config.getParameter<double>("rhoMax"); 
   rhoScale_                       = config.getParameter<double>("rhoScale"); 
 
@@ -107,11 +101,6 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   edm::Handle<EcalRecHitCollection> ecalEndcapRecHitHandle;
   iEvent.getByToken(ecalEndcapRecHitProducer_, ecalEndcapRecHitHandle);
 
-  //create the meta hit collections inorder that we can pass them into the isolation objects
-
-  EcalRecHitMetaCollection ecalBarrelHits(*ecalBarrelRecHitHandle);
-  EcalRecHitMetaCollection ecalEndcapHits(*ecalEndcapRecHitHandle);
-
   //Get Calo Geometry
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -137,9 +126,9 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   reco::RecoEcalCandidateIsolationMap isoMap;
 
   //create algorithm objects
-  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,edm::ESHandle<CaloGeometry>(caloGeom),&ecalBarrelHits,sevLevel,DetId::Ecal);
+  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,edm::ESHandle<CaloGeometry>(caloGeom),*ecalBarrelRecHitHandle,sevLevel,DetId::Ecal);
   ecalBarrelIsol.setUseNumCrystals(useNumCrystals_);
-  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,edm::ESHandle<CaloGeometry>(caloGeom),&ecalEndcapHits,sevLevel,DetId::Ecal);
+  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,edm::ESHandle<CaloGeometry>(caloGeom),*ecalEndcapRecHitHandle,sevLevel,DetId::Ecal);
   ecalEndcapIsol.setUseNumCrystals(useNumCrystals_);
 
   for (reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand= recoecalcandHandle->begin(); iRecoEcalCand!=recoecalcandHandle->end(); iRecoEcalCand++) {

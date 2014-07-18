@@ -28,35 +28,13 @@
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
+#include "FWCore/Framework/interface/stream/makeGlobal.h"
 #include "FWCore/Framework/src/MakeModuleHelper.h"
 
 // forward declarations
 
 namespace edm {
   namespace stream {
-
-    namespace impl {
-      template<typename T, typename G>
-      std::unique_ptr<G> makeGlobal(edm::ParameterSet const& iPSet, G const*) {
-        return T::initializeGlobalCache(iPSet);
-      }
-      template<typename T>
-      dummy_ptr makeGlobal(edm::ParameterSet const& iPSet, void const*) {
-        return dummy_ptr();
-      }
-      
-      template< typename T, typename G>
-      T* makeStreamModule(edm::ParameterSet const& iPSet,
-                                          G const* iGlobal) {
-        return new T(iPSet,iGlobal);
-      }
-
-      template< typename T>
-      T* makeStreamModule(edm::ParameterSet const& iPSet,
-                                          void const* ) {
-        return new T(iPSet);
-      }
-    }
 
     template<typename ABase, typename ModType> struct BaseToAdaptor;
 
@@ -99,7 +77,11 @@ namespace edm {
       typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
       
       void setupStreamModules() override final {
-        this->createStreamModules([this] () -> EDAnalyzerBase* {return impl::makeStreamModule<T>(*m_pset,m_global.get());});
+        this->createStreamModules([this] () -> EDAnalyzerBase* {
+          auto tmp = impl::makeStreamModule<T>(*m_pset,m_global.get());
+          MyGlobal::set(tmp,m_global.get());
+          return tmp;
+        });
         m_pset= nullptr;
       }
 
@@ -107,7 +89,6 @@ namespace edm {
         MyGlobal::endJob(m_global.get());
       }
       void setupRun(EDAnalyzerBase* iProd, RunIndex iIndex) override final {
-        MyGlobal::set(iProd,m_global.get());
         MyGlobalRun::set(iProd, m_runs[iIndex].get());
       }
       void streamEndRunSummary(EDAnalyzerBase* iProd,

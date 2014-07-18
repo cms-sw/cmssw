@@ -36,7 +36,7 @@ float CSCFindPeakTime::averageTime( int tmax, const float* adc ) {
    float sumt = 0.;
    for (size_t i=0; i<4; ++i){
      sum  += adc[i];
-     sumt += adc[i] * ( tmax - 1 + i );
+     sumt += adc[i] * float( tmax - 1 + i );
 
    }
    return sumt/sum * 50.; //@@ in ns. May be some bin width offset things to handle here?
@@ -56,13 +56,13 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
 
    // Checked and simplified... Tim Cox 08-Apr-2009
    // Denominator is not zero unless we fed in nonsense values with y2 not the peak!
-   if ( (y1+y3) < 2.*y2 ) tcorr =  0.5 * ( y1 - y3 ) / ( y1 - 2.*y2 + y3 );
+   if ( (y1+y3) < 2.f*y2 ) tcorr =  0.5f * ( y1 - y3 ) / ( y1 - 2.*y2 + y3 );
    tpeak += tcorr;
 
    LogTrace("CSCFindPeakTime") << "[CSCFindPeakTime] tmax=" << tmax 
-     << ", parabolic peak time is tmax+" << tcorr <<" bins, or " << tpeak*50. << " ns";
+     << ", parabolic peak time is tmax+" << tcorr <<" bins, or " << tpeak*50.f << " ns";
    
-   return tpeak * 50.; // convert to ns.
+   return tpeak * 50.f; // convert to ns.
 }
 
 float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak ) {
@@ -80,9 +80,9 @@ float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak
 
   // Initialize parameters to sensible (?) values
 
-  float t0       = 0.;
-  float t0peak   = 133.;   // this is offset of peak from start time t0
-  float p0       = 4./t0peak;
+  float t0       = 0.f;
+  constexpr float t0peak   = 133.f;   // this is offset of peak from start time t0
+  constexpr float p0       = 4.f/t0peak;
 
   // Require that tmax is in range 2-6 of bins the eight SCA time bins 0-7
   // (Bins 0, 1 used for dynamic ped)
@@ -93,7 +93,7 @@ float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak
 
   float tb[4];
   for ( int time=0; time<4; ++time ){
-    tb[time] = (tmax + time -1) * 50.;
+    tb[time] = (tmax + time -1) * 50.f;
   }
 
   // How many time bins are we fitting?
@@ -101,24 +101,24 @@ float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak
   int n_fit  = 4;
   if ( tmax == 6 ) n_fit = 3;
 
-  float chi_min  = 1.e10;
-  float chi_last = 1.e10;
-  float tt0      = 0.;
-  float chi2     = 0.;
-  float del_t    = 100.;
+  float chi_min  = 1.e10f;
+  float chi_last = 1.e10f;
+  float tt0      = 0.f;
+  float chi2     = 0.f;
+  float del_t    = 100.f;
 
   float x[4];
-  float sx2 = 0.;
-  float sxy = 0.;
-  float fN  = 0.;
+  float sx2 = 0.f;
+  float sxy = 0.f;
+  float fN  = 0.f;
 
-  while ( del_t > 1. ) {
-    sx2 = 0.;
-    sxy = 0.;
+  while ( del_t > 1.f ) {
+    sx2 = 0.f;
+    sxy = 0.f;
         
     for ( int j=0; j < n_fit; ++j ) {
       float tdif = tb[j] - tt0;
-      x[j] = tdif * tdif * tdif * tdif * exp( -p0 * tdif );
+      x[j] = (tdif * tdif) * (tdif * tdif) * std::exp( -p0 * tdif );
       sx2 += x[j] * x[j];
       sxy += x[j] * adc[j];
     }
@@ -136,10 +136,10 @@ float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak
       chi_last  = chi2;
       tt0       = tt0 + del_t;
     } else {
-      tt0      = tt0 - 2. * del_t;
-      del_t    = del_t / 2.;
+      tt0      = tt0 - 2.f * del_t;
+      del_t    = 0.5*del_t;
       tt0      = tt0 + del_t;
-      chi_last = 1.0e10;
+      chi_last = 1.0e10f;
     }
   }
 
@@ -152,24 +152,24 @@ void CSCFindPeakTime::fivePoleFitCharge( int tmax, const float* adc, const float
 
   //@@ This code can certainly be replaced by fivePoleFitTime above, but I haven't time to do that now (Tim).
 
-  float p0  = 4./t_peak;
+  float p0  = 4.f/t_peak;
   float tt0 = t_zero;
   int n_fit = 4;
   if ( tmax == 6 ) n_fit=3;
   
   float tb[4], y[4];
   for ( int t = 0; t < 4; ++t ){
-    tb[t] = (tmax + t - 1) * 50.;
+    tb[t] = float(tmax + t - 1) * 50.f;
     y[t] = adc[t];
   }
 
   // Find the normalization factor for the function
   float x[4];    
-  float sx2 = 0.;
-  float sxy = 0.;
+  float sx2 = 0.f;
+  float sxy = 0.f;
   for ( int j=0; j < n_fit; ++j ) {
     float t = tb[j];
-    x[j] = (t-tt0)*(t-tt0)*(t-tt0)*(t-tt0) * exp( -p0 * (t-tt0) );
+    x[j] = ((t-tt0)*(t-tt0))*((t-tt0)*(t-tt0)) * std::exp( -p0 * (t-tt0) );
     sx2  = sx2 + x[j] * x[j];
     sxy  = sxy + x[j] * y[j];
   }
@@ -178,8 +178,8 @@ void CSCFindPeakTime::fivePoleFitCharge( int tmax, const float* adc, const float
 
   // Now compute charge for a given t  --> only need charges at: t_peak-50, t_peak and t_peak+50
   for ( int i = 0; i < 3; ++i ) {
-    float t = t_peak + (i - 1) * 50.;
-    float q_fitted = N * (t-tt0)*(t-tt0)*(t-tt0)*(t-tt0) * exp( -p0 * (t-tt0) );
+    float t = t_peak + float(i - 1) * 50.f;
+    float q_fitted = float(N) * ((t-tt0)*(t-tt0))*((t-tt0)*(t-tt0)) * std::exp( -p0 * (t-tt0) );
     adcsFit.push_back(q_fitted);
   }
   return;

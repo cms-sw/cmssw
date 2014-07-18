@@ -103,7 +103,7 @@ namespace edm {
   class RunStopwatch;
   class UnscheduledCallProducer;
   class WorkerInPath;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
   class PreallocationConfiguration;
@@ -116,13 +116,13 @@ namespace edm {
     template <typename T>
     class StreamScheduleSignalSentry {
     public:
-      StreamScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es, typename T::Context const* context) :
-        a_(a), principal_(principal), es_(es), context_(context), allowThrow_(false) {
-        if (a_) T::preScheduleSignal(a_, principal_, context_);
+      StreamScheduleSignalSentry(ActivityRegistry* a, typename T::Context const* context) :
+        a_(a), context_(context), allowThrow_(false) {
+        if (a_) T::preScheduleSignal(a_, context_);
       }
       ~StreamScheduleSignalSentry() noexcept(false) {
         try {
-          if (a_ and principal_) { T::postScheduleSignal(a_, principal_, es_, context_); }
+          if (a_) { T::postScheduleSignal(a_, context_); }
         } catch(...) {
           if(allowThrow_) {throw;}
         }
@@ -135,8 +135,6 @@ namespace edm {
     private:
       // We own none of these resources.
       ActivityRegistry* a_;
-      typename T::MyPrincipal* principal_;
-      EventSetup const* es_;
       typename T::Context const* context_;
       bool allowThrow_;
     };
@@ -356,7 +354,7 @@ namespace edm {
     }
 
     T::setStreamContext(streamContext_, ep);
-    StreamScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &streamContext_);
+    StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
 
     // A RunStopwatch, but only if we are processing an event.
     RunStopwatch stopwatch(stopwatch_);
@@ -366,7 +364,7 @@ namespace edm {
 
     ++total_events_;
     try {
-      try {
+      convertException::wrap([&]() {
         try {
           if (runTriggerPaths<T>(ep, es, &streamContext_)) {
             ++total_passed_;
@@ -400,13 +398,7 @@ namespace edm {
 
         if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
         resetEarlyDelete();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {
@@ -427,23 +419,17 @@ namespace edm {
     this->resetAll();
 
     T::setStreamContext(streamContext_, ep);
-    StreamScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &streamContext_);
+    StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
 
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
 
     try {
-      try {
+      convertException::wrap([&]() {
         runTriggerPaths<T>(ep, es, &streamContext_);
 
         if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {

@@ -174,27 +174,24 @@ L1GtHwValidation::~L1GtHwValidation() {
 // member functions
 
 // method called once each job just before starting event loop
-void L1GtHwValidation::beginJob() {
+void L1GtHwValidation::beginJob() {}
 
-    DQMStore* dbe = 0;
-    dbe = edm::Service<DQMStore>().operator->();
 
+void L1GtHwValidation::beginRun(const edm::Run& iRun,
+				const edm::EventSetup& evSetup) {
+   
     // clean up directory
-    if (dbe) {
-        dbe->setCurrentFolder(m_dirName);
-        if (dbe->dirExists(m_dirName)) {
-            dbe->rmdir(m_dirName);
+    if (m_dbe) {
+        m_dbe->setCurrentFolder(m_dirName);
+        if (m_dbe->dirExists(m_dirName)) {
+            m_dbe->rmdir(m_dirName);
         }
-        dbe->setCurrentFolder(m_dirName);
+        m_dbe->setCurrentFolder(m_dirName);
     }
 
     // book histograms
     bookHistograms();
 
-}
-
-void L1GtHwValidation::beginRun(const edm::Run& iRun,
-        const edm::EventSetup& evSetup) {
 
     m_nrEvRun = 0;
 
@@ -228,7 +225,7 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
             << std::endl;
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
-
+    
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 
         const int algBitNumber = (itAlgo->second).algoBitNumber();
@@ -327,7 +324,7 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
         for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo
                 != m_excludedAlgoList.end(); ++itAlgo) {
 
-            if (algBitNumber == *itAlgo) {
+	     if (algBitNumber == *itAlgo) {
                 m_excludedAlgorithmsAgreement->setBinLabel(algBitNumber
                         + 1, algName, 1);
             }

@@ -134,14 +134,13 @@ class BeamFitter {
   }
  private:
 
-  const char * formatBTime( const std::time_t &);
   // Update the fbeginTimeOfFit etc from the refTime
   void updateBTime();
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   reco::BeamSpot fbeamWidthFit;
   std::map< int, reco::BeamSpot> fbspotPVMap;
-  BSFitter *fmyalgo;
+  //  BSFitter *fmyalgo;
   std::ofstream fasciiFile;
   std::ofstream fasciiDIP;
 
@@ -206,8 +205,8 @@ class BeamFitter {
   int fnTECLayerMeas;
   int fnPXBLayerMeas;
   int fnPXFLayerMeas;
-  double fd0phi_chi2;
-  double fd0phi_d0;
+  //  double fd0phi_chi2;
+  //  double fd0phi_d0;
   double fcov[7][7];
   double fvx;
   double fvy;

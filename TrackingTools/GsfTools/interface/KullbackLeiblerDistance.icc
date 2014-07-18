@@ -3,8 +3,8 @@
 namespace KullbackLeiblerDistanceDetails {
 
   template <unsigned int N> double 
-  compute (SingleGaussianState<N>  sgs1, 
-	   SingleGaussianState<N>  sgs2) {
+  compute (SingleGaussianState<N>  const & sgs1, 
+	   SingleGaussianState<N>  const & sgs2) {
     
     //ThS: That check will have to happen somewhere else for TSOS...
   typedef ROOT::Math::SVector<double, N> Vector;

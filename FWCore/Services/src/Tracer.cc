@@ -163,7 +163,7 @@ void
 Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("indention", "++")->setComment("Prefix characters for output. The characters are repeated to form the indentation.");
-  desc.addUntracked<std::vector<std::string>>("dumpContextForLabels", {})->setComment("Prints context information to cout for the module transitions associated with these modules' labels");
+  desc.addUntracked<std::vector<std::string>>("dumpContextForLabels", std::vector<std::string>{})->setComment("Prints context information to cout for the module transitions associated with these modules' labels");
   desc.addUntracked<bool>("dumpNonModuleContext", false)->setComment("Prints context information to cout for the transitions not associated with any module label");
   desc.addUntracked<bool>("printTimestamps", false)->setComment("Prints a time stamp for every transition");
   descriptions.add("Tracer", desc);
@@ -172,7 +172,7 @@ Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 
 void
 Tracer::preallocate(service::SystemBounds const& bounds) {
-  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, " 
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, "
                                                           << bounds.maxNumberOfConcurrentLuminosityBlocks() << " concurrent luminosity sections, " 
                                                           << bounds.maxNumberOfStreams() << " streams";
 }

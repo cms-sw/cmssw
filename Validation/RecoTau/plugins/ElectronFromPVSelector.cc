@@ -37,7 +37,6 @@ public:
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:  
   // member data
@@ -105,10 +104,6 @@ void GsfElectronFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup
   
   iEvent.put(goodGsfElectrons);
   
-}
-
-void GsfElectronFromPVSelector::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

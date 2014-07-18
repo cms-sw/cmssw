@@ -6,11 +6,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -21,12 +22,12 @@
 
 class  BetaCalculatorMUON{
    public:
-      BetaCalculatorMUON(const edm::ParameterSet& iConfig);
+      BetaCalculatorMUON(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
       void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      edm::InputTag m_muontiming_dt;
-      edm::InputTag m_muontiming_csc;
-      edm::InputTag m_muontiming_combined;
+      edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_dt;
+      edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_csc;
+      edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_combined;
 };
 
 

@@ -1,7 +1,6 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,20 +39,21 @@ using namespace edm;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
-MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
+MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset,consumesCollector()){
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   string histoProducerAlgoName = psetForHistoProducerAlgo.getParameter<string>("ComponentName");
   histoProducerAlgo_ = MTVHistoProducerAlgoFactory::get()->create(histoProducerAlgoName ,psetForHistoProducerAlgo, consumesCollector());
-  histoProducerAlgo_->setDQMStore(dbe_);
 
   dirName_ = pset.getParameter<std::string>("dirName");
-  associatormap = pset.getParameter< edm::InputTag >("associatormap");
+  assMapInput = pset.getParameter< edm::InputTag >("associatormap");
+  associatormapStR = mayConsume<reco::SimToRecoCollection>(assMapInput);
+  associatormapRtS = mayConsume<reco::RecoToSimCollection>(assMapInput);
   UseAssociators = pset.getParameter< bool >("UseAssociators");
 
-  m_dEdx1Tag = pset.getParameter< edm::InputTag >("dEdx1Tag");
-  m_dEdx2Tag = pset.getParameter< edm::InputTag >("dEdx2Tag");
+  m_dEdx1Tag = mayConsume<reco::DeDxData>(pset.getParameter< edm::InputTag >("dEdx1Tag"));
+  m_dEdx2Tag = mayConsume<reco::DeDxData>(pset.getParameter< edm::InputTag >("dEdx2Tag"));
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
 					pset.getParameter<double>("minRapidityTP"),
@@ -78,11 +78,11 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   useGsf = pset.getParameter<bool>("useGsf");
   runStandalone = pset.getParameter<bool>("runStandalone");
 
-  _simHitTpMapTag = pset.getParameter<edm::InputTag>("simHitTpMapTag");
+  _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
   if (!UseAssociators) {
     associators.clear();
-    associators.push_back(associatormap.label());
+    associators.push_back(assMapInput.label());
   }
 
 }
@@ -90,60 +90,60 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 
 MultiTrackValidator::~MultiTrackValidator(){delete histoProducerAlgo_;}
 
-void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
-  //  dbe_->showDirStructure();
+
+void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
 
   //int j=0;  //is This Necessary ???
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      dbe_->cd();
+      ibook.cd();
       InputTag algo = label[www];
       string dirName=dirName_;
       if (algo.process()!="")
-	dirName+=algo.process()+"_";
+    dirName+=algo.process()+"_";
       if(algo.label()!="")
-	dirName+=algo.label()+"_";
+    dirName+=algo.label()+"_";
       if(algo.instance()!="")
-	dirName+=algo.instance()+"_";
+    dirName+=algo.instance()+"_";
       if (dirName.find("Tracks")<dirName.length()){
-	dirName.replace(dirName.find("Tracks"),6,"");
+    dirName.replace(dirName.find("Tracks"),6,"");
       }
       string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
-	assoc.replace(assoc.find("Track"),5,"");
+    assoc.replace(assoc.find("Track"),5,"");
       }
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
 
-      dbe_->setCurrentFolder(dirName.c_str());
+      ibook.setCurrentFolder(dirName.c_str());
 
       // vector of vector initialization
       histoProducerAlgo_->initialize(); //TO BE FIXED. I'D LIKE TO AVOID THIS CALL
 
-      dbe_->goUp(); //Is this really necessary ???
       string subDirName = dirName + "/simulation";
-      dbe_->setCurrentFolder(subDirName.c_str());
+      ibook.setCurrentFolder(subDirName.c_str());
 
       //Booking histograms concerning with simulated tracks
-      histoProducerAlgo_->bookSimHistos();
+      histoProducerAlgo_->bookSimHistos(ibook);
 
-      dbe_->cd();
-      dbe_->setCurrentFolder(dirName.c_str());
+      ibook.cd();
+      ibook.setCurrentFolder(dirName.c_str());
 
       //Booking histograms concerning with reconstructed tracks
-      histoProducerAlgo_->bookRecoHistos();
-      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning();
+      histoProducerAlgo_->bookRecoHistos(ibook);
+      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
 
       if (UseAssociators) {
-	edm::ESHandle<TrackAssociatorBase> theAssociator;
-	for (unsigned int w=0;w<associators.size();w++) {
-	  setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-	  associator.push_back( theAssociator.product() );
-	}//end loop w
+    edm::ESHandle<TrackAssociatorBase> theAssociator;
+    for (unsigned int w=0;w<associators.size();w++) {
+      setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
+      associator.push_back( theAssociator.product() );
+    }//end loop w
       }
     }//end loop www
   }// end loop ww
 }
+
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
   using namespace reco;
@@ -151,21 +151,23 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
+  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
+  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTPHandle);
+  //Since we modify the object, we must clone it
+  auto parametersDefinerTP = parametersDefinerTPHandle->clone();
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
-  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  event.getByToken(label_tp_effic,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
-  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  event.getByToken(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
     //warning: make sure the TP collection used in the map is the same used in the MTV!
-    event.getByLabel(_simHitTpMapTag,simHitsTPAssoc);
+    event.getByToken(_simHitTpMapTag,simHitsTPAssoc);
     parametersDefinerTP->initEvent(simHitsTPAssoc);
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
@@ -176,11 +178,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   //<< "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  event.getByToken(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
 
   edm::Handle< vector<PileupSummaryInfo> > puinfoH;
-  event.getByLabel(label_pileupinfo,puinfoH);
+  event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;
 
   for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){
@@ -191,7 +193,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   }
 
   edm::Handle<TrackingVertexCollection> tvH;
-  event.getByLabel(label_tv,tvH);
+  event.getByToken(label_tv,tvH);
   TrackingVertexCollection tv = *tvH;
 
   int w=0; //counter counting the number of sets of histograms
@@ -201,7 +203,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //get collections from the event
       //
       edm::Handle<View<Track> >  trackCollection;
-      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_)continue;
+      if(!event.getByToken(labelToken[www], trackCollection)&&ignoremissingtkcollection_)continue;
       //if (trackCollection->size()==0)
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ;
       //continue;
@@ -230,16 +232,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					   << label[www].process()<<":"
 					   << label[www].label()<<":"
 					   << label[www].instance()<<" with "
-					   << associatormap.process()<<":"
-					   << associatormap.label()<<":"
-					   << associatormap.instance()<<"\n";
+					   << assMapInput.process()<<":"
+					   << assMapInput.label()<<":"
+					   << assMapInput.instance()<<"\n";
 
 	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	event.getByLabel(associatormap,simtorecoCollectionH);
+	event.getByToken(associatormapStR,simtorecoCollectionH);
 	simRecColl= *(simtorecoCollectionH.product());
 
 	Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	event.getByLabel(associatormap,recotosimCollectionH);
+	event.getByToken(associatormapRtS,recotosimCollectionH);
 	recSimColl= *(recotosimCollectionH.product());
       }
 
@@ -376,9 +378,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //std::cout << "PIPPO: label is " << label[www] << std::endl;
       if (label[www].label()=="generalTracks") {
 	try {
-	  event.getByLabel(m_dEdx1Tag, dEdx1Handle);
+	  event.getByToken(m_dEdx1Tag, dEdx1Handle);
 	  const edm::ValueMap<reco::DeDxData> dEdx1 = *dEdx1Handle.product();
-	  event.getByLabel(m_dEdx2Tag, dEdx2Handle);
+	  event.getByToken(m_dEdx2Tag, dEdx2Handle);
 	  const edm::ValueMap<reco::DeDxData> dEdx2 = *dEdx2Handle.product();
 	  v_dEdx.push_back(dEdx1);
 	  v_dEdx.push_back(dEdx2);
@@ -507,7 +509,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       w++;
     }
   }
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  //if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
 

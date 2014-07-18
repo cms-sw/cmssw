@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+
  
 class DetectorStateFilter : public edm::EDFilter {
  public:
@@ -15,7 +17,7 @@ class DetectorStateFilter : public edm::EDFilter {
   bool verbose_;
   bool detectorOn_;
   std::string detectorType_;
-  edm:: InputTag dcsStatusLabel_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusLabel_;
 };
 
 #endif

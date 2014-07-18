@@ -11,6 +11,7 @@
  *
  */
 
+#include <FWCore/Utilities/interface/EDGetToken.h>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -91,6 +92,18 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   edm::InputTag simHitProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag compDigiProducer_;
+
+  edm::EDGetTokenT<edm::PSimHitContainer> simHit_token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> wireDigi_token_;
+  edm::EDGetTokenT<CSCComparatorDigiCollection> compDigi_token_;
+
+  edm::EDGetTokenT<CSCALCTDigiCollection> alcts_d_token_;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_d_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_d_token_;
+  edm::EDGetTokenT<CSCALCTDigiCollection> alcts_e_token_;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_e_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_e_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_mpc_e_token_;
 
   // a prefix for results ps files
   std::string   resultsFileNamesPrefix_;

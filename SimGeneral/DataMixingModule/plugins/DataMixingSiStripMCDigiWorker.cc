@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -28,7 +29,8 @@ namespace edm
   DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker() { }
 
   // Constructor 
-  DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps) : 
+  DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps, 
+							       edm::ConsumesCollector && iC) : 
     label_(ps.getParameter<std::string>("Label")),
     gainLabel(ps.getParameter<std::string>("Gain")),
     peakMode(ps.getParameter<bool>("APVpeakmode")),
@@ -51,6 +53,7 @@ namespace edm
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
+    iC.consumes<edm::DetSetVector<SiStripDigi>>(SistripLabelSig_);
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
 
@@ -62,9 +65,7 @@ namespace edm
       "in the configuration file or remove the modules that require it.";
     }
   
-    rndEngine = &(rng->getEngine());
-
-    theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold, (*rndEngine) ));
+    theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold));
     //    theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
     //theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC));
 
@@ -80,7 +81,7 @@ namespace edm
 
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
+    for(auto iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
       unsigned int detId = (*iu)->geographicalId().rawId();
       DetId idet=DetId(detId);
       unsigned int isub=idet.subdetId();
@@ -88,7 +89,7 @@ namespace edm
 	 (isub == StripSubdetector::TID) ||
 	 (isub == StripSubdetector::TOB) ||
 	 (isub == StripSubdetector::TEC)) {
-	StripGeomDetUnit* stripdet = dynamic_cast<StripGeomDetUnit*>((*iu));
+	auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
 	assert(stripdet != 0);
 	DMinitializeDetUnit(stripdet, iSetup);
       }
@@ -98,7 +99,7 @@ namespace edm
   }
 
 
-  void DataMixingSiStripMCDigiWorker::DMinitializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup ) { 
+  void DataMixingSiStripMCDigiWorker::DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup ) { 
 
     edm::ESHandle<SiStripBadStrip> deadChannelHandle;
     iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
@@ -292,7 +293,7 @@ namespace edm
     // This section stolen from SiStripDigitizerAlgorithm
     // must loop over all detIds in the tracker to get all of the noise added properly.
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-      StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+      const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>((*iu));
       if (sgd != 0){
 
 	uint32_t detID = sgd->geographicalId().rawId();
@@ -347,7 +348,9 @@ namespace edm
 	if(RefStrip<numStrips){
 	  float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
 	  float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
+	  edm::Service<edm::RandomNumberGenerator> rng;
+	  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue,engine);
 	}
 	
 	DigitalVecType digis;

@@ -10,6 +10,8 @@
 #include<string>
 #include <sstream>
 
+#include "CondCore/CondDB/interface/Serialization.h"
+
 
 namespace {
 

@@ -338,6 +338,23 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     //conversions only for full relinking
     if (!relink) continue;
     
+    const reco::ConversionRefVector &convrefs = gsfElectron.core()->conversions();
+    for (const reco::ConversionRef &convref : convrefs) {
+      if (!conversionMap.count(convref)) {
+        conversions->push_back(*convref);
+        conversionMap[convref] = conversions->size() - 1;
+      }
+    }
+    
+    //explicitly references conversions
+    const reco::ConversionRefVector &singleconvrefs = gsfElectron.core()->conversionsOneLeg();
+    for (const reco::ConversionRef &convref : singleconvrefs) {
+      if (!singleConversionMap.count(convref)) {
+        singleConversions->push_back(*convref);
+        singleConversionMap[convref] = singleConversions->size() - 1;
+      }
+    }     
+    
     //conversions matched by trackrefs
     for (unsigned int iconv = 0; iconv<conversionHandle->size(); ++iconv) {
       const reco::Conversion &conversion = (*conversionHandle)[iconv];

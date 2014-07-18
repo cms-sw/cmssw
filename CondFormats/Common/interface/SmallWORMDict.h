@@ -1,6 +1,8 @@
 #ifndef cond_SmallWORMDict_h
 #define cond_SmallWORMDict_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<string>
 #include<algorithm>
@@ -93,7 +95,9 @@ namespace cond {
   private: 
     std::vector<char> m_data;
     std::vector<unsigned int> m_index;
-  };
+  
+ COND_SERIALIZABLE;
+};
 
 
 }

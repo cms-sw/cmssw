@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -30,7 +30,7 @@
 
 //#define VTXDEBUG 1
 
-class InclusiveVertexFinder : public edm::EDProducer {
+class InclusiveVertexFinder : public edm::stream::EDProducer<> {
     public:
 	InclusiveVertexFinder(const edm::ParameterSet &params);
 

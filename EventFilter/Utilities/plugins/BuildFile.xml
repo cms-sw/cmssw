@@ -1,5 +1,4 @@
 <library   file="*.cc" name="EventFilterUtilitiesPlugins">
-  <Flags CXXFLAGS="-g"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Framework"/>

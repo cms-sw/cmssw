@@ -62,16 +62,22 @@ BTagHLTOfflineSource::BTagHLTOfflineSource(const edm::ParameterSet& iConfig):
   plotEff_      = iConfig.getUntrackedParameter< bool >("plotEff", false);
   nameForEff_   = iConfig.getUntrackedParameter< bool >("nameForEff", true);
 
-  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   
   // plotting paramters
   MuonTrigPaths_ = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMuon");
   MBTrigPaths_   = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMB");
-  caloJetsTag_   = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
-  muonTag_       = iConfig.getParameter<edm::InputTag>("MuonCollectionLabel");
+  caloJetsToken  = consumes<reco::CaloJetCollection> (iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel"));
+  muonToken      = consumes<reco::MuonCollection>    (iConfig.getParameter<edm::InputTag>("MuonCollectionLabel"));
+  beamSpotToken  = consumes <reco::BeamSpot> (std::string("offlineBeamSpot"));
 
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  triggerSummaryToken     = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
+  triggerResultsToken     = consumes <edm::TriggerResults>   (triggerResultsLabel_);
+  triggerSummaryFUToken   = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
+  triggerResultsFUToken   = consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+
   custompathname       = iConfig.getUntrackedParameter<vector<std::string> >("paths");
 
   //Jet selection cuts
@@ -125,10 +131,9 @@ void BTagHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
   using namespace reco;
 
   //---------- triggerResults ----------
-  iEvent.getByLabel(triggerResultsLabel_, triggerResults_);
+  iEvent.getByToken(triggerResultsToken, triggerResults_);
   if(!triggerResults_.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerResultsLabelFU,triggerResults_);
+    iEvent.getByToken(triggerResultsFUToken,triggerResults_);
     if(!triggerResults_.isValid()) {
       edm::LogInfo("BTagHLTOfflineSource") << "TriggerResults not found, "
 	"skipping event";
@@ -150,10 +155,9 @@ void BTagHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   //---------- triggerSummary ----------
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj_);
+  iEvent.getByToken(triggerSummaryToken,triggerObj_);
   if(!triggerObj_.isValid()) {
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,triggerObj_);
+    iEvent.getByToken(triggerSummaryFUToken,triggerObj_);
     if(!triggerObj_.isValid()) {
       edm::LogInfo("BTagHLTOfflineSource") << "TriggerEvent not found, "
 	"skipping event";
@@ -165,20 +169,20 @@ void BTagHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
 
   //Access the reco calo jets 
   edm::Handle<reco::CaloJetCollection> jetHandle;
-  bool ValidJetColl_ = iEvent.getByLabel(caloJetsTag_, jetHandle);
+  bool ValidJetColl_ = iEvent.getByToken(caloJetsToken, jetHandle);
   if(!ValidJetColl_) return;
   // get the selected jets
   selectJets(iEvent,jetHandle);
 
   //Access the reco muons
   edm::Handle<reco::MuonCollection> muonHandle;
-  bool ValidMuColl_ = iEvent.getByLabel(muonTag_, muonHandle);
+  bool ValidMuColl_ = iEvent.getByToken(muonToken, muonHandle);
   if(!ValidMuColl_) return;
   // get the selected muons
   selectMuons(muonHandle);
 
   // Beam spot
-  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), beamSpot_)) {
+  if (!iEvent.getByToken(beamSpotToken, beamSpot_)) {
         edm::LogInfo("") << ">>> No beam spot found !!!";
   }
 

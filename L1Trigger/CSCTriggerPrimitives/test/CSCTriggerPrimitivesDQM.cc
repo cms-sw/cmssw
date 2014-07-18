@@ -20,6 +20,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -118,6 +119,20 @@ CSCTriggerPrimitivesDQM::CSCTriggerPrimitivesDQM(const edm::ParameterSet& conf) 
   simHitProducer_ = conf.getParameter<edm::InputTag>("CSCSimHitProducer");
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
+
+  simHit_token_     = consumes<edm::PSimHitContainer>(simHitProducer_);
+  wireDigi_token_   = consumes<CSCWireDigiCollection>(wireDigiProducer_);
+  compDigi_token_   = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
+
+  alcts_d_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerData_));
+  clcts_d_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerData_));
+  lcts_tmb_d_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerData_));
+
+  alcts_e_token_    = consumes<CSCALCTDigiCollection>(edm::InputTag(lctProducerEmul_));
+  clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
+  lcts_tmb_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
+  lcts_mpc_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "MPCSORTED"));
+
   debug = conf.getUntrackedParameter<bool>("debug", false);
   bad_chambers = conf.getUntrackedParameter< std::vector<std::string> >("bad_chambers");
   bad_wires = conf.getUntrackedParameter< std::vector<std::string> >("bad_wires");
@@ -162,9 +177,12 @@ void CSCTriggerPrimitivesDQM::analyze(const edm::Event& ev,
   // Data
   HotWires(ev);
   if (dataLctsIn_) {
-    ev.getByLabel(lctProducerData_, "MuonCSCALCTDigi", alcts_data);
-    ev.getByLabel(lctProducerData_, "MuonCSCCLCTDigi", clcts_data);
-    ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
+    //    ev.getByLabel(lctProducerData_, "MuonCSCALCTDigi", alcts_data);
+    //    ev.getByLabel(lctProducerData_, "MuonCSCCLCTDigi", clcts_data);
+    //    ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
+    ev.getByToken(alcts_d_token_, alcts_data);
+    ev.getByToken(clcts_d_token_, clcts_data);
+    ev.getByToken(lcts_tmb_d_token_, lcts_tmb_data);
 
     if (!alcts_data.isValid()) {
       return;
@@ -179,10 +197,14 @@ void CSCTriggerPrimitivesDQM::analyze(const edm::Event& ev,
 
   // Emulator
   if (emulLctsIn_) {
-    ev.getByLabel(lctProducerEmul_,              alcts_emul);
-    ev.getByLabel(lctProducerEmul_,              clcts_emul);
-    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
-    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
+    //    ev.getByLabel(lctProducerEmul_,              alcts_emul);
+    //    ev.getByLabel(lctProducerEmul_,              clcts_emul);
+    //    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
+    //    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
+    ev.getByToken(alcts_e_token_, alcts_emul);
+    ev.getByToken(clcts_e_token_, clcts_emul);
+    ev.getByToken(lcts_tmb_e_token_, lcts_tmb_emul);
+    ev.getByToken(lcts_mpc_e_token_, lcts_mpc_emul);
 
     if (!alcts_emul.isValid()) {
       return;
@@ -734,8 +756,9 @@ int CSCTriggerPrimitivesDQM::convertBXofLCT(
 void CSCTriggerPrimitivesDQM::HotWires(const edm::Event& iEvent) {
   if (!bookedHotWireHistos) bookHotWireHistos();
   edm::Handle<CSCWireDigiCollection> wires;
-  iEvent.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  
+  //  iEvent.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+  iEvent.getByToken(wireDigi_token_, wires);
+
   int serial_old=-1;
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;

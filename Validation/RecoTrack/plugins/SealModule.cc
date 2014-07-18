@@ -52,6 +52,7 @@ DEFINE_EDM_PLUGIN(MTVHistoProducerAlgoFactory, MTVHistoProducerAlgoForTracker,  
 // TPSelectorForFakeRate ;
 // DEFINE_FWK_MODULE( TPSelectorForFakeRate );
 
+/*
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -63,3 +64,4 @@ typedef SingleObjectSelector<
         > TrackSelectorForValidation;
 
 DEFINE_FWK_MODULE(TrackSelectorForValidation);
+*/

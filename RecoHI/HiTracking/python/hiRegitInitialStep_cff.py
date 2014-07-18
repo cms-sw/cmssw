@@ -40,21 +40,18 @@ hiRegitInitialStepSeeds.skipClusters = cms.InputTag('hiRegitInitialStepClusters'
 hiRegitInitialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 # building: feed the new-named seeds
-hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone(
-    ComponentName = 'hiRegitInitialStepTrajectoryFilter'
-    )
+hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone()
 
 
 hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitInitialStepTrajectoryBuilder',
-    trajectoryFilterName = 'hiRegitInitialStepTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitInitialStepTrajectoryFilter')),
     clustersToSkip = cms.InputTag('hiRegitInitialStepClusters')
 )
 
 # track candidates
 hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitInitialStepSeeds'),
-    TrajectoryBuilder = 'hiRegitInitialStepTrajectoryBuilder',
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitInitialStepTrajectoryBuilder')),
     maxNSeeds = 100000
     )
 

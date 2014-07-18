@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmNoDeltaRay.h"
+#include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
@@ -13,7 +14,6 @@
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
-#include "G4UrbanMscModel93.hh"
 
 #include "G4hhIonisation.hh"
 
@@ -60,6 +60,8 @@
 #include "G4He3.hh"
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
+
+#include "G4SystemOfUnits.hh"
 
 CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, std::string reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
@@ -122,9 +124,9 @@ void CMSEmNoDeltaRay::ConstructProcess() {
     reg = regStore->GetRegion(region, true);
   }
 
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
+  aParticleIterator->reset();
+  while( (*aParticleIterator)() ){
+    G4ParticleDefinition* particle = aParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
     if(verbose > 1)
@@ -144,7 +146,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != 0) {
-	G4UrbanMscModel93* msc_el  = new G4UrbanMscModel93();
+	UrbanMscModel93* msc_el  = new UrbanMscModel93();
 	msc_el->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_el,reg);
       }
@@ -159,7 +161,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != 0) {
-	G4UrbanMscModel93* msc_pos  = new G4UrbanMscModel93();
+	UrbanMscModel93* msc_pos  = new UrbanMscModel93();
 	msc_pos->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_pos,reg);
       }

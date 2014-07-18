@@ -18,9 +18,7 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
-		   vector<const TIBRing*>& outerRings) : 
-  theInnerComps(innerRings.begin(),innerRings.end()), 
-  theOuterComps(outerRings.begin(),outerRings.end())
+		   vector<const TIBRing*>& outerRings) : TBLayer(innerRings,outerRings, GeomDetEnumerators::TIB)
 {
   theComps.assign(theInnerComps.begin(),theInnerComps.end());
   theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
@@ -88,12 +86,7 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
 								      theOuterComps.end());
 }
 
-TIBLayer::~TIBLayer(){
-  vector<const GeometricSearchDet*>::const_iterator i;
-  for (i=theComps.begin(); i!=theComps.end(); i++) {
-    delete *i;
-  }
-} 
+TIBLayer::~TIBLayer(){} 
 
   
 
@@ -128,83 +121,20 @@ TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
 }
 
 
+std::tuple<bool,int,int>  TIBLayer::computeIndexes(GlobalPoint gInnerPoint, GlobalPoint gOuterPoint) const {
 
-void 
-TIBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-				  const Propagator& prop,
-				  const MeasurementEstimator& est,
-				  std::vector<DetGroup> & result) const {
-  SubLayerCrossings  crossings; 
-  crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;
-  
-  vector<DetGroup> closestResult;
-  addClosest( tsos, prop, est, crossings.closest(), closestResult);
-  // this differs from compatibleDets logic, which checks next in such cases!!!
-  if (closestResult.empty())    return;
-  
-  
-  DetGroupElement closestGel( closestResult.front().front());
-  float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
-
-  searchNeighbors( tsos, prop, est, crossings.closest(), window,
-		   closestResult, false);
-
-  vector<DetGroup> nextResult;
-  searchNeighbors( tsos, prop, est, crossings.other(), window,
-		   nextResult, true);
-
-  int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
-					  crossings.closestIndex(), crossingSide);
-}
-
-SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& startingState,
-						      PropagationDirection propDir) const
-{
-  GlobalPoint startPos( startingState.globalPosition());
-  GlobalVector startDir( startingState.globalMomentum());
-  double rho( startingState.transverseCurvature());
-
-  HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
-					     propDir,*theInnerCylinder);
-  if (!innerCrossing.hasSolution()) return SubLayerCrossings(); 
-
-  GlobalPoint gInnerPoint( innerCrossing.position());
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
-  const GeometricSearchDet* innerRing( theInnerComps[innerIndex]);
-  float innerDist = fabs( innerRing->surface().position().z() - gInnerPoint.z());
-  SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
+  const GeometricSearchDet* innerRing =  theInnerComps[innerIndex];
+  float innerDist = std::abs( innerRing->surface().position().z() - gInnerPoint.z());
 
-  HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
-					     propDir,*theOuterCylinder);
-  if (!outerCrossing.hasSolution()) return SubLayerCrossings();
-
-  GlobalPoint gOuterPoint( outerCrossing.position());
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.z());
-  const GeometricSearchDet* outerRing( theOuterComps[outerIndex]);
-  float outerDist = fabs( outerRing->surface().position().z() - gOuterPoint.z());
-  SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
+  const GeometricSearchDet* outerRing = theOuterComps[outerIndex];
+  float outerDist = std::abs( outerRing->surface().position().z() - gOuterPoint.z());
 
-  if (innerDist < outerDist) {
-    return SubLayerCrossings( innerSLC, outerSLC, 0);
-  }
-  else {
-    return SubLayerCrossings( outerSLC, innerSLC, 1);
-  } 
-}
 
-bool TIBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
-				      const Propagator& prop,
-				      const MeasurementEstimator& est,
-				      const SubLayerCrossing& crossing,
-				      vector<DetGroup>& result) const
-{
-//   edm::LogInfo(TkDetLayers) << "Entering TIBLayer::addClosest" ;
+  return std::make_tuple(innerDist < outerDist,innerIndex, outerIndex);
 
-  const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
-  const Det* det(sub[crossing.closestDetIndex()]);
-  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
+
 }
 
 void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -247,19 +177,13 @@ void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 bool TIBLayer::overlap( const GlobalPoint& crossPoint,
 			const GeometricSearchDet& det, 
-			float window) const
+			float window)
 {
-  float halfLength = det.surface().bounds().length()/2.;
+  float halfLength = 0.5f*det.surface().bounds().length();
 
 //   edm::LogInfo(TkDetLayers) << " TIBLayer: checking ring with z " << det.position().z();
 
-  if ( fabs( crossPoint.z()-det.position().z()) < (halfLength + window)) {
-//     edm::LogInfo(TkDetLayers) << "    PASSED" ;
-    return true;
-  } else {
-//     edm::LogInfo(TkDetLayers) << "    FAILED " ;
-    return false;
-  }
+  return std::abs( crossPoint.z()-det.position().z()) < (halfLength + window);
 }
 
 float TIBLayer::computeWindowSize( const GeomDet* det, 
@@ -274,8 +198,10 @@ float TIBLayer::computeWindowSize( const GeomDet* det,
   MeasurementEstimator::Local2DVector localError( est.maximalLocalDisplacement(tsos, det->surface()));
   float yError = localError.y();
 
-  float tanTheta = tan( tsos.globalMomentum().theta());
-  float thickCorrection = det->surface().bounds().thickness() / (2.*fabs( tanTheta));
+  // float tanTheta = std::tan( tsos.globalMomentum().theta());
+  auto gm = tsos.globalMomentum();
+  auto cotanTheta = gm.z()/gm.perp();
+  float thickCorrection = 0.5f*det->surface().bounds().thickness()*std::abs( cotanTheta);
 
   // FIXME: correct this in case of wide phi window !  
 

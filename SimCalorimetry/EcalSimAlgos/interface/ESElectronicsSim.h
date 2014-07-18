@@ -9,6 +9,10 @@
 
 #include<vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class ESElectronicsSim
 {
  public:
@@ -24,11 +28,11 @@ class ESElectronicsSim
   void setMIPs(const ESIntercalibConstants* mips) { mips_ = mips; }
   void setMIPToGeV (const double MIPToGeV) { MIPToGeV_ = MIPToGeV; }
 
-  virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df) const;
+  virtual void analogToDigital(CLHEP::HepRandomEngine*, const CaloSamples& cs, ESDataFrame& df) const;
   virtual void digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const;
 
   ///  anything that needs to be done once per event
-  void newEvent() {}
+  void newEvent(CLHEP::HepRandomEngine*) {}
 
   private :
 
@@ -38,7 +42,7 @@ class ESElectronicsSim
     const ESIntercalibConstants *mips_;
     double MIPToGeV_;
 
-    std::vector<ESSample> encode(const CaloSamples& timeframe) const;
+    std::vector<ESSample> encode(const CaloSamples& timeframe, CLHEP::HepRandomEngine*) const;
     double decode(const ESSample & sample, const DetId & detId) const;
 
 } ;

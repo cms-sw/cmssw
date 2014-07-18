@@ -14,8 +14,6 @@ class RPCGeometry;
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
-  class RandPoissonQ;
 }
 
 class RPCSimSimple : public RPCSim
@@ -25,11 +23,10 @@ class RPCSimSimple : public RPCSim
   ~RPCSimSimple();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits);
+		const edm::PSimHitContainer& rpcHits,
+                CLHEP::HepRandomEngine*) override;
 
-  void simulateNoise(const RPCRoll*);
-
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+  void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
  private:
   void init(){};
@@ -39,9 +36,5 @@ class RPCSimSimple : public RPCSim
   int nbxing;
   double rate;
   double gate;
-
-  CLHEP::RandFlat* flatDistribution1;
-  CLHEP::RandFlat* flatDistribution2;
-  CLHEP::RandPoissonQ *poissonDistribution;
 };
 #endif

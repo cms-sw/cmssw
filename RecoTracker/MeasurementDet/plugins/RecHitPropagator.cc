@@ -3,7 +3,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 TrajectoryStateOnSurface 
-RecHitPropagator::propagate( const TransientTrackingRecHit& hit,
+RecHitPropagator::propagate( const TrackingRecHit& hit,
 			     const Plane& plane, 
 			     const TrajectoryStateOnSurface& ts) const
 {

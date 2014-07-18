@@ -31,7 +31,7 @@ class AlignableMuon;
 class AlignableExtras;
 
 class TrajectoryStateOnSurface;
-class TransientTrackingRecHit;
+class TrackingRecHit;
 
 namespace edm { class EventSetup; class ParameterSet; } 
 
@@ -55,7 +55,7 @@ public:
   /// Return all derivatives for x- (Values.first) and y-measurement (Values.second),
   /// default implementation uses other derivatives(..) method,
   /// but can be overwritten in derived class for efficiency.
-  virtual std::vector<Values> derivatives(const TransientTrackingRecHit &hit,
+  virtual std::vector<Values> derivatives(const TrackingRecHit &hit,
 					  const TrajectoryStateOnSurface &tsos,
 					  const edm::EventSetup &setup,
 					  const EventInfo &eventInfo) const;
@@ -65,7 +65,7 @@ public:
   /// indices (ValuesIndexPair.second) by reference.
   /// Return value is their number.
   virtual unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
-				   const TransientTrackingRecHit &hit,
+				   const TrackingRecHit &hit,
 				   const TrajectoryStateOnSurface &tsos,
 				   const edm::EventSetup &setup,
 				   const EventInfo &eventInfo) const = 0;

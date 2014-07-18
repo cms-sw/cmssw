@@ -47,7 +47,7 @@ class MatrixReader(object):
                              'relval_ged': 'ged-',
                              'relval_upgrade':'upg-',
                              'relval_identity':'id-',
-                             'relval_premix' : 'pmx-' ,
+                             'relval_machine': 'mach-'
                              }
 
         self.files = ['relval_standard' ,
@@ -58,7 +58,7 @@ class MatrixReader(object):
                       'relval_ged',
                       'relval_upgrade',
                       'relval_identity',
-                      'relval_premix'
+                      'relval_machine'
                       ]
 
         self.relvalModule = None
@@ -247,7 +247,7 @@ class MatrixReader(object):
                             if stepIndex in self.apply or stepName in self.apply:
                                 cmd +=' '+self.addCommand
                         else:
-                            cmd +=' '+self.addCommand
+                          cmd +=' '+self.addCommand
                     if self.wm and self.revertDqmio=='yes':
                         cmd=cmd.replace('DQMIO','DQM')
                         cmd=cmd.replace('--filetype DQM','')

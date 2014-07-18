@@ -145,7 +145,9 @@ pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
     iEvent.getByToken( *token_it, userData );
 
     edm::Ptr<reco::Candidate> recoObject = patObject.originalObjectRef();
-    loader_.addData( patObject, encoded, (*userData)[recoObject]);
+    if ( userData->contains( recoObject.id() ) ) {
+      loader_.addData( patObject, encoded, (*userData)[recoObject]);
+    }
 
   }
 

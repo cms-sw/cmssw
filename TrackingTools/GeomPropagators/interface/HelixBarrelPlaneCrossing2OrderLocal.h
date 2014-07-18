@@ -17,23 +17,28 @@ public:
   typedef Surface::LocalPoint     LocalPoint;
   typedef Surface::LocalVector    LocalVector;
 
-  HelixBarrelPlaneCrossing2OrderLocal() {}
-
   HelixBarrelPlaneCrossing2OrderLocal( const GlobalPoint& startingPos,
 				       const GlobalVector& startingDir,
-				       double rho, 
+				       float rho, 
 				       const Plane& plane);
 
   LocalPoint  position() const { return thePos;}
   LocalVector direction() const { return theDir;}
 
-private:
+  static LocalPoint positionOnly(const GlobalPoint& startingPos,
+				 const GlobalVector& startingDir,
+				 float rho, 
+				 const Plane& plane);
 
-  typedef Basic2DVector<float>  Vector2D;
+private:
  
   LocalPoint  thePos;
   LocalVector theDir;
 
 };
+
+
+
+
 
 #endif

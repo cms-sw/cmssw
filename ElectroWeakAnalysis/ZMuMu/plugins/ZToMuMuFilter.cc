@@ -5,29 +5,31 @@
  */
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
 
 class ZToMuMuFilter : public edm::EDFilter {
 public:
   ZToMuMuFilter(const edm::ParameterSet &);
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  edm::InputTag zCands_, muIso1_, muIso2_;
+  edm::EDGetTokenT<reco::CandidateCollection>  zCandsToken_;
+  edm::EDGetTokenT<reco::CandDoubleAssociations> muIso1Token_;
+  edm::EDGetTokenT<reco::CandDoubleAssociations> muIso2Token_;
   double ptMin_, etaMin_, etaMax_, massMin_, massMax_, isoMax_;
 };
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
 using namespace edm;
 using namespace std;
 using namespace reco;
 
 ZToMuMuFilter::ZToMuMuFilter( const ParameterSet & cfg ) :
-  zCands_(cfg.getParameter<InputTag>("zCands")),
-  muIso1_(cfg.getParameter<InputTag>("muonIsolations1")),
-  muIso2_(cfg.getParameter<InputTag>("muonIsolations2")),
+  zCandsToken_(consumes<CandidateCollection>(cfg.getParameter<InputTag>("zCands"))),
+  muIso1Token_(consumes<CandDoubleAssociations>(cfg.getParameter<InputTag>("muonIsolations1"))),
+  muIso2Token_(consumes<CandDoubleAssociations>(cfg.getParameter<InputTag>("muonIsolations2"))),
   ptMin_(cfg.getParameter<double>("ptMin")),
   etaMin_(cfg.getParameter<double>("etaMin")),
   etaMax_(cfg.getParameter<double>("etaMax")),
@@ -38,11 +40,11 @@ ZToMuMuFilter::ZToMuMuFilter( const ParameterSet & cfg ) :
 
 bool ZToMuMuFilter::filter (Event & ev, const EventSetup &) {
   Handle<CandidateCollection> zCands;
-  ev.getByLabel(zCands_, zCands);
+  ev.getByToken(zCandsToken_, zCands);
   Handle<CandDoubleAssociations> muIso1;
-  ev.getByLabel(muIso1_, muIso1);
+  ev.getByToken(muIso1Token_, muIso1);
   Handle<CandDoubleAssociations> muIso2;
-  ev.getByLabel(muIso2_, muIso2);
+  ev.getByToken(muIso2Token_, muIso2);
   unsigned int nZ = zCands->size();
   if (nZ == 0) return false;
   for(unsigned int i = 0; i < nZ; ++ i) {

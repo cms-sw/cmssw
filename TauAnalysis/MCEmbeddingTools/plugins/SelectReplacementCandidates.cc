@@ -14,7 +14,8 @@ SelectReplacementCandidates::SelectReplacementCandidates(const edm::ParameterSet
 	
 	muonInputTag_ = iConfig.getParameter<edm::InputTag>("muonInputTag");
 	edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-	parameters_.loadParameters( parameters );
+	edm::ConsumesCollector iC = consumesCollector();
+	parameters_.loadParameters( parameters, iC );
 	
 	trackAssociator_.useDefaultPropagator();
 }

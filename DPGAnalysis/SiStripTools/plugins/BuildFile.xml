@@ -14,7 +14,10 @@
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/DetId"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="DQM/SiStripCommon"/>
@@ -29,6 +32,13 @@
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TrackFitters"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
@@ -38,6 +48,10 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/TrackerCommon"/>
+<use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimTracker/TrackAssociation"/>
+<use   name="SimTracker/Records"/>
 
 <library   file="*.cc" name="DPGAnalysisSiStripToolsPlugins">
   <flags   EDM_PLUGIN="1"/>

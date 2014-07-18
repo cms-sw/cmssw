@@ -499,11 +499,8 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
    if(CumulativeIdealPulse[Offset+250] - CumulativeIdealPulse[Offset] < 1e-5)
       return 1000000;
 
-   static std::vector<double> F1;
-   static std::vector<double> F2;
-
-   F1.resize(DigiSize);
-   F2.resize(DigiSize);
+   std::vector<double> F1(DigiSize);
+   std::vector<double> F2(DigiSize);
 
    double SumF1F1 = 0;
    double SumF1F2 = 0;

@@ -20,6 +20,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace reco {
 
@@ -51,9 +52,9 @@ namespace reco {
     /// innermost trajectory state curvilinear errors
     CovarianceMatrix innerStateCovariance() const { return extra_->innerStateCovariance(); }
     /// fill outermost trajectory state curvilinear errors
-    CovarianceMatrix & fillOuter( CovarianceMatrix & v ) const { return extra_->fillOuter( v ); }
+    CovarianceMatrix & fillOuter CMS_THREAD_SAFE ( CovarianceMatrix & v ) const { return extra_->fillOuter( v ); }
     /// fill outermost trajectory state curvilinear errors
-    CovarianceMatrix & fillInner( CovarianceMatrix & v ) const { return extra_->fillInner( v ); }
+    CovarianceMatrix & fillInner CMS_THREAD_SAFE ( CovarianceMatrix & v ) const { return extra_->fillInner( v ); }
     /// DetId of the detector on which surface the outermost state is located
     unsigned int outerDetId() const { return extra_->outerDetId(); }
     /// DetId of the detector on which surface the innermost state is located

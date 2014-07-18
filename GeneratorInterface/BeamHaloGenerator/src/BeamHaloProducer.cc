@@ -3,9 +3,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -58,7 +57,8 @@ BeamHaloProducer::~BeamHaloProducer() {
 
 
 BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
-	evt(0)
+  evt(0),
+  isInitialized_(false)
 {
 
    int iparam[8];
@@ -83,17 +83,6 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
    cparam     = pset.getUntrackedParameter<std::string>("G3FNAME","input.txt");
    call_bh_set_parameters(iparam,fparam,cparam);
 
-
-// -- Seed for randomnumbers
-    Service<RandomNumberGenerator> rng;
-    _BeamHalo_randomEngine = &(rng->getEngine());
-    long seed = (long)(rng->mySeed());
-
-
-// -- initialisation
-   call_ki_bhg_init(seed);
-
-
   produces<HepMCProduct>();
   produces<GenEventInfoProduct>();
   produces<GenRunInfoProduct, InRun>();
@@ -106,7 +95,26 @@ void BeamHaloProducer::clear()
 {
 }
 
+void BeamHaloProducer::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  _BeamHalo_randomEngine = v;
+}
+
+void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
+{
+  if(!isInitialized_) {
+    isInitialized_ = true;
+    RandomEngineSentry<BeamHaloProducer> randomEngineSentry(this, lumi.index());
+
+    // -- initialisation
+    long seed = 1; // This seed is not actually used
+    call_ki_bhg_init(seed);
+  }
+}
+
 void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
+
+  RandomEngineSentry<BeamHaloProducer> randomEngineSentry(this, e.streamID());
+
 	// cout << "in produce " << endl;
 
   //    	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());

@@ -309,7 +309,7 @@ cond::Time_t cond::IOVProxy::timestamp() const {
   return iov().timestamp();
 }
 
-cond::DbSession& cond::IOVProxy::db() const {
+cond::DbSession& cond::IOVProxy::db() {
   return m_iov->dbSession;
 }
 

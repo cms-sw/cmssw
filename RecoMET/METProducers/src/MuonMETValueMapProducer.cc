@@ -72,7 +72,8 @@ MuonMETValueMapProducer::MuonMETValueMapProducer(const edm::ParameterSet& iConfi
   beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
 
   edm::ParameterSet trackAssociatorParams = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  trackAssociatorParameters_.loadParameters(trackAssociatorParams);
+  edm::ConsumesCollector iC = consumesCollector();
+  trackAssociatorParameters_.loadParameters(trackAssociatorParams, iC);
   trackAssociator_.useDefaultPropagator();
   
   produces<edm::ValueMap<reco::MuonMETCorrectionData> >("muCorrData");

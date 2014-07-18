@@ -15,171 +15,171 @@ BasicHepMCValidation::BasicHepMCValidation(const edm::ParameterSet& iPSet):
   wmanager_(iPSet,consumesCollector()),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 BasicHepMCValidation::~BasicHepMCValidation() {}
 
-void BasicHepMCValidation::beginJob()
-{
-  if(dbe){
+void BasicHepMCValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
+}
+
+void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+
 	///Setting the DQM top directories
-	dbe->setCurrentFolder("Generator/Particles");
+	i.setCurrentFolder("Generator/Particles");
     
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
 	
 	///Booking the ME's
 	///multiplicity
-	uNumber = dbe->book1D("uNumber", "No. u", 20, 0, 20);
-	dNumber = dbe->book1D("dNumber", "No. d", 20, 0, 20);
-	sNumber = dbe->book1D("sNumber", "No. s", 20, 0, 20);
-    cNumber = dbe->book1D("cNumber", "No. c", 20, 0, 20);
-	bNumber = dbe->book1D("bNumber", "No. b", 20, 0, 20);
-	tNumber = dbe->book1D("tNumber", "No. t", 20, 0, 20);
+	uNumber = i.book1D("uNumber", "No. u", 20, 0, 20);
+	dNumber = i.book1D("dNumber", "No. d", 20, 0, 20);
+	sNumber = i.book1D("sNumber", "No. s", 20, 0, 20);
+    cNumber = i.book1D("cNumber", "No. c", 20, 0, 20);
+	bNumber = i.book1D("bNumber", "No. b", 20, 0, 20);
+	tNumber = i.book1D("tNumber", "No. t", 20, 0, 20);
 	//
-	ubarNumber = dbe->book1D("ubarNumber", "No. ubar", 20, 0, 20);
-	dbarNumber = dbe->book1D("dbarNumber", "No. dbar", 20, 0, 20);
-	sbarNumber = dbe->book1D("sbarNumber", "No. sbar", 20, 0, 20);
-    cbarNumber = dbe->book1D("cbarNumber", "No. cbar", 20, 0, 20);
-	bbarNumber = dbe->book1D("bbarNumber", "No. bbar", 20, 0, 20);
-	tbarNumber = dbe->book1D("tbarNumber", "No. tbar", 20, 0, 20);
+	ubarNumber = i.book1D("ubarNumber", "No. ubar", 20, 0, 20);
+	dbarNumber = i.book1D("dbarNumber", "No. dbar", 20, 0, 20);
+	sbarNumber = i.book1D("sbarNumber", "No. sbar", 20, 0, 20);
+    cbarNumber = i.book1D("cbarNumber", "No. cbar", 20, 0, 20);
+	bbarNumber = i.book1D("bbarNumber", "No. bbar", 20, 0, 20);
+	tbarNumber = i.book1D("tbarNumber", "No. tbar", 20, 0, 20);
 	//
-	eminusNumber = dbe->book1D("eminusNumber", "No. e-", 20, 0, 20);
-	nueNumber = dbe->book1D("nueNumber", "No. nu_e", 20, 0, 20);
-	muminusNumber = dbe->book1D("muminusNumber", "No. mu-", 20, 0, 20);
-	numuNumber = dbe->book1D("numuNumber", "No. nu_mu", 20, 0, 20);
-	tauminusNumber = dbe->book1D("tauminusNumber", "No. tau-", 20, 0, 20);
-	nutauNumber = dbe->book1D("nutauNumber", "No. nu_tau", 20, 0, 20);
+	eminusNumber = i.book1D("eminusNumber", "No. e-", 20, 0, 20);
+	nueNumber = i.book1D("nueNumber", "No. nu_e", 20, 0, 20);
+	muminusNumber = i.book1D("muminusNumber", "No. mu-", 20, 0, 20);
+	numuNumber = i.book1D("numuNumber", "No. nu_mu", 20, 0, 20);
+	tauminusNumber = i.book1D("tauminusNumber", "No. tau-", 20, 0, 20);
+	nutauNumber = i.book1D("nutauNumber", "No. nu_tau", 20, 0, 20);
 	//
-	eplusNumber = dbe->book1D("eplusNumber", "No. e+", 20, 0, 20);
-	nuebarNumber = dbe->book1D("nuebarNumber", "No. nu_e_bar", 20, 0, 20);
-	muplusNumber = dbe->book1D("muplusNumber", "No. mu+", 20, 0, 20);
-	numubarNumber = dbe->book1D("numuNumber", "No. nu_mu_bar", 20, 0, 20);
-	tauplusNumber = dbe->book1D("tauplusNumber", "No. tau+", 20, 0, 20);
-	nutaubarNumber = dbe->book1D("nutauNumber", "No. nu_tau_bar", 20, 0, 20);
+	eplusNumber = i.book1D("eplusNumber", "No. e+", 20, 0, 20);
+	nuebarNumber = i.book1D("nuebarNumber", "No. nu_e_bar", 20, 0, 20);
+	muplusNumber = i.book1D("muplusNumber", "No. mu+", 20, 0, 20);
+	numubarNumber = i.book1D("numuNumber", "No. nu_mu_bar", 20, 0, 20);
+	tauplusNumber = i.book1D("tauplusNumber", "No. tau+", 20, 0, 20);
+	nutaubarNumber = i.book1D("nutauNumber", "No. nu_tau_bar", 20, 0, 20);
 	//
-	WplusNumber = dbe->book1D("WplusNumber", "No. W+", 20, 0, 20);
-	WminusNumber = dbe->book1D("WminusNumber", "No. W-", 20, 0, 20);
-	ZNumber = dbe->book1D("ZNumber", "No. Z", 20, 0, 20);
-	gammaNumber = dbe->book1D("gammaNumber", "Log10(No. gamma)", 60, -1, 5); //Log
-	gluNumber = dbe->book1D("gluonNumber", "Log10(No. gluons)", 60, -1, 5); //Log
+	WplusNumber = i.book1D("WplusNumber", "No. W+", 20, 0, 20);
+	WminusNumber = i.book1D("WminusNumber", "No. W-", 20, 0, 20);
+	ZNumber = i.book1D("ZNumber", "No. Z", 20, 0, 20);
+	gammaNumber = i.book1D("gammaNumber", "Log10(No. gamma)", 60, -1, 5); //Log
+	gluNumber = i.book1D("gluonNumber", "Log10(No. gluons)", 60, -1, 5); //Log
 	//
-	piplusNumber = dbe->book1D("piplusNumber", "Log10(No. pi+)", 60, -1, 5); //Log
-	piminusNumber = dbe->book1D("piminusNumber", "Log10(No. pi-)", 60, -1, 5); //Log
-	pizeroNumber = dbe->book1D("pizeroNumber", "Log10(No. pi_0)", 60, -1, 5); //Log
-	KplusNumber = dbe->book1D("KplusNumber", "No. K+", 100, 0, 100);
-	KminusNumber = dbe->book1D("KminusNumber", "No. K-", 100, 0, 100);
-	KlzeroNumber = dbe->book1D("KlzeroNumber", "No. K_l^0", 100, 0, 100);
-	KszeroNumber = dbe->book1D("KszeroNumber", "No. K_s^0", 100, 0, 100);
+	piplusNumber = i.book1D("piplusNumber", "Log10(No. pi+)", 60, -1, 5); //Log
+	piminusNumber = i.book1D("piminusNumber", "Log10(No. pi-)", 60, -1, 5); //Log
+	pizeroNumber = i.book1D("pizeroNumber", "Log10(No. pi_0)", 60, -1, 5); //Log
+	KplusNumber = i.book1D("KplusNumber", "No. K+", 100, 0, 100);
+	KminusNumber = i.book1D("KminusNumber", "No. K-", 100, 0, 100);
+	KlzeroNumber = i.book1D("KlzeroNumber", "No. K_l^0", 100, 0, 100);
+	KszeroNumber = i.book1D("KszeroNumber", "No. K_s^0", 100, 0, 100);
 	//
-	pNumber = dbe->book1D("pNumber", "No. p", 100, 0, 100);
-	pbarNumber = dbe->book1D("pbarNumber", "No. pbar", 100, 0, 100);
-	nNumber = dbe->book1D("nNumber", "No. n", 100, 0, 100);
-	nbarNumber = dbe->book1D("nbarNumber", "No. nbar", 100, 0, 100);
-	l0Number = dbe->book1D("l0Number", "No. Lambda0", 100, 0, 100);
-	l0barNumber = dbe->book1D("l0barNumber", "No. Lambda0bar", 100, 0, 100);
+	pNumber = i.book1D("pNumber", "No. p", 100, 0, 100);
+	pbarNumber = i.book1D("pbarNumber", "No. pbar", 100, 0, 100);
+	nNumber = i.book1D("nNumber", "No. n", 100, 0, 100);
+	nbarNumber = i.book1D("nbarNumber", "No. nbar", 100, 0, 100);
+	l0Number = i.book1D("l0Number", "No. Lambda0", 100, 0, 100);
+	l0barNumber = i.book1D("l0barNumber", "No. Lambda0bar", 100, 0, 100);
 	//
-	DplusNumber = dbe->book1D("DplusNumber", "No. D+", 20, 0, 20);
-	DminusNumber = dbe->book1D("DminusNumber", "No. D-", 20, 0, 20);
-	DzeroNumber = dbe->book1D("DzeroNumber", "No. D^0", 20, 0, 20);
+	DplusNumber = i.book1D("DplusNumber", "No. D+", 20, 0, 20);
+	DminusNumber = i.book1D("DminusNumber", "No. D-", 20, 0, 20);
+	DzeroNumber = i.book1D("DzeroNumber", "No. D^0", 20, 0, 20);
 	//
-	BplusNumber = dbe->book1D("BplusNumber", "No. B+", 20, 0, 20);
-	BminusNumber = dbe->book1D("BminusNumber", "No. B-", 20, 0, 20);
-	BzeroNumber = dbe->book1D("BzeroNumber", "No. B^0", 20, 0, 20);
-	BszeroNumber = dbe->book1D("BszeroNumber", "No. B^0_s", 20, 0, 20);
+	BplusNumber = i.book1D("BplusNumber", "No. B+", 20, 0, 20);
+	BminusNumber = i.book1D("BminusNumber", "No. B-", 20, 0, 20);
+	BzeroNumber = i.book1D("BzeroNumber", "No. B^0", 20, 0, 20);
+	BszeroNumber = i.book1D("BszeroNumber", "No. B^0_s", 20, 0, 20);
 	//
-	otherPtclNumber = dbe->book1D("otherPtclNumber", "Log10(No. other ptcls)", 60, -1, 5); //Log
+	otherPtclNumber = i.book1D("otherPtclNumber", "Log10(No. other ptcls)", 60, -1, 5); //Log
 
 	//Momentum 
-	uMomentum = dbe->book1D("uMomentum", "Log10(p) u", 60, -2, 4);
-	dMomentum = dbe->book1D("dMomentum", "Log10(p) d", 60, -2, 4);
-	sMomentum = dbe->book1D("sMomentum", "Log10(p) s", 60, -2, 4);
-    cMomentum = dbe->book1D("cMomentum", "Log10(p) c", 60, -2, 4);
-	bMomentum = dbe->book1D("bMomentum", "Log10(p) b", 60, -2, 4);
-	tMomentum = dbe->book1D("tMomentum", "Log10(p) t", 60, -2, 4);
+	uMomentum = i.book1D("uMomentum", "Log10(p) u", 60, -2, 4);
+	dMomentum = i.book1D("dMomentum", "Log10(p) d", 60, -2, 4);
+	sMomentum = i.book1D("sMomentum", "Log10(p) s", 60, -2, 4);
+    cMomentum = i.book1D("cMomentum", "Log10(p) c", 60, -2, 4);
+	bMomentum = i.book1D("bMomentum", "Log10(p) b", 60, -2, 4);
+	tMomentum = i.book1D("tMomentum", "Log10(p) t", 60, -2, 4);
 	//
-	ubarMomentum = dbe->book1D("ubarMomentum", "Log10(p) ubar", 60, -2, 4);
-	dbarMomentum = dbe->book1D("dbarMomentum", "Log10(p) dbar", 60, -2, 4);
-	sbarMomentum = dbe->book1D("sbarMomentum", "Log10(p) sbar", 60, -2, 4);
-    cbarMomentum = dbe->book1D("cbarMomentum", "Log10(p) cbar", 60, -2, 4);
-	bbarMomentum = dbe->book1D("bbarMomentum", "Log10(p) bbar", 60, -2, 4);
-	tbarMomentum = dbe->book1D("tbarMomentum", "Log10(p) tbar", 60, -2, 4);
+	ubarMomentum = i.book1D("ubarMomentum", "Log10(p) ubar", 60, -2, 4);
+	dbarMomentum = i.book1D("dbarMomentum", "Log10(p) dbar", 60, -2, 4);
+	sbarMomentum = i.book1D("sbarMomentum", "Log10(p) sbar", 60, -2, 4);
+    cbarMomentum = i.book1D("cbarMomentum", "Log10(p) cbar", 60, -2, 4);
+	bbarMomentum = i.book1D("bbarMomentum", "Log10(p) bbar", 60, -2, 4);
+	tbarMomentum = i.book1D("tbarMomentum", "Log10(p) tbar", 60, -2, 4);
 	//
-	eminusMomentum = dbe->book1D("eminusMomentum", "Log10(p) e-", 60, -2, 4);
-	nueMomentum = dbe->book1D("nueMomentum", "Log10(Momentum) nue", 60, -2, 4);
-	muminusMomentum = dbe->book1D("muminusMomentum", "Log10(p) mu-", 60, -2, 4);
-	numuMomentum = dbe->book1D("numuMomentum", "Log10(p) numu", 60, -2, 4);
-	tauminusMomentum = dbe->book1D("tauminusMomentum", "Log10(p) tau-", 60, -2, 4);
-	nutauMomentum = dbe->book1D("nutauMomentum", "Log10(p) nutau", 60, -2, 4);
+	eminusMomentum = i.book1D("eminusMomentum", "Log10(p) e-", 60, -2, 4);
+	nueMomentum = i.book1D("nueMomentum", "Log10(Momentum) nue", 60, -2, 4);
+	muminusMomentum = i.book1D("muminusMomentum", "Log10(p) mu-", 60, -2, 4);
+	numuMomentum = i.book1D("numuMomentum", "Log10(p) numu", 60, -2, 4);
+	tauminusMomentum = i.book1D("tauminusMomentum", "Log10(p) tau-", 60, -2, 4);
+	nutauMomentum = i.book1D("nutauMomentum", "Log10(p) nutau", 60, -2, 4);
 	//
-	eplusMomentum = dbe->book1D("eplusMomentum", "Log10(p) e+", 60, -2, 4);
-	nuebarMomentum = dbe->book1D("nuebarMomentum", "Log10(p) nuebar", 60, -2, 4);
-	muplusMomentum = dbe->book1D("muplusMomentum", "Log10(p) mu+", 60, -2, 4);
-	numubarMomentum = dbe->book1D("numuMomentum", "Log10(p) numubar", 60, -2, 4);
-	tauplusMomentum = dbe->book1D("tauplusMomentum", "Log10(p) tau+", 60, -2, 4);
-	nutaubarMomentum = dbe->book1D("nutauMomentum", "Log10(p) nutaubar", 60, -2, 4);
+	eplusMomentum = i.book1D("eplusMomentum", "Log10(p) e+", 60, -2, 4);
+	nuebarMomentum = i.book1D("nuebarMomentum", "Log10(p) nuebar", 60, -2, 4);
+	muplusMomentum = i.book1D("muplusMomentum", "Log10(p) mu+", 60, -2, 4);
+	numubarMomentum = i.book1D("numuMomentum", "Log10(p) numubar", 60, -2, 4);
+	tauplusMomentum = i.book1D("tauplusMomentum", "Log10(p) tau+", 60, -2, 4);
+	nutaubarMomentum = i.book1D("nutauMomentum", "Log10(p) nutaubar", 60, -2, 4);
 	//
-	gluMomentum = dbe->book1D("gluonMomentum", "Log10(p) gluons", 70, -3, 4);
-	WplusMomentum = dbe->book1D("WplusMomentum", "Log10(p) W+", 60, -2, 4);
-	WminusMomentum = dbe->book1D("WminusMomentum", "Log10(p) W-", 60, -2, 4);
-	ZMomentum = dbe->book1D("ZMomentum", "Log10(p) Z", 60, -2, 4);
-	gammaMomentum = dbe->book1D("gammaMomentum", "Log10(p) gamma", 70, -3, 4);
+	gluMomentum = i.book1D("gluonMomentum", "Log10(p) gluons", 70, -3, 4);
+	WplusMomentum = i.book1D("WplusMomentum", "Log10(p) W+", 60, -2, 4);
+	WminusMomentum = i.book1D("WminusMomentum", "Log10(p) W-", 60, -2, 4);
+	ZMomentum = i.book1D("ZMomentum", "Log10(p) Z", 60, -2, 4);
+	gammaMomentum = i.book1D("gammaMomentum", "Log10(p) gamma", 70, -3, 4);
 	//
-	piplusMomentum = dbe->book1D("piplusMomentum", "Log10(p) pi+", 60, -2, 4);
-	piminusMomentum = dbe->book1D("piminusMomentum", "Log10(p) pi-", 60, -2, 4);
-	pizeroMomentum = dbe->book1D("pizeroMomentum", "Log10(p) pi_0", 60, -2, 4);
-	KplusMomentum = dbe->book1D("KplusMomentum", "Log10(p) K+", 60, -2, 4);
-	KminusMomentum = dbe->book1D("KminusMomentum", "Log10(p) K-", 60, -2, 4);
-	KlzeroMomentum = dbe->book1D("KlzeroMomentum", "Log10(p) K_l^0", 60, -2, 4);
-	KszeroMomentum = dbe->book1D("KszeroMomentum", "Log10(p) K_s^0", 60, -2, 4);
+	piplusMomentum = i.book1D("piplusMomentum", "Log10(p) pi+", 60, -2, 4);
+	piminusMomentum = i.book1D("piminusMomentum", "Log10(p) pi-", 60, -2, 4);
+	pizeroMomentum = i.book1D("pizeroMomentum", "Log10(p) pi_0", 60, -2, 4);
+	KplusMomentum = i.book1D("KplusMomentum", "Log10(p) K+", 60, -2, 4);
+	KminusMomentum = i.book1D("KminusMomentum", "Log10(p) K-", 60, -2, 4);
+	KlzeroMomentum = i.book1D("KlzeroMomentum", "Log10(p) K_l^0", 60, -2, 4);
+	KszeroMomentum = i.book1D("KszeroMomentum", "Log10(p) K_s^0", 60, -2, 4);
 	//
-	pMomentum = dbe->book1D("pMomentum", "Log10(p) p", 60, -2, 4);
-	pbarMomentum = dbe->book1D("pbarMomentum", "Log10(p) pbar", 60, -2, 4);
-	nMomentum = dbe->book1D("nMomentum", "Log10(p) n", 60, -2, 4);
-	nbarMomentum = dbe->book1D("nbarMomentum", "Log10(p) nbar", 60, -2, 4);
-	l0Momentum = dbe->book1D("l0Momentum", "Log10(p) Lambda0", 60, -2, 4);
-	l0barMomentum = dbe->book1D("l0barMomentum", "Log10(p) Lambda0bar", 60, -2, 4);
+	pMomentum = i.book1D("pMomentum", "Log10(p) p", 60, -2, 4);
+	pbarMomentum = i.book1D("pbarMomentum", "Log10(p) pbar", 60, -2, 4);
+	nMomentum = i.book1D("nMomentum", "Log10(p) n", 60, -2, 4);
+	nbarMomentum = i.book1D("nbarMomentum", "Log10(p) nbar", 60, -2, 4);
+	l0Momentum = i.book1D("l0Momentum", "Log10(p) Lambda0", 60, -2, 4);
+	l0barMomentum = i.book1D("l0barMomentum", "Log10(p) Lambda0bar", 60, -2, 4);
 	//
-	DplusMomentum = dbe->book1D("DplusMomentum", "Log10(p) D+", 60, -2, 4);
-	DminusMomentum = dbe->book1D("DminusMomentum", "Log10(p) D-", 60, -2, 4);
-	DzeroMomentum = dbe->book1D("DzeroMomentum", "Log10(p) D^0", 60, -2, 4);
+	DplusMomentum = i.book1D("DplusMomentum", "Log10(p) D+", 60, -2, 4);
+	DminusMomentum = i.book1D("DminusMomentum", "Log10(p) D-", 60, -2, 4);
+	DzeroMomentum = i.book1D("DzeroMomentum", "Log10(p) D^0", 60, -2, 4);
 	//
-	BplusMomentum = dbe->book1D("BplusMomentum", "Log10(p) B+", 60, -2, 4);
-	BminusMomentum = dbe->book1D("BminusMomentum", "Log10(p) B-", 60, -2, 4);
-	BzeroMomentum = dbe->book1D("BzeroMomentum", "Log10(p) B^0", 60, -2, 4);
-	BszeroMomentum = dbe->book1D("BszeroMomentum", "Log10(p) B^0_s", 60, -2, 4);
+	BplusMomentum = i.book1D("BplusMomentum", "Log10(p) B+", 60, -2, 4);
+	BminusMomentum = i.book1D("BminusMomentum", "Log10(p) B-", 60, -2, 4);
+	BzeroMomentum = i.book1D("BzeroMomentum", "Log10(p) B^0", 60, -2, 4);
+	BszeroMomentum = i.book1D("BszeroMomentum", "Log10(p) B^0_s", 60, -2, 4);
 	//
-	otherPtclMomentum = dbe->book1D("otherPtclMomentum", "Log10(p) other ptcls", 60, -2, 4);
+	otherPtclMomentum = i.book1D("otherPtclMomentum", "Log10(p) other ptcls", 60, -2, 4);
 
 	///other
-	genPtclNumber = dbe->book1D("genPtclNumber", "Log10(No. all particles)", 60, -1, 5); //Log
-	genVrtxNumber = dbe->book1D("genVrtxNumber", "Log10(No. all vertexs)", 60, -1, 5); //Log
+	genPtclNumber = i.book1D("genPtclNumber", "Log10(No. all particles)", 60, -1, 5); //Log
+	genVrtxNumber = i.book1D("genVrtxNumber", "Log10(No. all vertexs)", 60, -1, 5); //Log
 	//
-	stablePtclNumber= dbe->book1D("stablePtclNumber", "Log10(No. stable particles)", 50, 0, 5); //Log
-	stablePtclPhi = dbe->book1D("stablePtclPhi", "stable Ptcl Phi", 360, -180, 180);
-	stablePtclEta = dbe->book1D("stablePtclEta", "stable Ptcl Eta (pseudo rapidity)", 220, -11, 11);
-	stablePtclCharge = dbe->book1D("stablePtclCharge", "stablePtclCharge", 5, -2, 2);
-	stableChaNumber= dbe->book1D("stableChaNumber", "Log10(No. stable charged particles)", 50, 0, 5); //Log
-	stablePtclp = dbe->book1D("stablePtclp", "Log10(p) stable ptcl p", 80, -4, 4); //Log
-	stablePtclpT = dbe->book1D("stablePtclpT", "Log10(pT) stable ptcl pT", 80, -4, 4); //Log
-        partonNumber = dbe->book1D("partonNumber", "number of partons", 100, 0, 100);
-	partonpT = dbe->book1D("partonpT", "Log10(pT) parton pT", 80, -4, 4); //Log
-	outVrtxStablePtclNumber = dbe->book1D("outVrtxStablePtclNumber", "No. outgoing stable ptcls from vrtx", 10, 0, 10); 
+	stablePtclNumber= i.book1D("stablePtclNumber", "Log10(No. stable particles)", 50, 0, 5); //Log
+	stablePtclPhi = i.book1D("stablePtclPhi", "stable Ptcl Phi", 360, -180, 180);
+	stablePtclEta = i.book1D("stablePtclEta", "stable Ptcl Eta (pseudo rapidity)", 220, -11, 11);
+	stablePtclCharge = i.book1D("stablePtclCharge", "stablePtclCharge", 5, -2, 2);
+	stableChaNumber= i.book1D("stableChaNumber", "Log10(No. stable charged particles)", 50, 0, 5); //Log
+	stablePtclp = i.book1D("stablePtclp", "Log10(p) stable ptcl p", 80, -4, 4); //Log
+	stablePtclpT = i.book1D("stablePtclpT", "Log10(pT) stable ptcl pT", 80, -4, 4); //Log
+        partonNumber = i.book1D("partonNumber", "number of partons", 100, 0, 100);
+	partonpT = i.book1D("partonpT", "Log10(pT) parton pT", 80, -4, 4); //Log
+	outVrtxStablePtclNumber = i.book1D("outVrtxStablePtclNumber", "No. outgoing stable ptcls from vrtx", 10, 0, 10); 
 	//
-	outVrtxPtclNumber = dbe->book1D("outVrtxPtclNumber", "No. outgoing ptcls from vrtx", 30, 0, 30);
-	vrtxZ = dbe->book1D("VrtxZ", "VrtxZ", 50 , -250, 250);
-	vrtxRadius = dbe->book1D("vrtxRadius", "vrtxRadius", 50, 0, 50);
+	outVrtxPtclNumber = i.book1D("outVrtxPtclNumber", "No. outgoing ptcls from vrtx", 30, 0, 30);
+	vrtxZ = i.book1D("VrtxZ", "VrtxZ", 50 , -250, 250);
+	vrtxRadius = i.book1D("vrtxRadius", "vrtxRadius", 50, 0, 50);
 	//
-	unknownPDTNumber = dbe->book1D("unknownPDTNumber", "Log10(No. unknown ptcls PDT)", 60, -1, 5); //Log
-    genPtclStatus = dbe->book1D("genPtclStatus", "Status of genParticle", 200,0,200.);
+	unknownPDTNumber = i.book1D("unknownPDTNumber", "Log10(No. unknown ptcls PDT)", 60, -1, 5); //Log
+    genPtclStatus = i.book1D("genPtclStatus", "Status of genParticle", 200,0,200.);
 	//
-    Bjorken_x = dbe->book1D("Bjorken_x", "Bjorken_x", 1000, 0.0, 1.0);
+    Bjorken_x = i.book1D("Bjorken_x", "Bjorken_x", 1000, 0.0, 1.0);
     //
-    status1ShortLived = dbe->book1D("status1ShortLived","Status 1 short lived", 11, 0, 11);
+    status1ShortLived = i.book1D("status1ShortLived","Status 1 short lived", 11, 0, 11);
     status1ShortLived->setBinLabel(1,"d/dbar");
     status1ShortLived->setBinLabel(2,"u/ubar");
     status1ShortLived->setBinLabel(3,"s/sbar");
@@ -192,23 +192,14 @@ void BasicHepMCValidation::beginJob()
     status1ShortLived->setBinLabel(10,"W-/W+");
     status1ShortLived->setBinLabel(11,"PDG = 7,8,17,25-99");
 
-    DeltaEcms = dbe->book1D("DeltaEcms1","deviation from nominal Ecms", 200,-1., 1.);
-    DeltaPx = dbe->book1D("DeltaPx1","deviation from nominal Px", 200,-1., 1.);
-    DeltaPy = dbe->book1D("DeltaPy1","deviation from nominal Py", 200,-1., 1.);
-    DeltaPz = dbe->book1D("DeltaPz1","deviation from nominal Pz", 200,-1., 1.);
+    DeltaEcms = i.book1D("DeltaEcms1","deviation from nominal Ecms", 200,-1., 1.);
+    DeltaPx = i.book1D("DeltaPx1","deviation from nominal Px", 200,-1., 1.);
+    DeltaPy = i.book1D("DeltaPy1","deviation from nominal Py", 200,-1., 1.);
+    DeltaPz = i.book1D("DeltaPz1","deviation from nominal Pz", 200,-1., 1.);
 
-  }
   return;
 }
 
-void BasicHepMCValidation::endJob(){return;}
-void BasicHepMCValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
-}
-void BasicHepMCValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
   ///counters to zero for every event

@@ -28,7 +28,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
 
 class PythiaFilterIsolatedTrack : public edm::EDFilter {
    public:
@@ -54,6 +53,5 @@ class PythiaFilterIsolatedTrack : public edm::EDFilter {
 
       // to get a random number
       edm::Service<edm::RandomNumberGenerator> rng_;
-      CLHEP::RandFlat *flatDistribution_;
 };
 #endif

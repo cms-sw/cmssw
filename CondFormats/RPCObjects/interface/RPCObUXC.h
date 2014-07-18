@@ -8,6 +8,8 @@
 
 #ifndef RPCObUXC_h
 #define RPCObUXC_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 class RPCObUXC {
@@ -17,11 +19,15 @@ class RPCObUXC {
         float pressure;
         float dewpoint;
 	int unixtime;
-      };
+      
+  COND_SERIALIZABLE;
+};
     RPCObUXC(){}
     virtual ~RPCObUXC(){}
     std::vector<Item>  ObUXC_rpc;
-   };
+   
+  COND_SERIALIZABLE;
+};
 
 #endif
 

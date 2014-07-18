@@ -2,15 +2,15 @@
 //
 // Package:    WenuPlots
 // Class:      WenuPlots
-// 
+//
 /*
 
- Description: 
+ Description:
     this is an analyzer that reads pat::CompositeCandidate WenuCandidates
     and creates some plots
  Implementation:
     The code takes the output of the WenuCandidateFilter and
-    * implements on them  a user defined selection 
+    * implements on them  a user defined selection
     * implements the selection with one cut (configurable which cut) inverted
     * creates a set of basic plots with the Wenu Candidate distribution
       vs MET, MT etc. These plots are stored in a root file
@@ -29,17 +29,17 @@
 
   Changes Log:
   12Feb09  First Release of the code for CMSSW_2_2_X
-  16Sep09  tested that it works with 3_1_2 as well 
+  16Sep09  tested that it works with 3_1_2 as well
   09Sep09  added one extra iso with the name userIso_XX_
   23Feb09  added option to include extra IDs that are in CMSSW, such as
            categorized, likehood etc
-           added extra variables TIP and E/P  
+           added extra variables TIP and E/P
   27May10  changes to apply the Spring10 selections, relative isolations
            the 3 default ones, pat user isolations added in the end
-           change to framework independent variable definitions 
+           change to framework independent variable definitions
 	   double->Double_t etc and math.h functions from TMath
   01Jul10  second electron information added
-  Contact: 
+  Contact:
   Nikolaos Rompotis  -  Nikolaos.Rompotis@Cern.ch
   Imperial College London
 
@@ -51,11 +51,6 @@
 
 #include "ElectroWeakAnalysis/WENu/interface/WenuPlots.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 //#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrectionFunctor.h"
 
 WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
@@ -68,9 +63,8 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 ///////
 //  WENU COLLECTION   //////////////////////////////////////////////////////
 //
-  
-  wenuCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>
-    ("wenuCollectionTag");
+
+  wenuCollectionToken_ = consumes<pat::CompositeCandidateCollection>(iConfig.getUntrackedParameter<edm::InputTag>("wenuCollectionTag"));
   //
   // code parameters
   //
@@ -84,8 +78,8 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   // if you use it, then no other cuts are applied
   usePrecalcID_ = iConfig.getUntrackedParameter<Bool_t>("usePrecalcID",false);
   if (usePrecalcID_) {
-    usePrecalcIDType_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDType");    
-    usePrecalcIDSign_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDSign","=");    
+    usePrecalcIDType_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDType");
+    usePrecalcIDSign_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDSign","=");
     usePrecalcIDValue_= iConfig.getUntrackedParameter<Double_t>("usePrecalcIDValue");
   }
   useValidFirstPXBHit_ = iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
@@ -96,11 +90,11 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   if (not usePrecalcID_) {
     if (useValidFirstPXBHit_) std::cout << "WenuPlots: Warning: you have demanded a valid 1st layer PXB hit" << std::endl;
     if (useConversionRejection_) std::cout << "WenuPlots: Warning: you have demanded egamma conversion rejection criteria to be applied" << std::endl;
-    if (useExpectedMissingHits_) std::cout << "WenuPlots: Warning: you have demanded at most " 
+    if (useExpectedMissingHits_) std::cout << "WenuPlots: Warning: you have demanded at most "
 					   <<maxNumberOfExpectedMissingHits_ << " missing inner hits "<< std::endl;
   }
   else {
-    std::cout << "WenuPlots: Using Precalculated ID with type " << usePrecalcIDType_ 
+    std::cout << "WenuPlots: Using Precalculated ID with type " << usePrecalcIDType_
 	      << usePrecalcIDSign_ << usePrecalcIDValue_ << std::endl;
   }
   if ((useValidFirstPXBHit_ || useExpectedMissingHits_ || useConversionRejection_) && (not usePrecalcID_)) {
@@ -109,16 +103,16 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   includeJetInformationInNtuples_ = iConfig.getUntrackedParameter<Bool_t>("includeJetInformationInNtuples", false);
   if (includeJetInformationInNtuples_) {
     caloJetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("caloJetCollectionTag");
+    caloJetCollectionToken_ = consumes< reco::CaloJetCollection >(caloJetCollectionTag_);
     pfJetCollectionTag_   = iConfig.getUntrackedParameter<edm::InputTag>("pfJetCollectionTag");
+    pfJetCollectionToken_ = consumes< reco::PFJetCollection >(pfJetCollectionTag_);
     DRJetFromElectron_    = iConfig.getUntrackedParameter<Double_t>("DRJetFromElectron");
   }
   storeExtraInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeExtraInformation");
   storeAllSecondElectronVariables_ = iConfig.getUntrackedParameter<Bool_t>("storeAllSecondElectronVariables", false);
   // primary vtx collections
-  PrimaryVerticesCollection_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("PrimaryVerticesCollection", edm::InputTag("offlinePrimaryVertices"));
-  PrimaryVerticesCollectionBS_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("PrimaryVerticesCollectionBS",edm::InputTag("offlinePrimaryVerticesWithBS"));
+  PrimaryVerticesCollectionToken_=consumes< std::vector<reco::Vertex> >(iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection", edm::InputTag("offlinePrimaryVertices")));
+  PrimaryVerticesCollectionBSToken_=consumes< std::vector<reco::Vertex> >(iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollectionBS",edm::InputTag("offlinePrimaryVerticesWithBS")));
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
@@ -189,7 +183,7 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 
 WenuPlots::~WenuPlots()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -209,14 +203,14 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //  Get the collections here
   //
   edm::Handle<pat::CompositeCandidateCollection> WenuCands;
-  iEvent.getByLabel(wenuCollectionTag_, WenuCands);
+  iEvent.getByToken(wenuCollectionToken_, WenuCands);
 
   if (not WenuCands.isValid()) {
     cout << "Warning: no wenu candidates in this event..." << endl;
     return;
   }
   const pat::CompositeCandidateCollection *wcands = WenuCands.product();
-  const pat::CompositeCandidateCollection::const_iterator 
+  const pat::CompositeCandidateCollection::const_iterator
     wenuIter = wcands->begin();
   const pat::CompositeCandidate wenu = *wenuIter;
   //
@@ -277,11 +271,11 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   // get the primary vtx information
   // no BS
   edm::Handle< std::vector<reco::Vertex> > pVtx;
-  iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
+  iEvent.getByToken(PrimaryVerticesCollectionToken_, pVtx);
   const std::vector<reco::Vertex> Vtx = *(pVtx.product());
   // with BS
   edm::Handle< std::vector<reco::Vertex> > pVtxBS;
-  iEvent.getByLabel(PrimaryVerticesCollectionBS_, pVtxBS);
+  iEvent.getByToken(PrimaryVerticesCollectionBSToken_, pVtxBS);
   const std::vector<reco::Vertex> VtxBS = *(pVtxBS.product());
   if (Vtx.size() > 0) {
     pv_x = Float_t(Vtx[0].position().x());
@@ -351,8 +345,8 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     // get hold of the jet collections
     edm::Handle< reco::CaloJetCollection > pCaloJets;
     edm::Handle< reco::PFJetCollection > pPfJets;
-    iEvent.getByLabel(caloJetCollectionTag_, pCaloJets);
-    iEvent.getByLabel(pfJetCollectionTag_, pPfJets);
+    iEvent.getByToken(caloJetCollectionToken_, pCaloJets);
+    iEvent.getByToken(pfJetCollectionToken_, pPfJets);
     //
     // calo jets now:
     if (pCaloJets.isValid()) {
@@ -385,10 +379,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 	delete [] caloJetSorted;
 	delete [] nCaloET;
 	delete [] nCaloEta;
-	delete [] nCaloPhi;	
+	delete [] nCaloPhi;
       }
     } else {
-      std::cout << "WenuPlots: Could not get caloJet collection with name " 
+      std::cout << "WenuPlots: Could not get caloJet collection with name "
 		<< caloJetCollectionTag_ << std::endl;
     }
     //
@@ -423,10 +417,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 	delete [] pfJetSorted;
 	delete [] nPfET;
 	delete [] nPfEta;
-	delete [] nPfPhi;	
+	delete [] nPfPhi;
       }
     } else {
-      std::cout << "WenuPlots: Could not get pfJet collection with name " 
+      std::cout << "WenuPlots: Could not get pfJet collection with name "
 		<< pfJetCollectionTag_ << std::endl;
     }
 
@@ -442,7 +436,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele2nd_pin       =  0;
   ele2nd_pout      =  0;
   ele2nd_passes_selection = -1; // also in sele tree
-  ele2nd_ecalDriven=  0; 
+  ele2nd_ecalDriven=  0;
   //
   // second electron selection variables: only if requested by the user
   //
@@ -471,7 +465,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele2nd_tip_bs      = 0;
   ele2nd_tip_pv      = 0;
   ele2nd_hltmatched_dr = 0;
-  //  
+  //
   // convention for ele2nd_passes_selection
   // 0 passes no selection
   // 1 passes WP95
@@ -482,7 +476,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   // 6 passes WP60
   if (myElec->userInt("hasSecondElectron") == 1 && storeExtraInformation_) {
     const pat::Electron * mySecondElec=
-      dynamic_cast<const pat::Electron*> (wenu.daughter("secondElec"));    
+      dynamic_cast<const pat::Electron*> (wenu.daughter("secondElec"));
     ele2nd_sc_gsf_et = (Float_t) mySecondElec->superCluster()->energy()/TMath::CosH(mySecondElec->gsfTrack()->eta());
 
     ele2nd_sc_eta    = (Float_t) mySecondElec->superCluster()->eta();
@@ -516,7 +510,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     if (storeAllSecondElectronVariables_) {
       ele2nd_iso_track = (Float_t)  mySecondElec->dr03IsolationVariables().tkSumPt / ele2nd_cand_et;
       ele2nd_iso_ecal  = (Float_t)  mySecondElec->dr03IsolationVariables().ecalRecHitSumEt/ele2nd_cand_et;
-      ele2nd_iso_hcal  = (Float_t)  ( mySecondElec->dr03IsolationVariables().hcalDepth1TowerSumEt + 
+      ele2nd_iso_hcal  = (Float_t)  ( mySecondElec->dr03IsolationVariables().hcalDepth1TowerSumEt +
 				      mySecondElec->dr03IsolationVariables().hcalDepth2TowerSumEt) / ele2nd_cand_et;
       ele2nd_id_sihih  = (Float_t)  mySecondElec->sigmaIetaIeta();
       ele2nd_id_deta   = (Float_t)  mySecondElec->deltaEtaSuperClusterTrackAtVtx();
@@ -526,7 +520,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       ele2nd_cr_mhitsinner = mySecondElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
       ele2nd_cr_dcot       = mySecondElec->convDcot();
       ele2nd_cr_dist       = mySecondElec->convDist();
-      
+
       ele2nd_vx        = (Float_t) mySecondElec->vx();
       ele2nd_vy        = (Float_t) mySecondElec->vy();
       ele2nd_vz        = (Float_t) mySecondElec->vz();
@@ -585,7 +579,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   // histogram production --------------------------------------------------
   // _______________________________________________________________________
   //
-  // if you want some preselection: Conv rejection, hit pattern 
+  // if you want some preselection: Conv rejection, hit pattern
   if (usePreselection_) {
     if (not PassPreselectionCriteria(myElec)) return;
   }
@@ -634,11 +628,11 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   if (not usePrecalcID_) {
     if ( TMath::Abs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
       // in the filter
-      if (CheckCutsNminusOne(myElec, 0)) 
+      if (CheckCutsNminusOne(myElec, 0))
 	h_trackIso_eb_NmOne->Fill(trackIso);
     }
     else {
-      if (CheckCutsNminusOne(myElec, 0)) 
+      if (CheckCutsNminusOne(myElec, 0))
 	h_trackIso_ee_NmOne->Fill(trackIso);
     }
   }
@@ -679,23 +673,23 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   }
   // uncomment for debugging purposes
   /*
-  std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
-	    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
-	    << ", mishits: " 
+  std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso
+	    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso()
+	    << ", mishits: "
 	    << myElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits()
 	    << std::endl;
-  std::cout << "Electron ID: 95relIso=" << myElec->electronID("simpleEleId95relIso")  
-	    << " 90relIso=" << myElec->electronID("simpleEleId90relIso") 
-	    << " 85relIso=" << myElec->electronID("simpleEleId85relIso") 
-	    << " 80relIso=" << myElec->electronID("simpleEleId80relIso") 
-	    << " 70relIso=" << myElec->electronID("simpleEleId70relIso") 
-	    << " 60relIso=" << myElec->electronID("simpleEleId60relIso") 
-	    << " 95cIso=" << myElec->electronID("simpleEleId95cIso") 
-	    << " 90cIso=" << myElec->electronID("simpleEleId90cIso") 
-	    << " 85cIso=" << myElec->electronID("simpleEleId85cIso") 
-	    << " 80cIso=" << myElec->electronID("simpleEleId80cIso") 
-	    << " 70cIso=" << myElec->electronID("simpleEleId70cIso") 
-	    << " 60cIso=" << myElec->electronID("simpleEleId60cIso") 
+  std::cout << "Electron ID: 95relIso=" << myElec->electronID("simpleEleId95relIso")
+	    << " 90relIso=" << myElec->electronID("simpleEleId90relIso")
+	    << " 85relIso=" << myElec->electronID("simpleEleId85relIso")
+	    << " 80relIso=" << myElec->electronID("simpleEleId80relIso")
+	    << " 70relIso=" << myElec->electronID("simpleEleId70relIso")
+	    << " 60relIso=" << myElec->electronID("simpleEleId60relIso")
+	    << " 95cIso=" << myElec->electronID("simpleEleId95cIso")
+	    << " 90cIso=" << myElec->electronID("simpleEleId90cIso")
+	    << " 85cIso=" << myElec->electronID("simpleEleId85cIso")
+	    << " 80cIso=" << myElec->electronID("simpleEleId80cIso")
+	    << " 70cIso=" << myElec->electronID("simpleEleId70cIso")
+	    << " 60cIso=" << myElec->electronID("simpleEleId60cIso")
 	    << std::endl;
   std::cout << "mySelection: " << (CheckCuts(myElec) && PassPreselectionCriteria(myElec)) << endl;
   */
@@ -711,7 +705,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
  *  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  *  all the available methods take input a pointer to a  pat::Electron
  *
- *  Bool_t  CheckCuts(const pat::Electron *): 
+ *  Bool_t  CheckCuts(const pat::Electron *):
  *                            true if the input selection is satisfied
  *  Bool_t  CheckCutsInverse(const pat::Electron *ele):
  *            true if the cuts with inverted the ones specified in the
@@ -739,7 +733,7 @@ Bool_t WenuPlots::CheckCuts( const pat::Electron *ele)
     else { // equality: it returns 0,1,2,3 but as float
       return TMath::Abs(val-usePrecalcIDValue_)<0.1;
     }
-  } 
+  }
   else {
     for (int i=0; i<nBarrelVars_; ++i) {
       if (not CheckCut(ele, i)) return false;
@@ -778,13 +772,13 @@ Bool_t WenuPlots::CheckCut(const pat::Electron *ele, int i) {
 Bool_t WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
   Double_t fabseta = TMath::Abs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
-    if (InvVars_[i]) 
+    if (InvVars_[i])
     return TMath::Abs(ReturnCandVar(ele, i))>CutVars_[i];
     return TMath::Abs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
   if (InvVars_[i+nBarrelVars_]) {
     if (InvVars_[i])
-      return TMath::Abs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];    
+      return TMath::Abs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];
   }
   return TMath::Abs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
@@ -810,7 +804,7 @@ Double_t WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
   else if (i==9) return ele->eSuperClusterOverP();
   else if (i==10) return ele->userIsolation(pat::TrackIso);
   else if (i==11) return ele->userIsolation(pat::EcalIso);
-  else if (i==12) return ele->userIsolation(pat::HcalIso);  
+  else if (i==12) return ele->userIsolation(pat::HcalIso);
   std::cout << "Error in WenuPlots::ReturnCandVar" << std::endl;
   return -1.;
 
@@ -845,7 +839,7 @@ Bool_t WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
   if (useExpectedMissingHits_) {
     if (ele->hasUserInt("NumberOfExpectedMissingHits")) {
       //std::cout << "missing hits: " << ele->userInt("NumberOfExpectedMissingHits") << std::endl;
-      if (ele->userInt("NumberOfExpectedMissingHits")>maxNumberOfExpectedMissingHits_) 
+      if (ele->userInt("NumberOfExpectedMissingHits")>maxNumberOfExpectedMissingHits_)
 	passEMH = false;
     }
     else {
@@ -857,7 +851,7 @@ Bool_t WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
   return passConvRej && passPXB && passEMH;
 }
 // ------------ method called once each job just before starting event loop  --
-void 
+void
 WenuPlots::beginJob()
 {
   //std::cout << "In beginJob()" << std::endl;
@@ -912,12 +906,12 @@ WenuPlots::beginJob()
 
   //
   //
-  h_trackIso_eb_NmOne = 
+  h_trackIso_eb_NmOne =
     new TH1F("h_trackIso_eb_NmOne","trackIso EB N-1 plot",80,0,8);
-  h_trackIso_ee_NmOne = 
+  h_trackIso_ee_NmOne =
     new TH1F("h_trackIso_ee_NmOne","trackIso EE N-1 plot",80,0,8);
 
-  
+
   // if you add some new variable change the nBarrelVars_ accordingly
   // reminder: in the current implementation you must have the same number
   //  of vars in both barrel and endcaps
@@ -946,8 +940,8 @@ WenuPlots::beginJob()
   CutVars_.push_back( sihih_EE_);   //3
   CutVars_.push_back( dphi_EE_);    //4
   CutVars_.push_back( deta_EE_);    //5
-  CutVars_.push_back( hoe_EE_ );    //6 
-  CutVars_.push_back( cIso_EE_ );   //7 
+  CutVars_.push_back( hoe_EE_ );    //6
+  CutVars_.push_back( cIso_EE_ );   //7
   CutVars_.push_back(tip_bspot_EE_);//8
   CutVars_.push_back( eop_EE_ );    //9
   CutVars_.push_back( trackIsoUser_EE_ );//10
@@ -990,9 +984,9 @@ WenuPlots::beginJob()
   //
   WENU_VBTFselectionFile_ = new TFile(TString(WENU_VBTFselectionFileName_),
 				      "RECREATE");
-  
+
   vbtfSele_tree = new TTree("vbtfSele_tree",
-	       "Tree to store the W Candidates that pass the VBTF selection"); 
+	       "Tree to store the W Candidates that pass the VBTF selection");
   vbtfSele_tree->Branch("runNumber", &runNumber, "runNumber/I");
   vbtfSele_tree->Branch("eventNumber", &eventNumber, "eventNumber/L");
   vbtfSele_tree->Branch("lumiSection", &lumiSection, "lumiSection/I");
@@ -1029,13 +1023,13 @@ WenuPlots::beginJob()
   vbtfSele_tree->Branch("ele_tip_pv",&ele_tip_pv,"ele_tip_pv/F");
   vbtfSele_tree->Branch("ele_pin",&ele_pin,"ele_pin/F");
   vbtfSele_tree->Branch("ele_pout",&ele_pout,"ele_pout/F");
-  vbtfSele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");  
+  vbtfSele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");
   vbtfSele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
   vbtfSele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
-  vbtfSele_tree->Branch("event_caloMT",&event_caloMT,"event_caloMT/F");  
+  vbtfSele_tree->Branch("event_caloMT",&event_caloMT,"event_caloMT/F");
   vbtfSele_tree->Branch("event_pfMT",&event_pfMT,"event_pfMT/F");
   vbtfSele_tree->Branch("event_tcMT",&event_tcMT,"event_tcMT/F");
-  vbtfSele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");  
+  vbtfSele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");
   vbtfSele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
   vbtfSele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
   //
@@ -1052,20 +1046,20 @@ WenuPlots::beginJob()
     vbtfSele_tree->Branch("ele2nd_sc_gsf_et", &ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
     vbtfSele_tree->Branch("ele2nd_passes_selection", &ele2nd_passes_selection,"ele2nd_passes_selection/I");
     vbtfSele_tree->Branch("ele2nd_ecalDriven",&ele2nd_ecalDriven,"ele2nd_ecalDriven/I");
-    vbtfSele_tree->Branch("event_caloSumEt",&event_caloSumEt,"event_caloSumEt/F");  
+    vbtfSele_tree->Branch("event_caloSumEt",&event_caloSumEt,"event_caloSumEt/F");
     vbtfSele_tree->Branch("event_pfSumEt",&event_pfSumEt,"event_pfSumEt/F");
     vbtfSele_tree->Branch("event_tcSumEt",&event_tcSumEt,"event_tcSumEt/F");
   }
-  vbtfSele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
-  // 
+  vbtfSele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");
+  //
   //
   // everything after preselection
   //
   WENU_VBTFpreseleFile_ = new TFile(TString(WENU_VBTFpreseleFileName_),
 				    "RECREATE");
-  
+
   vbtfPresele_tree = new TTree("vbtfPresele_tree",
-	    "Tree to store the W Candidates that pass the VBTF preselection"); 
+	    "Tree to store the W Candidates that pass the VBTF preselection");
   vbtfPresele_tree->Branch("runNumber", &runNumber, "runNumber/I");
   vbtfPresele_tree->Branch("eventNumber", &eventNumber, "eventNumber/L");
   vbtfPresele_tree->Branch("lumiSection", &lumiSection, "lumiSection/I");
@@ -1102,16 +1096,16 @@ WenuPlots::beginJob()
   vbtfPresele_tree->Branch("ele_tip_pv",&ele_tip_pv,"ele_tip_pv/F");
   vbtfPresele_tree->Branch("ele_pin",&ele_pin,"ele_pin/F");
   vbtfPresele_tree->Branch("ele_pout",&ele_pout,"ele_pout/F");
-  vbtfPresele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");  
+  vbtfPresele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");
   vbtfPresele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
   vbtfPresele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
-  vbtfPresele_tree->Branch("event_caloMT",&event_caloMT,"event_caloMT/F");  
+  vbtfPresele_tree->Branch("event_caloMT",&event_caloMT,"event_caloMT/F");
   vbtfPresele_tree->Branch("event_pfMT",&event_pfMT,"event_pfMT/F");
   vbtfPresele_tree->Branch("event_tcMT",&event_tcMT,"event_tcMT/F");
-  vbtfPresele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");  
+  vbtfPresele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");
   vbtfPresele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
   vbtfPresele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
-  vbtfPresele_tree->Branch("event_caloSumEt",&event_caloSumEt,"event_caloSumEt/F");  
+  vbtfPresele_tree->Branch("event_caloSumEt",&event_caloSumEt,"event_caloSumEt/F");
   vbtfPresele_tree->Branch("event_pfSumEt",&event_pfSumEt,"event_pfSumEt/F");
   vbtfPresele_tree->Branch("event_tcSumEt",&event_tcSumEt,"event_tcSumEt/F");
   // the extra jet variables:
@@ -1165,7 +1159,7 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("ele2nd_tip_pv",&ele2nd_tip_pv,"ele2nd_tip_pv/F");
     vbtfPresele_tree->Branch("ele2nd_hltmatched_dr",&ele2nd_hltmatched_dr,"ele2nd_hltmatched_dr/F");
   }
-  vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
+  vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");
 
   //
   // _________________________________________________________________________
@@ -1177,7 +1171,7 @@ WenuPlots::beginJob()
 }
 
 // ------------ method called once each job just after ending the event loop  -
-void 
+void
 WenuPlots::endJob() {
   TFile * newfile = new TFile(TString(outputFile_),"RECREATE");
   //

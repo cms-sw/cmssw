@@ -33,7 +33,7 @@ Pythia6PartonEGun::~Pythia6PartonEGun()
 {
 }
 
-void Pythia6PartonEGun::generateEvent()
+void Pythia6PartonEGun::generateEvent(CLHEP::HepRandomEngine*)
 {
    
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance

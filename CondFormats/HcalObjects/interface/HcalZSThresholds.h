@@ -7,6 +7,8 @@
 POOL object to store Zero Suppression Thresholds
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThreshold.h"
 
@@ -23,6 +25,8 @@ class HcalZSThresholds: public HcalCondObjectContainer<HcalZSThreshold>
   std::string myname() const {return (std::string)"HcalZSThresholds";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

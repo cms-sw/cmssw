@@ -13,6 +13,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace lhef {
 
 class LHEEvent;
@@ -26,6 +30,8 @@ class Hadronisation {
 	void init();
 	bool setEvent(const boost::shared_ptr<LHEEvent> &event);
 	void clear();
+
+        void setRandomEngine(CLHEP::HepRandomEngine* v) { doSetRandomEngine(v); }
 
 	virtual void statistics() {}
 	virtual double totalBranchingRatio(int pdgId) const { return 1.0; }
@@ -64,6 +70,9 @@ class Hadronisation {
 	virtual void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
     private:
+
+        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) { }
+
 	sigc::signal<bool, const boost::shared_ptr<HepMC::GenEvent>&>	sigShower;
 	sigc::signal<void>						sigInit;
 	sigc::signal<void>						sigBeforeHadronisation;

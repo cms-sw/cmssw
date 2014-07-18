@@ -2,20 +2,18 @@
 
 #include "Validation/EcalClusters/interface/ContainmentCorrectionAnalyzer.h"
 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
 using namespace cms;
 using namespace edm;
 using namespace std;
 
 ContainmentCorrectionAnalyzer::ContainmentCorrectionAnalyzer( const ParameterSet& ps ) {
 
-  BarrelSuperClusterCollection_  = ps.getParameter<InputTag>("BarrelSuperClusterCollection");    
-  EndcapSuperClusterCollection_  = ps.getParameter<InputTag>("EndcapSuperClusterCollection");
-  reducedBarrelRecHitCollection_ = ps.getParameter<InputTag>("reducedBarrelRecHitCollection");
-  reducedEndcapRecHitCollection_ = ps.getParameter<InputTag>("reducedEndcapRecHitCollection");
-  SimTrackCollection_            = ps.getParameter<InputTag>("simTrackCollection");
-  SimVertexCollection_           = ps.getParameter<InputTag>("simVertexCollection");
+  BarrelSuperClusterCollection_  = consumes<reco::SuperClusterCollection>(ps.getParameter<InputTag>("BarrelSuperClusterCollection"));
+  EndcapSuperClusterCollection_  = consumes<reco::SuperClusterCollection>(ps.getParameter<InputTag>("EndcapSuperClusterCollection"));
+  reducedBarrelRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<InputTag>("reducedBarrelRecHitCollection"));
+  reducedEndcapRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<InputTag>("reducedEndcapRecHitCollection"));
+  SimTrackCollection_            = consumes<SimTrackContainer>(ps.getParameter<InputTag>("simTrackCollection"));
+  SimVertexCollection_           = consumes<SimVertexContainer>(ps.getParameter<InputTag>("simVertexCollection"));
 }
 
 ContainmentCorrectionAnalyzer::~ContainmentCorrectionAnalyzer() { }
@@ -44,39 +42,53 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   // taking the needed collections
   std::vector<SimTrack> theSimTracks;
   Handle<SimTrackContainer> SimTk;
-  evt.getByLabel(SimTrackCollection_,SimTk);
+  evt.getByToken(SimTrackCollection_,SimTk);
+  Labels l;
+  labelsForToken(SimTrackCollection_, l);
+
   if (SimTk.isValid() ) theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());  
-  else { LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << SimTrackCollection_.label(); }
+  else { LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
 
   std::vector<SimVertex> theSimVertexes;  
   Handle<SimVertexContainer> SimVtx;
-  evt.getByLabel(SimVertexCollection_,SimVtx);
+  evt.getByToken(SimVertexCollection_,SimVtx);
+  labelsForToken(SimVertexCollection_, l);
+
+
   if (SimVtx.isValid()) theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
-  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << SimVertexCollection_.label(); }
+  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
   const reco::SuperClusterCollection* BarrelSuperClusters = 0;
   Handle<reco::SuperClusterCollection> pHybridBarrelSuperClusters;
-  evt.getByLabel(BarrelSuperClusterCollection_, pHybridBarrelSuperClusters);
+  evt.getByToken(BarrelSuperClusterCollection_, pHybridBarrelSuperClusters);
+  labelsForToken(BarrelSuperClusterCollection_, l);
+
   if (pHybridBarrelSuperClusters.isValid()) { BarrelSuperClusters = pHybridBarrelSuperClusters.product(); } 
-  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << BarrelSuperClusterCollection_.label(); }
+  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
 
   const reco::SuperClusterCollection* EndcapSuperClusters = 0;
   Handle<reco::SuperClusterCollection> pMulti5x5EndcapSuperClusters;
-  evt.getByLabel(EndcapSuperClusterCollection_, pMulti5x5EndcapSuperClusters);
+  evt.getByToken(EndcapSuperClusterCollection_, pMulti5x5EndcapSuperClusters);
+  labelsForToken(EndcapSuperClusterCollection_, l);
+
   if (pMulti5x5EndcapSuperClusters.isValid()) EndcapSuperClusters = pMulti5x5EndcapSuperClusters.product();
-  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << EndcapSuperClusterCollection_.label(); }
+  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
   const EcalRecHitCollection *ebRecHits = 0;
   Handle< EcalRecHitCollection > pEBRecHits;
-  evt.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
+  evt.getByToken( reducedBarrelRecHitCollection_, pEBRecHits );
+  labelsForToken(reducedBarrelRecHitCollection_, l);
+
   if (pEBRecHits.isValid()) ebRecHits = pEBRecHits.product();
-  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << reducedBarrelRecHitCollection_.label(); }
+  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
   const EcalRecHitCollection *eeRecHits = 0;
   Handle< EcalRecHitCollection > pEERecHits;
-  evt.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
+  evt.getByToken( reducedEndcapRecHitCollection_, pEERecHits );
+  labelsForToken(reducedEndcapRecHitCollection_, l);
+
   if (pEERecHits.isValid()) eeRecHits = pEERecHits.product();
-  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << reducedEndcapRecHitCollection_.label(); }
+  else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
   const CaloTopology *topology = 0;
   ESHandle<CaloTopology> pTopology;

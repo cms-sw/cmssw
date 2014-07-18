@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,7 +20,7 @@
 //#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 
 // GEDPhotonCoreProducer inherits from EDProducer, so it can be a module:
-class GEDPhotonCoreProducer : public edm::EDProducer {
+class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -31,10 +31,7 @@ class GEDPhotonCoreProducer : public edm::EDProducer {
 
  private:
 
-  void createSingleLegConversions( reco::CaloClusterPtr, const std::vector<reco::TrackRef>&, const std::vector<float>&,  reco::ConversionCollection &oneLegConversions  );
-
   std::string GEDPhotonCoreCollection_;
-  std::string PFConversionCollection_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> pixelSeedProducer_;
 

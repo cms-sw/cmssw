@@ -8,6 +8,8 @@ Modified by L.Mundim (Mar/2009)
 POOL container to store Pedestal values 4xCapId
 $Author: katsas
 */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/CastorObjects/interface/CastorPedestal.h"
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"
 
@@ -28,6 +30,8 @@ class CastorPedestals: public CastorCondObjectContainer<CastorPedestal>
  private:
   bool unitIsADC;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif
