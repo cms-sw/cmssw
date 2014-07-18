@@ -43,6 +43,8 @@ private:
    TGeoMaterial*     createMaterial( const std::string& name );
 
    TGeoVolume* getTruncatedPyramidVolume(const CaloCellGeometry* cell);
+   TGeoVolume* getIdealZPrismVolume(const CaloCellGeometry* cell);
+   TGeoVolume* getIdealObliquePrismVolume(const CaloCellGeometry* cell);
    TGeoVolume* getCalloCellVolume(const CaloCellGeometry* cell);
 
    void addPixelBarrelGeometry();
