@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(22)
+    input = cms.untracked.int32(21)
 )
 
 # Input source
@@ -30,18 +30,10 @@ process.options = cms.untracked.PSet(
 
 
 # Output definition
-
 process.output = cms.OutputModule(
     "PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring("keep *",
-					   "drop *_mix_*_*"),
-    fileName = cms.untracked.string('L1T_EDM.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('')
-    )
+    outputCommands = cms.untracked.vstring("keep *"),
+    fileName = cms.untracked.string('L1T_EDM.root')
 )
 
 # Additional output definition
@@ -76,40 +68,81 @@ process.TFileService.fileName = cms.string('l1t.root')
 # user stuff
 
 # raw data from MP card
-from EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi import mp7BufferDumpToRaw
-process.stage2Layer2Raw = mp7BufferDumpToRaw.clone()
-process.stage2Layer2Raw.fedId = cms.untracked.int32(2)
-process.stage2Layer2Raw.rxFile = cms.untracked.string("rx_summary.txt")
-process.stage2Layer2Raw.txFile = cms.untracked.string("tx_summary.txt")
+import EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi
+process.stage2Layer2Raw = EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi.mp7BufferDumpToRaw.clone()
+process.stage2Layer2Raw.fedId     = cms.untracked.int32(2)
+process.stage2Layer2Raw.rxFile    = cms.untracked.string("rx_summary.txt")
+process.stage2Layer2Raw.txFile    = cms.untracked.string("tx_summary.txt")
+process.stage2Layer2Raw.txLatency = cms.untracked.int32(54)
+process.stage2Layer2Raw.rxBlockLength    = cms.untracked.vint32(
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41,
+    41,41,41,41,41,41,41,41,41)
+process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
+    39,39,39,39,39,39,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0)
 
 # raw data from Demux
-process.stage2DemuxRaw = mp7BufferDumpToRaw.clone()
+process.stage2DemuxRaw = EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi.mp7BufferDumpToRaw.clone()
 process.stage2DemuxRaw.fedId = cms.untracked.int32(1)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("")
-process.stage2DemuxRaw.txFile = cms.untracked.string("")
+process.stage2DemuxRaw.txFile = cms.untracked.string("tx_summary.txt")
+process.stage2DemuxRaw.txLatency = cms.untracked.int32(54)
+process.stage2DemuxRaw.rxBlockLength    = cms.untracked.vint32(
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0)
+process.stage2DemuxRaw.txBlockLength    = cms.untracked.vint32(
+    12,4,12,8,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0)
 
-# dump raw data
-process.dumpRaw = cms.EDAnalyzer( 
-    "DumpFEDRawDataProduct",
-    label = cms.untracked.string("stage2Layer2Raw"),
-    feds = cms.untracked.vint32 ( 1 ),
-    dumpPayload = cms.untracked.bool ( True )
+# merge raw data
+import EventFilter.RawDataCollector.rawDataCollector_cfi
+process.rawData = EventFilter.RawDataCollector.rawDataCollector_cfi.rawDataCollector.clone()
+process.rawData.RawCollectionList = cms.VInputTag(
+    cms.InputTag('stage2Layer2Raw'),
+    cms.InputTag('stage2DemuxRaw')
 )
 
 # raw to digi
 import EventFilter.L1TRawToDigi.l1tRawToDigi_cfi
-process.stage2Layer2Digis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
-process.stage2Layer2Digis.FedId = cms.int32(2)
-process.stage2Layer2Digis.InputLabel = cms.InputTag("stage2Layer2Raw")
+process.l1tDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
+process.l1tDigis.FedId = cms.int32(2)
+process.l1tDigis.InputLabel = cms.InputTag("rawData")
 
-process.stage2DemuxDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
-process.stage2DemuxDigis.FedId = cms.int32(1)
-process.stage2DemuxDigis.InputLabel = cms.InputTag("stage2DemuxRaw")
 
-# upgrade calo stage 2
-#process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-#process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-#process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+#diagnostics
+
+# dump raw data
+process.dumpRaw = cms.EDAnalyzer( 
+    "DumpFEDRawDataProduct",
+    label = cms.untracked.string("rawData"),
+    feds = cms.untracked.vint32 ( 1, 2 ),
+    dumpPayload = cms.untracked.bool ( True )
+)
+
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("l1tDigis")
@@ -120,11 +153,22 @@ process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("l1tDigis")
 process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("l1tDigis")
 process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("l1tDigis")
 
+# emulator
+
+# upgrade calo stage 2
+#process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
+#process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+#process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+
+
+
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.mp7BufferDumpToRaw
-    +process.dumpRaw
+    process.stage2Layer2Raw
+    +process.stage2DemuxRaw
+    +process.rawData
     +process.l1tDigis
+    +process.dumpRaw
     +process.l1tStage2CaloAnalyzer
 )
 
