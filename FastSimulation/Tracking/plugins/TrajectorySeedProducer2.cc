@@ -388,10 +388,16 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				//TODO: rename TrackerRecHit into SeedingHitCandiate!
 				currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
 				//std::cout<<"creating TrackerRecHit: "<<itRecHit-recHitRange.first<<": "<<currentTrackerHit.getSeedingLayer().subDet<<":"<<currentTrackerHit.getSeedingLayer().idLayer<<", pos=("<<currentTrackerHit.globalPosition().x()<<","<<currentTrackerHit.globalPosition().y()<<","<<currentTrackerHit.globalPosition().z()<<")"<<std::endl;
-				//if (_seedingTree.getSingleSet().find(currentTrackerHit.getSeedingLayer())!=_seedingTree.getSingleSet().end())
-				//{
+				if (_seedingTree.getSingleSet().find(currentTrackerHit.getSeedingLayer())!=_seedingTree.getSingleSet().end())
+				{
+				
+				    //std::cout<<"accept: "<<currentTrackerHit.getSeedingLayer().print().c_str()<<std::endl;
 				    trackerRecHits.push_back(currentTrackerHit);
-				//}
+				}
+				else
+				{
+				    //std::cout<<"reject: "<<currentTrackerHit.getSeedingLayer().print().c_str()<<std::endl;
+				}
 				if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
 				{
 					continue;
