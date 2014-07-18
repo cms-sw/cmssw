@@ -24,7 +24,7 @@ class TGeoVolume;
 class TGeoMaterial;
 class TGeoMedium;
 class GeomDet;
-
+class CaloCellGeometry;
 class FWTGeoRecoGeometryESProducer : public edm::ESProducer
 {
 public:
@@ -41,7 +41,9 @@ private:
    TGeoShape*        createShape( const GeomDet *det );
    TGeoVolume*       createVolume( const std::string& name, const GeomDet *det, const std::string& matname = "Air" );
    TGeoMaterial*     createMaterial( const std::string& name );
-   const std::string path( TGeoVolume* top, const std::string& name, int copy );
+
+   TGeoVolume* getTruncatedPyramidVolume(const CaloCellGeometry* cell);
+   TGeoVolume* getCalloCellVolume(const CaloCellGeometry* cell);
 
    void addPixelBarrelGeometry();
    void addPixelForwardGeometry();
@@ -64,6 +66,8 @@ private:
    const TrackerGeometry* m_trackerGeom;
   
    boost::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
+
+   TGeoMedium* m_dummyMedium;
 };
 
 #endif // GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H

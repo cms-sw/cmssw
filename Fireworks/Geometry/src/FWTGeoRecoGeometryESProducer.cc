@@ -11,6 +11,8 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -30,6 +32,9 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
+#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
 #include "TGeoManager.h"
 #include "TGeoArb8.h"
@@ -38,7 +43,8 @@
 #include "TTree.h"
 #include "TError.h"
 
-FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& /*pset*/ )
+FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& /*pset*/ ):
+m_dummyMedium(0)
 {
   setWhatProduced( this );
 }
@@ -48,45 +54,67 @@ FWTGeoRecoGeometryESProducer::~FWTGeoRecoGeometryESProducer( void )
 
 namespace
 {
+
   /** Create TGeo transformation of GeomDet */
-  TGeoCombiTrans* createPlacement( const GeomDet *det )
-  {
-    // Position of the DetUnit's center
-    float posx = det->surface().position().x();
-    float posy = det->surface().position().y();
-    float posz = det->surface().position().z();
+TGeoCombiTrans* createPlacement( const GeomDet *det )
+{
+   // Position of the DetUnit's center
+   float posx = det->surface().position().x();
+   float posy = det->surface().position().y();
+   float posz = det->surface().position().z();
 
-    TGeoTranslation trans( posx, posy, posz );
+   TGeoTranslation trans( posx, posy, posz );
 
-    // Add the coeff of the rotation matrix
-    // with a projection on the basis vectors
-    TkRotation<float> detRot = det->surface().rotation();
+   // Add the coeff of the rotation matrix
+   // with a projection on the basis vectors
+   TkRotation<float> detRot = det->surface().rotation();
 
-    TGeoRotation rotation;
-    const Double_t matrix[9] = { detRot.xx(), detRot.yx(), detRot.zx(),
-				 detRot.xy(), detRot.yy(), detRot.zy(),
-				 detRot.xz(), detRot.yz(), detRot.zz() 
-    };
-    rotation.SetMatrix( matrix );
+   TGeoRotation rotation;
+   const Double_t matrix[9] = { detRot.xx(), detRot.yx(), detRot.zx(),
+                                detRot.xy(), detRot.yy(), detRot.zy(),
+                                detRot.xz(), detRot.yz(), detRot.zz() 
+   };
+   rotation.SetMatrix( matrix );
      
-    return new TGeoCombiTrans( trans, rotation );
-  }
+   return new TGeoCombiTrans( trans, rotation );
+}
 
-    TGeoVolume* GetDaughter(TGeoVolume* mother, const char* prefix, int id)
-    {
-        TGeoVolume* res = 0;
-        if (mother->GetNdaughters()) { 
-            TGeoNode* n = mother->FindNode(Form("%s_%d_1", prefix, id));
-            if ( n ) res = n->GetVolume();
-        }
 
-        if (!res) {
-            res = new TGeoVolumeAssembly( Form("%s_%d", prefix, id ));
-            mother->AddNode(res, 1);
-        }
 
-        return res;
-    }
+TGeoMatrix* createCaloPlacement( const CaloCellGeometry* cell)
+{
+   CaloCellGeometry::Tr3D  tr;
+   cell->getTransform(tr, 0);
+        
+   TGeoTranslation trans( tr.getTranslation().x(), tr.getTranslation().y(), tr.getTranslation().z());
+
+   TGeoRotation rotation;
+   CLHEP::HepRotation  detRot = tr.getRotation();
+   const Double_t matrix[9] = { detRot.xx(), detRot.yx(), detRot.zx(),
+                                detRot.xy(), detRot.yy(), detRot.zy(),
+                                detRot.xz(), detRot.yz(), detRot.zz() 
+   };
+
+
+   rotation.SetMatrix( matrix );
+   return new TGeoCombiTrans( trans, rotation );
+}
+
+TGeoVolume* GetDaughter(TGeoVolume* mother, const char* prefix, int id)
+{
+   TGeoVolume* res = 0;
+   if (mother->GetNdaughters()) { 
+      TGeoNode* n = mother->FindNode(Form("%s_%d_1", prefix, id));
+      if ( n ) res = n->GetVolume();
+   }
+
+   if (!res) {
+      res = new TGeoVolumeAssembly( Form("%s_%d", prefix, id ));
+      mother->AddNode(res, 1);
+   }
+
+   return res;
+}
 }
 
 boost::shared_ptr<FWTGeoRecoGeometry> 
@@ -112,10 +140,10 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   m_fwGeometry->manager( geom );
   
    // Default material is Vacuum
-   TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
+   TGeoMaterial *vacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
+   m_dummyMedium = new TGeoMedium( "reco-medium", 0, vacuum);
    // so is default medium
-   TGeoMedium *vacuum = new TGeoMedium( "Vacuum", 1, matVacuum );
-   TGeoVolume *top = geom->MakeBox( "CMS", vacuum, 270., 270., 120. );
+   TGeoVolume *top = geom->MakeBox( "CMS", m_dummyMedium, 270., 270., 120. );
   
    if( 0 == top )
    {
@@ -125,7 +153,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    // ROOT chokes unless colors are assigned
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
-
+   /*
    addPixelBarrelGeometry();
    addPixelForwardGeometry();
    addTIBGeometry();
@@ -135,9 +163,9 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    addDTGeometry();
    addCSCGeometry();
    addRPCGeometry();
+   */
 
    addCaloGeometry();
-  
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -242,6 +270,7 @@ FWTGeoRecoGeometryESProducer::createVolume( const std::string& name, const GeomD
       m_nameToMedium[material] = medium;
    }
    TGeoVolume* volume = new TGeoVolume( name.c_str(),solid, medium);
+
    m_shapeToVolume[solid] = volume;
 
    return volume;
@@ -591,7 +620,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 {
    TGeoVolume *assembly = new TGeoVolumeAssembly("RPC");
 
-   DetId detId( DetId::Muon, 3 );
+   DetId detId( DetId::Muon, MuonSubdetId::RPC );
    const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
    for( auto it = rpcGeom->rolls().begin(),
            end = rpcGeom->rolls().end(); 
@@ -623,17 +652,90 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 }
 
 
+//______________________________________________________________________________
+
+
+//std::map< const CaloCellGeometry::CCGFloat*, TGeoVolume*> m_caloShapeMap;
+namespace {
+typedef std::map< const float*, TGeoVolume*> CaloVolMap;
+CaloVolMap m_caloShapeMap;
+}
+
+
+TGeoVolume* FWTGeoRecoGeometryESProducer::getTruncatedPyramidVolume(const CaloCellGeometry* cell)
+{
+
+   double points[24];
+   CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
+
+   TGeoVolume* volume = 0;
+
+   if  (volIt == m_caloShapeMap.end()) {
+      const HepGeom::Transform3D idtr;
+      std::vector<float> vpar;
+      for (int ip =0; ip < 11; ++ip)
+         vpar.push_back(cell->param()[ip]);
+
+      std::vector<GlobalPoint> co(8);
+      TruncatedPyramid::createCorners(vpar, idtr, co);
+
+      unsigned int index( 0 ); 
+      static const int arr[] = {0, 3, 2, 1, 4, 7, 6, 5};
+      for( int c = 0; c < 8; ++c )
+      {
+         points[index] = co[arr[c]].x();
+         points[++index] = co[arr[c]].y();
+         points[++index] = co[arr[c]].z();
+      }  
+
+      TGeoShape* solid = new TGeoArb8(cell->param()[0], points); 
+
+
+      volume = new TGeoVolume( "xxx" ,solid, m_dummyMedium);
+      volume->SetLineColor(kGray);
+      m_caloShapeMap[cell->param()]  = volume;
+   }
+   else {
+      volume = volIt->second;
+   }
+
+   return volume;
+}
+
+TGeoVolume* FWTGeoRecoGeometryESProducer::getCalloCellVolume(const CaloCellGeometry* cell)
+{
+   if (dynamic_cast<const TruncatedPyramid*> (cell)) 
+      return getTruncatedPyramidVolume(cell);
+
+   return 0;
+}
+
 
 
 void
 FWTGeoRecoGeometryESProducer::addCaloGeometry( void )
 {
-  /*td::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
-  for( std::vector<DetId>::const_iterator it = vid.begin(),
-					 end = vid.end();
-       it != end; ++it )
-  {
-    const CaloCellGeometry::CornersVec& cor( m_caloGeom->getGeometry( *it )->getCorners());
-    m_fwGeometry->idToName[ it->rawId()].fillPoints( cor.begin(), cor.end());
-    }*/
+   TGeoVolume *assembly = new TGeoVolumeAssembly("EcalBarrel");
+   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
+   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+   {
+      EBDetId detid(*it);
+      const CaloCellGeometry* cell = m_caloGeom->getGeometry( *it );
+      if (dynamic_cast<const TruncatedPyramid*> (cell)) {
+
+         TGeoVolume* holder  = GetDaughter(assembly, "ism", detid.ism());
+         holder->AddNode( getCalloCellVolume(cell), 1, createCaloPlacement(cell));
+      }
+   }
+
+
+   //    if (dynamic_cast<const IdealObliquePrism*> (cell))
+   //    printf("=====OBLIQUE\n");
+
+
+      //if (cnt > 10000) break;
+
+   printf("SHAPE map size %d ndau %d\n", (int)m_caloShapeMap.size(), assembly->GetNdaughters());
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+
 }
