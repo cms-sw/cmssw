@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/GRun/V61 (CMSSW_7_1_2)
+# /dev/CMSSW_7_1_1/GRun/V62 (CMSSW_7_1_2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V61')
+  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V62')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -20849,7 +20849,7 @@ hltMu23Ele12EcalIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter = cms.EDFilter( "HL
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.3 ),
+    thrOverEEE = cms.double( 0.5 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( 0.5 ),
     thrRegularEB = cms.double( -1.0 ),
@@ -20867,9 +20867,9 @@ hltMu23Ele12HcalIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter = cms.EDFilter( "HL
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.3 ),
+    thrOverEEE = cms.double( 0.6 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEB = cms.double( 0.4 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
@@ -20943,9 +20943,9 @@ hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter = cms.EDFilter(
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.05 ),
+    thrOverEEE = cms.double( 0.1 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.05 ),
+    thrOverEEB = cms.double( 0.1 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
@@ -21097,7 +21097,7 @@ hltMu8Ele23EcalIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter = cms.EDFilter( "HLT
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.3 ),
+    thrOverEEE = cms.double( 0.5 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( 0.5 ),
     thrRegularEB = cms.double( -1.0 ),
@@ -21115,9 +21115,9 @@ hltMu8Ele23HcalIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter = cms.EDFilter( "HLT
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.3 ),
+    thrOverEEE = cms.double( 0.6 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEB = cms.double( 0.4 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
@@ -21191,9 +21191,9 @@ hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter = cms.EDFilter( 
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.05 ),
+    thrOverEEE = cms.double( 0.1 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.05 ),
+    thrOverEEB = cms.double( 0.1 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
