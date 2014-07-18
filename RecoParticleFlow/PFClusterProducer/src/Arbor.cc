@@ -4,8 +4,14 @@
 #include <algorithm>
 #include <TMath.h>
 
+#include "KDTreeLinkerAlgoT.h"
+
+#include <unordered_map>
+
 namespace arbor {
 using namespace std;
+
+typedef std::unordered_multimap<unsigned,unsigned> HitLinkMap;
 
 std::vector<TVector3> cleanedHits;
   
@@ -16,8 +22,10 @@ std::vector<int> IsoHitsIndex;
 std::vector<int> SimpleSeedHitsIndex;
 std::vector<int> StarSeedHitsIndex;
 
+HitLinkMap BackLinksMap;
 linkcoll Links;
 linkcoll InitLinks;
+HitLinkMap alliterBackLinksMap;
 linkcoll alliterlinks;
 linkcoll links_debug; 
 linkcoll IterLinks; 
@@ -37,12 +45,14 @@ void init( float CellSize, float LayerThickness ) {
 	SimpleSeedHitsIndex.clear();
 	StarSeedHitsIndex.clear();
 
+	BackLinksMap.clear();
 	Links.clear();
 	InitLinks.clear();
 	IterLinks.clear();
 	LengthSortBranchCollection.clear();
 	Trees.clear();
 	alliterlinks.clear();
+	alliterBackLinksMap.clear();
 	links_debug.clear();
 
 	/*
@@ -57,8 +67,8 @@ void init( float CellSize, float LayerThickness ) {
 	InitLinkThreshold = 2*LayerThickness - 0.01; 
 	IterLinkThreshold = InitLinkThreshold * 2.5;
 
-	edm::LogVerbatim("ArborInfo") <<endl<<"Thresholds"<<endl<<endl;
-	edm::LogVerbatim("ArborInfo") <<"Init/Iter Threshold "<<InitLinkThreshold<<" : "<<IterLinkThreshold<<endl<<endl;
+	edm::LogProblem("ArborInfo") <<endl<<"Thresholds"<<endl<<endl;
+	edm::LogProblem("ArborInfo") <<"Init/Iter Threshold "<<InitLinkThreshold<<" : "<<IterLinkThreshold<<endl<<endl;
 
 }
 
@@ -99,8 +109,8 @@ void HitsClassification( linkcoll inputLinks )
 
         for(int j0 = 0; j0 < NLinks; j0++)
         {
-                BeginIndex[ (inputLinks[j0].first) ] ++;
-                EndIndex[ (inputLinks[j0].second) ] ++;
+                ++BeginIndex[(inputLinks[j0].first)];
+                ++EndIndex[(inputLinks[j0].second)];
         }
 
         for(int i1 = 0; i1 < NHits; i1++)
@@ -135,111 +145,167 @@ void HitsClassification( linkcoll inputLinks )
 		}
         }
 
-	edm::LogVerbatim("ArborInfo") <<"Verification of Hits Classification: "<<endl;
-	edm::LogVerbatim("ArborInfo") <<"Seed - Simple/Star: "<<SimpleSeedHitsIndex.size()<<" : "<<StarSeedHitsIndex.size()<<endl;
-	edm::LogVerbatim("ArborInfo") <<"Joint - Simple/Star: "<<JointHitsIndex.size()<<" : "<<StarJointHitsIndex.size()<<endl;
-	edm::LogVerbatim("ArborInfo") <<"Leaves: "<<LeafHitsIndex.size()<<endl;
-	edm::LogVerbatim("ArborInfo") <<"IsoHits: "<<IsoHitsIndex.size()<<endl; 
-	edm::LogVerbatim("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
+	edm::LogProblem("ArborInfo") <<"Verification of Hits Classification: "<<endl;
+	edm::LogProblem("ArborInfo") <<"Seed - Simple/Star: "<<SimpleSeedHitsIndex.size()<<" : "<<StarSeedHitsIndex.size()<<endl;
+	edm::LogProblem("ArborInfo") <<"Joint - Simple/Star: "<<JointHitsIndex.size()<<" : "<<StarJointHitsIndex.size()<<endl;
+	edm::LogProblem("ArborInfo") <<"Leaves: "<<LeafHitsIndex.size()<<endl;
+	edm::LogProblem("ArborInfo") <<"IsoHits: "<<IsoHitsIndex.size()<<endl; 
+	edm::LogProblem("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
 }
 
 linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
 {
-	linkcoll cleanedlinks; 
-
-	int NLinks = alllinks.size();
-        int Ncurrhitlinks = 0;
-        int MinAngleIndex = -1;
-        float MinAngle = 1E6;
-        float tmpOrder = 0;
-        float DirAngle = 0;
-
-        std::pair<int, int> SelectedPair;
-
-        TVector3 PosA, PosB, PosDiffAB;
-	
-        std::vector< std::vector<int> > LinkHits;
-        LinkHits.clear();
-        for(int s1 = 0; s1 < NHits; s1++)
-        {
-                std::vector<int> hitlink;
-                for(int t1 = 0; t1 < NLinks; t1++)
-                {
-                        if(alllinks[t1].second == s1)
-                        {
-                                hitlink.push_back(alllinks[t1].first);
-                        }
-                }
-                LinkHits.push_back(hitlink);
-        }
-
-        for(int i1 = 0; i1 < NHits; i1++)
-        {
-                PosB = cleanedHits[i1];
-                MinAngleIndex = -10;
-                MinAngle = 1E6;
-
-                std::vector<int> currhitlink = LinkHits[i1];
-
-                Ncurrhitlinks = currhitlink.size();
-
-                for(int k1 = 0; k1 < Ncurrhitlinks; k1++)
-                {
-                        PosA = cleanedHits[ currhitlink[k1] ];
-                        DirAngle = (PosA + PosB).Angle(PosB - PosA);		//Replace PosA + PosB with other order parameter ~ reference direction
-                        tmpOrder = (PosB - PosA).Mag() * (DirAngle + 0.1);
-                        if( tmpOrder < MinAngle ) // && DirAngle < 2.5 )
-                        {
-                                MinAngleIndex = currhitlink[k1];
-                                MinAngle = tmpOrder;
-                        }
-                }
-
-                if(MinAngleIndex > -0.5)
-                {
-                        SelectedPair.first = MinAngleIndex;
-                        SelectedPair.second = i1;
-                        cleanedlinks.push_back(SelectedPair);
-                }
-        }
-
-	edm::LogVerbatim("ArborInfo") <<"NStat "<<NHits<<" : "<<NLinks<<" InitLinks "<<InitLinks.size()<<endl;
-
-	return cleanedlinks;
+  linkcoll cleanedlinks; 
+  
+  int NLinks = alllinks.size();
+  int Ncurrhitlinks = 0;
+  int MinAngleIndex = -1;
+  float MinAngle = 1E6;
+  float tmpOrder = 0;
+  float DirAngle = 0;
+  
+  std::pair<int, int> SelectedPair;
+  
+  TVector3 PosA, PosB, PosDiffAB;
+  
+  std::vector< std::vector<int> > LinkHits;
+  LinkHits.clear();
+  for(int s1 = 0; s1 < NHits; s1++) {
+    std::vector<int> hitlink;
+    
+    auto range = BackLinksMap.equal_range(s1);
+    for( auto itr = range.first; itr != range.second; ++itr ){
+      hitlink.emplace_back(itr->second);
+    }
+    
+    /*
+      for(int t1 = 0; t1 < NLinks; t1++)
+      {
+      if(alllinks[t1].second == s1)
+      {
+      hitlink.push_back(alllinks[t1].first);
+      }
+      }
+    */
+    
+    LinkHits.push_back(std::move(hitlink));
+  }
+  
+  edm::LogError("ArborInfo") <<"Initialized LinkHits!";
+  
+  for(int i1 = 0; i1 < NHits; i1++) {
+    PosB = cleanedHits[i1];
+    MinAngleIndex = -10;
+    MinAngle = 1E6;
+    
+    const std::vector<int>& currhitlink = LinkHits[i1];
+    
+    Ncurrhitlinks = currhitlink.size();
+    
+    for(int k1 = 0; k1 < Ncurrhitlinks; k1++)
+      {
+	PosA = cleanedHits[ currhitlink[k1] ];
+	DirAngle = (PosA + PosB).Angle(PosB - PosA);		//Replace PosA + PosB with other order parameter ~ reference direction
+	tmpOrder = (PosB - PosA).Mag() * (DirAngle + 0.1);
+	if( tmpOrder < MinAngle ) // && DirAngle < 2.5 )
+	  {
+	    MinAngleIndex = currhitlink[k1];
+	    MinAngle = tmpOrder;
+	  }
+      }
+    
+    if(MinAngleIndex > -0.5)
+      {
+	SelectedPair.first = MinAngleIndex;
+	SelectedPair.second = i1;
+	cleanedlinks.push_back(SelectedPair);
+      }
+  }
+  
+  edm::LogError("ArborInfo") <<"NStat "<<NHits <<" : "<<NLinks <<" CleanedLinks "<< cleanedlinks.size();
+  
+  return cleanedlinks;
 }
 
+//this only works right if you separate the endcaps.
 void BuildInitLink()
 {
-	Links.clear();	//all tmp links
-	TVector3 PosA, PosB, PosDiffAB; 
+  // DIMS = x/y/z
+  KDTreeLinkerAlgo<unsigned,3> kdtree;
+  typedef KDTreeNodeInfoT<unsigned,3> KDTreeNodeInfo;
 
-	for(int i0 = 0; i0 < NHits; i0++)
+  Links.clear();	//all tmp links
+  //TVector3 PosA, PosB, PosDiffAB; 
+  TVector3 PosDiffAB;
+  std::array<float,3> minpos{ {0.0f,0.0f,0.0f} }, maxpos{ {0.0f,0.0f,0.0f} };
+  std::vector<KDTreeNodeInfo> nodes, found;
+  
+  for(int i0 = 0; i0 < NHits; ++i0 ) {     
+    const auto& hit = cleanedHits[i0];
+    nodes.emplace_back(i0,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
+    if( i0 == 0 ) {
+      minpos[0] = hit.X(); minpos[1] = hit.Y(); minpos[2] = hit.Z();
+      maxpos[0] = hit.X(); maxpos[1] = hit.Y(); maxpos[2] = hit.Z();
+    } else {
+      minpos[0] = std::min((float)hit.X(),minpos[0]);
+      minpos[1] = std::min((float)hit.Y(),minpos[1]);
+      minpos[2] = std::min((float)hit.Z(),minpos[2]);
+      maxpos[0] = std::max((float)hit.X(),maxpos[0]);
+      maxpos[1] = std::max((float)hit.Y(),maxpos[1]);
+      maxpos[2] = std::max((float)hit.Z(),maxpos[2]);
+    }
+  }
+  KDTreeCube kdXYZCube(minpos[0],maxpos[0],
+		       minpos[1],maxpos[1],
+		       minpos[2],maxpos[2]);
+  kdtree.build(nodes,kdXYZCube);
+  nodes.clear();
+  
+  for(int i0 = 0; i0 < NHits; ++i0)
+    {
+      found.clear();
+      const auto& PosA = cleanedHits[i0];
+      const float side = InitLinkThreshold;
+      const float xplus(PosA.X() + side), xminus(PosA.X() - side);
+      const float yplus(PosA.Y() + side), yminus(PosA.Y() - side);
+      const float zplus(PosA.Z() + side), zminus(PosA.Z() - side);
+      const float xmin(std::min(xplus,xminus)), xmax(std::max(xplus,xminus));
+      const float ymin(std::min(yplus,yminus)), ymax(std::max(yplus,yminus));
+      const float zmin(std::min(zplus,zminus)), zmax(std::max(zplus,zminus));      
+      KDTreeCube searchcube( xmin, xmax,
+			     ymin, ymax,
+			     zmin, zmax );
+      kdtree.search(searchcube,found);
+      for(unsigned j0 = 0; j0 < found.size(); ++j0)
 	{
-		PosA = cleanedHits[i0];
-		for(int j0 = i0 + 1; j0 < NHits; j0++)
+	  if( found[j0].data <= (unsigned)i0 ) continue;
+	  const auto& PosB = cleanedHits[found[j0].data];
+	  PosDiffAB = PosA - PosB;
+	  
+	  if( PosDiffAB.Mag() < InitLinkThreshold ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
+	    {
+	      std::pair<int, int> a_Link;
+	      if( PosA.Mag() > PosB.Mag() )
 		{
-			PosB = cleanedHits[j0];
-			PosDiffAB = PosA - PosB;
-			
-			if( PosDiffAB.Mag() < InitLinkThreshold ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
-			{
-				std::pair<int, int> a_Link;
-				if( PosA.Mag() > PosB.Mag() )
-				{
-					a_Link.first = j0;
-					a_Link.second = i0; 
-				}
-				else
-				{
-					a_Link.first = i0;
-					a_Link.second = j0;
-				}
-				Links.push_back(a_Link);
-			}
+		  
+		  a_Link.first = found[j0].data;
+		  a_Link.second = i0; 		 
 		}
+	      else
+		{
+		  a_Link.first = i0;
+		  a_Link.second = found[j0].data;		  
+		}
+	      // later we do a *reverse search on the links*
+	      BackLinksMap.emplace(a_Link.second,a_Link.first);
+	      Links.push_back(a_Link);
+	    }
 	}
+    }
+  
+  edm::LogError("ArborInfo") << "Initialized links!";
 
-	links_debug = Links; 
+  links_debug = Links; 
 }
 
 void EndPointLinkIteration()
@@ -300,7 +366,7 @@ void EndPointLinkIteration()
 					tmplink.first = LeafIndex;
 					tmplink.second = OldSeedIndex; 
 					Links.push_back(tmplink);
-					edm::LogVerbatim("ArborInfo") <<"New Link added in EPLinkIteration"<<endl;
+					edm::LogProblem("ArborInfo") <<"New Link added in EPLinkIteration"<<endl;
 				}
 			}
 		}
@@ -312,123 +378,162 @@ void EndPointLinkIteration()
 
 void LinkIteration()	//Energy corrections, semi-local correction
 {
-	IterLinks.clear();
+  // DIMS = x/y/z
+  KDTreeLinkerAlgo<unsigned,3> kdtree;
+  typedef KDTreeNodeInfoT<unsigned,3> KDTreeNodeInfo;
 
-	alliterlinks = InitLinks;
-	int NInitLinks = InitLinks.size();
-	TVector3 hitPos, PosA, PosB, DiffPosAB, linkDir; 
-	std::pair<int, int> currlink; 
+  IterLinks.clear();
+  //TVector3 PosA, PosB, PosDiffAB; 
+  TVector3 PosDiffAB;
+  std::array<float,3> minpos{ {0.0f,0.0f,0.0f} }, maxpos{ {0.0f,0.0f,0.0f} };
+  std::vector<KDTreeNodeInfo> nodes, found;
+  
+  alliterlinks = InitLinks;
+  alliterBackLinksMap = BackLinksMap;
+  int NInitLinks = InitLinks.size();
+  TVector3 PosA, PosB, DiffPosAB, linkDir; 
+  std::pair<int, int> currlink; 
+  
+  TVector3 RefDir[NHits];
+  
+  for(int i = 0; i < NHits; i++) {
+    const auto& hit = cleanedHits[i];
+    RefDir[i] = 1.0/hit.Mag() * hit;
+    
+    nodes.emplace_back(i,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
+    if( i == 0 ) {
+      minpos[0] = hit.X(); minpos[1] = hit.Y(); minpos[2] = hit.Z();
+      maxpos[0] = hit.X(); maxpos[1] = hit.Y(); maxpos[2] = hit.Z();
+    } else {
+      minpos[0] = std::min((float)hit.X(),minpos[0]);
+      minpos[1] = std::min((float)hit.Y(),minpos[1]);
+      minpos[2] = std::min((float)hit.Z(),minpos[2]);
+      maxpos[0] = std::max((float)hit.X(),maxpos[0]);
+      maxpos[1] = std::max((float)hit.Y(),maxpos[1]);
+      maxpos[2] = std::max((float)hit.Z(),maxpos[2]);
+    }
+  }
+  
+  KDTreeCube kdXYZCube(minpos[0],maxpos[0],
+		       minpos[1],maxpos[1],
+		       minpos[2],maxpos[2]);
+  kdtree.build(nodes,kdXYZCube);
+  nodes.clear();
 
-	TVector3 RefDir[NHits];
 
-	for(int i = 0; i < NHits; i++)
+  for(unsigned j = 0; j < (unsigned)NInitLinks; j++) {
+    currlink = InitLinks[j];
+    PosA = cleanedHits[ currlink.first ];
+    PosB = cleanedHits[ currlink.second ];
+    linkDir = (PosA - PosB);		//Links are always from first point to second - verify
+    linkDir *= 1.0/linkDir.Mag(); 
+    RefDir[currlink.first] += 2*linkDir; 	//Weights... might be optimized...
+    RefDir[currlink.second] += 4*linkDir; 
+  }
+  
+  for(unsigned i1 = 0; i1 < (unsigned)NHits; i1++) {
+    found.clear();
+    RefDir[i1] *= 1.0/RefDir[i1].Mag();
+    PosA = cleanedHits[i1];
+    
+    const float side = IterLinkThreshold;
+    const float xplus(PosA.X() + side), xminus(PosA.X() - side);
+    const float yplus(PosA.Y() + side), yminus(PosA.Y() - side);
+    const float zplus(PosA.Z() + side), zminus(PosA.Z() - side);
+    const float xmin(std::min(xplus,xminus)), xmax(std::max(xplus,xminus));
+    const float ymin(std::min(yplus,yminus)), ymax(std::max(yplus,yminus));
+    const float zmin(std::min(zplus,zminus)), zmax(std::max(zplus,zminus));      
+    KDTreeCube searchcube( xmin, xmax,
+			   ymin, ymax,
+			   zmin, zmax );
+    kdtree.search(searchcube,found);
+    
+    for(unsigned j1 = 0; j1 < found.size(); j1++) {
+      if( found[j1].data <= i1 ) continue;
+      PosB = cleanedHits[found[j1].data];
+      DiffPosAB = PosB - PosA; 
+      
+      if( DiffPosAB.Mag() < IterLinkThreshold && 
+	  DiffPosAB.Mag() > InitLinkThreshold && 
+	  DiffPosAB.Angle(RefDir[i1]) < 0.8 ) {
+	
+	if( PosA.Mag() > PosB.Mag() )
+	  {
+	    currlink.first = found[j1].data;
+	    currlink.second = i1;
+	  }
+	else
+	  {
+	    currlink.first = i1;
+	    currlink.second = found[j1].data;
+	  }
+	
+	alliterBackLinksMap.emplace(currlink.second,currlink.first);
+	alliterlinks.push_back(currlink);
+      } 
+    }
+  }
+  
+  //Reusage of link iteration codes?
+  
+  //int NLinks = alliterlinks.size();
+  int MinAngleIndex = -10;
+  int Ncurrhitlinks = 0; 
+  float MinAngle = 1E6; 
+  float tmpOrder = 0;
+  float DirAngle = 0; 
+  std::pair<int, int> SelectedPair; 
+  
+  std::vector< std::vector<int> > LinkHits;
+  LinkHits.clear();
+  for(int s1 = 0; s1 < NHits; s1++)
+    {
+      std::vector<int> hitlink;
+      auto range = alliterBackLinksMap.equal_range(s1);
+      for( auto itr = range.first; itr != range.second; ++itr ){
+	hitlink.emplace_back(itr->second);
+      }
+      
+      LinkHits.push_back(std::move(hitlink));
+    }
+  
+  for(int i2 = 0; i2 < NHits; i2++)
+    {
+      PosB = cleanedHits[i2];
+      MinAngleIndex = -10;
+      MinAngle = 1E6;
+
+      const std::vector<int>& currhitlink = LinkHits[i2];
+      
+      Ncurrhitlinks = currhitlink.size();
+      
+      for(int j2 = 0; j2 < Ncurrhitlinks; j2++)
 	{
-		hitPos = cleanedHits[i];
-		RefDir[i] = 1.0/hitPos.Mag() * hitPos;
+	  PosA = cleanedHits[ currhitlink[j2] ];
+	  DirAngle = (RefDir[i2]).Angle(PosA - PosB);
+	  tmpOrder = (PosB - PosA).Mag() * (DirAngle + 1.0);
+	  if(tmpOrder < MinAngle) //  && DirAngle < 1.0)
+	    {
+	      MinAngleIndex = currhitlink[j2];
+	      MinAngle = tmpOrder;
+	    }
 	}
-
-	for(int j = 0; j < NInitLinks; j++)
+      
+      if(MinAngleIndex > -0.5)
 	{
-		currlink = InitLinks[j];
-		PosA = cleanedHits[ currlink.first ];
-		PosB = cleanedHits[ currlink.second ];
-		linkDir = (PosA - PosB);		//Links are always from first point to second - verify
-		linkDir *= 1.0/linkDir.Mag(); 
-		RefDir[currlink.first] += 2*linkDir; 	//Weights... might be optimized...
-		RefDir[currlink.second] += 4*linkDir; 
+	  SelectedPair.first = MinAngleIndex;
+	  SelectedPair.second = i2;
+	  IterLinks.push_back(SelectedPair);
 	}
-
-	for(int i1 = 0; i1 < NHits; i1++)
-	{
-		RefDir[i1] *= 1.0/RefDir[i1].Mag();
-		PosA = cleanedHits[i1];
-
-		for(int j1 = i1 + 1; j1 < NHits; j1++)	
-		{
-			PosB = cleanedHits[j1];
-			DiffPosAB = PosB - PosA; 
-
-			if( DiffPosAB.Mag() < IterLinkThreshold && DiffPosAB.Mag() > InitLinkThreshold && DiffPosAB.Angle(RefDir[i1]) < 0.8 )	
-			{
-
-				if( PosA.Mag() > PosB.Mag() )
-				{
-					currlink.first = j1;
-					currlink.second = i1;
-				}
-				else
-				{
-					currlink.first = i1;
-					currlink.second = j1;
-				}
-
-				alliterlinks.push_back(currlink);
-			} 
-		}
-	}
-
-	//Reusage of link iteration codes?
-
-	int NLinks = alliterlinks.size();
-	int MinAngleIndex = -10;
-	int Ncurrhitlinks = 0; 
-	float MinAngle = 1E6; 
-	float tmpOrder = 0;
-	float DirAngle = 0; 
-	std::pair<int, int> SelectedPair; 
-
-	std::vector< std::vector<int> > LinkHits;
-	LinkHits.clear();
-	for(int s1 = 0; s1 < NHits; s1++)
-	{
-		std::vector<int> hitlink;
-		for(int t1 = 0; t1 < NLinks; t1++)
-		{
-			if(alliterlinks[t1].second == s1)
-			{
-				hitlink.push_back(alliterlinks[t1].first);
-			}
-		}
-		LinkHits.push_back(hitlink);
-	}
-
-	for(int i2 = 0; i2 < NHits; i2++)
-	{
-		PosB = cleanedHits[i2];
-		MinAngleIndex = -10;
-		MinAngle = 1E6;
-
-		std::vector<int> currhitlink = LinkHits[i2];
-
-		Ncurrhitlinks = currhitlink.size();
-
-		for(int j2 = 0; j2 < Ncurrhitlinks; j2++)
-		{
-			PosA = cleanedHits[ currhitlink[j2] ];
-			DirAngle = (RefDir[i2]).Angle(PosA - PosB);
-			tmpOrder = (PosB - PosA).Mag() * (DirAngle + 1.0);
-			if(tmpOrder < MinAngle) //  && DirAngle < 1.0)
-			{
-				MinAngleIndex = currhitlink[j2];
-				MinAngle = tmpOrder;
-			}
-		}
-
-		if(MinAngleIndex > -0.5)
-		{
-			SelectedPair.first = MinAngleIndex;
-			SelectedPair.second = i2;
-			IterLinks.push_back(SelectedPair);
-		}
-	}	
-
-	edm::LogVerbatim("ArborInfo") <<"Init-Iter Size "<<InitLinks.size()<<" : "<<IterLinks.size()<<endl;
-
+    }	
+  
+  edm::LogError("ArborInfo") <<"Init-Iter Size "<<InitLinks.size()<<" : "<<IterLinks.size();
+  
 }
 
 void BranchBuilding(const float distSeedForMerge)
 {
-	edm::LogVerbatim("ArborInfo") <<"Build Branch"<<endl;
+	edm::LogProblem("ArborInfo") <<"Build Branch"<<endl;
 
 	int NLinks = IterLinks.size();
 	int NBranches = 0;
@@ -582,7 +687,7 @@ void BranchBuilding(const float distSeedForMerge)
 
 void BushMerging()
 {
-	edm::LogVerbatim("ArborInfo") <<"Merging branch"<<endl;
+	edm::LogProblem("ArborInfo") <<"Merging branch"<<endl;
 
 	int NBranch = LengthSortBranchCollection.size();
 	std::vector<int> currbranch; 
@@ -596,13 +701,13 @@ void BushMerging()
 
 void BushAbsorbing()
 {
-	edm::LogVerbatim("ArborInfo") <<"Absorbing Isolated branches"<<endl;
+	edm::LogProblem("ArborInfo") <<"Absorbing Isolated branches"<<endl;
 }
 
 void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 {
 
-	edm::LogVerbatim("ArborInfo") <<"Try to Make CMS Cluster"<<endl;
+	edm::LogProblem("ArborInfo") <<"Try to Make CMS Cluster"<<endl;
 
 	int NBranches = LengthSortBranchCollection.size();
 	int NHitsInBranch = 0;
@@ -614,25 +719,27 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 		currBranch = LengthSortBranchCollection[i0];
 		NHitsInBranch = currBranch.size();
 
-		edm::LogVerbatim("ArborInfo") <<i0<<" th Track has "<<currBranch.size()<<" Hits "<<endl;
-		edm::LogVerbatim("ArborInfo") <<"Hits Index "<<endl; 
+		edm::LogProblem("ArborInfo") <<i0<<" th Track has "<<currBranch.size()<<" Hits "<<endl;
+		edm::LogProblem("ArborInfo") <<"Hits Index "<<endl; 
 
 		for(int j0 = 0; j0 < NHitsInBranch; j0++)
 		{
-			edm::LogVerbatim("ArborInfo") <<currBranch[j0]<<", ";
+			edm::LogProblem("ArborInfo") <<currBranch[j0]<<", ";
 
 			currHit = cleanedHits[currBranch[j0]];
 		}
 	}
 }	
 
-  std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, const float CellSize, const float LayerThickness, const float distSeedForMerge )
-{
+  std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, 
+					const float CellSize, 
+					const float LayerThickness, 
+					const float distSeedForMerge ) {
 	init(CellSize, LayerThickness);
 
 	HitsCleaning( std::move(inputHits) );
 	BuildInitLink();
-	InitLinks = LinkClean( cleanedHits, Links );
+	InitLinks = std::move( LinkClean( cleanedHits, Links ) );
 	
 	/*
 	HitsClassification(InitLinks);

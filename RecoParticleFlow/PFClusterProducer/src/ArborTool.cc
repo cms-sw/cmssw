@@ -160,7 +160,7 @@ float DisTPCBoundary( TVector3 Pos )
 	return Dis; 
 }
 
-std::vector<int>SortMeasure( std::vector<float> Measure, int ControlOrderFlag )
+std::vector<int> SortMeasure( std::vector<float> Measure, int ControlOrderFlag )
 {
 
 	std::vector<int> objindex;
