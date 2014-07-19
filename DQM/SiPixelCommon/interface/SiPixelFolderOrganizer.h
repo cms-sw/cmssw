@@ -24,8 +24,8 @@ class SiPixelFolderOrganizer {
   
  public:
 
-  /// Constructor
-  SiPixelFolderOrganizer();
+  /// Constructor - getStore should be called false from multi-thread DQM applications
+  SiPixelFolderOrganizer(bool getStore = true);
 
   /// Destructor
   virtual ~SiPixelFolderOrganizer();
@@ -34,15 +34,17 @@ class SiPixelFolderOrganizer {
   //type is: BPIX  mod=0, lad=1, lay=2, phi=3, 
   //         FPIX  mod=0, blade=4, disc=5, ring=6
   bool setModuleFolder(const uint32_t& rawdetid=0, int type=0, bool isUpgrade=false);
+  bool setModuleFolder(DQMStore::IBooker&, const uint32_t& rawdetid=0, int type=0, bool isUpgrade=false);
   void getModuleFolder(const uint32_t& rawdetid, std::string& path, bool isUpgrade);
 
   /// Set folder name for a FED (used in the case of errors without detId)
   bool setFedFolder(const uint32_t FedId);
+  bool setFedFolder(DQMStore::IBooker&, const uint32_t FedId);
+
   
  private:
 
   std::string rootFolder;
-  std::string slash;
   DQMStore* dbe_;
 };
 #endif
