@@ -139,7 +139,7 @@ namespace cms
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
-       for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
+       for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
          unsigned int detId = (*it).detUnitId();
          if(detIds.insert(detId).second) {
            // The insert succeeded, so this detector element has not yet been processed.
@@ -214,7 +214,7 @@ namespace cms
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
       // Note that this is only used for creating digi-sim links (if configured to do so).
-      std::cout << "index offset, current hit count = " << crossingSimHitIndexOffset_[tag.encode()] << ", " << simHits->size() << std::endl;
+//       std::cout << "index offset, current hit count = " << crossingSimHitIndexOffset_[tag.encode()] << ", " << simHits->size() << std::endl;
       if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }
@@ -234,6 +234,7 @@ namespace cms
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
       // Note that this is only used for creating digi-sim links (if configured to do so).
+//       std::cout << "index offset, current hit count = " << crossingSimHitIndexOffset_[tag.encode()] << ", " << simHits->size() << std::endl;
       if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }

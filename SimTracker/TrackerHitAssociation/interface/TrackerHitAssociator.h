@@ -96,7 +96,7 @@ class TrackerHitAssociator {
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   
-  bool doPixel_, doStrip_, doTrackAssoc_;
+  bool doPixel_, doStrip_, doTrackAssoc_, assocHitbySimTrack_;
   
 };  
 

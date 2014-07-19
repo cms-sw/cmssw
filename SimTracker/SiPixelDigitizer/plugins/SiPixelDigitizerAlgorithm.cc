@@ -536,7 +536,8 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 //============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology *tTopo,
+                                         std::vector<PixelDigiSimLink>& simlinks,
+					 const TrackerTopology *tTopo,
                                          CLHEP::HepRandomEngine* engine) {
   
    // Pixel Efficiency moved from the constructor to this method because
@@ -944,7 +945,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
      // so the returned pixel index might be wrong (outside range).
      // We rely on the limits check below to fix this.
      // But remember whatever we do here THE CHARGE OUTSIDE THE ACTIVE
-     // PIXEL ARE IS LOST, it should not be collected.
+     // PIXEL AREA IS LOST, it should not be collected.
 
      // Convert the 2D points to pixel indices
      MeasurementPoint mp = topol->measurementPosition(PointRightUp ); //OK
@@ -981,7 +982,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
      x.clear(); // clear temporary integration array
      y.clear();
 
-     // First integrate cahrge strips in x
+     // First integrate charge strips in x
      int ix; // TT for compatibility
      for (ix=IPixLeftDownX; ix<=IPixRightUpX; ix++) {  // loop over x index
        float xUB, xLB, UpperBound, LowerBound;
