@@ -5,11 +5,12 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "EventFilter/Phase2TrackerRawToDigi/test/plugins/Phase2TrackerFEDTestAnalyzer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDChannel.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDRawChannelUnpacker.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDZSChannelUnpacker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <sstream>
-#include <string>
-#include <map>
 
 using namespace Phase2Tracker;
 using namespace std;
@@ -83,7 +84,7 @@ void Phase2TrackerFEDTestAnalyzer::analyze( const edm::Event& event, const edm::
       cout << " tracker header debug ------------------------" << endl;
       cout << " -------------------------------------------- " << endl;
       
-      Phase2TrackerHeader tr_header = buffer->trackerHeader();
+      Phase2TrackerFEDHeader tr_header = buffer->trackerHeader();
       cout << " Version  : " << hex << setw(2) << (int) tr_header.getDataFormatVersion() << endl;
       cout << " Mode     : " << hex << setw(2) << (int) tr_header.getDebugMode() << endl;
       cout << " Type     : " << hex << setw(2) << (int) tr_header.getEventType() << endl;
@@ -119,7 +120,7 @@ void Phase2TrackerFEDTestAnalyzer::analyze( const edm::Event& event, const edm::
       {
         for ( int icbc = 0; icbc < 16; icbc++ )
         {
-          const FEDChannel& channel = buffer->channel(ichan);
+          const Phase2TrackerFEDChannel& channel = buffer->channel(ichan);
           if(channel.length() > 0) 
           {
             cout << dec << " reading channel : " << icbc << " on FE " << ife;
