@@ -13,8 +13,6 @@
 //
 // Original Author:  Christophe Delaere
 //         Created:  Fri Dec 20 19:37:34 CET 2013
-// $Id$
-//
 //
 
 
