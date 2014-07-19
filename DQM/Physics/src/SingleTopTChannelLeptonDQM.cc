@@ -52,9 +52,13 @@ namespace SingleTopTChannelLepton {
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
-      edm::ParameterSet elecId=vcfg[1].getParameter<edm::ParameterSet>("electronId");
-      electronId_= iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
-      eidPattern_= elecId.getParameter<int>("pattern");
+      if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
+	edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
+	electronId_= iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
+	eidCutValue_= elecId.getParameter<double>("cutValue");
+      }
+
+
     }
     // pvExtras are opetional; they may be omitted or empty
     if(cfg.existsAs<edm::ParameterSet>("pvExtras")){
@@ -381,12 +385,6 @@ namespace SingleTopTChannelLepton {
        ------------------------------------------------------------
     */
     
-    /*
-    reco::BeamSpot beamSpot;
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    if( !event.getByToken("offlineBeamSpot",recoBeamSpotHandle)) return;
-    beamSpot = *recoBeamSpotHandle;
-    */
     
     // fill monitoring plots for electrons
     edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
@@ -394,12 +392,18 @@ namespace SingleTopTChannelLepton {
     edm::View<reco::PFCandidate>::const_iterator elec_it;
     reco::GsfElectronRef elec;
     
-    if( !event.getByToken(elecs_, elecs) ) return;
-    if( !event.getByToken(elecs_gsf_, elecs_gsf) ) return;
+    if( !event.getByToken(elecs_, elecs) ) 
+	return;
+    
+    if( !event.getByToken(elecs_gsf_, elecs_gsf) ) 
+	return;
+    
     // check availability of electron id
     edm::Handle<edm::ValueMap<float> > electronId; 
     if(!electronId_.isUninitialized()){
-      if( !event.getByToken(electronId_, electronId) ) return;
+      if( !event.getByToken(electronId_, electronId) ){ 
+	return;
+      }
     }
     // loop electron collection
     unsigned int eMult=0, eMultIso=0;
@@ -422,11 +426,14 @@ namespace SingleTopTChannelLepton {
 
 	if(!elecSelect_ || (*elecSelect_)(*elec_it)){
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
-
+	  
 	  double isolationChHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumChargedHadronPt);
 	  double isolationNeuHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumNeutralHadronEt);
 	  double isolationPhoton = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumPhotonEt);
-	  double PFisolationRel = (elec->pfIsolationVariables().sumChargedHadronPt+elec->pfIsolationVariables().sumNeutralHadronEt+elec->pfIsolationVariables().sumPhotonEt)/elec->pt(); 
+	  double el_ChHadIso = elec->pfIsolationVariables().sumChargedHadronPt;
+          double el_NeHadIso = elec->pfIsolationVariables().sumNeutralHadronEt;
+          double el_PhIso = elec->pfIsolationVariables().sumPhotonEt;
+	  double PFisolationRel = (el_ChHadIso + max(0.,el_NeHadIso + el_PhIso - 0.5*elec->pfIsolationVariables().sumPUPt) ) / elec->pt();
  	  
 	  if( eMult==0 ){
 	    // restrict to the leading electron
@@ -450,6 +457,7 @@ namespace SingleTopTChannelLepton {
     fill("elecMult_",    eMult   );
     fill("elecMultIso_", eMultIso);
     
+    
 
     /* 
        ------------------------------------------------------------
@@ -468,14 +476,6 @@ namespace SingleTopTChannelLepton {
     reco::Muon mu;
     
 
-    /*
-      if (muons_.label() == "muons"){
-      edm::Handle<edm::View<reco::Muon> > muons;
-      edm::View<reco::Muon>::const_iterator muon;
-      StringCutObjectSelector<reco::Muon> *muonSelect = new StringCutObjectSelector<reco::Muon>(muonSelect_); 
-      StringCutObjectSelector<reco::Muon> *muonIso = new StringCutObjectSelector<reco::Muon>(muonIso_);
-      }
-    */
     
     if( !event.getByToken(muons_, muons )) return;
     for(muonit = muons->begin(); muonit != muons->end(); ++muonit){    // for now, to use Reco::Muon need to substitute  muonit with muon
@@ -878,7 +878,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
     edm::Handle<edm::View<reco::Vertex>> vertex;
     if( !event.getByToken(vertex__, vertex) ) return;
     edm::View<reco::Vertex>::const_iterator pv = vertex->begin();
-    //if ((pv->isFake()) || (pv->ndof() < 4) || (abs(pv->z())>24.) || (pv->position().Rho() > 2.0))
     if(!(*vertexSelect_)(*pv)) return;
   }
   
@@ -916,7 +915,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
 	} else break;
       }
       if(type=="muons/pf" && PFMuonStep != 0){
-	//	cout << "MUON SELECTION" << endl;
         if(PFMuonStep->select(event, "muon")){ ++passed;
           selection_[key].second->fill(event, setup);
 	} else break;
@@ -930,7 +928,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
 	}
       }
       if(type=="jets/pf" ){
-	//	cout << "JET SELECTION" << endl;
 	nPFJetSteps++;
         if(PFJetSteps[nPFJetSteps] != NULL){
 	  if(PFJetSteps[nPFJetSteps]->select(event, setup)){ ++passed;
@@ -954,5 +951,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
     }
  }
 }
+
 
 
