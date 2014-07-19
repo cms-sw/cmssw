@@ -69,6 +69,7 @@ namespace Phase2Tracker {
 	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
 	buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
+        #ifdef EDM_ML_DEBUG
         std::ostringstream ss;
 	ss << " -------------------------------------------- " << endl;
 	ss << " buffer debug ------------------------------- " << endl;
@@ -112,6 +113,7 @@ namespace Phase2Tracker {
 	ss << " -------------------------------------------- " << endl;
 	ss << " Payload  ----------------------------------- " << endl;
 	ss << " -------------------------------------------- " << endl;
+	#endif
 
 	// loop channels
 	int ichan = 0;
@@ -125,9 +127,11 @@ namespace Phase2Tracker {
               // get fedid from cabling
               const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(fedIndex, ife));
               uint32_t detid = mod.getDetid();
+              #ifdef EDM_ML_DEBUG
               ss << dec << " id from cabling : " << detid << endl;
               ss << dec << " reading channel : " << icbc << " on FE " << ife;
 	      ss << dec << " with length  : " << (int) channel.length() << endl;
+	      #endif
 
               // container for this channel's digis
               std::vector<Phase2TrackerDigi> stripsTop;
@@ -142,22 +146,30 @@ namespace Phase2Tracker {
                   if (unpacker.stripIndex()%2) 
                   {
 		    stripsTop.push_back(Phase2TrackerDigi( (int) (STRIPS_PER_CBC*icbc + unpacker.stripIndex())/2, 0));
+                    #ifdef EDM_ML_DEBUG
                     ss << "t";
+	            #endif
                   }
                   else 
                   {
                     stripsBottom.push_back(Phase2TrackerDigi( (int) (STRIPS_PER_CBC*icbc + unpacker.stripIndex())/2, 0));
+                    #ifdef EDM_ML_DEBUG
                     ss << "b";
+	            #endif
                   }
 		} 
                 else
 		{ 
+                  #ifdef EDM_ML_DEBUG
                   ss << "_";
+	          #endif
 		}
 		unpacker++;
 	      }
+              #ifdef EDM_ML_DEBUG
 	      ss << endl;
               LogTrace("Phase2TrackerDigiProducer") << ss.str(); ss.clear(); ss.str("");
+	      #endif
 
               // store beginning and end of this digis for this detid and add this registry to the list
               // and store data

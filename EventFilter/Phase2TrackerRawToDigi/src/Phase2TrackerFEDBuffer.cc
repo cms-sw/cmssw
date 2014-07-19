@@ -253,9 +253,7 @@ namespace Phase2Tracker
     numberOfCBC_ = numberOfCBC();
     pointerToData_ = pointerToData();
     
-    if ( edm::isDebugEnabled() )
-    {
-      LogTrace("Phase2TrackerFEDBuffer")
+    LogTrace("Phase2TrackerFEDBuffer")
         << "[Phase2Tracker::Phase2TrackerHeader::"<<__func__<<"]: \n"
         <<" Tracker Header contents:\n"
         <<"  -- Data Format Version : " << uint32_t(dataFormatVersion_) << "\n"
@@ -265,7 +263,6 @@ namespace Phase2Tracker
         <<"  -- Data Type           : " << ( dataType_ ? "Real" : "Fake" ) << "\n"
         <<"  -- Glib Stat registers : " <<  std::hex << std::setw(16) << glibStatusCode_ << "\n"
         <<"  -- connected CBC       : " <<  std::dec << numberOfCBC_ << "\n";
-    }
   }
 
   uint8_t Phase2TrackerHeader::dataFormatVersion() const
