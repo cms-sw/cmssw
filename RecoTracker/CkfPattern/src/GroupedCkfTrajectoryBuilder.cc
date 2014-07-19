@@ -110,6 +110,14 @@ using namespace std;
 #endif
 =================================== */
 
+
+namespace {
+
+thread_local GroupedCkfTrajectoryBuilder::TempTrajectoryContainer work_;
+
+}
+
+
 GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
   BaseCkfTrajectoryBuilder(conf,
                            BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC),

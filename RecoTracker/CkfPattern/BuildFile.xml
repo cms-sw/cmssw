@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-fopenmp"/>
 <export>
   <lib   name="1"/>
 </export>
