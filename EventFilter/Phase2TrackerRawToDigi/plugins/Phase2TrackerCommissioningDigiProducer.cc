@@ -1,4 +1,4 @@
-#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerDigi_CondData_producer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerCommissioningDigiProducer.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
@@ -14,7 +14,7 @@ using namespace std;
 
 namespace Phase2Tracker {
 
-  Phase2TrackerDigi_CondData_producer::Phase2TrackerDigi_CondData_producer( const edm::ParameterSet& pset ) :
+  Phase2TrackerCommissioningDigiProducer::Phase2TrackerCommissioningDigiProducer( const edm::ParameterSet& pset ) :
     runNumber_(0),
     productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
@@ -22,23 +22,11 @@ namespace Phase2Tracker {
     produces< edm::DetSet<Phase2TrackerCommissioningDigi> >("ConditionData");
   }
   
-  Phase2TrackerDigi_CondData_producer::~Phase2TrackerDigi_CondData_producer()
+  Phase2TrackerCommissioningDigiProducer::~Phase2TrackerCommissioningDigiProducer()
   {
   }
   
-  void Phase2TrackerDigi_CondData_producer::beginJob( const edm::EventSetup & )
-  {
-  }
-  
-  void Phase2TrackerDigi_CondData_producer::beginRun( edm::Run & run, const edm::EventSetup & es)
-  {
-  }
-  
-  void Phase2TrackerDigi_CondData_producer::endJob()
-  {
-  }
-  
-  void Phase2TrackerDigi_CondData_producer::produce( edm::Event& event, const edm::EventSetup& es)
+  void Phase2TrackerCommissioningDigiProducer::produce( edm::Event& event, const edm::EventSetup& es)
   {
     // Retrieve FEDRawData collection
     edm::Handle<FEDRawDataCollection> buffers;
@@ -60,15 +48,15 @@ namespace Phase2Tracker {
         delete buffer;
 
         // print cond data for debug
-        LogTrace("Phase2TrackerDigi_CondData_producer") << "--- Condition data debug ---" << std::endl;
+        LogTrace("Phase2TrackerCommissioningDigiProducer") << "--- Condition data debug ---" << std::endl;
         std::map<uint32_t,uint32_t>::const_iterator it;
         for(it = cond_data.begin(); it != cond_data.end(); it++)
         {
-          LogTrace("Phase2TrackerDigi_CondData_producer") << std::hex << "key: " << it->first
+          LogTrace("Phase2TrackerCommissioningDigiProducer") << std::hex << "key: " << it->first
                                                     << std::hex << " value: " << it->second << " (hex) "
                                                     << std::dec               << it->second << " (dec) " << std::endl;
         }
-        LogTrace("Phase2TrackerDigi_CondData_producer") << "----------------------------" << std::endl;
+        LogTrace("Phase2TrackerCommissioningDigiProducer") << "----------------------------" << std::endl;
         // store it into digis
         edm::DetSet<Phase2TrackerCommissioningDigi> *cond_data_digi = new edm::DetSet<Phase2TrackerCommissioningDigi>(fedIndex);
         for(it = cond_data.begin(); it != cond_data.end(); it++)

@@ -15,7 +15,7 @@ process.source = cms.Source("NewEventStreamFileReader",
 #process.load('CalibTracker.SiStripESProducers.fake.Phase2TrackerConfigurableCablingESSource_cfi')
 process.load('TestbeamCabling_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiProducer_cfi')
-# process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigi_CondData_producer_cfi')
+# process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerCommissioningDigiProducer_cfi')
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myOutputFile.root')

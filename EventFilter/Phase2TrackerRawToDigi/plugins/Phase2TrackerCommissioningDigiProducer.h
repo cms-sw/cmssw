@@ -1,5 +1,5 @@
-#ifndef EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigi_CondData_producer_H
-#define EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigi_CondData_producer_H
+#ifndef EventFilter_Phase2TrackerRawToDigi_Phase2TrackerCommissioningDigiProducer_H
+#define EventFilter_Phase2TrackerRawToDigi_Phase2TrackerCommissioningDigiProducer_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,17 +21,14 @@
 
 namespace Phase2Tracker {
 
-  class Phase2TrackerDigi_CondData_producer : public edm::EDProducer
+  class Phase2TrackerCommissioningDigiProducer : public edm::EDProducer
   {
   public:
     /// constructor
-    Phase2TrackerDigi_CondData_producer( const edm::ParameterSet& pset );
+    Phase2TrackerCommissioningDigiProducer( const edm::ParameterSet& pset );
     /// default constructor
-    ~Phase2TrackerDigi_CondData_producer();
-    void beginJob( const edm::EventSetup & es);
-    void beginRun( edm::Run & run, const edm::EventSetup & es);
+    ~Phase2TrackerCommissioningDigiProducer();
     void produce( edm::Event& event, const edm::EventSetup& es );
-    void endJob();
     
   private:
     unsigned int runNumber_;
@@ -45,4 +42,4 @@ namespace Phase2Tracker {
     std::vector<Phase2TrackerCommissioningDigi> cond_data_digis_;
   };
 }
-#endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigi_CondData_producer_H
+#endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerCommissioningDigiProducer_H

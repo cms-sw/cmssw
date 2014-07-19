@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-FED_test_Analyzer = cms.EDAnalyzer("Phase2TrackerFED_test_Analyzer",
+FEDTestAnalyzer = cms.EDAnalyzer("Phase2TrackerFEDTestAnalyzer",
     InputLabel = cms.InputTag("source")
 )
 
