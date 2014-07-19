@@ -12,8 +12,8 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     UseTauolaPolarization = cms.bool(True),
     InputCards = cms.PSet(
     mdtau = cms.int32(0),
-    pjak2 = cms.int32(3),
-    pjak1 = cms.int32(3)
+    pjak2 = cms.int32(4),
+    pjak1 = cms.int32(4)
     )
     ),
     parameterSets = cms.vstring('Tauola')
