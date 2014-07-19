@@ -32,7 +32,9 @@ process.source = cms.Source("PoolSource",
     #/RelValTTbar/CMSSW_7_0_0_pre6-PRE_ST62_V8-v1/GEN-SIM-RECO
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/B627D32C-0B3C-E311-BBE6-0026189438E6.root',
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/72477A84-F93B-E311-BF63-003048FFD720.root',
-    '/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/12A06D7A-F93B-E311-AA64-003048678BEA.root'
+    #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/12A06D7A-F93B-E311-AA64-003048678BEA.root'
+        #    '/store/relval/CMSSW_7_1_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/48ED95A2-66AA-E311-9865-02163E00E5AE.root'
+    '/store/relval/CMSSW_7_1_0_pre9/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V11-v1/00000/90D92DC6-67F0-E311-8D2E-0025905A613C.root'
     )
 )
 
@@ -67,8 +69,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 ## load jet corrections
-process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-process.prefer("ak4PFL2L3")
+#process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
+#process.prefer("ak4PFL2L3")
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
@@ -88,7 +90,7 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 
 ## path definitions
 process.p      = cms.Path(
-    process.simpleEleId70cIso          *
+#    process.simpleEleId70cIso          *
     process.DiMuonDQM                  +
     process.DiElectronDQM              +
     process.ElecMuonDQM                +
