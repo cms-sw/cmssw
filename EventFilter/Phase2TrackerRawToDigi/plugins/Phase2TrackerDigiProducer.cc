@@ -5,6 +5,10 @@
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDChannel.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDRawChannelUnpacker.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDZSChannelUnpacker.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -81,7 +85,7 @@ namespace Phase2Tracker {
 	ss << " -------------------------------------------- " << endl;
         LogTrace("Phase2TrackerDigiProducer") << ss.str(); ss.clear(); ss.str("");
 
-	Phase2TrackerHeader tr_header = buffer->trackerHeader();
+	Phase2TrackerFEDHeader tr_header = buffer->trackerHeader();
 	ss << " Version  : " << hex << setw(2) << (int) tr_header.getDataFormatVersion() << endl;
 	ss << " Mode     : " << hex << setw(2) << tr_header.getDebugMode() << endl;
 	ss << " Type     : " << hex << setw(2) << (int) tr_header.getEventType() << endl;
@@ -121,7 +125,7 @@ namespace Phase2Tracker {
 	{
 	  for ( int icbc = 0; icbc < MAX_CBC_PER_FE; icbc++ )
 	  {
-	    const FEDChannel& channel = buffer->channel(ichan);
+	    const Phase2TrackerFEDChannel& channel = buffer->channel(ichan);
 	    if(channel.length() > 0)
 	    {
               // get fedid from cabling
