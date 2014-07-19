@@ -5,11 +5,21 @@
 #include <iomanip>
 #include <ostream>
 #include <iostream>
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   // TODO: set this in a common include file.
   // see DataFormats/Phase2TrackerCommon/interface/Constants.h
+
+  // -------------------- FED ids --------------------
+
+  static const uint16_t FED_ID_MIN     = static_cast<uint16_t>( FEDNumbering::MINSiStripFEDID);
+  static const uint16_t FED_ID_MAX     = static_cast<uint16_t>( FEDNumbering::MAXSiStripFEDID);
+  static const uint16_t CMS_FED_ID_MAX = static_cast<uint16_t>( FEDNumbering::MAXFEDID);
+  static const uint16_t NUMBER_OF_FEDS = static_cast<uint16_t>( FED_ID_MAX - FED_ID_MIN + 1 );
+
+  // Assumptions for phase 2
 
   static const int MAX_FE_PER_FED = 16;
   static const int MAX_CBC_PER_FE = 16;
@@ -17,7 +27,11 @@ namespace sistrip {
   static const int STRIPS_PADDING = 2;
   static const int TRIGGER_SIZE = 0; 
 
+  // definition
+
   static const uint8_t INVALID=0xFF;
+
+  // utils
 
   inline void printNibbleValue(uint8_t value, std::ostream& os)
   { 
@@ -193,7 +207,7 @@ namespace sistrip {
     return data;
   }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 
 #endif // } end def utils
 

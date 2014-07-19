@@ -4,7 +4,7 @@
 #include <cstring>
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   //
   // Constants
@@ -125,7 +125,7 @@ namespace sistrip {
 
   // End of method definitions }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 
 #endif // } end def EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFEDDAQHeader_H
 

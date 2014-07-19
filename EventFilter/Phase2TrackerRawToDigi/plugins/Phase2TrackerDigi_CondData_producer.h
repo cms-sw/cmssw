@@ -11,17 +11,15 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   class Phase2TrackerDigi_CondData_producer : public edm::EDProducer
   {
@@ -38,7 +36,6 @@ namespace sistrip {
   private:
     unsigned int runNumber_;
     edm::EDGetTokenT<FEDRawDataCollection> token_;
-    const SiStripFedCabling * cabling_;
     uint32_t cacheId_;
     DetIdCollection detids_;
 

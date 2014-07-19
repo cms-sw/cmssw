@@ -2,13 +2,12 @@
 #include <ostream>
 #include <memory>
 #include <cstring>
-#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace sistrip
+namespace Phase2Tracker
 {
 
   // implementation of Phase2TrackerFEDBuffer
@@ -141,7 +140,7 @@ namespace sistrip
       if (bufferDiff <= 0)
       {
         std::ostringstream ss;
-        ss << "[sistrip::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
+        ss << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
         ss << "FED Buffer Size does not match data => missing condition data? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ + bufferDiff << " bytes" << "\n";
@@ -156,7 +155,7 @@ namespace sistrip
       if (bufferDiff != 0)
       {
         std::ostringstream ss;
-        ss << "[sistrip::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
+        ss << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
         ss << "FED Buffer Size does not match data => corrupted buffer? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ + bufferDiff << " bytes" << "\n";
@@ -201,7 +200,7 @@ namespace sistrip
         // final check: cdata size == size
         if(cdata.size()!=size) {
           std::ostringstream ss;
-          ss << "[sistrip::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
+          ss << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
           ss << "Number of condition data does not match the announced value!"<< "\n";
           ss << "Expected condition data Size " << size << " entries" << "\n";
           ss << "Computed condition data Size " << cdata.size() << " entries" << "\n";
@@ -257,7 +256,7 @@ namespace sistrip
     if ( edm::isDebugEnabled() )
     {
       LogTrace("Phase2TrackerFEDBuffer")
-        << "[sistrip::Phase2TrackerHeader::"<<__func__<<"]: \n"
+        << "[Phase2Tracker::Phase2TrackerHeader::"<<__func__<<"]: \n"
         <<" Tracker Header contents:\n"
         <<"  -- Data Format Version : " << uint32_t(dataFormatVersion_) << "\n"
         <<"  -- Debug Level         : " << debugMode_ << "\n"
@@ -275,7 +274,7 @@ namespace sistrip
     if (Version != 1)
     {
       std::ostringstream ss;
-      ss << "[sistrip::Phase2TrackerHeader::"<<__func__<<"] ";
+      ss << "[Phase2Tracker::Phase2TrackerHeader::"<<__func__<<"] ";
       ss << "Invalid Data Format Version in Traker Header : ";
       printHex(&header_first_word_,1,ss);
       throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
@@ -298,7 +297,7 @@ namespace sistrip
         return READ_MODE(CBC_ERROR);
       default: // else create Exception
         std::ostringstream ss;
-        ss << "[sistrip::Phase2TrackerHeader::"<<__func__<<"] ";
+        ss << "[Phase2Tracker::Phase2TrackerHeader::"<<__func__<<"] ";
         ss << "Invalid Header Format in Traker Header : ";
         printHex(&header_first_word_,1,ss);
         throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
@@ -326,7 +325,7 @@ namespace sistrip
         return FEDReadoutMode(READOUT_MODE_ZERO_SUPPRESSED);
       default: // else create Exception
         std::ostringstream ss;
-        ss << "[sistrip::Phase2TrackerHeader::"<<__func__<<"] ";
+        ss << "[Phase2Tracker::Phase2TrackerHeader::"<<__func__<<"] ";
         ss << "Invalid Readout Mode in Traker Header : ";
         printHex(&header_first_word_,1,ss);
         throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
@@ -448,4 +447,4 @@ namespace sistrip
     return &trackerHeader_[trackerHeaderSize_];
   }
 
-}  // end of sistrip namespace
+}  // end of Phase2Tracker namespace
