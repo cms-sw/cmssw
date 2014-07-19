@@ -96,7 +96,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring tr
 	}
 	Nhits++;
       }
-      // std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+      std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
     } else {
       theEvent.getByLabel(tag_hits, simHits);
       for (std::vector<PSimHit>::const_iterator isim = simHits->begin();
@@ -112,7 +112,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring tr
 	}
 	Nhits++;
       }
-      // std::cout << "simHits from prompt collections; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+      std::cout << "simHits from prompt collections; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
     }
   }
 }
@@ -139,11 +139,11 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 
   // Get the vectors of simtrackIDs and simHit indices associated with this rechit
   associateHitId(thit, simtrackid, &simhitCFPos);
-  // std::cout << "recHit subdet, detID = " << detid.subdetId() << ", " << detID << ", (bnch, evt, trk) = ";
+  std::cout << "recHit subdet, detID = " << detid.subdetId() << ", " << detID << ", (bnch, evt, trk) = ";
   for (size_t i=0; i<simtrackid.size(); ++i)
-  //   std::cout << ", (" << simtrackid[i].second.bunchCrossing() << ", "
-  // 	      << simtrackid[i].second.event() << ", " << simtrackid[i].first << ")";
-  // std::cout << std::endl; 
+    std::cout << ", (" << simtrackid[i].second.bunchCrossing() << ", "
+  	      << simtrackid[i].second.event() << ", " << simtrackid[i].first << ")";
+  std::cout << std::endl; 
 
   // Get the vector of simHits associated with this rechit
 
@@ -162,10 +162,10 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	  const PSimHit& theSimHit = (it->second)[theSimHitIndex];
 	  result.push_back(theSimHit);
 
-          // std::cout << "by CFpos, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
-	  // 	    << ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
-	  // 	    << "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
-	  // 	    << ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
+          std::cout << "by CFpos, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
+	  	    << ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
+	  	    << "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
+	  	    << ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
 	}
       }
     }
@@ -181,8 +181,8 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       const PSimHit& ihit = *simHitIter;
       unsigned int simHitid = ihit.trackId();
       EncodedEventId simHiteid = ihit.eventId();
-      // std::cout << "by simTk, simHit, process = " << ihit.processType() << " (" << ihit.eventId().bunchCrossing()
-      // 		<< ", " << ihit.eventId().event() << ", " << ihit.trackId() << ")";
+      std::cout << "by simTk, simHit, process = " << ihit.processType() << " (" << ihit.eventId().bunchCrossing()
+      		<< ", " << ihit.eventId().event() << ", " << ihit.trackId() << ")";
 	
       for(size_t i=0; i<simtrackid.size();i++) {
 	if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second) {
@@ -190,12 +190,12 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 // 	if(simHitid == simtrackid[i].first && simHiteid.bunchCrossing() == simtrackid[i].second.bunchCrossing()) {
 // 	    	cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 //                   << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl;
-	  // std::cout << " matches";
+	  std::cout << " matches";
 	  result.push_back(ihit);
 	  break;
 	}
       }
-      // std::cout << std::endl;
+      std::cout << std::endl;
     }
 
   }else{
