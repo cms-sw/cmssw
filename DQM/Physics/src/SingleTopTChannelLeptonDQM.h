@@ -13,7 +13,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -117,25 +116,28 @@ namespace SingleTopTChannelLepton {
     ///  6: passes conversion rejection and Isolation
     ///  7: passes the whole selection
     /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-    //int eidPattern_;
-    //the cut for the MVA Id                                                                                                                               
-    double eidCutValue_;
+    int eidPattern_;
     /// extra isolation criterion on electron
+    //    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     std::string elecIso_;
     /// extra selection on electrons
+    //StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
     std::string elecSelect_;
     
     /// extra selection on primary vertices; meant to investigate the pile-up effect
     StringCutObjectSelector<reco::Vertex>* pvSelect_;
     
     /// extra isolation criterion on muon
+    //StringCutObjectSelector<reco::Muon>* muonIso_;
     std::string muonIso_;
     /// extra selection on muons
+    //StringCutObjectSelector<reco::Muon>* muonSelect_;
     std::string muonSelect_;
 
     /// jetCorrector
     std::string jetCorrector_;
     /// jetID as an extra selection type 
+    //    edm::InputTag jetIDLabel_;
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
 
     /// extra jetID selection on calo jets
@@ -271,6 +273,7 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer  {
 
  private:
   /// trigger table
+  //  edm::InputTag triggerTable_;
   edm::EDGetTokenT<edm::TriggerResults> triggerTable__;
 
   /// trigger paths
@@ -310,4 +313,3 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer  {
 };
 
 #endif
-
