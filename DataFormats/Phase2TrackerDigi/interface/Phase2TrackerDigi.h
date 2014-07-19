@@ -1,5 +1,5 @@
-#ifndef PHASE2TRACKERDIGI_H
-#define PHASE2TRACKERDIGI_H
+#ifndef DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H
+#define DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H
 
 #include <stdint.h>
 #include <utility>
@@ -57,4 +57,4 @@ inline std::ostream & operator<<(std::ostream & o, const Phase2TrackerDigi& digi
   return o << " " << digi.channel();
 }
 
-#endif // PHASE2TRACKERDIGI_H
+#endif // DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H

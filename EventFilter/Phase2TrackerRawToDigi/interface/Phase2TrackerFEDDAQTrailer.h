@@ -59,14 +59,14 @@ namespace Phase2Tracker {
       const uint8_t* data() const;
 
       // setters
-      FEDDAQTrailer& setEventLengthIn64BitWords(
+      void setEventLengthIn64BitWords(
                                       const uint32_t eventLengthIn64BitWords);
-      FEDDAQTrailer& setCRC(const uint16_t crc);
-      FEDDAQTrailer& setSLinkTransmissionErrorBit(const bool bitSet);
-      FEDDAQTrailer& setBadSourceIDBit(const bool bitSet);
-      FEDDAQTrailer& setSLinkCRCErrorBit(const bool bitSet);
-      FEDDAQTrailer& setEventStatusNibble(const uint8_t eventStatusNibble);
-      FEDDAQTrailer& setTTSBits(const FEDTTSBits ttsBits);
+      void setCRC(const uint16_t crc);
+      void setSLinkTransmissionErrorBit(const bool bitSet);
+      void setBadSourceIDBit(const bool bitSet);
+      void setSLinkCRCErrorBit(const bool bitSet);
+      void setEventStatusNibble(const uint8_t eventStatusNibble);
+      void setTTSBits(const FEDTTSBits ttsBits);
       FEDDAQTrailer(const uint32_t eventLengthIn64BitWords,
                     const uint16_t crc = 0,
                     const FEDTTSBits ttsBits = TTS_READY,

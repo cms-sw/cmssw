@@ -165,7 +165,7 @@ namespace Phase2Tracker
 
   }
   
-  std::map<uint32_t,uint32_t> Phase2TrackerFEDBuffer::conditionData()
+  std::map<uint32_t,uint32_t> Phase2TrackerFEDBuffer::conditionData() const
   {
       std::map<uint32_t,uint32_t> cdata;
       // check if there is condition data

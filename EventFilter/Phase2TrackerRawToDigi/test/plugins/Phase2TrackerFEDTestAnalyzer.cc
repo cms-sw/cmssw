@@ -3,7 +3,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
-#include "EventFilter/Phase2TrackerRawToDigi/test/plugins/Phase2TrackerFED_test_Analyzer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/test/plugins/Phase2TrackerFEDTestAnalyzer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,10 +16,10 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 // 
-Phase2TrackerFED_test_Analyzer::Phase2TrackerFED_test_Analyzer( const edm::ParameterSet& pset )
+Phase2TrackerFEDTestAnalyzer::Phase2TrackerFEDTestAnalyzer( const edm::ParameterSet& pset )
 {
-  LogDebug("Phase2TrackerFED_test_Analyzer")
-    << "[Phase2TrackerFED_test_Analyzer::"
+  LogDebug("Phase2TrackerFEDTestAnalyzer")
+    << "[Phase2TrackerFEDTestAnalyzer::"
     << __func__ << "]"
     << "Constructing object...";
   token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
@@ -27,35 +27,35 @@ Phase2TrackerFED_test_Analyzer::Phase2TrackerFED_test_Analyzer( const edm::Param
 
 // -----------------------------------------------------------------------------
 // 
-Phase2TrackerFED_test_Analyzer::~Phase2TrackerFED_test_Analyzer() 
+Phase2TrackerFEDTestAnalyzer::~Phase2TrackerFEDTestAnalyzer() 
 {
-  LogDebug("Phase2TrackerFED_test_Analyzer")
-    << "[Phase2TrackerFED_test_Analyzer::"
+  LogDebug("Phase2TrackerFEDTestAnalyzer")
+    << "[Phase2TrackerFEDTestAnalyzer::"
     << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void Phase2TrackerFED_test_Analyzer::beginJob() 
+void Phase2TrackerFEDTestAnalyzer::beginJob() 
 {
-  LogDebug("Phase2TrackerFED_test_Analyzer")
-    << "[Phase2TrackerFED_test_Analyzer::"
+  LogDebug("Phase2TrackerFEDTestAnalyzer")
+    << "[Phase2TrackerFEDTestAnalyzer::"
     << __func__ << "]";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void Phase2TrackerFED_test_Analyzer::endJob() 
+void Phase2TrackerFEDTestAnalyzer::endJob() 
 {
-  LogDebug("Phase2TrackerFED_test_Analyzer")
-    << "[Phase2TrackerFED_test_Analyzer::"
+  LogDebug("Phase2TrackerFEDTestAnalyzer")
+    << "[Phase2TrackerFEDTestAnalyzer::"
     << __func__ << "]";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void Phase2TrackerFED_test_Analyzer::analyze( const edm::Event& event, const edm::EventSetup& setup ) 
+void Phase2TrackerFEDTestAnalyzer::analyze( const edm::Event& event, const edm::EventSetup& setup ) 
 {
   // Retrieve FEDRawData collection
   edm::Handle<FEDRawDataCollection> buffers;

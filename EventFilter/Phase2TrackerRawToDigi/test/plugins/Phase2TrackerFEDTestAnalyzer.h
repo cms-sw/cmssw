@@ -1,5 +1,5 @@
-#ifndef EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFED_test_Analyzer_H
-#define EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFED_test_Analyzer_H
+#ifndef EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFEDTestAnalyzer_H
+#define EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFEDTestAnalyzer_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,11 +10,11 @@
 #include <vector>
 
 /**
-   @class Phase2TrackerFED_test_Analyzer 
+   @class Phase2TrackerFEDTestAnalyzer 
    @brief Analyzes contents of FED_test_ collection
 */
 
-class Phase2TrackerFED_test_Analyzer : public edm::EDAnalyzer {
+class Phase2TrackerFEDTestAnalyzer : public edm::EDAnalyzer {
   
  public:
   
@@ -23,8 +23,8 @@ class Phase2TrackerFED_test_Analyzer : public edm::EDAnalyzer {
   typedef std::vector<uint16_t> Channels;
   typedef std::map<uint16_t,Channels> ChannelsMap;
 
-  Phase2TrackerFED_test_Analyzer( const edm::ParameterSet& );
-  ~Phase2TrackerFED_test_Analyzer();
+  Phase2TrackerFEDTestAnalyzer( const edm::ParameterSet& );
+  ~Phase2TrackerFEDTestAnalyzer();
 
   void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
@@ -36,5 +36,5 @@ class Phase2TrackerFED_test_Analyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<FEDRawDataCollection> token_;
 };
 
-#endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFED_test_Analyzer_H
+#endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFEDTestAnalyzer_H
 

@@ -50,10 +50,10 @@ namespace Phase2Tracker {
       explicit Phase2TrackerHeader(const uint8_t* headerPointer);
 
       // getters:
-      inline uint8_t getDataFormatVersion() { return dataFormatVersion_; }
-      inline READ_MODE getDebugMode()   { return debugMode_; }
+      inline uint8_t getDataFormatVersion() const { return dataFormatVersion_; }
+      inline READ_MODE getDebugMode() const { return debugMode_; }
 
-      inline uint8_t getEventType() { return eventType_; }
+      inline uint8_t getEventType() const { return eventType_; }
       inline FEDReadoutMode getReadoutMode() const { return readoutMode_; }
       inline uint8_t getConditionData() const { return conditionData_; }
       inline uint8_t getDataType() const { return dataType_; }
@@ -66,7 +66,7 @@ namespace Phase2Tracker {
       // get Front-End Status (16 bits) ==> 16 bool
       std::vector<bool> frontendStatus() const;
 
-      inline uint8_t getTrackerHeaderSize() { return trackerHeaderSize_; }
+      inline uint8_t getTrackerHeaderSize() const { return trackerHeaderSize_; }
 
       // CBC status bits, according to debug mode 
       // (empty, 1bit per CBC, 8bits per CBC)
@@ -91,8 +91,8 @@ namespace Phase2Tracker {
       uint64_t glibStatusCode() const;
       // number of CBC chips (8 bits)
       uint16_t numberOfCBC() const;
-      // get tracker size (see function) and pointer to end of header
-      const uint8_t* pointerToData() ;
+      // get tracker size (see function) and pointer to end of header. Also sets the TrackerHeaderSize.
+      const uint8_t* pointerToData();
  
     private:
       void init();
@@ -123,13 +123,13 @@ namespace Phase2Tracker {
   {
     public:
       FEDChannel(const uint8_t*const data, const size_t offset,
-                 const uint16_t length);
+                 const uint16_t length): data_(data), offset_(offset), length_(length) {}
 
       //gets length from first 2 bytes (assuming normal FED channel)
       FEDChannel(const uint8_t*const data, const size_t offset);
-      uint16_t length() const;
-      const uint8_t* data() const;
-      size_t offset() const;
+      uint16_t length() const { return length_; }
+      const uint8_t* data() const { return data_; }
+      size_t offset() const { return offset_; }
       uint16_t cmMedian(const uint8_t apvIndex) const;
     private:
       friend class Phase2TrackerFEDBuffer;
@@ -139,37 +139,6 @@ namespace Phase2Tracker {
       size_t offset_;
       uint16_t length_;
   }; // end FEDChannel class
-
-  // FEDChannel methods definitions {
-
-/*  XXX: remove deprecated. length_ is not read any more. 
-  inline FEDChannel::FEDChannel(const uint8_t*const data, const size_t offset)
-    : data_(data), offset_(offset)
-  { 
-    length_ = ( data_[(offset_)^7] + (data_[(offset_+1)^7] << 8) ); 
-  }
-*/
-
-  inline FEDChannel::FEDChannel(const uint8_t*const data, const size_t offset,
-                                const uint16_t length)
-    : data_(data), offset_(offset), length_(length)
-  { }
-
-  inline uint16_t FEDChannel::length() const
-  { return length_; }
-
-/* XXX: remove for same reasons as above. length is not part of the channel
-  inline uint8_t FEDChannel::packetCode() const
-  { return data_[(offset_+2)^7]; }
-*/
-
-  inline const uint8_t* FEDChannel::data() const
-  { return data_; }
-
-  inline size_t FEDChannel::offset() const
-  { return offset_; }
-
-  // end of FEDChannel methods definitions }
 
 ////////////////////////////////////////////////////////////////////////////////
 //                         Phase2TrackerFEDRawChannelUnpacker
@@ -181,9 +150,9 @@ namespace Phase2Tracker {
   {
   public:
     Phase2TrackerFEDRawChannelUnpacker(const FEDChannel& channel);
-    uint8_t stripIndex();
-    bool stripOn();
-    bool hasData();
+    uint8_t stripIndex() const { return currentStrip_; }
+    bool stripOn() const { return bool((currentWord_>>bitInWord_)&0x1); }
+    bool hasData() const { return valuesLeft_; }
     Phase2TrackerFEDRawChannelUnpacker& operator ++ ();
     Phase2TrackerFEDRawChannelUnpacker& operator ++ (int);
   private:
@@ -203,21 +172,6 @@ namespace Phase2Tracker {
       currentWord_(channel.data()[currentOffset_^7]),
       bitInWord_(0)
   {
-  }
-
-  inline bool Phase2TrackerFEDRawChannelUnpacker::stripOn()
-  {
-    return bool((currentWord_>>bitInWord_)&0x1);
-  }
-
-  inline uint8_t Phase2TrackerFEDRawChannelUnpacker::stripIndex()
-  {
-    return currentStrip_;
-  }
-
-  inline bool Phase2TrackerFEDRawChannelUnpacker::hasData()
-  {
-    return valuesLeft_;
   }
 
   inline Phase2TrackerFEDRawChannelUnpacker& Phase2TrackerFEDRawChannelUnpacker::operator ++ ()
@@ -246,9 +200,9 @@ namespace Phase2Tracker {
   {
   public:
     Phase2TrackerFEDZSChannelUnpacker(const FEDChannel& channel);
-    uint8_t clusterIndex();
-    uint8_t clusterLength();
-    bool hasData();
+    uint8_t clusterIndex() const { return data_[currentOffset_^7]; }
+    uint8_t clusterLength() const {return data_[(currentOffset_+1)^7]; }
+    bool hasData() const { return valuesLeft_; }
     Phase2TrackerFEDZSChannelUnpacker& operator ++ ();
     Phase2TrackerFEDZSChannelUnpacker& operator ++ (int);
   private:
@@ -263,21 +217,6 @@ namespace Phase2Tracker {
       currentOffset_(channel.offset()),
       valuesLeft_(channel.length()/2)
   {
-  }
-
-  inline uint8_t Phase2TrackerFEDZSChannelUnpacker::clusterIndex()
-  {
-    return data_[currentOffset_^7];
-  }
-
-  inline uint8_t Phase2TrackerFEDZSChannelUnpacker::clusterLength()
-  {
-    return data_[(currentOffset_+1)^7];  
-  }
-
-  inline bool Phase2TrackerFEDZSChannelUnpacker::hasData()
-  {
-    return valuesLeft_;
   }
 
   inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator ++ ()
@@ -304,27 +243,27 @@ namespace Phase2Tracker {
       ~Phase2TrackerFEDBuffer();
 
       //dump buffer to stream
-      void dump(std::ostream& os) const;
+      void dump(std::ostream& os) const { printHex(buffer_,bufferSize_,os); }
 
       //methods to get parts of the buffer
-      FEDDAQHeader daqHeader() const;
-      FEDDAQTrailer daqTrailer() const;
-      size_t bufferSize() const;
-      Phase2TrackerHeader trackerHeader() const;
-      const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
-      std::map<uint32_t,uint32_t> conditionData();
+      FEDDAQHeader daqHeader() const { return daqHeader_; }
+      FEDDAQTrailer daqTrailer() const { return daqTrailer_; }
+      size_t bufferSize() const { return bufferSize_; }
+      Phase2TrackerHeader trackerHeader() const { return trackerHeader_; }
+      const FEDChannel& channel(const uint8_t internalFEDChannelNum) const { return channels_[internalFEDChannelNum]; }
+      std::map<uint32_t,uint32_t> conditionData() const;
 
       //methods to get info from DAQ header from FEDDAQHeader class
-      FEDDAQEventType daqEventType() const;
-      uint32_t daqLvl1ID() const;
-      uint16_t daqBXID() const;
-      uint16_t daqSourceID() const;
+      FEDDAQEventType daqEventType() const { return daqHeader_.eventType(); }
+      uint32_t daqLvl1ID() const { return daqHeader_.l1ID(); }
+      uint16_t daqBXID() const { return daqHeader_.bxID(); }
+      uint16_t daqSourceID() const { return daqHeader_.sourceID(); }
 
       //methods to get info from DAQ trailer from FEDDAQTrailer class
-      uint32_t daqEventLengthIn64bitWords() const;
-      uint32_t daqEventLengthInBytes() const;
-      uint16_t daqCRC() const;
-      FEDTTSBits daqTTSState() const;
+      uint32_t daqEventLengthIn64bitWords() const { return daqTrailer_.eventLengthIn64BitWords(); }
+      uint32_t daqEventLengthInBytes() const { return daqTrailer_.eventLengthInBytes(); }
+      uint16_t daqCRC() const { return daqTrailer_.crc(); }
+      FEDTTSBits daqTTSState() const { return daqTrailer_.ttsBits(); }
 
       //methods to get info from the tracker header using Phase2TrackerHeader class
       FEDReadoutMode readoutMode() const;
@@ -352,59 +291,6 @@ namespace Phase2Tracker {
       inline bool doCorruptBufferChecks() const { return true; } // FEDBuffer
 
   }; // end of FEDBuffer class
-
-  //// FEDBuffer methods definitions {
-
-  //dump buffer to stream
-  inline void Phase2TrackerFEDBuffer::dump(std::ostream& os) const
-  {
-    printHex(buffer_,bufferSize_,os);
-  }
-
-
-  // methods to get parts of the buffer
-  inline FEDDAQHeader Phase2TrackerFEDBuffer::daqHeader() const
-  { return daqHeader_; }
-
-  inline FEDDAQTrailer Phase2TrackerFEDBuffer::daqTrailer() const
-  { return daqTrailer_; }
-
-  inline size_t Phase2TrackerFEDBuffer::bufferSize() const
-  { return bufferSize_; }
-
-  inline Phase2TrackerHeader Phase2TrackerFEDBuffer::trackerHeader() const
-  { return trackerHeader_; }
-
-  inline const FEDChannel& Phase2TrackerFEDBuffer::channel(const uint8_t internalFEDChannelNum) const
-  { return channels_[internalFEDChannelNum]; }
-
-  // methods to get info from DAQ header uses FEDDAQHeader class
-  inline FEDDAQEventType Phase2TrackerFEDBuffer::daqEventType() const
-  { return daqHeader_.eventType(); }
-
-  inline uint32_t Phase2TrackerFEDBuffer::daqLvl1ID() const
-  { return daqHeader_.l1ID(); }
-
-  inline uint16_t Phase2TrackerFEDBuffer::daqBXID() const
-  { return daqHeader_.bxID(); }
-
-  inline uint16_t Phase2TrackerFEDBuffer::daqSourceID() const
-  { return daqHeader_.sourceID(); }
-
-  //methods to get info from DAQ trailer uses FEDDAQTrailer class
-  inline uint32_t Phase2TrackerFEDBuffer::daqEventLengthIn64bitWords() const
-  { return daqTrailer_.eventLengthIn64BitWords(); }
-
-  inline uint32_t Phase2TrackerFEDBuffer::daqEventLengthInBytes() const
-  { return daqTrailer_.eventLengthInBytes(); }
-
-  inline uint16_t Phase2TrackerFEDBuffer::daqCRC() const
-  { return daqTrailer_.crc(); }
-
-  inline FEDTTSBits Phase2TrackerFEDBuffer::daqTTSState() const
-  { return daqTrailer_.ttsBits(); }
-
-  // end of FEDBuffer methods definitions }
 
 } // end of Phase2Tracker namespace
 

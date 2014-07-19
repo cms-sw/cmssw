@@ -77,51 +77,45 @@ namespace Phase2Tracker {
     setSLinkCRCErrorBit(slinkCRCError);
   }
 
-  FEDDAQTrailer& FEDDAQTrailer::setEventLengthIn64BitWords(const uint32_t eventLengthIn64BitWords)
+  void FEDDAQTrailer::setEventLengthIn64BitWords(const uint32_t eventLengthIn64BitWords)
   {
     trailer_[4] = (eventLengthIn64BitWords & 0x000000FF);
     trailer_[5] = ( (eventLengthIn64BitWords & 0x0000FF00) >> 8);
     trailer_[6] = ( (eventLengthIn64BitWords & 0x00FF0000) >> 16);
-    return *this;
   }
 
-  FEDDAQTrailer& FEDDAQTrailer::setCRC(const uint16_t crc)
+  void FEDDAQTrailer::setCRC(const uint16_t crc)
   {
     trailer_[2] = (crc & 0x00FF);
     trailer_[3] = ( (crc >> 8) & 0x00FF );
-    return *this;
   }
 
-  FEDDAQTrailer& FEDDAQTrailer::setSLinkTransmissionErrorBit(const bool bitSet)
+  void FEDDAQTrailer::setSLinkTransmissionErrorBit(const bool bitSet)
   {
     if (bitSet) trailer_[1] |= 0x80;
     else trailer_[1] &= (~0x80);
-    return *this;
   }
 
-  FEDDAQTrailer& FEDDAQTrailer::setBadSourceIDBit(const bool bitSet)
+  void FEDDAQTrailer::setBadSourceIDBit(const bool bitSet)
   {
     if (bitSet) trailer_[1] |= 0x40;
     else trailer_[1] &= (~0x40);
-    return *this;
   }
-  FEDDAQTrailer& FEDDAQTrailer::setSLinkCRCErrorBit(const bool bitSet)
+
+  void FEDDAQTrailer::setSLinkCRCErrorBit(const bool bitSet)
   {
     if (bitSet) trailer_[0] |= 0x04;
     else trailer_[0] &= (~0x40);
-    return *this;
   }
 
-  FEDDAQTrailer& FEDDAQTrailer::setEventStatusNibble(const uint8_t eventStatusNibble)
+  void FEDDAQTrailer::setEventStatusNibble(const uint8_t eventStatusNibble)
   {
     trailer_[1] = ( (trailer_[1] & 0xF0) | (eventStatusNibble & 0x0F) );
-    return *this;
   }
 
-  FEDDAQTrailer& FEDDAQTrailer::setTTSBits(const FEDTTSBits ttsBits)
+  void FEDDAQTrailer::setTTSBits(const FEDTTSBits ttsBits)
   {
     trailer_[0] = ( (trailer_[0] & 0x0F) | (ttsBits & 0xF0) );
-    return *this;
   }
 
 
