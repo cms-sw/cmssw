@@ -31,7 +31,13 @@ class HLTDiMuonGlbTrkFilter : public HLTFilter {
   double m_minDR;
   double m_minPtMuon1;
   double m_minPtMuon2;
+  double m_maxEtaMuon;
+  double m_maxYDimuon;
   double m_minMass;
+  double m_maxMass;
+  int m_chargeOpt;
+  double m_maxDCAMuMu;
+  double m_maxdEtaMuMu;
   muon::SelectionType m_trkMuonId;
   bool m_saveTags;
 
