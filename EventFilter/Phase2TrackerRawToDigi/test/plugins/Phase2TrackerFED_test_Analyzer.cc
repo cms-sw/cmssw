@@ -1,12 +1,8 @@
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "EventFilter/Phase2TrackerRawToDigi/test/plugins/Phase2TrackerFED_test_Analyzer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +11,7 @@
 #include <string>
 #include <map>
 
-using namespace sistrip;
+using namespace Phase2Tracker;
 using namespace std;
 
 // -----------------------------------------------------------------------------
@@ -69,14 +65,14 @@ void Phase2TrackerFED_test_Analyzer::analyze( const edm::Event& event, const edm
 
   // Analyze strip tracker FED buffers in data
   size_t fedIndex;
-  for( fedIndex=0; fedIndex<sistrip::CMS_FED_ID_MAX; ++fedIndex )
+  for( fedIndex=0; fedIndex<Phase2Tracker::CMS_FED_ID_MAX; ++fedIndex )
   { 
     const FEDRawData& fed = buffers->FEDData(fedIndex);
-    if(fed.size()!=0 && fedIndex >= sistrip::FED_ID_MIN && fedIndex <= sistrip::FED_ID_MAX)
+    if(fed.size()!=0 && fedIndex >= Phase2Tracker::FED_ID_MIN && fedIndex <= Phase2Tracker::FED_ID_MAX)
     {
       // construct buffer
-      sistrip:: Phase2TrackerFEDBuffer* buffer = 0;
-      buffer = new sistrip::Phase2TrackerFEDBuffer(fed.data(),fed.size());
+      Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
+      buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
       cout << " -------------------------------------------- " << endl;
       cout << " buffer debug ------------------------------- " << endl;
@@ -117,9 +113,6 @@ void Phase2TrackerFED_test_Analyzer::analyze( const edm::Event& event, const edm
       cout << " Payload  ----------------------------------- " << endl;
       cout << " -------------------------------------------- " << endl;
 
-      // create digis containers
-      std::vector<SiStripRawDigi> strips;
-
       // loop channels
       int ichan = 0;
       for ( int ife = 0; ife < 16; ife++ ) 
@@ -134,12 +127,7 @@ void Phase2TrackerFED_test_Analyzer::analyze( const edm::Event& event, const edm
             Phase2TrackerFEDRawChannelUnpacker unpacker = Phase2TrackerFEDRawChannelUnpacker(channel);
             while (unpacker.hasData())
             {
-              strips.push_back(SiStripRawDigi( static_cast<uint16_t>(unpacker.stripOn()) ));
-              if(unpacker.stripOn())
-              { std::cout << "1";
-              } else
-              { std::cout << "_";
-              }
+	      std::cout << ( unpacker.stripOn() ? "1" : "_" );
               unpacker++;
             }
             std::cout << std::endl;

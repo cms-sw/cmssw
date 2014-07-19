@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -11,13 +12,12 @@
 
 using namespace std;
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   Phase2TrackerDigi_CondData_producer::Phase2TrackerDigi_CondData_producer( const edm::ParameterSet& pset ) :
     runNumber_(0),
     productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
-    cacheId_(0)
   {
     produces< edm::DetSet<Phase2TrackerCommissioningDigi> >("ConditionData");
   }
@@ -46,14 +46,14 @@ namespace sistrip {
 
     // Analyze strip tracker FED buffers in data
     size_t fedIndex;
-    for( fedIndex=0; fedIndex<sistrip::CMS_FED_ID_MAX; ++fedIndex )
+    for( fedIndex=0; fedIndex<Phase2Tracker::CMS_FED_ID_MAX; ++fedIndex )
     {
       const FEDRawData& fed = buffers->FEDData(fedIndex);
-      if(fed.size()!=0 && fedIndex >= sistrip::FED_ID_MIN && fedIndex <= sistrip::FED_ID_MAX)
+      if(fed.size()!=0 && fedIndex >= Phase2Tracker::FED_ID_MIN && fedIndex <= Phase2Tracker::FED_ID_MAX)
       {
 	// construct buffer
-	sistrip:: Phase2TrackerFEDBuffer* buffer = 0;
-	buffer = new sistrip::Phase2TrackerFEDBuffer(fed.data(),fed.size());
+	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
+	buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
         // fetch condition data
         std::map<uint32_t,uint32_t> cond_data = buffer->conditionData();

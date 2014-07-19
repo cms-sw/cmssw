@@ -4,9 +4,8 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +16,7 @@
 
 using namespace std;
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   Phase2TrackerDigiProducer::Phase2TrackerDigiProducer( const edm::ParameterSet& pset ) :
     runNumber_(0),
@@ -61,14 +60,14 @@ namespace sistrip {
 
     // Analyze strip tracker FED buffers in data
     size_t fedIndex;
-    for( fedIndex = sistrip::FED_ID_MIN; fedIndex < sistrip::CMS_FED_ID_MAX; ++fedIndex )
+    for( fedIndex = Phase2Tracker::FED_ID_MIN; fedIndex < Phase2Tracker::CMS_FED_ID_MAX; ++fedIndex )
     {
       const FEDRawData& fed = buffers->FEDData(fedIndex);
       if(fed.size()!=0)
       {
 	// construct buffer
-	sistrip:: Phase2TrackerFEDBuffer* buffer = 0;
-	buffer = new sistrip::Phase2TrackerFEDBuffer(fed.data(),fed.size());
+	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
+	buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
         std::ostringstream ss;
 	ss << " -------------------------------------------- " << endl;

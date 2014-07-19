@@ -4,7 +4,7 @@
 #include <cstring>
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   //
   // Constants
@@ -97,7 +97,7 @@ namespace sistrip {
   inline void FEDDAQHeader::print(std::ostream& os) const
   { printHex(header_,8,os); }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 
 #endif // } end def EventFilter_Phase2TrackerRawToDigi_Phase2TrackerFEDDAQHeader_H
 

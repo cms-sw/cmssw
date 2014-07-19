@@ -2,7 +2,7 @@
 #include <ostream>
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   std::ostream& operator<<(std::ostream& os, const FEDDAQEventType& value)
   {
@@ -98,5 +98,5 @@ namespace sistrip {
     setSourceID(sourceID);
   }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 

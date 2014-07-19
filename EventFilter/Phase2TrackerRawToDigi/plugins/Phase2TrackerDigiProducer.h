@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   class Phase2TrackerDigiProducer : public edm::EDProducer
   {

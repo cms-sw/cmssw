@@ -4,9 +4,6 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/Phase2TrackerDigi"/>
-<use   name="DataFormats/SiStripCommon"/>
-<use   name="DataFormats/SiStripDigi"/>
-<use   name="CalibTracker/SiStripESProducers"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

@@ -13,7 +13,7 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQTrailer.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   // classes defined below on this file:
   // Registry
@@ -406,7 +406,7 @@ namespace sistrip {
 
   // end of FEDBuffer methods definitions }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 
 #endif // } end def EventFilter_Phase2TrackerRawToDigi_Phase2TrackerPhase2TrackerFEDBuffer_H
 
