@@ -11,3 +11,7 @@ from IOMC.RandomEngine.IOMC_cff import *
 #an "intermediate layer" remains, just in case somebody is using it...
 # from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from DQMServices.Core.DQMStore_cfg import *
+
+# This needs to be taken out as soon as reading SLHC11 files is no longer required.
+# Added 05/Jul/2014 by Mark Grimes as a horrible temporary hack.
+from SimTracker.SiPixelDigitizer.RemapDetIdService_cfi import RemapDetIdService
