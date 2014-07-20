@@ -9,23 +9,21 @@ namespace l1t {
   class CaloCluster : public L1Candidate {
     public:
       enum ClusterFlag{
-        PASS_THRES_SEED     = 0,
-        PASS_FILTER_CLUSTER = 1,
-        TRIM_NW             = 2,
-        TRIM_N              = 3,
-        TRIM_NE             = 4,
-        TRIM_E              = 5,
-        TRIM_SE             = 7,
-        TRIM_S              = 8,
-        TRIM_SW             = 9,
-        TRIM_W              = 10,
+        INCLUDE_SEED        = 0,
+        INCLUDE_NW          = 1,
+        INCLUDE_N           = 2,
+        INCLUDE_NE          = 3,
+        INCLUDE_E           = 4,
+        INCLUDE_SE          = 5,
+        INCLUDE_S           = 6,
+        INCLUDE_SW          = 7,
+        INCLUDE_W           = 8,
+        INCLUDE_NN          = 9,
+        INCLUDE_SS          = 10,
         TRIM_LEFT           = 11,
-        TRIM_RIGHT          = 12,
-        EXT_UP              = 13,
-        EXT_DOWN            = 14,
-        IS_SECONDARY        = 15,
-        MERGE_UPDOWN        = 16, // 0=up, 1=down
-        MERGE_LEFTRIGHT     = 17 // 0=left, 1=right
+        IS_SECONDARY        = 12,
+        MERGE_UPDOWN        = 13, // 0=up, 1=down
+        MERGE_LEFTRIGHT     = 14 // 0=left, 1=right
       };
 
     public:
@@ -68,7 +66,7 @@ namespace l1t {
 
     private:
       // Summary of clustering outcomes
-      int m_clusterFlags; // see ClusterFlag bits (17 bits, will evolve)
+      int m_clusterFlags; // see ClusterFlag bits (15 bits, will evolve)
 
       // Energies
       int m_hwPtEm;
