@@ -194,8 +194,8 @@ def cust_2023HGCal(process):
             process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
             process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
             process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
-            if hasattr(process,'ecalDrivenElectronSeeds'):
-                process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+            #if hasattr(process,'ecalDrivenElectronSeeds'):
+            #    process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
@@ -257,8 +257,8 @@ def cust_2023HGCalMuon(process):
             process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
             process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
             process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
-            if hasattr(process,'ecalDrivenElectronSeeds'):
-                process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+            #if hasattr(process,'ecalDrivenElectronSeeds'):
+            #    process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )

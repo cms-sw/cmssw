@@ -29,6 +29,7 @@ HitLinkMap alliterBackLinksMap;
 linkcoll alliterlinks;
 linkcoll links_debug; 
 linkcoll IterLinks; 
+HitLinkMap IterBackLinks;
 branchcoll LengthSortBranchCollection;
 branchcoll Trees; 
 
@@ -49,6 +50,7 @@ void init( float CellSize, float LayerThickness ) {
 	Links.clear();
 	InitLinks.clear();
 	IterLinks.clear();
+	IterBackLinks.clear();
 	LengthSortBranchCollection.clear();
 	Trees.clear();
 	alliterlinks.clear();
@@ -67,8 +69,8 @@ void init( float CellSize, float LayerThickness ) {
 	InitLinkThreshold = 2*LayerThickness - 0.01; 
 	IterLinkThreshold = InitLinkThreshold * 2.5;
 
-	edm::LogProblem("ArborInfo") <<endl<<"Thresholds"<<endl<<endl;
-	edm::LogProblem("ArborInfo") <<"Init/Iter Threshold "<<InitLinkThreshold<<" : "<<IterLinkThreshold<<endl<<endl;
+	edm::LogVerbatim("ArborInfo") <<endl<<"Thresholds"<<endl<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Init/Iter Threshold "<<InitLinkThreshold<<" : "<<IterLinkThreshold<<endl<<endl;
 
 }
 
@@ -145,12 +147,12 @@ void HitsClassification( linkcoll inputLinks )
 		}
         }
 
-	edm::LogProblem("ArborInfo") <<"Verification of Hits Classification: "<<endl;
-	edm::LogProblem("ArborInfo") <<"Seed - Simple/Star: "<<SimpleSeedHitsIndex.size()<<" : "<<StarSeedHitsIndex.size()<<endl;
-	edm::LogProblem("ArborInfo") <<"Joint - Simple/Star: "<<JointHitsIndex.size()<<" : "<<StarJointHitsIndex.size()<<endl;
-	edm::LogProblem("ArborInfo") <<"Leaves: "<<LeafHitsIndex.size()<<endl;
-	edm::LogProblem("ArborInfo") <<"IsoHits: "<<IsoHitsIndex.size()<<endl; 
-	edm::LogProblem("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
+	edm::LogVerbatim("ArborInfo") <<"Verification of Hits Classification: "<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Seed - Simple/Star: "<<SimpleSeedHitsIndex.size()<<" : "<<StarSeedHitsIndex.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Joint - Simple/Star: "<<JointHitsIndex.size()<<" : "<<StarJointHitsIndex.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Leaves: "<<LeafHitsIndex.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"IsoHits: "<<IsoHitsIndex.size()<<endl; 
+	edm::LogVerbatim("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
 }
 
 linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
@@ -190,8 +192,8 @@ linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
     
     LinkHits.push_back(std::move(hitlink));
   }
-  
-  edm::LogError("ArborInfo") <<"Initialized LinkHits!";
+
+  edm::LogInfo("ArborInfo") <<"Initialized LinkHits!";
   
   for(int i1 = 0; i1 < NHits; i1++) {
     PosB = cleanedHits[i1];
@@ -206,7 +208,8 @@ linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
       {
 	PosA = cleanedHits[ currhitlink[k1] ];
 	DirAngle = (PosA + PosB).Angle(PosB - PosA);		//Replace PosA + PosB with other order parameter ~ reference direction
-	tmpOrder = (PosB - PosA).Mag() * (DirAngle + 0.1);
+	const float paddedAngle = (DirAngle + 0.1);
+	tmpOrder = (PosB - PosA).Mag2() * paddedAngle * paddedAngle;
 	if( tmpOrder < MinAngle ) // && DirAngle < 2.5 )
 	  {
 	    MinAngleIndex = currhitlink[k1];
@@ -222,7 +225,7 @@ linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
       }
   }
   
-  edm::LogError("ArborInfo") <<"NStat "<<NHits <<" : "<<NLinks <<" CleanedLinks "<< cleanedlinks.size();
+  edm::LogInfo("ArborInfo") <<"NStat "<<NHits <<" : "<<NLinks <<" CleanedLinks "<< cleanedlinks.size();
   
   return cleanedlinks;
 }
@@ -261,6 +264,7 @@ void BuildInitLink()
   kdtree.build(nodes,kdXYZCube);
   nodes.clear();
   
+  const float InitLinkThreshold2 = std::pow(InitLinkThreshold,2.0);
   for(int i0 = 0; i0 < NHits; ++i0)
     {
       found.clear();
@@ -282,10 +286,10 @@ void BuildInitLink()
 	  const auto& PosB = cleanedHits[found[j0].data];
 	  PosDiffAB = PosA - PosB;
 	  
-	  if( PosDiffAB.Mag() < InitLinkThreshold ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
+	  if( PosDiffAB.Mag2() < InitLinkThreshold2 ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
 	    {
 	      std::pair<int, int> a_Link;
-	      if( PosA.Mag() > PosB.Mag() )
+	      if( PosA.Mag2() > PosB.Mag2() )
 		{
 		  
 		  a_Link.first = found[j0].data;
@@ -303,7 +307,7 @@ void BuildInitLink()
 	}
     }
   
-  edm::LogError("ArborInfo") << "Initialized links!";
+  edm::LogInfo("ArborInfo") << "Initialized links!";
 
   links_debug = Links; 
 }
@@ -366,7 +370,7 @@ void EndPointLinkIteration()
 					tmplink.first = LeafIndex;
 					tmplink.second = OldSeedIndex; 
 					Links.push_back(tmplink);
-					edm::LogProblem("ArborInfo") <<"New Link added in EPLinkIteration"<<endl;
+					edm::LogVerbatim("ArborInfo") <<"New Link added in EPLinkIteration"<<endl;
 				}
 			}
 		}
@@ -383,6 +387,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
   typedef KDTreeNodeInfoT<unsigned,3> KDTreeNodeInfo;
 
   IterLinks.clear();
+  IterBackLinks.clear();
   //TVector3 PosA, PosB, PosDiffAB; 
   TVector3 PosDiffAB;
   std::array<float,3> minpos{ {0.0f,0.0f,0.0f} }, maxpos{ {0.0f,0.0f,0.0f} };
@@ -431,6 +436,9 @@ void LinkIteration()	//Energy corrections, semi-local correction
     RefDir[currlink.second] += 4*linkDir; 
   }
   
+  const float IterLinkThreshold2 = std::pow(IterLinkThreshold,2.0);
+  const float InitLinkThreshold2 = std::pow(InitLinkThreshold,2.0);
+
   for(unsigned i1 = 0; i1 < (unsigned)NHits; i1++) {
     found.clear();
     RefDir[i1] *= 1.0/RefDir[i1].Mag();
@@ -453,11 +461,11 @@ void LinkIteration()	//Energy corrections, semi-local correction
       PosB = cleanedHits[found[j1].data];
       DiffPosAB = PosB - PosA; 
       
-      if( DiffPosAB.Mag() < IterLinkThreshold && 
-	  DiffPosAB.Mag() > InitLinkThreshold && 
+      if( DiffPosAB.Mag2() < IterLinkThreshold2 && 
+	  DiffPosAB.Mag2() > InitLinkThreshold2 && 
 	  DiffPosAB.Angle(RefDir[i1]) < 0.8 ) {
 	
-	if( PosA.Mag() > PosB.Mag() )
+	if( PosA.Mag2() > PosB.Mag2() )
 	  {
 	    currlink.first = found[j1].data;
 	    currlink.second = i1;
@@ -496,7 +504,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
       
       LinkHits.push_back(std::move(hitlink));
     }
-  
+
   for(int i2 = 0; i2 < NHits; i2++)
     {
       PosB = cleanedHits[i2];
@@ -511,7 +519,8 @@ void LinkIteration()	//Energy corrections, semi-local correction
 	{
 	  PosA = cleanedHits[ currhitlink[j2] ];
 	  DirAngle = (RefDir[i2]).Angle(PosA - PosB);
-	  tmpOrder = (PosB - PosA).Mag() * (DirAngle + 1.0);
+	  const float paddedAngle = (DirAngle + 1.0);
+	  tmpOrder = (PosB - PosA).Mag2() * paddedAngle * paddedAngle;
 	  if(tmpOrder < MinAngle) //  && DirAngle < 1.0)
 	    {
 	      MinAngleIndex = currhitlink[j2];
@@ -524,170 +533,291 @@ void LinkIteration()	//Energy corrections, semi-local correction
 	  SelectedPair.first = MinAngleIndex;
 	  SelectedPair.second = i2;
 	  IterLinks.push_back(SelectedPair);
+	  IterBackLinks.emplace(SelectedPair.second,SelectedPair.first);
 	}
     }	
   
-  edm::LogError("ArborInfo") <<"Init-Iter Size "<<InitLinks.size()<<" : "<<IterLinks.size();
+  edm::LogInfo("ArborInfo") <<"Init-Iter Size "<<InitLinks.size()<<" : "<<IterLinks.size();
   
 }
 
 void BranchBuilding(const float distSeedForMerge)
 {
-	edm::LogProblem("ArborInfo") <<"Build Branch"<<endl;
+  edm::LogInfo("ArborInfo") <<"Build Branch"<<endl;
+  
+  int NLinks = IterLinks.size();
+  int NBranches = 0;
+  std::map <int, int> HitBeginIndex;
+  std::map <int, int> HitEndIndex;
+  std::vector< std::vector<int> > InitBranchCollection; 
+  std::vector< std::vector<int> > PrunedInitBranchCollection;
+  std::vector< std::vector<int> > TmpBranchCollection;
+  TVector3 PosA, PosB;
+  
+  for(int i1 = 0; i1 < NHits; i1++)
+    {
+      HitBeginIndex[i1] = 0;
+      HitEndIndex[i1] = 0;
+    }
+  
+  for(int j1 = 0; j1 < NLinks; j1++)
+    {
+      HitBeginIndex[ (IterLinks[j1].first) ] ++;
+      HitEndIndex[ (IterLinks[j1].second) ] ++;
+    }
 
-	int NLinks = IterLinks.size();
-	int NBranches = 0;
-	std::map <int, int> HitBeginIndex;
-	std::map <int, int> HitEndIndex;
-	std::vector< std::vector<int> > InitBranchCollection; 
-	std::vector< std::vector<int> > TmpBranchCollection;
-	TVector3 PosA, PosB;
-
-	for(int i1 = 0; i1 < NHits; i1++)
+  edm::LogVerbatim("ArborInfo") <<"Build Branch : built index maps"<<endl;
+  
+  int iterhitindex = 0; 
+  int FlagInternalLoop = 0;
+  for(int i2 = 0; i2 < NHits; i2++)
+    {
+      if(HitEndIndex[i2] > 1)
+	edm::LogWarning("ArborWarning") <<"WARNING OF INTERNAL LOOP with more than 1 link stopped at the same Hit"<<endl;
+      
+      // cout<<"Begin/End Index "<<HitBeginIndex[i2]<<" : "<<HitEndIndex[i2]<<endl;
+      
+      if(HitBeginIndex[i2] == 0 && HitEndIndex[i2] == 1)	//EndPoint
 	{
-		HitBeginIndex[i1] = 0;
-		HitEndIndex[i1] = 0;
-	}
+	  NBranches ++; 	
+	  std::vector<int> currBranchhits;  	//array of indexes 
 
-	for(int j1 = 0; j1 < NLinks; j1++)
-	{
-		HitBeginIndex[ (IterLinks[j1].first) ] ++;
-		HitEndIndex[ (IterLinks[j1].second) ] ++;
-	}
-
-	int iterhitindex = 0; 
-	int FlagInternalLoop = 0;
-	for(int i2 = 0; i2 < NHits; i2++)
-	{
-		if(HitEndIndex[i2] > 1)
-		  edm::LogWarning("ArborWarning") <<"WARNING OF INTERNAL LOOP with more than 1 link stopped at the same Hit"<<endl;
-
-		// cout<<"Begin/End Index "<<HitBeginIndex[i2]<<" : "<<HitEndIndex[i2]<<endl;
-
-		if(HitBeginIndex[i2] == 0 && HitEndIndex[i2] == 1)	//EndPoint
+	  iterhitindex = i2; 
+	  FlagInternalLoop = 0;
+	  currBranchhits.push_back(i2);
+	  
+	  while(FlagInternalLoop == 0 && HitEndIndex[iterhitindex] != 0)
+	    {
+	      auto iterlink_range = IterBackLinks.equal_range(iterhitindex);
+	      assert( std::distance(iterlink_range.first,iterlink_range.second) == 1 );
+	      iterhitindex = iterlink_range.first->second;
+	      currBranchhits.push_back(iterhitindex);
+		      
+	      /*
+	      for(int j2 = 0; j2 < NLinks; j2++)
 		{
-			NBranches ++; 	
-			std::vector<int> currBranchhits;  	//array of indexes			
-			iterhitindex = i2; 
-			FlagInternalLoop = 0;
-			currBranchhits.push_back(i2);		
-
-			while(FlagInternalLoop == 0 && HitEndIndex[iterhitindex] != 0)
-			{
-
-				for(int j2 = 0; j2 < NLinks; j2++)
-				{
-					std::pair<int, int> PairIterator = IterLinks[j2];
-					if(PairIterator.second == iterhitindex)
-					{
-						currBranchhits.push_back(PairIterator.first);
-						iterhitindex = PairIterator.first;
-						break; 
-					}
-				}
-			}
-
-			InitBranchCollection.push_back(currBranchhits);
+		  const std::pair<int, int>& PairIterator = IterLinks[j2];
+		  if(PairIterator.second == iterhitindex)
+		    {
+		      currBranchhits.push_back(PairIterator.first);
+		      iterhitindex = PairIterator.first;
+		      break; 
+		    }
 		}
+	      */
+	    }
+	  
+	  InitBranchCollection.push_back(std::move(currBranchhits) );
 	}
+    }
+  
+  PrunedInitBranchCollection.resize(InitBranchCollection.size());
 
-	std::vector<float> BranchSize;
-	std::vector<float> cutBranchSize;  
-	std::vector<int> SortedBranchIndex; 
-	std::vector<int> SortedcutBranchIndex;	
-	std::vector<int> currBranch; 
-	std::vector<int> iterBranch; 
-	std::vector<int> touchedHits; 
-	std::vector<int> leadingbranch; 
-	std::vector<int> branch_A, branch_B; 
+  edm::LogInfo("ArborInfo") <<"Build Branch : init branch collection : " << NBranches <<endl;
 
-	std::map<branch, int> SortedBranchToOriginal;
-	SortedBranchToOriginal.clear(); 
+  std::vector<float> BranchSize;
+  std::vector<float> cutBranchSize;  
+  std::vector<unsigned> SortedBranchIndex; 
+  std::vector<unsigned> SortedcutBranchIndex;	
+  std::vector<int> currBranch; 
+  std::vector<int> iterBranch; 
+  std::vector<int> touchedHits; 
+  std::vector<bool> touchedHitsMap(NHits,false); 
+  std::vector<bool> seedHitsMap(NHits,false); 
+  std::vector<unsigned> seedHits;
+  std::vector<int> leadingbranch; 
+  //std::vector<int> branch_A, branch_B; 
+  
+  KDTreeLinkerAlgo<unsigned,3> kdtree;
+  typedef KDTreeNodeInfoT<unsigned,3> KDTreeNodeInfo;
+  std::array<float,3> minpos{ {0.0f,0.0f,0.0f} }, maxpos{ {0.0f,0.0f,0.0f} };
+  std::vector<KDTreeNodeInfo> nodes, found;
+  bool needInitPosMinMax = true;
 
-	int currBranchSize = 0;
-	int currHit = 0;
+  HitLinkMap seedToBranchesMap;
+  std::unordered_map<int,int> branchToSeed;
+  std::map<branch, int> SortedBranchToOriginal;
+  SortedBranchToOriginal.clear(); 
+  branchToSeed.clear();
+  
+  int currBranchSize = 0;
+  int currHit = 0;
+  
+  for(int i3 = 0; i3 < NBranches; i3++)
+    {
+      currBranch = InitBranchCollection[i3];
+      BranchSize.push_back( float(currBranch.size()) );
+    }
+  
+  SortedBranchIndex = std::move( SortMeasure(BranchSize, 1) );
+  
+  edm::LogVerbatim("ArborInfo") <<"Build Branch : sorted branch index"<<endl;
 
-	for(int i3 = 0; i3 < NBranches; i3++)
+  for(int i4 = 0; i4 < NBranches; i4++)
+    {
+      currBranch = InitBranchCollection[SortedBranchIndex[i4]];
+      
+      currBranchSize = currBranch.size();
+      
+      iterBranch.clear(); 
+      
+      for(int j4 = 0; j4 < currBranchSize; j4++)
 	{
-		currBranch = InitBranchCollection[i3];
-		BranchSize.push_back( float(currBranch.size()) );
+	  currHit = currBranch[j4];
+	  
+	  if( !touchedHitsMap[currHit] )
+	    //find(touchedHits.begin(), touchedHits.end(), currHit) == touchedHits.end() )
+	    {
+	      iterBranch.push_back(currHit);
+	      touchedHitsMap[currHit] = true;
+	      //touchedHits.push_back(currHit);
+	    }
 	}
-
-	SortedBranchIndex = SortMeasure(BranchSize, 1);
-
-	for(int i4 = 0; i4 < NBranches; i4++)
-	{
-		currBranch = InitBranchCollection[SortedBranchIndex[i4]];
-
-		currBranchSize = currBranch.size();
-
-		iterBranch.clear(); 
-
-		for(int j4 = 0; j4 < currBranchSize; j4++)
-		{
-			currHit = currBranch[j4];
-
-			if( find(touchedHits.begin(), touchedHits.end(), currHit) == touchedHits.end() )
-			{
-				iterBranch.push_back(currHit);
-				touchedHits.push_back(currHit);
-			}
-		}
-
-		SortedBranchToOriginal[iterBranch] = currBranch[currBranchSize - 1];	//Map to seed...
-
-		TmpBranchCollection.push_back(iterBranch);
-		cutBranchSize.push_back( float(iterBranch.size()) );
+      const auto theseed = currBranch[currBranchSize - 1];
+      SortedBranchToOriginal[iterBranch] = theseed;	//Map to seed...
+      branchToSeed.emplace(SortedBranchIndex[i4],theseed);
+      seedToBranchesMap.emplace(theseed,SortedBranchIndex[i4]); // map seed to branches
+      if( !seedHitsMap[theseed] ) {
+	seedHitsMap[theseed] = true;
+	const auto& hit = cleanedHits[theseed];
+	nodes.emplace_back(theseed,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
+	if( needInitPosMinMax ) {
+	  needInitPosMinMax = false;
+	  minpos[0] = hit.X(); minpos[1] = hit.Y(); minpos[2] = hit.Z();
+	  maxpos[0] = hit.X(); maxpos[1] = hit.Y(); maxpos[2] = hit.Z();
+	} else {
+	  minpos[0] = std::min((float)hit.X(),minpos[0]);
+	  minpos[1] = std::min((float)hit.Y(),minpos[1]);
+	  minpos[2] = std::min((float)hit.Z(),minpos[2]);
+	  maxpos[0] = std::max((float)hit.X(),maxpos[0]);
+	  maxpos[1] = std::max((float)hit.Y(),maxpos[1]);
+	  maxpos[2] = std::max((float)hit.Z(),maxpos[2]);
 	}
+      }
 
-	SortedcutBranchIndex = SortMeasure(cutBranchSize, 1);
+      TmpBranchCollection.push_back(iterBranch);     
+      cutBranchSize.push_back( float(iterBranch.size()) );
+      PrunedInitBranchCollection[SortedBranchIndex[i4]] = std::move(iterBranch);
+    }
+  
+  SortedcutBranchIndex = std::move( SortMeasure(cutBranchSize, 1) );
 
-	for(int i6 = 0; i6 < NBranches; i6++)
-	{
-		currBranch.clear();
-		currBranch = TmpBranchCollection[ SortedcutBranchIndex[i6]];
-		LengthSortBranchCollection.push_back(currBranch);;
+  edm::LogVerbatim("ArborInfo") <<"Build Branch : sorted cut branch index"<<endl;
+  
+  for(int i6 = 0; i6 < NBranches; i6++)
+    {
+      currBranch.clear();
+      currBranch = TmpBranchCollection[ SortedcutBranchIndex[i6]];
+      LengthSortBranchCollection.push_back(currBranch);;
+    }
+  
+  edm::LogVerbatim("ArborInfo") <<"Build Branch : init length sorted branch collection"<<endl;
+
+  //TMatrixF FlagSBMerge(NBranches, NBranches);
+  //std::unordered_multimap<unsigned,unsigned> directlinks;
+  std::vector<bool> link_helper(NBranches*NBranches,false);
+  //int SeedIndex_A = 0; 
+  //int SeedIndex_B = 0; 
+  TVector3 DisSeed; 
+  
+  KDTreeCube kdXYZCube(minpos[0],maxpos[0],
+		       minpos[1],maxpos[1],
+		       minpos[2],maxpos[2]);
+  kdtree.build(nodes,kdXYZCube);
+  nodes.clear();
+
+  const float distSeedForMerge2 = std::pow(distSeedForMerge,2.0);
+
+  QuickUnion qu(NBranches);
+
+  for(int i7 = 0; i7 < NBranches; i7++)
+    {
+      //const auto& branch_A = LengthSortBranchCollection[i7];
+      auto SeedIndex_A = branchToSeed[i7];
+      
+      auto shared_branches = seedToBranchesMap.equal_range(SeedIndex_A);
+      
+      // get all branches that share the same seed;
+      for( auto itr = shared_branches.first; itr != shared_branches.second; ++itr ) {
+	const auto foundSortedIdx = itr->second;
+	if( foundSortedIdx <= (unsigned)i7 ) continue;	
+	if( link_helper[NBranches*i7 + foundSortedIdx] ||
+	    link_helper[NBranches*foundSortedIdx + i7]    ) continue;
+	if( !qu.connected(i7,foundSortedIdx) ) {
+	  qu.unite(i7,foundSortedIdx);
+	}	
+	link_helper[NBranches*i7 + foundSortedIdx] = true;
+	link_helper[NBranches*foundSortedIdx + i7] = true;
+      }
+      
+      // do a kd tree search for seeds to merge together based on distance
+      const auto& seedpos = cleanedHits[SeedIndex_A];
+      const float side = distSeedForMerge;
+      const float xplus(seedpos.X() + side), xminus(seedpos.X() - side);
+      const float yplus(seedpos.Y() + side), yminus(seedpos.Y() - side);
+      const float zplus(seedpos.Z() + side), zminus(seedpos.Z() - side);
+      const float xmin(std::min(xplus,xminus)), xmax(std::max(xplus,xminus));
+      const float ymin(std::min(yplus,yminus)), ymax(std::max(yplus,yminus));
+      const float zmin(std::min(zplus,zminus)), zmax(std::max(zplus,zminus));      
+      KDTreeCube searchcube( xmin, xmax,
+			     ymin, ymax,
+			     zmin, zmax );
+      found.clear();
+      kdtree.search(searchcube,found);
+      for(unsigned j7 = 0; j7 < found.size(); j7++) {	
+	DisSeed = seedpos - cleanedHits[ found[j7].data ];
+	if( DisSeed.Mag2() < distSeedForMerge2 ) {
+	  auto seed_branches = seedToBranchesMap.equal_range(found[j7].data);
+	  for( auto itr = seed_branches.first; itr != seed_branches.second; ++itr ){
+	    const auto foundSortedIdx = itr->second;
+	    if( foundSortedIdx <= (unsigned)i7 ) continue;	    
+	    if( link_helper[NBranches*i7 + foundSortedIdx] ||
+		link_helper[NBranches*foundSortedIdx + i7]    ) continue;
+	    if( !qu.connected(i7,foundSortedIdx) ) {
+	      qu.unite(i7,foundSortedIdx);
+	    }
+	    link_helper[NBranches*i7 + foundSortedIdx] = true;
+	    link_helper[NBranches*foundSortedIdx + i7] = true;	    	    
+	  }
 	}
+      }      
+    }
+  
+  //edm::LogError("ArborInfo") <<"Build Branch : constructed merging list";
+  
+  //edm::LogError("ArborInfo") <<"Build Branch : merge-links size : " << directlinks.size();
 
-	TMatrixF FlagSBMerge(NBranches, NBranches);
-	int SeedIndex_A = 0; 
-	int SeedIndex_B = 0; 
-	TVector3 DisSeed; 
+  edm::LogInfo("ArborInfo") <<"Build Branch : constructed branch union : " << qu.count();
 
-	for(int i7 = 0; i7 < NBranches; i7++)
-	{
-		branch_A = LengthSortBranchCollection[i7];
-		SeedIndex_A = SortedBranchToOriginal[branch_A];
+  Trees.clear();
+  std::unordered_map<unsigned,branch> merged_branches(qu.count());
+  Trees.reserve(qu.count());
+  
+  // merge the branches together into the output branches
+  for( unsigned i = 0; i < (unsigned)NBranches; ++i ) {
+    unsigned root = qu.find(i);
+    const auto& branch = PrunedInitBranchCollection[i];
+    auto& merged_branch = merged_branches[root];
+    merged_branch.insert(merged_branch.end(),branch.begin(),branch.end());
+  }
+  
+  unsigned total_hits = 0;
+  for( auto& final_branch : merged_branches ) {
+    total_hits += final_branch.second.size();
+    Trees.push_back(std::move(final_branch.second));
+  }
+  
+  //Trees = ArborBranchMerge(LengthSortBranchCollection, SBMergeSYM);
+  
+  edm::LogInfo("ArborInfo") <<"Build Branch : merged branches into trees : " << Trees.size();
 
-		for(int j7 = i7 + 1; j7 < NBranches; j7++)
-		{		
-			branch_B = LengthSortBranchCollection[j7];
-			SeedIndex_B = SortedBranchToOriginal[branch_B];
-
-			DisSeed = cleanedHits[ SeedIndex_A ] - cleanedHits[ SeedIndex_B ];
-
-			if(  SeedIndex_A == SeedIndex_B )
-			{
-				FlagSBMerge[i7][j7] = 1.0;
-				FlagSBMerge[j7][i7] = 1.0;
-			}
-			else if( DisSeed.Mag() < distSeedForMerge )
-			{
-				FlagSBMerge[i7][j7] = 2.0;
-				FlagSBMerge[j7][i7] = 2.0;
-			}
-			// else if()    Head_Tail, Small Cluster (nH < 5) Absorbing...
-		}
-	}
-
-	TMatrixF SBMergeSYM = MatrixSummarize(FlagSBMerge);
-	Trees = ArborBranchMerge(LengthSortBranchCollection, SBMergeSYM);
-
+  //edm::LogError("ArborInfo") << cleanedHits.size() << ' ' << total_hits << std::endl;
+  
 }
 
 void BushMerging()
 {
-	edm::LogProblem("ArborInfo") <<"Merging branch"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Merging branch"<<endl;
 
 	int NBranch = LengthSortBranchCollection.size();
 	std::vector<int> currbranch; 
@@ -701,13 +831,13 @@ void BushMerging()
 
 void BushAbsorbing()
 {
-	edm::LogProblem("ArborInfo") <<"Absorbing Isolated branches"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Absorbing Isolated branches"<<endl;
 }
 
 void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 {
 
-	edm::LogProblem("ArborInfo") <<"Try to Make CMS Cluster"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Try to Make CMS Cluster"<<endl;
 
 	int NBranches = LengthSortBranchCollection.size();
 	int NHitsInBranch = 0;
@@ -719,12 +849,12 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 		currBranch = LengthSortBranchCollection[i0];
 		NHitsInBranch = currBranch.size();
 
-		edm::LogProblem("ArborInfo") <<i0<<" th Track has "<<currBranch.size()<<" Hits "<<endl;
-		edm::LogProblem("ArborInfo") <<"Hits Index "<<endl; 
+		edm::LogVerbatim("ArborInfo") <<i0<<" th Track has "<<currBranch.size()<<" Hits "<<endl;
+		edm::LogVerbatim("ArborInfo") <<"Hits Index "<<endl; 
 
 		for(int j0 = 0; j0 < NHitsInBranch; j0++)
 		{
-			edm::LogProblem("ArborInfo") <<currBranch[j0]<<", ";
+			edm::LogVerbatim("ArborInfo") <<currBranch[j0]<<", ";
 
 			currHit = cleanedHits[currBranch[j0]];
 		}

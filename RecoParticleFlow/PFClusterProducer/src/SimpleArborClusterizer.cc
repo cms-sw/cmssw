@@ -47,16 +47,16 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       arbor_points[1].emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
     }
   }
-  edm::LogError("ArborProgress") 
+  edm::LogInfo("ArborProgress") 
     << "arbor loaded: " << arbor_points[0].size() << " in negative endcap!";
-  edm::LogError("ArborProgress") 
+  edm::LogInfo("ArborProgress") 
     << "arbor loaded: " << arbor_points[1].size() << " in positive endcap!";
   
 
   the_branches[0] = arbor::Arbor(arbor_points[0],_cellSize,_layerThickness,_distSeedForMerge);
-  edm::LogError("ArborProgress") << "arbor clustered negative endcap!";
+  edm::LogInfo("ArborProgress") << "arbor clustered negative endcap!";
   the_branches[1] = arbor::Arbor(arbor_points[1],_cellSize,_layerThickness,_distSeedForMerge);
-  edm::LogError("ArborProgress") << "arbor clustered positive endcap!";
+  edm::LogInfo("ArborProgress") << "arbor clustered positive endcap!";
   output.reserve(the_branches[0].size()+the_branches[1].size());
   
   for( unsigned iside = 0; iside < 2; ++iside ) {
@@ -88,4 +88,5 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	<< "Made cluster: " << current << std::endl;
     }
   }
+  edm::LogError("ArborInfo") << "Made " << output.size() << " clusters!";
 }
