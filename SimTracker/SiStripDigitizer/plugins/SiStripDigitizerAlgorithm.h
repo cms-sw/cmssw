@@ -68,6 +68,7 @@ class SiStripDigitizerAlgorithm {
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
                          size_t inputBeginGlobalIndex,
+                         unsigned int tofBin,
                          const StripGeomDetUnit *stripdet,
                          const GlobalVector& bfield,
 			 const TrackerTopology *tTopo);
@@ -143,6 +144,7 @@ class SiStripDigitizerAlgorithm {
     EncodedEventId eventID;
     float contributionToADC;
     size_t simHitGlobalIndex; ///< The array index of the sim hit, but in the array for all crossings
+    unsigned int tofBin;  // Needed along with subDet to determine which PSimHit collection simHitGlobalIndex indexes
   };
 
   typedef std::map<int, std::vector<AssociationInfo> >  AssociationInfoForChannel;

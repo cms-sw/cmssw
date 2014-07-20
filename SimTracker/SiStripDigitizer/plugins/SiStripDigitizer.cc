@@ -95,7 +95,7 @@ SiStripDigitizer::~SiStripDigitizer() {
 }  
 
 void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hSimHits,
-					   const TrackerTopology *tTopo, size_t globalSimHitIndex ) {
+                                           const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin) {
   // globalSimHitIndex is the index the sim hit will have when it is put in a collection
   // of sim hits for all crossings. This is only used when creating digi-sim links if
   // configured to do so.
@@ -114,7 +114,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
 	  GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
 	  LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
 				  << pSetup->inTesla(stripdet->surface().position());
-	  theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, stripdet, bfield, tTopo);
+          theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, stripdet, bfield, tTopo);
 	}
       }
     } // end of loop over sim hits
@@ -133,9 +133,11 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
+      unsigned int tofBin = StripDigiSimLink::LowTof;
+      if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
+      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()], tofBin);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -155,9 +157,11 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
+      unsigned int tofBin = StripDigiSimLink::LowTof;
+      if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof; 
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
+      accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()], tofBin);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
