@@ -10,6 +10,7 @@
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="root"/>
+<use name="SimTracker/SiPixelDigitizer"/>
 <export>
   <lib    name="1"/>
 </export>

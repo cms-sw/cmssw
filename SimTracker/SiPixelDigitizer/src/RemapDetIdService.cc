@@ -10,6 +10,7 @@
 #include <DataFormats/Provenance/interface/ProcessHistoryRegistry.h>
 #include <DataFormats/Provenance/interface/Provenance.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <SimDataFormats/CrossingFrame/interface/CrossingFrame.h>
 
 
 namespace simtracker { namespace services { DEFINE_FWK_SERVICE( RemapDetIdService ); } }
@@ -61,11 +62,12 @@ template<class T> bool simtracker::services::RemapDetIdService::getByLabel_( T& 
 			// The service has been configured to remap this collection. Also need to check
 			// which version of CMSSW was used to create it.
 			std::string cmsswVersion=cmsswVersionForProduct( hInputCollection );
-			// Use "find" rather than absolute equality in case the string contains
-			// e.g. "_patch3". I only want to remap the collection if it was made with
-			// a version of CMSSW before SLHC13.
+			// I only want to remap the collection if it was made with
+			// a version of CMSSW set in the configuration.
 			for( const auto& cmsswVersionToCheck : cmsswVersionsToRemap_ )
 			{
+				// Use "find" rather than absolute equality in case the string contains
+				// e.g. "_patch3".
 				if( cmsswVersion.find(cmsswVersionToCheck)!=std::string::npos )
 				{
 					// This collection should be remapped. I'll reset the collection and
@@ -75,7 +77,7 @@ template<class T> bool simtracker::services::RemapDetIdService::getByLabel_( T& 
 					pRemappedCollection=collectionPointer.get();
 					break;
 				}
-			}
+			} // end of loop over configured CMSSW versions
 		} // end of "if inputTag matches one set in the configuration"
 	} // end of loop over InputTags
 
@@ -128,6 +130,50 @@ bool simtracker::services::RemapDetIdService::getByLabel( const edm::Event& even
 bool simtracker::services::RemapDetIdService::getByLabel( const PileUpEventPrincipal& event, const edm::InputTag& inputTag, edm::Handle<std::vector<PSimHit> >& handle )
 {
 	return getByLabel_( event, inputTag, handle );
+}
+
+bool simtracker::services::RemapDetIdService::getByLabel( const edm::Event& event, const edm::InputTag& inputTag, edm::Handle<CrossingFrame<PSimHit> >& handle )
+{
+	// The code to remap the whole crossing frame would be quite complicated (I think),
+	// and this is only a temporary hack to get results for the Technical Proposal. As
+	// far as I'm aware CrossingFrames are only used for validation, so I'll just get
+	// the collections normally. If the collection is from a version of CMSSW that the
+	// service is configured to remap I'll print a warning to say the collection should
+	// be remapped but hasn't been.
+	bool result=event.getByLabel( inputTag, handle );
+
+	// If successful check the version of CMSSW the collection was made with, so
+	// that I can print a warning if the collection should have been remapped.
+	if( result==true )
+	{
+		// I'm looping over the remapped collections, but I only care about the keys (i.e. the configured collections).
+		for( auto& tagCollectionPointerPair : remappedCollections_ )
+		{
+			const auto& configuredTag=tagCollectionPointerPair.first;
+			if( inputTag==configuredTag )
+			{
+				// The service has been configured to remap this collection. Also need to check
+				// which version of CMSSW was used to create it.
+				std::string cmsswVersion=cmsswVersionForProduct( handle );
+				// I only want to remap the collection if it was made with
+				// a version of CMSSW set in the configuration.
+				for( const auto& cmsswVersionToCheck : cmsswVersionsToRemap_ )
+				{
+					// Use "find" rather than absolute equality in case the string contains
+					// e.g. "_patch3".
+					if( cmsswVersion.find(cmsswVersionToCheck)!=std::string::npos )
+					{
+						// This collection should be remapped. Print the warning and return.
+						edm::LogWarning("RemapDetIdService") << "The collection " << inputTag << " should have some DetIds remapped,"
+								<< " but the code to do so with CrossingFrames hasn't been written (see " << __FILE__ << ")";
+						return result;
+					}
+				} // end of loop over configured CMSSW versions
+			} // end of "if inputTag matches one set in the configuration"
+		} // end of loop over InputTags
+	} // end of "if collection was successfully retrieved"
+
+	return result;
 }
 
 template<class T> std::string simtracker::services::RemapDetIdService::cmsswVersionForProduct( const edm::Handle<T>& handle )

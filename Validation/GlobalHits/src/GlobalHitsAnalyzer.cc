@@ -11,6 +11,11 @@
 #include "Validation/GlobalHits/interface/GlobalHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+// 20/Jul/2014 Mark Grimes - temporary hack to remap the DetIds from old SLHC11 input
+// files. As soon as this functionality is no longer needed this should be taken out.
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
+
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
   getAllProvenances(false), printProvenanceInfo(false),
@@ -1033,13 +1038,18 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   
   nPxlHits += j;
   
+  // 20/Jul/2014 Mark Grimes - temporary hack to remap the DetIds from old SLHC11 input
+  // files. As soon as this functionality is no longer needed this should be taken out.
+  edm::Service<simtracker::services::RemapDetIdService> detIdRemapService;
+
   /////////////////////////////////
   // get Pixel Forward information
   ////////////////////////////////
   edm::PSimHitContainer thePxlFwdHits;
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-  iEvent.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
+  //iEvent.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
+  detIdRemapService->getByLabel( iEvent, PxlFwdLowSrc_, PxlFwdLowContainer ); // Temporary hack. See note above where detIdRemapService is declared.
   if (!PxlFwdLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -1047,7 +1057,8 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-  iEvent.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
+  //iEvent.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
+  detIdRemapService->getByLabel( iEvent, PxlFwdHighSrc_, PxlFwdHighContainer ); // Temporary hack. See note above where detIdRemapService is declared.
   if (!PxlFwdHighContainer.isValid()) {
     LogDebug("GlobalHitsAnalyzer_fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";

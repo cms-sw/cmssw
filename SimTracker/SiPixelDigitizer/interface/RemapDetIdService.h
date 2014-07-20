@@ -7,6 +7,8 @@
 #include <memory>
 
 #include <DataFormats/Common/interface/Handle.h> // Template so can't forward declare
+//#include <SimDataFormats/CrossingFrame/interface/CrossingFrame.h>
+
 #include <DataFormats/Provenance/interface/EventID.h>
 
 //
@@ -14,6 +16,8 @@
 //
 class PSimHit;
 class PileUpEventPrincipal;
+template<class T> class CrossingFrame;
+
 namespace edm
 {
 	class ActivityRegistry;
@@ -79,6 +83,12 @@ namespace simtracker
 			bool getByLabel( const edm::Event& event, const edm::InputTag& inputTag, edm::Handle<std::vector<PSimHit> >& handle );
 			/** @brief Gets the collection and remaps the DetIds if required. Safe to call on all collections. */
 			bool getByLabel( const PileUpEventPrincipal& event, const edm::InputTag& inputTag, edm::Handle<std::vector<PSimHit> >& handle );
+
+			/** @brief Basically just returns the collection from the event, but prints a warning if the collection should have been remapped.
+			 *
+			 * TrackerHitAssociator needs a version to get the SimHit collection from the CrossingFrame. That would be quite a lot
+			 * of code that's going to be taken out soon (as soon as we no longer need to reed the TP production samples). */
+			bool getByLabel( const edm::Event& event, const edm::InputTag& inputTag, edm::Handle<CrossingFrame<PSimHit> >& handle );
 
 			/** @brief Checks the provinence and returns the version of CMSSW that the given collection was created in */
 			template<class T> std::string cmsswVersionForProduct( const edm::Handle<T>& handle );
