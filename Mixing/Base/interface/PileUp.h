@@ -122,6 +122,19 @@ namespace edm {
   };
 
 
+  template<typename T>
+  class PassEventID
+  {
+  private:
+    T& eventOperator_;
+    int eventCount;
+  public:
+    PassEventID(T& eventOperator) : eventOperator_(eventOperator), eventCount(0) {}
+    void operator()(EventPrincipal const& eventPrincipal) {
+      eventOperator_(eventPrincipal, ++eventCount);
+    }
+  };
+
 
   template<typename T>
   class RecordEventID
@@ -196,7 +209,9 @@ namespace edm {
   void
     PileUp::playPileUp(const std::vector<edm::EventID> &ids, T eventOperator) {
     //TrueNumInteractions.push_back( ids.size() ) ;
-    input_->loopSpecified(*eventPrincipal_,ids,eventOperator);
+    PassEventID<T> recorder(eventOperator);
+    input_->loopSpecified(*eventPrincipal_,ids,recorder);
+    /* input_->loopSpecified(*eventPrincipal_,ids,eventOperator); */
   }
 
 
@@ -212,6 +227,7 @@ namespace edm {
     }
   */
 }
+
 
 
 #endif
