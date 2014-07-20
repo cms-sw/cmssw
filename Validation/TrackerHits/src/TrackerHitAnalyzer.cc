@@ -26,6 +26,10 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+// 20/Jul/2014 Mark Grimes - temporary hack to remap the DetIds from old SLHC11 input
+// files. As soon as this functionality is no longer needed this should be taken out.
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
 
 #include <iostream>
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -342,7 +346,11 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
 
    LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
-   
+
+   // 20/Jul/2014 Mark Grimes - temporary hack to remap the DetIds from old SLHC11 input
+   // files. As soon as this functionality is no longer needed this should be taken out.
+   edm::Service<simtracker::services::RemapDetIdService> detIdRemapService;
+
   // iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
   /////////////////////////////////
@@ -369,7 +377,8 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   ////////////////////////////////
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-  e.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
+  //e.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
+  detIdRemapService->getByLabel( e, PxlFwdLowSrc_, PxlFwdLowContainer ); // Temporary hack. See note above where detIdRemapService is declared.
   if (!PxlFwdLowContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -377,7 +386,8 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-  e.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
+  //e.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
+  detIdRemapService->getByLabel( e, PxlFwdHighSrc_, PxlFwdHighContainer ); // Temporary hack. See note above where detIdRemapService is declared.
   if (!PxlFwdHighContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
