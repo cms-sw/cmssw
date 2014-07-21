@@ -20,7 +20,7 @@ particleFlowRecHitECALWithTime = cms.EDProducer("PFRecHitProducer",
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFEBRecHitCreator"),
+             name = cms.string("PFEBRecHitCreatorMaxSample"),
              src  = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
              qualityTests = cms.VPSet(
                   cms.PSet(
@@ -37,7 +37,7 @@ particleFlowRecHitECALWithTime = cms.EDProducer("PFRecHitProducer",
              )
            ),
           cms.PSet(
-            name = cms.string("PFEERecHitCreator"),
+            name = cms.string("PFEERecHitCreatorMaxSample"),
             src  = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
             qualityTests = cms.VPSet(
                  cms.PSet(

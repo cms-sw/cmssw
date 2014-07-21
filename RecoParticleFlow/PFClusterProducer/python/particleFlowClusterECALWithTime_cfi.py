@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
-
 #### PF CLUSTER ECAL ####
+
+from particleFlowCaloResolution_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
 
 #cleaning
 _spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(

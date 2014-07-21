@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
-particleFlowClusterECALWithTimeSelected = cms.EDProducer(
+particleFlowClusterECALTimeSelected = cms.EDProducer(
     "PFClusterSelector",
     src = cms.InputTag('particleFlowClusterECALWithTimeUncorrected'),
     energyRanges = cms.vdouble(1., 2., 5., 20.),
