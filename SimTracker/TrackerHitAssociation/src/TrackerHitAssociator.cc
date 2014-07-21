@@ -56,8 +56,10 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
-  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
-  assocHitbySimTrack_( conf.getUntrackedParameter<bool>("associateHitbySimTrack", false) ) {
+  // doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
+  // assocHitbySimTrack_( conf.getUntrackedParameter<bool>("associateHitbySimTrack", false) ) {
+  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ) {
+  assocHitbySimTrack_ = conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false;
   
   //if track association there is no need to access the input collections
   if(!doTrackAssoc_) {
@@ -140,7 +142,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   // Get the vectors of simtrackIDs and simHit indices associated with this rechit
   associateHitId(thit, simtrackid, &simhitCFPos);
   // std::cout << "recHit subdet, detID = " << detid.subdetId() << ", " << detID << ", (bnch, evt, trk) = ";
-  for (size_t i=0; i<simtrackid.size(); ++i)
+  // for (size_t i=0; i<simtrackid.size(); ++i)
   //   std::cout << ", (" << simtrackid[i].second.bunchCrossing() << ", "
   // 	      << simtrackid[i].second.event() << ", " << simtrackid[i].first << ")";
   // std::cout << std::endl; 
@@ -186,8 +188,6 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	
       for(size_t i=0; i<simtrackid.size();i++) {
 	if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second) {
-//      In replay mode the MixingModule doesn't seem to save the eventId.event(); test on bunchCrossing only.
-// 	if(simHitid == simtrackid[i].first && simHiteid.bunchCrossing() == simtrackid[i].second.bunchCrossing()) {
 // 	    	cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 //                   << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl;
 	  // std::cout << " matches";
