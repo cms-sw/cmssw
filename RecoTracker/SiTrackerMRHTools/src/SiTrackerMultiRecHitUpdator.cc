@@ -131,14 +131,15 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
   for(std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin(); 
 	ihit != updatedcomponents.end(); ihit++) {
 
-    double a_i = ComputeWeight(tsos, *(*ihit), false, annealing); //exp(-0.5*Chi2)/(2.*M_PI*sqrt(det));
+    double a_i = ComputeWeight(tsos, *(*ihit), false, annealing); //exp(-0.5*Chi2)
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t a_i:" << a_i ;
-    double c_i = ComputeWeight(tsos, *(*ihit), true, annealing);  //exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
-    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t c_i:" << c_i ;
+    //double c_i = ComputeWeight(tsos, *(*ihit), true, annealing);  //exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
+    //LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t c_i:" << c_i ;
     mymap.push_back(std::pair<const TrackingRecHit*, float>((*ihit)->hit(), a_i));
 
     a_sum += a_i;
-    c_sum += c_i;   
+    //with the new definition, the cut weight is computed only once
+    if( ihit == updatedcomponents.begin() ) c_sum = ComputeWeight(tsos, *(*ihit), true, annealing);   //exp(-0.5*theChi2Cut/annealing)
   }
   double total_sum = a_sum + c_sum;    
   LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t total sum:" << total_sum ;
@@ -239,14 +240,14 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   double temp_weight = 0.0;
   if( CutWeight && N == 1 ){
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2Cut1D:" << theChi2Cut1D;
-    temp_weight = exp(-0.5*theChi2Cut1D/annealing)/(2.*M_PI*sqrt(det));
+    temp_weight = exp(-0.5*theChi2Cut1D/annealing);
   } else if( CutWeight && N == 2 ) {
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2Cut2D:" << theChi2Cut2D;
- 	temp_weight = exp(-0.5*theChi2Cut2D/annealing)/(2.*M_PI*sqrt(det));
+    temp_weight = exp(-0.5*theChi2Cut2D/annealing);
   }
 
   if(!CutWeight) {
-    temp_weight = exp(-0.5*Chi2)/(2.*M_PI*sqrt(det)); 
+    temp_weight = exp(-0.5*Chi2); 
   }
 
   return temp_weight;
