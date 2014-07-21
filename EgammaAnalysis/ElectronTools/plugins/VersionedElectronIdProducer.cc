@@ -83,8 +83,11 @@ VersionedElectronIdProducer(const edm::ParameterSet& iConfig) {
       forPat_.back()->setConsumes(consumesCollector());
     } else {
       forGsf_.emplace_back( new VersionedGsfElectronSelector(the_id) );
+      std::cout << "made the selector" << std::endl;
       calculated_md5 = forGsf_.back()->md5String();
+      std::cout << "got the md5" << std::endl;
       forGsf_.back()->setConsumes(consumesCollector());
+       std::cout << "set consumes" << std::endl;
     }
     if( idMD5 != calculated_md5 ) {
       throw cms::Exception("IdConfigurationNotValidated")
