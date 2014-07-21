@@ -38,9 +38,7 @@ DumpFWTGeoRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup&
   eventSetup.get<FWTGeoRecoGeometryRecord>().get( geoh );
   TGeoManager *geom = geoh.product()->manager();//const_cast<TGeoManager*>( geoh.product()->manager());
 
-  std::stringstream s;
-  s << "cmsTGeoRecoGeom" << m_level << ".root";
-  TFile file( s.str().c_str(), "RECREATE" );
+  TFile file( "cmsTRecoGeom.root", "RECREATE" );
    
  
   file.WriteTObject( &*geom );
