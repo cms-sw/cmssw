@@ -42,7 +42,7 @@
 #include<functional>
 
 #include <thread>
-
+#include "tbb/parallel_for.h"
 
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
 
@@ -213,8 +213,8 @@ namespace cms{
 
       // Loop over seeds
       size_t collseed_size = collseed->size();
-#pragma omp parallel for schedule(dynamic,4) 
-      for (size_t j = 0; j < collseed_size; j++){
+
+      auto theLoop = [&](size_t j) {    
 
       // to be moved inside a par section
       vector<Trajectory> theTmpTrajectories;
@@ -226,7 +226,7 @@ namespace cms{
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;
-          continue; 
+          return;  // from the lambda! 
         }}
 
 	// Build trajectory from seed outwards
@@ -295,9 +295,18 @@ namespace cms{
         }
         }
 
-      }
+      };
       // end of loop over seeds
-      
+
+#ifdef VI_OMP
+#pragma omp parallel for schedule(dynamic,4)
+      for (size_t j = 0; j < collseed_size; j++){
+       theLoop(j);
+      }
+#else
+     tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
+#endif
+     
       if (theSeedCleaner) theSeedCleaner->done();
    
       // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
