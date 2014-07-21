@@ -20,9 +20,6 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-// Take these next two lines out as soon as SLHC11 samples no longer need to be processed
-#include <FWCore/ServiceRegistry/interface/Service.h>
-#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -84,8 +81,6 @@ namespace cms {
     std::map<unsigned int, PixelGeomDetUnit*> detectorUnits;
     CLHEP::HepRandomEngine* rndEngine;
 
-    // Take this member out as soon as SLHC11 files no longer need to be processed
-    edm::Service<simtracker::services::RemapDetIdService> detIdRemapService_;
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };
 }

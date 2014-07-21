@@ -17,11 +17,6 @@
 #include <numeric>
 #include <iostream>
 
-// 20/Jul/2014 Mark Grimes - temporary hack to remap the DetIds from old SLHC11 input
-// files. As soon as this functionality is no longer needed this should be taken out.
-#include <FWCore/ServiceRegistry/interface/Service.h>
-#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
-
 using namespace std;
 using namespace edm;
 
@@ -81,18 +76,13 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring tr
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof) 
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
 
-  // 20/Jul/2014 Mark Grimes - temporary hack to remap the DetIds from old SLHC11 input
-  // files. As soon as this functionality is no longer needed this should be taken out.
-  edm::Service<simtracker::services::RemapDetIdService> detIdRemapService;
-
   for(auto const& trackerContainer : trackerContainers) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     edm::InputTag tag_cf("mix", trackerContainer);
     edm::Handle<std::vector<PSimHit> > simHits;
     edm::InputTag tag_hits("g4SimHits", trackerContainer);
     int Nhits = 0;
-    //if (theEvent.getByLabel(tag_cf, cf_simhit)) {
-    if ( detIdRemapService->getByLabel(theEvent,tag_cf,cf_simhit) ) { // Temporary hack. See note above where detIdRemapService is declared.
+    if (theEvent.getByLabel(tag_cf, cf_simhit)) {
       std::auto_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
       for (MixCollection<PSimHit>::iterator isim = thisContainerHits->begin();
 	   isim != thisContainerHits->end(); isim++) {
@@ -109,8 +99,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring tr
       }
       // std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
     } else {
-      //theEvent.getByLabel(tag_hits, simHits);
-      detIdRemapService->getByLabel( theEvent, tag_hits, simHits ); // Temporary hack. See note above where detIdRemapService is declared.
+      theEvent.getByLabel(tag_hits, simHits);
       for (std::vector<PSimHit>::const_iterator isim = simHits->begin();
 	   isim != simHits->end(); isim++) {
 	DetId theDet((*isim).detUnitId());
