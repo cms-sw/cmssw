@@ -158,12 +158,21 @@ def cust_2023SHCal(process):
         process.pfClusteringEK += process.particleFlowClusterECAL
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.particleFlowCluster += process.pfClusteringEK
-
+        
         process.photonCore.scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel")
         process.photonCore.scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower")        
         process.photons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         
-       
+        process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
+        process.towerMakerPF.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
+        process.towerMakerWithHO.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
+        process.towerMaker.EESumThreshold = cms.double(0.1)
+        process.towerMakerPF.EESumThreshold = cms.double(0.1)
+        process.towerMakerWithHO.EESumThreshold = cms.double(0.1)
+        process.towerMaker.EEThreshold = cms.double(0.035)
+        process.towerMakerPF.EEThreshold = cms.double(0.035)
+        process.towerMakerWithHO.EEThreshold = cms.double(0.035)
+
     return process
 
 def cust_2023HGCal(process):
