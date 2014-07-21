@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(22)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
@@ -61,7 +61,7 @@ process.MessageLogger = cms.Service(
 	threshold  = cms.untracked.string('DEBUG') 
     ),
     debugModules = cms.untracked.vstring(
-        'mp7BufferDumpToRaw',
+        'stage2Layer2Raw',
         'l1tDigis',
 	'caloStage2TowerDigis',
 	'caloStage2Digis'
@@ -91,7 +91,7 @@ process.stage2DemuxRaw.txFile = cms.untracked.string("")
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("mp7BufferDumpToRaw"),
+    label = cms.untracked.string("stage2Layer2Raw"),
     feds = cms.untracked.vint32 ( 2 ),
     dumpPayload = cms.untracked.bool ( True )
 )
@@ -100,7 +100,7 @@ process.dumpRaw = cms.EDAnalyzer(
 import EventFilter.L1TRawToDigi.l1tRawToDigi_cfi
 process.l1tDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
 process.l1tDigis.FedId = cms.int32(2)
-process.l1tDigis.InputLabel = cms.InputTag("mp7BufferDumpToRaw")
+process.l1tDigis.InputLabel = cms.InputTag("stage2Layer2Raw")
 process.l1tDigis.Unpackers = cms.vstring(["l1t::CaloTowerUnpackerFactory",
                                           "l1t::EGammaUnpackerFactory",
                                           "l1t::EtSumUnpackerFactory",
@@ -124,7 +124,7 @@ process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("l1tDigis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.mp7BufferDumpToRaw
+    process.stage2Layer2Raw
     +process.dumpRaw
     +process.l1tDigis
     +process.l1tStage2CaloAnalyzer

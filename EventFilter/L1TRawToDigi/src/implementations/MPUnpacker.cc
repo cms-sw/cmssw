@@ -101,9 +101,13 @@ namespace l1t {
        l1t::Jet jet = l1t::Jet();
 
        int etasign = 1;
-       if (block_id == (7 || 9 || 11)) {
+       if ((block_id == 7) ||
+           (block_id == 9) ||
+           (block_id == 11)) {
          etasign = -1;
        }
+
+       LogDebug("L1") << "block ID=" << block_id << " etasign=" << etasign;
 
        jet.setHwEta(etasign*(raw_data & 0x3F));
        jet.setHwPhi((raw_data >> 6) & 0x7F);
