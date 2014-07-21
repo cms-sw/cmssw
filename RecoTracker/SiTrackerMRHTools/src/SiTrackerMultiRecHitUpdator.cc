@@ -15,12 +15,14 @@
 
 SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
 							 const TrackingRecHitPropagator* hitpropagator,
-							 const float Chi2Cut,
+							 const float Chi2Cut1D,
+							 const float Chi2Cut2D,
 						         const std::vector<double>& anAnnealingProgram,
 							 bool debug):
   theBuilder(builder),
   theHitPropagator(hitpropagator),
-  theChi2Cut(Chi2Cut),
+  theChi2Cut1D(Chi2Cut1D),
+  theChi2Cut2D(Chi2Cut2D),
   theAnnealingProgram(anAnnealingProgram),
   debug_(debug){
     theHitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
@@ -234,9 +236,18 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2:" << Chi2;
   }
 
-  double temp_weight;
-  if( CutWeight ) 	temp_weight = exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
-  else 			temp_weight = exp(-0.5*Chi2)/(2.*M_PI*sqrt(det)); 
+  double temp_weight = 0.0;
+  if( CutWeight && N == 1 ){
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2Cut1D:" << theChi2Cut1D;
+    temp_weight = exp(-0.5*theChi2Cut1D/annealing)/(2.*M_PI*sqrt(det));
+  } else if( CutWeight && N == 2 ) {
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2Cut2D:" << theChi2Cut2D;
+ 	temp_weight = exp(-0.5*theChi2Cut2D/annealing)/(2.*M_PI*sqrt(det));
+  }
+
+  if(!CutWeight) {
+    temp_weight = exp(-0.5*Chi2)/(2.*M_PI*sqrt(det)); 
+  }
 
   return temp_weight;
 
