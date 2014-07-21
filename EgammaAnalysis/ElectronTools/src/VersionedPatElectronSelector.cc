@@ -21,7 +21,13 @@ initialize( const edm::ParameterSet& conf ) {
     const std::string& name = cut.getParameter<std::string>("cutName");
     const bool needsContent = cut.getParameter<bool>("needsAdditionalProducts");    
     const bool ignored = cut.getParameter<bool>("isIgnored");
-    cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));    
+    const auto* plugin = CutApplicatorFactory::get()->create(name,cut);
+    if( plugin != nullptr ) {
+      cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));    
+    } else {
+      throw cms::Exception("BadPluginName")
+	<< "The requested cut: " << name << " is not available!";
+    }
     needs_event_content_.push_back(needsContent);
     push_back(name);
     set(name);
@@ -46,8 +52,7 @@ operator()(const pat::ElectronRef & electron,pat::strbitset & ret ) {
       << "VersionedPatElectronSelector not initialized!" << std::endl;
   }  
   for( unsigned i = 0; i < cuts_.size(); ++i ) {
-    reco::CandidateRef temp(electron.id(),electron.key(),
-			    electron.productGetter());
+    reco::CandidateBaseRef temp(electron);
     const bool result = (*cuts_[i])(temp);
     if( result || ignoreCut(cut_indices_[i]) ) {
       passCut(ret,cut_indices_[i]);

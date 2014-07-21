@@ -18,7 +18,7 @@ public:
   }
 
 private:  
-  const double _dzCutValue;
+  const double _dzCutValueEB,_dzCutValueEE,_barrelCutOff;
   edm::Handle<reco::VertexCollection> _vtxs;
 };
 
@@ -28,7 +28,9 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 GsfEleDzCut::GsfEleDzCut(const edm::ParameterSet& c) :
   CutApplicatorWithEventContentBase(c),
-  _dzCutValue(c.getParameter<double>("dzCutValue")){
+  _dzCutValueEB(c.getParameter<double>("dzCutValueEB")),
+  _dzCutValueEE(c.getParameter<double>("dzCutValueEE")),
+  _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   edm::InputTag vertextag = c.getParameter<edm::InputTag>("vertexSrc");
   contentTags_.emplace("vertices",vertextag);
 }
@@ -46,9 +48,13 @@ void GsfEleDzCut::getEventContent(const edm::EventBase& ev) {
 CutApplicatorBase::result_type 
 GsfEleDzCut::
 operator()(const reco::GsfElectronRef& cand) const{  
+  const unsigned dzCutValue = 
+    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+      _dzCutValueEB : _dzCutValueEE );
+  
   const reco::VertexCollection& vtxs = *_vtxs;
-  const double dxy = ( vtxs.size() ? 
-		       cand->gsfTrack()->dz(vtxs[0].position()) : 
-		       cand->gsfTrack()->dz() );
-  return dxy < _dzCutValue;
+  const double dz = ( vtxs.size() ? 
+		      cand->gsfTrack()->dz(vtxs[0].position()) : 
+		      cand->gsfTrack()->dz() );
+  return dz < dzCutValue;
 }
