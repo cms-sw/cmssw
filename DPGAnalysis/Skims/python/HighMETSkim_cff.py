@@ -37,22 +37,19 @@ pfMETSelSeq = cms.Sequence(pvFilter*
 
 
 ## select events with high tcMET
-tcMETSelector = cms.EDFilter(
-    "CandViewSelector",
-    src = cms.InputTag("tcMet"),
-    cut = cms.string( "pt()>150" )
-    )
+#tcMETSelector = cms.EDFilter(
+#    "CandViewSelector",
+#    src = cms.InputTag("tcMet"),
+#    cut = cms.string( "pt()>150" )
+#    )
 
-tcMETCounter = cms.EDFilter(
-    "CandViewCountFilter",
-    src = cms.InputTag("tcMETSelector"),
-    minNumber = cms.uint32(1),
-    )
+#tcMETCounter = cms.EDFilter(
+#    "CandViewCountFilter",
+#    src = cms.InputTag("tcMETSelector"),
+#    minNumber = cms.uint32(1),
+#    )
 
-tcMETSelSeq = cms.Sequence(pvFilter*
-                           HBHENoiseFilter*
-                           tcMETSelector*
-                           tcMETCounter
-                           )
+
+
 
 
