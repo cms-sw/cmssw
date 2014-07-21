@@ -101,7 +101,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   double minR9=0;
   if (subdet==EcalBarrel) {
     minR9=minR9Barrel_;
-  } else if  (subdet==EcalEndcap) {
+  } else if  (subdet==EcalEndcap || subdet == EcalShashlik) {
     minR9=minR9Endcap_;
   }
 
@@ -112,7 +112,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
 
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
-  if ( thePhoton.r9() > minR9 ) {
+  if ( thePhoton.r9() > minR9 && subdet != EcalShashlik ) {
     // f(eta) correction to e5x5
     double deltaE = scEnergyFunction_->getValue(*(thePhoton.superCluster()), 1);
     float e5x5=thePhoton.e5x5();
@@ -126,7 +126,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
 
   ////////////// Here Ecal corrections specific for photons ////////////////////////
 
-  if ( thePhoton.r9() > minR9 ) {
+  if ( thePhoton.r9() > minR9 && subdet != EcalShashlik ) {
 
    
 
@@ -139,12 +139,15 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     phoEcalEnergy *=  scCrackEnergyFunction_->getValue(*(thePhoton.superCluster()));
     phoEcalEnergyError = photonUncertaintyCalculator_->computePhotonEnergyUncertainty_highR9(thePhoton.superCluster()->eta(), thePhoton.superCluster()->phiWidth()/thePhoton.superCluster()->etaWidth(), phoEcalEnergy);
   } else {
-
-  
-    // correction for low r9 
-    phoEcalEnergy =  photonEcalEnergyCorrFunction_->getValue(*(thePhoton.superCluster()), 1);
-    phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_);
-    phoEcalEnergyError = photonUncertaintyCalculator_->computePhotonEnergyUncertainty_lowR9(thePhoton.superCluster()->eta(), thePhoton.superCluster()->phiWidth()/thePhoton.superCluster()->etaWidth(), phoEcalEnergy);
+    if( subdet != EcalShashlik ) {
+      // correction for low r9 
+      phoEcalEnergy =  photonEcalEnergyCorrFunction_->getValue(*(thePhoton.superCluster()), 1);
+      phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_);
+      phoEcalEnergyError = photonUncertaintyCalculator_->computePhotonEnergyUncertainty_lowR9(thePhoton.superCluster()->eta(), thePhoton.superCluster()->phiWidth()/thePhoton.superCluster()->etaWidth(), phoEcalEnergy);
+    } else {
+      phoEcalEnergy = thePhoton.superCluster()->energy();
+      phoEcalEnergyError = 1.0/std::sqrt(phoEcalEnergy); // dummy value since no corrections exist
+    }
   }
 
   
