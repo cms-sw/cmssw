@@ -416,9 +416,9 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSetID co
      { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps H/E is lower than during ecal seeding." ; }
    }
 
-  if (cutsCfg_.minSCEtBarrel<seedConfiguration.getParameter<double>("SCEtCut"))
+  if (cutsCfg_.minSCEtBarrel<seedConfiguration.getParameter<double>("SCEtCutBarrel"))
    { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
-  if (cutsCfg_.minSCEtEndcaps<seedConfiguration.getParameter<double>("SCEtCut"))
+  if (cutsCfg_.minSCEtEndcaps<seedConfiguration.getParameter<double>("SCEtCutEndcap"))
    { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
 
