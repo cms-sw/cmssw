@@ -108,16 +108,16 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverELutIndex(int 
 bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluster& clus)
 {
   unsigned int shape = 0;
-  if( !(clus.checkClusterFlag(CaloCluster::TRIM_N)) ) shape |= (0x1);
-  if( !(clus.checkClusterFlag(CaloCluster::TRIM_S)) ) shape |= (0x1<<1);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && !(clus.checkClusterFlag(CaloCluster::TRIM_NE)) ) shape |= (0x1<<2);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_RIGHT) && !(clus.checkClusterFlag(CaloCluster::TRIM_NW)) ) shape |= (0x1<<2);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && !(clus.checkClusterFlag(CaloCluster::TRIM_E))  ) shape |= (0x1<<3);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_RIGHT) && !(clus.checkClusterFlag(CaloCluster::TRIM_W))  ) shape |= (0x1<<3);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && !(clus.checkClusterFlag(CaloCluster::TRIM_SE)) ) shape |= (0x1<<4);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_RIGHT) && !(clus.checkClusterFlag(CaloCluster::TRIM_SW)) ) shape |= (0x1<<4);
-  if( clus.checkClusterFlag(CaloCluster::EXT_UP)   ) shape |= (0x1<<5);
-  if( clus.checkClusterFlag(CaloCluster::EXT_DOWN) ) shape |= (0x1<<6);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
 
   unsigned int lutAddress = idShapeLutIndex(shape, clus.hwEta()); 
   bool shapeBit = params_->egShapeIdLUT()->data(lutAddress);

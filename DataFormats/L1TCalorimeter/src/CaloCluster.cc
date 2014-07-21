@@ -6,7 +6,7 @@ l1t::CaloCluster::CaloCluster( const LorentzVector p4,
 			     int eta,
 			     int phi)
   : L1Candidate(p4, pt, eta, phi),
-    m_clusterFlags(0)
+    m_clusterFlags(0x7FF) // first 11 flags at 1
 {
   
 }
@@ -70,7 +70,7 @@ bool l1t::CaloCluster::checkClusterFlag(ClusterFlag flag) const
 
 bool l1t::CaloCluster::isValid() const
 {
-    return ( checkClusterFlag(PASS_THRES_SEED) && checkClusterFlag(PASS_FILTER_CLUSTER) );
+    return ( checkClusterFlag(INCLUDE_SEED) );
 }
 
 int l1t::CaloCluster::hwPtEm()const

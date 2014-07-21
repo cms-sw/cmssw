@@ -188,14 +188,16 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     boost::split(data, line, boost::is_any_of("\t "),boost::token_compress_on);
     std::vector<std::string>::iterator tmp = data.begin();
 
+    // check we have read the right number of link words
+    if ((int)data.size()-3 != nRxLinks_) {
+      edm::LogError("mp7") << "Read " << data.size() << " Rx links, expected " << nRxLinks_ << " " << data.at(0) << " " << data.at(data.size()-1) << std::endl;
+      break; 
+    }
+
     // drop first three tokens (Frame number etc)
     tmp++; tmp++; tmp++;
     data.erase(data.begin(), tmp);
     
-    // check we have read the right number of link words
-    if ((int)data.size() != nRxLinks_) {
-      edm::LogError("mp7") << "Read " << data.size() << " Rx links, expected " << nRxLinks_ << " " << data.at(0) << " " << data.at(data.size()-1) << std::endl;
-    }
 
     // store data
     for (int iLink=0; iLink<nRxLinks_; ++iLink) {

@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(22)
 )
 
 # Input source
@@ -75,8 +75,18 @@ process.TFileService.fileName = cms.string('l1t.root')
 
 # user stuff
 
-# convert buffer dump to raw
-process.load('EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi')
+# raw data from MP card
+from EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi import mp7BufferDumpToRaw
+process.stage2Layer2Raw = mp7BufferDumpToRaw.clone()
+process.stage2Layer2Raw.fedId = cms.untracked.int32(2)
+process.stage2Layer2Raw.rxFile = cms.untracked.string("rx_summary.txt")
+process.stage2Layer2Raw.txFile = cms.untracked.string("tx_summary.txt")
+
+# raw data from Demux
+process.stage2DemuxRaw = mp7BufferDumpToRaw.clone()
+process.stage2DemuxRaw.fedId = cms.untracked.int32(1)
+process.stage2DemuxRaw.rxFile = cms.untracked.string("")
+process.stage2DemuxRaw.txFile = cms.untracked.string("")
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
