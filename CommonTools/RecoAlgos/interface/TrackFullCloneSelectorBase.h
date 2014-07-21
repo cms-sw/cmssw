@@ -17,7 +17,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@
 namespace reco { namespace modules {
 
 template<typename Selector>
-class TrackFullCloneSelectorBase : public edm::EDProducer {
+class TrackFullCloneSelectorBase : public edm::stream::EDProducer<> {
 public:
   /// constructor
   explicit TrackFullCloneSelectorBase( const edm::ParameterSet & cfg ) :
