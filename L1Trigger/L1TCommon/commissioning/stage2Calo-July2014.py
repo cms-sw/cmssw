@@ -133,7 +133,18 @@ process.l1tDigis.FedId = cms.int32(2)
 process.l1tDigis.InputLabel = cms.InputTag("rawData")
 
 
-#diagnostics
+
+### emulator ###
+
+# upgrade calo stage 2
+process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
+process.caloStage2Digis.towerToken = cms.InputTag("l1tDigis")
+
+process.load("L1Trigger.L1TCalorimeter.caloStage2Params_cfi")
+
+
+
+### diagnostics ###
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
@@ -143,34 +154,46 @@ process.dumpRaw = cms.EDAnalyzer(
     dumpPayload = cms.untracked.bool ( True )
 )
 
+# plots from unpacker
+import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
+process.rawPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
+process.rawPlots.towerToken = cms.InputTag("l1tDigis")
+process.rawPlots.clusterToken = cms.InputTag("None")
+process.rawPlots.egToken = cms.InputTag("l1tDigis")
+process.rawPlots.tauToken = cms.InputTag("l1tDigis")
+process.rawPlots.jetToken = cms.InputTag("l1tDigis")
+process.rawPlots.etSumToken = cms.InputTag("l1tDigis")
 
-process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("l1tDigis")
-#process.l1tStage2CaloAnalyzer.towerPreCompressionToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("l1tDigis")
+# plots from emulator
+process.simPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
+process.simPlots.towerToken = cms.InputTag("caloStage2Digis")
+process.simPlots.clusterToken = cms.InputTag("caloStage2Digis")
+process.simPlots.egToken = cms.InputTag("caloStage2Digis")
+process.simPlots.tauToken = cms.InputTag("caloStage2Digis")
+process.simPlots.jetToken = cms.InputTag("caloStage2Digis")
+process.simPlots.etSumToken = cms.InputTag("caloStage2Digis")
 
-# emulator
 
-# upgrade calo stage 2
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-process.caloStage2Digis.towerToken = cms.InputTag("l1tDigis")
-
-process.load("L1Trigger.L1TCalorimeter.caloStage2Params_cfi")
 
 
 # Path and EndPath definitions
 process.path = cms.Path(
+
+    # produce RAW
     process.stage2Layer2Raw
     +process.stage2DemuxRaw
     +process.rawData
+
+    # unpack
     +process.l1tDigis
-    +process.dumpRaw
-    +process.l1tStage2CaloAnalyzer
+
+    # emulator
     +process.caloStage2Digis
+
+    # diagnostics
+    +process.dumpRaw
+    +process.rawPlots
+    +process.simPlots
 )
 
 process.out = cms.EndPath(
