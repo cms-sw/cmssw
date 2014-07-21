@@ -110,8 +110,9 @@ TGeoMatrix* createCaloPlacement( const CaloCellGeometry* cell)
    res->Print();
    return res;
 }
+}
 
-TGeoVolume* GetDaughter(TGeoVolume* mother, const char* prefix, int id)
+TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const char* prefix, int id)
 {
    TGeoVolume* res = 0;
    if (mother->GetNdaughters()) { 
@@ -121,11 +122,11 @@ TGeoVolume* GetDaughter(TGeoVolume* mother, const char* prefix, int id)
 
    if (!res) {
       res = new TGeoVolumeAssembly( Form("%s_%d", prefix, id ));
+      res->SetMedium(m_dummyMedium);
       mother->AddNode(res, 1);
    }
 
    return res;
-}
 }
 
 boost::shared_ptr<FWTGeoRecoGeometry> 
@@ -152,7 +153,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   
    // Default material is Vacuum
    TGeoMaterial *vacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
-   m_dummyMedium = new TGeoMedium( "reco-medium", 0, vacuum);
+   m_dummyMedium = new TGeoMedium( "reco", 0, vacuum);
    // so is default medium
    TGeoVolume *top = geom->MakeBox( "CMS", m_dummyMedium, 270., 270., 120. );
   

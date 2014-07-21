@@ -46,7 +46,7 @@ private:
    TGeoVolume* getIdealZPrismVolume(const CaloCellGeometry* cell);
    TGeoVolume* getIdealObliquePrismVolume(const CaloCellGeometry* cell);
    TGeoVolume* getCalloCellVolume(const CaloCellGeometry* cell);
-
+   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, int id);
    void addPixelBarrelGeometry();
    void addPixelForwardGeometry();
    void addTIBGeometry();
