@@ -626,6 +626,7 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
     if(i == psm_.end()) {
       std::cout << "We are unable to find the corresponding ParameterSet\n";
       edm::ParameterSet empty;
+      empty.registerIt();
       if(id == empty.id()) {
         std::cout << "But it would have been empty anyway\n";
       }
@@ -760,7 +761,13 @@ ProvenanceDumper::work_() {
   }
 
   if(!dumpPSetID_.empty()) {
-    dumpParameterSetForID_(edm::ParameterSetID(dumpPSetID_));
+    edm::ParameterSetID psetID;
+    try {
+      psetID = edm::ParameterSetID(dumpPSetID_);
+    } catch (cms::Exception const& x) {
+      throw cms::Exception("Command Line Argument") << "Illegal ParameterSetID string. It should contain 32 hexadecimal characters";
+    }
+    dumpParameterSetForID_(psetID);
     return;
   }
 
