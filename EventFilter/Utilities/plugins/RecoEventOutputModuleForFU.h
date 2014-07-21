@@ -203,6 +203,7 @@ namespace evf {
           fread(outBuf_,toRead,1,src);
           fwrite(outBuf_,toRead,1,des);
           readInput+=toRead;
+          filesize+=toRead;
       }
 
       //if(des != 0 && src !=0){
