@@ -26,7 +26,8 @@ using namespace edm;
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : 
   doPixel_( true ),
   doStrip_( true ), 
-  doTrackAssoc_( false ) {
+  doTrackAssoc_( false ),
+  assocHitbySimTrack_( false ) {
   //
   // Take by default all tracker SimHits
   //
@@ -56,8 +57,6 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
-  // doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
-  // assocHitbySimTrack_( conf.getUntrackedParameter<bool>("associateHitbySimTrack", false) ) {
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ) {
   assocHitbySimTrack_ = conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false;
   
