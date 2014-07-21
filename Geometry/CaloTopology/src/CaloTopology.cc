@@ -1,5 +1,6 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 
 
 CaloTopology::CaloTopology() {
@@ -10,7 +11,9 @@ CaloTopology::~CaloTopology()
    for( TopMap::iterator i ( theTopologies_.begin() ) ;
 	i != theTopologies_.end() ; ++i )
    {
+     if( dynamic_cast<const ShashlikTopology*>(i->second) == nullptr ) {
       delete i->second ;
+     }
    }
 }
 
