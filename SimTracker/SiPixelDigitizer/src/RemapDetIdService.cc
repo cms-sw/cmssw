@@ -13,9 +13,6 @@
 #include <SimDataFormats/CrossingFrame/interface/CrossingFrame.h>
 
 
-namespace simtracker { namespace services { DEFINE_FWK_SERVICE( RemapDetIdService ); } }
-
-
 simtracker::services::RemapDetIdService::RemapDetIdService( const edm::ParameterSet& parameterSet, edm::ActivityRegistry& activityRegister )
 {
 	std::vector<edm::InputTag> inputCollectionNames=parameterSet.getParameter<std::vector<edm::InputTag> >( "inputCollections" );
