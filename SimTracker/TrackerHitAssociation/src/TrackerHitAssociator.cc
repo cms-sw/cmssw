@@ -140,7 +140,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   // Get the vectors of simtrackIDs and simHit indices associated with this rechit
   associateHitId(thit, simtrackid, &simhitCFPos);
   // std::cout << "recHit subdet, detID = " << detid.subdetId() << ", " << detID << ", (bnch, evt, trk) = ";
-  for (size_t i=0; i<simtrackid.size(); ++i)
+  // for (size_t i=0; i<simtrackid.size(); ++i)
   //   std::cout << ", (" << simtrackid[i].second.bunchCrossing() << ", "
   // 	      << simtrackid[i].second.event() << ", " << simtrackid[i].first << ")";
   // std::cout << std::endl; 
