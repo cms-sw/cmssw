@@ -104,7 +104,18 @@ namespace l1t {
 
    std::vector<UnpackerItem>
    JetUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
-     return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, ev)))};
+
+     // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
+     if (fedid==1){
+
+       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, ev)))};
+
+     } else {
+
+       return {};
+
+     }
+
    };
 }
 

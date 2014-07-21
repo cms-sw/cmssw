@@ -121,7 +121,7 @@ namespace l1t {
              tower2.setHwEta(-1*frame);
            }
 	 
-           LogDebug("L1T") << "Tower 1: Eta " << tower2.hwEta()
+           LogDebug("L1T") << "Tower 2: Eta " << tower2.hwEta()
                            << " phi " << tower2.hwPhi()
                            << " pT " << tower2.hwPt()
                            << " frame " << frame
@@ -145,6 +145,11 @@ namespace l1t {
    std::vector<UnpackerItem>
    CaloTowerUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid)
    {
+
+     // This unpacker is only appropriate for the Main Processor input (FED ID=2). Anything else should not be unpacked.
+     
+     if (fedid==2){
+
        std::vector<UnpackerItem> towersMap;
     
        // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
@@ -157,6 +162,12 @@ namespace l1t {
        }
      
        return towersMap;
+
+     } else {
+       
+       return {};
+
+     }
 
    };
 };

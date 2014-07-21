@@ -85,7 +85,7 @@ namespace l1t {
 
       UnpackerMap unpackers;
       for (auto& f: factories_) {
-         for (const auto& up: f->create(event, fedId_, fw)) {
+        for (const auto& up: f->create(event, fw, fedId_)) {
             unpackers.insert(up);
          }
       }
