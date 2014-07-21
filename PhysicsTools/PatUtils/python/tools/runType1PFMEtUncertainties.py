@@ -137,17 +137,17 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
             setattr(process, "pfCandMETresidualCorr" + postfix, pfCandMETresidualCorr)
             getattr(process, "producePatPFMETCorrectionsUnc" + postfix).replace(pfCandMETcorr, pfCandMETcorr + pfCandMETresidualCorr)
 
-            patPfMetT1 = getattr(process, metModNameT1 + postfix)
-            patPfMetT1.applyType2Corrections = cms.bool(True)
-            patPfMetT1.srcUnclEnergySums = cms.VInputTag(
+            patPFMetT1 = getattr(process, metModNameT1 + postfix)
+            patPFMetT1.applyType2Corrections = cms.bool(True)
+            patPFMetT1.srcUnclEnergySums = cms.VInputTag(
                 cms.InputTag('pfCandMETresidualCorr' + postfix),
                 cms.InputTag("patPFJetMETtype1p2Corr" + postfix, "type2")
             )
-            patPfMetT1.type2CorrFormula = cms.string("A")
-            patPfMetT1.type2CorrParameter = cms.PSet(A = cms.double(2.))
+            patPFMetT1.type2CorrFormula = cms.string("A")
+            patPFMetT1.type2CorrParameter = cms.PSet(A = cms.double(2.))
 
         ##getattr(process, "patPFJetMETtype1p2Corr" + postfix).verbosity = cms.int32(1)  
-        ##getattr(process, "patPfMetT1" + postfix).verbosity = cms.int32(1)  
+        ##getattr(process, "patPFMetT1" + postfix).verbosity = cms.int32(1)  
         
         # add "nominal" (unshifted) pat::MET collections        
         getattr(process, "pfCandsNotInJet" + postfix).bottomCollection = pfCandCollection
@@ -288,7 +288,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                 patType1correctionsJetEnUp.extend([ cms.InputTag('patPFMETtype0Corr' + postfix) ])
             if doApplySysShiftCorr:
                 patType1correctionsJetEnUp.extend([ cms.InputTag('pfMEtSysShiftCorr' + postfix) ])            
-            setattr(process, "patPfMetT1T2JetEnUp" + postfix, getattr(process, metModNameT1T2 + postfix).clone(
+            setattr(process, "patPFMetT1T2JetEnUp" + postfix, getattr(process, metModNameT1T2 + postfix).clone(
                 srcType1Corrections = cms.VInputTag(patType1correctionsJetEnUp),
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2CorrEnUp' + postfix, 'type2' ),
@@ -301,14 +301,14 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     A = cms.double(1.4)
                 )
             ))
-            metUncertaintySequence += getattr(process, "patPfMetT1T2JetEnUp" + postfix)
-            collectionsToKeep.append('patPfMetT1T2JetEnUp' + postfix)
+            metUncertaintySequence += getattr(process, "patPFMetT1T2JetEnUp" + postfix)
+            collectionsToKeep.append('patPFMetT1T2JetEnUp' + postfix)
             patType1correctionsJetEnDown = [ cms.InputTag('patPFJetMETtype1p2CorrEnDown' + postfix, 'type1') ]
             if doApplyType0corr:
                 patType1correctionsJetEnDown.extend([ cms.InputTag('patPFMETtype0Corr' + postfix) ])
             if doApplySysShiftCorr:
                 patType1correctionsJetEnDown.extend([ cms.InputTag('pfMEtSysShiftCorr' + postfix) ])    
-            setattr(process, "patPfMetT1T2JetEnDown" + postfix, getattr(process, "patPfMetT1T2JetEnUp" + postfix).clone(
+            setattr(process, "patPFMetT1T2JetEnDown" + postfix, getattr(process, "patPFMetT1T2JetEnUp" + postfix).clone(
                 srcType1Corrections = cms.VInputTag(patType1correctionsJetEnDown),
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2CorrEnDown' + postfix, 'type2' ),
@@ -317,8 +317,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     cms.InputTag('pfCandMETcorr' + postfix)
                 )
             ))
-            metUncertaintySequence += getattr(process, "patPfMetT1T2JetEnDown" + postfix)
-            collectionsToKeep.append('patPfMetT1T2JetEnDown' + postfix)
+            metUncertaintySequence += getattr(process, "patPFMetT1T2JetEnDown" + postfix)
+            collectionsToKeep.append('patPFMetT1T2JetEnDown' + postfix)
 
         if doSmearJets:
             # propagate shifts in jet resolution to "raw" (uncorrected) MET and Type 1 corrected MET
@@ -357,7 +357,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     patType1correctionsJetResUp.extend([ cms.InputTag('patPFMETtype0Corr' + postfix) ])
                 if doApplySysShiftCorr:
                     patType1correctionsJetResUp.extend([ cms.InputTag('pfMEtSysShiftCorr' + postfix) ])
-                setattr(process, "patPfMetT1T2JetResUp" + postfix,  getattr(process, metModNameT1T2 + postfix).clone(
+                setattr(process, "patPFMetT1T2JetResUp" + postfix,  getattr(process, metModNameT1T2 + postfix).clone(
                     srcType1Corrections = cms.VInputTag(patType1correctionsJetResUp),
                     srcUnclEnergySums = cms.VInputTag(
                         cms.InputTag('patPFJetMETtype1p2CorrResUp' + postfix, 'type2' ),
@@ -370,14 +370,14 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                         A = cms.double(1.4)
                     )
                 ))
-                metUncertaintySequence += getattr(process, "patPfMetT1T2JetResUp" + postfix)
-                collectionsToKeep.append('patPfMetT1T2JetResUp' + postfix)
+                metUncertaintySequence += getattr(process, "patPFMetT1T2JetResUp" + postfix)
+                collectionsToKeep.append('patPFMetT1T2JetResUp' + postfix)
                 patType1correctionsJetResDown = [ cms.InputTag('patPFJetMETtype1p2CorrResDown' + postfix, 'type1') ]
                 if doApplyType0corr:
                     patType1correctionsJetResDown.extend([ cms.InputTag('patPFMETtype0Corr' + postfix) ])
                 if doApplySysShiftCorr:
                     patType1correctionsJetResDown.extend([ cms.InputTag('pfMEtSysShiftCorr' + postfix) ])
-                setattr(process, "patPfMetT1T2JetResDown" + postfix, getattr(process, "patPfMetT1T2JetResUp" + postfix).clone(
+                setattr(process, "patPFMetT1T2JetResDown" + postfix, getattr(process, "patPFMetT1T2JetResUp" + postfix).clone(
                     srcType1Corrections = cms.VInputTag(patType1correctionsJetResDown),
                     srcUnclEnergySums = cms.VInputTag(
                         cms.InputTag('patPFJetMETtype1p2CorrResDown' + postfix, 'type2' ),
@@ -386,8 +386,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                         cms.InputTag('pfCandMETcorr' + postfix)
                     )
                 ))
-                metUncertaintySequence += getattr(process, "patPfMetT1T2JetResDown" + postfix)
-                collectionsToKeep.append('patPfMetT1T2JetResDown' + postfix)
+                metUncertaintySequence += getattr(process, "patPFMetT1T2JetResDown" + postfix)
+                collectionsToKeep.append('patPFMetT1T2JetResDown' + postfix)
 
         #--------------------------------------------------------------------------------------------
         # shift "unclustered energy" (PFJets of Pt < 10 GeV plus PFCandidates not within jets)
@@ -443,7 +443,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         collectionsToKeep.append('patPFMetUnclusteredEnDown' + postfix)
 
         # propagate shifts in jet energy/resolution to Type 1 corrected MET
-        setattr(process, "patPfMetT1UnclusteredEnUp" + postfix, getattr(process, metModNameT1 + postfix).clone(
+        setattr(process, "patPFMetT1UnclusteredEnUp" + postfix, getattr(process, metModNameT1 + postfix).clone(
             src = cms.InputTag(metModNameT1 + postfix),
             srcType1Corrections = cms.VInputTag(unclEnMETcorrectionsUp),
             srcUnclEnergySums = cms.VInputTag(),
@@ -452,17 +452,17 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                 A = cms.double(1.0)
             )
         ))
-        metUncertaintySequence += getattr(process, "patPfMetT1UnclusteredEnUp" + postfix)
-        collectionsToKeep.append('patPfMetT1UnclusteredEnUp' + postfix)
-        setattr(process, "patPfMetT1UnclusteredEnDown" + postfix, getattr(process, "patPfMetT1UnclusteredEnUp" + postfix).clone(
+        metUncertaintySequence += getattr(process, "patPFMetT1UnclusteredEnUp" + postfix)
+        collectionsToKeep.append('patPFMetT1UnclusteredEnUp' + postfix)
+        setattr(process, "patPFMetT1UnclusteredEnDown" + postfix, getattr(process, "patPFMetT1UnclusteredEnUp" + postfix).clone(
             srcType1Corrections = cms.VInputTag(unclEnMETcorrectionsDown)
         ))
-        metUncertaintySequence += getattr(process, "patPfMetT1UnclusteredEnDown" + postfix)
-        collectionsToKeep.append('patPfMetT1UnclusteredEnDown' + postfix)
+        metUncertaintySequence += getattr(process, "patPFMetT1UnclusteredEnDown" + postfix)
+        collectionsToKeep.append('patPFMetT1UnclusteredEnDown' + postfix)
         
         # propagate shifts in jet energy/resolution to Type 1 + 2 corrected MET
         if makeType1p2corrPFMEt: 
-            setattr(process, "patPfMetT1T2UnclusteredEnUp" + postfix, getattr(process, metModNameT1T2 + postfix).clone(
+            setattr(process, "patPFMetT1T2UnclusteredEnUp" + postfix, getattr(process, metModNameT1T2 + postfix).clone(
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2Corr' + postfix,                'type2' ),
                     cms.InputTag('patPFJetMETtype1p2CorrUnclusteredEnUp' + postfix, 'type2' ),
@@ -474,9 +474,9 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     cms.InputTag('pfCandMETcorrUnclusteredEnUp' + postfix)
                 )
             ))
-            metUncertaintySequence += getattr(process, "patPfMetT1T2UnclusteredEnUp" + postfix)
-            collectionsToKeep.append('patPfMetT1T2UnclusteredEnUp' + postfix)
-            setattr(process, "patPfMetT1T2UnclusteredEnDown" + postfix, getattr(process, "patPfMetT1T2UnclusteredEnUp" + postfix).clone(
+            metUncertaintySequence += getattr(process, "patPFMetT1T2UnclusteredEnUp" + postfix)
+            collectionsToKeep.append('patPFMetT1T2UnclusteredEnUp' + postfix)
+            setattr(process, "patPFMetT1T2UnclusteredEnDown" + postfix, getattr(process, "patPFMetT1T2UnclusteredEnUp" + postfix).clone(
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2Corr' + postfix,                  'type2' ),
                     cms.InputTag('patPFJetMETtype1p2CorrUnclusteredEnDown' + postfix, 'type2' ),
@@ -488,8 +488,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     cms.InputTag('pfCandMETcorrUnclusteredEnDown' + postfix)
                 )
             ))
-            metUncertaintySequence += getattr(process, "patPfMetT1T2UnclusteredEnDown" + postfix)
-            collectionsToKeep.append('patPfMetT1T2UnclusteredEnDown' + postfix)
+            metUncertaintySequence += getattr(process, "patPFMetT1T2UnclusteredEnDown" + postfix)
+            collectionsToKeep.append('patPFMetT1T2UnclusteredEnDown' + postfix)
 
         #--------------------------------------------------------------------------------------------    
         # propagate shifted electron/photon, muon and tau-jet energies to MET

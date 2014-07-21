@@ -7,7 +7,7 @@ import JetMETCorrections.Configuration.JetCorrectionServices_cff
 # produce Type 1 + 2 MET corrections for CaloJets
 caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak5CaloJets'),
-    offsetCorrLabel = cms.string("ak5CaloL1Fast"),                           
+#    offsetCorrLabel = cms.string("ak5CaloL1Fast"),                           
     jetCorrLabel = cms.string("ak5CaloL1FastL2L3"), # NOTE: use "ak5CaloL1L2L3" for MC / "ak5CaloL1L2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
