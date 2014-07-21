@@ -12,6 +12,7 @@
 // of their own (like electron seeds or photons)
 // otherwise ECAL <-> ECAL linking will not work correctly
 
+template<reco::PFBlockElement::Type the_type> 
 class ECALClusterImporter : public BlockElementImporterBase {
 public:
   ECALClusterImporter(const edm::ParameterSet& conf,
@@ -26,11 +27,10 @@ private:
   edm::EDGetTokenT<reco::PFClusterCollection> _src;
 };
 
-DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
-		  ECALClusterImporter, 
-		  "ECALClusterImporter");
 
-void ECALClusterImporter::
+
+template<reco::PFBlockElement::Type the_type> 
+void ECALClusterImporter<the_type>::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   BlockElementImporterBase::ElementList ecals;
@@ -48,7 +48,7 @@ importToBlock( const edm::Event& e,
   for( auto clus = bclus; clus != eclus; ++clus  ) {    
     reco::PFClusterRef tempref(clusters, std::distance(bclus,clus));
     reco::PFBlockElementCluster* newelem = 
-      new reco::PFBlockElementCluster(tempref,reco::PFBlockElement::ECAL);
+      new reco::PFBlockElementCluster(tempref,the_type);
     for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
       const reco::PFBlockElementSuperCluster* elem_as_sc =
 	static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
@@ -67,3 +67,11 @@ importToBlock( const edm::Event& e,
     elems.emplace_back(ecal.release());
   }
 }
+
+DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
+		  ECALClusterImporter<reco::PFBlockElement::ECAL>, 
+		  "ECALClusterImporter");
+
+DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
+		  ECALClusterImporter<reco::PFBlockElement::HGC_ECAL>, 
+		  "HGCECALClusterImporter");

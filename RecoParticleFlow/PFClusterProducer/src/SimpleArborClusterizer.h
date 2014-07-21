@@ -11,6 +11,7 @@ class SimpleArborClusterizer : public InitialClusteringStepBase {
     InitialClusteringStepBase(conf),
       _cellSize(conf.getParameter<double>("cellSize")),
       _layerThickness(conf.getParameter<double>("layerThickness")),
+      _distSeedForMerge(conf.getParameter<double>("distSeedForMerge")),
       _killNoiseClusters(conf.getParameter<bool>("killNoiseClusters")),
       _maxNoiseClusterSize(conf.getParameter<unsigned>("maxNoiseClusterSize")) { }
   virtual ~SimpleArborClusterizer() {}
@@ -23,7 +24,7 @@ class SimpleArborClusterizer : public InitialClusteringStepBase {
 		     reco::PFClusterCollection&);
   
  private:  
-  double _cellSize,_layerThickness;
+  double _cellSize,_layerThickness,_distSeedForMerge;
   bool _killNoiseClusters;
   unsigned _maxNoiseClusterSize;
 };

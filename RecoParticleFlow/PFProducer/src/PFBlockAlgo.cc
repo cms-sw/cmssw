@@ -133,9 +133,9 @@ PFBlockAlgo::findBlocks() {
     if( blocks_->back().elements().size() > 1 ) {
       std::cout << blocks_->back() << std::endl;
     }
-    */
+    */    
   }
-  //std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
+  std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
 }
 
 // start from first element in elements_

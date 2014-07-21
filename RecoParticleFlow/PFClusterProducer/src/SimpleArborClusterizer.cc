@@ -27,47 +27,66 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	      const std::vector<bool>& seedable,
 	      reco::PFClusterCollection& output) {  
   const reco::PFRecHitCollection& hits = *input;
-  std::vector<TVector3> arbor_points;
-  std::vector<unsigned> hits_for_arbor;
-  arbor::branchcoll branches;  
+  std::vector<TVector3> arbor_points[2];
+  std::vector<unsigned> hits_for_arbor[2];
+  arbor::branchcoll the_branches[2];  
 
   // get the seeds and sort them descending in energy
-  arbor_points.reserve(hits.size());
-  hits_for_arbor.reserve(hits.size());  
+  arbor_points[0].reserve(hits.size()/2);
+  arbor_points[1].reserve(hits.size()/2);
+  hits_for_arbor[0].reserve(hits.size()/2);  
+  hits_for_arbor[1].reserve(hits.size()/2);
   for( unsigned i = 0; i < hits.size(); ++i ) {
     if( !rechitMask[i] ) continue;
     const math::XYZPoint& pos = hits[i].position();
-    hits_for_arbor.emplace_back(i);
-    arbor_points.emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
+    if( pos.z() < 0 ) {
+      hits_for_arbor[0].emplace_back(i);
+      arbor_points[0].emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
+    } else {
+      hits_for_arbor[1].emplace_back(i);
+      arbor_points[1].emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
+    }
   }
-
-  branches = arbor::Arbor(arbor_points,_cellSize,_layerThickness);
-  output.reserve(branches.size());
+  edm::LogInfo("ArborProgress") 
+    << "arbor loaded: " << arbor_points[0].size() << " in negative endcap!";
+  edm::LogInfo("ArborProgress") 
+    << "arbor loaded: " << arbor_points[1].size() << " in positive endcap!";
   
-  for( auto& branch : branches ) {
-    if( _killNoiseClusters && branch.size() <= _maxNoiseClusterSize ) {
-      continue;
+
+  the_branches[0] = arbor::Arbor(arbor_points[0],_cellSize,_layerThickness,_distSeedForMerge);
+  edm::LogInfo("ArborProgress") << "arbor clustered negative endcap!";
+  the_branches[1] = arbor::Arbor(arbor_points[1],_cellSize,_layerThickness,_distSeedForMerge);
+  edm::LogInfo("ArborProgress") << "arbor clustered positive endcap!";
+  output.reserve(the_branches[0].size()+the_branches[1].size());
+  
+  for( unsigned iside = 0; iside < 2; ++iside ) {
+    arbor::branchcoll& branches = the_branches[iside];
+    for( auto& branch : branches ) {
+      if( _killNoiseClusters && branch.size() <= _maxNoiseClusterSize ) {
+	continue;
+      }
+      // sort hits by radius
+      std::sort(branch.begin(),branch.end(),
+		[&](const arbor::branch::value_type& a,
+		    const arbor::branch::value_type& b) {
+		  return ( hits[hits_for_arbor[iside][a]].position().Mag2() <
+			   hits[hits_for_arbor[iside][b]].position().Mag2()   );
+		});
+      const reco::PFRecHit& inner_hit = hits[hits_for_arbor[iside][branch[0]]];
+      PFLayer::Layer inner_layer = inner_hit.layer();
+      const math::XYZPoint& inner_pos = inner_hit.position();    
+      output.emplace_back(inner_layer,branch.size(),
+			  inner_pos.x(),inner_pos.y(),inner_pos.z());
+      reco::PFCluster& current = output.back();
+      current.setSeed(inner_hit.detId());
+      for( const auto& hit : branch ) {
+	const reco::PFRecHitRef& refhit = 
+	  reco::PFRecHitRef(input,hits_for_arbor[iside][hit]);
+	current.addRecHitFraction(reco::PFRecHitFraction(refhit,1.0));
+      }
+      LogDebug("SimpleArborClusterizer")
+	<< "Made cluster: " << current << std::endl;
     }
-    // sort hits by radius
-    std::sort(branch.begin(),branch.end(),
-	      [&](const arbor::branch::value_type& a,
-		  const arbor::branch::value_type& b) {
-		return ( hits[hits_for_arbor[a]].position().Mag2() <
-			 hits[hits_for_arbor[b]].position().Mag2()   );
-	      });
-    const reco::PFRecHit& inner_hit = hits[hits_for_arbor[branch[0]]];
-    PFLayer::Layer inner_layer = inner_hit.layer();
-    const math::XYZPoint& inner_pos = inner_hit.position();    
-    output.emplace_back(inner_layer,branch.size(),
-			inner_pos.x(),inner_pos.y(),inner_pos.z());
-    reco::PFCluster& current = output.back();
-    current.setSeed(inner_hit.detId());
-    for( const auto& hit : branch ) {
-      const reco::PFRecHitRef& refhit = 
-	reco::PFRecHitRef(input,hits_for_arbor[hit]);
-      current.addRecHitFraction(reco::PFRecHitFraction(refhit,1.0));
-    }
-    LogDebug("SimpleArborClusterizer")
-      << "Made cluster: " << current << std::endl;
   }
+  edm::LogError("ArborInfo") << "Made " << output.size() << " clusters!";
 }

@@ -482,7 +482,7 @@
      <string>1009</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>26</string>
@@ -516,7 +516,7 @@
      <string>1011</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>27</string>
@@ -550,7 +550,7 @@
      <string>1014</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>28</string>
@@ -784,10 +784,10 @@
  <config name="GUI" version="1">
   <config name="main window" version="3">
    <config name="x" version="0">
-     <string>92</string>
+     <string>54</string>
    </config>
    <config name="y" version="0">
-     <string>44</string>
+     <string>31</string>
    </config>
    <config name="width" version="0">
      <string>1263</string>

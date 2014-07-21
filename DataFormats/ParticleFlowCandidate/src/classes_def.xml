@@ -9,6 +9,9 @@
      <field name="getter_" transient="true"/>
      <field name="refsCollectionCache_" transient="true"/>
    </class>
+  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="elementsInBlocks_">
+    <![CDATA[elementsInBlocks_.resize(0);]]>
+  </ioread>
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="getter_">
     <![CDATA[edm::EDProductGetter::assignEDProductGetter(getter_); ]]>
   </ioread>
