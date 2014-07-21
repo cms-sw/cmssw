@@ -5,8 +5,8 @@ class GsfEleSigmaIEtaIEtaCut : public CutApplicatorBase {
 public:
   GsfEleSigmaIEtaIEtaCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _sigmaIEtaIEtaCutValueEB(c.getParameter<double>("sigmaIEtaIEtaCutValue")),
-    _sigmaIEtaIEtaCutValueEE(c.getParameter<double>("sigmaIEtaIEtaCutValue")),
+    _sigmaIEtaIEtaCutValueEB(c.getParameter<double>("sigmaIEtaIEtaCutValueEB")),
+    _sigmaIEtaIEtaCutValueEE(c.getParameter<double>("sigmaIEtaIEtaCutValueEE")),
     _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   }
   
