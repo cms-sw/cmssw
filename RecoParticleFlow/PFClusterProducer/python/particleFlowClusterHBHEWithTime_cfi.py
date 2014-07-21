@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionHCAL
+from particleFlowCaloResolution_cfi import _timeResolutionHCAL
 
 #### PF CLUSTER HCAL ####
 particleFlowClusterHBHEWithTime = cms.EDProducer(
     "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitHBHEWithTime"),
+    recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
     recHitCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string("LocalMaximumSeedFinder"),

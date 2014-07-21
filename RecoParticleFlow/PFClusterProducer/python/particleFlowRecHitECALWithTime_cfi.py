@@ -12,10 +12,12 @@ particleFlowRecHitECALWithTime = cms.EDProducer("PFRecHitProducer",
         name = cms.string("PFRecHitECALNavigatorWithTime"),
         barrel = cms.PSet(
              sigmaCut = cms.double(5.0),
-             timeResolutionCalc = _timeResolutionECALBarrel # this overrides the previous if it exists
+             timeResolutionCalc = _timeResolutionECALBarrel 
         ),
         endcap = cms.PSet(
+             sigmaCut = cms.double(5.0),
              timeResolutionCalc = _timeResolutionECALEndcap
+
         )
     ),
     producers = cms.VPSet(

@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreatorPulses_h
-#define RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreatorPulses_h
+#ifndef RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreatorMaxSample_h
+#define RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreatorMaxSample_h
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 
@@ -27,10 +27,10 @@
 
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-class PFHBHERecHitCreatorPulses :  public  PFRecHitCreatorBase {
+class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
  public:  
-  PFHBHERecHitCreatorPulses(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
+  PFHBHERecHitCreatorMaxSample(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
@@ -162,7 +162,7 @@ class PFHBHERecHitCreatorPulses :  public  PFRecHitCreatorBase {
   
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFHBHERecHitCreatorPulses")
+	  edm::LogError("PFHBHERecHitCreatorMaxSample")
 	    <<"warning detid "<<detid.rawId()
 	    <<" not found in geometry"<<std::endl;
 	  continue;

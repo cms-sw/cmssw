@@ -5,7 +5,7 @@ particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFHBHERecHitCreatorPulses"),
+             name = cms.string("PFHBHERecHitCreator"),
              src  = cms.InputTag("hbhereco",""),
              qualityTests = cms.VPSet(
                   cms.PSet(
