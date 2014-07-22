@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/PIon/V62 (CMSSW_7_1_2)
+# /dev/CMSSW_7_1_1/PIon/V63 (CMSSW_7_1_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V62')
+  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V63')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -480,8 +480,26 @@ process.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.es_hardcode = cms.ESSource( "HcalHardcodeCalibrations",
-    fromDDD = cms.untracked.bool( False ),
-    toGet = cms.untracked.vstring( 'GainWidths' )
+    HcalReLabel = cms.PSet( 
+      RelabelRules = cms.untracked.PSet( 
+        Eta16 = cms.untracked.vint32( 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ),
+        Eta17 = cms.untracked.vint32( 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5 ),
+        Eta1 = cms.untracked.vint32( 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ),
+        CorrectPhi = cms.untracked.bool( False )
+      ),
+      RelabelHits = cms.untracked.bool( False )
+    ),
+    HERecalibration = cms.bool( False ),
+    toGet = cms.untracked.vstring( 'GainWidths' ),
+    GainWidthsForTrigPrims = cms.bool( False ),
+    HEreCalibCutoff = cms.double( 20.0 ),
+    HFRecalibration = cms.bool( False ),
+    hcalTopologyConstants = cms.PSet( 
+      maxDepthHE = cms.int32( 3 ),
+      maxDepthHB = cms.int32( 2 ),
+      mode = cms.string( "HcalTopologyMode::LHC" )
+    ),
+    iLumi = cms.double( -1.0 )
 )
 process.eegeom = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
@@ -1048,11 +1066,11 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
+  correctVertexMass = cms.bool( True ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -1074,7 +1092,7 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  correctVertexMass = cms.bool( True ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -4610,6 +4628,7 @@ process.hltEG20CaloIdVLIsoLHcalIsoFilter = cms.EDFilter( "HLTEgammaGenericQuadra
     nonIsoTag = cms.InputTag( "" )
 )
 process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -4618,7 +4637,6 @@ process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
