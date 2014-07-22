@@ -135,12 +135,15 @@ namespace citk {
     // loop over the candidates we are isolating and fill the values
     for( const auto& cand_to_isolate : to_isolate->refVector() ) {
       std::array<std::vector<float>,kNPFTypes> cand_values;      
+      unsigned k = 0;
+      for( const auto& isolators_for_type : _isolation_types ) {
+	cand_values[k].resize(isolators_for_type.size());
+	for( auto& value : cand_values[k] ) value = 0.0;
+	++k;
+      }
       for( const auto& isocand : isolate_with->refVector() ) {
 	auto isotype = helper.translatePdgIdToType(isocand->pdgId());	
-	const auto& isolations = _isolation_types[isotype];
-	if( cand_values[isotype].size() != isolations.size() ) {
-	  cand_values[isotype].resize(isolations.size());
-	}
+	const auto& isolations = _isolation_types[isotype];	
 	for( unsigned i = 0; i < isolations.size(); ++ i  ) {
 	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
 	    cand_values[isotype][i] += isocand->pt();

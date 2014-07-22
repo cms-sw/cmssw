@@ -29,7 +29,8 @@ public:
     _vetoConeSize2EB(std::pow(c.getParameter<double>("VetoConeSizeBarrel"),2.0)),
     _vetoConeSize2EE(std::pow(c.getParameter<double>("VetoConeSizeEndcaps"),2.0)),
     _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes")),
-    _vtxTag(c.getParameter<edm::InputTag>("vertexSrc")) {
+    _vtxTag(c.getParameter<edm::InputTag>("vertexSrc")),
+    _isolateAgainst(c.getParameter<std::string>("isolateAgainst")) {
     char buf[50];
     sprintf(buf,"BarVeto%.2f-EndVeto%.2f",
 	    std::sqrt(_vetoConeSize2EB),
@@ -62,6 +63,7 @@ private:
   const float _vetoConeSize2EB, _vetoConeSize2EE;  
   const std::vector<unsigned> _miniAODVertexCodes;
   const edm::InputTag _vtxTag;
+  const std::string _isolateAgainst;
   edm::EDGetTokenT<reco::VertexCollection> _vtxToken;
   edm::Handle<reco::VertexCollection> _vtxHandle;
 };
@@ -98,12 +100,17 @@ isInIsolationCone(const reco::CandidateBaseRef& physob,
 	  break;
 	}
       }
-      result *= is_vertex_allowed;
+      if( _isolateAgainst == std::string("PUh+") ) { 
+	is_vertex_allowed = !is_vertex_allowed;
+      }
+      result *= ( is_vertex_allowed || _isolateAgainst == std::string("PUh+") );
     }
     result *= deltar2 > vetoConeSize2 && deltar2 < _coneSize2 ;
   } else if ( aspf.isNonnull() ) {
     if( aspf->charge() != 0 && _vtxHandle->size() ) {      
-      result *= aspf->vertex() == (*_vtxHandle)[0].position();
+      bool isPV = ( aspf->vertex() == (*_vtxHandle)[0].position() );
+      if( _isolateAgainst == std::string("PUh+") ) isPV = !isPV;
+      result *=  isPV;
     }
     result *= deltar2 > vetoConeSize2 && deltar2 < _coneSize2;
   } else {
