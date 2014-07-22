@@ -180,6 +180,9 @@ foreach gtag ( STARTUP DATA )
     if ( $gtag == DATA ) then
 
     set RTAG = auto:com10_$table
+    if ( $table == FULL ) then
+      set RTAG = auto:com10_GRun
+    endif
 
     echo
     echo "Creating HLT+RECO $name"

@@ -22009,6 +22009,10 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
+# Enable HF Noise filters in GRun menu
+if 'hltHfreco' in process.__dict__:
+    process.hltHfreco.setNoiseFlags = cms.bool( True )
+
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
