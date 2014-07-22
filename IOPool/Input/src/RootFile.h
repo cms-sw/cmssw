@@ -78,6 +78,7 @@ namespace edm {
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
              std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+             bool bypassVersionCheck,
              bool labelRawDataLikeMC,
              bool usingGoToEvent,
              bool enablePrefetching);
