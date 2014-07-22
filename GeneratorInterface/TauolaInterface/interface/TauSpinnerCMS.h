@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
-// Package:    TauSpinnerInterface
-// Class:      TauSpinnerCMS
-// 
-/**\class TauSpinnerCMS TauSpinnerCMS.cc 
-
-*/
+// Package: TauSpinnerInterface
+// Class: TauSpinnerCMS
 //
-// Original Author:  Ian Nugent  
-//         Created:  Fri Feb 15 2013
+/**\class TauSpinnerCMS TauSpinnerCMS.cc
+
+ */
+//
+// Original Author: Ian Nugent
+// Created: Fri Feb 15 2013
 
 #ifndef TauSpinnerCMS_h
 #define TauSpinnerCMS_h
@@ -23,7 +23,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h" 
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
@@ -47,24 +47,24 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 class TauSpinnerCMS : public edm::one::EDProducer<edm::EndRunProducer,edm::one::SharedResources>{
- public:
+public:
   explicit TauSpinnerCMS( const edm::ParameterSet& ) ;
-  virtual ~TauSpinnerCMS(){} // no need to delete ROOT stuff
+  virtual ~TauSpinnerCMS(){}; // no need to delete ROOT stuff
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&){} 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-  virtual void endRunProduce(edm::Run&, edm::EventSetup const&){}
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&){}
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {};
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {};
+  virtual void endRunProduce(edm::Run&, edm::EventSetup const&){};
   virtual void produce( edm::Event&, const edm::EventSetup&) override final;
   virtual void beginJob() override final;
-  virtual void endRun( const edm::Run&, const edm::EventSetup& );
+  virtual void endRun( const edm::Run&, const edm::EventSetup& ){};
   virtual void endJob() override final;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
-  static  double flat();  
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){};
+  static double flat();
   void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
   virtual void initialize();
 
- private:
+private:
   bool isReco_;
   bool isTauolaConfigured_;
   bool isLHPDFConfigured_;
@@ -92,5 +92,5 @@ class TauSpinnerCMS : public edm::one::EDProducer<edm::EndRunProducer,edm::one::
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> GenParticleCollectionToken_;
   static bool fInitialized;
-}; 
+};
 #endif
