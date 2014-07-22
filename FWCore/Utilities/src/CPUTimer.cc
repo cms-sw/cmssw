@@ -115,18 +115,36 @@ CPUTimer::add(CPUTimer::Times const& t) {
   accumulatedRealTime_ += t.real_;
 }
 
-CPUTimer::Times
-CPUTimer::calculateDeltaTime() const {
-  Times returnValue;
+double
+CPUTimer::calculateDeltaWallTime() const {
+  double returnValue;
+#ifdef USE_CLOCK_GETTIME
+  double const nanosecToSec = 1E-9;
+  struct timespec tp;
+
+  clock_gettime(CLOCK_MONOTONIC, &tp);
+  returnValue = tp.tv_sec - startRealTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startRealTime_.tv_nsec);
+#else
+  double const microsecToSec = 1E-6;
+
+  struct timeval tp;
+  gettimeofday(&tp, 0);
+
+  returnValue = tp.tv_sec - startRealTime_.tv_sec + microsecToSec * (tp.tv_usec - startRealTime_.tv_usec);
+#endif
+  return returnValue;
+}
+
+double
+CPUTimer::calculateDeltaCpuTime() const {
+  double returnValue;
 #ifdef USE_CLOCK_GETTIME
   double const nanosecToSec = 1E-9;
   struct timespec tp;
 
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
-  returnValue.cpu_ = tp.tv_sec - startCPUTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startCPUTime_.tv_nsec);
+  returnValue = tp.tv_sec - startCPUTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startCPUTime_.tv_nsec);
 
-  clock_gettime(CLOCK_MONOTONIC, &tp);
-  returnValue.real_ = tp.tv_sec - startRealTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startRealTime_.tv_nsec);
 #else
   rusage theUsage;
   if(0 != getrusage(RUSAGE_SELF, &theUsage)) {
@@ -134,13 +152,17 @@ CPUTimer::calculateDeltaTime() const {
   }
   double const microsecToSec = 1E-6;
 
-  struct timeval tp;
-  gettimeofday(&tp, 0);
-
-  returnValue.cpu_ = theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec - startCPUTime_.tv_sec +
+  returnValue = theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec - startCPUTime_.tv_sec +
                      microsecToSec * (theUsage.ru_stime.tv_usec + theUsage.ru_utime.tv_usec - startCPUTime_.tv_usec);
-  returnValue.real_ = tp.tv_sec - startRealTime_.tv_sec + microsecToSec * (tp.tv_usec - startRealTime_.tv_usec);
 #endif
+  return returnValue;
+}
+
+CPUTimer::Times
+CPUTimer::calculateDeltaTime() const {
+  Times returnValue;
+  returnValue.cpu_ = calculateDeltaCpuTime();
+  returnValue.real_ = calculateDeltaWallTime();
   return returnValue;
 }
 //
@@ -151,7 +173,7 @@ CPUTimer::realTime() const {
   if(kStopped == state_) {
     return accumulatedRealTime_;
   }
-  return accumulatedRealTime_ + calculateDeltaTime().real_;
+  return accumulatedRealTime_ + calculateDeltaWallTime();
 }
 
 double
@@ -159,7 +181,7 @@ CPUTimer::cpuTime() const {
   if(kStopped == state_) {
     return accumulatedCPUTime_;
   }
-  return accumulatedCPUTime_ + calculateDeltaTime().cpu_;
+  return accumulatedCPUTime_ + calculateDeltaCpuTime();
 }
 
 //
