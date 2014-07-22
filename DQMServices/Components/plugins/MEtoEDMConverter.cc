@@ -44,7 +44,6 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   }
 
   // get dqm info
-  dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
 
   std::string sName;
