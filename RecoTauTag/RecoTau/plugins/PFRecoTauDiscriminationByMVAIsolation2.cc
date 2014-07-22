@@ -109,7 +109,7 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   ~PFRecoTauDiscriminationByIsolationMVA2()
   {
-    //delete mvaReader_;
+    if(!loadMVAfromDB_) delete mvaReader_;
     delete[] mvaInput_;
     for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
 	  it != inputFilesToDelete_.end(); ++it ) {
