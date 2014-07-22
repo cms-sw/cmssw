@@ -16,6 +16,8 @@ import FWCore.ParameterSet.Config as cms
 # The specific analyses to be loaded
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff import HighPtDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff import HighPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff import LowPtDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff import LowPtDielectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff import EleMuPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
@@ -29,7 +31,10 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # -- The name of the analysis. This is the name that
     # appears in Run summary/Exotica/ANALYSIS_NAME
     analysis       = cms.vstring("HighPtDimuon",
-                                 "HighPtDielectron"),
+                                 "HighPtDielectron",
+                                 "LowPtDimuon",
+                                 "LowPtDielectron",
+                                ),
 #                                 "EleMu",
 #                                 "PureMET",
 #                                 "Monojet",
@@ -103,6 +108,8 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, Jet, PFTau, MET (see above)
     HighPtDimuon     = HighPtDimuonPSet,
     HighPtDielectron = HighPtDielectronPSet,
+    LowPtDimuon      = LowPtDimuonPSet,
+    LowPtDielectron  = LowPtDielectronPSet,
     EleMu            = EleMuPSet,
     PureMET          = PureMETPSet,                                 
     Monojet          = MonojetPSet,
