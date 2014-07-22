@@ -104,6 +104,7 @@ namespace edm {
     int numberOfEventsToSkip_;
     bool noEventSort_;
     bool skipBadFiles_;
+    bool bypassVersionCheck_;
     unsigned int treeCacheSize_;
     int const treeMaxVirtualSize_;
     RunNumber_t setRun_;

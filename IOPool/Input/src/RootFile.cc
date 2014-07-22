@@ -139,6 +139,7 @@ namespace edm {
                      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+                     bool bypassVersionCheck,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent) :
       file_(fileName),
@@ -304,7 +305,9 @@ namespace edm {
     // Here we read the metadata tree
     roottree::getEntry(metaDataTree.get(), 0);
 
-    checkReleaseVersion();
+    if(!bypassVersionCheck) {
+      checkReleaseVersion();
+    }
 
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
