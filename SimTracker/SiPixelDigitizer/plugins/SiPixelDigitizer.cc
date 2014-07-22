@@ -122,11 +122,14 @@ namespace cms
   //
 
   void
-  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits, const TrackerTopology *tTopo) {
+  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+					size_t globalSimHitIndex,
+					const unsigned int tofBin,
+					const TrackerTopology *tTopo) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
-       for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
+       for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
          unsigned int detId = (*it).detUnitId();
          if(detIds.insert(detId).second) {
            // The insert succeeded, so this detector element has not yet been processed.
@@ -137,8 +140,7 @@ namespace cms
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
                                           << pSetup->inTesla(pixdet->surface().position());
-
-             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield, tTopo);
+             _pixeldigialgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, pixdet, bfield, tTopo);
            }
          }
        }
@@ -151,6 +153,12 @@ namespace cms
       _pixeldigialgo->init(iSetup);
       first = false;
     }
+    // Make sure that the first crossing processed starts indexing the sim hits from zero.
+    // This variable is used so that the sim hits from all crossing frames have sequential
+    // indices used to create the digi-sim link (if configured to do so) rather than starting
+    // from zero for each crossing.
+    crossingSimHitIndexOffset_.clear();
+
     _pixeldigialgo->initializeEvent();
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
@@ -189,7 +197,14 @@ namespace cms
       // the next (i.e. original) line should be uncommented and the one after removed. Forever.
       //iEvent.getByLabel(tag, simHits);
       detIdRemapService_->getByLabel( iEvent, tag, simHits );
-      accumulatePixelHits(simHits, tTopo);
+      unsigned int tofBin = PixelDigiSimLink::LowTof;
+      if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, tTopo);
+      // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
+      // the global counter. Next time accumulateStripHits() is called it will count the sim hits
+      // as though they were on the end of this collection.
+      // Note that this is only used for creating digi-sim links (if configured to do so).
+      if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }
 
@@ -210,7 +225,14 @@ namespace cms
       // the next (i.e. original) line should be uncommented and the one after removed. Forever.
       //iEvent.getByLabel(tag, simHits);
       detIdRemapService_->getByLabel( iEvent, tag, simHits );
-      accumulatePixelHits(simHits,tTopo);
+      unsigned int tofBin = PixelDigiSimLink::LowTof;
+      if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, tTopo);
+      // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
+      // the global counter. Next time accumulateStripHits() is called it will count the sim hits
+      // as though they were on the end of this collection.
+      // Note that this is only used for creating digi-sim links (if configured to do so).
+      if( simHits.isValid() ) crossingSimHitIndexOffset_[tag.encode()]+=simHits->size();
     }
   }
 
