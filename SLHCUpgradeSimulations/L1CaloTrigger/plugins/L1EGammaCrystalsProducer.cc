@@ -65,6 +65,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      bool cluster_passes_cuts(const l1slhc::L1EGCrystalCluster& cluster) const;
 
       CaloGeometryHelper geometryHelper;
       double EtminForStore;
@@ -314,15 +315,10 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       trigCrystalClusters->push_back(cluster);
 
       // Save clusters with some cuts
-      // This is a dynamic cut in pt, trying to squeeze as much efficiency as possible
-      // out of the cut variables, which should have been pt-independent, but are not.
-      if ( cluster.hovere() < 14./cluster.pt()+0.05
-           && cluster.isolation() < 40./cluster.pt()+0.1
-           && (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 20) ? 0.08:0.08*(1+(cluster.pt()-20)/25.) ) )
-           && ((cluster.pt() > 10) ? (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) > 0.):true) )
+      if ( cluster_passes_cuts(cluster) )
       {
          // Optional min. Et cut
-         if  (cluster.pt() >= EtminForStore) {
+         if ( cluster.pt() >= EtminForStore ) {
             l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
          }
       }
@@ -330,6 +326,29 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
    iEvent.put(trigCrystalClusters,"EGCrystalCluster");
    iEvent.put(l1EGammaCrystal, "EGammaCrystal" );
+}
+
+bool
+L1EGCrystalClusterProducer::cluster_passes_cuts(const l1slhc::L1EGCrystalCluster& cluster) const {
+   if ( fabs(cluster.eta()) > 1.479 )
+   {
+      if ( cluster.hovere() < 22./cluster.pt()
+           && cluster.isolation() < 64./cluster.pt()+0.1
+           && cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 40) ? 0.18*(1-cluster.pt()/70.):0.18*3/7. ) )
+      {
+         return true;
+      }
+   }
+   else
+   {
+      if ( cluster.hovere() < 14./cluster.pt()+0.05
+           && cluster.isolation() < 40./cluster.pt()+0.1
+           && cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 30) ? 0.18*(1-cluster.pt()/100.):0.18*0.7 ) )
+      {
+         return true;
+      }
+   }
+   return false;
 }
 
 DEFINE_FWK_MODULE(L1EGCrystalClusterProducer);
