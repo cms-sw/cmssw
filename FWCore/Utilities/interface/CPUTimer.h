@@ -61,15 +61,12 @@ class CPUTimer
       void reset();
       
       void add(const Times& t);
-
    private:
       CPUTimer(const CPUTimer&) = delete; // stop default
 
       const CPUTimer& operator=(const CPUTimer&) = delete; // stop default
 
       Times calculateDeltaTime() const;
-      double calculateDeltaWallTime() const;
-      double calculateDeltaCpuTime() const;
       
       // ---------- member data --------------------------------
       enum State {kRunning, kStopped} state_;

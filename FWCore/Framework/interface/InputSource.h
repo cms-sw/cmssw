@@ -51,10 +51,10 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
-#include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include <memory>
 #include <string>
+#include <chrono>
 
 namespace edm {
   class ActivityRegistry;
@@ -390,7 +390,9 @@ namespace edm {
     bool lumiLimitReached() const {
       if (remainingLumis_ == 0) {return true;}
       if (maxGracefulRuntime_ <= 0) {return false;}
-      if (runTimer_.realTime() > maxGracefulRuntime_) {return true;}
+      auto end = std::chrono::steady_clock::now();
+      auto elapsed = end - processingStart_;
+      if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() > maxGracefulRuntime_) {return true;}
       return false;
     }
     bool limitReached() const {return eventLimitReached() || lumiLimitReached();}
@@ -431,7 +433,7 @@ namespace edm {
     int remainingLumis_;
     int readCount_;
     int maxGracefulRuntime_;
-    CPUTimer runTimer_;
+    std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
     std::shared_ptr<ProductRegistry> productRegistry_;
