@@ -166,7 +166,7 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 
 std::string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
-  static char ts[25];
+  char ts[25];
   strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
   
   std::string ts_string(ts);
