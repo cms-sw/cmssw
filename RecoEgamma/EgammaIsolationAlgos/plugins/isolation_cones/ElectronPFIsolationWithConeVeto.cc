@@ -30,6 +30,16 @@ public:
     _vetoConeSize2EE(std::pow(c.getParameter<double>("VetoConeSizeEndcaps"),2.0)),
     _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes")),
     _vtxTag(c.getParameter<edm::InputTag>("vertexSrc")) {
+    char buf[50];
+    sprintf(buf,"BarVeto%.2f-EndVeto%.2f",
+	    std::sqrt(_vetoConeSize2EB),
+	    std::sqrt(_vetoConeSize2EE));
+    _additionalCode = std::string(buf);
+    auto decimal = _additionalCode.find('.');
+    while( decimal != std::string::npos ) {
+      _additionalCode.erase(decimal,1);
+      decimal = _additionalCode.find('.');
+    }    
   }
   ElectronPFIsolationWithConeVeto(const ElectronPFIsolationWithConeVeto&) = delete;
   ElectronPFIsolationWithConeVeto& operator=(const ElectronPFIsolationWithConeVeto&) =delete;
