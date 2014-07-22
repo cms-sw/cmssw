@@ -32,6 +32,7 @@ namespace edm {
                            std::shared_ptr<ActivityRegistry> areg,
                            int maxEvents,
                            int maxLumis,
+                           int maxGracefulRuntime,
                            PreallocationConfiguration const& allocations) :
       moduleDescription_(md),
       productRegistry_(&preg),
@@ -39,6 +40,7 @@ namespace edm {
       actReg_(areg),
       maxEvents_(maxEvents),
       maxLumis_(maxLumis),
+      maxGracefulRuntime_(maxGracefulRuntime),
       allocations_(&allocations) {
    }
 
@@ -48,6 +50,7 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxLumis_;
+    int maxGracefulRuntime_;
     PreallocationConfiguration const* allocations_;
   };
 }

@@ -118,7 +118,9 @@ namespace edm {
                                 parameterSet.getUntrackedParameterSet(
                                    "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
+                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                                parameterSet.getUntrackedParameterSet(
+                                   "maxGracefulRuntime", ParameterSet()).getUntrackedParameter<int>("input", -1));
     return common;
   }
 

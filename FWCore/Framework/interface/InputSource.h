@@ -51,6 +51,7 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include <memory>
 #include <string>
@@ -386,7 +387,12 @@ namespace edm {
 
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
-    bool lumiLimitReached() const {return remainingLumis_ == 0;}
+    bool lumiLimitReached() const {
+      if (remainingLumis_ == 0) {return true;}
+      if (maxGracefulRuntime_ <= 0) {return false;}
+      if (runTimer_.realTime() > maxGracefulRuntime_) {return true;}
+      return false;
+    }
     bool limitReached() const {return eventLimitReached() || lumiLimitReached();}
     virtual ItemType getNextItemType() = 0;
     ItemType nextItemType_();
@@ -424,6 +430,8 @@ namespace edm {
     int maxLumis_;
     int remainingLumis_;
     int readCount_;
+    int maxGracefulRuntime_;
+    CPUTimer runTimer_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
     std::shared_ptr<ProductRegistry> productRegistry_;

@@ -140,7 +140,7 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, allocations);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, common.maxGracefulRuntime_, allocations);
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {

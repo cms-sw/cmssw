@@ -57,6 +57,7 @@ namespace edm {
       maxLumis_(desc.maxLumis_),
       remainingLumis_(maxLumis_),
       readCount_(0),
+      maxGracefulRuntime_(desc.maxGracefulRuntime_),
       processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
@@ -80,6 +81,7 @@ namespace edm {
       statusfilename << "source_" << getpid();
       statusFileName_ = statusfilename.str();
     }
+    runTimer_.start();
 
     // Secondary input sources currently do not have a product registry.
     if(primary_) {
@@ -519,6 +521,7 @@ namespace edm {
 
   void
   InputSource::doPostForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
+    runTimer_.reset();
     callWithTryCatchAndPrint<void>( [this, &iReceiver](){ postForkReacquireResources(iReceiver); },
                                     "Calling InputSource::postForkReacquireResources" );
   }
