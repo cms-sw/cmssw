@@ -176,7 +176,12 @@ namespace cms
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
-      iEvent.getByLabel(tag, simHits);
+      // MODIFIED Mark Grimes 05/Jul/2014 - There was a problem reading back production samples made with
+      // SLHC11 because the DetId numbering changed in SLHC13. This is a horrible temporary hack to allow
+      // those samples to be read in newer versions of CMSSW. As soon as this ability is no longer required
+      // the next (i.e. original) line should be uncommented and the one after removed. Forever.
+      //iEvent.getByLabel(tag, simHits);
+      detIdRemapService_->getByLabel( iEvent, tag, simHits );
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
       accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin);
@@ -195,7 +200,12 @@ namespace cms
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
-      iEvent.getByLabel(tag, simHits);
+      // MODIFIED Mark Grimes 05/Jul/2014 - There was a problem reading back production samples made with
+      // SLHC11 because the DetId numbering changed in SLHC13. This is a horrible temporary hack to allow
+      // those samples to be read in newer versions of CMSSW. As soon as this ability is no longer required
+      // the next (i.e. original) line should be uncommented and the one after removed. Forever.
+      //iEvent.getByLabel(tag, simHits);
+      detIdRemapService_->getByLabel( iEvent, tag, simHits );
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
       accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin);
