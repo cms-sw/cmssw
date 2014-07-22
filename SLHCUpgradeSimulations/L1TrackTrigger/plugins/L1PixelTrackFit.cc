@@ -1,6 +1,6 @@
 //////////////////////////
 //  Producer by Anders  //
-//    july 2014 @ CU    //
+//    July 2014 @ CU    //
 //////////////////////////
 
 
@@ -128,7 +128,7 @@ private:
   /// Containers of parameters passed by python configuration file
   edm::ParameterSet config;
 
-  void multifit(double invr, double phi0, double t, double z0,
+  void multifit(double invr, double phi0, double d0, double t, double z0,
 		std::vector<GlobalPoint> hitL1,
 		std::vector<GlobalPoint> hitL2,
 		std::vector<GlobalPoint> hitL3,
@@ -155,14 +155,14 @@ private:
 			    std::vector<GlobalPoint> fithits,
 			    std::vector<bool> fitbarrel,
 			    double D[5][8], double MinvDt[5][8]);
-  void linearTrackFit(double rinv, double phi0, double t, double z0,
+  void linearTrackFit(double rinv, double phi0, double d0, double t, double z0,
 		      double& rinvfit, double& phi0fit, double& d0fit,
 		      double& tfit, double& z0fit, double& chisqfit,
 		      std::vector<GlobalPoint> fithits,
 		      std::vector<bool> fitbarrel,
 		      double D[5][8], double MinvDt[5][8]);
 
-  void trackfit(double rinv, double phi0, double t, double z0,
+  void trackfit(double rinv, double phi0, double d0, double t, double z0,
 		double& rinvfit, double& phi0fit, double& d0fit,
 		double& tfit, double& z0fit, double& chisqfit,
 		std::vector<GlobalPoint> fithits,
@@ -264,11 +264,17 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   L1TkTrackCollectionType::const_iterator iterL1Track;
   int itrack=0;
   for (iterL1Track = L1TrackHandle->begin(); iterL1Track != L1TrackHandle->end(); ++iterL1Track) {
-    double invr=iterL1Track->getRInv();
-    double phi0=iterL1Track->getMomentum().phi();
-    double z0=iterL1Track->getPOCA().z();
-    double eta=iterL1Track->getMomentum().eta();
+    int npar=5;
+    double invr=iterL1Track->getRInv(npar);
+    int charge=1;
+    if (invr<0.0) charge=-1;
+    double phi0=iterL1Track->getMomentum(npar).phi();
+    double z0=iterL1Track->getPOCA(npar).z();
+    double eta=iterL1Track->getMomentum(npar).eta();
+    double d0=-iterL1Track->getPOCA(npar).perp();
+    if (cos(phi0)*iterL1Track->getPOCA(npar).x()<0.0) d0=-d0;
     double t=tan(2.0*atan(1.0)-2.0*atan(exp(-eta)));
+
     std::vector<GlobalPoint> hitL1;
     std::vector<GlobalPoint> hitL2;
     std::vector<GlobalPoint> hitL3;
@@ -284,7 +290,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//handle barrel hit here
 	double rhit=cl_pos[i].perp();
 	double tmp=asin(0.5*rhit*invr);
-	double phi_proj=phi0-tmp;
+	double phi_proj=phi0-tmp-charge*d0/rhit;
 	double z_proj=z0+2.0*t*tmp/invr;
 	std::cout<<" rhit zhit z_proj : "<<rhit<<" "<<cl_pos[i].z()<<" "<<z_proj<<std::endl;
 	if (fabs(z_proj-cl_pos[i].z())>1.0) continue; // 1 cm cut in z!!!
@@ -301,10 +307,11 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } else {
 	//handle disk hit here
 	double zhit=cl_pos[i].z();
+	double rhit=cl_pos[i].perp();
 	double tmp=0.5*(zhit-z0)*invr/t;
 	double r_proj=2.0*sin(tmp)/invr;
-	double phi_proj=phi0-tmp;
-	if (fabs(r_proj-cl_pos[i].perp())>0.5) continue; // 5 mm cut in r!!!
+	double phi_proj=phi0-tmp-charge*d0/rhit;
+	if (fabs(r_proj-rhit)>0.5) continue; // 5 mm cut in r!!!
         double dphi=phi_proj-cl_pos[i].phi();
 	if (dphi>m_pi) dphi-=2.0*m_pi;
 	if (dphi<-m_pi) dphi+=2.0*m_pi;
@@ -319,7 +326,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool success=false;
     double invrfit,phi0fit,d0fit,tfit,z0fit,chisqfit;
 
-    multifit(invr,phi0,t,z0,hitL1,hitL2,hitL3,hitL4,hitD1,hitD2,hitD3,success,invrfit,phi0fit,d0fit,tfit,z0fit,chisqfit);
+    multifit(invr,phi0,d0,t,z0,hitL1,hitL2,hitL3,hitL4,hitD1,hitD2,hitD3,success,invrfit,phi0fit,d0fit,tfit,z0fit,chisqfit);
     
     if (success) {
 
@@ -327,7 +334,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       const GlobalVector aMomentum;
 
-      GlobalPoint thePOCA(d0fit*cos(phi0fit),-d0fit*sin(phi0fit),z0);
+      GlobalPoint thePOCA(d0fit*cos(phi0fit),-d0fit*sin(phi0fit),z0fit);
  
       double pt=iterL1Track->getMomentum().perp();  //FIXME using old pt
 
@@ -354,7 +361,8 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 } /// End of produce()
 
 
-void L1PixelTrackFit::multifit(double rinv, double phi0, double t, double z0,
+void L1PixelTrackFit::multifit(double rinv, double phi0, double d0, 
+			       double t, double z0,
 			       std::vector<GlobalPoint> hitL1,
 			       std::vector<GlobalPoint> hitL2,
 			       std::vector<GlobalPoint> hitL3,
@@ -372,6 +380,7 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double t, double z0,
   
   success=false;
 
+  /*
   static ofstream out("fitdump.txt");
 
   out << "L1Track: " << rinv << " " << phi0 << " " << t << " " << z0 << std::endl;
@@ -404,6 +413,7 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double t, double z0,
     out << hitD3[i].x() << " " << hitD3[i].y() << " " << hitD3[i].z() << std::endl;
   }
 
+  */
 
   std::vector<GlobalPoint> hits[7];
   bool barrel[7];
@@ -488,7 +498,7 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double t, double z0,
 	    fitbarrel.push_back(barrel[3]);
 	  }
 	  double rinvfit,phi0fit,d0fit,tfit,z0fit,chisqfit;
-	  trackfit(rinv,phi0,t,z0,
+	  trackfit(rinv,phi0,d0,t,z0,
 		   rinvfit,phi0fit,d0fit,tfit,z0fit,chisqfit,
 		   fithits,fitbarrel);
 	  double chisqdof=chisqfit/(2.0*npixel-4.0);
@@ -506,7 +516,8 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double t, double z0,
 	  }
 	  std::cout << "Original: rinv="<<rinv
 		    <<" phi0="<<phi0
-		    <<" t="<<t
+		    <<" d0="<<d0*10000.0
+		    <<" um t="<<t
 		    <<" z0="<<z0 << std::endl;
 	  std::cout << "PixelFit: chisq="<<chisqfit<<" rinv="<<rinvfit
 		    <<" phi0="<<phi0fit
@@ -535,7 +546,8 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double t, double z0,
     std::cout << "Found best fit:"<<std::endl;
     std::cout << "Original: rinv="<<rinv
 	      <<" phi0="<<phi0
-	      <<" t="<<t
+	      <<" d0="<<d0*10000.0
+	      <<" um t="<<t
 	      <<" z0="<<z0 << std::endl;
     std::cout << "PixelFit: chisqdof="<<bestChisqdof
 	      <<" rinv="<<rinvbest
@@ -705,7 +717,8 @@ void L1PixelTrackFit::calculateDerivatives(double rinv, double phi0, double t, d
 }
 
 
-void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double t, double z0,
+void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double d0,
+				     double t, double z0,
 				     double& rinvfit, double& phi0fit, double& d0fit,
 				     double& tfit, double& z0fit, double& chisqfit,
 				     std::vector<GlobalPoint> fithits,
@@ -720,6 +733,9 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double t, double 
   double delta[40];
   
   double chisq=0;
+  
+  int charge=1;
+  if (rinv<0.0) charge=-1;
   
   unsigned int j=0;
   
@@ -738,7 +754,7 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double t, double 
 
       static const double two_pi=8.0*atan(1.0);
 
-      double deltaphi=phi0-asin(0.5*ri*rinv)-phii;
+      double deltaphi=phi0-asin(0.5*ri*rinv)-charge*d0/ri-phii;
       if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
       if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
       std::cout << "phi0="<<phi0<<" phii="<<phii<<std::endl;
@@ -796,7 +812,7 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double t, double 
       //we are dealing with a disk hit
       
       double r_track=2.0*sin(0.5*rinv*(zi-z0)/t)/rinv;
-      double phi_track=phi0-0.5*rinv*(zi-z0)/t;
+      double phi_track=phi0-0.5*rinv*(zi-z0)/t-charge*d0/ri;
       
       double Delta=r_track*sin(phi_track-phii);
       
@@ -903,7 +919,7 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double t, double 
   phi0fit=phi0+dphi0;
   tfit=t+dt;
   z0fit=z0+dz0;
-  d0fit=dd0;
+  d0fit=d0+dd0;
     
   chisqfit=(chisq+deltaChisq);
     
@@ -916,7 +932,8 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double t, double 
   
 }
 
-void L1PixelTrackFit::trackfit(double rinv, double phi0, double t, double z0,
+void L1PixelTrackFit::trackfit(double rinv, double phi0, double d0,
+			       double t, double z0,
 			       double& rinvfit, double& phi0fit, double& d0fit,
 			       double& tfit, double& z0fit, double& chisqfit,
 			       std::vector<GlobalPoint> fithits,
@@ -928,7 +945,7 @@ void L1PixelTrackFit::trackfit(double rinv, double phi0, double t, double z0,
 
 
   calculateDerivatives(rinv, phi0, t, z0,fithits,fitbarrel,D,MinvDt);
-  linearTrackFit(rinv, phi0, t, z0,
+  linearTrackFit(rinv, phi0, d0, t, z0,
 		 rinvfit, phi0fit, d0fit, tfit, z0fit, chisqfit,
 		 fithits,fitbarrel,D,MinvDt);
 
