@@ -76,7 +76,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
           //updating MultiRecHits and fit-smooth again 
 	  std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> curiterationhits = 
-									updateHits(currentTraj,updator,*ian);
+									updateHits(currentTraj, updator, &*measTk, *ian);
 	  currentTraj = fit(curiterationhits, theFitter, currentTraj);
 
  	  //saving trajectory for each annealing cycle ...
@@ -167,6 +167,7 @@ DAFTrackProducerAlgorithm::collectHits(const Trajectory vtraj,
 std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>
 DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
 				      const SiTrackerMultiRecHitUpdator* updator,
+				      const MeasurementTrackerEvent* theMTE,
 				      double annealing) const 
 {
   LogDebug("DAFTrackProducerAlgorithm") << "Calling DAFTrackProducerAlgorithm::updateHits";
@@ -176,9 +177,15 @@ DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
 
   //I run inversely on the trajectory obtained and update the state
   for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++){
+    DetId id = imeas->recHit()->geographicalId();
+    MeasurementDetWithData measDet = theMTE->idToDet(id);
+    if(imeas->recHit()->isValid()){
     TransientTrackingRecHit::RecHitPointer updated = updator->update(imeas->recHit(), 
-						imeas->updatedState(), annealing);
+						imeas->updatedState(), measDet, annealing);
     hits.push_back(updated);
+    } else {
+      hits.push_back(imeas->recHit());
+    }
   }
 
   TrajectoryStateOnSurface updatedStateFromTrack = vmeas.back().predictedState();

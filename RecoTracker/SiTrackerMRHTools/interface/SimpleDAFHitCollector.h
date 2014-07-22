@@ -48,7 +48,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
           auto const & clus = thit.firstClusterRef();
           if (clus.isPixel()) return hit.clone();
           else if (thit.isMatched()) {
-            edm::LogError("MultiRecHitCollector") << " SiStripMatchedRecHit2D should not be present at this stage!!!";
+            LogDebug("MultiRecHitCollector") << " SiStripMatchedRecHit2D to check!!!";
             return hit.clone();
           } else  if (thit.isProjected()) {
             edm::LogError("MultiRecHitCollector") << " ProjectedSiStripRecHit2D should not be present at this stage!!!";
@@ -67,13 +67,6 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
  
         }
 
-/*        TrackingRecHit * clone(BaseTrackerRecHit const & hit2D ) const {
-          return new SiStripRecHit1D(hit2D.localPosition(), 
-			       LocalError(hit2D.localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
-                               *hit2D.det(), hit2D.firstClusterRef());
-        }
-
-*/
 	private:
 	const SiTrackerMultiRecHitUpdator* theUpdator;
 	const MeasurementEstimator* theEstimator;

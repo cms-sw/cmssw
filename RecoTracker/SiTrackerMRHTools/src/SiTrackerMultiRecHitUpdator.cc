@@ -31,7 +31,7 @@ SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTracking
 
 TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv,
                                                                           	      const TrajectoryStateOnSurface& tsos,
- 										      float annealing) const{
+ 										      MeasurementDetWithData& measDet, float annealing) const{
 
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: "  << annealing;
 
@@ -42,13 +42,13 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiR
     if(transient->isValid()) tcomponents.push_back(transient);
 
   }
-  return update(tcomponents, tsos, annealing); 
+  return update(tcomponents, tsos, measDet, annealing); 
   
 }
 
 TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( TransientTrackingRecHit::ConstRecHitPointer original,
-                                                                	    const TrajectoryStateOnSurface& tsos,
-									    double annealing) const{
+                                                                	    const TrajectoryStateOnSurface& tsos,                                                                            MeasurementDetWithData& measDet,
+									    double annealing ) const{
 
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing;
 
@@ -67,22 +67,22 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
   }
 
   TransientTrackingRecHit::ConstRecHitContainer tcomponents = original->transientHits();	
-  return update(tcomponents, tsos, annealing);
+  return update(tcomponents, tsos, measDet, annealing);
 }
 
 /*------------------------------------------------------------------------------------------------------------------------*/
 TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( TransientTrackingRecHit::ConstRecHitContainer& tcomponents,
                                                                 	    const TrajectoryStateOnSurface& tsos,
-									    double annealing) const{
+									    MeasurementDetWithData& measDet, double annealing) const{
 
   if (tcomponents.empty()){
     LogTrace("SiTrackerMultiRecHitUpdator") << "Empty components vector passed to SiTrackerMultiRecHitUpdator::update, returning an InvalidTransientRecHit ";
-    return std::make_shared<InvalidTrackingRecHitNoDet>(); 
+    return std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing);
   }		
   
   if(!tsos.isValid()) {
     LogTrace("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::update: tsos NOT valid!!!, returning an InvalidTransientRecHit";
-    return std::make_shared<InvalidTrackingRecHitNoDet>();
+    return std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing);
   }
   
   std::vector<TransientTrackingRecHit::RecHitPointer> updatedcomponents;
@@ -145,28 +145,41 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
   LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t total sum:" << total_sum ;
 
   unsigned int counter = 0;
+  bool invalid = true;
   for(std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin(); 
 	ihit != updatedcomponents.end(); ihit++) {
 
     double p = ((mymap[counter].second)/total_sum > 1.e-12 ? (mymap[counter].second)/total_sum : 1.e-12);
     //ORCA: float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
-    normmap.push_back(std::pair<const TrackingRecHit*,float>(mymap[counter].first, p));
 
     LogTrace("SiTrackerMultiRecHitUpdator")<< "  Component hit type " << typeid(*mymap[counter].first).name()
-					   << " and dim:" << mymap[counter].first->dimension() 
-					   << " position " << mymap[counter].first->localPosition() 
-					   << " error " << mymap[counter].first->localPositionError()
-					   << " with weight " << p ;
+                                           << " and dim:" << mymap[counter].first->dimension()
+                                           << " position " << mymap[counter].first->localPosition()
+                                           << " error " << mymap[counter].first->localPositionError()
+                                           << " with weight " << p ;
+
+    if( p > 10e-6 ){
+      invalid = false;
+      normmap.push_back(std::pair<const TrackingRecHit*,float>(mymap[counter].first, p));
+    }
+
     counter++;
   }
  
-  SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, normmap);
+  if(!invalid){
 
-  SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
-  LogTrace("SiTrackerMultiRecHitUpdator") << " Updated Hit position " << updated.localPosition() 
-   					  << " updated error " << updated.localPositionError() << std::endl;
+    SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, normmap);
 
-  return std::make_shared<SiTrackerMultiRecHit>(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
+    SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
+    LogTrace("SiTrackerMultiRecHitUpdator") << " Updated Hit position " << updated.localPosition() 
+     					    << " updated error " << updated.localPositionError() << std::endl;
+
+    return std::make_shared<SiTrackerMultiRecHit>(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
+
+  } else {
+    LogTrace("SiTrackerMultiRecHitUpdator") << " No hits with weight (> 10e-6) have been found for this MRH." << std::endl;
+    return std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing);
+  }
 }
 
 

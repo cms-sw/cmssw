@@ -74,18 +74,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
           DetId idtemps = tmps.hits[i]->geographicalId();
 
           if( idtemps == id && tmps.hits[i]->hit()->isValid() ) {
-
-	    //fill with the right dimension hit :: what about if was invalid ??
 	    TrackingRecHit * righthit = rightdimension(*(tmps.hits[i]->hit()));
             hits.push_back(righthit);
-/*            if( itrajmeas->recHit()->dimension() == 1 ){
-	      auto const & hit1 = tmps.hits[i]->hit();
-	      auto const & thit = static_cast<BaseTrackerRecHit const&>(*hit1);
-	      hits.push_back(clone(thit));
-	    } else {
-              hits.push_back(tmps.hits[i]->hit());
-	    }
-*/
           }
 
         }
@@ -106,7 +96,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
           LogTrace("MultiRecHitCollector") << " -> " << hits.size() << " valid hits for this sensor.";
 
           //building a MultiRecHit out of each sensor group
-          result.push_back(TrajectoryMeasurement(predState,theUpdator->buildMultiRecHit(hits, smoothState)));
+          result.push_back(TrajectoryMeasurement(predState,theUpdator->buildMultiRecHit(hits, smoothState, measDet)));
         }
       } else {
           LogTrace("MultiRecHitCollector") << "  No measurements found in current group.";
@@ -193,8 +183,8 @@ void SimpleDAFHitCollector::Debug( const std::vector<TrajectoryMeasurement> TM )
 
       LogTrace("MultiRecHitCollector") << "  TSOS predicted " << itrajmeas->predictedState().localPosition() ;
       LogTrace("MultiRecHitCollector") << "  TSOS smoothState " << itrajmeas->updatedState().localPosition() ;
-            } else {
-              LogTrace("MultiRecHitCollector") << "  Invalid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId();
-            }
+    } else {
+      LogTrace("MultiRecHitCollector") << "  Invalid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId();
+    }
   }
 }

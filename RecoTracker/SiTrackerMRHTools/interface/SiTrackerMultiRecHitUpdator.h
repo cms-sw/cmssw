@@ -13,6 +13,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDetWithData.h"
 
 #include <vector>
 
@@ -36,20 +37,23 @@ public:
   virtual ~SiTrackerMultiRecHitUpdator(){};
   
   //calls the update method in order to build a SiTrackerMultiRecHit 
-  virtual TransientTrackingRecHit::RecHitPointer  buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv, 
-								   const TrajectoryStateOnSurface& tsos,
-								   float annealing=1.) const;
+  virtual TransientTrackingRecHit::RecHitPointer buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv, 
+								  const TrajectoryStateOnSurface& tsos,
+								  MeasurementDetWithData& measDet,
+								  float annealing=1.) const;
   
   //updates an existing SiTrackerMultiRecHit
   //in case a different kind of rechit is passed it returns clone(tsos)
-  virtual TransientTrackingRecHit::RecHitPointer  update( TransientTrackingRecHit::ConstRecHitPointer original,  
+  virtual TransientTrackingRecHit::RecHitPointer update( TransientTrackingRecHit::ConstRecHitPointer original,  
 							  const TrajectoryStateOnSurface& tsos,
+							  MeasurementDetWithData& measDet,
 							  double annealing=1.) const;
   
   //returns a SiTrackerMultiRecHit out of the transient components	
   TransientTrackingRecHit::RecHitPointer update( TransientTrackingRecHit::ConstRecHitContainer& tcomponents,  
 					         const TrajectoryStateOnSurface& tsos,
-						 double annealing=1.) const;
+						 MeasurementDetWithData& measDet, 
+						 double annealing=1. ) const;
 
   //computes weights or the cut-off value (depending on CutWeight variable)
   double ComputeWeight(const TrajectoryStateOnSurface& tsos, const TransientTrackingRecHit& aRecHit, 
