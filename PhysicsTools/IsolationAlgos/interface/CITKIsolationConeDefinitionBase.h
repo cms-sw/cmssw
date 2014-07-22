@@ -34,11 +34,14 @@ namespace citk {
 
     const std::string& name() const { return _name; }
 
+    const std::string& additionalCode() const { return _additionalCode; }
+
     //! Destructor
     virtual ~IsolationConeDefinitionBase(){};
 
   protected:
     const float _coneSize2;
+    std::string _additionalCode;
     
   private:    
     const std::string _name;
