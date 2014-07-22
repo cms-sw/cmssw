@@ -201,7 +201,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
-    if self.config.type in ('GRun', ):
+    if self.config.type in ('GRun','FULL'):
       self.data += """
 # Enable HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
