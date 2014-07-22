@@ -2656,46 +2656,27 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // excess to photons
       if ( ePhoton < totalEcal || eNeutralHadron-calibEcal < 1E-10 ) { 
         if ( !maxEcalRef.isNull() ) {
-         if ( ecalClusters.size()<=1 ) { 
-	  particleEnergy.push_back(ePhoton);
-	  particleDirection.push_back(photonAtECAL);
-	  ecalEnergy.push_back(ePhoton);
-	  hcalEnergy.push_back(0.);
-	  rawecalEnergy.push_back(totalEcal);
-	  rawhcalEnergy.push_back(totalHcal);
-	  pivotalClusterRef.push_back(maxEcalRef);
-	  iPivotal.push_back(maxiEcal);
-	 } else {
-          for(std::vector<std::pair<unsigned,::math::XYZVector> >::const_iterator pae = ecalClusters.begin(); pae != ecalClusters.end(); ++pae ) {
-           double clusterEnergy=sqrt(pae->second.Mag2());
-	   particleEnergy.push_back(ePhoton*clusterEnergy/sumEcalClusters);
-           particleDirection.push_back(pae->second);
-	   ecalEnergy.push_back(ePhoton*clusterEnergy/sumEcalClusters);
-	   hcalEnergy.push_back(0.);
-	   rawecalEnergy.push_back(totalEcal);
-	   rawhcalEnergy.push_back(totalHcal);
-           pivotalClusterRef.push_back(elements[pae->first].clusterRef());
-  	   iPivotal.push_back(pae->first);
-          }
-         }
 	 // So the merged photon energy is,
          mergedPhotonEnergy  = ePhoton;
         }
-	
       } else { 
-	
 	// Otherwise assign the whole ECAL energy to the photons
         if ( !maxEcalRef.isNull() ) {
-         if ( ecalClusters.size()<=1 ) { 
-	  particleEnergy.push_back(totalEcal);
-	  particleDirection.push_back(photonAtECAL);
-	  ecalEnergy.push_back(totalEcal);
-	  hcalEnergy.push_back(0.);
-	  rawecalEnergy.push_back(totalEcal);
-	  rawhcalEnergy.push_back(totalHcal);
-	  pivotalClusterRef.push_back(maxEcalRef);
-	  iPivotal.push_back(maxiEcal);
-	 } else {
+	 // So the merged photon energy is,
+         mergedPhotonEnergy  = totalEcal;
+        }
+	// ... and assign the remaining excess to neutral hadrons using the direction of ecal clusters
+        mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
+      }
+
+      if ( mergedPhotonEnergy > 0 ) {
+          // Split merged photon into photons for each energetic ecal cluster (necessary for jet substructure reconstruction)
+          // make only one merged photon if less than 2 ecal clusters
+          if ( ecalClusters.size()<=1 ) {
+            ecalClusters.clear();
+            ecalClusters.push_back(make_pair(maxiEcal, photonAtECAL));
+            sumEcalClusters=sqrt(photonAtECAL.Mag2());
+          }
 	  for(std::vector<std::pair<unsigned,::math::XYZVector> >::const_iterator pae = ecalClusters.begin(); pae != ecalClusters.end(); ++pae ) {
            double clusterEnergy=sqrt(pae->second.Mag2());
 	   particleEnergy.push_back(totalEcal*clusterEnergy/sumEcalClusters);
@@ -2707,24 +2688,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	   pivotalClusterRef.push_back(elements[pae->first].clusterRef());
  	   iPivotal.push_back(pae->first);
           }
-         }
-	 // So the merged photon energy is,
-         mergedPhotonEnergy  = totalEcal;
-        }
+      }
 	
-	// ... and assign the remaining excess to neutral hadrons using the direction of ecal clusters
-        mergedNeutralHadronEnergy = eNeutralHadron-calibEcal;
-	if ( mergedNeutralHadronEnergy > 1.0 ) { 
-         if( ecalClusters.size()<=1 ) { 
-	  particleEnergy.push_back(mergedNeutralHadronEnergy);
-	  particleDirection.push_back(hadronAtECAL);
-	  ecalEnergy.push_back(0.);
-	  hcalEnergy.push_back(mergedNeutralHadronEnergy);
-	  rawecalEnergy.push_back(totalEcal);
-	  rawhcalEnergy.push_back(totalHcal);
-	  pivotalClusterRef.push_back(hclusterref);
-	  iPivotal.push_back(iHcal);	
-         } else {
+      if ( mergedNeutralHadronEnergy > 1.0 ) { 
+          // Split merged neutral hadrons according to directions of energetic ecal clusters (necessary for jet substructure reconstruction)
+          // make only one merged neutral hadron if less than 2 ecal clusters
+          if ( ecalClusters.size()<=1 ) {
+              ecalClusters.clear();
+              ecalClusters.push_back(make_pair(iHcal, hadronAtECAL));
+              sumEcalClusters=sqrt(hadronAtECAL.Mag2());
+          }
           for(std::vector<std::pair<unsigned,::math::XYZVector> >::const_iterator pae = ecalClusters.begin(); pae != ecalClusters.end(); ++pae ) {
            double clusterEnergy=sqrt(pae->second.Mag2());
 	   particleEnergy.push_back(mergedNeutralHadronEnergy*clusterEnergy/sumEcalClusters);
@@ -2735,12 +2708,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	   rawhcalEnergy.push_back(totalHcal);
 	   pivotalClusterRef.push_back(hclusterref);
 	   iPivotal.push_back(iHcal);	
-          }
          }
-	}
-	
       }
-	
 
       // reconstructing a merged neutral
       // the type of PFCandidate is known from the 
