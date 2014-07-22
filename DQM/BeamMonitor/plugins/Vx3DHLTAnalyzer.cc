@@ -58,19 +58,6 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   zStep              = iConfig.getParameter<double>("zStep");
   VxErrCorr          = iConfig.getParameter<double>("VxErrCorr");
   fileName           = iConfig.getParameter<string>("fileName");
-
-
-  // ### Set internal variables ###
-  reset("scratch");
-  prescaleHistory      = 1;    // Set the number of lumis to update historical plot
-  maxLumiIntegration   = 15;   // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
-  minVxDoF             = 10.;  // Good vertex selection cut
-  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
-  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
-  internalDebug        = false;
-  considerVxCovariance = true; // Deconvolute vertex covariance matrix
-  pi = 3.141592653589793238;
-  // ##############################
 }
 
 
@@ -174,7 +161,7 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 
 std::string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
-  char ts[25];
+  static char ts[25];
   strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
   
   std::string ts_string(ts);
@@ -1066,6 +1053,24 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
     }
 }
 
+
+void Vx3DHLTAnalyzer::beginJob()
+{
+  // ### Set internal variables ###
+  reset("scratch");
+  prescaleHistory      = 1;    // Set the number of lumis to update historical plot
+  maxLumiIntegration   = 15;   // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
+  minVxDoF             = 10.;  // Good vertex selection cut
+  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
+  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
+  internalDebug        = false;
+  considerVxCovariance = true; // Deconvolute vertex covariance matrix
+  pi = 3.141592653589793238;
+  // ##############################
+}
+
+
+void Vx3DHLTAnalyzer::endJob() { reset("scratch"); }
 
 
 void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
