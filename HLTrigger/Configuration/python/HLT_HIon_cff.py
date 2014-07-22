@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/HIon/V53 (CMSSW_7_1_2)
+# /dev/CMSSW_7_1_0/HIon/V54 (CMSSW_7_1_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V54')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1171,11 +1171,11 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
+  correctVertexMass = cms.bool( True ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -1197,7 +1197,7 @@ hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer"
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  correctVertexMass = cms.bool( True ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -2861,6 +2861,7 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
     TIB = cms.PSet(  )
 )
 hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       doVariablePtMin = cms.bool( True ),
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -2870,7 +2871,6 @@ hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -5662,6 +5662,7 @@ hltHIPixelClusterVerticesForHITrackTrigger = cms.EDProducer( "HIPixelClusterVtxP
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIProtoTrackFilter" ),
@@ -5671,7 +5672,6 @@ hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -5770,6 +5770,7 @@ hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
     medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" )
 )
 hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( True ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIPixelTrackFilter" ),
@@ -5782,7 +5783,6 @@ hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
       lipMax = cms.double( 0.3 ),
       clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCache" )
     ),
-    useFilterWithES = cms.bool( True ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
