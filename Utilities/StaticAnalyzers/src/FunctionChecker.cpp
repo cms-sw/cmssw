@@ -78,7 +78,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		|| fname.find("placeholders.hpp") != std::string::npos) return;
 
 	clang::QualType t =  D->getType();  
-	if ( support::isSafeClassName( t.getAsString() ) ) return;
+	if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
 	std::string sdname =""; 
