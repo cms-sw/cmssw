@@ -51,6 +51,12 @@ void GsfEleConversionVetoCut::getEventContent(const edm::EventBase& ev) {
 CutApplicatorBase::result_type 
 GsfEleConversionVetoCut::
 operator()(const reco::GsfElectronRef& cand) const{  
-  return !ConversionTools::hasMatchedConversion(*cand,_convs,
-						_thebs->position());
+  if( _thebs.isValid() && _convs.isValid() ) {
+    return !ConversionTools::hasMatchedConversion(*cand,_convs,
+						  _thebs->position());
+  } else {
+    edm::LogWarning("GsfEleConversionVetoCut")
+      << "Couldn't find a necessary collection, returning true!";
+  }
+  return true;
 }
