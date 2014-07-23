@@ -120,7 +120,7 @@ namespace edm {
                                 parameterSet.getUntrackedParameterSet(
                                    "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1),
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxGracefulRuntime", ParameterSet()).getUntrackedParameter<int>("input", -1));
+                                   "maxSecondsUntilRampdown", ParameterSet()).getUntrackedParameter<int>("input", -1));
     return common;
   }
 

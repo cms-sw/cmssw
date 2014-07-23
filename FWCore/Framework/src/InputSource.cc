@@ -57,7 +57,7 @@ namespace edm {
       maxLumis_(desc.maxLumis_),
       remainingLumis_(maxLumis_),
       readCount_(0),
-      maxGracefulRuntime_(desc.maxGracefulRuntime_),
+      maxSecondsUntilRampdown_(desc.maxSecondsUntilRampdown_),
       processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
@@ -81,7 +81,7 @@ namespace edm {
       statusfilename << "source_" << getpid();
       statusFileName_ = statusfilename.str();
     }
-    if (maxGracefulRuntime_ > 0) {
+    if (maxSecondsUntilRampdown_ > 0) {
       processingStart_ = std::chrono::steady_clock::now();
   }
 

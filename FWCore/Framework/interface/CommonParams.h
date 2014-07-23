@@ -15,20 +15,20 @@ namespace edm {
     CommonParams() :
       maxEventsInput_(),
       maxLumisInput_(),
-      maxGracefulRuntime_() {
+      maxSecondsUntilRampdown_() {
     }
 
     CommonParams(int maxEvents,
                  int maxLumis,
-                 int maxGracefulRuntime) :
+                 int maxSecondsUntilRampdown) :
       maxEventsInput_(maxEvents),
       maxLumisInput_(maxLumis),
-      maxGracefulRuntime_(maxGracefulRuntime) {
+      maxSecondsUntilRampdown_(maxSecondsUntilRampdown) {
     }
       
     int maxEventsInput_;
     int maxLumisInput_;
-    int maxGracefulRuntime_;
+    int maxSecondsUntilRampdown_;
   }; // struct CommonParams
 }
 
