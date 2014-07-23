@@ -3,7 +3,7 @@
 
 #include <map>
 #include <vector>
-#include "boost/thread.hpp"
+#include <ostream>
 
 // ----------------------------------------------------------------------
 

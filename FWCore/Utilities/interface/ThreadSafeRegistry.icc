@@ -1,11 +1,12 @@
 #ifndef FWCore_Utilities_ThreadSafeRegistry_icc
 #define FWCore_Utilities_ThreadSafeRegistry_icc
+#include <mutex>
 
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 
 namespace edm {
   namespace detail {
-    [[edm::thread_safe]] static boost::mutex registry_mutex;
+    [[edm::thread_safe]] extern static std::mutex registry_mutex;
 
     // ----------------------------------------------------------------------
     template <typename KEY, typename T, typename E>
@@ -23,7 +24,7 @@ namespace edm {
       {
         // This scope limits the lifetime of the lock to the shorted
         // required interval.
-        boost::mutex::scoped_lock lock(registry_mutex);
+        std::lock_guard lock(registry_mutex);
         i = data_.find(k);
         found = (i != data_.end());
       }
@@ -39,7 +40,7 @@ namespace edm {
       {
          // This scope limits the lifetime of the lock to the shorted
          // required interval.
-         boost::mutex::scoped_lock lock(registry_mutex);
+         std::lock_guard lock(registry_mutex);
          i = data_.find(k);
          found = (i != data_.end());
       }
@@ -50,7 +51,7 @@ namespace edm {
     bool
     ThreadSafeRegistry<KEY,T,E>::insertMapped(value_type const& v) {
       bool newly_added = false;
-      boost::mutex::scoped_lock lock(registry_mutex);
+      std::lock_guard lock(registry_mutex);
 
       key_type id = v.id();
       if (data_.find(id) == data_.end()) {
