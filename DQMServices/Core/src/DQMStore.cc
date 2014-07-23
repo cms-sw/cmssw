@@ -449,7 +449,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     run_(0),
     streamId_(0),
     moduleId_(0),
-    stream_(0),
+    stream_(nullptr),
     pwd_ (""),
     ibooker_(0),
     igetter_(0)
@@ -484,7 +484,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     run_(0),
     streamId_(0),
     moduleId_(0),
-    stream_(0),
+    stream_(nullptr),
     pwd_ (""),
     ibooker_(0),
     igetter_(0)
@@ -504,6 +504,8 @@ DQMStore::~DQMStore(void)
   for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
     delete i->first;
 
+  stream_->close();
+  delete stream_;
 }
 
 void
