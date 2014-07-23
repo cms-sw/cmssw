@@ -794,18 +794,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           // recontructed at all.
 
           auto iv = (*recVtxs.product()).begin();
-	  if ( iv != (*recVtxs.product()).end() ) {
-	    int pv_position_in_reco_collection = 0;
-	    while (++iv != (*recVtxs.product()).end()) {
-	      pv_position_in_reco_collection++;
-	      if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
-			    &(*iv)) != v.rec_vertices.end()) {
-		mes_[label]["TruePVLocationIndex"]
+          int pv_position_in_reco_collection = 0;
+          for (; iv != (*recVtxs.product()).end(); ++iv) {
+            pv_position_in_reco_collection++;
+            if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
+                          &(*iv)) != v.rec_vertices.end()) {
+              mes_[label]["TruePVLocationIndex"]
                   ->Fill(pv_position_in_reco_collection);
-		break;
-	      }
-	    }
-	  }
+              break;
+            }
+          }
+
           // If we reached the end, it means that the Simulated PV has not
           // been associated to any recontructed vertex: mark it as
           // missing in the reconstructed vertex collection using the fake
