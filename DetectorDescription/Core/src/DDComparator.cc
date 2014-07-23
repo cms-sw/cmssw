@@ -1,53 +1,6 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
-//#include "DetectorDescription/Core/interface/DDPartSelection.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
-
-#include<map>
-#include<iostream>
-
-namespace {
-
-  struct Counter {
-    int old;
-    int diff;
-    int t;
-    int f;
-    std::map<int,int> res;
-    std::map<int,int> siz;
-    Counter() :old(0),diff(0),t(0),f(0){}
-    ~Counter() {
-      for (std::map<int,int>::const_iterator p=res.begin();p!=res.end(); ++p)
-	std::cout << (*p).first <<","<<(*p).second <<" "; 
-      if (!res.empty()) std::cout << std::endl;
-       for (std::map<int,int>::const_iterator p=siz.begin();p!=siz.end(); ++p)
-	std::cout << (*p).first <<","<<(*p).second <<" "; 
-       if (!siz.empty()) std::cout << std::endl;
-    }
-    void add(bool r, int /*id*/, int /*im*/) {
-      if(r) {
-	++t;
-	return;
-      }
-      else ++f;
-      /*
-      std::map<int,int>::iterator p;
-      p= res.find(im-id);
-      if (p==res.end()) res[im-id]=1;
-      else ++(*p).second;
-      p= siz.find(id);
-      if (p==siz.end()) siz[id]=1;
-      else ++(*p).second;
-      */
-    }
-
-  };
-
-  inline Counter & counter() {
-    static Counter local;
-    return local;
-  }
-
-}
+#include <map>
+#include <iostream>
 
 // reason for the ctor: reference initialization at construction.
 // FIXME: DDCompareEqual: use pointers instead of references, initialize to 0 and 
@@ -114,30 +67,15 @@ bool DDCompareEqual::operator() ()
     }
     ++sIndex_;
   }
-  counter().add(result,sIndex_, sMax_);
   return result;
 }
 
 
 bool DDCompareEqual::nextAnylogp()
 {
-  /* does not help, most of the time is spent when FALSE....
-  static size_t hIndexOld=0;
-  // hope same position that previous
-  {
-    size_t oldH = hIndexOld; // thread safe??? 
-    if (oldH<hMax_ && sLp_== hist_[oldH].logicalPart()) {
-      hIndex_ = oldH+1;
-      ++counter.old;
-      return true;
-    }
-  }
-  */
   register size_t hi = hIndex_;
   while (hi < hMax_) {
     if (sLp_==hist_[hi].logicalPart()) {
-      // hIndexOld=hIndex_;
-      // ++counter.diff;
       hIndex_ = hi+1;
       return true;
     }
