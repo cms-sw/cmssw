@@ -13,7 +13,7 @@ HighPtDimuonPSet = cms.PSet(
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings
     parametersTurnOn = cms.vdouble( 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
-                                    60, 70, 80, 100, 120, 140, 160, 180, 200
+                                    60, 70, 80, 100, 120, 140, 160, 180, 200,
                                     220, 240, 260, 280, 300,
                                     320, 340, 360, 380, 400,
                                     420, 440, 460, 480, 500,
