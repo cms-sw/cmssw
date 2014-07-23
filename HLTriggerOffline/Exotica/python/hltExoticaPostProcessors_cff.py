@@ -83,9 +83,9 @@ print triggers
 
 # Generating the list with all the efficiencies
 for type in plot_types:
-    for obj in obj_types:
-	for trig in triggers:
-	    efficiency_strings.append(efficiency_string(obj,type,trig))
+	for obj in obj_types:
+		for trig in triggers:
+			efficiency_strings.append(efficiency_string(obj,type,trig))
 #for item in efficiency_strings:
 #    print item
 
@@ -99,6 +99,22 @@ hltExoticaPostHighPtDimuon.efficiencyProfile = efficiency_strings
 hltExoticaPostHighPtDielectron = hltExoticaPostProcessor.clone()
 hltExoticaPostHighPtDielectron.subDirs = ['HLT/Exotica/HighPtDielectron']
 hltExoticaPostHighPtDielectron.efficiencyProfile = efficiency_strings
+
+hltExoticaPostHighPtElectron = hltExoticaPostProcessor.clone()
+hltExoticaPostHighPtElectron.subDirs = ['HLT/Exotica/HighPtElectron']
+hltExoticaPostHighPtElectron.efficiencyProfile = efficiency_strings
+
+hltExoticaPostLowPtElectron = hltExoticaPostProcessor.clone()
+hltExoticaPostLowPtElectron.subDirs = ['HLT/Exotica/LowPtElectron']
+hltExoticaPostLowPtElectron.efficiencyProfile = efficiency_strings
+
+hltExoticaPostLowPtDimuon = hltExoticaPostProcessor.clone()
+hltExoticaPostLowPtDimuon.subDirs = ['HLT/Exotica/LowPtDimuon']
+hltExoticaPostLowPtDimuon.efficiencyProfile = efficiency_strings
+
+hltExoticaPostLowPtDielectron = hltExoticaPostProcessor.clone()
+hltExoticaPostLowPtDielectron.subDirs = ['HLT/Exotica/LowPtDielectron']
+hltExoticaPostLowPtDielectron.efficiencyProfile = efficiency_strings
 
 hltExoticaPostEleMu = hltExoticaPostProcessor.clone()
 hltExoticaPostEleMu.subDirs = ['HLT/Exotica/EleMu']
@@ -119,6 +135,10 @@ hltExoticaPostHT.efficiencyProfile = efficiency_strings
 hltExoticaPostProcessors = cms.Sequence(
 		hltExoticaPostHighPtDimuon +
 		hltExoticaPostHighPtDielectron +
+		hltExoticaPostHighPtElectron +
+		hltExoticaPostLowPtElectron +
+		hltExoticaPostLowPtDimuon +
+		hltExoticaPostLowPtDielectron +
 		hltExoticaPostEleMu +
 		hltExoticaPostMonojet +
 		hltExoticaPostPureMET +
