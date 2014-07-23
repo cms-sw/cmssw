@@ -14,14 +14,19 @@
 import FWCore.ParameterSet.Config as cms
 
 # The specific analyses to be loaded
-from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff import HighPtDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff     import HighPtDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff import HighPtDielectronPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff import LowPtDimuonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff import LowPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff      import LowPtDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff  import LowPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff     import HighPtPhotonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff         import DiPhotonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff               import HTPSet
+
+#
 from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff import EleMuPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff import HTPSet
+
 
 
 hltExoticaValidator = cms.EDAnalyzer(
@@ -32,17 +37,19 @@ hltExoticaValidator = cms.EDAnalyzer(
     
     # -- The name of the analysis. This is the name that
     # appears in Run summary/Exotica/ANALYSIS_NAME
+
     analysis       = cms.vstring("HighPtDimuon",
                                  "HighPtDielectron",
                                  "LowPtDimuon",
                                  "LowPtDielectron",
                                  "HighPtPhoton",
                                  "DiPhoton"
-                                ),
-#                                 "EleMu",
-#                                 "PureMET",
-#                                 "Monojet",
-#                                 "HT"),
+                                 #"HT"
+                                 ),
+
+    #                            "EleMu",
+    #                            "PureMET",
+    #                            "Monojet"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
