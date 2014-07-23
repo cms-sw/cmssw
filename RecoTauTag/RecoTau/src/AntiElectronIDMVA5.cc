@@ -91,22 +91,24 @@ AntiElectronIDMVA5::~AntiElectronIDMVA5()
   delete [] Var_woGwGSF_Endcap_;
   delete [] Var_wGwoGSF_Endcap_;
   delete [] Var_wGwGSF_Endcap_;
-  //delete mva_NoEleMatch_woGwoGSF_BL_;
-  //delete mva_NoEleMatch_woGwGSF_BL_;
-  //delete mva_NoEleMatch_wGwoGSF_BL_;
-  //delete mva_NoEleMatch_wGwGSF_BL_;
-  //delete mva_woGwoGSF_BL_;
-  //delete mva_woGwGSF_BL_;
-  //delete mva_wGwoGSF_BL_;
-  //delete mva_wGwGSF_BL_;
-  //delete mva_NoEleMatch_woGwoGSF_EC_;
-  //delete mva_NoEleMatch_woGwGSF_EC_;
-  //delete mva_NoEleMatch_wGwoGSF_EC_;
-  //delete mva_NoEleMatch_wGwGSF_EC_;
-  //delete mva_woGwoGSF_EC_;
-  //delete mva_woGwGSF_EC_;
-  //delete mva_wGwoGSF_EC_;
-  //delete mva_wGwGSF_EC_;
+  if ( !loadMVAfromDB_ ){
+    delete mva_NoEleMatch_woGwoGSF_BL_;
+    delete mva_NoEleMatch_woGwGSF_BL_;
+    delete mva_NoEleMatch_wGwoGSF_BL_;
+    delete mva_NoEleMatch_wGwGSF_BL_;
+    delete mva_woGwoGSF_BL_;
+    delete mva_woGwGSF_BL_;
+    delete mva_wGwoGSF_BL_;
+    delete mva_wGwGSF_BL_;
+    delete mva_NoEleMatch_woGwoGSF_EC_;
+    delete mva_NoEleMatch_woGwGSF_EC_;
+    delete mva_NoEleMatch_wGwoGSF_EC_;
+    delete mva_NoEleMatch_wGwGSF_EC_;
+    delete mva_woGwoGSF_EC_;
+    delete mva_woGwGSF_EC_;
+    delete mva_wGwoGSF_EC_;
+    delete mva_wGwGSF_EC_;
+  }
   for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
 	it != inputFilesToDelete_.end(); ++it ) {
     delete (*it);

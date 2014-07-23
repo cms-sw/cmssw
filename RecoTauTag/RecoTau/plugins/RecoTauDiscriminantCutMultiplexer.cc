@@ -156,7 +156,7 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
   if ( !loadMVAfromDB_ ) {
     inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName"); 
   }
-  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
+  if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
   if ( cfg.exists("mvaOutput_normalization") ) {
     mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
   }
