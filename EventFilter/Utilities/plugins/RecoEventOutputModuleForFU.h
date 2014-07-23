@@ -81,6 +81,11 @@ namespace evf {
     // create open dir if not already there
     edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
 
+    //replace hltOutoputA with stream if the HLT menu uses this convention
+    std::string testPrefix="hltOutput";
+    if (stream_label_.find(testPrefix)==0) 
+            stream_label_=std::string("stream")+stream_label_.substr(testPrefix.size());
+
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     
     processed_.setName("Processed");
