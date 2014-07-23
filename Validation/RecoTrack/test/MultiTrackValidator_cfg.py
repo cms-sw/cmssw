@@ -7,6 +7,13 @@ process.MessageLogger = cms.Service("MessageLogger",
      default = cms.untracked.PSet( limit = cms.untracked.int32(10) )
 )
 
+
+#Adding SimpleMemoryCheck service:
+process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
+                                   ignoreTotal=cms.untracked.int32(1),
+                                   oncePerEventMode=cms.untracked.bool(True)
+)
+
 process.Timing = cms.Service("Timing"
     ,summaryOnly = cms.untracked.bool(True)
 )
@@ -39,7 +46,7 @@ secFiles.extend( [
        '/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_POSTLS171_V15-v1/00000/EAE281B4-EFFE-E311-96E1-0025905A6090.root'
                  ] )
 process.source = source
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(400) )
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -53,6 +60,8 @@ process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+
 
 ### validation-specific includes
 #process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
@@ -65,14 +74,9 @@ process.load("Validation.Configuration.postValidation_cff")
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 
-## dqm stuff
-process.load("DQMServices.Components.DQMFileSaver_cfi")
-process.dqmSaver.workflow = cms.untracked.string("/My/Personal/Workflow")
-
 
 
 ########### configuration MultiTrackValidator ########
-process.multiTrackValidator.outputFile = 'multitrackvalidator.root'
 process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 #process.cutsRecoTracks.quality = cms.vstring('','highPurity')
@@ -83,6 +87,7 @@ process.multiTrackValidator.minpT = cms.double(0.1)
 process.multiTrackValidator.maxpT = cms.double(3000.0)
 process.multiTrackValidator.nintpT = cms.int32(40)
 process.multiTrackValidator.UseAssociators = cms.bool(True)
+
 
 #process.load("Validation.RecoTrack.cuts_cff")
 #process.cutsRecoTracks.quality = cms.vstring('highPurity')
@@ -105,15 +110,28 @@ process.val = cms.Path(
     * process.validation
 )
 
-process.outputFile = cms.EndPath(process.dqmSaver)
+# Output definition
+process.DQMoutput = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    outputCommands = process.DQMEventContent.outputCommands,
+    fileName = cms.untracked.string('file:MTV_inDQM.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('DQM')
+    )
+)
+
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+
 
 process.schedule = cms.Schedule(
-      process.val,process.outputFile
+      process.val,process.endjob_step,process.DQMoutput_step
 )
 
 process.options = cms.untracked.PSet(
-    numberOfThreads = cms.untracked.uint32(4),
-    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(8),
+    numberOfStreams = cms.untracked.uint32(8),
     wantSummary = cms.untracked.bool(True)
 )
 

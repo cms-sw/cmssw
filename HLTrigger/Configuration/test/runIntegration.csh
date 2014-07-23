@@ -43,6 +43,9 @@ foreach gtag ( $1 )
 
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
     set autogt = "--globaltag=${basegt}_${table}"
+    if ( $table == FULL ) then
+      set autogt = "--globaltag=${basegt}_GRun"
+    endif
     set infile = file:../RelVal_Raw_${table}_${gtag}.root
 
 #   -x "--l1-emulator" -x "--l1 L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc" 
