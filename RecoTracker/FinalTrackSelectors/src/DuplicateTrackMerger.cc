@@ -1,4 +1,4 @@
-#include "RecoTracker/FinalTrackSelectors/interface/DuplicateTrackMerger.h"
+#include "DuplicateTrackMerger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"

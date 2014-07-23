@@ -5,7 +5,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-#include "RecoTracker/TrackProducer/interface/TrackMerger.h"
+#include "TrackMerger.h"
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH

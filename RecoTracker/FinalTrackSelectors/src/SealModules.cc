@@ -4,12 +4,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoTracker/FinalTrackSelectors/interface/SimpleTrackListMerger.h"
-#include "RecoTracker/FinalTrackSelectors/src/TrackListMerger.h"
+#include "TrackListMerger.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMultiSelector.h"
 #include "RecoTracker/FinalTrackSelectors/interface/AnalyticalTrackSelector.h"
-#include "RecoTracker/FinalTrackSelectors/src/MultiTrackSelector.h"
+#include "MultiTrackSelector.h"
 #include "RecoTracker/FinalTrackSelectors/interface/CosmicTrackSelector.h" 
-#include "RecoTracker/FinalTrackSelectors/interface/DuplicateTrackMerger.h"
+#include "DuplicateTrackMerger.h"
 #include "RecoTracker/FinalTrackSelectors/interface/DuplicateListMerger.h"
 
 using cms::SimpleTrackListMerger;
