@@ -794,7 +794,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           // recontructed at all.
           auto iv = (*recVtxs.product()).begin();
           int pv_position_in_reco_collection = 0;
-          while (++iv != (*recVtxs.product()).end()) {
+          for (; iv != (*recVtxs.product()).end(); ++iv) {
             pv_position_in_reco_collection++;
             if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                           &(*iv)) != v.rec_vertices.end()) {
