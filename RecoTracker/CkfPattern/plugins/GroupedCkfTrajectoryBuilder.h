@@ -21,7 +21,7 @@
  *  and provides efficient ways of trimming the combinatorial tree.
  */
 
-class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
+class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet
