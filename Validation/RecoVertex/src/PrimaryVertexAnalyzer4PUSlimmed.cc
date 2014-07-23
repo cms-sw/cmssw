@@ -29,8 +29,6 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
           iConfig.getUntrackedParameter<bool>("use_TP_associator", false)),
       sigma_z_match_(
           iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
-      recoTrackProducer_(
-          iConfig.getUntrackedParameter<std::string>("recoTrackProducer")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
       recoTrackCollectionToken_(consumes<reco::TrackCollection>(edm::InputTag(
@@ -753,11 +751,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     }
   }
 
+  std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
+                                        // MC vertices
+  // TODO(rovere) use move semantic?
+  simpv = getSimPVs(TVCollectionH);
+  mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
+
   int label_index = -1;
   for (auto const& vertex_token : reco_vertex_collection_tokens_) {
-    std::vector<simPrimaryVertex> simpv;  // a list of simulatedprimary
-                                          // MC vertices
-
     std::vector<recoPrimaryVertex> recopv;  // a list of recontructed
                                             // primary MC vertices
     std::string label = reco_vertex_collections_[++label_index].label();
@@ -769,8 +770,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       continue;
     }
     if (gotTV) {
-      // TODO(rovere) use move semantic?
-      simpv = getSimPVs(TVCollectionH);
       matchSim2RecoVertices(simpv, *recVtxs.product());
       recopv = getRecoPVs(recVtxs);
       matchReco2SimVertices(recopv, *TVCollectionH.product());
@@ -788,29 +787,32 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           mes_[label]["MisTagRate"]->Fill(1.);
         } else {
           mes_[label]["MisTagRate"]->Fill(0.0);
-          // Now check at which location the Simulated PV has been
-          // reconstructed in the primvary vertex collection
-          // at-hand. Mark it with fake index -1 if it was not
-          // recontructed at all.
-          auto iv = (*recVtxs.product()).begin();
-          int pv_position_in_reco_collection = 0;
-          for (; iv != (*recVtxs.product()).end(); ++iv) {
-            pv_position_in_reco_collection++;
-            if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
-                          &(*iv)) != v.rec_vertices.end()) {
-              mes_[label]["TruePVLocationIndex"]
-                  ->Fill(pv_position_in_reco_collection);
-              break;
-            }
-          }
-          // If we reached the end, it means that the Simulated PV has not
-          // been associated to any recontructed vertex: mark it as
-          // missing in the reconstructed vertex collection using the fake
-          // index -1.
-          if (iv == (*recVtxs.product()).end())
-            mes_[label]["TruePVLocationIndex"]->Fill(-1.);
         }
+        // Now check at which location the Simulated PV has been
+        // reconstructed in the primvary vertex collection
+        // at-hand. Mark it with fake index -1 if it was not
+        // recontructed at all.
+
+        auto iv = (*recVtxs.product()).begin();
+        for (int pv_position_in_reco_collection = 0;
+             iv != (*recVtxs.product()).end();
+             ++pv_position_in_reco_collection, ++iv) {
+          if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
+                        &(*iv)) != v.rec_vertices.end()) {
+            mes_[label]["TruePVLocationIndex"]
+                ->Fill(pv_position_in_reco_collection);
+            break;
+          }
+        }
+
+        // If we reached the end, it means that the Simulated PV has not
+        // been associated to any recontructed vertex: mark it as
+        // missing in the reconstructed vertex collection using the fake
+        // index -1.
+        if (iv == (*recVtxs.product()).end())
+          mes_[label]["TruePVLocationIndex"]->Fill(-1.);
       }
+
       if (v.rec_vertices.size()) num_total_gen_vertices_assoc2reco++;
       if (v.rec_vertices.size() > 1) num_total_gen_vertices_multiassoc2reco++;
       // No need to N-tplicate the Gen-related cumulative histograms:
