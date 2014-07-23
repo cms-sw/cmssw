@@ -15,7 +15,7 @@
 #include <cmath>
 #include <vector>
 
-#include "RecoTracker/FinalTrackSelectors/src/TrackListMerger.h"
+#include "TrackListMerger.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"

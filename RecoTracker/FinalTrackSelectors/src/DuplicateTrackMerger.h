@@ -21,7 +21,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "RecoTracker/TrackProducer/interface/TrackMerger.h"
+#include "TrackMerger.h"
 #include <vector>
 #include <algorithm>
 #include <string>
