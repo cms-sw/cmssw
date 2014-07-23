@@ -158,6 +158,12 @@ def cust_2023SHCal(process):
         process.pfClusteringEK += process.particleFlowClusterECAL
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.particleFlowCluster += process.pfClusteringEK
+        
+        process.photonCore.scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel")
+        process.photonCore.scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower")        
+        process.photons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedPhotons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        
         process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
         process.towerMakerPF.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
         process.towerMakerWithHO.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))

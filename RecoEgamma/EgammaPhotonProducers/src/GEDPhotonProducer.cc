@@ -296,7 +296,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       hits = ecalBarrelHits;
       flags_ = flagsexclEB_;
       severitiesexcl_ = severitiesexclEB_;
-    } else if  (subdet==EcalEndcap)  { 
+    } else if  (subdet==EcalEndcap || subdet==EcalShashlik)  { 
       preselCutValues = preselCutValuesEndcap_;
       hits = ecalEndcapHits;
       flags_ = flagsexclEE_;

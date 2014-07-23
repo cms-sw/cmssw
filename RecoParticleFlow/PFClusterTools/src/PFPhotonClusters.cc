@@ -1,5 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFPhotonClusters.h"
 
@@ -106,10 +107,16 @@ void PFPhotonClusters::PFCrystalCoor(){
       CrysIEtaCrack_=20;
   }
   else{
-    isEB_=false;
-    EEDetId EEidSeed=EEDetId(idseed_.rawId());
-    CrysIX_=EEidSeed.ix();
-    CrysIY_=EEidSeed.iy();
+    isEB_=false;    
+    if( idseed_.det() == DetId::Ecal && idseed_.subdetId() == EcalShashlik ) {
+      EKDetId EKidSeed=EKDetId(idseed_.rawId());
+      CrysIX_=EKidSeed.ix();
+      CrysIY_=EKidSeed.iy();
+    } else {
+      EEDetId EEidSeed=EEDetId(idseed_.rawId());
+      CrysIX_=EEidSeed.ix();
+      CrysIY_=EEidSeed.iy();
+    }
     float X0 = 0.89; float T0 = 1.2;
     if(fabs(PFClusterRef_->eta())>1.653)T0=3.1;
     double depth = X0 * (T0 + log(PFClusterRef_->energy()));
@@ -174,14 +181,28 @@ void PFPhotonClusters::FillClusterShape(){
 //      assert(iPhi >= 0);
       e5x5_[iEta][iPhi]=E;
     }
-    else{
-      int dx=EEDetId::distanceX(id,idseed_);
-      int dy=EEDetId::distanceY(id,idseed_);
-      if(abs(dx)>2 ||abs(dy>2))continue;
-      EEDetId EEidSeed=EEDetId(idseed_.rawId());
-      EEDetId EEid=EEDetId(id.rawId());
-      int ind1=EEid.ix()-EEidSeed.ix();
-      int ind2=EEid.iy()-EEidSeed.iy();
+    else{  
+      int dx = 0;
+      int dy = 0;
+      int ind1 = 0;
+      int ind2 = 0;
+      if( idseed_.det() == DetId::Ecal && idseed_.subdetId() == EcalShashlik ) {
+	dx=EKDetId::distanceX(id,idseed_);
+	dy=EKDetId::distanceY(id,idseed_);
+	if(abs(dx)>2 ||abs(dy>2))continue;
+	EKDetId EKidSeed=EKDetId(idseed_.rawId());
+	EKDetId EKid=EKDetId(id.rawId());
+	ind1=EKid.ix()-EKidSeed.ix();
+	ind2=EKid.iy()-EKidSeed.iy();
+      } else {
+	dx=EEDetId::distanceX(id,idseed_);
+	dy=EEDetId::distanceY(id,idseed_);
+	if(abs(dx)>2 ||abs(dy>2))continue;
+	EEDetId EEidSeed=EEDetId(idseed_.rawId());
+	EEDetId EEid=EEDetId(id.rawId());
+	ind1=EEid.ix()-EEidSeed.ix();
+	ind2=EEid.iy()-EEidSeed.iy();
+      }      
       int ix=ind1+2;
       int iy=ind2+2;
       //std::cout<<"IX, IY "<<ix<<", "<<iy<<std::endl;	    

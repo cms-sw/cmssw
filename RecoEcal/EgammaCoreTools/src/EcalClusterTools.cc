@@ -133,7 +133,7 @@ float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const E
 {
   //take into account fractions
     // fast version
-    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+  CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id.det(), id.subdetId() ) );
     float energy = 0;
     const std::vector< std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
     for ( int i = ixMin; i <= ixMax; ++i ) {
@@ -156,7 +156,7 @@ float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const E
 float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     // fast version
-    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+  CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id.det(), id.subdetId() ) );
     const std::vector< std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
     float energy = 0;
     for ( int i = ixMin; i <= ixMax; ++i ) {
@@ -174,7 +174,7 @@ float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const E
 
 std::vector<DetId> EcalClusterTools::matrixDetId( const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
-    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+  CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id.det(), id.subdetId() ) );
     std::vector<DetId> v;
     for ( int i = ixMin; i <= ixMax; ++i ) {
         for ( int j = iyMin; j <= iyMax; ++j ) {
@@ -621,7 +621,7 @@ std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::get
                 else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
             }
             DetId id_ = (*posCurrent).first;
-            const CaloCellGeometry *this_cell = geometry->getSubdetectorGeometry(id_)->getGeometry(id_);
+            const CaloCellGeometry *this_cell = geometry->getSubdetectorGeometry(id_.det(),id_.subdetId())->getGeometry(id_);
             GlobalPoint cellPos = this_cell->getPosition();
             CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
             // Evaluate the distance from the cluster centroid
@@ -716,7 +716,7 @@ math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster 
     for( const std::pair<DetId,float>& hitAndFrac : hsAndFs ) {
       for( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
 	if( hitAndFrac.first != *it ) continue;
-	GlobalPoint positionGP = geometry->getSubdetectorGeometry( *it )->getGeometry( *it )->getPosition();
+	GlobalPoint positionGP = geometry->getSubdetectorGeometry( it->det(), it->subdetId() )->getGeometry( *it )->getPosition();
 	math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
 	meanPosition = meanPosition + recHitEnergy( *it, recHits ) * position * hitAndFrac.second;
       }
@@ -735,7 +735,7 @@ math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster 
     for( const std::pair<DetId,float>& hitAndFrac : hsAndFs ) {
       for( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
 	if( hitAndFrac.first != *it ) continue;
-        GlobalPoint positionGP = geometry->getSubdetectorGeometry( *it )->getGeometry( *it )->getPosition();
+        GlobalPoint positionGP = geometry->getSubdetectorGeometry( it->det(), it->subdetId() )->getGeometry( *it )->getPosition();
         math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
         meanPosition = meanPosition + recHitEnergy( *it, recHits,flagsexcl, severitiesexcl, sevLv ) * position * hitAndFrac.second;
       }
@@ -874,7 +874,7 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
         double denominator     = 0;
 
         DetId id = getMaximum( v_id, recHits ).first;
-        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id.det(), id.subdetId() ) );
         for ( int i = -2; i <= 2; ++i ) {
             for ( int j = -2; j <= 2; ++j ) {
                 cursor.home();
@@ -944,7 +944,7 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 
   
         DetId id = getMaximum( v_id, recHits ).first;
-        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id.det(), id.subdetId() ) );
         for ( int i = -2; i <= 2; ++i ) {
             for ( int j = -2; j <= 2; ++j ) {
                 cursor.home();
@@ -1031,7 +1031,7 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
         bool isBarrel=seedId.subdetId()==EcalBarrel;
         const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
 
-        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( seedId, topology->getSubdetectorTopology( seedId ) );
+        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( seedId, topology->getSubdetectorTopology( seedId.det(), seedId.subdetId() ) );
 
         for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
             for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
@@ -1114,7 +1114,7 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
         bool isBarrel=seedId.subdetId()==EcalBarrel;
         const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
 
-        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( seedId, topology->getSubdetectorTopology( seedId ) );
+        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( seedId, topology->getSubdetectorTopology( seedId.det(), seedId.subdetId() ) );
 
         for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
             for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel

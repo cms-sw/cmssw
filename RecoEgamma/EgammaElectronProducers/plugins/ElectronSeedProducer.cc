@@ -228,8 +228,9 @@ void ElectronSeedProducer::filterClusters
          scle = scl.energy() ;
 	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         if (component==DetId::Ecal && detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
+         else if (component==DetId::Ecal && detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+	 else if (component==DetId::Ecal && detector==EcalShashlik && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
 	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {
