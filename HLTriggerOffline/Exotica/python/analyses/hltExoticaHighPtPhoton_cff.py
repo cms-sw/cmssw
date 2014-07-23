@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 HighPtPhotonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Photon80_v",
-        "HLT_Photon135_v"
+        "HLT_Photon80_v",  # Run2 proposal
+        "HLT_Photon135_v"  # Run1 (frozenHLT)
         ),
     recPhotonLabel  = cms.InputTag("gedPhotons"),
     # -- Analysis specific cuts
