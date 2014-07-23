@@ -299,28 +299,6 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   if(rpcId.station()==3) {
 	     if(orientation*rpcId.region()==1.0) {ok=true;}
 	   }
-           /*
-	   if ( ( ( rpcId.station()==1 
-		    && ( ( rpcId.ring()==2 && seg%2!=0 )
-			 || rpcId.ring()==3 ) )
-		  || rpcId.station()==3 ) 
-		&& orientation*rpcId.region()==1.){
-	     ok=true;
-	   }
-	   if ( ( ( rpcId.station()==1 && rpcId.ring()==2 && seg%2==0 ) 
-		  || rpcId.station()==2 )
-		&& orientation*rpcId.region()==-1. ){
-	     ok=true;
-	   }
-	   */
-// 	   if((rpcId.station()==1&&(rpcId.ring()==2&&seg%2!=0||rpcId.ring()==3)||rpcId.station()==3)
-// 	      &&orientation*rpcId.region()==1.){
-// 	     ok=true;
-// 	   }
-// 	   if((rpcId.station()==1&&rpcId.ring()==2&&seg%2==0||rpcId.station()==2)
-// 	      &&orientation*rpcId.region()==-1.){
-// 	     ok=true;
-// 	   }
 
 	   if(ok) std::cout<<" OK"<<std::endl;
 	   else std::cout<<" WRONG!!!"<<std::endl;
