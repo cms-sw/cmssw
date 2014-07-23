@@ -101,6 +101,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 
     maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
+    maxHOverEOuterEndcaps_=conf_.getParameter<double>("maxHOverEOuterEndcaps") ;
     maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
     maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
 //    hOverEConeSize_=conf_.getParameter<double>("hOverEConeSize") ;
@@ -261,7 +262,8 @@ void ElectronSeedProducer::filterClusters
 	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
          //int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if (detector==EcalEndcap && fabs(sclEta) < 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if (detector==EcalEndcap && fabs(sclEta) > 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEOuterEndcaps_)) HoeVeto=true;
 	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {

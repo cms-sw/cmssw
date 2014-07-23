@@ -89,6 +89,7 @@ class ElectronSeedProducer : public edm::EDProducer
   //  double maxHOverE_ ;
      double maxHOverEBarrel_ ;
      double maxHOverEEndcaps_ ;
+     double maxHOverEOuterEndcaps_ ;
      double maxHBarrel_ ;
      double maxHEndcaps_ ;
   //  double hOverEConeSize_;
