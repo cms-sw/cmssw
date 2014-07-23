@@ -96,6 +96,8 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
       std::string sJets_;
       edm::EDGetTokenT< edm::View<reco::Jet> > tokJets_;
       double ptJets_;
+      double ptJets0_;
+      double ptJets1_;
       double etaJets_;
       unsigned int minJets_;
       // Trigger
@@ -141,6 +143,8 @@ B2GSingleLeptonHLTValidation::B2GSingleLeptonHLTValidation(const edm::ParameterS
   minMuons_(iConfig.getUntrackedParameter<unsigned int>("minMuons",0)),
   sJets_(iConfig.getUntrackedParameter<std::string>("sJets","ak5PFJets")),
   ptJets_(iConfig.getUntrackedParameter<double>("ptJets",0.)),
+  ptJets0_(iConfig.getUntrackedParameter<double>("ptJets0",0.)),
+  ptJets1_(iConfig.getUntrackedParameter<double>("ptJets1",0.)),
   etaJets_(iConfig.getUntrackedParameter<double>("etaJets",0.)),
   minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets",0)),
   sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger","TriggerResults")),

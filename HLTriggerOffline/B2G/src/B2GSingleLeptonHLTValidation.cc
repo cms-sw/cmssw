@@ -56,7 +56,6 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   for(edm::View<reco::GsfElectron>::const_iterator e = electrons->begin(); e != electrons->end(); ++e){
     if (e->pt() < ptElectrons_) continue;
     if (fabs(e->eta()) > etaElectrons_) continue;
-    if ((e->dr03TkSumPt()+e->dr03EcalRecHitSumEt()+e->dr03HcalTowerSumEt())/e->pt() > isoElectrons_ ) continue;
     nGoodE++;
     if (nGoodE == 1) elec_ = &(*e);
   }
@@ -69,7 +68,6 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     if (!m->isPFMuon() || !m->isGlobalMuon()) continue;
     if (m->pt() < ptMuons_) continue;
     if (fabs(m->eta()) > etaMuons_) continue;
-    if (((m->pfIsolationR04()).sumChargedHadronPt+(m->pfIsolationR04()).sumPhotonEt+(m->pfIsolationR04()).sumNeutralHadronEt)/m->pt() > isoMuons_ ) continue;
     nGoodM++;
     if (nGoodM == 1) mu_ = &(*m);
   }
@@ -78,18 +76,23 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   if (!iEvent.getByToken(tokJets_,jets)) 
     edm::LogWarning("B2GSingleLeptonHLTValidation") << "Jets collection not found \n";
   unsigned int nGoodJ = 0;
-  if (minJets_ == 4) {
-    for(edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j){
-      if (nGoodJ < 1 && j->pt() < 55) continue;
-      if (nGoodJ < 2 && j->pt() < 45) continue;
-      if (nGoodJ < 3 && j->pt() < 35) continue;
-      if (nGoodJ >= 3 && j->pt() < 20) continue;
-      if (fabs(j->eta()) > etaJets_) continue;
-      nGoodJ++;
-      if (nGoodJ == minJets_) jet_ = &(*j);
+
+  // Check to see if we want asymmetric jet pt cuts
+  if ( ptJets0_ > 0.0 || ptJets1_ > 0.0 )  {
+    if ( ptJets0_ > 0.0 ) {
+      if ( jets->size() > 0 && jets->at(0).pt() > ptJets0_ ) {
+	nGoodJ++;
+	jet_ = &( jets->at(0) );
+      }
     }
-  }
-  else {
+    if ( ptJets1_ > 0.0 ) {
+      if ( jets->size() > 1 && jets->at(1).pt() > ptJets1_ ) {
+	nGoodJ++;
+	jet_ = &( jets->at(1) );
+      }
+    }
+  } else {
+    
     for(edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j){
       if (j->pt() < ptJets_) continue;
       if (fabs(j->eta()) > etaJets_) continue;
@@ -97,6 +100,7 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
       if (nGoodJ == minJets_) jet_ = &(*j);
     }
   }
+
 
   if (nGoodE >= minElectrons_ && nGoodM >= minMuons_ && nGoodJ >= minJets_) isAll_ = true;
 
