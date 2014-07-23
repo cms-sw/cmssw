@@ -571,6 +571,9 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 void
 DQMStore::print_trace (const std::string &dir, const std::string &name)
 {
+  // the access to the member stream_ is implicitely protected against
+  // concurrency problems because the print_trace method is always called behind
+  // a lock (see bookTransaction).
   if (!stream_)
     stream_ = new ofstream("histogramBookingBT.log");
   
