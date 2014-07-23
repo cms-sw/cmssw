@@ -24,7 +24,9 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff import HTPSet
 
 
-hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
+hltExoticaValidator = cms.EDAnalyzer(
+
+    "HLTExoticaValidator",
 		
     hltProcessName = cms.string("HLT"),
     
@@ -34,6 +36,8 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
                                  "HighPtDielectron",
                                  "LowPtDimuon",
                                  "LowPtDielectron",
+                                 "HighPtPhoton",
+                                 "DiPhoton"
                                 ),
 #                                 "EleMu",
 #                                 "PureMET",
@@ -61,6 +65,7 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # these cuts can be overloaded inside a particular analysis)
     # Objects recognized: Mu Ele Photon PFTau Jet MET
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
+
     # --- Muons
     Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
     Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
@@ -106,10 +111,14 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # Besides the mandatory attributes, you can redefine the generation and reconstruction cuts
     # for any object you want.
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, Jet, PFTau, MET (see above)
+
     HighPtDimuon     = HighPtDimuonPSet,
     HighPtDielectron = HighPtDielectronPSet,
     LowPtDimuon      = LowPtDimuonPSet,
     LowPtDielectron  = LowPtDielectronPSet,
+    HighPtPhoton     = HighPtPhotonPSet,                                 
+    DiPhoton         = DiPhotonPSet,                                 
+    #
     EleMu            = EleMuPSet,
     PureMET          = PureMETPSet,                                 
     Monojet          = MonojetPSet,
