@@ -49,7 +49,6 @@ namespace helper {
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
-  dbe_(edm::Service<DQMStore>().operator->()),
   conf_(ps),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
@@ -65,12 +64,6 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
   SubDetList_ = conf_.getParameter<std::vector<std::string> >("SubDetList");
-  
-  outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  
-  outputFileName = conf_.getParameter<std::string>("outputFile");
-
-  runStandalone = conf_.getParameter<bool>("runStandalone");
 
   edm::ParameterSet ParametersNumTotrphi =  conf_.getParameter<edm::ParameterSet>("TH1NumTotrphi");
   switchNumTotrphi = ParametersNumTotrphi.getParameter<bool>("switchon");
@@ -179,14 +172,6 @@ void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
 
 void SiStripRecHitsValid::beginJob(const edm::EventSetup& es){
 }
-
-// void SiStripRecHitsValid::endJob() {
-void SiStripRecHitsValid::endStream() {
-  //Only in standalone mode save local root file 
-  if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
-  
-}
-
 
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
