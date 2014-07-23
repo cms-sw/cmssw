@@ -204,7 +204,6 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
   
   // filter decision
   bool accept(n>=ncandcut_);
-  accept = true ;
   
   return accept;
 }
