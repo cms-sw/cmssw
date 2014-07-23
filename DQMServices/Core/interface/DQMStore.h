@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <cxxabi.h>
+# include <iosfwd>
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -41,6 +42,7 @@ class TH3F;
 class TProfile;
 class TProfile2D;
 class TNamed;
+
 
 /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -695,6 +697,7 @@ class DQMStore
   uint32_t                      run_;
   uint32_t                      streamId_;
   uint32_t                      moduleId_;
+  std::ofstream *               stream_;
 
   std::string                   pwd_;
   MEMap                         data_;

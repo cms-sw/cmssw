@@ -449,6 +449,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     run_(0),
     streamId_(0),
     moduleId_(0),
+    stream_(0),
     pwd_ (""),
     ibooker_(0),
     igetter_(0)
@@ -483,6 +484,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     run_(0),
     streamId_(0),
     moduleId_(0),
+    stream_(0),
     pwd_ (""),
     ibooker_(0),
     igetter_(0)
@@ -567,7 +569,9 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 void
 DQMStore::print_trace (const std::string &dir, const std::string &name)
 {
-  static std::ofstream stream("histogramBookingBT.log");
+  if (!stream_)
+    stream_ = new ofstream("histogramBookingBT.log");
+  
   void *array[10];
   size_t size;
   char **strings;
@@ -582,14 +586,14 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
       &&s_rxtrace.match(strings[4], 0, 0, &m))
   {
     char * demangled = abi::__cxa_demangle(m.matchString(strings[4], 2).c_str(), 0, 0, &r);
-    stream << "\"" << dir << "/"
+    *stream_ << "\"" << dir << "/"
            << name << "\" "
            << (r ? m.matchString(strings[4], 2) : demangled) << " "
            << m.matchString(strings[4], 1) << "\n";
     free(demangled);
   }
   else
-    stream << "Skipping "<< dir << "/" << name
+    *stream_ << "Skipping "<< dir << "/" << name
            << " with stack size " << size << "\n";
   /* In this case print the full stack trace, up to main or to the
    * maximum stack size, i.e. 10. */
@@ -602,7 +606,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
       if (s_rxtrace.match(strings[i], 0, 0, &m))
       {
         char * demangled = abi::__cxa_demangle(m.matchString(strings[i], 2).c_str(), 0, 0, &r);
-        stream << "\t\t" << i << "/" << size << " "
+        *stream_ << "\t\t" << i << "/" << size << " "
                << (r ? m.matchString(strings[i], 2) : demangled) << " "
                << m.matchString(strings[i], 1) << std::endl;
         free (demangled);
