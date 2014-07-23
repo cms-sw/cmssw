@@ -123,7 +123,7 @@ import EventFilter.RawDataCollector.rawDataCollector_cfi
 process.rawData = EventFilter.RawDataCollector.rawDataCollector_cfi.rawDataCollector.clone()
 process.rawData.RawCollectionList = cms.VInputTag(
     cms.InputTag('stage2Layer2Raw'),
-    cms.InputTag('stage2DemuxRaw')
+    #cms.InputTag('stage2DemuxRaw')
 )
 
 # raw to digi
@@ -132,7 +132,12 @@ process.l1tDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone(
 process.l1tDigis.FedId = cms.int32(2)
 process.l1tDigis.InputLabel = cms.InputTag("rawData")
 
-
+process.l1tDigis.Unpackers = cms.vstring([ "l1t::CaloTowerUnpackerFactory",
+                                           "l1t::EGammaUnpackerFactory",
+                                           "l1t::EtSumUnpackerFactory",
+                                           "l1t::JetUnpackerFactory",
+                                           "l1t::TauUnpackerFactory",
+                                           "l1t::MPUnpackerFactory"])
 
 ### emulator ###
 
@@ -159,8 +164,8 @@ import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
 process.rawPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
 process.rawPlots.towerToken = cms.InputTag("l1tDigis")
 process.rawPlots.clusterToken = cms.InputTag("None")
-process.rawPlots.egToken = cms.InputTag("l1tDigis")
-process.rawPlots.tauToken = cms.InputTag("l1tDigis")
+process.rawPlots.egToken = cms.InputTag("None")
+process.rawPlots.tauToken = cms.InputTag("None")
 process.rawPlots.jetToken = cms.InputTag("l1tDigis")
 process.rawPlots.etSumToken = cms.InputTag("l1tDigis")
 
