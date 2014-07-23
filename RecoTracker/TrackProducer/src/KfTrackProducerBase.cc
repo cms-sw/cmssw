@@ -53,12 +53,14 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     // has to be "alongMomentum" as well. Anyway, this direction can be differnt from the one of the orignal
     // seed! The name seedDirection() for the Track's method (and the corresponding data member) is
     // misleading and should be changed into something like "hitsDirection()". TO BE FIXED!
+
     PropagationDirection seedDir = alongMomentum;
 
     LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
 
-    reco::Track t = * theTrack;
-    selTracks->push_back( t );
+
+    selTracks->push_back(std::move(*theTrack));
+    delete theTrack;
     iTkRef++;
 
     // Store indices in local map (starts at 0)
@@ -156,7 +158,6 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     // ----
     tx.setResiduals(trajectoryToResiduals(*theTraj));
 
-    delete theTrack;
     delete theTraj;
   }
 
