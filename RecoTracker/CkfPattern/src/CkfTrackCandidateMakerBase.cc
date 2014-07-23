@@ -298,13 +298,16 @@ namespace cms{
       };
       // end of loop over seeds
 
+
+#ifdef VI_TBB
+     tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
+#else
 #ifdef VI_OMP
 #pragma omp parallel for schedule(dynamic,4)
+#endif
       for (size_t j = 0; j < collseed_size; j++){
        theLoop(j);
       }
-#else
-     tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
 #endif
      
       if (theSeedCleaner) theSeedCleaner->done();
