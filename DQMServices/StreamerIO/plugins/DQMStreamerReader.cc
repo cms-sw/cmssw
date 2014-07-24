@@ -46,7 +46,6 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
 
   triggerSel();
-  edm::LogAbsolute("DQMStreamerReader") << "Accept All Events ? " << acceptAllEvt_;
 
   reset_();
 }
