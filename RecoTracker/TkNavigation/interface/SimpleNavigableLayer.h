@@ -7,7 +7,7 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
+#include "TrackingTools/DetLayers/interface/TkLayerLess.h"
 
 #include <vector>
 
