@@ -11,6 +11,7 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -25,6 +26,8 @@
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -175,6 +178,14 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    addDTGeometry();
    addCSCGeometry();
    addRPCGeometry();
+   try {
+      addGEMGeometry();
+   }
+   catch ( cms::Exception& exception ) {
+   edm::LogWarning("FWRecoGeometryProducerException")
+     << "addGEMGeometry() Exception caught while building GEM geometry: " << exception.what()
+     << std::endl; 
+   }
 
    //  addEcalCaloGeometry();
    geom->CloseGeometry();
@@ -624,14 +635,56 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
          TGeoVolume* holder  = GetDaughter(assembly, "Endcap", detId.endcap());
          holder = GetDaughter(holder, "Station", detId.station());
          holder = GetDaughter(holder, "Ring", detId.ring());
+         holder = GetDaughter(holder, "Chamber", detId.chamber());
       
          child->SetLineColor( kBlue );
-         holder->AddNode(child, 1,  createPlacement( *it ));
+         //   holder->AddNode(child, 1,  createPlacement( *it ));
+      AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
       }
    }
 
    m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }
+
+//______________________________________________________________________________
+
+void
+FWTGeoRecoGeometryESProducer::addGEMGeometry()
+{ 
+   TGeoVolume *assembly = new TGeoVolumeAssembly("GEM");
+
+   DetId detId( DetId::Muon, MuonSubdetId::GEM );
+   const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+   for( auto it = gemGeom->etaPartitions().begin(),
+	   end = gemGeom->etaPartitions().end(); 
+        it != end; ++it )
+   {
+      const GEMEtaPartition* roll = (*it);
+      if( roll )
+      {
+         GEMDetId detid = roll->geographicalId();
+         std::stringstream s;
+         s << detid;
+         std::string name = s.str();
+      
+         TGeoVolume* child = createVolume( name, roll );
+
+         TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", detid.region());
+         holder = GetDaughter(holder, "Ring", detid.ring());
+         holder = GetDaughter(holder, "Station", detid.station()); 
+         holder = GetDaughter(holder, "Layer", detid.layer()); 
+         holder = GetDaughter(holder, "Chamber", detid.chamber()); 
+
+         AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+
+         child->SetLineColor( kYellow );     
+      }
+   }
+
+   printf("ADD GEM!!!\n");
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+}
+
 //______________________________________________________________________________
 
 
@@ -656,17 +709,47 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
       
          TGeoVolume* child = createVolume( name, roll );
 
-         TGeoVolume* holder  = GetDaughter(assembly, "Region", detid.region());
+         TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", detid.region());
          holder = GetDaughter(holder, "Ring", detid.ring());
          holder = GetDaughter(holder, "Station", detid.station()); 
          holder = GetDaughter(holder, "Sector", detid.sector()); 
          holder = GetDaughter(holder, "Layer", detid.layer()); 
          holder = GetDaughter(holder, "Subsector", detid.subsector()); 
 
-         holder->AddNode( child, 1, createPlacement( roll ));
+         AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+
          child->SetLineColor( kYellow );     
       }
    }
+   /*
+  //AMT why no chamber ???
+  for( auto it = rpcGeom->chambers().begin(),
+           end = rpcGeom->chambers().end(); 
+        it != end; ++it )
+   {
+      RPCChamber const* chamber = (*it);
+      if( chamber )
+      {
+         RPCDetId detid = chamber->geographicalId();
+         std::stringstream s;
+         s << detid;
+         std::string name = s.str();
+      
+         TGeoVolume* child = createVolume( name, chamber );
+
+         TGeoVolume* holder  = GetDaughter(assembly, "CHANBER Region", detid.region());
+         holder = GetDaughter(holder, "Ring", detid.ring());
+         holder = GetDaughter(holder, "Station", detid.station()); 
+         holder = GetDaughter(holder, "Sector", detid.sector()); 
+         holder = GetDaughter(holder, "Layer", detid.layer()); 
+         holder = GetDaughter(holder, "Subsector", detid.subsector()); 
+
+         holder->AddNode( child, 1, createPlacement( chamber ));
+         child->SetLineColor( kYellow );     
+      }
+      else printf("NO CHAMBER \n");
+   }
+   */
 
    m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 }

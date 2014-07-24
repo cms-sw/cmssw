@@ -56,6 +56,7 @@ private:
    void addCSCGeometry();
    void addDTGeometry();
    void addRPCGeometry();
+   void addGEMGeometry();
    void addEcalCaloGeometry();
   
    std::map<std::string, TGeoShape*>    m_nameToShape;
