@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(21)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
@@ -73,18 +73,19 @@ process.stage2Layer2Raw = EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi.mp7Buf
 process.stage2Layer2Raw.fedId     = cms.untracked.int32(2)
 process.stage2Layer2Raw.rxFile    = cms.untracked.string("rx_summary.txt")
 process.stage2Layer2Raw.txFile    = cms.untracked.string("tx_summary.txt")
+process.stage2Layer2Raw.nFramesPerEvent = cms.untracked.int32(54)
 process.stage2Layer2Raw.txLatency = cms.untracked.int32(54)
 process.stage2Layer2Raw.rxBlockLength    = cms.untracked.vint32(
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41,
-    41,41,41,41,41,41,41,41,41)
+    40,40,40,40,40,40,40,40,40,
+    40,40,40,40,40,40,40,40,40,
+    40,40,40,40,40,40,40,40,40,
+    40,40,40,40,40,0,40,40,40,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0)
 process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
-    39,39,39,39,39,39,0,0,0,
+    12,12,12,12,12,12,0,0,0,
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
@@ -94,29 +95,29 @@ process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
     0,0,0,0,0,0,0,0,0)
 
 # raw data from Demux
-process.stage2DemuxRaw = EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi.mp7BufferDumpToRaw.clone()
-process.stage2DemuxRaw.fedId = cms.untracked.int32(1)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("")
-process.stage2DemuxRaw.txFile = cms.untracked.string("tx_summary.txt")
-process.stage2DemuxRaw.txLatency = cms.untracked.int32(54)
-process.stage2DemuxRaw.rxBlockLength    = cms.untracked.vint32(
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0)
-process.stage2DemuxRaw.txBlockLength    = cms.untracked.vint32(
-    12,4,12,8,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0)
+#process.stage2DemuxRaw = EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi.mp7BufferDumpToRaw.clone()
+#process.stage2DemuxRaw.fedId = cms.untracked.int32(1)
+#process.stage2DemuxRaw.rxFile = cms.untracked.string("")
+#process.stage2DemuxRaw.txFile = cms.untracked.string("tx_summary.txt")
+#process.stage2DemuxRaw.txLatency = cms.untracked.int32(54)
+#process.stage2DemuxRaw.rxBlockLength    = cms.untracked.vint32(
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0)
+#process.stage2DemuxRaw.txBlockLength    = cms.untracked.vint32(
+#    12,4,12,8,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0)
 
 # merge raw data
 import EventFilter.RawDataCollector.rawDataCollector_cfi
@@ -186,7 +187,7 @@ process.path = cms.Path(
 
     # produce RAW
     process.stage2Layer2Raw
-    +process.stage2DemuxRaw
+#    +process.stage2DemuxRaw
     +process.rawData
 
     # unpack

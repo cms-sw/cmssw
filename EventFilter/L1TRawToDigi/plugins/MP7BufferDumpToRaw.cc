@@ -55,6 +55,9 @@ private:
   virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
+
+  void findNextEvent();
+  std::vector<std::string> readLine(std::ifstream& file, int nLinks);
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -71,7 +74,7 @@ private:
 
   // input file parameters
   int nTextHeaderLines_;
-  int maxFramesPerEvent_;
+  int nFramesPerEvent_;
   int txLatency_;
   int nRxLinks_;
   int nTxLinks_;
@@ -113,7 +116,7 @@ MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
   txFilename_ = iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt");
 
   nTextHeaderLines_ = iConfig.getUntrackedParameter<int>("nTextHeaderLines", 3);
-  maxFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 41);
+  nFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 41);
   txLatency_= iConfig.getUntrackedParameter<int>("txLatency", 61);
 
   nRxLinks_ = iConfig.getUntrackedParameter<int>("nRxLinks", 72);
@@ -166,6 +169,9 @@ void
 MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+
+  // read forward to next valid event
+  findNextEvent();
   
   // array of data (frame, link)
   std::vector< std::vector< int > > rxData(nRxLinks_, std::vector<int>(0));
@@ -173,84 +179,39 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // read lines from file
   int nFramesRead = 0;
-  while (nFramesRead < maxFramesPerEvent_) {
+  while (nFramesRead < nFramesPerEvent_) {
     
-    // input buffers
-    std::string line;
-    std::getline(rxFile_, line);
-    if (!rxFile_) {
-      edm::LogError("mp7") << "End of Rx input file!" << std::endl;
-      break;
-    }
-
-    // split line into tokens
-    std::vector<std::string> data;
-    boost::split(data, line, boost::is_any_of("\t "),boost::token_compress_on);
-    std::vector<std::string>::iterator tmp = data.begin();
-
-    // check we have read the right number of link words
-    if ((int)data.size()-3 != nRxLinks_) {
-      edm::LogError("mp7") << "Read " << data.size() << " Rx links, expected " << nRxLinks_ << " " << data.at(0) << " " << data.at(data.size()-1) << std::endl;
-      break; 
-    }
-
-    // drop first three tokens (Frame number etc)
-    tmp++; tmp++; tmp++;
-    data.erase(data.begin(), tmp);
-    
+    std::vector<std::string> rxStrData = readLine(rxFile_, nRxLinks_);
+    std::vector<std::string> txStrData = readLine(txFile_, nTxLinks_);
 
     // store data
+    int nRxValidLinks(0), nTxValidLinks(0);
     for (int iLink=0; iLink<nRxLinks_; ++iLink) {
+
       // check data is valid
-      int dataValid = std::stoul(data.at(iLink).substr(0,1));
+      int dataValid = std::stoul(rxStrData.at(iLink+1).substr(0,1));
       if (dataValid==1) {
-	data.at(iLink).erase(0,2);  // remove 1v from start of word
-	rxData.at(iLink).push_back( std::stoul(data.at(iLink), nullptr, 16) );
+	rxStrData.at(iLink+1).erase(0,2);  // remove 1v from start of word
+	rxData.at(iLink).push_back( std::stoul(rxStrData.at(iLink+1), nullptr, 16) );
+	nRxValidLinks++;
       }
 
     }
 
-    nFramesRead++;
-
-  }
-
-  // output buffers
-  nFramesRead = 0;
-  while (nFramesRead < maxFramesPerEvent_) {
-
-    // get line
-    std::string line;
-    std::getline(txFile_, line);
-    if (!txFile_) {
-      edm::LogError("mp7") << "End of Tx input file!" << std::endl;
-      break;
-    }
-
-    // split into tokens
-    std::vector<std::string> data;
-    boost::split(data, line, boost::is_any_of("\t "),boost::token_compress_on);
-    std::vector<std::string>::iterator tmp = data.begin();
-
-    // drop first three ( frame number etc)
-    tmp++; tmp++; tmp++;
-    data.erase(data.begin(), tmp);
-
-    // check we have read the right number of link words
-    if ((int)data.size() != nTxLinks_) {
-      edm::LogError("mp7") << "Read " << data.size() << " Tx links, expected " << nTxLinks_ << std::endl;
-    }
-
+    // store data
     for (int iLink=0; iLink<nTxLinks_; ++iLink) {
-
       // check data is valid
-      int dataValid = std::stoul(data.at(iLink).substr(0,1));
+      int dataValid = std::stoul(txStrData.at(iLink+1).substr(0,1));
       if (dataValid==1) {
-	data.at(iLink).erase(0,2);  // remove 1v from start of word
-	txData.at(iLink).push_back( std::stoul(data.at(iLink), nullptr, 16) );
+	txStrData.at(iLink+1).erase(0,2);  // remove 1v from start of word
+	txData.at(iLink).push_back( std::stoul(txStrData.at(iLink+1), nullptr, 16) );
+	nTxValidLinks++;
       }
 
     }
-  
+
+    LogDebug("mp7") << "Rx Frame " << rxStrData.at(0) << " " << nRxValidLinks << ", Tx Frame " << txStrData.at(0) << " " << nTxValidLinks << std::endl;
+    
     nFramesRead++;
 
   }
@@ -495,11 +456,12 @@ MP7BufferDumpToRaw::beginJob()
     std::getline(rxFile_, line);
   }
 
-  for (int i=0; i<nTextHeaderLines_+txLatency_; ++i) {
+  for (int i=0; i<nTextHeaderLines_+txLatency_-1; ++i) {
     std::getline(txFile_, line);
   }
 
 }
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
@@ -552,6 +514,87 @@ MP7BufferDumpToRaw::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
+}
+
+void
+MP7BufferDumpToRaw::findNextEvent() {
+
+  // find the first event
+  int iFrame = 0 ;
+  int lastFlag=1;
+  bool dataValid = false;
+  while (!dataValid) {
+
+    std::vector<std::string> rxData = readLine(rxFile_, nRxLinks_);
+    std::vector<std::string> txData = readLine(txFile_, nTxLinks_);
+
+    iFrame = std::stoul(rxData.at(0));
+
+    // check for data valid in first link
+    int newFlag = std::stoul(rxData.at(1).substr(0,1));
+    if (newFlag==1 && lastFlag==0) {
+      dataValid = true;
+      edm::LogInfo("mp7") << "Found Rx event at frame " << iFrame << std::endl;
+    }
+    else {
+      lastFlag = newFlag;
+    }
+
+  }
+
+  // check for data going high
+  dataValid = false;
+  while (!dataValid) {
+
+    std::vector<std::string> txData = readLine(txFile_, nTxLinks_);
+
+    iFrame = std::stoul(txData.at(0));
+
+    // check for data valid in first link
+    int newFlag = std::stoul(txData.at(1).substr(0,1));
+    if (newFlag==1 && lastFlag==0) {
+      dataValid = true;
+      edm::LogInfo("mp7") << "Found Tx event at frame " << iFrame << std::endl;
+    }
+    else {
+      lastFlag = newFlag;
+    }
+
+  }
+  
+
+
+}
+
+std::vector<std::string>
+MP7BufferDumpToRaw::readLine(std::ifstream& file, int nLinks) {
+
+  // input buffers
+  std::string line;
+  std::getline(file, line);
+  if (!file) {
+    edm::LogError("mp7") << "End of input file! " << file << std::endl;
+    return std::vector<std::string>(0);
+  }
+  
+  // split line into tokens
+  std::vector<std::string> data;
+  boost::split(data, line, boost::is_any_of("\t "),boost::token_compress_on);
+  
+  // check we have read the right number of link words
+  if ((int)data.size()-3 != nLinks) {
+    edm::LogError("mp7") << "Read " << data.size() << " links, expected " << nLinks << " " << data.at(0) << " " << data.at(data.size()-1) << std::endl;
+    return std::vector<std::string>(0);
+  }
+  
+  // remove "Frame" and ":"
+  std::vector<std::string>::iterator itr = data.begin();
+  data.erase(itr);
+  itr++;
+  data.erase(itr);
+
+  return data;
+  
 }
 
 }

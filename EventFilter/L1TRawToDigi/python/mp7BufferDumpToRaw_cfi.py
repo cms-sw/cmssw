@@ -7,7 +7,7 @@ mp7BufferDumpToRaw = cms.EDProducer(
 
     # buffer dump file input parameters
     nTextHeaderLines = cms.untracked.int32(3),
-    nFramesPerEvent  = cms.untracked.int32(45),
+    nFramesPerEvent  = cms.untracked.int32(41),
     txLatency        = cms.untracked.int32(54),
     nRxLinks         = cms.untracked.int32(72),
     nTxLinks         = cms.untracked.int32(72),
