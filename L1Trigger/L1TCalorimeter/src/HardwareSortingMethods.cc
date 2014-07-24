@@ -11,21 +11,14 @@
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
 using namespace std;
+using namespace l1t;
 
 const bool verbose = true;
 
 int fw_to_gt_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
 int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
 
-//For C++ convenience.
-//In the firmware, we just have one vector of bits that holds this info.
-struct jet {
-  int energy;
-  int phi;
-  int eta;
-};
-
-void print2DVector(vector<vector<jet> > myVector){
+void print2DVector(vector<vector<Jet> > myVector){
   int nrows = myVector.size();
   int ncols = myVector[0].size();
   cout << endl;
@@ -34,51 +27,51 @@ void print2DVector(vector<vector<jet> > myVector){
 
   for(int r=0; r<nrows; r++){
     for(int c=0; c<ncols; c++){
-      cout << setw(5) << myVector[r][c].energy << ' ';
+      cout << setw(5) << myVector[r][c].hwPt() << ' ';
     }
     cout << endl;
   }
 }
 
-vector<jet> sort_array(vector<jet> inputArray){
-  vector<jet> outputArray(inputArray.size());
+vector<Jet> sort_array(vector<Jet> inputArray){
+  vector<Jet> outputArray(inputArray.size());
   for(unsigned int i=0; i<inputArray.size(); i++){
     int rank=0;
     for(unsigned int j=0; j<inputArray.size(); j++){
-      if( (inputArray[i].energy > inputArray[j].energy) || ( (inputArray[i].energy == inputArray[j].energy) && i<j) ) rank++;
+      if( (inputArray[i].hwPt() > inputArray[j].hwPt()) || ( (inputArray[i].hwPt() == inputArray[j].hwPt()) && i<j) ) rank++;
     }//j
     outputArray[outputArray.size()-1-rank] = inputArray[i];
   }//i
   return outputArray;
 }
 
-vector<vector<jet> > presort(vector<vector<int> > energies, int rows, int cols, int detector=0){
+vector<vector<Jet> > presort(vector<vector<int> > energies, int rows, int cols, int detector=0){
 
   int row_block_length = energies.size() / cols;
   if(energies.size() % cols != 0) row_block_length++;
 
-  jet dummyJet;
-  dummyJet.energy=0;
-  dummyJet.phi=99;
-  dummyJet.eta=99;
-  vector<vector<jet> > sorted_energies (rows, vector<jet>(cols, dummyJet));
+  Jet dummyJet;
+  dummyJet.setHwPt(0);
+  dummyJet.setHwPhi(99);
+  dummyJet.setHwEta(99);
+  vector<vector<Jet> > sorted_energies (rows, vector<Jet>(cols, dummyJet));
   if(verbose) print2DVector( sorted_energies );
 
   unsigned int row=0, col=0;
-  vector<jet> energy_feeder (cols, dummyJet);
-  vector<jet> energy_result (cols, dummyJet);
+  vector<Jet> energy_feeder (cols, dummyJet);
+  vector<Jet> energy_result (cols, dummyJet);
   for(int r=0; r<rows; r++){
     for(int c=0; c<cols; c++){
 
       row = (r % row_block_length)*cols+c;//row goes up to 19 and we pad with zeros
 
       if(row < energies.size()){
-	jet myJet; //filled from energies[row][col]
-	myJet.energy = energies[row][col];
+	Jet myJet; //filled from energies[row][col]
+	myJet.setHwPt(energies[row][col]);
 
 	unsigned eta_GT_convention = l1t::gtEta(col+4); // hardcoded
-	myJet.eta = eta_GT_convention;
-	myJet.phi = fw_to_gt_phi_map[row];
+	myJet.setHwEta(eta_GT_convention);
+	myJet.setHwPhi(fw_to_gt_phi_map[row]);
 
 	energy_feeder[c] = myJet;
       }
@@ -100,12 +93,12 @@ vector<vector<jet> > presort(vector<vector<int> > energies, int rows, int cols, 
   return sorted_energies;
 }
 
-vector<vector<jet> > extract_sub_jet_energy_position_matrix(vector<vector<jet> > input_matrix, unsigned int row_i, unsigned int row_f, unsigned int col_i, unsigned int col_f){
-  vector<vector<jet> > output_matrix(row_f-row_i+1,vector<jet>(col_f-col_i+1));
-  jet dummyJet;
-  dummyJet.energy=0;
-  dummyJet.phi=99;
-  dummyJet.eta=99;
+vector<vector<Jet> > extract_sub_jet_energy_position_matrix(vector<vector<Jet> > input_matrix, unsigned int row_i, unsigned int row_f, unsigned int col_i, unsigned int col_f){
+  vector<vector<Jet> > output_matrix(row_f-row_i+1,vector<Jet>(col_f-col_i+1));
+  Jet dummyJet;
+  dummyJet.setHwPt(0);
+  dummyJet.setHwPhi(99);
+  dummyJet.setHwEta(99);
 
   for(unsigned int i=0; i<row_f-row_i+1; i++){
     for(unsigned int j=0; j<col_f-col_i+1; j++){
@@ -116,13 +109,13 @@ vector<vector<jet> > extract_sub_jet_energy_position_matrix(vector<vector<jet> >
   return output_matrix;
 }
 
-vector<vector<jet> > sort_matrix_rows(vector<vector<jet> > input_matrix){
-  vector<vector<jet> > output_matrix( input_matrix.size(), vector<jet> (input_matrix[0].size()));
+vector<vector<Jet> > sort_matrix_rows(vector<vector<Jet> > input_matrix){
+  vector<vector<Jet> > output_matrix( input_matrix.size(), vector<Jet> (input_matrix[0].size()));
 
   for(unsigned int i=0; i<input_matrix.size(); i++){
     int rank=0;
     for (unsigned int j=0; j<input_matrix.size(); j++){
-      if( (input_matrix[i][0].energy > input_matrix[j][0].energy) || ((input_matrix[i][0].energy == input_matrix[j][0].energy) && i<j)) rank++;
+      if( (input_matrix[i][0].hwPt() > input_matrix[j][0].hwPt()) || ((input_matrix[i][0].hwPt() == input_matrix[j][0].hwPt()) && i<j)) rank++;
     }//j
     output_matrix[input_matrix.size()-1-rank] = input_matrix[i];
   }//i
@@ -130,12 +123,12 @@ vector<vector<jet> > sort_matrix_rows(vector<vector<jet> > input_matrix){
   return output_matrix;
 }
 
-vector<vector<jet> > sort_by_row_in_groups(vector<vector<jet> > input_matrix, int group_size){
+vector<vector<Jet> > sort_by_row_in_groups(vector<vector<Jet> > input_matrix, int group_size){
   int n_groups = input_matrix.size()/group_size + (1 - input_matrix.size()/group_size*group_size/input_matrix.size()); //constants must make this an integer
-  vector<vector<jet> > output_matrix(input_matrix.size()+(input_matrix.size() % group_size), vector<jet> (input_matrix[0].size()));
+  vector<vector<Jet> > output_matrix(input_matrix.size()+(input_matrix.size() % group_size), vector<Jet> (input_matrix[0].size()));
 
   for(int g=0; g<n_groups; g++){
-    vector<vector<jet> > small_output_matrix = extract_sub_jet_energy_position_matrix(input_matrix, g*group_size, (g+1)*group_size-1, 0, input_matrix[0].size()-1 );
+    vector<vector<Jet> > small_output_matrix = extract_sub_jet_energy_position_matrix(input_matrix, g*group_size, (g+1)*group_size-1, 0, input_matrix[0].size()-1 );
     small_output_matrix = sort_matrix_rows(small_output_matrix);
 
     for(unsigned int i=0; i<small_output_matrix.size(); i++){
@@ -147,8 +140,8 @@ vector<vector<jet> > sort_by_row_in_groups(vector<vector<jet> > input_matrix, in
   return output_matrix;
 }
 
-vector<jet> array_from_row_sorted_matrix(vector<vector<jet> > input_matrix, unsigned int n_keep){
-  vector<jet> output_array (n_keep*(n_keep+1)/2);
+vector<Jet> array_from_row_sorted_matrix(vector<vector<Jet> > input_matrix, unsigned int n_keep){
+  vector<Jet> output_array (n_keep*(n_keep+1)/2);
   unsigned int max_row = n_keep-1;
   unsigned int max_col = n_keep-1;
 
@@ -159,17 +152,17 @@ vector<jet> array_from_row_sorted_matrix(vector<vector<jet> > input_matrix, unsi
   unsigned int array_position = 0;
   for(unsigned int i=0; i<max_row; i++){
     for(unsigned int j=0; j<max_col-i; j++){
-      //cout << input_matrix[i][j].energy << endl;
+      //cout << input_matrix[i][j].hwPt() << endl;
       output_array[array_position] = input_matrix[i][j];
       array_position++;
     }//j
   }//i
 
   //fill rest with zeros
-  jet dummyJet;
-  dummyJet.energy=0;
-  dummyJet.phi=99;
-  dummyJet.eta=99;
+  Jet dummyJet;
+  dummyJet.setHwPt(0);
+  dummyJet.setHwPhi(99);
+  dummyJet.setHwEta(99);
   for(unsigned int k=array_position; k<output_array.size(); k++){
     output_array[k]=dummyJet;
   }
@@ -178,20 +171,20 @@ vector<jet> array_from_row_sorted_matrix(vector<vector<jet> > input_matrix, unsi
   return output_array;
 }
 
-vector<vector<jet> > super_sort_matrix_rows(vector<vector<jet> > input_matrix, unsigned int group_size, unsigned int n_keep){
+vector<vector<Jet> > super_sort_matrix_rows(vector<vector<Jet> > input_matrix, unsigned int group_size, unsigned int n_keep){
   unsigned int n_groups = input_matrix.size()/group_size + (1 - input_matrix.size()/group_size*group_size/input_matrix.size()); //constants must make this an integer
-  vector<vector<jet> > output_matrix(n_groups, vector<jet>(n_keep));
+  vector<vector<Jet> > output_matrix(n_groups, vector<Jet>(n_keep));
 
   for(unsigned int g=0; g<n_groups; g++){
-    vector<vector<jet> > small_output_matrix = extract_sub_jet_energy_position_matrix(input_matrix, g*group_size, (g+1)*group_size-1, 0, input_matrix[0].size()-1 );
-    vector<jet> unsorted_array = array_from_row_sorted_matrix(small_output_matrix, n_keep);
-    vector<jet> unsorted_array_without_largest (unsorted_array.size()-1);//we know first element is the biggest
+    vector<vector<Jet> > small_output_matrix = extract_sub_jet_energy_position_matrix(input_matrix, g*group_size, (g+1)*group_size-1, 0, input_matrix[0].size()-1 );
+    vector<Jet> unsorted_array = array_from_row_sorted_matrix(small_output_matrix, n_keep);
+    vector<Jet> unsorted_array_without_largest (unsorted_array.size()-1);//we know first element is the biggest
     for(unsigned int i=0; i<unsorted_array.size()-1; i++){
       unsorted_array_without_largest[i] = unsorted_array[1+i];
     }
-    vector<jet> sorted_array_without_largest = sort_array(unsorted_array_without_largest);
+    vector<Jet> sorted_array_without_largest = sort_array(unsorted_array_without_largest);
 
-    vector<jet> sorted_array (n_keep);
+    vector<Jet> sorted_array (n_keep);
     sorted_array[0] = unsorted_array[0];
     for(unsigned int i=0; i<n_keep-1; i++){
       sorted_array[1+i]=sorted_array_without_largest[i];
@@ -230,33 +223,33 @@ namespace l1t{
     //Each CLK is one clock
 
     //CLK 1
-    vector<vector<jet> > presorted_energies_matrix_sig = presort(cen_input_energy, N_PRESORTED_ROWS_CENTRAL, PRESORT_DEPTH);
+    vector<vector<Jet> > presorted_energies_matrix_sig = presort(cen_input_energy, N_PRESORTED_ROWS_CENTRAL, PRESORT_DEPTH);
 
     //CLK 2
-    vector<vector<jet> > row_presorted_energies_matrix_sig = sort_by_row_in_groups(presorted_energies_matrix_sig, N_PHI_GROUPS);
+    vector<vector<Jet> > row_presorted_energies_matrix_sig = sort_by_row_in_groups(presorted_energies_matrix_sig, N_PHI_GROUPS);
 
     //CLK 3
-    vector<vector<jet> > sorted_eta_slices_energies_matrix_sig = super_sort_matrix_rows(row_presorted_energies_matrix_sig, N_PHI_GROUPS, N_KEEP_CENTRAL);
+    vector<vector<Jet> > sorted_eta_slices_energies_matrix_sig = super_sort_matrix_rows(row_presorted_energies_matrix_sig, N_PHI_GROUPS, N_KEEP_CENTRAL);
 
     //CLK 4
-    vector<vector<jet> > row_presorted_eta_slices_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL);
+    vector<vector<Jet> > row_presorted_eta_slices_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL);
 
     //CLK 5
-    vector<vector<jet> > sorted_eta_groups_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL, N_KEEP_CENTRAL);
+    vector<vector<Jet> > sorted_eta_groups_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL, N_KEEP_CENTRAL);
 
     //CLK 6
-    vector<vector<jet> > row_presorted_eta_groups_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL);
+    vector<vector<Jet> > row_presorted_eta_groups_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL);
 
     //CLK 7
-    vector<vector<jet> > sorted_final_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL, N_KEEP_CENTRAL);
+    vector<vector<Jet> > sorted_final_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL, N_KEEP_CENTRAL);
 
     for(unsigned int i = 0; i < 4; ++i)
     {
-      jet intjet = sorted_final_energies_matrix_sig[0][i];
+      Jet intjet = sorted_final_energies_matrix_sig[0][i];
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
-      l1t::Jet outjet(*&jetLorentz, intjet.energy, intjet.eta, intjet.phi, 0);
-      output->push_back(outjet);
+      // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
+      // l1t::Jet outjet(*&jetLorentz, intjet.hwPt(), intjet..hwEta(), intjet.hwPhi(), 0);
+      output->push_back(intjet);
     }
   }
 }
