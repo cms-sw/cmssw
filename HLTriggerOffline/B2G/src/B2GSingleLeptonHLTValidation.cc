@@ -92,7 +92,6 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
       }
     }
   } else {
-    
     for(edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j){
       if (j->pt() < ptJets_) continue;
       if (fabs(j->eta()) > etaJets_) continue;
@@ -100,7 +99,6 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
       if (nGoodJ == minJets_) jet_ = &(*j);
     }
   }
-
 
   if (nGoodE >= minElectrons_ && nGoodM >= minMuons_ && nGoodJ >= minJets_) isAll_ = true;
 
@@ -136,8 +134,10 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
       hDenLeptonPt->Fill(mu_->pt());
       hDenLeptonEta->Fill(mu_->eta());
     }
-    hDenJetPt->Fill(jet_->pt());
-    hDenJetEta->Fill(jet_->eta());
+    if ( jet_ != 0 ) {
+      hDenJetPt->Fill(jet_->pt());
+      hDenJetEta->Fill(jet_->eta());
+    }
     for(unsigned int idx=0; idx<vsPaths_.size(); ++idx){
       hDenTriggerMon->Fill(idx+0.5);
     }
@@ -152,8 +152,10 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
       hNumLeptonPt->Fill(mu_->pt());
       hNumLeptonEta->Fill(mu_->eta());
     }
-    hNumJetPt->Fill(jet_->pt());
-    hNumJetEta->Fill(jet_->eta());
+    if ( jet_ != 0 ) {
+      hNumJetPt->Fill(jet_->pt());
+      hNumJetEta->Fill(jet_->eta());
+    }
     for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
       TString name = triggerNames.triggerNames()[i].c_str();
       for (unsigned int j=0; j<vsPaths_.size(); j++) {
