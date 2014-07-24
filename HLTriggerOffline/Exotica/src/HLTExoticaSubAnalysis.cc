@@ -40,7 +40,8 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     _recPFMETSelector(0),
     _recPFTauSelector(0),
     _recPhotonSelector(0),
-    _recJetSelector(0)
+    _recPFJetSelector(0),
+    _recCaloJetSelector(0)
 {
 
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::constructor()";
@@ -120,8 +121,10 @@ HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
     _recPFMETSelector = 0;
     delete _recPFTauSelector;
     _recPFTauSelector = 0;
-    delete _recJetSelector;
-    _recJetSelector = 0;
+    delete _recPFJetSelector;
+    _recPFJetSelector = 0;
+    delete _recCaloJetSelector;
+    _recCaloJetSelector = 0;
 }
 
 
@@ -545,14 +548,15 @@ const std::vector<unsigned int> HLTExoticaSubAnalysis::getObjectsType(const std:
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::getObjectsType()";
 
-    static const unsigned int objSize = 6;
+    static const unsigned int objSize = 7;
     static const unsigned int objtriggernames[] = {
         EVTColContainer::MUON,
         EVTColContainer::ELEC,
         EVTColContainer::PHOTON,
         EVTColContainer::PFMET,
         EVTColContainer::PFTAU,
-        EVTColContainer::JET
+        EVTColContainer::PFJET,
+        EVTColContainer::CALOJET
     };
 
     std::set<unsigned int> objsType;
@@ -596,9 +600,13 @@ void HLTExoticaSubAnalysis::getNamesOfObjects(const edm::ParameterSet & anpset)
         _recLabels[EVTColContainer::PFTAU] = anpset.getParameter<edm::InputTag>("recPFTauLabel");
         _genSelectorMap[EVTColContainer::PFTAU] = 0 ;
     }
-    if (anpset.exists("recJetLabel")) {
-        _recLabels[EVTColContainer::JET] = anpset.getParameter<edm::InputTag>("recJetLabel");
-        _genSelectorMap[EVTColContainer::JET] = 0 ;
+    if (anpset.exists("recPFJetLabel")) {
+        _recLabels[EVTColContainer::PFJET] = anpset.getParameter<edm::InputTag>("recPFJetLabel");
+        _genSelectorMap[EVTColContainer::PFJET] = 0 ;
+    }
+    if (anpset.exists("recCaloJetLabel")) {
+        _recLabels[EVTColContainer::CALOJET] = anpset.getParameter<edm::InputTag>("recCaloJetLabel");
+        _genSelectorMap[EVTColContainer::CALOJET] = 0 ;
     }
 
     if (_recLabels.size() < 1) {
@@ -650,8 +658,13 @@ void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector & iC)
 	    edm::EDGetToken token(particularToken);
 	    _tokens[it->first] = token;
 	} 
-	else if (it->first == EVTColContainer::JET) {
+	else if (it->first == EVTColContainer::PFJET) {
             edm::EDGetTokenT<reco::PFJetCollection> particularToken = iC.consumes<reco::PFJetCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else if (it->first == EVTColContainer::CALOJET) {
+            edm::EDGetTokenT<reco::CaloJetCollection> particularToken = iC.consumes<reco::CaloJetCollection>(it->second);
 	    edm::EDGetToken token(particularToken);
 	    _tokens[it->first] = token;
 	} 
@@ -715,8 +728,13 @@ void HLTExoticaSubAnalysis::getHandlesToObjects(const edm::Event & iEvent, EVTCo
             iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
         } 
-	else if (it->first == EVTColContainer::JET) {
+	else if (it->first == EVTColContainer::PFJET) {
             edm::Handle<reco::PFJetCollection> theHandle;
+            iEvent.getByToken(it->second, theHandle);
+            col->set(theHandle.product());
+        }
+	else if (it->first == EVTColContainer::CALOJET) {
+            edm::Handle<reco::CaloJetCollection> theHandle;
             iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
         }
@@ -808,8 +826,10 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
         _recPFMETSelector = new StringCutObjectSelector<reco::PFMET>(_recCut[objtype]);
     } else if (objtype == EVTColContainer::PFTAU && _recPFTauSelector == 0) {
         _recPFTauSelector = new StringCutObjectSelector<reco::PFTau>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::JET && _recJetSelector == 0) {
-        _recJetSelector = new StringCutObjectSelector<reco::PFJet>(_recCut[objtype]);
+    } else if (objtype == EVTColContainer::PFJET && _recPFJetSelector == 0) {
+        _recPFJetSelector = new StringCutObjectSelector<reco::PFJet>(_recCut[objtype]);
+    } else if (objtype == EVTColContainer::CALOJET && _recCaloJetSelector == 0) {
+        _recCaloJetSelector = new StringCutObjectSelector<reco::CaloJet>(_recCut[objtype]);
     }
     /* else
     {
@@ -866,11 +886,19 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
 		matches->push_back(m);
 	    }
         }
-    } else if (objType == EVTColContainer::JET) {
-        for (size_t i = 0; i < cols->jets->size(); i++) {
+    } else if (objType == EVTColContainer::PFJET) {
+        for (size_t i = 0; i < cols->pfJets->size(); i++) {
 	    LogDebug("ExoticaValidation") << "Inserting jet " << i ;
-            if (_recJetSelector->operator()(cols->jets->at(i))) {
-		reco::LeafCandidate m(0, cols->jets->at(i).p4(), cols->jets->at(i).vertex(), objType, 0, true);
+            if (_recPFJetSelector->operator()(cols->pfJets->at(i))) {
+		reco::LeafCandidate m(0, cols->pfJets->at(i).p4(), cols->pfJets->at(i).vertex(), objType, 0, true);
+		matches->push_back(m);
+            }
+        }
+    } else if (objType == EVTColContainer::CALOJET) {
+        for (size_t i = 0; i < cols->caloJets->size(); i++) {
+	    LogDebug("ExoticaValidation") << "Inserting jet " << i ;
+            if (_recCaloJetSelector->operator()(cols->caloJets->at(i))) {
+		reco::LeafCandidate m(0, cols->caloJets->at(i).p4(), cols->caloJets->at(i).vertex(), objType, 0, true);
 		matches->push_back(m);
             }
         }

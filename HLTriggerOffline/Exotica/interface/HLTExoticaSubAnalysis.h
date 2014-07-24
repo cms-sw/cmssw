@@ -34,6 +34,8 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -147,7 +149,8 @@ private:
     StringCutObjectSelector<reco::PFMET>       * _recPFMETSelector;
     StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
     StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
-    StringCutObjectSelector<reco::PFJet>       * _recJetSelector;
+    StringCutObjectSelector<reco::PFJet>       * _recPFJetSelector;
+    StringCutObjectSelector<reco::CaloJet>     * _recCaloJetSelector;
 
     /// The plotters: managers of each hlt path where the plots are done
     std::vector<HLTExoticaPlotter> _plotters;
