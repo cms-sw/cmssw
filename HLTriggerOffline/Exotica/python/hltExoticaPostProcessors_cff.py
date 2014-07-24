@@ -116,6 +116,19 @@ hltExoticaPostDiPhoton = hltExoticaPostProcessor.clone()
 hltExoticaPostDiPhoton.subDirs = ['HLT/Exotica/DiPhoton']
 hltExoticaPostDiPhoton.efficiencyProfile = efficiency_strings
 
+hltExoticaPostHT = hltExoticaPostProcessor.clone()
+hltExoticaPostHT.subDirs = ['HLT/Exotica/HT']
+hltExoticaPostHT.efficiencyProfile = efficiency_strings
+
+hltExoticaPostJetNoBptx = hltExoticaPostProcessor.clone()
+hltExoticaPostJetNoBptx.subDirs = ['HLT/Exotica/JetNoBptx']
+hltExoticaPostJetNoBptx.efficiencyProfile = efficiency_strings
+
+hltExoticaPostMuonNoBptx = hltExoticaPostProcessor.clone()
+hltExoticaPostMuonNoBptx.subDirs = ['HLT/Exotica/MuonNoBptx']
+hltExoticaPostMuonNoBptx.efficiencyProfile = efficiency_strings
+
+# Not integrated yet
 hltExoticaPostEleMu = hltExoticaPostProcessor.clone()
 hltExoticaPostEleMu.subDirs = ['HLT/Exotica/EleMu']
 hltExoticaPostEleMu.efficiencyProfile = efficiency_strings
@@ -128,10 +141,6 @@ hltExoticaPostPureMET = hltExoticaPostProcessor.clone()
 hltExoticaPostPureMET.subDirs = ['HLT/Exotica/PureMET']
 hltExoticaPostPureMET.efficiencyProfile = efficiency_strings
 
-hltExoticaPostHT = hltExoticaPostProcessor.clone()
-hltExoticaPostHT.subDirs = ['HLT/Exotica/HT']
-hltExoticaPostHT.efficiencyProfile = efficiency_strings
-
 hltExoticaPostProcessors = cms.Sequence(
 		hltExoticaPostHighPtDimuon +
 		hltExoticaPostHighPtDielectron +
@@ -139,9 +148,11 @@ hltExoticaPostProcessors = cms.Sequence(
 		hltExoticaPostLowPtDielectron +
 		hltExoticaPostHighPtPhoton +
 		hltExoticaPostDiPhoton +
+		hltExoticaPostHT +
+		hltExoticaPostJetNoBptx +
+		hltExoticaPostMuonNoBptx +
                 #
 		hltExoticaPostEleMu +
 		hltExoticaPostMonojet +
-		hltExoticaPostPureMET +
-		hltExoticaPostHT
+		hltExoticaPostPureMET
 )
