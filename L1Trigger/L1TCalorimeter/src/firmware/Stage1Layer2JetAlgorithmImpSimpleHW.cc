@@ -55,8 +55,8 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   // drop the 4 LSB before passing to GT
   for(std::vector<l1t::Jet>::const_iterator itJet = sortedJets->begin();
       itJet != sortedJets->end(); ++itJet){
-    //const unsigned newEta = gtEta(itJet->hwEta());
-    const unsigned newEta = itJet->hwEta();
+    const unsigned newEta = gtEta(itJet->hwEta());
+    //const unsigned newEta = itJet->hwEta();
     //std::cout << "pre drop: " << itJet->hwPt();
     const uint16_t rankPt = (itJet->hwPt() >> 4);
     //std::cout << " post drop: " << rankPt << std::endl;
