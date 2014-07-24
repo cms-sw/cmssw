@@ -25,14 +25,6 @@ CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {
    
 }
 
-/*** No longer triggered for DQMEDHarvester ***/
-/*
-void CSCDaqInfo::beginJob() {
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
-    it->second->Fill(-1);
-  }
-};
-*/
 
 void CSCDaqInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
