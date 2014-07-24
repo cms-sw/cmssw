@@ -1,18 +1,67 @@
-#include "RecoTracker/TkNavigation/interface/CosmicNavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "SimpleNavigationSchool.h"
+
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <vector>
+
+//class FakeDetLayer;
+
+
+/** Concrete navigation school for cosmics in the Tracker
+ */
+
+class dso_hidden CosmicNavigationSchool : public SimpleNavigationSchool {
+public:
+  CosmicNavigationSchool(const GeometricSearchTracker* theTracker,
+			 const MagneticField* field);
+  ~CosmicNavigationSchool(){ cleanMemory();}
+
+  class CosmicNavigationSchoolConfiguration{
+  public:
+    CosmicNavigationSchoolConfiguration() : noPXB(false), noPXF(false), noTOB(false), noTIB(false), noTEC(false), noTID(false) , self(false), allSelf(false) {}
+    CosmicNavigationSchoolConfiguration(const edm::ParameterSet& conf);
+    bool noPXB;
+    bool noPXF;
+    bool noTOB;
+    bool noTIB;
+    bool noTEC;
+    bool noTID;
+    
+    bool self;
+    bool allSelf;
+  };
+
+  void build(const GeometricSearchTracker* theTracker,
+	     const MagneticField* field,
+	     const CosmicNavigationSchoolConfiguration conf);
+ 
+protected:
+  CosmicNavigationSchool(){}
+private:
+
+  //FakeDetLayer* theFakeDetLayer;
+  void linkBarrelLayers( SymmetricLayerFinder& symFinder);
+  //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
+  void establishInverseRelations( SymmetricLayerFinder& symFinder );
+  void buildAdditionalBarrelLinks();
+  void buildAdditionalForwardLinks(SymmetricLayerFinder& symFinder);
+};
+
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/DiskLessInnerRadius.h"
-#include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
+#include "SimpleBarrelNavigableLayer.h"
+#include "SimpleForwardNavigableLayer.h"
+#include "SimpleNavigableLayer.h"
+#include "DiskLessInnerRadius.h"
+#include "SymmetricLayerFinder.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
-// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <functional>
 #include <algorithm>
@@ -243,4 +292,113 @@ void CosmicNavigationSchool::buildAdditionalForwardLinks(SymmetricLayerFinder& s
     }
   }	  	
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+ 
+#include "NavigationSchoolFactory.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+DEFINE_EDM_PLUGIN(NavigationSchoolFactory, CosmicNavigationSchool, "CosmicNavigationSchool");
+
+
+
+
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include <vector>
+
+//class FakeDetLayer;
+
+
+/** Concrete navigation school for cosmics in the Tracker
+ */
+
+class SkippingLayerCosmicNavigationSchool : public CosmicNavigationSchool {
+public:
+  SkippingLayerCosmicNavigationSchool(const GeometricSearchTracker* theTracker,
+				      const MagneticField* field,
+				      const CosmicNavigationSchoolConfiguration conf);
+
+  ~SkippingLayerCosmicNavigationSchool(){cleanMemory();};
+};
+
+
+SkippingLayerCosmicNavigationSchool::SkippingLayerCosmicNavigationSchool(const GeometricSearchTracker* theInputTracker,
+									 const MagneticField* field,
+									 const CosmicNavigationSchoolConfiguration conf)
+{
+  build(theInputTracker, field, conf);
+}
+
+
+
+
+#include <FWCore/Utilities/interface/ESInputTag.h>
+
+#include <memory>
+#include "boost/shared_ptr.hpp"
+
+// user include files
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "NavigationSchoolFactory.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+
+//
+// class decleration
+//
+class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public edm::ESProducer {
+ public:
+  SkippingLayerCosmicNavigationSchoolESProducer(const edm::ParameterSet& iConfig) {
+  theNavigationPSet = iConfig;
+  theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this, theNavigationSchoolName);
+  
+}
+
+
+  ~SkippingLayerCosmicNavigationSchoolESProducer(){}
+
+   typedef boost::shared_ptr<NavigationSchool> ReturnType;
+
+
+  ReturnType produce(const NavigationSchoolRecord&);
+
+  // ----------member data ---------------------------
+  edm::ParameterSet theNavigationPSet;
+  std::string theNavigationSchoolName;
+  boost::shared_ptr<NavigationSchool> theNavigationSchool ;
+
+
+};
+
+
+SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord){
+  using namespace edm::es;
+
+  // get the field
+  edm::ESHandle<MagneticField>                field;
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
+
+  //get the geometricsearch tracker geometry
+  edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;
+  iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
+
+  CosmicNavigationSchool::CosmicNavigationSchoolConfiguration layerConfig(theNavigationPSet);
+  theNavigationSchool.reset(new SkippingLayerCosmicNavigationSchool(geometricSearchTracker.product(), field.product(), layerConfig) );
+
+  return theNavigationSchool;
+}
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_EVENTSETUP_MODULE(SkippingLayerCosmicNavigationSchoolESProducer);
+
 

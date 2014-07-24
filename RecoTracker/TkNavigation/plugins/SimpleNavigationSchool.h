@@ -17,7 +17,7 @@ class MagneticField;
 /** Concrete navigation school for the Tracker
  */
 
-class SimpleNavigationSchool : public NavigationSchool {
+class dso_hidden SimpleNavigationSchool : public NavigationSchool {
 public:
   
   SimpleNavigationSchool() : theField(0),theTracker(0){};

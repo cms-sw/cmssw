@@ -1,5 +1,5 @@
-#include "RecoTracker/TkNavigation/interface/LayerCollector.h"
-#include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h" 
+#include "RecoTracker/MeasurementDet/interface/LayerCollector.h"
+#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h" 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 using namespace std;

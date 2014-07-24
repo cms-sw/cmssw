@@ -1,4 +1,4 @@
-#include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
+#include "SimpleBarrelNavigableLayer.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"

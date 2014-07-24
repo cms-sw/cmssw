@@ -1,12 +1,12 @@
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "SimpleNavigationSchool.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/DiskLessInnerRadius.h"
-#include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
+#include "SimpleBarrelNavigableLayer.h"
+#include "SimpleForwardNavigableLayer.h"
+#include "SimpleNavigableLayer.h"
+#include "DiskLessInnerRadius.h"
+#include "SymmetricLayerFinder.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -408,4 +408,12 @@ void SimpleNavigationSchool::establishInverseRelations() {
     
     
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+ 
+#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+DEFINE_EDM_PLUGIN(NavigationSchoolFactory, SimpleNavigationSchool, "SimpleNavigationSchool");
 
