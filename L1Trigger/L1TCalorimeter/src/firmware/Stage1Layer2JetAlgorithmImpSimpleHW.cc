@@ -11,6 +11,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
 #include <bitset>
 #include <iostream>
@@ -32,24 +33,30 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
-  simpleHWSubtraction(regions, subRegions);
-  passThroughJets(subRegions, preGtJets);
+  //simpleHWSubtraction(regions, subRegions);
+  //passThroughJets(subRegions, preGtJets);
+
+  passThroughJets(&regions,preGtJets);
 
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that
-  auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
+  // auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
+  //   return (i.hwPt() < j.hwPt() );
+  // };
 
-  std::sort(preGtJets->begin(), preGtJets->end(), comp);
-  std::reverse(preGtJets->begin(), preGtJets->end());
+  // std::sort(preGtJets->begin(), preGtJets->end(), comp);
+  // std::reverse(preGtJets->begin(), preGtJets->end());
+  // sortedJets = preGtJets;
 
+  SortJets(preGtJets, sortedJets);
 
   // drop the 4 LSB before passing to GT
-  for(std::vector<l1t::Jet>::const_iterator itJet = preGtJets->begin();
-      itJet != preGtJets->end(); ++itJet){
+  for(std::vector<l1t::Jet>::const_iterator itJet = sortedJets->begin();
+      itJet != sortedJets->end(); ++itJet){
     const unsigned newEta = gtEta(itJet->hwEta());
+    //const unsigned newEta = itJet->hwEta();
     //std::cout << "pre drop: " << itJet->hwPt();
     const uint16_t rankPt = (itJet->hwPt() >> 4);
     //std::cout << " post drop: " << rankPt << std::endl;
@@ -84,6 +91,7 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
 
   delete subRegions;
   delete preGtJets;
+  delete sortedJets;
 }
 
 unsigned int pack15bits(int pt, int eta, int phi)
