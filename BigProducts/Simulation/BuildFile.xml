@@ -16,5 +16,7 @@
 <use name="SimRomanPot/SimFP420"/>
 <use name="geant4static"/>
 <flags DROP_DEP="geant4core"/>
-<flags REM_CXXFLAGS="-Werror=maybe-uninitialized"/>
-<flags REM_CXXFLAGS="-Werror=uninitialized"/>
+# Hack needed to avoid undefined variable in CLHEP.
+<architecture name="slc6_amd64_gcc49">
+  <flags REM_CXXFLAGS="-Werror=unused-variable"/>
+</architecture>
