@@ -12,7 +12,7 @@
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "DQMStreamerReader.h"
 
 #include <fstream>
@@ -22,6 +22,7 @@
 #include <boost/format.hpp>
 #include <boost/range.hpp>
 #include <boost/filesystem.hpp>
+#include "boost/algorithm/string.hpp"
 
 #include <IOPool/Streamer/interface/DumpTools.h>
 
@@ -43,6 +44,9 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
+
+  triggerSel();
+  edm::LogAbsolute("DQMStreamerReader") << "Accept All Events ? " << acceptAllEvt_;
 
   reset_();
 }
@@ -106,11 +110,18 @@ void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
   // dump the list of HLT trigger name from the header
   //  dumpInitHeader(header);
 
-  Strings tnames;
-  header->hltTriggerNames(tnames);
+  // if specific trigger selection is requested, check if the requested triggers 
+  // match with trigger paths in the header file 
+  if (!acceptAllEvt_){
+    Strings tnames;
+    header->hltTriggerNames(tnames);
+    
+    pset.addParameter<Strings>("SelectEvents", hltSel_);
+    eventSelector_.reset(new TriggerSelector(pset, tnames));
 
-  pset.addParameter<Strings>("SelectEvents", hltSel_);
-  eventSelector_.reset(new TriggerSelector(pset, tnames));
+    // check if any trigger path name requested matches with trigger name in the header file
+    matchTriggerSel(tnames);
+  }
 
   // our initialization
   processedEventPerLs_ = 0;
@@ -294,7 +305,47 @@ bool DQMStreamerReader::checkNextEvent() {
   return true;
 }
 
+/**
+ * If hlt trigger selection is '*', return a boolean variable to accept all events
+ */
+bool DQMStreamerReader::triggerSel() {
+  acceptAllEvt_ = false;
+  for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); 
+       i!=end; ++i){
+    std::string hltPath(*i);
+    boost::erase_all(hltPath, " \t"); 
+    if (hltPath == "*") acceptAllEvt_ = true;
+  }
+  return acceptAllEvt_;
+}
+
+/**
+ * Check if hlt selection matches any trigger name taken from the header file  
+ */
+bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
+  matchTriggerSel_ = false;
+  for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); 
+       i!=end; ++i){
+    std::string hltPath(*i);
+    boost::erase_all(hltPath, " \t");
+    std::vector<Strings::const_iterator> matches = regexMatch(tnames, hltPath);
+    if (matches.empty()){
+      edm::LogWarning("Trigger selection does not match any trigger path!!!") << std::endl; 
+      matchTriggerSel_ = false;
+    }else{
+      matchTriggerSel_ = true;
+    }
+  }
+  return matchTriggerSel_;
+}
+
+/**
+ * Check the trigger path to accept event  
+ */
 bool DQMStreamerReader::acceptEvent(const EventMsgView* evtmsg) {
+
+  if (acceptAllEvt_) return true;
+  if (!matchTriggerSel_) return false;
 
   std::vector<unsigned char> hltTriggerBits_;
   int hltTriggerCount_ = evtmsg->hltCount();
@@ -306,7 +357,7 @@ bool DQMStreamerReader::acceptEvent(const EventMsgView* evtmsg) {
   if (eventSelector_->wantAll() ||
       eventSelector_->acceptEvent(&hltTriggerBits_[0], evtmsg->hltCount())) {
     return true;
-  } else {
+  }else{
     return false;
   }
 }
