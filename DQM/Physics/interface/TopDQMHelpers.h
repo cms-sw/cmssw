@@ -204,6 +204,8 @@ private:
   /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
   //int eidPattern_;
   double eidCutValue_;
+  //rho for Effective Area corrections
+  //edm::EDGetTokenT<double> eventrhoToken_;
   /// jet corrector as extra selection type
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
