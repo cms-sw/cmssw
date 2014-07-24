@@ -46,6 +46,7 @@ public:
    void showPixelEndcap( bool );
    void showTrackerBarrel( bool );
    void showTrackerEndcap( bool );
+   void showRpcEndcap( bool );
 
 private:
    FWRPZViewGeometry(const FWRPZViewGeometry&); // stop default
@@ -73,6 +74,7 @@ private:
    TEveElementList*   m_pixelEndcapElements;
    TEveElementList*   m_trackerBarrelElements;
    TEveElementList*   m_trackerEndcapElements;
+   TEveElementList*   m_rpcEndcapElements;
 };
 
 

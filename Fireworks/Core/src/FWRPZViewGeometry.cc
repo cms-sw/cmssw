@@ -58,7 +58,8 @@ FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    m_pixelBarrelElements(0),
    m_pixelEndcapElements(0),
    m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0)
+   m_trackerEndcapElements(0),
+   m_rpcEndcapElements(0)
 {
    SetElementName("RPZGeomShared");
 }
@@ -244,45 +245,6 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
          cscContainer->AddElement(shape);
       }
       container->AddElement( cscContainer );
-   }
-   {
-      std::vector<RPCDetId> ids;
-
-      for (int region = -1; region <=1; ++ region )
-      {
-          if (region == 0 ) continue;
-          for (int ring = 2; ring <= 3; ++ring) {
-              for (int station = 1; station <=3; ++station ) {
-                  int sector = 1;
-                  ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
-                  ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
-                  ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
-                  if (ring == 2 && station == 1) { // 2 layers in ring 2 station 1 up 
-                      ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
-                      ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
-                      ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
-                  }
-                  sector = 5;
-                  ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
-                  ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
-                  ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
-
-                  if (ring == 2 && station == 1) { // 2 layers in ring 2 station 1 down
-                      ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
-                      ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
-                      ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
-                  }
-              }
-         }
-      }
-
-      for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
-      {
-         TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
-         addToCompound(shape, kFWMuonEndcapLineColorIndex);
-         container->AddElement(shape);
-         gEve->AddToListTree(shape, true);
-      }
    }
  
 
@@ -523,6 +485,64 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
    }
 }
 
+//---------------------------------------------------------
+void
+FWRPZViewGeometry::showRpcEndcap( bool show )
+{
+   if( !m_rpcEndcapElements && show )
+   {
+       m_rpcEndcapElements = new TEveElementList("RpcEndcap");
+
+
+       std::vector<RPCDetId> ids;
+
+       for (int region = -1; region <=1; ++ region )
+       {
+           if (region == 0 ) continue;
+           for (int ring = 2; ring <= 3; ++ring) {
+               for (int station = 1; station <=3; ++station ) {
+                   int sector = 1;
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+                   if (ring == 2 && station == 1) { // 2 layers in ring 2 station 1 up 
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+                   }
+                   sector = 5;
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
+                   ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+
+                   if (ring == 2 && station == 1) { // 2 layers in ring 2 station 1 down
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
+                       ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+                   }
+               }
+           }
+       }
+
+      for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
+      {
+         TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
+         addToCompound(shape, kFWMuonEndcapLineColorIndex);
+         m_rpcEndcapElements->AddElement(shape);
+         gEve->AddToListTree(shape, true);
+      }
+   
+      AddElement(m_rpcEndcapElements);
+      importNew(m_rpcEndcapElements);
+   }
+
+   if (m_rpcEndcapElements)
+   {
+      m_rpcEndcapElements->SetRnrState(show);
+      gEve->Redraw3D();
+   }
+}
+//-------------------------------------
 
 void FWRPZViewGeometry::importNew(TEveElementList* x)
 {
