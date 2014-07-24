@@ -28,7 +28,7 @@
 //!
 //---------------------------------------------------------------------------
 
-#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelClusterizerBase.h"
+#include "PixelClusterizerBase.h"
 
 //#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
@@ -40,7 +40,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -49,21 +49,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
-
-namespace cms
-{
-
-  class SiPixelClusterProducer : public edm::EDProducer {
+  class dso_hidden SiPixelClusterProducer final : public edm::stream::EDProducer<> {
   public:
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
     virtual ~SiPixelClusterProducer();
 
     void setupClusterizer();
-
-    // Begin Job
-    virtual void beginJob( ) override;
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
@@ -86,7 +78,6 @@ namespace cms
     //! Optional limit on the total number of clusters
     int32_t maxTotalClusters_;
   };
-}
 
 
 #endif
