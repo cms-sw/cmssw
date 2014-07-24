@@ -21,9 +21,11 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff  import Low
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff     import HighPtPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff         import DiPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff               import HTPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff        import JetNoBptxPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff       import MuonNoBptxPSet
 
-#
-from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff import EleMuPSet
+# not integrated yet
+from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff   import EleMuPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
 
@@ -43,7 +45,9 @@ hltExoticaValidator = cms.EDAnalyzer(
                                  "LowPtDimuon",
                                  "LowPtDielectron",
                                  "HighPtPhoton",
-                                 "DiPhoton"
+                                 "DiPhoton",
+                                 "JetNoBptx",
+                                 "MuonNoBptx"
                                  #"HT"
                                  ),
 
@@ -70,7 +74,7 @@ hltExoticaValidator = cms.EDAnalyzer(
 
     # Definition of generic cuts on generated and reconstructed objects (note that
     # these cuts can be overloaded inside a particular analysis)
-    # Objects recognized: Mu Ele Photon PFTau Jet MET
+    # Objects recognized: Mu Ele Photon PFTau Jet MET => recognized by the method EVTColContainer::getTypeString
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
 
     # --- Muons
@@ -91,18 +95,21 @@ hltExoticaValidator = cms.EDAnalyzer(
     PFTau_recCut      = cms.string("pt > 20 && abs(eta) < 2.4"),  # STILL MISSING THIS INFO
    
     # --- Jets: 
-    Jet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
-    Jet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4 &&"+\
+    PFJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
+    PFJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4 &&"+\
                                      "(neutralHadronEnergy + HFHadronEnergy)/energy < 0.99 &&"+\
                                      "neutralEmEnergyFraction < 0.99 &&"+\
                                      "numberOfDaughters > 1 &&"+\
                                      "chargedHadronEnergyFraction > 0 &&"+\
                                      "chargedMultiplicity > 0 && "+\
                                      "chargedEmEnergyFraction < 0.99"),  # Loose PFJet
+
+    CaloJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
+    CaloJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4"), # find realistic cuts
    
     # --- MET (PF)    
-    MET_genCut      = cms.string("pt > 75"),
-    MET_recCut      = cms.string("pt > 75"),  
+    PFMET_genCut      = cms.string("pt > 75"),
+    PFMET_recCut      = cms.string("pt > 75"),  
    
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
@@ -125,6 +132,8 @@ hltExoticaValidator = cms.EDAnalyzer(
     LowPtDielectron  = LowPtDielectronPSet,
     HighPtPhoton     = HighPtPhotonPSet,                                 
     DiPhoton         = DiPhotonPSet,                                 
+    JetNoBptx        = JetNoBptxPSet,
+    MuonNoBptx       = MuonNoBptxPSet,
     #
     EleMu            = EleMuPSet,
     PureMET          = PureMETPSet,                                 
