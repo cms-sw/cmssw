@@ -45,6 +45,8 @@ public:
     int theCode;
     int nFebs;
   
+    lbItem() : theMaster(0), theLinkBoardNumInLink(0), theCode(0), nFebs(0) { /* nop */ };
+
   COND_SERIALIZABLE;
 };
   struct febItem {
