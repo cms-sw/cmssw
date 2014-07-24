@@ -413,7 +413,7 @@ void SimpleNavigationSchool::establishInverseRelations() {
 #include "FWCore/Framework/interface/MakerMacros.h"
 
  
-#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+#include "NavigationSchoolFactory.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 DEFINE_EDM_PLUGIN(NavigationSchoolFactory, SimpleNavigationSchool, "SimpleNavigationSchool");
 
