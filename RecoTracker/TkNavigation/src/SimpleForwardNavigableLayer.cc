@@ -7,7 +7,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
-#include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
+#include "TrackingTools/DetLayers/interface/TkLayerLess.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
