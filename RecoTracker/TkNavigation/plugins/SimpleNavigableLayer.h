@@ -16,7 +16,7 @@ class GtfPropagator;
 /** A partial implementation of the NavigableLayer
  */
 
-class SimpleNavigableLayer : public NavigableLayer {
+class dso_hidden SimpleNavigableLayer : public NavigableLayer {
 public:
 
   typedef std::vector<const DetLayer*>              DLC;

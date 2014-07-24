@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class BarrelDetLayer;
@@ -13,7 +14,7 @@ class ForwardDetLayer;
  *  with respect to origin.
  */
 
-class SymmetricLayerFinder {
+class dso_hidden SymmetricLayerFinder {
 
   typedef std::vector<const ForwardDetLayer*>             FDLC;
   typedef FDLC::iterator                                  FDLI;
