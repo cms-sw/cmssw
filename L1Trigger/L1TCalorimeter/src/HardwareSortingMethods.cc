@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
 using namespace std;
 
@@ -40,17 +41,17 @@ void print2DVector(vector<vector<jet> > myVector){
   }
 }
 
-void setBits(unsigned int & myNumber, unsigned int value, int bitPosition, unsigned int numberOfBits){
-  unsigned int mask = -1;
-  for(unsigned int i=bitPosition; i<bitPosition+numberOfBits; i++){
-    mask &= ~(((unsigned int)1)<<bitPosition);
-  }
+// void setBits(unsigned int & myNumber, unsigned int value, int bitPosition, unsigned int numberOfBits){
+//   unsigned int mask = -1;
+//   for(unsigned int i=bitPosition; i<bitPosition+numberOfBits; i++){
+//     mask &= ~(((unsigned int)1)<<bitPosition);
+//   }
 
-  //cout << hex << mask << " " << myNumber << " " << (value << bitPosition) << endl;
-  myNumber &= mask;
-  myNumber += (value << bitPosition)&(~mask);
-  //cout << hex << mask << " " << myNumber << " " << (value << bitPosition) << endl;
-}
+//   //cout << hex << mask << " " << myNumber << " " << (value << bitPosition) << endl;
+//   myNumber &= mask;
+//   myNumber += (value << bitPosition)&(~mask);
+//   //cout << hex << mask << " " << myNumber << " " << (value << bitPosition) << endl;
+// }
 
 vector<jet> sort_array(vector<jet> inputArray){
   vector<jet> outputArray(inputArray.size());
@@ -92,18 +93,19 @@ vector<vector<jet> > presort(vector<vector<int> > energies, int rows, int cols, 
 	myJet.energy = energies[row][col];
 
 	//Use GT convention for eta and phi
-	unsigned int eta_GT_convention = 99;
-	if(detector == 0){
-	  if(col <= 6){
-	    eta_GT_convention = 6-col;
-	    setBits(eta_GT_convention, 1, 3, 1);//minus
-	  }
-	  else if(col >= 7){
-	    eta_GT_convention = col-7;
-	    setBits(eta_GT_convention, 0, 3, 1);//plus
-	  }
-	}
-	else {assert(0);}
+	// unsigned int eta_GT_convention = 99;
+	// if(detector == 0){
+	//   if(col <= 6){
+	//     eta_GT_convention = 6-col;
+	//     setBits(eta_GT_convention, 1, 3, 1);//minus
+	//   }
+	//   else if(col >= 7){
+	//     eta_GT_convention = col-7;
+	//     setBits(eta_GT_convention, 0, 3, 1);//plus
+	//   }
+	// }
+	// else {assert(0);}
+	unsigned eta_GT_convention = l1t::gtEta(col+4); // hardcoded
 	//cout << (bitset<5>) eta_GT_convention << endl;
 	myJet.eta = eta_GT_convention;
 	myJet.phi = fw_to_gt_phi_map[row];
@@ -235,7 +237,6 @@ vector<vector<jet> > super_sort_matrix_rows(vector<vector<jet> > input_matrix, u
 namespace l1t{
   void SortJets(vector<Jet> * input,
 		vector<Jet> * output){
-    //Parameters that describe dimensions of detector and how it will be broken up to do sort in parallel
     const int CENTRAL_ETA_SLICES = 14;
     const int N_PHI_GROUPS = 5;
     const int N_PRESORTED_ROWS_CENTRAL = CENTRAL_ETA_SLICES*N_PHI_GROUPS;
@@ -244,19 +245,9 @@ namespace l1t{
     const int N_ETA_GROUP_SIZE_CENTRAL = 4;
     const int N_ETA_GROUPS_CENTRAL = 4;
 
-    ///////////////////////////////////////////
-    //Create central energy matrix
-    // -- Filled with arbitrary values here
-    ///////////////////////////////////////////
     const int cen_nrows = 18;
     const int cen_ncols = 14;
     vector<vector<int> > cen_input_energy (cen_nrows, vector<int>(cen_ncols));
-    // int k=0;
-    // for(int r=0; r<cen_nrows; r++){
-    //   for(int c=0; c<cen_ncols; c++){
-    // 	cen_input_energy[r][c] = k++;
-    //   }
-    // }
 
     for (vector<Jet>::const_iterator injet = input->begin();
 	 injet != input->end(); ++injet){
@@ -265,10 +256,6 @@ namespace l1t{
       unsigned int mycol = injet->hwEta()-4; //hopefully that's right, hardcoding is bad
       cen_input_energy[myrow][mycol] = injet->hwPt();
     }
-
-    ///////////////////////////////////
-    //Firmware sort starts here
-    //////////////////////////////////
 
     //Each CLK is one clock
 
@@ -293,17 +280,12 @@ namespace l1t{
     //CLK 7
     vector<vector<jet> > sorted_final_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL, N_KEEP_CENTRAL);
 
-    // jet intjet;
-    // intjet.energy = 0;
-    // intjet.eta = 1;
-    // intjet.phi = 2;
-
     for(unsigned int i = 0; i < 4; ++i)
     {
       jet intjet = sorted_final_energies_matrix_sig[0][i];
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
-      l1t::Jet outjet(*&jetLorentz, intjet.energy, intjet.eta, fw_to_gt_phi_map[intjet.phi], 0);
+      l1t::Jet outjet(*&jetLorentz, intjet.energy, intjet.eta, intjet.phi, 0);
       output->push_back(outjet);
     }
 
