@@ -9,14 +9,14 @@ same. We will mainly use cmsDriver and its powerful option to create
 the python cfg that we will run, and das_client to explore and find
 suitable samples to run upon. Let start with order.
 
-** PREREQUISITES
+* PREREQUISITES
 
 We assume that from this point onward, you have setup a proper CMSSW
 area and that you have source its environments, since all the script
 that we will be using are available to you only after you performed
 such actions.
 
-** FIND PROPER SAMPLES
+* FIND PROPER SAMPLES
 
 The first thing that we need to do is to find appropriate samples to
 run upon. Our suggestion is to start from the RelVal samples that are
@@ -27,7 +27,7 @@ as RelVal, we assume you are familiar enough with the production
 mechanism that you can take care of it alone: no instructions will be
 given here.
 
-*** FIND GEN-SIM-DIGI-RAW-HLTDEBUG samples FOR A SPECIFIC RELEASE
+** FIND GEN-SIM-DIGI-RAW-HLTDEBUG samples FOR A SPECIFIC RELEASE
 
 In order to check what samples are available for, e.g. the CMSSW_7_2
 release cycle, issue the command
@@ -55,7 +55,7 @@ This will write the discovered files directly into the ASCII file
 gen_sim_digi_raw_files.txt, that will be used as input to the
 following cmsDriver commands.
 
-*** RUN RECO AND VERTEX VALIDATION
+* RUN RECO AND VERTEX VALIDATION
 
 Inn order to run the vertex validation starting from RAW file, you
 need to create a proper python cfg. As said, instead of preparing a
@@ -82,7 +82,7 @@ produce by the Vertex Validation package. The internal format of the
 ROOT file follows the DQMIO rules, to have better performance while
 running,
 
-*** RUN FINAL HARVESTING TO PRODUCE EFFICIENCY, FAKE, MERGE AND DUPLICATE RATE PLOTS
+* RUN FINAL HARVESTING TO PRODUCE EFFICIENCY, FAKE, MERGE AND DUPLICATE RATE PLOTS
 
 The outcome of the previous step is not yet suitable to be browsed
 using plain ROOT. Moreover all the important plots have not yet been
@@ -98,7 +98,7 @@ DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root that will contain
 all the folders and plots produced by the Vertex Validation package.
 
 
-*** FURTHER CUSTOMIZATION
+* FURTHER CUSTOMIZATION
 
 If you want to customize the default vertex validation sequence, both
 the first one and the ones used in harvesting, you need to manually
