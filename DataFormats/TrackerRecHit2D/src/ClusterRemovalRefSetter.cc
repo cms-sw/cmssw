@@ -1,4 +1,4 @@
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 ClusterRemovalRefSetter::ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag& tag) {
