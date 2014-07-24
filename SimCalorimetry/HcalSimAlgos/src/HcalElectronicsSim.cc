@@ -14,7 +14,7 @@ HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier * amplifier, const HcalCode
     theCoderFactory(coderFactory),
     theRandFlat(0),
     theStartingCapId(0),
-    theStartingCapIdIsRandom(false),
+    theStartingCapIdIsRandom(true),
     PreMixDigis(PreMixing)
 {
 }
