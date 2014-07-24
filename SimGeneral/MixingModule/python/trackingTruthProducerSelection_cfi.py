@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import trackingParticles
 
-trackingParticles.select = cms.PSet(
+trackingParticlesSelection = cms.PSet(
     lipTP = cms.double(1000),
     chargedOnlyTP = cms.bool(True),
     stableOnlyTP = cms.bool(False),
@@ -13,3 +13,5 @@ trackingParticles.select = cms.PSet(
     maxRapidityTP = cms.double(5.0),
     tipTP = cms.double(1000)
 )
+
+trackingParticles.select = cms.PSet(trackingParticlesSelection)

@@ -76,7 +76,7 @@ private:
 	virtual void finalizeEvent( edm::Event& event, const edm::EventSetup& setup );
 
 	/** @brief Both forms of accumulate() delegate to this templated method. */
-	template<class T> void accumulateEvent( const T& event, const edm::EventSetup& setup );
+	template<class T> void accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct );
 
 	/** @brief Fills the supplied vector with pointers to the SimHits, checking for bad modules if required */
 	template<class T> void fillSimHits( std::vector<const PSimHit*>& returnValue, const T& event, const edm::EventSetup& setup );
@@ -85,6 +85,8 @@ private:
 
 	const double volumeRadius_;
 	const double volumeZ_;
+	/// maximum distance for HepMC::GenVertex to be added to SimVertex
+	const double vertexDistanceCut_;
 	const bool ignoreTracksOutsideVolume_;
 
 	/** The maximum bunch crossing BEFORE the signal crossing to create TrackinParticles for. Use positive values. If set to zero no
@@ -105,6 +107,8 @@ private:
 	const edm::InputTag simVertexLabel_;
         std::vector<edm::InputTag> collectionTags_;
 	edm::InputTag genParticleLabel_;
+	/// Needed to add HepMC::GenVertex to SimVertex
+	edm::InputTag hepMCproductLabel_;
 
 	bool selectorFlag_;
 	TrackingParticleSelector selector_;
