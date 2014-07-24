@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(9)
 )
 
 # Input source
@@ -85,7 +85,7 @@ process.stage2Layer2Raw.rxBlockLength    = cms.untracked.vint32(
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0)
 process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
-    12,12,12,12,12,12,0,0,0,
+    39,39,39,39,39,39,0,0,0,
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
@@ -180,8 +180,6 @@ process.simPlots.jetToken = cms.InputTag("caloStage2Digis")
 process.simPlots.etSumToken = cms.InputTag("caloStage2Digis")
 
 
-
-
 # Path and EndPath definitions
 process.path = cms.Path(
 
@@ -197,7 +195,7 @@ process.path = cms.Path(
     +process.caloStage2Digis
 
     # diagnostics
-    +process.dumpRaw
+#    +process.dumpRaw
     +process.rawPlots
     +process.simPlots
 )

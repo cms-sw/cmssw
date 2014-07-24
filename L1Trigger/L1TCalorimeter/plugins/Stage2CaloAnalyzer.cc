@@ -193,7 +193,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::CaloTower> > towers;
     iEvent.getByToken(m_towerToken,towers);
 
-    for ( int ibx=towers->getFirstBX(); ibx<towers->getLastBX(); ++ibx) {
+    for ( int ibx=towers->getFirstBX(); ibx<=towers->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
 	hbx_.at(Tower)->Fill( ibx );
@@ -218,7 +218,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::CaloCluster> > clusters;
     iEvent.getByToken(m_clusterToken,clusters);
 
-    for ( int ibx=clusters->getFirstBX(); ibx<clusters->getLastBX(); ++ibx) {
+    for ( int ibx=clusters->getFirstBX(); ibx<=clusters->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
   	hbx_.at(Cluster)->Fill( ibx );
@@ -240,7 +240,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::EGamma> > egs;
     iEvent.getByToken(m_egToken,egs);
     
-    for ( int ibx=egs->getFirstBX(); ibx<egs->getLastBX(); ++ibx) {
+    for ( int ibx=egs->getFirstBX(); ibx<=egs->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
         hbx_.at(EG)->Fill( ibx );
@@ -262,7 +262,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::Tau> > taus;
     iEvent.getByToken(m_tauToken,taus);
     
-    for ( int ibx=taus->getFirstBX(); ibx<taus->getLastBX(); ++ibx) {
+    for ( int ibx=taus->getFirstBX(); ibx<=taus->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
         hbx_.at(Tau)->Fill( ibx );
@@ -284,7 +284,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::Jet> > jets;
     iEvent.getByToken(m_jetToken,jets);
     
-    for ( int ibx=jets->getFirstBX(); ibx<jets->getLastBX(); ++ibx) {
+    for ( int ibx=jets->getFirstBX(); ibx<=jets->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
         hbx_.at(Jet)->Fill( ibx );
@@ -306,7 +306,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Handle< BXVector<l1t::EtSum> > sums;
     iEvent.getByToken(m_sumToken,sums);
     
-    for ( int ibx=sums->getFirstBX(); ibx<sums->getLastBX(); ++ibx) {
+    for ( int ibx=sums->getFirstBX(); ibx<=sums->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
         hbx_.at(Sum)->Fill( ibx );
