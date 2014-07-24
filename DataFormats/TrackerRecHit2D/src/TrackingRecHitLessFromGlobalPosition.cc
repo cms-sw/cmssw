@@ -1,4 +1,4 @@
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
