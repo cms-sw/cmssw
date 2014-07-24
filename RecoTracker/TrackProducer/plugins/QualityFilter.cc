@@ -1,10 +1,38 @@
-#include "RecoTracker/IterativeTracking/interface/QualityFilter.h"
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
+class dso_hidden QualityFilter final : public edm::stream::EDProducer<> {
+ public:
+  explicit QualityFilter(const edm::ParameterSet&);
+  ~QualityFilter();
+  
+ private:
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() ;
+  
+  // ----------member data ---------------------------
+ private:
+  
+  edm::EDGetTokenT<std::vector<Trajectory> >       trajTag; 
+  edm::EDGetTokenT<TrajTrackAssociationCollection> tassTag; 
+  reco::TrackBase::TrackQuality trackQuality_;
+  bool copyExtras_;  
+};
+
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 //
 // class decleration
 //
@@ -82,7 +110,7 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
     
     if (goodTk){
-      Track track =(*itc);
+      auto const & track =(*itc);
       //tracks and trajectories
       selTracks->push_back( track );
       outputTJ->push_back( *traj );
@@ -109,9 +137,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       unsigned hits=0;
 
       for ( unsigned index = 0; index<nTracks; ++index ) { 
-
-        reco::Track& aTrack = selTracks->at(index);
-        TrackExtra aTrackExtra(aTrack.outerPosition(),
+        auto const & aTrack = (*selTracks)[index];
+        selTrackExtras->emplace_back(aTrack.outerPosition(),
                                aTrack.outerMomentum(),
                                aTrack.outerOk(),
                                aTrack.innerPosition(),
@@ -122,11 +149,12 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                aTrack.innerStateCovariance(),
                                aTrack.innerDetId(),
                                aTrack.seedDirection(),
-                               aTrack.seedRef());
+                               aTrack.seedRef()
+                               );
             
-
+        auto & aTrackExtra = selTrackExtras->back();
         //unsigned nHits = aTrack.numberOfValidHits();
-        unsigned nHits = aTrack.recHitsSize();
+        auto nHits = aTrack.recHitsSize();
         for ( unsigned int ih=0; ih<nHits; ++ih) {
           aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
         }
@@ -137,7 +165,7 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       OrphanHandle<TrackExtraCollection> theRecoTrackExtras = iEvent.put(selTrackExtras); 
       for ( unsigned index = 0; index<nTracks; ++index ) { 
         const reco::TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
-        (selTracks->at(index)).setExtra(theTrackExtraRef);
+          (*selTracks)[index].setExtra(theTrackExtraRef);
       }
   } // END IF COPY EXTRAS
 
@@ -161,4 +189,7 @@ void
 QualityFilter::endJob() {
 }
 
+
+
+DEFINE_FWK_MODULE(QualityFilter);
 
