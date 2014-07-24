@@ -1,6 +1,6 @@
 // HardwareSortingMethods.h
 // Authors: R. Alex Barbieri
-//          Ben Kries
+//          Ben Kreis
 //
 // This file should contain the C++ equivalents of the sorting
 // algorithms used in Hardware. Most C++ methods originally written by

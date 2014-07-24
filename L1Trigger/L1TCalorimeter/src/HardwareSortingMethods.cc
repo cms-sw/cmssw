@@ -1,6 +1,6 @@
 // HardwareSortingMethods.cc
 // Authors: R. Alex Barbieri
-//          Ben Kries
+//          Ben Kreis
 //
 // This file should contain the C++ equivalents of the sorting
 // algorithms used in Hardware. Most C++ methods originally written by
@@ -14,9 +14,8 @@ using namespace std;
 
 const bool verbose = true;
 
-//Mappings between firmware phi to GT phi
 int fw_to_gt_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
-int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};//obvious that this is the same? mind blown.
+int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
 
 //For C++ convenience.
 //In the firmware, we just have one vector of bits that holds this info.
@@ -41,18 +40,6 @@ void print2DVector(vector<vector<jet> > myVector){
   }
 }
 
-// void setBits(unsigned int & myNumber, unsigned int value, int bitPosition, unsigned int numberOfBits){
-//   unsigned int mask = -1;
-//   for(unsigned int i=bitPosition; i<bitPosition+numberOfBits; i++){
-//     mask &= ~(((unsigned int)1)<<bitPosition);
-//   }
-
-//   //cout << hex << mask << " " << myNumber << " " << (value << bitPosition) << endl;
-//   myNumber &= mask;
-//   myNumber += (value << bitPosition)&(~mask);
-//   //cout << hex << mask << " " << myNumber << " " << (value << bitPosition) << endl;
-// }
-
 vector<jet> sort_array(vector<jet> inputArray){
   vector<jet> outputArray(inputArray.size());
   for(unsigned int i=0; i<inputArray.size(); i++){
@@ -69,9 +56,7 @@ vector<vector<jet> > presort(vector<vector<int> > energies, int rows, int cols, 
 
   int row_block_length = energies.size() / cols;
   if(energies.size() % cols != 0) row_block_length++;
-  //cout << row_block_length << endl;
 
-  //Initialize output
   jet dummyJet;
   dummyJet.energy=0;
   dummyJet.phi=99;
@@ -86,27 +71,12 @@ vector<vector<jet> > presort(vector<vector<int> > energies, int rows, int cols, 
     for(int c=0; c<cols; c++){
 
       row = (r % row_block_length)*cols+c;//row goes up to 19 and we pad with zeros
-      //cout << "row, col = " << row << ", " << col << endl;
 
       if(row < energies.size()){
 	jet myJet; //filled from energies[row][col]
 	myJet.energy = energies[row][col];
 
-	//Use GT convention for eta and phi
-	// unsigned int eta_GT_convention = 99;
-	// if(detector == 0){
-	//   if(col <= 6){
-	//     eta_GT_convention = 6-col;
-	//     setBits(eta_GT_convention, 1, 3, 1);//minus
-	//   }
-	//   else if(col >= 7){
-	//     eta_GT_convention = col-7;
-	//     setBits(eta_GT_convention, 0, 3, 1);//plus
-	//   }
-	// }
-	// else {assert(0);}
 	unsigned eta_GT_convention = l1t::gtEta(col+4); // hardcoded
-	//cout << (bitset<5>) eta_GT_convention << endl;
 	myJet.eta = eta_GT_convention;
 	myJet.phi = fw_to_gt_phi_map[row];
 
@@ -253,7 +223,7 @@ namespace l1t{
 	 injet != input->end(); ++injet){
       if(injet->hwEta() < 4 || injet->hwEta() > 17 ) continue;
       unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
-      unsigned int mycol = injet->hwEta()-4; //hopefully that's right, hardcoding is bad
+      unsigned int mycol = injet->hwEta()-4; //hardcoding is bad
       cen_input_energy[myrow][mycol] = injet->hwPt();
     }
 
@@ -288,6 +258,5 @@ namespace l1t{
       l1t::Jet outjet(*&jetLorentz, intjet.energy, intjet.eta, intjet.phi, 0);
       output->push_back(outjet);
     }
-
   }
 }
