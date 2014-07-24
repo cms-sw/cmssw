@@ -1,4 +1,4 @@
-#include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
+#include "SymmetricLayerFinder.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"

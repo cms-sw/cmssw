@@ -1,7 +1,7 @@
 #ifndef TkNavigation_SimpleBarrelNavigableLayer_H
 #define TkNavigation_SimpleBarrelNavigableLayer_H
 
-#include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
+#include "SimpleNavigableLayer.h"
 
 #include <vector>
 
@@ -9,7 +9,7 @@
 /** A concrete NavigableLayer for the barrel 
  */
 
-class SimpleBarrelNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
+class dso_hidden SimpleBarrelNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
 
 public:
 

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+#include "NavigationSchoolFactory.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
  

@@ -1,4 +1,26 @@
-#include "RecoTracker/TkNavigation/interface/BeamHaloNavigationSchool.h"
+#include "SimpleNavigationSchool.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include <vector>
+
+/** Concrete navigation school for the Tracker, connecting disks only for traversing tracks : moslty beam halo muon 
+ */
+class dso_hidden BeamHaloNavigationSchool final : public SimpleNavigationSchool {
+public:
+  
+  BeamHaloNavigationSchool(const GeometricSearchTracker* theTracker,
+			 const MagneticField* field);
+  ~BeamHaloNavigationSchool(){ cleanMemory();}
+
+ protected:
+  //addon to SimpleNavigationSchool
+  void linkOtherEndLayers( SymmetricLayerFinder& symFinder);
+  void addInward(const DetLayer * det, const FDLC& news);
+  void addInward(const DetLayer * det, const ForwardDetLayer * newF);
+  void establishInverseRelations();
+  FDLC reachableFromHorizontal();
+};
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -7,10 +29,10 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
-#include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
+#include "SymmetricLayerFinder.h"
+#include "SimpleBarrelNavigableLayer.h"
+#include "SimpleForwardNavigableLayer.h"
+#include "SimpleNavigableLayer.h"
 
 using namespace std;
 
@@ -249,3 +271,12 @@ BeamHaloNavigationSchool::reachableFromHorizontal()
     }
   return reachableFL;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+ 
+#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+DEFINE_EDM_PLUGIN(NavigationSchoolFactory, BeamHaloNavigationSchool, "BeamHaloNavigationSchool");
+

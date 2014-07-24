@@ -1,4 +1,4 @@
-#include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
+#include "SimpleForwardNavigableLayer.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"

@@ -1,12 +1,12 @@
 #ifndef TkNavigation_SimpleForwardNavigableLayer_H
 #define TkNavigation_SimpleForwardNavigableLayer_H
 
-#include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
+#include "SimpleNavigableLayer.h"
 
 /** A concrete NavigableLayer for the forward
  */
 
-class SimpleForwardNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
+class dso_hidden SimpleForwardNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
 
 public:
 

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h"
+#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

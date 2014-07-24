@@ -1,4 +1,4 @@
-#include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
+#include "SimpleNavigableLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
