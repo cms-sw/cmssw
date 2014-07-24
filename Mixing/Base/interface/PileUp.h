@@ -30,7 +30,7 @@ namespace edm {
 
   class PileUp {
   public:
-    explicit PileUp(ParameterSet const& pset, double averageNumber, TH1F* const histo, const bool playback);
+    explicit PileUp(ParameterSet const& pset, std::string sourcename, double averageNumber, TH1F* const histo, const bool playback);
     ~PileUp();
 
     template<typename T>
@@ -41,7 +41,14 @@ namespace edm {
 
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
-    bool doPileUp() {return none_ ? false :  averageNumber_>0.;}
+    bool doPileUp( int BX ) {
+      if(Source_type_ != "cosmics") {
+	return none_ ? false :  averageNumber_>0.;
+      }
+      else {
+	return ( BX >= minBunch_cosmics_ && BX <= maxBunch_cosmics_);
+      }
+    }
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
@@ -75,6 +82,7 @@ namespace edm {
 
     unsigned int  inputType_;
     std::string type_;
+    std::string Source_type_;
     double averageNumber_;
     int const intAverage_;
     TH1F* histo_;
@@ -90,8 +98,12 @@ namespace edm {
     bool PU_Study_;
     std::string Study_type_;
 
+
     int  intFixed_OOT_;
     int  intFixed_ITPU_;
+
+    int minBunch_cosmics_;
+    int maxBunch_cosmics_;
 
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;
