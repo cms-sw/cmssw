@@ -54,12 +54,6 @@ class CSCCertificationInfo : public DQMEDHarvester {
 
   private:
 
-//    virtual void beginJob() { };
-//    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-//    virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
-//    virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-//    virtual void endJob() { }
-
     std::map<std::string, MonitorElement*> mos;
 
 };
