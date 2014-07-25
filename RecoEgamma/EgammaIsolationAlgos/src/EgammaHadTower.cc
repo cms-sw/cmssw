@@ -73,38 +73,40 @@ std::vector<CaloTowerDetId>  EgammaHadTower::towersOf(const reco::SuperCluster& 
   return towers;
 }
 
-double EgammaHadTower::getDepth1HcalESum(const std::vector<CaloTowerDetId> & towers) const {
+double EgammaHadTower::getDepth1HcalESum(const std::vector<CaloTowerDetId> & towers, float EtMin) const {
   double esum=0.;
   CaloTowerCollection::const_iterator trItr = towerCollection_->begin();
   CaloTowerCollection::const_iterator trItrEnd = towerCollection_->end();
   for( ;  trItr != trItrEnd ; ++trItr){
     std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), trItr->id());
     if( itcheck != towers.end() ) {
-      esum += trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer() ;
+      if(trItr->hadEt()>EtMin)
+	esum += trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer() ;
     }
   }
   return esum;
 }
 
-double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId> & towers) const {
+double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId> & towers, float EtMin) const {
   double esum=0.;
   CaloTowerCollection::const_iterator trItr = towerCollection_->begin();
   CaloTowerCollection::const_iterator trItrEnd = towerCollection_->end();
   for( ;  trItr != trItrEnd ; ++trItr){
     std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), trItr->id());
     if( itcheck != towers.end() ) {
-      esum += trItr->hadEnergyHeOuterLayer();
+      if(trItr->hadEt()>EtMin)
+	esum += trItr->hadEnergyHeOuterLayer();
     }
   }
   return esum;
 }
 
-double EgammaHadTower::getDepth1HcalESum( const reco::SuperCluster& sc ) const {
-  return getDepth1HcalESum(towersOf(sc)) ;
+double EgammaHadTower::getDepth1HcalESum( const reco::SuperCluster& sc, float EtMin ) const {
+  return getDepth1HcalESum(towersOf(sc),EtMin) ;
 }
 
-double EgammaHadTower::getDepth2HcalESum( const reco::SuperCluster& sc ) const {
-  return getDepth2HcalESum(towersOf(sc)) ;
+double EgammaHadTower::getDepth2HcalESum( const reco::SuperCluster& sc, float EtMin ) const {
+  return getDepth2HcalESum(towersOf(sc),EtMin) ;
 }
 
 void EgammaHadTower::setTowerCollection(const CaloTowerCollection* towerCollection) {
