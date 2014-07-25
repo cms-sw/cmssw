@@ -504,7 +504,8 @@ DQMStore::~DQMStore(void)
   for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
     delete i->first;
 
-  stream_->close();
+  if (stream_)
+    stream_->close();
   delete stream_;
 }
 
