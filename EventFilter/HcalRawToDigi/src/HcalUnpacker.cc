@@ -643,7 +643,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	int itower=(i.channelid()&0xF);
 	HcalElectronicsId eid(crate,slot,ilink,itower,true);
 	DetId did=emap.lookupTrigger(eid);
-	std::cout << "Unpacking " << eid << " " << i.channelid() << std::endl;
+	//std::cout << "Unpacking " << eid << " " << i.channelid() << std::endl;
 	if (did.null()) {
 	  report.countUnmappedTPDigi(eid);
 	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
@@ -657,7 +657,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	  for (++i; i!=iend && !i.isHeader(); ++i);	
 	} else {
 	  HcalTrigTowerDetId id(did);
-	  std::cout << "Unpacking " << id << std::endl;
+	  //std::cout << "Unpacking " << id << std::endl;
 	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
 	  int j=0;
 	  for (++i; i!=iend && !i.isHeader(); ++i) {
