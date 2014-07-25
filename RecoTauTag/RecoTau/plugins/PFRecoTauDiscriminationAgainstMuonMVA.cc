@@ -25,6 +25,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <TMath.h>
 #include <TFile.h>
@@ -37,7 +39,7 @@ namespace
 {
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName, std::vector<TFile*>& inputFilesToDelete)
   {
-    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA") 
+    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA")
       << " Failed to find File = " << inputFileName << " !!\n";
     TFile* inputFile = new TFile(inputFileName.fullPath().data());
   
@@ -51,6 +53,13 @@ namespace
 
     return mva;
   }
+
+  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName)
+  {
+    edm::ESHandle<GBRForest> mva;
+    es.get<GBRWrapperRcd>().get(mvaName, mva);
+    return mva.product();
+  }
 }
 
 class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducerBase  
@@ -62,13 +71,13 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
       mvaReader_(0),
       mvaInput_(0)
   {
-    inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
     mvaName_ = cfg.getParameter<std::string>("mvaName");
-    mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
-    returnMVA_ = cfg.getParameter<bool>("returnMVA");
-    mvaMin_ = cfg.getParameter<double>("mvaMin");
+    loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+    if ( !loadMVAfromDB_ ) {
+      inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+    }
     mvaInput_ = new float[11];
-  
+    
     srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
     Muons_token=consumes<reco::MuonCollection>(srcMuons_);
     dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
@@ -87,7 +96,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   ~PFRecoTauDiscriminationAgainstMuonMVA()
   {
-    delete mvaReader_;
+    if ( !loadMVAfromDB_ ) delete mvaReader_;
     delete[] mvaInput_;
     for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
 	  it != inputFilesToDelete_.end(); ++it ) {
@@ -99,11 +108,10 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   std::string moduleLabel_;
 
-  edm::FileInPath inputFileName_;
   std::string mvaName_;
+  bool loadMVAfromDB_;
+  edm::FileInPath inputFileName_;
   const GBRForest* mvaReader_;
-  bool returnMVA_;
-  double mvaMin_;
   float* mvaInput_;
 
   edm::InputTag srcMuons_;
@@ -121,7 +129,15 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 };
 
 void PFRecoTauDiscriminationAgainstMuonMVA::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
-{
+{ 
+  if ( !mvaReader_ ) {
+    if ( loadMVAfromDB_ ) {
+      mvaReader_ = loadMVAfromDB(es, mvaName_);
+    } else {
+      mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
+    }
+  }
+
   evt.getByToken(Muons_token, muons_);
 
   evt.getByToken(Tau_token, taus_);
@@ -154,9 +170,8 @@ namespace
 double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
 {
   if ( verbosity_ ) {
-    edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:" ;
-    edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_ ;
-    edm::LogPrint("PFTauAgainstMuonMVA") << " mvaMin = " << mvaMin_ ;
+    edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
+    edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_;
   }
   
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
@@ -217,24 +232,9 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
 
   double mvaValue = mvaReader_->GetClassifier(mvaInput_);
   if ( verbosity_ ) {
-    edm::LogPrint("PFTauAgainstMuonMVA") << "mvaValue = " << mvaValue ;
+    edm::LogPrint("PFTauAgainstMuonMVA") << "mvaValue = " << mvaValue;
   }
-
-  double retVal = -1.;
-  if ( returnMVA_ ) {
-    retVal = mvaValue;
-    if ( verbosity_ ) {
-      edm::LogPrint("PFTauAgainstMuonMVA") << "--> retVal = " << retVal ;
-    }
-  } else {
-    retVal = ( mvaValue > mvaMin_ ) ? 1. : 0.;
-    if ( verbosity_ ) {
-      edm::LogPrint("PFTauAgainstMuonMVA") << "--> retVal = " << retVal << ": discriminator = ";
-      if ( retVal > 0.5 ) edm::LogPrint("PFTauAgainstMuonMVA") << "PASSED." ;
-      else edm::LogPrint("PFTauAgainstMuonMVA") << "FAILED." ;
-    }
-  }
-  return retVal;
+  return mvaValue;
 }
 
 void PFRecoTauDiscriminationAgainstMuonMVA::endEvent(edm::Event& evt)
