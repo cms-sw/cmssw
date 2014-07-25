@@ -11,6 +11,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
@@ -309,6 +312,9 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
   LocalPoint position;
   LocalError error;
 
+  //for TID and TEC the correlation is really high -> need to be scorrelated and then correlated again
+  float s = 0.1;
+
   for( std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); 
 	ihit != aHitMap.end(); ihit++ ){
 
@@ -328,6 +334,14 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
 
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t position: " << r;  
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t error: " << V;  
+
+    //scorrelation  in TID and TEC
+    if( N==2 && TIDorTEChit(ihit->first) ) { 
+      V(0,1) = V(1,0) = V(0,1)*s; 
+//      V(1,0) = V(1,0)*s; 
+      LogTrace("SiTrackerMultiRecHitUpdator") << "\t error scorr: " << V;
+    }
+
     bool ierr = invertPosDefMatrix(V);
     if( !ierr ) {
       edm::LogError("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::calcParameters: V not valid!";
@@ -353,7 +367,9 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
   }
   else if( N == 2 ){
     position = LocalPoint(parameters(0), parameters(1));
-    error = LocalError(W_sum(0,0), W_sum(0,1), W_sum(1,1));
+    //ri-correlation  in TID and TEC
+    if( TIDorTEChit(aHitMap.at(0).first) )	error = LocalError(W_sum(0,0), W_sum(0,1)/s, W_sum(1,1));
+    else 					error = LocalError(W_sum(0,0), W_sum(0,1), W_sum(1,1));
   }
 
 
@@ -361,4 +377,14 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
 
 }
 
+bool SiTrackerMultiRecHitUpdator::TIDorTEChit(const TrackingRecHit* const& hit) const{
 
+  DetId hitId = hit->geographicalId();
+
+  if( hitId.det() == DetId::Tracker && 
+	  ( hitId.subdetId() == StripSubdetector::TEC || hitId.subdetId() == StripSubdetector::TID) ) {
+    return true;
+  }    
+
+  return false;
+}

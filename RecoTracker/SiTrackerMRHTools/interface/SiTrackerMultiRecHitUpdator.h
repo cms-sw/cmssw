@@ -73,6 +73,7 @@ private:
 				 std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap) const;
   template <unsigned int N> LocalParameters calcParameters(const TrajectoryStateOnSurface& tsos,
                                  std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap) const;
+  bool TIDorTEChit(const TrackingRecHit* const& hit) const;
  
   const TransientTrackingRecHitBuilder* theBuilder;
   const TrackingRecHitPropagator* theHitPropagator;
