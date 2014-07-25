@@ -76,7 +76,7 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
       MonitorElement* hNumTriggerMon;
       MonitorElement* hDenTriggerMon;
       // Electrons
-      const reco::GsfElectron *elec_;
+      edm::Ptr<reco::GsfElectron> elec_;
       std::string sElectrons_;
       edm::EDGetTokenT< edm::View<reco::GsfElectron> > tokElectrons_;
       double ptElectrons_;
@@ -84,7 +84,7 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
       double isoElectrons_;
       unsigned int minElectrons_;
       // Muons
-      const reco::Muon *mu_;
+      edm::Ptr<reco::Muon> mu_;
       std::string sMuons_;
       edm::EDGetTokenT< edm::View<reco::Muon> > tokMuons_;
       double ptMuons_;
@@ -92,7 +92,7 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
       double isoMuons_;
       unsigned int minMuons_;
       // Jets
-      const reco::Jet *jet_;
+      edm::Ptr<reco::Jet> jet_;
       std::string sJets_;
       edm::EDGetTokenT< edm::View<reco::Jet> > tokJets_;
       double ptJets_;

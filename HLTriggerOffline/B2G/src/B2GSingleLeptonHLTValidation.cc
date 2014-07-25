@@ -57,7 +57,7 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     if (e->pt() < ptElectrons_) continue;
     if (fabs(e->eta()) > etaElectrons_) continue;
     nGoodE++;
-    if (nGoodE == 1) elec_ = &(*e);
+    if (nGoodE == 1) elec_ = electrons->ptrAt( e - electrons->begin());
   }
   // Muons 
   Handle< edm::View<reco::Muon> > muons;
@@ -69,7 +69,7 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     if (m->pt() < ptMuons_) continue;
     if (fabs(m->eta()) > etaMuons_) continue;
     nGoodM++;
-    if (nGoodM == 1) mu_ = &(*m);
+    if (nGoodM == 1) mu_ = muons->ptrAt( m - muons->begin() );
   }
   // Jets 
   Handle< edm::View<reco::Jet> > jets;
@@ -82,13 +82,13 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     if ( ptJets0_ > 0.0 ) {
       if ( jets->size() > 0 && jets->at(0).pt() > ptJets0_ ) {
 	nGoodJ++;
-	jet_ = &( jets->at(0) );
+	jet_ = jets->ptrAt(0) ;
       }
     }
     if ( ptJets1_ > 0.0 ) {
       if ( jets->size() > 1 && jets->at(1).pt() > ptJets1_ ) {
 	nGoodJ++;
-	jet_ = &( jets->at(1) );
+	jet_ = jets->ptrAt(1) ;
       }
     }
   } else {
@@ -96,7 +96,7 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
       if (j->pt() < ptJets_) continue;
       if (fabs(j->eta()) > etaJets_) continue;
       nGoodJ++;
-      if (nGoodJ == minJets_) jet_ = &(*j);
+      if (nGoodJ == minJets_) jet_ = jets->ptrAt( j -jets->begin() ); 
     }
   }
 
@@ -126,15 +126,15 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
 
   //Histos
   if (isAll_) {
-    if (minElectrons_ > 0) {
+    if (minElectrons_ > 0 && elec_.isNonnull() ) {
       hDenLeptonPt->Fill(elec_->pt());
       hDenLeptonEta->Fill(elec_->eta());
     }
-    if (minMuons_ > 0) {
+    if (minMuons_ > 0 && mu_.isNonnull() ) {
       hDenLeptonPt->Fill(mu_->pt());
       hDenLeptonEta->Fill(mu_->eta());
     }
-    if ( jet_ != 0 ) {
+    if ( jet_.isNonnull() ) {
       hDenJetPt->Fill(jet_->pt());
       hDenJetEta->Fill(jet_->eta());
     }
@@ -144,15 +144,15 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
 
   }
   if (isSel_) {
-    if (minElectrons_ > 0) {
+    if (minElectrons_ > 0 && elec_.isNonnull() ) {
       hNumLeptonPt->Fill(elec_->pt());
       hNumLeptonEta->Fill(elec_->eta());
     }
-    if (minMuons_ > 0) {
+    if (minMuons_ > 0 && mu_.isNonnull() ) {
       hNumLeptonPt->Fill(mu_->pt());
       hNumLeptonEta->Fill(mu_->eta());
     }
-    if ( jet_ != 0 ) {
+    if ( jet_.isNonnull() ) {
       hNumJetPt->Fill(jet_->pt());
       hNumJetEta->Fill(jet_->eta());
     }
