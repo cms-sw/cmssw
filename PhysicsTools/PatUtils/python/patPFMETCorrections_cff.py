@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # load modules for producing Type 1 / Type 1 + 2 corrections for reco::PFMET objects
-#from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
 
 #--------------------------------------------------------------------------------
@@ -129,7 +128,7 @@ producePatPFMETCorrections = cms.Sequence(
 #
 # define special sequence for PAT runType1uncertainty tool 
 # only preliminary modules processed
-# pat met producer modules cloned accoringly to what is needed 
+# pat met producer modules cloned accordingly to what is needed 
 producePatPFMETCorrectionsUnc = cms.Sequence(
     patPFMet
    * pfCandsNotInJetsForMetCorr
