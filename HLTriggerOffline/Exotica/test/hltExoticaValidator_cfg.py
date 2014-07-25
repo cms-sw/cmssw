@@ -198,6 +198,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 process.analyzerpath = cms.Path(
+    process.ExoticaValidationProdSeq +
     process.ExoticaValidationSequence +
     process.MEtoEDMConverter
 )
