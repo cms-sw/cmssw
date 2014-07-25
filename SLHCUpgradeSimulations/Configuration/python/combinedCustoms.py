@@ -173,6 +173,43 @@ def cust_2023SHCal(process):
         process.towerMaker.EEThreshold = cms.double(0.035)
         process.towerMakerPF.EEThreshold = cms.double(0.035)
         process.towerMakerWithHO.EEThreshold = cms.double(0.035)
+        
+        # Change all processes to use EcalRecHitsEK instead of EcalRecHitsEE
+        process.EcalHaloData.EERecHitLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.JPTeidTight.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.calomuons.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.conversionTrackCandidates.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.earlyMuons.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.ecalDrivenGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidLoose.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidRobustHighEnergy.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidRobustLoose.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidRobustTight.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidTight.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedPhotons.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.interestingEleIsoDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.interestingGamIsoDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonMETValueMapProducer.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muons1stStep.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics1Leg.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.particleFlowSuperClusterECAL.ecalRecHitsEE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfElectronInterestingEcalDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfPhotonInterestingEcalDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfPhotonTranslator.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.photons.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.uncleanedOnlyConversionTrackCandidates.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.uncleanedOnlyGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.ecalEndcapRecoSummary.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        ## The following ones don't work out of the box, so until they're fixed let them use the wrong collection
+        #process.multi5x5BasicClustersCleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        #process.multi5x5BasicClustersUncleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        #process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        #process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+
 
     return process
 
