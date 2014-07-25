@@ -48,8 +48,8 @@ hltExoticaValidator = cms.EDAnalyzer(
                                  "HighPtPhoton",
                                  "DiPhoton",
                                  "JetNoBptx",
-                                 "MuonNoBptx"
-                                 #"HT",
+                                 "MuonNoBptx",
+                                 "HT",
                                  #"EleMu",
                                  #"PureMET",
                                  #"Monojet"
