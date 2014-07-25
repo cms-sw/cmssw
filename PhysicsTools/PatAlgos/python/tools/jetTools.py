@@ -165,16 +165,20 @@ class AddJetCollection(ConfigToolBase):
         ## label will start with a capitalized first letter following
         ## the CMS nameing conventions and for improved readablility
         _labelName=labelName[:1].upper()+labelName[1:]
-        #_labelName=labelName
-        ## supported algo types are ak, ca, and kt
-        _algo=''
-        for x in ["ak", "ca", "kt"]:
-            if algo.lower().find(x)>-1:
-                _algo=supportedJetAlgos[x]
-                break
-        if _algo=='':
-            unsupportedJetAlgorithm(self)
-
+	#_labelName=labelName
+        ## determine jet algorithm from jetSource; supported algo types
+        ## are ak, kt, sc, ic. This loop expects that the algo type is
+        ## followed by a single integer corresponding to the opening
+        ## angle parameter dR times 10 (examples ak5, kt4, kt6, ...)
+        if algo != '' : 
+            _algo=algo
+	#jetSource=cms.InputTag("ak5PFJets")
+        else : 
+            for x in ["ak", "kt", "sc", "ic", "ca"]:
+                if jetSource.getModuleLabel().lower().find(x)>-1:
+                    _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
+                    break
+	#print _algo
         ## add new patJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
         if 'patJets'+_labelName+postfix in knownModules :
@@ -309,6 +313,8 @@ class AddJetCollection(ConfigToolBase):
             ## expand tagInfos to what is explicitely required by user + implicit
             ## requirements that come in from one or the other discriminator
             requiredTagInfos = list(btagInfos)
+            if len(requiredTagInfos) > 0 :
+                _newPatJets.addTagInfos = True
             for btagDiscr in btagDiscriminators :
                 for requiredTagInfo in supportedBtagDiscr[btagDiscr] :
                     tagInfoCovered = False
@@ -324,6 +330,7 @@ class AddJetCollection(ConfigToolBase):
             process.load("RecoBTag.Configuration.RecoBTag_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
+            import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
             ## prepare setups for simple secondary vertex infos
             setattr(process, "simpleSecondaryVertex2Trk", simpleSecondaryVertex2Trk)
@@ -350,7 +357,9 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'softPFMuonsTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource))
                     if btagInfo == 'softPFElectronsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))                        
+                    acceptedTagInfos.append(btagInfo)
+                elif hasattr(toptag, btagInfo) :
                     acceptedTagInfos.append(btagInfo)
                 else:
                     print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
@@ -375,8 +384,9 @@ class AddJetCollection(ConfigToolBase):
                     process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
-            ## modify new patJets collection accordingly
-            _newPatJets.addBTagInfo = True
+            if 'CATopTagInfos' in acceptedTagInfos :
+                if not hasattr( process, 'CATopTagInfos' ):
+                    process.load( 'RecoJets.JetProducers.CATopTagInfos_cff' )
         else:
             _newPatJets.addBTagInfo = False
             ## adjust output module; these collections will be empty anyhow, but we do it to stay clean
