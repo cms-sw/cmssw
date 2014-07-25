@@ -22,6 +22,8 @@
 #include <set>
 #include <algorithm>
 
+int verbose=3;
+
 /// Constructor
 HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
                                              const std::string & analysisname,
@@ -205,6 +207,8 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
                 _hltPaths.insert(thetriggername);
                 found = true;
             }
+	    if(verbose>2 && i==0) 
+	      std::cout << "--- TRIGGER PATH : " << thetriggername << std::endl;
         }
 	
 	// Oh dear, the path we wanted seems to not be available
