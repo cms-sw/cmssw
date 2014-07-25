@@ -2,13 +2,14 @@
 
 HitPairGenerator::HitPairGenerator(unsigned int nSize) : m_capacity(nSize)
 {
-  thePairs.reserve(nSize);
+//  thePairs.reserve(nSize);
 }
 
 const OrderedHitPairs & HitPairGenerator::run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es)
 {
-  thePairs.clear();
+  //thePairs.clear();
+  OrderedHitPairs tmp; tmp.swap(thePairs);
   hitPairs(region, thePairs, ev, es);
   return thePairs;
 }
