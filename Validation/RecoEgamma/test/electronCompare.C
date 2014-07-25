@@ -101,6 +101,11 @@ int electronCompare()
   TString CMP_RED_COMMENT  = gSystem->Getenv( "CMP_RED_COMMENT"  ) ;
   TString CMP_BLUE_COMMENT = gSystem->Getenv( "CMP_BLUE_COMMENT" ) ;
   TString CMP_CONFIG       = gSystem->Getenv( "CMP_CONFIG"       ) ;
+  TString CMP_RED_RELEASE  = gSystem->Getenv( "CMP_RED_RELEASE"  ) ;
+  TString CMP_BLUE_RELEASE = gSystem->Getenv( "CMP_BLUE_RELEASE" ) ;
+
+  std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl; // could be removed
+  std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl; // could be removed
 
   // style:
   TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
@@ -139,6 +144,7 @@ int electronCompare()
   eleStyle->SetPadLeftMargin(0.15);
   eleStyle->SetMarkerStyle(21);
   eleStyle->SetMarkerSize(0.8);
+  eleStyle->SetPadRightMargin(0.2) ; 
 
   eleStyle->cd();
 
@@ -231,10 +237,14 @@ int electronCompare()
    }
   else
    {
-    web_page
+/*    web_page
      <<"<p>In all plots below"
      <<", the "<<CMP_RED_NAME<<" histograms are in red"
-     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;
+     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;*/
+    web_page
+     <<"<p>In all plots below"
+     <<", the "<<CMP_RED_RELEASE<<" histograms are in red"
+     <<", and the "<<CMP_BLUE_RELEASE<<" histograms are in blue." ;
    }
 
   std::ifstream red_comment_file(CMP_RED_COMMENT) ;
@@ -459,6 +469,7 @@ int electronCompare()
       histo_new->SetLineWidth(3) ;
       RenderHisto(histo_new,canvas) ;
       histo_new->Draw(newDrawOptions) ;
+      canvas->SetCanvasSize(960, 600); // for larger pictures due to stats
       canvas->Update() ;
       st_new = (TPaveStats*)histo_new->FindObject("stats");
       st_new->SetTextColor(kRed) ;

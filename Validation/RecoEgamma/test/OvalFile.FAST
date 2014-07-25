@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_0_0_std">
-<var name="TEST_REF" value="7_0_0_std">
+<var name="TEST_NEW" value="7_1_0_std">
+<var name="TEST_REF" value="7_1_0_pre9_std">
 
-<var name="TAG_STARTUP" value="POSTLS170_V3">
-<var name="DATA_VERSION" value="v2">
+<var name="TAG_STARTUP" value="POSTLS171_V15">
+<var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="POSTLS170_V3-v2">
+<var name="DD_COND_REF" value="POSTLS171_V11_FastSim-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
@@ -229,14 +229,14 @@ FastSim
         <var name="DD_SAMPLE" value="RelValTTbar_13">
         <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="ValFastVsFullZEEStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValZEE_13">
         <var name="BLUE_FILE" value="electronHistos.ValFullZEEStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
       </environment>
       
     </environment>

@@ -10,6 +10,7 @@ class ElectronOfflineClient : public ElectronDqmAnalyzerBase
     explicit ElectronOfflineClient( const edm::ParameterSet & ) ;
     virtual ~ElectronOfflineClient() ;
 
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & ) ;
     virtual void finalize() ;
 
   private:

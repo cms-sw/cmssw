@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_0_0_std">
-<var name="TEST_REF" value="7_0_0_pre13_std">
+<var name="TEST_NEW" value="7_1_0_std">
+<var name="TEST_REF" value="7_1_0_pre9_std">
 
-<var name="TAG_STARTUP" value="POSTLS170_V3">
-<var name="DATA_VERSION" value="v2">
+<var name="TAG_STARTUP" value="POSTLS171_V15">
+<var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="POSTLS170_V1-v1">
+<var name="DD_COND_REF" value="POSTLS171_V11-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
@@ -25,7 +25,7 @@ we have an output file name which is unique for each execution.
 <var name="TEST_HISTOS_FILE" value="electronHistos.${OVAL_ENVNAME}.root">
 <var name="TEST_OUTPUT_LOGS" value="*.${OVAL_ENVNAME}.olog">
 <!--var name="TEST_HISTOS_FILE" value="DQM_V0001_R000000001__${DD_SAMPLE}__${DD_RELEASE}-${DD_COND}__DQM.root"-->
-<!--difffile name="electronHistos.root"-->
+<!--difffile name="electronHistos.root"--> 
 
 The DD_* variables are configuration variables for the script electronDataDiscovery.py,
 which prepares and send a query to the Data Discovery web server,

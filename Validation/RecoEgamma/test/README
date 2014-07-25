@@ -30,8 +30,6 @@ ValFullQcdPt80Pt120Startup_gedGsfE
 ValFullZEEStartup_gedGsfE
 ValFullTTbarStartup_gedGsfE
 
-
-
 ----------------------------------------------------------------------
 PileUp FullSim Validation for two collection GsfElectrons and gedGsfElectrons
 ----------------------------------------------------------------------
@@ -45,14 +43,12 @@ ValPileUpZEEStartup
 ValPileUpTTbarStartup_gedGsfE
 ValPileUpZEEStartup_gedGsfE
 
-
 ----------------------------------------------------------------------
 FastSim Validation for two collection GsfElectrons and gedGsfElectrons
 ----------------------------------------------------------------------
 DD_SAMPLE			DD_TIER			TAG			
 RelValTTbar			GEN-SIM-DIGI-RECO	PRE_..._FastSim-..
 RelValZEE
-
 
 Targets for analyze, finalize ans store steps :
 ValFastTTbarStartup
@@ -63,7 +59,6 @@ ValFastVsFastTTbarStartup
 ValFastVsFastZEEStartup
 ValFastVsFullTTbarStartup
 ValFastVsFullZEEStartup
-
 
 ===========================
 How to run the validation:
@@ -88,8 +83,29 @@ oval run publish.Target
 or in batch mode
 ./electronBsub 8nh ....
 
+================================
+How to run the validation (MaJ):
+================================
+scripts ahve been made for different cases and accept 2 arguments :
+ - first : type of interaction i ou j
+ - second : type of target r, p, f
+for each script in analyze, finalize, store or publish, you can run : 
+./analyze_geGsfE.tcsh ?
 
+- Check if you could access to the RelVal files
+oval run dd.Target
 
+- Run the analyze step
+./analyze_gedGsfE.tcsh i r
+
+- Run the finilize step
+./finalize_gedGsfE.tcsh i r
+
+- Store all produced files
+./store_gedGsfE.tcsh i r
+
+- Compare histograms and create web pages
+./publish_gedGsfE.tcsh i r
 
 
 
