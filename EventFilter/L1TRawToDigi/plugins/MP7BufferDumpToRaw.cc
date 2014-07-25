@@ -520,15 +520,13 @@ void
 MP7BufferDumpToRaw::findNextEvent() {
 
   // find the first event
-  int iFrame = 0 ;
   int lastFlag=1;
   bool dataValid = false;
   while (!dataValid) {
 
     std::vector<std::string> rxData = readLine(rxFile_, nRxLinks_);
-    std::vector<std::string> txData = readLine(txFile_, nTxLinks_);
 
-    iFrame = std::stoul(rxData.at(0));
+    int iFrame = std::stoul(rxData.at(0));
 
     // check for data valid in first link
     int newFlag = std::stoul(rxData.at(1).substr(0,1));
@@ -543,18 +541,22 @@ MP7BufferDumpToRaw::findNextEvent() {
   }
 
   // check for data going high
+  lastFlag = 1;
   dataValid = false;
   while (!dataValid) {
 
+    std::streampos pos = txFile_.tellg();
+
     std::vector<std::string> txData = readLine(txFile_, nTxLinks_);
 
-    iFrame = std::stoul(txData.at(0));
+    int iFrame = std::stoul(txData.at(0));
 
     // check for data valid in first link
     int newFlag = std::stoul(txData.at(1).substr(0,1));
     if (newFlag==1 && lastFlag==0) {
       dataValid = true;
       edm::LogInfo("mp7") << "Found Tx event at frame " << iFrame << std::endl;
+      txFile_.seekg(pos);
     }
     else {
       lastFlag = newFlag;
@@ -562,7 +564,6 @@ MP7BufferDumpToRaw::findNextEvent() {
 
   }
   
-
 
 }
 
