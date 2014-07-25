@@ -2,12 +2,15 @@
 #define SiTrackerMRHTools_SimpleDAFHitCollector_h
 #include "RecoTracker/SiTrackerMRHTools/interface/MultiRecHitCollector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/SiTrackerMRHTools/interface//SiTrackerMultiRecHitUpdator.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <vector>
 
 class Propagator;
 class MeasurementEstimator;
-class SiTrackerMultiRecHitUpdator;
+//class SiTrackerMultiRecHitUpdator;
 class StripRecHit1D;
 
 class SimpleDAFHitCollector :public MultiRecHitCollector {
@@ -16,7 +19,9 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 				 const SiTrackerMultiRecHitUpdator* updator,
 			         const MeasurementEstimator* est,
 				 const Propagator* propagator, bool debug
-				 ):MultiRecHitCollector(measurementTracker), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){}
+				 ):MultiRecHitCollector(measurementTracker), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){
+    theHitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theUpdator->getBuilder())->cloner();
+}
 			
 
 	virtual ~SimpleDAFHitCollector(){}
@@ -72,6 +77,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 	const MeasurementEstimator* theEstimator;
 	//this actually is not used in the fastMeasurement method 	
 	const Propagator* thePropagator; 
+	TkClonerImpl theHitCloner;
 	const bool debug_;
 
 

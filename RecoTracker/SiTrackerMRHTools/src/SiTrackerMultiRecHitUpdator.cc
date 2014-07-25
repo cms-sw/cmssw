@@ -142,6 +142,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
     if( ihit == updatedcomponents.begin() ) c_sum = ComputeWeight(tsos, *(*ihit), true, annealing);   //exp(-0.5*theChi2Cut/annealing)
   }
   double total_sum = a_sum + c_sum;    
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t c_sum:" << c_sum ;
   LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t total sum:" << total_sum ;
 
   unsigned int counter = 0;
@@ -152,9 +153,10 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
     double p = ((mymap[counter].second)/total_sum > 1.e-12 ? (mymap[counter].second)/total_sum : 1.e-12);
     //ORCA: float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
 
+
     LogTrace("SiTrackerMultiRecHitUpdator")<< "  Component hit type " << typeid(*mymap[counter].first).name()
                                            << " and dim:" << mymap[counter].first->dimension()
-                                           << " position " << mymap[counter].first->localPosition()
+                                           << " position (PRECISE!!!)" << mymap[counter].first->localPosition()
                                            << " error " << mymap[counter].first->localPositionError()
                                            << " with weight " << p ;
 
@@ -169,7 +171,6 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
   if(!invalid){
 
     SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, normmap);
-
     SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
     LogTrace("SiTrackerMultiRecHitUpdator") << " Updated Hit position " << updated.localPosition() 
      					    << " updated error " << updated.localPositionError() << std::endl;
@@ -220,17 +221,29 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   aRecHit.getKfComponents(holder);
 
   VecN diff = r - rMeas;
-  //R += RMeas;						//assume that TSOS is predicted one
-  if(!CutWeight)  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R:" << R ;
   R *= annealing;					//assume that TSOS is smoothed one
-  if(!CutWeight)  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R*= ann:" << R ;
-
   if(!CutWeight){
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t r:" << r ;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t tsospos:" << rMeas ;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t diff:" << diff ;
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R*= ann:" << R ;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t RMeas:" << RMeas ;
   }
+  R += RMeas;						//assume that TSOS is predicted || comb one
+  if(!CutWeight)  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R+RMeas:" << R ;
+
+
+  //computing chi2 with the smoothTsos
+ // SMatNN R_smooth = R - RMeas;
+ // if(!CutWeight)  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R-=Rmeas:" << R_smooth ;
+ // bool ierr2_bis = invertPosDefMatrix(R_smooth);
+ // double Chi2_smooth = ROOT::Math::Similarity(diff, R_smooth); 
+
+  //computing chi2 with the smoothTsos
+  //SMatNN R_pred   = R + RMeas;
+  //if(!CutWeight)  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R+=Rmeas:" << R_pred   ;
+  //bool ierr2_bis = invertPosDefMatrix(R_pred  );
+  //double Chi2_pred   = ROOT::Math::Similarity(diff, R_pred  ); 
 
   //Det2 method will preserve the content of the Matrix 
   //and return true when the calculation is successfull
@@ -240,14 +253,16 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   bool ierr2 = invertPosDefMatrix(R);			//ierr will be set to true when inversion is successfull
   double Chi2 = ROOT::Math::Similarity(diff, R);
 
-  if( !ierr || !ierr2) {
+  if( !ierr || !ierr2 ) {
     LogTrace("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::ComputeWeight: W not valid!"<<std::endl;
     LogTrace("SiTrackerMultiRecHitUpdator")<<"V: "<<R<<" AnnealingFactor: "<<annealing<<std::endl;
   }
 
+
   if(!CutWeight){
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t det:" << det;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2:" << Chi2;
+    //LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2 new:" << Chi2_pred;
   }
 
   double temp_weight = 0.0;

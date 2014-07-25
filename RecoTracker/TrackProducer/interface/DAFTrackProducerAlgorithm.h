@@ -93,6 +93,8 @@ class DAFTrackProducerAlgorithm {
 
   int checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const; 
 
+  void PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const;
+
   edm::ParameterSet conf_;
   int minHits_;  
 };

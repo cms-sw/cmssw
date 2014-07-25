@@ -22,6 +22,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 
 DAFTrackProducerAlgorithm::DAFTrackProducerAlgorithm(const edm::ParameterSet& conf):
@@ -174,14 +175,24 @@ DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
   TransientTrackingRecHit::RecHitContainer hits;
   std::vector<TrajectoryMeasurement> vmeas = vtraj.measurements();
   std::vector<TrajectoryMeasurement>::reverse_iterator imeas;
+  unsigned int hitcounter = 1;
 
   //I run inversely on the trajectory obtained and update the state
-  for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++){
+  for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++, hitcounter++){
+
     DetId id = imeas->recHit()->geographicalId();
     MeasurementDetWithData measDet = theMTE->idToDet(id);
+
+    TrajectoryStateCombiner combiner;
+    TrajectoryStateOnSurface combtsos;
+    if (hitcounter == vmeas.size()) combtsos = imeas->predictedState();   //fwd
+    else if (hitcounter == 1) combtsos = imeas->backwardPredictedState(); //bwd
+    else combtsos = combiner(imeas->backwardPredictedState(), imeas->predictedState());
+
+    PrintHit(&*imeas->recHit(), combtsos);
     if(imeas->recHit()->isValid()){
     TransientTrackingRecHit::RecHitPointer updated = updator->update(imeas->recHit(), 
-						imeas->updatedState(), measDet, annealing);
+						combtsos, measDet, annealing);
     hits.push_back(updated);
     } else {
       hits.push_back(imeas->recHit());
@@ -446,3 +457,23 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
   return nSame;
 }
+
+
+
+void DAFTrackProducerAlgorithm::PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const
+{
+    if (hit->isValid()){
+
+      LogTrace("DAFTrackProducerAlgorithm") << "  Valid Hit with DetId " << hit->geographicalId().rawId() << " and dim:" << hit->dimension()
+                      //<< " type " << typeid(hit).name()
+                        << " local position " << hit->localPosition()
+                        << " global position " << hit->globalPosition()
+                        << " and r " << hit->globalPosition().perp() ;
+      LogTrace("DAFTrackProducerAlgorithm") << "  TSOS combtsos " << tsos.localPosition() ;
+
+    } else {
+      LogTrace("DAFTrackProducerAlgorithm") << "  Invalid Hit with DetId " << hit->geographicalId().rawId();
+    }
+
+}
+
