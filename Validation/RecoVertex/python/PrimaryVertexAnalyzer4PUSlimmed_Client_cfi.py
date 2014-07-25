@@ -33,3 +33,5 @@ postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
                                      outputFileName = cms.untracked.string(""),
                                      verbose = cms.untracked.uint32(5)
 )
+
+postProcessorVertexStandAlone = cms.Sequence(postProcessorVertex)
