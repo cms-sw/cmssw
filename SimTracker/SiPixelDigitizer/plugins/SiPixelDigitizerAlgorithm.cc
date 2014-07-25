@@ -451,6 +451,8 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 //=========================================================================
 void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
                                                   std::vector<PSimHit>::const_iterator inputEnd,
+						  const size_t inputBeginGlobalIndex,
+						  const unsigned int tofBin,
                                                   const PixelGeomDetUnit* pixdet,
                                                   const GlobalVector& bfield,
                                                   CLHEP::HepRandomEngine* engine) {
@@ -458,7 +460,8 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
     // Loop over hits
 
     uint32_t detId = pixdet->geographicalId().rawId();
-    for (std::vector<PSimHit>::const_iterator ssbegin = inputBegin; ssbegin != inputEnd; ++ssbegin) {
+    size_t simHitGlobalIndex=inputBeginGlobalIndex; // This needs to stored to create the digi-sim link later
+    for (std::vector<PSimHit>::const_iterator ssbegin = inputBegin; ssbegin != inputEnd; ++ssbegin, ++simHitGlobalIndex) {
       // skip hits not in this detector.
       if((*ssbegin).detUnitId() != detId) {
         continue;
@@ -484,7 +487,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 	primary_ionization(*ssbegin, ionization_points, engine); // fills _ionization_points
 	drift(*ssbegin, pixdet, bfield, ionization_points, collection_points);  // transforms _ionization_points to collection_points
 	// compute induced signal on readout elements and add to _signal
-	induce_signal(*ssbegin, pixdet, collection_points); // *ihit needed only for SimHit<-->Digi link
+	induce_signal(*ssbegin, simHitGlobalIndex, tofBin, pixdet, collection_points); // 1st 3 args needed only for SimHit<-->Digi link
       } //  end if
     } // end for
 
@@ -533,7 +536,8 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 //============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology *tTopo,
+                                         std::vector<PixelDigiSimLink>& simlinks,
+					 const TrackerTopology *tTopo,
                                          CLHEP::HepRandomEngine* engine) {
   
    // Pixel Efficiency moved from the constructor to this method because
@@ -876,6 +880,8 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
 //*************************************************************************
 // Induce the signal on the collection plane of the active sensor area.
 void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
+					      const size_t hitIndex,
+					      const unsigned int tofBin,
 			                      const PixelGeomDetUnit* pixdet,
                                               const std::vector<SignalPoint>& collection_points) {
 
@@ -939,7 +945,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
      // so the returned pixel index might be wrong (outside range).
      // We rely on the limits check below to fix this.
      // But remember whatever we do here THE CHARGE OUTSIDE THE ACTIVE
-     // PIXEL ARE IS LOST, it should not be collected.
+     // PIXEL AREA IS LOST, it should not be collected.
 
      // Convert the 2D points to pixel indices
      MeasurementPoint mp = topol->measurementPosition(PointRightUp ); //OK
@@ -976,7 +982,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
      x.clear(); // clear temporary integration array
      y.clear();
 
-     // First integrate cahrge strips in x
+     // First integrate charge strips in x
      int ix; // TT for compatibility
      for (ix=IPixLeftDownX; ix<=IPixRightUpX; ix++) {  // loop over x index
        float xUB, xLB, UpperBound, LowerBound;
@@ -1007,7 +1013,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
 
      }
 
-    // Now integarte strips in y
+    // Now integrate strips in y
     int iy; // TT for compatibility
     for (iy=IPixLeftDownY; iy<=IPixRightUpY; iy++) { //loope over y ind
       float yUB, yLB, UpperBound, LowerBound;
@@ -1090,7 +1096,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   for ( hit_map_type::const_iterator im = hit_signal.begin();
 	im != hit_signal.end(); ++im) {
     int chan =  (*im).first;
-    theSignal[chan] += (makeDigiSimLinks_ ? Amplitude( (*im).second, &hit, (*im).second) : Amplitude( (*im).second, (*im).second) )  ;
+    theSignal[chan] += (makeDigiSimLinks_ ? Amplitude( (*im).second, &hit, hitIndex, tofBin, (*im).second) : Amplitude( (*im).second, (*im).second) )  ;
 
 #ifdef TP_DEBUG
     std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
@@ -1196,7 +1202,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 	    }
 	    float fraction=sum_samechannel/(*i).second;
 	    if(fraction>1.) fraction=1.;
-	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.eventId(), fraction);
+	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.hitIndex(), (*i).second.tofBin(), (*i).second.eventId(), fraction);
 	  }
         }
       }

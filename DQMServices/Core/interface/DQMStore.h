@@ -714,6 +714,7 @@ class DQMStore
   friend class DQMArchiver;
   friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
   friend class DQMRootOutputModule;
+  friend class DQMRootSource;
   friend class DQMFileSaver;
   friend class MEtoEDMConverter;
 };
