@@ -147,8 +147,6 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   // re-run the associator(s)
   const TrackAssociatorBase * associatorByHits_;
 
-  std::string recoTrackProducer_;
-
   edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
   std::vector<edm::EDGetTokenT<reco::VertexCollection> > reco_vertex_collection_tokens_;
   std::vector<edm::InputTag > reco_vertex_collections_;
