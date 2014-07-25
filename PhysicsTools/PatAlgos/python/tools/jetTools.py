@@ -165,19 +165,16 @@ class AddJetCollection(ConfigToolBase):
         ## label will start with a capitalized first letter following
         ## the CMS nameing conventions and for improved readablility
         _labelName=labelName[:1].upper()+labelName[1:]
-	#_labelName=labelName
-        ## determine jet algorithm from jetSource; supported algo types
-        ## are ak, kt, sc, ic. This loop expects that the algo type is
-        ## followed by a single integer corresponding to the opening
-        ## angle parameter dR times 10 (examples ak5, kt4, kt6, ...)
-        if algo != '' : 
-            _algo=algo
-	#jetSource=cms.InputTag("ak5PFJets")
-        else : 
-            for x in ["ak", "kt", "sc", "ic", "ca"]:
-                if jetSource.getModuleLabel().lower().find(x)>-1:
-                    _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
-                    break
+
+         #_labelName=labelName
+         ## supported algo types are ak, ca, and kt
+        _algo=''
+        for x in ["ak", "ca", "kt"]:
+            if algo.lower().find(x)>-1:
+                _algo=supportedJetAlgos[x]
+                break
+        if _algo=='':
+            unsupportedJetAlgorithm(self)
 	#print _algo
         ## add new patJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
