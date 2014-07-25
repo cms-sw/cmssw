@@ -262,11 +262,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    // geometry
    if (vm.count(kGeomFileOpt)) {
       setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
+      fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
    } else {
       //  fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
       setGeometryFilename("cmsGeom10.root");
    }
-   fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
 
    if (vm.count(kSimGeomFileOpt)) {
       setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
