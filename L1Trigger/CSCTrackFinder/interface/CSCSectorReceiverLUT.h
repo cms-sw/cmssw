@@ -29,21 +29,21 @@ class CSCSectorReceiverLUT
 
   /// Please note, the pattern used below is the 4 bit pattern.
   /// ex) digi->getPattern(), NOT digi->getCLCTPattern()
-  lclphidat localPhi(int strip, int pattern, int quality, int lr) const;
-  lclphidat localPhi(unsigned address) const;
-  lclphidat localPhi(lclphiadd address) const;
+  lclphidat localPhi(int strip, int pattern, int quality, int lr, const bool gangedME1a = false ) const;
+  lclphidat localPhi(unsigned address, const bool gangedME1a =  false ) const;
+  lclphidat localPhi(lclphiadd address, const bool gangedME1a = false ) const;
 
-  gblphidat globalPhiME(int phi_local, int wire_group, int cscid) const;
-  gblphidat globalPhiME(unsigned address) const;
-  gblphidat globalPhiME(gblphiadd address) const;
+  gblphidat globalPhiME(int phi_local, int wire_group, int cscid, const bool gangedME1a = false) const;
+  gblphidat globalPhiME(unsigned address, const bool gangedME1a = false) const;
+  gblphidat globalPhiME(gblphiadd address, const bool gangedME1a = false ) const;
 
-  gblphidat globalPhiMB(int phi_local,int wire_group, int cscid) const;
-  gblphidat globalPhiMB(unsigned address) const;
-  gblphidat globalPhiMB(gblphiadd address) const;
+  gblphidat globalPhiMB(int phi_local,int wire_group, int cscid, const bool gangedME1a = false) const;
+  gblphidat globalPhiMB(unsigned address, const bool gangedME1a = false) const;
+  gblphidat globalPhiMB(gblphiadd address, const bool gangedME1a = false) const;
 
-  gbletadat globalEtaME(int phi_bend, int phi_local, int wire_group, int cscid) const;
-  gbletadat globalEtaME(unsigned address) const;
-  gbletadat globalEtaME(gbletaadd address) const;
+  gbletadat globalEtaME(int phi_bend, int phi_local, int wire_group, int cscid, const bool gangedME1a = false) const;
+  gbletadat globalEtaME(unsigned address, const bool gangedME1a = false) const;
+  gbletadat globalEtaME(gbletaadd address, const bool gangedME1a = false) const;
 
   /// Helpers
   std::string encodeFileIndex() const;
