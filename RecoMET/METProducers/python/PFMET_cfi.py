@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 pfMet = cms.EDProducer(
     "PFMETProducer",
     src = cms.InputTag("particleFlow"),
-    alias = cms.string('PFMET'),
+    alias = cms.string('pfMet'),
     globalThreshold = cms.double(0.0),
     calculateSignificance = cms.bool(False),
     )
