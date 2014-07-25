@@ -380,7 +380,7 @@ double CaloExtractorByAssociator::noiseRecHit(const DetId& detId) const {
     EcalSubdetector subDet = (EcalSubdetector)(detId.subdetId());
     if (subDet == EcalBarrel){
       noise = theNoise_EB;
-    } else if (subDet == EcalEndcap){
+    } else if (subDet == EcalEndcap || subDet == EcalShashlik){
       noise = theNoise_EE;
     }
   } else if (det == DetId::Hcal){
