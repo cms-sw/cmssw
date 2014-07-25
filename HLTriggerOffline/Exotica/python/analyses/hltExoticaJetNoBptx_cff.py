@@ -4,7 +4,7 @@ JetNoBptxPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_JetE50_NoBPTX3BX_NoHalo_v" # Run2 proposal AND Run1 (frozenHLT)
         ),
-    recJetLabel    = cms.InputTag("ak5CaloJets"),
+    recCaloJetLabel    = cms.InputTag("ak5CaloJets"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings
