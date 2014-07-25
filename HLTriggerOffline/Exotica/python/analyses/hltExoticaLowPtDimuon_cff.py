@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 LowPtDimuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Mu17_Mu8_v",
-        "HLT_Mu17_TkMu8_v",
+        "HLT_Mu17_Mu8_v",   # Run2
+        "HLT_Mu17_TkMu8_v", # Run2
         ),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts
