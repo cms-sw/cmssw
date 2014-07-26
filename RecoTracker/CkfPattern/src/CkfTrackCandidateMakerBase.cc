@@ -329,7 +329,7 @@ namespace cms{
       unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
 					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
 			     unsmoothedResult.end());
-      
+      unsmoothedResult.shrink_to_fit();
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {
         for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
@@ -354,6 +354,7 @@ namespace cms{
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
+            trajectory.reserve(meas.size());
             Trajectory::DataContainer &meas = it->measurements();
             for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
               trajectory.push(std::move(*itmeas));
