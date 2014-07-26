@@ -354,8 +354,8 @@ namespace cms{
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
-            trajectory.reserve(meas.size());
             Trajectory::DataContainer &meas = it->measurements();
+            trajectory.reserve(meas.size());
             for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
               trajectory.push(std::move(*itmeas));
             }
