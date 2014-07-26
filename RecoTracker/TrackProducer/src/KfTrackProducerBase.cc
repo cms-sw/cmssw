@@ -38,6 +38,10 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
 
+  selTracks->reserve(algoResults.size());
+  selTrackExtras->reserve(algoResults.size());
+  selTrajectories->reserve(algoResults.size());
+
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     if(trajectoryInEvent_) {
@@ -181,12 +185,15 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
   
-  
+  selTracks->shrink_to_fit();
+  selTrackExtras->shrink_to_fit();
+  selHits->shrink_to_fit(); 
   rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
 
   if(trajectoryInEvent_) {
+    selTrajectories->shrink_to_fit();
     edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
 
     // Now Create traj<->tracks association map
