@@ -25,13 +25,15 @@
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/ShashlikGeometryRecord.h"
+#include "Geometry/Records/interface/ShashlikNumberingRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-
+#include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -156,6 +158,13 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   } else if(hitcollection_ == "EcalRecHitsEE") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     topology.reset(new EcalEndcapTopology(geoHandle));
+  } else if(hitcollection_ == "EcalRecHitsEK") {
+    edm::ESHandle<CaloSubdetectorGeometry> shgeo;
+    es.get<ShashlikGeometryRecord>().get(shgeo);
+    geometry_p = shgeo.product();
+    edm::ESHandle<ShashlikTopology> topo;
+    es.get<ShashlikNumberingRecord>().get(topo);
+    topology.reset(topo.product()); 
   } else if(hitcollection_ == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
     topology.reset(new EcalPreshowerTopology (geoHandle));

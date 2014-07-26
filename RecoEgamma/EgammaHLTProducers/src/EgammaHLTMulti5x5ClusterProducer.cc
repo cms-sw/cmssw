@@ -21,11 +21,14 @@
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/ShashlikGeometryRecord.h"
+#include "Geometry/Records/interface/ShashlikNumberingRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -288,16 +291,20 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
 
-  if (detector == reco::CaloID::DET_ECAL_BARREL) 
-    {
-      geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-      topology_p = new EcalBarrelTopology(geoHandle);
-    }
-  else
-    {
-      geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-      topology_p = new EcalEndcapTopology(geoHandle); 
-   }
+  if (detector == reco::CaloID::DET_ECAL_BARREL) {
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    topology_p = new EcalBarrelTopology(geoHandle);
+  } else if (endcapHitCollection_ == "EcalRecHitsEK") {
+    edm::ESHandle<CaloSubdetectorGeometry> shgeo;
+    es.get<ShashlikGeometryRecord>().get(shgeo);
+    geometry_p = shgeo.product();
+    edm::ESHandle<ShashlikTopology> topo;
+    es.get<ShashlikNumberingRecord>().get(topo);
+    topology_p = (CaloSubdetectorTopology *)(topo.product());
+  } else {
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    topology_p = new EcalEndcapTopology(geoHandle); 
+  }
 
 
   const CaloSubdetectorGeometry *geometryES_p;

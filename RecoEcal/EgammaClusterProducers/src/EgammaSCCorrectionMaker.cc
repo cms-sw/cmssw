@@ -9,12 +9,15 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/ShashlikGeometryRecord.h"
+#include "Geometry/Records/interface/ShashlikNumberingRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
@@ -138,7 +141,11 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   } else if(rHInputCollection == "EcalRecHitsEE") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  } else if(rHInputCollection == "EcalRecHitsPS") {
+  } else if(rHInputCollection == "EcalRecHitsEK") {
+    edm::ESHandle<CaloSubdetectorGeometry> shgeo;
+    es.get<ShashlikGeometryRecord>().get(shgeo);
+    geometry_p = shgeo.product();
+   } else if(rHInputCollection == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   } else {
           std::string str = "\n\nSCCorrectionMaker encountered invalied ecalhitcollection type: " + rHInputCollection + ".\n\n";
