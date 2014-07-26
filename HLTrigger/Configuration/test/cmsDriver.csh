@@ -88,13 +88,21 @@ foreach gtag ( STARTUP DATA )
     continue
   endif
 
-  foreach table ( GRun PIon 2013 HIon )
+  foreach table ( GRun PIon 2013 HIon FULL )
 
     set name = ${table}_${gtag}  
 
     if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
+      set GTAG = ${GTAGPP}_GRun
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun
+      set InputLHCRaw = $InputLHCRawGRun
+    else if ( $table == FULL ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:FULL
       set GTAG = ${GTAGPP}_GRun
       set NN   = $NNPP
       set SCEN = pp
@@ -172,6 +180,9 @@ foreach gtag ( STARTUP DATA )
     if ( $gtag == DATA ) then
 
     set RTAG = auto:com10_$table
+    if ( $table == FULL ) then
+      set RTAG = auto:com10_GRun
+    endif
 
     echo
     echo "Creating HLT+RECO $name"
