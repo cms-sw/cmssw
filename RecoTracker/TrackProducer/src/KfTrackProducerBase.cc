@@ -40,7 +40,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 
   selTracks->reserve(algoResults.size());
   selTrackExtras->reserve(algoResults.size());
-  selTrajectories->reserve(algoResults.size());
+  if(trajectoryInEvent_) selTrajectories->reserve(algoResults.size());
 
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
