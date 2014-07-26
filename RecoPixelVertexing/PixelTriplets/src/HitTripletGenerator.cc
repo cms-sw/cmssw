@@ -11,6 +11,7 @@ const OrderedHitTriplets & HitTripletGenerator::run(
   OrderedHitTriplets tmp; tmp.reserve(localRA.upper()); tmp.swap(theTriplets);
   hitTriplets(region, theTriplets, ev, es);
   localRA.update(theTriplets.size());
+  theTriplets.shrink_to_fit();
   return theTriplets;
 }
 

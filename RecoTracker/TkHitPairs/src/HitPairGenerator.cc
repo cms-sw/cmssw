@@ -11,5 +11,6 @@ const OrderedHitPairs & HitPairGenerator::run(
   //thePairs.clear();
   OrderedHitPairs tmp; tmp.reserve(localRA.upper()); tmp.swap(thePairs);
   hitPairs(region, thePairs, ev, es);
+  thePairs.shrink_to_fit();
   return thePairs;
 }
