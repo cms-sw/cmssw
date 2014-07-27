@@ -162,6 +162,7 @@ addMETCollection(process, labelName='patMETPF', metSource='pfType1CorrectedMet')
 ############################ Run extra jet reconstruction ######################################
 ################################################################################################
 from RecoJets.Configuration.RecoPFJets_cff import *
+process.ca15PFJetsCHS = ca8PFJetsCHS.clone(rParam=1.5,src='pfNoPileUpJME',doAreaFastjet=False)
 process.hepTopTagPFJetsCHS = hepTopTagPFJetsCHS.clone(src='pfNoPileUpJME')
 
 from RecoJets.JetProducers.caTopTaggers_cff import CATopTagInfos, HEPTopTagInfos
@@ -184,7 +185,8 @@ addJetCollection(
    process,
    labelName = 'AK5PFCHS',
    jetSource = cms.InputTag('ak5PFJetsCHS'),
-   algo='ak5',
+   algo='ak',
+   rParam=0.5,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -204,7 +206,8 @@ addJetCollection(
    process,
    labelName = 'CA8PFCHS',
    jetSource = cms.InputTag('ca8PFJetsCHS'),
-   algo='ca8',
+   algo='ca',
+   rParam=0.8,
    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
    )
 
@@ -212,7 +215,7 @@ addJetCollection(
    process,
    labelName = 'CA8CMSTopTag',
    jetSource = cms.InputTag('cmsTopTagPFJetsCHS',''),
-   algo='ca8',
+   getJetMCFlavour=False,
    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     btagInfos = [
         'CATopTagInfos'
@@ -223,7 +226,8 @@ addJetCollection(
    process,
    labelName = 'CA8CMSTopTagSubjets',
    jetSource = cms.InputTag('cmsTopTagPFJetsCHS','caTopSubJets'),
-   algo='ca8',
+   algo='ca',
+   rParam=0.8,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -243,7 +247,7 @@ addJetCollection(
    process,
    labelName = 'CA8Pruned',
    jetSource = cms.InputTag('ca8PFJetsCHSPruned',''),
-   algo='ca8',
+   getJetMCFlavour=False,
    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
    )
 
@@ -251,7 +255,8 @@ addJetCollection(
    process,
    labelName = 'CA8PrunedSubjets',
    jetSource = cms.InputTag('ca8PFJetsCHSPruned','SubJets'),
-   algo='ca8',
+   algo='ca',
+   rParam=0.8,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -272,7 +277,7 @@ addJetCollection(
    process,
    labelName = 'CA15HEPTopTag',
    jetSource = cms.InputTag('hepTopTagPFJetsCHS',''),
-   algo='ca8',
+   getJetMCFlavour=False,
    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
    )
 
@@ -280,7 +285,8 @@ addJetCollection(
    process,
    labelName = 'CA15HEPTopTagSubjets',
    jetSource = cms.InputTag('hepTopTagPFJetsCHS','caTopSubJets'),
-   algo='ca8',
+   algo='ca',
+   rParam=1.5,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -300,7 +306,8 @@ addJetCollection(
    process,
    labelName = 'EI',
    jetSource = cms.InputTag('pfJetsEI'),
-   algo='ak5',
+   algo='ak',
+   rParam=0.5,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -319,6 +326,8 @@ addJetCollection(
 switchJetCollection(
     process,
     jetSource = cms.InputTag('ak5PFJets'),
+    algo='ak',
+    rParam=0.5,
     jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
     btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -333,6 +342,30 @@ switchJetCollection(
         'secondaryVertexTagInfos'
          ]
    )
+
+
+# Subjet flavor still requires some manual tweaking until it is better integrated into PAT
+# Adjust the flavor of subjets of pruned CA8 jets
+process.patJetFlavourAssociationCA8PrunedSubjets = process.patJetFlavourAssociationCA8PrunedSubjets.clone(
+    jets = cms.InputTag('ca8PFJetsCHS'),
+    groomedJets = cms.InputTag('ca8PFJetsCHSPruned'),
+    subjets = cms.InputTag('ca8PFJetsCHSPruned','SubJets')
+)
+process.patJetsCA8PrunedSubjets.JetFlavourInfoSource = cms.InputTag('patJetFlavourAssociationCA8PrunedSubjets','SubJets')
+# Adjust the flavor of subjets of CMSTopTag jets
+process.patJetFlavourAssociationCA8CMSTopTagSubjets = process.patJetFlavourAssociationCA8CMSTopTagSubjets.clone(
+    jets = cms.InputTag('ca8PFJetsCHS'),
+    groomedJets = cms.InputTag('cmsTopTagPFJetsCHS'),
+    subjets = cms.InputTag('cmsTopTagPFJetsCHS','caTopSubJets')
+)
+process.patJetsCA8CMSTopTagSubjets.JetFlavourInfoSource = cms.InputTag('patJetFlavourAssociationCA8CMSTopTagSubjets','SubJets')
+# Adjust the flavor of subjets of HEPTopTag jets
+process.patJetFlavourAssociationCA15HEPTopTagSubjets = process.patJetFlavourAssociationCA15HEPTopTagSubjets.clone(
+    jets = cms.InputTag('ca15PFJetsCHS'),
+    groomedJets = cms.InputTag('hepTopTagPFJetsCHS'),
+    subjets = cms.InputTag('hepTopTagPFJetsCHS','caTopSubJets')
+)
+process.patJetsCA15HEPTopTagSubjets.JetFlavourInfoSource = cms.InputTag('patJetFlavourAssociationCA15HEPTopTagSubjets','SubJets')
 
 
 # Add some user functions for the secondary vertex mass. 
