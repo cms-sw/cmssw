@@ -107,7 +107,7 @@ void L1CaloTausToTkTausTranslator::produce(edm::Event& iEvent, const edm::EventS
     
   }
   
-  //sort( result->begin(), result->end(), L1TkTau::EtComparator() );
+  sort( result->begin(), result->end(), L1TkTau::EtComparator() );
 
   iEvent.put( result );
 

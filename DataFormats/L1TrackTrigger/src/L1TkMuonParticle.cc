@@ -72,6 +72,3 @@ int L1TkMuonParticle::bx() const {
 
  return dummy;
 }
-
-
-

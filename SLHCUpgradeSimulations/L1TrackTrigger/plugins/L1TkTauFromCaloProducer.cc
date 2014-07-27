@@ -422,7 +422,7 @@ void L1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     
   } /// For-loop: m_L1TkClusterToL1TkTracks elements
   
-  //sort( result->begin(), result->end(), L1TkTau::EtComparator() );
+  sort( result->begin(), result->end(), L1TkTau::EtComparator() );
 
   iEvent.put( result );
 

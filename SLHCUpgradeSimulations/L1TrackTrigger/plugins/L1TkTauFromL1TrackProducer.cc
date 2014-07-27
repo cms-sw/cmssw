@@ -305,7 +305,7 @@ L1TkTauFromL1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
-   //sort( result->begin(), result->end(), L1TkTau::PtComparator() );
+   sort( result->begin(), result->end(), L1TkTau::PtComparator() );
            
  iEvent.put( result );
 

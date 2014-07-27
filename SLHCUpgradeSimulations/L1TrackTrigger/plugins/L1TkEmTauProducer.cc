@@ -342,7 +342,7 @@ L1TkEmTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }
   
-  //sort( result ->begin(), result ->end(), L1TkTau::EtComparator() );
+  sort( result ->begin(), result ->end(), L1TkTau::EtComparator() );
 
   iEvent.put( result );
 
