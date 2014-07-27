@@ -66,6 +66,7 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
 
    //set Token(-s)
    srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf_.getParameter<edm::InputTag>("src"));
+   firstRun = true;
 }
 
 
@@ -83,9 +84,6 @@ SiPixelClusterSource::~SiPixelClusterSource()
 }
 
 
-void SiPixelClusterSource::beginJob(){
-  firstRun = true;
-}
 
 void SiPixelClusterSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelClusterSource::beginJob - Initialisation ... " << std::endl;
