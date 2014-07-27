@@ -109,6 +109,7 @@
     run(*input, geom, *output );
 
     // Step D: write output to file
+    output->shrink_to_fit();
     e.put( output );
 
   }

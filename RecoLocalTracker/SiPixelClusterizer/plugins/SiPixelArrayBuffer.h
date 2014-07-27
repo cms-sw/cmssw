@@ -46,43 +46,21 @@ class SiPixelArrayBuffer
   int index( const SiPixelCluster::PixelPos& pix) const { return index(pix.row(), pix.col()); }
 
  private:
+  std::vector<int> pixel_vec;   // TO DO: any benefit in using shorts instead?
   int nrows;
   int ncols;
-  std::vector<int> pixel_vec;   // TO DO: any benefit in using shorts instead?
 };
 
 
 
 SiPixelArrayBuffer::SiPixelArrayBuffer( int rows, int cols) 
-  :  nrows(rows), ncols(cols) 
-{
-  pixel_vec.resize(rows*cols);
-
-  // TO DO: check this now:
-  // Some STL implementations have problems with default values 
-  // so a initialization loop is used instead
-  std::vector<int>::iterator i=pixel_vec.begin(), iend=pixel_vec.end();
-  for ( ; i!=iend; ++i) {
-    *i = 0;
-  }
-}
+  : pixel_vec(rows*cols,0),  nrows(rows), ncols(cols) {}
 
 
-void SiPixelArrayBuffer::setSize( int rows, int cols) 
-{
+void SiPixelArrayBuffer::setSize( int rows, int cols) {
+  pixel_vec.resize(rows*cols,0);
   nrows = rows;
   ncols = cols;
-  pixel_vec.resize(rows*cols);
-  //std::cout << " Resize the clusterize pixel buffer " << (rows*cols) 
-  //    << std::endl;
-
-  // TO DO: check this now:
-  // Some STL implementations have problems with default values 
-  // so a initialization loop is used instead
-  std::vector<int>::iterator i=pixel_vec.begin(), iend=pixel_vec.end();
-  for ( ; i!=iend; ++i) {
-    *i = 0;
-  }
 }
 
 
