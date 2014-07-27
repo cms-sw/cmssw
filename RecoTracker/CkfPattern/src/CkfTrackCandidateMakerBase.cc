@@ -299,7 +299,7 @@ namespace cms{
       // end of loop over seeds
 
 
-#ifdef VI_TBB
+#ifndef VI_NOTBB
      tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
 #else
 #ifdef VI_OMP
