@@ -749,6 +749,9 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
     meNDigisCHANBarrelL4_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL4","Number of Digis L4",100,0.,1000.);
     meNDigisCHANBarrelL4_->setAxisTitle("Number of digis per FED channel per event",1);
   }
+  else{
+    meNDigisCHANBarrelL4_=0;
+  }
   meNDigisCHANBarrelCh1_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelCh1","Number of Digis Ch1",100,0.,1000.);
   meNDigisCHANBarrelCh1_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANBarrelCh2_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelCh2","Number of Digis Ch2",100,0.,1000.);
