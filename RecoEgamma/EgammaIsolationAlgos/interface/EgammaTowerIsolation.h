@@ -240,9 +240,6 @@ public:
 
   
 private:
-  thread_local static EgammaTowerIsolationNew<1> * newAlgo;
-  thread_local static const CaloTowerCollection* oldTowers;
-  thread_local static uint32_t id15;
   signed int depth_;
   float extRadius;
   float intRadius;
