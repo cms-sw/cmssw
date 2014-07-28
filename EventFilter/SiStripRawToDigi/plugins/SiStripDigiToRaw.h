@@ -25,7 +25,7 @@ namespace sistrip {
      @brief Input: edm::DetSetVector<SiStripDigi>. 
      Output: FEDRawDataCollection.
   */
-  class DigiToRaw {
+  class dso_hidden DigiToRaw {
     
   public: // ----- public interface -----
     
