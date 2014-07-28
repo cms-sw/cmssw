@@ -1,11 +1,7 @@
 #ifndef SimG4Core_CurrentG4Track_H
 #define SimG4Core_CurrentG4Track_H
 
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-
 #include "G4Track.hh"
-
-class TrackingAction;
 
 /** This class is NOT intended for general use.
  *  It provides immediate access to the currently tracked G4Track
@@ -18,16 +14,10 @@ class TrackingAction;
 class CurrentG4Track 
 {
 public:
-    static int id() { check(); return m_track->GetTrackID(); }
-    static const G4Track * track() { check(); return m_track; }
+    static const G4Track * track();
+    static void setTrack(const G4Track *);
 private:
     static thread_local const G4Track * m_track;
-    static thread_local bool m_tracking;
-    static void setTrack(const G4Track *);
-    static void postTracking(const G4Track *);
-    static void check()	
-    { if (m_track == 0) throw SimG4Exception("CurrentG4Track requested but not set"); }
-    friend class TrackingAction;
 };
 
 #endif
