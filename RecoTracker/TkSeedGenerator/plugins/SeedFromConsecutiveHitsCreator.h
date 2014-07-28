@@ -18,7 +18,7 @@
 
 class FreeTrajectoryState;
 
-class SeedFromConsecutiveHitsCreator : public SeedCreator {
+class dso_hidden SeedFromConsecutiveHitsCreator : public SeedCreator {
 public:
 
   SeedFromConsecutiveHitsCreator( const edm::ParameterSet & cfg)

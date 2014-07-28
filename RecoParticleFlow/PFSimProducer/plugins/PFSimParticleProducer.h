@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
