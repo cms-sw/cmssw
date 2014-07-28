@@ -344,7 +344,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     meFedChNErr_[id]->setAxisTitle("FED channel",1);
     //
     hid = theHistogramId->setHistoId("FedChLErr",id);
-    meFedChLErr_[id] = iBooker.book1D(hid,"",37,0,37);
+    meFedChLErr_[id] = iBooker.book1D(hid,"Last error per FED channel",37,0,37);
     meFedChLErr_[id]->setAxisTitle("FED channel",1);
     //
     hid = theHistogramId->setHistoId("FedETypeNErr", id);
