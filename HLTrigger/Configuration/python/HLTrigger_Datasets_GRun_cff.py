@@ -14,7 +14,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_BTagCSV07
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v1', 
     'HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1', 
     'HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_v1', 
-    'HLT_DoubleMu4NoFilters_Jpsi_Displaced_v1', 
+    'HLT_DoubleMu4_Jpsi_Displaced_v1', 
     'HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v1', 
     'HLT_Ele17_Ele8_Gsf_v1', 
     'HLT_Ele22_eta2p1_WP90Rho_Gsf_LooseIsoPFTau20_v1', 

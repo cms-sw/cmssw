@@ -9,14 +9,15 @@ HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v
 HLT_PFMET180_NoiseCleaned_v*				# JIRA: CMSHLT-62
 HLT_PFchMET90_NoiseCleaned_v*				# JIRA: CMSHLT-62
 
-HLT_Mu40_v*						# JIRA: CMSHLT-64
-HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-64
-HLT_Mu17_TkMu8_v*					# JIRA: CMSHLT-64
-HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64
-HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64
-HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64
-HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64
-HLT_DoubleMu4NoFilters_Jpsi_Displaced_v*		# JIRA: CMSHLT-64
+HLT_Mu40_v*						# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_TkMu8_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86
+#HLT_DoubleMu4NoFilters_Jpsi_Displaced_v*		# JIRA: CMSHLT-64, replaced in CMSHLT-86
+HLT_DoubleMu4_Jpsi_Displaced_v*				# JIRA: CMSHLT-86
 
 HLT_IsoTkMu24_IterTrk02_v*				# JIRA: CMSHLT-72
 
