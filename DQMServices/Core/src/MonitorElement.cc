@@ -939,7 +939,7 @@ MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 *
   {
     //  edm::LogWarning ("MonitorElement")
     std::cout << "*** MonitorElement: WARNING:"
-              <<"setBinLabel: attempting to set label of non-existent bin number \n";
+              <<"setBinLabel: attempting to set label of non-existent bin number for ME: "<< getFullname() << " \n";
   }
 }
 
