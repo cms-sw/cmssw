@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/PIon/V63 (CMSSW_7_1_3)
+# /dev/CMSSW_7_1_1/PIon/V65 (CMSSW_7_1_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V63')
+  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V65')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1688,7 +1688,7 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         doT0Correction = cms.bool( True ),
         debug = cms.untracked.bool( False )
       ),
-      useUncertDB = cms.bool( False )
+      useUncertDB = cms.bool( True )
     ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" )
@@ -1717,7 +1717,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           doWirePropCorrection = cms.bool( True ),
           doT0Correction = cms.bool( True ),
           debug = cms.untracked.bool( False )
-        )
+        ),
+        useUncertDB = cms.bool( True )
       ),
       nSharedHitsMax = cms.int32( 2 ),
       hit_afterT0_resolution = cms.double( 0.03 ),
@@ -1739,7 +1740,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
             doWirePropCorrection = cms.bool( True ),
             doT0Correction = cms.bool( True ),
             debug = cms.untracked.bool( False )
-          )
+          ),
+          useUncertDB = cms.bool( True )
         ),
         nSharedHitsMax = cms.int32( 2 ),
         AlphaMaxPhi = cms.double( 1.0 ),
@@ -2441,8 +2443,8 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIState" ),
       tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      tkTrajMaxChi2 = cms.double( 20.0 ),
-      tkTrajMaxDXYBeamSpot = cms.double( 0.1 ),
+      tkTrajMaxChi2 = cms.double( 9999.0 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 0.2 ),
       tkTrajVertex = cms.InputTag( "pixelVertices" ),
       tkTrajUseVertex = cms.bool( False )
     ),
@@ -2703,8 +2705,8 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIHit" ),
       tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      tkTrajMaxChi2 = cms.double( 20.0 ),
-      tkTrajMaxDXYBeamSpot = cms.double( 0.1 ),
+      tkTrajMaxChi2 = cms.double( 9999.0 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 0.2 ),
       tkTrajVertex = cms.InputTag( "pixelVertices" ),
       tkTrajUseVertex = cms.bool( False )
     ),
@@ -3072,8 +3074,8 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2IOHit" ),
       tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      tkTrajMaxChi2 = cms.double( 20.0 ),
-      tkTrajMaxDXYBeamSpot = cms.double( 0.1 ),
+      tkTrajMaxChi2 = cms.double( 9999.0 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 0.2 ),
       tkTrajVertex = cms.InputTag( "pixelVertices" ),
       tkTrajUseVertex = cms.bool( False )
     ),
