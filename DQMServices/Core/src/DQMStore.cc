@@ -744,7 +744,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
   {
     if (collateHistograms_)
     {
-      collate(me, h);
+      collate(me, h, verbose_);
       delete h;
       return me;
     }
@@ -755,7 +755,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
                   << context << ": monitor element '"
                   << path << "' already exists, collating" << std::endl;
       me->Reset();
-      collate(me, h);
+      collate(me, h, verbose_);
       delete h;
       return me;
     }
@@ -1479,7 +1479,7 @@ DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 bool
-DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
+DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h, unsigned verbose)
 {
   if (me->getTH1()->GetNbinsX() != h->GetNbinsX()
       || me->getTH1()->GetNbinsY() != h->GetNbinsY()
@@ -1494,7 +1494,7 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
       || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetYaxis(),(TAxis*)h->GetYaxis())
       || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetZaxis(),(TAxis*)h->GetZaxis()) )
   {
-    if (verbose_ > 1)
+    if(verbose > 0)
       std::cout << "*** DQMStore: WARNING:"
 		<< "checkBinningMatches: different binning - cannot add object '"
 		<< h->GetName() << "' of type "
@@ -1506,58 +1506,58 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
 }
 
 void
-DQMStore::collate1D(MonitorElement *me, TH1F *h)
+DQMStore::collate1D(MonitorElement *me, TH1F *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH1F()->Add(h);
 }
 
 void
-DQMStore::collate1S(MonitorElement *me, TH1S *h)
+DQMStore::collate1S(MonitorElement *me, TH1S *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH1S()->Add(h);
 }
 
 void
-DQMStore::collate1DD(MonitorElement *me, TH1D *h)
+DQMStore::collate1DD(MonitorElement *me, TH1D *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH1D()->Add(h);
 }
 
 void
-DQMStore::collate2D(MonitorElement *me, TH2F *h)
+DQMStore::collate2D(MonitorElement *me, TH2F *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH2F()->Add(h);
 }
 
 void
-DQMStore::collate2S(MonitorElement *me, TH2S *h)
+DQMStore::collate2S(MonitorElement *me, TH2S *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH2S()->Add(h);
 }
 
 void
-DQMStore::collate2DD(MonitorElement *me, TH2D *h)
+DQMStore::collate2DD(MonitorElement *me, TH2D *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH2D()->Add(h);
 }
 
 void
-DQMStore::collate3D(MonitorElement *me, TH3F *h)
+DQMStore::collate3D(MonitorElement *me, TH3F *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH3F()->Add(h);
 }
 
 void
-DQMStore::collateProfile(MonitorElement *me, TProfile *h)
+DQMStore::collateProfile(MonitorElement *me, TProfile *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
   {
     TProfile *meh = me->getTProfile();
     me->addProfiles(h, meh, meh, 1, 1);
@@ -1565,9 +1565,9 @@ DQMStore::collateProfile(MonitorElement *me, TProfile *h)
 }
 
 void
-DQMStore::collateProfile2D(MonitorElement *me, TProfile2D *h)
+DQMStore::collateProfile2D(MonitorElement *me, TProfile2D *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
   {
     TProfile2D *meh = me->getTProfile2D();
     me->addProfiles(h, meh, meh, 1, 1);
@@ -2039,7 +2039,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collateProfile(me, h);
+      collateProfile(me, h, verbose_);
     refcheck = me;
   }
   else if (TProfile2D *h = dynamic_cast<TProfile2D *>(obj))
@@ -2050,7 +2050,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collateProfile2D(me, h);
+      collateProfile2D(me, h, verbose_);
     refcheck = me;
   }
   else if (TH1F *h = dynamic_cast<TH1F *>(obj))
@@ -2061,7 +2061,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate1D(me, h);
+      collate1D(me, h, verbose_);
     refcheck = me;
   }
   else if (TH1S *h = dynamic_cast<TH1S *>(obj))
@@ -2072,7 +2072,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate1S(me, h);
+      collate1S(me, h, verbose_);
     refcheck = me;
   }
   else if (TH1D *h = dynamic_cast<TH1D *>(obj))
@@ -2083,7 +2083,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate1DD(me, h);
+      collate1DD(me, h, verbose_);
     refcheck = me;
   }
   else if (TH2F *h = dynamic_cast<TH2F *>(obj))
@@ -2094,7 +2094,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate2D(me, h);
+      collate2D(me, h, verbose_);
     refcheck = me;
   }
   else if (TH2S *h = dynamic_cast<TH2S *>(obj))
@@ -2105,7 +2105,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate2S(me, h);
+      collate2S(me, h, verbose_);
     refcheck = me;
   }
   else if (TH2D *h = dynamic_cast<TH2D *>(obj))
@@ -2116,7 +2116,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate2DD(me, h);
+      collate2DD(me, h, verbose_);
     refcheck = me;
   }
   else if (TH3F *h = dynamic_cast<TH3F *>(obj))
@@ -2127,7 +2127,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate3D(me, h);
+      collate3D(me, h, verbose_);
     refcheck = me;
   }
   else if (dynamic_cast<TObjString *>(obj))
