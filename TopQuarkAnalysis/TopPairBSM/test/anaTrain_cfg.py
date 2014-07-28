@@ -180,13 +180,13 @@ process.caTopTagInfos = caTopTagInfos.clone()
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
-## uncomment the following lines to add ak5PFJetsCHS to your PAT output
+## uncomment the following lines to add ak4PFJetsCHS to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK5PFCHS',
-   jetSource = cms.InputTag('ak5PFJetsCHS'),
+   labelName = 'AK4PFCHS',
+   jetSource = cms.InputTag('ak4PFJetsCHS'),
    algo='ak',
-   rParam=0.5,
+   rParam=0.4,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -307,7 +307,7 @@ addJetCollection(
    labelName = 'EI',
    jetSource = cms.InputTag('pfJetsEI'),
    algo='ak',
-   rParam=0.5,
+   rParam=0.4,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -325,9 +325,9 @@ addJetCollection(
 
 switchJetCollection(
     process,
-    jetSource = cms.InputTag('ak5PFJets'),
+    jetSource = cms.InputTag('ak4PFJets'),
     algo='ak',
-    rParam=0.5,
+    rParam=0.4,
     jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
     btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -370,7 +370,7 @@ process.patJetsCA15HEPTopTagSubjets.JetFlavourInfoSource = cms.InputTag('patJetF
 
 # Add some user functions for the secondary vertex mass. 
 for mod in [process.patJets,
-            process.patJetsAK5PFCHS,
+            process.patJetsAK4PFCHS,
             process.patJetsEI,
             process.patJetsCA8PFCHS,
             process.patJetsCA8CMSTopTagSubjets,
@@ -399,7 +399,7 @@ process.patJetsCA15HEPTopTag.tagInfoSources = cms.VInputTag(
 # at the analysis level. 
 from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 for ilabel in ['PatJets',
-               'PatJetsAK5PFCHS',
+               'PatJetsAK4PFCHS',
                'PatJetsEI',
                'PatJetsCA8PFCHS',
                'PatJetsCA8CMSTopTag',
@@ -442,13 +442,13 @@ process.out.outputCommands += [
     'keep GenEventInfoProduct_generator_*_*',
     'keep PileupSummaryInfos_*_*_*',
     'keep *_goodOfflinePrimaryVertices*_*_*',    
-    'keep *_ak5GenJetsNoNu_*_*',
+    'keep *_ak4GenJetsNoNu_*_*',
     'keep *_ca8GenJetsNoNu_*_*',    
     'keep *_fixedGrid_*_*',
     'drop *_*_rho*_*',
     'drop *_*_sigma*_*',    
     'keep patJets_goodPatJets_*_*',
-    'keep patJets_goodPatJetsAK5PFCHS_*_*',
+    'keep patJets_goodPatJetsAK4PFCHS_*_*',
     'keep patJets_goodPatJetsCA15HEPTopTagPacked_*_*',
     'keep patJets_goodPatJetsCA8CMSTopTagPacked_*_*',
     'keep patJets_goodPatJetsCA8PFCHS_*_*',
