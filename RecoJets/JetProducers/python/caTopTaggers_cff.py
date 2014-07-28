@@ -34,9 +34,9 @@ jhuTopTagPFJetsCHS = cmsTopTagPFJetsCHS.clone(
 )
 
 
-CATopTagInfos = cms.EDProducer("CATopJetTagger",
+caTopTagInfos = cms.EDProducer("CATopJetTagger",
                                     src = cms.InputTag("cmsTopTagPFJetsCHS"),
-                                    TopMass = cms.double(171),
+                                    TopMass = cms.double(173),
                                     TopMassMin = cms.double(0.),
                                     TopMassMax = cms.double(250.),
                                     WMass = cms.double(80.4),
@@ -47,6 +47,6 @@ CATopTagInfos = cms.EDProducer("CATopJetTagger",
                                     verbose = cms.bool(False)
                                     )
 
-HEPTopTagInfos = CATopTagInfos.clone(
+hepTopTagInfos = caTopTagInfos.clone(
 	src = cms.InputTag("hepTopTagPFJetsCHS")
 )

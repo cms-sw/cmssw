@@ -165,9 +165,9 @@ from RecoJets.Configuration.RecoPFJets_cff import *
 process.ca15PFJetsCHS = ca8PFJetsCHS.clone(rParam=1.5,src='pfNoPileUpJME',doAreaFastjet=False)
 process.hepTopTagPFJetsCHS = hepTopTagPFJetsCHS.clone(src='pfNoPileUpJME')
 
-from RecoJets.JetProducers.caTopTaggers_cff import CATopTagInfos, HEPTopTagInfos
+from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos, hepTopTagInfos
 
-process.CATopTagInfos = CATopTagInfos.clone()
+process.caTopTagInfos = caTopTagInfos.clone()
 
 
 ################################################################################################
@@ -218,7 +218,7 @@ addJetCollection(
    getJetMCFlavour=False,
    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     btagInfos = [
-        'CATopTagInfos'
+        'caTopTagInfos'
          ]   
    )
 
@@ -384,12 +384,12 @@ for mod in [process.patJets,
 # Add the top-tagging info which piggy-backs on the b-tagging tag info
 process.patJetsCA8CMSTopTag.addTagInfos = True
 process.patJetsCA8CMSTopTag.tagInfoSources = cms.VInputTag(
-    cms.InputTag('CATopTagInfos')
+    cms.InputTag('caTopTagInfos')
     )
 
 process.patJetsCA15HEPTopTag.addTagInfos = True
 process.patJetsCA15HEPTopTag.tagInfoSources = cms.VInputTag(
-    cms.InputTag('HEPTopTagInfos')
+    cms.InputTag('hepTopTagInfos')
     )
 
 

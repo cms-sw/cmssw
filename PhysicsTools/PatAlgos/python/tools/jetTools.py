@@ -381,8 +381,8 @@ class AddJetCollection(ConfigToolBase):
                     process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
-            if 'CATopTagInfos' in acceptedTagInfos :
-                if not hasattr( process, 'CATopTagInfos' ):
+            if 'caTopTagInfos' in acceptedTagInfos :
+                if not hasattr( process, 'caTopTagInfos' ):
                     process.load( 'RecoJets.JetProducers.CATopTagInfos_cff' )
         else:
             _newPatJets.addBTagInfo = False

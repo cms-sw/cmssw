@@ -17,7 +17,7 @@ supportedBtagInfos = [
   , 'softPFElectronsTagInfos'
   , 'inclusiveSecondaryVertexFinderTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredTagInfos'
-  , 'CATopTagInfos'
+  , 'caTopTagInfos'
   ]
 
 ## dictionary with all available btag discriminators and the btagInfos that they require
