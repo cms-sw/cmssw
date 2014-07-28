@@ -47,9 +47,9 @@
 </SubStructureGrandEndcapLevel> 
 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 	 
-     <MonElement name="FedChNErrArray"></MonElement>
-     <MonElement name="FedChLErrArray"></MonElement>
-     <MonElement name="FedETypeNErrArray"></MonElement>
+     <MonElement name="FedChNErr"></MonElement>
+     <MonElement name="FedChLErr"></MonElement>
+     <MonElement name="FedETypeNErr"></MonElement>
 </SubStructureNonDetId>
 </SummaryPlot>
 
