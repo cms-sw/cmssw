@@ -10,7 +10,7 @@
  *  a penalty for "lost" hits.
  */
 
-class GroupedTrajCandLess : public std::binary_function< const Trajectory&,
+class dso_internal GroupedTrajCandLess : public std::binary_function< const Trajectory&,
 			    const Trajectory&, bool>
 {
 public:
