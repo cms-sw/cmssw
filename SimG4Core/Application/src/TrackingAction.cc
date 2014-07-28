@@ -21,7 +21,7 @@
 //using namespace std;
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
-  : eventAction_(e),currentTrack_(0),
+  : eventAction_(e),currentTrack_(0),g4Track_(0),
   detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)),
   checkTrack(p.getUntrackedParameter<bool>("CheckTrack",false)),
   trackMgrVerbose(p.getUntrackedParameter<int>("G4TrackManagerVerbosity",0)) 
@@ -33,7 +33,7 @@ TrackingAction::~TrackingAction() {}
 
 void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
 {
-  CurrentG4Track::setTrack(aTrack);
+  g4Track_ = aTrack;
 
   if (currentTrack_ != 0) {
     throw SimG4Exception("TrackingAction: currentTrack is a mess...");
@@ -77,7 +77,6 @@ void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
 
 void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
 {
-  CurrentG4Track::postTracking(aTrack);
   if (eventAction_->trackContainer() != 0) {
 
     TrackInformationExtractor extractor;

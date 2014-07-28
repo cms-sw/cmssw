@@ -1,7 +1,7 @@
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
-static const int nprocesses = 47;
-static const std::string g4processes[nprocesses] = { 
+static const int nprocesses = 48;
+static const std::string g4processes[nprocesses] = { "Primary", 
   "Transportation",  "CoupleTrans",  "CoulombScat",  "Ionisation",  "Brems",
   "PairProdCharged",  "Annih",  "AnnihToMuMu",  "AnnihToHad",  "NuclearStopp",
   "Msc",  "Rayleigh",  "PhotoElectric",  "Compton",  "Conv",
@@ -13,6 +13,7 @@ static const std::string g4processes[nprocesses] = {
   "DecayPiWSpin",  "DecayRadio",  "DecayUnKnown",  "DecayExt",  "StepLimiter",
   "UsrSpecCuts", "NeutronKiller"}; 
 static const int g4subtype[nprocesses] = { 
+  0,   // Primary generator
   91,  // Transportation
   92,  // CoupleTrans
   1,   // CoulombScat
