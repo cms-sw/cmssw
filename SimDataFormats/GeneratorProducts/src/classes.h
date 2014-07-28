@@ -13,6 +13,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -24,7 +25,7 @@ namespace SimDataFormats_GeneratorProducts {
 
 		HepMC::GenVertex dummy11;
 		HepMC::GenParticle dummy22;
-        HepMC::GenCrossSection dummy33;
+	  HepMC::GenCrossSection dummy33;
 		//Some member functions will not compile when using HepMCConfig as the parameter
 		//HepPDT::DecayDataT<HepMCConfig> dd1;
 		// lack of a public destructor plus other problems keeps us from generating this dictionary
@@ -55,6 +56,7 @@ namespace SimDataFormats_GeneratorProducts {
 		// GenInfoProduct
 
 		edm::Wrapper<GenRunInfoProduct> wgenruninfo;
+		edm::Wrapper<GenLumiInfoProduct> wgenlumiinfo;
 		edm::Wrapper<GenFilterInfo> wgenfilterinfo;
 		edm::Wrapper<GenEventInfoProduct> wgeneventinfo;
 

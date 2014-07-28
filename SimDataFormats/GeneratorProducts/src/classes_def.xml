@@ -104,6 +104,21 @@
  </class>
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
+	<!-- GenLumiInfoProduct -->
+
+	<class name="GenLumiInfoProduct" ClassVersion="10">
+	  <version ClassVersion="10" checksum="3487254851"/>
+	</class>
+	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1937303025"/> 
+	</class>
+	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1482608724"/>
+	</class>
+	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
+	  <version ClassVersion="10" checksum="16720135"/> 
+	</class>
+	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 
 	<!-- GenEventInfoProduct -->
 
