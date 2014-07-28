@@ -1494,12 +1494,12 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
       || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetYaxis(),(TAxis*)h->GetYaxis())
       || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetZaxis(),(TAxis*)h->GetZaxis()) )
   {
-    //  edm::LogWarning ("DQMStore")
-    std::cout << "*** DQMStore: WARNING:"
-              << "checkBinningMatches: different binning - cannot add object '"
-              << h->GetName() << "' of type "
-              << h->IsA()->GetName() << " to existing ME: '"
-              << me->getFullname() << "'\n";
+    if (verbose_ > 1)
+      std::cout << "*** DQMStore: WARNING:"
+		<< "checkBinningMatches: different binning - cannot add object '"
+		<< h->GetName() << "' of type "
+		<< h->IsA()->GetName() << " to existing ME: '"
+		<< me->getFullname() << "'\n";
     return false;
   }
   return true;
