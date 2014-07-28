@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/PIon/V65 (CMSSW_7_1_3)
+# /dev/CMSSW_7_1_1/PIon/V71 (CMSSW_7_1_3_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V65')
+  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V71')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1540,6 +1540,18 @@ trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
   tec_petalStartBit = cms.uint32( 8 ),
   tob_moduleStartBit = cms.uint32( 2 ),
   pxf_moduleMask = cms.uint32( 63 )
+)
+
+EvFDaqDirector = cms.Service( "EvFDaqDirector",
+  buBaseDir = cms.untracked.string( "." ),
+  runNumber = cms.untracked.uint32( 0 ),
+  baseDir = cms.untracked.string( "." )
+)
+FastMonitoringService = cms.Service( "FastMonitoringService",
+  slowName = cms.untracked.string( "slowmoni" ),
+  sleepTime = cms.untracked.int32( 1 ),
+  fastMonIntervals = cms.untracked.uint32( 2 ),
+  fastName = cms.untracked.string( "fastmoni" )
 )
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
@@ -4768,43 +4780,63 @@ hltPreCaloJet260 = cms.EDFilter( "HLTPrescaler",
 )
 hltAntiKT4CaloJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
+    useMassDropTagger = cms.bool( False ),
     doAreaFastjet = cms.bool( False ),
-    voronoiRfact = cms.double( 0.9 ),
+    muMin = cms.double( -1.0 ),
+    Ghost_EtaMax = cms.double( 6.0 ),
     maxBadHcalCells = cms.uint32( 9999999 ),
     doAreaDiskApprox = cms.bool( True ),
+    subtractorName = cms.string( "" ),
     maxRecoveredEcalCells = cms.uint32( 9999999 ),
     jetType = cms.string( "CaloJet" ),
+    muCut = cms.double( -1.0 ),
+    subjetPtMin = cms.double( -1.0 ),
+    useTrimming = cms.bool( False ),
     minSeed = cms.uint32( 14327 ),
-    Ghost_EtaMax = cms.double( 6.0 ),
+    voronoiRfact = cms.double( 0.9 ),
     doRhoFastjet = cms.bool( False ),
     jetAlgorithm = cms.string( "AntiKt" ),
+    muMax = cms.double( -1.0 ),
     nSigmaPU = cms.double( 1.0 ),
     GhostArea = cms.double( 0.01 ),
     Rho_EtaMax = cms.double( 4.4 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
     maxBadEcalCells = cms.uint32( 9999999 ),
+    yMin = cms.double( -1.0 ),
+    useFiltering = cms.bool( False ),
     useDeterministicSeed = cms.bool( True ),
     doPVCorrection = cms.bool( False ),
-    maxRecoveredHcalCells = cms.uint32( 9999999 ),
-    rParam = cms.double( 0.4 ),
-    maxProblematicHcalCells = cms.uint32( 9999999 ),
-    doOutputJets = cms.bool( True ),
-    src = cms.InputTag( "hltTowerMakerForAll" ),
-    inputEtMin = cms.double( 0.3 ),
-    puPtMin = cms.double( 10.0 ),
-    srcPVs = cms.InputTag( "NotUsed" ),
-    jetPtMin = cms.double( 1.0 ),
-    radiusPU = cms.double( 0.4 ),
-    maxProblematicEcalCells = cms.uint32( 9999999 ),
-    doPUOffsetCorr = cms.bool( False ),
-    inputEMin = cms.double( 0.0 ),
-    subtractorName = cms.string( "" ),
+    rFilt = cms.double( -1.0 ),
+    yMax = cms.double( -1.0 ),
+    zcut = cms.double( -1.0 ),
     MinVtxNdof = cms.int32( 5 ),
     MaxVtxZ = cms.double( 15.0 ),
+    rParam = cms.double( 0.4 ),
     UseOnlyVertexTracks = cms.bool( False ),
-    UseOnlyOnePV = cms.bool( False ),
+    dRMin = cms.double( -1.0 ),
+    nFilt = cms.int32( -1 ),
+    usePruning = cms.bool( False ),
+    maxDepth = cms.int32( -1 ),
+    yCut = cms.double( -1.0 ),
     DzTrVtxMax = cms.double( 0.0 ),
+    UseOnlyOnePV = cms.bool( False ),
+    maxProblematicHcalCells = cms.uint32( 9999999 ),
+    rcut_factor = cms.double( -1.0 ),
+    doOutputJets = cms.bool( True ),
+    src = cms.InputTag( "hltTowerMakerForAll" ),
     sumRecHits = cms.bool( False ),
-    DxyTrVtxMax = cms.double( 0.0 )
+    jetPtMin = cms.double( 1.0 ),
+    puPtMin = cms.double( 10.0 ),
+    srcPVs = cms.InputTag( "NotUsed" ),
+    inputEtMin = cms.double( 0.3 ),
+    trimPtFracMin = cms.double( -1.0 ),
+    radiusPU = cms.double( 0.4 ),
+    dRMax = cms.double( -1.0 ),
+    DxyTrVtxMax = cms.double( 0.0 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    useCMSBoostedTauSeedingAlgorithm = cms.bool( False ),
+    doPUOffsetCorr = cms.bool( False ),
+    inputEMin = cms.double( 0.0 )
 )
 hltCaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
