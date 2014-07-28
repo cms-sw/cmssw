@@ -114,7 +114,21 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
           if (deltaR(clusCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-        }
+         else{
+        unsigned int w =0 ; 
+        std::vector<reco::PFCandidatePtr> pfConstituents = theJetCollection[j].getPFConstituents();
+        for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
+		   TVector3 ClusP(clusCands[candNr]->p4().Px(),clusCands[candNr]->p4().Py(), clusCands[candNr]->p4().Pz());
+		   TVector3 PFJetConstP((*i_candidate)->px(),(*i_candidate)->py(),(*i_candidate)->pz());
+           double deltaRPFConste = ClusP.DeltaR(PFJetConstP);  
+           if(deltaRPFConste < 0.001 && w==0){
+		   const_cast<LorentzVector&>(theJetCollection[j].p4()) = theJetCollection[j].p4() - clusCands[candNr]->p4();
+            w ++;
+           } //if
+          }//for constituents
+        refVector.push_back(JetRef(theJetCollectionHandle, j));
+       }//else
+   }
     allSelections->push_back(refVector);
     }
  }
