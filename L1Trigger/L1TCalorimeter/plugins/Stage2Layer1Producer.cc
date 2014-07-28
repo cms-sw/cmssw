@@ -184,7 +184,7 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       int iphi = ecalItr->id().iphi();
 
       int ietIn = ecalItr->compressedEt();
-      //int ifg = ecalItr->fineGrain();
+      bool ifg  = ecalItr->fineGrain();
 
       // decompress
       double et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
@@ -196,6 +196,7 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       int itow = CaloTools::caloTowerHash(ieta, iphi);
       localInTowers->at(itow).setHwEtEm(ietOut);// & ietOutMask);
+      localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x4 : 0x0) );
 
     }
 
