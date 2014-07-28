@@ -78,6 +78,12 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
           //updating MultiRecHits and fit-smooth again 
 	  std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> curiterationhits = 
 									updateHits(currentTraj, updator, &*measTk, *ian);
+          if( curiterationhits.first.size() < 3 ){
+            LogDebug("DAFTrackProducerAlgorithm") << "Rejecting trajectory with "
+                                                  << curiterationhits.first.size() <<" hits";
+            currentTraj = Trajectory();
+            break;
+          }
 	  currentTraj = fit(curiterationhits, theFitter, currentTraj);
 
  	  //saving trajectory for each annealing cycle ...
