@@ -70,7 +70,7 @@ DENOMINATOR
 
 """
 
-kinematicSelectedTauValDenominatorCut = cms.string('pt > 5. && abs(eta) < 2.5')
+kinematicSelectedTauValDenominatorCut = cms.string('pt > 5. && abs(eta) < 5.0')
 denominator = cms.InputTag("kinematicSelectedTauValDenominator")
 
 """
