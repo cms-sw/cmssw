@@ -153,8 +153,15 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
     throw parser::Exception(iIterator) << "No dictionary for class \"" <<
           type.name() << "\".";
   }
-  while (type.isTypedef() || type.isPointer()) {
+  while (type.isPointer() || type.isReference()) {
     type = type.toType();
+  }
+  while (type.isTypedef()) {
+    edm::TypeWithDict theType = type.finalType();
+    if(theType == type) {
+      break;
+    }
+    type = theType;
   }
   // strip const, volatile, c++ ref, ..
   type = edm::TypeWithDict(type, 0L);
@@ -226,8 +233,6 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
   // otherwise see if this object is just a Ref or Ptr and we should pop it out
   if (!bool(mem.first)) {
     // check for edm::Ref or edm::RefToBase or edm::Ptr
-    // std::cout << "Mem.first is null, so looking for templates from type " <<
-    //   type.name() << std::endl;
     if (type.isTemplateInstance()) {
       std::string name = type.templateName();
       if (!name.compare("edm::Ref") || !name.compare("edm::RefToBase") ||
