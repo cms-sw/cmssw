@@ -1,4 +1,4 @@
-#include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilder.h"
+#include "GroupedCkfTrajectoryBuilder.h"
 #include "TrajectorySegmentBuilder.h"
 
 
@@ -8,7 +8,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-#include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
+#include "GroupedTrajCandLess.h"
 #include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -109,6 +109,14 @@ using namespace std;
 #include "Tracker/TkLayout/interface/TkLayerName.h"
 #endif
 =================================== */
+
+
+namespace {
+
+thread_local GroupedCkfTrajectoryBuilder::TempTrajectoryContainer work_;
+
+}
+
 
 GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
   BaseCkfTrajectoryBuilder(conf,

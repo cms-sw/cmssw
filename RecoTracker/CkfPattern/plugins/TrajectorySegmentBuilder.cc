@@ -13,7 +13,7 @@
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "RecoTracker/CkfPattern/src/TrajectoryLessByFoundHits.h"
+#include "TrajectoryLessByFoundHits.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
