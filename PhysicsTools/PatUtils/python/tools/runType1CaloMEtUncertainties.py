@@ -2,14 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent
-from PhysicsTools.PatUtils.tools.jmeUncertaintyTools import JetMEtUncertaintyTools
-
-from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
-import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
- 
+from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent
+from PhysicsTools.PatUtils.tools.jmeUncertaintyTools import JetMEtUncertaintyTools, addSmearedJets, isValidInputTag
+from PhysicsTools.PatUtils.tools.propagateMEtUncertainties import *
+
+import RecoMET.METProducers.METSigParams_cfi as jetResolutions
+
+
+
 class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
 
     """ Shift energy of jets and "unclustered energy" reconstructed in the event up/down,
@@ -37,59 +38,79 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                         type1JetPtThreshold,
                         postfix):
 
-        ## standard naming convention
-        metModNameT1="patCaloMetT1"
-        metModNameT1T2="patCaloMetT1T2"
+        # loading default files
+        if not hasattr(process, 'producePatCaloMETCorrectionsUnc'):
+            process.load("PhysicsTools.PatUtils.patCaloMETCorrections_cff")
 
-        if not hasattr(process, 'produceCaloMETCorrectors'):
-            process.load("JetMETCorrections.Type1MET.caloMETCorrections_cff")
-        process.caloJetMETcorr.type1JetPtThreshold = cms.double(type1JetPtThreshold)
+        #and setting the default pt threshold for type1 correction
+        process.corrCaloMetType1.type1JetPtThreshold = cms.double(type1JetPtThreshold)
 
-        #rename modules
-        process.caloMetT1 = process.caloType1CorrectedMet.clone()
-        process.caloMetT1T2 = process.caloType1CorrectedMet.clone()
-        process.produceCaloMETCorrectors += process.caloMetT1
-        process.produceCaloMETCorrectors += process.caloMetT1T2
+        #
+        # Assign MET names, and create the modules and the sequence used=> calo met can be only type1 or raw
+        #
+        metModName, metModNameT1, metModNameT1T2, collectionsToKeep = \
+            createPatMETModules(process, "Calo", getattr(process, "producePatCaloMETCorrectionsUnc" + postfix), 
+                                True, True, False,
+                                False, False,
+                                None, postfix)
+
 
         # If with empty postfix, make a backup of
         # process.producePatPFMETCorrections, because the original
         # sequence will be modified later in this function
         if postfix == "":
-            configtools.cloneProcessingSnippet(process, process.produceCaloMETCorrectors, "OriginalReserved")
+            configtools.cloneProcessingSnippet(process, process.producePatCaloMETCorrectionsUnc, "OriginalReserved")
         else:
             if postfix == "OriginalReserved":
                 raise ValueError("Postfix label '%s' is reserved for internal usage !!" % postfix)
 
-            if hasattr(process, "produceCaloMETCorrectorsOriginalReserved"):
-                configtools.cloneProcessingSnippet(process, process.produceCaloMETCorrectorsOriginalReserved, postfix, removePostfix="OriginalReserved")
+            if hasattr(process, "OriginalReserved"):
+                configtools.cloneProcessingSnippet(process, process.producePatCaloMETCorrectionsUncOriginalReserved, postfix, removePostfix="OriginalReserved")
             else:
-                configtools.cloneProcessingSnippet(process, process.produceCaloMETCorrectors, postfix)
+                configtools.cloneProcessingSnippet(process, process.producePatCaloMETCorrectionsUnc, postfix)
 
-        metUncertaintySequence += getattr(process, "produceCaloMETCorrectors")
+        metUncertaintySequence += getattr(process, "producePatCaloMETCorrectionsUnc" + postfix)
 
-        metCollectionsUp_DownForCorrMEt = \
-            self._propagateMEtUncertainties(
+
+        #
+        # propagate jet variations
+        #
+        metCollectionsUp_Down = \
+            propagateMEtUncertainties(
               process, shiftedParticleCollections['lastJetCollection'], "Jet", "En",
-              shiftedParticleCollections['jetCollectionEnUpForCorrMEt'], shiftedParticleCollections['jetCollectionEnDownForCorrMEt'],
-              process.caloMetT1, "Calo", metUncertaintySequence, postfix)
-        #getattr(process, "patCaloMETcorrJetEnUp").verbosity = cms.int32(1)
-        #getattr(process, metCollectionsUp_DownForCorrMEt[0]).verbosity = cms.int32(1)
-        #getattr(process, "patCaloMETcorrJetEnDown").verbosity = cms.int32(1)
-        #getattr(process, metCollectionsUp_DownForCorrMEt[1]).verbosity = cms.int32(1)X
+              shiftedParticleCollections['jetCollectionEnUp'], shiftedParticleCollections['jetCollectionEnDown'],
+              getattr(process, metModNameT1), "Calo", metUncertaintySequence, postfix)
+     
 
-        self._addPATMEtProducer(process, metUncertaintySequence,
-                                metCollectionsUp_DownForCorrMEt[0], 'patCaloMetT1JetEnUp', collectionsToKeep, postfix)
-        self._addPATMEtProducer(process, metUncertaintySequence,
-                                metCollectionsUp_DownForCorrMEt[1], 'patCaloMetT1JetEnDown', collectionsToKeep, postfix)
+     #   self._addPATMEtProducer(process, metUncertaintySequence,
+     #                           metCollectionsUp_Down[0], 'patCaloMetT1JetEnUp', collectionsToKeep, postfix)
+      #  self._addPATMEtProducer(process, metUncertaintySequence,
+      #                          metCollectionsUp_Down[1], 'patCaloMetT1JetEnDown', collectionsToKeep, postfix)
         
-        if caloTowerCollection.value() != "\"\"":
-            process.caloJetMETcorr.srcMET = cms.InputTag('')
+
+        #
+        # propagate unclustered energy variation
+        #
+        self._propagateUncEnVariations(process, metModNameT1, caloTowerCollection.value(), 
+                                       metUncertaintySequence, varyByNsigmas, collectionsToKeep, postfix)
+      
+            
+
+    def _propagateUncEnVariations(self,process, metModNameT1, caloTowerCollection, metUncertaintySequence,
+                                  varyByNsigmas, collectionsToKeep, postfix):
+
+
+        #
+        # create the corrections and the default module
+        #
+        if caloTowerCollection != "\"\"": 
+         #   process.caloJetMETcorr.srcMET = cms.InputTag('')
             process.caloTowersNotInJetsForMEtUncertainty = cms.EDProducer("TPCaloJetsOnCaloTowers",
                 enable = cms.bool(True),
                 verbose = cms.untracked.bool(False),
                 name = cms.untracked.string("caloTowersNotInJetsForMEtUncertainty"),
                 topCollection = cms.InputTag('ak5CaloJets'),
-                bottomCollection = caloTowerCollection
+                bottomCollection = cms.InputTag('caloTowerCollection')
             )
             metUncertaintySequence += process.caloTowersNotInJetsForMEtUncertainty
             process.caloTowerMETcorr = cms.EDProducer("CaloTowerMETcorrInputProducer",
@@ -102,61 +123,53 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                 noHF = cms.bool(False),
                 #verbosity = cms.int32(1)
             )
-            metUncertaintySequence += process.caloTowerMETcorr
-            moduleCaloType1CorrectedMetUnclusteredEnUp = getattr(process, "patCaloMetT1" + postfix).clone(
-                applyType2Corrections = cms.bool(True),
-                srcUnclEnergySums = cms.VInputTag(
-                    cms.InputTag('caloJetMETcorr', 'type2'),
-                    cms.InputTag('caloTowerMETcorr')
-                ),
-                type2CorrFormula = cms.string("A"),
-                type2CorrParameter = cms.PSet(
-                    A = cms.double(1.0 + 0.1*varyByNsigmas)
-                ),
-                #verbosity = cms.int32(1)
-            )
-            moduleCaloType1CorrectedMetUnclusteredEnUpName = "patCaloMetT1UnclusteredEnUp%s" % postfix
-            setattr(process, moduleCaloType1CorrectedMetUnclusteredEnUpName, moduleCaloType1CorrectedMetUnclusteredEnUp)
-            metUncertaintySequence += getattr(process, moduleCaloType1CorrectedMetUnclusteredEnUpName)
-            self._addPATMEtProducer(process, metUncertaintySequence,
-                                    moduleCaloType1CorrectedMetUnclusteredEnUpName, 'patCaloMetT1UnclusteredEnUp', collectionsToKeep, postfix)
-            moduleCaloType1CorrectedMetUnclusteredEnDown = moduleCaloType1CorrectedMetUnclusteredEnUp.clone(
-                type2CorrParameter = cms.PSet(
-                    A = cms.double(1.0 - 0.1*varyByNsigmas)
-                )
-            )
-            moduleCaloType1CorrectedMetUnclusteredEnDownName = "patCaloMetT1UnclusteredEnDown%s" % postfix
-            setattr(process, moduleCaloType1CorrectedMetUnclusteredEnDownName, moduleCaloType1CorrectedMetUnclusteredEnDown)
-            metUncertaintySequence += getattr(process, moduleCaloType1CorrectedMetUnclusteredEnDownName)
-            self._addPATMEtProducer(process, metUncertaintySequence,
-                                    moduleCaloType1CorrectedMetUnclusteredEnDownName, 'patCaloMetT1UnclusteredEnDown', collectionsToKeep, postfix)
-        else:
-            moduleCaloType1CorrectedMetUnclusteredEnUp = getattr(process, "caloMetT1" + postfix).clone(
-                applyType2Corrections = cms.bool(True),
-                srcUnclEnergySums = cms.VInputTag(
-                    cms.InputTag('caloJetMETcorr', 'type2fromMEt')
-                ),
-                type2CorrFormula = cms.string("A"),
-                type2CorrParameter = cms.PSet(
-                    A = cms.double(1.0 + 0.1*varyByNsigmas)
-                )
-            )
-            moduleCaloType1CorrectedMetUnclusteredEnUpName = "caloMetT1UnclusteredEnUp%s" % postfix
-            setattr(process, moduleCaloType1CorrectedMetUnclusteredEnUpName, moduleCaloType1CorrectedMetUnclusteredEnUp)
-            metUncertaintySequence += getattr(process, moduleCaloType1CorrectedMetUnclusteredEnUpName)
-            self._addPATMEtProducer(process, metUncertaintySequence,
-                                    moduleCaloType1CorrectedMetUnclusteredEnUpName, 'patCaloMetT1UnclusteredEnUp', collectionsToKeep, postfix)
-            moduleCaloType1CorrectedMetUnclusteredEnDown = moduleCaloType1CorrectedMetUnclusteredEnUp.clone(
-                type2CorrParameter = cms.PSet(
-                    A = cms.double(1.0 - 0.1*varyByNsigmas)
-                )
-            )
-            moduleCaloType1CorrectedMetUnclusteredEnDownName = "caloMetT1UnclusteredEnDown%s" % postfix
-            setattr(process, moduleCaloType1CorrectedMetUnclusteredEnDownName, moduleCaloType1CorrectedMetUnclusteredEnDown)
-            metUncertaintySequence += getattr(process, moduleCaloType1CorrectedMetUnclusteredEnDownName)
-            self._addPATMEtProducer(process, metUncertaintySequence,
-                                    moduleCaloType1CorrectedMetUnclusteredEnDownName, 'patCaloMetT1UnclusteredEnDown', collectionsToKeep, postfix)
+            metUncertaintySequence += process.caloTowerMETcorr  
+
+
+
+        #
+        # apply the unclsutered energy variations
+        #
+        variations=['Up','Down']
+        for var in variations:
+            shift = 0.1
+            if var=="Down":
+                shift = -0.1
+                
+            moduleCaloMetT1UnclusteredEnShift = None
+            if caloTowerCollection != "\"\"": 
+                moduleCaloMetT1UnclusteredEnShift = getattr(process, metModNameT1 + postfix).clone(
+                    applyType2Corrections = cms.bool(True),
+                    srcUnclEnergySums = cms.VInputTag(
+                        cms.InputTag('patCaloMetType1Corr', 'type2'),
+                        cms.InputTag('caloTowerMETcorr')
+                        ),
+                    type2CorrFormula = cms.string("A"),
+                    type2CorrParameter = cms.PSet(
+                        A = cms.double(1.0 + shift*varyByNsigmas)
+                        ),
+                    #verbosity = cms.int32(1)
+                    )
+                
+            else:
+                moduleCaloMetT1UnclusteredEnShift = getattr(process, metModNameT1 + postfix).clone(
+                    applyType2Corrections = cms.bool(True),
+                    srcUnclEnergySums = cms.VInputTag(
+                        cms.InputTag('patCaloMetType1Corr', 'type2')
+                        ),
+                    type2CorrFormula = cms.string("A"),
+                    type2CorrParameter = cms.PSet(
+                        A = cms.double(1.0 + shift*varyByNsigmas)
+                        )
+                    )
+                
+            moduleCaloMetT1UnclusteredEnShiftName = "%sUnclusteredEn%s%s" %(metModNameT1, var, postfix)
+            setattr(process, moduleCaloMetT1UnclusteredEnShiftName, moduleCaloMetT1UnclusteredEnShift)
+            metUncertaintySequence += getattr(process, moduleCaloMetT1UnclusteredEnShiftName)
+        #    self._addPATMEtProducer(process, metUncertaintySequence,
+        #                            moduleCaloMetT1UnclusteredEnShiftName, '%sUnclusteredEn%s'%(metModNameT1, var), collectionsToKeep, postfix)
             
+
     def __call__(self, process,
                  electronCollection      = None,
                  photonCollection        = None,
@@ -254,19 +267,13 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
         # produce collection of electrons/photons, muons, tau-jet candidates and jets
         # shifted up/down in energy by their respective energy uncertainties
         #--------------------------------------------------------------------------------------------
-
         shiftedParticleSequence, shiftedParticleCollections, addCollectionsToKeep = \
-          self._addShiftedParticleCollections(process,
-                                              electronCollection,
-                                              photonCollection,
-                                              muonCollection,
-                                              tauCollection,
-                                              jetCollection, cleanedJetCollection, lastJetCollection,
-                                              None, None,
+          self._addShiftedParticleCollections(process, "", "", "", "", 
+                                              jetCollection.value(),
+                                              cleanedJetCollection, lastJetCollection, False,
                                               jetCorrLabelUpToL3, jetCorrLabelUpToL3Res,
                                               jecUncertaintyFile, jecUncertaintyTag,
-                                              varyByNsigmas,
-                                              postfix)
+                                              None,None, varyByNsigmas, postfix)
         setattr(process, "shiftedParticlesForType1CaloMEtUncertainties" + postfix, shiftedParticleSequence)        
         metUncertaintySequence += getattr(process, "shiftedParticlesForType1CaloMEtUncertainties" + postfix)
         collectionsToKeep.extend(addCollectionsToKeep)

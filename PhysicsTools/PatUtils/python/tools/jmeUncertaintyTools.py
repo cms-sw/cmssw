@@ -5,12 +5,14 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 import PhysicsTools.PatAlgos.tools.helpers as configtools
 from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent
 
-from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
+#from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
  
+from PhysicsTools.PatUtils.tools.objectsUncertaintyTools import *
+
 ##MM
-from PhysicsTools.PatAlgos.patSequences_cff import *
+#from PhysicsTools.PatAlgos.patSequences_cff import *
 
 class JetMEtUncertaintyTools(ConfigToolBase):
 
@@ -61,41 +63,22 @@ class JetMEtUncertaintyTools(ConfigToolBase):
     def getDefaultParameters(self):
         return self._defaultParameters
 
-    def _addModuleToSequence(self, process, module, moduleName_parts, sequence, postfix):
+  
+    def _initializeInputTag(self, input, default):
+        retVal = None
+        if input is None:
+            retVal = self._defaultParameters[default].value
+        elif type(input) == str:
+            retVal = cms.InputTag(input)
+        else:
+            retVal = input
+        return retVal
 
-        if not len(moduleName_parts) > 0:
-            raise ValueError("Empty list !!")
-
-        moduleName = ""
-
-        lastPart = None
-        for part in moduleName_parts:
-            if part is None or part == "":
-                continue
-
-            part = part.replace("selected", "")
-            part = part.replace("clean",    "")
-
-            if lastPart is None:
-                moduleName += part[0].lower() + part[1:]
-                lastPart = part
-            else:
-                if lastPart[-1].islower() or lastPart[-1].isdigit():
-                    moduleName += part[0].capitalize() + part[1:]
-                else:
-                    moduleName += part[0].lower() + part[1:]
-                lastPart = part    
-
-        moduleName += postfix
-        setattr(process, moduleName, module)
-
-        sequence += module
- 
-        return moduleName
 
     def _addCleanedJets(self, process, jetCollection,
-                        electronCollection, photonCollection, muonCollection, tauCollection,
-                        uncertaintySequence, postfix = ""):
+                   electronCollection, photonCollection,
+                   muonCollection, tauCollection,
+                   uncertaintySequence, postfix = ""):
 
         # produce collection of jets not overlapping with reconstructed
         # electrons/photons, muons and tau-jet candidates
@@ -111,7 +94,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
             [ 'photons',   photonCollection   ],
             [ 'muons',     muonCollection     ],
             [ 'taus',      tauCollection      ] ]:
-            if self._isValidInputTag(collection[1]):
+            if isValidInputTag(collection[1]):
                 setattr(jetsNotOverlappingWithLeptons.checkOverlaps, collection[0], cms.PSet(
                     src                 = collection[1],
                     algorithm           = cms.string("byDeltaR"),
@@ -125,349 +108,125 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         lastJetCollection = jetCollection.value()        
         if numOverlapCollections >= 1:
             lastJetCollection = \
-              self._addModuleToSequence(process, jetsNotOverlappingWithLeptons,
+                addModuleToSequence(process, jetsNotOverlappingWithLeptons,
                                         [ jetCollection.value(), "NotOverlappingWithLeptonsForJetMEtUncertainty" ],
                                         uncertaintySequence, postfix)
         cleanedJetCollection = lastJetCollection
 
         return ( lastJetCollection, cleanedJetCollection )
 
-    def _addSmearedJets(self, process, jetCollection, smearedJetCollectionName_parts,
-                        jetSmearFileName, jetSmearHistogram, varyByNsigmas,
-                        shiftBy = None,
-                        uncertaintySequence = None, postfix = ""):
-
-        smearedJets = cms.EDProducer("SmearedPATJetProducer",
-            src = cms.InputTag(jetCollection),
-            dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
-            sigmaMaxGenJetMatch = cms.double(3.),                               
-            inputFileName = cms.FileInPath(jetSmearFileName),
-            lutName = cms.string(jetSmearHistogram),
-            jetResolutions = jetResolutions.METSignificance_params,
-            # CV: skip jet smearing for pat::Jets for which the jet-energy correction (JEC) factors are either very large or negative
-            #     since both cases produce unphysically large tails in the Type 1 corrected MET distribution after the smearing,
-            #
-            #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV 
-            #          corr. jet: energy = -3 GeV            , pt = -0.1 GeV (JEC factor L1fastjet*L2*L3 = -17)
-            #                     energy = 10 GeV for corrected jet after smearing
-            #         --> smeared raw jet energy = -170 GeV !!
-            #
-            #         --> (corr. - raw) jet contribution to MET = -1 (-10) GeV before (after) smearing,
-            #             even though jet energy got smeared by merely 1 GeV
-            #
-            skipJetSelection = cms.string(
-                'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
-            ),
-            skipRawJetPtThreshold = cms.double(10.), # GeV
-            skipCorrJetPtThreshold = cms.double(1.e-2),
-            verbosity = cms.int32(0)                                     
-        )
-        if shiftBy is not None:
-            setattr(smearedJets, "shiftBy", cms.double(shiftBy*varyByNsigmas))
-        smearedJetCollection = \
-          self._addModuleToSequence(process, smearedJets,
-                                    smearedJetCollectionName_parts,
-                                    uncertaintySequence, postfix)
-
-        return smearedJetCollection
-        
-    def _propagateMEtUncertainties(self, process,
-                                   particleCollection, particleType, shiftType, particleCollectionShiftUp, particleCollectionShiftDown,
-                                   metProducer, metType, sequence, postfix):
-
-        # produce MET correction objects
-        # (sum of differences in four-momentum between original and up/down shifted particle collection)
-        moduleMETcorrShiftUp = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
-            srcOriginal = cms.InputTag(particleCollection),
-            srcShifted = cms.InputTag(particleCollectionShiftUp)                                                          
-        )
-        moduleMETcorrShiftUpName = "pat%sMETcorr%s%sUp%s" % (metType, particleType, shiftType, postfix)
-        setattr(process, moduleMETcorrShiftUpName, moduleMETcorrShiftUp)
-        sequence += moduleMETcorrShiftUp
-        moduleMETcorrShiftDown = moduleMETcorrShiftUp.clone(
-            srcShifted = cms.InputTag(particleCollectionShiftDown)                                           
-        )
-        moduleMETcorrShiftDownName = "pat%sMETcorr%s%sDown%s" % (metType, particleType, shiftType, postfix)
-        setattr(process, moduleMETcorrShiftDownName, moduleMETcorrShiftDown)
-        sequence += moduleMETcorrShiftDown
-
-        # propagate effects of up/down shifts to MET
-        moduleMETshiftUp = metProducer.clone(
-            src = cms.InputTag(metProducer.label()),
-            srcType1Corrections = cms.VInputTag(
-                cms.InputTag(moduleMETcorrShiftUpName)
-            ),
-            srcUnclEnergySums = cms.VInputTag(),
-            applyType2Corrections = cms.bool(False),
-            type2CorrParameter = cms.PSet(
-                A = cms.double(1.0)
-            )
-        )
-        metProducerLabel = metProducer.label()
-        if postfix != "":
-            if metProducerLabel[-len(postfix):] == postfix:
-                metProducerLabel = metProducerLabel[0:-len(postfix)]
-            else:
-                raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (postfix, metProducerLabel))
-        moduleMETshiftUpName = "%s%s%sUp%s" % (metProducerLabel, particleType, shiftType, postfix)
-        setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
-        sequence += moduleMETshiftUp
-        moduleMETshiftDown = moduleMETshiftUp.clone(
-            srcType1Corrections = cms.VInputTag(
-                cms.InputTag(moduleMETcorrShiftDownName)
-            )
-        )
-        moduleMETshiftDownName = "%s%s%sDown%s" % (metProducerLabel, particleType, shiftType, postfix)
-        setattr(process, moduleMETshiftDownName, moduleMETshiftDown)
-        sequence += moduleMETshiftDown
-
-        metCollectionsUp_Down = [
-            moduleMETshiftUpName,
-            moduleMETshiftDownName
-        ]
-
-        return metCollectionsUp_Down
-
-    def _initializeInputTag(self, input, default):
-        retVal = None
-        if input is None:
-            retVal = self._defaultParameters[default].value
-        elif type(input) == str:
-            retVal = cms.InputTag(input)
-        else:
-            retVal = input
-        return retVal
-
-    @staticmethod
-    def _isValidInputTag(input):
-        input_str = input
-        if isinstance(input, cms.InputTag):
-            input_str = input.value()
-        if input is None or input_str == '""':
-            return False
-        else:
-            return True
 
     def _addShiftedParticleCollections(self, process, 
                                        electronCollection = None,
                                        photonCollection = None,
                                        muonCollection = None,
                                        tauCollection = None,
-                                       jetCollection = None, cleanedJetCollection = None, lastJetCollection = None,
-                                       jetCollectionResUp = None, jetCollectionResDown = None,
+                                       jetCollection = None, cleanedJetCollection = None,
+                                       lastJetCollection = None, addShiftedResJetCollections = False,
                                        jetCorrLabelUpToL3 = None, jetCorrLabelUpToL3Res = None,
                                        jecUncertaintyFile = None, jecUncertaintyTag = None,
+                                       jetSmearFileName=None, jetSmearHistogram=None,
                                        varyByNsigmas = None,
                                        postfix = ""):
-
+    
         shiftedParticleSequence = cms.Sequence()
-        
         shiftedParticleCollections = {}        
-        shiftedParticleCollections['electronCollection'] = electronCollection
-        shiftedParticleCollections['photonCollection'] = photonCollection
-        shiftedParticleCollections['muonCollection'] = muonCollection
-        shiftedParticleCollections['tauCollection'] = tauCollection
-        shiftedParticleCollections['jetCollection'] = jetCollection
-        shiftedParticleCollections['cleanedJetCollection'] = cleanedJetCollection
-        shiftedParticleCollections['lastJetCollection'] = lastJetCollection
-        shiftedParticleCollections['jetCollectionResUp'] = jetCollectionResUp
-        shiftedParticleCollections['jetCollectionResDown'] = jetCollectionResDown
         collectionsToKeep = []
-        
+
+        # standard jet collections
+        shiftedParticleCollections[ 'cleanedJetCollection' ] = cleanedJetCollection
+
+        #--------------------------------------------------------------------------------------------
+        # store collection of jets shifted up/down in energy resolution    
+        #--------------------------------------------------------------------------------------------  
+        if not isValidInputTag(jetCollection) or jetCollection=="":
+            print "Warning, jet collection %s does not exists, no energy resolution shifting performed in PAT" % jetCollection
+        else:
+            if addShiftedResJetCollections:
+                variations = { "ResUp":-1., "ResDown":1.  }
+                for var in variations.keys():
+                    jetCollectionToKeep = \
+                        addSmearedJets(process, cleanedJetCollection,
+                                       [ "smeared", jetCollection, var ],
+                                       jetSmearFileName,jetSmearHistogram,jetResolutions,
+                                       varyByNsigmas, variations[ var ],
+                                       shiftedParticleSequence, postfix)
+                    jetCol={'jetCollection%s'%var:jetCollectionToKeep}
+                    shiftedParticleCollections.update( jetCol )
+                    collectionsToKeep.append( jetCollectionToKeep )
+               
         #--------------------------------------------------------------------------------------------
         # produce collection of jets shifted up/down in energy    
         #--------------------------------------------------------------------------------------------     
-
-        # in case of "raw" (uncorrected) MET,
-        # add residual jet energy corrections in quadrature to jet energy uncertainties:
-        # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription        
-        jetsEnUpForRawMEt = cms.EDProducer("ShiftedPATJetProducer",
-            src = cms.InputTag(lastJetCollection),
-            #jetCorrPayloadName = cms.string(jetCorrPayloadName),
-            #jetCorrUncertaintyTag = cms.string('Uncertainty'),
-            jetCorrInputFileName = cms.FileInPath(jecUncertaintyFile),
-            jetCorrUncertaintyTag = cms.string(jecUncertaintyTag),
-            addResidualJES = cms.bool(True),
-            jetCorrLabelUpToL3 = cms.string(jetCorrLabelUpToL3),
-            jetCorrLabelUpToL3Res = cms.string(jetCorrLabelUpToL3Res),
-            shiftBy = cms.double(+1.*varyByNsigmas)
-        )
-        jetCollectionEnUpForRawMEt = \
-          self._addModuleToSequence(process, jetsEnUpForRawMEt,
-                                    [ "shifted", jetCollection.value(), "EnUpForRawMEt" ],
-                                    shiftedParticleSequence, postfix)
-        shiftedParticleCollections['jetCollectionEnUpForRawMEt'] = jetCollectionEnUpForRawMEt
-        collectionsToKeep.append(jetCollectionEnUpForRawMEt)
-        jetsEnDownForRawMEt = jetsEnUpForRawMEt.clone(
-            shiftBy = cms.double(-1.*varyByNsigmas)
-        )
-        jetCollectionEnDownForRawMEt = \
-          self._addModuleToSequence(process, jetsEnDownForRawMEt,
-                                    [ "shifted", jetCollection.value(), "EnDownForRawMEt" ],
-                                    shiftedParticleSequence, postfix)
-        shiftedParticleCollections['jetCollectionEnDownForRawMEt'] = jetCollectionEnDownForRawMEt
-        collectionsToKeep.append(jetCollectionEnDownForRawMEt)
-
-        jetsEnUpForCorrMEt = jetsEnUpForRawMEt.clone(
-            addResidualJES = cms.bool(False)
-        )
-        jetCollectionEnUpForCorrMEt = \
-          self._addModuleToSequence(process, jetsEnUpForCorrMEt,
-                                    [ "shifted", jetCollection.value(), "EnUpForCorrMEt" ],
-                                    shiftedParticleSequence, postfix)
-        shiftedParticleCollections['jetCollectionEnUpForCorrMEt'] = jetCollectionEnUpForCorrMEt
-        collectionsToKeep.append(jetCollectionEnUpForCorrMEt)
-        jetsEnDownForCorrMEt = jetsEnUpForCorrMEt.clone(
-            shiftBy = cms.double(-1.*varyByNsigmas)
-        )
-        jetCollectionEnDownForCorrMEt = \
-          self._addModuleToSequence(process, jetsEnDownForCorrMEt,
-                                    [ "shifted", jetCollection.value(), "EnDownForCorrMEt" ],
-                                    shiftedParticleSequence, postfix)
-        shiftedParticleCollections['jetCollectionEnDownForCorrMEt'] = jetCollectionEnDownForCorrMEt
-        collectionsToKeep.append(jetCollectionEnDownForCorrMEt)
-
+        if not isValidInputTag(jetCollection) or jetCollection=="":
+            print "Warning, jet collection %s does not exists, no energy shifting performed in PAT" % jetCollection
+        else:
+            shiftedJetsCollections, jetsCollectionsToKeep = addShiftedJetCollections(
+                process,jetCollection,lastJetCollection,
+                jetCorrLabelUpToL3, jetCorrLabelUpToL3Res,
+                jecUncertaintyFile, jecUncertaintyTag,
+                varyByNsigmas, shiftedParticleSequence, 
+                postfix)
+            shiftedParticleCollections.update( shiftedJetsCollections )
+            collectionsToKeep.extend( jetsCollectionsToKeep )
+        
         #--------------------------------------------------------------------------------------------
         # produce collection of electrons shifted up/down in energy
         #--------------------------------------------------------------------------------------------
-
-        electronCollectionEnUp = None
-        electronCollectionEnDown = None
-        if self._isValidInputTag(electronCollection):
-            electronsEnUp = cms.EDProducer("ShiftedPATElectronProducer",
-                src = electronCollection,
-                binning = cms.VPSet(
-                    cms.PSet(
-                        binSelection = cms.string('isEB'),
-                        binUncertainty = cms.double(0.006)
-                    ),
-                    cms.PSet(
-                        binSelection = cms.string('!isEB'),
-                        binUncertainty = cms.double(0.015)
-                    ),
-                ),      
-                shiftBy = cms.double(+1.*varyByNsigmas)
-            )
-            electronCollectionEnUp = \
-              self._addModuleToSequence(process, electronsEnUp,
-                                        [ "shifted", electronCollection.value(), "EnUp" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['electronCollectionEnUp'] = electronCollectionEnUp
-            collectionsToKeep.append(electronCollectionEnUp)
-            electronsEnDown = electronsEnUp.clone(
-                shiftBy = cms.double(-1.*varyByNsigmas)
-            )
-            electronCollectionEnDown = \
-              self._addModuleToSequence(process, electronsEnDown,
-                                        [ "shifted", electronCollection.value(), "EnDown" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['electronCollectionEnDown'] = electronCollectionEnDown
-            collectionsToKeep.append(electronCollectionEnDown)
+        if not isValidInputTag(electronCollection) or electronCollection=="":
+            print "Warning, electron collection %s does not exists, no energy shifting performed in PAT" % electronCollection
+        else:
+            shiftedElectronsCollections, electronsCollectionsToKeep = addShiftedSingleParticleCollection(
+                process, "electron", electronCollection,
+                varyByNsigmas,shiftedParticleSequence,
+                postfix)
+            
+            shiftedParticleCollections.update( shiftedElectronsCollections )
+            collectionsToKeep.extend( electronsCollectionsToKeep )
 
         #--------------------------------------------------------------------------------------------
         # produce collection of (high Pt) photon candidates shifted up/down in energy
-        #--------------------------------------------------------------------------------------------    
-
-        photonCollectionEnUp = None
-        photonCollectionEnDown = None    
-        if self._isValidInputTag(photonCollection):
-            photonsEnUp = cms.EDProducer("ShiftedPATPhotonProducer",
-                src = photonCollection,
-                binning = cms.VPSet(
-                    cms.PSet(
-                        binSelection = cms.string('isEB'),
-                        binUncertainty = cms.double(0.01)
-                    ),
-                    cms.PSet(
-                        binSelection = cms.string('!isEB'),
-                        binUncertainty = cms.double(0.025)
-                    ),
-                ),                         
-                shiftBy = cms.double(+1.*varyByNsigmas)
-            )
-            photonCollectionEnUp = \
-              self._addModuleToSequence(process, photonsEnUp,
-                                        [ "shifted", photonCollection.value(), "EnUp" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['photonCollectionEnUp'] = photonCollectionEnUp
-            collectionsToKeep.append(photonCollectionEnUp)
-            photonsEnDown = photonsEnUp.clone(
-                shiftBy = cms.double(-1.*varyByNsigmas)
-            )
-            photonCollectionEnDown = \
-              self._addModuleToSequence(process, photonsEnDown,
-                                        [ "shifted", photonCollection.value(), "EnDown" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['photonCollectionEnDown'] = photonCollectionEnDown
-            collectionsToKeep.append(photonCollectionEnDown)
+        #--------------------------------------------------------------------------------------------  
+        if not isValidInputTag(photonCollection) or photonCollection=="":
+            print "Warning, photon collection %s does not exists, no energy shifting performed in PAT" % photonCollection
+        else:
+            shiftedPhotonsCollections, photonsCollectionsToKeep = addShiftedSingleParticleCollection(
+                process, "photon", photonCollection,
+                varyByNsigmas,shiftedParticleSequence,
+                postfix)
+            shiftedParticleCollections.update( shiftedPhotonsCollections )
+            collectionsToKeep.extend( photonsCollectionsToKeep )
 
         #--------------------------------------------------------------------------------------------
         # produce collection of muons shifted up/down in energy/momentum  
         #--------------------------------------------------------------------------------------------
-
-        muonCollectionEnUp = None
-        muonCollectionEnDown = None   
-        if self._isValidInputTag(muonCollection):
-            muonsEnUp = cms.EDProducer("ShiftedPATMuonProducer",
-                src = muonCollection,
-             #   uncertainty = cms.double(0.002),
-                shiftBy = cms.double(+1.*varyByNsigmas),
-                binning = cms.VPSet(
-                    cms.PSet(
-                        binSelection = cms.string('pt < 100'),
-                        binUncertainty = cms.double(0.002)
-                        ),
-                    cms.PSet(
-                        binSelection = cms.string('pt >= 100'),
-                        binUncertainty = cms.double(0.05)
-                    ),
-                ),
-            )
-            muonCollectionEnUp = \
-              self._addModuleToSequence(process, muonsEnUp,
-                                        [ "shifted", muonCollection.value(), "EnUp" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['muonCollectionEnUp'] = muonCollectionEnUp
-            collectionsToKeep.append(muonCollectionEnUp)
-            muonsEnDown = muonsEnUp.clone(
-                shiftBy = cms.double(-1.*varyByNsigmas)
-            )
-            muonCollectionEnDown = \
-              self._addModuleToSequence(process, muonsEnDown,
-                                        [ "shifted", muonCollection.value(), "EnDown" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['muonCollectionEnDown'] = muonCollectionEnDown
-            collectionsToKeep.append(muonCollectionEnDown)
+        if not isValidInputTag(muonCollection) or muonCollection=="":
+            print "Warning, muon collection %s does not exists, no energy shifting performed in PAT" % muonCollection
+        else:
+            shiftedMuonsCollections, muonsCollectionsToKeep = addShiftedSingleParticleCollection(process, "muon", muonCollection,
+                                               varyByNsigmas,shiftedParticleSequence,
+                                               postfix)
+            shiftedParticleCollections.update( shiftedMuonsCollections )
+            collectionsToKeep.extend( muonsCollectionsToKeep )
 
         #--------------------------------------------------------------------------------------------
         # produce collection of tau-jets shifted up/down in energy
-        #--------------------------------------------------------------------------------------------     
+        #-------------------------------------------------------------------------------------------- 
+        if not isValidInputTag(tauCollection) or tauCollection=="":
+            print "Warning, tau collection %s does not exists, no energy shifting performed in PAT" % tauCollection
+        else:
+            shiftedTausCollections, tausCollectionsToKeep = addShiftedSingleParticleCollection(process, "tau", tauCollection,
+                                               varyByNsigmas,shiftedParticleSequence,
+                                               postfix)
+            shiftedParticleCollections.update( shiftedTausCollections )
+            collectionsToKeep.extend( tausCollectionsToKeep )
 
-        tauCollectionEnUp = None
-        tauCollectionEnDown = None 
-        if self._isValidInputTag(tauCollection):
-            tausEnUp = cms.EDProducer("ShiftedPATTauProducer",
-                src = tauCollection,
-                uncertainty = cms.double(0.03),                      
-                shiftBy = cms.double(+1.*varyByNsigmas)
-            )
-            tauCollectionEnUp = \
-              self._addModuleToSequence(process, tausEnUp,
-                                        [ "shifted", tauCollection.value(), "EnUp" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['tauCollectionEnUp'] = tauCollectionEnUp
-            collectionsToKeep.append(tauCollectionEnUp)
-            tausEnDown = tausEnUp.clone(
-                shiftBy = cms.double(-1.*varyByNsigmas)
-            )
-            tauCollectionEnDown = \
-              self._addModuleToSequence(process, tausEnDown,
-                                        [ "shifted", tauCollection.value(), "EnDown" ],
-                                        shiftedParticleSequence, postfix)
-            shiftedParticleCollections['tauCollectionEnDown'] = tauCollectionEnDown
-            collectionsToKeep.append(tauCollectionEnDown)
 
         return ( shiftedParticleSequence, shiftedParticleCollections, collectionsToKeep )
+
+
+
+
 
     def _addPFCandidatesForPFMEtInput(self, process, metUncertaintySequence,
                                       particleCollection, particleType, shiftType, particleCollectionShiftUp, particleCollectionShiftDown,
@@ -512,11 +271,11 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         return retVal
             
     def _addPATMEtProducer(self, process, metUncertaintySequence,
-                           pfMEtCollection, patMEtCollection,
+                           patMEtCollection, metCollection,
                            collectionsToKeep, postfix):
     
         module = patMETs.clone(
-            metSource = cms.InputTag(pfMEtCollection),
+            metSource = cms.InputTag(metCollection),
             addMuonCorrections = cms.bool(False),
             genMETSource = cms.InputTag('genMetTrue')
         )
