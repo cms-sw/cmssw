@@ -433,7 +433,7 @@ for ilabel in ['PatJetsCA8CMSTopTag',
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-process.source.fileNames = ['/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS170_V3-v2/00000/061F3CA6-1099-E311-8562-02163E00EA9E.root']
+process.source.fileNames = ['/store/relval/CMSSW_7_2_0_pre1/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS172_V1-v1/00000/0E9DF649-2BFE-E311-8F3F-0025905B85E8.root']
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
