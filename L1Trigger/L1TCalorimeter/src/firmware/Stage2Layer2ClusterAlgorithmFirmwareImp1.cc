@@ -189,9 +189,9 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
     int iEtaP = caloNav.offsetIEta(iEta, 1);
     int iEtaM = caloNav.offsetIEta(iEta, -1);
     int iPhiP = caloNav.offsetIPhi(iPhi, 1);
-    //int iPhiP2 = caloNav.offsetIPhi(iPhi, 2);
+    int iPhiP2 = caloNav.offsetIPhi(iPhi, 2);
     int iPhiM  = caloNav.offsetIPhi(iPhi, -1);
-    //int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
+    int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
     const l1t::CaloCluster& clusterNW = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiM);
     const l1t::CaloCluster& clusterN  = l1t::CaloTools::getCluster(clusters, iEta , iPhiM);
     const l1t::CaloCluster& clusterNE = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiM);
@@ -200,25 +200,25 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
     const l1t::CaloCluster& clusterS  = l1t::CaloTools::getCluster(clusters, iEta , iPhiP);
     const l1t::CaloCluster& clusterSW = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiP);
     const l1t::CaloCluster& clusterW  = l1t::CaloTools::getCluster(clusters, iEtaM, iPhi );
-    //const l1t::CaloCluster& clusterNN = l1t::CaloTools::getCluster(clusters, iEta , iPhiM2);
-    //const l1t::CaloCluster& clusterSS = l1t::CaloTools::getCluster(clusters, iEta , iPhiP2);
+    const l1t::CaloCluster& clusterNN = l1t::CaloTools::getCluster(clusters, iEta , iPhiM2);
+    const l1t::CaloCluster& clusterSS = l1t::CaloTools::getCluster(clusters, iEta , iPhiP2);
 
-    //const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iEta , iPhiM);
-    //const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iEta , iPhiP);
-    //int towerEtN  = 0;
-    //int towerEtS  = 0;
-    //if(m_clusterInput==E){
-    //  towerEtN  = towerN .hwEtEm();
-    //  towerEtS  = towerS .hwEtEm();
-    //}
-    //else if(m_clusterInput==H){
-    //  towerEtN  = towerN .hwEtHad();
-    //  towerEtS  = towerS .hwEtHad();
-    //}
-    //else if(m_clusterInput==EH){
-    //  towerEtN  = towerN .hwEtEm() + towerN .hwEtHad();
-    //  towerEtS  = towerS .hwEtEm() + towerS .hwEtHad();
-    //}
+    const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iEta , iPhiM);
+    const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iEta , iPhiP);
+    int towerEtN  = 0;
+    int towerEtS  = 0;
+    if(m_clusterInput==E){
+      towerEtN  = towerN .hwEtEm();
+      towerEtS  = towerS .hwEtEm();
+    }
+    else if(m_clusterInput==H){
+      towerEtN  = towerN .hwEtHad();
+      towerEtS  = towerS .hwEtHad();
+    }
+    else if(m_clusterInput==EH){
+      towerEtN  = towerN .hwEtEm() + towerN .hwEtHad();
+      towerEtS  = towerS .hwEtEm() + towerS .hwEtHad();
+    }
 
     if(iEta>1){
       if(clusterNW.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
@@ -230,8 +230,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
       if(clusterSW.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       if(clusterW .hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       // NOT_IN_FIRMWARE
-      //if(towerEtN >= m_clusterThreshold && clusterNN.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
-      //if(towerEtS >= m_clusterThreshold && clusterSS.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+      if(towerEtN >= m_clusterThreshold && clusterNN.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+      if(towerEtS >= m_clusterThreshold && clusterSS.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       // END NOT_IN_FIRMWARE
     }
     else if(iEta<0){
@@ -244,8 +244,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
       if(clusterSW.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       if(clusterW .hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       // NOT_IN_FIRMWARE
-      //if(towerEtN >= m_clusterThreshold && clusterNN.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
-      //if(towerEtS >= m_clusterThreshold && clusterSS.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+      if(towerEtN >= m_clusterThreshold && clusterNN.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+      if(towerEtS >= m_clusterThreshold && clusterSS.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       // END NOT_IN_FIRMWARE
     }
     else{ // iEta==1
@@ -258,8 +258,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
       if(clusterSW.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       if(clusterW .hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       // NOT_IN_FIRMWARE
-      //if(towerEtN >= m_clusterThreshold && clusterNN.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
-      //if(towerEtS >= m_clusterThreshold && clusterSS.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+      if(towerEtN >= m_clusterThreshold && clusterNN.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+      if(towerEtS >= m_clusterThreshold && clusterSS.hwPt() >= cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       // END NOT_IN_FIRMWARE
     }
   }
@@ -422,18 +422,18 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         filterSSSS = (clusterSSSS.hwPt() >= cluster.hwPt());
       }
 
-      if(filterNNWW || filterNNW || filterNN || filterWW || filterNWW || filterNNNW)    cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-      if(filterNNW || filterNN || filterNNE || filterNNN)                               cluster.setClusterFlag(CaloCluster::INCLUDE_N , false);
-      if(filterNN || filterNNE || filterNNEE || filterNEE || filterEE || filterNNNE)    cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-      if(filterNEE || filterEE || filterSEE || filterNNE || filterSSE)                  cluster.setClusterFlag(CaloCluster::INCLUDE_E , false);
-      if(filterEE || filterSEE || filterSSEE || filterSSE || filterSS || filterSSSE)    cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-      if(filterSSE || filterSS || filterSSW || filterSSS)                                cluster.setClusterFlag(CaloCluster::INCLUDE_S , false);
-      if(filterSS || filterSSW || filterSSWW || filterSWW || filterWW || filterSSSW)    cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-      if(filterSWW || filterWW || filterNWW || filterNNW || filterSSW)                  cluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
-      if(filterNNW || filterNNE || filterNNNW || filterNNN || filterNNNE || filterNNNN) cluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
-      if(filterSSW || filterSSE || filterSSSW || filterSSS || filterSSSE || filterSSSS) cluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
+      //if(filterNNWW || filterNNW || filterNN || filterWW || filterNWW || filterNNNW)    cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+      //if(filterNNW || filterNN || filterNNE || filterNNN)                               cluster.setClusterFlag(CaloCluster::INCLUDE_N , false);
+      //if(filterNN || filterNNE || filterNNEE || filterNEE || filterEE || filterNNNE)    cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+      //if(filterNEE || filterEE || filterSEE || filterNNE || filterSSE)                  cluster.setClusterFlag(CaloCluster::INCLUDE_E , false);
+      //if(filterEE || filterSEE || filterSSEE || filterSSE || filterSS || filterSSSE)    cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+      //if(filterSSE || filterSS || filterSSW || filterSSS)                                cluster.setClusterFlag(CaloCluster::INCLUDE_S , false);
+      //if(filterSS || filterSSW || filterSSWW || filterSWW || filterWW || filterSSSW)    cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+      //if(filterSWW || filterWW || filterNWW || filterNNW || filterSSW)                  cluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
+      //if(filterNNW || filterNNE || filterNNNW || filterNNN || filterNNNE || filterNNNN) cluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
+      //if(filterSSW || filterSSE || filterSSSW || filterSSS || filterSSSE || filterSSSS) cluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
       
-/*
+
       // NOT_IN_FIRMWARE
       const l1t::CaloTower& towerNW  = l1t::CaloTools::getTower(towers, iEtaM , iPhiM);
       const l1t::CaloTower& towerNE  = l1t::CaloTools::getTower(towers, iEtaP , iPhiM);
@@ -533,7 +533,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         cluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
       }
       // END NOT_IN_FIRMWARE
-*/
+
     }
   }
 }
@@ -636,15 +636,15 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
 
       // trim corners
       if(m_trimCorners) {
-        if(towerEtN<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-        if(towerEtN<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-        if(towerEtS<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-        if(towerEtS<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+        //if(towerEtN<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+        //if(towerEtN<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+        //if(towerEtS<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+        //if(towerEtS<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
         // NOT_IN_FIRMWARE
-        //if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-        //if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-        //if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-        //if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
         // END NOT_IN_FIRMWARE
       }
 
