@@ -48,9 +48,9 @@ MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::Parame
 : MuonSeedVPatternRecognition(pset),
   theCrackEtas(pset.getParameter<std::vector<double> >("crackEtas")),
   theCrackWindow(pset.getParameter<double>("crackWindow")),
-  theDeltaPhiWindow(pset.getParameter<double>("deltaPhiSearchWindow")),
-  theDeltaEtaWindow(pset.getParameter<double>("deltaEtaSearchWindow")),
-  theDeltaCrackWindow(pset.getParameter<double>("deltaEtaCrackSearchWindow"))
+  theDeltaPhiWindow(pset.existsAs<double>("deltaPhiSearchWindow") ? pset.getParameter<double>("deltaPhiSearchWindow") : 0.25),
+  theDeltaEtaWindow(pset.existsAs<double>("deltaEtaSearchWindow") ? pset.getParameter<double>("deltaEtaSearchWindow") : 0.2),
+theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow") ? pset.getParameter<double>("deltaEtaCrackSearchWindow") : 0.25)
 {
   muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
 						   iC,
