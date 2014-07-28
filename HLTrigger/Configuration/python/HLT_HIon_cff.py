@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/HIon/V55 (CMSSW_7_1_3_HLT2)
+# /dev/CMSSW_7_1_0/HIon/V56 (CMSSW_7_1_3_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V55')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V56')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -5256,7 +5256,6 @@ hltIterativeCone4PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     UseOnlyVertexTracks = cms.bool( False ),
     dRMin = cms.double( -1.0 ),
     nFilt = cms.int32( -1 ),
-    dRmax = cms.double( -1.0 ),
     usePruning = cms.bool( False ),
     maxDepth = cms.int32( -1 ),
     yCut = cms.double( -1.0 ),
@@ -5273,6 +5272,7 @@ hltIterativeCone4PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     inputEtMin = cms.double( 0.3 ),
     trimPtFracMin = cms.double( -1.0 ),
     radiusPU = cms.double( 0.4 ),
+    dRMax = cms.double( -1.0 ),
     DxyTrVtxMax = cms.double( 0.0 ),
     maxProblematicEcalCells = cms.uint32( 9999999 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False ),
@@ -5513,7 +5513,6 @@ hltStoppedHSCPIterativeCone4CaloJets = cms.EDProducer( "FastjetJetProducer",
     UseOnlyVertexTracks = cms.bool( False ),
     dRMin = cms.double( -1.0 ),
     nFilt = cms.int32( -1 ),
-    dRmax = cms.double( -1.0 ),
     usePruning = cms.bool( False ),
     maxDepth = cms.int32( -1 ),
     yCut = cms.double( -1.0 ),
@@ -5530,6 +5529,7 @@ hltStoppedHSCPIterativeCone4CaloJets = cms.EDProducer( "FastjetJetProducer",
     inputEtMin = cms.double( 0.3 ),
     trimPtFracMin = cms.double( -1.0 ),
     radiusPU = cms.double( 0.4 ),
+    dRMax = cms.double( -1.0 ),
     DxyTrVtxMax = cms.double( 0.0 ),
     maxProblematicEcalCells = cms.uint32( 9999999 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False ),
