@@ -1690,8 +1690,3 @@ MonitorElement::getRefTProfile2D(void) const
   return static_cast<TProfile2D *>
     (checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

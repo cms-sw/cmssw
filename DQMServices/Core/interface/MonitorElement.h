@@ -378,8 +378,3 @@ public:
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */
