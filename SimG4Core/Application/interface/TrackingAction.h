@@ -22,6 +22,7 @@ public:
     virtual void PostUserTrackingAction(const G4Track * aTrack);
 
     TrackWithHistory * currentTrackWithHistory() { return currentTrack_; }
+    const G4Track * geant4Track() const { return g4Track_; }
     G4TrackingManager * getTrackManager();
 
     SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
@@ -30,6 +31,7 @@ public:
 private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
+    const G4Track * g4Track_;
     G4VSolid * worldSolid;
     bool detailedTiming;
     bool checkTrack;
