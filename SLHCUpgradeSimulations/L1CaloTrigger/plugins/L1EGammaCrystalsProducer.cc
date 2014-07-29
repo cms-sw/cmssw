@@ -226,6 +226,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       if ( centerhit.pt() <= 1. ) break;
       if ( debug ) std::cout << "-------------------------------------" << std::endl;
       if ( debug ) std::cout << "New cluster: center crystal pt = " << centerhit.pt() << std::endl;
+
+      // Experimental parameters, don't want to bother with hardcoding them in data format
+      std::map<std::string, float> params;
       
       // Find the energy-weighted average position,
       // calculate isolation parameter,
@@ -260,15 +263,17 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
                ", eta=" << hit.position.eta() <<
                ", phi=" << hit.position.phi() << "\x1B[0m" << std::endl;
          }
-         // Isolation and pileup must not use hits used in a cluster
-         // We also cut out low pt noise
+         // Isolation and pileup must not use hits used in the cluster
          // As for the endcap hits, well, as far as this algorithm is concerned, caveat emptor...
-         if ( !hit.stale && hit.pt() > 0.05 )
+         if ( !(!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && abs(hit.diphi(centerhit)) < 3)
+              && !(centerhit.isEndcapHit && hit.distanceTo(centerhit) < 3.5*1.41 ) )
          {
             if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 14 && abs(hit.diphi(centerhit)) < 14)
                  || (centerhit.isEndcapHit && hit.distanceTo(centerhit) < 42. ))
             {
                ECalIsolation += hit.pt();
+               if ( hit.pt() > 1. )
+                  params["nIsoCrystals1"]++;
             }
             if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && abs(hit.diphi(centerhit)) >= 3 && abs(hit.diphi(centerhit)) < 6)
                  || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && fabs(hit.dphi(centerhit)) >= 0.0173*3 && fabs(hit.dphi(centerhit)) < 0.0173*6 ))
@@ -286,6 +291,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
       weightedPosition /= totalEnergy;
       float totalPt = totalEnergy*sin(weightedPosition.theta());
+      params["avgIsoCrystalE"] = (params["nIsoCrystals1"] > 0.) ? ECalIsolation/params["nIsoCrystals1"] : 0.;
       ECalIsolation /= totalPt;
       float totalPtPUcorr = totalPt - ECalPileUpEnergy*sin(ECalPileUpVector.theta())/19.;
       float bremStrength = sideLobeEnergy / totalPt;
@@ -312,6 +318,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
+      cluster.SetExperimentalParams(params);
       trigCrystalClusters->push_back(cluster);
 
       // Save clusters with some cuts
