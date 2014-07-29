@@ -939,7 +939,7 @@ MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 *
   {
     //  edm::LogWarning ("MonitorElement")
     std::cout << "*** MonitorElement: WARNING:"
-              <<"setBinLabel: attempting to set label of non-existent bin number \n";
+              <<"setBinLabel: attempting to set label of non-existent bin number for ME: "<< getFullname() << " \n";
   }
 }
 
@@ -1690,8 +1690,3 @@ MonitorElement::getRefTProfile2D(void) const
   return static_cast<TProfile2D *>
     (checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
