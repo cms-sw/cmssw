@@ -18,21 +18,21 @@ BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet& parameterSet)
   inputLabel_      = parameterSet.getParameter<edm::InputTag>("InputCollection");
   benchmarkLabel_  = parameterSet.getParameter<std::string>("BenchmarkLabel"); 
 
+  std::string folder = benchmarkLabel_ ;
+
+  subsystemname_ = "ParticleFlow" ;
+  eventInfoFolder_ = subsystemname_ + "/" + folder ;
 
 }
 
 
-
-void 
-BenchmarkAnalyzer::beginJob()
-{  
-  Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
-  if(!Benchmark::DQM_) {
-    throw "Please initialize the DQM service in your cfg";
-  }
-
-  // part of the following could be put in the base class
-  string path = "PFTask/" + benchmarkLabel_ ; 
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  cout<<"path set to "<<path<<endl;
+//
+// -- BookHistograms
+//
+void BenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & /* iRun */,
+					    edm::EventSetup const & /* iSetup */ )
+{
+  ibooker.setCurrentFolder(eventInfoFolder_) ;
+  cout << "path set to " << eventInfoFolder_ << endl;
 }
