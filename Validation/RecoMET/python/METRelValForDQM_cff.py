@@ -61,6 +61,7 @@ METValidation = cms.Sequence(
     genMetTrueAnalyzer*#*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
+    correctionTermsPfMetType0PFCandidate*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
