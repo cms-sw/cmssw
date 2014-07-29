@@ -58,7 +58,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
       TrajectoryStateOnSurface smoothtsos = itrajmeas->updatedState();
       //the error is scaled in order to take more "compatible" hits
-      if( smoothtsos.isValid() ) smoothtsos.rescaleError(10);
+//      if( smoothtsos.isValid() ) smoothtsos.rescaleError(10);
 
       TrajectoryStateOnSurface predtsos_fwd = itrajmeas->predictedState();
       TrajectoryStateOnSurface predtsos_bwd = itrajmeas->backwardPredictedState();
@@ -96,7 +96,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
         }
 
         //the error was scaled, now is scaled back (even if this is not tightly necessary)
-        if (smoothtsos.isValid()) smoothtsos.rescaleError(0.1);
+//        if (smoothtsos.isValid()) smoothtsos.rescaleError(0.1);
 
         //I will keep the Invalid hit, IF this is not the first one       
         if (hits.empty()){
@@ -119,7 +119,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
       } else {
           LogTrace("MultiRecHitCollector") << "  No measurements found in current group.";
           //the error was scaled, now is scaled back (even if this is not tightly necessary)
-          if (smoothtsos.isValid()) smoothtsos.rescaleError(0.1);
+//          if (smoothtsos.isValid()) smoothtsos.rescaleError(0.1);
 
           if( result.empty() ) continue;
 
