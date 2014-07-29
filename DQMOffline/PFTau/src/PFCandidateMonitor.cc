@@ -79,9 +79,12 @@ void PFCandidateMonitor::setParameters(float dRMax, bool matchCharge, Benchmark:
 //
 // -- Create histograms accessing parameters from ParameterSet
 //
-void PFCandidateMonitor::setup(const edm::ParameterSet & parameterSet) {
-  candBench_.setup(parameterSet);
-  matchCandBench_.setup(parameterSet);
+//void PFCandidateMonitor::setup(const edm::ParameterSet & parameterSet) {
+void PFCandidateMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet) {
+  //candBench_.setup(parameterSet);
+  candBench_.setup(b, parameterSet);
+  //matchCandBench_.setup(parameterSet);
+  matchCandBench_.setup(b, parameterSet);
 
   if (createReferenceHistos_ && !histogramBooked_) {
     edm::ParameterSet ptPS  = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
@@ -91,35 +94,51 @@ void PFCandidateMonitor::setup(const edm::ParameterSet & parameterSet) {
     edm::ParameterSet dR = parameterSet.getParameter<edm::ParameterSet>("DeltaRHistoParameter");
 
     if (ptPS.getParameter<bool>("switchOn")) {
-      pt_ref_ = book1D("pt_ref_", "p_{T}_ref;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
-		   ptPS.getParameter<double>("xMin"),
-		   ptPS.getParameter<double>("xMax"));
-      if (createEfficiencyHistos_) pt_gen_ = book1D( "pt_gen_", "p_{T}_gen;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
-						     ptPS.getParameter<double>("xMin"),
-						     ptPS.getParameter<double>("xMax") ) ;
+      //pt_ref_ = book1D("pt_ref_", "p_{T}_ref;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
+      pt_ref_ = book1D(b, "pt_ref_", "p_{T}_ref;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
+		       ptPS.getParameter<double>("xMin"),
+		       ptPS.getParameter<double>("xMax"));
+      if (createEfficiencyHistos_) {
+	//pt_gen_ = book1D("pt_gen_", "p_{T}_gen;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
+	pt_gen_ = book1D(b, "pt_gen_", "p_{T}_gen;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
+			 ptPS.getParameter<double>("xMin"),
+			 ptPS.getParameter<double>("xMax") ) ;
+      }
     } 
     
     if (etaPS.getParameter<bool>("switchOn")) {
-      eta_ref_ = book1D("eta_ref_", "#eta_ref;#eta", etaPS.getParameter<int32_t>("nBin"), 
-		    etaPS.getParameter<double>("xMin"),
-		    etaPS.getParameter<double>("xMax"));
-      if (createEfficiencyHistos_) eta_gen_ = book1D( "eta_gen_", "#eta_gen;#eta", etaPS.getParameter<int32_t>("nBin"), 
-						      etaPS.getParameter<double>("xMin"),
-						      etaPS.getParameter<double>("xMax") ) ;
+      //eta_ref_ = book1D("eta_ref_", "#eta_ref;#eta", etaPS.getParameter<int32_t>("nBin"), 
+      eta_ref_ = book1D(b, "eta_ref_", "#eta_ref;#eta", etaPS.getParameter<int32_t>("nBin"), 
+			etaPS.getParameter<double>("xMin"),
+			etaPS.getParameter<double>("xMax"));
+      if (createEfficiencyHistos_) {
+	//eta_gen_ = book1D("eta_gen_", "#eta_gen;#eta", etaPS.getParameter<int32_t>("nBin"), 
+	eta_gen_ = book1D(b, "eta_gen_", "#eta_gen;#eta", etaPS.getParameter<int32_t>("nBin"), 
+			  etaPS.getParameter<double>("xMin"),
+			  etaPS.getParameter<double>("xMax") ) ;
+      }
     }
+
     if (phiPS.getParameter<bool>("switchOn")) {
-      phi_ref_ = book1D("phi_ref_", "#phi_ref;#phi", phiPS.getParameter<int32_t>("nBin"), 
-		    phiPS.getParameter<double>("xMin"),
-		    phiPS.getParameter<double>("xMax"));
-      if (createEfficiencyHistos_) phi_gen_ = book1D( "phi_gen_", "#phi_gen;#phi", phiPS.getParameter<int32_t>("nBin"), 
-						      phiPS.getParameter<double>("xMin"),
-						      phiPS.getParameter<double>("xMax") ) ;
+      //phi_ref_ = book1D("phi_ref_", "#phi_ref;#phi", phiPS.getParameter<int32_t>("nBin"), 
+      phi_ref_ = book1D(b, "phi_ref_", "#phi_ref;#phi", phiPS.getParameter<int32_t>("nBin"), 
+			phiPS.getParameter<double>("xMin"),
+			phiPS.getParameter<double>("xMax"));
+      if (createEfficiencyHistos_) {
+	//phi_gen_ = book1D("phi_gen_", "#phi_gen;#phi", phiPS.getParameter<int32_t>("nBin"), 
+	phi_gen_ = book1D(b, "phi_gen_", "#phi_gen;#phi", phiPS.getParameter<int32_t>("nBin"), 
+			  phiPS.getParameter<double>("xMin"),
+			  phiPS.getParameter<double>("xMax") ) ;
+      }
     }
-    if ( createEfficiencyHistos_ && dR.getParameter<bool>("switchOn") ) 
-      deltaR_ = book1D("deltaR_", "#DeltaR;#DeltaR",
-				dR.getParameter<int32_t>("nBin"), 
-				dR.getParameter<double>("xMin"),
-				dR.getParameter<double>("xMax"));
+
+    if ( createEfficiencyHistos_ && dR.getParameter<bool>("switchOn") ) { 
+      //deltaR_ = book1D("deltaR_", "#DeltaR;#DeltaR",
+      deltaR_ = book1D(b, "deltaR_", "#DeltaR;#DeltaR",
+		       dR.getParameter<int32_t>("nBin"), 
+		       dR.getParameter<double>("xMin"),
+		       dR.getParameter<double>("xMax"));
+    }
 
     histogramBooked_ = true;   
   }
@@ -127,23 +146,37 @@ void PFCandidateMonitor::setup(const edm::ParameterSet & parameterSet) {
 //
 // -- Create histograms using local parameters
 //
-void PFCandidateMonitor::setup() {
-  candBench_.setup();
-  matchCandBench_.setup();
+void PFCandidateMonitor::setup(DQMStore::IBooker& b) {
+  //candBench_.setup();
+  candBench_.setup(b);
+  //matchCandBench_.setup();
+  matchCandBench_.setup(b);
 
   if (createReferenceHistos_ && !histogramBooked_) {
     PhaseSpace ptPS(100,0,100);
     PhaseSpace phiPS(360, -3.1416, 3.1416);
     PhaseSpace etaPS(100, -5,5);
     
-    pt_ref_ = book1D("pt_ref_", "p_{T}_ref;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
-    if (createEfficiencyHistos_) pt_gen_ = book1D("pt_gen_", "p_{T}_gen;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
-    
-    eta_ref_ = book1D("eta_ref_", "#eta_ref;#eta", etaPS.n, etaPS.m, etaPS.M);
-    if (createEfficiencyHistos_) eta_gen_ = book1D("eta_gen_", "#eta_gen;#eta", etaPS.n, etaPS.m, etaPS.M);
-    
-    phi_ref_ = book1D("phi_ref_", "#phi_ref;#phi", phiPS.n, phiPS.m, phiPS.M);
-    if (createEfficiencyHistos_) phi_gen_ = book1D("phi_gen_", "#phi_gen;#phi", phiPS.n, phiPS.m, phiPS.M);
+    //pt_ref_ = book1D("pt_ref_", "p_{T}_ref;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
+    pt_ref_ = book1D(b, "pt_ref_", "p_{T}_ref;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
+    if (createEfficiencyHistos_) {
+      //pt_gen_ = book1D("pt_gen_", "p_{T}_gen;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
+      pt_gen_ = book1D(b, "pt_gen_", "p_{T}_gen;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
+    }
+
+    //eta_ref_ = book1D("eta_ref_", "#eta_ref;#eta", etaPS.n, etaPS.m, etaPS.M);
+    eta_ref_ = book1D(b, "eta_ref_", "#eta_ref;#eta", etaPS.n, etaPS.m, etaPS.M);
+    if (createEfficiencyHistos_) {
+      //eta_gen_ = book1D("eta_gen_", "#eta_gen;#eta", etaPS.n, etaPS.m, etaPS.M);
+      eta_gen_ = book1D(b, "eta_gen_", "#eta_gen;#eta", etaPS.n, etaPS.m, etaPS.M);
+    }
+
+    //phi_ref_ = book1D("phi_ref_", "#phi_ref;#phi", phiPS.n, phiPS.m, phiPS.M);
+    phi_ref_ = book1D(b, "phi_ref_", "#phi_ref;#phi", phiPS.n, phiPS.m, phiPS.M);
+    if (createEfficiencyHistos_) {
+      //phi_gen_ = book1D("phi_gen_", "#phi_gen;#phi", phiPS.n, phiPS.m, phiPS.M);
+      phi_gen_ = book1D(b, "phi_gen_", "#phi_gen;#phi", phiPS.n, phiPS.m, phiPS.M);
+    }
 
     histogramBooked_ = true;
   }
