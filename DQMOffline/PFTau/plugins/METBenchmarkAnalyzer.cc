@@ -8,14 +8,15 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace reco;
 using namespace edm;
 using namespace std;
 
 
-
 METBenchmarkAnalyzer::METBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
+  //METBenchmarkAnalyzer::METBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   METBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
 {
@@ -27,21 +28,21 @@ METBenchmarkAnalyzer::METBenchmarkAnalyzer(const edm::ParameterSet& parameterSet
 	    parameterSet.getParameter<double>("phiMax") );
 
   myColl_ = consumes< View<MET> >(inputLabel_);
+
 }
 
 
-void 
-METBenchmarkAnalyzer::beginJob()
+void METBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & iRun,
+					    edm::EventSetup const & iSetup )
 {
-
-  BenchmarkAnalyzer::beginJob();
-  setup();
+  BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
+  setup(ibooker);
 }
 
 void 
 METBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup) {
-  
+			      const edm::EventSetup& iSetup) {
   
   Handle< View<MET> > collection; 
   iEvent.getByToken(myColl_, collection);
@@ -49,6 +50,3 @@ METBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   fill( *collection );
 }
 
-
-void METBenchmarkAnalyzer::endJob() {
-}
