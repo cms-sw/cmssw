@@ -938,6 +938,8 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['services'].append( "-MessageLogger" )
       self.options['services'].append( "-DQMStore" )
+      self.options['services'].append( "-EvFDaqDirector" )
+      self.options['services'].append( "-FastMonitoringService" )
       self.options['services'].append( "-MicroStateService" )
       self.options['services'].append( "-ModuleWebRegistry" )
       self.options['services'].append( "-TimeProfilerService" )
@@ -1151,6 +1153,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMuIsoIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter04" )
+      self.options['sequences'].append( "-HLTIterativeTrackingDisplacedJpsiIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingDisplacedPsiPrimeIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingDisplacedNRMuMuIter02" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
