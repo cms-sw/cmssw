@@ -16,7 +16,7 @@ namespace {
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC)
-  :_conf(conf),
+  :
    theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
    theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
    theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
@@ -32,7 +32,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
 {
   token_vertex      = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
   token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
-  token_refitter    = iC.consumes<reco::TrackCollection>(_conf.getParameter<edm::InputTag>("TrackRefitter"));
+  token_refitter    = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackRefitter"));
 }
 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
@@ -111,7 +111,7 @@ loopOnTracks(){
   myEvent->getByToken(token_refitter, trackCollectionH);
 
   if(trackCollectionH.isValid()==0){
-    edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("PhotonConversionTrajectorySeedProducerFromSingleLegAlgo");
+    edm::LogError("MissingInput")<<" could not find track collecion in PhotonConversionTrajectorySeedProducerFromSingleLegAlgo";
     return;
   }
 

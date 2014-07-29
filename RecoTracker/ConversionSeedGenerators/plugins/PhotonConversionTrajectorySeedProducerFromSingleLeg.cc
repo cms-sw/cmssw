@@ -12,7 +12,7 @@
 #include "PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 //#include "UserUtilities/TimingPerformance/interface/TimeReport.h"
 
-class PhotonConversionTrajectorySeedProducerFromSingleLeg : public edm::stream::EDProducer<> {
+class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLeg final : public edm::stream::EDProducer<> {
 public:
   PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& );
   ~PhotonConversionTrajectorySeedProducerFromSingleLeg(){}

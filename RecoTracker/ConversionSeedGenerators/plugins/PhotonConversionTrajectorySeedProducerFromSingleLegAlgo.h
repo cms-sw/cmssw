@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <sstream>
-#include "boost/foreach.hpp"
 
 inline bool lt_(std::pair<double,short> a, std::pair<double,short> b) { return a.first<b.first; }
 
@@ -54,7 +53,6 @@ class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   void loopOnPriVtx(const reco::Track& tk, const std::vector<reco::Vertex>& selectedPriVtxCompatibleWithTrack);
 
   //Data Members
-  const edm::ParameterSet _conf;
 
   TrajectorySeedCollection * seedCollection=nullptr;
 
