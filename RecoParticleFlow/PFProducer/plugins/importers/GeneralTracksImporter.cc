@@ -157,6 +157,8 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::iter1:
   case reco::TrackBase::iter2:
   case reco::TrackBase::iter7:
+  case reco::TrackBase::iter9:
+  case reco::TrackBase::iter10:
     Algo = 0;
     break;
   case reco::TrackBase::iter3:
@@ -180,7 +182,7 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   if ( P < 0.05 ) return false;
 
   // Temporary : Reject all tracking iteration beyond 5th step. 
-  if ( Algo > 4 ) return false;
+//  if ( Algo > 4 ) return false;
  
   if (_debug) std::cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
 		   << Pt << " DPt = " << DPt << std::endl;
