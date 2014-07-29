@@ -500,7 +500,7 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
        {
            if (region == 0 ) continue;
            for (int ring = 2; ring <= 3; ++ring) {
-               for (int station = 1; station <=3; ++station ) {
+               for (int station = 1; station <=4; ++station ) {
                    int sector = 1;
                    ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
                    ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
