@@ -32,7 +32,8 @@ MatchCandidateBenchmark::MatchCandidateBenchmark(Mode mode)  : Benchmark(mode) {
 MatchCandidateBenchmark::~MatchCandidateBenchmark() {}
 
 
-void MatchCandidateBenchmark::setup() {
+//void MatchCandidateBenchmark::setup() {
+void MatchCandidateBenchmark::setup(DQMStore::IBooker& b) {
   if (!histogramBooked_) {
     PhaseSpace ptPS;
     PhaseSpace dptOvptPS;
@@ -59,26 +60,32 @@ void MatchCandidateBenchmark::setup() {
     float ptBins[11] = {0, 1, 2, 5, 10, 20, 50, 100, 200, 400, 1000};
     int size = sizeof(ptBins)/sizeof(*ptBins);
 
-    delta_et_Over_et_VS_et_ = book2D("delta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+    //delta_et_Over_et_VS_et_ = book2D("delta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+    delta_et_Over_et_VS_et_ = book2D(b, "delta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
 				     size, ptBins, 
 				     dptOvptPS.n, dptOvptPS.m, dptOvptPS.M );
     
-    BRdelta_et_Over_et_VS_et_ = book2D("BRdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+    //BRdelta_et_Over_et_VS_et_ = book2D("BRdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+    BRdelta_et_Over_et_VS_et_ = book2D(b, "BRdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
 				     size, ptBins, 
 				     dptOvptPS.n, dptOvptPS.m, dptOvptPS.M );
-    ERdelta_et_Over_et_VS_et_ = book2D("ERdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+    //ERdelta_et_Over_et_VS_et_ = book2D("ERdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+    ERdelta_et_Over_et_VS_et_ = book2D(b, "ERdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
 				     size, ptBins, 
 				     dptOvptPS.n, dptOvptPS.m, dptOvptPS.M );
     
-    delta_et_VS_et_ = book2D("delta_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}",
+    //delta_et_VS_et_ = book2D("delta_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}",
+    delta_et_VS_et_ = book2D(b, "delta_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}",
 			     size, ptBins,
 			     dptPS.n, dptPS.m, dptPS.M );
     
-    delta_eta_VS_et_ = book2D("delta_eta_VS_et_", ";#E_{T, true} (GeV);#Delta#eta",
+    //delta_eta_VS_et_ = book2D("delta_eta_VS_et_", ";#E_{T, true} (GeV);#Delta#eta",
+    delta_eta_VS_et_ = book2D(b, "delta_eta_VS_et_", ";#E_{T, true} (GeV);#Delta#eta",
 			      size, ptBins,
 			      detaPS.n, detaPS.m, detaPS.M );
     
-    delta_phi_VS_et_ = book2D("delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
+    //delta_phi_VS_et_ = book2D("delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
+    delta_phi_VS_et_ = book2D(b, "delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
 			      size, ptBins,
 			      dphiPS.n, dphiPS.m, dphiPS.M );
     /*
@@ -122,7 +129,9 @@ void MatchCandidateBenchmark::setup() {
     histogramBooked_ = true;
   } 
 }
-void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
+
+//void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
+void MatchCandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) {
 
   std::vector<double> ptBinsPS = parameterSet.getParameter< std::vector<double> >( "VariablePtBins" );
   pTRes_.resize(ptBinsPS.size()-1); BRpTRes_.resize(ptBinsPS.size()-1); ERpTRes_.resize(ptBinsPS.size()-1);
@@ -152,7 +161,8 @@ void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
     }
  
    if (dptOvptPS.getParameter<bool>("switchOn")) {
-      delta_et_Over_et_VS_et_ = book2D("delta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+     //delta_et_Over_et_VS_et_ = book2D("delta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+     delta_et_Over_et_VS_et_ = book2D(b, "delta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
 				       ptBinsPS.size()-1, &(ptBins.front()), 
 				       dptOvptPS.getParameter<int32_t>("nBin"), 
 				       dptOvptPS.getParameter<double>("xMin"), 
@@ -160,29 +170,34 @@ void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
    }
    if (dptOvptPS.getParameter<bool>("slicingOn")) {
      for (size_t i = 0; i < pTRes_.size(); i++) {
-       pTRes_[i] = book1D( TString::Format("Pt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
+       //pTRes_[i] = book1D( TString::Format("Pt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
+       pTRes_[i] = book1D( b, TString::Format("Pt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
 			   dptOvptPS.getParameter<int32_t>("nBin"), 
 			   dptOvptPS.getParameter<double>("xMin"), 
 			   dptOvptPS.getParameter<double>("xMax")); 
-       BRpTRes_[i] = book1D( TString::Format("BRPt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
+       //BRpTRes_[i] = book1D( TString::Format("BRPt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
+       BRpTRes_[i] = book1D( b, TString::Format("BRPt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
 			     dptOvptPS.getParameter<int32_t>("nBin"), 
 			     dptOvptPS.getParameter<double>("xMin"), 
 			     dptOvptPS.getParameter<double>("xMax")); 
-       ERpTRes_[i] = book1D( TString::Format("ERPt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
+       //ERpTRes_[i] = book1D( TString::Format("ERPt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
+       ERpTRes_[i] = book1D( b, TString::Format("ERPt%d_%d", (int)ptBins[i], (int)ptBins[i+1]), ";#Deltap_{T}/p_{T};Entries",
 			     dptOvptPS.getParameter<int32_t>("nBin"), 
 			     dptOvptPS.getParameter<double>("xMin"), 
 			     dptOvptPS.getParameter<double>("xMax")); 
      }
    }
    if (dptOvptPS.getParameter<bool>("BROn")) {
-     BRdelta_et_Over_et_VS_et_ = book2D("BRdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+     //BRdelta_et_Over_et_VS_et_ = book2D("BRdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+     BRdelta_et_Over_et_VS_et_ = book2D(b, "BRdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
 					ptBinsPS.size()-1, &(ptBins.front()), 
 					dptOvptPS.getParameter<int32_t>("nBin"), 
 					dptOvptPS.getParameter<double>("xMin"), 
 					dptOvptPS.getParameter<double>("xMax"));
    }
     if (dptOvptPS.getParameter<bool>("EROn")) {
-      ERdelta_et_Over_et_VS_et_ = book2D("ERdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+      //ERdelta_et_Over_et_VS_et_ = book2D("ERdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
+      ERdelta_et_Over_et_VS_et_ = book2D(b, "ERdelta_et_Over_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
 					 ptBinsPS.size()-1, &(ptBins.front()), 
 					 dptOvptPS.getParameter<int32_t>("nBin"), 
 					 dptOvptPS.getParameter<double>("xMin"), 
@@ -190,7 +205,8 @@ void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
     }
     
     if (dptPS.getParameter<bool>("switchOn")) {
-      delta_et_VS_et_ = book2D("delta_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}",
+      //delta_et_VS_et_ = book2D("delta_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}",
+      delta_et_VS_et_ = book2D(b, "delta_et_VS_et_", ";E_{T, true} (GeV);#DeltaE_{T}",
 			       ptBinsPS.size()-1, &(ptBins.front()),
 			       dptPS.getParameter<int32_t>("nBin"), 
 			       dptPS.getParameter<double>("xMin"), 
@@ -198,7 +214,8 @@ void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
     }
     
     if (detaPS.getParameter<bool>("switchOn")) {
-      delta_eta_VS_et_ = book2D("delta_eta_VS_et_", ";E_{T, true} (GeV);#Delta#eta",
+      //delta_eta_VS_et_ = book2D("delta_eta_VS_et_", ";E_{T, true} (GeV);#Delta#eta",
+      delta_eta_VS_et_ = book2D(b, "delta_eta_VS_et_", ";E_{T, true} (GeV);#Delta#eta",
 				ptBinsPS.size()-1, &(ptBins.front()),
 				detaPS.getParameter<int32_t>("nBin"), 
 				detaPS.getParameter<double>("xMin"), 
@@ -206,7 +223,8 @@ void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
     }
     
     if (dphiPS.getParameter<bool>("switchOn")) {
-      delta_phi_VS_et_ = book2D("delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
+      //delta_phi_VS_et_ = book2D("delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
+      delta_phi_VS_et_ = book2D(b, "delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
 				ptBinsPS.size()-1, &(ptBins.front()),
 				dphiPS.getParameter<int32_t>("nBin"), 
 				dphiPS.getParameter<double>("xMin"),
