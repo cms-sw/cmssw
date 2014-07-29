@@ -2683,7 +2683,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
            particleDirection.push_back(pae->second);
 	   ecalEnergy.push_back(mergedPhotonEnergy*clusterEnergy/sumEcalClusters);
 	   hcalEnergy.push_back(0.);
-	   rawecalEnergy.push_back(mergedPhotonEnergy);
+	   rawecalEnergy.push_back(totalEcal);
 	   rawhcalEnergy.push_back(totalHcal);
 	   pivotalClusterRef.push_back(elements[pae->first].clusterRef());
  	   iPivotal.push_back(pae->first);
