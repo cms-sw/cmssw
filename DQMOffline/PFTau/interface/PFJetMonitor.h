@@ -39,10 +39,12 @@ class PFJetMonitor : public Benchmark {
   void setDirectory(TDirectory* dir);
 
   /// book histograms
-  void setup();
+  //void setup();
+  void setup(DQMStore::IBooker& b);
   
   /// book histograms
-  void setup(const edm::ParameterSet & parameterSet);
+  //void setup(const edm::ParameterSet & parameterSet);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet);
   
   /// fill histograms with all particle
   template< class T, class C>
