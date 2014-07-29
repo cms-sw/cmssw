@@ -53,6 +53,7 @@ FWGeometry::loadMap( const char* fileName )
       throw std::runtime_error( "ERROR: failed to find geometry file. Initialization failed." );
       return;
    }
+
    TTree* tree = static_cast<TTree*>(file->Get( "idToGeo" ));
    if( ! tree )
    {
@@ -117,6 +118,15 @@ FWGeometry::loadMap( const char* fileName )
 	    m_idToInfo[i].matrix[j] = matrix[j];
       }
    }
+
+
+   TNamed* version = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
+
+   if (version)
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(), version->GetTitle(), file->GetPath());  
+   else 
+      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), file->GetPath());  
+
    file->Close();
 }
 
