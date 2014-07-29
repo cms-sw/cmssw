@@ -109,20 +109,19 @@ loopOnTracks(){
   myEvent->getByToken(token_refitter, trackCollectionH);
 
   if(trackCollectionH.isValid()==0){
-    edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("TrackRefitter");
+    edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("PhotonConversionTrajectorySeedProducerFromSingleLegAlgo");
     return;
   }
   size_t idx=0, sel=0;
   _countSeedTracks=0;
 
+#ifdef debugTSPFSLA
   ss.str("");
+#endif
   
   for( reco::TrackCollection::const_iterator tr = trackCollectionH->begin(); 
        tr != trackCollectionH->end(); tr++, idx++) {
     
-    // #ifdef debugTSPFSLA 
-    //     ss << "\nStuding track Nb " << idx;
-    // #endif
 
     if(rejectTrack(*tr))  continue;
     std::vector<reco::Vertex> selectedPriVtxCompatibleWithTrack;  
@@ -335,6 +334,7 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
 			primaryVertexPoint.y(),
 			primaryVertexPoint.z()
 			);
+
   ConversionRegion convRegion(originPos, pvtxPoint, cotTheta, track->thetaError(), -1*track->charge());
 
 #ifdef debugTSPFSLA 
@@ -360,14 +360,7 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
     ss << "\n iHits " << iHits << "\n";
 #endif
     const SeedingHitSet & hits =  hitss[iHits];
-    //if (!theComparitor || theComparitor->compatible( hits, es) ) {
-    //try{
     theSeedCreator->trajectorySeed(*seedCollection,hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
-    //}catch(cms::Exception& er){
-    //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " <<er.what()<<std::endl;
-    //}catch(std::exception& er){
-    //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " << er.what()<<std::endl;
-    //}
   }
   return true;
 }

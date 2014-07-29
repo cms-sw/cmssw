@@ -21,7 +21,7 @@ namespace edm { class Event; class EventSetup; }
  * Hides set of HitPairGeneratorFromLayerPairForPhotonConversion generators.
  */
 
-class CombinedHitPairGeneratorForPhotonConversion : public HitPairGenerator {
+class dso_hidden CombinedHitPairGeneratorForPhotonConversion : public HitPairGenerator {
 public:
   typedef LayerHitMapCache LayerCacheType;
 

@@ -2,7 +2,9 @@
 #define CONVERSIONREGION_H
 
 #include "DataFormats/Math/interface/Vector3D.h"
-class ConversionRegion {
+#include "FWCore/Utilities/interface/Visibility.h"
+
+class dso_hidden ConversionRegion {
 
  public:
  ConversionRegion(GlobalPoint& convPoint, GlobalPoint& pvtxPoint, float& cotTheta, double errTheta, int charge):

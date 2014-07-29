@@ -30,7 +30,7 @@
 
 inline bool lt_(std::pair<double,short> a, std::pair<double,short> b) { return a.first<b.first; }
 
-class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
+class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
 
  
  public:
@@ -40,6 +40,7 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   ~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo();
 
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
+
   IdealHelixParameters* getIdealHelixParameters(){return &_IdealHelixParameters;}
   TrajectorySeedCollection* getTrajectorySeedCollection(){return seedCollection;}
   TrajectorySeedCollection* getTrajectorySeedCollectionOfSourceTracks(){return seedCollectionOfSourceTracks;}
