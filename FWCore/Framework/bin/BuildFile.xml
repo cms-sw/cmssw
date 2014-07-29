@@ -1,4 +1,7 @@
-<bin   name="cmsRunGlibCImpl" file="cmsRun.cpp">
+<architecture name="slc[6-9]_amd64">
+  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
+</architecture>
+<bin   name="cmsRunGlibC" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="tbb"/>
   <use   name="boost"/>
@@ -12,7 +15,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRunTCImpl" file="cmsRun.cpp">
+<bin   name="cmsRunTC" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -26,7 +29,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRunImpl" file="cmsRun.cpp">
+<bin   name="cmsRun" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -40,7 +43,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRunVDTImpl" file="cmsRun.cpp">
+<bin   name="cmsRunVDT" file="cmsRun.cpp">
   <use   name="vdt"/>
   <use   name="tbb"/>
   <use   name="boost"/>
