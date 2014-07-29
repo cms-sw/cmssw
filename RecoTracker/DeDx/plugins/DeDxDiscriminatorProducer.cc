@@ -241,25 +241,26 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
    m_tracker = tkGeom.product();
  
    std::vector<DeDxData> dEdxDiscrims( TrajToTrackMap.size() );
-
+   std::vector<double> vect_probs; vect_probs.reserve(30);
    unsigned track_index = 0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
       dEdxDiscrims[track_index] = DeDxData(-1, -2, 0 );
 
-      const Track      track = *it->val;
-      const Trajectory traj  = *it->key;
+      const Track  &     track = *it->val;
+      const Trajectory & traj  = *it->key;
 
-      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){continue;}
       if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){continue;}
       if(track.found()<MinTrackHits                                    ){continue;}
+      if(track.eta()  <MinTrackEta	|| track.eta()>MaxTrackEta     ){continue;}
 
-      std::vector<double> vect_probs;
-      vector<TrajectoryMeasurement> measurements = traj.measurements();
+
+      vect_probs.clear();
+      vector<TrajectoryMeasurement> const & measurements = traj.measurements();
 
       unsigned int NClusterSaturating = 0;
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
 
-         TrajectoryStateOnSurface trajState = measurement_it->updatedState();
+         TrajectoryStateOnSurface const & trajState = measurement_it->updatedState();
          if( !trajState.isValid() ) continue;
 
          const TrackingRecHit*         hit                 = (*measurement_it->recHit()).hit();
@@ -267,16 +268,16 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
          const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 	 
-	 double Prob;
+	 
          if(sistripsimplehit){
-       		Prob = GetProbability(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId());	    
+       		auto Prob = GetProbability(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId());	    
 	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimplehit)->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);             
             
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripsimplehit),sistripsimplehit->geographicalId())>0)NClusterSaturating++;
 
          }else if(sistripmatchedhit){
-	        Prob = GetProbability(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoId());
+	        auto Prob = GetProbability(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoId());
 	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripmatchedhit->monoHit())->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
            
@@ -286,7 +287,7 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripmatchedhit->monoHit()),sistripmatchedhit->monoId())  >0)NClusterSaturating++;
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()),sistripmatchedhit->stereoId())>0)NClusterSaturating++;
          }else if(sistripsimple1dhit){ 
-	        Prob = GetProbability(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId());
+	        auto Prob = GetProbability(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId());
 	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimple1dhit)->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripsimple1dhit),sistripsimple1dhit->geographicalId())>0)NClusterSaturating++;
