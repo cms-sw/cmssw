@@ -38,9 +38,9 @@
 // DQM
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-class CSCDaqInfo : public DQMEDAnalyzer {
+class CSCDaqInfo : public DQMEDHarvester {
 
   public:
 
@@ -48,20 +48,11 @@ class CSCDaqInfo : public DQMEDAnalyzer {
     ~CSCDaqInfo() { }
 
   protected:
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   private:
 
-    virtual void beginJob();
-
-
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
-    virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-    virtual void endJob() { }
-                    
     std::map<std::string, MonitorElement*> mos;
-    // DQMStore *dbe;  
                           
 };
 
