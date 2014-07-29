@@ -5,7 +5,7 @@ from RecoJets.JetProducers.PileupJetIDCutParams_cfi import *
 full_5x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_fullPlusRMS.weights.xml"),
+ tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_MET_53X_Dec2012.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_fullPlusRMS"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(

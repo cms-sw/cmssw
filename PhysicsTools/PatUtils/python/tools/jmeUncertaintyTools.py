@@ -253,15 +253,15 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         setattr(process, moduleNameShiftDown, moduleShiftDown)
         metUncertaintySequence += moduleShiftDown
 
-        return ( moduleNameShiftUp, moduleNameShiftDown )
+        moduleNameShifts = { 'Up':moduleNameShiftUp , 'Down':moduleNameShiftDown }
+        return moduleNameShifts
+ #       return ( moduleNameShiftUp, moduleNameShiftDown )
 
     def _getLeptonsForPFMEtInput(self, shiftedParticleCollections, substituteKeyUnshifted = None, substituteKeyShifted = None, postfix=""):
         retVal = []
-        for collectionName in [ 'electronCollection',
-                                'photonCollection',
-                                'muonCollection',
-                                'tauCollection' ]:
-            if self._isValidInputTag(shiftedParticleCollections[collectionName]):
+        for particleCol in shiftedParticleCollections.keys():
+            if not (particleCol.find("Jet") or particleCol.find("jet") ) and isValidInputTag(shiftedParticleCollections[collectionName]):
+                print collectionName,"==>:"+shiftedParticleCollections[collectionName]
                 if substituteKeyUnshifted is not None and substituteKeyUnshifted in shiftedParticleCollections.keys() and \
                    substituteKeyShifted is not None and substituteKeyShifted in shiftedParticleCollections.keys() and \
                    shiftedParticleCollections[collectionName] == shiftedParticleCollections[substituteKeyUnshifted]:
@@ -271,9 +271,9 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         return retVal
             
     def _addPATMEtProducer(self, process, metUncertaintySequence,
-                           patMEtCollection, metCollection,
+                           metCollection, patMEtCollection,
                            collectionsToKeep, postfix):
-    
+     
         module = patMETs.clone(
             metSource = cms.InputTag(metCollection),
             addMuonCorrections = cms.bool(False),
@@ -283,6 +283,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         setattr(process, patMEtCollectionName, module)
         metUncertaintySequence += module
         collectionsToKeep.append(patMEtCollectionName)
+     
 
     def __call__(self, process,
                  electronCollection      = None,

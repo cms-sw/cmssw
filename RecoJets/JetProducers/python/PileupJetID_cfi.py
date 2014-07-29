@@ -5,7 +5,7 @@ from RecoJets.JetProducers.PileupJetIDParams_cfi import *
 #_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
 _stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
 
-#_chsalgos_4x = cms.VPSet(full,   cutbased)
+#_chsalgos_4x = cms.VPSet(full,   cutbased) 
 _chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
 _chsalgos = _chsalgos_5x
 
@@ -35,7 +35,7 @@ pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),                                     
                          residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
+                       #  residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
 )
 
 pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
@@ -51,7 +51,7 @@ pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),
                          residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
+                #         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
 
 )
 
