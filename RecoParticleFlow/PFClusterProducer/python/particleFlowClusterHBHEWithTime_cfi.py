@@ -59,7 +59,6 @@ particleFlowClusterHBHEWithTime = cms.EDProducer(
            timeSigmaEE = cms.double(2), 
            maxNSigmaTime = cms.double(10.), # Maximum number of sigmas in time 
            minChi2Prob = cms.double(0.), # Minimum chi2 probability (ignored if 0)
-
            stoppingTolerance = cms.double(1e-8),
            maxIterations = cms.uint32(50),
            excludeOtherSeeds = cms.bool(True),

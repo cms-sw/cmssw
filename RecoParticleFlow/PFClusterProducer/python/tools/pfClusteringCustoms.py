@@ -84,6 +84,35 @@ def customizePFHCALClustering(process,scenario):
         process.pfClusteringHBHEHF+=process.particleFlowClusterHBHE
         process.pfClusteringHBHEHF+=process.particleFlowClusterHF
 
+
+        process.particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
+               clustersSource = cms.InputTag("particleFlowClusterHBHE"),
+               pfClusterBuilder =cms.PSet(
+                      algoName = cms.string("PFMultiDepthClusterizer"),
+                      nSigmaEta = cms.double(2.),
+                      nSigmaPhi = cms.double(2.),
+                      #pf clustering parameters
+                      minFractionToKeep = cms.double(1e-7),
+                      allCellsPositionCalc = cms.PSet(
+                         algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
+                         minFractionInCalc = cms.double(1e-9),    
+                         posCalcNCrystals = cms.int32(-1),
+                         logWeightDenominator = cms.double(0.8),#same as gathering threshold
+                         minAllowedNormalization = cms.double(1e-9)
+        
+
+                      )
+               ),
+               positionReCalc = cms.PSet(
+               ),
+               energyCorrector = cms.PSet()
+
+         )
+
+        process.pfClusteringHBHEHF+=process.particleFlowClusterHCAL
+        
+
+
     elif scenario ==2:
         from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCAL
         print '-------------HCAL CLUSTERING-------------'
@@ -91,7 +120,7 @@ def customizePFHCALClustering(process,scenario):
         print 'No timing cuts applied'
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi')
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi')
-        process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHEWithTime_cfi')
+        process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi')
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi')
 
         process.pfClusteringHBHEHF.remove(process.towerMakerPF)
@@ -100,8 +129,23 @@ def customizePFHCALClustering(process,scenario):
         process.pfClusteringHBHEHF.remove(process.particleFlowClusterHFHAD)
         process.pfClusteringHBHEHF.remove(process.particleFlowClusterHFEM)
         
+        for p in process.particleFlowClusterHBHE.seedFinder.thresholdsByDetector:
+            p.seedingThreshold=cms.double(0.5)
+        for p in process.particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector:
+            p.gatheringThreshold=cms.double(0.3)
 
-        process.particleFlowClusterHBHE=process.particleFlowClusterHBHEWithTime.clone()
+        process.particleFlowClusterHBHE.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.3)
+        process.particleFlowClusterHBHE.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.3)
+        process.particleFlowClusterHBHE.pfClusterBuilder.showerSigma = cms.double(10.0)
+        process.particleFlowClusterHBHE.pfClusterBuilder.timeSigmaEB = cms.double(2)
+        process.particleFlowClusterHBHE.pfClusterBuilder.timeSigmaEE = cms.double(2)
+        process.particleFlowClusterHBHE.pfClusterBuilder.maxNSigmaTime = cms.double(10.)
+        process.particleFlowClusterHBHE.pfClusterBuilder.minChi2Prob = cms.double(0.)
+        process.particleFlowClusterHBHE.pfClusterBuilder.clusterTimeResFromSeed = cms.bool(False)
+        process.particleFlowClusterHBHE.pfClusterBuilder.timeResolutionCalcBarrel = _timeResolutionHCAL
+        process.particleFlowClusterHBHE.pfClusterBuilder.timeResolutionCalcEndcap = _timeResolutionHCAL
+
+
         
         process.pfClusteringHBHEHF+=process.particleFlowRecHitHBHE
         process.pfClusteringHBHEHF+=process.particleFlowRecHitHF
