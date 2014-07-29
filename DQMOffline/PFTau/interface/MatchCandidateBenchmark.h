@@ -20,9 +20,11 @@ class MatchCandidateBenchmark : public Benchmark {
   virtual ~MatchCandidateBenchmark();
 
   /// book histograms
-  void setup();
+  //void setup();
+  void setup(DQMStore::IBooker& b);
   /// book histograms
-  void setup(const edm::ParameterSet& parameterSet);
+  //void setup(const edm::ParameterSet& parameterSet);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
   
   /// fill histograms with a given particle
   void fillOne( const reco::Candidate& candidate,
