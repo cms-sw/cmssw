@@ -25,6 +25,3 @@ combinedSecondaryVertexV2Negative.trackSelection.sip3dSigMax = 0
 combinedSecondaryVertexV2Negative.trackPseudoSelection.sip3dSigMax = 0
 combinedSecondaryVertexV2Negative.trackPseudoSelection.sip2dSigMin = -99999.9
 combinedSecondaryVertexV2Negative.trackPseudoSelection.sip2dSigMax = -2.0
-combinedSecondaryVertexV2Negative.trackSelection.qualityClass = cms.string('any')
-combinedSecondaryVertexV2Negative.trackPseudoSelection.qualityClass = cms.string('any')
-combinedSecondaryVertexV2Negative.trackMultiplicityMin = cms.uint32(2)
