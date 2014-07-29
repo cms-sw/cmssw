@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 
-
-
-
 def customizePFECALClustering(process,scenario):
 
     if scenario ==1:
@@ -13,10 +10,8 @@ def customizePFECALClustering(process,scenario):
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterECALTimeSelected_cfi')
         process.particleFlowClusterECALTimeSelected.src = cms.InputTag('particleFlowClusterECALUncorrected')
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterECALTimeSelected')
-        
         i = process.pfClusteringECAL.index(process.particleFlowClusterECALUncorrected)
         process.pfClusteringECAL.insert(i+1,process.particleFlowClusterECALTimeSelected)
-
 
 
     elif scenario ==2:
@@ -37,29 +32,6 @@ def customizePFECALClustering(process,scenario):
         process.pfClusteringECAL.insert(i+1,process.particleFlowClusterECALTimeSelected)
 
 
-    elif scenario ==3:
-        print '-------------ECAL CLUSTERING-------------'
-        print 'SCENARIO 3: ECAL clustering with time & ECAL max sample reconstruction using outOfTimeEnergy()'
-        print 'Timing cuts are applied to the PF cluster level'
-        process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi')
-        process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterECALTimeSelected_cfi')
-        process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cfi')
-
-        process.particleFlowRecHitECAL = process.particleFlowRecHitECALWithTime.clone()
-        for p in process.particleFlowRecHitECAL.producers:
-            p.name=cms.string(p.name.value()+'MaxSample')
-        process.particleFlowClusterECALUncorrected = process.particleFlowClusterECALWithTimeUncorrected.clone()
-        process.particleFlowClusterECALUncorrected.recHitsSource = cms.InputTag("particleFlowRecHitECAL")
-        process.particleFlowClusterECALTimeSelected.src = cms.InputTag('particleFlowClusterECALUncorrected')
-        process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterECALTimeSelected')
-
-        i = process.pfClusteringECAL.index(process.particleFlowClusterECALUncorrected)
-        process.pfClusteringECAL.insert(i+1,process.particleFlowClusterECALTimeSelected)
-
-
-
-        
-        
         
         
 
@@ -99,18 +71,36 @@ def customizePFHCALClustering(process,scenario):
                          posCalcNCrystals = cms.int32(-1),
                          logWeightDenominator = cms.double(0.8),#same as gathering threshold
                          minAllowedNormalization = cms.double(1e-9)
-        
-
                       )
                ),
                positionReCalc = cms.PSet(
                ),
                energyCorrector = cms.PSet()
-
          )
 
         process.pfClusteringHBHEHF+=process.particleFlowClusterHCAL
         
+        ##customize block since we have only one HF cluster collection now
+        importers = process.particleFlowBlock.elementImporters
+        newImporters  = cms.VPSet()
+
+        for pset in importers:
+            if pset.importerName =="GenericClusterImporter":
+
+                if pset.source.moduleLabel == 'particleFlowClusterHFEM':
+                    pset.source = cms.InputTag('particleFlowClusterHF')
+                    newImporters.append(pset)
+                elif  pset.source.moduleLabel != 'particleFlowClusterHFHAD':
+                    newImporters.append(pset)
+            else:
+                newImporters.append(pset)
+        
+                
+        process.particleFlowBlock.elementImporters = newImporters
+        
+                
+        
+
 
 
     elif scenario ==2:
