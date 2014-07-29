@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <cxxabi.h>
+# include <iosfwd>
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -41,6 +42,7 @@ class TH3F;
 class TProfile;
 class TProfile2D;
 class TNamed;
+
 
 /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -654,17 +656,17 @@ class DQMStore
   MonitorElement *              bookProfile(const std::string &dir, const std::string &name, TProfile *h);
   MonitorElement *              bookProfile2D(const std::string &folder, const std::string &name, TProfile2D *h);
 
-  static bool                   checkBinningMatches(MonitorElement *me, TH1 *h);
+  static bool                   checkBinningMatches(MonitorElement *me, TH1 *h, unsigned verbose);
 
-  static void                   collate1D(MonitorElement *me, TH1F *h);
-  static void                   collate1S(MonitorElement *me, TH1S *h);
-  static void                   collate1DD(MonitorElement *me, TH1D *h);
-  static void                   collate2D(MonitorElement *me, TH2F *h);
-  static void                   collate2S(MonitorElement *me, TH2S *h);
-  static void                   collate2DD(MonitorElement *me, TH2D *h);
-  static void                   collate3D(MonitorElement *me, TH3F *h);
-  static void                   collateProfile(MonitorElement *me, TProfile *h);
-  static void                   collateProfile2D(MonitorElement *me, TProfile2D *h);
+  static void                   collate1D(MonitorElement *me, TH1F *h, unsigned verbose);
+  static void                   collate1S(MonitorElement *me, TH1S *h, unsigned verbose);
+  static void                   collate1DD(MonitorElement *me, TH1D *h, unsigned verbose);
+  static void                   collate2D(MonitorElement *me, TH2F *h, unsigned verbose);
+  static void                   collate2S(MonitorElement *me, TH2S *h, unsigned verbose);
+  static void                   collate2DD(MonitorElement *me, TH2D *h, unsigned verbose);
+  static void                   collate3D(MonitorElement *me, TH3F *h, unsigned verbose);
+  static void                   collateProfile(MonitorElement *me, TProfile *h, unsigned verbose);
+  static void                   collateProfile2D(MonitorElement *me, TProfile2D *h, unsigned verbose);
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void                          setAccumulate(MonitorElement *me, bool flag);
@@ -695,6 +697,7 @@ class DQMStore
   uint32_t                      run_;
   uint32_t                      streamId_;
   uint32_t                      moduleId_;
+  std::ofstream *               stream_;
 
   std::string                   pwd_;
   MEMap                         data_;
