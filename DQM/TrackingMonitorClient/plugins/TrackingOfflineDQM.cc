@@ -102,7 +102,6 @@ void TrackingOfflineDQM::beginJob() {
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
 void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  //  std::cout << "[TrackingOfflineDQM::beginRun] .. starting" << std::endl;
   edm::LogInfo ("BeginRun") <<"TrackingOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
@@ -133,15 +132,10 @@ void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eS
   const int siPixelFedN = (FEDNumbering::MAXSiPixelFEDID-FEDNumbering::MINSiPixelFEDID+1);
   allpixelFEDsFound_ = (nPixelFEDs == siPixelFedN);
   trackerFEDsFound_  = (nFEDs > 0);
-  std::cout << "[TrackingOfflineDQM::beginRun] nPixelFEDs: " << nPixelFEDs << " ==> " << allpixelFEDsFound_ << std::endl;
-  std::cout << "[TrackingOfflineDQM::beginRun] nFEDs: "      << nFEDs      << " ==> " << trackerFEDsFound_  << std::endl;
   
   if (globalStatusFilling_ > 0) {
     actionExecutor_->createGlobalStatus(dqmStore_);
-    //    std::cout << "[TrackingOfflineDQM::beginRun] done actionExecutor_->createStatus" << std::endl;
   }
-
-  //  std::cout << "[TrackingOfflineDQM::beginRun] DONE" << std::endl;
 }
 /** 
  * @brief
@@ -164,7 +158,6 @@ void TrackingOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSe
 */
 void TrackingOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
 
-  //  std::cout << "[TrackingOfflineDQM::endLuminosityBlock] .. starting" << std::endl;
 
   edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::endLuminosityBlock";
 
@@ -183,8 +176,6 @@ void TrackingOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 */
 void TrackingOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
-  //  std::cout << "[TrackingOfflineDQM::endRun] .. starting" << std::endl;
-
   edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::endRun";
 
   if (globalStatusFilling_ > 0) {
@@ -197,9 +188,6 @@ void TrackingOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSet
       actionExecutor_->fillGlobalStatus(dqmStore_);
     }
   }
-
-  //  std::cout << "[TrackingOfflineDQM::endRun] DONE" << std::endl;
-
 }
 /** 
 * @brief 
@@ -209,8 +197,6 @@ void TrackingOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSet
 */
 void TrackingOfflineDQM::endJob() {
 
-  //  std::cout << "[TrackingOfflineDQM::endJob] .. starting" << std::endl;
-
   edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::endJob";
 
   if (!usedWithEDMtoMEConverter_) {
@@ -218,9 +204,6 @@ void TrackingOfflineDQM::endJob() {
     dqmStore_->cd();
     dqmStore_->save(outputFileName_, "","","");
   }
-
-  //  std::cout << "[TrackingOfflineDQM::endJob] DONE" << std::endl;
-
 }
 /** 
 * @brief 
