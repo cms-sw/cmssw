@@ -59,6 +59,10 @@
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsForLeptonPlusJets.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsForLeptonPlusJets.cc"
 //
+//
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsForBoostedLeptonPlusJets.h"
+#include "HLTrigger/JetMET/src/HLTJetCollectionsForBoostedLeptonPlusJets.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTJetsCleanedFromLeadingLeptons.h"
 //
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
@@ -102,6 +106,8 @@ typedef HLTJetCollForElePlusJets<  PFJet> HLTPFJetCollForElePlusJets;
 
 typedef HLTJetCollectionsForElePlusJets<CaloJet> HLTCaloJetCollectionsForElePlusJets;
 typedef HLTJetCollectionsForElePlusJets<  PFJet> HLTPFJetCollectionsForElePlusJets;
+
+typedef HLTJetCollectionsForBoostedLeptonPlusJets<  PFJet> HLTPFJetCollectionsForBoostedLeptonPlusJets;
 
 typedef HLTJetCollectionsForLeptonPlusJets<CaloJet> HLTCaloJetCollectionsForLeptonPlusJets;
 typedef HLTJetCollectionsForLeptonPlusJets<  PFJet> HLTPFJetCollectionsForLeptonPlusJets;
@@ -176,6 +182,8 @@ DEFINE_FWK_MODULE(HLTPFJetCollForElePlusJets);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsForElePlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForElePlusJets);
+
+DEFINE_FWK_MODULE(HLTPFJetCollectionsForBoostedLeptonPlusJets);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusJets);
