@@ -8,6 +8,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace reco;
 using namespace edm;
@@ -16,6 +17,7 @@ using namespace std;
 
 
 CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
+//CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   CandidateBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
 {
@@ -28,21 +30,21 @@ CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(const edm::ParameterSet& 
 	    parameterSet.getParameter<double>("phiMax") );
 
   myColl_ = consumes< View<Candidate> >(inputLabel_);
+
 }
 
 
-void 
-CandidateBenchmarkAnalyzer::beginJob()
+void CandidateBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & iRun,
+					    edm::EventSetup const & iSetup )
 {
-
-  BenchmarkAnalyzer::beginJob();
-  setup();
+  BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
+  setup(ibooker);
 }
 
 void 
 CandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup) {
-  
+				    const edm::EventSetup& iSetup) {
   
   Handle< View<Candidate> > collection; 
   iEvent.getByToken(myColl_, collection);
@@ -50,6 +52,3 @@ CandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   fill( *collection );
 }
 
-
-void CandidateBenchmarkAnalyzer::endJob() {
-}
