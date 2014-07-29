@@ -39,7 +39,7 @@ B2GDQM = cms.EDAnalyzer(
     semiMu_dRMin = cms.double( 0.5 )
     semiMu_ptRel = cms.double( 25.0 )
 
-    elecSelect = cms.string("pt > 45.0 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20")
+    elecSelect = cms.string("pt > 45.0 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20 & passConversionVeto() & electronID('mvaTrigV0') > 0.5")
     semiE_HadJetPtCut = cms.double(400.0)
     semiE_LepJetPtCut = cms.double(30.0)
     semiE_dphiHadCut = cms.double( pi / 2.0)
