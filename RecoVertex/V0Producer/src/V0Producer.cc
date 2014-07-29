@@ -17,31 +17,44 @@
 //
 
 
-// system include files
+
 #include <memory>
 
-#include "RecoVertex/V0Producer/interface/V0Producer.h"
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "DataFormats/V0Candidate/interface/V0Candidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+
+#include "V0Fitter.h"
+
+class dso_hidden V0Producer final : public edm::stream::EDProducer<> {
+public:
+  explicit V0Producer(const edm::ParameterSet&);
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  V0Fitter theVees;      
+};
+
 
 // Constructor
 V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
-  theParams(iConfig) 
+  theVees(iConfig, consumesCollector())
 {
-  theVees = new V0Fitter(theParams, consumesCollector());
-
-   // Registering V0 Collections
-  //produces<reco::VertexCollection>("Kshort");
-  //produces<reco::VertexCollection>("Lambda");
-  //produces<reco::VertexCollection>("LambdaBar");
-
-  // Trying this with Candidates instead of the simple reco::Vertex
   produces< reco::VertexCompositeCandidateCollection >("Kshort");
   produces< reco::VertexCompositeCandidateCollection >("Lambda");
   //produces< reco::VertexCompositeCandidateCollection >("LambdaBar");
-
-}
-
-// (Empty) Destructor
-V0Producer::~V0Producer() {
 
 }
 
@@ -54,29 +67,22 @@ V0Producer::~V0Producer() {
 void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    using namespace edm;
 
-   // Create V0Fitter object which reconstructs the vertices and creates
-   //  (and contains) collections of Kshorts, Lambda0s
-   theVees->fitAll(iEvent, iSetup);
 
    // Create auto_ptr for each collection to be stored in the Event
    std::auto_ptr< reco::VertexCompositeCandidateCollection > 
      kShortCandidates( new reco::VertexCompositeCandidateCollection );
-   kShortCandidates->reserve( theVees->getKshorts().size() ); 
 
    std::auto_ptr< reco::VertexCompositeCandidateCollection >
      lambdaCandidates( new reco::VertexCompositeCandidateCollection );
-   lambdaCandidates->reserve( theVees->getLambdas().size() );
 
-   std::copy( theVees->getKshorts().begin(),
-	      theVees->getKshorts().end(),
-	      std::back_inserter(*kShortCandidates) );
-   std::copy( theVees->getLambdas().begin(),
-	      theVees->getLambdas().end(),
-	      std::back_inserter(*lambdaCandidates) );
+  // invoke the fitter which reconstructs the vertices and fills,
+   //  collections of Kshorts, Lambda0s
+   theVees.fitAll(iEvent, iSetup, *kShortCandidates, *lambdaCandidates);
+
 
    // Write the collections to the Event
-   iEvent.put( kShortCandidates, std::string("Kshort") );
-   iEvent.put( lambdaCandidates, std::string("Lambda") );
+   kShortCandidates->shrink_to_fit(); iEvent.put( kShortCandidates, std::string("Kshort") );
+   lambdaCandidates->shrink_to_fit(); iEvent.put( lambdaCandidates, std::string("Lambda") );
 
 }
 
