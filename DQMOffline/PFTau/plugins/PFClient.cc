@@ -22,29 +22,29 @@ PFClient::PFClient(const edm::ParameterSet& parameterSet)
   projectionHistogramNames_  = parameterSet.getParameter< std::vector<std::string> >( "HistogramNamesForProjectionPlots" );
   profileFlag_ =  parameterSet.getParameter< bool> ("CreateProfilePlots" );
   profileHistogramNames_  = parameterSet.getParameter< std::vector<std::string> >( "HistogramNamesForProfilePlots" );
-}
-//
-// -- BeginJob
-//
-void PFClient::beginJob() {
 
-  dqmStore_ = edm::Service<DQMStore>().operator->();
+  ibooker_ = 0 ;
+  igetter_ = 0 ;
 }
+
 //
 // -- EndJobBegin Run
 // 
 void PFClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+}
+
+void PFClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
+{
+  ibooker_ = &ibooker ;
+  igetter_ = &igetter ;
+
+  // moved from endRun
   doSummaries(); 
   doProjection();
   if (efficiencyFlag_) doEfficiency();
   if (profileFlag_) doProfiles();
 }
-//
-// -- EndJob
-// 
-void PFClient::endJob() {
 
-}
 //
 // -- Create Summaries
 //
@@ -61,6 +61,7 @@ void PFClient::doSummaries() {
     }
   }
 }
+
 //
 // -- Create Projection
 //
@@ -108,11 +109,14 @@ void PFClient::doEfficiency() {
     }
   }
 }
+
 //
 // -- Create Resolution Plots
 //
 void PFClient::createResolutionPlots(std::string& folder, std::string& name) {     
-  MonitorElement* me = dqmStore_->get(folder+"/"+name);
+  //MonitorElement* me = dqmStore_->get(folder+"/"+name);
+  MonitorElement* me = igetter_->get(folder+"/"+name);
+
   if (!me) return;
 
   MonitorElement* me_average; 
@@ -137,20 +141,26 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
        if (ix == nbinx) xbins[ix] = th->GetXaxis()->GetBinUpEdge(ix);
     }
     std::string tit_new = ";"+xtit+";"+ytit;
-    dqmStore_->setCurrentFolder(folder);
-    MonitorElement* me_slice = dqmStore_->book1D("PFlowSlice","PFlowSlice",nbiny,ymin,ymax); 
+    //dqmStore_->setCurrentFolder(folder);
+    ibooker_->setCurrentFolder(folder);
+    //MonitorElement* me_slice = dqmStore_->book1D("PFlowSlice","PFlowSlice",nbiny,ymin,ymax); 
+    MonitorElement* me_slice = ibooker_->book1D("PFlowSlice","PFlowSlice",nbiny,ymin,ymax); 
 
     tit_new = ";"+xtit+";Average_"+ytit; 
-    me_average = dqmStore_->book1D("average_"+name,tit_new, nbinx, xbins); 
+    //me_average = dqmStore_->book1D("average_"+name,tit_new, nbinx, xbins); 
+    me_average = ibooker_->book1D("average_"+name,tit_new, nbinx, xbins); 
     me_average->setEfficiencyFlag();
     tit_new = ";"+xtit+";RMS_"+ytit; 
-    me_rms     = dqmStore_->book1D("rms_"+name,tit_new, nbinx, xbins); 
+    //me_rms     = dqmStore_->book1D("rms_"+name,tit_new, nbinx, xbins); 
+    me_rms     = ibooker_->book1D("rms_"+name,tit_new, nbinx, xbins); 
     me_rms->setEfficiencyFlag();
     tit_new = ";"+xtit+";Mean_"+ytit; 
-    me_mean    = dqmStore_->book1D("mean_"+name,tit_new, nbinx, xbins); 
+    //me_mean    = dqmStore_->book1D("mean_"+name,tit_new, nbinx, xbins); 
+    me_mean    = ibooker_->book1D("mean_"+name,tit_new, nbinx, xbins); 
     me_mean->setEfficiencyFlag();
     tit_new = ";"+xtit+";Sigma_"+ytit; 				 
-    me_sigma   = dqmStore_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
+    //me_sigma   = dqmStore_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
+    me_sigma   = ibooker_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
     me_sigma->setEfficiencyFlag();
 
     double  average, rms, mean, sigma;
@@ -166,7 +176,8 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
       me_mean->setBinContent(ix,mean);
       me_sigma->setBinContent(ix,sigma);
     }
-    if (me_slice) dqmStore_->removeElement(me_slice->getName());
+    //if (me_slice) dqmStore_->removeElement(me_slice->getName());
+    if (me_slice) igetter_->removeElement(me_slice->getName()); //?
     delete [] xbins;
   }
 }
@@ -175,7 +186,8 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
 // -- Create Projection Plots
 //
 void PFClient::createProjectionPlots(std::string& folder, std::string& name) {     
-  MonitorElement* me = dqmStore_->get(folder+"/"+name);
+  //MonitorElement* me = dqmStore_->get(folder+"/"+name);
+  MonitorElement* me = igetter_->get(folder+"/"+name);
   if (!me) return;
 
   MonitorElement* projection = 0;
@@ -198,13 +210,18 @@ void PFClient::createProjectionPlots(std::string& folder, std::string& name) {
     }    
 
     std::string tit_new;
-    dqmStore_->setCurrentFolder(folder);
+    //dqmStore_->setCurrentFolder(folder);
+    ibooker_->setCurrentFolder(folder);
 
     if (folder == "ParticleFlow/PFElectronValidation/CompWithGenElectron") {
-      if (name == "delta_et_Over_et_VS_et_") projection = dqmStore_->book1D("delta_et_Over_et","E_{T} resolution;#DeltaE_{T}/E_{T}",nbiny,ymin,ymax) ;
-      if (name == "delta_et_VS_et_") projection = dqmStore_->book1D("delta_et_","#DeltaE_{T};#DeltaE_{T}",nbiny,ymin,ymax) ;
-      if (name == "delta_eta_VS_et_") projection = dqmStore_->book1D("delta_eta_","#Delta#eta;#Delta#eta",nbiny,ymin,ymax) ;
-      if (name == "delta_phi_VS_et_") projection = dqmStore_->book1D("delta_phi_","#Delta#phi;#Delta#phi",nbiny,ymin,ymax) ;
+      //if (name == "delta_et_Over_et_VS_et_") projection = dqmStore_->book1D("delta_et_Over_et","E_{T} resolution;#DeltaE_{T}/E_{T}",nbiny,ymin,ymax) ;
+      if (name == "delta_et_Over_et_VS_et_") projection = ibooker_->book1D("delta_et_Over_et","E_{T} resolution;#DeltaE_{T}/E_{T}",nbiny,ymin,ymax) ;
+      //if (name == "delta_et_VS_et_") projection = dqmStore_->book1D("delta_et_","#DeltaE_{T};#DeltaE_{T}",nbiny,ymin,ymax) ;
+      if (name == "delta_et_VS_et_") projection = ibooker_->book1D("delta_et_","#DeltaE_{T};#DeltaE_{T}",nbiny,ymin,ymax) ;
+      //if (name == "delta_eta_VS_et_") projection = dqmStore_->book1D("delta_eta_","#Delta#eta;#Delta#eta",nbiny,ymin,ymax) ;
+      if (name == "delta_eta_VS_et_") projection = ibooker_->book1D("delta_eta_","#Delta#eta;#Delta#eta",nbiny,ymin,ymax) ;
+      //if (name == "delta_phi_VS_et_") projection = dqmStore_->book1D("delta_phi_","#Delta#phi;#Delta#phi",nbiny,ymin,ymax) ;
+      if (name == "delta_phi_VS_et_") projection = ibooker_->book1D("delta_phi_","#Delta#phi;#Delta#phi",nbiny,ymin,ymax) ;
     }
 
     if (projection) {
@@ -221,7 +238,8 @@ void PFClient::createProjectionPlots(std::string& folder, std::string& name) {
 // -- Create Profile Plots
 //
 void PFClient::createProfilePlots(std::string& folder, std::string& name) {     
-  MonitorElement* me = dqmStore_->get(folder+"/"+name);
+  //MonitorElement* me = dqmStore_->get(folder+"/"+name);
+  MonitorElement* me = igetter_->get(folder+"/"+name);
   if (!me) return;
 
   if ( (me->kind() == MonitorElement::DQM_KIND_TH2F) ||
@@ -241,12 +259,15 @@ void PFClient::createProfilePlots(std::string& folder, std::string& name) {
     }    
 
     std::string tit_new;
-    dqmStore_->setCurrentFolder(folder);
+    //dqmStore_->setCurrentFolder(folder);
+    ibooker_->setCurrentFolder(folder);
     //TProfiles
     MonitorElement* me_profile[2]; 
-    me_profile[0] = dqmStore_->bookProfile("profile_"+name, tit_new,
+    //me_profile[0] = dqmStore_->bookProfile("profile_"+name, tit_new,
+    me_profile[0] = ibooker_->bookProfile("profile_"+name, tit_new,
 					   nbinx, xbins, ymin, ymax, "" ); 
-    me_profile[1] = dqmStore_->bookProfile("profileRMS_"+name, tit_new,
+    //me_profile[1] = dqmStore_->bookProfile("profileRMS_"+name, tit_new,
+    me_profile[1] = ibooker_->bookProfile("profileRMS_"+name, tit_new,
 					   nbinx, xbins, ymin, ymax, "s" ); 
     TProfile* profileX = th->ProfileX();
     //size_t nbiny = me->getNbinsY();
@@ -301,8 +322,10 @@ void PFClient::getHistogramParameters(MonitorElement* me_slice, double& average,
 // -- Create Efficiency Plots
 //
 void PFClient::createEfficiencyPlots(std::string& folder, std::string& name) {     
-  MonitorElement* me1 = dqmStore_->get(folder+"/"+name+"ref_");
-  MonitorElement* me2 = dqmStore_->get(folder+"/"+name+"gen_");
+  //MonitorElement* me1 = dqmStore_->get(folder+"/"+name+"ref_");
+  MonitorElement* me1 = igetter_->get(folder+"/"+name+"ref_");
+  //MonitorElement* me2 = dqmStore_->get(folder+"/"+name+"gen_");
+  MonitorElement* me2 = igetter_->get(folder+"/"+name+"gen_");
   if (!me1 || !me2) return;
 
   TH1F* me1_forEff = (TH1F*)me1->getTH1F()->Rebin(2,"me1_forEff");
@@ -323,9 +346,12 @@ void PFClient::createEfficiencyPlots(std::string& folder, std::string& name) {
     std::string tit_new;
     tit_new = ";"+xtit+";"+xtit+" efficiency"; 
 
-    dqmStore_->setCurrentFolder(folder);
-    me_eff = dqmStore_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
+    //dqmStore_->setCurrentFolder(folder);
+    ibooker_->setCurrentFolder(folder);
+    //me_eff = dqmStore_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
+    me_eff = ibooker_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
 		
+    //me_eff->Reset(); me_eff->setEfficiencyFlag();
     me_eff->Reset(); me_eff->setEfficiencyFlag();
     /*
     double  efficiency;
@@ -342,5 +368,6 @@ void PFClient::createEfficiencyPlots(std::string& folder, std::string& name) {
     me_eff->getTH1F()->Divide( me1_forEff, me2_forEff, 1, 1, "B");
   }
 }
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (PFClient) ;
