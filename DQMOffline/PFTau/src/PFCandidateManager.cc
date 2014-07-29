@@ -42,10 +42,14 @@ void PFCandidateManager::setParameters( float dRMax,
   
 }
 
-void PFCandidateManager::setup() {
-  candBench_.setup();
-  pfCandBench_.setup();
-  matchCandBench_.setup();
+//void PFCandidateManager::setup() {
+void PFCandidateManager::setup(DQMStore::IBooker& b) {
+  //candBench_.setup();
+  candBench_.setup(b);
+  //pfCandBench_.setup();
+  pfCandBench_.setup(b);
+  //matchCandBench_.setup();
+  matchCandBench_.setup(b);
 }
 
 
