@@ -201,7 +201,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(originalMVAValsToken_,originalMVAStore);
   iEvent.getByToken(mergedMVAValsToken_,mergedMVAStore);
 
-  std::auto_ptr<edm::ValueMap<float> > vmMVA = std::auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+  std::auto_ptr<edm::ValueMap<float> > vmMVA(new edm::ValueMap<float>);
   edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
   std::vector<float> mvaVec;
 
@@ -468,16 +468,17 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   fillerMVA.insert(out_gtHandle,mvaVec.begin(),mvaVec.end());
   fillerMVA.fill();
-
   iEvent.put(vmMVA,"MVAVals");
-  iEvent.put(out_generalTracks);
+
+  out_generalTracks->shrink_to_fit();  iEvent.put(out_generalTracks);
   if (copyExtras_) {
-    iEvent.put(outputTrkExtras);
-    iEvent.put(outputTrkHits);
-    if (makeReKeyedSeeds_)
-      iEvent.put(outputSeeds);
+    outputTrkExtras->shrink_to_fit(); iEvent.put(outputTrkExtras);
+    outputTrkHits->shrink_to_fit(); iEvent.put(outputTrkHits);
+    if (makeReKeyedSeeds_) {
+      outputSeeds->shrink_to_fit(); iEvent.put(outputSeeds);
+    }
   }
-  iEvent.put(outputTrajs);
+  outputTrajs->shrink_to_fit(); iEvent.put(outputTrajs);
   iEvent.put(outputTTAss);
 }
 
