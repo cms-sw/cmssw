@@ -34,22 +34,17 @@ class PFCandidateMonitor : public Benchmark {
   void setDirectory(TDirectory* dir);
 
   /// book histograms
-  void setup();
-  
-  /// book histograms
-  void setup(const edm::ParameterSet & parameterSet);
+  void setup(DQMStore::IBooker& b);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet);
   
   /// fill histograms with all particle
   template< class T, class C>  
-    /*void fill(const T& candidateCollection,
-      const C& matchedCandCollection, float& minVal, float& maxVal);*/
-  
-  void fill(const T& candidateCollection,
-	    const C& matchedCandCollection, float& minVal, float& maxVal,
-	    const edm::ParameterSet & parameterSet);
+    void fill(const T& candidateCollection,
+	      const C& matchedCandCollection, float& minVal, float& maxVal,
+	      const edm::ParameterSet & parameterSet);
   
   void fillOne(const reco::Candidate& cand);
-
+  
  protected:
   CandidateBenchmark      candBench_;
   MatchCandidateBenchmark matchCandBench_;
@@ -74,8 +69,6 @@ class PFCandidateMonitor : public Benchmark {
 
 #include "DQMOffline/PFTau/interface/Matchers.h"
 template< class T, class C>
-  /*void PFCandidateMonitor::fill(const T& candCollection,
-    const C& matchedCandCollection, float& minVal, float& maxVal) {*/
   void PFCandidateMonitor::fill(const T& candCollection,
 				const C& matchedCandCollection, float& minVal, float& maxVal,
 				const edm::ParameterSet & parameterSet) {
@@ -116,13 +109,11 @@ template< class T, class C>
  
       if ( !createEfficiencyHistos_ ) {
 	candBench_.fillOne(cand);   // fill pt, eta phi and charge histos for MATCHED candidate
-	//matchCandBench_.fillOne(cand, matchedCand);  // fill delta_x_VS_y histos for matched couple
 	matchCandBench_.fillOne(cand, matchedCand, parameterSet);  // fill delta_x_VS_y histos for matched couple
 	if (createReferenceHistos_) fillOne(matchedCand); // fill pt_ref, eta_ref and phi_ref histos for MATCHED reference candidate
       }
       else {
 	candBench_.fillOne(matchedCand);   // fill pt, eta phi and charge histos for MATCHED candidate
-	//matchCandBench_.fillOne(matchedCand, cand);  // fill delta_x_VS_y histos for matched couple
 	matchCandBench_.fillOne(cand, matchedCand, parameterSet);  // fill delta_x_VS_y histos for matched couple
 	if (createReferenceHistos_) fillOne(cand); // fill pt_ref, eta_ref and phi_ref histos for MATCHED reference candidate
       }

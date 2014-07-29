@@ -246,13 +246,9 @@ process.pfReRecoSequence = cms.Sequence(
 # PFDQM modules to book/fill actual histograms
 #----------------------------------------------
 process.load("Validation.RecoParticleFlow.PFJetValidation_cff")
-process.pfJetValidation1.SkimParameter.switchOn = cms.bool(False)
-process.pfJetValidation2.SkimParameter.switchOn = cms.bool(False)
 
 process.load("Validation.RecoParticleFlow.PFMETValidation_cff")
 process.load("Validation.RecoParticleFlow.PFJetResValidation_cff")
-process.pfJetResValidation1.SkimParameter.switchOn = cms.bool(True)
-process.pfJetResValidation2.SkimParameter.switchOn = cms.bool(True)
 
 process.load("Validation.RecoParticleFlow.PFElectronValidation_cff") 
 #process.load("Validation.RecoParticleFlow.PFMuonValidation_cff")
