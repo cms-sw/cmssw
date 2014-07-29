@@ -101,6 +101,10 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps){
   cmsTagLabel_ = ps.getParameter<edm::InputTag >("cmsTagLabel");
   cmsTagToken_ = consumes<edm::View<reco::BasicJet> > ( cmsTagLabel_ );
 
+
+  muonToken_ = consumes<edm::View<reco::Muon> >( ps.getParameter<edm::InputTag>("muonSrc") );
+  electronToken_ = consumes<edm::View<reco::GsfElectron> >( ps.getParameter<edm::InputTag>("electronSrc") );
+
   jetPtMins_         = ps.getParameter<std::vector<double> > ("jetPtMins");
   allHadPtCut_       = ps.getParameter<double> ("allHadPtCut");
   allHadRapidityCut_ = ps.getParameter<double> ("allHadRapidityCut");
@@ -400,7 +404,7 @@ void B2GDQM::analyzeAllHad(const Event & iEvent, const edm::EventSetup& iSetup){
   if (jet0.isAvailable() == false || jet1.isAvailable() == false) return;
   if ( jet0->pt() < allHadPtCut_ || jet1->pt() < allHadPtCut_ ) return;
   if ( std::abs( jet0->rapidity() - jet1->rapidity() ) > allHadRapidityCut_ ) return;
-  if ( std::abs( reco::deltaPhi( jet0->phi(), jet1->phi() ) ) < 2*M_PI ) return;
+  if ( std::abs( reco::deltaPhi( jet0->phi(), jet1->phi() ) ) < M_PI*0.5 ) return;
   
 
   CATopJetHelper helper(173., 80.4);
@@ -447,6 +451,7 @@ void B2GDQM::analyzeSemiMu(const Event & iEvent, const edm::EventSetup& iSetup){
   if(!validJets) return;
   if ( jetCollection->size() < 2 ) return;
 
+
   double pt0 = -1.0;
   double dRMin = 999.0;
   edm::Ptr<reco::BasicJet> hadJet;    // highest pt jet with dphi(lep,jet) > pi/2
@@ -471,7 +476,6 @@ void B2GDQM::analyzeSemiMu(const Event & iEvent, const edm::EventSetup& iSetup){
     }
   }
   if ( hadJet.isAvailable() == false || lepJet.isAvailable() == false ) return;
-
   
   auto lepJetP4 = lepJet->p4();
   auto muonP4 = muon.p4();
