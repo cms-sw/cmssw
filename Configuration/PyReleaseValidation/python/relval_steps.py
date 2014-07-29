@@ -456,7 +456,7 @@ step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},s
 step3['RECOPU1']=merge([step3['RECO'],PU1])
 
 step3['RECOHI']=merge([hiDefaults,step3Defaults])
-step3['DIGIHISt3']=step2['DIGIHI']
+step3['DIGIHISt3']=merge([{'cfg':'step3','--himix':''},step2['DIGIHI']])
 
 step3['RECOHID11St3']=merge([{'cfg':'step3',
                               '--process':'ZStoRECO'},
@@ -513,7 +513,7 @@ step4['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
 
-step4['RECOHISt4']=step3['RECOHI']
+step4['RECOHISt4']=merge([{'cfg':'step4','--himix':''},step3['RECOHI']])
 
 step3['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step3','--mc':''},step4Defaults])
 step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
