@@ -2679,11 +2679,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           }
 	  for(std::vector<std::pair<unsigned,::math::XYZVector> >::const_iterator pae = ecalClusters.begin(); pae != ecalClusters.end(); ++pae ) {
            double clusterEnergy=sqrt(pae->second.Mag2());
-	   particleEnergy.push_back(totalEcal*clusterEnergy/sumEcalClusters);
+	   particleEnergy.push_back(mergedPhotonEnergy*clusterEnergy/sumEcalClusters);
            particleDirection.push_back(pae->second);
-	   ecalEnergy.push_back(totalEcal*clusterEnergy/sumEcalClusters);
+	   ecalEnergy.push_back(mergedPhotonEnergy*clusterEnergy/sumEcalClusters);
 	   hcalEnergy.push_back(0.);
-	   rawecalEnergy.push_back(totalEcal);
+	   rawecalEnergy.push_back(mergedPhotonEnergy);
 	   rawhcalEnergy.push_back(totalHcal);
 	   pivotalClusterRef.push_back(elements[pae->first].clusterRef());
  	   iPivotal.push_back(pae->first);
