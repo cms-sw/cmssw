@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
+#include "PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 //#include "UserUtilities/TimingPerformance/interface/TimeReport.h"
 
 class PhotonConversionTrajectorySeedProducerFromSingleLeg : public edm::stream::EDProducer<> {

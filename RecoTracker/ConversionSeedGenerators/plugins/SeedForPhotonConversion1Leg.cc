@@ -1,4 +1,4 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversion1Leg.h"
+#include "SeedForPhotonConversion1Leg.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"

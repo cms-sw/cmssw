@@ -1,4 +1,4 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
+#include "PrintRecoObjects.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"

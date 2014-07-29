@@ -8,18 +8,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversionFromQuadruplets.h"
+#include "SeedForPhotonConversionFromQuadruplets.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 
 
-#include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
+#include "PrintRecoObjects.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitQuadrupletGeneratorForPhotonConversion.h"
+#include "CombinedHitQuadrupletGeneratorForPhotonConversion.h"
 
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"

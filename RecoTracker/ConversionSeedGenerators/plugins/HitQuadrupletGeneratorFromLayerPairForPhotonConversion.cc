@@ -1,4 +1,4 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/HitQuadrupletGeneratorFromLayerPairForPhotonConversion.h"
+#include "HitQuadrupletGeneratorFromLayerPairForPhotonConversion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -343,7 +343,7 @@ failCheckSlopeTest(const RecHitsSortedInPhi::Hit & ohit, const RecHitsSortedInPh
 
 double HitQuadrupletGeneratorFromLayerPairForPhotonConversion::verySimpleFit(int size, double* ax, double* ay, double* e2y, double& p0, double& e2p0, double& p1){
   
-  //#include "RecoTracker/ConversionSeedGenerators/interface/verySimpleFit.icc"
+  //#include "verySimpleFit.icc"
   return 0;
 }
 

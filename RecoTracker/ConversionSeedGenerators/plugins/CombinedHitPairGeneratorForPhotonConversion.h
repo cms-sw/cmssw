@@ -15,7 +15,7 @@ class HitPairGeneratorFromLayerPairForPhotonConversion;
 class SeedingLayerSetsHits;
 namespace edm { class Event; class EventSetup; }
 
-#include "RecoTracker/ConversionSeedGenerators/interface/ConversionRegion.h"
+#include "ConversionRegion.h"
 
 /** \class CombinedHitPairGeneratorForPhotonConversion
  * Hides set of HitPairGeneratorFromLayerPairForPhotonConversion generators.

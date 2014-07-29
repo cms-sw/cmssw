@@ -7,8 +7,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/Quad.h"
+#include "PrintRecoObjects.h"
+#include "Quad.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 

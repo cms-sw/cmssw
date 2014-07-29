@@ -5,7 +5,7 @@
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/ConversionRegion.h"
+#include "ConversionRegion.h"
 
 class DetLayer;
 class TrackingRegion;

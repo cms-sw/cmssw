@@ -1,5 +1,5 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitPairGeneratorForPhotonConversion.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/HitPairGeneratorFromLayerPairForPhotonConversion.h"
+#include "CombinedHitPairGeneratorForPhotonConversion.h"
+#include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"

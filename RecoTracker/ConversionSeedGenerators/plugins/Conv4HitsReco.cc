@@ -1,5 +1,5 @@
 #define Conv4HitsReco_cxx
-#include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco.h"
+#include "Conv4HitsReco.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 // 1 -> 4

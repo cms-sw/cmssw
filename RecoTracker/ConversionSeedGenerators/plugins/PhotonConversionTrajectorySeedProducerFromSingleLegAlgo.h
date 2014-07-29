@@ -7,19 +7,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversion1Leg.h"
+#include "SeedForPhotonConversion1Leg.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
+#include "IdealHelixParameters.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
+#include "PrintRecoObjects.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitPairGeneratorForPhotonConversion.h"
+#include "CombinedHitPairGeneratorForPhotonConversion.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"

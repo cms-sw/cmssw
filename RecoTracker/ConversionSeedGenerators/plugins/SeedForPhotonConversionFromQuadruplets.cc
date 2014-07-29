@@ -1,6 +1,6 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversionFromQuadruplets.h"
+#include "SeedForPhotonConversionFromQuadruplets.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco2.h"
+#include "Conv4HitsReco2.h"
 
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -1038,7 +1038,7 @@ simpleGetSlope(const SeedingHitSet::ConstRecHitPointer &ohit, const SeedingHitSe
 
 double SeedForPhotonConversionFromQuadruplets::verySimpleFit(int size, double* ax, double* ay, double* e2y, double& p0, double& e2p0, double& p1){
 
-  //#include "RecoTracker/ConversionSeedGenerators/interface/verySimpleFit.icc"
+  //#include "verySimpleFit.icc"
   return 0;
 }
 

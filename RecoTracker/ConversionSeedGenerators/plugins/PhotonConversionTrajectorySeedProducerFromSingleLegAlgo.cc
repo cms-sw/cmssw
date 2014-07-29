@@ -1,4 +1,4 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
+#include "PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 

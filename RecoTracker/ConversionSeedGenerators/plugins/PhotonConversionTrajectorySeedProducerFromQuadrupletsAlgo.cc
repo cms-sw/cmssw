@@ -1,5 +1,5 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/Quad.h"
+#include "PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
+#include "Quad.h"
 #include "FWCore/Utilities/interface/Exception.h"
 // ClusterShapeIncludes:::
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"

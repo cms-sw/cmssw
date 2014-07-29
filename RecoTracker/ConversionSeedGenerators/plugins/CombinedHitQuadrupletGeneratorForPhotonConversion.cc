@@ -1,5 +1,5 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitQuadrupletGeneratorForPhotonConversion.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/HitQuadrupletGeneratorFromLayerPairForPhotonConversion.h"
+#include "CombinedHitQuadrupletGeneratorForPhotonConversion.h"
+#include "HitQuadrupletGeneratorFromLayerPairForPhotonConversion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"

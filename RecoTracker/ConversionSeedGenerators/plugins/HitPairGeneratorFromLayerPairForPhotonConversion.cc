@@ -1,4 +1,4 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/HitPairGeneratorFromLayerPairForPhotonConversion.h"
+#include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"

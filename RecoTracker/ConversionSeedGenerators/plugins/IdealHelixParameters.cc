@@ -1,4 +1,4 @@
-#include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
+#include "IdealHelixParameters.h"
 
 void IdealHelixParameters::
 setData(const reco::Track* track,  const math::XYZPoint& ref){
