@@ -21,6 +21,7 @@ using namespace std;
 
 
 PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet& parameterSet) : 
+//PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   PFCandidateManager( parameterSet.getParameter<double>("dRMax"),
 		      parameterSet.getParameter<bool>("matchCharge"), 
@@ -36,23 +37,22 @@ PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet& 
 
   myColl_ = consumes< PFCandidateCollection >(inputLabel_);
   myMatchColl_ = consumes< View<Candidate> >(matchLabel_);
+
 }
 
 
-void 
-PFCandidateManagerAnalyzer::beginJob()
+void PFCandidateManagerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & iRun,
+					    edm::EventSetup const & iSetup )
 {
-
-  BenchmarkAnalyzer::beginJob();
-  setup();
+  BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
+  setup(ibooker);
 }
 
 void 
 PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup) {
-  
-
-  
+    
   Handle< PFCandidateCollection > collection; 
   iEvent.getByToken(myColl_, collection);
 
@@ -62,5 +62,3 @@ PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent,
   fill( *collection, *matchCollection );
 }
 
-void PFCandidateManagerAnalyzer::endJob() {
-}
