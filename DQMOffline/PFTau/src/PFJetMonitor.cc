@@ -90,43 +90,62 @@ void PFJetMonitor::setParameters(float dRMax, bool onlyTwoJets, bool matchCharge
   candBench_.setParameters(mode_);
   matchCandBench_.setParameters(mode_);
 }
+
 //
 // -- Create histograms accessing parameters from ParameterSet
 //
-void PFJetMonitor::setup(const edm::ParameterSet & parameterSet) {
-  candBench_.setup(parameterSet);
-  matchCandBench_.setup(parameterSet);
+//void PFJetMonitor::setup(const edm::ParameterSet & parameterSet) {
+void PFJetMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet) {
+  //candBench_.setup(parameterSet);
+  candBench_.setup(b, parameterSet);
+  //matchCandBench_.setup(parameterSet);
+  matchCandBench_.setup(b, parameterSet);
 
   edm::ParameterSet dR = parameterSet.getParameter<edm::ParameterSet>("DeltaRHistoParameter");
-  if ( dR.getParameter<bool>("switchOn") ) 
-    deltaR_ = book1D("deltaR_", "#DeltaR;#DeltaR",
+  if ( dR.getParameter<bool>("switchOn") ) {
+    //deltaR_ = book1D("deltaR_", "#DeltaR;#DeltaR",
+    deltaR_ = book1D(b, "deltaR_", "#DeltaR;#DeltaR",
 		     dR.getParameter<int32_t>("nBin"), 
 		     dR.getParameter<double>("xMin"),
 		     dR.getParameter<double>("xMax"));
-
+  }
   if (createPFractionHistos_ && !histogramBooked_) {
-    delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_muon_ = book2D(b, "delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_photon_ = book2D(b, "delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_electron_ = book2D(b, "delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_charged_hadron_ = book2D(b, "delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_neutral_hadron_ = book2D(b, "delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
 
     histogramBooked_ = true;
   }
 }
+
 //
 // -- Create histograms using local parameters
 //
-void PFJetMonitor::setup() {
-  candBench_.setup();
-  matchCandBench_.setup();
+//void PFJetMonitor::setup() {
+void PFJetMonitor::setup(DQMStore::IBooker& b) {
+  //candBench_.setup();
+  candBench_.setup(b);
+  //matchCandBench_.setup();
+  matchCandBench_.setup(b);
 
   if (createPFractionHistos_ && !histogramBooked_) {
-    delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_muon_ = book2D(b, "delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_photon_ = book2D(b, "delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_electron_ = book2D(b, "delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_charged_hadron_ = book2D(b, "delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    //delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_neutral_hadron_ = book2D(b, "delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
 
     histogramBooked_ = true;
   }
