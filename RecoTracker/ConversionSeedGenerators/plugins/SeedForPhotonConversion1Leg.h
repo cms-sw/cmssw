@@ -19,7 +19,7 @@ class FreeTrajectoryState;
 //
 // this class need to be cleaned and optimized as those in RecoTracker/TkSeedGenerator
 //
-class SeedForPhotonConversion1Leg  {
+class dso_hidden SeedForPhotonConversion1Leg  {
 public:
   static const int cotTheta_Max=99999;
   

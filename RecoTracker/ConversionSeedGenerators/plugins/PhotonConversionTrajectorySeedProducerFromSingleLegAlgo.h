@@ -39,11 +39,9 @@ class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
 	edm::ConsumesCollector && iC);
   ~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo();
 
-  void analyze(const edm::Event & event, const edm::EventSetup & setup);
+  void find(const edm::Event & event, const edm::EventSetup & setup, TrajectorySeedCollection & output);
 
   IdealHelixParameters* getIdealHelixParameters(){return &_IdealHelixParameters;}
-  TrajectorySeedCollection* getTrajectorySeedCollection(){return seedCollection;}
-  TrajectorySeedCollection* getTrajectorySeedCollectionOfSourceTracks(){return seedCollectionOfSourceTracks;}
 
  private:
 
@@ -58,8 +56,8 @@ class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   //Data Members
   const edm::ParameterSet _conf;
 
-  TrajectorySeedCollection *seedCollection;
-  TrajectorySeedCollection *seedCollectionOfSourceTracks;
+  TrajectorySeedCollection * seedCollection=nullptr;
+
   std::unique_ptr<CombinedHitPairGeneratorForPhotonConversion> theHitsGenerator;
   std::unique_ptr<SeedForPhotonConversion1Leg> theSeedCreator;
   std::unique_ptr<GlobalTrackingRegionProducerFromBeamSpot> theRegionProducer;
@@ -81,7 +79,6 @@ class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   typedef Regions::const_iterator IR;
   Regions regions; 
 
-  edm::Handle<TrajTrackAssociationCollection> trajTrackAssociations;
   edm::Handle<reco::TrackCollection> trackCollectionH;
 
   const edm::EventSetup* myEsetup;
@@ -94,7 +91,6 @@ class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   IdealHelixParameters _IdealHelixParameters;
 
   edm::Handle<reco::VertexCollection> vertexHandle;
-  reco::VertexCollection vertexCollection;
   reco::Vertex primaryVertex;
 
   PrintRecoObjects po;

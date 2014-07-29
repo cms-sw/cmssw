@@ -1,5 +1,4 @@
 #include "PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -10,12 +9,14 @@
 
 //#define debugTSPFSLA
 
-inline double sqr(double a){return a*a;}
+namespace {
+  inline double sqr(double a){return a*a;}
+}
 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC)
-  :_conf(conf),seedCollection(0),seedCollectionOfSourceTracks(0),
+  :_conf(conf),
    theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
    theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
    theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
@@ -37,20 +38,16 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
 }
 
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-analyze(const edm::Event & event, const edm::EventSetup &setup){
+void 
+PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event & event, const edm::EventSetup & setup, TrajectorySeedCollection & output) {
 
   myEsetup = &setup;
   myEvent = &event;
 
-  if(seedCollection!=0)
-    delete seedCollection;
+  assert(seedCollection==nullptr);
 
-  if(seedCollectionOfSourceTracks!=0)
-    delete seedCollectionOfSourceTracks;
+  seedCollection = &output;
 
-  seedCollection= new TrajectorySeedCollection();
-  seedCollectionOfSourceTracks= new TrajectorySeedCollection();
 
   size_t clustsOrZero = theClusterCheck.tooManyClusters(event);
   if (clustsOrZero){
@@ -79,7 +76,9 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
 
   regions = theRegionProducer->regions(event,setup);
   
-  //Do the analysis
+
+
+  // find seeds
   loopOnTracks();
 
  
@@ -88,16 +87,19 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   ss.str("");
   ss << "\n++++++++++++++++++\n";
   ss << "seed collection size " << seedCollection->size();
-  BOOST_FOREACH(TrajectorySeed tjS,*seedCollection){
+  for (auto const & tjS : *seedCollection){
     po.print(ss, tjS);
   }
   edm::LogInfo("debugTrajSeedFromSingleLeg") << ss.str();
   //-------------------------------------------------
 #endif
 
+
    // clear memory
-  theHitsGenerator->clearLayerCache();
+  theHitsGenerator->clearCache();
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
+
+  seedCollection = nullptr;
 
 }
 
@@ -112,6 +114,7 @@ loopOnTracks(){
     edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("PhotonConversionTrajectorySeedProducerFromSingleLegAlgo");
     return;
   }
+
   size_t idx=0, sel=0;
   _countSeedTracks=0;
 
@@ -151,7 +154,7 @@ selectPriVtxCompatibleWithTrack(const reco::Track& tk, std::vector<reco::Vertex>
   double sphi2=tk.covariance(2,2);
   double stheta2=tk.covariance(1,1);
 
-  BOOST_FOREACH(const reco::Vertex& vtx,  *vertexHandle){
+  for ( const reco::Vertex& vtx :  *vertexHandle){
     count++;
     if(vtx.ndof()<= _vtxMinDoF) continue;
 
@@ -186,7 +189,8 @@ selectPriVtxCompatibleWithTrack(const reco::Track& tk, std::vector<reco::Vertex>
     return false;
 }
   
-  std::stable_sort(idx.begin(),idx.end(),lt_);
+  std::stable_sort(idx.begin(),idx.end(), [](std::pair<double,short> a, std::pair<double,short> b) { return a.first<b.first; });
+
   for(size_t i=0;i<_maxNumSelVtx && i<idx.size();++i){
     selectedPriVtxCompatibleWithTrack.push_back((*vertexHandle)[idx[i].second]);
 #ifdef debugTSPFSLA
@@ -201,7 +205,7 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 loopOnPriVtx(const reco::Track& tk, const std::vector<reco::Vertex>& selectedPriVtxCompatibleWithTrack){
 
   bool foundAtLeastASeedCand=false;
-  BOOST_FOREACH(const reco::Vertex vtx, selectedPriVtxCompatibleWithTrack){
+  for (auto const & vtx : selectedPriVtxCompatibleWithTrack){
 
     math::XYZPoint primaryVertexPoint=math::XYZPoint(vtx.position());
     
@@ -360,7 +364,7 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
     ss << "\n iHits " << iHits << "\n";
 #endif
     const SeedingHitSet & hits =  hitss[iHits];
-    theSeedCreator->trajectorySeed(*seedCollection,hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
+    theSeedCreator->trajectorySeed(*seedCollection, hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
   }
   return true;
 }

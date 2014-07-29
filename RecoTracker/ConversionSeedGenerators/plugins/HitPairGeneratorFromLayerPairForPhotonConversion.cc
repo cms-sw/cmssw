@@ -21,8 +21,10 @@ using namespace std;
 //#define mydebug_Seed
 
 typedef PixelRecoRange<float> Range;
-template<class T> inline T sqr( T t) {return t*t;}
 
+namespace {
+ template<class T> inline T sqr( T t) {return t*t;}
+}
 
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -38,20 +40,20 @@ HitPairGeneratorFromLayerPairForPhotonConversion::HitPairGeneratorFromLayerPairF
 							     LayerCacheType* layerCache,
 							     unsigned int nSize,
 							     unsigned int max)
-  : HitPairGenerator(nSize),
-    theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
-{
-  theMaxElement=max;
-  ss = new std::stringstream;
+  :
+    theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max) {
+
 }
 
 void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const ConversionRegion& convRegion,
 								const TrackingRegion & region, OrderedHitPairs & result,
 								const edm::Event& event, const edm::EventSetup& es)
 {
+ auto oldSize = result.size();
+ auto maxNum = result.size()+theMaxElement;
 
 #ifdef mydebug_Seed
-  ss->str("");
+  ss.str("");
 #endif
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
@@ -62,7 +64,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   Layer outerLayerObj = outerLayer();
 
 #ifdef mydebug_Seed
-  (*ss) << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name() << std::endl;
+  (*ss. << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name() << std::endl;
 #endif
 
   if(!checkBoundaries(*innerLayerObj.detLayer(),convRegion,40.,60.)) return; //FIXME, the maxSearchR(Z) are not optimized
@@ -90,7 +92,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   outerHitsMap.hits( outerPhimin, outerPhimax, outerHits);
 
 #ifdef mydebug_Seed
-  (*ss) << "\tophimin, ophimax " << outerPhimin << " " << outerPhimax << std::endl;
+  (*ss. << "\tophimin, ophimax " << outerPhimin << " " << outerPhimax << std::endl;
 #endif
 
   /* loop on outer hits*/
@@ -99,7 +101,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
 #ifdef mydebug_Seed
     GlobalPoint oPos = ohit->globalPosition();  
     
-    (*ss) << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
+    (*ss. << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
 #endif
 
     /*Check the compatibility of the ohit with the eta of the seeding track*/
@@ -116,7 +118,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     const HitRZCompatibility *checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
     if(!checkRZ) {
 #ifdef mydebug_Seed
-      (*ss) << "*******\nNo valid checkRZ\n*******" << std::endl;
+      (*ss. << "*******\nNo valid checkRZ\n*******" << std::endl;
 #endif
       continue;
     }
@@ -127,7 +129,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     innerHitsMap.hits(innerPhimin, innerPhimax, innerHits);
 
 #ifdef mydebug_Seed
-    (*ss) << "\tiphimin, iphimax " << innerPhimin << " " << innerPhimax << std::endl;
+    (*ss. << "\tiphimin, iphimax " << innerPhimin << " " << innerPhimax << std::endl;
 #endif    
 
     /*Loop on inner hits*/
@@ -136,7 +138,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
       
 
 #ifdef mydebug_Seed
-      (*ss) << "\tinnPos " << innPos <<  " r " << innPos.perp() << " phi " << innPos.phi() << " cotTheta " << innPos.z()/innPos.perp() <<  std::endl;
+      (*ss. << "\tinnPos " << innPos <<  " r " << innPos.perp() << " phi " << innPos.phi() << " cotTheta " << innPos.z()/innPos.perp() <<  std::endl;
 #endif
 
       /*Check the compatibility of the ohit with the eta of the seeding track*/
@@ -157,7 +159,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
       Range crossRange = allowed.intersection(hitRZ);
 
 #ifdef mydebug_Seed      
-      (*ss) 
+      (*ss. 
 	<< "\n\t\t allowed Range " << allowed.min() << " \t, " << allowed.max() 
 	<< "\n\t\t hitRz   Range " << hitRZ.min()   << " \t, " << hitRZ.max() 
 	<< "\n\t\t Cross   Range " << crossRange.min()   << " \t, " << crossRange.max() 
@@ -167,18 +169,18 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
       
       if (! crossRange.empty() ) {
 #ifdef mydebug_Seed      
-      (*ss) 
+      (*ss. 
 	<< "\n\t\t !!!!ACCEPTED!!! \n\n";
 #endif
-	if (theMaxElement!=0 && result.size() >= theMaxElement){
-	  result.clear();
+	if (theMaxElement!=0 && result.size() >= maxNum ){
+	  result.resize(oldSize);
 #ifdef mydebug_Seed      
 	  edm::LogError("TooManySeeds")<<"number of pairs exceed maximum, no pairs produced";
 #endif
 	  delete checkRZ;
 
 #ifdef mydebug_Seed
-	  std::cout << (*ss).str();
+	  std::cout << (*ss..str();
 #endif
 	  return;
 	}
@@ -189,7 +191,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   }
 
 #ifdef mydebug_Seed
-  std::cout << (*ss).str();
+  std::cout << (*ss..str();
 #endif
 }
 
@@ -226,8 +228,8 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::checkBoundaries(const Det
     float minZEndCap=130;
     if(fabs(convRegion.convPoint().z()) > minZEndCap){
 #ifdef mydebug_Seed
-      (*ss) << "\tthe conversion seems to be in the endcap. Zconv " << convRegion.convPoint().z() << std::endl;
-      std::cout << (*ss).str();
+      (*ss. << "\tthe conversion seems to be in the endcap. Zconv " << convRegion.convPoint().z() << std::endl;
+      std::cout << (*ss..str();
 #endif
       return false;
     }
@@ -236,16 +238,16 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::checkBoundaries(const Det
     
     if(convRegion.convPoint().perp()>R){
 #ifdef mydebug_Seed
-      (*ss) << "\tthis layer is before the conversion : R layer " << R << " [ Rconv " << convRegion.convPoint().perp() << " Zconv " << convRegion.convPoint().z()<< std::endl;
-      std::cout << (*ss).str();
+      (*ss. << "\tthis layer is before the conversion : R layer " << R << " [ Rconv " << convRegion.convPoint().perp() << " Zconv " << convRegion.convPoint().z()<< std::endl;
+      std::cout << (*ss..str();
 #endif
       return false;
     }
     
     if(R - convRegion.convPoint().perp() > maxSearchR ){
 #ifdef mydebug_Seed
-      (*ss) << "\tthis layer is far from the conversion more than cut " << maxSearchR << " cm. R layer " << R << " [ Rconv " << convRegion.convPoint().perp() << " Zconv " << convRegion.convPoint().z()<< std::endl;
-      std::cout << (*ss).str();
+      (*ss. << "\tthis layer is far from the conversion more than cut " << maxSearchR << " cm. R layer " << R << " [ Rconv " << convRegion.convPoint().perp() << " Zconv " << convRegion.convPoint().z()<< std::endl;
+      std::cout << (*ss..str();
 #endif
       return false;
     }
@@ -259,8 +261,8 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::checkBoundaries(const Det
        (convRegion.convPoint().z()<0 && convRegion.convPoint().z()<Z)
        ) {
 #ifdef mydebug_Seed
-      (*ss) << "\tthis layer is before the conversion : Z layer " << Z << " [ Rconv " << convRegion.convPoint().perp()<< " Zconv " << convRegion.convPoint().z() << std::endl;
-      std::cout << (*ss).str();
+      (*ss. << "\tthis layer is before the conversion : Z layer " << Z << " [ Rconv " << convRegion.convPoint().perp()<< " Zconv " << convRegion.convPoint().z() << std::endl;
+      std::cout << (*ss..str();
 #endif
       return false;
     }    
@@ -268,8 +270,8 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::checkBoundaries(const Det
      
     if(fabs(Z - convRegion.convPoint().z()) > maxSearchZ ){
 #ifdef mydebug_Seed
-      (*ss) << "\tthis layer is far from the conversion more than cut " << maxSearchZ << " cm. Z layer " << Z << " [ Rconv " << convRegion.convPoint().perp()<< " Zconv " << convRegion.convPoint().z() << std::endl;
-      std::cout << (*ss).str();
+      (*ss. << "\tthis layer is far from the conversion more than cut " << maxSearchZ << " cm. Z layer " << Z << " [ Rconv " << convRegion.convPoint().perp()<< " Zconv " << convRegion.convPoint().z() << std::endl;
+      std::cout << (*ss..str();
 #endif
       return false;
     }
@@ -345,7 +347,7 @@ checkRZCompatibilityWithSeedTrack(const RecHitsSortedInPhi::Hit& hit,const DetLa
   Range crossRange = allowedCotTheta.intersection(hitCotTheta);
 
 #ifdef mydebug_Seed      
-      (*ss) 
+      (*ss. 
 	<< "\n\t\t cotTheta allowed Range " << allowedCotTheta.min() << " \t, " << allowedCotTheta.max() 
 	<< "\n\t\t hitCotTheta   Range " << hitCotTheta.min()   << " \t, " << hitCotTheta.max() 
 	<< "\n\t\t Cross   Range " << crossRange.min()   << " \t, " << crossRange.max() 

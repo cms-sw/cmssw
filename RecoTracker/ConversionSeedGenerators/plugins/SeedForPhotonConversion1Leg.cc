@@ -17,7 +17,9 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 //#define mydebug_seed
-template <class T> T sqr( T t) {return t*t;}
+namespace {
+  template <class T> T sqr( T t) {return t*t;}
+}
 
 const TrajectorySeed * SeedForPhotonConversion1Leg::trajectorySeed(
     TrajectorySeedCollection & seedCollection,

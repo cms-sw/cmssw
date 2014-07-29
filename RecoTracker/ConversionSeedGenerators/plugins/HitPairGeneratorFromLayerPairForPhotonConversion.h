@@ -2,7 +2,7 @@
 #define HitPairGeneratorFromLayerPairForPhotonConversion_h
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "ConversionRegion.h"
@@ -10,11 +10,11 @@
 class DetLayer;
 class TrackingRegion;
 
-class HitPairGeneratorFromLayerPairForPhotonConversion : public HitPairGenerator {
+class dso_hidden HitPairGeneratorFromLayerPairForPhotonConversion { // : public HitPairGenerator {
 
 public:
 
-  typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
+  typedef LayerHitMapCache LayerCacheType;
   typedef SeedingLayerSetsHits::SeedingLayerSet Layers;
   typedef SeedingLayerSetsHits::SeedingLayer Layer;
  
@@ -24,19 +24,22 @@ public:
 				unsigned int nSize=30000,
 				unsigned int max=0);
 
-  virtual ~HitPairGeneratorFromLayerPairForPhotonConversion() { }
+//  virtual ~HitPairGeneratorFromLayerPairForPhotonConversion() { }
 
-  void setSeedingLayers(Layers layers) override { theSeedingLayers = layers; }
+  void setSeedingLayers(Layers layers)  { theSeedingLayers = layers; }
 
   void hitPairs( const ConversionRegion& convRegion, const TrackingRegion& reg, OrderedHitPairs & prs, 
 			 const edm::Event & ev,  const edm::EventSetup& es);
 
+/*
   virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
 			 const edm::Event & ev,  const edm::EventSetup& es){};
+
 
   virtual HitPairGeneratorFromLayerPairForPhotonConversion* clone() const {
     return new HitPairGeneratorFromLayerPairForPhotonConversion(*this);
   }
+*/
 
   Layer innerLayer() const { return theSeedingLayers[theInnerLayer]; }
   Layer outerLayer() const { return theSeedingLayers[theOuterLayer]; }
@@ -58,8 +61,9 @@ private:
   Layers theSeedingLayers;
   const unsigned int theOuterLayer;
   const unsigned int theInnerLayer;
+  const unsigned int theMaxElement;
 
-  std::stringstream *ss;
+  std::stringstream ss;
 
 };
 
