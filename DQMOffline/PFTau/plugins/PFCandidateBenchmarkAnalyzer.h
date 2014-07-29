@@ -13,10 +13,13 @@ class PFCandidateBenchmarkAnalyzer: public BenchmarkAnalyzer, public PFCandidate
  public:
   
   PFCandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
+  //PFCandidateBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
   
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginJob();
-  void endJob();
+  //void beginJob();
+  void beginJob(){};
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  //void endJob();
 
   edm::EDGetTokenT< reco::PFCandidateCollection > myColl_;
 };
