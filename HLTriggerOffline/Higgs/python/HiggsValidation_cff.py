@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.RecoB.dqmAnalyzer_cff import *
+#from DQMOffline.RecoB.dqmAnalyzer_cff import *
+from HLTriggerOffline.Higgs.dqmAnalyzer_cff import *
 
 from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import *
 

@@ -36,6 +36,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -117,6 +118,8 @@ class HLTHiggsSubAnalysis
 		edm::EDGetTokenT<reco::PhotonCollection> _recLabelsPhoton;
 		edm::EDGetTokenT<reco::CaloMETCollection> _recLabelsCaloMET;
 		edm::EDGetTokenT<reco::PFTauCollection> _recLabelsPFTau;
+        edm::EDGetTokenT<reco::PFJetCollection> _recLabelsPFJet;
+        edm::EDGetTokenT<reco::JetTagCollection> _recTagPFJet;
 		edm::EDGetTokenT<std::vector< PileupSummaryInfo > > _puSummaryInfo;
 
 		
@@ -144,7 +147,7 @@ class HLTHiggsSubAnalysis
 	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
 	      	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
-		StringCutObjectSelector<reco::PFJet>      * _recPFJetSelector;
+            StringCutObjectSelector<reco::PFJet>      * _recPFJetSelector;
 	      	StringCutObjectSelector<reco::Track>       * _recTrackSelector;
 		
 		//bool to determine if VBFHbb plots have to be made

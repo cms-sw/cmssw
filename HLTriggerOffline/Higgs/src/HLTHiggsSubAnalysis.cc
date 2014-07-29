@@ -238,7 +238,7 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
 			it != _recLabels.end(); ++it)
 	{
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
-                TString maxPt;
+        TString maxPt;
 
 		for(size_t i = 0; i < sources.size(); i++) 
 		{
@@ -335,28 +335,37 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-		// Avoiding the TkMu and Mu case
-/*		if( alreadyMu )
-		{
-			continue;
-		}*/
-		// Initialize selectors when first event
-		if(!_genSelectorMap[it->first]) 
-		{
-			_genSelectorMap[it->first] = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
-		}
+        // Skip genJets
+        if(it->first == EVTColContainer::PFJET)
+        {
+            continue;
+        }
+        // Use genParticles
+        else
+        {
+          // Avoiding the TkMu and Mu case
+  /*		if( alreadyMu )
+          {
+              continue;
+          }*/
+          // Initialize selectors when first event
+          if(!_genSelectorMap[it->first]) 
+          {
+              _genSelectorMap[it->first] = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
+          }
 
-		for(size_t i = 0; i < cols->genParticles->size(); ++i)
-		{
-			if(_genSelectorMap[it->first]->operator()(cols->genParticles->at(i)))
-			{
-				matches->push_back(MatchStruct(&cols->genParticles->at(i),it->first));
-			}
-		}
-/*		if( it->first == EVTColContainer::MUON || it->first == EVTColContainer::TRACK )
-		{
-			alreadyMu = true;
-		}*/
+          for(size_t i = 0; i < cols->genParticles->size(); ++i)
+          {
+              if(_genSelectorMap[it->first]->operator()(cols->genParticles->at(i)))
+              {
+                  matches->push_back(MatchStruct(&cols->genParticles->at(i),it->first));
+              }
+          }
+  /*		if( it->first == EVTColContainer::MUON || it->first == EVTColContainer::TRACK )
+          {
+              alreadyMu = true;
+          }*/
+        }
 	}
 	// Sort the MatchStructs by pT for later filling of turn-on curve
 	std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
@@ -449,7 +458,9 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			countobjects->insert(std::pair<unsigned int,int>(co->first,0));
 		}
 		int counttotal = 0;
-		const int totalobjectssize2 = _minCandidates*countobjects->size();
+		int totobj_temp = _minCandidates*countobjects->size();
+        if( _isVBFHBB && it->first == GEN ) totobj_temp = _minCandidates*(countobjects->size()-1);
+        const int totalobjectssize2 = totobj_temp;
 		for(size_t j = 0; j < it->second.size(); ++j)
 		{
 			if( _isVBFHBB && j >= (unsigned) totalobjectssize2) break;
@@ -619,6 +630,8 @@ void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset, edm::Co
 	if( anpset.exists("recJetLabel") )
 	{
 		_recLabels[EVTColContainer::PFJET] = anpset.getParameter<std::string>("recJetLabel");
+        _recLabelsPFJet = iC.consumes<reco::PFJetCollection>(anpset.getParameter<std::string>("recJetLabel"));
+        _recTagPFJet = iC.consumes<reco::JetTagCollection>(anpset.getParameter<std::string>("jetTagLabel"));
 	}
 	/*if( anpset.exists("recTrackLabel") )
 	{
@@ -696,7 +709,7 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 		}
 		else if( it->first == EVTColContainer::PFJET )
 		{
-		// Done in initAndInsertJets because they need to be combined with the btags using the Handle (not the product)
+		// Done in initAndInsertJets because they need to be combined with the btags using the Handle (not the product) and for ordering them seperately in the MatchStruct's
 		}
 		else
 		{
@@ -833,19 +846,19 @@ FIXME: ERROR NO IMPLEMENTADO
 void HLTHiggsSubAnalysis::initAndInsertJets(const edm::Event & iEvent, EVTColContainer * cols, 
 		std::vector<MatchStruct> * matches)
 {
-	edm::Handle<reco::PFJetCollection> theHandle;
-	iEvent.getByLabel(_recLabels[EVTColContainer::PFJET], theHandle);
-	cols->set(theHandle.product());
+    edm::Handle<reco::PFJetCollection> PFJetHandle;
+    iEvent.getByToken(_recLabelsPFJet, PFJetHandle);
+    cols->set(PFJetHandle.product());
+    
+    edm::Handle<reco::JetTagCollection> JetTagHandle;
+    iEvent.getByToken(_recTagPFJet, JetTagHandle);
 
-	edm::Handle<reco::JetTagCollection> theTagHandle;
-	iEvent.getByLabel("pfCombinedSecondaryVertexBJetTags", theTagHandle);
-
-	for(reco::PFJetCollection::const_iterator it = theHandle->begin(); 
-	it != theHandle->end(); ++it)
+	for(reco::PFJetCollection::const_iterator it = PFJetHandle->begin(); 
+	it != PFJetHandle->end(); ++it)
 	{	
-		reco::PFJetRef jetRef(theHandle, it - theHandle->begin());
+		reco::PFJetRef jetRef(PFJetHandle, it - PFJetHandle->begin());
 		reco::JetBaseRef jetBaseRef(jetRef); 
-		float bTag  = (*(theTagHandle.product()))[jetBaseRef];	
+		float bTag  = (*(JetTagHandle.product()))[jetBaseRef];	
 
 		if(_recPFJetSelector->operator()(*it))
 		{

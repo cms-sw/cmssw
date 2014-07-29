@@ -157,6 +157,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    ),
 	    #recJetLabel  = cms.string("ak5PFJets"),
 	    recJetLabel  = cms.string("PFJetsFilter"),
+	    jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(4), 
 	    isVBFHBB   = cms.untracked.bool(True),
