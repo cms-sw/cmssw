@@ -101,6 +101,16 @@ int electronCompare()
   TString CMP_RED_COMMENT  = gSystem->Getenv( "CMP_RED_COMMENT"  ) ;
   TString CMP_BLUE_COMMENT = gSystem->Getenv( "CMP_BLUE_COMMENT" ) ;
   TString CMP_CONFIG       = gSystem->Getenv( "CMP_CONFIG"       ) ;
+  TString CMP_RED_RELEASE  = gSystem->Getenv( "CMP_RED_RELEASE"  ) ;
+  TString CMP_BLUE_RELEASE = gSystem->Getenv( "CMP_BLUE_RELEASE" ) ;
+
+//-----
+// AC
+//  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
+//  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
+  std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
+  std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
+//-----
 
   // style:
   TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
@@ -231,10 +241,17 @@ int electronCompare()
    }
   else
    {
-    web_page
+/*    web_page
      <<"<p>In all plots below"
      <<", the "<<CMP_RED_NAME<<" histograms are in red"
-     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;
+     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;*/
+    web_page
+     <<"<p>In all plots below"
+     <<", the "<<CMP_RED_RELEASE<<" histograms are in red"
+     <<", and the "<<CMP_BLUE_RELEASE<<" histograms are in blue." ;
+/*	std::cout <<"<p>In all plots below "
+     <<", the "<<CMP_RED_RELEASE<<" histograms are in red"
+     <<", and the "<<CMP_BLUE_RELEASE<<" histograms are in blue." << std::endl ;*/
    }
 
   std::ifstream red_comment_file(CMP_RED_COMMENT) ;
@@ -391,6 +408,10 @@ int electronCompare()
     canvas = new TCanvas(canvas_name) ;
     canvas->SetFillColor(10) ;
 
+
+
+
+
     web_page<<"<a id=\""<<histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
 
     // search histo_ref
@@ -416,6 +437,7 @@ int electronCompare()
     // search histo_new
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
+
 
     // special treatments
     if ((scaled==1)&&(histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetEntries()!=0))
@@ -490,6 +512,14 @@ int electronCompare()
         Double_t y2 = st_ref->GetY2NDC() ;
         st_ref->SetY1NDC(2*y1-y2) ;
         st_ref->SetY2NDC(y1) ;
+
+
+
+
+
+
+
+
        }
 
       // Redraws
@@ -502,6 +532,8 @@ int electronCompare()
       // eventual log scale
       //if ( (log==1) && ( (histo_new->GetEntries()>0) || ( (histo_ref!=0) && (histo_ref->GetEntries()!=0) ) ) )
       // { canvas->SetLogy(1) ; }
+
+
 
       std::cout<<histo_name
         <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
