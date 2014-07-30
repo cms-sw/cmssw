@@ -79,7 +79,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   tkDCACut = theParameters.getParameter<double>(string("tkDCACut"));
   vtxFitter = theParameters.getParameter<edm::InputTag>("vertexFitter");
   innerHitPosCut = theParameters.getParameter<double>(string("innerHitPosCut"));
-  std::vector<std::string> qual = theParameters.getParameter<std::vector<std::string> >("trackaQualities");
+  std::vector<std::string> qual = theParameters.getParameter<std::vector<std::string> >("trackQualities");
   for (unsigned int ndx = 0; ndx < qual.size(); ndx++) {
     qualities.push_back(reco::TrackBase::qualityByName(qual[ndx]));
   }
