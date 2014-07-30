@@ -23,8 +23,8 @@ public:
   void setGeometry(const GEMGeometry* geom);
   virtual void bookHisto(const GEMGeometry* geom) = 0 ;
   virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
-  MonitorElement* BookHistZR( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =0 ); 
-  MonitorElement* BookHistXY( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =0 ); 
+  MonitorElement* BookHistZR( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =10 ); 
+  MonitorElement* BookHistXY( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =10 ); 
 protected:
 
   std::vector< std::string > regionLabel;
