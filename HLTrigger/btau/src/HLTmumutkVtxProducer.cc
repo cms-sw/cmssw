@@ -65,7 +65,7 @@ HLTmumutkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("MinInvMass",0.0);
   desc.add<double>("MaxInvMass",99999.);
   desc.add<double>("MinD0Significance",0.0);
-  desc.add<double>("OverlapDR",0.001);
+  desc.add<double>("OverlapDR",1.44e-4);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   descriptions.add("HLTmumutkVtxProducer",desc);
 }
