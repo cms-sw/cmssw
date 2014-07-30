@@ -37,13 +37,6 @@
 #include <ext/hash_map>
 
 
-// using namespace edm;
-// using namespace reco;
-// using namespace std;
-// using namespace __gnu_cxx;
-
-
-
 
 class DeDxDiscriminatorProducer : public edm::stream::EDProducer<> {
 
@@ -95,7 +88,7 @@ private:
   std::string       ProbabilityMode;
 
 
-  TH3D*        Prob_ChargePath;
+  std::unique_ptr<TH3F>        Prob_ChargePath;
 
 
 

@@ -74,7 +74,7 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    useCalibration      = iConfig.getParameter<bool>("UseCalibration");
    m_calibrationPath   = iConfig.getParameter<string>("calibrationPath");
 
-   Prob_ChargePath = NULL;
+   Prob_ChargePath = nullptr;
 }
 
 
@@ -108,8 +108,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
    double zmin = DeDxMap_.rangeZ().min;
    double zmax = DeDxMap_.rangeZ().max;
 
-   if(Prob_ChargePath)delete Prob_ChargePath;
-   Prob_ChargePath  = new TH3D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
+   Prob_ChargePath.reset(new TH3F ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax));
 
    
 
