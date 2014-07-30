@@ -4,8 +4,11 @@ process = cms.Process("DUMP")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+
+tagInfo = '2015'
+cfgPath = 'Configuration.Geometry.' + 'GeometryExtended' + tagInfo + 'Reco_cff'
+
+process.load(cfgPath)
 
 process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
 
@@ -21,7 +24,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
-                              level = cms.untracked.int32(1)
+                              level = cms.untracked.int32(1),
+                              info = cms.string(tagInfo)
                               )
 
 process.p = cms.Path(process.dump)
