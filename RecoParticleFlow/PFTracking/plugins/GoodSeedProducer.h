@@ -53,12 +53,10 @@ class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
    public:
       explicit GoodSeedProducer(const edm::ParameterSet&);
-      ~GoodSeedProducer();
   
    private:
       virtual void beginRun(const edm::Run & run,const edm::EventSetup&) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endRun(const edm::Run & run,const edm::EventSetup&) override;
  
       ///Find the bin in pt and eta
       int getBin(float,float);
@@ -67,10 +65,6 @@ class GoodSeedProducer : public edm::EDProducer {
 				 const edm::OrphanHandle<reco::PreIdCollection>&,
 				 edm::ValueMap<reco::PreIdRef>::Filler & filler);
       // ----------member data ---------------------------
-
-      ///Vector of clusters of the PreShower
-      std::vector<reco::PFCluster const *> ps1Clus;
-      std::vector<reco::PFCluster const *> ps2Clus;
 
       ///Name of the Seed(Ckf) Collection
       std::string preidckf_;
@@ -91,7 +85,7 @@ class GoodSeedProducer : public edm::EDProducer {
       TkClonerImpl hitCloner;
 
       ///PFTrackTransformer
-      PFTrackTransformer *pfTransformer_;
+      std::unique_ptr<PFTrackTransformer> pfTransformer_;
 
       ///Number of hits in the seed;
       int nHitsInSeed_;
@@ -143,15 +137,15 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string smootherName_;
       std::string propagatorName_;
 
-      PFResolutionMap* resMapEtaECAL_;
-      PFResolutionMap* resMapPhiECAL_;
+      std::unique_ptr<PFResolutionMap> resMapEtaECAL_;
+      std::unique_ptr<PFResolutionMap> resMapPhiECAL_;
 
       ///TRACK QUALITY
       bool useQuality_;
       reco::TrackBase::TrackQuality trackQuality_;
 	
       ///READER FOR TMVA
-      TMVA::Reader *reader[9]{};
+      std::array<std::unique_ptr<TMVA::Reader>,9> reader{};
 
       ///VARIABLES NEEDED FOR TMVA
       float eP,eta,pt,nhit,dpt,chired,chiRatio;
