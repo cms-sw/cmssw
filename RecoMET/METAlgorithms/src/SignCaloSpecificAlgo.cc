@@ -130,6 +130,12 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEE,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		    
 		}
+		else if(subdet == EcalShashlik ){
+		  sign_tower_type = "emcalotower";
+		  sign_tower_et = calotower->emEt();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloEK,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEK,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
+		}
 		else{
 		  edm::LogWarning("SignCaloSpecificAlgo") << " ECAL tower cell not assigned to an ECAL subdetector!!!" << std::endl;
 		}
