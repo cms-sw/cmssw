@@ -224,14 +224,15 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   aRecHit.getKfComponents(holder);
 
   VecN diff = r - rMeas;
-  R *= annealing;					//assume that TSOS is smoothed one
+
   if(!CutWeight){
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t r:" << r ;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t tsospos:" << rMeas ;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t diff:" << diff ;
-    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R*= ann:" << R ;
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R:" << R ;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t RMeas:" << RMeas ;
   }
+
   R += RMeas;						//assume that TSOS is predicted || comb one
   if(!CutWeight)  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R+RMeas:" << R ;
 
@@ -265,7 +266,7 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   if(!CutWeight){
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t det:" << det;
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2:" << Chi2;
-    //LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2 new:" << Chi2_pred;
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2/ann:" << Chi2/annealing;
   }
 
   double temp_weight = 0.0;
@@ -278,7 +279,7 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   }
 
   if(!CutWeight) {
-    temp_weight = exp(-0.5*Chi2); 
+    temp_weight = exp(-0.5*Chi2/annealing); 
   }
 
   return temp_weight;
