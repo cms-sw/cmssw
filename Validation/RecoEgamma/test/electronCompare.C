@@ -111,8 +111,8 @@ int electronCompare()
   std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
 //-----
-
-  // style:
+  
+// style:
   TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
   eleStyle->SetCanvasBorderMode(0);
   eleStyle->SetCanvasColor(kWhite);
@@ -149,6 +149,8 @@ int electronCompare()
   eleStyle->SetPadLeftMargin(0.15);
   eleStyle->SetMarkerStyle(21);
   eleStyle->SetMarkerSize(0.8);
+  //-- AC --
+  eleStyle->SetPadRightMargin(0.2) ; 
 
   eleStyle->cd();
 
@@ -407,10 +409,10 @@ int electronCompare()
     canvas_name = "c" ; canvas_name += histo_name ;
     canvas = new TCanvas(canvas_name) ;
     canvas->SetFillColor(10) ;
-
-
-
-
+	//std::cout << "canvas width " << canvas->GetWindowWidth() << std::endl; // 800 default
+	//std::cout << "canvas height " << canvas->GetWindowHeight() << std::endl; // 600 default
+	//std::cout << "canvas Y real " << canvas->GetYsizeReal() << std::endl;
+	//std::cout << "canvas Y user " << canvas->GetYsizeUser() << std::endl;
 
     web_page<<"<a id=\""<<histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
 
@@ -437,7 +439,7 @@ int electronCompare()
     // search histo_new
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
-
+	//std::cout << "size " << histo_new->GetSize() << std::endl ;
 
     // special treatments
     if ((scaled==1)&&(histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetEntries()!=0))
@@ -481,6 +483,11 @@ int electronCompare()
       histo_new->SetLineWidth(3) ;
       RenderHisto(histo_new,canvas) ;
       histo_new->Draw(newDrawOptions) ;
+//	  std::cout << "SIZE : " << canvas->GetWw() << std::endl ; // 796 default
+//	  std::cout << "SIZE : " << canvas->GetWh() << std::endl ; // 572 default
+      //canvas->Update() ;
+	  //canvas->SetWindowSize(440, 600);
+	  canvas->SetCanvasSize(960, 600);
       canvas->Update() ;
       st_new = (TPaveStats*)histo_new->FindObject("stats");
       st_new->SetTextColor(kRed) ;
@@ -512,14 +519,12 @@ int electronCompare()
         Double_t y2 = st_ref->GetY2NDC() ;
         st_ref->SetY1NDC(2*y1-y2) ;
         st_ref->SetY2NDC(y1) ;
-
-
-
-
-
-
-
-
+        //Double_t x1 = st_ref->GetX1NDC() ;
+        //Double_t x2 = st_ref->GetX2NDC() ;
+		//std::cout << "position s x1 = " << x1 << std::endl ; // 0.78 par defaut
+		//std::cout << "position s x2 = " << x2 << std::endl ; // 0.98 par defaut
+		//std::cout << "position s y1 = " << y1 << std::endl ; // 0.755 ou 0.835 par defaut
+		//std::cout << "position s y2 = " << y2 << std::endl ; // 0.995 par defaut
        }
 
       // Redraws
@@ -534,11 +539,11 @@ int electronCompare()
       // { canvas->SetLogy(1) ; }
 
 
-
-      std::cout<<histo_name
-        <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
-        <<" of mean value "<<histo_new->GetMean()
-        <<std::endl ;
+// ne pas oublier de decommenter les 4 lignes suivantes
+//      std::cout<<histo_name
+//        <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
+//        <<" of mean value "<<histo_new->GetMean()
+//        <<std::endl ;
       canvas->SaveAs(gif_path.Data()) ;
       web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"440\" src=\""<<gif_name<<"\"></a><br>" ;
      }
