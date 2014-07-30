@@ -1,6 +1,7 @@
 # "HIon" menu
 
 HLT_CaloJet260_v*                                       # JIRA: CMSHLT-67
+HLT_Physics_v*						# skim
 
 HLTriggerFirstPath
 HLTriggerFinalPath
@@ -12,7 +13,7 @@ AOutput
 #ALCAPHISYMOutput
 #ALCALUMIPIXELSOutput
 #CalibrationOutput
-#DQMOutput
+DQMOutput						# online DQMFileSaver
 #EcalCalibrationOutput
 #ExpressForHIOutput
 #HLTDQMOutput
