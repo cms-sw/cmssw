@@ -41,10 +41,10 @@ using namespace reco;
             /// destructor
             virtual ~AnalyticalTrackSelector() ;
 
-        protected:
+        private:
             typedef math::XYZPoint Point;
             /// process one event
-            void produce( edm::Event& evt, const edm::EventSetup& es )  override;
+            void run( edm::Event& evt, const edm::EventSetup& es )  const override;
  
             /// copy only the tracks, not extras and rechits (for AOD)
             bool copyExtras_;
@@ -57,18 +57,6 @@ using namespace reco;
             edm::EDGetTokenT<std::vector<Trajectory> >        srcTraj_;
             edm::EDGetTokenT<TrajTrackAssociationCollection > srcTass_;
 			
-            /// storage
-            std::auto_ptr<reco::TrackCollection> selTracks_;
-            std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
-            std::auto_ptr< TrackingRecHitCollection>  selHits_;
-            std::auto_ptr< std::vector<Trajectory> > selTrajs_;
-            std::auto_ptr< std::vector<const Trajectory *> > selTrajPtrs_;
-            std::auto_ptr< TrajTrackAssociationCollection >  selTTAss_;
-            reco::TrackRefProd rTracks_;
-            reco::TrackExtraRefProd rTrackExtras_;
-            TrackingRecHitRefProd rHits_;
-            edm::RefProd< std::vector<Trajectory> > rTrajectories_;
-            std::vector<reco::TrackRef> trackRefs_;
 
     };
 
@@ -117,8 +105,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
 
     produces<edm::ValueMap<float> >("MVAVals");
     useAnyMVA_ = false;
-    forest_ = 0;
-    gbrVals_ = 0;  
+    forest_ = nullptr;
 
     src_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>( "src" ));
     beamspot_ = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>( "beamspot" ));
@@ -218,8 +205,24 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
 AnalyticalTrackSelector::~AnalyticalTrackSelector() {
 }
 
-void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es ) 
+
+void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 {
+
+            // storage....
+            std::auto_ptr<reco::TrackCollection> selTracks_;
+            std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
+            std::auto_ptr< TrackingRecHitCollection>  selHits_;
+            std::auto_ptr< std::vector<Trajectory> > selTrajs_;
+            std::auto_ptr< std::vector<const Trajectory *> > selTrajPtrs_;
+            std::auto_ptr< TrajTrackAssociationCollection >  selTTAss_;
+            reco::TrackRefProd rTracks_;
+            reco::TrackExtraRefProd rTrackExtras_;
+            TrackingRecHitRefProd rHits_;
+            edm::RefProd< std::vector<Trajectory> > rTrajectories_;
+            std::vector<reco::TrackRef> trackRefs_;
+
+
   using namespace std; 
   using namespace edm;
   using namespace reco;
@@ -260,7 +263,8 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
   if (copyTrajectories_) trackRefs_.resize(hSrcTrack->size());
 
-  processMVA(evt,es);
+  std::vector<float>  mvaVals_(hSrcTrack->size(),-99.f);
+  processMVA(evt,es,mvaVals_);
 
   // Loop over tracks
   size_t current = 0;
@@ -270,7 +274,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
     LogTrace("TrackSelection") << "ready to check track with pt="<< trk.pt() ;
 
-    double mvaVal = 0;
+    float mvaVal = 0;
     if(useAnyMVA_)mvaVal = mvaVals_[current];
     bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
     if (!ok) {

@@ -42,9 +42,14 @@
             virtual ~MultiTrackSelector() ;
 
         protected:
+            void beginRun(edm::Run const&, edm::EventSetup const&) final;
             typedef math::XYZPoint Point;
             /// process one event
-            virtual void produce( edm::Event& evt, const edm::EventSetup& es ) override;
+            void produce( edm::Event& evt, const edm::EventSetup& es ) final {
+               run(evt,es);
+            }
+            virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;
+
             /// return class, or -1 if rejected
             bool select (unsigned tsNum,
 			 const reco::BeamSpot &vertexBeamSpot, 
@@ -52,14 +57,14 @@
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
 			 std::vector<float> &vzerr,
-			 double mvaVal);
+			 double mvaVal) const;
             void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
 				  std::vector<Point> &points,
 				  std::vector<float> &vterr,
-				  std::vector<float> &vzerr);
+				  std::vector<float> &vzerr) const;
 
-	    void processMVA(edm::Event& evt, const edm::EventSetup& es);
+	    void processMVA(edm::Event& evt, const edm::EventSetup& es, std::vector<float> & mvaVals_) const;
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
@@ -123,28 +128,16 @@
 	    //setup mva selector
 	    std::vector<bool> useMVA_;
 	    //std::vector<TMVA::Reader*> mvaReaders_;
+
 	    std::vector<double> min_MVA_;
-	    std::vector<double> mvaVals_;
+
 	    //std::vector<std::string> mvaType_;
 	    std::string mvaType_;
 	    std::string forestLabel_;
-	    GBRForest* forest_;
+	    std::atomic<GBRForest*> forest_;
 	    bool useForestFromDB_;
 	    std::string dbFileName_;
 
-	    float tmva_ndof_;
-	    float tmva_nlayers_;
-	    float tmva_nlayers3D_;
-	    float tmva_nlayerslost_;
-	    float tmva_chi2n_;
-	    float tmva_chi2n_no1dmod_;
-	    float tmva_eta_;
-	    float tmva_relpterr_;
-	    float tmva_nhits_;
-	    float tmva_minlost_;
-	    float tmva_lostmidfrac_;
-
-	    float* gbrVals_;
 
     };
 
