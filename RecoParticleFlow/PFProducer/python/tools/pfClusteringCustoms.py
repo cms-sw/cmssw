@@ -287,7 +287,7 @@ def customizePFHCALClustering(process,scenario,data = False):
         process.pfClusteringHBHEHF+=process.particleFlowRecHitHBHE
         process.pfClusteringHBHEHF+=process.particleFlowRecHitHF
         process.pfClusteringHBHEHF+=process.particleFlowClusterHBHE
-#        process.pfClusteringHBHEHF+=process.particleFlowClusterHBHETimeSelected
+        process.pfClusteringHBHEHF+=process.particleFlowClusterHBHETimeSelected
         process.pfClusteringHBHEHF+=process.particleFlowClusterHF
 
 
@@ -300,9 +300,9 @@ def customizePFHCALClustering(process,scenario,data = False):
 
 
         process.particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
-               clustersSource = cms.InputTag("particleFlowClusterHBHE"),
+#               clustersSource = cms.InputTag("particleFlowClusterHBHE"),
 
- #              clustersSource = cms.InputTag("particleFlowClusterHBHETimeSelected"),
+               clustersSource = cms.InputTag("particleFlowClusterHBHETimeSelected"),
                pfClusterBuilder =cms.PSet(
                       algoName = cms.string("PFMultiDepthClusterizer"),
                       nSigmaEta = cms.double(2.),
@@ -344,11 +344,11 @@ def customizePFHCALClustering(process,scenario,data = False):
         
 
 
-#        process.particleFlowRecHitHBHE.navigator = cms.PSet(
-#            name = cms.string("PFRecHitHCALNavigatorWithTime"),
-#            sigmaCut = cms.double(5.0),
-#            timeResolutionCalc = _timeResolutionHCALMaxSample
-#        )
+        process.particleFlowRecHitHBHE.navigator = cms.PSet(
+            name = cms.string("PFRecHitHCALNavigatorWithTime"),
+            sigmaCut = cms.double(5.0),
+            timeResolutionCalc = _timeResolutionHCALMaxSample
+        )
 
 
         
