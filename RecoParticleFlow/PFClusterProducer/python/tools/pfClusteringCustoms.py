@@ -35,11 +35,16 @@ def customizePFECALClustering(process,scenario):
         
         
 
-def customizePFHCALClustering(process,scenario):
+def customizePFHCALClustering(process,scenario,data = False):
     if scenario ==1:
         print '-------------HCAL CLUSTERING-------------'
         print 'SCENARIO 1: HCAL clustering from hits'
-        print 'No timing cuts applied'
+        print 'Timing cuts are applied'
+        if not data:
+            print 'You are trying to run on MC, if not set data to True'
+        else:   
+            print 'You are trying to run on data, if not set data to False'
+ 
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi')
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi')
         process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi')
@@ -98,7 +103,27 @@ def customizePFHCALClustering(process,scenario):
                 
         process.particleFlowBlock.elementImporters = newImporters
         
-                
+
+
+        # Enable OOT pileup corrections for HBHE in MC processing
+        process.hbheprereco.mcOOTCorrectionName = cms.string("HBHE")
+
+        # Uncomment next line to enable OOT pileup corrections in data processing
+        # process.hbheprereco.dataOOTCorrectionName = cms.string("HBHE")
+
+        # Configure database access for the OOT pileup corrections
+        import os
+        process.load("CondCore.CondDB.CondDBboost_cfi")
+        process.CondDBboost.connect = "sqlite_file:%s/src/CondTools/Hcal/data/testOOTPileupCorrection.db" % os.environ["CMSSW_RELEASE_BASE"]
+
+        process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+                                              process.CondDBboost,
+                                              toGet = cms.VPSet(cms.PSet(
+                    record = cms.string("HcalOOTPileupCorrectionRcd"),
+                    tag = cms.string("test")
+                    )
+            )
+        )
         
 
 
