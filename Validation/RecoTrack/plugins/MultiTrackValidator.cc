@@ -175,10 +175,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
+  //  std::cout << "[MultiTrackValidator::analyze tPCeff: " << tPCeff.size() << std::endl;
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByToken(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
+  //  std::cout << "[MultiTrackValidator::analyze tPCfake: " << tPCfake.size() << std::endl;
 
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
@@ -296,6 +298,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
       unsigned sts(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut
       unsigned asts(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
+      //      std::cout << "[MultiTrackValidator::analyze] tPCeff.size(): " << tPCeff.size() << std::endl;
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){ //loop over TPs collection for tracking efficiency
 	TrackingParticleRef tpr(TPCollectionHeff, i);
 	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
@@ -307,9 +310,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
-	if(parametersDefiner=="LhcParametersDefinerForTP")
+	if(parametersDefiner=="LhcParametersDefinerForTP" || parametersDefiner=="hltLhcParametersDefinerForTP")
 	  {
+	    //	    std::cout << "[MultiTrackValidator::analyze parametersDefiner == LhcParametersDefinerForTP !" << std::endl;
+	    //	    std::cout << "TP is selected ? " << std::endl;
 	    if(! tpSelector(*tp)) continue;
+	    //	    std::cout << "YES!!!!" << std::endl;
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
@@ -339,6 +345,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// - dxySim
 	// - dzSim
 
+	//	std::cout << "MultiTrackValidator::analyze] filing simTracks w: " << w << std::endl;
 	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->eventId().bunchCrossing());
 
 
@@ -372,6 +379,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 
         int nSimHits = tp->numberOfTrackerHits();
+	//	std::cout << "filling fill_recoAssociated_simTrack_histos " << std::endl;
 	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
           if (matchedTrackPointer) asts++;
