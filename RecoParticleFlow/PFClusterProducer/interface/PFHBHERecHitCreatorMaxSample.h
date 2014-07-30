@@ -140,7 +140,6 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	energy  = samples[maxSample];
 	time = -100. + maxSample*25.0;
 	int depth = detid.depth();
-
 	math::XYZVector position;
 	math::XYZVector axis;
 	
