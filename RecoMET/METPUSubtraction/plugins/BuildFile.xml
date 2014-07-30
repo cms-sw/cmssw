@@ -1,0 +1,22 @@
+<export>
+</export>
+<library   name="RecoMETMETPUSubtraction_plugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/METReco"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="DataFormats/TauReco"/>
+  <use   name="DataFormats/VertexReco"/>
+  <use   name="JetMETCorrections/Objects"/>
+  <use   name="RecoMET/METPUSubtraction"/>
+  <use   name="RecoJets/JetProducers"/> 
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</library>
