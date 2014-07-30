@@ -120,6 +120,12 @@ FWGeometry::loadMap( const char* fileName )
    }
 
 
+   TNamed* tag = static_cast<TNamed*>(file->Get( "TAG" ));
+   if (tag) {
+      m_prodTag = tag->GetTitle();
+   }
+
+
    TNamed* version = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
 
    if (version)
@@ -363,4 +369,15 @@ FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* g
 		   + local[1] * info.matrix[3 * i + 1]
 		   + local[2] * info.matrix[3 * i + 2];
    }
+}
+
+//______________________________________________________________________________
+
+int FWGeometry::getMaxRPCStation() const
+{
+   if (m_prodTag == "2015")
+      return 4;
+   else 
+      return 3;
+
 }

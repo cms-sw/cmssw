@@ -495,12 +495,12 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
 
 
        std::vector<RPCDetId> ids;
-
+       int mxSt = m_geom->getMaxRPCStation(); 
        for (int region = -1; region <=1; ++ region )
        {
            if (region == 0 ) continue;
            for (int ring = 2; ring <= 3; ++ring) {
-               for (int station = 1; station <=4; ++station ) {
+             for (int station = 1; station <= mxSt; ++station ) {
                    int sector = 1;
                    ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
                    ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));

@@ -102,11 +102,17 @@ public:
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
    void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
+
+
+   // Utils, related with drawing and versioning
+   int getMaxRPCStation() const;
  
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
+
+   std::string m_prodTag;
 
    TGeoShape* getShape( const GeomDetInfo& info ) const;
 };
