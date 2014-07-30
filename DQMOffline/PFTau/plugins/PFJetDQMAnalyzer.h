@@ -12,7 +12,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-//class PFJetDQMAnalyzer: public edm::EDAnalyzer {
 class PFJetDQMAnalyzer: public DQMEDAnalyzer {
  public:
   
@@ -20,9 +19,6 @@ class PFJetDQMAnalyzer: public DQMEDAnalyzer {
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);
-  //void analyze(DQMStore::IBooker & ibooker, edm::Event const&, edm::EventSetup const&);
-  //void beginJob() ;
-  //void endJob();
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

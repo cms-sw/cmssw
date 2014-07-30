@@ -14,6 +14,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+
 //
 // -- Constructor
 //
@@ -52,16 +54,15 @@ void PFMETDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
   edm::LogInfo("PFMETDQMAnalyzer") << " PFMETDQMAnalyzer::beginJob " << "Histogram Folder path set to " << eventInfoFolder_;
 
-  //pfMETMonitor_.setup(pSet_);
   pfMETMonitor_.setup(ibooker, pSet_);
 }
+
 
 //
 // -- Analyze
 //
 void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent, 
 			       edm::EventSetup const& iSetup) {
-//void PFMETDQMAnalyzer::analyze(DQMStore::IBooker & ibooker, edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   edm::Handle< edm::View<reco::MET> > metCollection;
   iEvent.getByToken(myMET_, metCollection);   
   
@@ -72,7 +73,6 @@ void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent,
     float maxRes = 0.0;
     float minRes = 99.99;
     pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);    
-    //pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes, pSet_);   
 
     /* 
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
@@ -104,12 +104,10 @@ void PFMETDQMAnalyzer::storeBadEvents(DQMStore::IBooker & ibooker, edm::Event co
   std::ostringstream eventid_str;
   eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
 
-  //MonitorElement* me = Benchmark::DQM_->get(path + "/" + eventid_str.str());
   /*
   MonitorElement* me = ibooker.get(path + "/" + eventid_str.str());
   if (me) me->Reset();
   else {
-    //me = Benchmark::DQM_->bookFloat(eventid_str.str());
     me = ibooker.bookFloat(eventid_str.str());
   }
   me->Fill(val); 

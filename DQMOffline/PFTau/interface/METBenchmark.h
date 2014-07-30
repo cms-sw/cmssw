@@ -16,7 +16,6 @@ class METBenchmark : public Benchmark {
   virtual ~METBenchmark();
 
   /// book histograms
-  //void setup();
   void setup(DQMStore::IBooker& b);
 
   /// fill a collection

@@ -16,7 +16,6 @@ class MatchMETBenchmark : public Benchmark {
   virtual ~MatchMETBenchmark();
 
   /// book histograms
-  //void setup();
   void setup(DQMStore::IBooker& b);
   
   /// fill histograms with a given particle

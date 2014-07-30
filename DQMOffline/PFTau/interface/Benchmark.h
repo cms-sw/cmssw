@@ -38,9 +38,6 @@ class Benchmark{
     VALIDATION
   };
 
-  //In STEP1 the direct access to the DQMStore is forbidden
-  //static DQMStore *DQM_; 
-
   Benchmark(Mode mode = DEFAULT) : 
     dir_(0), mode_(mode), 
     ptMin_(0), ptMax_(10e10), 

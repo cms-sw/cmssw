@@ -16,7 +16,6 @@ using namespace std;
 
 
 METBenchmarkAnalyzer::METBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
-  //METBenchmarkAnalyzer::METBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   METBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
 {

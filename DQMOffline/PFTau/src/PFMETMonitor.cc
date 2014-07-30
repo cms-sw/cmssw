@@ -11,6 +11,7 @@
 
 #include <TProfile.h>
 
+
 //
 // -- Constructor
 //
@@ -38,10 +39,13 @@ PFMETMonitor::PFMETMonitor( Benchmark::Mode mode) :
   createMETSpecificHistos_ = false;
   histogramBooked_ = false;
 } 
+
+
 //
 // -- Destructor
 //
 PFMETMonitor::~PFMETMonitor() {}
+
 
 //
 // -- Set Parameters accessing them from ParameterSet
@@ -61,6 +65,8 @@ void PFMETMonitor::setParameters( const edm::ParameterSet & parameterSet) {
   candBench_.setParameters(mode_);
   matchCandBench_.setParameters(mode_);
 }
+
+
 //
 // -- Set Parameters 
 //
@@ -75,14 +81,13 @@ void PFMETMonitor::setParameters(Benchmark::Mode mode, float ptmin, float ptmax,
   candBench_.setParameters(mode_);
   matchCandBench_.setParameters(mode_);  
 }
+
+
 //
 // -- Create histograms accessing parameters from ParameterSet
 //
-//void PFMETMonitor::setup(const edm::ParameterSet & parameterSet) {
 void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet) {
-  //candBench_.setup(parameterSet);
   candBench_.setup(b, parameterSet);
-  //matchCandBench_.setup(parameterSet);
   matchCandBench_.setup(b, parameterSet);
 
   if (createMETSpecificHistos_ && !histogramBooked_) {
@@ -95,21 +100,18 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
     edm::ParameterSet setOvsetPS = parameterSet.getParameter<edm::ParameterSet>("DeltaSumEtOvSumEtHistoParameter");
     
     if (pxPS.getParameter<bool>("switchOn")) {
-      //px_ = book1D("px_", "px_;p_{X} (GeV)",
       px_ = book1D(b, "px_", "px_;p_{X} (GeV)",
                      pxPS.getParameter<int32_t>("nBin"),
                      pxPS.getParameter<double>("xMin"),
 		     pxPS.getParameter<double>("xMax"));
     }
     if (setPS.getParameter<bool>("switchOn")) {
-      //sumEt_  = book1D("sumEt_", "sumEt_;#sumE_{T}",
       sumEt_  = book1D(b, "sumEt_", "sumEt_;#sumE_{T}",
                      setPS.getParameter<int32_t>("nBin"),
                      setPS.getParameter<double>("xMin"),
 		     setPS.getParameter<double>("xMax"));
     }
     if (dpxPS.getParameter<bool>("switchOn")) {
-      //delta_ex_  = book1D("delta_ex_", "#DeltaME_{X}",
       delta_ex_  = book1D(b, "delta_ex_", "#DeltaME_{X}",
                      dpxPS.getParameter<int32_t>("nBin"),
                      dpxPS.getParameter<double>("xMin"),
@@ -117,7 +119,6 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
     }
 
     if (dpxPS.getParameter<bool>("switchOn")) {
-      //delta_ex_VS_set_ = book2D("delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
       delta_ex_VS_set_ = book2D(b, "delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
 				setPS.getParameter<int32_t>("nBin"), 
 				setPS.getParameter<double>("xMin"), 
@@ -127,7 +128,6 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
 				dptPS.getParameter<double>("xMax"));
     }
     if (dsetPS.getParameter<bool>("switchOn")) {
-      //delta_set_VS_set_ = book2D("delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
       delta_set_VS_set_ = book2D(b, "delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
 				 setPS.getParameter<int32_t>("nBin"), 
 				 setPS.getParameter<double>("xMin"), 
@@ -137,7 +137,6 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
 				 dsetPS.getParameter<double>("xMax"));
     }
     if (setOvsetPS.getParameter<bool>("switchOn")) {
-      //delta_set_Over_set_VS_set_ = book2D("delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
       delta_set_Over_set_VS_set_ = book2D(b, "delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 					  setPS.getParameter<int32_t>("nBin"), 
 					  setPS.getParameter<double>("xMin"), 
@@ -146,16 +145,15 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
 					  setOvsetPS.getParameter<double>("xMin"), 
 					  setOvsetPS.getParameter<double>("xMax"));
     }
+
     // TProfile
     if (dpxPS.getParameter<bool>("switchOn")) {
-      //profile_delta_ex_VS_set_ = bookProfile("profile_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
       profile_delta_ex_VS_set_ = bookProfile(b, "profile_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
 					     setPS.getParameter<int32_t>("nBin"), 
 					     setPS.getParameter<double>("xMin"), 
 					     setPS.getParameter<double>("xMax"),                             
 					     dptPS.getParameter<double>("xMin"), 
 					     dptPS.getParameter<double>("xMax"), "" );
-      //profileRMS_delta_ex_VS_set_ = bookProfile("profileRMS_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
       profileRMS_delta_ex_VS_set_ = bookProfile(b, "profileRMS_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
 					     setPS.getParameter<int32_t>("nBin"), 
 					     setPS.getParameter<double>("xMin"), 
@@ -164,14 +162,12 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
 					     dptPS.getParameter<double>("xMax"), "s" );
     }
     if (dsetPS.getParameter<bool>("switchOn")) {
-      //profile_delta_set_VS_set_ = bookProfile("profile_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
       profile_delta_set_VS_set_ = bookProfile(b, "profile_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
 					      setPS.getParameter<int32_t>("nBin"), 
 					      setPS.getParameter<double>("xMin"), 
 					      setPS.getParameter<double>("xMax"),
 					      dsetPS.getParameter<double>("xMin"), 
 					      dsetPS.getParameter<double>("xMax"), "" );
-      //profileRMS_delta_set_VS_set_ = bookProfile("profileRMS_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
       profileRMS_delta_set_VS_set_ = bookProfile(b, "profileRMS_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
 					      setPS.getParameter<int32_t>("nBin"), 
 					      setPS.getParameter<double>("xMin"), 
@@ -180,14 +176,12 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
 					      dsetPS.getParameter<double>("xMax"), "s" );
     }
     if (setOvsetPS.getParameter<bool>("switchOn")) {
-      //profile_delta_set_Over_set_VS_set_ = bookProfile("profile_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
       profile_delta_set_Over_set_VS_set_ = bookProfile(b, "profile_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 						       setPS.getParameter<int32_t>("nBin"), 
 						       setPS.getParameter<double>("xMin"), 
 						       setPS.getParameter<double>("xMax"),
 						       setOvsetPS.getParameter<double>("xMin"), 
 						       setOvsetPS.getParameter<double>("xMax"), "" );
-      //profileRMS_delta_set_Over_set_VS_set_ = bookProfile("profileRMS_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
       profileRMS_delta_set_Over_set_VS_set_ = bookProfile(b, "profileRMS_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 						       setPS.getParameter<int32_t>("nBin"), 
 						       setPS.getParameter<double>("xMin"), 
@@ -199,14 +193,12 @@ void PFMETMonitor::setup(DQMStore::IBooker& b, const edm::ParameterSet & paramet
   }
 }
 
+
 //
 // -- Create histograms using local parameters
 //
-//void PFMETMonitor::setup() {
 void PFMETMonitor::setup(DQMStore::IBooker& b) {
-  //candBench_.setup();
   candBench_.setup(b);
-  //matchCandBench_.setup();
   matchCandBench_.setup(b);
   
   if (createMETSpecificHistos_ && !histogramBooked_) {
@@ -217,59 +209,50 @@ void PFMETMonitor::setup(DQMStore::IBooker& b) {
     PhaseSpace dsetPS     = PhaseSpace( 50, -1000.0, 1000);
     PhaseSpace setOvsetPS = PhaseSpace( 100,0., 2.);
 
-    //px_  = book1D("px_", "px_;p_{X} (GeV)", pxPS.n, pxPS.m, pxPS.M);
     px_  = book1D(b, "px_", "px_;p_{X} (GeV)", pxPS.n, pxPS.m, pxPS.M);
-    //sumEt_ = book1D("sumEt_", "sumEt_;#sumE_{T}", setPS.n, setPS.m, setPS.M);
     sumEt_ = book1D(b, "sumEt_", "sumEt_;#sumE_{T}", setPS.n, setPS.m, setPS.M);
-    //delta_ex_ = book1D("delta_ex_", "#DeltaME_{X}", dpxPS.n, dpxPS.m, dpxPS.M);
     delta_ex_ = book1D(b, "delta_ex_", "#DeltaME_{X}", dpxPS.n, dpxPS.m, dpxPS.M);
-    //delta_ex_VS_set_ = book2D("delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
     delta_ex_VS_set_ = book2D(b, "delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
 			      setPS.n, setPS.m, setPS.M, 
 			      dpxPS.n, dpxPS.m, dpxPS.M );
-    //delta_set_VS_set_ = book2D("delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
     delta_set_VS_set_ = book2D(b, "delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
 			       setPS.n, setPS.m, setPS.M,
 			       dsetPS.n, dsetPS.m, dsetPS.M );
     
-    //delta_set_Over_set_VS_set_ = book2D("delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
     delta_set_Over_set_VS_set_ = book2D(b, "delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 					setPS.n, setPS.m, setPS.M,
 					setOvsetPS.n, setOvsetPS.m, setOvsetPS.M );
+
     // TProfile
-    //profile_delta_ex_VS_set_ = bookProfile("profile_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
     profile_delta_ex_VS_set_ = bookProfile(b, "profile_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
 					   setPS.n, setPS.m, setPS.M,
 					   setOvsetPS.m, setOvsetPS.M, ""  );
     
-    //profile_delta_set_VS_set_ = bookProfile("profile_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
     profile_delta_set_VS_set_ = bookProfile(b, "profile_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
 					    setPS.n, setPS.m, setPS.M,
 					    setOvsetPS.m, setOvsetPS.M, ""  );
     					    
-    //profile_delta_set_Over_set_VS_set_ = bookProfile("profile_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
     profile_delta_set_Over_set_VS_set_ = bookProfile(b, "profile_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 						     setPS.n, setPS.m, setPS.M,
 						     setOvsetPS.m, setOvsetPS.M, ""  );
+
     // TProfile RMS
-    //profileRMS_delta_ex_VS_set_ = bookProfile("profileRMS_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
     profileRMS_delta_ex_VS_set_ = bookProfile(b, "profileRMS_delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
 					   setPS.n, setPS.m, setPS.M,
 					   setOvsetPS.m, setOvsetPS.M, "s"  );
     
-    //profileRMS_delta_set_VS_set_ = bookProfile("profileRMS_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
     profileRMS_delta_set_VS_set_ = bookProfile(b, "profileRMS_delta_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}",
 					    setPS.n, setPS.m, setPS.M,
 					    setOvsetPS.m, setOvsetPS.M, "s"  );
     					    
     
-    //profileRMS_delta_set_Over_set_VS_set_ = bookProfile("profileRMS_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
     profileRMS_delta_set_Over_set_VS_set_ = bookProfile(b, "profileRMS_delta_set_Over_set_VS_set_", ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 						     setPS.n, setPS.m, setPS.M,
 						     setOvsetPS.m, setOvsetPS.M, "s"  );
     histogramBooked_ = true;
   }
 }
+
 
 void PFMETMonitor::setDirectory(TDirectory* dir) {
   Benchmark::setDirectory(dir);
@@ -278,15 +261,12 @@ void PFMETMonitor::setDirectory(TDirectory* dir) {
   matchCandBench_.setDirectory(dir);
 }
 
+
 void PFMETMonitor::fillOne(const reco::MET& met,
 			   const reco::MET& matchedMet, float& minVal, float& maxVal) {
-  /*void PFMETMonitor::fillOne(const reco::MET& met,
-			   const reco::MET& matchedMet, float& minVal, float& maxVal,
-			   const edm::ParameterSet & parameterSet) {*/
 
   candBench_.fillOne(met);  //std::cout <<"\nfillone MET candBench" <<std::endl;
   matchCandBench_.fillOne(met, matchedMet); //std::cout <<"\nfillone MET MatchCandBench done" <<std::endl;
-  //matchCandBench_.fillOne(met, matchedMet, parameterSet); std::cout <<"\nfillone MET MatchCandBench done" <<std::endl;
 
   if (createMETSpecificHistos_ && histogramBooked_) {
     if( !isInRange(met.pt(), met.eta(), met.phi() ) ) return;

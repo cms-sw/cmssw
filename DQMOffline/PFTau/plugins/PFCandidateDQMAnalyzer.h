@@ -19,9 +19,6 @@ class PFCandidateDQMAnalyzer: public DQMEDAnalyzer {
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);
-  //void analyze(DQMStore::IBooker &, edm::Event const&, edm::EventSetup const&);
-  //void beginJob() ;
-  //void endJob();
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

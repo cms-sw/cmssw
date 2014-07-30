@@ -10,18 +10,14 @@
 
 class DQMStore;
 class MonitorElement;
-//class PFClient: public edm::EDAnalyzer {
 class PFClient: public DQMEDHarvester {
  public:
   
   PFClient(const edm::ParameterSet& parameterSet);
   
  private:
-  //void beginJob();
-  //void analyze(edm::Event const&, edm::EventSetup const&){;}
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  //void endJob();
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; 
 
   void doSummaries();
   void doEfficiency();
@@ -43,7 +39,6 @@ class PFClient: public DQMEDHarvester {
   bool efficiencyFlag_;
   bool profileFlag_;
 
-  //DQMStore* dqmStore_;
   DQMStore::IBooker * ibooker_;
   DQMStore::IGetter * igetter_;
 

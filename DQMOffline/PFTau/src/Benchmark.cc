@@ -10,27 +10,20 @@
 
 using namespace std;
 
-//In STEP1 the direct access to the DQMStore is forbidden
-//DQMStore* Benchmark::DQM_ = 0;
-
 Benchmark::~Benchmark() {
 
 }
 
+
 void Benchmark::setDirectory(TDirectory* dir) {
   dir_ = dir;
-  //DQM_ = 0; 
 } 
 
 
-//TH1F* Benchmark::book1D(const char* histname, const char* title, 
 TH1F* Benchmark::book1D(DQMStore::IBooker& b, const char* histname, const char* title, 
 			int nbins, float xmin, float xmax) {
-  // DQM_ has to be initialized in a child analyzer.
-  //if(DQM_) {
   if (1) {
     edm::LogInfo("Benchmark") << " Benchmark::book1D " << "booking "<<histname;
-    //return DQM_->book1D(histname,title,nbins,xmin, xmax)->getTH1F();
     return b.book1D(histname,title,nbins,xmin,xmax)->getTH1F();
   }
   else if (dir_) {
@@ -44,15 +37,11 @@ TH1F* Benchmark::book1D(DQMStore::IBooker& b, const char* histname, const char* 
   else assert(0);
 }
 
-//TH2F* Benchmark::book2D(const char* histname, const char* title, 
 TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* title, 
 			int nbinsx, float xmin, float xmax,
 			int nbinsy, float ymin, float ymax ) {
-  // DQM_ has to be initialized in a child analyzer.
-  //if (DQM_) {
   if (1) {
     edm::LogInfo("Benchmark") << " Benchmark::book2D "<<"booked "<<histname;
-    //return DQM_->book2D(histname,title,nbinsx,xmin, xmax, nbinsy, ymin, ymax)->getTH2F();
     return b.book2D(histname,title,nbinsx,xmin, xmax, nbinsy, ymin, ymax)->getTH2F();
   }
   else if(dir_) {
@@ -66,11 +55,9 @@ TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* 
   else assert(0);
 }
 
-//TH2F* Benchmark::book2D(const char* histname, const char* title, 
 TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* title, 
 			int nbinsx, float* xbins,
 			int nbinsy, float ymin, float ymax ) {
-  //if (DQM_) {
   if (1) {
     edm::LogInfo("Benchmark") << " Benchmark::book2D " << " booked "<<histname;
     
@@ -81,7 +68,6 @@ TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* 
       ybins[i] = ymin + i*binsize;
     } 
     
-    //return DQM_->book2D(histname,title,nbinsx, xbins, nbinsy, &ybins[0])->getTH2F();
     return b.book2D(histname,title,nbinsx, xbins, nbinsy, &ybins[0])->getTH2F();
   }
   else if(dir_) {
@@ -102,15 +88,11 @@ TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* 
   else assert(0);
 }
 
-//TProfile* Benchmark::bookProfile(const char* histname, const char* title,
 TProfile* Benchmark::bookProfile(DQMStore::IBooker& b, const char* histname, const char* title,
 				 int nbinsx, float xmin, float xmax,
 				 float ymin, float ymax, const char* option ) {
-  // DQM_ has to be initialized in a child analyzer.
-  //if (DQM_) {
   if (1) {
     edm::LogInfo("Benchmark") << " Benchmark::bookProfile "<<"booked "<<histname;
-    //return DQM_->bookProfile(histname, title, nbinsx, xmin, xmax, 0.0, 0.0, option )->getTProfile();
     return b.bookProfile(histname, title, nbinsx, xmin, xmax, 0.0, 0.0, option )->getTProfile();
   }
   else if(dir_) {
@@ -124,7 +106,6 @@ TProfile* Benchmark::bookProfile(DQMStore::IBooker& b, const char* histname, con
   else assert(0);
 }
 
-//TProfile* Benchmark::bookProfile(const char* histname, const char* title,
 TProfile* Benchmark::bookProfile(DQMStore::IBooker& b, const char* histname, const char* title,
 				 int nbinsx, float* xbins,
 				 float ymin, float ymax, const char* option ) {
@@ -135,11 +116,8 @@ TProfile* Benchmark::bookProfile(DQMStore::IBooker& b, const char* histname, con
     xbinsd[i] = xbins[i];
   }
 
-  // DQM_ has to be initialized in a child analyzer.
-  //if (DQM_) {
   if (1) {
     edm::LogInfo("Benchmark") << " Benchmark::bookProfile "<<"booked "<<histname;
-    //return DQM_->bookProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option)->getTProfile();
     return b.bookProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option)->getTProfile();
   }
   else if(dir_) {

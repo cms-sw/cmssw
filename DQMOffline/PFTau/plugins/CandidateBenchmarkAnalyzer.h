@@ -14,13 +14,10 @@ class CandidateBenchmarkAnalyzer: public BenchmarkAnalyzer, public CandidateBenc
  public:
   
   CandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
-  //CandidateBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
   
   void analyze(const edm::Event&, const edm::EventSetup&);
-  //void beginJob();
   void beginJob(){};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  //void endJob();
 
   edm::EDGetTokenT< edm::View<reco::Candidate> > myColl_;
 };

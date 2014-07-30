@@ -13,6 +13,7 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 
+
 //
 // -- Constructor
 //
@@ -40,10 +41,10 @@ void PFClient_JetRes::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& i
   ibooker_ = &ibooker ;
   igetter_ = &igetter ;
 
-  // moved from endRun
   doSummaries(); 
   if (efficiencyFlag_) doEfficiency();
 }
+
 
 //
 // -- Create Summaries
@@ -62,6 +63,7 @@ void PFClient_JetRes::doSummaries() {
   }
 }
 
+
 //
 // -- Create Efficiency
 //
@@ -78,11 +80,11 @@ void PFClient_JetRes::doEfficiency() {
   }
 }
 
+
 //
 // -- Create Resolution Plots
 //
 void PFClient_JetRes::createResolutionPlots(std::string& folder, std::string& name) {     
-  //MonitorElement* me = dqmStore_->get(folder+"/"+name);
   MonitorElement* me = igetter_->get(folder+"/"+name);
   if (!me) return;
 
@@ -130,36 +132,27 @@ void PFClient_JetRes::createResolutionPlots(std::string& folder, std::string& na
     }    
 
     std::string tit_new;
-    //dqmStore_->setCurrentFolder(folder);
     ibooker_->setCurrentFolder(folder);
-    //MonitorElement* me_slice = dqmStore_->book1D("PFlowSlice", "PFlowSlice", nbiny, ymin, ymax); 
     //MonitorElement* me_slice = ibooker_->book1D("PFlowSlice", "PFlowSlice", nbiny, ymin, ymax); 
     
     tit_new = "Average "+ytit+";"+xtit+";Average_"+ytit ; 
-    //me_average = dqmStore_->book1D("average_"+name,tit_new, nbinx, xbins); 
     me_average = ibooker_->book1D("average_"+name,tit_new, nbinx, xbins); 
     me_average->setEfficiencyFlag();
     tit_new = "RMS "+ytit+";"+xtit+";RMS_"+ytit ; 
-    //me_rms     = dqmStore_->book1D("rms_"+name,tit_new, nbinx, xbins); 
     me_rms     = ibooker_->book1D("rms_"+name,tit_new, nbinx, xbins); 
     me_rms->setEfficiencyFlag();
     tit_new = ";"+xtit+";Mean_"+ytit; 
-    //me_mean    = dqmStore_->book1D("mean_"+name,tit_new, nbinx, xbins); 
     me_mean    = ibooker_->book1D("mean_"+name,tit_new, nbinx, xbins); 
     me_mean->setEfficiencyFlag();
     tit_new = ";"+xtit+";Sigma_"+ytit; 				 
-    //me_sigma   = dqmStore_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
     me_sigma   = ibooker_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
     me_sigma->setEfficiencyFlag();
     
     double  average, rms, mean, sigma;
     for (size_t ix = 1; ix < nbinx+1; ++ix) {
       //me_slice->Reset();
-      //if (name == "delta_et_Over_et_VS_et_") pT[ix-1] = dqmStore_->book1D(pTRange[ix-1], TString::Format("Total %s;%s;Events", ytit.data(), ytit.data() ), nbiny, ymin, ymax) ;
       if (name == "delta_et_Over_et_VS_et_") pT[ix-1] = ibooker_->book1D(pTRange[ix-1], TString::Format("Total %s;%s;Events", ytit.data(), ytit.data() ), nbiny, ymin, ymax) ;
-      //if (name == "BRdelta_et_Over_et_VS_et_") pT[ix-1] = dqmStore_->book1D(pTRange[ix-1], TString::Format("Barrel %s;%s;Events", ytit.data(), ytit.data()), nbiny, ymin, ymax) ;
       if (name == "BRdelta_et_Over_et_VS_et_") pT[ix-1] = ibooker_->book1D(pTRange[ix-1], TString::Format("Barrel %s;%s;Events", ytit.data(), ytit.data()), nbiny, ymin, ymax) ;
-      //else if (name == "ERdelta_et_Over_et_VS_et_") pT[ix-1] = dqmStore_->book1D(pTRange[ix-1], TString::Format("Endcap %s;%s;Events", ytit.data(), ytit.data() ), nbiny, ymin, ymax) ;
       else if (name == "ERdelta_et_Over_et_VS_et_") pT[ix-1] = ibooker_->book1D(pTRange[ix-1], TString::Format("Endcap %s;%s;Events", ytit.data(), ytit.data() ), nbiny, ymin, ymax) ;
 
       for (size_t iy = 0; iy <= nbiny+1; ++iy)  // add under and overflow
@@ -178,11 +171,12 @@ void PFClient_JetRes::createResolutionPlots(std::string& folder, std::string& na
       me_mean->setBinContent(ix,mean);
       me_sigma->setBinContent(ix,sigma);
     }
-    //if (me_slice) dqmStore_->removeElement(me_slice->getName());
     //if (me_slice) igetter_->removeElement(me_slice->getName());
     delete [] xbins;
   }
 }
+
+
 //
 // -- Get Histogram Parameters
 //
@@ -208,13 +202,13 @@ void PFClient_JetRes::getHistogramParameters(MonitorElement* me_slice, double& a
     }
   }
 }
+
+
 //
 // -- Create Resolution Plots
 //
 void PFClient_JetRes::createEfficiencyPlots(std::string& folder, std::string& name) {     
-  //MonitorElement* me1 = dqmStore_->get(folder+"/"+name);
   MonitorElement* me1 = igetter_->get(folder+"/"+name);
-  //MonitorElement* me2 = dqmStore_->get(folder+"/"+name+"ref_");
   MonitorElement* me2 = igetter_->get(folder+"/"+name+"ref_");
   if (!me1 || !me2) return;
   MonitorElement* me_eff;
@@ -229,9 +223,7 @@ void PFClient_JetRes::createEfficiencyPlots(std::string& folder, std::string& na
     std::string tit_new;
     tit_new = ";"+xtit+";Efficiency"; 
 
-    //dqmStore_->setCurrentFolder(folder);
     ibooker_->setCurrentFolder(folder);
-    //me_eff = dqmStore_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
     me_eff = ibooker_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
 				 
     double efficiency;
@@ -245,5 +237,6 @@ void PFClient_JetRes::createEfficiencyPlots(std::string& folder, std::string& na
     }
   }
 }
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (PFClient_JetRes) ;

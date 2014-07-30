@@ -11,17 +11,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// #include <TH1F.h>
-
 using namespace reco;
 using namespace edm;
 using namespace std;
 
 
-
 PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
-//PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   PFCandidateBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
 {
@@ -38,18 +33,16 @@ PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterS
 
 
 void PFCandidateBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
-					    edm::Run const & iRun,
-					    edm::EventSetup const & iSetup )
+						  edm::Run const & iRun,
+						  edm::EventSetup const & iSetup )
 {
   BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
   setup(ibooker);
 }
 
-void 
-PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup) {
-  
-  
+void PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
+					   const edm::EventSetup& iSetup) {
+    
   Handle<PFCandidateCollection> collection; 
   iEvent.getByToken(myColl_, collection);
 

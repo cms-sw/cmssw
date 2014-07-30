@@ -11,8 +11,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// #include <TH1F.h>
 
 using namespace reco;
 using namespace edm;
@@ -21,7 +19,6 @@ using namespace std;
 
 
 PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet& parameterSet) : 
-//PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   PFCandidateManager( parameterSet.getParameter<double>("dRMax"),
 		      parameterSet.getParameter<bool>("matchCharge"), 

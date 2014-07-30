@@ -14,16 +14,12 @@ class MatchCandidateBenchmark : public Benchmark {
 
  public:
 
-  //MatchCandidateBenchmark(Mode mode);
   MatchCandidateBenchmark(Mode mode);
 
   virtual ~MatchCandidateBenchmark();
 
   /// book histograms
-  //void setup();
   void setup(DQMStore::IBooker& b);
-  /// book histograms
-  //void setup(const edm::ParameterSet& parameterSet);
   void setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
   
   /// fill histograms with a given particle
@@ -40,7 +36,7 @@ class MatchCandidateBenchmark : public Benchmark {
   TH2F* delta_et_VS_et_; 
   TH2F* delta_eta_VS_et_; 
   TH2F* delta_phi_VS_et_;
-  ///LEONARDO add these histos
+  ///LEONARDO added these histos
   TH2F* BRdelta_et_Over_et_VS_et_; 
   TH2F* ERdelta_et_Over_et_VS_et_;
   std::vector<TH1F*> pTRes_ ;

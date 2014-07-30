@@ -13,6 +13,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+
 //
 // -- Constructor
 //
@@ -52,16 +54,15 @@ void PFCandidateDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
   edm::LogInfo("PFCandidateDQMAnalyzer") << " PFCandidateDQMAnalyzer::beginJob " << "Histogram Folder path set to " << eventInfoFolder_;
   
-  //pfCandidateMonitor_.setup(pSet_);
   pfCandidateMonitor_.setup(ibooker, pSet_);
 }
+
 
 //
 // -- Analyze
 //
 void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				     edm::EventSetup const& iSetup) {
-//void PFCandidateDQMAnalyzer::analyze(DQMStore::IBooker & ibooker, edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   
   edm::Handle< edm::View<reco::Candidate> > candCollection;
   edm::Handle< edm::View<reco::Candidate> > matchedCandCollection;
@@ -76,7 +77,6 @@ void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent,
   float maxRes = 0.0;
   float minRes = 99.99;
   if (candCollection.isValid() && matchedCandCollection.isValid()) {
-    //pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes);
     pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes, pSet_);
     
     /*
@@ -97,7 +97,6 @@ void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent,
   }
 }
 
-//void PFCandidateDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
 void PFCandidateDQMAnalyzer::storeBadEvents(DQMStore::IBooker & ibooker, edm::Event const& iEvent, float& val) {
   unsigned int runNb  = iEvent.id().run();
   unsigned int evtNb  = iEvent.id().event();
@@ -108,12 +107,10 @@ void PFCandidateDQMAnalyzer::storeBadEvents(DQMStore::IBooker & ibooker, edm::Ev
   std::ostringstream eventid_str;
   eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
 
-  //MonitorElement* me = Benchmark::DQM_->get(path + "/" + eventid_str.str());
   /*  
   MonitorElement* me = ibooker.get(path + "/" + eventid_str.str());
   if (me) me->Reset();
   else {
-    //me = Benchmark::DQM_->bookFloat(eventid_str.str());
     me = ibooker.bookFloat(eventid_str.str());
   }  
   me->Fill(val); 

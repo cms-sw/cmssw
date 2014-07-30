@@ -15,9 +15,7 @@ using namespace edm;
 using namespace std;
 
 
-
 CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
-//CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) : 
   BenchmarkAnalyzer(parameterSet),
   CandidateBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
 {

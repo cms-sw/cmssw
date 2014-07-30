@@ -11,7 +11,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /// abtract base class for benchmark analyzers
-//class BenchmarkAnalyzer: public edm::EDAnalyzer {
 class BenchmarkAnalyzer: public DQMEDAnalyzer {
 public:
 
@@ -22,7 +21,6 @@ public:
   /// Destructor
   virtual ~BenchmarkAnalyzer() {}
 
-  //virtual void beginJob() = 0;
   void beginJob(){};
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

@@ -54,15 +54,14 @@ void PFJetDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
   edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::beginJob " << "Histogram Folder path set to " << eventInfoFolder_;
 
-  //pfJetMonitor_.setup(pSet_);
   pfJetMonitor_.setup(ibooker, pSet_);
 }
+
 
 //
 // -- Analyze
 //
 void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-//void PFJetDQMAnalyzer::analyze(DQMStore::IBooker & ibooker, edm::Event const& iEvent, edm::EventSetup const& iSetup) {
 
   edm::Handle< edm::View<reco::Jet> > jetCollection;
   iEvent.getByToken(myJet_, jetCollection);   
@@ -74,7 +73,6 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   float minRes = 99.99;
   float jetpT = 0.0;
   if (jetCollection.isValid() && matchedJetCollection.isValid()) {
-    //pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
     pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes, jetpT, pSet_);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
 
     /*
@@ -98,25 +96,21 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   }
 }
 
-//void PFJetDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
+
 void PFJetDQMAnalyzer::storeBadEvents(DQMStore::IBooker & ibooker, edm::Event const& iEvent, float& val) {
   unsigned int runNb  = iEvent.id().run();
   unsigned int evtNb  = iEvent.id().event();
   unsigned int lumiNb = iEvent.id().luminosityBlock();
   
   std::string path = "ParticleFlow/" + benchmarkLabel_ + "/BadEvents";
-  //In STEP1 the direct access to the DQMStore is forbidden
-  //Benchmark::DQM_->setCurrentFolder(path.c_str());
   ibooker.setCurrentFolder(eventInfoFolder_) ;
   std::ostringstream eventid_str;
   eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
 
-  //MonitorElement* me = Benchmark::DQM_->get(path + "/" + eventid_str.str());
   /*
   MonitorElement* me = ibooker.get(path + "/" + eventid_str.str());
   if (me) me->Reset();
   else {
-    //me = Benchmark::DQM_->bookFloat(eventid_str.str());
     me = ibooker.bookFloat(eventid_str.str());
   }
   me->Fill(val);  
