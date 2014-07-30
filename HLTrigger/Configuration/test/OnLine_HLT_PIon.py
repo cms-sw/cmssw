@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/PIon/V73 (CMSSW_7_1_4_patch1)
+# /dev/CMSSW_7_1_1/PIon/V75 (CMSSW_7_1_4_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V73')
+  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V75')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -454,7 +454,8 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
 process.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1',
   'HLT_Mu40_v1',
-  'HLT_Photon20_CaloIdVL_IsoL_v1' ) )
+  'HLT_Photon20_CaloIdVL_IsoL_v1',
+  'HLT_Physics_v1' ) )
 
 process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring( 'Geometry/CMSCommonData/data/normal/cmsextent.xml',
@@ -5380,6 +5381,10 @@ process.hltSingleJet260 = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
+process.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1023 )
@@ -5408,6 +5413,22 @@ process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+process.hltDQMFileSaver = cms.EDAnalyzer( "DQMFileSaver",
+    runIsComplete = cms.untracked.bool( False ),
+    referenceHandling = cms.untracked.string( "all" ),
+    producer = cms.untracked.string( "DQM" ),
+    workflow = cms.untracked.string( "" ),
+    forceRunNumber = cms.untracked.int32( -1 ),
+    saveByRun = cms.untracked.int32( 1 ),
+    saveAtJobEnd = cms.untracked.bool( False ),
+    saveByLumiSection = cms.untracked.int32( 1 ),
+    version = cms.untracked.int32( 1 ),
+    referenceRequireStatus = cms.untracked.int32( 100 ),
+    convention = cms.untracked.string( "FilterUnit" ),
+    filterName = cms.untracked.string( "" ),
+    dirName = cms.untracked.string( "." ),
+    fileFormat = cms.untracked.string( "PB" )
+)
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
@@ -5418,7 +5439,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_CaloJet260_v1',
   'HLT_Mu40_v1',
-  'HLT_Photon20_CaloIdVL_IsoL_v1' ) ),
+  'HLT_Photon20_CaloIdVL_IsoL_v1',
+  'HLT_Physics_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -5460,9 +5482,11 @@ process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGet
 process.HLT_Mu40_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sMu16 + process.hltPreMu40 + process.hltL1fL1sMu16L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu16L1f0L2Filtered16Q + process.HLTL3muonrecoSequence + process.hltL3fL1sMu16L1f0L2f16QL3Filtered40Q + process.HLTEndSequence )
 process.HLT_Photon20_CaloIdVL_IsoL_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG12 + process.hltPrePhoton20CaloIdVLIsoL + process.HLTPhoton20CaloIdVLIsoLSequence + process.HLTEndSequence )
 process.HLT_CaloJet260_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet128 + process.hltPreCaloJet260 + process.HLTRecoJetSequenceAK4Corrected + process.hltSingleJet260 + process.HLTEndSequence )
+process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
+process.DQMOutput = cms.EndPath( process.hltDQMFileSaver )
 
 
 process.source = cms.Source( "PoolSource",

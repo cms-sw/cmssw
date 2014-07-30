@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/HIon/V73 (CMSSW_7_1_4_patch1)
+# /dev/CMSSW_7_1_1/HIon/V75 (CMSSW_7_1_4_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HIon/V73')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HIon/V75')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -451,7 +451,8 @@ HLTPSetPvClusterComparerForIT = cms.PSet(
   track_prob_min = cms.double( -1.0 )
 )
 streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
-datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1' ) )
+datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1',
+  'HLT_Physics_v1' ) )
 
 hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   iovIsRunNotTime = cms.bool( True ),
@@ -2109,6 +2110,10 @@ hltSingleJet260 = cms.EDFilter( "HLT1CaloJet",
 hltBoolEnd = cms.EDFilter( "HLTBool",
     result = cms.bool( True )
 )
+hltPrePhysics = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1023 )
@@ -2145,11 +2150,12 @@ HLTEndSequence = cms.Sequence( hltBoolEnd )
 
 HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
 HLT_CaloJet260_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreCaloJet260 + HLTRecoJetSequenceAK4Corrected + hltSingleJet260 + HLTEndSequence )
+HLT_Physics_v1 = cms.Path( HLTBeginSequence + hltPrePhysics + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():

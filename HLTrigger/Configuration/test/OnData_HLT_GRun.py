@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/GRun/V73 (CMSSW_7_1_4_patch1)
+# /dev/CMSSW_7_1_1/GRun/V75 (CMSSW_7_1_4_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V73')
+  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V75')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -493,6 +493,7 @@ process.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_BTagCSV07_v1',
   'HLT_PFchMET90_NoiseCleaned_v1',
   'HLT_Photon20_CaloIdVL_IsoL_v1',
   'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v1',
+  'HLT_Physics_v1',
   'HLT_ReducedIterativeTracking_v1' ) )
 
 process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
@@ -22195,6 +22196,10 @@ process.hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter = cms.ED
     candTag = cms.InputTag( "hltMu8Ele23GsfDphiLegEle23GsfCaloIdTrackIdIsoMediumWPFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
+process.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1023 )
@@ -22222,6 +22227,22 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
+)
+process.hltDQMFileSaver = cms.EDAnalyzer( "DQMFileSaver",
+    runIsComplete = cms.untracked.bool( False ),
+    referenceHandling = cms.untracked.string( "all" ),
+    producer = cms.untracked.string( "DQM" ),
+    workflow = cms.untracked.string( "" ),
+    forceRunNumber = cms.untracked.int32( -1 ),
+    saveByRun = cms.untracked.int32( 1 ),
+    saveAtJobEnd = cms.untracked.bool( False ),
+    saveByLumiSection = cms.untracked.int32( 1 ),
+    version = cms.untracked.int32( 1 ),
+    referenceRequireStatus = cms.untracked.int32( 100 ),
+    convention = cms.untracked.string( "FilterUnit" ),
+    filterName = cms.untracked.string( "" ),
+    dirName = cms.untracked.string( "." ),
+    fileFormat = cms.untracked.string( "PB" )
 )
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
@@ -22272,6 +22293,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PFchMET90_NoiseCleaned_v1',
   'HLT_Photon20_CaloIdVL_IsoL_v1',
   'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v1',
+  'HLT_Physics_v1',
   'HLT_ReducedIterativeTracking_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
@@ -22473,9 +22495,11 @@ process.HLT_Ele23_Ele12_CaloId_TrackId_Iso_v1 = cms.Path( process.HLTBeginSequen
 process.HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1EG12EG7EG5 + process.hltPreEle17Ele12Ele10CaloIdTrackId + process.HLTEle17Ele12Ele10CaloIdTrackIdSequence + process.HLTEndSequence )
 process.HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu12EG7 + process.hltPreMu23TrkIsoVVLEle12GsfCaloIdTrackIdIsoMediumWP + process.hltL1Mu12EG7L1MuFiltered0 + process.HLTL2muonrecoSequence + process.hltL1Mu12EG7L2MuFiltered0 + process.HLTL3muonrecoSequence + process.hltL1Mu12EG7L3MuFiltered23 + process.HLTL3muontrkisovvlSequence + process.hltL1Mu12EG7L3IsoMuFiltered23 + process.HLTMu23Ele12_Gsf + process.HLTEndSequence )
 process.HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu3p5EG12ORL1MuOpenEG12 + process.hltPreMu8TrkIsoVVLEle23GsfCaloIdTrackIdIsoMediumWP + process.hltL1sL1Mu3p5EG12ORL1MuOpenEG12L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL1sL1Mu3p5EG12ORL1MuOpenEG12L2Filtered5 + process.HLTL3muonrecoSequence + process.hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8 + process.HLTL3muontrkisovvlSequence + process.hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3IsoFiltered8 + process.HLTMu8Ele23_Gsf + process.HLTEndSequence )
+process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
+process.DQMOutput = cms.EndPath( process.hltDQMFileSaver )
 
 
 process.source = cms.Source( "PoolSource",

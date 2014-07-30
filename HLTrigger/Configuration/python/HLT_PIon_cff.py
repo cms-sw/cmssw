@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/PIon/V73 (CMSSW_7_1_4_patch1)
+# /dev/CMSSW_7_1_1/PIon/V75 (CMSSW_7_1_4_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V73')
+  tableName = cms.string('/dev/CMSSW_7_1_1/PIon/V75')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -453,7 +453,8 @@ HLTPSetPvClusterComparerForIT = cms.PSet(
 streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
 datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1',
   'HLT_Mu40_v1',
-  'HLT_Photon20_CaloIdVL_IsoL_v1' ) )
+  'HLT_Photon20_CaloIdVL_IsoL_v1',
+  'HLT_Physics_v1' ) )
 
 hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   iovIsRunNotTime = cms.bool( True ),
@@ -4858,6 +4859,10 @@ hltSingleJet260 = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
+hltPrePhysics = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1023 )
@@ -4916,11 +4921,12 @@ HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
 HLT_Mu40_v1 = cms.Path( HLTBeginSequence + hltL1sMu16 + hltPreMu40 + hltL1fL1sMu16L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu16L1f0L2Filtered16Q + HLTL3muonrecoSequence + hltL3fL1sMu16L1f0L2f16QL3Filtered40Q + HLTEndSequence )
 HLT_Photon20_CaloIdVL_IsoL_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG12 + hltPrePhoton20CaloIdVLIsoL + HLTPhoton20CaloIdVLIsoLSequence + HLTEndSequence )
 HLT_CaloJet260_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreCaloJet260 + HLTRecoJetSequenceAK4Corrected + hltSingleJet260 + HLTEndSequence )
+HLT_Physics_v1 = cms.Path( HLTBeginSequence + hltPrePhysics + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Mu40_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_CaloJet260_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Mu40_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_CaloJet260_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # CMSSW version specific customizations
 import os
