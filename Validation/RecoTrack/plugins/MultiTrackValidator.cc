@@ -175,11 +175,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
-  TrackingParticleCollection const & tPCeff = *(TPCollectionHeff.product());
+  const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByToken(label_tp_fake,TPCollectionHfake);
-  const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
+  const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
