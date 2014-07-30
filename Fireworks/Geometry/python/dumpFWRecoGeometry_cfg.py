@@ -4,8 +4,8 @@ process = cms.Process("DUMP")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load('Configuration.Geometry.GeometryExtended2015_cff')
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 
 process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
 
