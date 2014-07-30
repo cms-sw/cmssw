@@ -179,6 +179,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByToken(label_tp_fake,TPCollectionHfake);
+  const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
 
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
@@ -330,7 +331,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
-	if(parametersDefiner=="LhcParametersDefinerForTP")
+	if(parametersDefiner=="LhcParametersDefinerForTP" || parametersDefiner=="hltLhcParametersDefinerForTP")
 	  {
 	    if(! tpSelector(*tp)) continue;
 	    momentumTP = tp->momentum();
@@ -426,7 +427,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx2Handle;
       std::vector<edm::ValueMap<reco::DeDxData> > v_dEdx;
       v_dEdx.clear();
-      //std::cout << "PIPPO: label is " << label[www] << std::endl;
       if (label[www].label()=="generalTracks") {
 	try {
 	  event.getByToken(m_dEdx1Tag, dEdx1Handle);
@@ -487,7 +487,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    isSimMatched = true;
             if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
             if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
-            //std::cout << numAssocRecoTracks << std::endl;
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){
               TrackingParticle trackpart = *(tp[tp_ite].first);
