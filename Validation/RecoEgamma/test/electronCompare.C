@@ -540,10 +540,10 @@ int electronCompare()
 
 
 // ne pas oublier de decommenter les 4 lignes suivantes
-//      std::cout<<histo_name
-//        <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
-//        <<" of mean value "<<histo_new->GetMean()
-//        <<std::endl ;
+      std::cout<<histo_name
+        <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
+        <<" of mean value "<<histo_new->GetMean()
+        <<std::endl ;
       canvas->SaveAs(gif_path.Data()) ;
       web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"440\" src=\""<<gif_name<<"\"></a><br>" ;
      }
