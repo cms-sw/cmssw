@@ -18,27 +18,27 @@ void ElectronMcSignalPostValidator::finalize()
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
-  bookH1andDivide("etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency","");
-  bookH1andDivide("zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","");
-  bookH1andDivide("absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency");
-  bookH1andDivide("ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency");
-  bookH1andDivide("phiEff","mc_Phi_matched","mc_Phi","#phi (rad)","Efficiency");
-  bookH2andDivide("ptEtaEff","mc_PtEta_matched","mc_PtEta","#eta","p_{T} (GeV/c)");
+  bookH1andDivide("etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",,"","true");
+  bookH1andDivide("zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","","true");
+  bookH1andDivide("absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency","","true");
+  bookH1andDivide("ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency","","true");
+  bookH1andDivide("phiEff","mc_Phi_matched","mc_Phi","#phi (rad)","Efficiency","","true");
+  bookH2andDivide("ptEtaEff","mc_PtEta_matched","mc_PtEta","#eta","p_{T} (GeV/c)","");
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "q-misid calculation" ;
-  bookH1andDivide("etaQmisid","mc_Eta_matched_qmisid","mc_Eta","#eta","q misId","");
-  bookH1andDivide("zQmisid","mc_Z_matched_qmisid","mc_Z","z (cm)","q misId","");
-  bookH1andDivide("absetaQmisid","mc_AbsEta_matched_qmisid","mc_AbsEta","|#eta|","q misId");
-  bookH1andDivide("ptQmisid","mc_Pt_matched_qmisid","mc_Pt","p_{T} (GeV/c)","q misId");
+  bookH1andDivide("etaQmisid","mc_Eta_matched_qmisid","mc_Eta","#eta","q misId","","");
+  bookH1andDivide("zQmisid","mc_Z_matched_qmisid","mc_Z","z (cm)","q misId","","");
+  bookH1andDivide("absetaQmisid","mc_AbsEta_matched_qmisid","mc_AbsEta","|#eta|","q misId","","");
+  bookH1andDivide("ptQmisid","mc_Pt_matched_qmisid","mc_Pt","p_{T} (GeV/c)","q misId","","");
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "all reco electrons" ;
-  bookH1andDivide("etaEff_all","vertexEta_all","h_mc_Eta","#eta","N_{rec}/N_{gen}","");
-  bookH1andDivide("ptEff_all","vertexPt_all","h_mc_Pt","p_{T} (GeV/c)","N_{rec}/N_{gen}","");
+  bookH1andDivide("etaEff_all","vertexEta_all","h_mc_Eta","#eta","N_{rec}/N_{gen}","","");
+  bookH1andDivide("ptEff_all","vertexPt_all","h_mc_Pt","p_{T} (GeV/c)","N_{rec}/N_{gen}","","");
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "classes" ;
-  bookH1andDivide("eta_goldenFrac","eta_golden","h_ele_eta","|#eta|","Fraction of electrons","fraction of golden electrons vs eta");
-  bookH1andDivide("eta_bbremFrac" ,"eta_bbrem","h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta");
-  bookH1andDivide("eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta");
+  bookH1andDivide("eta_goldenFrac","eta_golden","h_ele_eta","|#eta|","Fraction of electrons","fraction of golden electrons vs eta","");
+  bookH1andDivide("eta_bbremFrac" ,"eta_bbrem","h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta","");
+  bookH1andDivide("eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta","");
 
   // fbrem
   MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
