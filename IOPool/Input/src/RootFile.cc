@@ -158,6 +158,7 @@ namespace edm {
                      std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+                     bool bypassVersionCheck,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent,
                      bool enablePrefetching) :
@@ -367,7 +368,9 @@ namespace edm {
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
 
-    checkReleaseVersion(pHistVector, file());
+    if(!bypassVersionCheck) { 
+      checkReleaseVersion(pHistVector, file());
+    }
 
     if(labelRawDataLikeMC) {
       std::string const rawData("FEDRawDataCollection");

@@ -77,7 +77,7 @@ class TrackerHitAssociator {
 
   std::vector<SimHitIdpr> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit, std::vector<simhitAddr>* simhitCFPos=0) const;
   std::vector<SimHitIdpr> associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit, std::vector<simhitAddr>* simhitCFPos=0) const;
-  void associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simhitid) const;
+  void associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simhitid, std::vector<simhitAddr>* simhitCFPos=0) const;
   std::vector<SimHitIdpr> associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit) const;
   std::vector<SimHitIdpr> associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit, std::vector<simhitAddr>* simhitCFPos=0) const;
   std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const;
@@ -89,14 +89,14 @@ class TrackerHitAssociator {
   simhit_collectionMap SimHitCollMap;
  
  private:
-  const edm::Event& myEvent_;
   typedef std::vector<std::string> vstring;
-  vstring trackerContainers;
+
+  void makeMaps(const edm::Event& theEvent, const vstring trackerContainers);
 
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   
-  bool doPixel_, doStrip_, doTrackAssoc_;
+  bool doPixel_, doStrip_, doTrackAssoc_, assocHitbySimTrack_;
   
 };  
 

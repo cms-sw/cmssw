@@ -29,11 +29,12 @@
 namespace edm {
    class ParameterSet;
    class Schedule;
-   
+   class ProductRegistry;
+
    class ModuleChanger {
 
    public:
-      ModuleChanger(Schedule*);
+      ModuleChanger(Schedule*, ProductRegistry const* iReg);
       virtual ~ModuleChanger();
 
       // ---------- const member functions ---------------------
@@ -45,12 +46,13 @@ namespace edm {
       // ---------- member functions ---------------------------
 
    private:
-      ModuleChanger(const ModuleChanger&); // stop default
+      ModuleChanger(const ModuleChanger&) = delete; // stop default
 
-      const ModuleChanger& operator=(const ModuleChanger&); // stop default
+      const ModuleChanger& operator=(const ModuleChanger&) = delete; // stop default
 
       // ---------- member data --------------------------------
       Schedule* schedule_;
+      ProductRegistry const* registry_;
    };
 }
 #endif

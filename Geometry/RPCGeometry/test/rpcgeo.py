@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+# process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2015Reco_cff")
 
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 

@@ -38,16 +38,12 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 	void beginJob();
 	void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
-	void endJob();
 
    private:
 	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	
 			 const TrackerTopology *tTopo);
 	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *,
 			 const TrackerTopology *tTopo);
-
-	std::string outputFile_;
-	bool runStandalone;
 
 	//Clusters BPIX
 	MonitorElement* clustYSizeModule[8];
@@ -109,8 +105,6 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	MonitorElement* recHitXPullDisk2Plaquettes[7];
 	MonitorElement* recHitYPullDisk1Plaquettes[7];
 	MonitorElement* recHitYPullDisk2Plaquettes[7];
-
-        DQMStore* dbe_;
 
         edm::ParameterSet conf_;
         edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;

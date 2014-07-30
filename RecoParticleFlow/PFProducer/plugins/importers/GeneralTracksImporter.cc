@@ -145,7 +145,7 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   const unsigned int NHit = 
     trackref->hitPattern().trackerLayersWithMeasurement();
   const unsigned int NLostHit = 
-    trackref->hitPattern().trackerLayersWithoutMeasurement();
+    trackref->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   const unsigned int LostHits = trackref->numberOfLostHits();
   const double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
 
@@ -156,6 +156,7 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::iter0:
   case reco::TrackBase::iter1:
   case reco::TrackBase::iter2:
+  case reco::TrackBase::iter7:
     Algo = 0;
     break;
   case reco::TrackBase::iter3:
