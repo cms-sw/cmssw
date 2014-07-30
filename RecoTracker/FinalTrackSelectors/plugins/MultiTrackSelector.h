@@ -15,7 +15,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -32,7 +32,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
-    class dso_hidden MultiTrackSelector : public edm::stream::EDProducer<> {
+    class dso_hidden MultiTrackSelector : public edm::global::EDProducer<> {
         private:
         public:
             /// constructor 
@@ -42,10 +42,17 @@
             virtual ~MultiTrackSelector() ;
 
         protected:
-            void beginRun(edm::Run const&, edm::EventSetup const&) final;
+            void beginJob() final;
+ 
+            // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
+            //  init();
+            //}
+            //void beginRun(edm::Run const&, edm::EventSetup const&) final { init(); }
+            // void init(edm::EventSetup const& es) const;
+
             typedef math::XYZPoint Point;
             /// process one event
-            void produce( edm::Event& evt, const edm::EventSetup& es ) final {
+            void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es ) const final {
                run(evt,es);
             }
             virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;
@@ -134,7 +141,7 @@
 	    //std::vector<std::string> mvaType_;
 	    std::string mvaType_;
 	    std::string forestLabel_;
-	    std::atomic<GBRForest*> forest_;
+	    GBRForest * forest_;
 	    bool useForestFromDB_;
 	    std::string dbFileName_;
 

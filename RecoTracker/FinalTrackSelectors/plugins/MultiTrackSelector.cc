@@ -183,20 +183,14 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 }
 
 MultiTrackSelector::~MultiTrackSelector() {
-  if(!useForestFromDB_ && forest_)delete forest_;
+  delete forest_;
 }
 
-void MultiTrackSelector::beginRun(edm::Run const&, edm::EventSetup const &es) {
-  if(!useAnyMVA_) return;
-  if(!forest_){
-    if(useForestFromDB_){
-      edm::ESHandle<GBRForest> forestHandle;
-      es.get<GBRWrapperRcd>().get(forestLabel_,forestHandle);
-      forest_ = (GBRForest*)forestHandle.product();
-    }else{
-      TFile gbrfile(dbFileName_.c_str());
-      forest_ = (GBRForest*)gbrfile.Get(forestLabel_.c_str());
-    }
+
+void MultiTrackSelector::beginJob() {
+  if(!useForestFromDB_){
+     TFile gbrfile(dbFileName_.c_str());
+       forest_ = (GBRForest*)gbrfile.Get(forestLabel_.c_str());
   }
 
 }
@@ -551,8 +545,15 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     gbrVals_[9] = tmva_nlayers_;
     gbrVals_[10] = tmva_ndof_;
 
+
+    GBRForest const * forest = forest_;
+    if(useForestFromDB_){
+      edm::ESHandle<GBRForest> forestHandle;
+      es.get<GBRWrapperRcd>().get(forestLabel_,forestHandle);
+      forest = forestHandle.product();
+    }
     
-    auto gbrVal = forest_.load()->GetClassifier(gbrVals_);
+    auto gbrVal = forest->GetClassifier(gbrVals_);
     mvaVals_[current] = gbrVal;
   }
   mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
