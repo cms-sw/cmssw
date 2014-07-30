@@ -74,7 +74,9 @@ class ElectronSeedProducer : public edm::EDProducer
     // H/E
   //  edm::InputTag hcalRecHits_;
     bool applyHOverECut_ ;
-    ElectronHcalHelper * hcalHelper_ ;
+    //ElectronHcalHelper * hcalHelper_ ;
+    ElectronHcalHelper * hcalHelperBarrel_ ;
+    ElectronHcalHelper * hcalHelperEndcap_ ;
   //  edm::ESHandle<CaloGeometry> caloGeom_ ;
   //  unsigned long long caloGeomCacheId_ ;
     edm::ESHandle<CaloGeometry> caloGeom_ ;
@@ -87,6 +89,7 @@ class ElectronSeedProducer : public edm::EDProducer
   //  double maxHOverE_ ;
      double maxHOverEBarrel_ ;
      double maxHOverEEndcaps_ ;
+     double maxHOverEOuterEndcaps_ ;
      double maxHBarrel_ ;
      double maxHEndcaps_ ;
   //  double hOverEConeSize_;
@@ -94,8 +97,9 @@ class ElectronSeedProducer : public edm::EDProducer
   //  double hOverEHFMinE_;
 
     // super cluster Et cut
-    double SCEtCut_;
-
+     //double SCEtCut_;
+     double SCEtCutBarrel_;
+     double SCEtCutEndcap_;
 
     bool fromTrackerSeeds_;
     bool prefilteredSeeds_;

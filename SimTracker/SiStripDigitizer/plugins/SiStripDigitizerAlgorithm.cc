@@ -109,6 +109,7 @@ void
 SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
                                              std::vector<PSimHit>::const_iterator inputEnd,
                                              size_t inputBeginGlobalIndex,
+                                             unsigned int tofBin,
                                              const StripGeomDetUnit* det,
                                              const GlobalVector& bfield,
 					     const TrackerTopology *tTopo) {
@@ -118,7 +119,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 
   std::vector<bool>& badChannels = allBadChannels[detID];
   size_t thisFirstChannelWithSignal = numStrips;
-  size_t thisLastChannelWithSignal = numStrips;
+  size_t thisLastChannelWithSignal = 0;
 
   float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle(detID) : 0.;
 
@@ -195,7 +196,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
                 }
               } // end of loop over associationVector
               // If the hit wasn't already in create a new association info structure.
-              if( addNewEntry ) associationVector.push_back( AssociationInfo{ simHitIter->trackId(), simHitIter->eventId(), signalFromThisSimHit, simHitGlobalIndex } );
+              if( addNewEntry ) associationVector.push_back( AssociationInfo{ simHitIter->trackId(), simHitIter->eventId(), signalFromThisSimHit, simHitGlobalIndex, tofBin } );
             } // end of "if( signalFromThisSimHit!=0 )"
           } // end of loop over locAmpl strips
         } // end of "if( makeDigiSimLinks_ )"
@@ -271,9 +272,9 @@ SiStripDigitizerAlgorithm::digitize(
         for( const auto& iAssociationInfo : associationInfo ) totalSimADC+=iAssociationInfo.contributionToADC;
         // Now I know that I can loop again and create the links
         for( const auto& iAssociationInfo : associationInfo ) {
-          // Note simHitGlobalIndex has +1 because TrackerHitAssociator (the only place I can find this value being used)
-          // expects counting to start at 1, not 0.
-          outLink.push_back( StripDigiSimLink( iDigi.channel(), iAssociationInfo.trackID, iAssociationInfo.simHitGlobalIndex+1, iAssociationInfo.eventID, iAssociationInfo.contributionToADC/totalSimADC ) );
+          // Note simHitGlobalIndex used to have +1 because TrackerHitAssociator (the only place I can find this value being used)
+          // expected counting to start at 1, not 0.  Now changed.
+          outLink.push_back( StripDigiSimLink( iDigi.channel(), iAssociationInfo.trackID, iAssociationInfo.simHitGlobalIndex, iAssociationInfo.tofBin, iAssociationInfo.eventID, iAssociationInfo.contributionToADC/totalSimADC ) );
         } // end of loop over associationInfo
       } // end of loop over the digis
     } // end of check that iAssociationInfoByChannel is a valid iterator
@@ -396,9 +397,9 @@ SiStripDigitizerAlgorithm::digitize(
         for( const auto& iAssociationInfo : associationInfo ) totalSimADC+=iAssociationInfo.contributionToADC;
         // Now I know that I can loop again and create the links
         for( const auto& iAssociationInfo : associationInfo ) {
-          // Note simHitGlobalIndex has +1 because TrackerHitAssociator (the only place I can find this value being used)
-          // expects counting to start at 1, not 0.
-          outLink.push_back( StripDigiSimLink( channel, iAssociationInfo.trackID, iAssociationInfo.simHitGlobalIndex+1, iAssociationInfo.eventID, iAssociationInfo.contributionToADC/totalSimADC ) );
+          // Note simHitGlobalIndex used to have +1 because TrackerHitAssociator (the only place I can find this value being used)
+          // expected counting to start at 1, not 0.  Now changed.
+          outLink.push_back( StripDigiSimLink( channel, iAssociationInfo.trackID, iAssociationInfo.simHitGlobalIndex, iAssociationInfo.tofBin, iAssociationInfo.eventID, iAssociationInfo.contributionToADC/totalSimADC ) );
         } // end of loop over associationInfo
       } // end of loop over the digis
     } // end of check that iAssociationInfoByChannel is a valid iterator

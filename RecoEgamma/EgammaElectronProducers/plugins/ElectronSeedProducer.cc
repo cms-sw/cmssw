@@ -53,13 +53,15 @@ using namespace reco ;
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : beamSpotTag_("offlineBeamSpot"),
    //conf_(iConfig),
-   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0),
+   seedFilter_(0), applyHOverECut_(true), hcalHelperBarrel_(0), hcalHelperEndcap_(0), 
    caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
   initialSeeds_ = conf_.getParameter<edm::InputTag>("initialSeeds") ;
-  SCEtCut_ = conf_.getParameter<double>("SCEtCut") ;
+  //SCEtCut_ = conf_.getParameter<double>("SCEtCut") ;
+  SCEtCutBarrel_ = conf_.getParameter<double>("SCEtCutBarrel") ;
+  SCEtCutEndcap_ = conf_.getParameter<double>("SCEtCutEndcap") ;
   fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
@@ -73,17 +75,33 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
-    ElectronHcalHelper::Configuration hcalCfg ;
-    hcalCfg.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
-    if (hcalCfg.hOverEConeSize>0)
+    ElectronHcalHelper::Configuration hcalCfgBarrel ;
+    hcalCfgBarrel.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+    //hcalCfg.hOverEMethod = conf_.getParameter<int>("hOverEMethod") ;
+    hcalCfgBarrel.hOverEMethod = conf_.getParameter<int>("hOverEMethodBarrel") ;
+    if (hcalCfgBarrel.hOverEConeSize>0)
      {
-      hcalCfg.useTowers = true ;
-      hcalCfg.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
-      hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
+      hcalCfgBarrel.useTowers = true ;
+      hcalCfgBarrel.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
      }
-    hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
+    hcalCfgBarrel.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
+    hcalHelperBarrel_ = new ElectronHcalHelper(hcalCfgBarrel) ;
+
+    ElectronHcalHelper::Configuration hcalCfgEndcap ;
+    hcalCfgEndcap.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+    //hcalCfg.hOverEMethod = conf_.getParameter<int>("hOverEMethod") ;
+    hcalCfgEndcap.hOverEMethod = conf_.getParameter<int>("hOverEMethodEndcap") ;
+    if (hcalCfgEndcap.hOverEConeSize>0)
+     {
+      hcalCfgEndcap.useTowers = true ;
+      hcalCfgEndcap.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
+     }
+    hcalCfgEndcap.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
+    hcalHelperEndcap_ = new ElectronHcalHelper(hcalCfgEndcap) ;
+
     maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
+    maxHOverEOuterEndcaps_=conf_.getParameter<double>("maxHOverEOuterEndcaps") ;
     maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
     maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
 //    hOverEConeSize_=conf_.getParameter<double>("hOverEConeSize") ;
@@ -118,7 +136,8 @@ void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
 
 ElectronSeedProducer::~ElectronSeedProducer()
  {
-  delete hcalHelper_ ;
+  delete hcalHelperBarrel_ ;
+  delete hcalHelperEndcap_ ;
   delete matcher_ ;
  }
 
@@ -129,10 +148,16 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   edm::Handle<reco::BeamSpot> theBeamSpot ;
   e.getByLabel(beamSpotTag_,theBeamSpot) ;
 
-  if (hcalHelper_)
+  if (hcalHelperBarrel_)
    {
-    hcalHelper_->checkSetup(iSetup) ;
-    hcalHelper_->readEvent(e) ;
+    hcalHelperBarrel_->checkSetup(iSetup) ;
+    hcalHelperBarrel_->readEvent(e) ;
+   }
+
+  if (hcalHelperEndcap_)
+   {
+    hcalHelperEndcap_->checkSetup(iSetup) ;
+    hcalHelperEndcap_->readEvent(e) ;
    }
 
   // get calo geometry
@@ -213,23 +238,32 @@ void ElectronSeedProducer::filterClusters
    {
     const SuperCluster & scl = (*superClusters)[i] ;
     double sclEta = EleRelPoint(scl.position(),bs.position()).eta() ;
-    if (scl.energy()/cosh(sclEta)>SCEtCut_)
-     {
+    float sclPt = scl.energy()/cosh(sclEta);
+    int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
+    //if (scl.energy()/cosh(sclEta)>SCEtCut_)
+    if ((sclPt > SCEtCutBarrel_ and detector == EcalBarrel) or (sclPt > SCEtCutEndcap_ and detector == EcalEndcap))
+      {
 //      if ((applyHOverECut_==true)&&((hcalHelper_->hcalESum(scl)/scl.energy()) > maxHOverE_))
 //       { continue ; }
 //      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
        double had1, had2, had, scle ;
        bool HoeVeto = false ;
-       if (applyHOverECut_==true)
+       if (applyHOverECut_)
         {
-         had1 = hcalHelper_->hcalESumDepth1(scl);
-         had2 = hcalHelper_->hcalESumDepth2(scl);
+	  if (detector==EcalBarrel) {
+	    had1 = hcalHelperBarrel_->hcalESumDepth1(scl);
+	    had2 = hcalHelperBarrel_->hcalESumDepth2(scl);
+	  } else if (detector==EcalEndcap) {
+	    had1 = hcalHelperEndcap_->hcalESumDepth1(scl);
+	    had2 = hcalHelperEndcap_->hcalESumDepth2(scl);
+	  }
          had = had1+had2 ;
          scle = scl.energy() ;
 	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
-         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
+         //int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if (detector==EcalEndcap && fabs(sclEta) < 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if (detector==EcalEndcap && fabs(sclEta) > 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEOuterEndcaps_)) HoeVeto=true;
 	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {

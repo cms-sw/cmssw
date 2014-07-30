@@ -31,7 +31,10 @@ class PFGeometry {
     HCALBarrel = 5,
     HCALEndcap = 6,
     HOBarrel = 7,
-    NPoints = 8
+    HGC_ECAL = 8,
+    HGC_HCALF = 9,
+    HGC_HCALB = 10,
+    NPoints = 11
   } Layers_t;
 
   typedef enum {
@@ -43,7 +46,13 @@ class PFGeometry {
     HCALOuterWall = 5,
     HOInnerWall = 6,
     HOOuterWall = 7,
-    NSurfPoints = 8
+    HGC_ECAL_InnerWall = 8,
+    HGC_ECAL_OuterWall = 9,
+    HGC_HCALF_InnerWall = 10,
+    HGC_HCALF_OuterWall = 11,
+    HGC_HCALB_InnerWall = 12,
+    HGC_HCALB_OuterWall = 13,
+    NSurfPoints = 14
   } Surface_t;
 
   /// constructor

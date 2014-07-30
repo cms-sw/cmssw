@@ -92,7 +92,7 @@ process.common_maximum_timex = cms.PSet(
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
 process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.g4SimHits.HCalSD.UseShowerLibrary   = False
 process.g4SimHits.HCalSD.UseParametrize     = True

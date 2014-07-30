@@ -6,7 +6,7 @@
 using namespace reco;
 using namespace std;
 
-const unsigned PFTrack::nMaxTrackingLayers_ = 17;
+const unsigned PFTrack::nMaxTrackingLayers_ = 25;
 
 PFTrack::PFTrack() :
   charge_(0.),

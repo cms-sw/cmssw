@@ -292,6 +292,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     //    const reco::SuperCluster* pClus=&(*scRef);
     iSC++;
 
+    int thedet = scRef->seed()->hitsAndFractions()[0].first.det();
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     subDetGeometry =  theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, subdet);
 
@@ -301,7 +302,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       hits = ecalBarrelHits;
       flags_ = flagsexclEB_;
       severitiesexcl_ = severitiesexclEB_;
-    } else if  (subdet==EcalEndcap)  { 
+    } else if  (subdet==EcalEndcap || 
+		( thedet == DetId::Ecal && subdet == EcalShashlik) )  { 
       preselCutValues = preselCutValuesEndcap_;
       minR9 = minR9Endcap_;
       hits = ecalEndcapHits;

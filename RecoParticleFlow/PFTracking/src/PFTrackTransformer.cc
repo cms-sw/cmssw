@@ -83,6 +83,19 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 0.)),
 			   0.,0.,B_.z());
   theOutParticle.setCharge(track.charge());
+
+  BaseParticlePropagator theOutParticleHGC = 
+    BaseParticlePropagator( 
+			   RawParticle(XYZTLorentzVector(track.outerMomentum().x(),
+							 track.outerMomentum().y(),
+							 track.outerMomentum().z(),
+							 pfoutenergy),
+				       XYZTLorentzVector(track.outerPosition().x(),
+							 track.outerPosition().y(),
+							 track.outerPosition().z(),
+							 0.)),
+			   0.,0.,B_.z());
+  theOutParticle.setCharge(track.charge());
   
   
   math::XYZTLorentzVector momClosest 
@@ -92,8 +105,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   
   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 				     posClosest,momClosest));
-  
-  
+
   //BEAMPIPE
   theParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
 				       PFGeometry::outerZ(PFGeometry::BeamPipe), false);
@@ -106,8 +118,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
     PFTrajectoryPoint dummyMaxSh;
     pftrack.addPoint(dummyMaxSh); 
   }
-  
-
 
   //trajectory points
 
@@ -139,7 +149,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      PFTrajectoryPoint dummyPS1;
      pftrack.addPoint(dummyPS1); 
    }
-   
 
    theOutParticle.propagateToPreshowerLayer2(false);
    if(theOutParticle.getSuccess()!=0){
@@ -151,57 +160,49 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      PFTrajectoryPoint dummyPS2;
      pftrack.addPoint(dummyPS2); 
    }
-
    theOutParticle.propagateToEcalEntrance(false);
 
    if(theOutParticle.getSuccess()!=0){
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
 					math::XYZPoint(theOutParticle.vertex()),
 					math::XYZTLorentzVector(theOutParticle.momentum())));
-   double ecalShowerDepth     
-     = PFCluster::getDepthCorrection(theOutParticle.momentum().E(),
-				     isBelowPS, 
-				     false);
+     double ecalShowerDepth     
+       = PFCluster::getDepthCorrection(theOutParticle.momentum().E(),
+				       isBelowPS, 
+				       false);
+     
+     math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
+       math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+     
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+					meanShower,
+					math::XYZTLorentzVector(theOutParticle.momentum())));
+   } else {
+     theOutParticle.propagateToVFcalEntrance(false);
+     if(theOutParticle.getSuccess()!=0) {
+       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+					  math::XYZPoint(theOutParticle.vertex()),
+					  math::XYZTLorentzVector(theOutParticle.momentum())));
+       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+					  math::XYZPoint(theOutParticle.vertex()),
+					  math::XYZTLorentzVector(theOutParticle.momentum())));
+     } else {       
+       if (PT>5. && msgwarning)
+	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
+       PFTrajectoryPoint dummyECAL;
+       pftrack.addPoint(dummyECAL); 
+       PFTrajectoryPoint dummyMaxSh;
+       pftrack.addPoint(dummyMaxSh); 
+     }
+   } 
 
-   math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
-     math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;
- 
-   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
-				      meanShower,
-				      math::XYZTLorentzVector(theOutParticle.momentum())));
-}
-   else {
-	theOutParticle.propagateToVFcalEntrance(false);
-	if(theOutParticle.getSuccess()!=0) {
-	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
-	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
-	}else {
-
-
-
-	  if (PT>5. && msgwarning)
-	    LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
-	  PFTrajectoryPoint dummyECAL;
-	  pftrack.addPoint(dummyECAL); 
-	  PFTrajectoryPoint dummyMaxSh;
-	  pftrack.addPoint(dummyMaxSh); 
-	}
-   }
-
-
-
- 
    //HCAL entrance
    theOutParticle.propagateToHcalEntrance(false);
    if(theOutParticle.getSuccess()!=0) {
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
 					math::XYZPoint(theOutParticle.vertex()),
 					math::XYZTLorentzVector(theOutParticle.momentum())));
-   } else{
+   } else {
      theOutParticle.propagateToVFcalEntrance(false);
      if(theOutParticle.getSuccess()!=0) {
        pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
@@ -210,7 +211,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
 					  math::XYZPoint(theOutParticle.vertex()),
 					  math::XYZTLorentzVector(theOutParticle.momentum())));
-     }else {
+     } else {
        
        if (PT>5.&& msgwarning)
 	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -233,7 +234,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      pftrack.addPoint(dummyHCALexit); 
    }
    
-   
    //HO layer0
    //   if (abs(theOutParticle.vertex().z())<550) {
    if ( PT>3.0) { //Same value is used in PFBlockAlgo::link( case PFBlockLink::TRACKandHO:
@@ -250,8 +250,74 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        PFTrajectoryPoint dummyHOLayer;
        pftrack.addPoint(dummyHOLayer); 
      }
+   } else {
+     PFTrajectoryPoint dummyHOLayer;
+     pftrack.addPoint(dummyHOLayer); 
    }
 
+   // add HGCAL pieces
+   theOutParticleHGC.propagateToHGCEEEntrance(false);
+   if(theOutParticleHGC.getSuccess() == 2 ) {
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALEntrance,
+					math::XYZPoint(theOutParticleHGC.vertex()),
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));     
+   } else {
+     pftrack.addPoint(PFTrajectoryPoint());
+   }
+   pftrack.addPoint(PFTrajectoryPoint());
+   /*
+   theOutParticleHGC.propagateToHGCEEExit(false);
+   if( theOutParticleHGC.getSuccess() == 2 ) {
+     std::cout << "made it to the HGC ECAL back!" << std::endl;
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALExit,
+					math::XYZPoint(theOutParticleHGC.vertex()),
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+   } else {
+     pftrack.addPoint(PFTrajectoryPoint());
+   }
+   */
+   theOutParticleHGC.propagateToHGCHEFEntrance(false);
+   if(theOutParticleHGC.getSuccess() == 2 ) {
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFEntrance,
+					math::XYZPoint(theOutParticleHGC.vertex()),
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));	  
+   } else {
+     pftrack.addPoint(PFTrajectoryPoint());
+   }
+   pftrack.addPoint(PFTrajectoryPoint());
+   /*
+   theOutParticleHGC.propagateToHGCHEFExit(false);
+   if( theOutParticleHGC.getSuccess() == 2 ) {
+     std::cout << "made it to the HGC HEF back!" << std::endl;
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFExit,
+					math::XYZPoint(theOutParticleHGC.vertex()),
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+   } else {
+     pftrack.addPoint(PFTrajectoryPoint());
+   }
+   */
+   
+   theOutParticleHGC.propagateToHGCHEBEntrance(false);
+   if(theOutParticleHGC.getSuccess() == 2 ) {
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBEntrance,
+					math::XYZPoint(theOutParticleHGC.vertex()),
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+   } else {
+     pftrack.addPoint(PFTrajectoryPoint());
+   }
+   pftrack.addPoint(PFTrajectoryPoint());
+   /*
+   theOutParticleHGC.propagateToHGCHEBExit(false);
+   if( theOutParticleHGC.getSuccess() == 2 ) {
+     std::cout << "made it to the HGC HEB back!" << std::endl;
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBExit,
+					math::XYZPoint(theOutParticleHGC.vertex()),
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+   } else {
+     pftrack.addPoint(PFTrajectoryPoint());
+   }
+   */
+   
    return true;
 }
 bool 
@@ -361,6 +427,20 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							     0.)), 
 			       0.,0.,B_.z());
       theOutParticle.setCharge(track.charge());  
+
+      BaseParticlePropagator theOutParticleHGC = 
+	BaseParticlePropagator( 
+			       RawParticle(XYZTLorentzVector(p.x(),
+							     p.y(),
+							     p.z(),
+							     pfenergy),
+					   XYZTLorentzVector(v.x(),
+							     v.y(),
+							     v.z(),
+							     0.)), 
+			       0.,0.,B_.z());
+      theOutParticleHGC.setCharge(track.charge());  
+
       bool isBelowPS=false; 
       theOutParticle.propagateToPreshowerLayer1(false);
       if(theOutParticle.getSuccess()!=0)
@@ -400,18 +480,18 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 					   meanShower,
-					   math::XYZTLorentzVector(theOutParticle.momentum())));}
-      else {
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+      } else { 	  
 	theOutParticle.propagateToVFcalEntrance(false);
 	if(theOutParticle.getSuccess()!=0) {
 	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					     math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum())));
 	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
-	}else {
-
+					     math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum())));
+	} else {
+	  
 	  if (PT>5.)
 	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
 	  PFTrajectoryPoint dummyECAL;
@@ -420,28 +500,24 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	  pftrack.addPoint(dummyMaxSh); 
 	}
       }
-    
-      
-      
-      
+
       //HCAL entrance
       theOutParticle.propagateToHcalEntrance(false);
       if(theOutParticle.getSuccess()!=0) {
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
 					   math::XYZPoint(theOutParticle.vertex()),
 					   math::XYZTLorentzVector(theOutParticle.momentum())));
-      } else{
+      } else {
 	//try to propagate to HF
 	theOutParticle.propagateToVFcalEntrance(false);
 	if(theOutParticle.getSuccess()!=0) {
 	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-					   math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZPoint(theOutParticle.vertex()),
 					     math::XYZTLorentzVector(theOutParticle.momentum()))); 
 	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-					   math::XYZPoint(theOutParticle.vertex()),
-					     math::XYZTLorentzVector(theOutParticle.momentum()))); }
-	else {
-
+					     math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum()))); 
+	} else {	      
 	  if (PT>5.)
 	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
 	  PFTrajectoryPoint dummyHCALentrance;
@@ -478,6 +554,58 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	  pftrack.addPoint(dummyHOLayer); 
 	}
       } 
+
+      // add HGCAL pieces
+      theOutParticleHGC.propagateToHGCEEEntrance(false);
+      if(theOutParticleHGC.getSuccess() == 2 ) {
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALEntrance,
+					   math::XYZPoint(theOutParticleHGC.vertex()),
+					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+      } else {
+	pftrack.addPoint(PFTrajectoryPoint());
+      }
+      theOutParticleHGC.propagateToHGCEEExit(false);
+      if( theOutParticleHGC.getSuccess() == 2 ) {
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALExit,
+					   math::XYZPoint(theOutParticleHGC.vertex()),
+					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+      } else {
+	pftrack.addPoint(PFTrajectoryPoint());
+      }
+      
+      theOutParticleHGC.propagateToHGCHEFEntrance(false);
+      if(theOutParticleHGC.getSuccess() == 2 ) {
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFEntrance,
+					   math::XYZPoint(theOutParticleHGC.vertex()),
+					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));	  
+      } else {
+	pftrack.addPoint(PFTrajectoryPoint());
+      }
+      theOutParticleHGC.propagateToHGCHEFExit(false);
+      if( theOutParticleHGC.getSuccess() == 2 ) {
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFExit,
+					   math::XYZPoint(theOutParticleHGC.vertex()),
+					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+      } else {
+	pftrack.addPoint(PFTrajectoryPoint());
+      }
+      
+      theOutParticleHGC.propagateToHGCHEBEntrance(false);
+      if(theOutParticleHGC.getSuccess() == 2 ) {
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBEntrance,
+					     math::XYZPoint(theOutParticleHGC.vertex()),
+					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+      } else {
+	pftrack.addPoint(PFTrajectoryPoint());
+      }
+      theOutParticleHGC.propagateToHGCHEBExit(false);
+      if( theOutParticleHGC.getSuccess() == 2 ) {
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBExit,
+					   math::XYZPoint(theOutParticleHGC.vertex()),
+					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+      } else {
+	pftrack.addPoint(PFTrajectoryPoint());
+      }  
     }
 
     // --------------------------   END GSF Track ------------------------------------- 

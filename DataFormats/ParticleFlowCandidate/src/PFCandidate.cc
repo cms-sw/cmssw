@@ -12,6 +12,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+
 #include <ostream>
 #include <iomanip>
 
@@ -119,7 +121,7 @@ PFCandidate::PFCandidate( Charge charge,
   setPdgId( translateTypeToPdgId( partId ) );
 }
 
-PFCandidate::~PFCandidate() {}
+PFCandidate::~PFCandidate() { elementsInBlocks_.clear(); }
 
 PFCandidate * PFCandidate::clone() const {
   return new PFCandidate( * this );
@@ -128,6 +130,7 @@ PFCandidate * PFCandidate::clone() const {
 
 void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
                                      unsigned elementIndex ) {
+
   //elementsInBlocks_.push_back( make_pair(blockref.key(), elementIndex) );
   if (blocksStorage_.size()==0)
     blocksStorage_ =Blocks(blockref.id());

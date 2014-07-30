@@ -191,9 +191,9 @@ KDTreeLinkerTrackEcal::searchLinks()
 	  for ( unsigned jc=0; jc<4; ++jc ) {
 	    math::XYZPoint cornerposxyz = cornersxyz[jc];
 	    x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	      * (1.00+0.50/fracsNbr /std::min(1.,trackPt/2.));
+	      * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
 	    y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-	      * (1.00+0.50/fracsNbr /std::min(1.,trackPt/2.));
+	      * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
 	  }
 	  
 	  x[4] = x[0];

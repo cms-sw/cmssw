@@ -12,19 +12,19 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 {
         rechitMaker_ = new HGCalRecHitSimpleAlgo();
 	// HGCee constants 
-	HGCEEmipInKeV_ =  ps.getUntrackedParameter<double>("HGCEEmipInKeV");
-	HGCEElsbInMIP_ =  ps.getUntrackedParameter<double>("HGCEElsbInMIP");
-	HGCEEmip2noise_ = ps.getUntrackedParameter<double>("HGCEEmip2noise");
+	HGCEEmipInKeV_ =  ps.getParameter<double>("HGCEEmipInKeV");
+	HGCEElsbInMIP_ =  ps.getParameter<double>("HGCEElsbInMIP");
+	HGCEEmip2noise_ = ps.getParameter<double>("HGCEEmip2noise");
 	hgceeADCtoGeV_ = HGCEEmipInKeV_ * HGCEElsbInMIP_/1000000; 
 	// HGChef constants
-	HGCHEFmipInKeV_ =  ps.getUntrackedParameter<double>("HGCHEFmipInKeV");
-	HGCHEFlsbInMIP_ =  ps.getUntrackedParameter<double>("HGCHEFlsbInMIP");
-	HGCHEFmip2noise_ = ps.getUntrackedParameter<double>("HGCHEFmip2noise");
+	HGCHEFmipInKeV_ =  ps.getParameter<double>("HGCHEFmipInKeV");
+	HGCHEFlsbInMIP_ =  ps.getParameter<double>("HGCHEFlsbInMIP");
+	HGCHEFmip2noise_ = ps.getParameter<double>("HGCHEFmip2noise");
 	hgchefADCtoGeV_ = HGCHEFmipInKeV_ * HGCHEFlsbInMIP_/1000000;
 	// HGCheb constants
-	HGCHEBmipInKeV_ =  ps.getUntrackedParameter<double>("HGCHEBmipInKeV");
-	HGCHEBlsbInMIP_ =  ps.getUntrackedParameter<double>("HGCHEBlsbInMIP");
-	HGCHEBmip2noise_ = ps.getUntrackedParameter<double>("HGCHEBmip2noise");
+	HGCHEBmipInKeV_ =  ps.getParameter<double>("HGCHEBmipInKeV");
+	HGCHEBlsbInMIP_ =  ps.getParameter<double>("HGCHEBlsbInMIP");
+	HGCHEBmip2noise_ = ps.getParameter<double>("HGCHEBmip2noise");
 	hgchebADCtoGeV_ = HGCHEBmipInKeV_ * HGCHEBlsbInMIP_/1000000;
 	//        v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
 	//	v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");

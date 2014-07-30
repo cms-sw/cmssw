@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.HcalCommonData.testHcalOnlyGeometryXML_cfi")
+process.load("Geometry.HcalCommonData.testPhase2GeometryXML_cfi")
 process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
 process.load("Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi")
 

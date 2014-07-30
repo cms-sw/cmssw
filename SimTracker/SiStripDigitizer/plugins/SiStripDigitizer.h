@@ -50,7 +50,7 @@ public:
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
   
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex );
+  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin);
 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int> >,std::less<unsigned int> > simhit_map;

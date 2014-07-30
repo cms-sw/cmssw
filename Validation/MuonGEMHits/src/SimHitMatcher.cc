@@ -49,6 +49,8 @@ void SimHitMatcher::init()
   event().getByLabel(simInputLabel_, sim_vertices);
   event().getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), gem_hits);
 
+  if ( !sim_tracks.isValid() || !sim_vertices.isValid() || !gem_hits.isValid()) return;
+
   // fill trkId2Index associoation:
   int no = 0;
   trkid_to_index_.clear();

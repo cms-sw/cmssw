@@ -239,7 +239,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      }
 
      // status==1 electrons and muons
-     if( ( reco::isElectron( *it ) || reco::isElectron( *it ) ) && it->status()==1 )
+     if( ( reco::isElectron( *it ) || reco::isMuon( *it ) ) && it->status()==1 )
        leptons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
 
      // status==2 taus

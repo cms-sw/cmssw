@@ -32,8 +32,11 @@ PFBlockAlgo::PFBlockAlgo() :
 	INIT_ENTRY(PFBlockElement::HFEM),
 	INIT_ENTRY(PFBlockElement::HFHAD),
 	INIT_ENTRY(PFBlockElement::SC),
-	INIT_ENTRY(PFBlockElement::HO) 
-	  } ) {}
+	INIT_ENTRY(PFBlockElement::HO),
+	INIT_ENTRY(PFBlockElement::HGC_ECAL),
+	INIT_ENTRY(PFBlockElement::HGC_HCALF),
+	INIT_ENTRY(PFBlockElement::HGC_HCALB),
+	} ) {}
 
 void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
    constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
@@ -126,8 +129,13 @@ PFBlockAlgo::findBlocks() {
     ie = associate(elements_, links, blocks_->back());    
     
     packLinks( blocks_->back(), links );
+    /*
+    if( blocks_->back().elements().size() > 1 ) {
+      std::cout << blocks_->back() << std::endl;
+    }
+    */    
   }
-  //std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
+  std::cout << "(new) Found " << blocks_->size() << " PFBlocks!" << std::endl;
 }
 
 // start from first element in elements_

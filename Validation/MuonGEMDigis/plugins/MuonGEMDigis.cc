@@ -3,17 +3,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 ///Data Format
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -53,20 +48,23 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
 {
   hasGEMGeometry_ = false;
 
-  stripLabel_ = ps.getParameter<edm::InputTag>("stripLabel");
-  cscPadLabel_ = ps.getParameter<edm::InputTag>("cscPadLabel");
-  cscCopadLabel_ = ps.getParameter<edm::InputTag>("cscCopadLabel");
-  simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
+  stripToken_ = consumes<GEMDigiCollection>(ps.getParameter<edm::InputTag>("stripLabel"));
+  cscPadToken_ = consumes<GEMCSCPadDigiCollection>(ps.getParameter<edm::InputTag>("cscPadLabel"));
+  cscCopadToken_ = consumes<GEMCSCPadDigiCollection>(ps.getParameter<edm::InputTag>("cscCopadLabel"));
+  simInputToken_ = consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("simInputLabel"));
   simTrackMatching_ = ps.getParameterSet("simTrackMatching");
+  edm::EDGetToken simTracksToken = consumes< edm::SimTrackContainer >(simTrackMatching_.getParameter<edm::InputTag>("simTrackCollection"));
+  edm::EDGetToken simVerticesToken = consumes< edm::SimVertexContainer >(simTrackMatching_.getParameter<edm::InputTag>("simVertexCollection"));
+
   const edm::ParameterSet& pbInfo = ps.getParameterSet("PlotBinInfo");
   
   dbe_ = edm::Service<DQMStore>().operator->();
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
-  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ , pbInfo);
-  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_, pbInfo );
-  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_, pbInfo );
-  theGEMDigiTrackMatch = new GEMDigiTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
+  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripToken_ , pbInfo);
+  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadToken_, pbInfo );
+  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadToken_, pbInfo );
+  theGEMDigiTrackMatch = new GEMDigiTrackMatch(dbe_, simTracksToken, simVerticesToken, simTrackMatching_ );
 }
 
 
@@ -137,7 +135,7 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     theGEMStripDigiValidation->bookHisto(gem_geometry_);
     theGEMCSCPadDigiValidation->bookHisto(gem_geometry_);
     theGEMCSCCoPadDigiValidation->bookHisto(gem_geometry_);
-    theGEMDigiTrackMatch->bookHisto();
+    theGEMDigiTrackMatch->bookHisto(gem_geometry_);
   }
 }
 
@@ -145,6 +143,8 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 void 
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
+  theGEMStripDigiValidation->savePhiPlot();
+  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 

@@ -31,13 +31,14 @@ double SCAndECALLinker::testLink
   double dist = -1.0;  
   const reco::PFBlockElementCluster* ecalelem(NULL);    
   const reco::PFBlockElementSuperCluster* scelem(NULL); 
-  if( elem1->type() < elem2->type() ) {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem2);
+  if( elem1->type() == reco::PFBlockElement::ECAL || 
+      elem1->type() == reco::PFBlockElement::HGC_ECAL ) {
+     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+     scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem2);
   } else {
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
     scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem1);
-  }
+  }  
   const reco::PFClusterRef& clus = ecalelem->clusterRef();
   const reco::SuperClusterRef& sclus = scelem->superClusterRef();
   if( sclus.isNull() ) {

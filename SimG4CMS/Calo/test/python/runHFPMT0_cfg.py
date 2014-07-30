@@ -81,7 +81,7 @@ process.TFileService = cms.Service("TFileService",
 
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.g4SimHits.HCalSD.UseShowerLibrary   = True
 process.g4SimHits.HCalSD.UseParametrize     = False

@@ -551,7 +551,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 	else  passEmThreshold = (energy >= threshold);
 
       }
-      else if (detId.subdetId() == EcalEndcap) {
+      else if (detId.subdetId() == EcalEndcap || detId.subdetId() == EcalShashlik) {
 	if (theUseEtEETresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
 	if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
 	else  passEmThreshold = (energy >= threshold);
@@ -974,7 +974,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       if (ac_it->subdetId() == EcalBarrel && theEbHandle.isValid()) {
 	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it, *theEbHandle);//, *theEcalChStatus);
       }
-      else if (ac_it->subdetId() == EcalEndcap && theEeHandle.isValid()) {
+      else if ((ac_it->subdetId() == EcalEndcap || ac_it->subdetId() == EcalShashlik) && theEeHandle.isValid()) {
 	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it, *theEeHandle);//, *theEcalChStatus);
       }
  
@@ -1046,7 +1046,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
         weight = my.Eval(theEBEScale);
       }
     }
-    else if(subdet == EcalEndcap) {
+    else if(subdet == EcalEndcap || subdet == EcalShashlik) {
       threshold = theEEthreshold;
       weight = theEEweight;
       if (weight <= 0.) {

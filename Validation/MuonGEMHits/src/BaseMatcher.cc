@@ -15,6 +15,16 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
   // Get the propagators                                                                                  
   es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorAlong", propagator_);
   es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
+
+  try{
+    es.get<MuonGeometryRecord>().get(gem_geom);
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+      edm::LogError("BaseMatcher") << "+++ Error : GEM geometry is unavailable. +++\n";
+      return;
+  }
+  
+
 }
 
 
@@ -48,9 +58,17 @@ BaseMatcher::propagateToZ(float z) const
 }
 
 GlobalPoint
-BaseMatcher::propagatedPositionGEM() const
+BaseMatcher::propagatedPositionGEM(int station=1) const
 {
   const double eta(trk().momentum().eta());
   const int endcap( (eta > 0.) ? 1 : -1);
-  return propagateToZ(endcap*AVERAGE_GEM_Z);
+  const GEMGeometry* GEMGeometry = &*gem_geom;
+  GEMDetId* dummy = new GEMDetId( (int)endcap, 1, (int)station, 1, 1,  1);
+  GEMDetId* dummy2 = new GEMDetId( (int)endcap, 1, (int)station, 2, 1, 1);
+  const LocalPoint p0(0,0,0);
+  const GlobalPoint g_p = GEMGeometry->idToDet(dummy->rawId())->surface().toGlobal(p0);
+  const GlobalPoint g_p2 = GEMGeometry->idToDet(dummy2->rawId())->surface().toGlobal(p0);
+  const double z = (TMath::Abs( g_p.z() + g_p2.z()))/2. ;
+
+  return propagateToZ(endcap*z);
 }

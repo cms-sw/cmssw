@@ -16,14 +16,20 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     measurementTrackerName = cms.string(""),
 
     # SC filtering
-    SCEtCut = cms.double(4.0),
+    #SCEtCut = cms.double(4.0),
+    SCEtCutBarrel = cms.double(4.0),
+    SCEtCutEndcap = cms.double(9.0),
 
     # H/E
     applyHOverECut = cms.bool(True),
+    #hOverEMethod = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
+    hOverEMethodBarrel = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
+    hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
     hOverEConeSize = cms.double(0.15),
     #maxHOverE = cms.double(0.1),
     maxHOverEBarrel = cms.double(0.15),
-    maxHOverEEndcaps = cms.double(0.15),
+    maxHOverEEndcaps = cms.double(0.1),
+    maxHOverEOuterEndcaps = cms.double(0.2),
     maxHBarrel = cms.double(0.0),
     maxHEndcaps = cms.double(0.0),
     # H/E rechits

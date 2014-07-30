@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import SLHCUpgradeSimulations.Configuration.customise_PFlow as customise_PFlow
+
 #GEN-SIM so far...
 def customise(process):
     if hasattr(process,'DigiToRaw'):
@@ -48,14 +50,16 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
     process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
                          'g4SimHitsTrackerHitsPixelEndcapLowTof')
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECLowTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
-    process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
+    # Check if mergedtruth is in the sequence first, could be taken out depending on cmsDriver options
+    if hasattr(process.mix.digitizers,"mergedtruth") :    
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECLowTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
+        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
     
     return process
 
@@ -205,11 +209,7 @@ def customise_Reco(process,pileup):
 
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
-    for link in process.particleFlowBlock.linkDefinitions:
-        if hasattr(link,'trackerEtaBoundary') : link.trackerEtaBoundary = cms.double(3.0)
-    for importer in process.particleFlowBlock.elementImporters :
-    	if importer.source.value()=="particleFlowClusterHFEM" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
-    	if importer.source.value()=="particleFlowClusterHFHAD" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
+    process=customise_PFlow.customise_extendedTrackerBarrel( process )
 
     return process
 
@@ -279,11 +279,12 @@ def customise_DQM(process,pileup):
     process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
-    process.globalrechitsanalyze.ROUList = cms.vstring(
-       'g4SimHitsTrackerHitsPixelBarrelLowTof', 
-       'g4SimHitsTrackerHitsPixelBarrelHighTof', 
-       'g4SimHitsTrackerHitsPixelEndcapLowTof', 
-       'g4SimHitsTrackerHitsPixelEndcapHighTof')
+    if hasattr(process,"globalrechitsanalyze") : # Validation takes this out if pileup is more than 30
+       process.globalrechitsanalyze.ROUList = cms.vstring(
+          'g4SimHitsTrackerHitsPixelBarrelLowTof', 
+          'g4SimHitsTrackerHitsPixelBarrelHighTof', 
+          'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+          'g4SimHitsTrackerHitsPixelEndcapHighTof')
     return process
 
 def customise_Validation(process,pileup):

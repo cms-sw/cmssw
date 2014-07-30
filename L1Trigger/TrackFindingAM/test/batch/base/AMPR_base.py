@@ -49,7 +49,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'MYGLOBALTAG', '')
 
 # Some pattern recognition options
 process.TTPatternsFromStub.inputBankFile              = cms.string('BANKFILENAME')
-process.TTPatternsFromStub.threshold                  = cms.int32(5)
+process.TTPatternsFromStub.threshold                  = cms.int32(THRESHOLD)
 process.TTPatternsFromStub.TTPatternName              = cms.string('PATTCONT')
 
 

@@ -224,6 +224,8 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
         layer  = 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7;
         ladder = detIdStub.iRing()-1;
         module = detIdStub.iPhi()-1;
+
+	//	std::cout << mp0.y() << " / " << cols0 << " / " << cols1 << " / " << segment << std::endl;
       }
 
       module = CMSPatternLayer::getModuleCode(layer,module);

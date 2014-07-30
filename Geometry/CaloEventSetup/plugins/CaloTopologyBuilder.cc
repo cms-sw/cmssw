@@ -3,6 +3,8 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/FCalGeometry/interface/ShashlikGeometry.h"
+#include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -45,5 +47,14 @@ CaloTopologyBuilder::produceCalo( const CaloTopologyRecord& iRecord )
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalPreshower,
 			  new EcalPreshowerTopology(theGeometry));
+   const CaloSubdetectorGeometry* EKgeom = 
+     theGeometry->getSubdetectorGeometry(DetId::Ecal,EcalShashlik);
+   if( EKgeom ) {
+     const ShashlikGeometry* EKgeom_casted = 
+       static_cast<const ShashlikGeometry*>(EKgeom);
+     ct->setSubdetTopology( DetId::Ecal,
+			    EcalShashlik,
+			    &(EKgeom_casted->topology()));
+   }
    return ct ;
 }

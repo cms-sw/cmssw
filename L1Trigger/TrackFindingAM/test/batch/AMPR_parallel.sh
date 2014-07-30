@@ -15,16 +15,17 @@
 #
 # The jobs themselves are launched by PR_processor_parallel.sh
 #
-# source AMPR.sh p1 p2 p3 p4 p5 p6 p7
+# source AMPR.sh p1 p2 p3 p4 p5 p6 p7 p8
 # with:
-# p1 : The subdirectory containing the data file you want to analyze (best is to copy them beforehand on the machine scratch area)
-# p2 : The directory where you will retrieve the bank files, the pattern reco will
+# p1 : The directory containing the data file you want to analyze (best is to copy them beforehand on the machine scratch area)
+# p2 : Name of the SE subdirectory where you will store the data
+# p3 : The directory where you will retrieve the bank files, the pattern reco will
 #      run over all the pbk files contained in this directory
-# p3 : How many events per input data file? 
-# p4 : How many events per job (should be below p3...)?
-# p5 : The global tag name
-# p6 : How many cores you want to use in parallel (if one then parallel is not used)
-# p7 : How many events per job to process
+# p4 : How many events per input data file? 
+# p5 : How many events per job (should be below p3...)?
+# p6 : The global tag name
+# p7 : How many cores you want to use in parallel (if one then parallel is not used)
+# p8 : How many events per job to process
 #
 # For more details, and examples, have a look at:
 # 
@@ -40,13 +41,14 @@
 
 # Here we retrieve the main parameters for the job 
 
-MATTER=${1}   # Directory where the input root files are
-BANKDIR=${2}  # Directory where the bank (.pbk) files are
-NTOT=${3}     # How many events per data file?
-NPFILE=${4}   # How many events per job?
-GTAG=${5}     # Global tag
-NCORES=${6}   # #cores
-NFILES=${7}   # #files per job
+INPUTDIR=${1} # Directory where the input root files are
+MATTER=${2}   # Name of the directory in the SE
+BANKDIR=${3}  # Directory where the bank (.pbk) files are
+NTOT=${4}     # How many events per data file?
+NPFILE=${5}   # How many events per job?
+GTAG=${6}     # Global tag
+NCORES=${7}   # #cores
+NFILES=${8}   # #files per job
 
 ###################################
 #
@@ -56,15 +58,9 @@ NFILES=${7}   # #files per job
 
 # You have to adapt this to your situation
 
-# The scratch directory where you put the input and temporary files
-# !!! Ensure that you have enough scratch space available !!!
-
-BASE=/tmp/sviret
-
 # The SE directory containing the output EDM file with the PR output
 
-OUTDIR=/dpm/in2p3.fr/home/cms/data/store/user/sviret/SLHC/PR/$MATTER
-
+SEBASE=/dpm/in2p3.fr/home/cms/data/store/user/sviret/SLHC/PR
 export LFC_HOST=lyogrid06.in2p3.fr
 
 # The parallel command
@@ -77,10 +73,11 @@ parallel=/gridgroup/cms/brochet/.local/bin/parallel
 ###########################################################
 ###########################################################
 
-INDIR=$BASE/$MATTER
-mkdir $BASE/TMP
+INDIR=$INPUTDIR
+mkdir $INDIR/TMPDAT
 
-OUTDIRTMP=$BASE/TMP/$MATTER
+OUTDIR=$SEBASE/$MATTER
+OUTDIRTMP=$INDIR/TMPDAT
 INDIR_GRID=srm://$LFC_HOST/$INDIR
 INDIR_XROOT=root://$LFC_HOST/$INDIR
 OUTDIR_GRID=srm://$LFC_HOST/$OUTDIR
