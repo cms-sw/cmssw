@@ -138,7 +138,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	//NAIVE ALGO By michalis -> Find the maximum and assign the maximum energy
 	size_t maxSample  =  (std::max_element(samples.begin(),samples.end()))-samples.begin();
 	energy  = samples[maxSample];
-	time = (float)maxSample;
+	time = -100. + maxSample*25.0;
 	int depth = detid.depth();
 
 	math::XYZVector position;
