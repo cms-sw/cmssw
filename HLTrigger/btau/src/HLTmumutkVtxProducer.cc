@@ -42,6 +42,7 @@ HLTmumutkVtxProducer::HLTmumutkVtxProducer(const edm::ParameterSet& iConfig):
   minInvMass_(iConfig.getParameter<double>("MinInvMass")),
   maxInvMass_(iConfig.getParameter<double>("MaxInvMass")),
   minD0Significance_(iConfig.getParameter<double>("MinD0Significance")),
+  overlapDR_(iConfig.getParameter<double>("OverlapDR")),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")),
   beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_))
 {
@@ -64,6 +65,7 @@ HLTmumutkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("MinInvMass",0.0);
   desc.add<double>("MaxInvMass",99999.);
   desc.add<double>("MinD0Significance",0.0);
+  desc.add<double>("OverlapDR",0.001);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   descriptions.add("HLTmumutkVtxProducer",desc);
 }
@@ -216,8 +218,7 @@ FreeTrajectoryState HLTmumutkVtxProducer::initialFreeState( const reco::Track& t
 }
 
 bool HLTmumutkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& trackref2){
-  double eps(1.44e-4);
-  if (deltaR(trackref1->eta(), trackref1->phi(),trackref2->eta(), trackref2->phi()) < eps) return 1;
+  if (deltaR(trackref1->eta(), trackref1->phi(),trackref2->eta(), trackref2->phi()) < overlapDR_) return 1;
   return 0;
 }
 
