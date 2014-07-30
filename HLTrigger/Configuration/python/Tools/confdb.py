@@ -987,10 +987,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltMuTrackCkfTrackCandidatesOnia" )
       self.options['modules'].append( "-hltMuTrackCtfTracksOnia" )
       
-      self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
-      self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
-      self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
-      self.options['modules'].append( "-hltEcalRegionalEgammaFEDs" )
       self.options['modules'].append( "-hltFEDSelector" )
       self.options['modules'].append( "-hltL3TrajSeedOIHit" )
       self.options['modules'].append( "-hltL3TrajSeedIOHit" )
@@ -1004,13 +1000,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltHoreco" )
       self.options['modules'].append( "-hltHfreco" )
       self.options['modules'].append( "-hltHbhereco" )
-      self.options['modules'].append( "-hltEcalRegionalRestFEDs" )
-      self.options['modules'].append( "-hltEcalRegionalESRestFEDs" )
-      self.options['modules'].append( "-hltEcalRawToRecHitFacility" )
       self.options['modules'].append( "-hltESRawToRecHitFacility" )
-      self.options['modules'].append( "-hltEcalRegionalJetsRecHit" )
-      self.options['modules'].append( "-hltEcalRegionalMuonsRecHit" )
-      self.options['modules'].append( "-hltEcalRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRecHitAll" )
       self.options['modules'].append( "-hltESRecHitAll" )
       # === hltPF
@@ -1070,7 +1060,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForPhotons" )
       self.options['modules'].append( "-hltPixelTracksForEgamma" )
       self.options['modules'].append( "-hltPixelTracksElectrons" )
-      self.options['modules'].append( "-hltIter2MergedForElectrons" )
 
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
@@ -1095,7 +1084,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPVPixelTracks")
       self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
 
-      self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
       self.options['modules'].append( "-hltMuonCSCDigis" )
@@ -1133,7 +1121,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTracking" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTIterativeTrackingReg" )
-      self.options['sequences'].append( "-HLTIterativeTrackingForElectronsIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForElectronIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForPhotonsIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingL3MuonIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingGlbTrkMuonIter02" )
