@@ -28,7 +28,6 @@ void GEMCSCCoPadDigiValidation::bookHisto(const GEMGeometry* geom) {
         label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num];
         theCSCCoPad_phipad[region_num][station_num] = dbe_->book2D( ("copad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-PI,PI, nPads/2,0,nPads );
         theCSCCoPad[region_num][station_num] = dbe_->book1D( ("copad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
-        theCSCCoPad_xy[region_num][station_num] = dbe_->book2D( ("copad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
         theCSCCoPad_bx[region_num][station_num] = dbe_->book1D( ("copad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
         theCSCCoPad_zr[region_num][station_num] = BookHistZR( "copad_dg","CoPad Digi",region_num,station_num);
         theCSCCoPad_xy[region_num][station_num] = BookHistXY( "copad_dg","CoPad Digi",region_num,station_num);
