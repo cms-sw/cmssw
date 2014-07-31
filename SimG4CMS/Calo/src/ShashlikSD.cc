@@ -200,10 +200,10 @@ uint16_t ShashlikSD::getDepth(G4Step *aStep) {
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint16_t ret = (uint16_t)(touch->GetReplicaNumber(0));
-//#ifdef DebugLog
+#ifdef DebugLog
   std::cout << "ShashlikSD::Volume " << touch->GetVolume(0)->GetName() 
 	    << " Depth " << ret << std::endl;
-//#endif
+#endif
   return ret;
 }
 
