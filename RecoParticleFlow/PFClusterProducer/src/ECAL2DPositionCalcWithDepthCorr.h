@@ -11,7 +11,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 
 /// This is EGM version of the ECAL position + depth correction calculation
 class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
@@ -34,7 +34,7 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
     if( conf.exists("timeResolutionCalc") ) {
       const edm::ParameterSet& timeResConf = 
         conf.getParameterSet("timeResolutionCalc");
-        _timeResolutionCalc.reset(new ECALRecHitResolutionProvider(timeResConf)); 
+        _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf)); 
       }
     }
   ECAL2DPositionCalcWithDepthCorr(const ECAL2DPositionCalcWithDepthCorr&) = delete;
@@ -60,7 +60,7 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   const CaloSubdetectorGeometry* _esGeom;
   bool _esPlus, _esMinus;
 
-  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalc;
+  std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalc;
   
   void calculateAndSetPositionActual(reco::PFCluster&) const;
 };

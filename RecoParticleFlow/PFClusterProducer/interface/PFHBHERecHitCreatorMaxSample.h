@@ -125,11 +125,12 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	std::vector<double> samples;
 
 	for (int ii = 0; ii < 8; ii++) {
-	  samples.push_back(calibrations.respcorrgain(capid[ii]) *
-			    (tool[ii] - calibrations.pedestal(capid[ii]))); 
+	  if (ii>1)
+	    samples.push_back(calibrations.respcorrgain(capid[ii]) *
+			      (tool[ii] - calibrations.pedestal(capid[ii]))); 
 
-	  //	  printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
-	  //		 (tool[ii] - calibrations.pedestal(capid[ii])));
+	  	    printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
+			   (tool[ii] - calibrations.pedestal(capid[ii])));
 	} 
 
 	/////////////////////////////
@@ -138,7 +139,46 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	//NAIVE ALGO By michalis -> Find the maximum and assign the maximum energy
 	size_t maxSample  =  (std::max_element(samples.begin(),samples.end()))-samples.begin();
 	energy  = samples[maxSample];
-	time = -100. + maxSample*25.0;
+	time = -50. + maxSample*25.0;
+
+	//if possible add the highest neighbour
+	double e2=0.0;
+	double t2=0.0; 
+	if (maxSample==0) {
+	  if (samples[1]>0) {
+	    e2 = samples[1];
+	    t2 = -25.0;
+	  }
+	}
+	else if (maxSample==samples.size()-1) {
+	  if (samples[samples.size()-2]>0) {
+	    e2 = samples[samples.size()-2];
+	    t2 = -50.+(samples.size()-2)*25.0;
+	  }
+	}
+	else {
+	  double eprev=0.0;
+	  double enext=0.0;
+	  eprev=samples[maxSample-1];
+	  enext=samples[maxSample+1];
+	  if (std::max(eprev,enext)>0.0) {
+	    if (eprev>enext) {
+	      e2=enext;
+	      t2=-50.+(maxSample+1)*25.;
+	    }
+	    else {
+	      e2=enext;
+	      t2=-50.+(maxSample+1)*25.;
+	    }
+	  }
+	}
+	if (e2>0) {
+	  time = (energy*energy*time+e2*e2*t2)/(energy*energy+e2*e2);
+	  energy+=e2;
+	}
+	  
+
+
 	int depth = detid.depth();
 	math::XYZVector position;
 	math::XYZVector axis;

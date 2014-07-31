@@ -108,6 +108,8 @@ def customizePFHCALClustering(process,scenario,data = False):
          )
 
         process.pfClusteringHBHEHF+=process.particleFlowClusterHCAL
+
+        process.particleFlowTmp.cleanedHF = cms.VInputTag(cms.InputTag("particleFlowRecHitHF","Cleaned"), cms.InputTag("particleFlowClusterHF","Cleaned"))
         
         ##customize block since we have only one HF cluster collection now
         importers = process.particleFlowBlock.elementImporters
@@ -127,6 +129,13 @@ def customizePFHCALClustering(process,scenario,data = False):
                 
         process.particleFlowBlock.elementImporters = newImporters
         
+
+        for norm in process.particleFlowClusterHBHE.seedFinder.thresholdsByDetector:
+            if norm.detector.value() == 'HCAL_BARREL1':
+                norm.seedingThreshold = 0.80
+            if norm.detector.value() == 'HCAL_ENDCAP':
+                norm.seedingThreshold = 0.80
+
 
 
         # Enable OOT pileup corrections for HBHE in MC processing
@@ -224,6 +233,15 @@ def customizePFHCALClustering(process,scenario,data = False):
         
 
 
+
+        for norm in process.particleFlowClusterHBHE.seedFinder.thresholdsByDetector:
+            if norm.detector.value() == 'HCAL_BARREL1':
+                norm.seedingThreshold = 0.80
+            if norm.detector.value() == 'HCAL_ENDCAP':
+                norm.seedingThreshold = 0.80
+
+
+
         # Enable OOT pileup corrections for HBHE in MC processing
         process.hbheprereco.mcOOTCorrectionName = cms.string("HBHE")
 
@@ -257,6 +275,7 @@ def customizePFHCALClustering(process,scenario,data = False):
         process.particleFlowClusterHBHE.pfClusterBuilder.timeResolutionCalcBarrel = _timeResolutionHCAL
         process.particleFlowClusterHBHE.pfClusterBuilder.timeResolutionCalcEndcap = _timeResolutionHCAL
         process.particleFlowClusterHBHE.pfClusterBuilder.algoName = cms.string("PFlow2DClusterizerWithTime")
+        process.particleFlowTmp.cleanedHF = cms.VInputTag(cms.InputTag("particleFlowRecHitHF","Cleaned"), cms.InputTag("particleFlowClusterHF","Cleaned"))
 
 
 
@@ -287,22 +306,20 @@ def customizePFHCALClustering(process,scenario,data = False):
         process.pfClusteringHBHEHF+=process.particleFlowRecHitHBHE
         process.pfClusteringHBHEHF+=process.particleFlowRecHitHF
         process.pfClusteringHBHEHF+=process.particleFlowClusterHBHE
-        process.pfClusteringHBHEHF+=process.particleFlowClusterHBHETimeSelected
+#        process.pfClusteringHBHEHF+=process.particleFlowClusterHBHETimeSelected
         process.pfClusteringHBHEHF+=process.particleFlowClusterHF
 
 
 
         for p in process.particleFlowRecHitHBHE.producers:
             p.name = cms.string(p.name.value()+'MaxSample')
-            for t in p.qualityTests:
-                if hasattr(t,'threshold'):
-                    t.threshold=0.30
+
 
 
         process.particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
-#               clustersSource = cms.InputTag("particleFlowClusterHBHE"),
+               clustersSource = cms.InputTag("particleFlowClusterHBHE"),
 
-               clustersSource = cms.InputTag("particleFlowClusterHBHETimeSelected"),
+#               clustersSource = cms.InputTag("particleFlowClusterHBHETimeSelected"),
                pfClusterBuilder =cms.PSet(
                       algoName = cms.string("PFMultiDepthClusterizer"),
                       nSigmaEta = cms.double(2.),
@@ -313,7 +330,7 @@ def customizePFHCALClustering(process,scenario,data = False):
                          algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
                          minFractionInCalc = cms.double(1e-9),    
                          posCalcNCrystals = cms.int32(-1),
-                         logWeightDenominator = cms.double(0.3),#same as gathering threshold
+                         logWeightDenominator = cms.double(0.8),#same as gathering threshold
                          minAllowedNormalization = cms.double(1e-9)
                       )
                ),
@@ -344,11 +361,11 @@ def customizePFHCALClustering(process,scenario,data = False):
         
 
 
-        process.particleFlowRecHitHBHE.navigator = cms.PSet(
-            name = cms.string("PFRecHitHCALNavigatorWithTime"),
-            sigmaCut = cms.double(5.0),
-            timeResolutionCalc = _timeResolutionHCALMaxSample
-        )
+#        process.particleFlowRecHitHBHE.navigator = cms.PSet(
+#            name = cms.string("PFRecHitHCALNavigatorWithTime"),
+#            sigmaCut = cms.double(5.0),
+#            timeResolutionCalc = _timeResolutionHCALMaxSample
+#        )
 
 
         
@@ -364,27 +381,28 @@ def customizePFHCALClustering(process,scenario,data = False):
         process.particleFlowClusterHBHE.pfClusterBuilder.algoName = cms.string("PFlow2DClusterizerWithTime")
 
 
-        process.particleFlowClusterHBHE.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.30)
-        process.particleFlowClusterHBHE.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.30)
-        for norm in process.particleFlowClusterHBHE.pfClusterBuilder.recHitEnergyNorms:
-            if norm.detector.value() == 'HCAL_BARREL1':
-                norm.recHitEnergyNorm = 0.60
-            if norm.detector.value() == 'HCAL_ENDCAP':
-                norm.recHitEnergyNorm = 0.30
+#        process.particleFlowClusterHBHE.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.30)
+#        process.particleFlowClusterHBHE.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.30)
+#        for norm in process.particleFlowClusterHBHE.pfClusterBuilder.recHitEnergyNorms:
+#            if norm.detector.value() == 'HCAL_BARREL1':
+#                norm.recHitEnergyNorm = 0.60
+#            if norm.detector.value() == 'HCAL_ENDCAP':
+#                norm.recHitEnergyNorm = 0.30
 
 
-        for norm in process.particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector:
-            if norm.detector.value() == 'HCAL_BARREL1':
-                norm.gatheringThreshold = 0.60
-            if norm.detector.value() == 'HCAL_ENDCAP':
-                norm.gatheringThreshold = 0.30
+#        for norm in process.particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector:
+#            if norm.detector.value() == 'HCAL_BARREL1':
+#                norm.gatheringThreshold = 0.60
+#            if norm.detector.value() == 'HCAL_ENDCAP':
+#                norm.gatheringThreshold = 0.30
 
 
         for norm in process.particleFlowClusterHBHE.seedFinder.thresholdsByDetector:
             if norm.detector.value() == 'HCAL_BARREL1':
-                norm.seedingThreshold = 0.60
+                norm.seedingThreshold = 0.80
             if norm.detector.value() == 'HCAL_ENDCAP':
-                norm.seedingThreshold = 0.40
+                norm.seedingThreshold = 0.80
                 
         
         
+        process.particleFlowTmp.cleanedHF = cms.VInputTag(cms.InputTag("particleFlowRecHitHF","Cleaned"), cms.InputTag("particleFlowClusterHF","Cleaned"))
