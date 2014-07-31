@@ -1,21 +1,6 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
-from FWCore.ParameterSet.VarParsing import VarParsing
 
-options = VarParsing('analysis')
-options.register('runkey', default = 'pp_run', mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.string, info = 'Run Keys of CMS')
-options.register('runNumber', default = 194533, mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.int, info = "Run number.")
-options.register('runInputDir', default = '/fff/BU0/test', mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.string, info = "Directory where the DQM files will appear.")
-options.register('skipFirstLumis', default = False, mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.bool, info = "Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing.")
-
-options.parseArguments()
-
-
-from DQM.Integration.test.dqmPythonTypes import *
-runType = RunType(['pp_run','cosmic_run','hi_run','hpu_run'])
-if not options.runkey.strip():
-    options.runkey = 'pp_run'
-
-runType.setRunType(options.runkey.strip())
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("process")
 
@@ -37,6 +22,7 @@ process.load("DQM.EcalMonitorClient.EcalCalibMonitorClient_cfi")
 process.load("DQM.Integration.test.environment_cfi")
 process.load("FWCore.Modules.preScaler_cfi")
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 
 ### Individual module setups ###
 
@@ -139,18 +125,6 @@ process.ecalDigis = cms.EDProducer("EcalRawToDigi",
     memUnpacking = cms.bool(True)
 )
 
-process.source = cms.Source("DQMStreamerReader",
-    streamLabel = cms.untracked.string('_streamDQM_StorageManager'),
-    delayMillis = cms.untracked.uint32(500),
-    runNumber = cms.untracked.uint32(0),
-    endOfRunKills = cms.untracked.bool(True),
-    runInputDir = cms.untracked.string(''),
-    minEventsPerLumi = cms.untracked.int32(1),
-    deleteDatFiles = cms.untracked.bool(False),
-    SelectEvents = cms.untracked.vstring('*'),
-    skipFirstLumis = cms.untracked.bool(False)
-)
-
 process.ecalCalibrationFilter = cms.EDFilter("EcalMonitorPrescaler",
     laserPrescaleFactor = cms.untracked.int32(1),
     testpulsePrescaleFactor = cms.untracked.int32(1),
@@ -212,8 +186,3 @@ process.dqmOutputPath = cms.EndPath(process.dqmSaver)
 ### Schedule ###
 
 process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePath,process.ecalPedestalPath,process.ecalClientPath,process.dqmEndPath,process.dqmOutputPath)
-
-### Setup source ###
-process.source.runNumber = options.runNumber
-process.source.runInputDir = options.runInputDir
-process.source.skipFirstLumis = options.skipFirstLumis
