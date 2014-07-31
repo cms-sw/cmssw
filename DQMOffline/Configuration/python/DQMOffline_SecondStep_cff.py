@@ -101,10 +101,10 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
-                                rpcTier0Client *
-                                cscOfflineCollisionsClients *
-                                muonQualityTests
-                              )
+                               rpcTier0Client *
+                               cscOfflineCollisionsClients *
+                               muonQualityTests
+                               )
 DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
@@ -112,6 +112,8 @@ DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
-DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                                             
+DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                     
 
-DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )                                             
+DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )  
+
+DQMHarvestMiniAOD = cms.Sequence( )
