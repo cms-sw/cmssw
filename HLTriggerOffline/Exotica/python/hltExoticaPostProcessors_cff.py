@@ -18,6 +18,10 @@ def efficiency_string(objtype,plot_type,triggerpath):
 	objtypeLatex="PFJet"
     elif objtype == "MET" :
 	objtypeLatex="MET"
+    elif objtype == "PFMET" :
+	objtypeLatex="PFMET"
+    elif objtype == "CaloJet" :
+	objtypeLatex="CaloJet"
     else:
 	objtypeLatex=objtype
 
@@ -65,7 +69,7 @@ def add_reco_strings(strings):
 plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "EffEta", "EffPhi"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","Ele","Photon","PFTau","PFJet","MET"]
+obj_types  = ["Mu","Ele","Photon","PFTau","PFJet","MET","PFMET","CaloJet"]
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module
 triggers = [ ] 
 efficiency_strings = []
