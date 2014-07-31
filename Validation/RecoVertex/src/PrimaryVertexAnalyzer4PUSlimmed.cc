@@ -29,6 +29,9 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
           iConfig.getUntrackedParameter<bool>("use_TP_associator", false)),
       sigma_z_match_(
           iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
+      root_folder_(
+          iConfig.getUntrackedParameter<std::string>("root_folder",
+                                                "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
       recoTrackCollectionToken_(consumes<reco::TrackCollection>(edm::InputTag(
@@ -59,8 +62,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   // factorizing similar histograms with different prefix in a single
   // method call.
   float log_bins[9] = {0.0, 0.0001, 0.001, 0.01, 0.1, 1., 10., 100., 1000.};
-  std::string root_folder = "Validation/Vertices/";
-  i.setCurrentFolder(root_folder);
+  i.setCurrentFolder(root_folder_);
   mes_["root_folder"]["GenVtx_vs_BX"] =
       i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 20, -12., 3., 200, 0., 200.);
   // Generated Primary Vertex Plots
@@ -101,7 +103,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
-    std::string current_folder = root_folder + label;
+    std::string current_folder = root_folder_ + "/" + label;
     i.setCurrentFolder(current_folder);
 
     mes_[label]["RecoVtx_vs_GenVtx"] = i.book2D(

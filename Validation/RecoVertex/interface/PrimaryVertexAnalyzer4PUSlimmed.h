@@ -141,6 +141,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   bool verbose_;
   bool use_TP_associator_;
   double sigma_z_match_;
+  std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
   reco::RecoToSimCollection r2s_;
