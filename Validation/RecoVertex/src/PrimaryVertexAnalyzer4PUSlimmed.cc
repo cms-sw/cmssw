@@ -273,7 +273,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  "ReconstructedAllAssoc2GenMultiMatched_ClosestDistanceZ",
-                 1000, 0.0001, 1);
+                 400, 0., 1);
 
     // All Reconstructed Vertices Matched to a Multi-Matched Gen
     // Vertex. Used for Duplicate rate plots done w.r.t. Reco
@@ -308,7 +308,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         "GeneratedAllAssoc2GenSimForMerge_ClosestDistanceZ",
-        1000, 0.0001, 1.);
+        400, 0., 1.);
   }
 }
 
