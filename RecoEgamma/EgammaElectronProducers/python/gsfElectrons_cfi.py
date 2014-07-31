@@ -168,7 +168,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
-    applyPreselection = cms.bool(True),
+    applyPreselection = cms.bool(False),
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(True),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(True),
     pureTrackerDrivenEcalErrorFromSimpleParameterization = cms.bool(True),
