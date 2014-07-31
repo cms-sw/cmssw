@@ -2196,6 +2196,15 @@ class ConfigBuilder(object):
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
 
+	if self._options.runUnscheduled:	
+		# prune and delete paths
+		#this is not supporting the blacklist at this point since I do not understand it
+		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
+		self.pythonCfgCode+="process.prune()\n"
+		for s in self.process.paths_().keys():
+			self.pythonCfgCode += 'del process.'+s+'\n'
+                self.pythonCfgCode+='\n'
+
 	# make the .io file
 
 	if self._options.io:

@@ -791,9 +791,11 @@ class Process(object):
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
         those removed Paths and EndPaths."""
-        for name in self.psets_():
-            if getattr(self,name).isTracked():
-                delattr(self, name)
+# need to update this to only prune psets not on refToPSets
+# but for now, remove the delattr
+#        for name in self.psets_():
+#            if getattr(self,name).isTracked():
+#                delattr(self, name)
         for name in self.vpsets_():
             delattr(self, name)
         #first we need to resolve any SequencePlaceholders being used
