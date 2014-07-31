@@ -398,7 +398,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
           ->Fill(v.closest_vertex_distance_z);
     // Now keep track of all RecoVTX associated to a SimVTX that
     // itself is associated to more than one RecoVTX, for
-    // duplicate-rate plots on reco quatities.
+    // duplicate-rate plots on reco quantities.
     if (v.sim_vertices_internal[0]->rec_vertices.size() > 1) {
       mes_[label]["RecoAllAssoc2MultiMatchedGen_X"]->Fill(v.x);
       mes_[label]["RecoAllAssoc2MultiMatchedGen_Y"]->Fill(v.y);
@@ -411,8 +411,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
             ->Fill(v.closest_vertex_distance_z);
     }
     // This is meant to be used as "denominator" for the merge-rate
-    // plots produced starting from reco quantities. We wo enter here
-    // only if the reco vertex has been assciated, since we need into
+    // plots produced starting from reco quantities. We   enter here
+    // only if the reco vertex has been associated, since we need info
     // from the SimVTX associated to it. In this regard, the final
     // merge-rate plot coming from reco is not to be intended as a
     // pure efficiency-like plot, since the normalization is biased.
@@ -551,7 +551,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
           (**iTP).charge() != 0) {
         vp->nGenTrk++;
       }
-    }  // End of for loop on daugthers sim-particles
+    }  // End of for loop on daughters sim-particles
     if (vp->num_matched_reco_tracks)
       vp->average_match_quality /=
           static_cast<float>(vp->num_matched_reco_tracks);
@@ -632,7 +632,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
       }
       vp->ptsq += (momentum.perp2());
       vp->nRecoTrk++;
-    }  // End of for loop on daugthers reconstructed tracks
+    }  // End of for loop on daughters reconstructed tracks
   }    // End of for loop on tracking vertices
 
   if (verbose_) {
@@ -741,7 +741,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
         continue;
       }
 
-      // if the matching critera are fulfilled, accept all the gen-vertices
+      // if the matching criteria are fulfilled, accept all the gen-vertices
       // that are close in z, in unit of sigma_z of the reconstructed
       // vertex, at least of sigma_z_match_.
       if ((fabs(vrec->z - vsim->position().z()) / vrec->recVtx->zError()) <
@@ -817,7 +817,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
   bool gotTV = iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
 
-  // TODO(rovere) the idea is to put in case a trackselector in fron
+  // TODO(rovere) the idea is to put in case a track-selector in front
   // of this module and then use its label to get the selected tracks
   // out of the event instead of making an hard-coded selection in the
   // code.
@@ -846,7 +846,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
 
   int label_index = -1;
   for (auto const& vertex_token : reco_vertex_collection_tokens_) {
-    std::vector<recoPrimaryVertex> recopv;  // a list of recontructed
+    std::vector<recoPrimaryVertex> recopv;  // a list of reconstructed
                                             // primary MC vertices
     std::string label = reco_vertex_collections_[++label_index].label();
     Handle<reco::VertexCollection> recVtxs;
@@ -877,9 +877,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           mes_[label]["MisTagRate"]->Fill(0.0);
         }
         // Now check at which location the Simulated PV has been
-        // reconstructed in the primvary vertex collection
+        // reconstructed in the primary vertex collection
         // at-hand. Mark it with fake index -1 if it was not
-        // recontructed at all.
+        // reconstructed at all.
 
         auto iv = (*recVtxs.product()).begin();
         for (int pv_position_in_reco_collection = 0;
@@ -894,7 +894,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         }
 
         // If we reached the end, it means that the Simulated PV has not
-        // been associated to any recontructed vertex: mark it as
+        // been associated to any reconstructed vertex: mark it as
         // missing in the reconstructed vertex collection using the fake
         // index -1.
         if (iv == (*recVtxs.product()).end())
