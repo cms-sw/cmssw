@@ -199,6 +199,10 @@
    <version ClassVersion="11" checksum="1838996036"/>
    <version ClassVersion="10" checksum="2145829729"/>
   </class>
+  <ioread sourceClass="reco::GsfElectron::MvaOutput" version="[1-12]" targetClass="reco::GsfElectron::MvaOutput" source="float mva;" target="mva_e_pi">
+    <![CDATA[mva_e_pi = onfile.mva;]]>
+  </ioread>
+
   <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="11">
    <version ClassVersion="11" checksum="2094185381"/>
   </class>
