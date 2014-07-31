@@ -23,16 +23,6 @@
 
 template <class MyType> 
 int StringToEnumValue(const std::string & enumMemberName){
-  //KLUDGE workaround for ROOT6 bug
-  if(enumMemberName[0] == 'k') {
-    if(enumMemberName == "kGood") return 0;
-    if(enumMemberName == "kProblematic") return 1;
-    if(enumMemberName == "kRecovered") return 2;
-    if(enumMemberName == "kTime") return 3;
-    if(enumMemberName == "kWeird") return 4;
-    if(enumMemberName == "kBad") return 5;
-  }
-  // END KLUDGE
   edm::TypeWithDict dataType(typeid(MyType), kIsEnum);
   return dataType.stringToEnumValue(enumMemberName);
 }
