@@ -18,7 +18,7 @@ void ElectronMcSignalPostValidator::finalize()
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
-  bookH1andDivide("etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",,"","true");
+  bookH1andDivide("etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency","","true");
   bookH1andDivide("zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","","true");
   bookH1andDivide("absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency","","true");
   bookH1andDivide("ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency","","true");
