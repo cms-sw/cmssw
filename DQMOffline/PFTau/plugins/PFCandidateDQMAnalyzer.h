@@ -22,9 +22,6 @@ class PFCandidateDQMAnalyzer: public DQMEDAnalyzer {
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  //void storeBadEvents(edm::Event const&, float& val);
-  void storeBadEvents(DQMStore::IBooker &, edm::Event const&, float& val);
-
   MonitorElement * eventId_;
 
   edm::EDGetTokenT< edm::View<reco::Candidate> > myCand_;

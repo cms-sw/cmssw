@@ -74,47 +74,7 @@ void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent,
     float minRes = 99.99;
     pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);    
 
-    /* 
-    edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
-    if ( (skimPS.getParameter<bool>("switchOn")) && 
-         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
-      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
-	//storeBadEvents(iEvent,minRes);
-	storeBadEvents(ibooker, iEvent,minRes);
-        nBadEvents_++;
-      } else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
-        nBadEvents_++;
-	//storeBadEvents(iEvent,maxRes);
-	storeBadEvents(ibooker, iEvent,maxRes);
-      }
-    }
-    */
-
   }
-}
-
-//void PFMETDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
-void PFMETDQMAnalyzer::storeBadEvents(DQMStore::IBooker & ibooker, edm::Event const& iEvent, float& val) {
-  unsigned int runNb  = iEvent.id().run();
-  unsigned int evtNb  = iEvent.id().event();
-  unsigned int lumiNb = iEvent.id().luminosityBlock();
-  
-  std::string path = "ParticleFlow/" + benchmarkLabel_ + "/BadEvents";
-  ibooker.setCurrentFolder(eventInfoFolder_) ;
-  std::ostringstream eventid_str;
-  eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
-
-  /*
-  MonitorElement* me = ibooker.get(path + "/" + eventid_str.str());
-  if (me) me->Reset();
-  else {
-    me = ibooker.bookFloat(eventid_str.str());
-  }
-  me->Fill(val); 
-  */
-  MonitorElement* me = ibooker.bookFloat(eventid_str.str()); 
-  me->Fill(val); 
-
 }
 
 

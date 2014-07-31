@@ -22,9 +22,6 @@ class PFJetDQMAnalyzer: public DQMEDAnalyzer {
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  //void storeBadEvents(edm::Event const&, float& val);
-  void storeBadEvents(DQMStore::IBooker & ibooker, edm::Event const&, float& val);
-
   edm::EDGetTokenT< edm::View<reco::Jet> > myJet_;
   edm::EDGetTokenT< edm::View<reco::Jet> > myMatchedJet_;
   edm::InputTag matchLabel_;

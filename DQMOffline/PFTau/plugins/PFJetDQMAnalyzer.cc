@@ -75,49 +75,7 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   if (jetCollection.isValid() && matchedJetCollection.isValid()) {
     pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes, jetpT, pSet_);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
 
-    /*
-    edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
-    if ( (skimPS.getParameter<bool>("switchOn")) &&  
-         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
-      if (jetpT > skimPS.getParameter<double>("minimumJetpT")) { 
-	if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
-	  //storeBadEvents(iEvent,minRes);
-	  storeBadEvents(ibooker, iEvent,minRes);
-	  nBadEvents_++;
-	} else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
-	  //storeBadEvents(iEvent,maxRes);
-	  storeBadEvents(ibooker, iEvent,maxRes);
-	  nBadEvents_++;
-	}
-      } // minimum jet pT check
-    }
-    */
-
   }
-}
-
-
-void PFJetDQMAnalyzer::storeBadEvents(DQMStore::IBooker & ibooker, edm::Event const& iEvent, float& val) {
-  unsigned int runNb  = iEvent.id().run();
-  unsigned int evtNb  = iEvent.id().event();
-  unsigned int lumiNb = iEvent.id().luminosityBlock();
-  
-  std::string path = "ParticleFlow/" + benchmarkLabel_ + "/BadEvents";
-  ibooker.setCurrentFolder(eventInfoFolder_) ;
-  std::ostringstream eventid_str;
-  eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
-
-  /*
-  MonitorElement* me = ibooker.get(path + "/" + eventid_str.str());
-  if (me) me->Reset();
-  else {
-    me = ibooker.bookFloat(eventid_str.str());
-  }
-  me->Fill(val);  
-  */
-  MonitorElement* me = ibooker.bookFloat(eventid_str.str());
-  me->Fill(val);  
-
 }
 
 
