@@ -584,6 +584,9 @@ namespace edm {
     if (!isTemplateInstance()) {
       return "";
     }
+    if (name() == "std::string") {
+      return std::string("std::basic_string");
+    }
     std::string templateName(name());
     auto begin = templateName.find('<');
     assert(begin != std::string::npos);
