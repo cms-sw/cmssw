@@ -164,14 +164,14 @@ void PFCandidateMonitor::fillOne(const reco::Candidate& cand) {
 
   if (matching_done_) {
     if (createReferenceHistos_ && histogramBooked_) {
-      if (pt_ref_) pt_ref_->Fill(cand.pt());
-      if (eta_ref_) eta_ref_->Fill(cand.eta() );
-      if (phi_ref_) phi_ref_->Fill(cand.phi() );
+      if (pt_ref_) pt_ref_->Fill( cand.pt() );
+      if (eta_ref_) eta_ref_->Fill( cand.eta() );
+      if (phi_ref_) phi_ref_->Fill( cand.phi() );
     }
   } else if (createEfficiencyHistos_ && histogramBooked_) {
-    if (pt_gen_) pt_gen_->Fill(cand.pt());
-    if (eta_gen_) eta_gen_->Fill(cand.eta() );
-    if (phi_gen_) phi_gen_->Fill(cand.phi() );
+    if (pt_gen_) pt_gen_->Fill( cand.pt() );
+    if (eta_gen_) eta_gen_->Fill( cand.eta() );
+    if (phi_gen_) phi_gen_->Fill( cand.phi() );
   }
 
 }
