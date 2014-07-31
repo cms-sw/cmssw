@@ -34,6 +34,11 @@ namespace edm {
   class EventID {
 
     public:
+
+      static RunNumber_t const invalidRun;
+      static LuminosityBlockNumber_t const invalidLumi;
+      static EventNumber_t const invalidEvent;
+
       EventID() : run_(0), luminosityBlock_(0), event_(0) {}
       EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
         run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}

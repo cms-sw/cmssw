@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Common/interface/Provenance.h"
@@ -85,6 +86,11 @@ namespace edm {
   EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                      ProcessHistoryRegistry const& processHistoryRegistry,
                                      DelayedReader* reader) {
+    if(aux.event() == EventID::invalidEvent) {
+      throw Exception(errors::LogicError)
+        << "EventPrincipal::fillEventPrincipal, Invalid event number provided in EventAuxiliary, It is illegal for the event number to be 0\n";
+    }
+
     fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
     aux_ = aux;
     aux_.setProcessHistoryID(processHistoryID());

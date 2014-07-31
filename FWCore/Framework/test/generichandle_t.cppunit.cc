@@ -79,7 +79,7 @@ void testGenericHandle::failWrongType() {
 }
 void testGenericHandle::failgetbyLabelTest() {
 
-  edm::EventID id;
+  edm::EventID id = edm::EventID::firstValidEvent();
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());

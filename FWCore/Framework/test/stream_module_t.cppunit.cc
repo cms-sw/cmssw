@@ -371,7 +371,7 @@ m_ep()
   //Setup the principals
   m_prodReg->setFrozen();
   m_idHelper->updateFromRegistry(*m_prodReg);
-  edm::EventID eventID;
+  edm::EventID eventID = edm::EventID::firstValidEvent();
   
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
