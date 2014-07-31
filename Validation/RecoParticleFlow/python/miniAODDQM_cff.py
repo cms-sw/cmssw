@@ -86,10 +86,10 @@ ElectronValidation1.MatchCollection = cms.InputTag('gedGsfElectrons')
 
 
 
-miniAODValidationSequence = cms.Sequence(
-					JetValidation1 * JetValidation2 *
-					JetResValidation1 * JetResValidation2 *
-					METValidation1 * METValidation2 *
-					slimmedMuonValidation1 *
-					ElectronValidation1
-					)
+miniAODDQMSequence = cms.Sequence(
+                                  JetValidation1 * JetValidation2 *
+                                  JetResValidation1 * JetResValidation2 *
+                                  METValidation1 * METValidation2 *
+                                  slimmedMuonValidation1 *
+                                  ElectronValidation1
+                                  )
