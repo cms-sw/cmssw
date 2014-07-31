@@ -29,7 +29,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 
-//#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+// #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 // LHE Run
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -312,6 +312,11 @@ namespace edm
 
   template <class HAD, class DEC>
   void
+  HadronizerFilter<HAD,DEC>::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
+  {}
+
+  template <class HAD, class DEC>
+  void
   HadronizerFilter<HAD,DEC>::endLuminosityBlockProduce(LuminosityBlock & lumi, EventSetup const&)
   {
     const lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
@@ -341,9 +346,6 @@ namespace edm
 
   }
 
-  template <class HAD, class DEC>
-  void
-  HadronizerFilter<HAD,DEC>::endLuminosityBlock(LuminosityBlock const&, EventSetup const&){  }
 
 }
 
