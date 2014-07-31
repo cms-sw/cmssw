@@ -1,31 +1,109 @@
 import FWCore.ParameterSet.Config as cms
+import sys
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+
+from Configuration.AlCa.autoCond import autoCond
+
+
+def usage():
+   print "Usage: cmsRun loadConditions.py  tag=TAG "
+   print "   tag=tagname"
+   print "       indentify geometry condition database tag"
+   print ""
+   print "   format=formatname"
+   print "       dump in plain TTree or in TGeo format, default is TTree"
+   print ""
+
+
+usage()
+
+def geoLoad(score):
+    if score == "Run1":
+       process.GlobalTag.globaltag = autoCond['mc']
+       process.load("Configuration.StandardSequences.GeometryDB_cff")
+       process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+    elif score == "2015":
+       process.GlobalTag.globaltag = autoCond['mc']
+       process.load("Configuration.Geometry.GeometryExtended2015Reco_cff");
+
+    elif score == "2019":
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+      process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+
+    elif score == "phaseIPixel":
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
+      process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
+
+    elif score == "SLHCDB":
+      process.GlobalTag.globaltag = 'DESIGN42_V17::All'
+      process.load("Configuration.StandardSequences.GeometryDB_cff")
+      process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+      process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("GeometryFileRcd"),
+                 tag = cms.string("XMLFILE_Geometry_428SLHCYV0_Phase1_R30F12_HCal_Ideal_mc"),
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_42X_GEOMETRY")
+                 ),
+        cms.PSet(record = cms.string('IdealGeometryRecord'),
+                 tag = cms.string('TKRECO_Geometry_428SLHCYV0'),
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_42X_GEOMETRY")),
+        cms.PSet(record = cms.string('PGeometricDetExtraRcd'),
+                 tag = cms.string('TKExtra_Geometry_428SLHCYV0'),
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_42X_GEOMETRY")),
+                 )
+
+    elif score == "SLHC1":
+      process.GlobalTag.globaltag = autoCond['mc']
+      process.load("Configuration.Geometry.GeometrySLHCReco_cff")
+      process.load("Configuration.StandardSequences.Reconstruction_cff")
+      process.trackerSLHCGeometry.applyAlignment = False
+
+    else:
+      print "Error, unknown tag!!!\n"
+      sys.exit(1);
+
+
+
+
+options = VarParsing.VarParsing ()
+
+options.register ('tag',
+                  "2015", # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "info about geometry database conditions")
+
+options.register ('format',
+                  "TTree", # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "write a idToGeo map or make TGeo geometry")
+
+options.parseArguments()
+print "Loading configuration for tag ", options.tag ,"...\n"
+
 
 process = cms.Process("DUMP")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-
-tagInfo = '2015'
-cfgPath = 'Configuration.Geometry.' + 'GeometryExtended' + tagInfo + 'Reco_cff'
-
-process.load(cfgPath)
-
-process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
-
-#Adding Timing service:
-process.Timing = cms.Service("Timing")
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
-    )
-
 process.source = cms.Source("EmptySource")
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-    )
-process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
-                              level = cms.untracked.int32(1),
-                              info = cms.string(tagInfo)
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+geoLoad(options.tag);
+
+
+
+tagInfoq = cms.string(options.tag);
+
+if ( options.format == "TGeo"):
+    process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
+    process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry")
+else:
+    process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
+    process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
+                              level   = cms.untracked.int32(1),
+                              tagInfo = cms.untracked.string(options.tag)
                               )
 
 process.p = cms.Path(process.dump)
