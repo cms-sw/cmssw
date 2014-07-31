@@ -9,7 +9,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
-#include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
+#include "RecoBTag/SecondaryVertex/interface/TemplatedSecondaryVertex.h"
 
 namespace reco {
 
