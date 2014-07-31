@@ -1,5 +1,5 @@
-#ifndef H5584ef3f37df484dc481a9489d08bca6
-#define H5584ef3f37df484dc481a9489d08bca6
+#ifndef FWCore_Utilities_RunningAverage_H
+#define FWCore_Utilities_RunningAverage_H
 #include <atomic>
 #include <algorithm>
 

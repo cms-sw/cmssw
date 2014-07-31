@@ -1,5 +1,5 @@
-#ifndef H667d1cc0133211e4a72a00224da65f5d
-#define H667d1cc0133211e4a72a00224da65f5d
+#ifndef DataFormats_TrackerRecHit2D_TrackingRecHitLessFromGlobalPosition_H
+#define DataFormats_TrackerRecHit2D_TrackingRecHitLessFromGlobalPosition_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
