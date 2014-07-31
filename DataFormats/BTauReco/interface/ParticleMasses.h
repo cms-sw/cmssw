@@ -4,9 +4,9 @@
 namespace reco {
 
 namespace ParticleMasses {
-	extern double k0;
-	extern double kPlus;
-	extern double piPlus;
+	const double k0     = 0.497648;
+	const double kPlus  = 0.493677;
+	const double piPlus = 0.13957;
 }
 
 } // namespace reco
