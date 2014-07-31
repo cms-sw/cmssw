@@ -34,21 +34,36 @@
 #include "TH3F.h"
 #include "TChain.h"
 
-#include <ext/hash_map>
+#include <unordered_map>
 
 
+namespace DeDxDiscriminatorProducerDetails {
+   struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; double Gain;};
+   struct Cache {
+       const TrackerGeometry* m_tracker;
+       PhysicsTools::Calibration::HistogramD3D DeDxMap_;
+       mutable std::unordered_map<unsigned int, stModInfo> MODsColl;
 
-class DeDxDiscriminatorProducer : public edm::stream::EDProducer<> {
+  };
+
+}
+
+
+class DeDxDiscriminatorProducer : public edm::stream::EDProducer<edm::RunCache<DeDxDiscriminatorProducerDetails::Cache>> {
 
 public:
 
   explicit DeDxDiscriminatorProducer(const edm::ParameterSet&);
   ~DeDxDiscriminatorProducer();
 
-private:
+public:
+  using Cache = DeDxDiscriminatorProducerDetails::Cache;
+
+  static std::shared_ptr<Cache> globalBeginRun(edm::Run const&, edm::EventSetup const&, GlobalCache const*);
+  static void globalEndRun(edm::Run const&, edm::EventSetup const&, RunContext const*){}
+
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override;
 
   double GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,const uint32_t &);
   double ComputeDiscriminator (std::vector<double>& vect_probs);
@@ -71,8 +86,6 @@ private:
   bool				    shapetest;
 
 
-  const TrackerGeometry* m_tracker;
-
   PhysicsTools::Calibration::HistogramD3D DeDxMap_;
 
   double       MinTrackMomentum;
@@ -90,17 +103,6 @@ private:
 
   std::unique_ptr<TH3F>        Prob_ChargePath;
 
-
-
-   private :
-      struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; double Gain;};
-
-      class isEqual{
-         public:
-                 template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
-      };
-
-  __gnu_cxx::hash_map<unsigned int, stModInfo*,  __gnu_cxx::hash<unsigned int>, isEqual > MODsColl;
 };
 
 #endif
