@@ -119,7 +119,7 @@ void PFIsoReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
   for(unsigned iele=0; iele<nele;++iele) {
     reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
 
-    if(myElectronRef->mva()<-1) continue;
+    if(myElectronRef->mva_e_pi()<-1) continue;
     //const reco::PFCandidatePtr & pfElePtr(myElectronValMap[myElectronRef]);
     const reco::PFCandidatePtr pfElePtr(myElectronValMap[myElectronRef]);
     printIsoDeposits(electronIsoDep,pfElePtr);
