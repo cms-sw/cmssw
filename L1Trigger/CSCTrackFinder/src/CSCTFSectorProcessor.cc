@@ -795,7 +795,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
 
           lclphidat lclPhi;
           try {
-            lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
+            lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend(), m_gangedME1a);
           } catch( cms::Exception &e ) {
             bzero(&lclPhi,sizeof(lclPhi));
             edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from LocalPhi LUT in " << FPGAs[fpga]
@@ -808,7 +808,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
             if (!m_gangedME1a) csc_id = itr->cscidSeparateME1a();
             //std::cout << "station="<<id.station()<<" ring="<<id.ring()<<" strip="<<itr->getStrip()<<" WG="<<itr->getKeyWG()<<std::endl;
             //std::cout << "csc_id=" << csc_id << std::endl;
-            gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), csc_id);
+            gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), csc_id, m_gangedME1a);
         
           } catch( cms::Exception &e ) {
             bzero(&gblPhi,sizeof(gblPhi));
@@ -820,7 +820,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
           try {
 	    unsigned csc_id = itr->cscid();
             if (!m_gangedME1a) csc_id = itr->cscidSeparateME1a();
-	    gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), csc_id);
+	    gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), csc_id, m_gangedME1a);
             //gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
           } catch( cms::Exception &e ) {
             bzero(&gblEta,sizeof(gblEta));
@@ -830,7 +830,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
 
           gblphidat gblPhiDT;
           try {
-            gblPhiDT = srLUTs_[FPGAs[fpga]]->globalPhiMB(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+            gblPhiDT = srLUTs_[FPGAs[fpga]]->globalPhiMB(lclPhi.phi_local, itr->getKeyWG(), itr->cscid(), m_gangedME1a);
           } catch( cms::Exception &e ) {
             bzero(&gblPhiDT,sizeof(gblPhiDT));
             edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalPhi DT LUT in " << FPGAs[fpga]
