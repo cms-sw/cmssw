@@ -83,7 +83,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
       bool vetoCandidate(false);
 
       //Check it passes the seed threshold
-      if(iEt < params_->jetSeedThresholdHw()) continue;
+      if(iEt < floor(params_->jetSeedThreshold()/params_->towerLsbSum())) continue;
 
       // loop over towers in this jet
       for( int deta = -4; deta < 5; ++deta ) {
