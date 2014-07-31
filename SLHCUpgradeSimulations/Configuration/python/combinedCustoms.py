@@ -28,6 +28,7 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
+from SLHCUpgradeSimulations.Configuration.customise_shashlikTime import cust_shashlikTime
 import SLHCUpgradeSimulations.Configuration.aging as aging
 import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
@@ -349,6 +350,12 @@ def cust_2023HGCalMuon(process):
         process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
+
+def cust_2023SHCalTime(process):
+    process=cust_2023SHCal(process)
+    process=cust_shashlikTime(process)
+    return process
+
 
 def cust_2023Pixel(process):
     process=customisePostLS1(process)

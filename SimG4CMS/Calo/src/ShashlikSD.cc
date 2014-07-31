@@ -31,7 +31,7 @@ ShashlikSD::ShashlikSD(G4String name, const DDCompactView & cpv,
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 
-	 p.getParameter<edm::ParameterSet>("ShashlikSD").getParameter<int>("TimeSliceUnit"),
+	 p.getParameter<edm::ParameterSet>("ShashlikSD").getParameter<double>("TimeSliceUnit"),
 	 p.getParameter<edm::ParameterSet>("ShashlikSD").getParameter<bool>("IgnoreTrackID")) {
 
 #ifdef DebugLog
@@ -200,10 +200,10 @@ uint16_t ShashlikSD::getDepth(G4Step *aStep) {
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint16_t ret = (uint16_t)(touch->GetReplicaNumber(0));
-#ifdef DebugLog
+//#ifdef DebugLog
   std::cout << "ShashlikSD::Volume " << touch->GetVolume(0)->GetName() 
 	    << " Depth " << ret << std::endl;
-#endif
+//#endif
   return ret;
 }
 
