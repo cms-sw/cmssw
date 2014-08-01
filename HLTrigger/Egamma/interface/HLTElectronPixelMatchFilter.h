@@ -10,7 +10,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -24,6 +24,13 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
  private:
+  float calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const;
+  float calDPhi2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const;
+  float calDZ2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const;
+  int getNrOfMatches(edm::Handle<reco::ElectronSeedCollection>& eleSeeds,
+		     reco::SuperClusterRef& candSCRef)const;
+
+  
   edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
   
@@ -42,32 +49,23 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
   edm::InputTag L1IsoCollTag_; 
   edm::InputTag L1NonIsoCollTag_;
   
-  float calculate_s2(reco::ElectronSeedCollection::const_iterator, int) const ;
+
+  // cuts on s2
+  float s2BarrelThres_ ;
+  float s2InterThres_;
+  float s2ForwardThres_;
+
+  //parameters to create s (divide by param)
+  float sPhi1B_ ;
+  float sPhi1I_ ;
+  float sPhi1F_ ;
+  float sPhi2B_ ;
+  float sPhi2I_ ;
+  float sPhi2F_ ;
+  float sZ2B_ ;
+  float sR2I_ ;
+  float sR2F_ ;
   
-  // S parameter values
-  // Divide by s_a_
-  float s2_threshold_ ;
-  
-  float s_a_phi1B_ ;
-  float s_a_phi1I_ ;
-  float s_a_phi1F_ ;
-  float s_a_phi2B_ ;
-  float s_a_phi2I_ ;
-  float s_a_phi2F_ ;
-  float s_a_zB_ ;
-  float s_a_rI_ ;
-  float s_a_rF_ ;
-  
-  // Multiply by s_b_ (marginally quicker)
-  float s_b_phi1B_ ;
-  float s_b_phi1I_ ;
-  float s_b_phi1F_ ;
-  float s_b_phi2B_ ;
-  float s_b_phi2I_ ;
-  float s_b_phi2F_ ;
-  float s_b_zB_ ;
-  float s_b_rI_ ;
-  float s_b_rF_ ;
   
   bool useS_ ;
 };
