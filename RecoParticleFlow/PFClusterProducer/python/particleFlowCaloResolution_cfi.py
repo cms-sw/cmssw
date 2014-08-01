@@ -28,16 +28,16 @@ _timeResolutionHCAL = cms.PSet(
     corrTermLowE = cms.double(0.0),
     constantTermLowE = cms.double(4.088),
     threshLowE = cms.double(5.0),
-    threshHighE = cms.double(5.0)
+    threshHighE = cms.double(20.0)
   )
 
 _timeResolutionHCALMaxSample = cms.PSet(
-    noiseTerm = cms.double(0.0),
-    constantTerm = cms.double(32.),
-    noiseTermLowE = cms.double(0.0),
+    noiseTerm = cms.double(39),
+    constantTerm = cms.double(0.),
+    noiseTermLowE = cms.double(8.5),
     corrTermLowE = cms.double(0.0),
-    constantTermLowE = cms.double(32.),
-    threshLowE = cms.double(0.0),
-    threshHighE = cms.double(0.0)
+    constantTermLowE = cms.double(7.7),
+    threshLowE = cms.double(5.0),
+    threshHighE = cms.double(15.0)
   )
 

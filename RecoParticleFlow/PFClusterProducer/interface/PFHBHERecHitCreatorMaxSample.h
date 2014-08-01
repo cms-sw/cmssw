@@ -129,8 +129,8 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	    samples.push_back(calibrations.respcorrgain(capid[ii]) *
 			      (tool[ii] - calibrations.pedestal(capid[ii]))); 
 
-	  //	  	    printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
-	  //			   (tool[ii] - calibrations.pedestal(capid[ii])));
+	  //	  printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
+	  //		 (tool[ii] - calibrations.pedestal(capid[ii])));
 	} 
 
 	/////////////////////////////
