@@ -84,20 +84,16 @@ void TauolappInterface::init( const edm::EventSetup& es ){
       Tauolapp::Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
    }
 
-   Tauolapp::Tauola::setTauLifetime(0.0);
    Tauolapp::Tauola::spin_correlation.setAll(fPolarization);
 
    // some more options, copied over from an example 
-   // - maybe will use later...
-   //
+   // Default values
    //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
-   //
-
-//
-//   const HepPDT::ParticleData* 
-//         PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauola::getDecayingParticle()) )) ;
-//   double lifetime = PData->lifetime().value();
-//   Tauola::setTauLifetime( lifetime );
+ 
+   const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauolapp::Tauola::getDecayingParticle()) )) ;
+   double lifetime = PData->lifetime().value();
+   Tauolapp::Tauola::setTauLifetime( lifetime );
+   //std::cout << "Setting lifetime: ctau=" << lifetime << "m or tau=" << lifetime/(299792458.0*1000.0) << "s" << std::endl;
 
    fPDGs.push_back( Tauolapp::Tauola::getDecayingParticle() );
 
@@ -222,30 +218,6 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
     for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
     {
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
-       HepMC::GenParticle* GenPart = *(GenVtx->particles_in_const_begin());
-       HepMC::GenVertex* ProdVtx = GenPart->production_vertex();
-       HepMC::FourVector PMom = GenPart->momentum();
-       double mass = GenPart->generated_mass();
-       const HepPDT::ParticleData* 
-             PData = fPDGTable->particle(HepPDT::ParticleID(abs(GenPart->pdg_id()))) ;
-       double lifetime = PData->lifetime().value();
-       float prob = 0.;
-       int length=1;
-       ranmar_(&prob,&length);
-       double ct = -lifetime * std::log(prob);
-       double VxDec = GenVtx->position().x();
-       VxDec += ct * (PMom.px()/mass);
-       VxDec += ProdVtx->position().x();
-       double VyDec = GenVtx->position().y();
-       VyDec += ct * (PMom.py()/mass);
-       VyDec += ProdVtx->position().y();
-       double VzDec = GenVtx->position().z();
-       VzDec += ct * (PMom.pz()/mass);
-       VzDec += ProdVtx->position().z();
-       double VtDec = GenVtx->position().t();
-       VtDec += ct * (PMom.e()/mass);
-       VtDec += ProdVtx->position().t();
-       GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) ); 
        //
        // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
        // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
