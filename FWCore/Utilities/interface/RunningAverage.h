@@ -2,6 +2,7 @@
 #define FWCore_Utilities_RunningAverage_H
 #include <atomic>
 #include <algorithm>
+#include <array>
 
 namespace edm {
 // keeps the running average of the last N entries
@@ -9,28 +10,28 @@ namespace edm {
   class RunningAverage {
   public:
     static constexpr int N = 16;  // better be a power of 2
-    explicit RunningAverage(unsigned int k=4) : m_mean(N*k), curr(0) {
-      for (auto & i : buffer) i=k; 
+    explicit RunningAverage(unsigned int k=4) : m_mean(N*k), m_curr(0) {
+      for (auto & i : m_buffer) i=k; 
     }
 
     int mean() const { return m_mean/N;}
 
-    int upper() const { auto lm = mean(); return lm+=(std::abs(buffer[0]-lm)+std::abs(buffer[8]-lm)); }  // about 2 sigma
+    int upper() const { auto lm = mean(); return lm+=(std::abs(m_buffer[0]-lm)+std::abs(m_buffer[N/2]-lm)); }  // about 2 sigma
 
    void update(unsigned int q) {
-      int e=curr;
-      while(!curr.compare_exchange_weak(e,e+1)); 
+      int e=m_curr;
+      while(!m_curr.compare_exchange_weak(e,e+1)); 
       int k = (N-1)&e;
-      int old = buffer[k];
-      if (!buffer[k].compare_exchange_strong(old,q)) return;
+      int old = m_buffer[k];
+      if (!m_buffer[k].compare_exchange_strong(old,q)) return;
       m_mean+= (q-old); 
     }
 
 
 private:
-    std::atomic<int> buffer[N];
+    std::array<std::atomic<int>,N> m_buffer;
     std::atomic<int> m_mean;
-    std::atomic<int> curr;
+    std::atomic<int> m_curr;
 
   };
 }

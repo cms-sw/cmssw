@@ -60,8 +60,8 @@ int main() {
 
 
   auto mm = std::max_element(res,res+n);
-  std::cout << kk << ' ' << localRA.curr << ' ' << localRA.mean() << std::endl;
-  for (auto & i : localRA.buffer) std::cout << i << ' ';
+  std::cout << kk << ' ' << localRA.m_curr << ' ' << localRA.mean() << std::endl;
+  for (auto & i : localRA.m_buffer) std::cout << i << ' ';
   std::cout << std::endl;
   std::cout << std::accumulate(res,res+n,0)/n 
 	    << ' ' << *std::min_element(res+16,res+n) << ',' << *mm << std::endl;
