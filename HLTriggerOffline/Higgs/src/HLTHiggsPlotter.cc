@@ -169,7 +169,9 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
   }
 	
   int counttotal = 0;
-  const int totalobjectssize2 = _minCandidates*countobjects.size();
+  int totobj_temp = _minCandidates*countobjects.size();
+  if( _isVBFHBB && source == "gen" ) totobj_temp = _minCandidates*(countobjects.size()-1);
+  const int totalobjectssize2 = totobj_temp;
   // Fill the histos if pass the trigger (just the two with higher pt)
   for (size_t j = 0; j < matches.size(); ++j)
   {

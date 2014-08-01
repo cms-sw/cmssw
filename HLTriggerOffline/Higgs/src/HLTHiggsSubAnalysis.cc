@@ -104,6 +104,11 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     {
         _isVBFHBB = anpset.getUntrackedParameter<bool>("isVBFHBB");
     }
+    
+    if( _isVBFHBB && anpset.existsAs<std::vector<double>>( "multipleJetCuts" , false) )
+    {
+        _multipleJetCuts = anpset.getUntrackedParameter<std::vector<double> >("multipleJetCuts"); 
+    }
 }
 
 HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
@@ -393,9 +398,9 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		// Cuts on multiple jet events (RECO)
 		if (matches->size() >= _minCandidates && _isVBFHBB) {
 			std::map<std::string,bool> jetCutResult;
-			
+            
 			this->passJetCuts(matches, jetCutResult, dEtaqq, mqq, dPhibb);
-			
+            
 			//Make N-1 booleans from jetCutResults
 			nMinOne["MaxPt1"] = true;
 			nMinOne["MaxPt2"] = true;
@@ -404,6 +409,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			nMinOne["dEtaqq"] = true;
 			nMinOne["mqq"] = true;
 			nMinOne["dPhibb"] = true;
+            
 			for(std::map<std::string,bool>::const_iterator it = jetCutResult.begin(); it != jetCutResult.end(); ++it)
 			{
 				for(std::map<std::string,bool>::const_iterator it2 = jetCutResult.begin(); it2 != jetCutResult.end(); ++it2)
@@ -414,7 +420,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 					}
 				}
 			}
-	    }	
+	    }
 	}
 
 	// Extraction of the objects candidates 
@@ -876,14 +882,16 @@ void HLTHiggsSubAnalysis::passJetCuts( std::vector<MatchStruct> * matches, std::
     jetCutResult["dEtaqq"] = false;
     jetCutResult["mqq"] = false;
     jetCutResult["dPhibb"] = false;
-		
+
+	if( matches->size() < 4 ) return; // probably not really necessary
+    
     // Perform pt cuts
     std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
     if( (matches->at(0)).pt > _multipleJetCuts.at(0) ) jetCutResult["MaxPt1"] = true;
     if( (matches->at(1)).pt > _multipleJetCuts.at(1) ) jetCutResult["MaxPt2"] = true;
     if( (matches->at(2)).pt > _multipleJetCuts.at(2) ) jetCutResult["MaxPt3"] = true;
     if( (matches->at(3)).pt > _multipleJetCuts.at(3) ) jetCutResult["MaxPt4"] = true;
-        
+    
     // Perform b-tag ordered cuts
     std::sort(matches->begin(), matches->begin()+4, matchesByDescendingBtag());
     dEtaqq =  fabs(matches->at(2).eta - matches->at(3).eta);
@@ -893,13 +901,6 @@ void HLTHiggsSubAnalysis::passJetCuts( std::vector<MatchStruct> * matches, std::
     if( mqq > _multipleJetCuts.at(5) ) jetCutResult["mqq"] = true;
     dPhibb = fmod(fabs(matches->at(0).phi - matches->at(1).phi),3.1416);
     if( dPhibb < _multipleJetCuts.at(6) ) jetCutResult["dPhibb"] = true;
-    
-    // Perform eta ordered cuts
-//     std::sort(matches->begin(), matches->begin()+4, matchesByDescendingEta());
-//     mass = sqrt(pow(matches->at(0).energy + matches->at(3).energy,2) + (matches->at(0).momentum + matches->at(3).momentum).Mag2() );
-//     if( matches->at(0).eta - matches->at(3).eta < 2.5 || mass < 300 ) {
-// 	return false;
-//     }
 }      
 
 void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const EVTColContainer * cols, 
