@@ -51,13 +51,10 @@
 // vertexing
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 
-// DQM
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 class MonitorElement;
 
 // class declaration
-class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
+class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;
 
   // auxiliary class holding simulated vertices
@@ -112,9 +109,11 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   ~PrimaryVertexAnalyzer4PUSlimmed();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void bookHistograms(DQMStore::IBooker &i,
-                              edm::Run const&,
-                              edm::EventSetup const&) override;
+  virtual void bookHistograms(edm::Run const&,
+                              edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&iRun, edm::EventSetup const &iSetup) {
+    bookHistograms(iRun, iSetup);
+  }
 
  private:
   void resetSimPVAssociation(std::vector<simPrimaryVertex>&);

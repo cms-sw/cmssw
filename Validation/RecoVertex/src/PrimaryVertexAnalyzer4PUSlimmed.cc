@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // reco track and vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -17,6 +18,7 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 // DQM
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 //
@@ -57,223 +59,224 @@ PrimaryVertexAnalyzer4PUSlimmed::~PrimaryVertexAnalyzer4PUSlimmed() {}
 // member functions
 //
 void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
-    DQMStore::IBooker& i, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+    edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  DQMStore* i = edm::Service<DQMStore>().operator->();
   // TODO(rovere) make this booking method shorter and smarter,
   // factorizing similar histograms with different prefix in a single
   // method call.
   float log_bins[9] = {0.0, 0.0001, 0.001, 0.01, 0.1, 1., 10., 100., 1000.};
-  i.setCurrentFolder(root_folder_);
+  i->setCurrentFolder(root_folder_);
   mes_["root_folder"]["GenVtx_vs_BX"] =
-      i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 20, -12., 3., 200, 0., 200.);
+      i->book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 20, -12., 3., 200, 0., 200.);
   // Generated Primary Vertex Plots
   mes_["root_folder"]["GenPV_X"] =
-      i.book1D("GenPV_X", "GeneratedPV_X", 120, -0.6, 0.6);
+      i->book1D("GenPV_X", "GeneratedPV_X", 120, -0.6, 0.6);
   mes_["root_folder"]["GenPV_Y"] =
-      i.book1D("GenPV_Y", "GeneratedPV_Y", 120, -0.6, 0.6);
+      i->book1D("GenPV_Y", "GeneratedPV_Y", 120, -0.6, 0.6);
   mes_["root_folder"]["GenPV_Z"] =
-      i.book1D("GenPV_Z", "GeneratedPV_Z", 120, -60., 60.);
+      i->book1D("GenPV_Z", "GeneratedPV_Z", 120, -60., 60.);
   mes_["root_folder"]["GenPV_R"] =
-      i.book1D("GenPV_R", "GeneratedPV_R", 120, 0, 0.6);
+      i->book1D("GenPV_R", "GeneratedPV_R", 120, 0, 0.6);
   mes_["root_folder"]["GenPV_Pt2"] =
-      i.book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 8, &log_bins[0]);
+      i->book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 8, &log_bins[0]);
   mes_["root_folder"]["GenPV_NumTracks"] =
-      i.book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 200, 0., 200.);
+      i->book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 200, 0., 200.);
   mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
-      i.book1D("GenPV_ClosestDistanceZ", "GeneratedPV_ClosestDistanceZ", 8,
+      i->book1D("GenPV_ClosestDistanceZ", "GeneratedPV_ClosestDistanceZ", 8,
                &log_bins[0]);
 
   // All Generated Vertices, used for efficiency plots
-  mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
+  mes_["root_folder"]["GenAllV_NumVertices"] = i->book1D(
       "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 200, 0., 200.);
   mes_["root_folder"]["GenAllV_X"] =
-      i.book1D("GenAllV_X", "GeneratedAllV_X", 120, -0.6, 0.6);
+      i->book1D("GenAllV_X", "GeneratedAllV_X", 120, -0.6, 0.6);
   mes_["root_folder"]["GenAllV_Y"] =
-      i.book1D("GenAllV_Y", "GeneratedAllV_Y", 120, -0.6, 0.6);
+      i->book1D("GenAllV_Y", "GeneratedAllV_Y", 120, -0.6, 0.6);
   mes_["root_folder"]["GenAllV_Z"] =
-      i.book1D("GenAllV_Z", "GeneratedAllV_Z", 120, -60, 60);
+      i->book1D("GenAllV_Z", "GeneratedAllV_Z", 120, -60, 60);
   mes_["root_folder"]["GenAllV_R"] =
-      i.book1D("GenAllV_R", "GeneratedAllV_R", 120, 0, 0.6);
+      i->book1D("GenAllV_R", "GeneratedAllV_R", 120, 0, 0.6);
   mes_["root_folder"]["GenAllV_Pt2"] =
-      i.book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 8, &log_bins[0]);
+      i->book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 8, &log_bins[0]);
   mes_["root_folder"]["GenAllV_NumTracks"] =
-      i.book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 200, 0., 200.);
+      i->book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 200, 0., 200.);
   mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
-      i.book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 8,
+      i->book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 8,
                &log_bins[0]);
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
     std::string current_folder = root_folder_ + "/" + label;
-    i.setCurrentFolder(current_folder);
+    i->setCurrentFolder(current_folder);
 
-    mes_[label]["RecoVtx_vs_GenVtx"] = i.book2D(
+    mes_[label]["RecoVtx_vs_GenVtx"] = i->book2D(
         "RecoVtx_vs_GenVtx", "RecoVtx_vs_GenVtx", 200, 0., 200., 200, 0., 200.);
     mes_[label]["MatchedRecoVtx_vs_GenVtx"] =
-        i.book2D("MatchedRecoVtx_vs_GenVtx", "MatchedRecoVtx_vs_GenVtx", 200,
+        i->book2D("MatchedRecoVtx_vs_GenVtx", "MatchedRecoVtx_vs_GenVtx", 200,
                  0., 200., 200, 0., 200.);
     mes_[label]["MisTagRate"] =
-        i.book1D("MisTagRate", "MisTagRate", 2, -0.5, 1.5);
+        i->book1D("MisTagRate", "MisTagRate", 2, -0.5, 1.5);
     mes_[label]["TruePVLocationIndex"] =
-        i.book1D("TruePVLocationIndex",
+        i->book1D("TruePVLocationIndex",
                  "TruePVLocationIndexInRecoVertexCollection", 12, -1.5, 10.5);
     // All Generated Vertices. Used for Efficiency plots We kind of
     // duplicate plots here in case we want to perform more detailed
     // studies on a selection of generated vertices, not on all of them.
     mes_[label]["GenAllAssoc2Reco_NumVertices"] =
-        i.book1D("GenAllAssoc2Reco_NumVertices",
+        i->book1D("GenAllAssoc2Reco_NumVertices",
                  "GeneratedAllAssoc2Reco_NumVertices", 200, 0., 200.);
-    mes_[label]["GenAllAssoc2Reco_X"] = i.book1D(
+    mes_[label]["GenAllAssoc2Reco_X"] = i->book1D(
         "GenAllAssoc2Reco_X", "GeneratedAllAssoc2Reco_X", 120, -0.6, 0.6);
-    mes_[label]["GenAllAssoc2Reco_Y"] = i.book1D(
+    mes_[label]["GenAllAssoc2Reco_Y"] = i->book1D(
         "GenAllAssoc2Reco_Y", "GeneratedAllAssoc2Reco_Y", 120, -0.6, 0.6);
-    mes_[label]["GenAllAssoc2Reco_Z"] = i.book1D(
+    mes_[label]["GenAllAssoc2Reco_Z"] = i->book1D(
         "GenAllAssoc2Reco_Z", "GeneratedAllAssoc2Reco_Z", 120, -60, 60);
     mes_[label]["GenAllAssoc2Reco_R"] =
-        i.book1D("GenAllAssoc2Reco_R", "GeneratedAllAssoc2Reco_R", 120, 0, 0.6);
+        i->book1D("GenAllAssoc2Reco_R", "GeneratedAllAssoc2Reco_R", 120, 0, 0.6);
     mes_[label]["GenAllAssoc2Reco_Pt2"] =
-        i.book1D("GenAllAssoc2Reco_Pt2", "GeneratedAllAssoc2Reco_Sum-pt2", 8,
+        i->book1D("GenAllAssoc2Reco_Pt2", "GeneratedAllAssoc2Reco_Sum-pt2", 8,
                  &log_bins[0]);
     mes_[label]["GenAllAssoc2Reco_NumTracks"] =
-        i.book1D("GenAllAssoc2Reco_NumTracks",
+        i->book1D("GenAllAssoc2Reco_NumTracks",
                  "GeneratedAllAssoc2Reco_NumTracks", 200, 0., 200.);
     mes_[label]["GenAllAssoc2Reco_ClosestDistanceZ"] =
-        i.book1D("GenAllAssoc2Reco_ClosestDistanceZ",
+        i->book1D("GenAllAssoc2Reco_ClosestDistanceZ",
                  "GeneratedAllAssoc2Reco_ClosestDistanceZ", 8, &log_bins[0]);
 
     // All Generated Vertices Matched to a Reconstructed vertex. Used
     // for Efficiency plots
     mes_[label]["GenAllAssoc2RecoMatched_NumVertices"] =
-        i.book1D("GenAllAssoc2RecoMatched_NumVertices",
+        i->book1D("GenAllAssoc2RecoMatched_NumVertices",
                  "GeneratedAllAssoc2RecoMatched_NumVertices", 200, 0., 200.);
     mes_[label]["GenAllAssoc2RecoMatched_X"] =
-        i.book1D("GenAllAssoc2RecoMatched_X", "GeneratedAllAssoc2RecoMatched_X",
+        i->book1D("GenAllAssoc2RecoMatched_X", "GeneratedAllAssoc2RecoMatched_X",
                  120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2RecoMatched_Y"] =
-        i.book1D("GenAllAssoc2RecoMatched_Y", "GeneratedAllAssoc2RecoMatched_Y",
+        i->book1D("GenAllAssoc2RecoMatched_Y", "GeneratedAllAssoc2RecoMatched_Y",
                  120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2RecoMatched_Z"] =
-        i.book1D("GenAllAssoc2RecoMatched_Z", "GeneratedAllAssoc2RecoMatched_Z",
+        i->book1D("GenAllAssoc2RecoMatched_Z", "GeneratedAllAssoc2RecoMatched_Z",
                  120, -60, 60);
     mes_[label]["GenAllAssoc2RecoMatched_R"] =
-        i.book1D("GenAllAssoc2RecoMatched_R", "GeneratedAllAssoc2RecoMatched_R",
+        i->book1D("GenAllAssoc2RecoMatched_R", "GeneratedAllAssoc2RecoMatched_R",
                  120, 0, 0.6);
     mes_[label]["GenAllAssoc2RecoMatched_Pt2"] =
-        i.book1D("GenAllAssoc2RecoMatched_Pt2",
+        i->book1D("GenAllAssoc2RecoMatched_Pt2",
                  "GeneratedAllAssoc2RecoMatched_Sum-pt2", 8, &log_bins[0]);
     mes_[label]["GenAllAssoc2RecoMatched_NumTracks"] =
-        i.book1D("GenAllAssoc2RecoMatched_NumTracks",
+        i->book1D("GenAllAssoc2RecoMatched_NumTracks",
                  "GeneratedAllAssoc2RecoMatched_NumTracks", 200, 0., 200.);
-    mes_[label]["GenAllAssoc2RecoMatched_ClosestDistanceZ"] = i.book1D(
+    mes_[label]["GenAllAssoc2RecoMatched_ClosestDistanceZ"] = i->book1D(
         "GenAllAssoc2RecoMatched_ClosestDistanceZ",
         "GeneratedAllAssoc2RecoMatched_ClosestDistanceZ", 8, &log_bins[0]);
 
     // All Generated Vertices Multi-Matched to a Reconstructed vertex. Used
     // for Duplicate rate plots
-    mes_[label]["GenAllAssoc2RecoMultiMatched_NumVertices"] = i.book1D(
+    mes_[label]["GenAllAssoc2RecoMultiMatched_NumVertices"] = i->book1D(
         "GenAllAssoc2RecoMultiMatched_NumVertices",
         "GeneratedAllAssoc2RecoMultiMatched_NumVertices", 200, 0., 200.);
     mes_[label]["GenAllAssoc2RecoMultiMatched_X"] =
-        i.book1D("GenAllAssoc2RecoMultiMatched_X",
+        i->book1D("GenAllAssoc2RecoMultiMatched_X",
                  "GeneratedAllAssoc2RecoMultiMatched_X", 120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2RecoMultiMatched_Y"] =
-        i.book1D("GenAllAssoc2RecoMultiMatched_Y",
+        i->book1D("GenAllAssoc2RecoMultiMatched_Y",
                  "GeneratedAllAssoc2RecoMultiMatched_Y", 120, -0.6, 0.6);
     mes_[label]["GenAllAssoc2RecoMultiMatched_Z"] =
-        i.book1D("GenAllAssoc2RecoMultiMatched_Z",
+        i->book1D("GenAllAssoc2RecoMultiMatched_Z",
                  "GeneratedAllAssoc2RecoMultiMatched_Z", 120, -60, 60);
     mes_[label]["GenAllAssoc2RecoMultiMatched_R"] =
-        i.book1D("GenAllAssoc2RecoMultiMatched_R",
+        i->book1D("GenAllAssoc2RecoMultiMatched_R",
                  "GeneratedAllAssoc2RecoMultiMatched_R", 120, 0, 0.6);
     mes_[label]["GenAllAssoc2RecoMultiMatched_Pt2"] =
-        i.book1D("GenAllAssoc2RecoMultiMatched_Pt2",
+        i->book1D("GenAllAssoc2RecoMultiMatched_Pt2",
                  "GeneratedAllAssoc2RecoMultiMatched_Sum-pt2", 8, &log_bins[0]);
     mes_[label]["GenAllAssoc2RecoMultiMatched_NumTracks"] =
-        i.book1D("GenAllAssoc2RecoMultiMatched_NumTracks",
+        i->book1D("GenAllAssoc2RecoMultiMatched_NumTracks",
                  "GeneratedAllAssoc2RecoMultiMatched_NumTracks", 200, 0., 200.);
-    mes_[label]["GenAllAssoc2RecoMultiMatched_ClosestDistanceZ"] = i.book1D(
+    mes_[label]["GenAllAssoc2RecoMultiMatched_ClosestDistanceZ"] = i->book1D(
         "GenAllAssoc2RecoMultiMatched_ClosestDistanceZ",
         "GeneratedAllAssoc2RecoMultiMatched_ClosestDistanceZ", 8, &log_bins[0]);
 
     // All Reco Vertices. Used for {Fake,Duplicate}-Rate plots
     mes_[label]["RecoAllAssoc2Gen_NumVertices"] =
-        i.book1D("RecoAllAssoc2Gen_NumVertices",
+        i->book1D("RecoAllAssoc2Gen_NumVertices",
                  "ReconstructedAllAssoc2Gen_NumVertices", 200, 0., 200.);
-    mes_[label]["RecoAllAssoc2Gen_X"] = i.book1D(
+    mes_[label]["RecoAllAssoc2Gen_X"] = i->book1D(
         "RecoAllAssoc2Gen_X", "ReconstructedAllAssoc2Gen_X", 120, -0.6, 0.6);
-    mes_[label]["RecoAllAssoc2Gen_Y"] = i.book1D(
+    mes_[label]["RecoAllAssoc2Gen_Y"] = i->book1D(
         "RecoAllAssoc2Gen_Y", "ReconstructedAllAssoc2Gen_Y", 120, -0.6, 0.6);
-    mes_[label]["RecoAllAssoc2Gen_Z"] = i.book1D(
+    mes_[label]["RecoAllAssoc2Gen_Z"] = i->book1D(
         "RecoAllAssoc2Gen_Z", "ReconstructedAllAssoc2Gen_Z", 120, -60, 60);
-    mes_[label]["RecoAllAssoc2Gen_R"] = i.book1D(
+    mes_[label]["RecoAllAssoc2Gen_R"] = i->book1D(
         "RecoAllAssoc2Gen_R", "ReconstructedAllAssoc2Gen_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2Gen_Pt2"] =
-        i.book1D("RecoAllAssoc2Gen_Pt2", "ReconstructedAllAssoc2Gen_Sum-pt2", 8,
+        i->book1D("RecoAllAssoc2Gen_Pt2", "ReconstructedAllAssoc2Gen_Sum-pt2", 8,
                  &log_bins[0]);
     mes_[label]["RecoAllAssoc2Gen_Ndof"] =
-        i.book1D("RecoAllAssoc2Gen_Ndof",
+        i->book1D("RecoAllAssoc2Gen_Ndof",
                  "ReconstructedAllAssoc2Gen_Ndof", 100, 0., 100.);
     mes_[label]["RecoAllAssoc2Gen_NumTracks"] =
-        i.book1D("RecoAllAssoc2Gen_NumTracks",
+        i->book1D("RecoAllAssoc2Gen_NumTracks",
                  "ReconstructedAllAssoc2Gen_NumTracks", 200, 0., 200.);
     mes_[label]["RecoAllAssoc2Gen_ClosestDistanceZ"] =
-        i.book1D("RecoAllAssoc2Gen_ClosestDistanceZ",
+        i->book1D("RecoAllAssoc2Gen_ClosestDistanceZ",
                  "ReconstructedAllAssoc2Gen_ClosestDistanceZ", 8, &log_bins[0]);
 
     // All Reconstructed Vertices Matched to a Generated vertex. Used
     // for Fake-Rate plots
     mes_[label]["RecoAllAssoc2GenMatched_NumVertices"] =
-        i.book1D("RecoAllAssoc2GenMatched_NumVertices",
+        i->book1D("RecoAllAssoc2GenMatched_NumVertices",
                  "ReconstructedAllAssoc2GenMatched_NumVertices", 200, 0., 200.);
     mes_[label]["RecoAllAssoc2GenMatched_X"] =
-        i.book1D("RecoAllAssoc2GenMatched_X",
+        i->book1D("RecoAllAssoc2GenMatched_X",
                  "ReconstructedAllAssoc2GenMatched_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2GenMatched_Y"] =
-        i.book1D("RecoAllAssoc2GenMatched_Y",
+        i->book1D("RecoAllAssoc2GenMatched_Y",
                  "ReconstructedAllAssoc2GenMatched_Y", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2GenMatched_Z"] =
-        i.book1D("RecoAllAssoc2GenMatched_Z",
+        i->book1D("RecoAllAssoc2GenMatched_Z",
                  "ReconstructedAllAssoc2GenMatched_Z", 120, -60, 60);
     mes_[label]["RecoAllAssoc2GenMatched_R"] =
-        i.book1D("RecoAllAssoc2GenMatched_R",
+        i->book1D("RecoAllAssoc2GenMatched_R",
                  "ReconstructedAllAssoc2GenMatched_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2GenMatched_Pt2"] =
-        i.book1D("RecoAllAssoc2GenMatched_Pt2",
+        i->book1D("RecoAllAssoc2GenMatched_Pt2",
                  "ReconstructedAllAssoc2GenMatched_Sum-pt2", 8, &log_bins[0]);
     mes_[label]["RecoAllAssoc2GenMatched_Ndof"] =
-        i.book1D("RecoAllAssoc2GenMatched_Ndof",
+        i->book1D("RecoAllAssoc2GenMatched_Ndof",
                  "ReconstructedAllAssoc2GenMatched_Ndof", 100, 0., 100.);
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"] =
-        i.book1D("RecoAllAssoc2GenMatched_NumTracks",
+        i->book1D("RecoAllAssoc2GenMatched_NumTracks",
                  "ReconstructedAllAssoc2GenMatched_NumTracks", 200, 0., 200.);
-    mes_[label]["RecoAllAssoc2GenMatched_ClosestDistanceZ"] = i.book1D(
+    mes_[label]["RecoAllAssoc2GenMatched_ClosestDistanceZ"] = i->book1D(
         "RecoAllAssoc2GenMatched_ClosestDistanceZ",
         "ReconstructedAllAssoc2GenMatched_ClosestDistanceZ", 8, &log_bins[0]);
 
     // All Reconstructed Vertices  Multi-Matched to a Generated vertex. Used
     // for Merge-Rate plots
-    mes_[label]["RecoAllAssoc2GenMultiMatched_NumVertices"] = i.book1D(
+    mes_[label]["RecoAllAssoc2GenMultiMatched_NumVertices"] = i->book1D(
         "RecoAllAssoc2GenMultiMatched_NumVertices",
         "ReconstructedAllAssoc2GenMultiMatched_NumVertices", 200, 0., 200.);
     mes_[label]["RecoAllAssoc2GenMultiMatched_X"] =
-        i.book1D("RecoAllAssoc2GenMultiMatched_X",
+        i->book1D("RecoAllAssoc2GenMultiMatched_X",
                  "ReconstructedAllAssoc2GenMultiMatched_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Y"] =
-        i.book1D("RecoAllAssoc2GenMultiMatched_Y",
+        i->book1D("RecoAllAssoc2GenMultiMatched_Y",
                  "ReconstructedAllAssoc2GenMultiMatched_Y", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Z"] =
-        i.book1D("RecoAllAssoc2GenMultiMatched_Z",
+        i->book1D("RecoAllAssoc2GenMultiMatched_Z",
                  "ReconstructedAllAssoc2GenMultiMatched_Z", 120, -60, 60);
     mes_[label]["RecoAllAssoc2GenMultiMatched_R"] =
-        i.book1D("RecoAllAssoc2GenMultiMatched_R",
+        i->book1D("RecoAllAssoc2GenMultiMatched_R",
                  "ReconstructedAllAssoc2GenMultiMatched_R", 120, 0, 0.6);
-    mes_[label]["RecoAllAssoc2GenMultiMatched_Pt2"] = i.book1D(
+    mes_[label]["RecoAllAssoc2GenMultiMatched_Pt2"] = i->book1D(
         "RecoAllAssoc2GenMultiMatched_Pt2",
         "ReconstructedAllAssoc2GenMultiMatched_Sum-pt2", 8, &log_bins[0]);
-    mes_[label]["RecoAllAssoc2GenMultiMatched_NumTracks"] = i.book1D(
+    mes_[label]["RecoAllAssoc2GenMultiMatched_NumTracks"] = i->book1D(
         "RecoAllAssoc2GenMultiMatched_NumTracks",
         "ReconstructedAllAssoc2GenMultiMatched_NumTracks", 200, 0., 200.);
     mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"] =
-        i.book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
+        i->book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  "ReconstructedAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  400, 0., 1);
 
@@ -283,31 +286,31 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     // has been reconstructed and associated to a SimulatedVTX that
     // has been linked to at least another RecoVTX. In this sense this
     // RecoVTX is a duplicate of the same, real GenVTX.
-    mes_[label]["RecoAllAssoc2MultiMatchedGen_NumVertices"] = i.book1D(
+    mes_[label]["RecoAllAssoc2MultiMatchedGen_NumVertices"] = i->book1D(
         "RecoAllAssoc2MultiMatchedGen_NumVertices",
         "GeneratedAllAssoc2RecoMultiMatched_NumVertices", 200, 0., 200.);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_X"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_X",
+        i->book1D("RecoAllAssoc2MultiMatchedGen_X",
                  "GeneratedAllAssoc2RecoMultiMatched_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Y"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_Y",
+        i->book1D("RecoAllAssoc2MultiMatchedGen_Y",
                  "GeneratedAllAssoc2RecoMultiMatched_Y", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Z"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_Z",
+        i->book1D("RecoAllAssoc2MultiMatchedGen_Z",
                  "GeneratedAllAssoc2RecoMultiMatched_Z", 120, -60, 60);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_R"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_R",
+        i->book1D("RecoAllAssoc2MultiMatchedGen_R",
                  "GeneratedAllAssoc2RecoMultiMatched_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Pt2"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_Pt2",
+        i->book1D("RecoAllAssoc2MultiMatchedGen_Pt2",
                  "GeneratedAllAssoc2RecoMultiMatched_Sum-pt2", 8, &log_bins[0]);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_NumTracks"] =
-        i.book1D("RecoAllAssoc2MultiMatchedGen_NumTracks",
+        i->book1D("RecoAllAssoc2MultiMatchedGen_NumTracks",
                  "GeneratedAllAssoc2RecoMultiMatched_NumTracks", 200, 0., 200.);
-    mes_[label]["RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ"] = i.book1D(
+    mes_[label]["RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ"] = i->book1D(
         "RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ",
         "GeneratedAllAssoc2RecoMultiMatched_ClosestDistanceZ", 8, &log_bins[0]);
-    mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i.book1D(
+    mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i->book1D(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         "GeneratedAllAssoc2GenSimForMerge_ClosestDistanceZ",
         400, 0., 1.);
