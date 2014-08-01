@@ -28,7 +28,6 @@
 #include<set>
 #include<algorithm>
 
-
 HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 					 const std::string & analysisname,
 					 edm::ConsumesCollector&& iC) :
@@ -248,6 +247,15 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
 		for(size_t i = 0; i < sources.size(); i++) 
 		{
 			std::string source = sources[i];
+            if( _isVBFHBB ) {
+                if( source == "gen" ) continue;
+                else{
+                    bookHist(source, objStr, "dEtaqq", ibooker);
+                    bookHist(source, objStr, "mqq", ibooker);
+                    bookHist(source, objStr, "dPhibb", ibooker);
+                }
+            }
+            
 			bookHist(source, objStr, "Eta", ibooker);
 			bookHist(source, objStr, "Phi", ibooker);
 			for( unsigned int i=0; i < _minCandidates; i++ )
@@ -255,11 +263,6 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
 				maxPt = "MaxPt";
 				maxPt += i+1;
 				bookHist(source, objStr, maxPt.Data(), ibooker);
-			}
-			if( _isVBFHBB && source == "rec" ) {
-			    bookHist(source, objStr, "dEtaqq", ibooker);
-			    bookHist(source, objStr, "mqq", ibooker);
-			    bookHist(source, objStr, "dPhibb", ibooker);
 			}
 		}
 	}
@@ -893,7 +896,7 @@ void HLTHiggsSubAnalysis::passJetCuts( std::vector<MatchStruct> * matches, std::
     if( (matches->at(3)).pt > _multipleJetCuts.at(3) ) jetCutResult["MaxPt4"] = true;
     
     // Perform b-tag ordered cuts
-    std::sort(matches->begin(), matches->begin()+4, matchesByDescendingBtag());
+    std::sort(matches->begin(), matches->begin()+4, matchesByDescendingBtag());    
     dEtaqq =  fabs(matches->at(2).eta - matches->at(3).eta);
     if( dEtaqq > _multipleJetCuts.at(4) ) jetCutResult["dEtaqq"] = true;
     mqq = (matches->at(2).lorentzVector + matches->at(3).lorentzVector).M();

@@ -79,6 +79,15 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
         for (size_t i = 0; i < sources.size(); i++)
         {
             std::string source = sources[i];
+            if( _isVBFHBB ) {
+                if( source == "gen" ) continue;
+                else{
+                    bookHist(source, objTypeStr, "dEtaqq", ibooker);
+                    bookHist(source, objTypeStr, "mqq", ibooker);
+                    bookHist(source, objTypeStr, "dPhibb", ibooker);
+                }
+            }
+            
             bookHist(source, objTypeStr, "Eta", ibooker);
             bookHist(source, objTypeStr, "Phi", ibooker);
             for( unsigned int i=0; i < _minCandidates; i++ )
@@ -86,11 +95,6 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
                 maxPt = "MaxPt";
                 maxPt += i+1;
                 bookHist(source, objTypeStr, maxPt.Data(), ibooker);
-             }
-             if( _isVBFHBB && source == "rec" ) {
-                 bookHist(source, objTypeStr, "dEtaqq", ibooker);
-                 bookHist(source, objTypeStr, "mqq", ibooker);
-                 bookHist(source, objTypeStr, "dPhibb", ibooker);
              }
         }
     }  
