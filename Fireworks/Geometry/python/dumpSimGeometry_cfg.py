@@ -16,15 +16,14 @@ def help():
    print 
    exit(1);
 
-def geoLoad(score):
+def simGeoLoad(score):
 
     if score == "Run1":
        process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
     elif score == "2015":
-       process.load("GeoConfiguration.Geometry,cmsExtendedGeometry2015XML_cfi")
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi")
 
-           
     elif score == "PhaseIPixel":
        process.load('Geometry.CMSCommonData.GeometryExtendedPhaseIPixel_cfi')
 
@@ -64,15 +63,23 @@ options.register ('tag',
                   VarParsing.VarParsing.varType.string,
                   "info about geometry database conditions")
 
+options.register ('load',
+                  "", # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "load path e.g Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff")
+
 
 options.parseArguments()
 
 print "Loading configuration for tag ", options.tag ,"...\n"
 
-process = cms.Process("DUMP")
+process = cms.Process("SIMDUMP")
 
-geoLoad(options.tag);
-
+if not options.load:
+   simGeoLoad(options.tag)
+else:
+   process.load(options.load)
 
 process.source = cms.Source("EmptySource")
 
