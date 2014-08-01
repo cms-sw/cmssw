@@ -38,7 +38,7 @@
 
 namespace metsig {
 
-  enum resolutionType { caloEE, caloEB, caloHE, caloHO, caloHF, caloHB, jet, electron, tau, muon,PFtype1,PFtype2, PFtype3, PFtype4, PFtype5, PFtype6, PFtype7, caloEK};
+  enum resolutionType { caloEE, caloEB, caloHE, caloHO, caloHF, caloHB, jet, electron, tau, muon,PFtype1,PFtype2, PFtype3, PFtype4, PFtype5, PFtype6, PFtype7 };
   enum resolutionFunc { ET, PHI,TRACKP,CONSTPHI };
 
   class SignAlgoResolutions{
