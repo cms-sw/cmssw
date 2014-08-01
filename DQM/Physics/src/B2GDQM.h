@@ -1,7 +1,7 @@
 #ifndef B2GDQM_H
 #define B2GDQM_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -81,7 +81,7 @@
 
 class DQMStore;
  
-class B2GDQM: public edm::EDAnalyzer{
+class B2GDQM: public DQMEDAnalyzer{
 
 public:
 
@@ -90,19 +90,9 @@ public:
   
 protected:
 
-  virtual void beginJob();
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
   virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  virtual void endJob();
   
-  //Diagnostic
-  //virtual void analyzeMultiJetsTrigger(edm::Event const& e);
-  
-  
-
   virtual void analyzeJets(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void analyzeSemiMu(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void analyzeSemiE(edm::Event const& e, edm::EventSetup const& eSetup);
@@ -110,12 +100,10 @@ protected:
 
 private:
 
-  void bookHistos(DQMStore * bei );
-  
+  virtual void bookHistograms(DQMStore::IBooker &bei, edm::Run const &, edm::EventSetup const &) override;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
   
-  DQMStore* bei_;  
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 
