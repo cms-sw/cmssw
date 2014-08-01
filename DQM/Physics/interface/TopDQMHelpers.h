@@ -149,7 +149,7 @@ class Calculate {
                      the selection (optional).
     - max          : whether there is a max value on which to reject the whole event after
                      the selection (optional).
-    - electronId   : input tag of an electronId association map and selection pattern
+    - electronId   : input tag of an electronId association map and cut value
                      (optional).
     - jetCorrector : label of jet corrector (optional).
     - jetBTagger   : parameters defining the btag algorithm and working point of choice
@@ -202,7 +202,7 @@ private:
   ///  6: passes conversion rejection and Isolation
   ///  7: passes the whole selection
   /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-  int eidPattern_;
+  double eidCutValue_;
   /// jet corrector as extra selection type
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
@@ -227,41 +227,37 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
   select_(cfg.getParameter<std::string>("select")),
   jetIDSelect_( 0)
 {
-  //cout<<"In new constructor"<<endl;
+  
+
   src_ = iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
-  //cout<<"// construct min/max if the corresponding params"<<endl;
   // exist otherwise they are initialized with -1
   cfg.exists("min") ? min_= cfg.getParameter<int>("min") : min_= -1;
   cfg.exists("max") ? max_= cfg.getParameter<int>("max") : max_= -1;
-  //cout<<"// read electron extras if they exist"<<endl;
   std::string mygSF = "gedGsfElectrons";
   gsfEs_ = iC.consumes<edm::View<reco::GsfElectron> >(cfg.getUntrackedParameter<edm::InputTag>("myGSF", mygSF));
   if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
     edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
     electronId_= iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
-    eidPattern_= elecId.getParameter<int>("pattern");
+    eidCutValue_= elecId.getParameter<double>("cutValue");
   }
-  //cout<<"// read jet corrector label if it exists"<<endl;
   if(cfg.exists("jetCorrector")){ jetCorrector_= cfg.getParameter<std::string>("jetCorrector"); }
-  //cout<<"// read btag information if it exists"<<endl;
   if(cfg.existsAs<edm::ParameterSet>("jetBTagger")){
     edm::ParameterSet jetBTagger=cfg.getParameter<edm::ParameterSet>("jetBTagger");
     btagLabel_=iC.consumes<reco::JetTagCollection>(jetBTagger.getParameter<edm::InputTag>("label"));
     btagWorkingPoint_=jetBTagger.getParameter<double>("workingPoint");
   }
-  //cout<<"// read jetID information if it exists"<<endl;
   if(cfg.existsAs<edm::ParameterSet>("jetID")){
     edm::ParameterSet jetID=cfg.getParameter<edm::ParameterSet>("jetID");
     jetIDLabel_ =iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
     jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
-  //cout<<"// end"<<endl;
 }
 
 /// apply selection
 template <typename Object>
 bool SelectionStep<Object>::select(const edm::Event& event)
 {
+
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
   if( !event.getByToken(src_, src) ) return false;
@@ -272,13 +268,14 @@ bool SelectionStep<Object>::select(const edm::Event& event)
     if( !event.getByToken(electronId_, electronId) ) return false;
   }
 
+
   // determine multiplicity of selected objects
   int n=0;
   for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
     // special treatment for electrons
     if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
       unsigned int idx = obj-src->begin();
-      if( electronId_.isUninitialized() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_) ){   
+      if( electronId_.isUninitialized() ? true : ((double)(*electronId)[src->refAt(idx)] >= eidCutValue_) ){   
 	if(select_(*obj))++n;
       }
     }
@@ -299,53 +296,47 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
   // fetch input collection
   edm::Handle<edm::View<Object> > src;
   if( !event.getByToken(src_, src) ) return false;
-  
+
   // special for gsfElectron
   edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
-  
+
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
   if(!electronId_.isUninitialized()){
     if( !event.getByToken(electronId_, electronId) ) return false;
   }
   
+
   // determine multiplicity of selected objects
   int n=0;
-  unsigned int idx_gsf = 0;
   for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
-    
     
     // special treatment for PF candidates
     if (dynamic_cast<const reco::PFCandidate*>(&*obj)){
       reco::PFCandidate objtmp = dynamic_cast<const reco::PFCandidate&>(*obj);
       
       if (objtmp.muonRef().isNonnull() && type == "muon") {
-
         if(select_(*obj)){++n;
         }
       }
+      
       else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
-        if( !event.getByToken(gsfEs_, elecs_gsf) ) continue;
         if(select_(*obj)){
-          if(elecs_gsf->refAt(idx_gsf).isNonnull()){
-	    int eID=0;
-	    if (!electronId_.isUninitialized()){
-	      eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
-	    }
-            if( electronId_.isUninitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) )
-              ++n;
-	    
-          }
+	  if( electronId_.isUninitialized()){
+	    ++n;	
+	  } else if(( (double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_ )){
+	    ++n;
+	  }	    
+	  
         }
-        idx_gsf++;
+	//        idx_gsf++;
       }
     }
     
     // special treatment for electrons
     else if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
       unsigned int idx = obj-src->begin();
-      int eID = (int)(*electronId)[src->refAt(idx)];
-      if( electronId_.isUninitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) ){
+      if( electronId_.isUninitialized() ? true : ( (double)(*electronId)[src->refAt(idx)] >= eidCutValue_ ) ){
         if(select_(*obj))++n;
       }
     }
