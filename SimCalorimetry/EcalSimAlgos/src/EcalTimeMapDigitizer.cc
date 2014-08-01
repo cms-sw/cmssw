@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-//#define ecal_time_debug 1
+#define ecal_time_debug 1
 
 const float EcalTimeMapDigitizer::MIN_ENERGY_THRESHOLD=5e-5; //50 KeV threshold to consider a valid hit in the timing detector
 
@@ -72,7 +72,6 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
      // 			  m_maxBunch-m_minBunch+1, abs(m_minBunch) );
      m_vSam.emplace_back(TimeSamples(CaloGenericDetId( detId.det(), detId.subdetId(), i )));
    }
-
    
    edm::LogInfo("TimeDigiInfo") << "[EcalTimeDigitizer]::Subdetector " << m_subDet << "::Reserved size for time digis " << m_vSam.size();
 
