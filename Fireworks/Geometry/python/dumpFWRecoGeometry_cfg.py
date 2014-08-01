@@ -6,7 +6,7 @@ from FWCore.Utilities.Enumerate import Enumerate
 varType = Enumerate ("Run1 2015 2019 PhaseIPixel SLHCDB SLHC")
 
 def help():
-   print "Usage: cmsRun loadConditions.py  tag=TAG "
+   print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
    print "   tag=tagname"
    print "       indentify geometry condition database tag"
    print "      ", varType.keys()
