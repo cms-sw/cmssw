@@ -103,6 +103,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     double closest_vertex_distance_z;
     int nRecoTrk;
     std::vector<const TrackingVertex *> sim_vertices;
+    std::vector<const simPrimaryVertex *> sim_vertices_internal;
     const reco::Vertex *recVtx;
   };
 
@@ -116,10 +117,12 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
                               edm::EventSetup const&) override;
 
  private:
+  void resetSimPVAssociation(std::vector<simPrimaryVertex>&);
   void matchSim2RecoVertices(std::vector<simPrimaryVertex>&,
                              const reco::VertexCollection &);
   void matchReco2SimVertices(std::vector<recoPrimaryVertex>&,
-                             const TrackingVertexCollection &);
+                             const TrackingVertexCollection &,
+                             const std::vector<simPrimaryVertex>&);
   void fillGenericGenVertexHistograms(const simPrimaryVertex &v);
   // void fillGenericRecoVertexHistograms(const std::string &,
   //                                      const simPrimaryVertex &v);
@@ -138,6 +141,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   bool verbose_;
   bool use_TP_associator_;
   double sigma_z_match_;
+  std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
   reco::RecoToSimCollection r2s_;
