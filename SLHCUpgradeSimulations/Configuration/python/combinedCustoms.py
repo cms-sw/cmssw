@@ -114,7 +114,8 @@ def cust_2023SHCal(process):
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
-    	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits","EcalHitsEK") )
         process.simEcalUnsuppressedDigis = cms.EDAlias(
             mix = cms.VPSet(
             cms.PSet(type = cms.string('EBDigiCollection')),
@@ -215,11 +216,10 @@ def cust_2023SHCal(process):
         process.uncleanedOnlyGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.ecalEndcapRecoSummary.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
-        ## The following ones don't work out of the box, so until they're fixed let them use the wrong collection
-        #process.multi5x5BasicClustersCleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
-        #process.multi5x5BasicClustersUncleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
-        #process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
-        #process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.multi5x5BasicClustersCleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        process.multi5x5BasicClustersUncleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
 
 
     return process
