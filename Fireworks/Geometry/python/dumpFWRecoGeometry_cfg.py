@@ -40,7 +40,7 @@ def geoLoad(score):
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
       process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
 
-    elif score == varType.valueForKey(varType.SLHCDB): # orig dudumpFWRecoSLHCGeometry_cfg.py
+    elif score == varType.valueForKey(varType.SLHCDB): # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'
       process.load("Configuration.StandardSequences.GeometryDB_cff")
       process.load("Configuration.StandardSequences.Reconstruction_cff")
