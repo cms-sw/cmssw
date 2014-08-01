@@ -60,8 +60,8 @@ hltMultiTrackValidation = cms.Sequence(
     simHitTPAssocProducer
     + hltTPClusterProducer
     + tpToHLTtracksAssociationSequence
-    + cutsTPEffic
-    + cutsTPFake
+    + cms.ignore(cutsTPEffic)
+    + cms.ignore(cutsTPFake)
     + hltPixelTracksV
     + hltIter0V
     + hltIter1V
