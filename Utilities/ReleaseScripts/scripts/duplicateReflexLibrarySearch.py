@@ -36,7 +36,7 @@ equivDict = \
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
-         {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo']},
+         {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
