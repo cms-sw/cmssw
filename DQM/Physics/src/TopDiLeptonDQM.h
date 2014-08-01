@@ -33,9 +33,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-using namespace std;
-using namespace edm;
-
 class TH1F;
 class TH2F;
 class TopDiLeptonDQM : public edm::EDAnalyzer {
@@ -62,7 +59,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
 
     std::string moduleName_;
     std::string outputFile_;
-    edm::EDGetTokenT<TriggerResults> triggerResults_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
     std::vector<std::string> hltPaths_;
     std::vector<std::string> hltPaths_sig_;
     std::vector<std::string> hltPaths_trig_;
