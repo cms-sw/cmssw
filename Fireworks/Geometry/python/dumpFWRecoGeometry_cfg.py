@@ -14,11 +14,15 @@ def help():
    print "   format=formatname"
    print "       dump in plain TTree or in TGeo format, default is TTree"
    print ""
+   print "   load=filename"
+   print "       a single load instruction, this option excludes 'tag' option"
+   print "       for example:" 
+   print "       cmsRun dumpFWRecoGeometry_cfg.py load=Configuration.Geometry.GeometryExtended2015Reco_cff" 
+   print ""
    exit(1);
 
-def geoLoad(score):
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
+def recoGeoLoad(score):
+    print "Loading configuration for tag ", options.tag ,"...\n"
     if score == "Run1":
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['mc']
@@ -61,8 +65,6 @@ def geoLoad(score):
     elif score == varType.valueForKey(varType.SLHC): # orig dumpFWRecoGeometrySLHC_cfg.py
       from Configuration.AlCa.autoCond import autoCond
       process.GlobalTag.globaltag = autoCond['mc']
-      process.GlobalTag.globaltag = autoCond['mc']
-
       process.load("Configuration.Geometry.GeometrySLHCSimIdeal_cff")
       process.load("Configuration.Geometry.GeometrySLHCReco_cff")
       process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -89,16 +91,31 @@ options.register ('format',
                   VarParsing.VarParsing.varType.string,
                   "write a idToGeo map or make TGeo geometry")
 
+
+options.register ('load',
+                  "", # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
+
+
 options.parseArguments()
 
-print "Loading configuration for tag ", options.tag ,"...\n"
 
 
 process = cms.Process("DUMP")
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-geoLoad(options.tag);
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+if not options.load:
+   recoGeoLoad(options.tag)
+else:
+   from Configuration.AlCa.autoCond import autoCond
+   process.GlobalTag.globaltag = autoCond['mc']
+   process.load(options.load)
 
 
 tagInfoq = cms.string(options.tag);
