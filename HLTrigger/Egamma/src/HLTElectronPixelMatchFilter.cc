@@ -46,59 +46,46 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
   L1IsoPixelSeedsToken_ = consumes<reco::ElectronSeedCollection>(L1IsoPixelSeedsTag_);
   L1NonIsoPixelSeedsToken_= consumes<reco::ElectronSeedCollection>(L1NonIsoPixelSeedsTag_);
   
-  s_a_phi1B_ = iConfig.getParameter< double >("s_a_phi1B") ;
-  s_a_phi1I_ = iConfig.getParameter< double >("s_a_phi1I") ;
-  s_a_phi1F_ = iConfig.getParameter< double >("s_a_phi1F") ;
-  s_a_phi2B_ = iConfig.getParameter< double >("s_a_phi2B") ;
-  s_a_phi2I_ = iConfig.getParameter< double >("s_a_phi2I") ;
-  s_a_phi2F_ = iConfig.getParameter< double >("s_a_phi2F") ;
-  s_a_zB_    = iConfig.getParameter< double >("s_a_zB"   ) ;
-  s_a_rI_    = iConfig.getParameter< double >("s_a_rI"   ) ;
-  s_a_rF_    = iConfig.getParameter< double >("s_a_rF"   ) ;
-  s2_threshold_ = iConfig.getParameter< double >("s2_threshold") ;
-  useS_      = iConfig.getParameter< bool >("useS" );
+  sPhi1B_ = iConfig.getParameter< double >("s_a_phi1B") ;
+  sPhi1I_ = iConfig.getParameter< double >("s_a_phi1I") ;
+  sPhi1F_ = iConfig.getParameter< double >("s_a_phi1F") ;
+  sPhi2B_ = iConfig.getParameter< double >("s_a_phi2B") ;
+  sPhi2I_ = iConfig.getParameter< double >("s_a_phi2I") ;
+  sPhi2F_ = iConfig.getParameter< double >("s_a_phi2F") ;
+  sZ2B_    = iConfig.getParameter< double >("s_a_zB"   ) ;
+  sR2I_    = iConfig.getParameter< double >("s_a_rI"   ) ;
+  sR2F_    = iConfig.getParameter< double >("s_a_rF"   ) ;
+  s2BarrelThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10BarrelThres"))*10.,2);
+  s2InterThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10InterThres"))*10.,2);
+  s2ForwardThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10ForwardThres"))*10.,2);
   
-  s_b_phi1B_ = 1.0/s_a_phi1B_ ;
-  s_b_phi1I_ = 1.0/s_a_phi1I_ ;
-  s_b_phi1F_ = 1.0/s_a_phi1F_ ;
-  s_b_phi2B_ = 1.0/s_a_phi2B_ ;
-  s_b_phi2I_ = 1.0/s_a_phi2I_ ;
-  s_b_phi2F_ = 1.0/s_a_phi2F_ ;
-  s_b_zB_    = 1.0/s_a_zB_    ;
-  s_b_rI_    = 1.0/s_a_rI_    ;
-  s_b_rF_    = 1.0/s_a_rF_    ;
+  useS_      = iConfig.getParameter< bool >("useS" );
+
 }
 
 HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter()
 {}
 
-float HLTElectronPixelMatchFilter::calculate_s2(reco::ElectronSeedCollection::const_iterator it, int charge) const {
-  int subDet1 = it->subDet1() ;
-  int subDet2 = it->subDet2() ;
-  if(charge<0){ // Negative
-    if(subDet1==1 && subDet2==1){ // Barrel
-      return pow(s_b_phi1B_*it->dPhi1(),2) + pow(s_b_phi2B_*it->dPhi2(),2) +pow(s_b_zB_*it->dRz1(),2) ;
-    }
-    else if(subDet1==1 && subDet2!=1){ // Intermediate
-      return pow(s_b_phi1I_*it->dPhi1(),2) + pow(s_b_phi1I_*it->dPhi2(),2) +pow(s_b_rI_*it->dRz1(),2) ;
-    }
-    else if(subDet1!=1 && subDet2!=1){ // Forward
-      return pow(s_b_phi1F_*it->dPhi1(),2) + pow(s_b_phi1F_*it->dPhi2(),2) +pow(s_b_rF_*it->dRz1(),2) ;
-    }
-  }
-  else{ // Positive
-    if(subDet1==1 && subDet2==1){ // Barrel
-      return pow(s_b_phi1B_*it->dPhi1(),2) + pow(s_b_phi1B_*it->dPhi2(),2) +pow(s_b_zB_*it->dRz1Pos(),2) ;
-    }
-    else if(subDet1==1 && subDet2!=1){ // Intermediate
-      return pow(s_b_phi1I_*it->dPhi1(),2) + pow(s_b_phi1I_*it->dPhi2(),2) +pow(s_b_rI_*it->dRz1Pos(),2) ;
-    }
-    else if((subDet1=!1) && (subDet2!=1)){ // Forward
-      return pow(s_b_phi1F_*it->dPhi1(),2) + pow(s_b_phi1F_*it->dPhi2(),2) +pow(s_b_rF_*it->dRz1Pos(),2) ;
-    }
-  }
+float HLTElectronPixelMatchFilter::calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
+{
+  const float dPhi1Const = seed->subDet1()==1 ? seed->subDet2()==1 ? sPhi1B_ : sPhi1I_ : sPhi1F_;
+  float dPhi1 = charge<0 ? seed->dPhi1()/dPhi1Const :  seed->dPhi1Pos()/dPhi1Const; 
+  return dPhi1*dPhi1;
+}
 
-  return 999 ;
+float HLTElectronPixelMatchFilter::calDPhi2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
+{
+  const float dPhi2Const = seed->subDet1()==1 ? seed->subDet2()==1 ? sPhi2B_ : sPhi2I_ : sPhi2F_;
+  float dPhi2 = charge <0 ? seed->dPhi2()/dPhi2Const :  seed->dPhi2Pos()/dPhi2Const;
+  return dPhi2*dPhi2;
+}
+
+
+float HLTElectronPixelMatchFilter::calDZ2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
+{
+  const float dRZ2Const = seed->subDet1()==1 ? seed->subDet2()==1 ? sZ2B_ : sR2I_ : sR2F_;
+  float dRZ2 = charge<0 ? seed->dRz2()/dRZ2Const : seed->dRz2Pos()/dRZ2Const;
+  return dRZ2*dRZ2;
 }
 
 void HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -121,7 +108,10 @@ void HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("s_a_zB"   ,    0.012) ;
   desc.add<double>("s_a_rI"   ,    0.027) ;
   desc.add<double>("s_a_rF"   ,    0.040) ;
-  desc.add<double>("s2_threshold", 0.4) ;
+  desc.add<double>("s2_threshold", 0);
+  desc.add<double>("tanhSO10BarrelThres",0.35);
+  desc.add<double>("tanhSO10InterThres",1);
+  desc.add<double>("tanhSO10ForwardThres",1);
   desc.add<bool>  ("useS"     , false);
   descriptions.add("hltElectronPixelMatchFilter",desc);
 }
@@ -159,53 +149,39 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
 
     ref = recoecalcands[i];
     reco::SuperClusterRef recr2 = ref->superCluster();
-
-    int nmatch = 0;
     
-    float el_best_s2_tmp = 1e6 ;
-    for(reco::ElectronSeedCollection::const_iterator it = L1IsoSeeds->begin(); it != L1IsoSeeds->end(); it++){
-      edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
-      reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
-      if(&(*recr2) ==  &(*scRef)){
-        if(useS_){
-          float el_s2_neg = calculate_s2(it,-1) ;
-          float el_s2_pos = calculate_s2(it, 1) ;
-          if(el_s2_neg<el_best_s2_tmp){
-            el_best_s2_tmp = el_s2_neg ;
-          }
-          if(el_s2_pos<el_best_s2_tmp){
-            el_best_s2_tmp = el_s2_pos ;
-          }
-          if(el_s2_neg<s2_threshold_ || el_s2_pos<s2_threshold_) nmatch++ ;
-        }
-        else{
-          nmatch++;
-        }
-      }
-    }
+    int nmatch = getNrOfMatches(L1IsoSeeds,recr2);
+    if(!doIsolated_) nmatch+=getNrOfMatches(L1NonIsoSeeds,recr2);
 
-    if(!doIsolated_){
-      for(reco::ElectronSeedCollection::const_iterator it = L1NonIsoSeeds->begin(); it != L1NonIsoSeeds->end(); it++){
-        edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
-        reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
-        if(&(*recr2) ==  &(*scRef)) {
-          nmatch++;
-        }
-      }
-
-    }//end if(!doIsolated_)
-    
     if ( nmatch >= npixelmatchcut_) {
       n++;
       filterproduct.addObject(TriggerCluster, ref);
     }
-    
+ 
   }//end of loop over candidates
   
   // filter decision
-  bool accept(n>=ncandcut_);
-  
+  const bool accept(n>=ncandcut_);
   return accept;
 }
 
-
+int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronSeedCollection>& eleSeeds,
+						reco::SuperClusterRef& candSCRef)const
+{
+  int nrMatch=0;
+  for(reco::ElectronSeedCollection::const_iterator seedIt = eleSeeds->begin(); seedIt != eleSeeds->end(); seedIt++){
+    edm::RefToBase<reco::CaloCluster> caloCluster = seedIt->caloCluster() ;
+    reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
+    if(&(*candSCRef) ==  &(*scRef)){
+      if(useS_){
+	float s2Neg = calDPhi1Sq(seedIt,-1) + calDPhi2Sq(seedIt,-1) + calDZ2Sq(seedIt,-1);
+	float s2Pos = calDPhi1Sq(seedIt,1) + calDPhi2Sq(seedIt,1) + calDZ2Sq(seedIt,1);
+	
+	const float s2Thres = seedIt->subDet1()==1 ? seedIt->subDet2()==1 ? s2BarrelThres_ : s2InterThres_ : s2ForwardThres_; 
+	if(s2Neg<s2Thres || s2Pos<s2Thres) nrMatch++ ;
+      }
+      else nrMatch++;
+    }//end sc ref match
+  }//end loop over ele seeds
+  return nrMatch;
+}
