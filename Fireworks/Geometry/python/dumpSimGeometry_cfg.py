@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 PhaseIPixel Phase1_R34F16 Phase2Tk SLHCDB SLHC ")
+varType = Enumerate ("Run1 2015 PhaseIPixel Phase1_R34F16 Phase2Tk SLHCDB SLHC DB")
 
 def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
@@ -43,6 +43,12 @@ def simGeoLoad(score):
                     connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_42X_GEOMETRY")
                  )
         )
+
+    elif score == "DB":
+        process.load("Configuration.StandardSequences.GeometryDB_cff")
+        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+        from Configuration.AlCa.autoCond import autoCond
+        process.GlobalTag.globaltag = autoCond['mc']
 
     elif score == "SLHC":
         process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
