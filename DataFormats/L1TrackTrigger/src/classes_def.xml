@@ -40,6 +40,15 @@
   <class pattern="edm::Wrapper<edm::Ptr<TTTrack<*>>>" />
   <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTTrack<*>>>>" />
 
+  <class pattern="TTPixelTrack" />
+  <class pattern="std::vector<TTPixelTrack>" />
+  <class pattern="edm::Wrapper<std::vector<TTPixelTrack>>" />
+
+  <class pattern="edm::Ptr<TTPixelTrack>" />
+  <class pattern="std::vector<edm::Ptr<TTPixelTrack>>" />
+  <class pattern="edm::Wrapper<edm::Ptr<TTPixelTrack>>" />
+  <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTPixelTrack>>>" />
+
  <class name="L1TkPrimaryVertex" ClassVersion="11">
   <version ClassVersion="11" checksum="863057557"/>
  </class>
