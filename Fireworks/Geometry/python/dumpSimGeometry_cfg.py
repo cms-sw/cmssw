@@ -12,12 +12,13 @@ def help():
    print "      ", varType.keys()
    print ""
    print "   load=filename"
-   print "       a single load instruction, this option excludes tag option"
+   print "       a single load instruction, this option excludes 'tag' option"
+   print "       e.g load=Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff"
    print 
    exit(1);
 
 def simGeoLoad(score):
-
+    print "Loading configuration for tag ", options.tag ,"...\n"
     if score == "Run1":
        process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
@@ -72,7 +73,6 @@ options.register ('load',
 
 options.parseArguments()
 
-print "Loading configuration for tag ", options.tag ,"...\n"
 
 process = cms.Process("SIMDUMP")
 
