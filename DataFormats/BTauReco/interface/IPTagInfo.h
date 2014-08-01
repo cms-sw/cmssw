@@ -1,6 +1,7 @@
 #ifndef DataFormats_BTauReco_IpTagInfo_h
 #define DataFormats_BTauReco_IpTagInfo_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -16,6 +17,7 @@
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
 namespace reco {
 namespace btag {
 
@@ -133,6 +135,9 @@ public:
   const TrackRef & ghostTrack() const { return m_ghostTrack; }
  
   const Track * selectedTrack(size_t i) const {return reco::btag::toTrack(m_selected[i]);}
+
+  // Used by ROOT storage
+  CMS_CLASS_VERSION(11)
 
 private:
   std::vector<btag::TrackIPData> m_data;

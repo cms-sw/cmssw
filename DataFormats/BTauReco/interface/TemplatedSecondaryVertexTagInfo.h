@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -59,6 +60,9 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
                 VTX                             vertex;
                 Measurement1D                   dist2d, dist3d;
                 GlobalVector                    direction;
+		
+		// Used by ROOT storage
+		CMS_CLASS_VERSION(11)
         };
 
         struct TrackFinder {
@@ -151,6 +155,9 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	{ return m_svData[index].direction; }
 
 	virtual TaggingVariableList taggingVariables() const;
+	
+	// Used by ROOT storage
+	CMS_CLASS_VERSION(11)
 
     private:
 	std::vector<IndexedTrackData>		m_trackData;

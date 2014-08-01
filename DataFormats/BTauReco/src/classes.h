@@ -52,11 +52,11 @@ namespace DataFormats_BTauReco {
   struct dictionary {
 
     reco::btag::TrackData                                               sv_td;
-    reco::SecondaryVertexTagInfo::VertexData                            rbsv;
-    std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
     reco::btag::IndexedTrackData                                        sv_itd;
     std::vector<reco::btag::IndexedTrackData>                           sv_itdv;
 
+    reco::SecondaryVertexTagInfo::VertexData                            sv_vd;
+    std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
     reco::SecondaryVertexTagInfo                                        sv;
     reco::SecondaryVertexTagInfoCollection                              sv_c;
     reco::SecondaryVertexTagInfoRef                                     sv_r;
@@ -65,16 +65,15 @@ namespace DataFormats_BTauReco {
     reco::SecondaryVertexTagInfoRefVector                               sv_rv;
     edm::Wrapper<reco::SecondaryVertexTagInfoCollection>                sv_wc;
 
-    reco::CandSecondaryVertexTagInfo::VertexData                        crbsv;
-    std::vector<reco::CandSecondaryVertexTagInfo::VertexData>           csv_vdv;
-
+    reco::CandSecondaryVertexTagInfo::VertexData                        casv_vd;
+    std::vector<reco::CandSecondaryVertexTagInfo::VertexData>           casv_vdv;
     reco::CandSecondaryVertexTagInfo                                    casv;
-    reco::CandSecondaryVertexTagInfoCollection                          casvtic;
-    reco::CandSecondaryVertexTagInfoRef                                 casvtir;
-    reco::CandSecondaryVertexTagInfoFwdRef                              casvfr;
-    reco::CandSecondaryVertexTagInfoRefProd                             casvrp;
-    reco::CandSecondaryVertexTagInfoRefVector                           casvrv;
-    edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>            casvww;
+    reco::CandSecondaryVertexTagInfoCollection                          casv_c;
+    reco::CandSecondaryVertexTagInfoRef                                 casv_r;
+    reco::CandSecondaryVertexTagInfoFwdRef                              casv_fr;
+    reco::CandSecondaryVertexTagInfoRefProd                             casv_rp;
+    reco::CandSecondaryVertexTagInfoRefVector                           casv_rv;
+    edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>            casv_wc;
 
 
     reco::CombinedTauTagInfo                                            ct;
@@ -194,7 +193,6 @@ namespace DataFormats_BTauReco {
     reco::TrackIPTagInfoFwdRef                                          tcip_fr;
     reco::TrackIPTagInfoRefProd                                         tcip_rp;
     reco::TrackIPTagInfoRefVector                                       tcip_rv;
-
     edm::Wrapper<reco::TrackIPTagInfoCollection>                        tcip_wc;
 
     reco::CandIPTagInfo                                                 cdip;
@@ -203,7 +201,6 @@ namespace DataFormats_BTauReco {
     reco::CandIPTagInfoFwdRef                                           cdip_fr;
     reco::CandIPTagInfoRefProd                                          cdip_rp;
     reco::CandIPTagInfoRefVector                                        cdip_rv;
-
     edm::Wrapper<reco::CandIPTagInfoCollection>                         cdip_wc;
 
 
@@ -248,8 +245,12 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::TrackCountingTagInfoRef>                    rbh_tc;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>          rb_tcip;
     edm::reftobase::RefHolder<reco::TrackIPTagInfoRef>                          rbh_tcip;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandIPTagInfoRef>           rb_cdip;
+    edm::reftobase::RefHolder<reco::CandIPTagInfoRef>                           rbh_cdip;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoRef>  rb_sv;
     edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoRef>                  rbh_sv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSecondaryVertexTagInfoRef>  rb_casv;
+    edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoRef>                  rbh_casv;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>                      rbh_ct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>      rb_it;
@@ -271,8 +272,12 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::TrackCountingTagInfoFwdRef>                    rbh_tcf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoFwdRef>          rb_tcipf;
     edm::reftobase::RefHolder<reco::TrackIPTagInfoFwdRef>                          rbh_tcipf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandIPTagInfoFwdRef>           rb_cdipf;
+    edm::reftobase::RefHolder<reco::CandIPTagInfoFwdRef>                           rbh_cdipf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoFwdRef>  rb_svf;
     edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoFwdRef>                  rbh_svf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSecondaryVertexTagInfoFwdRef>  rb_casvf;
+    edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoFwdRef>                  rbh_casvf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>      rb_ctf;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>                      rbh_ctf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>      rb_itf;
@@ -311,6 +316,10 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > > > dummy04;
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > > > dummy06;
 
+    edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > >  dummy07;
+    edm::AssociationMap<edm::OneToMany<reco::CandSecondaryVertexTagInfoCollection, std::vector<reco::VertexCompositePtrCandidate> > > dummy08;
+    edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > > > dummy09;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > > > dummy10;
   };
 }
 
