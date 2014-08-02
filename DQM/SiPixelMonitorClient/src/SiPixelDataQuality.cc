@@ -1056,7 +1056,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	  for(int j=0; j!=37; j++){//loop over FED channels within a FED
             sprintf(fedplot,buf,i);
 	    MonitorElement * me = bei->get(fedplot);
-	    if(me) NErrors = NErrors + me->getBinContent(j);
+	    if(me) NErrors = NErrors + me->getBinContent(j+1);
 	  }
 	  //If I fill, then I end up majorly overcounting the numbers of errors...
 	  //if(NErrors>0){ errmodsVec->Fill(i,NErrors); } 
