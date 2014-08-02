@@ -116,6 +116,7 @@ def cust_2023SHCal(process):
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
         process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits","EcalHitsEK") )
+        process.mix.mixObjects.mixCH.subdets.append( "EcalHitsEK" )
         process.simEcalUnsuppressedDigis = cms.EDAlias(
             mix = cms.VPSet(
             cms.PSet(type = cms.string('EBDigiCollection')),
