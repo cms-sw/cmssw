@@ -1,5 +1,5 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
@@ -17,7 +17,8 @@
 
 //#define DebugLog
 
-StackingAction::StackingAction(const edm::ParameterSet & p) 
+StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet & p)
+  : trackAction(trka) 
 {
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
@@ -292,7 +293,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 
     // Russian roulette && MC truth
     if(classification != fKill) {
-      const G4Track * mother = CurrentG4Track::track();
+      const G4Track * mother = trackAction->geant4Track();
       int flag = 0;
       if(savePDandCinAll) {
 	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);

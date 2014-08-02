@@ -441,7 +441,8 @@ void RunManager::initializeUserActions()
     Connect(userSteppingAction);
     eventManager->SetUserAction(userSteppingAction);
 
-    eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+    eventManager->SetUserAction(new StackingAction(userTrackingAction, 
+						   m_pStackingAction));
 
   } else {
     edm::LogWarning("SimG4CoreApplication") << " RunManager: WARNING : "

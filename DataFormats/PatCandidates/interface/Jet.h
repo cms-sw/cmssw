@@ -170,6 +170,8 @@ namespace pat {
       float bDiscriminator(const std::string &theLabel) const;
       /// get vector of paire labelname-disciValue
       const std::vector<std::pair<std::string, float> > & getPairDiscri() const;
+      /// get list of tag info labels
+      std::vector<std::string> const & tagInfoLabels() const { return tagInfoLabels_; }
       /// check to see if the given tag info is nonzero
       bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
       /// get a tagInfo with the given name, or NULL if none is found.

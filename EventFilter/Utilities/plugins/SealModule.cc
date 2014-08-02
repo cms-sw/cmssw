@@ -21,6 +21,9 @@ typedef edm::serviceregistry::AllArgsMaker<MicroStateService, FastMonitoringServ
 typedef RawEventOutputModuleForBU<RawEventFileWriterForBU> RawStreamFileWriterForBU;
 typedef RecoEventOutputModuleForFU<RecoEventWriterForFU> EvFOutputModule;
 
+//legacy name for ConfDB compatibility
+typedef EvFOutputModule ShmStreamConsumer;
+
 //DEFINE_FWK_SERVICE_MAKER(MicroStateService, MicroStateServiceMaker);
 
 DEFINE_FWK_SERVICE_MAKER(FastMonitoringService, FastMonitoringServiceMaker);
@@ -31,4 +34,5 @@ DEFINE_FWK_MODULE(EvFRecordInserter);
 DEFINE_FWK_MODULE(EvFRecordUnpacker);
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
 DEFINE_FWK_MODULE(EvFOutputModule);
+DEFINE_FWK_MODULE(ShmStreamConsumer);
 DEFINE_FWK_MODULE(DaqFakeReader);

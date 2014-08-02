@@ -57,6 +57,7 @@ namespace edm {
       maxLumis_(desc.maxLumis_),
       remainingLumis_(maxLumis_),
       readCount_(0),
+      maxSecondsUntilRampdown_(desc.maxSecondsUntilRampdown_),
       processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
@@ -80,6 +81,9 @@ namespace edm {
       statusfilename << "source_" << getpid();
       statusFileName_ = statusfilename.str();
     }
+    if (maxSecondsUntilRampdown_ > 0) {
+      processingStart_ = std::chrono::steady_clock::now();
+  }
 
     // Secondary input sources currently do not have a product registry.
     if(primary_) {

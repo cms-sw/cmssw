@@ -90,7 +90,6 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             # Perform any alias expansion and consistency check.
             # We are assuming the same connection and pfnPrefix/Postfix will be used for all GTs.
             globaltag[0] = combineGTs(globaltag[0])
-            print "globaltag =", globaltag[0]
             essource.globaltag = cms.string( str(globaltag[0]) )
         if len(globaltag) > 1:
             essource.connect   = cms.string( str(globaltag[1]) )
@@ -119,7 +118,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection) ) in custom_conditions.iteritems():
+        for ( (record, label), (tag, connection) ) in sorted(custom_conditions.iteritems()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:

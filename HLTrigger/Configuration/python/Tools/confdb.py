@@ -201,7 +201,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
-    if self.config.type in ('GRun', ):
+    if self.config.type in ('GRun','FULL'):
       self.data += """
 # Enable HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
@@ -938,6 +938,8 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['services'].append( "-MessageLogger" )
       self.options['services'].append( "-DQMStore" )
+      self.options['services'].append( "-EvFDaqDirector" )
+      self.options['services'].append( "-FastMonitoringService" )
       self.options['services'].append( "-MicroStateService" )
       self.options['services'].append( "-ModuleWebRegistry" )
       self.options['services'].append( "-TimeProfilerService" )

@@ -264,7 +264,8 @@ void RunManagerMTWorker::initializeUserActions() {
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
 
-  eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+  eventManager->SetUserAction(new StackingAction(userTrackingAction,
+						 m_pStackingAction));
 
 }
 
