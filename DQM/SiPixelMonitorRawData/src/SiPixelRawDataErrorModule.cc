@@ -452,8 +452,8 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
  	(*meMapFEDs)["meTBMType_"][FedId]->Fill((int)TBMType);
 	(*meMapFEDs)["meErrorType_"][FedId]->Fill((int)errorType);
 	(*meMapFEDs)["meFullType_"][FedId]->Fill((int)fullType);
-	(*meMapFEDs)["meEvtNbr_"][FedId]->Fill(0,(int)evtNbr);
-	(*meMapFEDs)["meEvtSize_"][FedId]->Fill(0,(int)evtSize);
+	(*meMapFEDs)["meEvtNbr_"][FedId]->setBinContent(1,(int)evtNbr);
+	(*meMapFEDs)["meEvtSize_"][FedId]->setBinContent(1,(int)evtSize);
       }
     }//end for loop over all errors on module
   }//end if not an empty iterator
@@ -490,7 +490,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
  	    break; }
  	  case(34) : {
  	    evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
- 	    if(!(FedId==38&&chanNmbr==7)) ((*meMapFEDs)["meEvtSize_"][id_])->Fill(0,(int)evtSize); 
+ 	    if(!(FedId==38&&chanNmbr==7)) ((*meMapFEDs)["meEvtSize_"][id_])->setBinContent(1,(int)evtSize); 
  	    break; }
  	  default : break;
  	  };
@@ -576,7 +576,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
  	    break; }
  	  case(31) : {
  	    int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
- 	    if(!(FedId==38&&chanNmbr==7))((*meMapFEDs)["meEvtNbr_"][id_])->Fill(0,(int)evtNbr);
+ 	    if(!(FedId==38&&chanNmbr==7))((*meMapFEDs)["meEvtNbr_"][id_])->setBinContent(1,(int)evtNbr);
  	    chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
  	    break; }
  	  case(35) : case(36) : case(37) : case(38) : {
