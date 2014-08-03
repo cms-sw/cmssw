@@ -9,6 +9,7 @@ from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 from HLTriggerOffline.Higgs.HiggsValidation_cff import *
 from HLTriggerOffline.Top.topHLTValidation_cff import *
+from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 
 # offline dqm:
@@ -39,6 +40,7 @@ hltvalidation = cms.Sequence(
     +HLTSusyExoValSeq
     +HiggsValidationSequence
     +ExoticaValidationSequence
+    +b2gHLTriggerValidation
     )
 
 
@@ -62,6 +64,7 @@ hltvalidation_fastsim = cms.Sequence(
     #+HLTAlCaVal_FastSim
     +HLTSusyExoValSeq_FastSim
     +HiggsValidationSequence
+    +b2gHLTriggerValidation
     )
 
 hltvalidation_preprod = cms.Sequence(

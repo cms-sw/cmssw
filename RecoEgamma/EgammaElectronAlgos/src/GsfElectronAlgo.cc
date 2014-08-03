@@ -70,7 +70,8 @@ struct GsfElectronAlgo::GeneralData
      const EcalRecHitsConfiguration &,
      EcalClusterFunctionBaseClass * superClusterErrorFunction,
      EcalClusterFunctionBaseClass * crackCorrectionFunction,
-     const SoftElectronMVAEstimator::Configuration & mvaCfg ,
+     const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg ,
+     const ElectronMVAEstimator::Configuration & mva_Iso_Cfg ,
      const RegressionHelper::Configuration &) ;
   ~GeneralData() ;
 
@@ -87,6 +88,7 @@ struct GsfElectronAlgo::GeneralData
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
   SoftElectronMVAEstimator *sElectronMVAEstimator;
+  ElectronMVAEstimator *iElectronMVAEstimator;
   const RegressionHelper::Configuration regCfg;
   RegressionHelper * regHelper;
  } ;
@@ -102,7 +104,9 @@ struct GsfElectronAlgo::GeneralData
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc,
-   const SoftElectronMVAEstimator::Configuration & mvaConfig,
+   const SoftElectronMVAEstimator::Configuration & mva_NIso_Config,
+   const ElectronMVAEstimator::Configuration & mva_Iso_Config,
+
    const RegressionHelper::Configuration & regConfig
    )
  : inputCfg(inputConfig),
@@ -115,7 +119,8 @@ struct GsfElectronAlgo::GeneralData
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
-   sElectronMVAEstimator(new SoftElectronMVAEstimator(mvaConfig)),
+   sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
+   iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
    regCfg(regConfig),
    regHelper(new RegressionHelper(regConfig))
   {}
@@ -125,6 +130,7 @@ GsfElectronAlgo::GeneralData::~GeneralData()
   delete hcalHelper ;
   delete hcalHelperPflow ;
   delete sElectronMVAEstimator;
+  delete iElectronMVAEstimator;
   delete regHelper;
  }
 
@@ -648,10 +654,11 @@ GsfElectronAlgo::GsfElectronAlgo
    const EcalRecHitsConfiguration & recHitsCfg,
    EcalClusterFunctionBaseClass * superClusterErrorFunction,
    EcalClusterFunctionBaseClass * crackCorrectionFunction,
-   const SoftElectronMVAEstimator::Configuration & mvaCfg,
+   const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
+   const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,
    const RegressionHelper::Configuration & regCfg
  )
-   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mvaCfg,regCfg)),
+   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mva_NIso_Cfg,mva_Iso_Cfg,regCfg)),
    eventSetupData_(new EventSetupData),
    eventData_(0), electronData_(0)
  {}
@@ -986,7 +993,7 @@ void GsfElectronAlgo::addPflowInfo()
           else
            { (*el)->setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),true) ; }
           double noCutMin = -999999999. ;
-          if ((*el)->mva()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva() ; }
+          if ((*el)->mva_e_pi()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva_e_pi() ; }
          }
        }
      }
@@ -1181,9 +1188,9 @@ void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
   ele->setPassMvaPreselection(false) ;
 
   if (ele->core()->ecalDrivenSeed())
-   { if (ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mvaOutput().mva_e_pi>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
   else
-   { if (ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mvaOutput().mva_e_pi>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
 
   if (ele->passingMvaPreselection())
    { LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied" ; }
@@ -1229,9 +1236,11 @@ void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfEl
       el++ )
     {
 	if(generalData_->strategyCfg.gedElectronMode==true){
-		float mvaValue=generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
+		float mva_NIso_Value=	generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
+		float mva_Iso_Value =   generalData_->iElectronMVAEstimator->mva( *(*el), eventData_->vertices->size() );
 	        GsfElectron::MvaOutput mvaOutput ;
-	        mvaOutput.mva = mvaValue ;
+	        mvaOutput.mva_e_pi = mva_NIso_Value ;
+		mvaOutput.mva_Isolated = mva_Iso_Value ;
 	        (*el)->setMvaOutput(mvaOutput);
 	}
 	else{
