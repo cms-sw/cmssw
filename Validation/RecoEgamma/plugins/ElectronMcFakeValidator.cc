@@ -1367,9 +1367,9 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
         if (bestGsfElectron.classification() == GsfElectron::SHOWERING)
           h2_ele_PtinVsPtoutShowering_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
 
-      h1_ele_mva->Fill(bestGsfElectron.mva());
-      if (bestGsfElectron.isEB()) h1_ele_mva_barrel->Fill(bestGsfElectron.mva());
-      if (bestGsfElectron.isEE()) h1_ele_mva_endcaps->Fill(bestGsfElectron.mva());
+      h1_ele_mva->Fill(bestGsfElectron.mva_e_pi());
+      if (bestGsfElectron.isEB()) h1_ele_mva_barrel->Fill(bestGsfElectron.mva_e_pi());
+      if (bestGsfElectron.isEE()) h1_ele_mva_endcaps->Fill(bestGsfElectron.mva_e_pi());
 
       if (bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(1.);
       if (bestGsfElectron.trackerDrivenSeed()) h1_ele_provenance->Fill(-1.);
