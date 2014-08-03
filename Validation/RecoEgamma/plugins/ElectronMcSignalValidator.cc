@@ -1737,10 +1737,10 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
      }
 
     // provenance and pflow data
-    h1_ele_mva->Fill(bestGsfElectron.mva());
-    if (bestGsfElectron.isEB()) h1_ele_mva_barrel->Fill(bestGsfElectron.mva());
-    if (bestGsfElectron.isEE()) h1_ele_mva_endcaps->Fill(bestGsfElectron.mva());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_mva_eg->Fill(bestGsfElectron.mva());
+    h1_ele_mva->Fill(bestGsfElectron.mva_e_pi());
+    if (bestGsfElectron.isEB()) h1_ele_mva_barrel->Fill(bestGsfElectron.mva_e_pi());
+    if (bestGsfElectron.isEE()) h1_ele_mva_endcaps->Fill(bestGsfElectron.mva_e_pi());
+    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_mva_eg->Fill(bestGsfElectron.mva_e_pi());
     if (bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(1.);
     if (bestGsfElectron.trackerDrivenSeed()) h1_ele_provenance->Fill(-1.);
     if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(0.);

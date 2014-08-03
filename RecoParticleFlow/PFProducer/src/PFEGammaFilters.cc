@@ -53,9 +53,6 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
   ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
 {
-
-  ele_iso_mvaID_= new ElectronMVAEstimator(ele_iso_path_mvaWeightFile);
-
 }
 
 bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
@@ -101,18 +98,18 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
     double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
     double eleEta = fabs(electron.eta());
     if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
-      if( ele_iso_mvaID_->mva( electron, nVtx ) > ele_iso_mva_eb_ ) 
+      if( electron.mva_Isolated() > ele_iso_mva_eb_ ) 
 	passEleSelection = true;
     }
     else if (eleEta > 1.485  && isoDr03 < ele_iso_combIso_ee_) {
-      if( ele_iso_mvaID_->mva( electron, nVtx ) > ele_iso_mva_ee_ ) 
+      if( electron.mva_Isolated() > ele_iso_mva_ee_ ) 
 	passEleSelection = true;
     }
 
   }
 
   //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
-  if(electron.mva() > ele_noniso_mva_) {
+  if(electron.mva_e_pi() > ele_noniso_mva_) {
     passEleSelection = true; 
   }
   
