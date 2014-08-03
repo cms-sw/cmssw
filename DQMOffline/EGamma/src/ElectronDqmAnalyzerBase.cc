@@ -311,7 +311,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = store_->book1D(name2,h_temp) ;
-  delete h_temp ;
+  if (setEfficiencyFlag == "true") { me->setEfficiencyFlag(); }
+ delete h_temp ;
   return me ;
  }
 
