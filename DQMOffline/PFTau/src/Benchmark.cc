@@ -22,11 +22,11 @@ void Benchmark::setDirectory(TDirectory* dir) {
 
 TH1F* Benchmark::book1D(DQMStore::IBooker& b, const char* histname, const char* title, 
 			int nbins, float xmin, float xmax) {
-  if (1) {
+  if( &b ) {
     edm::LogInfo("Benchmark") << " Benchmark::book1D " << "booking "<<histname;
     return b.book1D(histname,title,nbins,xmin,xmax)->getTH1F();
   }
-  else if (dir_) {
+  else if( dir_ ) {
     TDirectory *oldpwd = gDirectory; 
     dir_->cd();
     TH1F *hist =  new TH1F(histname, title, nbins, xmin, xmax);
@@ -40,11 +40,11 @@ TH1F* Benchmark::book1D(DQMStore::IBooker& b, const char* histname, const char* 
 TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* title, 
 			int nbinsx, float xmin, float xmax,
 			int nbinsy, float ymin, float ymax ) {
-  if (1) {
+  if( &b ) {
     edm::LogInfo("Benchmark") << " Benchmark::book2D "<<"booked "<<histname;
     return b.book2D(histname,title,nbinsx,xmin, xmax, nbinsy, ymin, ymax)->getTH2F();
   }
-  else if(dir_) {
+  else if( dir_ ) {
     TDirectory *oldpwd = gDirectory; 
     dir_->cd();
     TH2F *hist = new TH2F(histname, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
@@ -58,7 +58,7 @@ TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* 
 TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* title, 
 			int nbinsx, float* xbins,
 			int nbinsy, float ymin, float ymax ) {
-  if (1) {
+  if( &b ) {
     edm::LogInfo("Benchmark") << " Benchmark::book2D " << " booked "<<histname;
     
     // need to build the y bin array manually, due to a missing function in DQMStore
@@ -70,7 +70,7 @@ TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* 
     
     return b.book2D(histname,title,nbinsx, xbins, nbinsy, &ybins[0])->getTH2F();
   }
-  else if(dir_) {
+  else if( dir_ ) {
     TDirectory *oldpwd = gDirectory; 
     dir_->cd();
 
@@ -91,11 +91,11 @@ TH2F* Benchmark::book2D(DQMStore::IBooker& b, const char* histname, const char* 
 TProfile* Benchmark::bookProfile(DQMStore::IBooker& b, const char* histname, const char* title,
 				 int nbinsx, float xmin, float xmax,
 				 float ymin, float ymax, const char* option ) {
-  if (1) {
+  if( &b ) {
     edm::LogInfo("Benchmark") << " Benchmark::bookProfile "<<"booked "<<histname;
     return b.bookProfile(histname, title, nbinsx, xmin, xmax, 0.0, 0.0, option )->getTProfile();
   }
-  else if(dir_) {
+  else if( dir_ ) {
     TDirectory *oldpwd = gDirectory;
     dir_->cd();
     TProfile *hist = new TProfile(histname, title, nbinsx, xmin, xmax, ymin, ymax, option);
@@ -116,11 +116,11 @@ TProfile* Benchmark::bookProfile(DQMStore::IBooker& b, const char* histname, con
     xbinsd[i] = xbins[i];
   }
 
-  if (1) {
+  if( &b ) {
     edm::LogInfo("Benchmark") << " Benchmark::bookProfile "<<"booked "<<histname;
     return b.bookProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option)->getTProfile();
   }
-  else if(dir_) {
+  else if( dir_ ) {
     TDirectory *oldpwd = gDirectory;
     dir_->cd();
     TProfile *hist = new TProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option);

@@ -36,7 +36,7 @@ class MatchCandidateBenchmark : public Benchmark {
   TH2F* delta_et_VS_et_; 
   TH2F* delta_eta_VS_et_; 
   TH2F* delta_phi_VS_et_;
-  ///LEONARDO added these histos
+
   TH2F* BRdelta_et_Over_et_VS_et_; 
   TH2F* ERdelta_et_Over_et_VS_et_;
   std::vector<TH1F*> pTRes_ ;

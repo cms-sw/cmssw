@@ -21,8 +21,6 @@ public:
   /// Destructor
   virtual ~BenchmarkAnalyzer() {}
 
-  void beginJob(){};
-
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  protected:

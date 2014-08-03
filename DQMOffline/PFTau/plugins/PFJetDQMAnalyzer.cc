@@ -52,7 +52,7 @@ void PFJetDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 {
   ibooker.setCurrentFolder(eventInfoFolder_) ;
 
-  edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::beginJob " << "Histogram Folder path set to " << eventInfoFolder_;
+  edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::bookHistograms " << "Histogram Folder path set to " << eventInfoFolder_;
 
   pfJetMonitor_.setup(ibooker, pSet_);
 }
