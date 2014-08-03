@@ -1033,7 +1033,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
         misalignmentDependence(c1old,nFiles,names,misalignment,values,phases,xvar,yvar,(TF1*)0,0,"","",relative,resolution,pull,saveas);
         return true;
     }
-    TF1 *f;
+    TF1 *f = 0;
     TString functionname = "";
 
     //if only one parameter is of interest
