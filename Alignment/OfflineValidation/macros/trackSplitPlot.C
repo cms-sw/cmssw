@@ -1089,7 +1089,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             TString tempParameterNames[2] = {"A;#mum","B"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Deltadxy=Asin(2#phi_{org}+B)";
+            functionname = "#Deltad_{xy}=Asin(2#phi_{org}+B)";
         }
         if (xvar == "phi" && yvar == "dxy" && !resolution && pull)
         {
@@ -1108,8 +1108,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             parameters = tempParameters;
             parameternames = tempParameterNames;
 
-            functionname = "#Deltadxy/#delta(#Deltadxy)=Asin(2#phi_{org}+B)";
-            //functionname = "#Deltadxy/#delta(#Deltadxy)=Asin(2#phi_{org}+B) + C";
+            functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=Asin(2#phi_{org}+B)";
+            //functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=Asin(2#phi_{org}+B) + C";
         }
         
         if (xvar == "theta" && yvar == "dz" && !resolution && !pull)
@@ -1117,7 +1117,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,pi/2);
             parametername = "A;#mum";
-            functionname = "#Deltadz=-A(#theta_{org}-#pi/2)";
+            functionname = "#Deltad_{z}=-A(#theta_{org}-#pi/2)";
             parameter = 0;
         }
         /*
@@ -1128,7 +1128,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(2,-pi/2);
             f->FixParameter(1,1);
             parametername = "A";
-            functionname = "#Deltadz/#delta(#Deltadz)=Acos(#theta_{org})";
+            functionname = "#Deltad_{z}/#delta(#Deltad_{z})=Acos(#theta_{org})";
             parameter = 0;
         }
         */
@@ -1137,7 +1137,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,0);
             parametername = "A;cm^{-1}";
-            functionname = "#Delta#phi=-Adxy_{org}";
+            functionname = "#Delta#phi=-A(d_{xy})_{org}";
             parameter = 0;
         }
         if (xvar == "dxy" && yvar == "phi" && !resolution && pull)
@@ -1145,7 +1145,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,0);
             parametername = "A;cm^{-1}";
-            functionname = "#Delta#phi/#delta(#Delta#phi)=-Adxy_{org}";
+            functionname = "#Delta#phi/#delta(#Delta#phi)=-A(d_{xy})_{org}";
             parameter = 0;
         }
     }
@@ -1208,8 +1208,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             TString tempParameterNames[3] = {"A;#mum","B","C"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Deltadz=Atanh(B(#phi_{org}+C))";
-            //functionname = "#Deltadz=A(tanh(B(#phi_{org}+C)) + tanh(B(#pi-#phi_{org}-C)) - 1";
+            functionname = "#Deltad_{z}=Atanh(B(#phi_{org}+C))";
+            //functionname = "#Deltad_{z}=A(tanh(B(#phi_{org}+C)) + tanh(B(#pi-#phi_{org}-C)) - 1";
         }
     }
     if (misalignment == "layerRot")
@@ -1695,6 +1695,8 @@ TString fancyname(TString variable)
         return "(q/p_{T})";
     else if (variable == "runNumber")
         return "run number";
+    else if (variable == "dxy" || variable == "dz")
+        return variable.ReplaceAll("d","d_{").Append("}");
     else
         return variable;
 }
@@ -1743,7 +1745,9 @@ TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolut
         s << ")";
     if (((!relative && !pull) || axis == 'x') && units(variable,axis) != "")
         s << " (" << units(variable,axis) << ")";
-    return s.str();
+    TString result = s.str();
+    result.ReplaceAll("d_{xy}_{org}","(d_{xy})_{org}").ReplaceAll("d_{z}_{org}","(d_{z})_{org}").ReplaceAll("p_{T}_{org}","(p_{T})_{org}");
+    return result;
 }
 
 void setAxisLabels(TH1 *p, PlotType type,TString xvar,TString yvar,Bool_t relative,Bool_t pull)
