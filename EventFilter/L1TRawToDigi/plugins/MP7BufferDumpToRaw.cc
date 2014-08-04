@@ -78,6 +78,8 @@ private:
   int txLatency_;
   int nRxLinks_;
   int nTxLinks_;
+  int nRxEventHeaders_;
+  int nTxEventHeaders_;
 
   // DAQ parameters
   int fedId_;
@@ -121,6 +123,9 @@ MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
 
   nRxLinks_ = iConfig.getUntrackedParameter<int>("nRxLinks", 72);
   nTxLinks_ = iConfig.getUntrackedParameter<int>("nTxLinks", 72);
+
+  nRxEventHeaders_ = iConfig.getUntrackedParameter<int>("nRxEventHeaders", 1);
+  nTxEventHeaders_ = iConfig.getUntrackedParameter<int>("nTxEventHeaders", 0);
 
 
   // DAQ parameters
@@ -524,6 +529,8 @@ MP7BufferDumpToRaw::findNextEvent() {
   bool dataValid = false;
   while (!dataValid) {
 
+    std::streampos pos = rxFile_.tellg();
+
     std::vector<std::string> rxData = readLine(rxFile_, nRxLinks_);
 
     int iFrame = std::stoul(rxData.at(0));
@@ -533,6 +540,8 @@ MP7BufferDumpToRaw::findNextEvent() {
     if (newFlag==1 && lastFlag==0) {
       dataValid = true;
       edm::LogInfo("mp7") << "Found Rx event at frame " << iFrame << std::endl;
+      if (nRxEventHeaders_ == 0) 
+	rxFile_.seekg(pos);
     }
     else {
       lastFlag = newFlag;
@@ -556,7 +565,8 @@ MP7BufferDumpToRaw::findNextEvent() {
     if (newFlag==1 && lastFlag==0) {
       dataValid = true;
       edm::LogInfo("mp7") << "Found Tx event at frame " << iFrame << std::endl;
-      txFile_.seekg(pos);
+      if (nTxEventHeaders_ == 0) 
+	txFile_.seekg(pos);
     }
     else {
       lastFlag = newFlag;
