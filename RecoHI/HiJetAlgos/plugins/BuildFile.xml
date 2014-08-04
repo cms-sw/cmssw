@@ -4,12 +4,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="RecoHI/HiJetAlgos"/>
 <use   name="DataFormats/JetReco"/>
+<Flags CXXFLAGS="-frounding-math"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="plugins.cc" name="HiJetAlgosPlugins">
+<library   file="*.cc" name="HiJetAlgosPlugins">
 </library>
-<library   file="HiL1Subtractor.cc" name="HiJetAlgosExtraPlugins">
-</library>
-<library   file="HiGenCleaner.cc" name="HiGenJetPlugins">
-</library>
-<library   file="ParticleTowerProducer.cc" name="HiParticleTowerProducerPlugins">
-</library>
+
