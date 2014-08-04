@@ -5,7 +5,6 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "SimG4Core/Generators/interface/Generator.h"
-#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include <memory>
@@ -18,10 +17,6 @@ namespace edm {
   class ConsumesCollector;
   class HepMCProduct;
 }
-namespace sim {
-  class FieldBuilder;
-}
-class CustomUIsession;
 class Generator;
 class RunManagerMT;
 
@@ -34,8 +29,6 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
-
-class SimRunInterface;
 
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
@@ -57,23 +50,18 @@ public:
   void abortRun(bool softAbort=false);
 
   G4SimEvent * simEvent() { return m_simEvent.get(); }
-  SimTrackManager* GetSimTrackManager() { return m_trackManager; }
   void             Connect(RunAction*);
   void             Connect(EventAction*);
   void             Connect(TrackingAction*);
   void             Connect(SteppingAction*);
 
-  std::vector<SensitiveTkDetector*>& sensTkDetectors() {
-    return m_sensTkDets; 
-  }
-  std::vector<SensitiveCaloDetector*>& sensCaloDetectors() {
-    return m_sensCaloDets; 
-  }
-  std::vector<boost::shared_ptr<SimProducer> > producers() {
-    return m_producers;
-  }
+  SimTrackManager* GetSimTrackManager();
+  std::vector<SensitiveTkDetector*>& sensTkDetectors();
+  std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
+  std::vector<boost::shared_ptr<SimProducer> > producers();
 
 private:
+  void initializeTLS();
   void initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
   void initializeUserActions();
 
@@ -82,10 +70,6 @@ private:
 
   G4Event *generateEvent(const edm::Event& inpevt);
   void resetGenParticleId(const edm::Event& inpevt);
-
-  static thread_local bool m_threadInitialized;
-  static thread_local bool m_runTerminated;
-  static thread_local edm::RunNumber_t m_currentRunNumber;
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
@@ -101,22 +85,11 @@ private:
   edm::ParameterSet m_pSteppingAction;
   edm::ParameterSet m_p;
 
-  static thread_local std::unique_ptr<CustomUIsession> m_UIsession;
-  static thread_local RunAction *m_userRunAction;
-  static thread_local SimRunInterface *m_runInterface;
-  static thread_local SimActivityRegistry m_registry;
-  static thread_local SimTrackManager *m_trackManager;
-  static thread_local std::vector<SensitiveTkDetector*> m_sensTkDets;
-  static thread_local std::vector<SensitiveCaloDetector*> m_sensCaloDets;
-  static thread_local sim::FieldBuilder *m_fieldBuilder;
-
-  static thread_local G4Run *m_currentRun;
+  struct TLSData;
+  static thread_local TLSData *m_tls;
 
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
-
-  static thread_local std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-  static thread_local std::vector<boost::shared_ptr<SimProducer> > m_producers;
 };
 
 #endif
