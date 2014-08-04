@@ -309,6 +309,8 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
 
   // create the files names
   if (fakeFilterUnitMode_) {
+    // sets the umask to 0, as done by EvF services
+    umask(0);
     std::string runDir = str(boost::format("%s/run%06d") % dirName_ % run);
     std::string baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % run % lumi % stream_label_ );
 
