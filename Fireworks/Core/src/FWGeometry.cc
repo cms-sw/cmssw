@@ -53,6 +53,7 @@ FWGeometry::loadMap( const char* fileName )
       throw std::runtime_error( "ERROR: failed to find geometry file. Initialization failed." );
       return;
    }
+
    TTree* tree = static_cast<TTree*>(file->Get( "idToGeo" ));
    if( ! tree )
    {
@@ -117,6 +118,21 @@ FWGeometry::loadMap( const char* fileName )
 	    m_idToInfo[i].matrix[j] = matrix[j];
       }
    }
+
+
+   TNamed* tag = static_cast<TNamed*>(file->Get( "TAG" ));
+   if (tag) {
+      m_prodTag = tag->GetTitle();
+   }
+
+
+   TNamed* version = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
+
+   if (version)
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(), version->GetTitle(), file->GetPath());  
+   else 
+      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), file->GetPath());  
+
    file->Close();
 }
 
@@ -306,7 +322,7 @@ FWGeometry::getShapePars( unsigned int id ) const
 }
 
 void
-FWGeometry::localToGlobal( unsigned int id, const float* local, float* global ) const
+FWGeometry::localToGlobal( unsigned int id, const float* local, float* global, bool translatep ) const
 {
    IdToInfoItr it = FWGeometry::find( id );
    if( it == m_idToInfo.end())
@@ -315,12 +331,13 @@ FWGeometry::localToGlobal( unsigned int id, const float* local, float* global ) 
    }
    else
    {
-      localToGlobal( *it, local, global );
+      localToGlobal( *it, local, global, translatep );
    }
 }
 
 void
-FWGeometry::localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const
+FWGeometry::localToGlobal( unsigned int id, const float* local1, float* global1,
+                           const float* local2, float* global2, bool translatep ) const
 {
    IdToInfoItr it = FWGeometry::find( id );
    if( it == m_idToInfo.end())
@@ -329,8 +346,8 @@ FWGeometry::localToGlobal( unsigned int id, const float* local1, float* global1,
    }
    else
    {
-      localToGlobal( *it, local1, global1 );
-      localToGlobal( *it, local2, global2 );
+      localToGlobal( *it, local1, global1, translatep );
+      localToGlobal( *it, local2, global2, translatep );
    }
 }
 
@@ -343,13 +360,24 @@ FWGeometry::find( unsigned int id ) const
 }
 
 void
-FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* global ) const
+FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep ) const
 {
    for( int i = 0; i < 3; ++i )
    {
-      global[i] = info.translation[i] 
-		  + local[0] * info.matrix[3 * i]
-		  + local[1] * info.matrix[3 * i + 1]
-		  + local[2] * info.matrix[3 * i + 2];
+      global[i]  = translatep ? info.translation[i] : 0;
+      global[i] +=   local[0] * info.matrix[3 * i]
+		   + local[1] * info.matrix[3 * i + 1]
+		   + local[2] * info.matrix[3 * i + 2];
    }
+}
+
+//______________________________________________________________________________
+
+int FWGeometry::getMaxRPCStation() const
+{
+   if (m_prodTag == "2015")
+      return 4;
+   else 
+      return 3;
+
 }

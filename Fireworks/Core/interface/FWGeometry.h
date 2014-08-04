@@ -27,7 +27,7 @@ public:
    static const int kSubdetOffset       = 25;
 
    enum Detector { Tracker = 1, Muon = 2, Ecal = 3, Hcal = 4, Calo = 5 };
-   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10, GEM = 11, ME0 = 12 };
+   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10 };
 
    struct Range {
       double min1;
@@ -70,8 +70,8 @@ public:
    // get reco topology/parameters
    const float* getParameters( unsigned int id ) const;
 
-   void localToGlobal( unsigned int id, const float* local, float* global ) const;
-   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const;
+   void localToGlobal( unsigned int id, const float* local,  float* global, bool translatep=true ) const;
+   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2, bool translatep=true ) const;
 
    struct GeomDetInfo
    {
@@ -101,12 +101,18 @@ public:
 
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
-   void localToGlobal( const GeomDetInfo& info, const float* local, float* global ) const;
+   void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
+
+
+   // Utils, related with drawing and versioning
+   int getMaxRPCStation() const;
  
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
+
+   std::string m_prodTag;
 
    TGeoShape* getShape( const GeomDetInfo& info ) const;
 };
