@@ -228,7 +228,7 @@ bool FedRawDataInputSource::checkNextEvent()
           maybeOpenNewLumiSection( event_->lumi() );
 	}
       }
-      eventID_ = edm::EventID(event_->run(), currentLumiSection_, event_->event());
+      eventRunNumber_=event_->run();
 
       setEventCached();
 
@@ -406,8 +406,9 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     unsigned char *dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
 
-
-    if (!bufferInputRead_ || bufferInputRead_ < headerSize[detectedFRDversion_])
+    //conditions when read amount is not sufficient for the header to fit
+    if (!bufferInputRead_ || bufferInputRead_ < headerSize[detectedFRDversion_] 
+       ||  eventChunkSize_ - currentFile_->chunkPosition_ < headerSize[detectedFRDversion_])
     {
       readNextChunkIntoBuffer(currentFile_);
 
@@ -558,10 +559,13 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
   }
 }
 
+
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 {
   std::auto_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
   edm::Timestamp tstamp = fillFEDRawDataCollection(rawData);
+
+  eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTEventID_);
 
   edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
                           edm::EventAuxiliary::PhysicsTrigger);
@@ -607,11 +611,12 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   return;
 }
 
-edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>& rawData) const
+edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>& rawData)
 {
   edm::Timestamp tstamp;
   uint32_t eventSize = event_->eventSize();
   char* event = (char*)event_->payload();
+  GTEventID_=0;
 
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
@@ -621,10 +626,20 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
-      evf::evtn::evm_board_setformat(fedSize);
+      if (evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize))
+          GTEventID_ = evf::evtn::get((unsigned char*) fedHeader,true);
+      else
+          GTEventID_ = evf::evtn::get((unsigned char*) fedHeader,false);
+      //evf::evtn::evm_board_setformat(fedSize);
       const uint64_t gpsl = evf::evtn::getgpslow((unsigned char*) fedHeader);
       const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
       tstamp = edm::Timestamp(static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl));
+    }
+    //take event ID from GTPE FED
+    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && GTEventID_==0) {
+      if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
+        GTEventID_ = evf::evtn::gtpe_get((unsigned char*) fedHeader);
+      }
     }
     FEDRawData& fedData = rawData->FEDData(fedId);
     fedData.resize(fedSize);

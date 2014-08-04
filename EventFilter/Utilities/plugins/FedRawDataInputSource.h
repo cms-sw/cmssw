@@ -57,7 +57,7 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
-  edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
+  edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&);
   void deleteFile(std::string const&);
   int grabNextJsonFile(boost::filesystem::path const&);
   void renameToNextFree(std::string const& fileName) const;
@@ -99,6 +99,8 @@ private:
   edm::ProcessHistoryID processHistoryID_;
 
   unsigned int currentLumiSection_;
+  uint32_t eventRunNumber_=0;
+  uint32_t GTEventID_ = 0;
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
 
