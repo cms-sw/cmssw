@@ -72,37 +72,6 @@ void TauolappInterface::Setup(){
 
 }
 
-
-//TauolappInterface::TauolappInterface( const ParameterSet& pset )
-//   : fIsInitialized(false)
-//{
-//
-//   Tauola::setDecayingParticle(15);
-//   // --> ??? Tauola::setRadiation(false);
-//
-//   // polarization switch 
-//   //
-//   // fPolarization = pset.getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
-//   fPolarization = pset.getParameter<bool>("UseTauolaPolarization");
-//   
-//   // read tau decay mode switches
-//   //
-//   ParameterSet cards = pset.getParameter< ParameterSet >("InputCards");
-//   Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
-//   Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
-//
-//   Tauola::setTauLifetime(0.0);
-//   Tauola::spin_correlation.setAll(fPolarization);
-//
-//   // some more options, copied over from an example 
-//   // - maybe will use later...
-//   //
-//   //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
-//   //
-//
-//} 
-
-
 TauolappInterface* TauolappInterface::getInstance()
 {
 
@@ -136,104 +105,125 @@ void TauolappInterface::setPSet( const ParameterSet& pset )
 
 }
 
-void TauolappInterface::init( const edm::EventSetup& es )
-{
-   
-   if ( fIsInitialized ) return; // do init only once
-   
-   if ( fPSet == 0 ) 
-   {
+void TauolappInterface::init( const edm::EventSetup& es ){
+  if ( fIsInitialized ) return; // do init only once
+  if ( fPSet == 0 ) throw cms::Exception("TauolappInterfaceError") << "Attempt to initialize Tauola with an empty ParameterSet\n" << std::endl;
 
-      throw cms::Exception("TauolappInterfaceError")
-         << "Attempt to initialize Tauola with an empty ParameterSet\n"
-         << std::endl;   
-   }
-   
-   fIsInitialized = true;
-      
-   es.getData( fPDGTable ) ;
+  fIsInitialized = true;
 
-   Tauolapp::Tauola::setDecayingParticle(15);
-   // --> ??? Tauola::setRadiation(false);
+  es.getData( fPDGTable ) ;
 
-   // polarization switch 
-   //
-   // fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
-   fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization");
-   
-   // read tau decay mode switches
-   //
-   ParameterSet cards = fPSet->getParameter< ParameterSet >("InputCards");
-   
-   fMDTAU = cards.getParameter< int >( "mdtau" );
+  Tauolapp::Tauola::setDecayingParticle(15);
+  // --> ??? Tauola::setRadiation(false);
 
-   if ( fMDTAU == 0 || fMDTAU == 1 )
-   {
+  // polarization switch
+  //
+  // fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
+  fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization");
+
+  // read tau decay mode switches
+  //
+  ParameterSet cards = fPSet->getParameter< ParameterSet >("InputCards");
+
+  fMDTAU = cards.getParameter< int >( "mdtau" );
+
+  if ( fMDTAU == 0 || fMDTAU == 1 )
+    {
       Tauolapp::Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
       Tauolapp::Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
-   }
+    }
 
-   Tauolapp::Tauola::setTauLifetime(0.0);
-   Tauolapp::Tauola::spin_correlation.setAll(fPolarization);
+  Tauolapp::Tauola::spin_correlation.setAll(fPolarization);
 
-   // some more options, copied over from an example 
-   // - maybe will use later...
-   //
-   //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
-   //
+  // some more options, copied over from an example
+  // - maybe will use later...
+  //
+  //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off.
+  //
 
-//
-//   const HepPDT::ParticleData* 
-//         PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauola::getDecayingParticle()) )) ;
-//   double lifetime = PData->lifetime().value();
-//   Tauola::setTauLifetime( lifetime );
+  const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauolapp::Tauola::getDecayingParticle()) )) ;
+  double lifetime = PData->lifetime().value();
+  Tauolapp::Tauola::setTauLifetime( lifetime );
 
-   fPDGs.push_back( Tauolapp::Tauola::getDecayingParticle() );
+  fPDGs.push_back( Tauolapp::Tauola::getDecayingParticle() );
 
-   Tauolapp::Tauola::setRandomGenerator(&gen::TauolappInterface_RandGetter);         
-   Tauolapp::Tauola::initialize();
+  Tauolapp::Tauola::setRandomGenerator(gen::TauolappInterface_RandGetter);
+  Tauolapp::Tauola::initialize();
 
-   Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
+  Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
-   // override decay modes if needs be
-   //
-   // we have to do it AFTER init because otherwises branching ratios are NOT filled in
-   //
-   if ( fMDTAU != 0 && fMDTAU != 1 )
-   {
+  if (fPSet->exists("parameterSets")){
+    std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
+    for (unsigned int ip=0; ip<par.size(); ++ip ){
+      std::string curSet = par[ip];
+
+      if(curSet=="setNewCurrents") Tauolapp::Tauola::setNewCurrents(fPSet->getParameter<int>(curSet));
+      if(curSet=="spinCorrelationSetAll") Tauolapp::Tauola::spin_correlation.setAll(fPSet->getParameter<bool>(curSet));
+      if(curSet=="spinCorrelationGAMMA") Tauolapp::Tauola::spin_correlation.GAMMA=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationZ0") Tauolapp::Tauola::spin_correlation.Z0=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationHIGGS") Tauolapp::Tauola::spin_correlation.HIGGS=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationHIGGSH") Tauolapp::Tauola::spin_correlation.HIGGS_H=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationHIGGSA") Tauolapp::Tauola::spin_correlation.HIGGS_A=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationHIGGSPLUS") Tauolapp::Tauola::spin_correlation.HIGGS_PLUS=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationHIGGSMINUS") Tauolapp::Tauola::spin_correlation.HIGGS_MINUS=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationWPLUS") Tauolapp::Tauola::spin_correlation.W_PLUS=fPSet->getParameter<bool>(curSet);
+      if(curSet=="spinCorrelationWMINUS") Tauolapp::Tauola::spin_correlation.W_MINUS=fPSet->getParameter<bool>(curSet);
+
+      if(curSet=="setHiggsScalarPseudoscalarPDG") Tauolapp::Tauola::setHiggsScalarPseudoscalarPDG(fPSet->getParameter<int>(curSet));
+      if(curSet=="setHiggsScalarPseudoscalarMixingAngle") Tauolapp::Tauola::setHiggsScalarPseudoscalarMixingAngle(fPSet->getParameter<double>(curSet));
+
+      if(curSet=="setRadiation") Tauolapp::Tauola::setRadiation(fPSet->getParameter<bool>(curSet));
+      if(curSet=="setRadiationCutOff") Tauolapp::Tauola::setRadiationCutOff(fPSet->getParameter<double>(curSet));
+
+      if(curSet=="setEtaK0sPi"){
+	std::vector<int> vpar = fPSet->getParameter<std::vector<int> >(curSet);
+	if(vpar.size()==3) Tauolapp::Tauola::setEtaK0sPi(vpar[0],vpar[1],vpar[2]);
+	else {std::cout << "WARNING invalid size for setEtaK0sPi: " << vpar.size() << " Require 3 elements " << std::endl;}
+      }
+
+      if(curSet=="setTaukle"){
+	std::vector<double> vpar = fPSet->getParameter<std::vector<double> >(curSet);
+	if(vpar.size()==4) Tauolapp::Tauola::setTaukle(vpar[0], vpar[1], vpar[2], vpar[3]);
+	else {std::cout << "WARNING invalid size for setTaukle: " << vpar.size() << " Require 4 elements " << std::endl;}
+      }
+
+      if(curSet=="setTauBr"){
+	edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
+	std::vector<int> vJAK = cfg.getParameter<std::vector<int> >("JAK");
+	std::vector<double> vBR = cfg.getParameter<std::vector<double> >("BR");
+	if(vJAK.size() == vBR.size()){
+	  for(unsigned int i=0;i<vJAK.size();i++) Tauolapp::Tauola::setTauBr(vJAK[i],vBR[i]);
+	}
+	else {std::cout << "WARNING invalid size for setTauBr - JAK: " << vJAK.size() << " BR: " << vBR.size() << std::endl;}
+      }
+    }
+  }
+
+  // override decay modes if needs be
+  //
+  // we have to do it AFTER init because otherwises branching ratios are NOT filled in
+  //
+  if ( fMDTAU != 0 && fMDTAU != 1 )
+    {
       decodeMDTAU( fMDTAU );
-   }
+    }
 
-   Tauolapp::Log::LogWarning(false);
-   
-   return;
+  Tauolapp::Log::LogWarning(false);
+
+  return;
 }
 
-float TauolappInterface::flat()
-{
-
-   if ( !fPSet )
-   {
-      // throw
-      throw cms::Exception("TauolappInterfaceError")
-         << "Attempt to run random number generator of un-initialized Tauola\n"
-         << std::endl;   
-   }
-   
-   if ( !fIsInitialized ) 
-   {
-      // throw
-      throw cms::Exception("TauolappInterfaceError")
-         << "Attempt to run random number generator of un-initialized Tauola\n"
-         << std::endl;   
-   }
-   
-   return fRandomEngine->flat();
-
+double TauolappInterface::flat(){
+  if ( !fIsInitialized ){
+    // throw
+    throw cms::Exception("TauolappInterfaceError")
+      << "Attempt to run random number generator of un-initialized Tauola\n"
+      << std::endl;   
+  }
+  return fRandomEngine->flat();
 }
 
-HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt )
-{
+HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
       
    if ( !fIsInitialized ) return evt;
    
@@ -278,35 +268,6 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt )
     for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
     {
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
-       HepMC::GenParticle* GenPart = *(GenVtx->particles_in_const_begin());
-       HepMC::GenVertex* ProdVtx = GenPart->production_vertex();
-       HepMC::FourVector PMom = GenPart->momentum();
-       double mass = GenPart->generated_mass();
-       const HepPDT::ParticleData* 
-             PData = fPDGTable->particle(HepPDT::ParticleID(abs(GenPart->pdg_id()))) ;
-       double lifetime = PData->lifetime().value();
-       float prob = 0.;
-       int length=1;
-       ranmar_(&prob,&length);
-       double ct = -lifetime * std::log(prob);
-       double VxDec = GenVtx->position().x();
-       VxDec += ct * (PMom.px()/mass);
-       VxDec += ProdVtx->position().x();
-       double VyDec = GenVtx->position().y();
-       VyDec += ct * (PMom.py()/mass);
-       VyDec += ProdVtx->position().y();
-       double VzDec = GenVtx->position().z();
-       VzDec += ct * (PMom.pz()/mass);
-       VzDec += ProdVtx->position().z();
-       double VtDec = GenVtx->position().t();
-       VtDec += ct * (PMom.e()/mass);
-       VtDec += ProdVtx->position().t();
-       GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) ); 
-       //
-       // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
-       // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
-       // thus we have to take a 2-step procedure
-       //
        std::vector<int> BCodes;
        BCodes.clear();
        for (HepMC::GenVertex::particle_iterator pitr= GenVtx->particles_begin(HepMC::children);
