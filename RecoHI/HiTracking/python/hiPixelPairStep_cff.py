@@ -65,10 +65,12 @@ hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
-        ComponentName = cms.string('hiPixelPairChi2Est'),
-            nSigma = cms.double(3.0),
-            MaxChi2 = cms.double(9.0)
-        )
+    ComponentName = cms.string('hiPixelPairChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(9.0),
+    minGoodStripCharge = cms.double(2069),
+    pTChargeCutThreshold = cms.double(15.)
+    )
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -77,22 +79,29 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
         trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryFilter')),
         clustersToSkip = cms.InputTag('hiPixelPairClusters'),
         maxCand = 3,
-        #estimator = cms.string('hiPixelPairChi2Est')
+        estimator = cms.string('hiPixelPairChi2Est'),
+        maxDPhiForLooperReconstruction = cms.double(2.0),
+        maxPtForLooperReconstruction = cms.double(0.7) 
         )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiPixelPairSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder')),
+    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
+    numHitsForSeedCleaner = cms.int32(50),
+    onlyPixelHitsForSeedCleaner = cms.bool(True),
+
     )
 
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    AlgorithmName = cms.string('iter2'),
     src = 'hiPixelPairTrackCandidates',
-    AlgorithmName = cms.string('iter2')
+    Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
 
