@@ -1,5 +1,6 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Generators/interface/HepMCParticle.h"
+#include "SimG4Core/Generators/interface/LumiMonitorFilter.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
@@ -31,6 +32,7 @@ Generator::Generator(const ParameterSet & p) :
   theMaxPCut(p.getParameter<double>("MaxPCut")),   
   theEtaCutForHector(p.getParameter<double>("EtaCutForHector")),
   verbose(p.getUntrackedParameter<int>("Verbosity",0)),
+  fLumiFilter(0),
   evt_(0),
   vtx_(0),
   weight_(0),
@@ -40,6 +42,9 @@ Generator::Generator(const ParameterSet & p) :
   pdgFilterSel(false), 
   fPDGFilter(false) 
 {
+  bool lumi = p.getParameter<bool>("ApplyLumiMonitorCuts");
+  if(lumi) { fLumiFilter = new LumiMonitorFilter(); }
+
   double theRDecLenCut = p.getParameter<double>("RDecLenCut")*cm;
   theDecRCut2 = theRDecLenCut*theRDecLenCut;
 
@@ -60,8 +65,8 @@ Generator::Generator(const ParameterSet & p) :
 	  edm::LogWarning("SimG4CoreGenerator") 
 	    << " *** Selecting only PDG ID = " << pdgFilter[ii];
 	} else {
-	  edm::LogWarning("SimG4CoreGenerator") << " *** Filtering out PDG ID = " 
-						<< pdgFilter[ii];
+	  edm::LogWarning("SimG4CoreGenerator") 
+	    << " *** Filtering out PDG ID = " << pdgFilter[ii];
 	}
       }
     }
@@ -83,10 +88,14 @@ Generator::Generator(const ParameterSet & p) :
     << "ApplyPCuts: " << fPCuts << "  ApplyPtransCut: " << fPtransCut
     << "  ApplyEtaCuts: " << fEtaCuts 
     << "  ApplyPhiCuts: " << fPhiCuts;
+    << "  ApplyLumiMonitorCuts: " << lumi;
+  if(lumi) { fLumiFilter->Describe(); }
 }
 
 Generator::~Generator() 
-{}
+{
+  delete fLumiFilter;
+}
 
 void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {
@@ -302,6 +311,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	      continue;
 	    }
 	  }
+	  if(fLumiFilter && !IsGoodForLumiMonitors(*pitr)) { continue; }
 	  toBeAdded = true;
 	  if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
 	    << "GenParticle barcode = " << (*pitr)->barcode() 
