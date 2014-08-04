@@ -112,6 +112,8 @@ thread_local std::vector<SensitiveTkDetector*> RunManagerMTWorker::m_sensTkDets;
 thread_local std::vector<SensitiveCaloDetector*> RunManagerMTWorker::m_sensCaloDets;
 thread_local sim::FieldBuilder *RunManagerMTWorker::m_fieldBuilder;
 thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
+thread_local std::vector<boost::shared_ptr<SimWatcher> > RunManagerMTWorker::m_watchers;
+thread_local std::vector<boost::shared_ptr<SimProducer> > RunManagerMTWorker::m_producers;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),

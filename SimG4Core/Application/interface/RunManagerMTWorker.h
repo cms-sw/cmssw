@@ -115,8 +115,8 @@ private:
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
 
-  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-  std::vector<boost::shared_ptr<SimProducer> > m_producers;
+  static thread_local std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
+  static thread_local std::vector<boost::shared_ptr<SimProducer> > m_producers;
 };
 
 #endif
