@@ -9,6 +9,7 @@
   <use   name="PhysicsTools/CondLiteIO"/>
 </bin>
 <bin   file="TestRunnerDataFormatsFWLite.cpp">
+  <flags PRE_TEST="testDataFormatsFWLite"/>
   <flags   TEST_RUNNER_ARGS=" /bin/bash DataFormats/FWLite/test run_all_t.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
