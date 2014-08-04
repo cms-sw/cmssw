@@ -45,75 +45,6 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-// FIXME  this is not a solution
-// sorry to use this class as workspace to prototpye solution of data sharing in MT
-namespace {
-  std::atomic<bool> g_useCalibration(false);
-  std::string g_calibPath; // all this is purely fake...
-}
-
-
-std::shared_ptr<DeDxDiscriminatorProducerDetails::Cache> 
-DeDxDiscriminatorProducer::globalBeginRun(edm::Run const&, edm::EventSetup const &es, GlobalCache const*) {
-   auto prod = std::make_shared<DeDxDiscriminatorProducerDetails::Cache>();
-
-      edm::ESHandle<TrackerGeometry> tkGeom;
-      es.get<TrackerDigiGeometryRecord>().get( tkGeom );
-
-      auto const & Det = tkGeom->dets();
-      for(unsigned int i=0;i<Det.size();i++){
-         DetId  Detid  = Det[i]->geographicalId();
-         int    SubDet = Detid.subdetId();
-
-         if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
-             SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
-
-             auto DetUnit     = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
-             if(!DetUnit)continue;
-
-             const StripTopology& Topo     = DetUnit->specificTopology();
-             unsigned int         NAPV     = Topo.nstrips()/128;
-
-             double Eta     = DetUnit->position().basicVector().eta();
-             double R       = DetUnit->position().basicVector().transverse();
-             double Thick   = DetUnit->surface().bounds().thickness();
-
-             auto & MOD = prod->MODsColl[Detid.rawId()];
-             MOD.DetId     = Detid.rawId();
-             MOD.SubDet    = SubDet;
-             MOD.Eta       = Eta;
-             MOD.R         = R;
-             MOD.Thickness = Thick;
-             MOD.NAPV      = NAPV;
-             
-         }
-      }
-
-   if (g_useCalibration) {
-     TChain* t1 = new TChain("SiStripCalib/APVGain");
-     t1->Add(g_calibPath.c_str());
-
-
-   unsigned int  tree_DetId;
-   unsigned char tree_APVId;
-   double        tree_Gain;
-     
-   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
-   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
-   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
-
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-       t1->GetEntry(ientry);
-       auto & MOD  = prod->MODsColl[tree_DetId];
-       MOD.Gain = tree_Gain;
-   }
-
-     delete t1;
-   }
-   return prod;
-}
-
-
 DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iConfig)
 {
 
@@ -142,10 +73,8 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    shapetest           = iConfig.getParameter<bool>("ShapeTest");
    useCalibration      = iConfig.getParameter<bool>("UseCalibration");
    m_calibrationPath   = iConfig.getParameter<string>("calibrationPath");
-   if (useCalibration) g_useCalibration = true;
-   if (useCalibration) g_calibPath = m_calibrationPath;
 
-   Prob_ChargePath = nullptr;
+   Prob_ChargePath = NULL;
 }
 
 
@@ -179,7 +108,8 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
    double zmin = DeDxMap_.rangeZ().min;
    double zmax = DeDxMap_.rangeZ().max;
 
-   Prob_ChargePath.reset(new TH3F ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax));
+   if(Prob_ChargePath)delete Prob_ChargePath;
+   Prob_ChargePath  = new TH3D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
 
    
 
@@ -247,7 +177,51 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
 */
 
 
+
+   if(MODsColl.size()==0){
+      edm::ESHandle<TrackerGeometry> tkGeom;
+      iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+      m_tracker = tkGeom.product();
+
+      auto const & Det = tkGeom->dets();
+      for(unsigned int i=0;i<Det.size();i++){
+         DetId  Detid  = Det[i]->geographicalId();
+         int    SubDet = Detid.subdetId();
+
+         if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
+             SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
+
+             auto DetUnit     = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
+             if(!DetUnit)continue;
+
+             const StripTopology& Topo     = DetUnit->specificTopology();
+             unsigned int         NAPV     = Topo.nstrips()/128;
+
+             double Eta     = DetUnit->position().basicVector().eta();
+             double R       = DetUnit->position().basicVector().transverse();
+             double Thick   = DetUnit->surface().bounds().thickness();
+
+             stModInfo* MOD = new stModInfo;
+             MOD->DetId     = Detid.rawId();
+             MOD->SubDet    = SubDet;
+             MOD->Eta       = Eta;
+             MOD->R         = R;
+             MOD->Thickness = Thick;
+             MOD->NAPV      = NAPV;
+             MODsColl[MOD->DetId] = MOD;
+         }
+      }
+ 
+      MakeCalibrationMap();
+   }
+
 }
+
+void  DeDxDiscriminatorProducer::endStream()
+{
+   MODsColl.clear();
+}
+
 
 
 void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -262,28 +236,30 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
 
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   m_tracker = tkGeom.product();
  
    std::vector<DeDxData> dEdxDiscrims( TrajToTrackMap.size() );
-   std::vector<double> vect_probs; vect_probs.reserve(30);
+
    unsigned track_index = 0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
       dEdxDiscrims[track_index] = DeDxData(-1, -2, 0 );
 
-      const Track  &     track = *it->val;
-      const Trajectory & traj  = *it->key;
+      const Track      track = *it->val;
+      const Trajectory traj  = *it->key;
 
+      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){continue;}
       if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){continue;}
       if(track.found()<MinTrackHits                                    ){continue;}
-      if(track.eta()  <MinTrackEta	|| track.eta()>MaxTrackEta     ){continue;}
 
-
-      vect_probs.clear();
-      vector<TrajectoryMeasurement> const & measurements = traj.measurements();
+      std::vector<double> vect_probs;
+      vector<TrajectoryMeasurement> measurements = traj.measurements();
 
       unsigned int NClusterSaturating = 0;
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
 
-         TrajectoryStateOnSurface const & trajState = measurement_it->updatedState();
+         TrajectoryStateOnSurface trajState = measurement_it->updatedState();
          if( !trajState.isValid() ) continue;
 
          const TrackingRecHit*         hit                 = (*measurement_it->recHit()).hit();
@@ -291,16 +267,16 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
          const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 	 
-	 
+	 double Prob;
          if(sistripsimplehit){
-       		auto Prob = GetProbability(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId());	    
+       		Prob = GetProbability(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId());	    
 	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimplehit)->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);             
             
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripsimplehit),sistripsimplehit->geographicalId())>0)NClusterSaturating++;
 
          }else if(sistripmatchedhit){
-	        auto Prob = GetProbability(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoId());
+	        Prob = GetProbability(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoId());
 	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripmatchedhit->monoHit())->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
            
@@ -310,7 +286,7 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripmatchedhit->monoHit()),sistripmatchedhit->monoId())  >0)NClusterSaturating++;
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()),sistripmatchedhit->stereoId())>0)NClusterSaturating++;
          }else if(sistripsimple1dhit){ 
-	        auto Prob = GetProbability(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId());
+	        Prob = GetProbability(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId());
 	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimple1dhit)->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
 		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripsimple1dhit),sistripsimple1dhit->geographicalId())>0)NClusterSaturating++;
@@ -340,12 +316,13 @@ int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cl
 						      const uint32_t &               detId){
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
 
-   auto const & MOD  = runCache()->MODsColl[detId];
+   stModInfo* MOD                         = NULL;
+   if(useCalibration)MOD                  = MODsColl[detId];
 
    int SaturatingStrip = 0;
    for(unsigned int i=0;i<ampls.size();i++){
       int StripCharge = ampls[i];
-      if(useCalibration){StripCharge = (int)(StripCharge / MOD.Gain);}
+      if(MOD){StripCharge = (int)(StripCharge / MOD->Gain);}
       if(StripCharge>=254)SaturatingStrip++;
    }
    return SaturatingStrip;
@@ -360,7 +337,7 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
    //   uint32_t                detId          = cluster->geographicalId();
    //   int                     firstStrip     = cluster->firstStrip();
-   auto & MOD  = runCache()->MODsColl[detId];
+   stModInfo* MOD                         = MODsColl[detId];
 
 
    // Sanity Checks
@@ -375,7 +352,7 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster
    if(useCalibration){
       for(unsigned int i=0;i<ampls.size();i++){
          int CalibratedCharge = ampls[i];
-         CalibratedCharge = (int)(CalibratedCharge / MOD.Gain);
+         CalibratedCharge = (int)(CalibratedCharge / MOD->Gain);
          if(CalibratedCharge>=1024){
             CalibratedCharge = 255;
          }else if(CalibratedCharge>254){
@@ -386,7 +363,7 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster
    }else{
       charge = DeDxDiscriminatorTools::charge(ampls);
    }
-   double path   = DeDxDiscriminatorTools::path(cosine,MOD.Thickness);
+   double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
 
    int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(trajState.localMomentum().mag());
    int    BinY   = Prob_ChargePath->GetYaxis()->FindBin(path);
@@ -449,6 +426,31 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
    return estimator;
 }
 
+
+void DeDxDiscriminatorProducer::MakeCalibrationMap(){
+   if(!useCalibration)return;
+
+
+   TChain* t1 = new TChain("SiStripCalib/APVGain");
+   t1->Add(m_calibrationPath.c_str());
+
+   unsigned int  tree_DetId;
+   unsigned char tree_APVId;
+   double        tree_Gain;
+
+   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
+   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
+   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+       t1->GetEntry(ientry);
+       stModInfo* MOD  = MODsColl[tree_DetId];
+       MOD->Gain = tree_Gain;
+   }
+
+   delete t1;
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DeDxDiscriminatorProducer);
