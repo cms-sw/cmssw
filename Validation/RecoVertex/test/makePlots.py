@@ -4,8 +4,8 @@ import re
 files = ['DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root']
 
 folders = [
-    'DQMData/Run 1/Validation/Run summary/Vertices/selectedOfflinePrimaryVertices',
-    'DQMData/Run 1/Validation/Run summary/Vertices/selectedPixelVertices'
+    'DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV/selectedOfflinePrimaryVertices',
+    'DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV/selectedPixelVertices'
 ]
 
 histo_names = [
