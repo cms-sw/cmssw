@@ -3,16 +3,16 @@ import FWCore.ParameterSet.Config as cms
 def agePixel(process,lumi):
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'pixel') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
         process.mix.digitizers.pixel.DoPixelAging = cms.bool(True)
-        if lumi>299:
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(1.0)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.36)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.21)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.07)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.43)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.43)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.43)
+        if lumi>299:#scenario updated with new values E. Migliore et al. 140807
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(0.4)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.3)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.0)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.0)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.36)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.36)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.36)
             
-        if lumi>399:
+        if lumi>399:#scenario not updated 
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(1.2)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.43)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.26)
@@ -21,16 +21,16 @@ def agePixel(process,lumi):
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.51)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.51)
                 
-        if lumi>499:
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(1.5)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.56)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.32)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.11)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.64)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.64)
-            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.64)
+        if lumi>499:#scenario updated with new values E. Migliore et al. 140807
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(0.7)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.35)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.3)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.0)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.42)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.42)
+            process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.42)
             
-        if lumi>599:
+        if lumi>599:#scenario not updated 
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(0.0)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.8)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.48)
@@ -38,15 +38,15 @@ def agePixel(process,lumi):
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.96)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.96)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.96)
-            
-        if lumi>699:
+           
+        if lumi>699:#scenario not updated 
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(0.8)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(1.0)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.6)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.2)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(1.2)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(1.2)
-        if lumi>799:
+        if lumi>799:#scenario not updated 
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(1.0)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(1.2)
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.72)
