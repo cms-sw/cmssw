@@ -1,24 +1,19 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerByMatchedObject.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Math/interface/deltaR.h"
-
 #include <TMath.h>
 
 ShiftedPFCandidateProducerByMatchedObject::ShiftedPFCandidateProducerByMatchedObject(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  srcPFCandidates_ = cfg.getParameter<edm::InputTag>("srcPFCandidates");
-  srcUnshiftedObjects_ = cfg.getParameter<edm::InputTag>("srcUnshiftedObjects");
-  srcShiftedObjects_ = cfg.getParameter<edm::InputTag>("srcShiftedObjects");
+  srcPFCandidates_ = consumes<edm::Handle<reco::PFCandidateCollection> >(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcUnshiftedObjects_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcUnshiftedObjects"));
+  srcShiftedObjects_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcShiftedObjects"));
 
   dRmatch_PFCandidate_ = cfg.getParameter<double>("dRmatch_PFCandidate");
+  dR2match_PFCandidate_ = dRmatch_PFCandidate_*dRmatch_PFCandidate_;
   dRmatch_Object_ = cfg.exists("dRmatch_Object") ?
     cfg.getParameter<double>("dRmatch_Object") : 0.1;
-
+  dR2match_Object_ = dRmatch_Object_*dRmatch_Object_;
   produces<reco::PFCandidateCollection>();
 }
 
@@ -30,34 +25,37 @@ ShiftedPFCandidateProducerByMatchedObject::~ShiftedPFCandidateProducerByMatchedO
 void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   edm::Handle<reco::PFCandidateCollection> originalPFCandidates;
-  evt.getByLabel(srcPFCandidates_, originalPFCandidates);
+  evt.getByToken(srcPFCandidates_, originalPFCandidates);
 
   typedef edm::View<reco::Candidate> CandidateView;
 
   edm::Handle<CandidateView> unshiftedObjects;
-  evt.getByLabel(srcUnshiftedObjects_, unshiftedObjects);
+  evt.getByToken(srcUnshiftedObjects_, unshiftedObjects);
 
   edm::Handle<CandidateView> shiftedObjects;
-  evt.getByLabel(srcShiftedObjects_, shiftedObjects);
+  evt.getByToken(srcShiftedObjects_, shiftedObjects);
 
   objects_.clear();
   
+  CandidateView::const_iterator shiftedObjectP4_matched;
+  bool isMatched_Object = false;
+  double dR2bestMatch_Object = 1.e+3;
   for ( CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
 	unshiftedObject != unshiftedObjects->end(); ++unshiftedObject ) {
-    bool isMatched_Object = false;
-    double dRbestMatch_Object = 1.e+3;
-    reco::Candidate::LorentzVector shiftedObjectP4_matched;
+    isMatched_Object = false;
+    dR2bestMatch_Object = 1.e+3;
+   
     for ( CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
 	shiftedObject != shiftedObjects->end(); ++shiftedObject ) {
-      double dR = deltaR(unshiftedObject->p4(), shiftedObject->p4());
-      if ( dR < dRmatch_Object_ && dR < dRbestMatch_Object ) {
-	shiftedObjectP4_matched = shiftedObject->p4();
+      double dR2 = deltaR2(unshiftedObject->p4(), shiftedObject->p4());
+      if ( dR2 < dR2match_Object_ && dR2 < dR2bestMatch_Object ) {
+	shiftedObjectP4_matched = shiftedObject;
 	isMatched_Object = true;
-	dRbestMatch_Object = dR;
+	dR2bestMatch_Object = dR2;
       }
     }
     if ( isMatched_Object ) {
-      objects_.push_back(objectEntryType(shiftedObjectP4_matched, unshiftedObject->p4(), dRbestMatch_Object));
+      objects_.push_back(objectEntryType(shiftedObjectP4_matched->p4(), unshiftedObject->p4(), sqrt(dR2bestMatch_Object) ));
     }
   }
  
@@ -68,15 +66,15 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
     
     double shift = 0.;
     bool applyShift = false;
-    double dRbestMatch_PFCandidate = 1.e+3;
+    double dR2bestMatch_PFCandidate = 1.e+3;
     for ( std::vector<objectEntryType>::const_iterator object = objects_.begin();
 	  object != objects_.end(); ++object ) {
       if ( !object->isValidMatch_ ) continue;
-      double dR = deltaR(originalPFCandidate->p4(), object->unshiftedObjectP4_);
-      if ( dR < dRmatch_PFCandidate_ && dR < dRbestMatch_PFCandidate ) {
+      double dR2 = deltaR2(originalPFCandidate->p4(), object->unshiftedObjectP4_);
+      if ( dR2 < dR2match_PFCandidate_ && dR2 < dR2bestMatch_PFCandidate ) {
 	shift = object->shift_;
 	applyShift = true;
-	dRbestMatch_PFCandidate = dR;
+	dR2bestMatch_PFCandidate = dR2;
       }
     }
     
