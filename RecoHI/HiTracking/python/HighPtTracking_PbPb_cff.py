@@ -27,7 +27,7 @@ hiGlobalPrimTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWi
 from RecoHI.HiTracking.HISelectedTracks_cfi import *
 
 ### paths
-heavyIonTracking = cms.Sequence(hiPixelVertices
+hiBasicTracking = cms.Sequence(hiPixelVertices
                                 * hiPrimSeeds
                                 * hiPrimTrackCandidates
                                 * hiGlobalPrimTracks
