@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
-                                     subDirs = cms.untracked.vstring("Validation/Vertices/*"),
+                                     subDirs = cms.untracked.vstring("Vertexing/PrimaryVertexV/*"),
                                      efficiency = cms.vstring(
                                          "effic_vs_NumVertices 'Efficiency vs NumVertices' GenAllAssoc2RecoMatched_NumVertices GenAllAssoc2Reco_NumVertices",
                                          "effic_vs_Z 'Efficiency vs Z' GenAllAssoc2RecoMatched_Z GenAllAssoc2Reco_Z",
