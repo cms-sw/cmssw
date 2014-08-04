@@ -124,9 +124,15 @@ MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
   nRxLinks_ = iConfig.getUntrackedParameter<int>("nRxLinks", 72);
   nTxLinks_ = iConfig.getUntrackedParameter<int>("nTxLinks", 72);
 
-  nRxEventHeaders_ = iConfig.getUntrackedParameter<int>("nRxEventHeaders", 1);
+  nRxEventHeaders_ = iConfig.getUntrackedParameter<int>("nRxEventHeaders", 0);
   nTxEventHeaders_ = iConfig.getUntrackedParameter<int>("nTxEventHeaders", 0);
 
+  if (nRxEventHeaders_>1) {
+    edm::LogError("mp7") << "Invalid config : nRxEventHeaders can be 0 or 1" << std::endl;
+  }
+  if (nTxEventHeaders_>1) {
+    edm::LogError("mp7") << "Invalid config : nTxEventHeaders can be 0 or 1" << std::endl;
+  }
 
   // DAQ parameters
   fedId_ = iConfig.getUntrackedParameter<int>("fedId", 1);
