@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 particleFlowRecHitHGCHEB = cms.EDProducer("PFRecHitProducer",
+    useHitMap = cms.untracked.bool(True),
     navigator = cms.PSet(
         name = cms.string("PFRecHitHGCHENavigator"),
         topologySource = cms.string("HGCalHEScintillatorSensitive"),

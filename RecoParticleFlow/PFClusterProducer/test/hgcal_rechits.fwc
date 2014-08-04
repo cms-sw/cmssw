@@ -96,10 +96,10 @@
  <config name="EventItems" version="1">
   <config name="Jets" version="6">
    <config name="type" version="0">
-     <string>std::vector&lt;reco::CaloJet&gt;</string>
+     <string>std::vector&lt;reco::PFJet&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>iterativeCone5CaloJets</string>
+     <string>ak5PFJets</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -362,10 +362,10 @@
   </config>
   <config name="MET" version="6">
    <config name="type" version="0">
-     <string>std::vector&lt;reco::MET&gt;</string>
+     <string>std::vector&lt;reco::PFMET&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>tcMet</string>
+     <string>pfMet</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -652,7 +652,7 @@
      <string>1009</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>31</string>
@@ -686,7 +686,7 @@
      <string>1011</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>32</string>
@@ -720,13 +720,123 @@
      <string>1014</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>33</string>
    </config>
    <config name="purpose" version="0">
      <string>Calo Cluster</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="genParticles" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::GenParticle&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>genParticles</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1019</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>34</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>GenParticles</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="MarkerStyle" version="0">
+       <string>0</string>
+     </config>
+     <config name="MarkerSize" version="0">
+       <string>2</string>
+     </config>
+    </config>
+   </config>
+  </config>
+  <config name="g4SimHits" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;SimTrack&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>g4SimHits</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1029</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>35</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>SimTracks</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="particleFlow" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::PFCandidate&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>particleFlow</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1000</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>36</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>PF Candidates</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -787,7 +897,7 @@
      <string>54</string>
    </config>
    <config name="y" version="0">
-     <string>31</string>
+     <string>44</string>
    </config>
    <config name="width" version="0">
      <string>1263</string>
@@ -901,22 +1011,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.660885</string>
+      <string>-0.401173</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.653181</string>
+      <string>-0.563483</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.369579</string>
+      <string>0.722185</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.702949</string>
+      <string>0.814632</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.71124</string>
+      <string>-0.579978</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -925,25 +1035,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.262858</string>
+      <string>0.41885</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.259795</string>
+      <string>0.588315</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.9292</string>
+      <string>0.691701</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>-2205.43</string>
+      <string>-1458.17</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2147.69</string>
+      <string>-2016.83</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>1314.98</string>
+      <string>2612.92</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -985,19 +1095,19 @@
       <string>0</string>
     </config>
     <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>-0.180542</string>
+      <string>-52.4547</string>
     </config>
     <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>0.521286</string>
+      <string>-37.8377</string>
     </config>
     <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>24.0227</string>
+      <string>317.74</string>
     </config>
     <config name="cameraMatrixBase15Plain3D" version="0">
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>28.329</string>
+      <string>3.09973</string>
     </config>
    </config>
    <config name="Rho Phi" version="7">
@@ -1399,7 +1509,7 @@
     <string>0</string>
   </config>
   <config name="reco::CaloJet" version="1">
-    <string>Pt</string>
+    <string>pT</string>
     <string>pt</string>
     <string>1</string>
     <string>eta</string>
@@ -1416,12 +1526,6 @@
     <string>1</string>
     <string>emf</string>
     <string>emEnergyFraction()</string>
-    <string>3</string>
-    <string>size_eta</string>
-    <string>sqrt(etaetaMoment)</string>
-    <string>3</string>
-    <string>size_phi</string>
-    <string>sqrt(phiphiMoment)</string>
     <string>3</string>
   </config>
   <config name="reco::GenParticle" version="1">
@@ -1482,7 +1586,7 @@
     <string>3</string>
   </config>
   <config name="reco::MET" version="1">
-    <string>MET</string>
+    <string>et</string>
     <string>et</string>
     <string>1</string>
     <string>phi</string>
@@ -1532,6 +1636,46 @@
     <string>charge</string>
     <string>charge</string>
     <string>0</string>
+  </config>
+  <config name="reco::PFJet" version="1">
+    <string>Pt</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>ECAL</string>
+    <string>p4().E() * emEnergyFraction()</string>
+    <string>1</string>
+    <string>HCAL</string>
+    <string>p4().E() * energyFractionHadronic()</string>
+    <string>1</string>
+    <string>emf</string>
+    <string>emEnergyFraction()</string>
+    <string>3</string>
+    <string>size_eta</string>
+    <string>sqrt(etaetaMoment)</string>
+    <string>3</string>
+    <string>size_phi</string>
+    <string>sqrt(phiphiMoment)</string>
+    <string>3</string>
+  </config>
+  <config name="reco::PFMET" version="1">
+    <string>MET</string>
+    <string>et</string>
+    <string>1</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>sumEt</string>
+    <string>sumEt</string>
+    <string>1</string>
+    <string>mEtSig</string>
+    <string>mEtSig</string>
+    <string>3</string>
   </config>
   <config name="reco::Photon" version="1">
     <string>pT</string>
@@ -1634,6 +1778,8 @@
     <string>reco::Jet</string>
     <string>reco::MET</string>
     <string>reco::Muon</string>
+    <string>reco::PFJet</string>
+    <string>reco::PFMET</string>
     <string>reco::Photon</string>
     <string>reco::Track</string>
     <string>reco::Vertex</string>
