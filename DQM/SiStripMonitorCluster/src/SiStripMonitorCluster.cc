@@ -558,7 +558,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       } else found_module_me = false;
 
       edmNew::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
-      std::cout << "isearch: " << isearch << std::endl;
 
       if(isearch==cluster_detsetvektor->end()){
 	if(found_module_me && moduleswitchncluson && (mod_single.NumberOfClusters)){
