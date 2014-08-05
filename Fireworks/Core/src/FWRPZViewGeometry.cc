@@ -60,7 +60,8 @@ FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    m_pixelEndcapElements(0),
    m_trackerBarrelElements(0),
    m_trackerEndcapElements(0),
-   m_rpcEndcapElements(0)
+   m_rpcEndcapElements(0),
+   m_GEMElements(0)
 {
    SetElementName("RPZGeomShared");
 }
