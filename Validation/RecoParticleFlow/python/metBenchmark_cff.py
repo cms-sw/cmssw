@@ -9,7 +9,7 @@ from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 from JetMETCorrections.Type1MET.MetType1Corrections_cff import metJESCorAK5CaloJet
 
 metMuonJESCorAK5 = metJESCorAK5CaloJet.clone()
-metMuonJESCorAK5.inputUncorMetLabel = "corMetGlobalMuons"
+metMuonJESCorAK5.inputUncorMetLabel = "caloMetM"
 
 metCorSequence = cms.Sequence(metMuonJESCorAK5)
 #########
@@ -47,8 +47,8 @@ MatchCaloMetBenchmark.mode = 2
 MatchCaloMetBenchmark.BenchmarkLabel = 'metMuonJESCorAK5'
 
 UncorrCaloMetBenchmark = metBenchmark.clone()
-UncorrCaloMetBenchmark.InputCollection = 'corMetGlobalMuons'
-UncorrCaloMetBenchmark.BenchmarkLabel = 'corMetGlobalMuons'
+UncorrCaloMetBenchmark.InputCollection = 'caloMetM'
+UncorrCaloMetBenchmark.BenchmarkLabel = 'caloMetM'
 UncorrCaloMetBenchmark.mode = 2
 
 metBenchmarkSequence = cms.Sequence( metCorSequence+pfMetBenchmark+caloMetBenchmark+trueMetBenchmark+MatchPfMetBenchmark+MatchCaloMetBenchmark )
