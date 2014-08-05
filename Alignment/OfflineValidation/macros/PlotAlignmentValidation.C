@@ -461,7 +461,6 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	TString myTitle = "Surface Shape, ";
 	myTitle += subDetName;
-	// TODO: move "layer"/"disc" below into the legend, like with DMRs !!!!
 	if (layer!=0) {
 	  // TEC and TID have discs, the rest have layers
 	  if (iSubDet==4 || iSubDet==6)
@@ -489,7 +488,7 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	  hs->Add(defhist);
 	  hs->SetTitle( myTitle );
 	  hs->Draw();
-	} // !!!! default. asd
+	}
 	else {
 	  hs->SetTitle( myTitle );
 	  hs->Draw("nostack PE");
@@ -537,7 +536,7 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	f.Close();
 
 	delete legend;
-	delete hs; // !!!! Delete everything in it, too?
+	delete hs;
       }
     }
   }
@@ -625,10 +624,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   if (variable == "meanX") {          plotinfo.nbins = 50;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanY") {     plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
   else if (variable == "medianX")
-    if (plotSplits) {                 plotinfo.nbins = 50;  plotinfo.min = -0.0005; plotinfo.max = 0.0005;} // !!!!
+    if (plotSplits) {                 plotinfo.nbins = 50;  plotinfo.min = -0.0005; plotinfo.max = 0.0005;}
     else {                            plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "medianY")
-    if (plotSplits) {                 plotinfo.nbins = 50;  plotinfo.min = -0.0005; plotinfo.max = 0.0005;} // !!!!
+    if (plotSplits) {                 plotinfo.nbins = 50;  plotinfo.min = -0.0005; plotinfo.max = 0.0005;}
     else {                            plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanNormX") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
   else if (variable == "meanNormY") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
@@ -739,17 +738,17 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     }
 
-    if (plotinfo.h != 0 || plotinfo.h1 != 0 || plotinfo.h2 != 0) { // !!!!
+    if (plotinfo.h != 0 || plotinfo.h1 != 0 || plotinfo.h2 != 0) {
 
       hstack.Draw("nostack");
-      hstack.SetMaximum(plotinfo.maxY*1.3); // !!!! Surf. shapeihinkin?
+      hstack.SetMaximum(plotinfo.maxY*1.3);
       setTitleStyle(hstack, variable.c_str(), "#modules", plotinfo.subDetId);
       setHistStyle(*hstack.GetHistogram(), variable.c_str(), "#modules", 1);
 
       plotinfo.legend->Draw(); 
     }
     else {
-      // Draw an empty default histogram !!!! asd
+      // Draw an empty default histogram
       plotinfo.h = new TH1F("defhist", "Empty default histogram", plotinfo.nbins, plotinfo.min, plotinfo.max);
       if (plotinfo.variable.find("Norm") == std::string::npos)
         scaleXaxis(plotinfo.h, 10000);
@@ -808,7 +807,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     c.Write();
     f.Close();
     
-    // !!!! ?? Free allocated memory.
+    // Free allocated memory.
     delete plotinfo.h;
     delete plotinfo.h1;
     delete plotinfo.h2;
@@ -866,6 +865,22 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   if (l != 0) {
     l->SetX1NDC(0.25);
     l->SetY1NDC(0.86);
+  }
+
+  // Move stat boxes slightly right so that the border lines fit in
+  int i = 1;
+  for (TH1F* h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", i); h != 0;
+       h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", ++i)) {
+        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
+        if (s != 0)
+          s->SetX2NDC(0.995);
+  }
+  i = 1;
+  for (TH1F* h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", i); h != 0;
+       h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", ++i)) {
+        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
+        if (s != 0)
+          s->SetX2NDC(0.995);
   }
 
   chiprob->Draw();
@@ -1117,7 +1132,7 @@ void  PlotAlignmentValidation::setNiceStyle() {
     zoff = MyStyle->GetLabelOffset("Z");
 
   MyStyle->SetCanvasBorderMode ( 0 );
-  MyStyle->SetFrameBorderMode ( 0 ); // !!!! to get rid of the red lines around the borders
+  MyStyle->SetFrameBorderMode ( 0 );
   MyStyle->SetPadBorderMode    ( 0 );
   MyStyle->SetPadColor         ( 0 );
   MyStyle->SetCanvasColor      ( 0 );
@@ -1447,6 +1462,6 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
     index++;
   }
 
-  // Make some room for the legend !!!!
+  // Make some room for the legend
   hs->SetMaximum(hs->GetMaximum("nostack PE")*1.3);
 }
