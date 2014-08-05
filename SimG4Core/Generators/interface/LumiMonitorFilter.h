@@ -1,7 +1,7 @@
 #ifndef SimG4Core_LumiMonitorFilter_H
 #define SimG4Core_LumiMonitorFilter_H
 
-class GenParticle;
+#include "HepMC/GenParticle.h"
 
 class LumiMonitorFilter
 {
@@ -10,7 +10,7 @@ public:
   virtual ~LumiMonitorFilter();
 
   void Describe() const; 
-  bool isGoodForLumiMonitor(const GenParticle*) const;
+  bool isGoodForLumiMonitor(const HepMC::GenParticle*) const;
 
 private:
 

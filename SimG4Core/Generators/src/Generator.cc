@@ -87,7 +87,7 @@ Generator::Generator(const ParameterSet & p) :
     << " cm;  Z_hector = " << Z_hector << " cm\n"
     << "ApplyPCuts: " << fPCuts << "  ApplyPtransCut: " << fPtransCut
     << "  ApplyEtaCuts: " << fEtaCuts 
-    << "  ApplyPhiCuts: " << fPhiCuts;
+    << "  ApplyPhiCuts: " << fPhiCuts
     << "  ApplyLumiMonitorCuts: " << lumi;
   if(lumi) { fLumiFilter->Describe(); }
 }
@@ -311,7 +311,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	      continue;
 	    }
 	  }
-	  if(fLumiFilter && !IsGoodForLumiMonitors(*pitr)) { continue; }
+	  if(fLumiFilter && !fLumiFilter->isGoodForLumiMonitor(*pitr)) 
+	    { continue; }
 	  toBeAdded = true;
 	  if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
 	    << "GenParticle barcode = " << (*pitr)->barcode() 

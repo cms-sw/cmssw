@@ -2,10 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "HepMC/GenParticle.h"
-
-#include "G4Event.hh"
-
 using namespace edm;
 //using std::cout;
 //using std::endl;
@@ -16,13 +12,13 @@ LumiMonitorFilter::LumiMonitorFilter()
 LumiMonitorFilter::~LumiMonitorFilter() 
 {}
 
-void LumiMonitorFilter::Describe() 
+void LumiMonitorFilter::Describe() const
 {
   edm::LogInfo("LumiMonitorFilter") 
     << " is active ";
 }
 
-bool LumiMonitorFilter::isGoodForLumiMonitor(const GenParticle*) const
+bool LumiMonitorFilter::isGoodForLumiMonitor(const HepMC::GenParticle*) const
 {
   return true;
 }
