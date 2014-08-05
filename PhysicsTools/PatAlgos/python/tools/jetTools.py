@@ -491,10 +491,10 @@ class AddJetCollection(ConfigToolBase):
                     from JetMETCorrections.Type1MET.correctionTermsCaloMet_cff import corrCaloMetType2
                     from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1
                     from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1T2
-                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrCaloMetType1.clone(src=jetSource,srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrCaloMetType1.clone(src=jetSource,srcMET = "caloMetM",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
                     setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix, corrCaloMetType2.clone(srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muCaloMetCorr'))))
-                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, caloMetT1.clone(src = "corMetGlobalMuons", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
-                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, caloMetT1T2.clone(src = "corMetGlobalMuons", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, caloMetT1.clone(src = "caloMetM", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, caloMetT1T2.clone(src = "caloMetM", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))))
 
                 elif _type == 'PF':
                     from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import pfJetsPtrForMetCorr
