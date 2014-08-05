@@ -39,6 +39,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_BTagCSV07
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1', 
     'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v1', 
     'HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1', 
+    'HLT_Mu30_TkMu11_v1', 
     'HLT_Mu40_v1', 
     'HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1', 
     'HLT_PFHT650_v1', 

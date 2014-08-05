@@ -1,6 +1,7 @@
 # "HIon" menu
 
 HLT_CaloJet260_v*                                       # JIRA: CMSHLT-67
+
 HLT_Physics_v*						# skim
 
 HLTriggerFirstPath
@@ -17,7 +18,7 @@ DQMOutput						# online DQMFileSaver
 #EcalCalibrationOutput
 #ExpressForHIOutput
 #HLTDQMOutput
-#HLTDQMResultsOutput										# Removed from the master since /dev/CMSSW_5_2_1/HLT/V435
+#HLTDQMResultsOutput					# Removed from the master since /dev/CMSSW_5_2_1/HLT/V435
 #HLTMONOutput
 #NanoDSTOutput
 #RPCMONOutput
