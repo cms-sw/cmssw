@@ -85,7 +85,7 @@ pfMetAnalyzer = cms.EDAnalyzer(
 #corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
 #    "METTester",
 #     OutputFile = cms.untracked.string(''),
-#    InputMETLabel = cms.InputTag("corMetGlobalMuons"),
+#    InputMETLabel = cms.InputTag("caloMetM"),
 #    METType = cms.untracked.string("cor")
 #    ) 
 
