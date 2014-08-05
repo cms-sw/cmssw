@@ -33,7 +33,6 @@ HLT_PFJet40_v*						# JIRA: CMSHLT-67
 HLT_PFJet260_v*						# JIRA: CMSHLT-67
 HLT_PFNoPUJet260_v*					# JIRA: CMSHLT-67
 HLT_CaloJet260_v*					# JIRA: CMSHLT-67
-HLT_JetE50_NoBPTX3BX_NoHalo_v*				# JIRA: CMSHLT-67
 HLT_HT650_v*						# JIRA: CMSHLT-67
 HLT_PFNoPUHT650_v*					# JIRA: CMSHLT-67
 HLT_PFHT650_v*						# JIRA: CMSHLT-67
@@ -88,6 +87,22 @@ HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v*		# JIRA: CMSHLT-82
 #HLT_Photon300_NoHE_VBF_v*					# JIRA: CMSHLT-83, no DQM yet
 
 HLT_Mu30_TkMu11_v*						# JIRA: CMSHLT-84
+
+#HLT_L2Mu10_NoVertex_NoBPTX_v*					# JIRA: CMSHLT-87
+#HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*			# JIRA: CMSHLT-87
+#HLT_L2Mu20_NoVertex_3Sta_NoBPTX3BX_NoHalo_v*			# JIRA: CMSHLT-87
+#HLT_L2Mu30_NoVertex_3Sta_NoBPTX3BX_NoHalo_v*			# JIRA: CMSHLT-87
+#HLT_JetE30_NoBPTX_v*						# JIRA: CMSHLT-87
+#HLT_JetE30_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87
+HLT_JetE50_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87 (previous version in CMSHLT-67)
+#HLT_JetE70_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87
+
+#HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*			# JIRA: CMSHLT-88
+#HLT_Ele95_CaloIdVT_GsfTrkIdT_v*				# JIRA: CMSHLT-88
+#HLT_DoublePho85_v*						# JIRA: CMSHLT-88
+#HLT_Photon155_v*						# JIRA: CMSHLT-88
+
+#HLT_PFNoPUHT750_4Jet_v*					# JIRA: CMSHLT-89
 
 HLT_Physics_v*							# skim
 
