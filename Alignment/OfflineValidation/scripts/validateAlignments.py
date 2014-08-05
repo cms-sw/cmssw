@@ -36,6 +36,14 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
 
 ####################--- Classes ---############################
 class ValidationJob:
+
+    # these count the jobs of different varieties that are being run
+    crabCount = 0
+    interactCount = 0
+    batchCount = 0
+    batchJobIds = []
+    jobCount = 0
+
     def __init__( self, validation, config, options ):
         if validation[1] == "":
             # intermediate syntax
@@ -160,6 +168,7 @@ class ValidationJob:
             print ">             Validating "+name
             if self.validation.jobmode == "interactive":
                 log += getCommandOutput2( script )
+                ValidationJob.interactCount += 1
             elif self.validation.jobmode.split(",")[0] == "lxBatch":
                 repMap = { 
                     "commands": self.validation.jobmode.split(",")[1],
@@ -168,10 +177,16 @@ class ValidationJob:
                     "script": script,
                     "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub"
                     }
-                log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
-                                       "-o %(logDir)s/%(jobName)s.stdout -e "
-                                       "%(logDir)s/%(jobName)s.stderr "
-                                       "%(script)s"%repMap)
+                bsubOut=getCommandOutput2("%(bsub)s %(commands)s "
+                                          "-J %(jobName)s "
+                                          "-o %(logDir)s/%(jobName)s.stdout "
+                                          "-e %(logDir)s/%(jobName)s.stderr "
+                                          "%(script)s"%repMap)
+                #Attention: here it is assumed, that bsub returns a string
+                #containing a job id like <123456789>
+		ValidationJob.batchJobIds.append(bsubOut.split("<")[1].split(">")[0])
+		log+=bsubOut
+                ValidationJob.batchCount += 1
             elif self.validation.jobmode.split( "," )[0] == "crab":
                 os.chdir( general["logdir"] )
                 crabName = "crab." + os.path.basename( script )[:-3]
@@ -184,6 +199,8 @@ class ValidationJob:
                 except AllInOneError, e:
                     print "crab:", str(e).split("\n")[0]
                     exit(1)
+                ValidationJob.crabCount += 1
+
             else:
                 raise AllInOneError, ("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
@@ -193,6 +210,7 @@ class ValidationJob:
                                       "values:\n"
                                       "\tinteractive\n\tlxBatch, -q <queue>\n"
                                       "\tcrab, -q <queue>")
+            ValidationJob.jobCount += 1
         return log
 
     def getValidation( self ):
@@ -532,7 +550,24 @@ def main(argv = None):
 
     print
     map( lambda job: job.runJob(), jobs )
-    
+
+    # if everything is done as batch job, also submit TkAlMerge.sh to be run
+    # after the jobs have finished
+    if ValidationJob.jobCount == ValidationJob.batchCount and config.getGeneral()["jobmode"].split(",")[0] == "lxBatch":
+        print ">             Automatically merging jobs when they have ended"
+        repMap = {
+            "commands": config.getGeneral()["jobmode"].split(",")[1],
+            "jobName": "TkAlMerge",
+            "logDir": config.getGeneral()["logdir"],
+            "script": "TkAlMerge.sh",
+            "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub",
+            "conditions": '"' + " && ".join(["ended(" + jobId + ")" for jobId in ValidationJob.batchJobIds]) + '"'
+            }
+        getCommandOutput2("%(bsub)s %(commands)s "
+                          "-o %(logDir)s/%(jobName)s.stdout "
+                          "-e %(logDir)s/%(jobName)s.stderr "
+                          "-w %(conditions)s "
+                          "%(logDir)s/%(script)s"%repMap)
 
 if __name__ == "__main__":        
     # main(["-n","-N","test","-c","defaultCRAFTValidation.ini,latestObjects.ini","--getImages"])
