@@ -204,7 +204,7 @@ void writeMessage(const dqmstorepb::ROOTFilePB &dqmstore_output_msg,
                       O_WRONLY | O_CREAT | O_TRUNC,
                       S_IRUSR | S_IWUSR |
                       S_IRGRP | S_IWGRP |
-                      S_IROTH | S_IWOTH);
+                      S_IROTH);
   FileOutputStream out_stream(out_fd);
   GzipOutputStream::Options options;
   options.format = GzipOutputStream::GZIP;
