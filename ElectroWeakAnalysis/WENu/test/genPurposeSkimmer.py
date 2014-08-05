@@ -54,7 +54,7 @@ process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff
 process.metMuonJESCorSC5 = process.metJESCorSC5CaloJet.clone()
 process.metMuonJESCorSC5.inputUncorJetsLabel = "sisCone5CaloJets"
 process.metMuonJESCorSC5.corrector = "L2L3JetCorrectorSC5Calo"
-process.metMuonJESCorSC5.inputUncorMetLabel = "corMetGlobalMuons"
+process.metMuonJESCorSC5.inputUncorMetLabel = "caloMetM"
 
 process.metCorSequence = cms.Sequence(process.metMuonJESCorSC5)
 
