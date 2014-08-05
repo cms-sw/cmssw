@@ -68,8 +68,8 @@ namespace {
 
   void createWatchers(const edm::ParameterSet& iP,
                       SimActivityRegistry& iReg,
-                      std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
-                      std::vector<boost::shared_ptr<SimProducer> >& oProds
+                      std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
+                      std::vector<std::shared_ptr<SimProducer> >& oProds
                       )
   {
     using namespace std;
@@ -89,8 +89,8 @@ namespace {
         throw SimG4Exception("Unable to find the requested Watcher");
       }
 
-      boost::shared_ptr<SimWatcher> watcherTemp;
-      boost::shared_ptr<SimProducer> producerTemp;
+      std::shared_ptr<SimWatcher> watcherTemp;
+      std::shared_ptr<SimProducer> producerTemp;
       maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
       oWatchers.push_back(watcherTemp);
       if(producerTemp) {
@@ -108,8 +108,8 @@ struct RunManagerMTWorker::TLSData {
   std::unique_ptr<SimTrackManager> trackManager;
   std::vector<SensitiveTkDetector*> sensTkDets;
   std::vector<SensitiveCaloDetector*> sensCaloDets;
-  std::vector<boost::shared_ptr<SimWatcher> > watchers;
-  std::vector<boost::shared_ptr<SimProducer> > producers;
+  std::vector<std::shared_ptr<SimWatcher> > watchers;
+  std::vector<std::shared_ptr<SimProducer> > producers;
   std::unique_ptr<sim::FieldBuilder> fieldBuilder;
   std::unique_ptr<G4Run> currentRun;
   edm::RunNumber_t currentRunNumber = 0;
@@ -319,7 +319,7 @@ std::vector<SensitiveCaloDetector*>& RunManagerMTWorker::sensCaloDetectors() {
   initializeTLS();
   return m_tls->sensCaloDets; 
 }
-std::vector<boost::shared_ptr<SimProducer> > RunManagerMTWorker::producers() {
+std::vector<std::shared_ptr<SimProducer> > RunManagerMTWorker::producers() {
   initializeTLS();
   return m_tls->producers;
 }

@@ -8,7 +8,6 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 namespace edm {
   class ParameterSet;
@@ -58,7 +57,7 @@ public:
   SimTrackManager* GetSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
-  std::vector<boost::shared_ptr<SimProducer> > producers();
+  std::vector<std::shared_ptr<SimProducer> > producers();
 
 private:
   void initializeTLS();

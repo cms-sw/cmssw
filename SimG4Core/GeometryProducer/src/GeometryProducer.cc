@@ -30,8 +30,8 @@
 
 static
 void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry& iReg,
-		    std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
-		    std::vector<boost::shared_ptr<SimProducer> >& oProds)
+		    std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
+		    std::vector<std::shared_ptr<SimProducer> >& oProds)
 {
     using namespace std;
     using namespace edm;
@@ -46,8 +46,8 @@ void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry& iReg,
 	    maker(SimWatcherFactory::get()->create(itWatcher->getParameter<std::string> ("type")));
 	if(maker.get()==0) { throw SimG4Exception("Unable to find the requested Watcher"); }
     
-	boost::shared_ptr<SimWatcher> watcherTemp;
-	boost::shared_ptr<SimProducer> producerTemp;
+	std::shared_ptr<SimWatcher> watcherTemp;
+	std::shared_ptr<SimProducer> producerTemp;
 	maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
 	oWatchers.push_back(watcherTemp);
 	if(producerTemp) oProds.push_back(producerTemp);
