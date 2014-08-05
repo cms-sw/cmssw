@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -56,7 +56,7 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFTauPrimaryVertexProducer : public EDProducer {
+class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
  public:
   enum Alg{useInputPV=0, useFontPV};
 
