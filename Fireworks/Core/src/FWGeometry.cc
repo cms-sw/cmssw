@@ -122,7 +122,7 @@ FWGeometry::loadMap( const char* fileName )
 
    TNamed* tag = static_cast<TNamed*>(file->Get( "TAG" ));
    if (tag) {
-      m_prodTag = tag->GetTitle();
+      m_versionInfo.ProcessProductionTag(tag->GetTitle());
    }
 
 
@@ -373,11 +373,18 @@ FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* g
 
 //______________________________________________________________________________
 
-int FWGeometry::getMaxRPCStation() const
+void FWGeometry::VersionInfo::ProcessProductionTag(const char* tag)
 {
-   if (m_prodTag == "2015")
-      return 4;
-   else 
-      return 3;
+   if (!strncmp(tag,"2015",4))
+   {
+      m_haveRE4 = true;
+   }
+   else if (!strncmp(tag,"2019",4))
+   {
+      m_haveRE4 = true;
+      m_haveGEM = true;
+   }
 
+
+   fwLog( fwlog::kDebug ) << Form("FWGeometry::VersionInfo parse tag [%s] GEM=%d RE4=%d \n", tag, m_haveGEM,  m_haveRE4);
 }
