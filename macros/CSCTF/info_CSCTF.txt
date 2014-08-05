@@ -1,0 +1,12 @@
+==================== L1CSCTF_tightRES_GOLDEN_PREL2011.C ===============
+calculate efficiency of pT assignment for CSCTF for 2010, 2011 and 2012 year
+to run:
+
+root.exe -b 
+.x runCSCTF_tightRES_GOLDEN_PREL2011.C
+to change ntuple modify input txt file in runCSCTF_tightRES_GOLDEN_PREL2011.C
+FILE.txt - just a list of files, for example 3 files:
+/DIR/file1.root
+/DIR/file2.root
+/DIR/file3.root
+========================================================================
