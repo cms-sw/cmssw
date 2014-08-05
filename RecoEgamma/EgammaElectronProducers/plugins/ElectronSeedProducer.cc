@@ -241,19 +241,19 @@ void ElectronSeedProducer::filterClusters
     float sclPt = scl.energy()/cosh(sclEta);
     int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
     //if (scl.energy()/cosh(sclEta)>SCEtCut_)
-    if ((sclPt > SCEtCutBarrel_ and detector == EcalBarrel) or (sclPt > SCEtCutEndcap_ and detector == EcalEndcap))
+    if ((sclPt > SCEtCutBarrel_ && detector == EcalBarrel) || (sclPt > SCEtCutEndcap_ && (detector == EcalEndcap || detector==EcalShashlik || detector == HGCEE) ))
       {
 //      if ((applyHOverECut_==true)&&((hcalHelper_->hcalESum(scl)/scl.energy()) > maxHOverE_))
 //       { continue ; }
 //      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
-       double had1, had2, had, scle ;
+	double had1(0), had2(0), had(0), scle(0) ;
        bool HoeVeto = false ;
        if (applyHOverECut_)
         {
 	  if (detector==EcalBarrel) {
 	    had1 = hcalHelperBarrel_->hcalESumDepth1(scl);
 	    had2 = hcalHelperBarrel_->hcalESumDepth2(scl);
-	  } else if (detector==EcalEndcap) {
+	  } else if (detector==EcalEndcap || detector==EcalShashlik) {
 	    had1 = hcalHelperEndcap_->hcalESumDepth1(scl);
 	    had2 = hcalHelperEndcap_->hcalESumDepth2(scl);
 	  }
@@ -261,9 +261,9 @@ void ElectronSeedProducer::filterClusters
          scle = scl.energy() ;
 	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
          //int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if (detector==EcalEndcap && fabs(sclEta) < 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
-         else if (detector==EcalEndcap && fabs(sclEta) > 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEOuterEndcaps_)) HoeVeto=true;
+         if (component==DetId::Ecal && detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
+         else if (component==DetId::Ecal && (detector==EcalEndcap || detector==EcalShashlik ) && fabs(sclEta) < 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if (component==DetId::Ecal && (detector==EcalEndcap || detector==EcalShashlik ) && fabs(sclEta) > 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEOuterEndcaps_)) HoeVeto=true;
 	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {
