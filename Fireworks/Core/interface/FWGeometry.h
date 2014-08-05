@@ -38,6 +38,19 @@ public:
       }
    };
 
+   class VersionInfo {
+   public:
+      VersionInfo() :m_haveRE4(false), m_haveGEM(false) {}
+
+      bool haveRE4() const { return m_haveRE4; }
+      bool haveGEM() const { return m_haveGEM; }
+
+      void ProcessProductionTag(const char*);
+   private:
+      bool m_haveRE4;
+      bool m_haveGEM;
+   };
+
    FWGeometry( void );
 
    ~FWGeometry( void );
@@ -103,16 +116,16 @@ public:
    IdToInfoItr find( unsigned int ) const;
    void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
 
+   const VersionInfo& versionInfo() const { return m_versionInfo; }
 
-   // Utils, related with drawing and versioning
-   int getMaxRPCStation() const;
- 
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
 
    std::string m_prodTag;
+
+   VersionInfo  m_versionInfo;
 
    TGeoShape* getShape( const GeomDetInfo& info ) const;
 };
