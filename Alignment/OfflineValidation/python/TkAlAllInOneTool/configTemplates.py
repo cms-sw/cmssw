@@ -173,6 +173,10 @@ cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 
+#create results-directory and copy used configuration there
+rfmkdir -p .oO[datadir]Oo.
+rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
+
 if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
     mkdir -p .oO[workdir]Oo.
