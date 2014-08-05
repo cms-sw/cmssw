@@ -32,7 +32,7 @@ namespace l1t {
   {
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int jetQual = 0;
-      if( region->hwEta() < 4 || region->hwEta() > 17) 
+      if( region->hwEta() < 4 || region->hwEta() > 17)
 	jetQual = 2;
       int jetET = region->hwPt();
       int jetEta = region->hwEta();
@@ -44,7 +44,8 @@ namespace l1t {
     }
   }
 
-  void slidingWindowJetFinder(const int jetSeedThreshold, const std::vector<l1t::CaloRegion> * regions,
+  void slidingWindowJetFinder(const int jetSeedThreshold,
+			      const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
     // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;

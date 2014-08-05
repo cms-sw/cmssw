@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring("file:/afs/cern.ch/work/g/ginnocen/public/skim_10_1_wd2.root")
+    fileNames = cms.untracked.vstring("file:/export/d00/scratch/luck/L1EmulatorTestInput.root")
     )
 
 process.output = cms.OutputModule(

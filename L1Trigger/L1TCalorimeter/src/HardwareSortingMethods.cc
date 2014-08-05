@@ -4,10 +4,11 @@
 //
 // This file should contain the C++ equivalents of the sorting
 // algorithms used in Hardware. Most C++ methods originally written by
-// Ben Kries.
+// Ben Kreis.
 
 #include <iostream>
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const bool verbose = true;
 
@@ -41,7 +42,7 @@ std::vector<l1t::Jet> sort_array(std::vector<l1t::Jet> inputArray){
   return outputArray;
 }
 
-std::vector<std::vector<l1t::Jet> > presort(std::vector<std::vector<l1t::Jet> > energies, int rows, int cols, int detector=0){
+std::vector<std::vector<l1t::Jet> > presort(std::vector<std::vector<l1t::Jet> > energies, int rows, int cols){
 
   int row_block_length = energies.size() / cols;
   if(energies.size() % cols != 0) row_block_length++;
@@ -135,12 +136,12 @@ std::vector<l1t::Jet> array_from_row_sorted_matrix(std::vector<std::vector<l1t::
   unsigned int max_col = n_keep-1;
 
   //compute size
-  if(input_matrix.size() < n_keep) max_row = input_matrix.size();
-  if(input_matrix[0].size() < n_keep) max_col = input_matrix[0].size();
+  if(input_matrix.size() < n_keep) max_row = input_matrix.size()-1;
+  if(input_matrix[0].size() < n_keep) max_col = input_matrix[0].size()-1;
 
   unsigned int array_position = 0;
-  for(unsigned int i=0; i<max_row; i++){
-    for(unsigned int j=0; j<max_col-i; j++){
+  for(unsigned int i=0; i<=max_row; i++){
+    for(unsigned int j=0; j<=max_col-i; j++){
       //cout << input_matrix[i][j].hwPt() << endl;
       output_array[array_position] = input_matrix[i][j];
       array_position++;
@@ -197,44 +198,91 @@ namespace l1t{
     const int N_ETA_GROUP_SIZE_CENTRAL = 4;
     const int N_ETA_GROUPS_CENTRAL = 4;
 
+    const int HFM_ETA_SLICES = 4;
+    const int HFP_ETA_SLICES = 4;
+    const int N_PRESORTED_ROWS_HFM = HFM_ETA_SLICES*N_PHI_GROUPS;
+    const int N_PRESORTED_ROWS_HFP = HFP_ETA_SLICES*N_PHI_GROUPS;
+    const int N_KEEP_FORWARD = 4;
+
     const int cen_nrows = 18;
     const int cen_ncols = 14;
+    const int hfm_nrows = 18, hfp_nrows = 18;
+    const int hfm_ncols = 4, hfp_ncols = 4;
+
     std::vector<std::vector<l1t::Jet> > cen_input_energy (cen_nrows, std::vector<l1t::Jet>(cen_ncols));
+    std::vector<std::vector<l1t::Jet> > hfm_input_energy (hfm_nrows, std::vector<l1t::Jet>(hfm_ncols));
+    std::vector<std::vector<l1t::Jet> > hfp_input_energy (hfp_nrows, std::vector<l1t::Jet>(hfp_ncols));
 
     for (std::vector<l1t::Jet>::const_iterator injet = input->begin();
 	 injet != input->end(); ++injet){
-      if(injet->hwEta() < 4 || injet->hwEta() > 17 ) continue;
-      unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
-      unsigned int mycol = injet->hwEta()-4; //hardcoding is bad
-      cen_input_energy[myrow][mycol] = *injet;
+      if(injet->hwEta() >= 4 && injet->hwEta() <= 17 )
+      {
+	unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
+	unsigned int mycol = injet->hwEta()-4; //hardcoding is bad
+	cen_input_energy[myrow][mycol] = *injet;
+      }
+      else if(injet->hwEta() < 4)
+      {
+	unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
+	unsigned int mycol = injet->hwEta(); //hardcoding is bad
+	hfm_input_energy[myrow][mycol] = *injet;
+      }
+      else if(injet->hwEta() > 17)
+      {
+	unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
+	unsigned int mycol = injet->hwEta()-18; //hardcoding is bad
+	hfp_input_energy[myrow][mycol] = *injet;
+      }
+      else
+	edm::LogError("HardwareJetSort") << "Region out of bounds: " << injet->hwEta();
     }
 
     //Each CLK is one clock
 
     //CLK 1
     std::vector<std::vector<l1t::Jet> > presorted_energies_matrix_sig = presort(cen_input_energy, N_PRESORTED_ROWS_CENTRAL, PRESORT_DEPTH);
+    std::vector<std::vector<l1t::Jet> > hfm_presorted_energies_matrix_sig = presort(hfm_input_energy, N_PRESORTED_ROWS_HFM, PRESORT_DEPTH);
+    std::vector<std::vector<l1t::Jet> > hfp_presorted_energies_matrix_sig = presort(hfp_input_energy, N_PRESORTED_ROWS_HFP, PRESORT_DEPTH);
 
     //CLK 2
     std::vector<std::vector<l1t::Jet> > row_presorted_energies_matrix_sig = sort_by_row_in_groups(presorted_energies_matrix_sig, N_PHI_GROUPS);
+    std::vector<std::vector<l1t::Jet> > hfm_row_presorted_energies_matrix_sig = sort_by_row_in_groups(hfm_presorted_energies_matrix_sig, N_PHI_GROUPS);
+    std::vector<std::vector<l1t::Jet> > hfp_row_presorted_energies_matrix_sig = sort_by_row_in_groups(hfp_presorted_energies_matrix_sig, N_PHI_GROUPS);
 
     //CLK 3
     std::vector<std::vector<l1t::Jet> > sorted_eta_slices_energies_matrix_sig = super_sort_matrix_rows(row_presorted_energies_matrix_sig, N_PHI_GROUPS, N_KEEP_CENTRAL);
+    std::vector<std::vector<l1t::Jet> > hfm_sorted_eta_slices_energies_matrix_sig = super_sort_matrix_rows(hfm_row_presorted_energies_matrix_sig, N_PHI_GROUPS, N_KEEP_FORWARD);
+    std::vector<std::vector<l1t::Jet> > hfp_sorted_eta_slices_energies_matrix_sig = super_sort_matrix_rows(hfp_row_presorted_energies_matrix_sig, N_PHI_GROUPS, N_KEEP_FORWARD);
 
     //CLK 4
     std::vector<std::vector<l1t::Jet> > row_presorted_eta_slices_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL);
+    std::vector<std::vector<l1t::Jet> > hfm_row_presorted_eta_slices_energies_matrix_sig = sort_by_row_in_groups(hfm_sorted_eta_slices_energies_matrix_sig, HFM_ETA_SLICES);
+    std::vector<std::vector<l1t::Jet> > hfp_row_presorted_eta_slices_energies_matrix_sig = sort_by_row_in_groups(hfp_sorted_eta_slices_energies_matrix_sig, HFP_ETA_SLICES);
 
     //CLK 5
     std::vector<std::vector<l1t::Jet> > sorted_eta_groups_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL, N_KEEP_CENTRAL);
+    std::vector<std::vector<l1t::Jet> > hfm_sorted_final_energies_matrix_sig = super_sort_matrix_rows(hfm_row_presorted_eta_slices_energies_matrix_sig, HFM_ETA_SLICES, N_KEEP_FORWARD);
+    std::vector<std::vector<l1t::Jet> > hfp_sorted_final_energies_matrix_sig = super_sort_matrix_rows(hfp_row_presorted_eta_slices_energies_matrix_sig, HFP_ETA_SLICES, N_KEEP_FORWARD);
 
     //CLK 6
     std::vector<std::vector<l1t::Jet> > row_presorted_eta_groups_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL);
+    std::vector<std::vector<l1t::Jet> > hf_merged_plus_minus_forward_energies_matrix_sig(2, std::vector<l1t::Jet>(N_KEEP_FORWARD));
+    hf_merged_plus_minus_forward_energies_matrix_sig[0] = hfm_sorted_final_energies_matrix_sig[0];
+    hf_merged_plus_minus_forward_energies_matrix_sig[1] = hfp_sorted_final_energies_matrix_sig[0];
+    std::vector<std::vector<l1t::Jet> > hf_row_presorted_merged_plus_minus_forward_energies_matrix_sig = sort_by_row_in_groups(hf_merged_plus_minus_forward_energies_matrix_sig, 2);
 
     //CLK 7
     std::vector<std::vector<l1t::Jet> > sorted_final_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL, N_KEEP_CENTRAL);
+    std::vector<std::vector<l1t::Jet> > hf_sorted_final_merged_plus_minus_forward_energies_matrix_sig = super_sort_matrix_rows(hf_row_presorted_merged_plus_minus_forward_energies_matrix_sig, 2, N_KEEP_FORWARD);
 
     for(unsigned int i = 0; i < 4; ++i)
     {
       l1t::Jet intjet = sorted_final_energies_matrix_sig[0][i];
+      output->push_back(intjet);
+    }
+    for(unsigned int i = 0; i < 4; ++i)
+    {
+      l1t::Jet intjet = hf_sorted_final_merged_plus_minus_forward_energies_matrix_sig[0][i];
       output->push_back(intjet);
     }
   }
