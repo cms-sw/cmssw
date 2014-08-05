@@ -28,7 +28,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1Numrphi = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
     ),
@@ -36,7 +36,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1NumStereo = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
     ),
@@ -44,7 +44,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1NumMatched = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
     ),

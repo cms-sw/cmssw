@@ -355,7 +355,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
 
   //now fill the cumulative histograms of the hits
-  std::vector<std::string> SubDetList_; 
   for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); iSubdet++){
     std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
     fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
@@ -495,8 +494,8 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
 
-  matched.clear();
-  matched = associate.associateHit(rechit);
+  matched.clear();  // Get the simHits that match the stereo recHit
+  matched = associate.associateHit(rechit.stereoHit());
 
   double mindist = 999999;
   double dist = 999999;
