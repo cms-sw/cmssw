@@ -82,8 +82,8 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
       int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       
       // If there are matches, reject the worst track
       if ( match > 0 ) {
-        // If the difference of # of rechits is less than 4, compare the chi2/ndf
-        if ( abs(hit_diff) <= 4  ) {
+        // If the difference in # of rechits is null then compare the chi2/ndf of the two trajectories
+        if ( abs(hit_diff) == 0  ) {
 
 	  double minPt = 3.5;
 	  double dPt = 7.;  // i.e. considering 10% (conservative!) resolution at minPt it is ~ 10 sigma away from the central value
