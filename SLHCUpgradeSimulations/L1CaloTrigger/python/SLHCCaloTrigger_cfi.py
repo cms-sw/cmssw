@@ -116,7 +116,8 @@ L1CaloProtoClusterFilter = cms.EDProducer("L1CaloProtoClusterFilter",
 # Share towers for overlapping clusters
 # The e/g identification bit is computed here
 L1CaloProtoClusterSharing = cms.EDProducer("L1CaloProtoClusterSharing",
-    src = cms.InputTag("L1CaloProtoClusterFilter")
+    src = cms.InputTag("L1CaloProtoClusterFilter"),
+    hoeCutMode = cms.int32(0) # 0 = seed tower H/E, 1 = 3x3 cluster H/E
 )
 
 # Trim the 3x3 cluster for e/g clusters
