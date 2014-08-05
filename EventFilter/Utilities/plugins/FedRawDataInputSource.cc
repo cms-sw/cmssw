@@ -56,6 +56,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
+  useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
@@ -230,6 +231,7 @@ bool FedRawDataInputSource::checkNextEvent()
 	}
       }
       eventRunNumber_=event_->run();
+      L1EventID_ = event_->event();
 
       setEventCached();
 
@@ -566,7 +568,12 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   std::auto_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
   edm::Timestamp tstamp = fillFEDRawDataCollection(rawData);
 
-  eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTEventID_);
+  if (useL1EventID_)
+    eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, L1EventID_); 
+  else {
+    assert(GTPEventID_);
+    eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
+  }
 
   edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
                           edm::EventAuxiliary::PhysicsTrigger);
@@ -617,7 +624,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
   edm::Timestamp tstamp;
   uint32_t eventSize = event_->eventSize();
   char* event = (char*)event_->payload();
-  GTEventID_=0;
+  GTPEventID_=0;
 
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
@@ -628,18 +635,18 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
       if (evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize))
-          GTEventID_ = evf::evtn::get((unsigned char*) fedHeader,true);
+          GTPEventID_ = evf::evtn::get((unsigned char*) fedHeader,true);
       else
-          GTEventID_ = evf::evtn::get((unsigned char*) fedHeader,false);
+          GTPEventID_ = evf::evtn::get((unsigned char*) fedHeader,false);
       //evf::evtn::evm_board_setformat(fedSize);
       const uint64_t gpsl = evf::evtn::getgpslow((unsigned char*) fedHeader);
       const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
       tstamp = edm::Timestamp(static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl));
     }
     //take event ID from GTPE FED
-    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && GTEventID_==0) {
+    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && GTPEventID_==0) {
       if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
-        GTEventID_ = evf::evtn::gtpe_get((unsigned char*) fedHeader);
+        GTPEventID_ = evf::evtn::gtpe_get((unsigned char*) fedHeader);
       }
     }
     FEDRawData& fedData = rawData->FEDData(fedId);
@@ -855,7 +862,6 @@ void FedRawDataInputSource::readSupervisor()
       int dbgcount=0;
       if (status == evf::EvFDaqDirector::noFile) {
 	dbgcount++;
-	//if (!(dbgcount%20)) edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again...";
 	if (!(dbgcount%20)) LogDebug("FedRawDataInputSource") << "No file for me... sleep and try again...";
 	usleep(100000);
       }

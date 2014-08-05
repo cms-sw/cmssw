@@ -85,6 +85,7 @@ private:
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
   const bool verifyAdler32_;
+  const bool useL1EventID_;
   const bool testModeNoBuilderUnit_;
 
   const edm::RunNumber_t runNumber_;
@@ -100,7 +101,8 @@ private:
 
   unsigned int currentLumiSection_;
   uint32_t eventRunNumber_=0;
-  uint32_t GTEventID_ = 0;
+  uint32_t GTPEventID_ = 0;
+  uint32_t L1EventID_ = 0;
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
 
