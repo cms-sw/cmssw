@@ -6,6 +6,7 @@ HLT_Mu40_v*                                             # JIRA: CMSHLT-64
 
 HLT_Photon20_CaloIdVL_IsoL_v*                           # JIRA: CMSHLT-63
 
+HLT_Physics_v*						# skim
 
 #DQM_FEDIntegrity_v*                                # sr 131577
 #HLT_LogMonitor_v*                                  # sr 131577
@@ -18,7 +19,7 @@ AOutput                                            # sr 131577
 #ALCAPHISYMOutput                                   # sr 131577
 #ALCALUMIPIXELSOutput                               # sr 131577
 #CalibrationOutput                                  # sr 131577
-#DQMOutput                                          # sr 131577
+DQMOutput                                          # online DQMFileSaver
 #EcalCalibrationOutput                              # sr 131577
 #ExpressOutput                                      # sr 131577
 #HLTDQMOutput                                       # sr 131577
