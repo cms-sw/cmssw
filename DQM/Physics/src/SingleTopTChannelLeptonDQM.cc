@@ -23,7 +23,7 @@ namespace SingleTopTChannelLepton {
   static const double WMASS = 80.4;
   
   MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, const edm::VParameterSet& vcfg, edm::ConsumesCollector && iC) : 
-    label_(label), elecIso_(0),elecSelect_(0),muonSelect_(0),muonIso_(0),jetSelectCalo_(0),jetSelectPF_(0),jetSelectReco_(0), pvSelect_(0),jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
+    label_(label), pvSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
     
   {
     // sources have to be given; this PSet is not optional
@@ -42,13 +42,12 @@ namespace SingleTopTChannelLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( elecExtras.existsAs<std::string>("select") ){
-	elecSelect_= new StringCutObjectSelector<reco::PFCandidate,true>(elecExtras.getParameter<std::string>("select"));
+	elecSelect_ = vcfg[1].getParameter<std::string>("select");
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( elecExtras.existsAs<std::string>("isolation") ){
-	elecIso_= new StringCutObjectSelector<reco::PFCandidate,true>(elecExtras.getParameter<std::string>("isolation"));
-	//elecIso_= elecExtras.getParameter<std::string>("isolation");
+	elecIso_= elecExtras.getParameter<std::string>("isolation");
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
@@ -76,17 +75,12 @@ namespace SingleTopTChannelLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( muonExtras.existsAs<std::string>("select") ){
-	//	muonSelect_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("select"));
-	//	muonSelect_= muonExtras.getParameter<std::string>("select");
-	
-	muonSelect_ = new StringCutObjectSelector<reco::PFCandidate, true>(vcfg[1].getParameter<std::string>("select")); 
+	muonSelect_ = vcfg[1].getParameter<std::string>("select");
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( muonExtras.existsAs<std::string>("isolation") ){
-	//	muonIso_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("isolation"));
-	muonIso_ = new StringCutObjectSelector<reco::PFCandidate, true>(muonExtras.getParameter<std::string>("isolation"));
-
+	muonIso_= muonExtras.getParameter<std::string>("isolation");
       }
     }
     
@@ -390,6 +384,8 @@ namespace SingleTopTChannelLepton {
     edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
     edm::Handle<edm::View<reco::PFCandidate> > elecs;
     edm::View<reco::PFCandidate>::const_iterator elec_it;
+    StringCutObjectSelector<reco::PFCandidate, true> elecSelect(elecSelect_); 
+    StringCutObjectSelector<reco::PFCandidate, true> elecIso(elecIso_);
     reco::GsfElectronRef elec;
     
     if( !event.getByToken(elecs_, elecs) ) 
@@ -418,13 +414,8 @@ namespace SingleTopTChannelLepton {
       if(elec->gsfTrack().isNull()) continue ;
       
       // restrict to electrons with good electronId
-      int eID = 0;
-      if (!electronId_.isUninitialized()) 
-	eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
-
-      if( electronId_.isUninitialized()  ? true : ( (eID  & eidPattern_) && (eID >=5)) ){ 
-
-	if(!elecSelect_ || (*elecSelect_)(*elec_it)){
+      if( electronId_.isUninitialized() ? true : ((double)(*electronId)[elec] >= eidCutValue_) ){
+	if((elecSelect)(*elec_it)){
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
 	  
 	  double isolationChHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumChargedHadronPt);
@@ -448,7 +439,7 @@ namespace SingleTopTChannelLepton {
 	  }
 	  // in addition to the multiplicity counter buffer the iso 
 	  // electron candidates for later overlap check with jets
-	  ++eMult; if( !elecIso_ || (*elecIso_)(*elec_it)){  if(eMultIso == 0) e = *elec; isoElecs.push_back(&(*elec)); ++eMultIso; }
+	  ++eMult; if( (elecIso)(*elec_it)){  if(eMultIso == 0) e = *elec; isoElecs.push_back(&(*elec)); ++eMultIso; }
 	}
       }
       idx_gsf++;
@@ -472,6 +463,8 @@ namespace SingleTopTChannelLepton {
     
     edm::Handle<edm::View<reco::PFCandidate> > muons;
     edm::View<reco::PFCandidate>::const_iterator muonit;
+    StringCutObjectSelector<reco::PFCandidate, true> *muonSelect = new StringCutObjectSelector<reco::PFCandidate, true>(muonSelect_); 
+    StringCutObjectSelector<reco::PFCandidate, true> *muonIso = new StringCutObjectSelector<reco::PFCandidate, true>(muonIso_);
     reco::MuonRef muon;
     reco::Muon mu;
     
@@ -493,7 +486,7 @@ namespace SingleTopTChannelLepton {
 	fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 	
 	// apply selection
-	if( !muonSelect_ || (*muonSelect_)(*muonit)) {
+	if( !muonSelect || (*muonSelect)(*muonit)) {
 
 	
 	  
@@ -518,7 +511,7 @@ namespace SingleTopTChannelLepton {
 	  }
 	  ++mMult; 
 	  
-	  if( !muonIso_ || (*muonIso_)(*muonit)) {if(mMultIso == 0)  mu = *muon; ++mMultIso;}
+	  if( !muonIso || (*muonIso)(*muonit)) {if(mMultIso == 0)  mu = *muon; ++mMultIso;}
 	}
       }
     }
@@ -595,19 +588,18 @@ namespace SingleTopTChannelLepton {
       // check additional jet selection for calo, pf and bare reco jets
       if(dynamic_cast<const reco::CaloJet*>(&*jet)){
 	reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet); sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-	if ( jetSelectCalo_==0 )jetSelectCalo_=new StringCutObjectSelector<reco::CaloJet>(jetSelect_); 
-
-	if(!(*jetSelectCalo_)(sel)){ continue;}
+	StringCutObjectSelector<reco::CaloJet> jetSelect(jetSelect_); 
+	if(!jetSelect(sel)){ continue;}
       }
       else if(dynamic_cast<const reco::PFJet*>(&*jet)){
 	reco::PFJet sel= dynamic_cast<const reco::PFJet&>(*jet); sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-	if (jetSelectPF_==0) jetSelectPF_=new StringCutObjectSelector<reco::PFJet>(jetSelect_); 
-	if(!(*jetSelectPF_)(sel)) continue;
+	StringCutObjectSelector<reco::PFJet> jetSelect(jetSelect_); 
+	if(!jetSelect(sel)) continue;
       } 
       else{
 	reco::Jet sel = *jet; sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-	if ( jetSelectReco_==0) jetSelectReco_=new StringCutObjectSelector<reco::Jet>(jetSelect_); 
-	if(!(*jetSelectReco_)(sel)) continue;
+	StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_); 
+	if(!jetSelect(sel)) continue;
       }
       // check for overlaps -- comment this to be synchronous with the selection
       //bool overlap=false;
