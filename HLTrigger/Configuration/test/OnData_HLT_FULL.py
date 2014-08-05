@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/HLT/V139 (CMSSW_7_1_4_patch1)
+# /dev/CMSSW_7_1_1/HLT/V140 (CMSSW_7_1_4_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V139')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V140')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -11663,7 +11663,7 @@ process.hltEgammaGsfTrackVars = cms.EDProducer( "EgammaHLTGsfTrackVarProducer",
     beamSpotProducer = cms.InputTag( "hltOnlineBeamSpot" ),
     upperTrackNrToRemoveCut = cms.int32( 9999 ),
     lowerTrackNrToRemoveCut = cms.int32( -1 ),
-    inputCollection = cms.InputTag( "hltEgammaGsfElectrons" )
+    inputCollection = cms.InputTag( "hltEgammaGsfTracks" )
 )
 process.hltEle27WP80GsfOneOEMinusOneOPFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     doIsolated = cms.bool( True ),
