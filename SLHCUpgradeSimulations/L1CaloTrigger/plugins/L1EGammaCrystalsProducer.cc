@@ -239,7 +239,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float totalEnergy = 0.;
       float ECalIsolation = 0.;
       float ECalPileUpEnergy = 0.;
-      float sideLobeEnergy = 0.;
+      float upperSideLobeEnergy = 0.;
+      float lowerSideLobeEnergy = 0.;
       std::vector<float> crystalPt;
       for(auto& hit : ecalhits)
       {
@@ -275,10 +276,15 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
                if ( hit.pt() > 1. )
                   params["nIsoCrystals1"]++;
             }
-            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && abs(hit.diphi(centerhit)) >= 3 && abs(hit.diphi(centerhit)) < 6)
-                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && fabs(hit.dphi(centerhit)) >= 0.0173*3 && fabs(hit.dphi(centerhit)) < 0.0173*6 ))
+            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 6)
+                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*6 ))
             {
-               sideLobeEnergy += hit.pt();
+               upperSideLobeEnergy += hit.pt();
+            }
+            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -6 && hit.diphi(centerhit) <= -3)
+                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*6 ))
+            {
+               lowerSideLobeEnergy += hit.pt();
             }
             if ( hit.pt() < 5. &&
                  ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 7 && abs(hit.diphi(centerhit)) < 57 )
@@ -291,10 +297,18 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
       weightedPosition /= totalEnergy;
       float totalPt = totalEnergy*sin(weightedPosition.theta());
+      float correctedTotalPt = totalPt;
+      if ( upperSideLobeEnergy/totalPt > 0.1 && upperSideLobeEnergy > lowerSideLobeEnergy )
+         correctedTotalPt += upperSideLobeEnergy;
+      if ( lowerSideLobeEnergy/totalPt > 0.1 && lowerSideLobeEnergy > upperSideLobeEnergy )
+         correctedTotalPt += lowerSideLobeEnergy;
+      params["uncorrectedPt"] = totalPt;
       params["avgIsoCrystalE"] = (params["nIsoCrystals1"] > 0.) ? ECalIsolation/params["nIsoCrystals1"] : 0.;
+      params["upperSideLobeEnergy"] = upperSideLobeEnergy;
+      params["lowerSideLobeEnergy"] = lowerSideLobeEnergy;
       ECalIsolation /= totalPt;
       float totalPtPUcorr = totalPt - ECalPileUpEnergy*sin(ECalPileUpVector.theta())/19.;
-      float bremStrength = sideLobeEnergy / totalPt;
+      float bremStrength = (upperSideLobeEnergy + lowerSideLobeEnergy) / params["uncorrectedPt"];
 
       if ( debug ) std::cout << "Weighted position eta = " << weightedPosition.eta() << ", phi = " << weightedPosition.phi() << std::endl;
       if ( debug ) std::cout << "Total energy = " << totalEnergy << ", total pt = " << totalPt << std::endl;
@@ -314,7 +328,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       if ( debug ) std::cout << "H/E: " << hovere << std::endl;
       
       // Form a l1slhc::L1EGCrystalCluster
-      reco::Candidate::PolarLorentzVector p4(totalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
+      reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
       l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
@@ -337,20 +351,21 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 bool
 L1EGCrystalClusterProducer::cluster_passes_cuts(const l1slhc::L1EGCrystalCluster& cluster) const {
+   float cut_pt = cluster.GetExperimentalParam("uncorrectedPt");
    if ( fabs(cluster.eta()) > 1.479 )
    {
-      if ( cluster.hovere() < 22./cluster.pt()
-           && cluster.isolation() < 64./cluster.pt()+0.1
-           && cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 40) ? 0.18*(1-cluster.pt()/70.):0.18*3/7. ) )
+      if ( cluster.hovere() < 22./cut_pt
+           && cluster.isolation() < 64./cut_pt+0.1
+           && cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cut_pt < 40) ? 0.18*(1-cut_pt/70.):0.18*3/7. ) )
       {
          return true;
       }
    }
    else
    {
-      if ( cluster.hovere() < 14./cluster.pt()+0.05
-           && cluster.isolation() < 40./cluster.pt()+0.1
-           && cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 30) ? 0.18*(1-cluster.pt()/100.):0.18*0.7 ) )
+      if ( cluster.hovere() < 14./cut_pt+0.05
+           && cluster.isolation() < 40./cut_pt+0.1
+           && cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cut_pt < 30) ? 0.18*(1-cut_pt/100.):0.18*0.7 ) )
       {
          return true;
       }
