@@ -11,8 +11,9 @@ def help():
    print "       indentify geometry condition database tag"
    print "      ", varType.keys()
    print ""
-   print "   format=formatname"
-   print "       dump in plain TTree or in TGeo format, default is TTree"
+   print "   tgeo=bool"
+   print "       dump in TGeo format to borwse it geomtery viewer"
+   print "       import this will in Fireworks with option --sim-geom-file"
    print ""
    print ""
    exit(1);
@@ -36,7 +37,7 @@ def recoGeoLoad(score):
        process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
        # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
        from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2017 
-       process = cust_2017(process)
+      # process = cust_2017(process)
 
     elif  score == "2019":
       from Configuration.AlCa.GlobalTag import GlobalTag
@@ -48,14 +49,14 @@ def recoGeoLoad(score):
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
       process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
 
-   elif  score == "2023Muon":
+    elif  score == "2023Muon":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
       # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
       from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
       #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-      process = cust_2023Muon(process)
+     # process = cust_2023Muon(process)
 
     elif score == "SLHCDB": # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'
@@ -95,21 +96,14 @@ options.register ('tag',
                   "2015", # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "info about geometry database conditions")
+                  "tag info about geometry database conditions")
 
 
-options.register ('format',
-                  "TTree", # default value
+options.register ('tgeo',
+                  False, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "write a idToGeo map or make TGeo geometry")
-
-
-options.register ('load',
-                  "", # default value
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
+                  VarParsing.VarParsing.varType.bool,
+                  "write geometry in TGeo format")
 
 
 options.parseArguments()
@@ -135,7 +129,7 @@ else:
 
 tagInfoq = cms.string(options.tag);
 
-if ( options.format == "TGeo"):
+if ( options.tgeo == True):
     process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
     process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry")
 else:

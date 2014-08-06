@@ -37,7 +37,7 @@ def simGeoLoad(score):
     elif score == "Phase2Tk":
        process.load('Geometry.CMSCommonData.cmsExtendedGeometryPhase2TkBEXML_cfi')
 
-    elif score == "2023Muon"
+    elif score == "2023Muon":
        process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 
 
