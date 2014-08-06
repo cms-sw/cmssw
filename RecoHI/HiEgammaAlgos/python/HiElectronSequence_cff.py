@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# load local PF Reco
-from RecoHI.Configuration.Reconstruction_hiPF_cff import HiParticleFlowLocalReco
 
 # creates the recoGsfTracks_electronGsfTracks__RECO = input GSF tracks
 from TrackingTools.GsfTracking.GsfElectronTracking_cff import *
@@ -20,17 +18,31 @@ electronGsfTrackingHi = cms.Sequence(ecalDrivenElectronSeeds *
 # run the supercluster(EE+EB)-GSF track association ==> output: recoGsfElectrons_gsfElectrons__RECO
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
-gsfElectrons.ctfTracks     = cms.InputTag("hiSelectedTracks")
-gsfElectronCores.ctfTracks = cms.InputTag("hiSelectedTracks")
+gsfElectrons.ctfTracks     = cms.InputTag("hiGeneralTracks")
+gsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 pfElectronTranslator.emptyIsOk = cms.bool(True)
 
-ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiSelectedTracks")
-ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiSelectedTracks")
+ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGeneralTracks")
+ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 
 ecalDrivenGsfElectrons.maxHOverEBarrel = cms.double(0.25)
 ecalDrivenGsfElectrons.maxHOverEEndcaps = cms.double(0.25)
 
-hiElectronSequence = cms.Sequence(electronGsfTrackingHi *
-                                  HiParticleFlowLocalReco *
-                                  gsfEcalDrivenElectronSequence
+
+
+from RecoParticleFlow.PFTracking.pfTrack_cfi import *
+pfTrack.UseQuality = cms.bool(True)
+pfTrack.TrackQuality = cms.string('highPurity')
+pfTrack.TkColList = cms.VInputTag("hiGeneralTracks")
+pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
+pfTrack.MuColl = cms.InputTag("muons")
+
+from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
+pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
+pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
+
+hiElectronSequence = cms.Sequence(electronGsfTrackingHi *                                 
+                                  pfTrack *
+                                  pfTrackElec *
+                                  gsfEcalDrivenElectronSequence 
                                   )

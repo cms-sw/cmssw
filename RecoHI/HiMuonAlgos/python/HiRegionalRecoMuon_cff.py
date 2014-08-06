@@ -69,4 +69,4 @@ muonreco_plus_isolation_re          = cms.Sequence(muonrecowith_TeVRefinemen_re 
 
 reMuonTrackRecoPbPb                 = cms.Sequence(muontracking_re)
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
-reMuonRecoPbPb                      = cms.Sequence(muonreco_plus_isolation_re)
+regionalMuonRecoPbPb                      = cms.Sequence(muonreco_plus_isolation_re)
