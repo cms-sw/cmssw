@@ -11,7 +11,7 @@
 using namespace reco;
 using namespace edm;
 
-class CaloRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminationProducerBase {
+class CaloRecoTauDiscriminationAgainstHadronicJets final : public CaloTauDiscriminationProducerBase {
   public:
     explicit CaloRecoTauDiscriminationAgainstHadronicJets(
         const edm::ParameterSet& iConfig)
@@ -34,9 +34,9 @@ void CaloRecoTauDiscriminationAgainstHadronicJets::beginEvent(
 
 double CaloRecoTauDiscriminationAgainstHadronicJets::discriminate(
     const CaloTauRef& theCaloTauRef){
-  tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
-  return ((tcTauAlgorithm->algoComponent() !=
-           TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
+    auto algoused = TCTauAlgorithm::TCAlgoUndetermined;
+        tcTauAlgorithm->recalculateEnergy(*theCaloTauRef, algoused);
+        return (algoused != TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.;
 }
 
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationAgainstHadronicJets);
