@@ -25,8 +25,6 @@
 <use   name="TrackingTools/DetLayers"/>
 <use   name="RecoTracker/TkHitPairs"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
-<use   name="RecoTracker/TkSeedGenerator"/>
-<use   name="RecoTracker/TkTrackingRegions"/>
 <library   file="*.cc" name="GammaConversionTrackingForConversionPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
