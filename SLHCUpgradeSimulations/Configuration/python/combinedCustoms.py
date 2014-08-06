@@ -159,10 +159,19 @@ def cust_2023SHCal(process):
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.particleFlowCluster += process.pfClusteringEK
         
-        process.photonCore.scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel")
-        process.photonCore.scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower")        
-        process.photons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        #clone photons to mustache photons so we can compare back to old reco
+        process.mustachePhotonCore = process.photonCore.clone(scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"))
+        process.mustachePhotons = process.photons.clone(photonCoreProducer = cms.InputTag('mustachePhotonCore'), endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK"))        
+        process.photonSequence += process.mustachePhotonCore
+        process.photonSequence += process.mustachePhotons
+        #point particle flow at the right photon collection     
+        process.particleFlowBlock.elementImporters[2].source = cms.InputTag('mustachePhotons')
         process.gedPhotons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        
+
+        if( hasattr(process,'FEVTDEBUGHLToutput') ):
+            process.FEVTDEBUGHLToutput.outputCommands.append('keep *_mustachePhotonCore_*_*')
+            process.FEVTDEBUGHLToutput.outputCommands.append('keep *_mustachePhotons_*_*')
         
         process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
         process.towerMakerPF.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
@@ -209,6 +218,7 @@ def cust_2023SHCal(process):
         process.pfElectronInterestingEcalDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.pfPhotonInterestingEcalDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.pfPhotonTranslator.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfPhotonTranslator.EGPhotons = cms.string("mustachePhotons")
         process.photons.mipVariableSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.photons.isolationSumsCalculatorSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.uncleanedOnlyConversionTrackCandidates.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
