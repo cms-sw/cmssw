@@ -112,11 +112,25 @@ GenXSecAnalyzer::compute()
       double hepxsec_value = proc.lheXSec().value();
       double hepxsec_error = proc.lheXSec().error();
 
-      double sigmaSum, sigma2Sum, sigma2Err;
-      sigmaSum = proc.tried().sum() * hepxsec_value;
-      sigma2Sum = proc.tried().sum2() * hepxsec_value * hepxsec_value;
-      sigma2Err = proc.tried().sum2() * hepxsec_error * hepxsec_error;
-      
+      double sigmaSum, sigma2Sum, sigma2Err, xsec;
+      switch(std::abs(hepidwtup_)) {
+      case 2:
+	sigmaSum = proc.tried().sum() * hepxsec_value;
+	sigma2Sum = proc.tried().sum2() * hepxsec_value * hepxsec_value;
+	sigma2Err = proc.tried().sum2() * hepxsec_error * hepxsec_error;
+	break;
+      case 3:
+	sigmaSum = proc.tried().n() * hepxsec_value;
+	sigma2Sum = sigmaSum * hepxsec_value;
+	sigma2Err = proc.tried().n() * hepxsec_error * hepxsec_error;
+	break;
+      default:
+	xsec = proc.tried().sum() / proc.tried().n();
+	sigmaSum = proc.tried().sum() * xsec;
+	sigma2Sum = proc.tried().sum2() * xsec * xsec;
+	sigma2Err = 0.0;
+      }
+
       if (!proc.killed().n())
 	continue;
     
