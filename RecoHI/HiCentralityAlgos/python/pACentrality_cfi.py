@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hiCentrality = cms.EDProducer("CentralityProducer",
+pACentrality = cms.EDProducer("CentralityProducer",
 
                             produceHFhits = cms.bool(True),
                             produceHFtowers = cms.bool(True),
@@ -18,10 +18,10 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                             srcEEhits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
                             srcZDChits = cms.InputTag("zdcreco"),
                             srcPixelhits = cms.InputTag("siPixelRecHits"),
-                            srcTracks = cms.InputTag("hiGeneralTracks"),
-                            srcVertex= cms.InputTag("hiSelectedVertex"),
-                            srcReUse = cms.InputTag("hiCentrality"),
-                            srcPixelTracks = cms.InputTag("hiPixel3PrimTracks"),
+                            srcTracks = cms.InputTag("generalTracks"),
+                            srcVertex= cms.InputTag("offlinePrimaryVertices"),
+                            srcReUse = cms.InputTag("pACentrality"),
+                            srcPixelTracks = cms.InputTag("pixelTracks"),
 
                             doPixelCut = cms.bool(True),
                             UseQuality = cms.bool(True),
