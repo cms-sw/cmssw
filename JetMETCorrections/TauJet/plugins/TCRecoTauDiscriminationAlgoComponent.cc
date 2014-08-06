@@ -17,7 +17,7 @@ class TCRecoTauDiscriminationAlgoComponent final : public CaloTauDiscriminationP
       	}
       	~TCRecoTauDiscriminationAlgoComponent(){} 
 
-      	double discriminate(const CaloTauRef& theCaloTauRef) override;
+      	double discriminate(const CaloTauRef& theCaloTauRef) const override;
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
@@ -30,7 +30,7 @@ void TCRecoTauDiscriminationAlgoComponent::beginEvent(const edm::Event& iEvent, 
 }
 
 
-double TCRecoTauDiscriminationAlgoComponent::discriminate(const CaloTauRef& theCaloTauRef){
+double TCRecoTauDiscriminationAlgoComponent::discriminate(const CaloTauRef& theCaloTauRef) const {
         auto algoused = TCTauAlgorithm::TCAlgoUndetermined;
 	tcTauAlgorithm.recalculateEnergy(*theCaloTauRef, algoused);
 	return algoused; // is this correct???  (elsewehre is  ? 1.:0.;)

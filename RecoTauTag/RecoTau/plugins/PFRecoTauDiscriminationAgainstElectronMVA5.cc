@@ -48,7 +48,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
 
   void endEvent(edm::Event&);
 
@@ -69,8 +69,9 @@ private:
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectrons_token;
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
   edm::Handle<TauCollection> taus_;
+
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  size_t tauIndex_;
+  mutable size_t tauIndex_;  // FIXME it is thread safe...
 
   int verbosity_;
 };
@@ -86,7 +87,7 @@ void PFRecoTauDiscriminationAgainstElectronMVA5::beginEvent(const edm::Event& ev
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
 
-double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& thePFTauRef) const
 {
   double mvaValue = 1.;
   double category = -1.;

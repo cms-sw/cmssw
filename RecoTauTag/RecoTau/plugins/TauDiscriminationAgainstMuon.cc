@@ -18,10 +18,11 @@
 
 #include <string>
 
+namespace {
 using namespace reco;
 
 template<class TauType, class TauDiscriminator>
-class TauDiscriminationAgainstMuon : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
+class TauDiscriminationAgainstMuon final : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
 {
  public:
   // setup framework types for this tautype
@@ -34,10 +35,10 @@ class TauDiscriminationAgainstMuon : public TauDiscriminationProducerBase<TauTyp
   // called at the beginning of every event
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const TauRef&);
+  double discriminate(const TauRef&) const override;
 
  private:  
-  bool evaluateMuonVeto(const reco::Muon&);
+  bool evaluateMuonVeto(const reco::Muon&) const;
 
   edm::InputTag muonSource_;
   edm::Handle<reco::MuonCollection> muons_;
@@ -80,7 +81,7 @@ void TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::beginEvent(const e
 }		
 
 template<class TauType, class TauDiscriminator>
-bool TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::evaluateMuonVeto(const reco::Muon& muon)
+bool TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::evaluateMuonVeto(const reco::Muon& muon) const 
 {
   bool decision = true;	
 
@@ -108,7 +109,7 @@ bool TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::evaluateMuonVeto(c
 }
 
 template<class TauType, class TauDiscriminator>
-double TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::discriminate(const TauRef& tau)
+double TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::discriminate(const TauRef& tau) const 
 {
   bool decision = true;	
 
@@ -118,6 +119,7 @@ double TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::discriminate(con
   }
 
   return (decision ? 1. : 0.);
+}
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

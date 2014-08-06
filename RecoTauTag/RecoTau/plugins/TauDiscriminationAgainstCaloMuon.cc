@@ -42,6 +42,8 @@
 
 #include <string>
 
+namespace {
+
 using namespace reco;
 
 // define acess to lead. track for CaloTaus
@@ -85,7 +87,7 @@ class TauLeadTrackExtractor<reco::PFTau>
 };
 
 template<class TauType, class TauDiscriminator>
-class TauDiscriminationAgainstCaloMuon : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
+class TauDiscriminationAgainstCaloMuon final : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
 {
  public:
   // setup framework types for this tautype
@@ -98,7 +100,7 @@ class TauDiscriminationAgainstCaloMuon : public TauDiscriminationProducerBase<Ta
   // called at the beginning of every event
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const TauRef&);
+  double discriminate(const TauRef&) const override;
 
  private:  
   edm::InputTag srcEcalRecHitsBarrel_;
@@ -272,7 +274,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
 }
 
 template<class TauType, class TauDiscriminator>
-double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate(const TauRef& tau)
+double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate(const TauRef& tau) const
 {
   if ( !(trackBuilder_ && caloGeometry_) ) return 0.;
 
@@ -307,6 +309,8 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
   }
 
   return 1.;
+}
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

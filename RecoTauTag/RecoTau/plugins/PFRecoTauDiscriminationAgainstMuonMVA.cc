@@ -60,9 +60,9 @@ namespace
     es.get<GBRWrapperRcd>().get(mvaName, mva);
     return mva.product();
   }
-}
 
-class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducerBase  
+
+class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationProducerBase  
 {
  public:
   explicit PFRecoTauDiscriminationAgainstMuonMVA(const edm::ParameterSet& cfg)
@@ -90,7 +90,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
 
   void endEvent(edm::Event&);
 
@@ -121,7 +121,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   edm::Handle<TauCollection> taus_;
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  size_t tauIndex_;
+  mutable size_t tauIndex_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -167,7 +167,7 @@ namespace
   }
 }
 
-double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
+double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) const
 {
   if ( verbosity_ ) {
     edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
@@ -241,6 +241,8 @@ void PFRecoTauDiscriminationAgainstMuonMVA::endEvent(edm::Event& evt)
 {
   // add all category indices to event
   evt.put(category_output_, "category");
+}
+
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuonMVA);

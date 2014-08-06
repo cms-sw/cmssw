@@ -17,7 +17,7 @@ class TCRecoTauDiscriminationAgainstHadronicJets final  : public CaloTauDiscrimi
       	}
       	~TCRecoTauDiscriminationAgainstHadronicJets(){} 
 
-      	double discriminate(const CaloTauRef& theCaloTauRef) override;
+      	double discriminate(const CaloTauRef& theCaloTauRef) const override;
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
     private:
@@ -29,7 +29,7 @@ void TCRecoTauDiscriminationAgainstHadronicJets::beginEvent(const edm::Event& iE
 }
 
 
-double TCRecoTauDiscriminationAgainstHadronicJets::discriminate(const CaloTauRef& theCaloTauRef){
+double TCRecoTauDiscriminationAgainstHadronicJets::discriminate(const CaloTauRef& theCaloTauRef) const {
         auto algoused = TCTauAlgorithm::TCAlgoUndetermined;
 	tcTauAlgorithm.recalculateEnergy(*theCaloTauRef, algoused);
 	return (algoused != TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.;

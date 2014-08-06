@@ -69,7 +69,7 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
                             const edm::EventSetup& evtSetup) {}
 
     // abstract functions implemented in derived classes.
-    virtual double discriminate(const TauRef& tau) = 0;
+    virtual double discriminate(const TauRef& tau) const = 0;
 
     // called at the end of event processing - override if necessary.
     virtual void endEvent(edm::Event& evt) {}
