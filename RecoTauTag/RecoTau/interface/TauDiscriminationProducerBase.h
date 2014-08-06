@@ -30,8 +30,8 @@
  * Authors :  Evan Friis (UC Davis), Simone Gennai (SNS)
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
-//#include "FWCore/Framework/interface/stream/EDProducer.h"
+// #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -46,7 +46,7 @@
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
 template<class TauType, class TauDiscriminator>
-class TauDiscriminationProducerBase : public edm::EDProducer { // edm::stream::EDProducer<> {
+class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
   public:
     // setup framework types for this tautype
     typedef std::vector<TauType>        TauCollection;
