@@ -30,29 +30,34 @@ hcalnoise.trackCollName = 'hiGeneralTracks'
 
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(hiTracking
+                              * hiParticleFlowLocalReco
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
-                              * hiElectronSequence
+                              #* hiPfTrackingGlobalReco
+                              * hiElectronSequence 
+                              #* hiPfElectronGlobalReco
                               * hiEgammaSequence
-                              * HiParticleFlowReco
+                              * hiParticleFlowReco
                               * hiCentrality
                               * hiEvtPlane
                               * hcalnoise
                               )
 
 globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
-                              * hiEcalClusters
-                              * hiRecoJets
-                              * muonRecoPbPb
-                              * hiElectronSequence
-                              * HiParticleFlowLocalReco
-                              * hiEgammaSequence
-                              * HiParticleFlowReco
-                              * hiCentrality
-                              * hiEvtPlane
-                              * hcalnoise
-                              )
+                                              * hiParticleFlowLocalReco
+                                              * hiEcalClusters
+                                              * hiRecoJets
+                                              * muonRecoPbPb
+                                              #* hiPfTrackingGlobalReco
+                                              * hiElectronSequence
+                                              #* hiPfElectronGlobalReco
+                                              * hiEgammaSequence
+                                              * hiParticleFlowReco
+                                              * hiCentrality
+                                              * hiEvtPlane
+                                              * hcalnoise
+                                              )
 
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 

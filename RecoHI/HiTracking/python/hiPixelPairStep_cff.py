@@ -9,6 +9,7 @@ hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
                                      trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
                                      overrideTrkQuals = cms.InputTag('hiSecondPixelTripletStepSelector','hiSecondPixelTripletStep'),
                                      TrackQuality = cms.string('highPurity'),
+                                     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
                                      pixelClusters = cms.InputTag("siPixelClusters"),
                                      stripClusters = cms.InputTag("siStripClusters"),
                                      Common = cms.PSet(
@@ -29,6 +30,16 @@ hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLay
                                     'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
                                     'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
                                     'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
+            BPix = cms.PSet(
+        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('hiPixelPairClusters')
+        ),
+            FPix = cms.PSet(
+        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('hiPixelPairClusters')
+        )
             )
 
 # SEEDS
@@ -77,7 +88,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
         MeasurementTrackerName = '',
         trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryFilter')),
-        clustersToSkip = cms.InputTag('hiPixelPairClusters'),
         maxCand = 3,
         estimator = cms.string('hiPixelPairChi2Est'),
         maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -88,6 +98,7 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiPixelPairSeeds'),
+    clustersToSkip = cms.InputTag('hiPixelPairClusters'),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder')),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
