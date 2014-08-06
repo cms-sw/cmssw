@@ -215,9 +215,15 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2Gen_NumTracks"] =
         i.book1D("RecoAllAssoc2Gen_NumTracks",
                  "ReconstructedAllAssoc2Gen_NumTracks", 200, 0., 200.);
+    mes_[label]["RecoAllAssoc2Gen_PU"] =
+        i.book1D("RecoAllAssoc2Gen_PU",
+                 "ReconstructedAllAssoc2Gen_PU", 250, 0., 250.);
     mes_[label]["RecoAllAssoc2Gen_ClosestDistanceZ"] =
         i.book1D("RecoAllAssoc2Gen_ClosestDistanceZ",
                  "ReconstructedAllAssoc2Gen_ClosestDistanceZ", 8, &log_bins[0]);
+    mes_[label]["RecoAllAssoc2GenProperties"] =
+        i.book1D("RecoAllAssoc2GenProperties",
+                 "ReconstructedAllAssoc2Gen_Properties", 8, -0.5, 7.5);
 
     // All Reconstructed Vertices Matched to a Generated vertex. Used
     // for Fake-Rate plots
@@ -245,6 +251,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"] =
         i.book1D("RecoAllAssoc2GenMatched_NumTracks",
                  "ReconstructedAllAssoc2GenMatched_NumTracks", 200, 0., 200.);
+    mes_[label]["RecoAllAssoc2GenMatched_PU"] =
+        i.book1D("RecoAllAssoc2GenMatched_PU",
+                 "ReconstructedAllAssoc2GenMatched_PU", 250, 0., 250.);
     mes_[label]["RecoAllAssoc2GenMatched_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2GenMatched_ClosestDistanceZ",
         "ReconstructedAllAssoc2GenMatched_ClosestDistanceZ", 8, &log_bins[0]);
@@ -272,6 +281,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenMultiMatched_NumTracks"] = i.book1D(
         "RecoAllAssoc2GenMultiMatched_NumTracks",
         "ReconstructedAllAssoc2GenMultiMatched_NumTracks", 200, 0., 200.);
+    mes_[label]["RecoAllAssoc2GenMultiMatched_PU"] =
+        i.book1D("RecoAllAssoc2GenMultiMatched_PU",
+                 "ReconstructedAllAssoc2GenMultiMatched_PU", 250, 0., 250.);
     mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  "ReconstructedAllAssoc2GenMultiMatched_ClosestDistanceZ",
@@ -285,31 +297,34 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     // RecoVTX is a duplicate of the same, real GenVTX.
     mes_[label]["RecoAllAssoc2MultiMatchedGen_NumVertices"] = i.book1D(
         "RecoAllAssoc2MultiMatchedGen_NumVertices",
-        "GeneratedAllAssoc2RecoMultiMatched_NumVertices", 200, 0., 200.);
+        "RecoAllAssoc2MultiMatchedGen_NumVertices", 200, 0., 200.);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_X"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_X",
-                 "GeneratedAllAssoc2RecoMultiMatched_X", 120, -0.6, 0.6);
+                 "RecoAllAssoc2MultiMatchedGen_X", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Y"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_Y",
-                 "GeneratedAllAssoc2RecoMultiMatched_Y", 120, -0.6, 0.6);
+                 "RecoAllAssoc2MultiMatchedGen_Y", 120, -0.6, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Z"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_Z",
-                 "GeneratedAllAssoc2RecoMultiMatched_Z", 120, -60, 60);
+                 "RecoAllAssoc2MultiMatchedGen_Z", 120, -60, 60);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_R"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_R",
-                 "GeneratedAllAssoc2RecoMultiMatched_R", 120, 0, 0.6);
+                 "RecoAllAssoc2MultiMatchedGen_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Pt2"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_Pt2",
-                 "GeneratedAllAssoc2RecoMultiMatched_Sum-pt2", 8, &log_bins[0]);
+                 "RecoAllAssoc2MultiMatchedGen_Sum-pt2", 8, &log_bins[0]);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_NumTracks"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_NumTracks",
-                 "GeneratedAllAssoc2RecoMultiMatched_NumTracks", 200, 0., 200.);
+                 "RecoAllAssoc2MultiMatchedGen_NumTracks", 200, 0., 200.);
+    mes_[label]["RecoAllAssoc2MultiMatchedGen_PU"] =
+        i.book1D("RecoAllAssoc2MultiMatchedGen_PU",
+                 "RecoAllAssoc2MultiMatchedGen_PU", 250, 0., 250.);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ",
-        "GeneratedAllAssoc2RecoMultiMatched_ClosestDistanceZ", 8, &log_bins[0]);
+        "RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ", 8, &log_bins[0]);
     mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
-        "GeneratedAllAssoc2GenSimForMerge_ClosestDistanceZ",
+        "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         400, 0., 1.);
   }
 }
@@ -376,7 +391,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenVertexHistograms(
 
 void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     const std::string& label,
-    const PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
+    int num_pileup_vertices,
+    PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
   mes_[label]["RecoAllAssoc2Gen_X"]->Fill(v.x);
   mes_[label]["RecoAllAssoc2Gen_Y"]->Fill(v.y);
   mes_[label]["RecoAllAssoc2Gen_Z"]->Fill(v.z);
@@ -384,10 +400,12 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   mes_[label]["RecoAllAssoc2Gen_Pt2"]->Fill(v.ptsq);
   mes_[label]["RecoAllAssoc2Gen_Ndof"]->Fill(v.recVtx->ndof());
   mes_[label]["RecoAllAssoc2Gen_NumTracks"]->Fill(v.nRecoTrk);
+  mes_[label]["RecoAllAssoc2Gen_PU"]->Fill(num_pileup_vertices);
   if (v.closest_vertex_distance_z > 0.)
     mes_[label]["RecoAllAssoc2Gen_ClosestDistanceZ"]
         ->Fill(v.closest_vertex_distance_z);
   if (v.sim_vertices.size()) {
+    v.kind_of_vertex |= recoPrimaryVertex::MATCHED;
     mes_[label]["RecoAllAssoc2GenMatched_X"]->Fill(v.x);
     mes_[label]["RecoAllAssoc2GenMatched_Y"]->Fill(v.y);
     mes_[label]["RecoAllAssoc2GenMatched_Z"]->Fill(v.z);
@@ -395,6 +413,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     mes_[label]["RecoAllAssoc2GenMatched_Pt2"]->Fill(v.ptsq);
     mes_[label]["RecoAllAssoc2GenMatched_Ndof"]->Fill(v.recVtx->ndof());
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"]->Fill(v.nRecoTrk);
+    mes_[label]["RecoAllAssoc2GenMatched_PU"]->Fill(num_pileup_vertices);
     if (v.closest_vertex_distance_z > 0.)
       mes_[label]["RecoAllAssoc2GenMatched_ClosestDistanceZ"]
           ->Fill(v.closest_vertex_distance_z);
@@ -402,12 +421,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     // itself is associated to more than one RecoVTX, for
     // duplicate-rate plots on reco quantities.
     if (v.sim_vertices_internal[0]->rec_vertices.size() > 1) {
+      v.kind_of_vertex |= recoPrimaryVertex::DUPLICATE;
       mes_[label]["RecoAllAssoc2MultiMatchedGen_X"]->Fill(v.x);
       mes_[label]["RecoAllAssoc2MultiMatchedGen_Y"]->Fill(v.y);
       mes_[label]["RecoAllAssoc2MultiMatchedGen_Z"]->Fill(v.z);
       mes_[label]["RecoAllAssoc2MultiMatchedGen_R"]->Fill(v.r);
       mes_[label]["RecoAllAssoc2MultiMatchedGen_Pt2"]->Fill(v.ptsq);
       mes_[label]["RecoAllAssoc2MultiMatchedGen_NumTracks"]->Fill(v.nRecoTrk);
+      mes_[label]["RecoAllAssoc2MultiMatchedGen_PU"]->Fill(num_pileup_vertices);
       if (v.closest_vertex_distance_z > 0.)
         mes_[label]["RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ"]
             ->Fill(v.closest_vertex_distance_z);
@@ -424,16 +445,19 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   }
   // this plots are meant to be used to compute the merge rate
   if (v.sim_vertices.size() > 1) {
+    v.kind_of_vertex |= recoPrimaryVertex::MERGED;
     mes_[label]["RecoAllAssoc2GenMultiMatched_X"]->Fill(v.x);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Y"]->Fill(v.y);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Z"]->Fill(v.z);
     mes_[label]["RecoAllAssoc2GenMultiMatched_R"]->Fill(v.r);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Pt2"]->Fill(v.ptsq);
     mes_[label]["RecoAllAssoc2GenMultiMatched_NumTracks"]->Fill(v.nRecoTrk);
+    mes_[label]["RecoAllAssoc2GenMultiMatched_PU"]->Fill(num_pileup_vertices);
     if (v.sim_vertices_internal[0]->closest_vertex_distance_z > 0.)
       mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"]
           ->Fill(v.sim_vertices_internal[0]->closest_vertex_distance_z);
   }
+  mes_[label]["RecoAllAssoc2GenProperties"]->Fill(v.kind_of_vertex);
 }
 
 /* Extract information form TrackingParticles/TrackingVertex and fill
@@ -628,6 +652,11 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     // Loop over daughter track(s)
     for (auto iTrack = v->tracks_begin(); iTrack != v->tracks_end(); ++iTrack) {
       auto momentum = (*(*iTrack)).innerMomentum();
+      // TODO(rovere) better handle the pixelVerticies, whose tracks
+      // do not have the innerMomentum defined. This is a temporary
+      // hack to overcome this problem.
+      if (momentum.mag2() == 0)
+        momentum = (*(*iTrack)).momentum();
       if (verbose_) {
         std::cout << "  Daughter momentum:      " << momentum;
         std::cout << std::endl;
@@ -696,7 +725,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(
         std::cout << "Considering reconstructed vertex at Z:" << vrec->z()
                   << std::endl;
       }
-      if ((fabs(vrec->z() - vsim->z) / vrec->zError()) < sigma_z_match_) {
+      if (((fabs(vrec->z() - vsim->z) / vrec->zError()) < sigma_z_match_)
+          && (fabs(vrec->z() - vsim->z) < 0.1)) {
         vsim->rec_vertices.push_back(&(*vrec));
         if (verbose_) {
           std::cout << "Trying a matching vertex for " << vsim->z << " at "
@@ -743,11 +773,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
         continue;
       }
 
-      // if the matching criteria are fulfilled, accept all the gen-vertices
-      // that are close in z, in unit of sigma_z of the reconstructed
-      // vertex, at least of sigma_z_match_.
-      if ((fabs(vrec->z - vsim->position().z()) / vrec->recVtx->zError()) <
-          sigma_z_match_) {
+      // if the matching criteria are fulfilled, accept all the
+      // gen-vertices that are close in z, in unit of sigma_z of the
+      // reconstructed vertex, at least of sigma_z_match_. Require
+      // also a maximum absolute distance between the 2 vertices of at
+      // most 1 mm along the Z axis.
+      if (((fabs(vrec->z - vsim->position().z()) / vrec->recVtx->zError()) <
+          sigma_z_match_)
+          && (fabs(vrec->z - vsim->position().z()) < 0.1)) {
         vrec->sim_vertices.push_back(&(*vsim));
         for (std::vector<simPrimaryVertex>::const_iterator vv = simpv.begin();
              vv != simpv.end(); vv++) {
@@ -844,6 +877,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                                         // MC vertices
   // TODO(rovere) use move semantic?
   simpv = getSimPVs(TVCollectionH);
+  // TODO(rovere) 1 vertex is not, by definition, pileup, and should
+  // probably be subtracted?
+  int num_pileup_vertices = simpv.size();
   mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
 
   int label_index = -1;
@@ -869,6 +905,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     int num_total_reco_vertices_assoc2gen = 0;
     int num_total_gen_vertices_multiassoc2reco = 0;
     int num_total_reco_vertices_multiassoc2gen = 0;
+    int num_total_reco_vertices_duplicate = 0;
     for (auto const& v : simpv) {
       // TODO(rovere) put selectors here in front of fill* methods.
       if (v.eventId.event() == 0) {
@@ -916,9 +953,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         ->Fill(simpv.size(), num_total_gen_vertices_assoc2reco);
     mes_[label]["GenAllAssoc2RecoMultiMatched_NumVertices"]
         ->Fill(simpv.size(), num_total_gen_vertices_multiassoc2reco);
-    for (auto const& v : recopv) {
-      fillGenAssociatedRecoVertexHistograms(label, v);
-      if (v.sim_vertices.size()) num_total_reco_vertices_assoc2gen++;
+    for (auto & v : recopv) {
+      fillGenAssociatedRecoVertexHistograms(label, num_pileup_vertices, v);
+      if (v.sim_vertices.size()) {
+        num_total_reco_vertices_assoc2gen++;
+        if (v.sim_vertices_internal[0]->rec_vertices.size() > 1) {
+          num_total_reco_vertices_duplicate++;
+        }
+      }
       if (v.sim_vertices.size() > 1) num_total_reco_vertices_multiassoc2gen++;
     }
     mes_[label]["RecoAllAssoc2Gen_NumVertices"]
@@ -927,6 +969,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         ->Fill(recopv.size(), num_total_reco_vertices_assoc2gen);
     mes_[label]["RecoAllAssoc2GenMultiMatched_NumVertices"]
         ->Fill(recopv.size(), num_total_reco_vertices_multiassoc2gen);
+    mes_[label]["RecoAllAssoc2MultiMatchedGen_NumVertices"]
+        ->Fill(recopv.size(), num_total_reco_vertices_duplicate);
     mes_[label]["RecoVtx_vs_GenVtx"]->Fill(simpv.size(), recopv.size());
     mes_[label]["MatchedRecoVtx_vs_GenVtx"]
         ->Fill(simpv.size(), num_total_reco_vertices_assoc2gen);

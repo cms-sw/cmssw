@@ -9,6 +9,7 @@ folders = [
 ]
 
 histo_names = [
+    {'name': 'RecoAllAssoc2GenProperties', 'o': ''},
     {'name': 'globalEfficiencies', 'o': ''},
     {'name': 'effic_vs_NumVertices', 'o': ''},
     {'name': 'effic_vs_NumTracks', 'o': ''},
@@ -21,17 +22,20 @@ histo_names = [
     {'name': 'gen_duplicate_vs_Pt2', 'o': 'logx'},
     {'name': 'gen_duplicate_vs_Z', 'o': ''},
     {'name': 'fakerate_vs_NumVertices', 'o': ''},
+    {'name': 'fakerate_vs_PU', 'o': ''},
     {'name': 'fakerate_vs_Ndof', 'o': ''},
     {'name': 'fakerate_vs_NumTracks', 'o': ''},
     {'name': 'fakerate_vs_ClosestVertexInZ', 'o': 'logx'},
     {'name': 'fakerate_vs_Pt2', 'o': 'logx'},
     {'name': 'fakerate_vs_Z', 'o': ''},
     {'name': 'duplicate_vs_NumVertices', 'o': ''},
+    {'name': 'duplicate_vs_PU', 'o': ''},
     {'name': 'duplicate_vs_NumTracks', 'o': ''},
     {'name': 'duplicate_vs_ClosestVertexInZ', 'o': 'logx'},
     {'name': 'duplicate_vs_Pt2', 'o': 'logx'},
     {'name': 'duplicate_vs_Z', 'o': ''},
     {'name': 'merged_vs_NumVertices', 'o': ''},
+    {'name': 'merged_vs_PU', 'o': ''},
     {'name': 'merged_vs_NumTracks', 'o': ''},
     {'name': 'merged_vs_ClosestVertexInZ', 'o': 'logx'},
     {'name': 'merged_vs_Pt2', 'o': 'logx'},

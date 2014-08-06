@@ -91,10 +91,17 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
   // auxiliary class holding reconstructed vertices
   struct recoPrimaryVertex {
+    enum VertexProperties {
+      NONE = 0,
+      MATCHED = 1,
+      DUPLICATE = 2,
+      MERGED = 4
+    };
     recoPrimaryVertex(double x1, double y1, double z1)
         :x(x1), y(y1), z(z1),
          ptsq(0), closest_vertex_distance_z(-1.),
          nRecoTrk(0),
+         kind_of_vertex(0),
          recVtx(nullptr) {
       r = sqrt(x*x + y*y);
     };
@@ -102,6 +109,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     double ptsq;
     double closest_vertex_distance_z;
     int nRecoTrk;
+    int kind_of_vertex;
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
     const reco::Vertex *recVtx;
@@ -129,7 +137,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   void fillRecoAssociatedGenVertexHistograms(const std::string &,
                                              const simPrimaryVertex &v);
   void fillGenAssociatedRecoVertexHistograms(const std::string &,
-                                             const recoPrimaryVertex &v);
+                                             int,
+                                             recoPrimaryVertex &v);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);
