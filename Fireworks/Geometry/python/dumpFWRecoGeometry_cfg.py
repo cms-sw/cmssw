@@ -30,17 +30,34 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['mc']
        process.load("Configuration.Geometry.GeometryExtended2015Reco_cff");
 
-     elif  score == "2019":
+    elif score == "2017":
+       from Configuration.AlCa.GlobalTag import GlobalTag
+       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
+       process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+       # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+       from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2017 
+       process = cust_2017(process)
+
+    elif  score == "2019":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
       process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+
+    elif  score == "2023":
+      from Configuration.AlCa.GlobalTag import GlobalTag
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+      process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+      # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+      from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
+      #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+      process = cust_2023Muon(process)
 
     elif score ==  "PhaseIPixel":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
       process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
 
-    elif score == varType.valueForKey(varType.SLHCDB): # orig dumpFWRecoSLHCGeometry_cfg.py
+    elif score == "SLHCDB": # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'
       process.load("Configuration.StandardSequences.GeometryDB_cff")
       process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -58,7 +75,7 @@ def recoGeoLoad(score):
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_42X_GEOMETRY")),
                  )
 
-    elif score == varType.valueForKey(varType.SLHC): # orig dumpFWRecoGeometrySLHC_cfg.py
+    elif score == varType.valueForKey("SLHC"): # orig dumpFWRecoGeometrySLHC_cfg.py
       from Configuration.AlCa.autoCond import autoCond
       process.GlobalTag.globaltag = autoCond['mc']
       process.load("Configuration.Geometry.GeometrySLHCSimIdeal_cff")
