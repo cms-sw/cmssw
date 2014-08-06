@@ -28,6 +28,9 @@ def simGeoLoad(score):
     elif score == "2019":
        process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 
+    elif score == "2023Muon"
+       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+
     elif score == "PhaseIPixel":
        process.load('Geometry.CMSCommonData.GeometryExtendedPhaseIPixel_cfi')
 
