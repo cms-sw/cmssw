@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 PhaseIPixel Phase1_R34F16 Phase2Tk SLHCDB SLHC DB")
+varType = Enumerate ("Run1 2015 2019 PhaseIPixel Phase1_R34F16 Phase2Tk  2023Muon SLHC DB SLHCDB")
 
 def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
@@ -25,11 +25,30 @@ def simGeoLoad(score):
     elif score == "2015":
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi")
 
+    elif score == "2019":
+       process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+  
     elif score == "PhaseIPixel":
        process.load('Geometry.CMSCommonData.GeometryExtendedPhaseIPixel_cfi')
 
+    elif score == "Phase1_R34F16":
+        process.load('Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
+ 
     elif score == "Phase2Tk":
        process.load('Geometry.CMSCommonData.cmsExtendedGeometryPhase2TkBEXML_cfi')
+
+    elif score == "2023Muon":
+       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+
+
+    elif score == "SLHC":
+        process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
+        
+    elif score == "DB":
+        process.load("Configuration.StandardSequences.GeometryDB_cff")
+        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+        from Configuration.AlCa.autoCond import autoCond
+        process.GlobalTag.globaltag = autoCond['mc']
 
     elif score == "SLHCDB":
         process.load("Configuration.StandardSequences.GeometryDB_cff")
@@ -44,19 +63,6 @@ def simGeoLoad(score):
                  )
         )
 
-    elif score == "DB":
-        process.load("Configuration.StandardSequences.GeometryDB_cff")
-        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-        from Configuration.AlCa.autoCond import autoCond
-        process.GlobalTag.globaltag = autoCond['mc']
-
-    elif score == "SLHC":
-        process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
-        
-
-    elif score == "Phase1_R34F16":
-        process.load('Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
-        
     else:
       help()
 
