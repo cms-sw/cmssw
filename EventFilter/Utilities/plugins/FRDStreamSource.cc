@@ -16,7 +16,8 @@
 FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset,
                                           edm::InputSourceDescription const& desc)
   : ProducerSourceFromFiles(pset,desc,true),
-    verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true))
+    verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
+    useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false))
 {
   itFileName_=fileNames().begin();
   openFile(*itFileName_);
@@ -55,7 +56,8 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
   }
 
   std::unique_ptr<FRDEventMsgView> frdEventMsg(new FRDEventMsgView(&buffer_[0]));
-  id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
+  if (useL1EventID_)
+    id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
 
   const uint32_t totalSize = frdEventMsg->size();
   if ( totalSize > buffer_.size() ) {
@@ -86,6 +88,7 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
   uint32_t eventSize = frdEventMsg->eventSize();
   char* event = (char*)frdEventMsg->payload();
+  bool foundGTPFED=false;
 
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
@@ -95,10 +98,24 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
-      evf::evtn::evm_board_setformat(fedSize);
+      foundGTPFED=true;
+      const bool GTPEvmBoardSense=evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize);
+      if (!useL1EventID_) {
+        if (GTPEvmBoardSense)
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get((unsigned char*) fedHeader,true));
+        else
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get((unsigned char*) fedHeader,false));
+      }
+      //evf::evtn::evm_board_setformat(fedSize);
       const uint64_t gpsl = evf::evtn::getgpslow((unsigned char*) fedHeader);
       const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
       theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
+    }
+    //take event ID from GTPE FED
+    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && !foundGTPFED && !useL1EventID_) {
+      if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
+        id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::gtpe_get((unsigned char*) fedHeader));
+      }
     }
     FEDRawData& fedData = rawData_->FEDData(fedId);
     fedData.resize(fedSize);
