@@ -10,24 +10,21 @@
 
 #include "DQMOffline/PFTau/interface/PFCandidateMonitor.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class PFMuonDQMAnalyzer: public edm::EDAnalyzer {
+class PFMuonDQMAnalyzer: public DQMEDAnalyzer {
  public:
   
   PFMuonDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);
-  void beginJob() ;
-  void endJob();
 
-  void storeBadEvents(edm::Event const&, float& val);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  //edm::EDGetTokenT< edm::View<reco::Candidate> > myCand_;
-  //edm::EDGetTokenT< edm::View<reco::Candidate> > myMatchedCand_;
+
   edm::EDGetTokenT< edm::View<reco::Muon> > myCand_;
   edm::EDGetTokenT< edm::View<reco::Muon> > myMatchedCand_;
-  //edm::EDGetTokenT< edm::View<reco::Muon> > myMuonMatchedCand_;
   edm::InputTag matchLabel_;
   edm::InputTag inputLabel_;
   std::string benchmarkLabel_;
@@ -39,6 +36,8 @@ class PFMuonDQMAnalyzer: public edm::EDAnalyzer {
   PFCandidateMonitor pfCandidateMonitor_;
 
   edm::ParameterSet pSet_;
+  std::string eventInfoFolder_;
+  std::string subsystemname_;
 
   int nBadEvents_;
 };

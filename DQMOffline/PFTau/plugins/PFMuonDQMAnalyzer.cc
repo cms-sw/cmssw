@@ -28,90 +28,59 @@ PFMuonDQMAnalyzer::PFMuonDQMAnalyzer(const edm::ParameterSet& parameterSet)
 
   pfCandidateMonitor_.setParameters(parameterSet);  
   
-  //myCand_ = consumes< edm::View<reco::Candidate> >(inputLabel_);
-  //myMatchedCand_ = consumes< edm::View<reco::Candidate> >(matchLabel_);
   myCand_ = consumes< edm::View<reco::Muon> >(inputLabel_);
   myMatchedCand_ = consumes< edm::View<reco::Muon> >(matchLabel_);
-  //myMuonMatchedCand_ = consumes< edm::View<reco::Muon> >(matchLabel_);
 
-}
-//
-// -- BeginJob
-//
-void PFMuonDQMAnalyzer::beginJob() {
 
-  Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
-  // part of the following could be put in the base class
-  std::string path = "ParticleFlow/" + benchmarkLabel_;
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  edm::LogInfo("PFMuonDQMAnalyzer") << " PFMuonDQMAnalyzer::beginJob " << "Histogram Folder path set to "<< path;
-  pfCandidateMonitor_.setup(pSet_);  
+  std::string folder = benchmarkLabel_ ;
+  
+  subsystemname_ = "ParticleFlow" ;
+  eventInfoFolder_ = subsystemname_ + "/" + folder ;
+
   nBadEvents_ = 0;
+
 }
+
+
+//
+// -- BookHistograms
+//
+void PFMuonDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				       edm::Run const & /* iRun */,
+				       edm::EventSetup const & /* iSetup */ )
+{
+  ibooker.setCurrentFolder(eventInfoFolder_) ;
+
+  edm::LogInfo("PFMuonDQMAnalyzer") << " PFMuonDQMAnalyzer::bookHistograms " << "Histogram Folder path set to " << eventInfoFolder_;
+  
+  pfCandidateMonitor_.setup(ibooker, pSet_);
+}
+
+
 //
 // -- Analyze
 //
 void PFMuonDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
   
-  //edm::Handle< edm::View<reco::Candidate> > candCollection;
-  //edm::Handle< edm::View<reco::Candidate> > matchedCandCollection;
   edm::Handle< edm::View<reco::Muon> > candCollection;
   edm::Handle< edm::View<reco::Muon> > matchedCandCollection;
-  //edm::Handle <edm::View<reco::Muon> > muonMatchedCandCollection ;
- 
   if ( !createEfficiencyHistos_ ) {
     iEvent.getByToken( myCand_, candCollection);   
     iEvent.getByToken( myMatchedCand_, matchedCandCollection);
-    //iEvent.getByToken( myMatchedCand_, muonMatchedCandCollection);
   } else {
     iEvent.getByToken( myMatchedCand_, candCollection);
     iEvent.getByToken( myCand_, matchedCandCollection);
-    //iEvent.getByToken( myCand_, muonMatchedCandCollection);
   }
   
   float maxRes = 0.0;
   float minRes = 99.99;
   if (candCollection.isValid() && matchedCandCollection.isValid()) {
-
-    //pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes) ;
-    //pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes, pSet_) ;
-    //pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes, pSet_, *muonMatchedCandCollection) ;
     pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes, pSet_, *matchedCandCollection) ;
         
-    edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
-    if ( (skimPS.getParameter<bool>("switchOn")) &&  
-	 (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
-      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
-	nBadEvents_++; 
-	storeBadEvents(iEvent, minRes);
-      } else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
-	nBadEvents_++;
-	storeBadEvents(iEvent, maxRes);
-      }
-    }
-    
   }
 }
 
-void PFMuonDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
-  unsigned int runNb  = iEvent.id().run();
-  unsigned int evtNb  = iEvent.id().event();
-  unsigned int lumiNb = iEvent.id().luminosityBlock();
-  
-  std::string path = "ParticleFlow/" + benchmarkLabel_ + "/BadEvents";
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  std::ostringstream eventid_str;
-  eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
-  MonitorElement* me = Benchmark::DQM_->get(path + "/" + eventid_str.str());
-  if (me) me->Reset();
-  else me = Benchmark::DQM_->bookFloat(eventid_str.str());
-  me->Fill(val);  
-}
-//
-// -- EndJob
-// 
-void PFMuonDQMAnalyzer::endJob() {
-}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (PFMuonDQMAnalyzer) ;
