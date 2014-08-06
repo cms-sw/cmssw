@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2019 PhaseIPixel SLHCDB SLHC")
+varType = Enumerate ("Run1 2015 2017 2019 PhaseIPixel 2023Muon SLHC SLHCDB")
 
 def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
@@ -43,7 +43,12 @@ def recoGeoLoad(score):
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
       process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 
-    elif  score == "2023Muon":
+    elif score ==  "PhaseIPixel":
+      from Configuration.AlCa.GlobalTag import GlobalTag
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
+      process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
+
+   elif  score == "2023Muon":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
@@ -51,11 +56,6 @@ def recoGeoLoad(score):
       from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
       #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
       process = cust_2023Muon(process)
-
-    elif score ==  "PhaseIPixel":
-      from Configuration.AlCa.GlobalTag import GlobalTag
-      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
-      process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
 
     elif score == "SLHCDB": # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'
