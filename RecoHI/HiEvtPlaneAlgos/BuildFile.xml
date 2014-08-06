@@ -19,5 +19,6 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="RecoHI/HiCentralityAlgos"/>
 <use   name="clhep"/>
 <flags   EDM_PLUGIN="1"/>

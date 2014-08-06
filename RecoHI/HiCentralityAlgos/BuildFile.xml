@@ -12,6 +12,7 @@
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="CondFormats/HIObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondCore/DBCommon"/>
@@ -19,5 +20,9 @@
 <use   name="CondCore/PopCon"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
-<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+  <use   name="DataFormats/HeavyIonEvent"/>
+</export>
+
 

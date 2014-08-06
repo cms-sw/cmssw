@@ -31,7 +31,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 
 //
@@ -44,9 +44,9 @@ class CentralityBinProducer : public edm::EDProducer {
       ~CentralityBinProducer();
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
 

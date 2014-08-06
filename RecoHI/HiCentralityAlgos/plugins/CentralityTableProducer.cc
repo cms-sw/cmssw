@@ -1,21 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    CentralityTableProducer
-// Class:      CentralityTableProducer
-// 
-/**\class CentralityTableProducer CentralityTableProducer.cc yetkin/CentralityTableProducer/src/CentralityTableProducer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Yetkin Yilmaz
-//         Created:  Wed May  2 21:41:30 EDT 2007
-//
-//
-
 
 // system include files
 #include <iostream>
@@ -39,13 +21,14 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 #include <TFile.h>
 
@@ -61,8 +44,8 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 
    private:
       virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
    void printBin(const CentralityTable::CBin*);
       // ----------member data ---------------------------
 

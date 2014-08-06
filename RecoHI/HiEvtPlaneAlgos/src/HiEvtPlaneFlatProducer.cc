@@ -14,6 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.14 2012/02/15 11:04:09 eulisse Exp $
 //
 //
 
@@ -87,9 +88,9 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
       ~HiEvtPlaneFlatProducer();
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
 

@@ -1,15 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    CentralityFilter
-// Class:      CentralityFilter
-// 
-/**\class CentralityFilter CentralityFilter.cc CmsHi/CentralityFilter/src/CentralityFilter.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Tue Jun 29 12:19:49 CEST 2010
@@ -29,7 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 //
 // class declaration
@@ -41,9 +29,9 @@ class CentralityFilter : public edm::EDFilter {
       ~CentralityFilter();
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
    CentralityProvider * centrality_;

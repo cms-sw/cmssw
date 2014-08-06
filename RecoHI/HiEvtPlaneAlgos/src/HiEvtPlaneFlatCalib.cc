@@ -14,6 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
+// $Id: HiEvtPlaneFlatCalib.cc,v 1.7 2012/02/15 11:04:09 eulisse Exp $
 //
 //
 
@@ -29,7 +30,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
+
 #include "Math/Vector3D.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -81,9 +83,9 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
       ~HiEvtPlaneFlatCalib();
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
   edm::Service<TFileService> fs;

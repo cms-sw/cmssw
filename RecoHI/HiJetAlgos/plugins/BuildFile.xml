@@ -4,6 +4,12 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="RecoHI/HiJetAlgos"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondCore/PopCon"/>
+<use   name="Geometry/CaloGeometry"/>
+
 <Flags CXXFLAGS="-frounding-math"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="*.cc" name="HiJetAlgosPlugins">
