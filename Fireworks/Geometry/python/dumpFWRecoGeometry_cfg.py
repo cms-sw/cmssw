@@ -119,13 +119,7 @@ process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-if not options.load:
-   recoGeoLoad(options.tag)
-else:
-   from Configuration.AlCa.autoCond import autoCond
-   process.GlobalTag.globaltag = autoCond['mc']
-   process.load(options.load)
-
+recoGeoLoad(options.tag)
 
 tagInfoq = cms.string(options.tag);
 
