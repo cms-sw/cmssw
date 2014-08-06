@@ -103,10 +103,12 @@ options.parseArguments()
 
 
 
+
 process = cms.Process("DUMP")
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
+process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
