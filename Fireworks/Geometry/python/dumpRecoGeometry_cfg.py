@@ -94,8 +94,8 @@ def recoGeoLoad(score):
 
 options = VarParsing.VarParsing ()
 
-defaultTag=str(2015);
-defaultOutputFileName="cmsRecoGeom-" + ".root"
+
+defaultOutputFileName="cmsRecoGeom.root"
 
 options.register ('tag',
                   "2015", # default value
