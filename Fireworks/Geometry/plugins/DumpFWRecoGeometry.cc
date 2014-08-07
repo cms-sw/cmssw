@@ -23,12 +23,14 @@ private:
   virtual void endJob( void ) override;
 
   int m_level;
-  std::string m_info;
+  std::string m_tag;
+  std::string m_outputFileName;
 };
 
 DumpFWRecoGeometry::DumpFWRecoGeometry( const edm::ParameterSet& config )
   : m_level( config.getUntrackedParameter<int>( "level", 1 )),
-    m_info( config.getUntrackedParameter<std::string>( "tagInfo", "2015" ))
+    m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "2015" )),
+    m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsRecoGeo.root" ))
 {}
 
 void
@@ -38,10 +40,7 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
 
   ESTransientHandle<FWRecoGeometry> geoh;
   eventSetup.get<FWRecoGeometryRecord>().get( geoh );
-  
-  std::stringstream s;
-  s << "cmsRecoGeom" << m_level << ".root";
-  TFile file( s.str().c_str(), "RECREATE" );
+  TFile file( m_outputFileName.c_str(), "RECREATE" );
 
   TTree *tree = new TTree("idToGeo", "raw detector id association with geometry");
 
@@ -82,7 +81,7 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   TNamed* version =  new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" ));
   file.WriteTObject(version);
 
-  file.WriteTObject(new TNamed("TAG", m_info.c_str()));
+  file.WriteTObject(new TNamed("tag", m_tag.c_str()));
 
   file.Close();
 }

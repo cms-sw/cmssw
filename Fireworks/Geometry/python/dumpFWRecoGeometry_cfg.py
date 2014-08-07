@@ -92,6 +92,9 @@ def recoGeoLoad(score):
 
 options = VarParsing.VarParsing ()
 
+defaultTag=str(2015);
+defaultOutputFileName="cmsRecoGeom-" +  str(defaultTag) + ".root"
+
 options.register ('tag',
                   "2015", # default value
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -105,6 +108,12 @@ options.register ('tgeo',
                   VarParsing.VarParsing.varType.bool,
                   "write geometry in TGeo format")
 
+
+options.register ('out',
+                  defaultOutputFileName, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Output file name")
 
 options.parseArguments()
 
@@ -130,7 +139,8 @@ else:
     process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
     process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
                               level   = cms.untracked.int32(1),
-                              tagInfo = cms.untracked.string(options.tag)
+                              tagInfo = cms.untracked.string(options.tag),
+                       outputFileName = cms.untracked.string(options.out)
                               )
 
 process.p = cms.Path(process.dump)
