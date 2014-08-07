@@ -22,17 +22,6 @@ def recoGeoLoad(score):
     print "Loading configuration for tag ", options.tag ,"...\n"
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-    if score == "Run1":
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['mc']
-       process.load("Configuration.StandardSequences.GeometryDB_cff")
-       process.load("Configuration.StandardSequences.Reconstruction_cff")
-
-    elif score == "2015":
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['mc']
-       process.load("Configuration.Geometry.GeometryExtended2015Reco_cff");
-
     elif score == "2017":
        from Configuration.AlCa.GlobalTag import GlobalTag
        process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
@@ -94,11 +83,11 @@ def recoGeoLoad(score):
 
 options = VarParsing.VarParsing ()
 
-defaultTag=str(2015);
+
 defaultOutputFileName="cmsRecoGeom-" + ".root"
 
 options.register ('tag',
-                  "2015", # default value
+                  "2019", # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "tag info about geometry database conditions")
