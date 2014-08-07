@@ -11,6 +11,8 @@ def help():
    print "       indentify geometry condition database tag"
    print "      ", varType.keys()
    print ""
+   print "   out=outputFileName"
+   print "       default is cmsSimGeom<tag>.root"
    print 
    exit(1);
 
