@@ -230,7 +230,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  55, &log_pt2_bins[0]);
     mes_[label]["RecoAllAssoc2Gen_Ndof"] =
         i.book1D("RecoAllAssoc2Gen_Ndof",
-                 "ReconstructedAllAssoc2Gen_Ndof", 100, 0., 100.);
+                 "ReconstructedAllAssoc2Gen_Ndof", 240, 0., 240.);
     mes_[label]["RecoAllAssoc2Gen_NumTracks"] =
         i.book1D("RecoAllAssoc2Gen_NumTracks",
                  "ReconstructedAllAssoc2Gen_NumTracks", 200, 0., 200.);
@@ -268,7 +268,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  55, &log_pt2_bins[0]);
     mes_[label]["RecoAllAssoc2GenMatched_Ndof"] =
         i.book1D("RecoAllAssoc2GenMatched_Ndof",
-                 "ReconstructedAllAssoc2GenMatched_Ndof", 100, 0., 100.);
+                 "ReconstructedAllAssoc2GenMatched_Ndof", 240, 0., 240.);
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"] =
         i.book1D("RecoAllAssoc2GenMatched_NumTracks",
                  "ReconstructedAllAssoc2GenMatched_NumTracks", 200, 0., 200.);
