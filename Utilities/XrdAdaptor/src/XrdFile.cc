@@ -7,6 +7,8 @@
 #include <vector>
 #include <sstream>
 
+#include "XrdClient/XrdClientConn.hh"
+
 XrdFile::XrdFile (void)
   : m_client (0),
     m_offset (0),
