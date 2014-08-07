@@ -24,7 +24,7 @@ met = cms.EDProducer(
     noHF = cms.bool(False),
     globalThreshold = cms.double(0.3),
     InputType = cms.string('CandidateCollection'),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
     )
 
 metHO = met.clone()
@@ -40,7 +40,7 @@ metOpt = cms.EDProducer(
     noHF = cms.bool(False),
     globalThreshold = cms.double(0.0),
     InputType = cms.string('CandidateCollection'),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
     )
 
 metOptHO = metOpt.clone()
@@ -56,7 +56,7 @@ metNoHF = cms.EDProducer(
     noHF = cms.bool(True),
     globalThreshold = cms.double(0.3),
     InputType = cms.string('CandidateCollection'),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
 )
 
 metNoHFHO = metNoHF.clone()
@@ -72,7 +72,7 @@ metOptNoHF = cms.EDProducer(
     noHF = cms.bool(True),
     globalThreshold = cms.double(0.0),
     InputType = cms.string('CandidateCollection'),
-    calculateSignificance = cms.bool(True)
+    calculateSignificance = cms.bool(False)
     )
 metOptNoHFHO = metOptNoHF.clone()
 metOptNoHFHO.src = "calotoweroptmakerWithHO"
