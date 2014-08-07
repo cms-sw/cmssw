@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/SeedChargeSelector.h"
+#include "SeedChargeSelector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 namespace reco {

@@ -124,6 +124,12 @@ namespace edm {
     OwnVector<T, P>& operator=(OwnVector<T, P>&&) noexcept;
 #endif
 
+    void shrink_to_fit() {
+#ifndef CMS_NOCXX11
+      data_.shrink_to_fit();
+#endif
+    }
+
 
     void reserve(size_t);
     template <typename D> void push_back(D*& d);
