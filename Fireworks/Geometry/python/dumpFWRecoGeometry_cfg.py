@@ -95,7 +95,7 @@ def recoGeoLoad(score):
 options = VarParsing.VarParsing ()
 
 defaultTag=str(2015);
-defaultOutputFileName="cmsRecoGeom-" +  str(defaultTag) + ".root"
+defaultOutputFileName="cmsRecoGeom-" + ".root"
 
 options.register ('tag',
                   "2015", # default value
@@ -130,17 +130,17 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 recoGeoLoad(options.tag)
 
-tagInfoq = cms.string(options.tag);
-
 if ( options.tgeo == True):
     if (options.out == defaultOutputFileName ):
-        options.out = "cmsTGeoRecoGeom-" +  str(defaultTag) + ".root"
+        options.out = "cmsTGeoRecoGeom-" +  str(options.tag) + ".root"
     process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
     process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry",
                               tagInfo = cms.untracked.string(options.tag),
                        outputFileName = cms.untracked.string(options.out)
                               )
 else:
+    if (options.out == defaultOutputFileName ):
+        options.out = "cmsRecoGeom-" +  str(options.tag) + ".root"
     process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
     process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
                               level   = cms.untracked.int32(1),
