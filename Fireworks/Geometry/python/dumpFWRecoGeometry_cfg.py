@@ -20,6 +20,8 @@ def help():
 
 def recoGeoLoad(score):
     print "Loading configuration for tag ", options.tag ,"...\n"
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
     if score == "Run1":
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['mc']
@@ -121,20 +123,23 @@ options.parseArguments()
 
 
 process = cms.Process("DUMP")
+process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 recoGeoLoad(options.tag)
 
 tagInfoq = cms.string(options.tag);
 
 if ( options.tgeo == True):
+    if (options.out == defaultOutputFileName ):
+        options.out = "cmsTGeoRecoGeom-" +  str(defaultTag) + ".root"
     process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
-    process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry")
+    process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry",
+                              tagInfo = cms.untracked.string(options.tag),
+                       outputFileName = cms.untracked.string(options.out)
+                              )
 else:
     process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
     process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
@@ -143,4 +148,5 @@ else:
                        outputFileName = cms.untracked.string(options.out)
                               )
 
+print "Dumping geometry in " , options.out, "\n"; 
 process.p = cms.Path(process.dump)
