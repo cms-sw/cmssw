@@ -146,6 +146,9 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> getRecoPVs(
       const edm::Handle<reco::VertexCollection>);
 
+  template<class T>
+  void computePairDistance(const T &collection, MonitorElement *me);
+
   // ----------member data ---------------------------
   bool verbose_;
   bool use_TP_associator_;

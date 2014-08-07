@@ -119,6 +119,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
       i.book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 55,
                &log_bins[0]);
+  mes_["root_folder"]["GenAllV_PairDistanceZ"] =
+      i.book1D("GenAllV_PairDistanceZ", "GeneratedAllV_PairDistanceZ",
+               1000, 0, 10);
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
@@ -246,6 +249,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenProperties"] =
         i.book1D("RecoAllAssoc2GenProperties",
                  "ReconstructedAllAssoc2Gen_Properties", 8, -0.5, 7.5);
+    mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"] =
+        i.book1D("RecoAllAssoc2Gen_PairDistanceZ",
+                 "RecoAllAssoc2Gen_PairDistanceZ", 1000, 0, 10);
 
     // All Reconstructed Vertices Matched to a Generated vertex. Used
     // for Fake-Rate plots
@@ -904,6 +910,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   // probably be subtracted?
   int num_pileup_vertices = simpv.size();
   mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
+  computePairDistance(simpv,
+                      mes_["root_folder"]["GenAllV_PairDistanceZ"]);
 
   int label_index = -1;
   for (auto const& vertex_token : reco_vertex_collection_tokens_) {
@@ -921,6 +929,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       resetSimPVAssociation(simpv);
       matchSim2RecoVertices(simpv, *recVtxs.product());
       recopv = getRecoPVs(recVtxs);
+      computePairDistance(recopv,
+                          mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"]);
       matchReco2SimVertices(recopv, *TVCollectionH.product(), simpv);
     }
 
@@ -999,3 +1009,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         ->Fill(simpv.size(), num_total_reco_vertices_assoc2gen);
   }
 }  // end of analyze
+
+template<class T>
+void PrimaryVertexAnalyzer4PUSlimmed::computePairDistance(const T &collection,
+                                                          MonitorElement *me) {
+  for (unsigned int i = 0; i < collection.size(); ++i) {
+    for (unsigned int j = i+1; j < collection.size(); ++j) {
+      me->Fill(
+          std::abs(collection[i].z-collection[j].z));
+    }
+  }
+}
