@@ -121,7 +121,6 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
 
   edm::Handle<TauCollection> taus_;
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  mutable size_t tauIndex_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -142,7 +141,6 @@ void PFRecoTauDiscriminationAgainstMuonMVA::beginEvent(const edm::Event& evt, co
 
   evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
 }
 
 namespace
@@ -177,7 +175,6 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) 
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
   double category = 0.; 
   category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
 
   // CV: computation of anti-muon MVA value requires presence of leading charged hadron
   if ( tau->leadPFChargedHadrCand().isNull() ) return 0.;

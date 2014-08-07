@@ -71,7 +71,6 @@ private:
   edm::Handle<TauCollection> taus_;
 
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  mutable size_t tauIndex_;  // FIXME it is thread safe...
 
   int verbosity_;
 };
@@ -82,7 +81,6 @@ void PFRecoTauDiscriminationAgainstElectronMVA5::beginEvent(const edm::Event& ev
 
   evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
 
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
@@ -141,7 +139,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
 	    // add category index
 	    category_output_->setValue(tauIndex_, category);
-	    ++tauIndex_;
 	    // return MVA output value
 	    return -99;
 	  }
@@ -184,7 +181,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
 	// add category index
 	category_output_->setValue(tauIndex_, category);
-	++tauIndex_;
 	// return MVA output value
 	return -99;
       }
@@ -224,7 +220,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 
   // add category index
   category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
   // return MVA output value
   return mvaValue;
 }
