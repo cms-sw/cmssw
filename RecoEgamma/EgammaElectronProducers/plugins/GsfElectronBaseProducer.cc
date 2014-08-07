@@ -271,7 +271,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
     hcalCfgPflow_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
    }
   hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
-  hcalCfg_.hOverEMethod = cfg.getParameter<int>("hOverEMethod") ;
+  hcalCfgPflow_.hOverEMethod = cfg.getParameter<int>("hOverEMethodPflow") ;
 
   // Ecal rec hits configuration
   GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg ;
