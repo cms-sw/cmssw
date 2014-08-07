@@ -29,7 +29,7 @@ private:
 
 DumpFWRecoGeometry::DumpFWRecoGeometry( const edm::ParameterSet& config )
   : m_level( config.getUntrackedParameter<int>( "level", 1 )),
-    m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "2015" )),
+    m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "unknown" )),
     m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsRecoGeo.root" ))
 {}
 
