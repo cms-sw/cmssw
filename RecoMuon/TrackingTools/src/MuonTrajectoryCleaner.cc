@@ -10,8 +10,8 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
-#include "DataFormats/TrackingRecHit/interface/RecSegment.h"                                // Daniele
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"  // Daniele
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h" 
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h" 
 
 using namespace std; 
 
@@ -31,7 +31,6 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
 
   int i(0), j(0);
   int match(0);
-  int nTot1DHits_i(0), nTot1DHits_j(0);  // tot number of 1D/2D hits (including invalid)
 
   // Map between chosen seed and ghost seeds (for trigger)
   map<int, vector<int> > seedmap;
@@ -55,23 +54,10 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
       if(seedmap.count(j)==0) seedmap[j].push_back(j);
       const Trajectory::DataContainer& meas2 = (*jter)->measurements();
       match = 0;
-      nTot1DHits_i = 0;
       for( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
- 	TransientTrackingRecHit::ConstRecHitContainer trhC1;
- 	if((*m1).recHit()->dimension()==4) trhC1 = MuonTransientTrackingRecHitBreaker::breakInSubRecHits((*m1).recHit(), 2);
- 	else trhC1.push_back((*m1).recHit());
-	for( TransientTrackingRecHit::ConstRecHitContainer::const_iterator trh1=trhC1.begin(); trh1!=trhC1.end(); ++trh1, ++nTot1DHits_i) {
-	  nTot1DHits_j = 0;
-	  for( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
-	    TransientTrackingRecHit::ConstRecHitContainer trhC2;
-	    if((*m2).recHit()->dimension()==4) trhC2 = MuonTransientTrackingRecHitBreaker::breakInSubRecHits((*m2).recHit(), 2);
-	    else trhC2.push_back((*m2).recHit());
-	    for( TransientTrackingRecHit::ConstRecHitContainer::const_iterator trh2=trhC2.begin(); trh2!=trhC2.end(); ++trh2, ++nTot1DHits_j) {
-	      if( ( (*trh1)->globalPosition() - (*trh2)->globalPosition()).mag() < 10e-5 ) match++;
-	      //	  if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++;
-	    } // end for( trh2 ... )
-	  } // end for( m2 ... )
-        } // end for( trh1 ... )
+	for( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
+	  if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++; 
+	} // end for( m2 ... )
       } // end for( m1 ... )
       
 
@@ -86,18 +72,18 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
       LogTrace(metname) << " * trajC " << i 
 			<< " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
 			<< " GeV) - chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() << " = " << chi2_dof_i;
-      LogTrace(metname)	<< "     - valid RH = " << (*iter)->foundHits() << " / total RH = " <<  nTotHits_i << " / total 1D RH = " << nTot1DHits_i;
+      LogTrace(metname)	<< "     - valid RH = " << (*iter)->foundHits() << " / total RH = " <<  nTotHits_i;
       LogTrace(metname)	<< " * trajC " << j 
 			<< " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
 			<< " GeV) - chi2/nDOF = " << (*jter)->chiSquared() << "/" << (*jter)->ndof() << " = " << chi2_dof_j;
-      LogTrace(metname)	<< "     - valid RH = " << (*jter)->foundHits() << " / total RH = " <<  nTotHits_j << " / total 1D RH = " << nTot1DHits_j;
-      LogTrace(metname)	<< " *** Shared 1D RecHits: " << match;
+      LogTrace(metname)	<< "     - valid RH = " << (*jter)->foundHits() << " / total RH = " <<  nTotHits_j;
+      LogTrace(metname)	<< " *** Shared RecHits: " << match; 
 
       int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       
       // If there are matches, reject the worst track
       if ( match > 0 ) {
-        // If the difference of # of rechits is less than 4, compare the chi2/ndf
-        if ( abs(hit_diff) <= 4  ) {
+        // If the difference in # of rechits is null then compare the chi2/ndf of the two trajectories
+        if ( abs(hit_diff) == 0  ) {
 
 	  double minPt = 3.5;
 	  double dPt = 7.;  // i.e. considering 10% (conservative!) resolution at minPt it is ~ 10 sigma away from the central value
