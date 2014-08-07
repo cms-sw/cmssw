@@ -29,6 +29,8 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
           iConfig.getUntrackedParameter<bool>("use_TP_associator", false)),
       sigma_z_match_(
           iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
+      abs_z_match_(
+          iConfig.getUntrackedParameter<double>("abs_z_match", 0.1)),
       root_folder_(
           iConfig.getUntrackedParameter<std::string>("root_folder",
                                                 "Validation/Vertices")),
@@ -747,7 +749,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(
                   << std::endl;
       }
       if (((fabs(vrec->z() - vsim->z) / vrec->zError()) < sigma_z_match_)
-          && (fabs(vrec->z() - vsim->z) < 0.1)) {
+          && (fabs(vrec->z() - vsim->z) < abs_z_match_)) {
         vsim->rec_vertices.push_back(&(*vrec));
         if (verbose_) {
           std::cout << "Trying a matching vertex for " << vsim->z << " at "
@@ -798,10 +800,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
       // gen-vertices that are close in z, in unit of sigma_z of the
       // reconstructed vertex, at least of sigma_z_match_. Require
       // also a maximum absolute distance between the 2 vertices of at
-      // most 1 mm along the Z axis.
+      // most abs_z_match_ along the Z axis(in cm).
       if (((fabs(vrec->z - vsim->position().z()) / vrec->recVtx->zError()) <
           sigma_z_match_)
-          && (fabs(vrec->z - vsim->position().z()) < 0.1)) {
+          && (fabs(vrec->z - vsim->position().z()) < abs_z_match_)) {
         vrec->sim_vertices.push_back(&(*vsim));
         for (std::vector<simPrimaryVertex>::const_iterator vv = simpv.begin();
              vv != simpv.end(); vv++) {
