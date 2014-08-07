@@ -31,4 +31,6 @@ namespace DeDxTools  {
   bool shapeSelection(const std::vector<uint8_t> & ampls);
 }
 
+//TEST
+
 #endif
