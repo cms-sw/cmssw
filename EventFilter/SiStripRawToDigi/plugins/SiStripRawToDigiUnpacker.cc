@@ -16,6 +16,8 @@
 #include <sstream>
 #include <iomanip>
 #include <ext/algorithm>
+#include "FWCore/Utilities/interface/RunningAverage.h"
+
 
 namespace sistrip {
 
@@ -56,10 +58,18 @@ namespace sistrip {
     }
   }
 
+
+  namespace {
+
+    edm::RunningAverage localRA(10000);
+
+  }
+
   void RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& detids, RawDigis& cm_values ) {
 
-    // Clear working areas and registries
-    cleanupWorkVectors();
+    // Clear done at the end
+    assert(zs_work_digis_.empty()); 
+    zs_work_digis_.reserve(localRA.upper());
     // Reserve space in bad module list
     detids.reserve(100);
   
@@ -745,7 +755,9 @@ namespace sistrip {
   
   void RawToDigiUnpacker::cleanupWorkVectors() {
     // Clear working areas and registries
-    zs_work_registry_.clear();      zs_work_digis_.clear();
+    
+    localRA.update(zs_work_digis_.size());
+    zs_work_registry_.clear();      zs_work_digis_.clear(); zs_work_digis_.shrink_to_fit(); assert(zs_work_digis_.capacity()==0);
     virgin_work_registry_.clear();  virgin_work_digis_.clear();
     proc_work_registry_.clear();    proc_work_digis_.clear();
     scope_work_registry_.clear();   scope_work_digis_.clear();

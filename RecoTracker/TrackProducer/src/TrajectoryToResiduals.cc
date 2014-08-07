@@ -1,7 +1,6 @@
 #include "TrajectoryToResiduals.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,37 +30,35 @@ reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory,
 	      continue;
 	    }
 
-	  TrajectoryStateOnSurface combo = combine(i->forwardPredictedState(),
-						   i->backwardPredictedState());
+	  TrajectoryStateOnSurface && combo = combine(i->forwardPredictedState(),
+       						   i->backwardPredictedState());
 	  
 	  if (!combo.isValid()){
 	    edm::LogError("InvalideState")<<"the combined state is invalid";
 	    continue;
 	  }
 
-	  LocalPoint combo_localpos = combo.localPosition();
-	  LocalError combo_localerr = combo.localError().positionError();
-	  LocalPoint dethit_localpos = i->recHit()->localPosition();     
-	  LocalError dethit_localerr = i->recHit()->localPositionError();
-	  HelpertRecHit2DLocalPos helper;
-	  AlgebraicSymMatrix error_including_alignment = 
-	       helper.parError(dethit_localerr, *i->recHit()->det());
+	  LocalPoint && combo_localpos = combo.localPosition();
+	  LocalError && combo_localerr = combo.localError().positionError();
+	  LocalPoint && dethit_localpos = i->recHit()->localPosition();     
+	  LocalError && dethit_localerr = i->recHit()->localPositionError();
+	  auto const &  error_including_alignment = dethit_localerr; // align error nwo is included 
 	  switch (type) {
 	  case reco::TrackResiduals::X_Y_RESIDUALS: 
 	  {
-	       double x = (dethit_localpos.x() - combo_localpos.x()) / 
-		    sqrt(error_including_alignment[0][0]);
-	       double y = (dethit_localpos.y() - combo_localpos.y()) / 
-		    sqrt(error_including_alignment[1][1]);
+	       auto x = (dethit_localpos.x() - combo_localpos.x()) / 
+		    std::sqrt(error_including_alignment.xx());
+	       auto y = (dethit_localpos.y() - combo_localpos.y()) / 
+		    std::sqrt(error_including_alignment.yy());
 	       residuals.setResidualXY(i_residual, x, y);
 	       break;
 	  }
 	  case reco::TrackResiduals::X_Y_PULLS:
 	  {
-	       double x = (dethit_localpos.x() - combo_localpos.x()) / 
-		    sqrt(error_including_alignment[0][0] + combo_localerr.xx());
-	       double y = (dethit_localpos.y() - combo_localpos.y()) / 
-		    sqrt(error_including_alignment[1][1] + combo_localerr.yy());
+	       auto x = (dethit_localpos.x() - combo_localpos.x()) / 
+		    std::sqrt(error_including_alignment.xx() + combo_localerr.xx());
+	       auto y = (dethit_localpos.y() - combo_localpos.y()) / 
+		    std::sqrt(error_including_alignment.yy() + combo_localerr.yy());
 	       residuals.setPullXY(i_residual, x, y);
 	       break;
 	  }

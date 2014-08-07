@@ -7,7 +7,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include <boost/shared_ptr.hpp>
 
-class  MeasurementTrackerESProducer: public edm::ESProducer{
+class  dso_hidden MeasurementTrackerESProducer: public edm::ESProducer{
  public:
   MeasurementTrackerESProducer(const edm::ParameterSet & p);
   virtual ~MeasurementTrackerESProducer(); 

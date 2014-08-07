@@ -9,7 +9,7 @@
 namespace edm { class Event; class EventSetup; }
 
 
-class SeedGeneratorFromProtoTracksEDProducer : public edm::EDProducer {
+class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::EDProducer {
 public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
   virtual ~SeedGeneratorFromProtoTracksEDProducer(){}
