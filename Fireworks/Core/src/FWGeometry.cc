@@ -125,11 +125,13 @@ FWGeometry::loadMap( const char* fileName )
    m_versionInfo.cmsswVersion   = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
    m_versionInfo.extraDetectors = static_cast<TObjArray*>(file->Get( "ExtraDetectors" ));
   
+   TString path = file->GetPath();
+   if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
 
    if (m_versionInfo.productionTag)
-      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(),  m_versionInfo.productionTag->GetName(), file->GetPath());  
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(),  m_versionInfo.productionTag->GetName(), path.Data());  
    else 
-      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), file->GetPath());  
+      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), path.Data());  
 
    file->Close();
 }
