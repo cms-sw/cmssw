@@ -78,10 +78,12 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   }
   file.WriteTObject( tree );
 
-  TNamed* version =  new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" ));
-  file.WriteTObject(version);
 
+  file.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" )));
   file.WriteTObject(new TNamed("tag", m_tag.c_str()));
+  file.WriteTObject(&geoh.product()->extraDet, "ExtraDetectors");
+
+
 
   file.Close();
 }
