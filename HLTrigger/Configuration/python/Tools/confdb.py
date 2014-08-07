@@ -552,6 +552,9 @@ if 'GlobalTag' in %(dict)s:
       elif self.config.emulator == 'gct,gt':
         emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
         emulator['CustomHLT'] = 'switchToSimGctGtDigis'
+      elif self.config.emulator == 'stage1,gt':
+        emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
+        emulator['CustomHLT'] = 'switchToSimGctGtDigis'
       elif self.config.emulator == 'gmt,gt':
         # XXX currently unsupported
         emulator['CustomL1T'] = 'customiseL1MuonAndGtEmulatorsFromRaw'
@@ -564,7 +567,22 @@ if 'GlobalTag' in %(dict)s:
         emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
         emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
 
-      self.data += """
+      if (self.config.emulator).find("stage1")==-1:
+        self.data += """
+# customize the L1 emulator to run %(CustomL1T)s with HLT to %(CustomHLT)s
+process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
+process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
+import L1Trigger.Configuration.L1Trigger_custom
+process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
+process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
+
+# customize the HLT to use the emulated results
+import HLTrigger.Configuration.customizeHLTforL1Emulator
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( process )
+""" % emulator
+      else:
+        self.data += """
 # customize the L1 emulator to run %(CustomL1T)s with HLT to %(CustomHLT)s
 process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
