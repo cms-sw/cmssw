@@ -13,7 +13,6 @@ HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.S
 HLTSiStripMonitorCluster.ClusterProducerStrip = cms.InputTag("hltSiStripRawToClustersFacility")
 HLTSiStripMonitorCluster.ClusterProducerPix   = cms.InputTag("hltSiPixelClusters")
 HLTSiStripMonitorCluster.TopFolderName        = cms.string("HLT/SiStrip")
-HLTSiStripMonitorCluster.Mod_On = False
 HLTSiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon   = True
 HLTSiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon      = False
 HLTSiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
@@ -48,24 +47,31 @@ HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
 
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone()
+hltTrackRefitterForSiStripMonitorTrack.beamSpot                = cms.InputTag("hltOnlineBeamSpot")
+hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent')
+#MeasurementTrackerEvent = cms.InputTag("hltSiStripClusters")
+hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(False)
+hltTrackRefitterForSiStripMonitorTrack.useHitsSplitting        = cms.bool(False)
 hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag("hltIter4Merged") ## give problem : BadRefCore RefCore: Request to resolve a null or invalid reference to a product of type 'edmNew::DetSetVector<SiStripCluster>' has been detected
 #hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag("hltPFJetCtfWithMaterialTracks") ## give problem : BadRefCore RefCore: Request to resolve a null or invalid reference to a product of type 'edmNew::DetSetVector<SiStripCluster>' has been detected
 #hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFJetCkfTrackCandidates') ## give problems w/ trajectory maker
-#hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFlowTrackSelectionHighPurity')
+#hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFlowTrackSelectionHighPurity') WORKS
+#hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(True)
 #hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag('hltIter4PFJetCtfWithMaterialTracks')
-hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent = True
 
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 #HLTSiStripMonitorTrack.TrackProducer     = 'hltIter4Merged' ## works, but there is not the trajectory map :(
 HLTSiStripMonitorTrack.TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack' 
+#HLTSiStripMonitorTrack.TrackProducer     = 'hltIter0PFlowTrackSelectionHighPurity' 
 HLTSiStripMonitorTrack.TrackLabel        = ''
-HLTSiStripMonitorTrack.TrajectoryInEvent = cms.bool(True) ### ?!?!?!?!?
+#HLTSiStripMonitorTrack.TrajectoryInEvent = cms.bool(False) ### ?!?!?!?!?
 HLTSiStripMonitorTrack.AlgoName          = cms.string("HLT")
 HLTSiStripMonitorTrack.RawDigis_On       = cms.bool(False) ### ?!?!?!?!?
 HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('hltSiStripRawToClustersFacility')
 HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
 HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
+HLTSiStripMonitorTrack.Mod_On            = cms.bool(True)
 
 sistripMonitorHLTsequence = cms.Sequence(
 #    HLTsiStripClusters
@@ -74,6 +80,6 @@ sistripMonitorHLTsequence = cms.Sequence(
 ### commented as book keeping, because there is not the possibility of having the trajectory for S/N !!!
 #    * hltTrackRefitterForSiStripMonitorTrack
 #    * HLTSiStripMonitorTrack
-#    hltTrackRefitterForSiStripMonitorTrack
-#    * HLTSiStripMonitorTrack
+    * hltTrackRefitterForSiStripMonitorTrack
+    * HLTSiStripMonitorTrack
 )    
