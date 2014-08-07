@@ -35,6 +35,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 //
 //
@@ -246,7 +247,6 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
       }
       container->AddElement( cscContainer );
    }
- 
 
    return container;
 }
@@ -495,12 +495,12 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
 
 
        std::vector<RPCDetId> ids;
-
+       int mxSt = m_geom->versionInfo().haveRE4() ? 4:3; 
        for (int region = -1; region <=1; ++ region )
        {
            if (region == 0 ) continue;
            for (int ring = 2; ring <= 3; ++ring) {
-               for (int station = 1; station <=3; ++station ) {
+             for (int station = 1; station <= mxSt; ++station ) {
                    int sector = 1;
                    ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
                    ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
@@ -539,6 +539,48 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
    if (m_rpcEndcapElements)
    {
       m_rpcEndcapElements->SetRnrState(show);
+      gEve->Redraw3D();
+   }
+}
+
+//______________________________________________________________________________
+
+void
+FWRPZViewGeometry::showGEM( bool show )
+{
+   if( !m_GEMElements && show )
+   {
+      m_GEMElements = new TEveElementList("GEM");
+
+      
+      std::vector<GEMDetId> ids;
+      int rArr [] = { -1, 1};  // front back region
+      int cArr [] = { 10, 30}; // top bottom chamber
+
+      for (int st = 1; st <= 2; ++st ) 
+         for (int ri = 0; ri < 2; ++ri ) 
+            for (int ci= 0; ci < 2; ++ci) {
+               int maxRoll = st == 1 ? 8 : 12;
+               for (int roll = 1; roll <=maxRoll; ++roll)
+                  for (int layer = 1; layer <=2; ++layer)
+                  {
+                     GEMDetId id(rArr[ri], 1, st, layer, cArr[ci]/st, roll);
+                     TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+                     addToCompound(shape, kFWMuonEndcapLineColorIndex);
+                     m_GEMElements->AddElement( shape );
+                     // gEve->AddToListTree(shape, true);
+                     //gEve->AddElement(shape);
+                  }
+            }
+
+
+
+      AddElement(m_GEMElements);
+      importNew(m_GEMElements);
+   }
+   if (m_GEMElements)
+   {
+      m_GEMElements->SetRnrState(show);
       gEve->Redraw3D();
    }
 }

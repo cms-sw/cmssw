@@ -358,7 +358,7 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
 void
 FWTGeoRecoGeometryESProducer::addPixelForwardGeometry()
 {
-   TGeoVolume *assembly = new TGeoVolumeAssembly("PXB");
+   TGeoVolume *assembly = new TGeoVolumeAssembly("PXF");
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
            end = m_trackerGeom->detsPXF().end();
         it != end; ++it )

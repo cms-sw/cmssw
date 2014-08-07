@@ -120,6 +120,12 @@ FWGeometry::loadMap( const char* fileName )
    }
 
 
+   TNamed* tag = static_cast<TNamed*>(file->Get( "TAG" ));
+   if (tag) {
+      m_versionInfo.ProcessProductionTag(tag->GetTitle());
+   }
+
+
    TNamed* version = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
 
    if (version)
@@ -363,4 +369,22 @@ FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* g
 		   + local[1] * info.matrix[3 * i + 1]
 		   + local[2] * info.matrix[3 * i + 2];
    }
+}
+
+//______________________________________________________________________________
+
+void FWGeometry::VersionInfo::ProcessProductionTag(const char* tag)
+{
+   if (!strncmp(tag,"2015",4))
+   {
+      m_haveRE4 = true;
+   }
+   else if (!strncmp(tag,"2019",4))
+   {
+      m_haveRE4 = true;
+      m_haveGEM = true;
+   }
+
+
+   fwLog( fwlog::kDebug ) << Form("FWGeometry::VersionInfo parse tag [%s] GEM=%d RE4=%d \n", tag, m_haveGEM,  m_haveRE4);
 }

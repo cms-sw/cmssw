@@ -23,10 +23,12 @@ private:
   virtual void endJob( void ) override;
 
   int m_level;
+  std::string m_info;
 };
 
 DumpFWRecoGeometry::DumpFWRecoGeometry( const edm::ParameterSet& config )
-  : m_level( config.getUntrackedParameter<int>( "level", 1 ))
+  : m_level( config.getUntrackedParameter<int>( "level", 1 )),
+    m_info( config.getUntrackedParameter<std::string>( "tagInfo", "2015" ))
 {}
 
 void
@@ -79,6 +81,9 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
 
   TNamed* version =  new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" ));
   file.WriteTObject(version);
+
+  file.WriteTObject(new TNamed("TAG", m_info.c_str()));
+
   file.Close();
 }
 
