@@ -299,7 +299,7 @@ namespace cms{
       // end of loop over seeds
 
 
-#ifdef VI_TBB
+#ifndef VI_NOTBB
      tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
 #else
 #ifdef VI_OMP
@@ -329,7 +329,7 @@ namespace cms{
       unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
 					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
 			     unsmoothedResult.end());
-      
+      unsmoothedResult.shrink_to_fit();
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {
         for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
@@ -355,6 +355,7 @@ namespace cms{
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
             Trajectory::DataContainer &meas = it->measurements();
+            trajectory.reserve(meas.size());
             for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
               trajectory.push(std::move(*itmeas));
             }
