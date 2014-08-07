@@ -27,7 +27,7 @@ namespace edm {
       typedef typename Map::id_offset_vector id_offset_vector;
     public:
       explicit Filler(Map & map) : 
-	map_(map) { 
+	map_(map), totSize_(0) { 
 	add(map);
       }
       void add(const Map & map) {
@@ -57,10 +57,13 @@ namespace edm {
 	if(f != values_.end()) throwFillID(id);
 	value_vector & values = values_.insert(make_pair(id, value_vector(size))).first->second;
 	std::copy(begin, end, values.begin());
+        totSize_+=size;
       }
       void fill() {
 	map_.clear();
 	offset off = 0;
+        map_.ids_.reserve(values_.size());
+        map_.values_.reserve(totSize_);
 	for(typename value_map::const_iterator i = values_.begin(); i != values_.end(); ++i) {
 	  ProductID id = i->first;
 	  map_.ids_.push_back(std::make_pair(id, off));
@@ -70,6 +73,7 @@ namespace edm {
 	    ++off;
 	  }
 	}
+        map_.shrink_to_fit();
       }
 
     protected:
@@ -77,6 +81,8 @@ namespace edm {
 
     private:
       value_map values_;
+      size_t totSize_;
+
       void throwFillSize() const {
 	Exception::throwThis(errors::InvalidReference,
 	  "ValueMap::Filler: handle and reference "
@@ -152,6 +158,14 @@ namespace edm {
     size_t idSize() const { return ids_.size(); }
     bool empty() const { return values_.empty(); }
     void clear() { values_.clear(); ids_.clear(); }
+    void shrink_to_fit() {
+#ifndef CMS_NOCXX11
+      ids_.shrink_to_fit();  
+      values_.shrink_to_fit();
+#endif
+    }
+
+
 
     typedef helper::Filler<ValueMap<T> > Filler;
 

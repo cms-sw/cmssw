@@ -47,6 +47,12 @@ using namespace std;
 
 namespace {
 
+  class StrictWeakOrdering{
+    public:
+     bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
+  };
+
+
   struct CmpTKD {
     bool operator()(MeasurementDet const* rh, MeasurementDet const * lh) {
       return rh->fastGeomDet().geographicalId().rawId() < lh->fastGeomDet().geographicalId().rawId();

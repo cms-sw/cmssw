@@ -37,7 +37,6 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
 
 #include <boost/shared_ptr.hpp>
