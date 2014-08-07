@@ -10,6 +10,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TError.h"
+#include "TSystem.h"
 
 class DumpFWTGeoRecoGeometry : public edm::EDAnalyzer
 {
@@ -22,11 +23,14 @@ private:
   virtual void beginJob( void ) override;
   virtual void endJob( void ) override;
 
-  int m_level;
+   std::string m_tag;
+   std::string m_outputFileName;
 };
 
 DumpFWTGeoRecoGeometry::DumpFWTGeoRecoGeometry( const edm::ParameterSet& config )
-  : m_level( config.getUntrackedParameter<int>( "level", 1 ))
+   :m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "unknown" )),
+    m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsTGeoReco.root" ))
+
 {}
 
 void
@@ -38,10 +42,10 @@ DumpFWTGeoRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup&
   eventSetup.get<FWTGeoRecoGeometryRecord>().get( geoh );
   TGeoManager *geom = geoh.product()->manager();//const_cast<TGeoManager*>( geoh.product()->manager());
 
-  TFile file( "cmsTRecoGeom.root", "RECREATE" );
-   
- 
+  TFile file( m_outputFileName.c_str(), "RECREATE" );
   file.WriteTObject( &*geom );
+  file.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" )));
+  file.WriteTObject(new TNamed("tag", m_tag.c_str()));
   file.Close();
 }
 

@@ -20,6 +20,8 @@ def help():
 
 def recoGeoLoad(score):
     print "Loading configuration for tag ", options.tag ,"...\n"
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
     if score == "Run1":
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['mc']
@@ -92,6 +94,9 @@ def recoGeoLoad(score):
 
 options = VarParsing.VarParsing ()
 
+defaultTag=str(2015);
+defaultOutputFileName="cmsRecoGeom-" + ".root"
+
 options.register ('tag',
                   "2015", # default value
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -106,31 +111,42 @@ options.register ('tgeo',
                   "write geometry in TGeo format")
 
 
+options.register ('out',
+                  defaultOutputFileName, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Output file name")
+
 options.parseArguments()
 
 
 
 
 process = cms.Process("DUMP")
+process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 recoGeoLoad(options.tag)
 
-tagInfoq = cms.string(options.tag);
-
 if ( options.tgeo == True):
+    if (options.out == defaultOutputFileName ):
+        options.out = "cmsTGeoRecoGeom-" +  str(options.tag) + ".root"
     process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer"))
-    process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry")
+    process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry",
+                              tagInfo = cms.untracked.string(options.tag),
+                       outputFileName = cms.untracked.string(options.out)
+                              )
 else:
+    if (options.out == defaultOutputFileName ):
+        options.out = "cmsRecoGeom-" +  str(options.tag) + ".root"
     process.add_(cms.ESProducer("FWRecoGeometryESProducer"))
     process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
                               level   = cms.untracked.int32(1),
-                              tagInfo = cms.untracked.string(options.tag)
+                              tagInfo = cms.untracked.string(options.tag),
+                       outputFileName = cms.untracked.string(options.out)
                               )
 
+print "Dumping geometry in " , options.out, "\n"; 
 process.p = cms.Path(process.dump)

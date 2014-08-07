@@ -496,7 +496,7 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
 
 
        std::vector<RPCDetId> ids;
-       int mxSt = m_geom->versionInfo().haveRE4() ? 4:3; 
+       int mxSt = m_geom->versionInfo().haveExtraDet("RE4") ? 4:3; 
        for (int region = -1; region <=1; ++ region )
        {
            if (region == 0 ) continue;

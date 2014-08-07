@@ -11,9 +11,8 @@ def help():
    print "       indentify geometry condition database tag"
    print "      ", varType.keys()
    print ""
-   print "   load=filename"
-   print "       a single load instruction, this option excludes 'tag' option"
-   print "       e.g load=Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff"
+   print "   out=outputFileName"
+   print "       default is cmsSimGeom<tag>.root"
    print 
    exit(1);
 
@@ -70,28 +69,27 @@ def simGeoLoad(score):
 
 options = VarParsing.VarParsing ()
 
+defaultTag=str(2015);
+defaultLevel=14;
+defaultOutputFileName="cmsSimGeom-" +  str(defaultTag) + ".root"
+
 options.register ('tag',
-                  "2015", # default value
+                  defaultTag, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "info about geometry database conditions")
-
-options.register ('load',
-                  "", # default value
+options.register ('out',
+                  defaultOutputFileName, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "load path e.g Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff")
+                  "Output file name")
 
 
 options.parseArguments()
 
 
 process = cms.Process("SIMDUMP")
-
-if not options.load:
-   simGeoLoad(options.tag)
-else:
-   process.load(options.load)
+simGeoLoad(options.tag)
 
 process.source = cms.Source("EmptySource")
 
@@ -99,9 +97,11 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.add_(cms.ESProducer("TGeoMgrFromDdd",
         verbose = cms.untracked.bool(False),
-        level = cms.untracked.int32(14)
+                            level = cms.untracked.int32(defaultLevel)
 ))
 
-process.dump = cms.EDAnalyzer("DumpSimGeometry")
+process.dump = cms.EDAnalyzer("DumpSimGeometry", 
+               tag = cms.untracked.string(options.tag),
+               outputFileName = cms.untracked.string(options.out))
 
 process.p = cms.Path(process.dump)
