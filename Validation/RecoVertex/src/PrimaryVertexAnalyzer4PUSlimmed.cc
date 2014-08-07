@@ -106,11 +106,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     std::string current_folder = root_folder_ + "/" + label;
     i.setCurrentFolder(current_folder);
 
-    mes_[label]["RecoVtx_vs_GenVtx"] = i.book2D(
-        "RecoVtx_vs_GenVtx", "RecoVtx_vs_GenVtx", 200, 0., 200., 200, 0., 200.);
+    mes_[label]["RecoVtx_vs_GenVtx"] = i.bookProfile(
+        "RecoVtx_vs_GenVtx", "RecoVtx_vs_GenVtx", 250, 0., 250., 250, 0., 250.);
     mes_[label]["MatchedRecoVtx_vs_GenVtx"] =
-        i.book2D("MatchedRecoVtx_vs_GenVtx", "MatchedRecoVtx_vs_GenVtx", 200,
-                 0., 200., 200, 0., 200.);
+        i.bookProfile("MatchedRecoVtx_vs_GenVtx", "MatchedRecoVtx_vs_GenVtx",
+                      250, 0., 250., 250, 0., 250.);
     mes_[label]["MisTagRate"] =
         i.book1D("MisTagRate", "MisTagRate", 2, -0.5, 1.5);
     mes_[label]["TruePVLocationIndex"] =

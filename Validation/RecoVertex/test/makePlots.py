@@ -9,6 +9,8 @@ folders = [
 ]
 
 histo_names = [
+    {'name': 'RecoVtx_vs_GenVtx', 'o': ''},
+    {'name': 'MatchedRecoVtx_vs_GenVtx', 'o': ''},
     {'name': 'RecoAllAssoc2GenProperties', 'o': ''},
     {'name': 'globalEfficiencies', 'o': ''},
     {'name': 'effic_vs_NumVertices', 'o': ''},
