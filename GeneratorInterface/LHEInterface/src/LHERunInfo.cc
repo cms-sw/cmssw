@@ -210,7 +210,7 @@ void LHERunInfo::count(int process, CountMode mode, double eventWeight,
      if (proc.killed().n() > 1) {
        double sigmaAvg2 = sigmaAvg * sigmaAvg;
        double delta2Sig =
-	 (sigma2Sum / proc.tried().n() - sigmaAvg2) /
+	 fabs(sigma2Sum / proc.tried().n() - sigmaAvg2) /
 	 (proc.tried().n() * sigmaAvg2);
        double delta2Veto =
 	 ((double)proc.selected().n() - proc.killed().n()) /
@@ -270,7 +270,7 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 		if (proc->killed().n() > 1) {
 			double sigmaAvg2 = sigmaAvg * sigmaAvg;
 			double delta2Sig =
-				(sigma2Sum / proc->tried().n() - sigmaAvg2) /
+			    fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
 				(proc->tried().n() * sigmaAvg2);
 			double delta2Veto =
 				((double)proc->selected().n() - proc->killed().n()) /
@@ -340,7 +340,7 @@ void LHERunInfo::statistics() const
 		if (proc->killed().n() > 1) {
 			double sigmaAvg2 = sigmaAvg * sigmaAvg;
 			double delta2Sig =
-				(sigma2Sum / proc->tried().n() - sigmaAvg2) /
+			    fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
 				(proc->tried().n() * sigmaAvg2);
 			double delta2Veto =
 				((double)proc->selected().n() - proc->killed().n()) /

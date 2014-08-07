@@ -1,6 +1,7 @@
 #include "GeneratorInterface/Core/interface/GenXSecAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
 
 GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   hepidwtup_(-1),
@@ -130,7 +131,7 @@ GenXSecAnalyzer::compute()
 	if (proc.killed().n() > 1) {
 	  double sigmaAvg2 = sigmaAvg * sigmaAvg;
 	  double delta2Sig =
-	    (sigma2Sum / proc.tried().n() - sigmaAvg2) /
+	    fabs(sigma2Sum / proc.tried().n() - sigmaAvg2) /
 	    (proc.tried().n() * sigmaAvg2);
 	  double delta2Veto =
 	    ((double)proc.selected().n() - proc.killed().n()) /
@@ -170,7 +171,7 @@ GenXSecAnalyzer::endJob() {
   if(products_.size()>0)
     compute();
 
-  std::cout << "Final Xsec = " << xsec_.value() << " +- " << xsec_.error() << std::endl;
+  std::cout << "Final Xsec = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() << std::endl;
 
 }
 
