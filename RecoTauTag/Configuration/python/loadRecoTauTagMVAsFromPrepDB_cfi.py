@@ -2,7 +2,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 loadRecoTauTagMVAsFromPrepDB = cms.ESSource("PoolDBESSource",
     CondDBSetup,
-    DumpStat = cms.untracked.bool(True),
+    DumpStat = cms.untracked.bool(False),
     toGet = cms.VPSet(),                                             
     #  connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS")
     ##connect = cms.string("frontier://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS")                                        
