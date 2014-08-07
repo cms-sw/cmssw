@@ -7,7 +7,7 @@ class TrackingRecHit;
 class MagneticField;
 class Plane;
 
-class RecHitPropagator {
+class dso_hidden RecHitPropagator {
 public:
 
   TrajectoryStateOnSurface propagate( const TrackingRecHit& hit,

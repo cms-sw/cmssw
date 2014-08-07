@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
+#include "PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
 
 
 class PhotonConversionTrajectorySeedProducerFromQuadruplets : public edm::EDProducer {
