@@ -5,7 +5,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include <TDirectory.h>

@@ -19,7 +19,7 @@
 
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

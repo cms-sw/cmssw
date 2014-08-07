@@ -32,6 +32,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
 
   LogDebug("Output") << output->dataSize() << " clusters from " 
 		     << output->size()     << " modules";
+  output->shrink_to_fit();
   event.put(output);
 }
 

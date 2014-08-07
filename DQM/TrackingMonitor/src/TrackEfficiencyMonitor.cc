@@ -41,7 +41,6 @@
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "RecoTracker/TkNavigation/interface/CosmicNavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 
