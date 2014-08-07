@@ -549,10 +549,7 @@ if 'GlobalTag' in %(dict)s:
       if self.config.emulator == 'gt':
         emulator['CustomL1T'] = 'customiseL1GtEmulatorFromRaw'
         emulator['CustomHLT'] = 'switchToSimGtDigis'
-      elif self.config.emulator == 'gct,gt':
-        emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
-        emulator['CustomHLT'] = 'switchToSimGctGtDigis'
-      elif self.config.emulator == 'stage1,gt':
+      elif self.config.emulator == 'gct,gt' or self.config.emulator == 'stage1,gt':
         emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
         emulator['CustomHLT'] = 'switchToSimGctGtDigis'
       elif self.config.emulator == 'gmt,gt':
@@ -586,8 +583,11 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( proce
 # customize the L1 emulator to run %(CustomL1T)s with HLT to %(CustomHLT)s
 process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
+process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
+process.load('L1Trigger/L1TCalorimeter/caloStage1RegionSF_cfi')
+import L1Trigger.L1TCalorimeter.L1Trigger_customForHLT
 import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
+process = L1Trigger.L1TCalorimeter.L1Trigger_customForHLT.%(CustomL1T)s( process )
 process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
 
 # customize the HLT to use the emulated results
