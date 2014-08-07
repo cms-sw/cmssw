@@ -81,12 +81,5 @@ pfMuonDQMAnalyzer = cms.EDAnalyzer("PFMuonDQMAnalyzer",
       nBin = cms.int32(3),
       xMin = cms.double(-1.5),
       xMax = cms.double(1.5)        
-    ),
-# parameter for event skim
-    SkimParameter = cms.PSet(
-      switchOn = cms.bool(False),
-      maximumNumberToBeStored = cms.int32(100),
-      lowerCutOffOnResolution = cms.double(-1.5),
-      upperCutOffOnResolution = cms.double(1.5)
     )
-)
+ )

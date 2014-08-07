@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.PFTau.PFJetDQMAnalyzer_cfi import pfJetDQMAnalyzer
 
 JetValidation1 = pfJetDQMAnalyzer.clone()
-JetValidation1.SkimParameter.switchOn = cms.bool(False)
 JetValidation1.BenchmarkLabel  = cms.string('slimmedJetValidation/CompWithPFJets')
 JetValidation1.InputCollection = cms.InputTag('slimmedJets')
 JetValidation1.MatchCollection = cms.InputTag('ak4PFJetsCHS') # ak5PFJetsCHS # ak5PFJets
@@ -14,7 +13,6 @@ JetValidation1.CreatePFractionHistos = cms.bool(True)
 #JetValidation1.MatchCollection = cms.InputTag('slimmedJets')
 
 JetValidation2 = pfJetDQMAnalyzer.clone()
-JetValidation2.SkimParameter.switchOn = cms.bool(False)
 JetValidation2.BenchmarkLabel  = cms.string('slimmedJetValidation/CompWithPFJetsEC')
 #JetValidation2.InputCollection = JetValidation1.MatchCollection
 #JetValidation2.MatchCollection = JetValidation1.InputCollection
@@ -28,13 +26,11 @@ JetValidation2.CreatePFractionHistos = cms.bool(True)
 from DQMOffline.PFTau.PFJetResDQMAnalyzer_cfi import pfJetResDQMAnalyzer
 
 JetResValidation1 = pfJetResDQMAnalyzer.clone()
-JetResValidation1.SkimParameter.switchOn = cms.bool(True)
 JetResValidation1.InputCollection = JetValidation1.InputCollection
 JetResValidation1.MatchCollection = JetValidation1.MatchCollection
 JetResValidation1.ptMin = JetValidation1.ptMin
 
 JetResValidation2 = pfJetResDQMAnalyzer.clone()
-JetResValidation2.SkimParameter.switchOn = cms.bool(True)
 JetResValidation2.InputCollection = JetValidation2.InputCollection
 JetResValidation2.MatchCollection = JetValidation2.MatchCollection
 JetResValidation2.ptMin = JetValidation2.ptMin
