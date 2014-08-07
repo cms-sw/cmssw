@@ -84,7 +84,7 @@ def recoGeoLoad(score):
 options = VarParsing.VarParsing ()
 
 
-defaultOutputFileName="cmsRecoGeom-" + ".root"
+defaultOutputFileName="cmsRecoGeom.root"
 
 options.register ('tag',
                   "2019", # default value
