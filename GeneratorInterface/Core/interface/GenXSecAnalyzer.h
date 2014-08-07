@@ -27,6 +27,8 @@
 //
 
 class GenXSecAnalyzer : public edm::EDAnalyzer {
+  typedef std::vector<GenLumiInfoProduct::ProcessInfo> sampleInfo;
+
 public:
   explicit GenXSecAnalyzer(const edm::ParameterSet&);
   ~GenXSecAnalyzer();
@@ -43,9 +45,8 @@ private:
 
   int hepidwtup_;
   GenLumiInfoProduct::XSec xsec_;
-  std::vector<GenLumiInfoProduct::ProcessInfo> products_;
   // ----------member data ---------------------------
-  
+  std::vector<sampleInfo> products_; // the size depends on the number of MC with different LHE information
 };
 
 #endif
