@@ -71,7 +71,7 @@ parser.add_argument('--l1-emulator',
                     action  = 'store',
                     metavar = 'EMULATOR',
                     nargs   = '?',
-                    choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'all' ],
+                    choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'stage1,gt', 'all' ],
                     default = defaults.emulator,
                     const   = 'gt',
                     help    = 'Run the L1 emulator. Possible sub-options are:\n- "gt": run only the GT emulator. Trigger primitives, GMT and GCT are taken from the data\n- "gct,gt": emulate calo primitives, RCT, GCT and GT. Muon primitives and GMT are taken from the data\n- "gmt,gt": emulate muon primitives, GMT and GT. Calo primitives, RCT and GCT are taken from the data\n- "gmt,gct,gt", "gct,gmt,gt", "all": run the whole L1 emulator.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )

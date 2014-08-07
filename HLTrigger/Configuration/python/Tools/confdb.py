@@ -556,7 +556,7 @@ if 'GlobalTag' in %(dict)s:
         # XXX currently unsupported
         emulator['CustomL1T'] = 'customiseL1MuonAndGtEmulatorsFromRaw'
         emulator['CustomHLT'] = 'switchToSimGmtGtDigis'
-      elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'all'):
+      elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'gmt,stage1,gt', 'stage1,gmt,gt' ,'all'):
         emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
         emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
       else:
