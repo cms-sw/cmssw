@@ -12,7 +12,7 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( GRun PIon 2013 HIon )
+  set tables = ( GRun PIon 2013 HIon FULL )
 else if ( ($2 == dev) || ($2 == DEV) ) then
   set tables = ( GRun PIon HIon )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
