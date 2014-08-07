@@ -22,7 +22,7 @@ def recoGeoLoad(score):
     print "Loading configuration for tag ", options.tag ,"...\n"
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-    elif score == "2017":
+    if score == "2017":
        from Configuration.AlCa.GlobalTag import GlobalTag
        process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
        process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
