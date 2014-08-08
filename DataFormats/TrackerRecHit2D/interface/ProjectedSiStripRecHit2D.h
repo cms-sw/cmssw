@@ -3,7 +3,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-#include<iostream>
+// #include<iostream>
 
 class ProjectedSiStripRecHit2D GCC11_FINAL  : public TrackerSingleRecHit  {
 public:
@@ -39,6 +39,8 @@ public:
     assert(originalId()==originalDet.geographicalId());
     }
 
+
+  virtual void setDet(const GeomDet & idet);
 
   virtual bool canImproveWithTrack() const {return true;}
 
