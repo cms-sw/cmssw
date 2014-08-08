@@ -1,30 +1,36 @@
 #ifndef TrackRecoDeDx_DeDxEstimatorProducer_H
 #define TrackRecoDeDx_DeDxEstimatorProducer_H
 // user include files
+
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h" 
 
-#include <ext/hash_map>
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
+
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "TFile.h"
-#include "TChain.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 
 //
@@ -32,9 +38,7 @@
 //
 
 class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
-
 public:
-
   explicit DeDxEstimatorProducer(const edm::ParameterSet&);
   ~DeDxEstimatorProducer();
 
@@ -42,10 +46,9 @@ private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  int    getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips,const uint32_t &);
-//  int    getCharge(const SiStripRecHit2D* sistripsimplehit, int& Saturating_Strips);
-  void   MakeCalibrationMap();
-
+  int    getCharge(const SiStripCluster*   cluster, int& nSatStrip,   const GeomDetUnit& detUnit);
+  void   makeCalibrationMap(const TrackerGeometry& tkGeom);
+  void   processHit(const TrackingRecHit * recHit, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
 
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
@@ -53,10 +56,11 @@ private:
   edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
+  bool useTrajectory;
   bool usePixel;
   bool useStrip;
-  double MeVperADCPixel;
-  double MeVperADCStrip;
+  float meVperADCPixel;
+  float meVperADCStrip;
 
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
@@ -65,15 +69,8 @@ private:
   bool                              useCalibration;
   bool                              shapetest;
 
-   private : 
-      struct stModInfo{int DetId; float Thickness; float Distance; float Normalization; double Gain;};
-
-      class isEqual{
-         public:
-                 template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
-      };
-  
-  __gnu_cxx::hash_map<unsigned int, stModInfo*,  __gnu_cxx::hash<unsigned int>, isEqual > MODsColl;
+  std::vector< std::vector<float> > calibGains; 
+  unsigned int m_off;
 };
 
 #endif

@@ -280,7 +280,57 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 
 
 
+int getCharge(const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& detUnit, const std::vector< std::vector< float > >& calibGains, const unsigned int& m_off )
+{
+   const vector<uint8_t>&  Ampls       = cluster->amplitudes();
+
+   nSatStrip = 0;
+   int charge = 0;
+   for(unsigned int i=0;i<Ampls.size();i++){
+      int calibratedCharge = Ampls[i];
+
+      if(calibGains.size()!=0){
+         auto & gains     = calibGains[detUnit.index()-m_off];
+         calibratedCharge = (int)(calibratedCharge / gains[(cluster->firstStrip()+i)/128] );
+         if(calibratedCharge>=1024){
+            calibratedCharge = 255;
+         }else if(calibratedCharge>=255){
+            calibratedCharge = 254;
+         } 
+      }
+
+      charge+=calibratedCharge;
+      if(calibratedCharge>=254)nSatStrip++;
+   }
+
+   return charge;
+}
+
+
+void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeometry& tkGeom, std::vector< std::vector< float > >& calibGains, const unsigned int& m_off)
+{
+   auto const & dus = tkGeom.detUnits();
+   calibGains.resize(dus.size()-m_off);
+
+   TChain* t1 = new TChain("SiStripCalib/APVGain");
+   t1->Add(m_calibrationPath.c_str());
+
+   unsigned int  tree_DetId;
+   unsigned char tree_APVId;
+   double        tree_Gain;
+   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
+   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
+   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+       t1->GetEntry(ientry);
+       auto& gains = calibGains[tkGeom.idToDetUnit(DetId(tree_DetId))->index()-m_off];
+       if(gains.size()<(size_t)(tree_APVId+1)){gains.resize(tree_APVId+1);}
+       gains[tree_APVId] = tree_Gain;
+   }
+}
 
 
 
 }
+
