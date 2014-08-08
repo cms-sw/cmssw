@@ -42,7 +42,9 @@
 #include<functional>
 
 #include <thread>
+#ifdef VI_TBB
 #include "tbb/parallel_for.h"
+#endif
 
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
 
@@ -299,7 +301,7 @@ namespace cms{
       // end of loop over seeds
 
 
-#ifndef VI_NOTBB
+#ifdef VI_TBB
      tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
 #else
 #ifdef VI_OMP
