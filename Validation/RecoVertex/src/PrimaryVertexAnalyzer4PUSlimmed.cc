@@ -121,7 +121,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                &log_bins[0]);
   mes_["root_folder"]["GenAllV_PairDistanceZ"] =
       i.book1D("GenAllV_PairDistanceZ", "GeneratedAllV_PairDistanceZ",
-               1000, 0, 10);
+               1000, 0, 20);
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
@@ -251,7 +251,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  "ReconstructedAllAssoc2Gen_Properties", 8, -0.5, 7.5);
     mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"] =
         i.book1D("RecoAllAssoc2Gen_PairDistanceZ",
-                 "RecoAllAssoc2Gen_PairDistanceZ", 1000, 0, 10);
+                 "RecoAllAssoc2Gen_PairDistanceZ", 1000, 0, 20);
 
     // All Reconstructed Vertices Matched to a Generated vertex. Used
     // for Fake-Rate plots
