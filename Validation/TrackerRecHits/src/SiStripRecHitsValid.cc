@@ -494,14 +494,13 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
 
-  matched.clear();  // Get the simHits that match the stereo recHit
+  matched.clear();
   matched = associate.associateHit(rechit);
 
   double mindist = 999999;
   double dist = 999999;
   double distx = 999999;
   double disty = 999999;
-  PSimHit closest;
   std::pair<LocalPoint,LocalVector> closestPair;
 
   if(!matched.empty()){
@@ -523,7 +522,6 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 	if(dist<mindist){
 	  mindist = dist;
 	  closestPair = hitPair;
-	  closest = (*m);
 	}
       }
     }  
