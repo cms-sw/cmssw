@@ -85,8 +85,9 @@ public:
     const_cast<TrackingRecHit&>(*cl).setDet(idet); // const_cast (can be fixed editing some 100 files)
     return cl;  
   }
-  void setDet(const GeomDet & idet) {m_det = &idet;}
 #endif
+  virtual void setDet(const GeomDet & idet) {m_det = &idet;}
+
   
   virtual AlgebraicVector parameters() const = 0;
   
