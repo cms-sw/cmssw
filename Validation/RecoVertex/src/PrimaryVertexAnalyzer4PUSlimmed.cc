@@ -80,6 +80,18 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
         200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0,
         2000.0, 3000.0, 4000.0, 5000.0, 6000.0, 7000.0, 8000.0, 9000.0, 10000.0
   };
+  // TODO(rovere) Possibly change or add the main DQMStore booking
+  // interface to allow booking a TProfile with variable bin-width
+  // using an array of floats, as done for the TH1F case, not of
+  // doubles.
+  double log_pt2_bins_double[56] = {
+        0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1,
+        0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
+        2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
+        20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0,
+        200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0,
+        2000.0, 3000.0, 4000.0, 5000.0, 6000.0, 7000.0, 8000.0, 9000.0, 10000.0
+  };
 
   i.setCurrentFolder(root_folder_);
   mes_["root_folder"]["GenVtx_vs_BX"] =
@@ -135,6 +147,21 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                       250, 0., 250., 250, 0., 250.);
     mes_[label]["MisTagRate"] =
         i.book1D("MisTagRate", "MisTagRate", 2, -0.5, 1.5);
+    mes_[label]["MisTagRate_vs_PU"] =
+        i.bookProfile("MisTagRate_vs_PU", "MisTagRate_vs_PU", 250, 0., 250.,
+                      2, 0., 1.);
+    mes_[label]["MisTagRate_vs_sum-pt2"] =
+        i.bookProfile("MisTagRate_vs_sum-pt2", "MisTagRate_vs_sum-pt2",
+                      55, &log_pt2_bins_double[0], 2, 0., 1.);
+    mes_[label]["MisTagRate_vs_Z"] =
+        i.bookProfile("MisTagRate_vs_Z", "MisTagRate_vs_Z",
+                      120, -60., 60., 2, 0., 1.);
+    mes_[label]["MisTagRate_vs_R"] =
+        i.bookProfile("MisTagRate_vs_R", "MisTagRate_vs_R",
+                      120, 0., 0.6, 2, 0., 1.);
+    mes_[label]["MisTagRate_vs_NumTracks"] =
+        i.bookProfile("MisTagRate_vs_NumTracks", "MisTagRate_vs_NumTracks",
+                      200, 0., 200, 2, 0., 1.);
     mes_[label]["TruePVLocationIndex"] =
         i.book1D("TruePVLocationIndex",
                  "TruePVLocationIndexInRecoVertexCollection", 12, -1.5, 10.5);
@@ -940,14 +967,19 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     int num_total_reco_vertices_multiassoc2gen = 0;
     int num_total_reco_vertices_duplicate = 0;
     for (auto const& v : simpv) {
+      float mistag = 0.;
       // TODO(rovere) put selectors here in front of fill* methods.
       if (v.eventId.event() == 0) {
         if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
-          mes_[label]["MisTagRate"]->Fill(1.);
-        } else {
-          mes_[label]["MisTagRate"]->Fill(0.0);
+          mistag = 1.;
         }
+        mes_[label]["MisTagRate"]->Fill(mistag);
+        mes_[label]["MisTagRate_vs_PU"]->Fill(simpv.size(), mistag);
+        mes_[label]["MisTagRate_vs_sum-pt2"]->Fill(v.ptsq, mistag);
+        mes_[label]["MisTagRate_vs_Z"]->Fill(v.z, mistag);
+        mes_[label]["MisTagRate_vs_R"]->Fill(v.r, mistag);
+        mes_[label]["MisTagRate_vs_NumTracks"]->Fill(v.nGenTrk, mistag);
         // Now check at which location the Simulated PV has been
         // reconstructed in the primary vertex collection
         // at-hand. Mark it with fake index -1 if it was not
