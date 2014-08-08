@@ -7,29 +7,36 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 class NjettinessAdder : public edm::EDProducer { 
  public:
-  explicit NjettinessAdder(const edm::ParameterSet& iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
-    src_token_(consumes<edm::View<reco::PFJet>>(src_)),
-    cone_(iConfig.getParameter<double>("cone"))
+    explicit NjettinessAdder(const edm::ParameterSet& iConfig) :
+      src_(iConfig.getParameter<edm::InputTag>("src")),
+      src_token_(consumes<edm::View<reco::Jet>>(src_)),
+      cone_(iConfig.getParameter<double>("cone")),
+      Njets_(iConfig.getParameter<std::vector<unsigned> >("Njets"))
+    {
+      for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
       {
-	produces<edm::ValueMap<float> >("tau1");
-	produces<edm::ValueMap<float> >("tau2");
-	produces<edm::ValueMap<float> >("tau3");
+        std::ostringstream tauN_str;
+        tauN_str << "tau" << *n;
+
+        produces<edm::ValueMap<float> >(tauN_str.str().c_str());
       }
+    }
     
     virtual ~NjettinessAdder() {}
     
     void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
-    float getTau(int num,edm::Ptr<reco::PFJet> object) const;
+    float getTau(unsigned num, const edm::Ptr<reco::Jet> & object) const;
     
  private:	
-    edm::InputTag src_ ;
-    edm::EDGetTokenT<edm::View<reco::PFJet>> src_token_;
-    double cone_ ;
+    const edm::InputTag                          src_;
+    const edm::EDGetTokenT<edm::View<reco::Jet>> src_token_;
+    const double                                 cone_ ;
+    const std::vector<unsigned>                  Njets_;
 };
 
 #endif

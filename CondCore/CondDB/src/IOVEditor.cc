@@ -24,6 +24,7 @@ namespace cond {
       std::string description;
       cond::Time_t endOfValidity = cond::time::MAX_VAL;
       cond::Time_t lastValidatedTime = cond::time::MIN_VAL; 
+      boost::posix_time::ptime creationTime;
       bool change = false;
       bool exists = false;
       // buffer for the iov sequence
@@ -45,13 +46,15 @@ namespace cond {
 			  const std::string& tag, 
 			  cond::TimeType timeType, 
 			  const std::string& payloadObjectType,
-			  cond::SynchronizationType synchronizationType  ):
+			  cond::SynchronizationType synchronizationType,
+			  const boost::posix_time::ptime& creationTime ):
       m_data( new IOVEditorData ),
       m_session( session ){
       m_data->tag = tag;
       m_data->timeType = timeType;
       m_data->payloadType = payloadObjectType;
       m_data->synchronizationType = synchronizationType;
+      m_data->creationTime = creationTime;
       m_data->change = true;
     }
 
@@ -153,7 +156,7 @@ namespace cond {
 	if( !m_data->exists ){
 	  m_session->iovSchema().tagTable().insert( m_data->tag, m_data->timeType, m_data->payloadType, 
 						    m_data->synchronizationType, m_data->endOfValidity, 
-						    m_data->description, m_data->lastValidatedTime, operationTime );
+						    m_data->description, m_data->lastValidatedTime, m_data->creationTime );
 	  m_data->exists = true;
 	  ret = true;
 	} else {

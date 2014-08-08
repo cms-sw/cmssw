@@ -12,7 +12,8 @@ common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
     MaxTimeNames  = cms.vstring('ZDCRegion'),
     MaxTrackTimes = cms.vdouble(2000.0),
-    DeadRegions   = cms.vstring('QuadRegion','CastorRegion','InterimRegion'),
+    #DeadRegions   = cms.vstring('QuadRegion','CastorRegion','InterimRegion'),
+    DeadRegions   = cms.vstring('QuadRegion','InterimRegion'),
     CriticalEnergyForVacuum = cms.double(2.0),
     CriticalDensity         = cms.double(1e-15)
 )
@@ -136,6 +137,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ApplyPhiCuts = cms.bool(False),
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
+        ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
         Verbosity = cms.untracked.int32(0)
     ),
     RunAction = cms.PSet(
@@ -342,7 +344,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FillHisto       = cms.untracked.bool(True)
     ),
     CastorSD = cms.PSet(
-        useShowerLibrary               = cms.bool(False),
+        useShowerLibrary               = cms.bool(True),
         minEnergyInGeVforUsingSLibrary = cms.double(1.0),
         nonCompensationFactor          = cms.double(0.85),
         Verbosity                      = cms.untracked.int32(0)

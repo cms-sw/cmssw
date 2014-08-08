@@ -29,11 +29,8 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 #process.load("RecoTracker.Configuration.RecoTracker_cff")
 
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -43,8 +40,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    destinations = cms.untracked.vstring("log","cout"),
     cout = cms.untracked.PSet(
 #       threshold = cms.untracked.string('INFO')
-       threshold = cms.untracked.string('ERROR')
-#        threshold = cms.untracked.string('WARNING')
+#       threshold = cms.untracked.string('ERROR')
+        threshold = cms.untracked.string('WARNING')
 #        threshold = cms.untracked.string('DEBUG')
     )
 #    log = cms.untracked.PSet(
@@ -54,36 +51,22 @@ process.MessageLogger = cms.Service("MessageLogger",
 # get the files from DBS:
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis_trk/digis1.root'
+    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis_trk/digis2_mc71.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis_trk/digis1.root'
     )
 )
 
 # Choose the global tag here:
-process.GlobalTag.globaltag = 'MC_70_V1::All'
-
-#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#    DBParameters = cms.PSet(
-#        messageLevel = cms.untracked.int32(0),
-#        authenticationPath = cms.untracked.string('')
-#    ),
-#    timetype = cms.string('runnumber'),
-#    toGet = cms.VPSet(cms.PSet(
-#        record = cms.string('SiPixelQualityRcd'),
-#        tag = cms.string('SiPixelBadModule_test')
-#    )),
-#    connect = cms.string('sqlite_file:test.db')
-#)
-#
-# To use a test DB instead of the official pixel object DB tag: 
-#process.customDead = cms.ESSource("PoolDBESSource", process.CondDBSetup, connect = cms.string('sqlite_file:/afs/cern.ch/user/v/vesna/Digitizer/dead_20100901.db'), toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelQualityRcd'), tag = cms.string('dead_20100901'))))
-#process.es_prefer_customDead = cms.ESPrefer("PoolDBESSource","customDead")
+process.GlobalTag.globaltag = 'PRE_STA71_V4::All'
+#process.GlobalTag.globaltag = 'MC_71_V1::All'
+# process.GlobalTag.globaltag = 'POSTLS171_V1::All'
+# process.GlobalTag.globaltag = 'PRE_MC_71_V2::All'
 
 
 process.o1 = cms.OutputModule("PoolOutputModule",
 #        outputCommands = cms.untracked.vstring('drop *','keep *_*_*_TrackTest'),
         fileName = cms.untracked.string('file:tracks.root'),
-#       fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/tracks/tracks1.root'),
+#       fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/tracks/tracks_test.root'),
 #    splitLevel = cms.untracked.int32(0),
 #    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
@@ -93,6 +76,32 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     )
 
 )
+
+# pixel local reco (RecHits) needs the GenError object,
+# not yet in GT, add here:
+# DB stuff 
+useLocalDBError = True
+if useLocalDBError :
+    process.DBReaderFrontier = cms.ESSource("PoolDBESSource",
+     DBParameters = cms.PSet(
+         messageLevel = cms.untracked.int32(0),
+         authenticationPath = cms.untracked.string('')
+     ),
+     toGet = cms.VPSet(
+       cms.PSet(
+         record = cms.string('SiPixelGenErrorDBObjectRcd'),
+# 	 tag = cms.string("SiPixelGenErrorDBObject38Tv1")
+#        tag = cms.string('SiPixelGenErrorDBObject_38T_2012_IOV7_v1')
+         tag = cms.string('SiPixelGenErrorDBObject_38T_v1_offline')
+ 	 ),
+       ),
+#     connect = cms.string('sqlite_file:siPixelGenErrors38T_2012_IOV7_v1.db')
+#     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PIXEL')
+#     connect = cms.string('frontier://FrontierPrep/CMS_COND_PIXEL')
+     connect = cms.string('frontier://FrontierProd/CMS_COND_PIXEL_000')
+    ) # end process
+process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
+
 
 #process.Timing = cms.Service("Timing")
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
@@ -112,9 +121,13 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 #process.p1 = cms.Path(process.pixeltrackerlocalreco)
 
 # clusterize through raw (OK)
-# for digi to raw
-process.siPixelRawData.InputLabel = 'mix'
-process.SiStripDigiToRaw.InputModuleLabel = 'mix'
+# for digi to raw 
+# my old
+#process.siPixelRawData.InputLabel = 'mix'
+#process.SiStripDigiToRaw.InputModuleLabel = 'mix'
+# my new 
+process.siPixelRawData.InputLabel = 'simSiPixelDigis'
+process.SiStripDigiToRaw.InputModuleLabel = 'simSiPixelDigis'
 # for Raw2digi for simulations 
 process.siPixelDigis.InputLabel = 'siPixelRawData'
 process.siStripDigis.ProductLabel = 'SiStripDigiToRaw'
@@ -140,30 +153,31 @@ process.siPixelClusters.src = 'siPixelDigis'
 #process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent)
 
 # runs ok
-#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent*process.recopixelvertexing)
+#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing)
+
+process.load("RecoTracker.IterativeTracking.iterativeTk_cff")
 
 # copy the sequence below from  
-# RecoTracker/IterativeTracking/python/iterativeTk_cff.py
+# RecoTracker/IterativeTracking/python/iterativeTk_cff.py  - 71_pre7
 process.myTracking = cms.Sequence(process.InitialStep*
-                          process.LowPtTripletStep*
-                          process.PixelPairStep*
-                          process.DetachedTripletStep*
-                          process.MixedTripletStep*
-                          process.PixelLessStep*
-                          process.TobTecStep*
-                          process.earlyGeneralTracks*
-                          #process.muonSeededStep*
-                          process.preDuplicateMergingGeneralTracks*
-                          process.generalTracksSequence*
-                          process.ConvStep*
-                          process.conversionStepTracks
-                          )
+                            process.DetachedTripletStep*
+                            process.LowPtTripletStep*
+                            process.PixelPairStep*
+                            process.MixedTripletStep*
+                            process.PixelLessStep*
+                            process.TobTecStep*
+                            process.earlyGeneralTracks*
+                            # muonSeededStep*
+                            process.preDuplicateMergingGeneralTracks*
+                            process.generalTracksSequence*
+                            process.ConvStep*
+                            process.conversionStepTracks
+                            )
 
 # run full tracking
 # trackingGlobalReco does not work, needs EarlyMuons for muon seeding.
 # ckftracks & iterTracking does not work as well  (same problem).
-process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
-
+process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
 
 # unused 
 # Path and EndPath definitions

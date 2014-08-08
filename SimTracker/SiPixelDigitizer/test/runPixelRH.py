@@ -49,13 +49,78 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 # get the files from DBS:
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis/digis1.root'
-    )
+  fileNames = cms.untracked.vstring(
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis/digis1.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_postls171.root'
+    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_mc71.root'
+  )
 )
 
 # Choose the global tag here:
-process.GlobalTag.globaltag = 'MC_70_V1::All'
+#process.GlobalTag.globaltag = "MC_70_V1::All"
+#process.GlobalTag.globaltag = "START70_V1::All"
+#process.GlobalTag.globaltag = "START71_V1::All"
+process.GlobalTag.globaltag = "MC_71_V1::All"
+#process.GlobalTag.globaltag = "POSTLS171_V1::All"
+#process.GlobalTag.globaltag = "PRE_MC_71_V2::All"
+
+
+# DB stuff 
+useLocalDB = True
+if useLocalDB :
+# Frontier LA 
+    process.DBReaderFrontier = cms.ESSource("PoolDBESSource",
+     DBParameters = cms.PSet(
+         messageLevel = cms.untracked.int32(0),
+         authenticationPath = cms.untracked.string('')
+     ),
+     toGet = cms.VPSet(
+ 	 cms.PSet(
+# GenError
+          record = cms.string('SiPixelGenErrorDBObjectRcd'),
+#          tag = cms.string('SiPixelGenErrorDBObject38Tv1')
+#          tag = cms.string('SiPixelGenErrorDBObject38TV10')
+#          tag = cms.string('SiPixelGenErrorDBObject38T_v0_mc1')
+          tag = cms.string('SiPixelGenErrorDBObject_38T_v1_mc')
+# LA
+# 			record = cms.string("SiPixelLorentzAngleRcd"),
+# 			label = cms.untracked.string("fromAlignment"),
+# 			label = cms.untracked.string("forWidth"),
+# 			tag = cms.string("SiPixelLorentzAngle_v02_mc")
+# 			tag = cms.string("SiPixelLorentzAngle_fromAlignment_v0_mc")
+# 			tag = cms.string("SiPixelLorentzAngle_forWidth_v0_mc")
+ 		),
+# 		cms.PSet(
+# 			record = cms.string("SiPixelLorentzAngleSimRcd"),
+# 			tag = cms.string("test_LorentzAngle_Sim")
+# 		)
+ 	),
+#     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PIXEL')
+     connect = cms.string('frontier://FrontierPrep/CMS_COND_PIXEL')
+    ) # end process
+
+# SQ_LITE GenError
+    process.DBReaderFrontier2 = cms.ESSource("PoolDBESSource",
+     DBParameters = cms.PSet(
+         messageLevel = cms.untracked.int32(0),
+         authenticationPath = cms.untracked.string('')
+     ),
+     toGet = cms.VPSet(
+ 		cms.PSet(
+ 			record = cms.string("SiPixelGenErrorDBObjectRcd"),
+# 			label = cms.untracked.string("fromAlignment"),
+# 			tag = cms.string("SiPixelGenErrorDBObject38Tv1")
+ 			tag = cms.string("SiPixelGenErrorDBObject38TV10")
+ 		),
+ 	),
+#     connect = cms.string('sqlite_file:siPixelGenErrors38T.db_old')
+     connect = cms.string('sqlite_file:siPixelGenErrors38T.db')
+   ) # end process
+# endif
+ 
+process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
+#process.myprefer2 = cms.ESPrefer("PoolDBESSource","DBReaderFrontier2")
+
 
 #process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 #    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -79,9 +144,7 @@ process.GlobalTag.globaltag = 'MC_70_V1::All'
 process.o1 = cms.OutputModule("PoolOutputModule",
                               outputCommands = cms.untracked.vstring('drop *','keep *_*_*_ClusTest'),
 #            fileName = cms.untracked.string('file:clus.root')
-            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_pre10/clus/clus1.root')
-#            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/clus/clus1.root')
-#            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/rechits/rechits1.root')
+            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root')
 )
 
 #process.Timing = cms.Service("Timing")
@@ -94,7 +157,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 # DIRECT
 # direct clusterization (no raw step)
 # label of digis 
-process.siPixelClusters.src = 'mix'
+process.siPixelClusters.src = 'simSiPixelDigis'
 
 # plus pixel clusters  (OK)
 #process.p1 = cms.Path(process.siPixelClusters)

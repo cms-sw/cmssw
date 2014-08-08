@@ -24,7 +24,7 @@
 #include <vector>
 
 
-class MultiHitGeneratorFromChi2 final : public MultiHitGeneratorFromPairAndLayers {
+class dso_hidden MultiHitGeneratorFromChi2 final : public MultiHitGeneratorFromPairAndLayers {
 
 typedef CombinedMultiHitGenerator::LayerCacheType       LayerCacheType;
 

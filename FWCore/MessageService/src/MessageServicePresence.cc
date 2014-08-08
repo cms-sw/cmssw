@@ -25,8 +25,6 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
-#include <boost/bind.hpp>
-
 using namespace edm::service;
 
 
@@ -54,7 +52,7 @@ MessageServicePresence::MessageServicePresence()
   , m_queue (new ThreadQueue)
   , m_scribeThread
          ( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
-            , boost::bind(&runMessageLoggerScribe, m_queue)
+            , std::bind(&runMessageLoggerScribe, m_queue)
 	    			// start a new thread, run rMLS(m_queue)
 				// ChangeLog 2
           ) ) 

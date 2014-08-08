@@ -15,7 +15,7 @@ sisCone8GenJets = sisCone5GenJets.clone( rParam = 0.8 )
 ak8GenJets      = ak5GenJets.clone( rParam = 0.8 )
 gk8GenJets      = gk5GenJets.clone( rParam = 0.8 )
 kt6GenJets      = kt4GenJets.clone( rParam = 0.6 )
-ca6GenJets      = ca4GenJets.clone( rParam = 0.6 )
+ca8GenJets      = ca4GenJets.clone( rParam = 0.8 )
 
 
 sisCone5GenJetsNoNu = sisCone5GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
@@ -29,7 +29,7 @@ ak8GenJetsNoNu = ak8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu")
 gk5GenJetsNoNu = gk5GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
 gk8GenJetsNoNu = gk8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
 ca4GenJetsNoNu = ca4GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
-ca6GenJetsNoNu = ca6GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
+ca8GenJetsNoNu = ca8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
 
 sisCone5GenJetsNoMuNoNu = sisCone5GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 sisCone8GenJetsNoMuNoNu = sisCone8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
@@ -42,7 +42,7 @@ ak8GenJetsNoMuNoNu = ak8GenJets.clone( src = cms.InputTag("genParticlesForJetsNo
 gk5GenJetsNoMuNoNu = gk5GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 gk8GenJetsNoMuNoNu = gk8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 ca4GenJetsNoMuNoNu = ca4GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
-ca6GenJetsNoMuNoNu = ca6GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
+ca8GenJetsNoMuNoNu = ca8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 
 recoGenJets   =cms.Sequence(kt4GenJets+kt6GenJets+iterativeCone5GenJets+
                             ak4GenJets+

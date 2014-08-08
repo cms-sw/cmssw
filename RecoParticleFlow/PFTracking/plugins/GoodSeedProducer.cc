@@ -6,12 +6,13 @@
 // Original Author:  Michele Pioppi
 // March 2010. F. Beaudette. Produce PreId information
 
-#include "RecoParticleFlow/PFTracking/interface/GoodSeedProducer.h"
+#include "RecoParticleFlow/PFTracking/plugins/GoodSeedProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -122,23 +123,6 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
 
   Min_dr_ = iConfig.getParameter<double>("Min_dr");
-}
-
-
-GoodSeedProducer::~GoodSeedProducer()
-{
-  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.) 
-
-  delete pfTransformer_;
-  delete resMapEtaECAL_;
-  delete resMapPhiECAL_;
-  if(useTmva_) {
-    for (UInt_t j = 0; j < 9; ++j){
-      delete reader[j];
-    }
-  }
 }
 
 
@@ -504,14 +488,14 @@ GoodSeedProducer::beginRun(const edm::Run & run,
   es.get<IdealMagneticFieldRecord>().get(magneticField);
   B_=magneticField->inTesla(GlobalPoint(0,0,0));
   
-  pfTransformer_= new PFTrackTransformer(B_);
+  pfTransformer_.reset( new PFTrackTransformer(B_) );
   pfTransformer_->OnlyProp();
   
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
   FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
-  resMapEtaECAL_ = new PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str());
-  resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
+  resMapEtaECAL_.reset( new PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str()) );
+  resMapPhiECAL_.reset( new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str()) );
 
   if(useTmva_){
     method_ = conf_.getParameter<string>("TMVAMethod");
@@ -526,7 +510,7 @@ GoodSeedProducer::beginRun(const edm::Run & run,
     FileInPath Weigths9(conf_.getParameter<string>("Weights9"));
 
     for(UInt_t j = 0; j < 9; ++j){
-      reader[j] = new TMVA::Reader("!Color:Silent");
+      reader[j].reset( new TMVA::Reader("!Color:Silent"));
       
       reader[j]->AddVariable("NHits", &nhit);
       reader[j]->AddVariable("NormChi", &chikfred);
@@ -554,16 +538,6 @@ GoodSeedProducer::beginRun(const edm::Run & run,
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
   ifstream ifs(parFile.fullPath().c_str());
   for (int iy=0;iy<81;++iy) ifs >> thr[iy];
-}
-
-void 
-GoodSeedProducer::endRun(const edm::Run &, const edm::EventSetup&) {
-  delete pfTransformer_;
-  pfTransformer_ = nullptr;
-  delete resMapEtaECAL_;
-  resMapEtaECAL_ = nullptr;
-  delete resMapPhiECAL_;
-  resMapPhiECAL_ = nullptr;
 }
 
 int 
@@ -608,3 +582,5 @@ void GoodSeedProducer::fillPreIdRefValueMap( Handle<TrackCollection> tracks,
    }
   filler.insert(tracks,values.begin(),values.end());
 }
+
+DEFINE_FWK_MODULE(GoodSeedProducer);

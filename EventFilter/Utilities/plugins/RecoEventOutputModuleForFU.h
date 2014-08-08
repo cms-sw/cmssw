@@ -57,6 +57,7 @@ namespace evf {
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
     DataPointDefinition outJsonDef_;
+    unsigned char* outBuf_=0;
 
 
   }; //end-of-class-def
@@ -72,12 +73,18 @@ namespace evf {
     retCodeMask_(0),
     filelist_(),
     filesize_(0),
-    inputFiles_()
+    inputFiles_(),
+    outBuf_(new unsigned char[1024*1024])
   {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
     LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
     // create open dir if not already there
     edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
+
+    //replace hltOutoputA with stream if the HLT menu uses this convention
+    std::string testPrefix="hltOutput";
+    if (stream_label_.find(testPrefix)==0) 
+            stream_label_=std::string("stream")+stream_label_.substr(testPrefix.size());
 
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     
@@ -187,17 +194,29 @@ namespace evf {
     c_->closeOutputFile();
     processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
     if(processed_.value()!=0){
-      int b;
+      //int b;
       // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
 
       FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
       FILE *src = fopen(openDatFilePath_.string().c_str(),"r");
-      if(des != 0 && src !=0){
-	while((b=fgetc(src))!= EOF){
-	  fputc((unsigned char)b,des);
-          filesize++;
-	}
+
+      struct stat istat;
+      stat(openDatFilePath_.string().c_str(), &istat);
+      off_t readInput=0;
+      while (readInput<istat.st_size) {
+          unsigned long toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
+          fread(outBuf_,toRead,1,src);
+          fwrite(outBuf_,toRead,1,des);
+          readInput+=toRead;
+          filesize+=toRead;
       }
+
+      //if(des != 0 && src !=0){
+      //	while((b=fgetc(src))!= EOF){
+      //	  fputc((unsigned char)b,des);
+      //    filesize++;
+      //	}
+      //}
 
       edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
       fclose(src);

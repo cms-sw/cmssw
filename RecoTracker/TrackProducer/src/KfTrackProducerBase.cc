@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
 #include "TrajectoryToResiduals.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
@@ -38,6 +38,10 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
 
+  selTracks->reserve(algoResults.size());
+  selTrackExtras->reserve(algoResults.size());
+  if(trajectoryInEvent_) selTrajectories->reserve(algoResults.size());
+
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     if(trajectoryInEvent_) {
@@ -53,12 +57,14 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     // has to be "alongMomentum" as well. Anyway, this direction can be differnt from the one of the orignal
     // seed! The name seedDirection() for the Track's method (and the corresponding data member) is
     // misleading and should be changed into something like "hitsDirection()". TO BE FIXED!
+
     PropagationDirection seedDir = alongMomentum;
 
     LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
 
-    reco::Track t = * theTrack;
-    selTracks->push_back( t );
+
+    selTracks->push_back(std::move(*theTrack));
+    delete theTrack;
     iTkRef++;
 
     // Store indices in local map (starts at 0)
@@ -96,7 +102,6 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::Track & track = selTracks->back();
     track.setExtra( teref );
-    
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
@@ -121,45 +126,42 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     assert(ih==hidx);
     t2t(*theTraj,*selHits,useSplitting);
     auto ie = selHits->size();
-    size_t il = 0;
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
-      track.setHitPattern( hit, il ++ );
+      track.appendHitPattern(hit);
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
     
     /*
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    size_t ih = 0;
     TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits, useSplitting);
     if (theTraj->direction() == alongMomentum) {
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
-	   j != transHits.end(); j ++ ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
+                j != transHits.end(); j++) {
+            if ((**j).hit() != 0){
+                TrackingRecHit *hit = (**j).hit()->clone();
+                track.appendHitPattern(*hit);
+                selHits->push_back(hit);
+                tx.add(TrackingRecHitRef(rHits, hidx++));
+            }
+        }
     }else{
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end()-1;
-	   j != transHits.begin()-1; --j ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end() - 1;
+                j != transHits.begin() - 1; --j) {
+            if ((**j).hit() != 0){
+                TrackingRecHit * hit = (**j).hit()->clone();
+                track.appendHitPattern(*hit);
+                selHits->push_back(hit);
+                tx.add(TrackingRecHitRef(rHits, hidx++));
+            }
+        }
     }
     */
 
     // ----
     tx.setResiduals(trajectoryToResiduals(*theTraj));
 
-    delete theTrack;
     delete theTraj;
   }
 
@@ -183,12 +185,15 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
   
-  
+  selTracks->shrink_to_fit();
+  selTrackExtras->shrink_to_fit();
+  selHits->shrink_to_fit(); 
   rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
 
   if(trajectoryInEvent_) {
+    selTrajectories->shrink_to_fit();
     edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
 
     // Now Create traj<->tracks association map

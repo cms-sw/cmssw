@@ -15,7 +15,6 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"

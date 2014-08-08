@@ -84,14 +84,14 @@ IgProfService::IgProfService(ParameterSet const& ps,
 
   // Register for the framework signals
   iRegistry.watchPostBeginJob(this, &IgProfService::postBeginJob);
-  iRegistry.watchPostBeginRun(this, &IgProfService::postBeginRun);
-  iRegistry.watchPostBeginLumi(this, &IgProfService::postBeginLumi);
+  iRegistry.watchPostGlobalBeginRun(this, &IgProfService::postBeginRun);
+  iRegistry.watchPostGlobalBeginLumi(this, &IgProfService::postBeginLumi);
 
-  iRegistry.watchPreProcessEvent(this, &IgProfService::preEvent);
-  iRegistry.watchPostProcessEvent(this, &IgProfService::postEvent);
+  iRegistry.watchPreEvent(this, &IgProfService::preEvent);
+  iRegistry.watchPostEvent(this, &IgProfService::postEvent);
 
-  iRegistry.watchPostEndLumi(this, &IgProfService::postEndLumi);
-  iRegistry.watchPostEndRun(this, &IgProfService::postEndRun);
+  iRegistry.watchPostGlobalEndLumi(this, &IgProfService::postEndLumi);
+  iRegistry.watchPostGlobalEndRun(this, &IgProfService::postEndRun);
   iRegistry.watchPostEndJob(this, &IgProfService::postEndJob);
 
   iRegistry.watchPostOpenFile(this, &IgProfService::postOpenFile);
@@ -103,37 +103,34 @@ void IgProfService::postBeginJob() {
   makeDump(atPostBeginJob_); 
 }
 
-void IgProfService::postBeginRun(const edm::Run &r, const edm::EventSetup &) { 
-  nrun_ = r.run(); makeDump(atPostBeginRun_); 
+void IgProfService::postBeginRun(GlobalContext const& gc) {
+  nrun_ = gc.luminosityBlockID().run(); makeDump(atPostBeginRun_); 
 }
 
-void IgProfService::postBeginLumi(const edm::LuminosityBlock &l, 
-                                  const edm::EventSetup &) { 
-  nlumi_ = l.luminosityBlock(); makeDump(atPostBeginLumi_); 
+void IgProfService::postBeginLumi(GlobalContext const& gc) { 
+  nlumi_ = gc.luminosityBlockID().luminosityBlock(); makeDump(atPostBeginLumi_); 
 }
 
-void IgProfService::preEvent(const edm::EventID &id, 
-                             const edm::Timestamp & iTime) {
+void IgProfService::preEvent(StreamContext const& iStream) {
   ++nrecord_; // count before events
-  nevent_ = id.event();
+  nevent_ = iStream.eventID().event();
   if ((prescale_ > 0) && 
       (nrecord_ >= mineventrecord_) &&
       (((nrecord_ - mineventrecord_)% prescale_) == 0)) makeDump(atPreEvent_);
 }
 
-void IgProfService::postEvent(const edm::Event &e, const edm::EventSetup &) {
-  nevent_ = e.id().event();
+void IgProfService::postEvent(StreamContext const& iStream) {
+  nevent_ = iStream.eventID().event();
   if ((prescale_ > 0) && 
       (nrecord_ >= mineventrecord_) &&
       (((nrecord_ - mineventrecord_)% prescale_) == 0)) makeDump(atPostEvent_);
 }
 
-void IgProfService::postEndLumi(const edm::LuminosityBlock &l, 
-                                const edm::EventSetup &) { 
+void IgProfService::postEndLumi(GlobalContext const &) { 
   makeDump(atPostEndLumi_); 
 }
 
-void IgProfService::postEndRun(const edm::Run &, const edm::EventSetup &) { 
+void IgProfService::postEndRun(GlobalContext const &) { 
   makeDump(atPostEndRun_); 
 }
 

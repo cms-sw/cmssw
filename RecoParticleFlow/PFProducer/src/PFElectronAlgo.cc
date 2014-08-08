@@ -267,7 +267,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
 	      reco::TrackRef refKf = kfEle->trackRef();
 	      
-	      int nexhits = refKf->trackerExpectedHitsInner().numberOfLostHits();  
+	      int nexhits = refKf->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	      
 	      unsigned int Algo = 0;
 	      if (refKf.isNonnull()) 
@@ -1007,8 +1007,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      double  DR = sqrt(deta_trk*deta_trk+
 				dphi_trk*dphi_trk);
 	      
-	      reco::HitPattern kfHitPattern = trkref->hitPattern();
-	      int NValPixelHit = kfHitPattern.numberOfValidPixelHits();
+	      int NValPixelHit = trkref->hitPattern().numberOfValidPixelHits();
 	      
 	      if(DR < coneTrackIsoForEgammaSC_ && NValPixelHit >=3) {
 		sumNTracksInTheCone++;
@@ -1756,7 +1755,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		unsigned int Algo = whichTrackAlgo(trackref);
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
-		int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+		int nexhits = trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 		
 		bool trackIsFromPrimaryVertex = false;
 		for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
@@ -2670,6 +2669,9 @@ unsigned int PFElectronAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::iter0:
   case TrackBase::iter1:
   case TrackBase::iter2:
+  case TrackBase::iter7:
+  case TrackBase::iter9:
+  case TrackBase::iter10:
     Algo = 0;
     break;
   case TrackBase::iter3:

@@ -96,6 +96,9 @@ public:
       return DQMNet::setOrder(data_, x.data_);
     }
 
+  /// Check the consistency of the axis labels
+  static bool CheckBinLabels(const TAxis* a1, const TAxis * a2);
+
   /// Get the type of the monitor element.
   Kind kind(void) const
     { return Kind(data_.flags & DQMNet::DQM_PROP_TYPE_MASK); }
@@ -375,8 +378,3 @@ public:
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */

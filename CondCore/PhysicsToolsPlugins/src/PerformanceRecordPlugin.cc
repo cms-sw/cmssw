@@ -11,12 +11,19 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+
 namespace cond {
-  template <> PerformancePayload* createPayload<PerformancePayload>( const std::string& payloadTypeName ){
-    if( payloadTypeName == "PerformancePayloadFromTFormula" ) return new PerformancePayloadFromTFormula;
-    if( payloadTypeName == "PerformancePayloadFromBinnedTFormula" ) return new PerformancePayloadFromBinnedTFormula;
-    if( payloadTypeName == "PerformancePayloadFromTable" ) return new PerformancePayloadFromTable;
-    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+  template <> boost::shared_ptr<PerformancePayload> deserialize<PerformancePayload>( const std::string& payloadType, 
+										     const Binary& payloadData, 
+										     const Binary& streamerInfoData, 
+										     bool unpackingOnly ){
+    // DESERIALIZE_BASE_CASE( PerformancePayload );  abstract 
+    DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromTFormula ); 
+    DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromBinnedTFormula ); 
+    DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromTable ); 
+    // here we come if none of the deserializations above match the payload type:
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
 		   "createPayload" );
   }
 }

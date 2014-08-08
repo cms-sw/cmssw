@@ -82,7 +82,7 @@ namespace cms
 
     run( input, *output, geom );
 
-
+    output->shrink_to_fit();
     e.put(output);
 
   }

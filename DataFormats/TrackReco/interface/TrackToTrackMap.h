@@ -9,13 +9,14 @@
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-namespace reco {
-  
-  typedef edm::AssociationMap<
-    edm::OneToOne<reco::TrackCollection,
-		  reco::TrackCollection> > TrackToTrackMap;
-  
-}
+namespace reco
+{
+
+typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, reco::TrackCollection> > TrackToTrackMap;
+
+} // namespace reco
+
 #endif
+

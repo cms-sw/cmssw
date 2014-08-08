@@ -61,10 +61,11 @@ public:
 
 #ifdef LOCAL_UNPACK
   static bool debug;
+  static unsigned int errMask;
 #else
   static std::atomic<bool> debug;
+  static std::atomic<unsigned int> errMask;
 #endif
-  static unsigned int errMask;
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:

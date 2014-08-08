@@ -19,8 +19,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/bind.hpp"
-
 #include <sstream>
 #include <ostream>
 #include <iomanip>
@@ -105,11 +103,12 @@ namespace edm {
   void
   ParameterSetDescription::validate(ParameterSet & pset) const
   {
+    using std::placeholders::_1;
     if (unknown_) return;
 
     std::set<std::string> validatedLabels;
     for_all(entries_,
-            boost::bind(&ParameterSetDescription::validateNode, _1, boost::ref(pset), boost::ref(validatedLabels)));
+            std::bind(&ParameterSetDescription::validateNode, _1, std::ref(pset), std::ref(validatedLabels)));
 
     std::vector<std::string> parameterNames = pset.getParameterNames();
     if (validatedLabels.size() != parameterNames.size()) {
@@ -153,14 +152,15 @@ namespace edm {
   ParameterSetDescription::writeCfi(std::ostream & os,
                                     bool startWithComma,
                                     int indentation) const {
+    using std::placeholders::_1;
     bool wroteSomething = false;
 
-    for_all(entries_, boost::bind(&ParameterSetDescription::writeNode,
+    for_all(entries_, std::bind(&ParameterSetDescription::writeNode,
                                   _1,
-                                  boost::ref(os),
-                                  boost::ref(startWithComma),
+                                  std::ref(os),
+                                  std::ref(startWithComma),
                                   indentation,
-                                  boost::ref(wroteSomething)));
+                                  std::ref(wroteSomething)));
 
     if (wroteSomething) {
       char oldFill = os.fill();
@@ -178,6 +178,7 @@ namespace edm {
   void ParameterSetDescription::
   print(std::ostream & os, DocFormatHelper & dfh) const {
 
+    using std::placeholders::_1;
     if (isUnknown()) {
       dfh.indent(os);
       os << "Description is unknown.  The configured PSet will not be validated\n";
@@ -204,27 +205,27 @@ namespace edm {
     // Zeroth pass is only to calculate column widths in advance of any printing
     dfh.setPass(0);
     dfh.setCounter(0);
-    for_all(entries_, boost::bind(&ParameterSetDescription::printNode,
+    for_all(entries_, std::bind(&ParameterSetDescription::printNode,
                                   _1,
-                                  boost::ref(os),
-                                  boost::ref(dfh)));
+                                  std::ref(os),
+                                  std::ref(dfh)));
 
     // First pass prints top level parameters and references to structure
     dfh.setPass(1);
     dfh.setCounter(0);
-    for_all(entries_, boost::bind(&ParameterSetDescription::printNode,
+    for_all(entries_, std::bind(&ParameterSetDescription::printNode,
                                   _1,
-                                  boost::ref(os),
-                                  boost::ref(dfh)));
+                                  std::ref(os),
+                                  std::ref(dfh)));
 
     // Second pass prints substructure that goes into different sections of the
     // output document
     dfh.setPass(2);
     dfh.setCounter(0);
-    for_all(entries_, boost::bind(&ParameterSetDescription::printNode,
+    for_all(entries_, std::bind(&ParameterSetDescription::printNode,
                                   _1,
-                                  boost::ref(os),
-                                  boost::ref(dfh)));
+                                  std::ref(os),
+                                  std::ref(dfh)));
   }
 
   bool

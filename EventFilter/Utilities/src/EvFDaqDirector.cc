@@ -381,9 +381,25 @@ namespace evf {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
     int retval = -1;
+    int lock_attempts = 0;
+
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
       if (retval==-1) usleep(50000);
+      else continue;
+
+      lock_attempts++;
+      if (lock_attempts>100 ||  errno==116) {
+        if (errno==116)
+          edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
+        else
+          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "<< errno <<":"<< strerror(errno) << std::endl;
+
+        struct stat buf;
+        if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
+        if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
+        lock_attempts=0;
+      }
     }
     if(retval!=0) return fileStatus;
 
@@ -404,8 +420,10 @@ namespace evf {
 	if (testModeNoBuilderUnit_)
 	  fscanf(fu_rw_lock_stream, "%u %u %u %u", &readLs, &readIndex,
 		 &jumpLs, &jumpIndex);
-	else
+	else {
 	  fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
+	  edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
+        }
 
 	// try to bump
 	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize);
@@ -478,7 +496,7 @@ namespace evf {
     if ( fileStatus == noFile ) {
       struct stat buf;
       //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
-      if ( stat(getEoRFilePath().c_str(), &buf) == 0 )
+      if ( stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf)!=0)
         fileStatus = runEnded;
     }
     return fileStatus;
@@ -517,16 +535,14 @@ namespace evf {
       bool eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
       unsigned int startingLumi = ls;
       while (eolFound) {
-        //DEBUG!
-        //remove this for testing (might not be necessary after all..)
-        /*
+
         // recheck that no raw file appeared in the meantime
         if (stat(nextFile.c_str(), &buf) == 0) {
           previousFileSize_ = buf.st_size;
           fsize = buf.st_size;
           return true;
         }
-        */
+
 	// this lumi ended, check for files
 	++ls;
 	nextFile = getInputJsonFilePath(ls,0);

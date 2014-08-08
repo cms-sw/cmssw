@@ -25,15 +25,15 @@ EVENTS  := 100
 MENUS := 8E29 1E31 GRun
 
 HLT_GRun_CONFIG     := /dev/CMSSW_3_3_0/backport/GRun
-HLT_GRun_GLOBALTAG  := STARTUP31X_V8::All
+HLT_GRun_GLOBALTAG  := STARTUP31X_V8
 HLT_GRun_SOURCE     := file:RelVal_DigiL1Raw_8E29.root
 
 HLT_8E29_CONFIG     := /dev/CMSSW_3_3_0/backport/8E29
-HLT_8E29_GLOBALTAG  := STARTUP31X_V8::All
+HLT_8E29_GLOBALTAG  := STARTUP31X_V8
 HLT_8E29_SOURCE     := file:RelVal_DigiL1Raw_8E29.root
 
 HLT_1E31_CONFIG     := /dev/CMSSW_3_3_0/backport/1E31
-HLT_1E31_GLOBALTAG  := MC_31X_V9::All
+HLT_1E31_GLOBALTAG  := MC_31X_V9
 HLT_1E31_SOURCE     := file:RelVal_DigiL1Raw_1E31.root
 
 # more configuration, useful to debug the Makefile itself
@@ -166,7 +166,7 @@ $(TABLE_PYS): .database_$$(LUMI)
 	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $(LUMI)_GlobalTable.py
 	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $(LUMI)_GlobalTable.py
 	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $(LUMI)_GlobalTable.py
-	@echo -e "process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'"           >> $(LUMI)_GlobalTable.py
+	@echo -e "process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'"                   >> $(LUMI)_GlobalTable.py
 	@echo -e "process.GlobalTag.globaltag = '$(HLT_$(LUMI)_GLOBALTAG)'"                                 >> $(LUMI)_GlobalTable.py
 	@echo -e "process.options = cms.untracked.PSet(\n    wantSummary = cms.untracked.bool( True )\n)\n" >> $(LUMI)_GlobalTable.py
 
@@ -177,7 +177,7 @@ $(LIST_OF_PYS): .database_$$(LUMI)
 	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $@
 	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $@
 	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $@
-	@echo -e "process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'"           >> $@
+	@echo -e "process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'"                   >> $@
 	@echo -e "process.GlobalTag.globaltag = '$(HLT_$(LUMI)_GLOBALTAG)'"                                 >> $@
 	@echo -e "process.options = cms.untracked.PSet(\n    wantSummary = cms.untracked.bool( True )\n)\n" >> $@
 

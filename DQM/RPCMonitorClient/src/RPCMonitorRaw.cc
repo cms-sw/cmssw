@@ -39,31 +39,29 @@ RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg):theConfig(cfg){
 
 RPCMonitorRaw::~RPCMonitorRaw() { LogTrace("") << "RPCMonitorRaw destructor"; }
 
-void RPCMonitorRaw::beginJob(){}
 
-
-void RPCMonitorRaw::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-// Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
+void RPCMonitorRaw::bookHistograms(DQMStore::IBooker & ibooker,
+				   edm::Run const &  iRun ,
+				   edm::EventSetup const & iSetup ) {
+  ibooker.cd();
+  ibooker.setCurrentFolder("RPC/LinkMonitor");
   
-  theDMBE->setCurrentFolder("RPC/LinkMonitor");
-  
-  me_t[0]=theDMBE->book1D("recordType_790",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(790));
-  me_t[1]=theDMBE->book1D("recordType_791",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(791));
-  me_t[2]=theDMBE->book1D("recordType_792",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(792));
+  me_t[0]=ibooker.book1D("recordType_790",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(790));
+  me_t[1]=ibooker.book1D("recordType_791",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(791));
+  me_t[2]=ibooker.book1D("recordType_792",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(792));
   for (int i=0;i<3;++i)me_t[i]->getTH1F()->SetStats(0);
   
-  me_e[0]=theDMBE->book1D("readoutErrors_790",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(790));
-  me_e[1]=theDMBE->book1D("readoutErrors_791",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(791));
-  me_e[2]=theDMBE->book1D("readoutErrors_792",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(792));
+  me_e[0]=ibooker.book1D("readoutErrors_790",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(790));
+  me_e[1]=ibooker.book1D("readoutErrors_791",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(791));
+  me_e[2]=ibooker.book1D("readoutErrors_792",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(792));
   for (int i=0;i<3;++i)me_e[i]->getTH1F()->SetStats(0);
 
-  me_mapGoodEvents=theDMBE->book2D("mapGoodRecords","mapGoodRecords",36,-0.5,35.5, 3, 789.5,792.5);
+  me_mapGoodEvents=ibooker.book2D("mapGoodRecords","mapGoodRecords",36,-0.5,35.5, 3, 789.5,792.5);
   me_mapGoodEvents->getTH2F()->SetNdivisions(3,"y");
   me_mapGoodEvents->getTH2F()->SetXTitle("rmb");
   me_mapGoodEvents->getTH2F()->SetYTitle("fed");
   me_mapGoodEvents->getTH2F()->SetStats(0);
-  me_mapBadEvents =theDMBE->book2D("mapErrorRecords", "mapErrorRecords", 36,-0.5,35.5, 3, 789.5,792.5);
+  me_mapBadEvents =ibooker.book2D("mapErrorRecords", "mapErrorRecords", 36,-0.5,35.5, 3, 789.5,792.5);
   me_mapBadEvents->getTH2F()->SetXTitle("fed");
   me_mapBadEvents->getTH2F()->SetYTitle("rmb");
   me_mapBadEvents->getTH2F()->SetNdivisions(3,"y");
@@ -73,7 +71,7 @@ void RPCMonitorRaw::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     if (theWatchedErrorHistoPos[i]) {
       for (unsigned int fed=790; fed <=792; ++fed) {
         TH2F * histo = RPCRawDataCountsHistoMaker::emptyReadoutErrorMapHisto(fed,i);
-        MonitorElement* watched = theDMBE->book2D(histo->GetName(),histo);
+        MonitorElement* watched = ibooker.book2D(histo->GetName(),histo);
         theWatchedErrorHistos[fed-790].push_back(watched);
         theWatchedErrorHistoPos[i] = theWatchedErrorHistos[fed-790].size();
       }
@@ -81,24 +79,7 @@ void RPCMonitorRaw::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
   }
 
 }
-void RPCMonitorRaw::endJob()
-{
-bool writeHistos = theConfig.getUntrackedParameter<bool>("writeHistograms", false);
-  if (writeHistos) {
-    std::string histoFile = theConfig.getUntrackedParameter<std::string>("histoFileName"); 
-    TFile f(histoFile.c_str(),"RECREATE");
-    for (int i=0; i<3; ++i) {
-      me_t[i]->getTH1F()->Write();
-      me_e[i]->getTH1F()->Write();
-      std::vector<MonitorElement* > & wh = theWatchedErrorHistos[i];
-      for (std::vector<MonitorElement* >::const_iterator it=wh.begin(); it != wh.end(); ++it)(*it)->getTH2F()->Write(); 
-    }
-    me_mapGoodEvents->getTH2F()->Write();
-    me_mapBadEvents->getTH2F()->Write();
-    edm::LogInfo(" END JOB, histos saved!");
-    f.Close();
-  }
-}
+
 
 
 void RPCMonitorRaw::analyze(const  edm::Event& ev, const edm::EventSetup& es) 

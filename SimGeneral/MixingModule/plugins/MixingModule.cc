@@ -8,6 +8,8 @@
 #include "MixingWorker.h"
 #include "Adjuster.h"
 
+#include "boost/bind.hpp"
+
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -394,8 +396,7 @@ namespace edm {
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
           KeepTrackOfPileup+=NumPU_Events;
         } else {
-          int dummyId = 0;
-          const std::vector<edm::EventID>& playEventID =
+	  const std::vector<edm::EventID>& playEventID =
             playbackInfo_H->getStartEventId(readSrcIdx, bunchIdx);
           if(readSrcIdx == 0) {
             PileupList.push_back(playEventID.size());
@@ -404,7 +405,7 @@ namespace edm {
           inputSources_[readSrcIdx]->playPileUp(
             playEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
-                        dummyId, vertexOffset, boost::ref(setup), boost::cref(e.streamID()))
+                        _2, vertexOffset, boost::ref(setup), boost::cref(e.streamID()))
             );
         }
       }

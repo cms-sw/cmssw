@@ -339,7 +339,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 
   	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
 	if (!m_exception.reportClass( CELoc, BR ) ) return;
-	if ( support::isSafeClassName( t.getAsString() ) ) return;
+	if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
         if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local && ! support::isConst( t ) )
 	{
@@ -404,7 +404,8 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
   clang::SourceLocation SL = ME->getExprLoc();
   if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
 
-
+  const ValueDecl * D = ME->getMemberDecl();
+  if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
   if (!(ME->isImplicitAccess())) return;
   Stmt * P = AC->getParentMap().getParent(ME);
 	while (AC->getParentMap().hasParent(P)) {
@@ -460,6 +461,8 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
 }
 
 void WalkAST::ReportMember(const clang::MemberExpr *ME) {
+ const ValueDecl * D = ME->getMemberDecl();
+ if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
  if ( visitingCallExpr ) {
 	clang::Expr * IOA = visitingCallExpr->getImplicitObjectArgument();
 	if (!( IOA->isImplicitCXXThis() || llvm::dyn_cast<CXXThisExpr>(IOA->IgnoreParenCasts()))) return;

@@ -558,22 +558,19 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks)
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track){
-  const reco::HitPattern& p_inner = track->trackerExpectedHitsInner();
-  return p_inner.numberOfHits();
+  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 }
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track)
 {
-  const reco::HitPattern& p_outer = track->trackerExpectedHitsOuter();
-  return p_outer.numberOfHits();
+  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
 }
 
 //____________________________________________________________________________||
 int TCMETAlgo::nLayers(const reco::TrackRef track)
 {
-  const reco::HitPattern& p = track->hitPattern();
-  return p.trackerLayersWithMeasurement();
+  return track->hitPattern().trackerLayersWithMeasurement();
 }
 
 //____________________________________________________________________________||

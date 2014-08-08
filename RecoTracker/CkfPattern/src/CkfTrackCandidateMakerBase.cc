@@ -41,6 +41,11 @@
 #include<algorithm>
 #include<functional>
 
+#include <thread>
+#ifdef VI_TBB
+#include "tbb/parallel_for.h"
+#endif
+
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
 
 using namespace edm;
@@ -204,19 +209,27 @@ namespace cms{
       // method for debugging
       countSeedsDebugger();
 
-      vector<Trajectory> theTmpTrajectories;
+      // the mutex
+     std::mutex theMutex;
+     using Lock = std::unique_lock<std::mutex>;
 
       // Loop over seeds
-      size_t collseed_size = collseed->size(); 
-      for (size_t j = 0; j < collseed_size; j++){
+      size_t collseed_size = collseed->size();
+
+      auto theLoop = [&](size_t j) {    
+
+      // to be moved inside a par section
+      vector<Trajectory> theTmpTrajectories;
+
 
 	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========"<<endl;
 	
+        { Lock lock(theMutex); 
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;
-          continue; 
-        }
+          return;  // from the lambda! 
+        }}
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
@@ -256,6 +269,7 @@ namespace cms{
                                << j << " ========"<<endl
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
 
+        { Lock lock(theMutex); 
 	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
@@ -267,12 +281,13 @@ namespace cms{
             if (theSeedCleaner && rawResult.back().foundHits()>3) theSeedCleaner->add( &rawResult.back() );
             //if (theSeedCleaner ) theSeedCleaner->add( & (*it) );
 	  }
-	}
+	}}
 
         theTmpTrajectories.clear();
         
 	LogDebug("CkfPattern") << "rawResult trajectories found so far = " << rawResult.size();
 
+        { Lock lock(theMutex);
 	if ( maxSeedsBeforeCleaning_ >0 && rawResult.size() > maxSeedsBeforeCleaning_+lastCleanResult) {
           theTrajectoryCleaner->clean(rawResult);
           rawResult.erase(std::remove_if(rawResult.begin()+lastCleanResult,rawResult.end(),
@@ -280,10 +295,23 @@ namespace cms{
 			  rawResult.end());
           lastCleanResult=rawResult.size();
         }
+        }
 
-      }
+      };
       // end of loop over seeds
-      
+
+
+#ifdef VI_TBB
+     tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
+#else
+#ifdef VI_OMP
+#pragma omp parallel for schedule(dynamic,4)
+#endif
+      for (size_t j = 0; j < collseed_size; j++){
+       theLoop(j);
+      }
+#endif
+     
       if (theSeedCleaner) theSeedCleaner->done();
    
       // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
@@ -303,7 +331,7 @@ namespace cms{
       unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
 					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
 			     unsmoothedResult.end());
-      
+      unsmoothedResult.shrink_to_fit();
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {
         for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
@@ -329,6 +357,7 @@ namespace cms{
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
             Trajectory::DataContainer &meas = it->measurements();
+            trajectory.reserve(meas.size());
             for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
               trajectory.push(std::move(*itmeas));
             }

@@ -17,6 +17,8 @@ using namespace XrdAdaptor;
 #define XRD_CL_MAX_CHUNK 512*1024
 #define XRD_CL_MAX_SIZE 1024
 
+#include "XrdClient/XrdClientConn.hh"
+
 XrdFile::XrdFile (void)
   :  m_offset (0),
     m_size(-1),

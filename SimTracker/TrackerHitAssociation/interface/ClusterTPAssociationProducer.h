@@ -2,7 +2,7 @@
 #define SimTracker_TrackerHitAssociation_ClusterTPAssociationProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -21,7 +21,7 @@
 
 class EncodedEventId;
 
-class ClusterTPAssociationProducer : public edm::EDProducer 
+class ClusterTPAssociationProducer : public edm::stream::EDProducer<> 
 {
 public:
   //typedef std::pair<uint32_t, EncodedEventId> SimTrackIdentifier;

@@ -386,7 +386,7 @@ EDConsumerBase::modulesDependentUpon(const std::string& iProcessName,
       auto labels = m_tokenInfo.get<kLabels>(index);
       unsigned int start = labels.m_startOfModuleLabel;
       const char* processName = &(m_tokenLabels[start+labels.m_deltaToProcessName]);
-      if(processName or processName[0]==0 or
+      if( (not processName) or processName[0]==0 or
          iProcessName == processName) {
         uniqueModules.insert(&(m_tokenLabels[start]));
       }

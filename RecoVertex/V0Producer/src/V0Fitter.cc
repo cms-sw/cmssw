@@ -16,7 +16,7 @@
 //
 //
 
-#include "RecoVertex/V0Producer/interface/V0Fitter.h"
+#include "V0Fitter.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -35,12 +35,15 @@
 
 // Constants
 
+namespace {
 const double piMass = 0.13957018;
 const double piMassSquared = piMass*piMass;
 const double protonMass = 0.938272013;
 const double protonMassSquared = protonMass*protonMass;
 const double kShortMass = 0.497614;
 const double lambdaMass = 1.115683;
+}
+
 
 // Constructor and (empty) destructor
 V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
@@ -100,7 +103,10 @@ V0Fitter::~V0Fitter() {
 }
 
 // Method containing the algorithm for vertex reconstruction
-void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+   reco::VertexCompositeCandidateCollection & theKshorts,
+   reco::VertexCompositeCandidateCollection & theLambdas) {
+
 
   using std::vector;
   using std::cout;
@@ -108,8 +114,6 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace reco;
   using namespace edm;
 
-  theKshorts.clear();
-  theLambdas.clear();
 
   // Create std::vectors for Tracks and TrackRefs (required for
   //  passing to the KalmanVertexFitter)
@@ -162,8 +166,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       
       if( tscb.isValid() ) {
 	if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
-	  theTrackRefs.push_back( tmpRef );
-	  theTransTracks.push_back( tmpTk );
+	  theTrackRefs.push_back( std::move(tmpRef) );
+	  theTransTracks.push_back( std::move(tmpTk) );
 	}
       }
     }
@@ -177,13 +181,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTrackRefs.size(); trdx2++) {
 
-      //This vector holds the pair of oppositely-charged tracks to be vertexed
-      std::vector<TransientTrack> transTracks;
 
       TrackRef positiveTrackRef;
       TrackRef negativeTrackRef;
-      TransientTrack* posTransTkPtr = 0;
-      TransientTrack* negTransTkPtr = 0;
+      TransientTrack* posTransTkPtr = nullptr;
+      TransientTrack* negTransTkPtr = nullptr;
 
       // Look at the two tracks we're looping over.  If they're oppositely
       //  charged, load them into the hypothesized positive and negative tracks
@@ -207,12 +209,13 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       else continue;
 
       // Fill the vector of TransientTracks to send to KVF
+      std::vector<TransientTrack> transTracks; transTracks.reserve(2);
       transTracks.push_back(*posTransTkPtr);
       transTracks.push_back(*negTransTkPtr);
 
       // Trajectory states to calculate DCA for the 2 tracks
-      FreeTrajectoryState posState = posTransTkPtr->impactPointTSCP().theState();
-      FreeTrajectoryState negState = negTransTkPtr->impactPointTSCP().theState();
+      FreeTrajectoryState const & posState = posTransTkPtr->impactPointTSCP().theState();
+      FreeTrajectoryState const & negState = negTransTkPtr->impactPointTSCP().theState();
 
       if( !posTransTkPtr->impactPointTSCP().isValid() || !negTransTkPtr->impactPointTSCP().isValid() ) continue;
 
@@ -228,9 +231,9 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
           || std::abs(cxPt.z()) > 300.) continue;
 
       // Get trajectory states for the tracks at POCA for later cuts
-      TrajectoryStateClosestToPoint posTSCP = 
+      TrajectoryStateClosestToPoint const & posTSCP = 
 	posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
-      TrajectoryStateClosestToPoint negTSCP =
+      TrajectoryStateClosestToPoint const & negTSCP =
 	negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
 
       if( !posTSCP.isValid() || !negTSCP.isValid() ) continue;
@@ -405,15 +408,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double vtxNdof(theVtx.ndof());
 
       // Create the VertexCompositeCandidate object that will be stored in the Event
-      VertexCompositeCandidate* theKshort = 0;
-      VertexCompositeCandidate* theLambda = 0;
-      VertexCompositeCandidate* theLambdaBar = 0;
+      VertexCompositeCandidate* theKshort = nullptr;
+      VertexCompositeCandidate* theLambda = nullptr;
+      VertexCompositeCandidate* theLambdaBar = nullptr;
 
       if( doKshorts ) {
 	theKshort = new VertexCompositeCandidate(0, kShortP4, vtx, vtxCov, vtxChi2, vtxNdof);
       }
       if( doLambdas ) {
-	if( positiveP.mag() > negativeP.mag() ) {
+	if( positiveP.mag2() > negativeP.mag2() ) {
 	  theLambda = 
 	    new VertexCompositeCandidate(0, lambdaP4, vtx, vtxCov, vtxChi2, vtxNdof);
 	}
@@ -460,7 +463,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	addp4.set( *theKshort );
 	if( theKshort->mass() < kShortMass + kShortMassCut &&
 	    theKshort->mass() > kShortMass - kShortMassCut ) {
-	  theKshorts.push_back( *theKshort );
+	  theKshorts.push_back( std::move(*theKshort) );
 	}
       }
       
@@ -471,7 +474,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	addp4.set( *theLambda );
 	if( theLambda->mass() < lambdaMass + lambdaMassCut &&
 	    theLambda->mass() > lambdaMass - lambdaMassCut ) {
-	  theLambdas.push_back( *theLambda );
+	  theLambdas.push_back( std::move(*theLambda) );
 	}
       }
       else if ( doLambdas && theLambdaBar ) {
@@ -481,27 +484,19 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	addp4.set( *theLambdaBar );
 	if( theLambdaBar->mass() < lambdaMass + lambdaMassCut &&
 	    theLambdaBar->mass() > lambdaMass - lambdaMassCut ) {
-	  theLambdas.push_back( *theLambdaBar );
+	  theLambdas.push_back( std::move(*theLambdaBar) );
 	}
       }
 
-      if(theKshort) delete theKshort;
-      if(theLambda) delete theLambda;
-      if(theLambdaBar) delete theLambdaBar;
-      theKshort = theLambda = theLambdaBar = 0;
+      delete theKshort;
+      delete theLambda;
+      delete theLambdaBar;
+      theKshort = theLambda = theLambdaBar = nullptr;
 
     }
   }
 }
 
-// Get methods
-const reco::VertexCompositeCandidateCollection& V0Fitter::getKshorts() const {
-  return theKshorts;
-}
-
-const reco::VertexCompositeCandidateCollection& V0Fitter::getLambdas() const {
-  return theLambdas;
-}
 
 
 // Experimental
@@ -510,7 +505,7 @@ double V0Fitter::findV0MassError(const GlobalPoint &vtxPos, const std::vector<re
 }
 
 /*
-double V0Fitter::findV0MassError(const GlobalPoint &vtxPos, std::vector<reco::TransientTrack> dauTracks) {
+double V0Fitter::findV0MassError(const GlobalPoint &vtxPos, std::vector<reco::TransientTrack> const & dauTracks) {
   // Returns -99999. if trajectory states fail at vertex position
 
   // Load positive track trajectory at vertex into vector, then negative track

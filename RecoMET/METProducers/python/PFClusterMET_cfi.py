@@ -7,7 +7,7 @@ from RecoMET.METProducers.METSigParams_cfi import *
 pfClusterMet = cms.EDProducer(
     "PFClusterMETProducer",
     src = cms.InputTag("pfClusterRefsForJets"),
-    alias = cms.string('PFClusterMET'),
+    alias = cms.string('pfClusterMet'),
     globalThreshold = cms.double(0.0),
     )
 

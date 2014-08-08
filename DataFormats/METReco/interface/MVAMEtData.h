@@ -30,6 +30,7 @@ namespace reco
     enum { kUndefined, kPileUp, kNoPileUp };
     int type_; // either kPileUp or kNoPileUp
     double neutralEnFrac_;
+    double passesLooseJetId_;
     double offsetEnCorr_;
 
     metsig::SigInputObj pfMEtSignObj_; // contribution of this PFJet to PFMET significance matrix
@@ -52,6 +53,7 @@ namespace reco
     enum { kUndefined, kPileUpCharged, kNoPileUpCharged, kNeutral };
     int type_; // either kPileUpCharged, kNoPileUpCharged or kNeutral
     bool isWithinJet_;
+    double passesLooseJetId_;
 
     metsig::SigInputObj pfMEtSignObj_; // contribution of this PFCandidate to PFMET significance matrix
   };

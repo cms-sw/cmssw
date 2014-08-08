@@ -68,6 +68,11 @@ void L1MuGMTLFSortRankEtaQLUT::InitParameters() {
 //           - 0 - qRPC=0 1.04<|eta|<1.24 || |eta|>1.48 to qGMT=2
 //                 qRPC=1 0.83<|eta|<1.04 || 1.14<|eta|<1.24 || |eta|>1.36 to qGMT=2
 //                 qRPC=2 0.83<|eta|<0.93 to qGMT=2
+//           - 1 - do nothing
+//           - 2 - remove qRPC=0 in endcap from single muon
+//           - 3 - remove qRPC=0 from single muon
+//           - 4 - remove qRPC=0 in endcap from all
+//           - 5 - remove qRPC=0 from all
 //           - >0 - do nothing
 //
 // m_version=1: TDR
@@ -112,6 +117,19 @@ unsigned L1MuGMTLFSortRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, uns
               ( etaValue > 1.36 ) ) ) ||                // Q1, high rate
               ( q == 2 && ( etaValue > 0.83 && etaValue < 0.93 ) ) )  // Q2, high rate
         vlq = 1;
+    }
+// reserve vRPC == 1 for doing nothing for bwd compatibility
+    if(vRPC == 2) {
+      if(q == 0 && etaValue > 1.04) vlq = 2;
+    }
+    if(vRPC == 3) {
+      if(q == 0) vlq = 2;
+    }
+    if(vRPC == 4) {
+      if(q == 0 && etaValue > 1.04) vlq = 1;
+    }
+    if(vRPC == 5) {
+      if(q == 0) vlq = 1;
     }
   }                         
       

@@ -59,6 +59,11 @@ class TopDiLeptonHLTValidation : public DQMEDAnalyzer {
    private:
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      /// deduce monitorPath from label, the label is expected
+      /// to be of type 'selectionPath:monitorPath'
+      std::string monitorPath(const std::string& label) const { return label.substr(label.find(':')+1); };  
+      /// set configurable labels for trigger monitoring histograms
+      void triggerBinLabels(const std::vector<std::string>& labels);
 
       // ----------member data ---------------------------
       // DQM
@@ -71,6 +76,8 @@ class TopDiLeptonHLTValidation : public DQMEDAnalyzer {
       MonitorElement* hDenJetPt;
       MonitorElement* hNumJetEta;
       MonitorElement* hDenJetEta;
+      MonitorElement* hNumTriggerMon;
+      MonitorElement* hDenTriggerMon;
       // Electrons
       const reco::GsfElectron *elec1_;
       const reco::GsfElectron *elec2_;
@@ -104,6 +111,14 @@ class TopDiLeptonHLTValidation : public DQMEDAnalyzer {
       bool isAll_ = false;
       bool isSel_ = false;
 };
+
+inline void TopDiLeptonHLTValidation::triggerBinLabels(const std::vector<std::string>& labels)
+{
+  for(unsigned int idx=0; idx<labels.size(); ++idx){
+    hNumTriggerMon->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
+    hDenTriggerMon->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
+  }
+}
 
 //
 // constants, enums and typedefs
@@ -143,7 +158,7 @@ TopDiLeptonHLTValidation::TopDiLeptonHLTValidation(const edm::ParameterSet& iCon
   // Jets
   tokJets_ = consumes< edm::View<reco::Jet> >(edm::InputTag(sJets_));
   // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
+  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "")); 
 }
 
 

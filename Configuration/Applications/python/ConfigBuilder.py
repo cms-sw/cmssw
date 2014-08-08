@@ -23,6 +23,7 @@ defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
 defaultOptions.conditions = None
+defaultOptions.useCondDBv1 = False
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
@@ -225,6 +226,7 @@ class ConfigBuilder(object):
         self.productionFilterSequence = None
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
+	self.excludedPaths=[]
 
     def profileOptions(self):
 	    """
@@ -515,7 +517,7 @@ class ConfigBuilder(object):
 				                     dataTier = cms.untracked.string(theTier),
 						     filterName = cms.untracked.string(theFilterName))
 						  )
-			if not theSelectEvent and hasattr(self.process,'generation_step'):
+			if not theSelectEvent and hasattr(self.process,'generation_step') and theStreamType!='LHE':
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 			if not theSelectEvent and hasattr(self.process,'filtering_step'):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
@@ -576,7 +578,7 @@ class ConfigBuilder(object):
                                                                        filterName = cms.untracked.string(theFilterName)
                                                                        )
                                           )
-                if hasattr(self.process,"generation_step"):
+                if hasattr(self.process,"generation_step") and streamType!='LHE':
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 		if hasattr(self.process,"filtering_step"):
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
@@ -740,9 +742,18 @@ class ConfigBuilder(object):
 						
         self.loadAndRemember(self.ConditionsDefaultCFF)
 
-        from Configuration.AlCa.GlobalTag import GlobalTag
+	if self._options.useCondDBv1:
+		from Configuration.AlCa.GlobalTag import GlobalTag
+	else:
+		from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+
         self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
-        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+
+	if self._options.useCondDBv1:
+	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+	else:
+	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag')
+
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
 	if self._options.slhc:
@@ -864,7 +875,10 @@ class ConfigBuilder(object):
         self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
         self.ALCAHARVESTDefaultCFF="Configuration/StandardSequences/AlCaHarvesting_cff"
         self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
-        self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+        if self._options.useCondDBv1:
+	    self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	else:
+            self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
@@ -1254,6 +1268,7 @@ class ConfigBuilder(object):
 	    
 	    #schedule it
 	    self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+	    self.excludedPaths.append("lhe_step")
 	    self.schedule.append( self.process.lhe_step )
 
     def prepare_GEN(self, sequence = None):
@@ -1280,6 +1295,11 @@ class ConfigBuilder(object):
 	if not loadFailure:
 		generatorModule=sys.modules[loadFragment]
 		genModules=generatorModule.__dict__
+		#remove lhe producer module since this should have been
+		#imported instead in the LHE step
+		if self.LHEDefaultSeq in genModules:
+                        del genModules[self.LHEDefaultSeq]
+
 		if self._options.hideGen:
 			self.loadAndRemember(loadFragment)
 		else:
@@ -2163,10 +2183,13 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='for path in process.paths:\n'
 		if len(self.conditionalPaths):
 			self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
+                if len(self.excludedPaths):
+                        self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 		pfs = getattr(self.process,self.productionFilterSequence)
 		for path in self.process.paths:
 			if not path in self.conditionalPaths: continue
+                        if path in self.excludedPaths: continue
 			getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
 			
 

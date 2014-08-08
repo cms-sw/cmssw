@@ -68,6 +68,7 @@
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/GlobalSchedule.h"
 #include "FWCore/Framework/src/StreamSchedule.h"
+#include "FWCore/Framework/src/SystemTimeKeeper.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -111,7 +112,7 @@ namespace edm {
     typedef std::vector<std::string> vstring;
     typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
+    typedef std::vector<std::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -228,7 +229,7 @@ namespace edm {
 
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet, const ProductRegistry& iRegistry);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
@@ -249,6 +250,7 @@ namespace edm {
     AllOutputModuleCommunicators         all_output_communicators_;
     PreallocationConfiguration           preallocConfig_;
 
+    std::unique_ptr<SystemTimeKeeper> summaryTimeKeeper_;
 
     bool                           wantSummary_;
 

@@ -142,7 +142,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  int mishits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double hcalIso = electron->dr04HcalTowerSumEt();
@@ -472,7 +472,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  int mishits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double ecalIsoPed = (electron->isEB())?std::max(0.,ecalIso-1.):ecalIso;
@@ -557,7 +557,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
     if (mishits > cut[22]) // expected missing hits
       return result;
     // positive cut[23] means to demand a valid hit in 1st layer PXB
-    if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
+    if (cut[23] > 0 && !electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel())
       return result;
 
     // cut[24]: Dist cut[25]: dcot

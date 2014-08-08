@@ -376,7 +376,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 			ele[iel]   = i->energy();  
 
 			if(i->gsfTrack().isNonnull()){  
-				elNLostHits[iel]   = i->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();  
+				elNLostHits[iel]   = i->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 				elIP[iel]          = i->gsfTrack()->dxy(BSPosition);    
 				elTrkChi2NDF[iel]  = i->gsfTrack()->normalizedChi2();  
 			}  
@@ -396,7 +396,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 			elsigmaietaieta[iel] = i->sigmaIetaIeta(); 
 			eldeltaPhiIn[iel] = i->deltaPhiSuperClusterTrackAtVtx(); 
 			eldeltaEtaIn[iel] = i->deltaEtaSuperClusterTrackAtVtx(); 
-			elmishits[iel] = i->gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
+			elmishits[iel] = i->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS); 
 			eltrkiso[iel] = i->dr03TkSumPt(); 
 			elecaliso[iel] = i->dr03EcalRecHitSumEt(); 
 			elhcaliso[iel] = i->dr03HcalTowerSumEt(); 

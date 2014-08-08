@@ -40,6 +40,13 @@ class GenEventInfoProduct {
 	const std::vector<double> &binningValues() const { return binningValues_; }
 	bool hasBinningValues() const { return !binningValues_.empty(); }
 
+        const std::vector<float> &DJRValues() const { return DJRValues_; }
+        bool hasDJRValues() const { return !DJRValues_.empty(); }
+
+        int nMEPartons() const { return nMEPartons_; }
+        
+        int nMEPartonsFiltered() const { return nMEPartonsFiltered_; }
+
 	// setters
 
 	void setWeights(const std::vector<double> &weights)
@@ -55,6 +62,13 @@ class GenEventInfoProduct {
 
 	void setBinningValues(const std::vector<double> &values)
 	{ binningValues_ = values; }
+ 
+	void setDJR(const std::vector<float> &values)
+	{DJRValues_ = values;}
+
+	void setNMEPartons(int n) {nMEPartons_ = n;}
+	
+	void setNMEPartonsFiltered(int n) {nMEPartonsFiltered_ = n;}
 
     private:
 	// HepMC::GenEvent provides a list of weights
@@ -78,6 +92,9 @@ class GenEventInfoProduct {
 	// will contain the information what physical
 	// quantity these values actually belong to
 	std::vector<double>	binningValues_;
+        std::vector<float>      DJRValues_;
+        int                     nMEPartons_;
+        int                     nMEPartonsFiltered_;
 };
 
 #endif // SimDataFormats_GeneratorProducts_GenEventInfoProduct_h

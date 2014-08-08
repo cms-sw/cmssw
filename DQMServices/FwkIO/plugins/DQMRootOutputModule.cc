@@ -181,6 +181,7 @@ namespace edm {
 class DQMRootOutputModule : public edm::one::OutputModule<> {
 public:
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
+  virtual void beginJob() override;
   virtual ~DQMRootOutputModule();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -275,7 +276,7 @@ m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
 m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
-m_enableMultiThread(pset.getUntrackedParameter<bool>("enableMultiThread", false)),
+m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
@@ -285,6 +286,14 @@ m_indicesTree(0)
 // {
 //    // do actual copying here;
 // }
+
+void
+DQMRootOutputModule::beginJob()
+{
+  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
+  edm::Service<DQMStore> dstore;
+  m_enableMultiThread = dstore->enableMultiThread_;
+}
 
 DQMRootOutputModule::~DQMRootOutputModule()
 {
