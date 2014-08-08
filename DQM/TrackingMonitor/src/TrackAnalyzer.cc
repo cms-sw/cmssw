@@ -37,6 +37,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doDCAwrt000Plots_                ( conf_.getParameter<bool>("doDCAwrt000Plots") )
     , doLumiAnalysis_                  ( conf_.getParameter<bool>("doLumiAnalysis") )
     , doTestPlots_                     ( conf_.getParameter<bool>("doTestPlots") )
+    , doHIPlots_                       ( conf_.getParameter<bool>("doHIPlots")  )
 {
   initHistos();
   TopFolder_ = conf_.getParameter<std::string>("FolderName"); 
@@ -104,6 +105,14 @@ void TrackAnalyzer::initHistos()
 // by Mia in order to deal w/ LS transitions
   Chi2oNDF_lumiFlag = NULL;
   NumberOfRecHitsPerTrack_lumiFlag = NULL;
+
+  ////////////////////////////////////////////////////////////                                                                                                                                             
+  //special Plots for HI DQM  //SHOULD I ADD THE BOOL HERE??                                                                                                                                               
+  ////////////////////////////////////////////////////////////                                                                                                                                             
+  LongDCASig = NULL;
+  TransDCASig = NULL;
+
+
 
 }
 
@@ -258,6 +267,17 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       double Chi2ProbMax  = conf_.getParameter<double>("Chi2ProbMax");
     
 
+      //HI PLOTS////                                                       
+      int TransDCABins = conf_.getParameter<int>("TransDCABins");
+      double TransDCAMin = conf_.getParameter<double>("TransDCAMin");
+      double TransDCAMax = conf_.getParameter<double>("TransDCAMax");
+
+      int LongDCABins = conf_.getParameter<int>("LongDCABins");
+      double LongDCAMin = conf_.getParameter<double>("LongDCAMin");
+      double LongDCAMax = conf_.getParameter<double>("LongDCAMax");
+      ///////////////////////////////////////////////////////////////////  
+
+
       ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
 
       histname = "Chi2_";
@@ -274,6 +294,23 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       Chi2oNDF = ibooker.book1D(histname+CategoryName, histname+CategoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
       Chi2oNDF->setAxisTitle("Track #chi^{2}/ndf",1);
       Chi2oNDF->setAxisTitle("Number of Tracks"  ,2);
+
+
+      //////////////                                                                                                                                                                                       
+      //HI PLOTS///                                                                                                                                                                                       
+      //////////////                                                                                                                                                                                      
+      if (doHIPlots_)
+        {
+          histname = "LongDCASig_";
+          LongDCASig = ibooker.book1D(histname+CategoryName, histname+CategoryName,LongDCABins,LongDCAMin,LongDCAMax);
+          LongDCASig->setAxisTitle("dz/#sigma_{dz}",1);
+
+          histname = "TransDCASig_";
+          TransDCASig = ibooker.book1D(histname+CategoryName,histname+CategoryName,TransDCABins,TransDCAMin,TransDCAMax);
+          TransDCASig->setAxisTitle("dxy/#sigma_{dxy}",1);
+        }
+
+
       
       if (doDCAPlots_) {
 	histname = "xPointOfClosestApproach_";
@@ -647,6 +684,18 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (recoPrimaryVerticesHandle->size() > 0) {
       reco::Vertex pv = recoPrimaryVerticesHandle->at(0);      
     
+
+      //////////////////
+      //HI PLOTS///////                                                                                                                                                                                    
+      ////////////////                                                                                                                                                                                     
+      if(doHIPlots_)
+	{
+          LongDCASig->Fill(track.dz(pv.position())/(track.dzError()*track.dzError()+pv.zError()*pv.zError()));
+          TransDCASig->Fill(track.dxy(pv.position())/(track.d0Error()*track.d0Error()+pv.xError()*pv.yError()));
+        }
+
+
+
       DistanceOfClosestApproachToPV      -> Fill(track.dxy(pv.position()));
       DistanceOfClosestApproachToPVVsPhi -> Fill(track.phi(), track.dxy(pv.position()));
       xPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vx()-pv.position().x()));
