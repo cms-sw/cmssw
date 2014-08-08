@@ -9,6 +9,13 @@
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 #include "HepMC/GenEvent.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
+// LHE Run
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+
+// LHE Event
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 using namespace gen;
 using namespace edm;
@@ -71,6 +78,11 @@ ExternalDecayDriver::~ExternalDecayDriver()
    if ( fPhotosInterface ) delete fPhotosInterface;
 }
 
+
+HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt, lhef::LHEEvent *lheEvent){
+  if(fTauolaInterface) fTauolaInterface->SetLHE(lheEvent);
+  return decay(evt);
+}
 HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 {
    

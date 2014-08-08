@@ -16,6 +16,10 @@ namespace CLHEP {
    class HepRandomEngine;
 }
 
+namespace lhef { 
+  class LHEEvent;
+}
+
 namespace gen {
 
   class EvtGenInterfaceBase;
@@ -35,8 +39,9 @@ namespace gen {
 	 const std::vector<int>&         operatesOnParticles() { return fPDGs; }
 	 const std::vector<std::string>& specialSettings()     { return fSpecialSettings; }
 	 
-	 HepMC::GenEvent* decay( HepMC::GenEvent* );
-	 
+	 HepMC::GenEvent* decay( HepMC::GenEvent* evt);
+	 HepMC::GenEvent* decay( HepMC::GenEvent* evt, lhef::LHEEvent *lheEvent);
+ 
 	 void statistics() const;
 
          void setRandomEngine(CLHEP::HepRandomEngine*);

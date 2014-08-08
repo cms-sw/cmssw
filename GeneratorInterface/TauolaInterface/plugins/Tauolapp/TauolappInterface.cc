@@ -20,6 +20,14 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+// LHE Run
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+
+// LHE Event
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+
 
 using namespace gen;
 using namespace edm;
@@ -193,30 +201,44 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
       selectDecayByMDTAU();
    }
    
-    //construct tmp TAUOLA event
-    //
-    auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
-   
-    // another option: if one lets Pythia or another master gen to decay taus, 
-    //                 we have to undecay them first
-    // t_event->undecayTaus();
-    
-    // run Tauola on the tmp event - HepMC::GenEvernt will be MODIFIED !!!
-    //
-    t_event->decayTaus();
-    
-    // delet tmp Tauola event
-    //
-    delete t_event; 
-    
-    // do we also need to apply the lifetime and vtx position shift ??? 
-    // (see TauolappInterface, for example)
-    //
-    // NOTE: the procedure ASSYMES that vertex barcoding is COUNTIUOUS/SEQUENTIAL,
-    // and that the abs(barcode) corresponds to vertex "plain indexing"
-    //
-    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
-    {
+   bool dolhe=true;
+   if(dolhe){
+     std::vector<HepMC::GenParticle*> particles;
+     particles.push_back(HepMC::GenParticle(HepMC::FourVector(hepeup.PUP.at(i)[0],hepeup.PUP.at(i)[1],hepeup.PUP.at(i)[2],hepeup.PUP.at(i)[3]),hepeup.IDUP.at(i)));
+     int status = hepeup.ISTUP.at(i);
+     particles.at(particles.size())->set_generated_mass(hepeup.PUP.at(i)[4]);
+     particles.at(particles.size())->set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
+     
+     std::vector<HepMC::GenParticle*> TauLHE;
+     std::vector<double> TauSPINUP;
+     std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
+     std::vector<int> pdg =lhe->getHEPEUP()->IDUP;
+     for(unsigned int i=0;i<spinup.size();i++){
+       if(abs(pdg.at(i))==15){
+	 TauLHE.push_back(lhe->makeHepMCParticle(i));
+	 TauSPINUP.push_back(spinup.at(i));
+       }
+     }
+     //decaySpinup(t_event,TauLHE,TauSPINUP);
+   }
+   else{
+     //construct tmp TAUOLA event
+     auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
+     // another option: if one lets Pythia or another master gen to decay taus, 
+     //                 we have to undecay them first
+     // t_event->undecayTaus();
+     
+     // run Tauola on the tmp event - HepMC::GenEvernt will be MODIFIED !!!
+     //
+     t_event->decayTaus();
+     delete t_event; 
+     // do we also need to apply the lifetime and vtx position shift ??? 
+     // (see TauolappInterface, for example)
+     //
+     // NOTE: the procedure ASSYMES that vertex barcoding is COUNTIUOUS/SEQUENTIAL,
+     // and that the abs(barcode) corresponds to vertex "plain indexing"
+     //
+     for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ ){
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
        //
        // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
@@ -226,26 +248,21 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
        std::vector<int> BCodes;
        BCodes.clear();
        for (HepMC::GenVertex::particle_iterator pitr= GenVtx->particles_begin(HepMC::children);
-                                               pitr != GenVtx->particles_end(HepMC::children); ++pitr) 
-       {
-	  if ( (*pitr)->barcode() > 10000 )
-	  {
-	     BCodes.push_back( (*pitr)->barcode() );
-	  }
+	    pitr != GenVtx->particles_end(HepMC::children); ++pitr){
+	 if ( (*pitr)->barcode() > 10000 ){
+	   BCodes.push_back( (*pitr)->barcode() );
+	 }
        }
-       if ( BCodes.size() > 0 )
-       {
-          for ( size_t ibc=0; ibc<BCodes.size(); ibc++ )
-	  {
-	     HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
-	     int nbc = p1->barcode() - 10000 + NPartBefore;
-             p1->suggest_barcode( nbc );
-	  }
+       if ( BCodes.size() > 0 ){
+	 for ( size_t ibc=0; ibc<BCodes.size(); ibc++ ){
+	   HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
+	   int nbc = p1->barcode() - 10000 + NPartBefore;
+	   p1->suggest_barcode( nbc );
+	 }
        }             
-    }
-        
-    return evt;
-      
+     }
+   }
+   return evt;
 }
 
 void TauolappInterface::statistics()
