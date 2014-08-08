@@ -26,6 +26,8 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   maxSimHitsAccTime_ = ps.getParameter< uint32_t >("maxSimHitsAccTime");
   bxTime_            = ps.getParameter< int32_t >("bxTime");
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
+  useAllChannels_    = ps.getParameter< bool >("useAllChannels");
+  verbosity_         = ps.getUntrackedParameter< int32_t >("verbosity",0);
   
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -153,6 +155,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 		(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell):
 		(uint32_t)HGCHEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell) );
 
+      if (verbosity_>0) {
+	if (producesEEDigis())
+	  std::cout << "HGCDigitizer: i/p " << simId << " o/p " << HGCEEDetId(id) << std::endl;
+	else
+	  std::cout << "HGCDigitizer: i/p " << simId << " o/p " << HGCHEDetId(id) << std::endl;
+      }
       //hit time: [time()]=ns  [zPos]=cm [CLHEP::c_light]=mm/ns
       //for now accumulate in buckets of bxTime_
       int itime=floor( (hit_it->time()-zPos/(0.1*CLHEP::c_light))/bxTime_);
@@ -185,14 +193,18 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
   baseData.fill(0.);
   const std::vector<DetId> &validIds=geom->getValidDetIds(); 
   int nadded(0);
-  for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++)
-    {
+  if (useAllChannels_) {
+    for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++) {
       uint32_t id(it->rawId());
       if(simHitAccumulator_->find(id)!=simHitAccumulator_->end()) continue;
       simHitAccumulator_->insert( std::make_pair(id,baseData) );
       nadded++;
     }
-  std::cout << "Added " << nadded << " detIds without " << hitCollection_ << " in first event processed" << std::endl;
+  }
+  if (verbosity_ > 0) 
+    std::cout << "HGCDigitizer:Added " << nadded << ":" << validIds.size() 
+	      << " detIds without " << hitCollection_ 
+	      << " in first event processed" << std::endl;
   checkValidDetIds_=false;
 }
 
