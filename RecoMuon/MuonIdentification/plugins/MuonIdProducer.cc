@@ -621,7 +621,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 		if ( newMuon ) {
 		   if ( goodTrackerMuon || goodRPCMuon ){
-		      if ( goodRPCMuon ) trackerMuon->setType( trackerMuon->type() | reco::Muon::RPCMuon );
+		      if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
 		      outputMuons->push_back( trackerMuon );
 		   } else {
 		      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
