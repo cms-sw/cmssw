@@ -1,0 +1,45 @@
+############################################################
+#                                                          #
+# Exclusive Ds rho decay.dec                               #
+#                                                          #
+# Decay: B0 -> Ds+ rho-       B0bar     -> X               #
+#              |-> eta pi+                                 #
+#                   |-> gamma gamma                        # 
+# + c.c.                                                   #
+#                                                          #
+# Author:  Toyoko Orimoto  19/Sept/2001                    # 
+#          toyoko@slac.stanford.edu                        #
+#                                                          #
+############################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Alias MyD_s+    D_s+
+Alias MyD_s-    D_s-
+#
+Alias Myeta     eta
+#
+ChargeConj MyB0   Myanti-B0
+ChargeConj MyD_s+ MyD_s-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0        VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000   rho-     MyD_s+   SVS;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyD_s+
+1.0000   Myeta    pi+      PHSP;
+Enddecay
+CDecay MyD_s-
+#
+Decay Myeta
+1.0000   gamma    gamma    PHSP;
+Enddecay
+#
+End                                                   
+

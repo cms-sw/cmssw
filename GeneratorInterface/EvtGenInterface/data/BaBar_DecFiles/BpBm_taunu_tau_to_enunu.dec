@@ -1,0 +1,47 @@
+###########################################################################
+# This is a DECAY.DEC file for B+(-) -> tau nu:                           #
+#   Up(4S) -> B+   B-                                   +CC               #
+#             |    |                                                      #
+#             |     ->  tau- nu_bar                                       #
+#             |          |                                                #
+#              -> X      +->e- nunu                                       #
+# Joe Izen 12/13/99                                                       #
+# Mail: JOE@SLAC.STANFORD.EDU 
+###########################################################################
+# Create our own versions of B-, B+ which will decay to tau nu_tau
+#
+Alias myB-  B-
+Alias myB+  B+
+Alias mytau+ tau+
+Alias mytau- tau-
+ChargeConj myB+ myB-
+ChargeConj mytau+ mytau-
+#
+#
+Decay Upsilon(4S)
+0.5000 B+  myB-                          VSS;
+0.5000 B-  myB+                          VSS;
+Enddecay
+#
+# force myB to always decay to tau nu_tau
+#
+Decay myB-
+1.0000 mytau- anti-nu_tau  SLN;
+Enddecay
+#
+Decay myB+
+1.0000 mytau+ nu_tau       SLN;
+Enddecay
+#
+# force mytau to always decay to mu nu nu
+#
+Decay mytau-
+1.0         e-  anti-nu_e   nu_tau      PHOTOS     TAULNUNU;
+Enddecay
+#
+CDecay mytau+ 
+#
+End
+
+
+

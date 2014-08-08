@@ -1,0 +1,63 @@
+############################################################################
+# Decay  : B- -> D0(KsOmega(Pi+Pi-Pi0)) Ks(Pi+Pi-) Pi- , B+ -> X ; cc      #
+# Author :       Guillaume Therin    February 12, 2004                     #
+############################################################################
+#
+Alias MyB-      	B-
+Alias MyB+      	B+
+Alias MyD0      	D0
+Alias Myanti-D0 	anti-D0
+Alias MyKs  		K_S0
+Alias MyOmega  		omega
+#
+ChargeConj MyB+ MyB-
+ChargeConj MyD0 Myanti-D0
+#
+###########################################
+#	  Ups(4s) -> B+ B-		  #
+###########################################
+#
+Decay Upsilon(4S)
+0.500      MyB+  B-                           VSS;
+0.500      MyB-  B+                           VSS;
+Enddecay
+#
+###########################################
+#          B- -> D0 Ks Pi                 #
+###########################################
+#
+Decay MyB+
+1.000      Myanti-D0   MyKs   pi+             PHSP;
+Enddecay
+Decay MyB-
+1.000      MyD0        MyKs   pi-             PHSP;
+Enddecay
+#
+###########################################
+#	   D0 -> Ks Omega	          #
+###########################################
+#
+Decay MyD0
+1.00 MyOmega    MyKs                          SVS;
+Enddecay
+Decay Myanti-D0
+1.00  MyOmega    MyKs                         SVS;
+Enddecay
+#
+###########################################
+#          Ks -> Pi+ Pi-                  #
+###########################################
+#
+Decay MyKs
+1.00  pi+ pi-                                 PHSP;
+Enddecay
+#
+###########################################
+#          Omega -> Pi+ Pi- Pi0           #
+###########################################
+#
+Decay MyOmega
+1.00    pi-  pi+  pi0                         OMEGA_DALITZ;
+Enddecay
+#
+End

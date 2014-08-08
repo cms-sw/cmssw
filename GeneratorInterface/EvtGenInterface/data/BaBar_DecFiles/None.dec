@@ -1,0 +1,8 @@
+#
+# This is an empty decay file. The production system
+# allways requires a user decay file and this file can
+# be used when generating generic decays.
+#
+# Contact: Anders Ryd (ryd@slac.stanford.edu)
+#
+End

@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+#                                                 #
+# D*+ -> D0 pi+, D0 -> phi rho0                   #
+#                                                 #
+# author: Dieter Best 09.July.2001                #
+#                                                 #
+# email : best@slac.stanford.edu                  #
+#                                                 #
+###################################################
+#
+Alias myD0    D0
+Alias myphi   phi
+#
+Decay vpho
+1.00                        JSCONT 4;
+Enddecay
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay D*+
+1.00 myD0 pi+               VSS;
+Enddecay
+#
+# 'Scalar -> Vector Vector'
+#
+Decay myD0
+1.00 myphi rho0             SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay myphi
+1.0000  K+ K-               VSS;
+Enddecay
+#
+End

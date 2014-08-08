@@ -1,0 +1,108 @@
+#####################################################
+#                                                   #
+# Decay: B- -> D0 K*-         B+ -> D0bar K*+       #
+#              |  |                 |     |         #
+#              |  |->Ks0pi-         |     |->Ks0pi+ #
+#              |                    |               #
+#              |->    pi+ pi-     <-|               #
+#              |->    K+  K-      <-|               #
+#              |->    pi0 pi0     <-|               #
+#              |->    Ks0 Ks0     <-|               #
+#              |->    eta phi     <-|               #
+#              |->    eta rho     <-|               #
+#                                                   #
+#                     Ks0                           #
+#                     |                             #
+#                     |-> pi+ pi-                   #
+#                                                   #
+#                     phi                           #
+#                     |                             #
+#                     |-> K+ K-                     #
+#                                                   #
+#                     rho0                          #
+#                     |                             #
+#                     |-> pi+ pi-                   #
+#                                                   #
+#                     eta                           #
+#                     |                             #
+#     (50%)           |-> pi+ pi- pi0               #
+#     (50%)           |-> gamma gamma               #
+#                                                   #
+#                                                   #
+# Author: Malcolm John                              #
+# created: 25 May 2002  			    #
+# 						    #
+#####################################################
+#
+#
+Alias MyB- 		B-
+Alias MyB+	 	B+
+Alias MyD0 		D0
+Alias Myanti-D0 	anti-D0
+Alias MyKstar+          K*+ 
+Alias MyKstar-          K*-
+ 
+Alias MyK_S0  K_S0
+Alias MyPhi phi 
+Alias MyRho0 rho0 
+Alias MyEta eta 
+
+#
+Decay Upsilon(4S)
+1.00	MyB- MyB+			VSS;
+Enddecay
+# 
+Decay MyB-
+1.00    MyKstar-  MyD0                   SVS;
+Enddecay
+#
+Decay MyB+
+1.00    MyKstar+  Myanti-D0              SVS;
+Enddecay
+#
+Decay MyKstar-
+1.00	MyK_S0 pi-    		         VSS;
+Enddecay 
+#
+Decay MyKstar+
+1.00	MyK_S0 pi+		         VSS;
+Enddecay 
+#
+Decay MyD0
+0.166  pi+ pi-    			PHSP;
+0.166  K+ K-                     	PHSP;
+0.166  pi0 pi0      			PHSP;
+0.166  MyK_S0 MyK_S0 			PHSP;
+0.166  MyPhi MyEta                       SVS;
+0.166  MyRho0 MyEta                      SVS;
+Enddecay
+#
+Decay Myanti-D0
+0.166  pi+ pi-                          PHSP;
+0.166  K+ K-                            PHSP;
+0.166  pi0 pi0                          PHSP;
+0.166  MyK_S0 MyK_S0                    PHSP;
+0.166  MyPhi MyEta                       SVS;
+0.166  MyRho0 MyEta                      SVS;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                         PHSP;
+Enddecay
+#
+Decay MyPhi
+1.0000  K+ K-                            VSS;
+Enddecay 
+#
+Decay MyRho0
+1.000  pi- pi+		                 VSS;
+Enddecay
+#
+Decay MyEta
+0.50    pi+ pi- pi0               ETA_DALITZ;
+0.50    gamma gamma                     PHSP;
+Enddecay
+#
+End
+
+

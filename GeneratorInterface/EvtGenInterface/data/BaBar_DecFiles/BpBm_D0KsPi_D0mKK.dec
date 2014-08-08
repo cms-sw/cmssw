@@ -1,0 +1,55 @@
+############################################################################
+# Decay  : B- -> D0(K-K+) Ks(Pi+Pi-) Pi- , B+ -> X ; cc                    #
+# Author :       Guillaume Therin    February 27, 2004                     #
+############################################################################
+#
+Alias MyB-        B-
+Alias MyB+        B+
+Alias MyD0        D0
+Alias Myanti-D0   anti-D0
+Alias MyKs        K_S0
+#
+ChargeConj MyB+ MyB-
+ChargeConj MyD0 Myanti-D0
+#
+###########################################
+#	  Ups(4s) -> B+ B-		  #
+###########################################
+#
+Decay Upsilon(4S)
+0.500      MyB+  B-                           VSS;
+0.500      MyB-  B+                           VSS;
+Enddecay
+#
+###########################################
+#          B- -> D0 Ks Pi                 #
+###########################################
+#
+Decay MyB+
+1.000      Myanti-D0   MyKs   pi+             PHSP;
+Enddecay
+Decay MyB-
+1.000      MyD0        MyKs   pi-             PHSP;
+Enddecay
+#
+###########################################
+#          D0 -> K- K+                    #
+###########################################
+#
+Decay MyD0
+1.000  K- K+                                  PHSP;
+Enddecay
+Decay Myanti-D0
+1.000  K+ K-                                  PHSP;
+Enddecay
+#
+###########################################
+#          Ks -> Pi+ Pi-                  #
+###########################################
+#
+Decay MyKs
+1.000      pi+ pi-                            PHSP;
+Enddecay
+#
+End
+

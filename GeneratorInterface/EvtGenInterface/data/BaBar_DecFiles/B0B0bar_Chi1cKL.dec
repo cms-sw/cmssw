@@ -1,0 +1,43 @@
+###################################################################
+# B0~ --> chi1c K0L          B0 --> Generic                       #
+#           |                                                     #
+#           |                                                     #
+#           |                                                     #
+#       J/psi gam                                                 #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: G. London       28/1/99                                 #
+# modified: D. Wright 2-12-99
+# Mail: WRIGHT@SLAC.STANFORD.EDU
+###################################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mychi_c1 chi_c1
+Alias MyJ/psi J/psi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Mychi_c1 K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Mychi_c1 K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Mychi_c1
+1.000  MyJ/psi  gamma                VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay 
+# 
+Decay MyJ/psi
+0.5000    mu+  mu-               PHOTOS  VLL;
+0.5000    e+   e-                PHOTOS  VLL;
+Enddecay 
+#
+End 

@@ -1,0 +1,44 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#   Up(4S) -> B0  B0bar                       + CC                            #      
+#              |   |                                                          #
+#              |    -> K*0 gamma                                              #
+#              |         |					              #
+#              |          ->K_s0 pi0                                          #
+#               -> X         |                                                #
+#                            |                                                #
+#                             -> pi+ pi-                                      #  
+#                                                                             #
+# generated with CP violating effect                                          # 
+###############################################################################
+Alias MyB0 B0 
+Alias Myanti-B0 anti-B0
+ChargeConj MyB0 Myanti-B0
+Alias myK*S K*S
+Alias myK_S0  K_S0
+Alias mypi0   pi0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0  myK*S   gamma                SVP_CP  beta dm   1 0.0295296 0.0 0.9995640 0.0;
+Enddecay
+#
+Decay Myanti-B0 
+1.0  myK*S   gamma                SVP_CP  beta dm   1 0.9995640 0.0 0.0295296 0.0;
+Enddecay
+#
+Decay myK*S
+1.0000      myK_S0  mypi0               VSS;
+Enddecay
+#
+Decay mypi0
+1.00    gamma gamma                     PHSP;
+Enddecay
+#
+Decay myK_S0
+1.00    pi+  pi-                        PHSP;
+Enddecay
+End

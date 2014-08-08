@@ -1,0 +1,39 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> a1+ omega -> (rho+ pi0)(omega)         #
+#             B- -> generic                          +cc   #
+#                                                          #
+# Author: Jim Smith                                        #
+# e-mail: jgsmith@pizero.colorado.edu                      #
+# Created:  03/24/2004                                     #
+#                                                          #
+############################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias mya_1+ a_1+
+Alias mya_1- a_1-
+ChargeConj mya_1+ mya_1-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 mya_1+ omega        SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+Decay MyB-
+1.0000 mya_1- omega        SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+Decay mya_1+
+1.0000   rho+ pi0                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay mya_1-
+1.0000   rho- pi0                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End   

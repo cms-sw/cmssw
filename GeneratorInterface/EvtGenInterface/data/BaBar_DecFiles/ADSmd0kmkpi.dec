@@ -1,0 +1,36 @@
+#
+#
+#  O. Long / UCSB
+#
+#      $Id: ADS-d0k-kpi.dec,v 1.1 2004/05/17 22:51:40 owen Exp $
+#
+#
+Alias MyB+         B+
+Alias MyB-         B-
+Alias MyD0         D0
+Alias Myanti-D0    anti-D0
+#
+Decay Upsilon(4S)
+0.5 MyB+  B-          VSS;
+0.5 MyB-  B+          VSS;
+Enddecay
+#
+#
+Decay MyB-
+1.0    K- MyD0        PHSP;
+Enddecay
+#
+Decay MyB+
+1.0    K+ Myanti-D0   PHSP;
+Enddecay
+#
+Decay MyD0
+1.0    K-  pi+        PHSP;
+Enddecay
+#
+Decay Myanti-D0
+1.0    K+  pi-        PHSP;
+Enddecay
+#
+#
+End

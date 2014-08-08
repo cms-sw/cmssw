@@ -1,0 +1,58 @@
+# 
+# Author: Adlene Hicheur (LAPP), Date: Nov,2001
+ 
+# resonant B->eta' K1(1402) penguin decay 
+
+############################################################################
+Alias MyB0B anti-B0
+Alias MyB0 B0
+Alias MyBplus B+
+Alias MyBminus B-
+############################################################################
+
+############################################################################
+Alias Myetap eta'
+Alias Myeta eta
+############################################################################
+
+
+Decay Upsilon(4S)
+
+0.250   MyB0       anti-B0                  VSS;
+0.250   B0       MyB0B                  VSS;
+0.250   MyBplus       B-                       VSS;
+0.250   B+   MyBminus             VSS;
+
+Enddecay
+
+Decay MyB0B
+0.1 anti-K'_10 Myetap SVS;
+Enddecay
+
+Decay MyB0
+0.1 K'_10 Myetap SVS;
+Enddecay
+
+Decay MyBminus
+0.1 K'_1- Myetap SVS;
+Enddecay
+
+Decay MyBplus
+0.1 K'_1+ Myetap SVS;
+Enddecay
+
+
+Decay Myetap
+
+1. pi+ pi- Myeta   PHSP;
+
+Enddecay
+
+Decay Myeta
+
+1. gamma gamma   PHSP;
+
+Enddecay
+
+
+End

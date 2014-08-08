@@ -1,0 +1,46 @@
+############################################################
+#                                                          #
+# Decay: B- -> chic(0)      K-,       B+ -> X              #
+#                |-> Jpsi gamma                            #
+#                                                          #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author: D. Bernard                                       #
+# Created:                   19/11/03                      #
+#
+############################################################
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias Mychi_c0 chi_c0
+Alias MyJpsi J/psi
+#
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  Mychi_c0 K+               PHSP;   
+Enddecay 
+#
+Decay MyB-
+1.0000  Mychi_c0 K-               PHSP;   
+Enddecay 
+
+Decay Mychi_c0
+1.0    gamma MyJpsi                       PHSP; 
+Enddecay 
+
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+End
+
+
+

@@ -1,0 +1,45 @@
+#########################################################################
+# This is a DECAY.DEC file for the following modes:                     #
+#   Up(4S) -> B0  B0bar                    + CC                         #
+#             |    |                                                    #
+#             |     -> K*2bar(1430)   J/psi                             #
+#             |           |              |                              #
+#             |            -> K- pi+      -> e+e-                       #
+#              -> X                                                     #
+#                                                                       #
+#   ofte@slac.stanford.edu                                              #
+#########################################################################
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyJ/psi J/psi
+Alias MyK_2*0 K_2*0
+Alias Myanti-K_2*0 anti-K_2*0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0 MyJ/psi MyK_2*0                      PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.0 MyJ/psi Myanti-K_2*0                 PHSP;
+Enddecay
+#
+#force the J/psi to go to two electrons..
+Decay MyJ/psi
+1.000  e+ e-                       PHOTOS VLL;
+Enddecay
+#
+#force K_2*0 to go to K+pi-
+Decay MyK_2*0
+1.0   K+  pi-                         TSS;
+Enddecay
+#
+Decay Myanti-K_2*0
+1.0   K-  pi+                         TSS;
+Enddecay
+#
+End
+#-----------------------------------------------

@@ -1,0 +1,27 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> D0bar pi-, D0bar -> K0s pi+ pi- pi+ pi-  #
+#                                                 #
+# created : F.Ferrarotto 3/9/02                   #
+#                                                 #
+###################################################
+#
+Alias my-anti-D0 anti-D0
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+#
+#   Vector Mesons
+#
+Decay D*-
+1.00  my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+1.00  K_S0 pi+  pi+   pi-  pi-       PHSP;
+Enddecay
+#
+#
+End

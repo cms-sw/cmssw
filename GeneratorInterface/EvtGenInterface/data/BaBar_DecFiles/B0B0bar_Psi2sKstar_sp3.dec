@@ -1,0 +1,70 @@
+###################################################################
+# B0~ --> psi2s K*             B0 --> Generic                     #
+#         |     |-->K0s pi0                                       #
+#         |         |                                             #
+#         |         |-->pi+pi-                                    #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+#         |                                                       #
+#         |-->J/psi pi+pi-                                        #
+#              |                                                  #
+#              |-->mu+mu-/e+e-                                    #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: G. London       28/1/99                                 #
+# modified: J. Cohen-Tanugi 03/13/00: new name		          #
+# Mail: COHEN@SLAC.STANFORD.EDU
+###################################################################
+#
+#
+Define beta 0.39
+#
+# Alias particles for specific decays
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mypsi(2S) psi(2S)
+Alias MyJ/psi   J/psi
+Alias MyKstar0 K*0
+Alias MyantiKstar0 anti-K*0
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 Mypsi(2S)  MyKstar0              SVV_CP beta dm 1.0 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+1.000 Mypsi(2S)  MyantiKstar0              SVV_CP beta dm 1.0 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#                                       psi2s --> jpsipi+pi-/e+e-/mu+mu- (100%)
+Decay Mypsi(2S)
+#0.700  MyJ/psi  pi+ pi-        PHSP;
+0.700  MyJ/psi  pi+ pi-        VVPIPI;
+0.150    e+   e-                PHOTOS  VLL;
+0.150   mu+  mu-                PHOTOS VLL;
+Enddecay 
+#                                       psi --> e+e-/mu+mu- (100%) 
+Decay MyJ/psi
+0.50000 mu+   mu-                    PHOTOS  VLL;
+0.50000 e+   e-                      PHOTOS VLL;
+Enddecay
+#                                       K* --> K0s pi0 (100%)  
+Decay MyKstar0
+1.0000 MyK_S0 pi0                        VSS;
+Enddecay
+#                                        Ks --> pi+ pi- (100%)
+Decay MyantiKstar0
+1.0000 MyK_S0 pi0                        VSS;
+Enddecay
+#                                        Ks --> pi+ pi- (100%)
+Decay MyK_S0
+1.0000 pi+ pi-                          PHSP;
+Enddecay
+End
+
+
+

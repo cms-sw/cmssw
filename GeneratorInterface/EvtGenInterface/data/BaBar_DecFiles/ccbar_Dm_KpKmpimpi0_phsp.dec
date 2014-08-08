@@ -1,0 +1,20 @@
+###################################################
+#                                                 #
+# ccbar -> D- X                                   #
+#          D- -> K+ K- pi- pi0                    #
+# D- decays through phase space                   #
+#                                                 #
+# created: 04/20/04  -  pompili@ba.infn.it        #
+#                                                 #
+# 04/20/04: use filter_D-_from_ccbar.tcl          #
+###################################################
+#
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+Decay D-
+1.000 K+ K- pi- pi0            PHSP;
+Enddecay
+#  
+End

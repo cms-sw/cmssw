@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# B0 -> Ks Ks                                     #
+#                                                 #
+# Author: U.Berzano                               #
+# created:                     25/jul/00          #
+###################################################
+#
+# Decay table for B0 -> Ks Ksbar using a simple (S)calar to (S)calar-(S)calar
+# model.  The Ks decays to pi+ pi-.
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias   myKs   K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 myKs myKs                 SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 myKs myKs                 SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay myKs
+1.00     pi+    pi-      PHSP;
+Enddecay
+#
+End
+
+

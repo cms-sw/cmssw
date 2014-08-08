@@ -1,0 +1,21 @@
+############################################
+#  eta_c                                   #
+#    |                                     #
+#    |--> eta pi+ pi-                      #
+#                                          #
+# Author: Georges London 26/7/2001         #
+#         london@hep.saclay.cea.fr         #
+############################################
+
+ Alias MyEta eta
+ 
+Decay eta_c
+ 1.00  MyEta pi+ pi-             PHSP;
+Enddecay
+
+ Decay MyEta
+ 1.0000  gamma gamma              PHSP;
+ Enddecay
+
+End
+

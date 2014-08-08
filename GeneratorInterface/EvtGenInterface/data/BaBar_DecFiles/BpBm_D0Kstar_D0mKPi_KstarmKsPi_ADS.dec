@@ -1,0 +1,67 @@
+######################################################################
+# Decay: B- -> D(K+Pi-) K*-    B+ -> X;   + cc                       #
+#                       |-> Ks(PiPi) Pi-                             #
+# D = {D0 , D0bar}                                                   #
+# To generate this suppressed MC signal,                             #
+# we assume EvtGen has the same behaviour for D0 and D0bar           #
+# Author :       Guillaume Therin    June 21, 2004                   #
+######################################################################
+#
+Alias MyB-        B-
+Alias MyB+        B+
+Alias MyD0        D0
+Alias Myanti-D0   anti-D0
+Alias MyK*+       K*+
+Alias MyK*-       K*-
+Alias MyKs        K_S0
+#
+ChargeConj MyB+ MyB-
+ChargeConj MyD0 Myanti-D0
+#
+###########################################
+#	  Ups(4s) -> B+ B-		  #
+###########################################
+#
+Decay Upsilon(4S)
+0.500      MyB+  B-                           VSS;
+0.500      MyB-  B+                           VSS;
+Enddecay
+#
+###########################################
+# B- -> D0 K*                             #
+###########################################
+#
+Decay MyB+
+1.000      MyK*+  MyD0                        SVS;
+Enddecay
+Decay MyB-
+1.000      MyK*-  Myanti-D0                   SVS;
+Enddecay
+#
+###########################################
+# D0 -> K- Pi+                            #
+###########################################
+#
+Decay MyD0
+1.000      K-  pi+                            PHSP;
+Enddecay
+Decay Myanti-D0
+1.000      K+  pi-                            PHSP;
+Enddecay
+#
+###########################################
+# K*- -> Ks(Pi+Pi-) Pi-                   #
+###########################################
+#
+Decay MyK*+
+1.000      MyKs  pi+                          VSS;
+Enddecay
+Decay MyK*-
+1.000      MyKs   pi-                         VSS;
+Enddecay
+#
+Decay MyKs
+1.000      pi+ pi-                            PHSP;
+Enddecay
+#
+End

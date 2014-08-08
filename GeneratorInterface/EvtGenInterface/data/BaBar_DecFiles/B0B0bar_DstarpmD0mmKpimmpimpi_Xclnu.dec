@@ -1,0 +1,108 @@
+###############################################################################
+#   Up(4S) -> B0  B0bar                                    + CC               #
+#             |    |                                                          #
+#             |    +-> X_c l- nu_bar (l = e or mu)                            #
+#             |                                                               #
+#             +-> D*-(D0bar(K+pi-) pi-) pi+                                   #
+#                                                                             #
+#                                                                             # 
+#                                                                             #
+# Mail: ursl@slac.stanford.edu                                                #
+###############################################################################
+# -- Xclnu b decay
+Alias myB0  B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+#
+# -- reco B
+Alias rB0  B0
+Alias rantiB0 anti-B0
+ChargeConj rB0 rantiB0
+#
+Alias rD*+ D*+
+Alias rD*- D*-
+ChargeConj rD*+ rD*-
+#
+Alias rD0 D0
+Alias rantiD0 anti-D0
+ChargeConj rD0 rantiD0
+#
+Decay Upsilon(4S)
+0.50000 rB0 myantiB0                        VSS_MIX  dm;
+0.50000 myB0 rantiB0                       VSS_MIX  dm;
+Enddecay
+#
+# ----------------------------------------------------------------------
+# -- B decay
+Decay rB0 
+1.000     rD*- pi+     SVS;
+Enddecay
+#
+Decay rantiB0
+1.000     rD*+ pi-     SVS;
+Enddecay
+# -- D*+ decay
+Decay rD*+
+1.000     rD0 pi+      VSS;
+Enddecay
+#
+Decay rD*-
+1.000     rantiD0 pi- VSS;
+Enddecay
+# -- D0 decay
+Decay rD0
+1.000     K- pi+       PHSP;
+Enddecay
+Decay rantiD0
+1.000     K+ pi-       PHSP;
+Enddecay
+# ----------------------------------------------------------------------
+# force myB0 to always decay to Xc l nu
+#
+Decay myantiB0
+0.0560   D*+    e-   anti-nu_e          PHOTOS  HQET 0.92 1.18 0.72;
+0.0210   D+     e-   anti-nu_e          PHOTOS  ISGW2;
+0.0056   D_1+   e-   anti-nu_e          PHOTOS  ISGW2;
+0.0020   D_0*+   e-   anti-nu_e          PHOTOS  ISGW2;
+0.0037   D'_1+   e-   anti-nu_e          PHOTOS  ISGW2;
+0.0037   D_2*+   e-   anti-nu_e          PHOTOS  ISGW2;
+0.0010   D*+  pi0   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+0.0020   D*0  pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+0.0030   D+   pi0   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+0.0060   D0   pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+0.0560   D*+    mu-  anti-nu_mu         PHOTOS  HQET 0.92 1.18 0.72;
+0.0210   D+     mu-  anti-nu_mu         PHOTOS  ISGW2;
+0.0056   D_1+   mu-  anti-nu_mu         PHOTOS  ISGW2;
+0.0020   D_0*+   mu-  anti-nu_mu         PHOTOS  ISGW2;
+0.0037   D'_1+   mu-  anti-nu_mu         PHOTOS  ISGW2;
+0.0037   D_2*+   mu-  anti-nu_mu         PHOTOS  ISGW2;
+0.0010   D*+  pi0   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+0.0020   D*0  pi+   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+0.0030   D+   pi0   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+0.0060   D0   pi+   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+Enddecay
+#
+Decay myB0
+0.0560   D*-    e+   nu_e           PHOTOS HQET 0.92 1.18 0.72;
+0.0210   D-     e+   nu_e           PHOTOS ISGW2;
+0.0056   D_1-   e+   nu_e           PHOTOS ISGW2;
+0.0020   D_0*-   e+   nu_e           PHOTOS ISGW2;
+0.0037   D'_1-   e+   nu_e           PHOTOS ISGW2;
+0.0037   D_2*-   e+   nu_e           PHOTOS ISGW2;
+0.0010   D*-  pi0   e+   nu_e       PHOTOS GOITY_ROBERTS;
+0.0020   anti-D*0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+0.0030   D-   pi0   e+   nu_e       PHOTOS GOITY_ROBERTS;
+0.0060   anti-D0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+0.0560   D*-    mu+  nu_mu           PHOTOS HQET 0.92 1.18 0.72;
+0.0210   D-     mu+  nu_mu           PHOTOS ISGW2;
+0.0056   D_1-   mu+  nu_mu           PHOTOS ISGW2;
+0.0020   D_0*-   mu+  nu_mu          PHOTOS  ISGW2;
+0.0037   D'_1-   mu+  nu_mu          PHOTOS  ISGW2;
+0.0037   D_2*-   mu+  nu_mu          PHOTOS  ISGW2;
+0.0010   D*-  pi0   mu+  nu_mu       PHOTOS GOITY_ROBERTS;
+0.0020   anti-D*0  pi-   mu+  nu_mu   PHOTOS     GOITY_ROBERTS;
+0.0030   D-   pi0   mu+  nu_mu       PHOTOS GOITY_ROBERTS;
+0.0060   anti-D0  pi-   mu+  nu_mu    PHOTOS    GOITY_ROBERTS;
+Enddecay
+#
+End

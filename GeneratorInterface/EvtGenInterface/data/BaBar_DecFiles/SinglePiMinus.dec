@@ -1,0 +1,7 @@
+# Single particle pi- uniform in cos theta in 
+# the centre of mass frame between 0.05 and 4.5 GeV
+#
+Decay Upsilon(4S)
+1.000 pi-	SINGLE 0.05 4.5 -1.0 1.0 0.0 6.283185;
+Enddecay
+End

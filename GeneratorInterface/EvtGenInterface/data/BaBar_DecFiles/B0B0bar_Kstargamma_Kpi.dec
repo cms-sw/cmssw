@@ -1,0 +1,43 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#   Up(4S) -> B0  B0bar                       + CC                            #      
+#              |   |                                                          #
+#              |    -> K*0bar gamma                                           #
+#              |         |					              #
+#              |          ->K- pi+                                            #
+#               -> X                                                          #
+#                                                                             #
+#                                                                             # 
+###############################################################################
+Alias myB0  B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+#
+# the same for K*0
+# 
+Alias myantiK*0 anti-K*0 
+Alias myK*0 K*0 
+ChargeConj myK*0 myantiK*0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myantiB0 VSS_BMIX dm;
+Enddecay
+#
+# force anti-B0 to always decay to K*0 gamma
+#
+Decay myantiB0
+1.0000 myantiK*0   gamma                SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+Decay myB0
+1.0000 myK*0   gamma                SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+#
+# force K*0 to go to K+ pi-
+#
+Decay myantiK*0
+1.0000      K-  pi+                              VSS;
+Enddecay
+Decay myK*0
+1.0000      K+  pi-                              VSS;
+Enddecay
+End

@@ -1,0 +1,25 @@
+#######################################################
+#                                                     #
+# Decay: ccbar -> D*+ X 			      #
+#		  |->D+ gamma			      #
+#		     |->mu+ nu_mu		      #
+# Best if used with a tcl file that filters           #
+# at the generator level for for D*                   #       
+#         Joe Izen                                    #
+#                           Jan 27, 2000              #
+# Mail: JOE@SLAC.STANFORD.EDU 
+#######################################################
+#
+Decay vpho 
+1.00	JSCONT 4;
+Enddecay
+#
+Decay D*+
+1.00    D+  gamma                       VSP_PWAVE;
+Enddecay
+#
+Decay  D+
+1.0000    mu+   nu_mu        PHOTOS SLN;
+Enddecay
+#
+End

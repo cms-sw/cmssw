@@ -1,0 +1,144 @@
+# Author: 	Alexei Dvoretskii
+# Created:	12 June 2003
+#
+# Upsilon(4S) -> B+ B-
+#                |  |-> generic
+#                |
+#                |-> pi+ pi+ pi- 
+#
+# charge conjugation assumed 
+#
+# The decay into the pi+ pi+ pi- final state proceeds
+# via multiple interfering subchannels. They are summarized in the 
+# table below. The contribution of each channel is roughly proportional 
+# to magnitude squared of the complex coefficient for that channel times 
+# the integral of the amplitude squared term.
+#
+#SCAN 10000 7.324009
+#Total: 391.185103
+#   Channel        I      |c|  |c|^2*I    Fract
+#        NR   376.43     0.50    94.11     0.33
+#      rho0    31.52     1.00    31.52     0.11
+#      rho0    32.24     1.00    32.24     0.11
+#  rho(2S)0    28.85     0.50     7.21     0.03
+#  rho(2S)0    29.34     0.50     7.33     0.03
+#  rho(3S)0    43.64     0.30     3.93     0.01
+#  rho(3S)0    44.61     0.30     4.01     0.01
+#       f_0    51.06     1.00    51.06     0.18
+#       f_0    51.17     1.00    51.17     0.18
+
+Alias MyB+ B+
+Alias MyB- B-
+
+Decay Upsilon(4S)
+0.5 MyB+ B-	VSS;
+0.5 MyB- B+	VSS;
+Enddecay
+
+Decay MyB+
+1.0 pi+ pi+ pi- PTO3P       
+
+	MAXPDF 8.8
+	#SCANPDF 10000 
+
+	# Non-resonant
+	AMPLITUDE	PHASESPACE	
+	COEFFICIENT 	POLAR_RAD	0.5	0.0
+
+	# PIPI RESONANCES	
+        
+	AMPLITUDE	RESONANCE	BC	rho0	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+	AMPLITUDE	RESONANCE	CA	rho0	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+
+	AMPLITUDE	RESONANCE	BC	rho(2S)0	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.5 	0.0
+	AMPLITUDE	RESONANCE	CA	rho(2S)0	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.5 	0.0
+
+	AMPLITUDE	RESONANCE	BC	rho(3S)0	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.3 	0.0
+	AMPLITUDE	RESONANCE	CA	rho(3S)0	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.3 	0.0
+
+	AMPLITUDE	RESONANCE	BC	f_0	
+	ANGULAR		CA
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+	AMPLITUDE	RESONANCE	CA	f_0	
+	ANGULAR		BC
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+
+	;
+
+Enddecay
+
+Decay MyB-
+1.0 pi- pi- pi+ PTO3P       
+
+	MAXPDF 8.8
+	#SCANPDF 10000 
+
+	# Non-resonant
+	AMPLITUDE	PHASESPACE	
+	COEFFICIENT 	POLAR_RAD	0.5	0.0
+
+	# PIPI RESONANCES	
+        
+	AMPLITUDE	RESONANCE	BC	rho0	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+	AMPLITUDE	RESONANCE	CA	rho0	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+
+	AMPLITUDE	RESONANCE	BC	rho(2S)0	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.5 	0.0
+	AMPLITUDE	RESONANCE	CA	rho(2S)0	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.5 	0.0
+
+	AMPLITUDE	RESONANCE	BC	rho(3S)0	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.3 	0.0
+	AMPLITUDE	RESONANCE	CA	rho(3S)0	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	0.3 	0.0
+
+	AMPLITUDE	RESONANCE	BC	f_0	
+	ANGULAR		CA
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+	AMPLITUDE	RESONANCE	CA	f_0	
+	ANGULAR		BC
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+
+	;
+
+Enddecay
+
+End
+
+

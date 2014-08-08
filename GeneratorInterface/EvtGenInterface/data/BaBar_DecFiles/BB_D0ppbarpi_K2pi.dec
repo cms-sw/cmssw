@@ -1,0 +1,37 @@
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#                                                        #
+# Decay: B+ -> D0bar p anti-p pi+,             B- -> X   #
+#                  +-> K+ pi- pi0                        #
+#                                                        #
+# Author: Haibo Li,  Wisconsin                           #
+# Date:   June 4   2004                                  #
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+Alias Myanti-D0  anti-D0
+Alias MyD0       D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                        VSS;
+0.50000 B-  MyB+                        VSS;
+Enddecay
+#                                    // Phase Space model
+Decay MyB+
+ 1.00000  Myanti-D0 p+ anti-p- pi+             PHSP;
+Enddecay
+#
+Decay MyB-
+ 1.00000  MyD0 p+ anti-p- pi-                  PHSP;
+Enddecay
+#
+Decay Myanti-D0
+ 1.00000  K+ pi- pi0                        D_DALITZ;
+Enddecay
+#             
+Decay MyD0
+ 1.00000  K- pi+ pi0                        D_DALITZ;
+Enddecay
+#
+End

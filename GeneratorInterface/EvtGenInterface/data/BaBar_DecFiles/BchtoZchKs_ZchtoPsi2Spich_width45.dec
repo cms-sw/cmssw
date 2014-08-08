@@ -1,0 +1,77 @@
+###################################################################
+# Bch  --> Zch  Ks            B- --> Generic  xx                  #
+#         |                                                       #
+#         |-- With a width of 45 MeV                              #
+#         |-->psi(2S) pi+ , psi(2S)  pi-                          #
+#             |                                                   #
+#             |--> e+e-, mu+mu-, Jpsi pi+ pi-                     #
+#                                 |                               #
+#                                 |--> e+e-, mu+mu-               #
+#               						  # 
+#  + charge conjugate                                             #
+#                                                                 #
+#                                                                 #
+# Author: Arafat Gabareen Mokhtar (Colorado State University)     #
+#         mokhtar@slac.stanford.edu                               #
+###################################################################
+#
+#
+#
+# Alias particles for specific decays
+# Particle <name>       <mass> <width>
+Particle dummy10_1      4.430  0.045
+Particle anti-dummy10_1 4.430  0.045
+#
+ChangeMassMin  dummy10_1 3.8
+ChangeMassMax  dummy10_1 4.8
+#
+ChangeMassMin  anti-dummy10_1 3.8
+ChangeMassMax  anti-dummy10_1 4.8
+#
+Alias MyB+        B+
+Alias MyB-        B-
+Alias MyZ+        dummy10_1
+Alias MyZ-        anti-dummy10_1
+Alias Mypsi2S     psi(2S)
+Alias Mypi0       pi0
+Alias MyJpsi      J/psi
+Alias MyKs        K_S0
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-   VSS;
+0.500 MyB- B+   VSS;
+Enddecay
+#
+Decay MyB+
+1.000 MyZ+   MyKs         PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 MyZ-   MyKs         PHSP;
+Enddecay
+#
+Decay MyZ+
+1.000 Mypsi2S  pi+        PHSP;
+Enddecay
+#
+Decay MyZ-
+1.000 Mypsi2S  pi-        PHSP;
+Enddecay
+#
+Decay MyKs
+1.000 pi+ pi-             PHSP;
+Enddecay
+#
+Decay Mypsi2S
+0.700 MyJpsi pi+ pi-      VVPIPI;
+0.150 e+   e-             PHOTOS VLL;
+0.150 mu+  mu-            VLL;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-             PHOTOS VLL;
+0.500 mu+  mu-            VLL;
+Enddecay
+#
+#
+End

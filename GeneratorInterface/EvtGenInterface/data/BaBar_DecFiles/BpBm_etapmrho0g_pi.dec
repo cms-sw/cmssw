@@ -1,0 +1,62 @@
+             ####################################################
+           #                                                   #
+           # Decay: B- -> eta' pi-     B+ -> X    + c.c.        #
+           #               |                                   #
+           #               |                                   #
+           #               |                                   #
+           #               |-> gamma rho0                      #
+           #                          |                        #
+           #                          |-> pi+ pi-              #
+           #                                                   #
+           # Author: F. Palombo, J. Smith                      #
+           # Created:                11/February/99            #
+           # Corrected eta' decay (march 00)                   #
+           # Submitted by F. Palombo ( palombo@mi.infn.it)     #
+           #                                                   #      
+           #####################################################
+#
+#
+
+Alias Myeta' eta'
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                       VSS;
+0.500   B+       MyB-                       VSS;
+Enddecay
+#
+Decay MyB-
+1.0000     Myeta'  pi-                      PHSP;
+Enddecay
+#
+Decay MyB+
+1.0000     Myeta'  pi+                      PHSP;
+Enddecay
+#
+Decay Myeta'
+1.0000    rho0  gamma             SVP_HELAMP  1.0 0.0 1.0 0.0;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

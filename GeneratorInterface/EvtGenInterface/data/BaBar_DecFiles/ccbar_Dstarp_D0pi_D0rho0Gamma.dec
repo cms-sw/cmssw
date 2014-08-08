@@ -1,0 +1,39 @@
+###################################################
+#                                                 #
+# ccbar -> D*+ X                                  #
+# D*+   -> D0 pi+                                 #
+# D0    -> gamma rho0                             #
+#                                                 #
+# author : Dieter Best                            #
+#                                                 #
+# email  : best@slac.stanford.edu                 #
+#                                                 #
+# created: 09.July.2001                           #
+#                                                 #
+###################################################
+#
+# Redefine some particles
+#
+Alias myD0     D0
+Alias myD*+    D*+
+Alias myD*-    D*-
+#
+ChargeConj myD*+ myD*-
+#
+Decay vpho
+1.00                        JSCONT 4;
+Enddecay
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay myD*+
+1.00 myD0 pi+               VSS;
+Enddecay
+#
+# 'Scalar -> Vector Vector'
+#
+Decay myD0
+1.00 rho0 gamma             SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+#
+End

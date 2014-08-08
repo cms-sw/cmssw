@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# Decay: B+B- -> Lambda antiLambda pi             #
+#                                                 #
+# Author: S. Saremi  Oct/02/03                    #
+###################################################
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyLambda0 Lambda0
+Alias Myanti-Lambda0 anti-Lambda0
+#
+Decay Upsilon(4S)
+1.000 B+ B- MyB+ MyB- VSS_BMIX dm;
+Enddecay
+#
+Decay MyB+
+1.000 MyLambda0 Myanti-Lambda0 pi+   PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 MyLambda0 Myanti-Lambda0 pi-  PHSP;
+Enddecay
+#
+Decay MyLambda0
+1.000 p+ pi-                  PHSP;
+Enddecay
+#
+Decay Myanti-Lambda0
+1.000 anti-p- pi+             PHSP;
+Enddecay
+#
+End
+

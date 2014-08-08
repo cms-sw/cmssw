@@ -1,0 +1,645 @@
+###############################################################################
+# Decay file for Y(4S) -> B0 B0bar (mixed)
+#                         |   |
+#                         |    -> X e nu
+#                          -----> non-SL
+#
+# Prepared by D. Kirkby (kirkby@hep.stanford.edu)
+# Last change 15 Nov 1999
+###############################################################################
+
+## use the world average value reported at the Lepton-Photon 99 conference:
+## ( http://www.cern.ch/LEPBOSC/combined_results/stanford_1999/ )
+##
+##  delta(m) = 0.473 +- 0.016 /ps
+
+
+## define aliases with restricted decay modes (which are specified below)
+
+Alias B0-SL-e   B0
+Alias B0-SL-mu  B0
+Alias B0-no-SL  B0
+
+Alias anti-B0-SL-e   anti-B0
+Alias anti-B0-SL-mu  anti-B0
+Alias anti-B0-no-SL  anti-B0
+
+## define charge conjugate relationships between aliases
+
+ChargeConj B0-SL-e  anti-B0-SL-e
+ChargeConj B0-SL-mu anti-B0-SL-mu
+ChargeConj B0-no-SL anti-B0-no-SL
+
+## Y(4S) decays only to B0 B0bar, with mixing but no CP violation
+
+Decay Upsilon(4S)
+  0.411789  B0-SL-e       anti-B0-no-SL   VSS_MIX dm;
+  0.411789  B0-no-SL      anti-B0-SL-e    VSS_MIX dm;
+  0.088211  anti-B0-SL-e  anti-B0-no-SL   VSS_MIX dm;
+  0.088211  B0-SL-e       B0-no-SL        VSS_MIX dm;
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B0 which is forced to decay semileptonically into an
+## electron (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B0-SL-e
+
+# b -> c e+ nu (10.4%)
+
+  0.0490   D*-    e+   nu_e           PHOTOS HQET 0.92 1.18 0.72;
+  0.0210   D-     e+   nu_e           PHOTOS ISGW2;
+  0.0040   D_1-   e+   nu_e           PHOTOS ISGW2;
+  0.0040   D_0*-   e+   nu_e           PHOTOS ISGW2;
+  0.0070   D'_1-   e+   nu_e           PHOTOS ISGW2;
+  0.0070   D_2*-   e+   nu_e           PHOTOS ISGW2;
+  0.0010   D*-  pi0   e+   nu_e       PHOTOS GOITY_ROBERTS;
+  0.0020   anti-D*0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+  0.0030   D-   pi0   e+   nu_e       PHOTOS GOITY_ROBERTS;
+  0.0060   anti-D0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+
+# b -> u e+ nu (0.0806%)
+
+  0.000064   pi-    e+   nu_e        PHOTOS  ISGW2;
+  0.000250   rho-   e+   nu_e        PHOTOS  ISGW2;
+  0.000274   a_1-    e+   nu_e        PHOTOS  ISGW2;
+  0.000170   b_1-    e+   nu_e        PHOTOS  ISGW2;
+  0.000024   a_0-    e+   nu_e        PHOTOS  ISGW2;
+  0.000024   a_2-    e+   nu_e        PHOTOS  ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B0 which is forced to decay semileptonically into a
+## muon (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B0-SL-mu
+
+# b -> c mu+ nu (10.4%)
+
+  0.0490   D*-    mu+  nu_mu    PHOTOS        HQET 0.92 1.18 0.72;
+  0.0210   D-     mu+  nu_mu    PHOTOS        ISGW2;
+  0.0040   D_1-   mu+  nu_mu     PHOTOS       ISGW2;
+  0.0040   D_0*-   mu+  nu_mu    PHOTOS        ISGW2;
+  0.0070   D'_1-   mu+  nu_mu    PHOTOS        ISGW2;
+  0.0070   D_2*-   mu+  nu_mu    PHOTOS        ISGW2;
+  0.0010   D*-  pi0   mu+  nu_mu   PHOTOS     GOITY_ROBERTS;
+  0.0020   anti-D*0  pi-   mu+  nu_mu  PHOTOS      GOITY_ROBERTS;
+  0.0030   D-   pi0   mu+  nu_mu     PHOTOS   GOITY_ROBERTS;
+  0.0060   anti-D0  pi-   mu+  nu_mu   PHOTOS     GOITY_ROBERTS;
+
+# b -> u mu+ nu (0.0806%)
+
+  0.000064   pi-    mu+  nu_mu      PHOTOS    ISGW2;
+  0.000250   rho-   mu+  nu_mu      PHOTOS    ISGW2;
+  0.000274   a_1-    mu+  nu_mu     PHOTOS     ISGW2;
+  0.000170   b_1-    mu+  nu_mu     PHOTOS     ISGW2;
+  0.000024   a_0-    mu+  nu_mu     PHOTOS     ISGW2;
+  0.000024   a_2-    mu+  nu_mu     PHOTOS     ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define an anti-B0 which is forced to decay semileptonically into an
+## electron (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay anti-B0-SL-e
+
+# b -> c e- nu (10.4%)
+
+  0.0490   D*+    e-   anti-nu_e          PHOTOS  HQET 0.92 1.18 0.72;
+  0.0210   D+     e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0040   D_1+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0040   D_0*+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0070   D'_1+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0070   D_2*+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0010   D*+  pi0   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+  0.0020   D*0  pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+  0.0030   D+   pi0   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+  0.0060   D0   pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+
+# b -> u e- nu (0.0806%)
+
+  0.000064   pi+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000250   rho+   e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000274   a_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000170   b_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000024   a_0+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000024   a_2+    e-   anti-nu_e        PHOTOS   ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define an anti-B0 which is forced to decay semileptonically into a
+## muon (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay anti-B0-SL-mu
+
+# b -> c mu- nu (10.4%)
+
+  0.0490   D*+    mu-  anti-nu_mu       PHOTOS    HQET 0.92 1.18 0.72;
+  0.0210   D+     mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.0040   D_1+   mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.0040   D_0*+   mu-  anti-nu_mu      PHOTOS     ISGW2;
+  0.0070   D'_1+   mu-  anti-nu_mu      PHOTOS     ISGW2;
+  0.0070   D_2*+   mu-  anti-nu_mu      PHOTOS     ISGW2;
+  0.0010   D*+  pi0   mu-  anti-nu_mu   PHOTOS    GOITY_ROBERTS;
+  0.0020   D*0  pi+   mu-  anti-nu_mu   PHOTOS    GOITY_ROBERTS;
+  0.0030   D+   pi0   mu-  anti-nu_mu   PHOTOS    GOITY_ROBERTS;
+  0.0060   D0   pi+   mu-  anti-nu_mu   PHOTOS    GOITY_ROBERTS;
+
+# b -> u mu- nu (0.0806%)
+
+  0.000064   pi+    mu-  anti-nu_mu     PHOTOS      ISGW2;
+  0.000250   rho+   mu-  anti-nu_mu     PHOTOS      ISGW2;
+  0.000274   a_1+    mu-  anti-nu_mu    PHOTOS       ISGW2;
+  0.000170   b_1+    mu-  anti-nu_mu    PHOTOS       ISGW2;
+  0.000024   a_0+    mu-  anti-nu_mu    PHOTOS       ISGW2;
+  0.000024   a_2+    mu-  anti-nu_mu    PHOTOS       ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B0 which is forced to NOT decay semileptonically into either
+## an electron or muon (79.0% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B0-no-SL
+
+# JETSET misc fragmentation (42.664%)
+
+  0.32474         u       anti-d  anti-c          d       JETSET         48;
+  0.04600         u       anti-d  anti-c          d       JETSET         25;
+  0.02100         u       anti-s  anti-c          d       JETSET         23;
+  0.01800         u       anti-c  anti-d          d       JETSET         48;
+  0.00090         u       anti-c  anti-s          d       JETSET         48;
+  0.00000         c       anti-s  anti-c          d       JETSET         13;
+  0.00600         c       anti-d  anti-c          d       JETSET         13;
+  0.00600         u       anti-d  anti-u          d       JETSET         48;
+  0.00400         c       anti-s  anti-u          d       JETSET         48;
+
+# b -> c (sc=)  -->  D Ds X (10.14%)
+
+  0.0096   D-   D_s+                       PHSP;
+  0.0102   D*-  D_s+                       SVS;
+  0.0120   D_1- D_s+                       SVS;
+  0.0094   D_s*+ D-                        SVS;
+  0.0174   D_s*+ D*-                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0030   D_s+  D-  pi0                   PHSP;
+  0.0060   D_s+  anti-D0 pi-                   PHSP;
+  0.0030   D_s*+ D-  pi0                   PHSP;
+  0.0060   D_s*+ anti-D0 pi-                   PHSP;
+  0.0050   D_s+  D-  pi-  pi+              PHSP;
+  0.0037   D_s+  D-  pi0  pi0              PHSP;
+  0.0037   D_s+  anti-D0 pi-  pi0              PHSP;
+  0.0050   D_s*+ D-  pi-  pi+              PHSP;
+  0.0037   D_s*+ D-  pi0  pi0              PHSP;
+  0.0037   D_s*+ anti-D0 pi-  pi0              PHSP;
+
+# b -> c (sc=)  -->  D D= K  X (8.0%)
+
+  0.0025   D-  D0   K+                    PHSP;
+  0.0025   D-  D+   K0                    PHSP;
+  0.0025   D-  D0   K*+                   PHSP;
+  0.0025   D-  D+   K*0                   PHSP;
+
+  0.0050   D*- D0   K+                    PHSP;
+  0.0050   D*- D+   K0                    PHSP;
+  0.0050   D-  D*0  K+                    PHSP;
+  0.0050   D-  D*+  K0                    PHSP;
+
+  0.0025   D*- D0   K*+                   PHSP;
+  0.0025   D*- D+   K*0                   PHSP;
+  0.0025   D-  D*0  K*+                   PHSP;
+  0.0025   D-  D*+  K*0                   PHSP;
+
+  0.0150   D*- D*0  K+                    PHSP;
+  0.0150   D*- D*+  K0                    PHSP;
+  0.0050   D*- D*0  K*+                   PHSP;
+  0.0050   D*- D*+  K*0                   PHSP;
+
+# B -> D(*) X  Exclusive modes (6.67%)
+
+  0.0027   D*- pi+                        SVS;
+  0.0030   D-  pi+                        PHSP;
+  0.0082   rho+ D-                        SVS;
+  0.0070   rho+ D*-                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0010   D-  pi+  pi0                   PHSP;
+  0.0070   D*- pi+  pi0                   PHSP;
+  0.0010   anti-D0 pi-  pi+                   PHSP;
+  0.0010   anti-D*0 pi-  pi+                   PHSP;
+  0.0005   anti-D*0 pi0  pi0                   PHSP;
+
+  0.0060   a_1+ D-                         SVS;
+  0.0011   D-  rho0  pi+                  PHSP;
+  0.0011   D-  rho+  pi0                  PHSP;
+  0.0010   D-  pi-  pi+  pi+              PHSP;
+  0.0010   D-  pi0  pi+  pi0              PHSP;
+  0.0010   anti-D0  pi-  pi+  pi0             PHSP;
+  0.0001   anti-D0  pi0  pi0  pi0             PHSP;
+
+  0.0122   a_1+  D*-                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0010   D*-  rho0  pi+                 PHSP;
+  0.0010   D*-  rho+  pi0                 PHSP;
+  0.0077   D*-  pi-  pi+  pi+             PHSP;
+  0.0010   D*-  pi0  pi+  pi0             PHSP;
+  0.0010   anti-D*0  pi-  pi+  pi0             PHSP;
+  0.0001   anti-D*0  pi0  pi0  pi0             PHSP;
+
+# Lam_c X  / Sigma_c X (4.0%)
+
+  0.01000        anti-cd_0       ud_0         JETSET 23;
+  0.03000        anti-cd_1       ud_1         JETSET 23;
+
+# b -> c tau+ nu (2.96%)
+
+  0.0160   D*-    tau+ nu_tau                  ISGW2;
+  0.0070   D-     tau+ nu_tau                  ISGW2;
+  0.0013   D_1-   tau+ nu_tau                  ISGW2;
+  0.0013   D_0*-   tau+ nu_tau                  ISGW2;
+  0.0020   D'_1-   tau+ nu_tau                  ISGW2;
+  0.0020   D_2*-   tau+ nu_tau                  ISGW2;
+
+# Xi_c X (2.4%)
+
+  0.00600        anti-cs_0       ud_0         JETSET 23;
+  0.01800        anti-cs_1       ud_1         JETSET 23;
+
+# B -> cc= s (1.94%)
+
+  0.0004     J/psi  K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.0004     J/psi  K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.00025    J/psi  K*S             SVV_CP beta  dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.00025    J/psi  K*L             SVV_CP beta  dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0010     J/psi  K*0T              SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0010     J/psi  K+  pi-           PHSP;
+  0.0005     J/psi  K0  pi0           PHSP;
+  0.0014     J/psi  K0  pi-  pi+      PHSP;
+  0.0007     J/psi  K0  pi0  pi0      PHSP;
+  0.0007     J/psi  K+  pi-  pi0      PHSP;
+  0.0005     J/psi  anti-K'_10              PHSP;
+  0.0005     J/psi  anti-K_2*0              PHSP;
+
+  0.0003     psi(2S)  K_S0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.0003     psi(2S)  K_L0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.00025    psi(2S)  K*S           SVV_CP beta  dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.00025    psi(2S)  K*L           SVV_CP beta  dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0010     psi(2S)  K*0T             SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0004     psi(2S)  K+  pi-          PHSP;
+  0.0002     psi(2S)  K0  pi0          PHSP;
+  0.0004     psi(2S)  K0  pi-  pi+     PHSP;
+  0.0002     psi(2S)  K0  pi0  pi0     PHSP;
+  0.0002     psi(2S)  K+  pi-  pi0     PHSP;
+
+  0.0001    eta_c K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.0001    eta_c K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.00005   K*S  eta_c              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.00005   K*L  eta_c              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.0002    K*0T eta_c              SVS;
+  0.0002    eta_c  K+  pi-          PHSP;
+  0.0001    eta_c  K0  pi0          PHSP;
+  0.0002    eta_c  K0  pi-  pi+     PHSP;
+  0.0001    eta_c  K0  pi0  pi0     PHSP;
+  0.0001    eta_c  K+  pi-  pi0     PHSP;
+
+  0.0001     chi_c0 K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.0001     chi_c0 K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.00005    K*S  chi_c0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.00005    K*L  chi_c0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.0002     K*0T chi_c0              SVS;
+  0.0002     chi_c0  K+  pi-          PHSP;
+  0.0001     chi_c0  K0  pi0          PHSP;
+  0.0002     chi_c0  K0  pi-  pi+     PHSP;
+  0.0001     chi_c0  K0  pi0  pi0     PHSP;
+  0.0001     chi_c0  K+  pi-  pi0     PHSP;
+
+  0.0003     chi_c1 K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.0003     chi_c1 K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.0002     K*S  chi_c1            SVV_CP beta  dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0002     K*L  chi_c1            SVV_CP beta  dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0008     chi_c1  K*0T             SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0004     chi_c1  K+  pi-          PHSP;
+  0.0002     chi_c1  K0  pi0          PHSP;
+  0.0004     chi_c1  K0  pi-  pi+     PHSP;
+  0.0002     chi_c1  K0  pi0  pi0     PHSP;
+  0.0002     chi_c1  K+  pi-  pi0     PHSP;
+
+  0.0002     chi_c2 K_S0               PHSP;
+  0.0002     chi_c2 K_L0               PHSP;
+  0.00015    K*S  chi_c2              PHSP;
+  0.00015    K*L  chi_c2              PHSP;
+  0.0006     chi_c2  K*0T             PHSP;
+  0.0004     chi_c2  K+  pi-          PHSP;
+  0.0002     chi_c2  K0  pi0          PHSP;
+  0.0004     chi_c2  K0  pi-  pi+     PHSP;
+  0.0002     chi_c2  K0  pi0  pi0     PHSP;
+  0.0002     chi_c2  K+  pi-  pi0     PHSP;
+
+# b-> c (dc=) (0.232%)
+
+  0.00045     D-   D+               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+  0.00081     D*-  D+               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.00081     D*+  D-               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+  0.00025     D*+  D*-           SVV_CP beta  dm -1 0.62 0.0 1.05 0.0 0.25 0.0;
+
+# b -> u tau+ nu (0.0218%)
+
+  0.000021   pi-    tau+ nu_tau                ISGW2;
+  0.000083   rho-   tau+ nu_tau                ISGW2;
+  0.000090   a_1-    tau+ nu_tau                ISGW2;
+  0.000008   b_1-    tau+ nu_tau                ISGW2;
+  0.000008   a_0-    tau+ nu_tau                ISGW2;
+  0.000008   a_2-    tau+ nu_tau                ISGW2;
+
+# B0 -> CP eigenstates (some exclusive b -> u) (0.011%)
+
+  0.00001    pi+  pi-               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.00001    pi0  pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   pi0  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   pi0  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   pi0  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   pi0  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   omega pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   rho0 pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   a_10  pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   b_10  pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   eta  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   eta  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   eta  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   eta  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   omega eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   rho0 eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   a_10  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   b_10  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   eta' eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   eta' a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   eta' f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   omega eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   rho0 eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   a_10  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   b_10  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   a_00  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   a_00  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   omega a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   rho0 a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   a_10  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   b_10  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   f_0   f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000001   omega f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   rho0 f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   a_10  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+  0.000001   b_10  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+  0.000056     pi-   pi+   pi0          BTO3PI_CP dm  alpha;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define an anti-B0 which is forced to NOT decay semileptonically into either
+## an electron or muon (79.0% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay anti-B0-no-SL
+
+# JETSET misc fragmentation (42.664%)
+
+0.32474         anti-u       d  c       anti-d       JETSET         48;
+0.04600         anti-u       d  c       anti-d       JETSET         25;
+0.02100         anti-u       s  c       anti-d       JETSET         23;
+0.01800         anti-u       c  d       anti-d       JETSET         48;
+0.00090         anti-u       c  s       anti-d       JETSET         48;
+0.00000         anti-c       s  c       anti-d       JETSET         13;
+0.00600         anti-c       d  c       anti-d       JETSET         13;
+0.00600         anti-u       d  u       anti-d       JETSET         48;
+0.00400         anti-c       s  u       anti-d       JETSET         48;
+
+# b -> c (sc=)  -->  D Ds X (10.14%)
+
+0.0096   D+  D_s-                        PHSP;
+0.0102   D*+  D_s-                       SVS;
+0.0120   D_1+  D_s-                      SVS;
+0.0094   D_s*- D+                        SVS;
+0.0174   D_s*- D*+                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0030   D_s-  D+  pi0                   PHSP;
+0.0060   D_s-  D0  pi+                   PHSP;
+0.0030   D_s*- D+  pi0                   PHSP;
+0.0060   D_s*- D0  pi+                   PHSP;
+0.0050   D_s-  D+  pi+  pi-              PHSP;
+0.0037   D_s-  D+  pi0  pi0              PHSP;
+0.0037   D_s-  D0  pi+  pi0              PHSP;
+0.0050   D_s*- D+  pi+  pi-              PHSP;
+0.0037   D_s*- D+  pi0  pi0              PHSP;
+0.0037   D_s*- D0  pi+  pi0              PHSP;
+
+# b -> c (sc=)  -->  D D= K  X (8.0%)
+
+0.0025   D+  anti-D0  K-                    PHSP;
+0.0025   D+  D-   anti-K0                   PHSP;
+0.0025   D+  anti-D0  K*-                   PHSP;
+0.0025   D+  D-   anti-K*0                  PHSP;
+#
+0.0050   D*+ anti-D0  K-                    PHSP;
+0.0050   D*+ D-   anti-K0                   PHSP;
+0.0050   D+  anti-D*0  K-                   PHSP;
+0.0050   D+  D*-  anti-K0                   PHSP;
+#
+0.0025   D*+ anti-D0  K*-                   PHSP;
+0.0025   D*+ D-   anti-K*0                  PHSP;
+0.0025   D+  anti-D*0  K*-                  PHSP;
+0.0025   D+  D*-  anti-K*0                  PHSP;
+#
+0.0150   D*+ anti-D*0  K-                   PHSP;
+0.0150   D*+ D*-   anti-K0                  PHSP;
+0.0050   D*+ anti-D*0  K*-                  PHSP;
+0.0050   D*+ D*-   anti-K*0                 PHSP;
+
+# B -> D(*) X  Exclusive modes (6.67%)
+
+0.0027   D*+ pi-                        SVS;
+0.0030   D+  pi-                        PHSP;
+0.0082   rho- D+                        SVS;
+0.0070   rho- D*+                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010   D+  pi-  pi0                   PHSP;
+0.0070   D*+ pi-  pi0                   PHSP;
+0.0010   D0  pi+  pi-                   PHSP;
+0.0010   D*0 pi+  pi-                   PHSP;
+0.0005   D*0 pi0  pi0                   PHSP;
+#
+0.0060   a_1- D+                         SVS;
+0.0011   D+  rho0  pi-                  PHSP;
+0.0011   D+  rho-  pi0                  PHSP;
+0.0010   D+  pi+  pi-  pi-              PHSP;
+0.0010   D+  pi0  pi-  pi0              PHSP;
+0.0010   D0  pi+  pi-  pi0              PHSP;
+0.0001   D0  pi0  pi0  pi0              PHSP;
+#
+0.0122   a_1-  D*+                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010   D*+  rho0  pi-                 PHSP;
+0.0010   D*+  rho-  pi0                 PHSP;
+0.0077   D*+  pi+  pi-  pi-             PHSP;
+0.0010   D*+  pi0  pi-  pi0             PHSP;
+0.0010   D*0  pi+  pi-  pi0             PHSP;
+0.0001   D*0  pi0  pi0  pi0             PHSP;
+
+# Lam_c X  / Sigma_c X (4.0%)
+
+0.01000        cd_0       anti-ud_0         JETSET 23;
+0.03000        cd_1       anti-ud_1         JETSET 23;
+
+# b -> c tau- nu (2.96%)
+
+0.0160   D*+    tau- anti-nu_tau                 ISGW2;
+0.0070   D+     tau- anti-nu_tau                 ISGW2;
+0.0013   D_1+   tau- anti-nu_tau                 ISGW2;
+0.0013   D_0*+   tau- anti-nu_tau                 ISGW2;
+0.0020   D'_1+   tau- anti-nu_tau                 ISGW2;
+0.0020   D_2*+   tau- anti-nu_tau                 ISGW2;
+
+# Xi_c X (2.4%)
+
+0.00600        cs_0       anti-ud_0         JETSET 23;
+0.01800        cs_1       anti-ud_1         JETSET 23;
+
+# B -> cc= s (1.94%)
+
+0.0004     J/psi  K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.0004     J/psi  K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.00025    J/psi  K*S               SVV_CP beta  dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00025    J/psi  K*L               SVV_CP beta  dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010     J/psi  anti-K*0T              SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010     J/psi  K-  pi+           PHSP;
+0.0005     J/psi  anti-K0   pi0           PHSP;
+0.0014     J/psi  anti-K0   pi+  pi-      PHSP;
+0.0007     J/psi  anti-K0   pi0  pi0      PHSP;
+0.0007     J/psi  K-  pi+  pi0      PHSP;
+0.0005     J/psi  K'_10              PHSP;
+0.0005     J/psi  K_2*0              PHSP;
+#
+0.0003     psi(2S)  K_S0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.0003     psi(2S)  K_L0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.00025    psi(2S)  K*S              SVV_CP beta  dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00025    psi(2S)  K*L              SVV_CP beta  dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010     psi(2S)  anti-K*0T             SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0004     psi(2S)  K-  pi+          PHSP;
+0.0002     psi(2S)  anti-K0   pi0          PHSP;
+0.0004     psi(2S)  anti-K0   pi+  pi-     PHSP;
+0.0002     psi(2S)  anti-K0   pi0  pi0     PHSP;
+0.0002     psi(2S)  K-  pi+  pi0     PHSP;
+#
+0.0001    eta_c K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.0001    eta_c K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.00005   K*S  eta_c              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.00005   K*L  eta_c              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.0002    anti-K*0T eta_c              SVS;
+0.0002    eta_c  K-  pi+          PHSP;
+0.0001    eta_c  anti-K0   pi0          PHSP;
+0.0002    eta_c  anti-K0   pi+  pi-     PHSP;
+0.0001    eta_c  anti-K0   pi0  pi0     PHSP;
+0.0001    eta_c  K-  pi+  pi0     PHSP;
+#
+0.0001     chi_c0 K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.0001     chi_c0 K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.00005    K*S  chi_c0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.00005    K*L  chi_c0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.0002     anti-K*0T chi_c0              SVS;
+0.0002     chi_c0  K-  pi+          PHSP;
+0.0001     chi_c0  anti-K0   pi0          PHSP;
+0.0002     chi_c0  anti-K0   pi+  pi-     PHSP;
+0.0001     chi_c0  anti-K0   pi0  pi0     PHSP;
+0.0001     chi_c0  K-  pi+  pi0     PHSP;
+#
+0.0003     chi_c1 K_S0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.0003     chi_c1 K_L0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.0002     K*S  chi_c1              SVV_CP beta  dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0002     K*L  chi_c1              SVV_CP beta  dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0008     chi_c1  anti-K*0T             SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0004     chi_c1  K-  pi+          PHSP;
+0.0002     chi_c1  anti-K0   pi0          PHSP;
+0.0004     chi_c1  anti-K0   pi+  pi-     PHSP;
+0.0002     chi_c1  anti-K0   pi0  pi0     PHSP;
+0.0002     chi_c1  K-  pi+  pi0     PHSP;
+#
+0.0002     chi_c2 K_S0               PHSP;
+0.0002     chi_c2 K_L0               PHSP;
+0.00015    K*S  chi_c2              PHSP;
+0.00015    K*L  chi_c2              PHSP;
+0.0006     chi_c2  anti-K*0T             PHSP;
+0.0004     chi_c2  K-  pi+          PHSP;
+0.0002     chi_c2  anti-K0   pi0          PHSP;
+0.0004     chi_c2  anti-K0   pi+  pi-     PHSP;
+0.0002     chi_c2  anti-K0   pi0  pi0     PHSP;
+0.0002     chi_c2  K-  pi+  pi0     PHSP;
+#
+#
+#
+0.0000     phi   anti-K*0T             SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000     phi   K*S              SVV_CP beta dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000     phi   K*L              SVV_CP beta dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000     eta'  K_S0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.0000     eta'  K_L0              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+
+# b-> c (dc=) (0.232%)
+
+0.00045     D-   D+               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+0.00081     D*-  D+               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.00081     D*+  D-               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+0.00025     D*+  D*-              SVV_CP beta  dm -1 0.62 0.0 1.05 0.0 0.25 0.0;
+
+# b -> u tau- nu (0.0218%)
+
+0.000021   pi+    tau- anti-nu_tau                 ISGW2;
+0.000083   rho+   tau- anti-nu_tau                 ISGW2;
+0.000090   a_1+    tau- anti-nu_tau                 ISGW2;
+0.000008   b_1+    tau- anti-nu_tau                 ISGW2;
+0.000008   a_0+    tau- anti-nu_tau                 ISGW2;
+0.000008   a_2+    tau- anti-nu_tau                 ISGW2;
+0.000000   rho(2S)+ tau- anti-nu_tau                 ISGW2;
+0.000000   D(2S)+ tau- anti-nu_tau                 ISGW2;
+0.000000   D*(2S)+ tau- anti-nu_tau                 ISGW2;
+
+# B0 -> CP eigenstates (some exclusive b -> u) (0.011%)
+
+0.00001    pi+  pi-               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.00001    pi0  pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   pi0  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   pi0  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   pi0  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   pi0  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   omega pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   a_10  pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   b_10  pi0               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   eta  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   eta  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   eta  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   eta  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   omega eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   rho0 eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   a_10  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   b_10  eta               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   eta' eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   eta' a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   eta' f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   omega eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   rho0 eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   a_10  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   b_10  eta'              SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   a_00  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   a_00  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   omega a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   rho0 a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   a_10  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   b_10  a_00               SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   f_0   f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000001   omega f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   rho0 f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   a_10  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+0.000001   b_10  f_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+0.000056     pi-   pi+   pi0          BTO3PI_CP dm  alpha;
+#0.00000108   K-    pi+   pi0          BTOKPIPI_CP dm  alpha beta;
+
+Enddecay
+
+End

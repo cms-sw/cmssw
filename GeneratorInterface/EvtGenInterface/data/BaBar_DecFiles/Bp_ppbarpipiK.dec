@@ -1,0 +1,43 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> p pbar pi+ pi- K+,   B- -> X           #
+#                                                          #
+#                                                          #
+#             + cc                                         #
+#                                                          #
+#                                                          #
+#                                                          #
+# Author: S. Tosi        17/06/03                          #
+############################################################
+#
+Define beta 0.75
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+#
+Decay Upsilon(4S)
+  0.5000  MyB+      B-       VSS;
+  0.5000  MyB-      B+       VSS;
+Enddecay
+#
+#
+Decay MyB+
+  1.0000  pi+  pi- p+  anti-p- K+   PHSP;
+Enddecay
+#
+#
+Decay MyB-
+  1.0000  pi+  pi- p+  anti-p- K-   PHSP;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,29 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#                                                                             #
+#  Up(4S) -> B+   B-                 + CC                                     #
+#            |    |                                                           #
+#            |     ->  e- nu_ebar gamma                                       #
+#            |                                                                #
+#             ->X                                                             #
+#                                                                             #
+###############################################################################
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+#
+Decay Upsilon(4S)
+0.5000 B+  myB-                          VSS;
+0.5000 B-  myB+                          VSS;
+Enddecay
+#
+Decay myB+
+1.0000 e+    nu_e         gamma          PHSP;
+Enddecay
+Decay myB-
+1.0000 e-    anti-nu_e    gamma          PHSP;
+Enddecay
+End
+
+

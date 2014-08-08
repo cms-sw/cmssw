@@ -1,0 +1,88 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X      B- -> D** pi                    #
+#                                                     #
+# with D**                                            #
+#     		 D0*0                                 #
+#          	  |->  D+ pi-                         #
+#                      |-> K- pi+ pi+                 #
+#                      |-> Ks pi+                     #
+#                           |-> pi+ pi-               #
+#                                                     #
+#   + CC                                              #
+#                                                     #
+# Contacts:					      #
+# jong@slac.stanford.edu			      #
+# November 2003  				      #
+#                                                     #
+#######################################################
+#
+#
+Alias myB-          B-
+Alias myB+          B+
+#
+Alias myD_0*0       D_0*0 
+Alias myanti-D_0*0  anti-D_0*0   
+#
+Alias myD+          D+
+Alias myD-          D-
+#
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+Alias MyKs K_S0
+#
+Particle D_0*0	2.308	0.276
+Particle anti-D_0*0	2.308	0.276
+#  Y
+#
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+#  B
+#
+Decay myB+
+1.0000   myanti-D_0*0         pi+	  PHSP;
+Enddecay
+#
+Decay myB-
+1.0000   myD_0*0         pi-		  PHSP;
+Enddecay
+#
+#   D**
+#
+Decay myD_0*0
+1.0000    myD+  pi-                        PHSP;
+Enddecay
+#
+Decay myanti-D_0*0
+1.0000    myD-  pi+                        PHSP;
+Enddecay
+#
+#  D Meson
+#
+Decay myD+
+0.0277   Myanti-K0  pi+                 PHSP;
+0.0910   K-  pi+  pi+                   D_DALITZ;
+Enddecay
+#
+Decay myD-
+0.0277   MyK0  pi-                      PHSP;
+0.0910   K+  pi-  pi-                   D_DALITZ;
+Enddecay
+#
+#
+Decay MyK0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay MyKs
+1.00   	pi+ pi- 			PHSP;
+Enddecay
+#
+End

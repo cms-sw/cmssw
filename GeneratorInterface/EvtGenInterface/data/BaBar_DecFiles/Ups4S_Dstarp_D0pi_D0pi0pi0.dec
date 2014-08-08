@@ -1,0 +1,25 @@
+###################################################
+#                                                 #
+# Ups(4S) production                              #
+# D*+ -> D0 pi+, D0 -> pi0 pi0                    #
+#                                                 #
+# created: U. Egede 27/10/99                      #
+#          U.Egede@rl.ac.uk                       #
+###################################################
+#
+
+Alias my-D0 D0
+
+#
+#   Vector Mesons
+#
+Decay D*+
+0.6830    my-D0  pi+                        VSS;
+Enddecay
+#
+Decay my-D0
+#
+0.0009   pi0 pi0                         PHSP;
+Enddecay
+#         
+End

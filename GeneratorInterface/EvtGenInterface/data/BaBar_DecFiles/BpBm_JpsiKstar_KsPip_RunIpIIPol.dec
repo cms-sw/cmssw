@@ -1,0 +1,69 @@
+###################################################################
+# B-  --> J/psi K*-              B0 --> Generic                   #
+#         |    |                                                  #
+#         |    |-->KS pi-                                         #
+#         |        |--> pi+pi-                                    #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+#  + cc                                                           #
+#                                                                 #
+# author :  Marc Verderi 06/05/2004                               #
+# made from original decay file:                                  #
+#                B+B-_JpsiKstar_KS_RunIPol.dec                    #
+###################################################################
+#
+#
+# Define the helicity amplitudes starting from the transversity amplitudes:
+# -------------------------------------------------------------------------
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Values measured by Babar run I+II (BAD#673/752):
+Define Hplus    0.6301
+Define Hzero    0.7523
+Define Hminus   0.1924
+Define phHplus  3.246
+Define phHzero  0.000
+Define phHminus 4.924
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyKstar- K*-
+Alias MyKstar+ K*+
+Alias MyJpsi J/psi
+Alias MyK_S0 K_S0 
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+Decay MyB-
+1.000 MyJpsi  MyKstar-      SVV_HELAMP Hminus phHminus  Hzero phHzero   Hplus phHplus;
+Enddecay
+#
+Decay MyKstar-
+1.000 MyK_S0   pi-           VSS;
+Enddecay
+#
+Decay MyB+
+1.000 MyJpsi  MyKstar+      SVV_HELAMP Hplus phHplus    Hzero phHzero   Hminus phHminus;
+Enddecay
+#
+Decay MyKstar+
+1.000 MyK_S0   pi+            VSS;
+Enddecay
+#
+Decay MyK_S0
+1.000 pi+ pi-                PHSP;
+Enddecay
+#
+End

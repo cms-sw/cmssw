@@ -1,0 +1,11 @@
+#
+# Force the fragmentation to produce a ddbar, uubar or ssbar pair
+#
+# Contact: Anders Ryd (ryd@hep.caltech.edu)
+#
+Decay vpho
+1.0  JSCONT 1;
+4.0  JSCONT 2;
+1.0  JSCONT 3;
+Enddecay
+End

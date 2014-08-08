@@ -1,0 +1,17 @@
+# Single particle J/psi uniform in cos theta in 
+# the centre of mass frame between 0.0 and 4.0 GeV
+# 
+# Gerhard Raven (Gerhard.Raven@slac.stanford.edu)
+#
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+1.000 MyJpsi	SINGLE 0.0 4.0 ;
+Enddecay
+#
+Decay MyJpsi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+End

@@ -1,0 +1,26 @@
+#######################################################
+#                                                     #
+# Decay: ccbar -> Ds*- X 			      #
+#		  |->Ds- gamma			      #
+#		     |->omega pi-		      #
+# Author : Ping Wang, IHEP Beijing                    #
+# Mail:  wangp@SLAC.stanford.edu                      #
+#Created: Nov 21, 2000                                #
+#######################################################
+Alias myD_s+ D_s+
+Alias myD_s- D_s-
+#
+Decay vpho 
+1.00	JSCONT 4;
+Enddecay
+#
+Decay D_s*-
+1.00    myD_s-  gamma                       VSP_PWAVE;
+Enddecay
+#
+Decay  myD_s-
+1.0000    omega pi-  SVS;
+Enddecay
+#
+End
+

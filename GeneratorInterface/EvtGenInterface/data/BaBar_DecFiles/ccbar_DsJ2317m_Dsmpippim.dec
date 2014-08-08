@@ -1,0 +1,111 @@
+#
+# ccbar continuum production of:
+#
+#          D_s(2317)- --> D_s- pi+ pi-
+#                         |
+#                         +--> K- K+ pi-
+#
+# Also implements particle reassignment that is default in SP6,
+# including correct DsJ(2317) and DsJ(2458) decays
+#
+# $Id
+#
+
+#
+# The following parameters attempt to harden the p* distribution
+# to better match data
+#
+JetSetPar PARJ(41)=.10
+JetSetPar PARJ(42)=.73
+
+
+#
+# Redefinition of particles to correctly define DsJ(2317)
+# and DsJ(2458)
+#
+Particle D_s0*+ 2.3173   0.0001
+Particle D_s0*- 2.3173   0.0001
+Particle D_s1+  2.4580   0.0001
+Particle D_s1-  2.4580   0.0001
+Particle D'_s1+ 2.53535  0.001
+Particle D'_s1- 2.53535  0.001
+
+#
+# Aliases we need to force desired D_s+ decay
+#
+Alias myD_s- D_s-
+Alias myK*0 K*0
+Alias myphi phi
+
+#
+# Charm only
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+# Correct decay of D'_s states, now that we have "moved" them
+#
+Decay D'_s1+
+0.5000   D*+ K0          VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+0.5000   D*0 K+          VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+0.0000   gamma D_s*+     PHSP;
+0.0000   gamma D_s+      PHSP;
+Enddecay
+
+Decay D'_s1-
+0.5000   D*- anti-K0     VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+0.5000   anti-D*0 K-     VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+0.0000   gamma D_s*-     PHSP;
+0.0000   gamma D_s-      PHSP;
+Enddecay
+
+#
+# Correct decays of DsJ(2317)+
+#
+Decay D_s0*+
+1.000   D_s+ pi0   PHSP;
+Enddecay
+
+#
+# Forced (incorrect) decay of DsJ(2317)-
+#
+Decay D_s0*-
+1.000   myD_s- pi+ pi-   PHSP;
+Enddecay
+
+#
+# Correct decays of DsJ(2458)
+#
+Decay D_s1+
+0.8   D_s*+ pi0    PHSP;
+0.2   D_s+ gamma   PHSP;
+Enddecay
+
+Decay D_s1-
+0.8   D_s*- pi0    PHSP;
+0.2   D_s- gamma   PHSP;
+Enddecay
+
+
+#
+# A D_s- that decays only the way we want it to
+#
+Decay myD_s-
+0.5   myphi pi-       SVS;
+0.475 myK*0 K-        SVS;
+0.025 K- K+ pi-       PHSP;
+Enddecay
+
+
+Decay myK*0
+1.000 K+ pi-          VSS;
+Enddecay
+
+
+Decay myphi
+1.0   K+ K-           VSS;
+Enddecay
+
+End

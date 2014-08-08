@@ -1,0 +1,176 @@
+###############################################################################
+#   Up(4S) -> B-   B+                                     + CC                #
+#             |    |                                                          #
+#             |    +->  X_u l- nu_bar (l = e or mu)                           # 
+#             |                                                               #
+#             +->  D0(K-pi+) pi-                                              #
+#                                                                             #
+#                                                                             #
+#                                                                             #
+# Mail: ursl@slac.stanford.edu                                                #
+###############################################################################
+# -- Xulnu b decay
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+# -- reco B 
+Alias rB-  B-
+Alias rB+  B+
+ChargeConj rB+ rB-
+Alias rD0 D0
+Alias ranti-D0 anti-D0
+ChargeConj rD0 ranti-D0
+#
+#
+Decay Upsilon(4S)
+0.50000 rB+  myB-                          VSS;
+0.50000 rB-  myB+                          VSS;
+Enddecay
+# ----------------------------------------------------------------------
+# reco B
+#
+Decay rB+ 
+1.000     ranti-D0   pi+   PHSP;
+Enddecay
+#
+Decay rB-
+1.000     rD0   pi-        PHSP;
+Enddecay
+#
+Decay rD0
+1.000     K-     pi+        PHSP;
+Enddecay
+#
+Decay ranti-D0
+1.000     K+    pi-         PHSP;
+Enddecay
+# ----------------------------------------------------------------------
+# force myB to always decay to X_u l nu
+Decay myB-
+0.000090   pi0      e-   anti-nu_e        PHOTOS   ISGW2;
+0.000080   eta      e-   anti-nu_e        PHOTOS   ISGW2;
+0.000125   rho0     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000125   omega    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000050   eta'     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000076   a_10     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000095   b_10     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   a_00     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000028   a_20     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000003   f_0      e-   anti-nu_e        PHOTOS   ISGW2;
+0.000003   f'_0     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000036   f_1      e-   anti-nu_e        PHOTOS   ISGW2;
+0.000036   f'_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000050   h_1      e-   anti-nu_e        PHOTOS   ISGW2;
+0.000050   h'_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000016   f_2      e-   anti-nu_e        PHOTOS   ISGW2;
+0.000016   f'_2     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000030   pi(2S)0  e-   anti-nu_e        PHOTOS   ISGW2;
+0.000036   rho(2S)0 e-   anti-nu_e        PHOTOS   ISGW2;
+0.000036   omega(2S) e-  anti-nu_e        PHOTOS   ISGW2;
+0.000090   pi0      mu-  anti-nu_mu                 ISGW2;
+0.000080   eta      mu-  anti-nu_mu                 ISGW2;
+0.000125   rho0     mu-  anti-nu_mu                 ISGW2;
+0.000125   omega    mu-  anti-nu_mu                 ISGW2;
+0.000050   eta'     mu-  anti-nu_mu                 ISGW2;
+0.000076   a_10     mu-  anti-nu_mu                 ISGW2;
+0.000095   b_10     mu-  anti-nu_mu                 ISGW2;
+0.000004   a_00     mu-  anti-nu_mu                 ISGW2;
+0.000028   a_20     mu-  anti-nu_mu                 ISGW2;
+0.000003   f_0      mu-  anti-nu_mu                 ISGW2;
+0.000003   f'_0     mu-  anti-nu_mu                 ISGW2;
+0.000036   f_1      mu-  anti-nu_mu                 ISGW2;
+0.000036   f'_1     mu-  anti-nu_mu                 ISGW2;
+0.000050   h_1      mu-  anti-nu_mu                 ISGW2;
+0.000050   h'_1     mu-  anti-nu_mu                 ISGW2;
+0.000016   f_2      mu-  anti-nu_mu                 ISGW2;
+0.000016   f'_2     mu-  anti-nu_mu                 ISGW2;
+0.000030   pi(2S)0  mu-  anti-nu_mu                 ISGW2;
+0.000036   rho(2S)0 mu-  anti-nu_mu                 ISGW2;
+0.000036   omega(2S) mu- anti-nu_mu                 ISGW2;
+Enddecay
+#
+Decay myB+
+0.000090   pi0      e+   nu_e      PHOTOS  ISGW2;
+0.000080   eta      e+   nu_e      PHOTOS  ISGW2;
+0.000125   rho0     e+   nu_e      PHOTOS  ISGW2;
+0.000125   omega    e+   nu_e      PHOTOS  ISGW2;
+0.000050   eta'     e+   nu_e      PHOTOS  ISGW2;
+0.000076   a_10     e+   nu_e      PHOTOS  ISGW2;
+0.000095   b_10     e+   nu_e      PHOTOS  ISGW2;
+0.000004   a_00     e+   nu_e      PHOTOS  ISGW2;
+0.000028   a_20     e+   nu_e      PHOTOS  ISGW2;
+0.000003   f_0      e+   nu_e      PHOTOS  ISGW2;
+0.000003   f'_0     e+   nu_e      PHOTOS  ISGW2;
+0.000036   f_1      e+   nu_e      PHOTOS  ISGW2;
+0.000036   f'_1     e+   nu_e      PHOTOS  ISGW2;
+0.000050   h_1      e+   nu_e      PHOTOS  ISGW2;
+0.000050   h'_1     e+   nu_e      PHOTOS  ISGW2;
+0.000016   f_2      e+   nu_e      PHOTOS  ISGW2;
+0.000016   f'_2     e+   nu_e      PHOTOS  ISGW2;
+0.000030   pi(2S)0  e+   nu_e      PHOTOS  ISGW2;
+0.000036   rho(2S)0 e+   nu_e      PHOTOS  ISGW2;
+0.000036   omega(2S) e+  nu_e      PHOTOS  ISGW2;
+0.000090   pi0      mu+  nu_mu              ISGW2;
+0.000080   eta      mu+  nu_mu              ISGW2;
+0.000125   rho0     mu+  nu_mu              ISGW2;
+0.000125   omega    mu+  nu_mu              ISGW2;
+0.000050   eta'     mu+  nu_mu              ISGW2;
+0.000076   a_10     mu+  nu_mu              ISGW2;
+0.000095   b_10     mu+  nu_mu              ISGW2;
+0.000004   a_00     mu+  nu_mu              ISGW2;
+0.000028   a_20     mu+  nu_mu              ISGW2;
+0.000003   f_0      mu+  nu_mu              ISGW2;
+0.000003   f'_0     mu+  nu_mu              ISGW2;
+0.000036   f_1      mu+  nu_mu              ISGW2;
+0.000036   f'_1     mu+  nu_mu              ISGW2;
+0.000050   h_1      mu+  nu_mu              ISGW2;
+0.000050   h'_1     mu+  nu_mu              ISGW2;
+0.000016   f_2      mu+  nu_mu              ISGW2;
+0.000016   f'_2     mu+  nu_mu              ISGW2;
+0.000030   pi(2S)0  mu+  nu_mu              ISGW2;
+0.000036   rho(2S)0 mu+  nu_mu              ISGW2;
+0.000036   omega(2S) mu+ nu_mu              ISGW2;
+Enddecay
+#
+Decay pi(2S)+
+0.3500   rho0 pi+                         PHSP;
+0.3500   rho+ pi0                         PHSP;
+0.2000   pi+  pi+ pi-                     PHSP;
+0.1000   pi+  pi0 pi0                     PHSP;
+Enddecay
+Decay pi(2S)-
+0.3500   rho0 pi-                         PHSP;
+0.3500   rho- pi0                         PHSP;
+0.2000   pi-  pi+ pi-                     PHSP;
+0.1000   pi-  pi0 pi0                     PHSP;
+Enddecay
+Decay pi(2S)0
+0.3500   rho+ pi-                         PHSP;
+0.3500   rho- pi+                         PHSP;
+0.2000   pi+ pi- pi0                      PHSP;
+0.1000   pi0 pi0 pi0                      PHSP;
+Enddecay
+#
+Decay rho(2S)+
+0.4000   pi+ pi0                         PHSP;
+0.4000   pi+ pi+ pi- pi0                 PHSP;
+0.2000   pi+ pi0 pi0 pi0                 PHSP;
+Enddecay
+Decay rho(2S)-
+0.4000   pi- pi0                         PHSP;
+0.4000   pi- pi+ pi- pi0                 PHSP;
+0.2000   pi- pi0 pi0 pi0                 PHSP;
+Enddecay
+Decay rho(2S)0
+0.4000   pi+ pi-                         PHSP;
+0.3500   pi+ pi- pi+ pi-                 PHSP;
+0.1500   pi+ pi- pi0 pi0                 PHSP;
+0.1000   pi0 pi0 pi0 pi0                 PHSP;
+Enddecay
+Decay omega(2S)
+0.5000   rho+ pi-                        PHSP;
+0.5000   rho- pi+                        PHSP;
+Enddecay
+#
+End

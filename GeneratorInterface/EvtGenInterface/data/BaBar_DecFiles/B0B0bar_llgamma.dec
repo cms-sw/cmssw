@@ -1,0 +1,36 @@
+############################################################
+#                                                          #
+#                                                          #
+#  Up(4S) -> B0   B0bar + CC                               #
+#            |    |                                        #
+#            |    `->  l- l+ gamma (l = e or mu)           #
+#            |                                             #
+#            `->X                                          #
+#                                                          #
+#                                                          #
+# Author: Dieter Best, UC Irvine (best@slac.stanford.edu)  #
+# Created: 19.July.2002                                    #
+############################################################
+#
+Alias      myB0      B0
+Alias      myAnti-B0 anti-B0
+ChargeConj myB0      myAnti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myAnti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay myB0
+0.50000  e+   e- gamma  PHSP;
+0.50000  mu+ mu- gamma  PHSP;
+Enddecay 
+#
+Decay myAnti-B0
+0.50000  e+   e- gamma  PHSP;
+0.50000  mu+ mu- gamma  PHSP;
+Enddecay 
+#
+End
+
+
+

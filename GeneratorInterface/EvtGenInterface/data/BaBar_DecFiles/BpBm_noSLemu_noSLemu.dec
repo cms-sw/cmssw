@@ -1,0 +1,575 @@
+###############################################################################
+# Decay file for Y(4S) -> B+ B-
+#                         |  |
+#                         |   --> non-SL
+#                          -----> non-SL
+#
+# Prepared by D. Kirkby (kirkby@hep.stanford.edu)
+# Last change 15 Nov 1999
+###############################################################################
+
+## define aliases with restricted decay modes (which are specified below)
+
+Alias B+_SL-e   B+
+Alias B+_SL-mu  B+
+Alias B+_no-SL  B+
+
+Alias B-_SL-e   B-
+Alias B-_SL-mu  B-
+Alias B-_no-SL  B-
+
+## define charge conjugate relationships between aliases
+
+ChargeConj B+_SL-e  B-_SL-e
+ChargeConj B+_SL-mu B-_SL-mu
+ChargeConj B+_no-SL B-_no-SL
+
+## Y(4S) decays only to B0 B0bar, with mixing but no CP violation
+
+Decay Upsilon(4S)
+  1.0  B+_no-SL B-_no-SL  VSS;
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B+ which is forced to decay semileptonically into an
+## electron (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B+_SL-e
+
+# b -> c e+ nu (10.4%)
+
+0.0490   anti-D*0    e+   nu_e        PHOTOS  HQET 0.92 1.18 0.72;
+0.0210   anti-D0    e+   nu_e        PHOTOS  ISGW2;
+0.0040   anti-D_10   e+   nu_e        PHOTOS  ISGW2;
+0.0040   anti-D_0*0   e+   nu_e        PHOTOS  ISGW2;
+0.0070   anti-D'_10   e+   nu_e        PHOTOS  ISGW2;
+0.0070   anti-D_2*0   e+   nu_e        PHOTOS  ISGW2;
+0.0020   D*-  pi+   e+   nu_e    PHOTOS  GOITY_ROBERTS;
+0.0010   anti-D*0  pi0   e+   nu_e    PHOTOS  GOITY_ROBERTS;
+0.0060   D-   pi+   e+   nu_e    PHOTOS  GOITY_ROBERTS;
+0.0030   anti-D0  pi0   e+   nu_e    PHOTOS  GOITY_ROBERTS;
+
+# b -> u e+ nu (0.0891%)
+
+0.000032   pi0    e+   nu_e      PHOTOS  ISGW2;
+0.000012   eta    e+   nu_e      PHOTOS  ISGW2;
+0.000125   rho0   e+   nu_e      PHOTOS  ISGW2;
+0.000125   omega   e+   nu_e      PHOTOS  ISGW2;
+0.000020   eta'   e+   nu_e      PHOTOS  ISGW2;
+0.000137   a_10    e+   nu_e      PHOTOS  ISGW2;
+0.000080   b_10    e+   nu_e      PHOTOS  ISGW2;
+0.000012   a_00    e+   nu_e      PHOTOS  ISGW2;
+0.000006   f_0     e+   nu_e      PHOTOS  ISGW2;
+0.000006   f'_0    e+   nu_e      PHOTOS  ISGW2;
+0.000068   f_1     e+   nu_e      PHOTOS  ISGW2;
+0.000068   f'_1    e+   nu_e      PHOTOS  ISGW2;
+0.000040   h_1     e+   nu_e      PHOTOS  ISGW2;
+0.000040   h'_1    e+   nu_e      PHOTOS  ISGW2;
+0.000060   f_2     e+   nu_e      PHOTOS  ISGW2;
+0.000060   f'_2    e+   nu_e      PHOTOS  ISGW2;
+0.000000   anti-D(2S)0 e+   nu_e      PHOTOS  ISGW2;
+0.000000   anti-D*(2S)0 e+   nu_e      PHOTOS  ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B+ which is forced to decay semileptonically into a
+## muon (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B+_SL-mu
+
+# b -> c mu+ nu (10.4%)
+
+0.0490   anti-D*0    mu+  nu_mu        PHOTOS        HQET 0.92 1.18 0.72;
+0.0210   anti-D0    mu+  nu_mu         PHOTOS       ISGW2;
+0.0040   anti-D_10   mu+  nu_mu        PHOTOS        ISGW2;
+0.0040   anti-D_0*0   mu+  nu_mu       PHOTOS         ISGW2;
+0.0070   anti-D'_10   mu+  nu_mu       PHOTOS         ISGW2;
+0.0070   anti-D_2*0   mu+  nu_mu       PHOTOS         ISGW2;
+0.0020   D*-  pi+   mu+   nu_mu      PHOTOS     GOITY_ROBERTS;
+0.0010   anti-D*0  pi0   mu+   nu_mu   PHOTOS        GOITY_ROBERTS;
+0.0060   D-   pi+   mu+   nu_mu      PHOTOS     GOITY_ROBERTS;
+0.0030   anti-D0  pi0   mu+   nu_mu    PHOTOS       GOITY_ROBERTS;
+
+# b -> u mu+ nu (0.0891%)
+
+0.000032   pi0    mu+  nu_mu      PHOTOS        ISGW2;
+0.000012   eta    mu+  nu_mu      PHOTOS        ISGW2;
+0.000125   rho0   mu+  nu_mu      PHOTOS        ISGW2;
+0.000125   omega   mu+  nu_mu     PHOTOS         ISGW2;
+0.000020   eta'   mu+  nu_mu      PHOTOS        ISGW2;
+0.000137   a_10    mu+  nu_mu     PHOTOS         ISGW2;
+0.000080   b_10    mu+  nu_mu     PHOTOS         ISGW2;
+0.000012   a_00    mu+  nu_mu     PHOTOS         ISGW2;
+0.000006   f_0     mu+  nu_mu     PHOTOS         ISGW2;
+0.000006   f'_0    mu+  nu_mu     PHOTOS         ISGW2;
+0.000068   f_1     mu+  nu_mu     PHOTOS         ISGW2;
+0.000068   f'_1    mu+  nu_mu     PHOTOS         ISGW2;
+0.000040   h_1     mu+  nu_mu     PHOTOS         ISGW2;
+0.000040   h'_1    mu+  nu_mu     PHOTOS         ISGW2;
+0.000060   f_2     mu+  nu_mu     PHOTOS         ISGW2;
+0.000060   f'_2    mu+  nu_mu      PHOTOS        ISGW2;
+0.000000   anti-D(2S)0 mu+  nu_mu   PHOTOS           ISGW2;
+0.000000   anti-D*(2S)0 mu+  nu_mu   PHOTOS           ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B- which is forced to decay semileptonically into an
+## electron (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B-_SL-e
+
+# b -> c e- nu (10.4%)
+
+0.0490   D*0    e-   anti-nu_e         PHOTOS  HQET 0.92 1.18 0.72;
+0.0210   D0     e-   anti-nu_e         PHOTOS  ISGW2;
+0.0040   D_10   e-   anti-nu_e         PHOTOS  ISGW2;
+0.0040   D_0*0   e-   anti-nu_e         PHOTOS  ISGW2;
+0.0070   D'_10   e-   anti-nu_e         PHOTOS  ISGW2;
+0.0070   D_2*0   e-   anti-nu_e         PHOTOS  ISGW2;
+0.0020   D*+  pi-   e-   anti-nu_e     PHOTOS  GOITY_ROBERTS;
+0.0010   D*0  pi0   e-   anti-nu_e     PHOTOS  GOITY_ROBERTS;
+0.0060   D+   pi-   e-   anti-nu_e     PHOTOS  GOITY_ROBERTS;
+0.0030   D0   pi0   e-   anti-nu_e     PHOTOS  GOITY_ROBERTS;
+
+# b -> u e- nu (0.0891%)
+
+0.000032   pi0    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000012   eta    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000125   rho0   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000125   omega   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000020   eta'   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000137   a_10    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000080   b_10    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000012   a_00    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000006   f_0     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000006   f'_0    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000068   f_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000068   f'_1    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000040   h_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000040   h'_1    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000060   f_2     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000060   f'_2    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   D(2S)0 e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   D*(2S)0 e-   anti-nu_e        PHOTOS   ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B- which is forced to decay semileptonically into a
+## muon (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B-_SL-mu
+
+# b -> c mu- nu (10.4%)
+
+0.0490   D*0   mu-  anti-nu_mu        PHOTOS          HQET 0.92 1.18 0.72;
+0.0210   D0    mu-  anti-nu_mu        PHOTOS          ISGW2;
+0.0040   D_10  mu-  anti-nu_mu        PHOTOS          ISGW2;
+0.0040   D_0*0  mu-  anti-nu_mu       PHOTOS           ISGW2;
+0.0070   D'_10  mu-  anti-nu_mu       PHOTOS           ISGW2;
+0.0070   D_2*0  mu-  anti-nu_mu       PHOTOS           ISGW2;
+0.0020   D*+   pi-   mu-   anti-nu_mu  PHOTOS         GOITY_ROBERTS;
+0.0010   D*0   pi0   mu-   anti-nu_mu  PHOTOS         GOITY_ROBERTS;
+0.0060   D+    pi-   mu-   anti-nu_mu  PHOTOS         GOITY_ROBERTS;
+0.0030   D0    pi0   mu-   anti-nu_mu  PHOTOS         GOITY_ROBERTS;
+
+# b -> u mu- nu (0.0891%)
+
+0.000032   pi0    mu-  anti-nu_mu       PHOTOS          ISGW2;
+0.000012   eta    mu-  anti-nu_mu       PHOTOS          ISGW2;
+0.000125   rho0   mu-  anti-nu_mu       PHOTOS          ISGW2;
+0.000125   omega   mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000020   eta'   mu-  anti-nu_mu       PHOTOS          ISGW2;
+0.000137   a_10    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000080   b_10    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000012   a_00    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000006   f_0     mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000006   f'_0    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000068   f_1     mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000068   f'_1    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000040   h_1     mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000040   h'_1    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000060   f_2     mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000060   f'_2    mu-  anti-nu_mu      PHOTOS           ISGW2;
+0.000000   D(2S)0 mu-  anti-nu_mu       PHOTOS          ISGW2;
+0.000000   D*(2S)0 mu-  anti-nu_mu      PHOTOS           ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B+ which is forced to NOT decay semileptonically into either
+## an electron or muon (79.0% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B+_no-SL
+
+# b -> c tau+ nu (2.96%)
+
+0.0160   anti-D*0    tau+ nu_tau                ISGW2;
+0.0070   anti-D0    tau+ nu_tau                ISGW2;
+0.0013   anti-D_10   tau+ nu_tau                ISGW2;
+0.0013   anti-D_0*0   tau+ nu_tau                ISGW2;
+0.0020   anti-D'_10   tau+ nu_tau                ISGW2;
+0.0020   anti-D_2*0   tau+ nu_tau                ISGW2;
+
+# b -> u tau+ nu (0.0298%)
+
+0.000010   pi0    tau+ nu_tau              ISGW2;
+0.000004   eta    tau+ nu_tau              ISGW2;
+0.000042   rho0   tau+ nu_tau              ISGW2;
+0.000042   omega   tau+ nu_tau              ISGW2;
+0.000007   eta'   tau+ nu_tau              ISGW2;
+0.000046   a_10    tau+ nu_tau              ISGW2;
+0.000027   b_10    tau+ nu_tau              ISGW2;
+0.000004   a_00    tau+ nu_tau              ISGW2;
+0.000002   f_0     tau+ nu_tau              ISGW2;
+0.000002   f'_0    tau+ nu_tau              ISGW2;
+0.000023   f_1     tau+ nu_tau              ISGW2;
+0.000023   f'_1    tau+ nu_tau              ISGW2;
+0.000013   h_1     tau+ nu_tau              ISGW2;
+0.000013   h'_1    tau+ nu_tau              ISGW2;
+0.000020   f_2     tau+ nu_tau              ISGW2;
+0.000020   f'_2    tau+ nu_tau              ISGW2;
+0.000000   anti-D(2S)0 tau+ nu_tau              ISGW2;
+0.000000   anti-D*(2S)0 tau+ nu_tau              ISGW2;
+
+# b -> tau+ nu (0.005%)
+
+0.000050   tau+ nu_tau                     SLN;
+
+# Exclusive hadronic b->u (0.0037%)
+
+0.000026   pi+   pi0   pi0                   CB3PI-P00 alpha;
+0.000011   pi+   pi+   pi-                   CB3PI-MPP alpha;
+
+# B -> cc= s (1.95%)
+
+0.0009   J/psi K+                         SVS;
+0.0015   J/psi K*+                        SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010   J/psi K0  pi+                    PHSP;
+0.0005   J/psi K+  pi0                    PHSP;
+0.0014   J/psi K+  pi-  pi+               PHSP;
+0.0007   J/psi K+  pi0  pi0               PHSP;
+0.0007   J/psi K0  pi+  pi0               PHSP;
+0.0005   J/psi K'_1+                       PHSP;
+0.0005   J/psi K_2*+                       PHSP;
+#
+0.0006   psi(2S) K+                        SVS;
+0.0015   psi(2S) K*+                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0004   psi(2S) K0  pi+                   PHSP;
+0.0002   psi(2S) K+  pi0                   PHSP;
+0.0004   psi(2S) K+  pi-  pi+              PHSP;
+0.0002   psi(2S) K+  pi0  pi0              PHSP;
+0.0002   psi(2S) K0  pi+  pi0              PHSP;
+#
+0.0002    eta_c  K+                      PHSP;
+0.0003    K*+   eta_c                    SVS;
+0.0002    eta_c  K0  pi+                 PHSP;
+0.0001    eta_c  K+  pi0                 PHSP;
+0.0002    eta_c  K+  pi-  pi+            PHSP;
+0.0001    eta_c  K+  pi0  pi0            PHSP;
+0.0001    eta_c  K0  pi+  pi0            PHSP;
+#
+0.0002    chi_c0  K+                      PHSP;
+0.0003    K*+   chi_c0                    SVS;
+0.0002    chi_c0  K0  pi+                 PHSP;
+0.0001    chi_c0  K+  pi0                 PHSP;
+0.0002    chi_c0  K+  pi-  pi+            PHSP;
+0.0001    chi_c0  K+  pi0  pi0            PHSP;
+0.0001    chi_c0  K0  pi+  pi0            PHSP;
+#
+0.0006    chi_c1  K+                      SVS;
+0.0012    chi_c1  K*+                     SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0004    chi_c1  K0  pi+                 PHSP;
+0.0002    chi_c1  K+  pi0                 PHSP;
+0.0004    chi_c1  K+  pi-  pi+            PHSP;
+0.0002    chi_c1  K+  pi0  pi0            PHSP;
+0.0002    chi_c1  K0  pi+  pi0            PHSP;
+#
+0.0004    chi_c2  K+                      PHSP;
+0.0009    chi_c2  K*+                     PHSP;
+0.0004    chi_c2  K0  pi+                 PHSP;
+0.0002    chi_c2  K+  pi0                 PHSP;
+0.0004    chi_c2  K+  pi-  pi+            PHSP;
+0.0002    chi_c2  K+  pi0  pi0            PHSP;
+0.0002    chi_c2  K0  pi+  pi0            PHSP;
+
+# b -> c (sc=) -> D Ds X (10.14%)
+
+0.0096    anti-D0  D_s+                      PHSP;
+0.0102    anti-D*0  D_s+                      SVS;
+0.0120    anti-D_10 D_s+                      SVS;
+0.0094    D_s*+ anti-D0                      SVS;
+0.0174    D_s*+ anti-D*0                      SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0060    D_s+  D-  pi+                  PHSP;
+0.0030    D_s+  anti-D0 pi0                  PHSP;
+0.0060    D_s*+ D-  pi+                  PHSP;
+0.0030    D_s*+ anti-D0 pi0                  PHSP;
+0.0055    D_s+  D-  pi+  pi0             PHSP;
+0.0055    D_s+  anti-D0 pi+  pi-             PHSP;
+0.0014    D_s+  anti-D0 pi0  pi0             PHSP;
+0.0055    D_s*+ D-  pi+  pi0             PHSP;
+0.0055    D_s*+ anti-D0 pi+  pi-             PHSP;
+0.0014    D_s*+ anti-D0 pi0  pi0             PHSP;
+
+# b -> c (sc=) -> D D= K X (8%)
+
+0.0025   anti-D0  D0  K+                    PHSP;
+0.0025   anti-D0  D+  K0                    PHSP;
+0.0025   anti-D0  D0  K*+                   PHSP;
+0.0025   anti-D0  D+  K*0                   PHSP;
+#
+0.0050   anti-D*0  D0  K+                   PHSP;
+0.0050   anti-D*0  D+  K0                   PHSP;
+0.0050   anti-D0  D*0  K+                   PHSP;
+0.0050   anti-D0  D*+  K0                   PHSP;
+#
+0.0025   anti-D*0  D0  K*+                  PHSP;
+0.0025   anti-D*0  D+  K*0                  PHSP;
+0.0025   anti-D0  D*0  K*+                  PHSP;
+0.0025   anti-D0  D*+  K*0                  PHSP;
+#
+0.0150   anti-D*0  D*0  K+                  PHSP;
+0.0150   anti-D*0  D*+  K0                  PHSP;
+0.0050   anti-D*0  D*0  K*+                 PHSP;
+0.0050   anti-D*0  D*+  K*0                 PHSP;
+
+# B -> D(*) X  Exclusive Modes (8.26%)
+
+0.0050   anti-D*0  pi+                       SVS;
+0.0048   anti-D0  pi+                       PHSP;
+0.0132   anti-D0  rho+                      PHSP;
+0.0147   anti-D*0  rho+                      SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0015   anti-D_10 pi+                       PHSP;
+0.0007   anti-D_10 rho+                      PHSP;
+0.0005   anti-D0  pi0  pi+                  PHSP;
+0.0005   anti-D*0  pi0  pi+                  PHSP;
+0.0005   D-   pi+  pi+                  PHSP;
+0.0005   D*-  pi+  pi+                  PHSP;
+#
+0.0042   a_1+ anti-D0                        SVS;
+0.0041   anti-D0 rho0 pi+                   PHSP;
+0.0041   anti-D0 pi-  pi+  pi+              PHSP;
+0.0183   anti-D*0 a_1+                        PHSP;
+0.0005   anti-D*0 rho0 pi+                   PHSP;
+0.0005   anti-D*0 pi-  pi+  pi+              PHSP;
+#
+0.0020   D-  rho+  pi+                  PHSP;
+0.0020   D-  pi0   pi+  pi+             PHSP;
+0.0020   D*- rho+  pi+                  PHSP;
+0.0020   D*- pi0   pi+  pi+             PHSP;
+0.0005   anti-D*0 rho+  pi0                  PHSP;
+0.0005   anti-D*0 pi+   pi0  pi0             PHSP;
+
+# Lam_c X  / Sigma_c X (4.0%)
+
+0.04000       anti-cd_1       uu_1         JETSET 23;
+
+# Xi_c X (2.4%)
+
+0.02400       anti-cs_1       uu_1         JETSET 23;
+
+# misc fragmentation (41.277%)
+
+0.33327         u       anti-d  anti-c          u       JETSET         48;
+0.04300         u       anti-d  anti-c          u       JETSET         25;
+0.02250         u       anti-s  anti-c          u       JETSET         23;
+0.00000         c       anti-s  anti-c          u       JETSET         13;
+0.00400         c       anti-d  anti-c          u       JETSET         13;
+0.00600         u       anti-d  anti-u          u       JETSET         48;
+0.00400         c       anti-s  anti-u          u       JETSET         48;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B+ which is forced to NOT decay semileptonically into either
+## an electron or muon (79.0% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B-_no-SL
+
+# b -> c tau- nu (2.96%)
+
+0.0160   D*0    tau- anti-nu_tau                 ISGW2;
+0.0070   D0     tau- anti-nu_tau                 ISGW2;
+0.0013   D_10   tau- anti-nu_tau                 ISGW2;
+0.0013   D_0*0   tau- anti-nu_tau                 ISGW2;
+0.0020   D'_10   tau- anti-nu_tau                 ISGW2;
+0.0020   D_2*0   tau- anti-nu_tau                 ISGW2;
+
+# b -> u tau- nu (0.0298%)
+
+0.000010   pi0    tau- anti-nu_tau                 ISGW2;
+0.000004   eta    tau- anti-nu_tau                 ISGW2;
+0.000042   rho0   tau- anti-nu_tau                 ISGW2;
+0.000042   omega   tau- anti-nu_tau                 ISGW2;
+0.000007   eta'   tau- anti-nu_tau                 ISGW2;
+0.000046   a_10    tau- anti-nu_tau                 ISGW2;
+0.000027   b_10    tau- anti-nu_tau                 ISGW2;
+0.000004   a_00    tau- anti-nu_tau                 ISGW2;
+0.000002   f_0     tau- anti-nu_tau                 ISGW2;
+0.000002   f'_0    tau- anti-nu_tau                 ISGW2;
+0.000023   f_1     tau- anti-nu_tau                 ISGW2;
+0.000023   f'_1    tau- anti-nu_tau                 ISGW2;
+0.000013   h_1     tau- anti-nu_tau                 ISGW2;
+0.000013   h'_1    tau- anti-nu_tau                 ISGW2;
+0.000020   f_2     tau- anti-nu_tau                 ISGW2;
+0.000020   f'_2    tau- anti-nu_tau                 ISGW2;
+0.000000   D(2S)0 tau- anti-nu_tau                 ISGW2;
+0.000000   D*(2S)0 tau- anti-nu_tau                 ISGW2;
+
+# b -> tau- nu (0.005%)
+
+0.000050   tau- anti-nu_tau                        SLN;
+
+# Exclusive hadronic b->u (0.0037%)
+
+0.000026   pi-   pi0   pi0                   CB3PI-P00 alpha;
+0.000011   pi-   pi-   pi+                   CB3PI-MPP alpha;
+
+# B -> cc= s (1.95%)
+
+0.0009   J/psi K-                         SVS;
+0.0015   J/psi K*-                        SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010   J/psi anti-K0   pi-                    PHSP;
+0.0005   J/psi K-  pi0                    PHSP;
+0.0014   J/psi K-  pi+  pi-               PHSP;
+0.0007   J/psi K-  pi0  pi0               PHSP;
+0.0007   J/psi anti-K0   pi-  pi0               PHSP;
+0.0005   J/psi K'_1-                       PHSP;
+0.0005   J/psi K_2*-                       PHSP;
+#
+0.0006   psi(2S) K-                        SVS;
+0.0015   psi(2S) K*-                       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0004   psi(2S) anti-K0   pi-                   PHSP;
+0.0002   psi(2S) K-  pi0                   PHSP;
+0.0004   psi(2S) K-  pi+  pi-              PHSP;
+0.0002   psi(2S) K-  pi0  pi0              PHSP;
+0.0002   psi(2S) anti-K0   pi-  pi0              PHSP;
+#
+0.0002    eta_c  K-                      PHSP;
+0.0003    K*-   eta_c                    SVS;
+0.0002    eta_c  anti-K0   pi-                 PHSP;
+0.0001    eta_c  K-  pi0                 PHSP;
+0.0002    eta_c  K-  pi+  pi-            PHSP;
+0.0001    eta_c  K-  pi0  pi0            PHSP;
+0.0001    eta_c  anti-K0   pi-  pi0            PHSP;
+#
+0.0002    chi_c0  K-                      PHSP;
+0.0003    K*-   chi_c0                    SVS;
+0.0002    chi_c0  anti-K0   pi-                 PHSP;
+0.0001    chi_c0  K-  pi0                 PHSP;
+0.0002    chi_c0  K-  pi+  pi-            PHSP;
+0.0001    chi_c0  K-  pi0  pi0            PHSP;
+0.0001    chi_c0  anti-K0   pi-  pi0            PHSP;
+#
+0.0006    chi_c1  K-                      SVS;
+0.0012    chi_c1  K*-                     SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0004    chi_c1  anti-K0   pi-                 PHSP;
+0.0002    chi_c1  K-  pi0                 PHSP;
+0.0004    chi_c1  K-  pi+  pi-            PHSP;
+0.0002    chi_c1  K-  pi0  pi0            PHSP;
+0.0002    chi_c1  anti-K0   pi-  pi0            PHSP;
+#
+0.0004    chi_c2  K-                      PHSP;
+0.0009    chi_c2  K*-                     PHSP;
+0.0004    chi_c2  anti-K0   pi-                 PHSP;
+0.0002    chi_c2  K-  pi0                 PHSP;
+0.0004    chi_c2  K-  pi+  pi-            PHSP;
+0.0002    chi_c2  K-  pi0  pi0            PHSP;
+0.0002    chi_c2  anti-K0   pi-  pi0            PHSP;
+
+# b -> c (sc=) -> D Ds X (10.14%)
+
+0.0096    D0   D_s-                      PHSP;
+0.0102    D*0  D_s-                      SVS;
+0.0120    D_10 D_s-                      SVS;
+0.0094    D_s*- D0                       SVS;
+0.0174    D_s*- D*0                      SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0060    D_s-  D+  pi-                  PHSP;
+0.0030    D_s-  D0  pi0                  PHSP;
+0.0060    D_s*- D+  pi-                  PHSP;
+0.0030    D_s*- D0  pi0                  PHSP;
+0.0055    D_s-  D+  pi-  pi0             PHSP;
+0.0055    D_s-  D0  pi-  pi+             PHSP;
+0.0014    D_s-  D0  pi0  pi0             PHSP;
+0.0055    D_s*- D+  pi-  pi0             PHSP;
+0.0055    D_s*- D0  pi-  pi+             PHSP;
+0.0014    D_s*- D0  pi0  pi0             PHSP;
+
+# b -> c (sc=) -> D D= K X (8%)
+
+0.0025   D0  anti-D0  K-                 PHSP;
+0.0025   D0  D-   anti-K0                PHSP;
+0.0025   D0  anti-D0  K*-                PHSP;
+0.0025   D0  D-   anti-K*0               PHSP;
+#
+0.0050   D*0 anti-D0  K-                 PHSP;
+0.0050   D*0 D-   anti-K0                PHSP;
+0.0050   D0  anti-D*0  K-                PHSP;
+0.0050   D0  D*-  anti-K0                PHSP;
+#
+0.0025   D*0 anti-D0  K*-                PHSP;
+0.0025   D*0 D-   anti-K*0               PHSP;
+0.0025   D0  anti-D*0  K*-               PHSP;
+0.0025   D0  D*-  anti-K*0               PHSP;
+#
+0.0150   D*0  anti-D*0  K-               PHSP;
+0.0150   D*0  D*-  anti-K0               PHSP;
+0.0050   D*0  anti-D*0  K*-              PHSP;
+0.0050   D*0  D*-  anti-K*0              PHSP;
+
+# B -> D(*) X  Exclusive Modes (8.26%)
+
+0.0050   D*0 pi-                        SVS;
+0.0048   D0   pi-                       PHSP;
+0.0132   D0   rho-                      PHSP;
+0.0147   D*0  rho-                      SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0015   D_10 pi-                       PHSP;
+0.0007   D_10 rho-                      PHSP;
+0.0005   D0  pi0  pi-                   PHSP;
+0.0005   D*0 pi0  pi-                   PHSP;
+0.0005   D+  pi-  pi-                   PHSP;
+0.0005   D*+ pi-  pi-                   PHSP;
+#
+0.0042   a_1- D0                         SVS;
+0.0041   D0  rho0 pi-                   PHSP;
+0.0041   D0  pi+  pi-  pi-              PHSP;
+0.0183   D*0 a_1-                        PHSP;
+0.0005   D*0 rho0 pi-                   PHSP;
+0.0005   D*0 pi+  pi-  pi-              PHSP;
+#
+0.0020   D+  rho-  pi-                  PHSP;
+0.0020   D+  pi0   pi-  pi-             PHSP;
+0.0020   D*+ rho-  pi-                  PHSP;
+0.0020   D*+ pi0   pi-  pi-             PHSP;
+0.0005   D*0 rho-  pi0                  PHSP;
+0.0005   D*0 pi-   pi0  pi0             PHSP;
+
+# Lam_c X  / Sigma_c X (4.0%)
+
+0.04000        cd_1       anti-uu_1         JETSET 23;
+
+# Xi_c X (2.4%)
+
+0.02400        cs_1       anti-uu_1         JETSET 23;
+
+# misc fragmentation (41.277%)
+
+0.33327         anti-u       d  c          anti-u       JETSET         48;
+0.04300         anti-u       d  c          anti-u       JETSET         25;
+0.02250         anti-u       s  c          anti-u       JETSET         23;
+0.00000         anti-c       s  c          anti-u       JETSET         13;
+0.00400         anti-c       d  c          anti-u       JETSET         13;
+0.00600         anti-u       d  u          anti-u       JETSET         48;
+0.00400         anti-c       s  u          anti-u       JETSET         48;
+
+Enddecay
+
+End

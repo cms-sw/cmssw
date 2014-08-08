@@ -1,0 +1,41 @@
+           #####################################################
+           #                                                   #
+           #Decay:anti-B0(B0)-> eta' phi    TheOtherB0-> X     #
+           #                    |     |                        #
+           #                    |     |-> K+ K-                #
+           #                    |                              #
+           #                    |-> rho0 gamma                 #
+           #                         |-> pi+ pi-               #
+           #                                                   #
+           #                                                   #  
+           #                                                   #
+           # Author: P. Bloom                                  #
+           # Created:                25/September/01           #
+           #####################################################
+
+Alias MyB0bar  anti-B0
+Alias MyB0  B0
+Alias Myeta' eta'
+Alias Myphi phi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000	Myphi Myeta'                     SVS;
+Enddecay
+#
+Decay MyB0bar
+1.0000	Myphi Myeta'                     SVS;
+Enddecay
+#
+Decay Myeta'
+1.0000    rho0 gamma             SVP_HELAMP  1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myphi
+1.0000	K+ K-                     VSS;
+Enddecay
+#
+End

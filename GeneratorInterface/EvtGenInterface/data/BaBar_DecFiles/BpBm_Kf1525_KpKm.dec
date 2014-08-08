@@ -1,0 +1,43 @@
+##############################################################
+#                                                            #
+# Decay:      B+ -> f'_2 K+, f'_2 -> K+K-                    #
+#             B- -> generic                        +cc       #
+#                                                            #
+# Author: Andrei Gritsan                                     #
+# e-mail: gritsan@slac.stanford.edu                          #
+# Created:  12/18/2001                                       #
+#                                                            #
+##############################################################
+#                                                            #
+#               id  mass/GeV width/GeV max_Dm/GeV            #
+# Meson f'_2     335  1.525  0.076     0.2                   #
+#                                                            #
+##############################################################
+#
+Alias Myetap f'_2
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  Myetap  K+          STS;
+Enddecay
+#
+Decay MyB-
+1.0000  Myetap  K-          STS;
+Enddecay
+#
+Decay Myetap
+1.0000   K+   K-            TSS;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-             PHSP;                   
+Enddecay
+#
+End

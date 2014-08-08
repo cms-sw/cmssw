@@ -1,0 +1,30 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ -> D0 pi+, D0 -> e- e+                      #
+#                                                 #
+# created: F. Yumiceva	                          #
+#          yumiceva@slac.stanford.edu             #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-    VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+1   e-  e+	PHOTOS SLL;
+Enddecay
+#         
+End

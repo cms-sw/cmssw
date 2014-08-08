@@ -1,0 +1,59 @@
+           ########################################################
+           #                                                      #
+           # Decay: B+ -> eta'   K*+   B- -> X  + C.C             #
+           #               |      |                               #
+           #               |      |-> K+ pi0                      #
+           #               |                                      #
+           #               |-> pi+ pi- eta                        #
+           #                            |-> gamma gamma           #
+           #                                                      #
+           #                                                      #  
+           #                                                      #
+           # Author: Paul C. Bloom                                #
+           # Created:  July 18 2001                               #
+           #                                                      #
+           ########################################################
+
+
+
+Alias MyB+          B+
+Alias MyB-          B-
+Alias MyEta'        eta'
+Alias MyEta         eta
+Alias MyKstar+      K*+
+Alias MyKstar-      K*-   
+
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                     VSS;
+0.500   B+       MyB-                     VSS;
+Enddecay
+#
+Decay MyB+
+1.000  MyKstar+  MyEta'        SVS;
+Enddecay
+#
+Decay MyB-
+1.000  MyKstar-  MyEta'        SVS;
+Enddecay
+#
+Decay MyEta'
+1.000  pi+ pi- MyEta                PHSP;
+Enddecay
+#
+Decay MyEta
+1.000  gamma  gamma                 PHSP;
+Enddecay
+#
+Decay MyKstar+
+1.000  K+   pi0                     VSS;
+Enddecay
+#
+Decay MyKstar-
+1.000  K-   pi0                     VSS;
+Enddecay
+#
+End
+
+
+

@@ -1,0 +1,47 @@
+############################################################
+#                                                          #
+# Decay: anti-B0 -> Chic(0)    K0s,       B0 -> X          #
+#                   |-> Jpsi gamma      |->pi+pi-          #
+#                                                          #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author: D. Bernard                                       #
+# Created:                   19/11/03                      #
+#
+############################################################
+#
+#
+Alias MyB0  B0
+Alias Myanti-B0  anti-B0
+Alias MyK_S0  K_S0   
+Alias Mychi_c0 chi_c0
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+#
+Decay MyB0
+1.0000  Mychi_c0  MyK_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;    
+Enddecay 
+#
+Decay Myanti-B0
+1.0000  Mychi_c0  MyK_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;    
+Enddecay 
+#
+Decay Mychi_c0
+1.0    gamma MyJpsi                       PHSP; 
+Enddecay 
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+End

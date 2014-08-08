@@ -1,0 +1,25 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# Make a lot of Ds-> K+ K- pi+-  decays           #
+#                                                 #
+# created: H. Schmuecker Tue Jan 30 2000          #
+#          helmut@slac.stanford.edu               #
+###################################################
+
+
+
+#
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+Decay D_s-
+1.000 K+ K- pi-                PHSP;
+Enddecay
+#
+Decay D_s+
+1.000 K+ K- pi+                PHSP;
+Enddecay
+#
+End

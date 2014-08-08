@@ -1,0 +1,68 @@
+###################################################
+#                                                 #
+# B0 -> K''*+ rho-     (66.67 %)    + c.c.        #
+#    |  |                                         #
+#    |  -> K+ pi0                                 #
+#    |                                            #
+#    |                                            #
+#    -> K''*0 rho0     (33.33 %)                  # 
+#       |                                         #
+#       -> K+ pi-                                 #
+#                                                 #
+# Longitudinal polarisation only.                 #
+#                                                 #
+# Author:  Jan Stark     stark@in2p3.fr           #
+# Created: 12/Sep/2002                            #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> K''* rho
+# using a simple (S)calar to (V)ector-(S)calar model.
+# The K''* only decays to K+/- pi0 and  K+/- pi-/+.
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK''*+ K''*+
+Alias MyK''*- K''*-
+Alias MyK''*0 K''*0
+Alias Myanti-K''*0 anti-K''*0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.0000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+# We want twice as much K''*+ rho- as K''*0 rho0.
+# But BR(K''*+ -> K+ pi0) is half of BR(K''*0 -> K+ pi-),
+# so we use equal probabilities for B0 -> K''*+ pi-
+# and B0 -> K''*0 pi0.
+#
+Decay MyB0
+0.5000 rho- MyK''*+            SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+0.5000 rho0 MyK''*0            SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+0.5000 rho+ MyK''*-            SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+0.5000 rho0 Myanti-K''*0       SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+Decay MyK''*+
+1.0000 K+ pi0                  VSS;
+Enddecay
+#
+Decay MyK''*-
+1.0000 K- pi0                  VSS;
+Enddecay
+#
+Decay MyK''*0
+1.0000 K+ pi-                  VSS;
+Enddecay
+#
+Decay Myanti-K''*0
+1.0000 K- pi+                  VSS;
+Enddecay
+End

@@ -1,0 +1,64 @@
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#                                                        #
+# Decay: B0 -> D- p+ anti-p- pi+,   anti-B0 -> X         #
+#              |                  (  BF, Effective, Rel.)#
+#              |-> anti-K0 pi+    ( 2.89%, 0.991%  8.86%)#
+#                  |-> K_0S       (50.00%)               #
+#                      |-> pi+ pi-(68.60%)               #
+#              |-> K- pi+ pi+     ( 9.00%, 9.00%, 80.42%)#
+#              |-> K- pi+ pi+ pi0 ( 1.20%, 1.20%, 10.72%)#
+#                      Sum        (       11.19%,100.00%)#
+# Comments:                                              #
+#                                                        #
+# Author: T. M. Hong                                     #
+# Date:   20 Nov 03                                      #
+#                                                        #
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+
+Alias MyB0      B0
+Alias Myanti-B0 anti-B0
+Alias MyD-      D-
+Alias MyD+      D+
+Alias MyK0      K0
+Alias Myanti-K0 anti-K0
+Alias MyK_S0    K_S0
+#
+# Always one B0 that decays to the signal 
+#     // Vector to Two Scalars with B0 mixing, dm=deltaM
+Decay Upsilon(4S)
+ 1.00000  B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#                                    // Phase Space model
+Decay MyB0
+ 1.00000  MyD- p+ anti-p- pi+          PHSP;
+Enddecay
+#
+Decay Myanti-B0
+ 1.00000  MyD+ p+ anti-p- pi-          PHSP;
+Enddecay
+#                // resonance structure in Dalitz modeled
+Decay MyD-
+ 0.0886   MyK0  pi-                    PHSP;
+ 0.8042   K+  pi-  pi-                 D_DALITZ;
+ 0.1072   K+  pi-  pi-  pi0            PHSP;
+Enddecay
+#
+Decay MyD+
+ 0.0886   Myanti-K0  pi+               PHSP;
+ 0.8042   K-  pi+  pi+                 D_DALITZ;
+ 0.1072   K-  pi+  pi+  pi0            PHSP;
+Enddecay
+#
+Decay MyK0
+ 1.0000   MyK_S0                       PHSP;
+Enddecay
+#
+Decay Myanti-K0
+ 1.0000   MyK_S0                       PHSP;
+Enddecay
+#
+Decay MyK_S0
+ 1.0000   pi+ pi-                      PHSP;
+Enddecay
+#
+End

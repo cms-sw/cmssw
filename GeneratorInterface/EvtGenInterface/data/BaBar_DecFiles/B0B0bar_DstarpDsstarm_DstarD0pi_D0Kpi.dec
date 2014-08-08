@@ -1,0 +1,54 @@
+####################################################
+#                                                  #
+# Inclusive Ds*D* decay.dec #1                     #
+#                                                  #
+# DsD* signal from B0-antiB0 for SP2               #
+#                                                  #
+# Decay: anti-B0 -> D*(2010)+ Ds*-, B0 -> X  +c.c. #
+#                   |-> D0 pi+                     #
+#                       |-> K-pi+                  #
+# 25 Oct 99                                        #
+# Roy Aleksan (IHB AWG)                            #
+# dm modified: g.london 17/2                       #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 MyD*+ D_s*-                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 MyD0 pi+                      VSS;
+Enddecay
+#
+Decay MyD0
+1.0000 K- pi+                      PHSP;
+Enddecay
+#
+Decay MyB0
+1.0000 MyD*- D_s*+                 SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*-
+1.0000 Myanti-D0 pi-                 VSS;
+Enddecay
+#
+Decay Myanti-D0
+1.0000 K+ pi-                      PHSP;
+Enddecay
+#
+End
+
+

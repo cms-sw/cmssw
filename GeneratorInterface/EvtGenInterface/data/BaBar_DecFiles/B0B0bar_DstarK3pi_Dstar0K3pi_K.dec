@@ -1,0 +1,203 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> D*-D*+K0s anti-B0->X                   #
+#       D*+- ->D0pi+, D*-->D0pi-                      #
+#       D0    -> K3pi                                 #
+#       D0bar -> K3pi                                 #
+# Author: Jean-Pierre Lees                            #
+# Created:                  18/April/2001             #
+#######################################################
+# The MyB list 
+#######################################################
+Alias MyB0  B0
+Alias MyB0B anti-B0
+Alias MyB+  B+
+Alias MyB-  B-
+#######################################################
+# the MyD* list 
+#######################################################
+Alias MyD*0     D*0
+Alias MyD*0kpi    D*0
+Alias MyD*0k3pi   D*0
+Alias MyD*0kpipi0 D*0
+Alias MyD*0B       anti-D*0
+Alias MyD*0Bkpi    anti-D*0
+Alias MyD*0Bk3pi   anti-D*0
+Alias MyD*0Bkpipi0 anti-D*0
+Alias MyD*+        D*+
+Alias MyD*+kpi     D*+
+Alias MyD*+k2pi    D*+
+Alias MyD*+k3pi    D*+
+Alias MyD*+kpipi0  D*+
+Alias MyD*-        D*-
+Alias MyD*-kpi     D*-
+Alias MyD*-k2pi    D*-
+Alias MyD*-k3pi    D*-
+Alias MyD*-kpipi0  D*-
+#######################################################
+# the MyD list 
+#######################################################
+Alias MyD0       D0
+Alias MyD0kpi    D0
+Alias MyD0k3pi   D0
+Alias MyD0kpipi0 D0
+Alias MyD0B      anti-D0
+Alias MyD0Bkpi   anti-D0
+Alias MyD0Bk3pi  anti-D0
+Alias MyD0Bkpipi0 anti-D0
+Alias MyD+      D+
+Alias MyD-      D-
+###################################################################
+# the light resonnances from D0 to k3pi decays now (a1,K*0,K1)
+###################################################################
+Alias Mya_1- a_1-
+Alias Mya_1+ a_1+
+Alias MyK*0  K*0
+Alias MyK*0B anti-K*0
+Alias MyK_1+ K_1+
+Alias MyK_1- K_1-
+Alias myKs   K_S0
+###################################################################
+# The anti particles
+###################################################################
+ChargeConj MyB+ MyB-
+ChargeConj MyB0 MyB0B
+#
+ChargeConj MyD*0       MyD*0B 
+ChargeConj MyD*0kpi    MyD*0Bkpi 
+ChargeConj MyD*0k3pi   MyD*0Bk3pi 
+ChargeConj MyD*0kpipi0 MyD*0Bkpipi0 
+ChargeConj MyD*+       MyD*-   
+ChargeConj MyD*+kpi    MyD*-kpi 
+ChargeConj MyD*+k2pi   MyD*-k2pi
+ChargeConj MyD*+k3pi   MyD*-k3pi 
+ChargeConj MyD*+kpipi0 MyD*-kpipi0 
+#
+ChargeConj MyD0 MyD0B
+ChargeConj MyD0kpi MyD0Bkpi
+ChargeConj MyD0k3pi MyD0Bk3pi
+ChargeConj MyD0kpipi0 MyD0Bkpipi0
+ChargeConj MyD+ MyD-
+#
+ChargeConj MyK*0  MyK*0B 
+ChargeConj Mya_1+ Mya_1-
+ChargeConj MyK_1+ MyK_1-
+###################################################################
+#Branching Fractions now 
+###################################################################
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000   MyD*-k3pi  MyD*0k3pi  K+          PHSP;
+Enddecay
+CDecay MyB0B
+#
+Decay MyD*-
+0.6830    MyD0B pi-                        VSS;
+Enddecay
+CDecay MyD*+
+#
+Decay MyD*-kpi
+0.6830    MyD0Bkpi pi-                     VSS;
+Enddecay
+CDecay MyD*+kpi
+#
+Decay MyD*-k2pi
+0.3170    MyD- pi0                         VSS;
+Enddecay
+CDecay MyD*+k2pi
+#
+Decay MyD*-k3pi
+0.6830    MyD0Bk3pi pi-                    VSS;
+Enddecay
+CDecay MyD*+k3pi
+#
+Decay MyD*-kpipi0
+0.6830    MyD0Bkpipi0 pi-                  VSS;
+Enddecay
+CDecay MyD*+kpipi0
+#
+Decay MyD*0
+0.6190    MyD0  pi0                    VSS;
+0.3810    MyD0  gamma                  VSP_PWAVE;
+Enddecay
+CDecay MyD*0B
+#
+Decay MyD*0k3pi
+0.6190    MyD0k3pi  pi0                    VSS;
+0.3810    MyD0k3pi  gamma                  VSP_PWAVE;
+Enddecay
+CDecay MyD*0Bk3pi
+#
+Decay MyD*0kpi
+0.6190    MyD0kpi  pi0                    VSS;
+0.3810    MyD0kpi  gamma                  VSP_PWAVE;
+Enddecay
+CDecay MyD*0Bkpi
+#
+Decay MyD*0kpipi0
+0.6190    MyD0kpipi0  pi0                    VSS;
+0.3810    MyD0kpipi0  gamma                  VSP_PWAVE;
+Enddecay
+CDecay MyD*0Bkpipi0
+#
+Decay MyD-
+0.0910   K+  pi-  pi-                    D_DALITZ;
+Enddecay
+CDecay MyD+
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+0.0355   Mya_1+ K-                       SVS;
+0.0097   MyK*0B  rho0                    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0021   MyK_1- pi+                      SVS;
+0.0105   MyK*0B pi+  pi-                 PHSP;
+0.0054   K-  pi+  rho0                   PHSP;
+0.0129   K-  pi+  pi+   pi-              PHSP;
+0.1307   K-  pi+  pi0                    D_DALITZ;
+Enddecay
+CDecay MyD0B
+#
+Decay MyD0kpi
+0.0391   K-  pi+                         PHSP;
+Enddecay
+CDecay MyD0Bkpi
+#
+Decay MyD0kpipi0
+0.1307   K-  pi+  pi0                    D_DALITZ;
+Enddecay
+CDecay MyD0Bkpipi0
+#
+Decay MyD0k3pi
+0.0355   Mya_1+ K-                       SVS;
+0.0097   MyK*0B  rho0                    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0021   MyK_1- pi+                      SVS;
+0.0105   MyK*0B pi+  pi-                 PHSP;
+0.0054   K-  pi+  rho0                   PHSP;
+0.0129   K-  pi+  pi+   pi-              PHSP;
+Enddecay
+CDecay MyD0Bk3pi
+#
+Decay Mya_1-
+1.0000   rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+CDecay Mya_1+
+#
+Decay MyK*0
+1.0000      K+  pi-                      VSS;
+Enddecay
+CDecay MyK*0B
+#
+Decay MyK_1+
+0.1400   rho0  K+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0710   MyK*0   pi+                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+CDecay MyK_1-
+#
+Decay myKs
+1.00     pi+    pi-   PHSP;
+Enddecay
+#
+End

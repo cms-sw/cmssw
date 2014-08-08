@@ -1,0 +1,76 @@
+###################################################
+#                                                 #
+# Decay: B0 -> a1+ pi-  + cc                      #
+#              a1+ -> rho+ pi0                    #
+#                                                 #
+# Author: F. Palombo                              #
+# Date:                    20/03/04               #
+###################################################
+
+
+Alias mya1+ a_1+
+Alias mya1- a_1-
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myrho+ rho+
+Alias Myrho- rho-
+ChargeConj mya1+ mya1-
+
+
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+
+
+Decay Upsilon(4S)
+1.000 MyB0 B0                VSS;
+Enddecay
+
+
+Decay MyB0
+1.000 mya1- pi+ SVS_NONCPEIGEN alpha dm 0.5
+                                         1.0 0.0 1.0 0.0
+                                         1.0 0.0 1.0 0.0;
+Enddecay
+
+Decay mya1-
+1.0000   Myrho- pi0                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay mya1+
+1.0000   Myrho+ pi0                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+
+
+Decay Myrho+
+1.000  pi+ pi0                          VSS;
+Enddecay
+
+
+Decay Myrho-
+1.000  pi- pi0                          VSS;
+Enddecay
+
+
+
+#
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

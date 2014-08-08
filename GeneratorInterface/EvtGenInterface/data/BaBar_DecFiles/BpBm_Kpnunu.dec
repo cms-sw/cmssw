@@ -1,0 +1,38 @@
+###################################################################
+# B+ --> K+ nu nubar, B- - > generic                              #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+# +cc                                                             #
+#                                                                 #
+# Author: T.I. Meyer   9/28/00                                 	  #
+# Mail: MEYERTIM@SLAC.STANFORD.EDU
+###################################################################
+#
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+#
+Decay MyB+
+1.0000 K+ nu_e anti-nu_e     PHOTOS PHSP ;
+Enddecay
+# 
+Decay MyB-
+1.0000 K- nu_e anti-nu_e     PHOTOS PHSP ;
+Enddecay
+# 
+#
+End
+
+
+

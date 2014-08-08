@@ -1,0 +1,58 @@
+####################################################
+#                                                  #
+# Decay: B+ -> X    B- ->D*0 l- anti-nu_l          #
+#                        |-> D0 pi0		   #
+#                            |-> K- pi+            #
+#                                                  #
+#	l = e or mu 				   #
+#			+CC			   #
+# Received by J.Richman from Edinburg group        # 
+# (Ali Anjomshoaa)                                 #
+# Mail: RICHMAN@SLAC.STANFORD.EDU                  #
+# Grabbed from M.H. Schune + S. Plaszczynski's file#
+# Created:                  01/11/99               #
+####################################################
+#
+Alias MyB-  B-
+Alias MyD*0 D*0
+Alias MyD0  D0
+Alias MyB+  B+
+Alias MyD*0B anti-D*0
+Alias MyD0B  anti-D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+#
+Decay MyB+
+0.5000   MyD*0B    e+   nu_e         PHOTOS  HQET 0.92 1.18 0.72;
+0.5000   MyD*0B    mu+  nu_mu        PHOTOS  HQET 0.92 1.18 0.72;
+Enddecay
+#
+Decay MyB-
+0.5000   MyD*0    e-   anti-nu_e         PHOTOS  HQET 0.92 1.18 0.72;
+0.5000   MyD*0    mu-  anti-nu_mu        PHOTOS  HQET 0.92 1.18 0.72;
+Enddecay
+#
+Decay MyD*0
+1.0000    MyD0  pi0                        VSS;
+Enddecay
+#
+Decay MyD*0B
+1.0000    MyD0B  pi0                        VSS;
+Enddecay
+#
+#
+# D0-> KPi 
+#
+Decay MyD0
+1.0000   K-  pi+                         PHSP;
+Enddecay
+Decay MyD0B
+1.0000   K+  pi-                         PHSP;
+Enddecay
+#
+#
+End

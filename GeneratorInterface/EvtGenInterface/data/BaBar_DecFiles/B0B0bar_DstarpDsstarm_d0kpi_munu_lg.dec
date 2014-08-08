@@ -1,0 +1,49 @@
+######################################
+#                                    
+# Y(4S) --> B0 anti-B0                
+#
+#    B0 --> Generic decay
+#    anti-B0 --> D*(2010)+ Ds*-
+#
+#       D*(2010)+ --> D0 pi+
+#       Ds*-      --> Ds- gamma       
+#                     
+#           D0  --> K- pi+
+#           Ds- --> mu- nu
+#
+# Mail: PCK@SLAC.STANFORD.EDU
+######################################
+#
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD_s- D_s-
+Alias MyD_s*- D_s*-
+Alias MyD0 D0
+#                                       No B0B0= mixing
+Decay Upsilon(4S)
+1.0   B0  Myanti-B0             VSS;
+Enddecay
+#                                       Long. polarization
+Decay Myanti-B0
+1.0000 MyD*+ MyD_s*-            SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 MyD0 pi+                 VSS;
+Enddecay
+Decay MyD0
+1.0000 K- pi+                   PHSP;
+Enddecay
+#
+Decay MyD_s*-
+1.0000 MyD_s- gamma             VSP_PWAVE;
+Enddecay
+Decay MyD_s-
+1.0000 mu- anti-nu_mu    PHOTOS   SLN;
+Enddecay
+#
+End
+
+
+
+

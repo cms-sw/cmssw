@@ -1,0 +1,49 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> D-D0K+           B0Bar->X  + c.c       #
+#              D- -> K+pi-pi-                         #
+#              D0->K-pi+                              #    
+#                                                     #
+# Author: Sophie  Trincaz                             #
+#                                                     #
+# Created:                  17/March/2000             #
+#######################################################
+#
+Alias MyB0  B0
+Alias Myanti-B0  anti-B0
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+Alias MyD- D-
+Alias Myanti-D0  anti-D0
+Alias MyD+ D+
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000   MyD- MyD0   K+                    PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000   MyD+ Myanti-D0   K-                    PHSP;
+Enddecay
+#
+#
+Decay MyD+
+1.000     K-  pi+  pi+                    D_DALITZ;
+Enddecay
+#
+Decay MyD-
+1.000   K+  pi-  pi-                    D_DALITZ;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+Enddecay
+#
+Decay Myanti-D0
+0.0391   K+  pi-                         PHSP;
+Enddecay
+#
+End

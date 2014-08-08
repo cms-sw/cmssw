@@ -1,0 +1,62 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X    B- ->D1(2420)0 pi-                #
+#			 |->D*+ pi-		      #
+#                           |-> D0 pi+		      #
+#                               |-> K- pi+ pi0        #
+#				+CC		      #
+#                                                     #
+# Contacts:                                           #
+# jong@slac.stanford.edu                              #
+# December 2002					      #
+#                                                     #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyD_10 D_10
+Alias MyD*+ D*+
+Alias MyD0  D0
+Alias MyB+  B+
+Alias Myanti-D_10 anti-D_10
+Alias MyD*- D*-
+Alias Myanti-D0  anti-D0
+#
+Decay Upsilon(4S)
+0.50000 B-  MyB+                          VSS;
+0.50000 B+  MyB-                          VSS;
+Enddecay
+#
+Decay MyB+
+1.0000   Myanti-D_10   pi+		  SVS;
+Enddecay
+#
+Decay MyB-
+1.0000   MyD_10   pi- 			  SVS;
+Enddecay
+#
+Decay Myanti-D_10
+1.0000    MyD*- pi+                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD_10
+1.0000    MyD*+ pi-                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*-
+1.000    Myanti-D0  pi-                   VSS;
+Enddecay
+#
+Decay MyD*+
+1.000    MyD0  pi+                        VSS;
+Enddecay
+#
+Decay MyD0
+1.000   K-  pi+   pi0                     D_DALITZ;
+Enddecay
+#
+Decay Myanti-D0
+1.000   K+  pi-   pi0                     D_DALITZ;
+Enddecay
+#
+End
+

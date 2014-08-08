@@ -1,0 +1,59 @@
+###################################################
+#                                                 #
+# B0 -> K_2*+ pi-     (66.67 %)     + c.c.        #
+#    |   |_ K+ pi0                                #
+#    |                                            #
+#    -> K_2*0 pi0     (33.33 %)                   # 
+#        |_ K+ pi-                                #
+# Author:  Zhitang Yu     yuzt@slac.stanford.edu  #
+# Created: 01/12/2004                             #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> K_2* pi
+# using a simple (S)calar to (T)ensor-(S)calar model.
+# The K_2* decays to a charged K and a pion.
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK_2*+ K_2*+
+Alias MyK_2*- K_2*-
+Alias MyK_2*0 K_2*0
+Alias Myanti-K_2*0 anti-K_2*0
+
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.0000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+0.6667 MyK_2*+ pi-             STS;
+0.3333 MyK_2*0 pi0             STS;
+Enddecay
+#
+Decay Myanti-B0
+0.6667 MyK_2*- pi+             STS;
+0.3333 Myanti-K_2*0 pi0        STS;
+Enddecay
+
+Decay MyK_2*+
+1.0000 K+ pi0                  TSS;
+Enddecay
+#
+Decay MyK_2*-
+1.0000 K- pi0                  TSS;
+Enddecay
+#
+Decay MyK_2*0
+1.0000 K+ pi-                  TSS;
+Enddecay
+#
+Decay Myanti-K_2*0
+1.0000 K- pi+                  TSS;
+Enddecay
+#
+
+End

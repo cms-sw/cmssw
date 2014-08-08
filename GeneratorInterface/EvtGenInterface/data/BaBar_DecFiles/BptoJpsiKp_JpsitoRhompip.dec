@@ -1,0 +1,50 @@
+###################################################################
+#     B+  --> J/psi     K+           B+ --> Generic               #
+#              |                                                  #           
+#              |                                                  # 
+#              +-->rho- pi+                                       #
+#                   |                                             #
+#                   |                                             #
+#                   +--> pi- pi0                                  #
+#                                                                 #
+#  + cc                                                           #
+#                                                                 #
+# mode a5: CLEO values                                            #
+#                                                                 #
+# Author: Walter Toki October 27, 2003                            #
+#         Modified by Aidong Chen Nov. 10, 2003                   #
+###################################################################
+#
+# Define dm 0.464e12
+#
+#
+# Alias particles for specific decays
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyJpsi J/psi
+Alias Myanti-Jpsi J/psi
+#
+Decay Upsilon(4S)
+0.5000 MyB+     B-              VSS;
+0.5000 MyB-     B+              VSS;
+Enddecay
+#
+Decay MyJpsi
+1.000  rho- pi+  PHSP;
+Enddecay
+#
+Decay Myanti-Jpsi
+1.000  rho+ pi-  PHSP;
+Enddecay
+#
+Decay MyB+
+1.000 MyJpsi K+      PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 Myanti-Jpsi K-     PHSP;
+Enddecay
+#
+End

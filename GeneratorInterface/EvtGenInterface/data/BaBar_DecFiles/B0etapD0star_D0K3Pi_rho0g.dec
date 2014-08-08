@@ -1,0 +1,116 @@
+###################################################################
+# 
+#B0->Eta'D*0 Bbar -> X                                               ##     |
+#      --rho0 g, D0->K- pi+ pi- pi+
+#        |
+#         -pi pi
+#                  
+# Author: A.Hicheur           Sept 2001  
+# hicheur@lapp.in2p3.fr                                            #
+###################################################################
+#
+Define beta 0.39
+Define dm .464e12
+
+
+############################################################################
+Alias MyB0B anti-B0
+Alias MyB0 B0
+############################################################################
+Alias MyD*0 D*0  
+Alias MyD*0B anti-D*0 
+Alias MyD0k3pi   D0
+Alias MyD0Bk3pi  anti-D0
+############################################################################
+Alias Myetap eta'
+Alias Myeta eta
+Alias Mya_1- a_1-
+Alias Mya_1+ a_1+
+Alias MyK*0  K*0
+Alias MyK*0B anti-K*0
+Alias MyK_1+ K_1+
+Alias MyK_1- K_1-
+############################################################################
+
+#ChargeConj MyB0 MyB0B
+#
+Decay Upsilon(4S)
+0.415 B0 MyB0B          VSS_MIX dm;
+0.415 MyB0 anti-B0      VSS_MIX dm;
+0.085 B0 MyB0           VSS_MIX dm;
+0.085 anti-B0 MyB0B     VSS_MIX dm;
+Enddecay
+
+Decay MyB0B
+1. MyD*0 Myetap          SVS;
+Enddecay
+
+Decay MyB0
+1. MyD*0B Myetap          SVS;
+Enddecay
+
+Decay Myetap
+1.     rho0 gamma                      SVP_HELAMP  1.0 0.0 1.0 0.0;
+Enddecay
+#
+
+Decay MyD*0
+0.619 MyD0k3pi pi0  VSS;
+0.381 MyD0k3pi  gamma                      VSP_PWAVE;
+Enddecay
+
+Decay MyD*0B
+0.619 MyD0Bk3pi pi0  VSS;
+0.381 MyD0Bk3pi  gamma                      VSP_PWAVE;
+Enddecay
+#
+
+
+Decay MyD0k3pi
+0.0355   Mya_1+ K-                       SVS;
+0.0097   MyK*0B  rho0                    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0021   MyK_1- pi+                      SVS;
+0.0105   MyK*0B pi+  pi-                 PHSP;
+0.0054   K-  pi+  rho0                   PHSP;
+0.0129   K-  pi+  pi+   pi-              PHSP;
+Enddecay
+
+Decay MyD0Bk3pi
+0.0355   Mya_1- K+                       SVS;
+0.0097   MyK*0  rho0                    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0021   MyK_1+ pi-                      SVS;
+0.0105   MyK*0 pi+  pi-                 PHSP;
+0.0054   K+  pi-  rho0                   PHSP;
+0.0129   K+  pi-  pi+   pi-              PHSP;
+Enddecay
+
+#
+Decay Mya_1-
+1.0000   rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay Mya_1+
+1.0000   rho0 pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay MyK*0
+1.0000      K+  pi-                      VSS;
+Enddecay
+
+Decay MyK*0B
+1.0000      K-  pi+                      VSS;
+Enddecay
+
+#
+Decay MyK_1+
+0.1400   rho0  K+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0710   MyK*0   pi+                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay MyK_1-
+0.1400   rho0  K-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0710   MyK*0B   pi-                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+ 
+End 
+

@@ -1,0 +1,144 @@
+###################################################################
+# cocktail eta' pi, eta' pi pi,...
+#B->eta' npi Bbar -> X                                               ##     |
+#      --eta pi pi
+#        |
+#         -gamma gamma
+#                  
+# Author: A.Hicheur           May,25 2001, Modified October 2001  
+# hicheur@lapp.in2p3.fr                                            #
+###################################################################
+#
+Define beta 0.39
+#Define dm .464e12
+
+#
+############################################################################
+Alias MyB0B anti-B0
+Alias MyB0 B0
+Alias MyBplus B+
+Alias MyBminus B-
+############################################################################
+Alias Myetap eta'
+Alias Myeta eta
+############################################################################
+Alias Mya1minus a_1-
+Alias Mya1plus a_1+
+Alias Myb1minus b_1-
+Alias Myb1plus b_1+
+Alias Mya1 a_10
+Alias Myf1 f_1
+############################################################################
+
+Decay Upsilon(4S)
+
+0.250   MyB0       anti-B0                  VSS;
+0.250   B0       MyB0B                  VSS;
+0.250   MyBplus       B-                       VSS;
+0.250   B+   MyBminus             VSS;
+
+Enddecay
+
+Decay MyB0B
+
+0.333333333 rho0 Myetap          SVS;
+0.333333333 Mya1 Myetap      SVS;
+0.333333333 Myf1 Myetap SVS;
+
+Enddecay
+
+Decay MyB0
+
+0.333333333 rho0 Myetap          SVS;
+0.333333333 Mya1 Myetap      SVS;
+0.333333333 Myf1 Myetap SVS;
+
+Enddecay
+
+Decay MyBminus
+
+0.25 pi- Myetap   PHSP;
+0.25 rho- Myetap                   SVS;
+0.25 Mya1minus Myetap            SVS;
+0.25 Myb1minus Myetap     SVS;
+
+Enddecay
+
+Decay MyBplus
+
+0.25 pi+ Myetap   PHSP;
+0.25 rho+ Myetap                   SVS;
+0.25 Mya1plus Myetap            SVS;
+0.25 Myb1plus Myetap     SVS;
+
+Enddecay
+
+Decay Myf1
+
+1. pi+ pi- pi+ pi- PHSP;
+
+Enddecay
+
+Decay Myb1minus
+
+1. pi+ pi- pi- pi0 PHSP;
+
+Enddecay
+
+Decay Myb1plus
+
+1. pi- pi+ pi+ pi0 PHSP;
+
+Enddecay
+
+Decay Mya1minus
+
+1. rho0 pi-     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+
+Enddecay
+
+Decay Mya1plus
+
+1. rho0 pi+     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+
+Enddecay
+
+Decay Mya1
+
+1. rho0 pi0    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+
+Enddecay
+
+Decay rho0
+
+1. pi+ pi-     VSS;
+
+Enddecay
+
+Decay rho-
+
+1. pi- pi0   VSS;
+
+Enddecay
+
+Decay rho+
+
+1. pi+ pi0   VSS;
+
+Enddecay
+
+
+Decay Myetap
+1.     pi+ pi- Myeta                      PHSP;
+Enddecay
+#
+
+Decay Myeta
+
+1.   gamma  gamma                       PHSP;
+
+Enddecay
+#
+
+
+End 

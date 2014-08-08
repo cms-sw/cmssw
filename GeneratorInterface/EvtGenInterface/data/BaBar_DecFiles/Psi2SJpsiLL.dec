@@ -1,0 +1,31 @@
+############################################
+#  psi2s                                   #
+#    |                                     #
+#    |                                     #
+#    |-->mu+mu-/e+e- (30%)                 #
+#    |                                     #
+#    |-->J/psi pi+pi-  (70%)               #
+#           |                              #
+#           |-->mu+mu-/e+e-                #
+#                                          #
+#  + cc                                    #
+#                                          #
+# Author: E. Varnes       26/5/00          #
+############################################
+#
+Alias MyJ/psi   J/psi
+#
+Decay psi(2S)
+0.700  MyJ/psi  pi+ pi-        VVPIPI;
+0.1500    e+   e-                PHOTOS  VLL;
+0.1500   mu+  mu-                PHOTOS VLL;
+Enddecay 
+# 
+Decay MyJ/psi
+0.5000    e+   e-                PHOTOS  VLL;
+0.5000   mu+  mu-                PHOTOS VLL;
+Enddecay 
+End
+
+
+

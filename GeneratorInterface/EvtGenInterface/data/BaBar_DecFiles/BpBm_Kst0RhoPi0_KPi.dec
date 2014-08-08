@@ -1,0 +1,42 @@
+###################################################
+#                                                 #
+# B+ -> K*0 rho+ pi0 +cc (K*0 -> K+ pi-)          #
+#                                                 #
+# Author:	G. Schott                         #
+# created:			30/05/03          #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*0 K*0
+Alias MyK*0bar anti-K*0
+
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+Decay MyB+
+1.0000     MyK*0 rho+ pi0	      	PHSP;
+1.0000     MyK*0bar rho+ pi0	      	PHSP;
+Enddecay
+
+Decay MyB-
+1.0000     MyK*0 rho- pi0	      	PHSP;
+1.0000     MyK*0bar rho- pi0	      	PHSP;
+Enddecay
+
+
+Decay MyK*0
+1.0000  K+ pi-              VSS;
+Enddecay
+
+Decay MyK*0bar
+1.0000  K- pi+              VSS;
+Enddecay
+
+End
+

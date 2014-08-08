@@ -1,0 +1,46 @@
+###################################################
+#                                                 #
+# B+/- --> J/psi p+ Lambda0                       #
+# B-/+ --> generic                                #
+#						  #
+#  c.c.						  #
+#                                                 #
+# Author: Aron Soha	soha@slac.stanford.edu    #
+# Created: 26 Jul 2001                            # 
+#                                                 #
+# Modified July 11, 2002, C. Hearty,              #
+# to force Jpsi, Lambda decays                    #
+#                                                 #
+###################################################
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyJ/psi J/psi
+Alias MyLambda0 Lambda0
+Alias Myanti-Lambda0 anti-Lambda0
+#
+ChargeConj MyLambda0  Myanti-Lambda0
+ChargeConj MyB+ MyB-
+#
+Decay Upsilon(4S)
+0.5 MyB+ B-                           VSS;
+0.5 MyB- B+                           VSS;
+Enddecay
+#
+Decay MyB-
+1.00 MyJ/psi anti-p- MyLambda0          PHSP;
+Enddecay
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+Decay MyLambda0
+1.00 p+ pi-                              PHSP;
+Enddecay
+#
+CDecay MyB+
+CDecay Myanti-Lambda0
+End

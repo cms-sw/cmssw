@@ -1,0 +1,164 @@
+## The evil Breco cocktail for charged B mesons decaying 
+## to D(*)0 rho+/a1+/(some 4pi)+ with other B decaying into pi+ nu nu.
+## Mixed by Jan Stark (Cut and paste from existing files, plus
+## appropriate weighting). Adjusted for pi+ nunu search by Steve Robertson.
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD*0 D*0
+Alias Myanti-D*0 anti-D*0
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+Alias Mya_1+ a_1+
+Alias Mya_1- a_1-
+Alias MyK_1+ K_1+
+Alias MyK_1- K_1-
+Alias MyK*0  K*0
+Alias Myanti-K*0 anti-K*0
+Alias Myomega omega
+Alias MyOtheromega omega
+Alias MyK0 K0
+Alias Myanti-K0 anti-K0
+Alias MyKs K_S0
+Alias Myrho(2S)+ rho(2S)+
+Alias Myrho(2S)- rho(2S)-
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+ 
+0.215   rho+  Myanti-D0      SVS;
+# D* rho HELAMP parameters taken from ICHEP 98-852.
+0.249   Myanti-D*0  rho+     SVV_HELAMP 0.228 0.95 0.283 1.13 0.932 0; 
+0.039   Mya_1+ Myanti-D0     SVS; 
+# SVV_HELAMP from factorization, recommendation
+# http://babar-hn.slac.stanford.edu:5090/HyperNews/get/event_gen/168.html:
+0.150   Myanti-D*0 Mya_1+    SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+0.058   Myrho(2S)+ Myanti-D0 SVS;
+# HELAMP parameters taken from ICHEP 00-78.
+0.064   Myanti-D*0 Myrho(2S)+ SVV_HELAMP 0.430 0.0 0.794 0.0 0.430 0.0;
+0.225   Myanti-D*0 pi- pi+ pi+ pi0  PHSP;
+Enddecay
+#
+Decay MyB-
+0.215   rho-  MyD0           SVS;
+# D* rho HELAMP parameters taken from ICHEP 98-852.
+0.249   MyD*0  rho-          SVV_HELAMP 0.228 0.95 0.283 1.13 0.932 0; 
+0.039   Mya_1- MyD0          SVS; 
+# SVV_HELAMP from factorization, recommendation
+# http://babar-hn.slac.stanford.edu:5090/HyperNews/get/event_gen/168.html:
+0.150   MyD*0 Mya_1-         SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+0.058   Myrho(2S)- MyD0      SVS;
+# HELAMP parameters taken from ICHEP 00-78.
+0.064   MyD*0 Myrho(2S)-     SVV_HELAMP 0.430 0.0 0.794 0.0 0.430 0.0;
+0.225   MyD*0 pi+ pi- pi- pi0 PHSP;
+Enddecay
+#
+# force other B to always decay to pi+ nu nu
+#
+Decay B+
+1.0000 pi+ nu_e anti-nu_e     PHOTOS PHSP ;
+Enddecay
+# 
+Decay B-
+1.0000 pi- nu_e anti-nu_e     PHOTOS PHSP ;
+Enddecay
+# 
+Decay MyD*0
+0.619     MyD0   pi0         VSS;
+0.381     MyD0   gamma       VSP_PWAVE;
+Enddecay
+#
+Decay Myanti-D*0
+0.619     Myanti-D0   pi0    VSS;
+0.381     Myanti-D0   gamma  VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+0.142     K-  pi+            PHSP;
+0.513     K-  pi+  pi0       D_DALITZ;
+0.068     Myanti-K0 pi+ pi-       D_DALITZ;
+## K 3pi  (0.277 total)
+0.1270    Mya_1+ K-                       SVS;
+0.0123    MyK_1- pi+                      SVS;
+0.0375    Myanti-K*0 pi+ pi-              PHSP;
+0.0194    K- pi+ rho0                     PHSP;
+0.0462    K- pi+ pi+ pi-                  PHSP;
+0.0346    Myanti-K*0 rho0                 SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myanti-D0
+0.142     K+    pi-          PHSP;
+0.513     K+    pi-  pi0     D_DALITZ;
+0.068     MyK0 pi- pi+       D_DALITZ;
+## K 3pi  (0.277 total)
+0.1270    Mya_1- K+                       SVS;
+0.0123    MyK_1+ pi-                      SVS;
+0.0375    MyK*0 pi- pi+                   PHSP;
+0.0194    K+ pi- rho0                     PHSP;
+0.0462    K+ pi- pi- pi+                  PHSP;
+0.0346    MyK*0 rho0                      SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyK0
+1.000     MyKs                              PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.000     MyKs                              PHSP;
+Enddecay
+#
+Decay MyKs
+1.000     pi+ pi-            PHSP;
+Enddecay
+#
+Decay Mya_1+
+1.0000  rho0 pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Mya_1-
+1.0000  rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK_1+
+0.3913  rho0 K+                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.1984  MyK*0 pi+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0067  Myomega K+                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.4036  K+ pi- pi+                      PHSP;
+Enddecay
+#
+Decay MyK_1-
+0.3913  rho0 K-                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.1984  Myanti-K*0 pi-                  VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0067  Myomega K-                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.4036  K- pi+ pi-                      PHSP;
+Enddecay
+#
+Decay MyK*0
+1.0000  K+ pi-                          VSS;
+Enddecay
+#
+Decay Myanti-K*0
+1.0000  K- pi+                          VSS;
+Enddecay
+#
+Decay Myomega
+1.0000  pi- pi+                         VSS;
+Enddecay
+#
+#
+#
+Decay Myrho(2S)+
+1.0000  MyOtheromega pi+                VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myrho(2S)-
+1.0000  MyOtheromega pi-                VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyOtheromega
+1.0000  pi-  pi+  pi0                   OMEGA_DALITZ;
+Enddecay
+End

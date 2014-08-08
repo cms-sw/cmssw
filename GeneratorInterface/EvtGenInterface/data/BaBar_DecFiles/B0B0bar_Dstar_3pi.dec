@@ -1,0 +1,35 @@
+#####################################################
+#                                                   #
+# Decay: B0 -> D*(2010)- pi+ pi+ pi-  anti-B0 -> X  #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |-> X				    #
+#                                                   #
+# + cc                                              #
+#                                                   #
+# Author: ?                                         #
+# Modified/corrected: G.London 2/2/99		    #
+# Modified:           J. Chauveau 18 feb 99         #
+#####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00   D*- pi+ pi+ pi-     PHSP;
+Enddecay 
+#
+Decay Myanti-B0
+1.00   D*+ pi- pi- pi+     PHSP;
+Enddecay 
+#
+#
+End

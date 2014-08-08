@@ -1,0 +1,34 @@
+#######################################################
+# ccbar Continum Production                           #
+# anti-Lambda_c- -> anti-Sigma0 K- pi0                #
+#                   anti-Sigma0 -> anti-Lambda0 gamma # 
+#                         anti-Lambda0 -> anti-p-  pi+#
+#                                                     #
+# created: 08/02/03 -  Saleem                         #
+#                      saleem@slac.stanford.edu       #
+#                                                     #
+#######################################################
+#
+Alias my-anti-Sigma0  anti-Sigma0
+Alias my-anti-Lambda0 anti-Lambda0
+
+Decay vpho
+1.0     JSCONT  4;
+Enddecay
+#
+Decay anti-Lambda_c-
+1.000   my-anti-Sigma0    K-    pi0             PHSP;
+Enddecay 
+
+Decay my-anti-Sigma0
+1.000   my-anti-Lambda0   gamma                 PHSP; 
+Enddecay
+
+Decay my-anti-Lambda0
+1.000   anti-p-      pi+                        PHSP; 
+Enddecay
+End
+#
+#
+
+

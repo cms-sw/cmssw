@@ -1,0 +1,52 @@
+###################################################################
+# B-  --> X3872  K-            B0 --> Generic  xx                 #
+#         |                                                       #
+#         |                                                       #
+#         |-->jpsi(ee,mumu) rho=> pi0pi0, NOTE this is forbidden  #   
+#                                                                 #
+#  + charge conjugate                                             #
+#                                                                 #
+#                                                                 #
+# Author: Walter Toki Feb. 23, 2004                               #
+###################################################################
+#
+#Define dm 0.464e12
+#
+#
+# Alias particles for specific decays
+# Particle <name> <mass> <width>
+Particle dummy00_1 3.872 0.0
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyX dummy00_1
+Alias Myrho rho0  
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-   VSS;
+0.500 MyB- B+   VSS;
+Enddecay
+#
+Decay Myrho
+1.000  pi0 pi0   PHSP;
+Enddecay
+#
+Decay MyX
+1.000  MyJpsi Myrho   PHSP;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+Decay MyB+
+1.000 MyX K+ PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 MyX K- PHSP;
+Enddecay
+#
+#
+End

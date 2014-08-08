@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> pi+ pi-,     B0 -> X          # 
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Adil Hasan                              #
+# Date:                    12/April/98            #
+# Modified/corrected       10/May/98              #
+# Modified/corrected G.London 2/2/99              #
+# Modified N. Danielson    28/May/03 - Generate C=-0.57, S=-0.82
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+# Assuming 
+# Define beta  0.39
+# Define gamma 1.387
+# These numbers will change if you change beta or gamma.
+# As it is, they give C=-0.57, S=-0.82
+Decay MyB0
+1.0000 pi+ pi-                    SSD_CP dm 0.0 1.0 minusTwoBeta 0.8850 0.1414 1.691 -0.71271;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 pi+ pi-                    SSD_CP dm 0.0 1.0 minusTwoBeta 0.8850 0.1414 1.691 -0.71271;
+Enddecay 
+#
+End

@@ -1,0 +1,52 @@
+###################################################
+#                                                 #
+# B+ -> f0(1370) K+   + c.c.                      #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi-                             # 
+#                                                 #
+# Author:  Jan Stark     stark@in2p3.fr           #
+# Created: 7/Oct/2002                             #
+#                                                 #
+# Patched by Kelly Ford (06/Feb/04)               #
+# Using Andreas Hoecker's f'0 patch               #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> f0(1370) K+ using phase space.
+# The f0(1370) decays to pi+ pi-.
+#
+# BEGIN sp5 patch 
+# (
+#    mass and width taken from: 
+#    Ds+->pi+pi+pi- fit [E791 hep-ex/0007027]
+#    E791 quotes: m(f0-1370) = 1.434 +- 0.018 GeV/c^2
+#                 G(f0-1370) = 0.173 +- 0.032 GeV/c^2
+# )
+#
+Particle f'_0 1.434 0.173
+#
+ChangeMassMin f'_0 0.40
+ChangeMassMax f'_0 2.50
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias Myf'0 f'_0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-               VSS;
+0.50000 B-  MyB+               VSS;
+Enddecay
+#
+Decay MyB+
+1.000  Myf'0 K+                PHSP;
+Enddecay
+#
+Decay MyB-
+1.000  Myf'0 K-                PHSP;
+Enddecay
+#
+Decay Myf'0
+1.000  pi+ pi-                 PHSP;
+Enddecay
+End

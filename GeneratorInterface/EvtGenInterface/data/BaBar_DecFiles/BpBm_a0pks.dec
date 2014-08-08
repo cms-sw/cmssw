@@ -1,0 +1,54 @@
+###################################################
+#                                                 #
+# Decay: B+ -> a_0+   ks + cc                     #
+#               |     |                           #
+#               |     |                           #
+#               |     ---> pi- pi+                #  
+#               |                                 #
+#                --------> eta pi -> gg pi        #  
+#                                                 #
+# Author: Vasia Shelkov(vasia@slac.stanford.edu)  #
+# Date:                    24 March 2001          #
+###################################################
+# Decay table for B+ -> a0+ rho0
+# using a simple (S)calar to (V)ector-(S)calar model.
+# The rho0 decays to pi- pi+ (using a simple VSS model).
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyKs K_S0
+Alias Mya_0+ a_0+
+Alias Mya_0- a_0-
+Alias Myeta eta
+
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+
+Decay MyB+
+1.000  MyKs Mya_0+          PHSP;
+Enddecay
+
+Decay MyB-
+1.000  MyKs Mya_0-          PHSP;
+Enddecay
+
+Decay MyKs
+1.000  pi- pi+               PHSP;
+Enddecay
+
+Decay Mya_0-    
+1.0000 Myeta pi-             PHSP;
+Enddecay 
+
+Decay Mya_0+    
+1.0000 Myeta pi+             PHSP;
+Enddecay 
+
+Decay Myeta
+1.0000     gamma  gamma      PHSP;
+Enddecay
+
+End
+

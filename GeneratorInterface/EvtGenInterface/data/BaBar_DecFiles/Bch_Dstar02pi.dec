@@ -1,0 +1,62 @@
+#########################################################
+# Decay: B- -> D*0 (pi0pi-);   B+ -> X; + cc            #
+#               \    \                                  #
+#                \    \____rho-, pi0pi                  #
+#                 \                                     #
+#                  \__D0pi0, (D0->Kpi)                  #
+#                                                       #
+# Author: Haiwen Zhao                                   #
+# Date:   05/01/2003                                    #
+#########################################################
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+Alias MyD*0 D*0
+Alias Myanti-D*0 anti-D*0
+Alias Myrho+ rho+
+Alias Myrho- rho-
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                      VSS;
+0.500 MyB- B+                      VSS;
+Enddecay
+#
+Decay MyB-
+0.60   MyD*0  pi0  pi-             PHSP;
+0.40   Myrho- MyD*0                SVV_HELAMP 0.152 1.47 0.936 0 0.317 0.19;
+Enddecay
+#
+Decay MyB+
+0.60   Myanti-D*0  pi0  pi+        PHSP;
+0.40   Myrho+ Myanti-D*0           SVV_HELAMP 0.152 1.47 0.936 0 0.317 0.19;
+Enddecay
+#
+Decay MyD*0
+1.000  MyD0   pi0                  VSS;
+Enddecay
+#
+Decay Myanti-D*0
+1.000  Myanti-D0   pi0             VSS;
+Enddecay
+#
+Decay MyD0
+1.0        K-  pi+                 PHSP;
+Enddecay
+#
+Decay Myanti-D0
+1.0        K+  pi-                 PHSP;
+Enddecay
+#
+Decay Myrho-
+1.0  pi0 pi-                       VSS;
+Enddecay
+#
+Decay Myrho+
+1.0  pi0 pi+                       VSS;
+Enddecay
+End
+
+
+
+

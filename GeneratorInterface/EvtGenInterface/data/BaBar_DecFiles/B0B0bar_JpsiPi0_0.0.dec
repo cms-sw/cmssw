@@ -1,0 +1,38 @@
+############################################################
+#                                                          #
+# Decay: anti-B0 -> J/psi      pi0,       B0 -> X          #
+#                   |-> e+e-   |->gammagamma               #
+#                   |-> mu+mu-                             #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author: A.Roodman        15/May/02                       #
+# Mail: roodman@SLAC.STANFORD.EDU
+############################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyJ/psi J/psi
+Define beta 0.00
+Define minusTwoBeta  0.00
+#
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000  MyJ/psi  pi0            SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;    
+Enddecay 
+#
+Decay Myanti-B0
+1.0000  MyJ/psi  pi0            SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;    
+Enddecay 
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+End
+

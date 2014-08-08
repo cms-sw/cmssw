@@ -1,0 +1,28 @@
+######################################################
+#                                                    #
+# ccbar -> D*- X                                     #
+#          D*- -> D0bar pi-                          #
+#                 D0bar -> K+ K- pi0                 #
+# D0bar decays through phase space                   #
+#                                                    #
+# created: 09/25/01                                  #
+#          antimo@ba.infn.it, pompili@ba.infn.it     #
+#                                                    #
+######################################################
+#
+Alias my-anti-D0 anti-D0
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+#
+Decay D*-
+1.0     my-anti-D0  pi-                   VSS;
+Enddecay
+#
+Decay my-anti-D0
+1.0     K+ K- pi0                       PHSP;
+Enddecay
+#         
+End
+

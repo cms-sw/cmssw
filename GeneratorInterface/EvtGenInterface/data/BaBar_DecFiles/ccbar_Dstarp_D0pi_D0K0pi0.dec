@@ -1,0 +1,48 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ -> D0 pi+, D0 -> K0S pi0                    #         
+#                       K0S -> pi+pi-             #
+#                                                 #
+# created: Sunil Jayatilleke                      #
+#         sunilj@physics.uc.edu 07/09/01          #
+###################################################
+#
+
+Alias my-D0 D0
+Alias my-anti-K0 anti-K0
+Alias my-K_S0 K_S0
+#Alias my-D*+ D*+
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+Decay D*+
+1.00     my-D0  pi+                       VSS;
+Enddecay
+
+#
+Decay my-D0
+1.00  my-anti-K0  pi0                       PHSP;
+Enddecay
+#
+ 
+Decay my-anti-K0
+1.00 my-K_S0                                   PHSP;
+Enddecay
+#         
+
+Decay my-K_S0
+1.00    pi+  pi-                          PHSP;
+Enddecay
+
+End
+
+
+
+
+
+
+

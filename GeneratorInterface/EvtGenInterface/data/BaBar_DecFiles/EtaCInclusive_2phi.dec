@@ -1,0 +1,21 @@
+############################################
+#  eta_c                                   #
+#    |                                     #
+#    |--> phi phi --> K+ K- K- K+          #
+#                                          #
+# Author: Georges London 26/7/2001         #
+#         london@hep.saclay.cea.fr         #
+############################################
+
+ Alias MyPhi phi
+ 
+Decay eta_c
+ 1.00  MyPhi MyPhi               SVV_HELAMP 1.0 0.0 0.0 0.0 -1.0 0.0;
+Enddecay
+
+ Decay MyPhi
+ 1.0000    K+   K-                VSS;
+ Enddecay
+
+End
+

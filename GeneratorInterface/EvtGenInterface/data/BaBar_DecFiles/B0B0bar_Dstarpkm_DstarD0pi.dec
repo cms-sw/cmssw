@@ -1,0 +1,43 @@
+####################################################
+#                                                  #
+# Inclusive D*K decay.dec #1                      #
+#                                                  #
+# D*K signal from B0-antiB0 for SP2               #
+#                                                  #
+# Decay: anti-B0 -> D*(2010)+ K-, B0 -> X  +c.c.  #
+#                   |-> D0 pi+                     #
+#                       |-> X                      #
+#                                                  #
+#                                                  #
+# 25.09.2001 M. Zito (IHBD AWG)                    #
+# contact zito@slac                                #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.00   MyD*+ K-                SVS;
+Enddecay
+#
+Decay MyD*+
+1.0000 D0 pi+                   VSS;
+Enddecay
+#
+Decay MyB0
+1.00   MyD*- K+                SVS;
+Enddecay
+#
+Decay MyD*-
+1.0000 anti-D0 pi-              VSS;
+Enddecay
+#
+End

@@ -1,0 +1,19 @@
+###################################################
+#                                                 #
+# Upsilon(4S) production                          #
+# D*+ -> D0 pi+, D0 -> K+ e- anti-nu_e            #
+# MIXED WRONG-SIGN DECAY                          #
+# created: kflood aug2800                         #
+###################################################
+#
+Alias myD0 D0
+#
+Decay D*+
+1.00 myD0 pi+               VSS;
+Enddecay
+#
+Decay myD0
+1.00 K+ e- anti-nu_e     PHOTOS   ISGW2;
+Enddecay
+#
+End

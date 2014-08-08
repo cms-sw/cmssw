@@ -1,0 +1,31 @@
+####################################################
+#                                                  #
+# Inclusive D*rho decay.dec #1                     #
+#                                                  #
+# D_10 rho background from B+B- for SP3            #
+#                                                  #
+# Decay: B- -> D_10 rho-, B+ -> X       +c.c.      #
+#                                                  #
+# 30.6.2000, A. Soffer  (IHB AWG)                   #
+#                                                  #
+####################################################
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5 MyB+  B-                     VSS;
+0.5 MyB-  B+                     VSS;
+Enddecay
+#
+Decay MyB+
+1.000 anti-D_10 rho+                      PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 D_10 rho-                           PHSP;
+Enddecay
+#
+End

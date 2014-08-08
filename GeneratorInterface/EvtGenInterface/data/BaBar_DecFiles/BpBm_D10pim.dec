@@ -1,0 +1,54 @@
+####################################################
+#                                                  #
+# Inclusive D10pi decay.dec                        #
+#                                                  #
+# D10 pi      from B+B- for SP2                    #
+#                                                  #
+# Decay: B- -> D_10 pi-, B+ -> X   +c.c.           #
+#               |-> D*+ pi -                       #
+#                   |-> D0 pi+                     #
+#                       |-> X                      #                          
+#                                                  #
+# 11.11.99                                         #
+# S.Xella (IHB AWG)                                #
+####################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD_10 D_10
+Alias Myanti-D_10 anti-D_10
+Alias MyD*+ D*+
+Alias MyD*- D*-
+  
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 Myanti-D_10 pi+         PHSP;
+Enddecay
+#
+Decay Myanti-D_10
+1.0000 MyD*- pi+               VVS_PWAVE 0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*-
+1.0000 anti-D0 pi-             VSS;
+Enddecay
+#####
+Decay MyB-
+1.0000 MyD_10 pi-              PHSP;
+Enddecay
+#
+Decay MyD_10
+1.0000 MyD*+ pi-               VVS_PWAVE 0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 D0 pi+                  VSS;
+Enddecay
+#
+End
+

@@ -1,0 +1,33 @@
+#######################################################
+#                                                     #
+# Decay: B--> Eta_c   K-      B+->X                   #
+#               |                                     #
+#               |-> p p-bar                           #
+# + cc                                                #
+#                                                     #
+# Author: Roy Aleksan                                 #
+# Created:                  27 February/02            #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+Alias MyEta_c eta_c
+#
+Decay Upsilon(4S)
+0.5   B+       MyB-                        VSS;
+0.5   B-       MyB+                        VSS;
+Enddecay
+#
+Decay MyB-
+1.0000  MyEta_c  K-          PHSP;
+Enddecay
+#
+Decay MyB+
+1.0000  MyEta_c  K+          PHSP;
+Enddecay
+#
+Decay MyEta_c
+1.0000 p+ anti-p-                 PHSP;
+Enddecay
+#
+End

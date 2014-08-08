@@ -1,0 +1,88 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> X      anti-B0->   D** l nu            #
+#                                                     #
+# with D**                                            #
+#    D2*+    ->  D0 pi+                               #
+#            ->  D+ pi0                               #
+#                                                     #
+# with D0 -> K- pi+                                   #
+#      D+ -> K- pi+ pi+                               #
+#                                                     #
+# with l = e or mu                                    #
+#                                                     #
+#                                                     #
+#   + CC                                              #
+#                                                     #
+#                                                     #
+# Author: Armin Hauke                                 #
+# Created:                  11/Dec/01                 #
+# Mail: hauke@SLAC.STANFORD.EDU                       #
+#######################################################
+#
+
+#
+Alias myantiB0  anti-B0
+Alias myB0  B0
+#
+Alias myD_2*+       D_2*+ 
+Alias myD_2*-       D_2*-  
+#
+Alias myanti-D0     anti-D0
+Alias myD0          D0
+Alias myD+          D+
+Alias myD-          D-
+#
+
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myantiB0 VSS_BMIX dm;
+Enddecay
+#
+#
+Decay myB0
+0.5000  myD_2*-       e+   nu_e           PHOTOS ISGW2;
+0.5000  myD_2*-       mu+  nu_mu          PHOTOS ISGW2;
+Enddecay
+#
+Decay myantiB0
+0.5000  myD_2*+       e-   anti-nu_e          PHOTOS  ISGW2;
+0.5000  myD_2*+       mu-  anti-nu_mu         PHOTOS  ISGW2;
+Enddecay
+#
+
+
+#
+#   D**
+#
+Decay myD_2*+
+0.5000    myD+  pi0                        TSS;
+0.5000    myD0  pi+                        TSS;
+Enddecay
+Decay myD_2*-
+0.5000    myD-        pi0                   TSS;
+0.5000    myanti-D0   pi-                   TSS;
+Enddecay
+
+
+
+#
+# D Meson
+#
+Decay myD0
+1.0000   K-  pi+                         PHSP;
+Enddecay
+Decay myanti-D0
+1.0000   K+  pi-                         PHSP;
+Enddecay
+Decay myD+
+# the Dalitz mode below includes K*bar(892)0 pi+, K*bar(1430)0 pi+, and K*bar(1680)0 pi+ resonances.
+1.0000   K-  pi+  pi+                    D_DALITZ;
+Enddecay
+Decay myD-
+# the Dalitz mode below includes K*(892)0 pi-, K*(1430)0 pi-, and K*(1680)0 pi- resonances.
+1.0000   K+  pi-  pi-                    D_DALITZ;
+Enddecay
+
+#
+End

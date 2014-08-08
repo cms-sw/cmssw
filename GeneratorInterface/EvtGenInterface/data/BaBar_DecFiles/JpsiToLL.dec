@@ -1,0 +1,10 @@
+###################################################################
+#    Force the Jpsi decay into alectron and muon pairs
+#     Author: R. Faccini                 17 Nov 1999
+# Mail: RFACCINI@SLAC.STANFORD.EDU
+###################################################################
+Decay J/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+End

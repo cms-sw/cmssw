@@ -1,0 +1,92 @@
+###################################################
+#                                                 #
+# Decay: B+ -> V0 h+ h- h+ / V0 h+ pi0 pi0  	  #
+#                                                 #
+# Author: 	G. Schott			  #
+# Created:                   30/5/03              #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*0 K*0
+Alias MyK*0bar anti-K*0
+
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+Decay MyB+
+1.0000 rho0 pi+ pi0 pi0			PHSP;
+1.0000 MyK*0 pi+ pi0 pi0		PHSP;
+1.0000 MyK*0bar pi+ pi0 pi0		PHSP;
+1.0000 rho0 K+ pi0 pi0			PHSP;
+1.0000 MyK*0 K+ pi0 pi0			PHSP;
+1.0000 MyK*0bar K+ pi0 pi0		PHSP;
+
+1.0000 rho0 pi+ pi+ pi-			PHSP;
+1.0000 rho0 K+ pi+ pi-			PHSP;
+1.0000 rho0 pi+ pi+ K-			PHSP;
+1.0000 rho0 K+ K+ pi-			PHSP;
+1.0000 rho0 K+ pi+ K-			PHSP;
+#1.0000 rho0 K+ K+ K-			PHSP;
+
+1.0000 MyK*0 pi+ pi+ pi-		PHSP;
+1.0000 MyK*0 K+ pi+ pi-			PHSP;
+1.0000 MyK*0 pi+ pi+ K-			PHSP;
+#1.0000 MyK*0 K+ K+ pi-			PHSP;
+#1.0000 MyK*0 K+ pi+ K-			PHSP;
+#1.0000 MyK*0 K+ K+ K-			PHSP;
+
+1.0000 MyK*0bar pi+ pi+ pi-		PHSP;
+1.0000 MyK*0bar K+ pi+ pi-		PHSP;
+1.0000 MyK*0bar pi+ pi+ K-		PHSP;
+#1.0000 MyK*0bar K+ K+ pi-		PHSP;
+#1.0000 MyK*0bar K+ pi+ K-		PHSP;
+#1.0000 MyK*0bar K+ K+ K-		PHSP;
+Enddecay
+
+Decay MyB-
+1.0000 rho0 pi- pi0 pi0			PHSP;
+1.0000 MyK*0 pi- pi0 pi0		PHSP;
+1.0000 MyK*0bar pi- pi0 pi0		PHSP;
+1.0000 rho0 K- pi0 pi0			PHSP;
+1.0000 MyK*0 K- pi0 pi0			PHSP;
+1.0000 MyK*0bar K- pi0 pi0		PHSP;
+
+1.0000 rho0 pi+ pi- pi-			PHSP;
+1.0000 rho0 K+ pi- pi-			PHSP;
+1.0000 rho0 pi+ pi- K-			PHSP;
+1.0000 rho0 K+ K- pi-			PHSP;
+1.0000 rho0 K- pi+ K-			PHSP;
+#1.0000 rho0 K+ K- K-			PHSP;
+
+1.0000 MyK*0 pi+ pi- pi-		PHSP;
+1.0000 MyK*0 K+ pi- pi-			PHSP;
+1.0000 MyK*0 pi+ pi- K-			PHSP;
+#1.0000 MyK*0 K+ K- pi-			PHSP;
+#1.0000 MyK*0 K- pi+ K-			PHSP;
+#1.0000 MyK*0 K+ K- K-			PHSP;
+
+1.0000 MyK*0bar pi+ pi- pi-		PHSP;
+1.0000 MyK*0bar K+ pi- pi-		PHSP;
+1.0000 MyK*0bar pi+ pi- K-		PHSP;
+#1.0000 MyK*0bar K+ K- pi-		PHSP;
+#1.0000 MyK*0bar K- pi+ K-		PHSP;
+#1.0000 MyK*0bar K- K+ K-		PHSP;
+Enddecay
+
+
+Decay MyK*0
+1.0000  K+ pi-              VSS;
+Enddecay
+
+
+Decay MyK*0bar
+1.0000  K- pi+              VSS;
+Enddecay
+
+End

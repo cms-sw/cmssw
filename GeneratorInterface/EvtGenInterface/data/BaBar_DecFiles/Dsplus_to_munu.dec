@@ -1,0 +1,25 @@
+############################################################
+#
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Dec 17, 1999
+# Mail: JOE@SLAC.STANFORD.EDU 
+#
+# Ds+ -> mu nu
+# Ds- is unaffected.
+#
+# Ds decays forced at the very bottom of this file
+############################################################
+
+# set virtual photons to go to ccbar 
+Decay vpho
+1.000                     JSCONT   4;
+Enddecay
+
+# The hadronic tag mode
+Decay D_s+
+1.0    mu+        nu_mu        PHOTOS SLN;
+Enddecay
+
+End
+

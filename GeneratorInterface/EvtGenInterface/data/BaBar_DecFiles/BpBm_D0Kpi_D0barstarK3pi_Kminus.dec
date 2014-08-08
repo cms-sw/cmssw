@@ -1,0 +1,56 @@
+#######################################################
+#                                                     #
+# Decay: B-->D0D0*barK-     anti-B0->X                #
+#        Kpi*K3pi                                     #
+# Author: Jean-Pierre Lees                            #
+# Created:                  04/March/99               #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+Alias MyD*0B anti-D*0
+Alias Mya_1- a_1-
+Alias MyK*0 K*0
+Alias MyK_1+ K_1+
+#
+Decay Upsilon(4S)
+1.000   B+       MyB-                        VSS;
+Enddecay
+#
+Decay MyB-
+1.000   MyD0  MyD*0B  K-                PHSP;
+Enddecay
+#
+Decay MyD*0B
+0.6190    MyD0B  pi0                       VSS;
+0.3810    MyD0B  gamma                      VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+Enddecay
+#
+Decay MyD0B
+0.0355   Mya_1- K+                       SVS;
+0.0097   MyK*0  rho0                     SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0021   MyK_1+ pi-                      SVS;
+0.0105   MyK*0 pi-  pi+                 PHSP;
+0.0054   K+  pi-  rho0                   PHSP;
+0.0129   K+  pi-  pi-   pi+              PHSP;
+Enddecay
+#
+Decay Mya_1-
+1.0000   rho0 pi-                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK*0
+1.0000      K+  pi-                     VSS;
+Enddecay
+#
+Decay MyK_1+
+0.1400   rho0  K+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0710   MyK*0   pi+                    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End

@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# Decay: B0 -> f0 pi0 + cc                        #
+#              |                                  #
+#              |                                  #
+#              \---> pi0 pi0                      #
+# Author: Adrian Bevan (AB)                       # bevan@slac.stanford.edu
+# Created:                   29/3/01              #
+# Modified: AB: correction   20/4/01              #
+###################################################
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myf0 f_0
+#
+Decay Upsilon(4S)
+0.500 MyB0      anti-B0   VSS;
+0.500 Myanti-B0 B0        VSS;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 Myf0 pi0                    SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay MyB0
+1.0000 pi0 pi0                    SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay Myf0
+1.00    pi0 pi0              PHSP;
+Enddecay
+#
+End

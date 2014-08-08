@@ -1,0 +1,35 @@
+############################################################
+#                                                          #
+# Decay:      B0    -> omega pi+ pi- (non-resonant)        #
+#             B0bar -> generic                       +cc   #
+#	      Omega  -> pi+ pi- pi0			   #
+#							   #
+# Author: Sandrine Emery                                   #
+# e-mail: emery@slac.stanford.edu                          #
+# Created:  23/07/2003                                     #
+#                                                          #
+############################################################
+#
+# Define my particles
+#
+Alias MyB0 B0
+Alias MyB0bar anti-B0
+Alias MyOm omega
+
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  MyOm pi+ pi-         PHSP;
+Enddecay
+#
+Decay MyB0bar
+1.000  MyOm pi- pi+         PHSP;
+Enddecay
+#
+Decay MyOm
+1.0000  pi+ pi- pi0        OMEGA_DALITZ;
+Enddecay
+#
+End

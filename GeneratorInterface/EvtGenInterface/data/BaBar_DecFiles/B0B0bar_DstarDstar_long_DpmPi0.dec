@@ -1,0 +1,61 @@
+
+####################################################
+#                                                  #
+# Inclusive D*D* decay.dec                         #
+#                                                  #
+# D*D* signal from B0-antiB0 for PRV0              #
+#                                                  #
+#                                                  #
+# Produces a mix of signal                         #
+#                                                  #
+# 100% signal with longitudinal polariz   :        #
+#                                                  #
+# Decay: B0->D*(2010)+ D*(2010)-, anti-B0->X +c.c. #
+#             |-> D+ pi0  |->X                     #
+#                 |-> K- pi+ pi+  100%             #
+#                                                  #
+# 13 Sept 00                                       #
+# Roy Aleksan                                      #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+Alias MyD+ D+
+Alias MyD- D-
+
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+0.5000  MyD*+   D*-      SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+0.5000  D*+   MyD*-      SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 MyD+ pi0                      VSS;
+Enddecay
+#
+Decay MyD+
+1,0000 K- pi+ pi+                  D_DALITZ;
+Enddecay
+#
+Decay MyD*-
+1.0000 MyD- pi0                 VSS;
+Enddecay
+#
+Decay MyD-
+1.0000 K+ pi- pi-                  D_DALITZ;
+Enddecay
+#
+Decay MyB0
+0.5000 MyD*- D*+         SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+0.5000 D*- MyD*+         SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+End
+

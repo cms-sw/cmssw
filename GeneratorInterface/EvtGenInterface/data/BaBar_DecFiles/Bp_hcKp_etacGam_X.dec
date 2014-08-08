@@ -1,0 +1,67 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> h_c        K+,        B- -> X          #
+#                   |                                      #
+#                   ->eta_c gamma                          #
+#                     |                                    #
+#                     -> X                                 #
+#             + cc                                         #
+#                                                          #
+# Author: S. Tosi        18/06/01                          #
+############################################################
+#
+Define beta 0.34
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK_S0 K_S0
+Alias MyEta_c eta_c
+Alias MyH_c h_c
+Alias MyPhi phi
+#
+Decay Upsilon(4S)
+  0.5000  MyB+      B-       VSS;
+  0.5000  MyB-      B+       VSS;
+Enddecay
+#
+Decay MyB+
+  1.000  MyH_c K+      SVS;
+Enddecay
+#
+Decay MyB-
+  1.000  MyH_c K-      SVS;
+Enddecay
+#
+Decay MyH_c
+  1.0000  MyEta_c gamma      VSP_PWAVE;
+Enddecay 
+# 
+Decay MyEta_c
+0.1    p+  anti-p-                        PHSP;
+0.1    MyPhi MyPhi                        SVV_HELAMP 1.0 0.0 0.0 0.0 -1.0 0.0;
+0.1    pi+ pi- pi+ pi-                PHSP;
+0.1    K+  K-  K+ K-                  PHSP;
+0.1    K+  K-  pi+ pi-                PHSP;
+0.1    pi0  K+  K-                    PHSP;
+0.05    K+ MyK_S0 pi-                      PHSP;
+0.05    K- MyK_S0 pi+                      PHSP;
+Enddecay
+#
+Decay MyK_S0
+  1.00000 pi+ pi-            PHSP;
+Enddecay
+#
+Decay MyPhi
+1.0000  K+ K-                VSS;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+

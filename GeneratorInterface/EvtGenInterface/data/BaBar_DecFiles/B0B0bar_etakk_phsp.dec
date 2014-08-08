@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> eta K+ K- + cc              #
+#                   |                             #
+#                   g g                           #
+#                                                 #
+# Author: Vasia Shelkov                           #
+# Date:                    30 January   2001      #
+###################################################
+#
+Define alpha 1.365
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myeta eta
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 eta K+ K-                    PHSP;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 eta K+ K-                   PHSP;
+Enddecay 
+#
+Decay Myeta
+1.0000     gamma  gamma              PHSP;
+Enddecay
+#
+End
+
+
+

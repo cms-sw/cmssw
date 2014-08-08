@@ -1,0 +1,59 @@
+###################################################################
+# B0  --> Y3915  Ks            B- --> Generic  xx                 #
+#         |                                                       #
+#         |                                                       #
+#         |-->jpsi(ee,mumu) Omega                                 #
+#         | the width of Y(3915) is 20 MeV                        # 
+#  + charge conjugate                                             #
+#                                                                 #
+#                                                                 #
+# Author: Arafat Gabareen Mokhtar (Colorado State University)     #
+###################################################################
+#
+#
+#
+#
+# Alias particles for specific decays
+# Particle <name> <mass> <width>
+Particle dummy00_1 3.915 0.02
+ChangeMassMin  dummy00_1 3.6
+ChangeMassMax  dummy00_1 4.3
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyX dummy00_1
+Alias MyJpsi J/psi
+Alias MyOmega omega
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+0.5000 MyB0     anti-B0              VSS;
+0.5000 Myanti-B0     B0              VSS;
+Enddecay
+#
+Decay MyB0
+1.000 MyX MyK_S0 PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyX MyK_S0 PHSP;
+Enddecay
+#
+Decay MyX
+1.000  MyJpsi omega   PHSP;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+Decay MyOmega
+1.000    pi-  pi+  pi0                  OMEGA_DALITZ;
+Enddecay
+#
+Decay MyK_S0
+1.000 pi+ pi-    PHSP;
+Enddecay
+#
+#
+End

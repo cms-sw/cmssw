@@ -1,0 +1,19 @@
+###################################################
+#                                                 #
+# Decay: D_s -> omega pi-                         # 
+#                                                 #
+# Author: Ping Wang, IHEP, Beijing                #
+# Mail :  wangp@SLAC.stanford.edu                 #
+# Date: 20/Nov/2000                               #
+###################################################
+#
+#
+# set virtual photons to go to ccbar 
+Decay vpho
+1.000                     JSCONT   4;
+Enddecay
+Decay D_s- 
+1.0       omega   pi-       SVS;
+Enddecay
+#
+End

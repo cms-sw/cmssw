@@ -1,0 +1,41 @@
+Alias MyKS0 K_S0
+Alias MyD0 D0
+Alias MyantiD0 anti-D0
+Alias MyDstar+ D*+
+Alias MyDstar- D*-
+
+#
+# The following parameters attempt to harden the p* distribution
+# to better match data
+#
+JetSetPar PARJ(41)=.10
+JetSetPar PARJ(42)=.73
+
+#
+# Redefinition of D'_s1+, to match that of SP6, for
+# SP5 compatibility
+#
+Particle D'_s1+ 2.53535  0.001
+Particle D'_s1- 2.53535  0.001
+
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+Decay D'_s1+
+1.000 MyDstar+ MyKS0	PHSP;
+Enddecay
+#
+Decay MyDstar+
+1.000 MyD0 pi+		VSS;
+Enddecay
+#
+Decay MyD0
+1.000 K- pi+ pi+ pi-	PHSP;
+Enddecay
+#
+Decay MyKS0
+1.000 pi+ pi-		PHSP;
+Enddecay
+#
+End

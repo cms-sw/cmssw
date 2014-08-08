@@ -1,0 +1,233 @@
+###################################################
+#                                                 #
+# Ups(4S) production                              #
+# D+/- -> Ks pi, Ks pi pi0, Ks 3pi,               #
+#         K 2pi, K 2pi pi0                        #  
+#                                                 #
+# created: D. del Re 11/07/01                     #
+#          daniele@slac.stanford.edu              #
+###################################################
+#
+Alias my-a_1+ a_1+
+Alias my-a_1- a_1-
+#
+Alias my-anti-K0 anti-K0
+Alias my-K0 K0
+Alias my-K_S0 K_S0
+#
+Alias my-K*0 K*0
+Alias my-anti-K*0 anti-K*0
+#
+Alias my2-K*0 K*0
+Alias my2-anti-K*0 anti-K*0
+#
+Alias my-K_0*0 K_0*0
+Alias my-anti-K_0*0 anti-K_0*0
+#
+Alias my-K''*0 K''*0
+Alias my-anti-K''*0 anti-K''*0
+#
+Alias my-K'_10 K'_10
+Alias my-anti-K'_10 anti-K'_10
+#
+Alias my2-K'_10 K'_10
+Alias my2-anti-K'_10 anti-K'_10
+#
+Alias my-K*+ K*+
+Alias my-K*- K*-
+#
+Alias my2-K*+ K*+
+Alias my2-K*- K*-
+#
+#
+Decay D+
+#
+#
+# Ks pi
+0.0098   my-anti-K0   pi+                PHSP;
+#
+# K-  pi+  pi+      
+# Dalitz here, PDG modes (commented) just below
+0.0900   K-  pi+  pi+                    D_DALITZ; 
+# these 4 modes below are K*bar(892)0 pi+, 
+# K*bar(1430)0 pi+, and K*bar(1680)0 pi+ and non res 
+#0.0127   my-anti-K*0 pi+                 SVS;
+#0.0230   my-anti-K_0*0 pi+               PHSP;
+#0.0037   my-anti-K''*0 pi+               SVS;
+#0.0850   K-  pi+  pi+                    PHSP;
+#
+# Ks  pi+  pi0      
+# these 3 modes below are K0 rho+, 
+# K*bar(892)0 pi+, Ks pi pi0 non res
+0.0224   rho+    my-anti-K0              SVS;
+0.0021   anti-K_0*0N  pi+                PHSP;       
+0.0042   my-anti-K0   pi+  pi0           PHSP;
+#
+# K  pi+ pi+ pi0  
+# these 6 modes below are K*bar(892)0 rho+, K1(1400)0 pi+, K- rho+ pi+,
+# K*bar(892)0 pi pi0, K*bar(892)- pi pi, Ks  pi+  pi0 non res
+0.0140   my-anti-K*0 rho+                SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0220   my-anti-K'_10 pi+               SVS;
+0.0110   K-  rho+  pi+                   PHSP;    
+0.0280   my-anti-K*0 pi0  pi+            PHSP;    
+0.0070   my-K*- pi+  pi+                 PHSP;      
+0.0120   K-  pi+  pi+   pi0              PHSP;  
+#
+# Ks  pi+ pi+ pi-
+# these 5 modes are Ks a1, K1(1400)0 pi+,   K*bar(892)- pi pi, 
+# Ks rho0 pi+, Ks pi+ pi+ pi- non res
+0.0123   my-a_1+ my-anti-K0              SVS;  
+0.0074   my2-anti-K'_10 pi+              SVS;
+0.0048   my2-K*- pi+  pi+                PHSP;   
+0.0017   my-anti-K0  rho0  pi+           PHSP;    
+0.0027   my-anti-K0   pi+  pi+   pi-     PHSP;   
+Enddecay
+#
+#
+#
+Decay D-
+#
+#
+# Ks pi
+0.0098   my-K0   pi-                     PHSP;
+#
+# K+  pi-  pi-      
+# Dalitz here, PDG modes (commented) just below
+0.0900   K+  pi-  pi-                    D_DALITZ; 
+# these 4 modes below are K*(892)0 pi-, 
+# K*(1430)0 pi-, and K*(1680)0 pi-  and non res 
+#0.0127   my-K*0 pi-                      SVS;
+#0.0230   my-K_0*0 pi-                    PHSP;
+#0.0037   my-K''*0 pi-                    SVS;
+#0.0850   K+  pi-  pi-                    PHSP;
+#
+# Ks  pi+  pi0      
+# these 3 modes below are K0 rho+, 
+# K*bar(892)0 pi+, Ks pi pi0 non res
+0.0224   rho- my-K0                      SVS;
+0.0021   K_0*0N  pi-                     PHSP;       
+0.0042   my-K0   pi-  pi0                PHSP;
+#
+# K+  pi- pi- pi0  
+# these 6 modes below are K*bar(892)0 rho+, K1(1400)0 pi+, K- rho+ pi+,
+# K*bar(892)0 pi pi0, K*bar(892)- pi pi, Ks  pi+  pi0 non res
+0.0140   my-K*0 rho-                     SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0220   my-K'_10 pi-                    SVS;
+0.0110   K+  rho-  pi-                   PHSP;   
+0.0280   my-K*0 pi0  pi-                 PHSP;   
+0.0070   my-K*+ pi-  pi-                 PHSP;      
+0.0120   K+  pi-  pi-   pi0              PHSP;  
+#
+# Ks  pi+ pi+ pi-
+# these 5 modes are Ks a1, K1(1400)0 pi+,   K*bar(892)- pi pi, 
+# Ks rho0 pi+, Ks pi+ pi+ pi- non res
+0.0136   my-a_1- my-K0                   SVS;  
+0.0074   my2-K'_10 pi-                   SVS;
+0.0048   my2-K*+ pi-  pi-                PHSP;   
+0.0017   my-K0  rho0  pi-                PHSP;   
+0.0027   my-K0   pi-  pi-   pi+          PHSP;   
+Enddecay
+#
+#
+#
+#
+# Redefined modes
+#
+Decay my-K0
+0.500     my-K_S0                        PHSP;
+Enddecay				
+#					
+Decay my-anti-K0			
+0.500     my-K_S0                        PHSP;
+Enddecay				
+#					
+Decay my-K_S0				
+0.6861    pi+  pi-                       PHSP;
+Enddecay				
+#					
+#					
+Decay my-K*0				
+0.6657      K+  pi-                      VSS;
+Enddecay				
+#					
+Decay my-anti-K*0			
+0.6657      K-  pi+                      VSS;
+Enddecay			
+#	
+#					
+Decay my2-K*0				
+0.3323      my-K0  pi0                   VSS;
+Enddecay			
+#					
+Decay my2-anti-K*0			
+0.3323      my-anti-K0  pi0              VSS;
+Enddecay				
+#					
+#					
+Decay my-K_0*0				
+0.6667      K+  pi-                      PHSP;
+Enddecay				
+#					
+Decay my-anti-K_0*0			
+0.6667      K-  pi+                      PHSP;
+Enddecay				
+#					
+#					
+Decay my-K''*0                		
+0.2580   K+  pi-                         VSS;
+Enddecay				
+#					
+Decay my-anti-K''*0              	
+0.2580   K-  pi+                         VSS;
+Enddecay				
+#	
+#				
+Decay my-K'_10				
+0.6300   my-K*+  pi-                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.3100   my-K*0  pi0                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#					
+Decay my-anti-K'_10			
+0.6300   my-K*-  pi+                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.3100   my-anti-K*0  pi0                VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#	
+#				
+Decay my2-K'_10				
+0.6300   my2-K*+  pi-                    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#					
+Decay my2-anti-K'_10			
+0.6300   my2-K*-  pi+                    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#			
+#				
+Decay my-K*+				
+0.3330      K+  pi0                      VSS;
+Enddecay				
+#					
+Decay my-K*-				
+0.3330      K-  pi0                      VSS;
+Enddecay				
+#
+#
+Decay my2-K*+				
+0.6660      my-K0  pi+                   VSS;
+Enddecay				
+#					
+Decay my2-K*-				
+0.6660      my-anti-K0  pi-              VSS;
+Enddecay
+#
+#
+Decay my-a_1+
+0.4920   rho0 pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay my-a_1-
+0.4920   rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+#
+End

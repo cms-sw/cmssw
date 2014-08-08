@@ -1,0 +1,21 @@
+Alias MyK0 K0
+Alias Myanti-K0 anti-K0
+Alias MyK_S0 K_S0
+Alias phiKK phi
+#
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+#Decay D_s-
+#1.000 phiKK pi-                SVS;
+#Enddecay
+#
+Decay D_s+
+1.000 phiKK  pi+                SVS;
+Enddecay
+#
+Decay phiKK
+1.0   K+   K-                  VSS;
+Enddecay   
+End

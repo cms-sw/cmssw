@@ -1,0 +1,43 @@
+############################################################
+#                                                          #
+# Decay: anti-B0 -> J/psi   eta,         B0 -> X           #
+#                   |-> e+e-   |->gamma gamma              #
+#                   |-> mu+mu- |->pi+ pi- pi0              #
+#                                                          #
+#                                                          #
+# Author: Jinlong Zhang                                    #
+############################################################
+#
+Alias MyB0 B0
+Alias MyJ/psi J/psi
+Alias MyEta eta
+Alias Myanti-B0 anti-B0
+Define dm .464e12
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000  MyJ/psi  MyEta           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+1.0000  MyJ/psi  MyEta           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   VLL;
+Enddecay
+#
+Decay MyEta
+0.5000    gamma gamma                      PHSP;
+0.5000    pi- pi+ pi0                    ETA_DALITZ;
+Enddecay
+#
+End
+
+
+
+

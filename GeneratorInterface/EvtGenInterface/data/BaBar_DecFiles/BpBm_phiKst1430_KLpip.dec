@@ -1,0 +1,48 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> phi K*+(1430) -> (K+K-)(KLpi+)         #
+#             B- -> generic                        +cc     #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  10/18/2000                                     #
+# Modified by:  Matt Graham...				   #	
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K_2*+
+Alias MyK*- K_2*-
+Alias MyPhi phi
+
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyPhi MyK*+      PHSP;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyPhi MyK*-      PHSP;  
+Enddecay 
+#
+Decay MyK*+
+1.0000  K_L0 pi+          TSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  K_L0 pi-          TSS;
+Enddecay
+Decay MyPhi
+1.0000  K+ K-               VSS;                    
+Enddecay
+#
+End

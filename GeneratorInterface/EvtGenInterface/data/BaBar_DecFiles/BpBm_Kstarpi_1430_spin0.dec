@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# B+ -> K_0*+ pi0     (33.33 %)     + c.c.        #
+#    |                                            #
+#    |                                            #
+#    -> K_0*0 pi+     (66.67 %)                   # 
+#                                                 #
+# Author:  Jan Stark     stark@in2p3.fr           #
+# Created: 7/Oct/2002                             #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> K_0* pi
+# using a simple phase-space model.
+# The K_0* decays according to the official DECAY.DEC file.
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-               VSS;
+0.5000 MyB- B+               VSS;
+Enddecay
+#
+Decay MyB+
+0.3333 K_0*+ pi0             PHSP;
+0.6667 K_0*0 pi+             PHSP;
+Enddecay
+#
+Decay MyB-
+0.3333 K_0*- pi0             PHSP;
+0.6667 anti-K_0*0 pi-        PHSP;
+Enddecay
+End

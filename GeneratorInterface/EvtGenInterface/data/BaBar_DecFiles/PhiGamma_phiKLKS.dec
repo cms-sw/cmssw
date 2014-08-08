@@ -1,0 +1,21 @@
+############################################################
+#                                                          #
+# Decay: e+ e-  -> Phi  Gamma                              #
+#                   |                                      #
+#                   --> Kshort + Klong                     #
+#                                                          #
+#                                                          #
+# Author: Dennis Wright                                    #
+# Created:  5 May 2002                                     #
+############################################################
+#
+Decay vpho
+1.00  phi gamma VECTORISR 0.9 0.9;
+Enddecay
+
+Decay phi
+1.00 K_S0 K_L0        PHSP;
+Enddecay
+
+End
+

@@ -1,0 +1,50 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ -> D0 pi+, D0 -> K- K+ pi+ pi-              #
+#                                                 #
+# created: Francisco Yumiceva                     #
+#          yumiceva@beauty.physics.sc.edu         #
+###################################################
+#
+
+Alias my-D0 D0
+Alias my-K*0 K*0
+Alias my-anti-K*0 anti-K*0
+Alias my-phi phi
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*+
+0.6830    my-D0  pi+                        VSS;
+Enddecay
+#
+Decay my-D0
+#
+0.0005   my-phi  pi+  pi-                PHSP;
+0.0003   my-phi rho0                     SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0005   my-K*0  K-  pi+                 PHSP;
+0.0005   my-anti-K*0  K+  pi-            PHSP;
+0.0006   my-K*0 my-anti-K*0              PHSP;
+0.0008   K+  K-  pi+  pi-                PHSP;
+0.0009   K+  K-  rho0                    PHSP;
+Enddecay
+#         
+Decay my-phi
+0.49  K+  K-                               VSS;
+Enddecay
+#         
+Decay my-anti-K*0
+0.6657      K-  pi+                        VSS;
+Enddecay
+#
+Decay my-K*0
+0.6657      K+  pi-                        VSS;
+Enddecay
+#
+End

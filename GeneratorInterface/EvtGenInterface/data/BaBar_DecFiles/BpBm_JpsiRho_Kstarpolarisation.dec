@@ -1,0 +1,100 @@
+###################################################################
+# B+ --> J/psi rho+              B- --> Generic                   #
+#         |    |                                                  #
+#         |    |-->pi+ pi0                                        #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+# helicity amplitudes set to K* ones                              #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: Jamie Boyd 11 Sep 2000                                  #
+###################################################################
+#
+#
+#Define dm 0.464e12
+
+#
+#Define the helicity amplitudes starting
+#from the transversity amplitudes:
+#	Aplus  0.566
+#	Azero  1.02
+#	Aminus 0.4
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Note: Hzero following convention from Dunietz & al. To
+# be consistent with cleo measurements all phases should be == 0
+
+# put all the amplitudes in the same for now ??
+# not sure what they should be yet.
+Define Hplus  0.683
+Define Hzero  0.721
+Define Hminus 0.117
+
+Define phHplus  0.0
+Define phHzero  0.0
+Define phHminus 0.0
+#
+# Alias particles for specific decays
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyRho+ rho+
+Alias MyRho- rho-
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.000 MyJpsi  MyRho+              SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyB-
+1.000 MyJpsi  MyRho-              SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyRho+
+1.000 pi+   pi0             VSS;
+Enddecay
+#
+Decay MyRho-
+1.000 pi-   pi0             VSS;
+Enddecay
+#
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

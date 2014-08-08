@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# B+ -> a1+ K0s   + c.c.                          #
+#                                                 #
+# Author: Matt Graham   mgraham@slac.stanford.edu #
+# Created: 30 Jan  2004                           #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> a1+ K0s
+# using a simple (S)calar to (V)ector-(S)calar model.
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+# include 
+Decay Upsilon(4S)  
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000  a_1+ K_S0           SVS;
+Enddecay
+#
+Decay MyB-
+1.000  a_1- K_S0           SVS;
+Enddecay
+
+End       

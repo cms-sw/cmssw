@@ -1,0 +1,111 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> chi_c1      K+,       B- -> X          #
+#                   |                                      #
+#                   -> several hadronic modes              #
+#                       (allowed and not)                  #
+#             + cc                                         #
+#                                                          #
+#                                                          #
+#                                                          #
+# Author: S. Tosi        10/01/03                          #
+############################################################
+#
+Define beta 0.75
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+#
+Alias MyK_S0 K_S0
+Alias Myeta eta
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+Alias MyK*+ K*+
+Alias MyK*- K*-
+#
+Alias MyChic1 chi_c1
+#
+Decay Upsilon(4S)
+  0.5000  MyB+      B-       VSS;
+  0.5000  MyB-      B+       VSS;
+Enddecay
+#
+#
+Decay MyB+
+  1.0000  MyChic1 K+     SVS;
+Enddecay
+#
+#
+Decay MyB-
+  1.0000  MyChic1 K-     SVS;
+Enddecay
+#
+# Intentionally same branching fractions and PHSP
+# for all the modes
+#
+Decay MyChic1
+  1.0000    rho0 rho0                      PHSP;
+  1.0000    rho0 pi+ pi-                   PHSP;
+  1.0000    pi+ pi- pi+ pi-                PHSP;
+  1.0000    MyK*0 Myanti-K*0               PHSP; 
+  0.5000    Myanti-K*0  K+  pi-            PHSP;
+  0.5000    MyK*0  K-  pi+                 PHSP;
+  1.0000    pi+  pi-  K+  K-               PHSP;
+  1.0000    pi+  pi-  p+  anti-p-          PHSP;
+  0.5000    MyK*0  MyK_S0                  PHSP;
+  0.5000    Myanti-K*0  MyK_S0             PHSP;  
+  0.5000    K+  MyK_S0 pi-                 PHSP;
+  0.5000    K-  MyK_S0 pi+                 PHSP;
+  0.5000    MyK*+ K-                       PHSP;
+  0.5000    MyK*- K+                       PHSP;
+  1.0000    pi0  K+  K-                    PHSP;
+  1.0000    K+  K-  K+  K-                 PHSP;
+  1.0000    p+  anti-p-                    PHSP;
+  1.0000    Myeta  pi+ pi-                 PHSP; 
+  0.3333    rho0 pi0                       PHSP;
+  0.3333    rho+ pi-                       PHSP;
+  0.3333    rho- pi+                       PHSP;
+  1.0000    pi0 pi- pi+                    PHSP;
+Enddecay 
+# 
+#
+#
+Decay MyK*0
+  0.6657      K+  pi-                        VSS;
+Enddecay
+#
+Decay Myanti-K*0
+  0.6657      K-  pi+                        VSS;
+Enddecay
+#
+Decay MyK*+
+  0.3330      MyK_S0  pi+                    VSS;
+  0.3330      K+  pi0                        VSS;
+Enddecay
+#
+Decay MyK*-
+  0.3330      MyK_S0  pi-                    VSS;
+  0.3330      K-  pi0                        VSS;
+Enddecay
+#
+#
+Decay Myeta
+  0.2320 pi- pi+ pi0           ETA_DALITZ;
+  0.3925 gamma gamma           PHSP;
+Enddecay 
+#
+Decay MyK_S0
+  1.00000 pi+ pi-            PHSP;
+Enddecay 
+#
+End
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,52 @@
+            ####################################################
+           #                                                   #
+           # Decay: B- -> eta K*-     B+ -> X    + c.c.        #
+           #               |  |                                #
+           #               |   -> K- pi0                       #
+           #               |                                   #
+           #                 -> gamma gamma                    #
+           #                                                   #
+           #                                                   #
+           # Author: J. Smith      22/March/00                 #
+           #                                                   #
+           #####################################################
+
+
+#
+#
+
+
+Alias Myeta eta
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyKstar+ K*+
+Alias MyKstar- K*-
+ChargeConj MyB+  MyB-
+ChargeConj MyKstar+  MyKstar-
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                     VSS;
+0.500   B+       MyB-                     VSS;
+Enddecay
+#
+Decay MyB-
+1.0000     MyKstar-   Myeta               SVS;
+Enddecay
+#
+Decay MyB+
+1.0000     MyKstar+   Myeta               SVS;
+Enddecay
+#
+Decay Myeta
+1.0000     gamma  gamma                   PHSP;
+Enddecay
+#
+Decay MyKstar+
+1.000 K+   pi0                            VSS;
+Enddecay
+#
+Decay MyKstar-
+1.000 K-   pi0                            VSS;
+Enddecay
+#
+End

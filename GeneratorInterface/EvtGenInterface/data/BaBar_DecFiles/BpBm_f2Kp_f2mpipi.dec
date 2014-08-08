@@ -1,0 +1,40 @@
+###################################################
+#                                                 #
+# B0 -> f2(1270) K+   + c.c.                      #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi-                             #
+#                                                 #
+# Author: Kelly Ford                              # 
+# Created: 06-Feb-2004                            #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> f2(1270) K+ 
+# The f2 decays to pi+ pi- using the TSS model
+# f2(1270) resonance parameters unchanged (seem ok in pdg.table)
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias Myf2 f_2
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+1.000  Myf2 K+            STS;
+Enddecay
+#
+Decay MyB-
+1.000  Myf2 K-            STS;
+Enddecay
+#
+Decay Myf2
+1.000  pi- pi+            TSS;
+Enddecay
+End
+
+
+

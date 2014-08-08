@@ -1,0 +1,45 @@
+###########################################################
+#                                                         #
+# Decay: B+ -> a1+ pi0 +cc                                #
+#                                                         #
+#                                                         #
+# Author: Gian Gopal                                      #
+# Date:                    19/March/99                    #
+# Modified; G.London 22/March/99                          #
+#           A Bevan (from b0b0bar a1+pi- +cc) 29 March 01 #
+###########################################################
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias mya_1+ a_1+
+Alias mya_1- a_1-
+ChargeConj mya_1+ mya_1-
+#
+Decay Upsilon(4S)
+0.5 MyB+ B- VSS ;
+0.5 MyB- B+ VSS ;
+Enddecay
+#
+Decay MyB+
+1.0000 mya_1+ pi0                       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay mya_1+
+1.0000   rho0 pi+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyB-
+1.0000 mya_1- pi0                       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay mya_1-
+1.0000   rho0 pi-                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End   
+
+
+
+

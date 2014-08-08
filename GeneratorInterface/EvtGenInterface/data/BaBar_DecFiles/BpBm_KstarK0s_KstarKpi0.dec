@@ -1,0 +1,44 @@
+###################################################
+#                                                 #
+# B+ -> K*+ K0s   + c.c.                          #
+#        |                                        #
+#        `--> K+ pi0                              # 
+#                                                 #
+# Author: John Back     jback@slac.stanford.edu   #
+# Created: 15 Sept 2000                           #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> K*+ K0s
+# using a simple (S)calar to (V)ector-(S)calar model.
+# The K*+ decays to K+ pi0 (using a simple VSS model).
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+#
+Decay Upsilon(4S)
+0.500 MyB+  B-               VSS;
+0.500 MyB-  B+               VSS;
+Enddecay
+#
+Decay MyB+
+1.000  MyK*+ K_S0            SVS;
+Enddecay
+#
+Decay MyB-
+1.000  MyK*- K_S0            SVS;
+Enddecay
+#
+Decay MyK*+
+1.000  K+ pi0                VSS;
+Enddecay
+#
+Decay MyK*-
+1.000  K- pi0                VSS;
+Enddecay
+#
+End

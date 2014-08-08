@@ -1,0 +1,41 @@
+############################################################
+#                                                          #
+# Decay:      B+   -> phiK+K-K+                            #
+#             B-     -> generic                            #
+#                                                          #
+# Author: Prafulla Kumar Behera                            #
+# e-mail: behera@slac.stanford.edu                         #
+# Created:  04/29/2004                                     #
+#                                                          #
+#                                                          #
+############################################################
+#
+Alias MyPhi   phi
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+# 
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyPhi K+ K- K+               PHSP;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyPhi K- K+ K-               PHSP;
+Enddecay 
+#
+Decay MyPhi
+1.0000  K+ K-               VSS;
+Enddecay
+#
+End
+
+

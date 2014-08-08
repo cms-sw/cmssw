@@ -1,0 +1,53 @@
+######################################################################
+# B0~ --> psi2s K0s           B0 --> Generic                         #      
+#         |      |                                                   # 
+#         |      |-->pi0pi0                                          #
+#	  |     						     #	
+#         |							     #
+#	  |-->mu+mu-/e+e-					     #		
+#         |							     #
+#	  |-->J/psi pi+pi-					     #
+#	       |						     #
+#	       |-->mu+mu-/e+e-					     #
+#								     #
+#  + cc								     #
+# Author: D. Payne	13/9/2000				     #
+# Mail: djpayne@slac.stanford.edu				     #
+######################################################################
+#
+#	
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mypsi(2S) psi(2S)
+Alias MyJ/psi J/psi
+Alias MyK0s K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Mypsi(2S)  MyK0s       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Mypsi(2S)  MyK0s       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Mypsi(2S)   
+#0.700  MyJ/psi  pi+ pi-      PHSP;
+0.700  MyJ/psi  pi+ pi-      VVPIPI;
+0.1500    e+   e-              PHOTOS  VLL;
+0.1500   mu+  mu-              PHOTOS VLL;  
+Enddecay
+#
+Decay MyJ/psi
+0.5000    e+   e-              PHOTOS  VLL;
+0.5000   mu+  mu-              PHOTOS VLL;
+Enddecay
+#				Ks --> pi0 pi0 (100%) 
+Decay MyK0s
+1.0000  pi0 pi0                PHSP;
+Enddecay
+End

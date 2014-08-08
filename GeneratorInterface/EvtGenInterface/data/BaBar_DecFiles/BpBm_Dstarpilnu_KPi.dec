@@ -1,0 +1,56 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X      B- -> D*+ pi- l- anti-nu_l      #
+#                           |-> D0 pi                 #
+#                               |-> K pi              #
+#                                                     #
+# with l = e or mu                                    #
+#                               + CC                  #
+#                                                     #
+# Author: Rolf Dubitzky                               #
+# Created:                  15/Oct/99                 #
+# Mail: dubitzky@SLAC.STANFORD.EDU                    #
+#######################################################
+#
+
+#
+Alias myB-       B-
+Alias myB+       B+
+Alias myD*+      D*+
+Alias myD*-      D*-
+Alias myanti-D0  anti-D0
+Alias myD0       D0
+#
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+Decay myB+
+0.5000   myD*-  pi+   e+   nu_e           PHOTOS GOITY_ROBERTS;
+0.5000   myD*-  pi+   mu+  nu_mu          PHOTOS GOITY_ROBERTS;
+Enddecay
+#
+Decay myB-
+0.5000   myD*+  pi-   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+0.5000   myD*+  pi-   mu-  anti-nu_mu     PHOTOS  GOITY_ROBERTS;
+Enddecay
+#
+Decay myD*+
+1.0000    myD0  pi+                       VSS;
+Enddecay
+#
+Decay myD*-
+1.0000    myanti-D0  pi-                  VSS;
+Enddecay
+#
+Decay myD0
+1.0000   K-  pi+                          PHSP;
+Enddecay
+#
+Decay myanti-D0
+1.0000   K+  pi-                          PHSP;
+Enddecay
+#
+
+End

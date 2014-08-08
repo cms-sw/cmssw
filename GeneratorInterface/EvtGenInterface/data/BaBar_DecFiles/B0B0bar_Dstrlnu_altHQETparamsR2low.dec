@@ -1,0 +1,80 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> X       anti-B0->D*+ l- anti-nu_l      #
+#                               |->D0 pi+             #
+#                                  |-> Kpi, K3pi, Kpipi0, Kspipi
+#                                                     #
+# with l = e or mu 				      #
+#				+ CC		      #
+# Comments: using default value for dm                #
+#                                                     #
+# Author: M.H. Schune + S. Plaszczynski               #
+# Created:                  09/Feb/99                 #
+# Altered: MS Gill          22/Dec/2002               #
+#   Contact: msgill@slac.stanford.edu                 #
+#######################################################
+#
+
+#
+Alias MyB0B  anti-B0
+Alias MyB0  B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+Alias MyK*+  K*+
+Alias MyK*-  K*-
+Alias MyKs   K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+#
+#
+Decay MyB0B
+0.5000   MyD*+    e-   anti-nu_e          PHOTOS  HQET 0.92 1.18 0.50;
+0.5000   MyD*+    mu-  anti-nu_mu         PHOTOS  HQET 0.92 1.18 0.50;
+Enddecay
+#
+Decay MyB0
+0.5000   MyD*-    e+   nu_e          PHOTOS  HQET 0.92 1.18 0.50;
+0.5000   MyD*-    mu+  nu_mu         PHOTOS  HQET 0.92 1.18 0.50;
+Enddecay
+#
+Decay MyD*+
+1.0000    MyD0  pi+                        VSS;
+Enddecay
+#
+Decay MyD*-
+1.0000    MyD0B  pi-                        VSS;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+0.0746   K-  pi+ pi- pi+                 PHSP;
+0.131    K-  pi+ pi0                     PHSP;
+0.0207   MyK*-  pi+                     SVS;
+0.0089   MyKs   pi+  pi-                PHSP;  
+Enddecay
+#
+Decay MyD0B
+0.0391   K+  pi-                         PHSP;
+0.0746   K+  pi- pi- pi+                 PHSP;
+0.131    K+  pi- pi0                     PHSP;
+0.0207   MyK*+  pi-                     SVS;
+0.0089   MyKs   pi+  pi-                PHSP;  
+Enddecay
+#
+Decay MyK*-
+1.0000  MyKs  pi-                      VSS;
+Enddecay
+#
+Decay MyK*+
+1.0000  MyKs  pi+                     VSS;
+Enddecay
+#
+Decay MyKs
+1.0000  pi+    pi-                     PHSP;
+Enddecay
+#
+End

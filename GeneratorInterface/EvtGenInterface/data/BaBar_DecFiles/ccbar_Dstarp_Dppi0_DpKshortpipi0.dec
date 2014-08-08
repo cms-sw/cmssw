@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ -> D+ pi0, D+ -> KS pi+ pi0                 #
+#                            and C.C.             #
+# created: G.Cavoto             	          #
+#           		              	          #
+###################################################
+#
+
+Alias my-D+ D+
+Alias my-D- D-
+Alias my-K_S0 K_S0
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*+
+1.     my-D+  pi0                        VSS;
+Enddecay
+#
+Decay my-D+
+1.   my-K_S0  pi0  pi+                PHSP;
+Enddecay
+#
+Decay D*-
+1.     my-D-  pi0                        VSS;
+Enddecay
+#
+Decay my-D-
+1.   my-K_S0  pi0  pi-                PHSP;
+Enddecay
+# 
+Decay my-K_S0
+1.000    pi+  pi-                          PHSP;
+Enddecay
+
+#         
+End

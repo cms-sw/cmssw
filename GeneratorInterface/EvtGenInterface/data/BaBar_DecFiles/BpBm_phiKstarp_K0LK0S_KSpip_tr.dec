@@ -1,0 +1,53 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> phi K*+ -> (K0LK0S)(K0pi+)             #
+#             B- -> generic                        +cc     #
+#                                                          #
+# Author: Haibo Li                                         #
+# e-mail: lihb@slac.stanford.edu                           #
+# Created:  11/05/2003                                     #
+#                                                          #
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+Alias MyPhi phi
+Alias MyK_S0 K_S0
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyPhi MyK*+      SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyB-
+1.0000  MyPhi MyK*-      SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyK*+
+1.0000  MyK_S0 pi+          VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  MyK_S0 pi-          VSS;
+Enddecay
+#
+Decay MyPhi
+1.0000  MyK_S0 K_L0        VSS;
+Enddecay
+#
+Decay MyK_S0
+1.000   pi+ pi-             PHSP;
+Enddecay
+#
+End

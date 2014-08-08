@@ -1,0 +1,115 @@
+###################################################
+#                                                 #
+# Ups(4S) -> gamma Chib1(3P)                      #
+#                  Chib1(3P)->gamma Ups(3S or 2S) #
+#                                   Ups->l+l-     #
+# Author: Joe Izen                                #
+# created:                   13/Jul/00            #
+###################################################
+#
+# EvtGen card Ups4s -> gamma chi_b1(3P), chi_b1(3P) ->gamma Ups(3S)
+# Default Upsilon(3S) decay
+#
+# Partial wave amplitudes for V -> gamma V in helicity formalism 
+# Reference: R. Kutschke "An Angular Distribution Cookbook"
+# Calculation on p 124 of Joe's log book
+#
+# L S  M(L,S) Ups4s -> gamma chi_b1(3P)
+#             Ups3s -> gamma chi_b1(2P)
+#             chi_b1(3P) ->gamma Ups(3S)
+# 0 1  (1/2) * (  A( 1 1) + A( 1 0) - A(-1 0) - A(-1 -1) )
+#
+# Note Parity conservation for EM or Strong decays requires L = 0 or 2
+# Assume L=0 dominates.
+#
+Define VGV_1_1      1.0
+Define VGV_1_0      1.0
+Define VGV_-1_0    -1.0
+Define VGV_-1_-1   -1.0
+#
+Define argVGV_1_1   0.0
+Define argVGV_1_0   0.0
+Define argVGV_-1_0  0.0
+Define argVGV_-1_-1 0.0
+#===========================================================
+# Partial wave amplitudes for V -> gamma T in helicity formalism 
+# Reference: R. Kutschke "An Angular Distribution Cookbook"
+# Calculation on p 125 of Joe's log book
+#
+# L S  M(L,S) Ups3s -> gamma chi_b2(3P)
+#
+# 0 1  (  ) * (  sqrt(6)*A(1 2)  + sqrt(3)*A( 1 1)  +         A( 1 0) 
+#                        A(-1 0) + sqrt(3)*A(-1 -1) + sqrt(6)*A(-1 -2) )
+#
+# Note Parity conservation for EM or Strong decays requires L = 0 or 2
+# Assume L=0 dominates.
+#
+Define VGT_1_2      2.4494897
+Define VGT_1_1      1.7320508
+Define VGT_1_0      1.0
+Define VGT_-1_0     1.0
+Define VGT_-1_-1    1.7320508
+Define VGT_-1_-2    2.4494897
+#
+Define argVGT_1_2   0.0
+Define argVGT_1_1   0.0
+Define argVGT_1_0   0.0
+Define argVGT_-1_0  0.0
+Define argVGT_-1_-1 0.0
+Define argVGT_-1_-2 0.0
+
+#===========================================================
+# Partial wave amplitudes for V -> gamma S in helicity formalism 
+# Reference: R. Kutschke "An Angular Distribution Cookbook"
+# Calculation on p 125 of Joe's log book
+#
+# L S  M(L,S) Ups3s -> gamma chi_b0(3P)
+#
+# 0 1  (  ) * (  A( 1 0) - A(-1 0) )
+#
+# Note Parity conservation for EM or Strong decays requires L = 0 or 2
+# Assume L=0 dominates.
+#
+Define VGS_1_0      1.0
+Define VGS_-1_0    -1.0
+#
+Define argVGS_1_0   0.0
+Define argVGS_-1_0  0.0
+#===========================================================
+
+Decay Upsilon(4S)
+1.00        gamma chi_b1(3P)   HELAMP  VGV_1_1  argVGV_1_1   VGV_1_0   argVGV_1_0   
+                                       VGV_-1_0 argVGV_-1_0  VGV_-1_-1 argVGV_-1_-1; 
+Enddecay
+#
+
+Decay chi_b1(3P)
+0.5000    gamma  Upsilon(3S)   HELAMP  VGV_1_1  argVGV_1_1   VGV_1_0   argVGV_1_0   
+                                       VGV_-1_0 argVGV_-1_0  VGV_-1_-1 argVGV_-1_-1; 
+0.5000    gamma  Upsilon(2S)   HELAMP  VGV_1_1  argVGV_1_1   VGV_1_0   argVGV_1_0   
+                                       VGV_-1_0 argVGV_-1_0  VGV_-1_-1 argVGV_-1_-1; 
+Enddecay
+
+Decay  Upsilon(3S)
+0.5000    e+    e-              PHOTOS  VLL;
+0.5000    mu+   mu-             PHOTOS  VLL;
+0.0000    tau+  tau-                    VLL;
+0.0000    Upsilon  pi+  pi-                PHSP;
+0.0000    Upsilon  pi0  pi0                PHSP;
+0.0000    Upsilon(2S)  pi+  pi-                PHSP;
+0.0000    Upsilon(2S)  pi0  pi0                PHSP;
+
+0.0000    gamma  chi_b2(2P)    HELAMP  VGT_1_2  argVGT_1_2   VGT_1_1  argVGT_1_1    VGT_1_0   argVGT_1_0   
+                                       VGT_-1_0 argVGT_-1_0  VGT_-1_-1 argVGT_-1_-1 VGT_-1_-2 argVGT_-1_-2;
+
+0.0000    gamma  chi_b1(2P)    HELAMP  VGV_1_1  argVGV_1_1   VGV_1_0   argVGV_1_0   
+                                       VGV_-1_0 argVGV_-1_0  VGV_-1_-1 argVGV_-1_-1;
+
+0.0000    gamma  chi_b0(2P)    HELAMP  VGS_1_0 argVGS_1_0   VGS_-1_0 argVGS_-1_0;
+Enddecay
+
+Decay  Upsilon(2S)
+0.5000    e+    e-              PHOTOS  VLL;
+0.5000    mu+   mu-             PHOTOS  VLL;
+Enddecay
+End

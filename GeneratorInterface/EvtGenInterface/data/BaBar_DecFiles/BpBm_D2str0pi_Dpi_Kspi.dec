@@ -1,0 +1,79 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X      B- -> D** pi                    #
+#                                                     #
+# with D**                                            #
+#    D2*0                                             #
+#          ->  D+ pi-                                 #
+#                                                     #
+#              D+ -> Ks0 pi+                          #
+#                                                     #
+#   + CC                                              #
+#                                                     #
+# Contacts:					      #
+# jong@slac.stanford.edu			      #
+# December, 2002				      #
+#                                                     #
+#######################################################
+#
+#
+Alias myB-          B-
+Alias myB+          B+
+#
+Alias myD_2*0       D_2*0 
+Alias myanti-D_2*0  anti-D_2*0   
+#
+Alias myD+          D+
+Alias myD-          D-
+#
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+Alias MyKs K_S0
+#
+#  Y
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+#  B
+Decay myB+
+1.0000   myanti-D_2*0         pi+	  STS;
+Enddecay
+#
+Decay myB-
+1.0000   myD_2*0         pi-		  STS;
+Enddecay
+
+#   D**
+Decay myD_2*0
+1.0000    myD+  pi-                        TSS;
+Enddecay
+#
+Decay myanti-D_2*0
+1.0000    myD-  pi+                        TSS;
+Enddecay
+
+#  D Meson
+Decay myD+
+1.000  Myanti-K0  pi+                        PHSP;
+Enddecay
+
+Decay myD-
+1.000  MyK0  pi-                        PHSP;
+Enddecay
+#
+#
+Decay MyK0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay MyKs
+1.00   	pi+ pi- 			PHSP;
+Enddecay
+#
+End

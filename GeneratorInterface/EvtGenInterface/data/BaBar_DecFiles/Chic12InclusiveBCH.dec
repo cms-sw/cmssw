@@ -1,0 +1,35 @@
+###################################################################
+# B0~ --> Generic            B0 --> Generic                       #
+#           |                                                     #
+# Filter a chic1 or chic 2 and ask them to decay to J/Psi Gamma   #
+#           |                                                     #
+#       J/psi gam                                                 #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+# Y.karyotakis   18 Feb 2000                                    #
+# Mail: KARYOTAK@SLAC.STANFORD.EDU
+#                                                                 #
+###################################################################
+#
+#
+Define beta 0.39
+#
+Decay Upsilon(4S)
+0.50000 B+  B-                          VSS;
+0.50000 B-  B+                          VSS;
+Enddecay
+#
+Decay chi_c1
+1.000  J/psi  gamma                VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay 
+# 
+Decay chi_c2
+ 1.000  J/psi  gamma                PHSP ;
+Enddecay 
+
+Decay J/psi
+0.5000    mu+  mu-               PHOTOS VLL;
+0.5000    e+   e-                PHOTOS  VLL;
+Enddecay 
+#
+End 

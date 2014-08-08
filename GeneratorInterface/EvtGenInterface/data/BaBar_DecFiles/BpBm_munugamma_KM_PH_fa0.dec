@@ -1,0 +1,33 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#                                                                             #
+#  Up(4S) -> B+   B-                 + CC                                     #
+#            |    |                                                           #
+#            |     ->  mu- nu_mubar gamma                                     #
+#            |                                                                #
+#             ->X                                                             #
+#                                                                             #
+#                                                                             #
+# Uses tree-level matrix element from                                         #
+# Korchemsky, Pirjol, and Yan,Phy Rev D 61 (200) 114510                       #
+#                                                                             #
+###############################################################################
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+#
+Decay Upsilon(4S)
+0.5000 B+  myB-                          VSS;
+0.5000 B-  myB+                          VSS;
+Enddecay
+#
+Decay myB+
+1.0000 mu+  nu_mu  gamma  PHOTOS LNUGAMMA 0.35 3.0 5.0 1.0;
+Enddecay
+Decay myB-
+1.0000 mu-  anti-nu_mu  gamma PHOTOS LNUGAMMA 0.35 3.0 5.0 1.0;
+Enddecay
+End
+
+

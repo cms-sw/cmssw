@@ -1,0 +1,33 @@
+###################################################
+#                                                 #
+# B+ -> K*+(->K+ pi0) e- mu+       + c.c.         #
+#                                                 #
+###################################################
+#
+Alias MyB+  B+
+Alias MyB-  B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+#
+Decay Upsilon(4S)
+0.50 MyB+  B-   VSS;
+0.50 MyB-  B+   VSS;
+Enddecay
+#
+Decay MyB+
+1.00   MyK*+  e-   mu+    PHOTOS PHSP;
+Enddecay
+#
+Decay MyB-
+1.00   MyK*-  mu-   e+    PHOTOS PHSP;
+Enddecay
+#
+Decay MyK*+
+1.0  K+  pi0                        VSS;    
+Enddecay
+#
+Decay MyK*-
+1.0  K-  pi0                        VSS;    
+Enddecay
+#
+End

@@ -1,0 +1,48 @@
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#                                                        #
+# Decay: B0 -> D*(2007)0bar p anti-p,      anti-B0 -> X  #
+#              +-> D0bar pi0                             #
+#                  +-> K+ pi- pi0                        #
+#                                                        #
+# Author: Haibo Li,  Wisconsin                           #
+# Date:   March 22  2004                                 #
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#
+Alias MyB0       B0
+Alias Myanti-B0  anti-B0
+Alias MyD*0      D*0
+Alias Myanti-D*0 anti-D*0
+Alias Myanti-D0  anti-D0
+Alias MyD0       D0
+#
+# Always one B0 that decays to the signal 
+#     // Vector to Two Scalars with B0 mixing, dm=deltaM
+Decay Upsilon(4S)
+ 1.00000  B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#                                    // Phase Space model
+Decay MyB0
+ 1.00000  Myanti-D*0 p+ anti-p-              PHSP;
+Enddecay
+#
+Decay Myanti-B0
+ 1.00000  MyD*0 p+ anti-p-                   PHSP;
+Enddecay
+#
+Decay Myanti-D*0
+ 1.00000  Myanti-D0 pi0                      VSS;
+Enddecay
+#
+Decay MyD*0
+ 1.00000  MyD0 pi0                           VSS;
+Enddecay
+#
+Decay Myanti-D0
+ 1.00000  K+ pi- pi0                        D_DALITZ;
+Enddecay
+#             
+Decay MyD0
+ 1.00000  K- pi+ pi0                        D_DALITZ;
+Enddecay
+#
+End

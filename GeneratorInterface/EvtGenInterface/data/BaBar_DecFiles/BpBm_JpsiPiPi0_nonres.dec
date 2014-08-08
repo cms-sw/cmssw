@@ -1,0 +1,75 @@
+###################################################################
+# B+ --> J/psi pi0 pi+ (n.r)    B- --> Generic                    #
+#         |                                                       #
+#         |                                                       #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: Jamie Boyd 10 April 2001                                #
+###################################################################
+#
+
+# Non resonant mode (for comparison with the rho+ mode)
+
+#
+# Alias particles for specific decays
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyPiPlus pi+
+Alias MyPiMinus pi-
+Alias MyPiZero pi0
+Alias MyJpsi J/psi
+
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+#
+Decay MyB+
+1.000 MyJpsi  MyPiPlus MyPiZero   PHSP;
+Enddecay
+#
+
+#
+Decay MyB-
+1.000 MyJpsi  MyPiMinus MyPiZero   PHSP;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

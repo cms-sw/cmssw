@@ -1,0 +1,40 @@
+####################################################
+#                                                  #
+# Decay: B0 -> Lambda_c- proton pi+pi-,  anti-B0->X#
+#                       |                          #
+#                       |-> anti-p K+ pi-          #
+# Comments:                                        #
+# Author: Haibo Li, Wisconsin                      #
+# Date:   April 11 2004                            #
+# Use phase space for now                          #
+####################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyLc Lambda_c+
+Alias Myanti-Lc anti-Lambda_c-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+#                     // Phase Space model
+Decay MyB0
+ 1.00000  Myanti-Lc p+ pi+ pi-         PHSP;
+Enddecay
+#   
+Decay Myanti-B0
+ 1.00000  MyLc anti-p- pi+ pi-         PHSP;
+Enddecay
+#   // resonance structure in Dalitz not modeled
+Decay MyLc          
+ 1.00000  p+ K- pi+                    PHSP;
+Enddecay
+#
+Decay Myanti-Lc
+ 1.00000  anti-p- K+ pi-               PHSP;
+Enddecay
+#
+End
+
+ 

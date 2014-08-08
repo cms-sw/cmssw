@@ -1,0 +1,23 @@
+############################################################
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Jun 18, 2000
+#
+# e+e- -> ISRgamma J/psi, J/psi -> e+ e-
+#
+############################################################
+#set vphoton to decay to gamma psi, no angular restriction
+Alias psiee J/psi
+
+Decay psiee
+1.0    e+   e-                PHOTOS  VLL;
+Enddecay
+
+Decay vpho
+1.000  psiee gamma VECTORISR 0.999999 0.999999;
+Enddecay
+
+
+End
+
+

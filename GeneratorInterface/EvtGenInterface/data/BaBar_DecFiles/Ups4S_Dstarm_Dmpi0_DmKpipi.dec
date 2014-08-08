@@ -1,0 +1,26 @@
+###################################################
+#                                                 #
+# Ups(4S) production                              #
+# D*- -> D- pi0, D- -> K+ pi- pi-                 #
+#                                                 #
+# created: U. Egede 27/10/99                      #
+#          U.Egede@rl.ac.uk                       #
+###################################################
+#
+
+Alias my-D- D-
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.3060    my-D-  pi0                        VSS;
+Enddecay
+#
+Decay my-D-
+#
+# the Dalitz mode below includes K*(892)0 pi-, K*(1430)0 pi-, and K*(1680)0 pi- resonances.
+0.0910   K+  pi-  pi-                    D_DALITZ;
+Enddecay
+#
+End

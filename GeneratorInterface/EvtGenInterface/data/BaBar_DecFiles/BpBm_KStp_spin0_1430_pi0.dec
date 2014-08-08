@@ -1,0 +1,23 @@
+Alias myB+      B+
+Alias myB-      B-
+Alias myKst+    K_0*+
+Alias myKst-    K_0*-
+#
+Decay Upsilon(4S)
+0.50000 B+ myB-          VSS;
+0.50000 B- myB+          VSS;
+Enddecay
+#
+Decay myB+
+1.0000 myKst+ pi0	 PHSP;
+Enddecay
+Decay myB-
+1.0000 myKst- pi0	 PHSP;
+Enddecay
+Decay myKst+            
+1.0000 K+ pi0		PHSP;
+Enddecay
+Decay myKst-
+1.0000 K- pi0		PHSP;
+Enddecay
+End

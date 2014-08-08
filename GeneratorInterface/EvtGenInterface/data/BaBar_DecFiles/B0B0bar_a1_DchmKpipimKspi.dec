@@ -1,0 +1,55 @@
+## The Breco neutral B mesons.
+##
+Alias MyB0              B0
+Alias Myanti-B0         anti-B0
+Alias MyD-              D-
+Alias MyD+              D+
+Alias Mya_1+            a_1+
+Alias Mya_1-            a_1-
+Alias Myrho0            rho0
+Alias MyKs              K_S0
+#
+Decay Upsilon(4S)
+0.500 anti-B0 MyB0     VSS_BMIX dm;
+0.500 B0 Myanti-B0     VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000    Mya_1+ MyD-      SVS;
+Enddecay
+#
+Decay Myanti-B0
+1.000    Mya_1- MyD+      SVS;
+Enddecay 
+#
+#
+Decay MyD-
+0.5  K+ pi- pi-                      D_DALITZ;
+0.5  MyKs pi-                        PHSP;
+Enddecay
+#
+Decay MyD+
+0.5  K- pi+ pi+                      D_DALITZ;
+0.5  MyKs pi+                        PHSP;
+Enddecay
+#
+Decay MyKs
+1.000     pi+ pi-            PHSP;
+Enddecay
+#
+Decay Mya_1+
+1.0000  Myrho0 pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Mya_1-
+1.0000  Myrho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myrho0
+1.0000  pi+ pi-                           VSS;
+Enddecay
+End
+
+
+
+

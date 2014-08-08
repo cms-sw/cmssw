@@ -1,0 +1,44 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ ->      D+ pi0,      D+ -> K+ K- pi+        #
+#                                                 #
+# created:  Francisco Yumiceva 09/24/01           #
+#          yumiceva@beauty.physics.sc.edu         #
+###################################################
+#
+
+Alias my-D*+ D*+
+Alias my-D+ D+
+Alias my-phi phi
+Alias my-anti-K*0 anti-K*0
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#
+#
+Decay my-D*+
+1.0  my-D+ pi0			VSS;
+Enddecay
+#
+#
+Decay D+
+#
+0.003   my-phi pi+		SVS;
+0.0028  my-anti-K*0 K+          SVS;
+0.0045  K+ K- pi+               PHSP;
+Enddecay
+#
+#
+Decay my-phi
+0.492   K+ K-			VSS;
+Enddecay
+#
+Decay my-anti-K*0
+0.6657  K- pi+			VSS;
+Enddecay
+#
+End

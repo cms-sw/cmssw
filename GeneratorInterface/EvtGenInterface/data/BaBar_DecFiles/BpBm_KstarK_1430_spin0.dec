@@ -1,0 +1,37 @@
+#####################################################
+#        _                                          #
+#  B+ -> K^*_0(1430) K+    (100%)           + C.C.  #
+#  _                                                # 
+#  K^*_0(1430) -> pi+ K-   (100%)           + C.C.  #
+#                                                   #
+#  Author:  J. P. Burke    phjpb@SLAC.Stanford.EDU  #
+#  Created: 20-Nov-2003                             #
+#                                                   #
+#####################################################
+#
+Alias myB+                 B+
+Alias myB-                 B-
+Alias myK*0                K_0*0
+Alias myantiK*0            anti-K_0*0
+#
+Decay Upsilon(4S)
+0.5000 myB+ B-             VSS;
+0.5000 myB- B+             VSS;
+Enddecay
+#
+Decay myB+
+1.0000 myantiK*0 K+        PHSP;
+Enddecay
+#
+Decay myB-
+1.0000 myK*0 K-            PHSP;
+Enddecay
+#
+Decay myantiK*0
+1.0000 K- pi+              PHSP;
+Enddecay
+#
+Decay myK*0
+1.0000 K+ pi-              PHSP;
+Enddecay
+End

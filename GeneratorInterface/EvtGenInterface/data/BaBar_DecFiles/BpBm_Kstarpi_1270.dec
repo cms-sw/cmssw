@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# B+ -> K_1+ pi0     (50 %)         + c.c.        #
+#    |                                            #
+#    |                                            #
+#    -> K_10 pi+     (50 %)                       # 
+#                                                 #
+# Author:  Jan Stark     stark@in2p3.fr           #
+# Created: 12/Sep/2002                            #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> K_1 pi
+# using a simple (S)calar to (V)ector-(S)calar model.
+# The K_1 decays according to the official DECAY.DEC file.
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+0.5000 K_1+ pi0             SVS;
+0.5000 K_10 pi+             SVS;
+Enddecay
+#
+Decay MyB-
+0.5000 K_1- pi0             SVS;
+0.5000 anti-K_10 pi-        SVS;
+Enddecay
+End

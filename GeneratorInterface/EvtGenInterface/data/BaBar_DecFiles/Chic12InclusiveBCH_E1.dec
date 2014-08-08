@@ -1,0 +1,59 @@
+###################################################################
+# B- --> Generic            B+ --> Generic                        #
+#           |                                                     #
+# Filter a chic1 or chic 2 and ask them to decay to J/Psi Gamma   #
+#           |                                                     #
+#       J/psi gam                                                 #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+# Y.karyotakis   18 Feb 2000                                      #
+# Mail: KARYOTAK@SLAC.STANFORD.EDU                                #
+#                                                                 #
+###################################################################
+#
+#
+Define beta 0.39
+#
+####################################################################
+# Define Chi_c1 -> J/Psi gamma amplitudes
+# Parity invariance between the amplitudes implies:
+# Bpp = Bmm;  B0p = B0m; phBmm = phBpp + pi; phB0m = phB0p + pi
+#
+# put the values measured by the Crystal Barrel Experiment
+# see M. Oreglia et al., Phys Rev D25, 2259, (1982)
+#
+# modulus
+#
+Define Bpp 0.70711
+Define B0p 0.70711
+Define Bmm 0.70711
+Define B0m 0.70711
+#
+# phases
+#
+Define phBpp 0.0
+Define phBmm 3.141592654
+Define phB0p 0.0
+Define phB0m 3.141592654
+#
+####################################################################
+#
+Decay Upsilon(4S)
+0.50000 B+  B-                          VSS;
+0.50000 B-  B+                          VSS;
+Enddecay
+#
+Decay chi_c1
+1.000  J/psi  gamma                   HELAMP Bpp phBpp B0p phB0p B0m phB0m Bmm phBmm;
+Enddecay 
+# 
+Decay chi_c2
+ 1.000  J/psi  gamma                PHSP ;
+Enddecay 
+
+Decay J/psi
+0.5000    mu+  mu-               PHOTOS VLL;
+0.5000    e+   e-                PHOTOS  VLL;
+Enddecay 
+#
+End 

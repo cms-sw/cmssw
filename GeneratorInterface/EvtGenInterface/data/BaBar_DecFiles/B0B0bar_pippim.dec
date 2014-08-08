@@ -1,0 +1,30 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> pi+ pi-,     B0 -> X          # 
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Adil Hasan                              #
+# Date:                    12/April/98            #
+# Modified/corrected       10/May/98              #
+# Modified/corrected G.London 2/2/99              #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 pi+ pi-                    SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 pi+ pi-                    SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+End

@@ -1,0 +1,30 @@
+#########################################################
+#							#
+# Decay: ccbar -> D*+ X					#
+#		  |->D+ pi0				#
+#		     |->K- pi+ pi+ (phase space)        #
+#							#
+# Best if used with a tcl file that filters		#
+# at the generator level for D*				#       
+#							#
+#	Dirk Hufnagel					#
+#		Dec 04, 2003				#
+#							#
+# Mail: hufnagel@slac.stanford.edu			# 
+#########################################################
+
+Alias MyD+ D+
+
+Decay vpho 
+1.00	JSCONT 4;
+Enddecay
+#
+Decay D*+
+1.00	MyD+	pi0	VSS;
+Enddecay
+#
+Decay MyD+
+1.00	K- pi+ pi+	PHSP;
+Enddecay
+#
+End

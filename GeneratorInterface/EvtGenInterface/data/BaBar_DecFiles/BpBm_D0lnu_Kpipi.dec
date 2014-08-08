@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# Decay: B+ -> X 	B- ->D0 l- anti-nu_l      #
+#                            |-> K- pi+ pi0       #
+#	l = e or mu 				  #
+#				+CC		  #
+#                                                 #
+#                                                 #
+# Author: M.H. Schune + S. Plaszczynski           #
+# Created:                  09/Feb/99             #
+# Modifed by Rowan Hamilton                       #
+# Mail:METZLER@SLAC.STANFORD.EDU                  #
+###################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB-
+.5000   MyD0     e-   anti-nu_e         PHOTOS  ISGW2;
+.5000   MyD0     mu-  anti-nu_mu        PHOTOS  ISGW2;
+Enddecay
+#
+Decay MyB+
+.5000   MyD0B     e+   nu_e         PHOTOS  ISGW2;
+.5000   MyD0B     mu+  nu_mu        PHOTOS  ISGW2;
+Enddecay
+#
+Decay MyD0
+0.1307   K-  pi+ pi0                        D_DALITZ;
+Enddecay
+#
+Decay MyD0B
+0.1307   K+  pi- pi0                        D_DALITZ;
+Enddecay
+#
+End

@@ -1,0 +1,16 @@
+############################################################
+#                                                          #
+# Decay: e+ e-  -> Phi    Gamma                            #
+#                  Phi -> all channels                     #
+#                                                          #
+#                                                          #
+# Author: V. Brigljevic                                    #
+# Created:                   12/January/2000               #
+############################################################
+
+Decay vpho
+1.00  phi gamma VECTORISR 0.9 0.9;
+Enddecay
+
+End
+

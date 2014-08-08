@@ -1,0 +1,25 @@
+###################################################
+#                                                 #
+# Ups(4S) production                              #
+# D*- -> anti-D0 pi-, anti-D0 -> pi+ pi-          #
+#                                                 #
+# created: O. Long Jan13-00                       #
+#          owen@slac.stanford.edu                 #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+0.0015   pi+ pi-                         PHSP;
+Enddecay
+#
+End

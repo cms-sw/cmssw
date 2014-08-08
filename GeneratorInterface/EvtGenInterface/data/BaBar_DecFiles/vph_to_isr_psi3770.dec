@@ -1,0 +1,29 @@
+########################################################################
+#								       #
+#   vph --> gamma psi(3770)					       #
+#	            | 						       #
+#                   | --> J/psi pi+ pi-	                               #
+#		            |					       #	       
+#			    | --> e+e- mu+ mu-			       #		       
+# Author Glenn Williams				williamg@utdallas.edu  #
+########################################################################
+
+ Alias myJ/psi J/psi
+
+ Decay vpho
+ 1.00 psi(3770) gamma		 VECTORISR 0.9999 0.9999;
+ Enddecay
+
+ Decay psi(3770)
+ 1.00 myJ/psi pi+ pi-	 PHSP;		
+ Enddecay
+
+ Decay myJ/psi
+ 0.500 e+ e-		VLL;
+ 0.500 mu+ mu-          VLL;
+ Enddecay
+
+  End
+	 	
+
+

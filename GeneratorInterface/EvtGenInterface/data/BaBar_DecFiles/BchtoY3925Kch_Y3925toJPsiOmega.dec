@@ -1,0 +1,51 @@
+###################################################################
+# B+  --> Y3925  K+            B- --> Generic  xx                 #
+#         |                                                       #
+#         |                                                       #
+#         |-->jpsi(ee,mumu) Omega                                 #
+#               						  # 
+#  + charge conjugate                                             #
+#                                                                 #
+#                                                                 #
+# Author: Arafat Gabareen Mokhtar (Colorado State University)     #
+###################################################################
+#
+#
+#
+# Alias particles for specific decays
+# Particle <name> <mass> <width>
+Particle dummy00_1 3.925 0.0
+Alias MyB+ B+
+Alias MyB- B- 
+Alias MyX dummy00_1
+Alias MyJpsi J/psi
+Alias MyOmega omega
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-   VSS;
+0.500 MyB- B+   VSS;
+Enddecay
+#
+Decay MyB+
+1.000 MyX K+ PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 MyX K- PHSP;
+Enddecay
+#
+Decay MyX
+1.000  MyJpsi omega   PHSP;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+Decay MyOmega
+1.000    pi-  pi+  pi0                  OMEGA_DALITZ;
+Enddecay
+#
+#
+End

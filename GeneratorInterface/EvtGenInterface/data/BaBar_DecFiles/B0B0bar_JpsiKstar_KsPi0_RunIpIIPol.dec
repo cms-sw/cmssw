@@ -1,0 +1,76 @@
+###################################################################
+# B0~ --> J/psi K*             B0 --> Generic                     #
+#         |     |-->K0s pi0                                       #
+#         |         |                                             #
+#         |         |-->pi+pi-                                    #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+#                                                                 #
+# +cc                                                             #
+#                                                                 #
+# author :  Marc Verderi 06/05/2004                               #
+# Made from original decay file:                                  #
+#              B0B0bar_JpsiKstar_RunIPol.dec                      #
+###################################################################
+#
+#
+# sin2beta = 0.731: (world average at that time)
+# -----------------
+Define beta 0.41
+#
+# Define the transversity amplitudes:
+# -----------------------------------
+# Values measured by Babar (BAD#673/752)
+Define Aplus  0.4517
+Define Azero  1.0640
+Define Aminus 0.4796
+#
+Define phAplus   3.55
+Define phAzero   0.00
+Define phAminus  2.96
+#
+# Alias particles for specific decays
+Alias MyB0          B0
+Alias Myanti-B0     anti-B0
+Alias MyK_S0        K_S0
+Alias MyKstar0      K*0
+Alias MyantiKstar0  anti-K*0
+Alias MyJpsi        J/psi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+# Note: B0 and B0bar must be given the same amplitudes
+# -namely the ones of a B0- because this is the SVV_CP
+# model of EvtGen which takes care of flipping the
+# relevant signs, using the other B flavor.
+#
+Decay MyB0
+1.000 MyJpsi  MyKstar0                  SVV_CP beta dm 1.0  Aplus phAplus   Azero phAzero   Aminus phAminus;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyJpsi  MyantiKstar0              SVV_CP beta dm 1.0  Aplus phAplus   Azero phAzero   Aminus phAminus;
+Enddecay
+#
+Decay MyJpsi
+0.500 mu+   mu-                     PHOTOS  VLL;
+0.500 e+    e-                      PHOTOS  VLL;
+Enddecay
+#
+Decay MyKstar0
+1.000 MyK_S0 pi0                       VSS;
+Enddecay
+#
+Decay MyantiKstar0
+1.000 MyK_S0 pi0                       VSS;
+Enddecay
+#
+Decay MyK_S0
+1.000 pi+ pi-                          PHSP;
+Enddecay
+End
+
+
+

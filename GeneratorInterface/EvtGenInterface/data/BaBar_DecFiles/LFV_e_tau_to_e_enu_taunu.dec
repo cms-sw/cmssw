@@ -1,0 +1,27 @@
+#######################################################
+# Lepton Flavor Violation                             #
+#                                                     #
+# Decay: Ups(4S) -> e+ tau-                           #
+#                        |-> e- nu_e_bar nu_tau       #
+# and charge conjugate states.                        #
+#                                                     #
+# Author: Gian Gopal + Nicolo de Groot                #
+# Created:                  8/Oct/2002                #
+#######################################################
+#
+Alias mytau+ tau+
+Alias mytau- tau-
+#
+Decay Upsilon(4S)
+0.50 e+ mytau-                      VLL;
+0.50 e- mytau+                      VLL;
+Enddecay
+#
+Decay mytau-
+0.288 e-   anti-nu_e   nu_tau       PHOTOS TAULNUNU;
+Enddecay
+Decay mytau+
+0.288 e+   nu_e   anti-nu_tau         PHOTOS TAULNUNU;
+Enddecay
+End
+

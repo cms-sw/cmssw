@@ -1,0 +1,47 @@
+###################################################
+#                                                 #
+# Decay: B+ -> K*+  eta + cc,eta->e+e-gamma       #
+#                                                 #
+# Author: Anders Ryd (ryd@slac.stanford.edu)      #
+# Created:  030414                                #
+#						  #
+###################################################
+#
+#
+Alias myEta eta
+Alias myK*+ K*+
+Alias myK*- K*-
+Alias myKS K_S0
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+  B-                     VSS;
+0.5000 MyB-  B+                     VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 myK*+ myEta          SVS;         
+Enddecay 
+#
+Decay MyB-
+1.0000 myK*- myEta          SVS;         
+Enddecay
+#
+Decay myK*+
+1.0000 myKS pi+             VSS;
+Enddecay
+#
+Decay myK*-
+1.0000 myKS pi-             VSS;
+Enddecay
+#
+Decay myKS
+1.0000 pi+   pi-            PHSP;
+Enddecay
+#
+Decay myEta
+1.00    e+  e- gamma        PHSP;
+Enddecay
+#
+End

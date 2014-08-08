@@ -1,0 +1,40 @@
+###################################################
+#                                                 #
+# B0 -> pi+ pi- pi+ pi- (non-resonant)   + c.c.   #
+#                                                 #
+# Author: Fernando Palombo   palombo@mi.infn.it   #
+# Created: 4 March 2004                           #
+#                                                 #
+###################################################
+#
+# B0 -> pi+ pi- pi+ pi- (non-resonant) 
+# using phase space
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000   pi+ pi- pi+ pi-         PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000  pi+ pi- pi+ pi-          PHSP;
+Enddecay
+End
+
+
+
+
+
+
+
+
+
+
+
+

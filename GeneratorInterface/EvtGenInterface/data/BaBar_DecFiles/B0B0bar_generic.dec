@@ -1,0 +1,16 @@
+###################################################
+#                                                 #
+# Generic neutral B decays with mixing            #
+#                                                 #
+#                                                 #
+# Contact:Anders Ryd  (ryd@slac.stanford.edu)     #
+# Created:                  22/Nov/99             #
+###################################################
+#
+#
+Decay Upsilon(4S)
+1.00000 B0  anti-B0                    VSS_BMIX dm;
+Enddecay
+#
+#
+End

@@ -1,0 +1,38 @@
+############################################################
+#                                                          #
+# Decay:      B- -> J/psi      K-,        B+ -> X          #
+#                   |-> e+e-                               #
+#                   |-> mu+mu-                             #
+#                                                          #
+#             + cc                                         #
+#                                                          #
+# Author: G. London                                        #
+# Mail: GLONDON@SLAC.STANFORD.EDU                          #
+# Created:                   29 Jan 99                     #
+############################################################
+#
+#
+Alias MyJ/psi J/psi
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyJ/psi  K+               SVS;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyJ/psi  K-               SVS;
+Enddecay 
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+End

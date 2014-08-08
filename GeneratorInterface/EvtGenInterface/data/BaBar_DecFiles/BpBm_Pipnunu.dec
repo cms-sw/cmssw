@@ -1,0 +1,35 @@
+###################################################################
+# B+ --> pi+ nu nubar, B- - > generic                             #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+# +cc                                                             #
+#                                                                 #
+# Author: Paul D. Jackson   8/14/02                               #
+# Mail: JACK@SLAC.STANFORD.EDU
+###################################################################
+#
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+#
+Decay MyB+
+1.0000 pi+ nu_e anti-nu_e     PHOTOS PHSP ;
+Enddecay
+#
+Decay MyB-
+1.0000 pi- nu_e anti-nu_e     PHOTOS PHSP ;
+Enddecay
+#
+#
+End

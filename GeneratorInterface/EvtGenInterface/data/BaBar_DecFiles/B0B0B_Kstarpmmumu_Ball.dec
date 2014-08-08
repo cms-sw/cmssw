@@ -1,0 +1,44 @@
+###################################################
+#                                                 #
+# B0 -> K*0(->K+ pi-) mu+ mu-       + c.c.        #
+#                                                 #
+#                                                 #
+#                                                 #
+# Author: Anders Ryd (ryd@slac.stanford.edu)      #
+# created:                     12/Nov/99          #
+###################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+#
+# Will clean up lines below when new VSS_BMIX is availbale
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00     MyK*0       mu+  mu-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay Myanti-B0
+1.00     Myanti-K*0  mu+  mu-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay MyK*0
+1.0   K+   pi-   VSS; 
+Enddecay
+#
+Decay Myanti-K*0
+1.0   K-   pi+   VSS; 
+Enddecay
+#
+End
+
+
+
+
+
+

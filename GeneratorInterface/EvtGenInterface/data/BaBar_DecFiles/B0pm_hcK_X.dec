@@ -1,0 +1,121 @@
+############################################################
+#                                                          #
+# Decay:      B0 -> h_c        X,        B0bar -> X        #
+#                   |                                      #
+#                   ->X                                    #
+#                                                          #
+#             + cc                                         #
+#             + charged modes                              #                                       
+#                                                          #
+# Author: E.Robutti, S.Tosi        18/06/01                #
+############################################################
+#
+Define beta 0.34
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyB0 B0
+Alias MyAnti-B0 anti-B0
+Alias MyJ/psi J/psi
+Alias MyEta_c eta_c
+Alias MyH_c h_c
+#
+Decay Upsilon(4S)
+  0.2500  MyB+      B-       VSS;
+  0.2500  MyB-      B+       VSS;
+  0.5000  B0 anti-B0 MyB0 MyAnti-B0  VSS_BMIX dm;
+Enddecay
+#
+Decay MyB+
+  0.0006     MyH_c  K+        SVS;
+  0.0012     MyH_c  K*+       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0004     MyH_c  K0  pi+          PHSP;
+  0.0002     MyH_c  K+   pi0          PHSP;
+  0.0004     MyH_c  K+   pi+  pi-     PHSP;
+  0.0002     MyH_c  K+   pi0  pi0     PHSP;
+  0.0002     MyH_c  K0  pi+  pi0     PHSP;
+Enddecay
+#
+Decay MyB-
+  0.0006     MyH_c  K-        SVS;
+  0.0012     MyH_c  K*-       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0004     MyH_c  anti-K0  pi-          PHSP;
+  0.0002     MyH_c  K-   pi0          PHSP;
+  0.0004     MyH_c  K-   pi+  pi-     PHSP;
+  0.0002     MyH_c  K-   pi0  pi0     PHSP;
+  0.0002     MyH_c  anti-K0  pi-  pi0     PHSP;
+Enddecay
+#
+Decay MyB0
+  0.0006     MyH_c  K0        SVS;
+  0.0012     MyH_c  K*0       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0004     MyH_c  K-  pi+          PHSP;
+  0.0002     MyH_c  K0   pi0          PHSP;
+  0.0004     MyH_c  K0   pi+  pi-     PHSP;
+  0.0002     MyH_c  K0   pi0  pi0     PHSP;
+  0.0002     MyH_c  K-  pi+  pi0     PHSP;
+Enddecay
+#
+Decay MyAnti-B0
+  0.0006     MyH_c  anti-K0        SVS;
+  0.0012     MyH_c  anti-K*0       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+  0.0004     MyH_c  K-  pi+          PHSP;
+  0.0002     MyH_c  anti-K0   pi0          PHSP;
+  0.0004     MyH_c  anti-K0   pi+  pi-     PHSP;
+  0.0002     MyH_c  anti-K0   pi0  pi0     PHSP;
+  0.0002     MyH_c  K-  pi+  pi0     PHSP;
+Enddecay
+#
+#
+Decay MyH_c
+  0.1  K+ K- K+ K-          PHSP;
+  0.1  K+ K- pi0          PHSP;
+  0.1  pi+ pi- K+ K-          PHSP;
+  0.1  pi+ pi- pi+ pi-          PHSP;
+  0.05  K_S0 K+ pi-      PHSP;
+  0.05  K_S0 K- pi+      PHSP;
+  0.05  K_L0 K- pi+      PHSP;
+  0.05  K_L0 K+ pi-      PHSP;
+  0.1  MyJ/psi pi+ pi-    PHSP;
+  0.1  MyJ/psi pi0        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.1  p+ anti-p-   PHSP;
+  0.1  MyEta_c gamma      VSP_PWAVE;
+Enddecay 
+# 
+Decay MyJ/psi
+  0.5000  e+  e-             PHOTOS VLL;
+  0.5000  mu+ mu-            PHOTOS VLL;
+Enddecay
+#
+Decay MyEta_c
+0.0012    p+  anti-p-                        PHSP;
+0.0071    phi phi                        SVV_HELAMP 1.0 0.0 0.0 0.0 -1.0 0.0;
+0.0087    rho0 rho0                      PHSP;
+0.0173    rho+ rho-                      PHSP;
+0.0120    pi+ pi- pi+ pi-                PHSP;
+0.0210    K+  K-  K+ K-                  PHSP;
+0.0200    K+  K-  pi+ pi-                PHSP;
+0.0327    eta  pi+ pi-                   PHSP;
+0.0163    eta  pi0 pi0                   PHSP;
+0.0273    eta' pi+ pi-                   PHSP;
+0.0137    eta' pi0 pi0                   PHSP;
+0.0092    pi0  K+  K-                    PHSP;
+0.0184    K+ anti-K0  pi-                      PHSP;
+0.0184    K- K0 pi+                      PHSP;
+0.0092    K0 anti-K0 pi0                 PHSP;
+0.0043    K*+ K*-                        PHSP;
+0.0042    K*0 anti-K*0                        PHSP;
+0.0100    K*0 K- pi+                     PHSP;
+0.0100    anti-K*0 K+ pi-                     PHSP;
+Enddecay
+
+End
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,35 @@
+###################################################
+#                                                 #
+# ccbar -> Ds*+ X                                 # 	
+#          `->Ds+ X                               #
+#              `-> phi rho+                       #
+#                   `-> K+K-                      #
+#                                                 #
+# created: Dieter Best 10.July.2001               #
+#          best@slac.stanford.edu                 #
+#                                                 #
+###################################################
+#
+# redefine particle decays
+#
+Alias myD_s*+  D_s*+
+Alias myD_s+   D_s+
+Alias myphi    phi
+#
+Decay vpho
+1.00  JSCONT 4;
+Enddecay
+#
+Decay myD_s*+
+1.00  myD_s+ gamma    VSP_PWAVE;
+Enddecay
+#
+Decay myD_s+
+1.00  myphi rho+	SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay myphi
+1.00  K+ K-  VSS;
+Enddecay
+#
+End

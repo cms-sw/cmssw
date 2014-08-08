@@ -1,0 +1,35 @@
+###################################################
+#                                                 #
+# Decay: B0 -> f0 f0 + cc, f0->pi+pi-             #
+#                                                 #
+# Author:  Pierre-François Giraud                 #
+# Created: 2004-04-07                             #
+#                                                 #
+###################################################
+#
+#
+Particle f_0 0.975 0.044
+#
+ChangeMassMin f_0 0.40
+ChangeMassMax f_0 1.30
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myf_0 f_0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 Myf_0 Myf_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay MyB0
+1.0000 Myf_0 Myf_0                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay Myf_0
+1.0000 pi+ pi-              PHSP;
+Enddecay
+End

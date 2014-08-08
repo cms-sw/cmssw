@@ -1,0 +1,28 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D- -> K- K0s rho0, Ks -> pi+pi-, rho0 -> pi+pi- #
+#                                                 #
+# created: hnichols april 8, 2000                 #
+###################################################
+#
+Alias myK_S0 K_S0
+Alias myrho0 rho0
+#
+Decay vpho
+1.00 JSCONT 4;
+Enddecay
+#
+Decay D-
+1.00 K- K_S0 rho0 PHSP;
+Enddecay
+#
+Decay myK_S0
+1.00 pi+ pi- PHSP;
+Enddecay
+#
+Decay myrho0
+1.00 pi+ pi- VSS;
+Enddecay
+#
+End

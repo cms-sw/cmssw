@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# Make a lot of D0->3KS decays                    #
+#                               K0s -> pi+ pi-    #
+#                                                 #
+# created: A. Snyder Wed Mar 29 15:07:14 PST 2000 #
+#          snyder@slac.stanford.edu               #
+###################################################
+#
+
+Alias my-D0 D0
+Alias my-anti-K0 anti-K0
+Alias my-K_S0 K_S0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+Decay D0
+#
+# decay to 3 K-shorts using phase space
+1.0   my-K_S0   my-K_S0  my-K_S0           PHSP;
+Enddecay
+#
+Decay my-K_S0
+1.000    pi+  pi-                          PHSP;
+Enddecay
+
+         
+End

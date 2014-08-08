@@ -1,0 +1,84 @@
+# 
+# Author: Adlene Hicheur (LAPP), Date: Nov,2001
+ 
+# resonant B->eta' K3*(1780) penguin decay 
+
+############################################################################
+Alias MyB0B anti-B0
+Alias MyB0 B0
+Alias MyBplus B+
+Alias MyBminus B-
+############################################################################
+
+############################################################################
+Alias Myetap eta'
+Alias Myeta eta
+############################################################################
+Alias MyKstar3- K_3*-
+Alias MyKstar3+ K_3*+ 
+############################################################################
+Alias MyKstar3_0 K_3*0
+Alias MyantiKstar3_0 anti-K_3*0
+############################################################################
+
+ChargeConj MyKstar3- MyKstar3+
+ChargeConj MyantiKstar3_0  MyKstar3_0
+
+Decay Upsilon(4S)
+
+0.250   MyB0       anti-B0                  VSS;
+0.250   B0       MyB0B                  VSS;
+0.250   MyBplus       B-                       VSS;
+0.250   B+   MyBminus             VSS;
+
+Enddecay
+
+Decay MyB0B
+0.15 MyantiKstar3_0 Myetap PHSP;
+Enddecay
+
+Decay MyB0
+1. MyKstar3_0  Myetap PHSP;
+Enddecay
+
+Decay MyBminus
+1. MyKstar3-  Myetap PHSP;
+Enddecay
+
+Decay MyBplus
+1. MyKstar3+  Myetap PHSP;
+Enddecay
+
+
+Decay MyantiKstar3_0
+
+0.31 K_S0 rho0 PHSP;
+0.2 K*- pi+   PHSP;
+0.188 K- pi+   PHSP;
+
+Enddecay
+CDecay MyKstar3_0
+
+Decay MyKstar3-
+
+0.31 K- rho0 PHSP;
+0.2 K*- pi0 PHSP;
+0.188 K- pi0   PHSP;
+
+Enddecay
+CDecay MyKstar3+
+
+Decay Myetap
+
+1. pi+ pi- Myeta   PHSP;
+
+Enddecay
+
+Decay Myeta
+
+1. gamma gamma   PHSP;
+
+Enddecay
+
+
+End

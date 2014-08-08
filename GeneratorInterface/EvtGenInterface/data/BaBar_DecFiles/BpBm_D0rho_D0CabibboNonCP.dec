@@ -1,0 +1,97 @@
+#####################################################
+#                                                   #
+# Decay: B- -> D0 rho-          B+ -> D0bar rho+    #
+#              |                    |               #
+#              |->    K*+    K-   <-|               #
+#              |->    K*-    K+   <-|               #
+#              |->    K*0    Ks   <-|               #
+#              |->    K*0bar Ks   <-|               #
+#              |->    rho+   pi-  <-|               #
+#              |->    rho-   pi+  <-|               #
+#                                                   #
+# with                Ks   -> pi+ pi-               #
+#                     K*0  -> K-  pi+               #
+#                     K*+  -> Ks pi+ and K+ pi0     #
+#                     rho+ -> generic               #
+#                                                   #
+# Author: Abi Soffer                                #
+# created: 6 Nov 2002    			    #
+# 						    #
+#####################################################
+#
+#
+Alias MyB- 		B-
+Alias MyB+	 	B+
+
+Alias MyD0 		D0
+Alias Myanti-D0 	anti-D0
+ 
+Alias MyK*+ K*+
+Alias MyK*- K*-
+
+Alias MyK*0   K*0
+Alias Myanti-K*0   anti-K*0
+
+Alias MyKs  K_S0
+
+
+Decay Upsilon(4S)
+0.5	MyB- B+			VSS;
+0.5	MyB+ B-			VSS;
+Enddecay
+
+# write the B decays as b->u. This doesn't really matter in the final
+# state, but will make identifying them in the MC truth slightly easier:
+#
+Decay MyB-
+1.00	Myanti-D0 rho-		PHSP;
+Enddecay 
+
+Decay MyB+
+1.00	MyD0 rho+	     	PHSP;
+Enddecay 
+
+Decay MyD0
+0.25 MyK*+ 		K- 	SVS;
+0.25 MyK*- 		K+ 	SVS;
+0.125 MyK*0 		MyKs 	SVS;
+0.125 Myanti-K*0 	MyKs 	SVS;
+0.125 rho+ 		pi- 	SVS;
+0.125 rho- 		pi+ 	SVS;
+Enddecay
+
+Decay Myanti-D0
+0.25 MyK*+ 		K- 	SVS;
+0.25 MyK*- 		K+ 	SVS;
+0.125 MyK*0 		MyKs 	SVS;
+0.125 Myanti-K*0 	MyKs 	SVS;
+0.125 rho+ 		pi- 	SVS;
+0.125 rho- 		pi+ 	SVS;
+Enddecay
+
+Decay MyKs
+1.0000  pi+ pi-                         PHSP;
+Enddecay
+
+Decay MyK*0
+1.000    K- pi+ VSS;
+Enddecay 
+
+Decay Myanti-K*0
+1.000    K+ pi- VSS;
+Enddecay 
+
+# K*+ -> Ks pi+ 50%, due to K0 -> Ks:
+Decay MyK*+
+0.5      MyKs  pi+                        VSS;
+0.5      K+  pi0                          VSS;
+Enddecay 
+
+Decay MyK*-
+0.5      MyKs  pi-                        VSS;
+0.5      K-  pi0                          VSS;
+Enddecay 
+
+End
+
+

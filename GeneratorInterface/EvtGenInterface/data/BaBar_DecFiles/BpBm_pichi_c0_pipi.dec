@@ -1,0 +1,35 @@
+###################################################
+#                                                 #
+# B+ -> pi+ chi_c0       + C.C.                    #
+#          |                                      #
+#           --> pi+ pi-                           #
+#                                                 #
+# Author: Huw Shorthouse  huw@slac.stanford.edu   #
+# Created: 11/Feb/02                              #
+#                                                 #
+###################################################
+#
+#
+#
+Alias MyB+     B+
+Alias MyB-     B-
+Alias Mychi_c0 chi_c0
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000   pi+ Mychi_c0          PHSP;
+Enddecay
+#
+Decay MyB-
+1.000   pi- Mychi_c0          PHSP;
+Enddecay
+#
+Decay Mychi_c0
+1.000   pi+ pi-              PHSP;
+Enddecay
+
+End

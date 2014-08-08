@@ -1,0 +1,30 @@
+#######################################################
+#                                                     #
+# Decay: B-->D0D0barK-      anti-B0->X                #
+#               kpi*Kpipi0                            #
+# Author: Jean-Pierre Lees lees@lapp.in2p3.fr         #
+# Created:                  04/March/99               #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+#
+Decay Upsilon(4S)
+1.000   B+       MyB-                   VSS;
+Enddecay
+#
+Decay MyB-
+# modes DDK
+1.000   MyD0  MyD0B  K-                 PHSP;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                        PHSP;
+Enddecay
+#
+Decay MyD0B
+0.1307   K+  pi-  pi0                   D_DALITZ;
+Enddecay
+#
+End

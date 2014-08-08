@@ -1,0 +1,38 @@
+#######################################################
+#                                                     #
+# Decay: ccbar -> Ds*+ X 			      #
+#		   `->Ds+ gamma			      #
+#		       `-> K*+ gamma		      #
+#                                                     #
+# Author : Dieter Best, UC Irvine                     #
+# Mail   : best@SLAC.stanford.edu                     #
+#                                                     #
+# Created: 11.July.2001                               #
+#                                                     #
+#######################################################
+Alias myD_s*+  D_s*+
+Alias myD_s+   D_s+
+Alias myKstar+ K*+
+Alias myK_S0   K_S0
+#
+Decay vpho 
+1.00  JSCONT 4;
+Enddecay
+#
+Decay myD_s*+
+1.00  myD_s+ gamma    VSP_PWAVE;
+Enddecay
+#
+Decay myD_s+
+1.00  myKstar+ gamma  SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay myKstar+
+1.00  myK_S0 pi+      VSS;
+Enddecay
+#
+Decay myK_S0				
+1.00  pi+  pi-        PHSP;
+Enddecay				
+#
+End

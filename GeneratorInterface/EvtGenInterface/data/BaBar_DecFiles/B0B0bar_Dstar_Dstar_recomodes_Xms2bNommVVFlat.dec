@@ -1,0 +1,121 @@
+############################################################
+#                                                          
+# Decay: B0 -> D*(2010)-   D*(2010)+  anti-B0 -> X         
+#              |             |                             
+#              |->D0 pi-     |-> X                         
+#                 |                                        
+#                 |                                        
+#                 |                                        
+#                 |-> reconstructible modes                
+#                                                          
+# where reconstructable modes =                            
+#             D0 --> kpi,kpipi0,k3pi,Kspipi + cc           
+#
+# $Id: B0B0bar_Dstar_Dstar_recomodes_X-s2bNom-VVFlat.dec,v 1.1 2004/06/15 12:49:13 rid Exp $
+#                                                          
+#   Author: A. Calcaterra  05-09-03                        
+#                                                          
+#                                 acal@slac.stanford.edu   
+#                                                          
+# History:						   
+#							   
+#           31-Mar-04 R. de Sangro changed SVV_HELAMP to SVV_CP to account for CP violation.
+#				   The helicity coefficients are updated to
+#				   reflect the measurement of Rt=0.063 see BAD548 - Aug-03
+#				   The CP-even components A_// and A_0 are set equal and such
+#				   that the normalization A_//^2 + A_0^2 + A_|_^2 = 1 is preserved
+############################################################
+#
+Alias MyB0        B0
+Alias Myanti-B0   anti-B0
+#
+Alias MyD*+       D*+
+Alias MyD*-       D*-
+#
+Alias MyD0        D0
+Alias Myanti-D0   anti-D0
+Alias MyD+        D+
+Alias MyD-        D-
+#
+Alias Mya_1+      a_1+
+Alias MyK_1-      K_1-
+Alias Mya_1-      a_1-
+Alias MyK_1+      K_1+
+Alias MyK*0       K*0
+Alias Myanti-K*0  anti-K*0
+#
+Alias MyK0        K0
+Alias MyK_S0      K_S0
+Alias MyK0bar     anti-K0
+#
+ChargeConj MyB0    Myanti-B0
+#
+ChargeConj MyD*+   MyD*-
+#
+ChargeConj MyD0    Myanti-D0
+#
+ChargeConj MyK*0   Myanti-K*0
+ChargeConj Mya_1+  Mya_1-
+ChargeConj MyK_1+  MyK_1-
+ChargeConj MyK0bar MyK0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+Decay MyB0
+1.0000  MyD*- D*+       SVV_CP beta dm 1 1 2.62 1.414213 0.785 1 0;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyD*+
+1.000  MyD0    pi+                     VSS;
+Enddecay
+CDecay MyD*-
+#
+# From M.H. Schune + S. Plaszczynski
+# the nightmare ... D0 -> KPi , Kpipi0, K3pi
+# J. Albert -- added K0s pi+ pi-, K0s pi+ pi- pi0
+#
+Decay MyD0
+0.1439   K-   pi+                         PHSP;
+0.4962   K-   pi+  pi0                    D_DALITZ;
+0.0758   MyK0bar pi+ pi-                  D_DALITZ;
+# K- 3pi  (total 0.0761)
+0.1326   Mya_1+ K-                        SVS;
+0.0364   Myanti-K*0 rho0                  SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0080   MyK_1- pi+                       SVS;
+0.0394   Myanti-K*0 pi+  pi-              PHSP;
+0.0201   K-  pi+  rho0                    PHSP;
+0.0481   K-  pi+  pi+   pi-               PHSP;
+Enddecay
+CDecay Myanti-D0
+#
+Decay MyK0bar
+1.0000 K_S0                         PHSP;
+Enddecay
+CDecay MyK0
+#
+Decay MyK_S0
+1.0000   pi+ pi-                          PHSP;
+Enddecay
+#
+Decay Mya_1+
+1.0000   rho0 pi+                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+CDecay Mya_1-
+#
+#
+Decay MyK_1-
+0.1400   rho0     K-                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0710   Myanti-K*0   pi-                 VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+CDecay MyK_1+
+#
+#
+Decay MyK*0
+1.0000      K+  pi-                       VSS;
+Enddecay
+CDecay Myanti-K*0
+#
+End

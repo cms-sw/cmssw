@@ -1,0 +1,142 @@
+##########################################################################
+#                                                                        #
+# Decay file for: B+- --> D0 K pi0, D0 --> Kpi, Kpipi0, Kpipipi          #
+#                                                                        #
+# The D0 decay modes are into nonCP eigenstates.                         #
+#                                                                        #
+# Author: Troels Petersen, LAL                                           #
+# Date:   6th of November 2002                                           #
+#                                                                        #
+##########################################################################
+
+###################################################
+# Define alias
+###################################################
+
+Alias MyB+       B+
+Alias MyB-       B-
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+
+Alias Mya_1+     a_1+
+Alias Mya_1-     a_1-
+Alias MyK_1+     K_1+
+Alias MyK_1-     K_1-
+Alias MyK*0      K*0
+Alias Myanti-K*0 anti-K*0
+Alias Myomega    omega
+Alias MyK0       K0
+Alias Myanti-K0  anti-K0
+Alias MyKs       K_S0
+
+
+###################################################
+# Begin the decays
+###################################################
+
+Decay Upsilon(4S)
+  0.500 MyB+ B-                          VSS;
+  0.500 MyB- B+                          VSS;
+Enddecay
+
+
+###################################################
+# B+- -> D0(bar) K+- pi0
+###################################################
+
+Decay MyB+
+  0.00010   Myanti-D0   K+      pi0      PHSP;
+Enddecay
+
+Decay MyB-
+  0.00010   MyD0        K-      pi0      PHSP;
+Enddecay
+
+
+###################################################
+# D0(bar) -> K pi, K pi pi0, K pi pi pi
+###################################################
+
+Decay MyD0
+  0.142     K-  pi+             PHSP;
+  0.513     K-  pi+  pi0        D_DALITZ;
+  #### K 3pi (0.277 in total) ###
+  0.1270    Mya_1+ K-           SVS;
+  0.0123    MyK_1- pi+          SVS;
+  0.0375    Myanti-K*0 pi+ pi-  PHSP;
+  0.0194    K- pi+ rho0         PHSP;
+  0.0462    K- pi+ pi+ pi-      PHSP;
+  0.0346    Myanti-K*0 rho0     SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+
+Decay Myanti-D0
+  0.142     K+    pi-           PHSP;
+  0.513     K+    pi-  pi0      D_DALITZ;
+  #### K 3pi (0.277 in total) ###
+  0.1270    Mya_1- K+           SVS;
+  0.0123    MyK_1+ pi-          SVS;
+  0.0375    MyK*0 pi- pi+       PHSP;
+  0.0194    K+ pi- rho0         PHSP;
+  0.0462    K+ pi- pi- pi+      PHSP;
+  0.0346    MyK*0 rho0          SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+
+
+###################################################
+# Light meson decays
+###################################################
+
+Decay MyK0
+  1.000   MyKs                  PHSP;
+Enddecay
+
+Decay Myanti-K0
+  1.000   MyKs                  PHSP;
+Enddecay
+
+Decay MyKs
+  1.000   pi+ pi-               PHSP;
+Enddecay
+
+
+Decay Mya_1+
+  1.0000  rho0 pi+              VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay Mya_1-
+  1.0000  rho0 pi-              VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+
+Decay MyK_1+
+  0.3913  rho0 K+               VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.1984  MyK*0 pi+             VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.0067  Myomega K+            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.4036  K+ pi- pi+            PHSP;
+Enddecay
+
+Decay MyK_1-
+  0.3913  rho0 K-               VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.1984  Myanti-K*0 pi-        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.0067  Myomega K-            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.4036  K- pi+ pi-            PHSP;
+Enddecay
+
+
+Decay MyK*0
+  1.0000  K+ pi-                VSS;
+Enddecay
+
+Decay Myanti-K*0
+  1.0000  K- pi+                VSS;
+Enddecay
+
+
+Decay Myomega
+  1.0000  pi- pi+               VSS;
+Enddecay
+
+
+###################################################
+
+End

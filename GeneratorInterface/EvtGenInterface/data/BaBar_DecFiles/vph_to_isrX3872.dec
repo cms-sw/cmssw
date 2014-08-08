@@ -1,0 +1,31 @@
+########################################################################
+#								       #
+#   vph --> gamma X(3872)					       #
+#	            | 						       #
+#                   | --> J/psi pi+ pi-	                               #
+#								       #
+#								       #
+# Author Glenn Williams				williamg@utdallas.edu  #
+########################################################################
+
+ Particle psi(2S) 3.872 0.0
+ Alias myX psi(2S)
+ Alias myJ/psi J/psi
+
+ Decay vpho
+ 1.00 myX gamma		 VECTORISR 0.99 0.99;
+ Enddecay
+
+ Decay myX
+ 1.00 myJ/psi pi+ pi-	 PHSP;		
+ Enddecay
+
+ Decay myJ/psi
+ 0.500 e+ e-		VLL;
+ 0.500 mu+ mu-          VLL;
+ Enddecay
+
+  End
+	 	
+
+

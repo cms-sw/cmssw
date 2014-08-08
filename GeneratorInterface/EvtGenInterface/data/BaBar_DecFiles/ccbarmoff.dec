@@ -1,0 +1,7 @@
+#
+# Force the fragmentation to produce a ccbar pair
+# Intended for use in generating off-resonance ccbar data.  C. Hearty
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+End

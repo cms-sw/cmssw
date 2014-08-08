@@ -1,0 +1,65 @@
+###################################################################
+# anti-B0 --> psi2s K0s            B0 --> Generic                 #
+#             |      |                                            #
+#             |      |-->pi+pi-                                   #
+#             |                                                   #
+#             |                                                   #
+#             |-->mu+mu-/e+e-                                     #
+#             |                                                   #
+#             |-->J/psi pi+pi-                                    #
+#                  |                                              #
+#                  |-->mu+mu-/e+e-                                #
+#                                                                 #
+#  + cc                                                           #
+#                                                                 #
+# NON STANDARD MODEL                                              #
+# Delta(Gamma)/Gamma=0.2                                          #
+# |q/p| = 1.04                                                    #
+#                                                                 #
+# Author: F. Sandrelli                                            #
+# Created:                   20/March/02                          #
+###################################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mypsi(2S) psi(2S)
+Alias MyJ/psi   J/psi
+Alias MyK0s K_S0
+Define dgog 0.2
+Define absqop -1.04
+# |q/p| is negative because of opposite def. btw PhysBook & formula in SVSCPLH/VSSBMIX 
+Define argqop -0.7761517725
+# arg(q/p) is consistent with sin2b=0.7
+#
+# dGamma/Gamma definition is opposite between VSS_BMIX & SVS_CPLH
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm dgog absqop;
+Enddecay
+#
+# Phase difference between Af and Afbar should be Pi to enforce the CP eigenvalue (-1)
+Decay MyB0
+1.0000  Mypsi(2S)  MyK0s         SVS_CPLH dm dgog absqop argqop  1.0 0.0 -1.0 0.0;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000  Mypsi(2S)  MyK0s         SVS_CPLH dm dgog absqop argqop  1.0 0.0 -1.0 0.0;
+Enddecay 
+#
+Decay Mypsi(2S)
+0.700  MyJ/psi  pi+ pi-        VVPIPI;
+0.1500    e+   e-                PHOTOS  VLL;
+0.1500   mu+  mu-                PHOTOS VLL;
+Enddecay 
+# 
+Decay MyJ/psi
+0.5000    e+   e-                PHOTOS  VLL;
+0.5000   mu+  mu-                PHOTOS VLL;
+Enddecay 
+#                                       Ks --> pi+ pi- (100%)
+Decay MyK0s
+1.0000 pi+ pi-                          PHSP;
+Enddecay
+End
+
+
+

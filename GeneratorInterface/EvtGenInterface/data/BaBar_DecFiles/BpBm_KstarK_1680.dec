@@ -1,0 +1,38 @@
+#####################################################
+#        _                                          #
+#  B+ -> K^*(1680) K+      (100%)           + C.C.  #
+#  _                                                # 
+#  K^*(1680) -> pi+ K-     (100%)           + C.C.  # 
+#                                                   # 
+#  Author:  J. P. Burke    phjpb@SLAC.Stanford.EDU  #
+#  Created: 06-Dec-2003                             #
+#                                                   #
+#####################################################
+#
+Alias myB+                 B+
+Alias myB-                 B-
+Alias myK*0                K''*0
+Alias myanti-K*0           anti-K''*0
+#
+Decay Upsilon(4S)
+0.5000 myB+ B-             VSS;
+0.5000 myB- B+             VSS;
+Enddecay
+#
+Decay myB+
+1.0000 myanti-K*0 K+       SVS;
+Enddecay
+#
+Decay myB-
+1.0000 myK*0 K-            SVS;
+Enddecay
+
+Decay myK*0
+1.000  K+ pi-              VSS;
+Enddecay
+#
+Decay myanti-K*0
+1.000  K- pi+              VSS;
+Enddecay
+End
+

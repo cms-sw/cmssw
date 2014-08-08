@@ -1,0 +1,51 @@
+###################################################
+#                                                 #
+# B- -> J/psi anti-p- baryon                      #
+#        |                                        #
+#        ->l+l-                                   #
+#                                                 #
+# Contact: Christopher Hearty                     #
+# hearty@triumf.ca                                #
+# Created June 13, 2002                           #
+###################################################
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyJ/psi J/psi
+Alias MyLambda0 Lambda0
+Alias Myanti-Lambda0 anti-Lambda0
+Alias MySigma0 Sigma0
+Alias Myanti-Sigma0 anti-Sigma0
+#
+ChargeConj MyLambda0  Myanti-Lambda0
+ChargeConj MySigma0  Myanti-Sigma0
+ChargeConj MyB+ MyB-
+#
+Decay Upsilon(4S)
+0.5 MyB+ B-                           VSS;
+0.5 MyB- B+                           VSS;
+Enddecay
+#
+Decay MyB-
+0.50 MyJ/psi anti-p- MyLambda0          PHSP;
+0.50 MyJ/psi anti-p- MySigma0           PHSP;
+Enddecay
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+Decay MyLambda0
+1.00 p+ pi-                              PHSP;
+Enddecay
+#
+Decay MySigma0
+1.00 MyLambda0 gamma                     PHSP;
+Enddecay
+#
+CDecay MyB+
+CDecay Myanti-Lambda0
+CDecay Myanti-Sigma0
+End

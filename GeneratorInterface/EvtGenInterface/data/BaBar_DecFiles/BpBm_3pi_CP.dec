@@ -1,0 +1,33 @@
+###################################################
+#                                                 #
+# B+ -> pi+ pi+ pi-    + c.c.                     #
+#       with interference between the rho         #       
+#       resonances                                #
+#                                                 #
+# Author: John Back    jback@slac.stanford.edu    #
+# Created: 27/Oct/99                              #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> pi+ pi+ pi- with 
+# interference between the rho resonances using
+# the CB3PI-MPP model
+#
+Define alpha 1.365
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000   pi+ pi+ pi-    CB3PI-MPP alpha;
+Enddecay
+#
+Decay MyB-
+1.000  pi- pi- pi+     CB3PI-MPP alpha;
+Enddecay
+End

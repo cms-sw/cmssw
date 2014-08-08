@@ -1,0 +1,42 @@
+####################################################
+#                                                  #
+# Inclusive D0pi decay.dec                         #
+#                                                  #
+# D0pi      from B+B-                              #
+#                                                  #
+# Decay: B+ -> anti-D0 pi+, B- -> X     +c.c.      #
+#               |-> K+ pi- pi0                     #
+#                                                  #
+# 19 Jun 02                                        #
+# Erich Varnes                                     #
+####################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Alias Myanti-D0 anti-D0
+Alias MyD0 D0
+#
+Decay Myanti-D0
+1.00  K+  pi-  pi0                    D_DALITZ;
+Enddecay
+#
+Decay MyD0
+1.00  K-  pi+  pi0                    D_DALITZ;
+Enddecay
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 Myanti-D0 pi+          PHSP;
+Enddecay
+#
+Decay MyB-
+1.0000 MyD0 pi-               PHSP;
+Enddecay
+#
+End
+

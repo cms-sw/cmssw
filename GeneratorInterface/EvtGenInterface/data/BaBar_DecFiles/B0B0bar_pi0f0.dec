@@ -1,0 +1,38 @@
+###################################################
+#                                                 #
+# B0 -> f0(980) pi0  + c.c.                       #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi-                             #
+#                                                 #
+# Author: John Back     jback@slac.stanford.edu   #
+# Created: 07/Aug/01                              #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> f0(980) pi0 using SSS_CP model
+# (scalar -> 2 scalars with CP interference)
+# The f0 decays to pi+ pi- using phase space
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myf0 f_0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Myf0 pi0            SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myf0 pi0            SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay Myf0
+1.000  pi- pi+             PHSP;
+Enddecay
+End
+

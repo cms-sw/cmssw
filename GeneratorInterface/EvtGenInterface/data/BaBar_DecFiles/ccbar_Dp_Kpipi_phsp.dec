@@ -1,0 +1,21 @@
+###################################################
+#                                                 #
+# ccbar -> D+ X                                   #
+#          D+ -> K- pi+ pi+                       #
+# D+ decays through phase space                   #
+#                                                 #
+# created: 09/25/01 - pompili@slac.stanford.edu   #  
+#                                                 #
+# 09/25/01: use filter_D+_from_ccbar.tcl          #
+# 02/06/02: use filter_D+_from_ccbar_pstarcut.tcl #
+###################################################
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+#
+Decay D+
+1.0     K- pi+ pi+                       PHSP;
+Enddecay
+#         
+End

@@ -1,0 +1,29 @@
+###################################################
+#                                                 #
+# B+ -> rho- rho+ pi+   +cc                      #
+#                                                 #
+# Author: I. Forster                              #
+# created:                     14/05/03           #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> rho- rho+ pi+  using a simple PHSP
+# model.
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000     rho- rho+ pi+      PHSP;
+Enddecay
+#
+Decay MyB-
+1.0000     rho+ rho- pi-      PHSP;
+Enddecay
+#
+End

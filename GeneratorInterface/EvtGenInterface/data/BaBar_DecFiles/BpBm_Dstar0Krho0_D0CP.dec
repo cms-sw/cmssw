@@ -1,0 +1,197 @@
+##########################################################################
+#                                                                        #
+# Decay file for: B+- --> Dstar0 K rho0, Dstar0 --> D0pi0, D0gamma       #
+#                                        D0 --> CP modes                 #
+#   CP modes: KK, KsPi0, KsEta, KsEtap, KsOmega, KsRho0, KsPhi, Rho0Pi0  #
+#                                                                        #
+# The D0 decay modes are into CP eigenstates.                            #
+#                                                                        #
+# Author: Troels Petersen, LAL                                           #
+# Date:   6th of November 2002                                           #
+#                                                                        #
+##########################################################################
+
+###################################################
+# Define alias
+###################################################
+
+Alias MyB+       B+
+Alias MyB-       B-
+Alias MyD*0      D*0
+Alias Myanti-D*0 anti-D*0
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+
+Alias Mya_1+     a_1+
+Alias Mya_1-     a_1-
+Alias MyK_1+     K_1+
+Alias MyK_1-     K_1-
+Alias MyK*0      K*0
+Alias Myanti-K*0 anti-K*0
+Alias Myomega    omega
+Alias MyK0       K0
+Alias Myanti-K0  anti-K0
+Alias MyKs       K_S0
+
+Alias NewEta     eta
+Alias NewEta2    eta
+Alias NewEtap    eta'
+Alias NewOmega   omega
+Alias NewPhi     phi
+
+
+###################################################
+# Begin the decays
+###################################################
+
+Decay Upsilon(4S)
+  0.500 MyB+ B-                          VSS;
+  0.500 MyB- B+                          VSS;
+Enddecay
+
+
+###################################################
+# B+- -> D0(bar) K+- pi0
+###################################################
+
+Decay MyB+
+  0.0004    Myanti-D*0  K+      rho0     PHSP;
+Enddecay
+
+Decay MyB-
+  0.0004    MyD*0       K-      rho0     PHSP;
+Enddecay
+
+
+###################################################
+# Dstar0(bar) -> D0(bar) pi0, D0(bar) gamma
+###################################################
+
+Decay MyD*0
+  0.6190    MyD0       pi0      VSS;
+  0.3810    MyD0       gamma    VSP_PWAVE;
+Enddecay
+
+Decay Myanti-D*0
+  0.6190    Myanti-D0  pi0      VSS;
+  0.3810    Myanti-D0  gamma    VSP_PWAVE;
+Enddecay
+
+
+###################################################
+# D0(bar) -> KK, KsPi0, KsEta, KsEtap,
+#            KsOmega, KsRho0, KsPhi, Rho0Pi0
+###################################################
+
+Decay MyD0
+# CP Even
+  0.00412   K+       K-         PHSP;
+# CP Odd
+  0.00782   MyKs     pi0        PHSP;
+  0.0016    MyKs     NewEta     PHSP;
+  0.00365   MyKs     NewEtap    PHSP;
+  0.0067    NewOmega MyKs       SVS;
+  0.00504   rho0     MyKs       SVS;
+  0.0016    NewPhi   MyKs       SVS;
+  0.004     rho0     pi0        SVS;
+Enddecay
+
+Decay Myanti-D0
+# CP Even
+  0.00412   K+       K-         PHSP;
+# CP Odd
+  0.00782   MyKs     pi0        PHSP;
+  0.0016    MyKs     NewEta     PHSP;
+  0.00365   MyKs     NewEtap    PHSP;
+  0.0067    NewOmega MyKs       SVS;
+  0.00504   rho0     MyKs       SVS;
+  0.0016    NewPhi   MyKs       SVS;
+  0.004     rho0     pi0        SVS;
+Enddecay
+
+
+###################################################
+# Light meson decays
+###################################################
+
+Decay MyK0
+  1.000   MyKs                  PHSP;
+Enddecay
+
+Decay Myanti-K0
+  1.000   MyKs                  PHSP;
+Enddecay
+
+Decay MyKs
+  1.000   pi+ pi-               PHSP;
+Enddecay
+
+
+Decay Mya_1+
+  1.0000  rho0 pi+              VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay Mya_1-
+  1.0000  rho0 pi-              VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+
+Decay MyK_1+
+  0.3913  rho0 K+               VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.1984  MyK*0 pi+             VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.0067  Myomega K+            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.4036  K+ pi- pi+            PHSP;
+Enddecay
+
+Decay MyK_1-
+  0.3913  rho0 K-               VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.1984  Myanti-K*0 pi-        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.0067  Myomega K-            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+  0.4036  K- pi+ pi-            PHSP;
+Enddecay
+
+# The final state K pi pi can be reached through the K omega, via:
+Decay Myomega
+  1.0000  pi- pi+               VSS;
+Enddecay
+
+
+Decay MyK*0
+  1.0000  K+ pi-                VSS;
+Enddecay
+
+Decay Myanti-K*0
+  1.0000  K- pi+                VSS;
+Enddecay
+
+
+###################################################
+# "New" decay types (due to reconstruction issues)
+###################################################
+
+Decay NewPhi
+  1.0000  K- K+                 VSS;
+Enddecay
+
+Decay NewOmega
+  1.0000  pi- pi+ pi0           OMEGA_DALITZ;
+Enddecay
+
+Decay NewEtap
+  1.0000  pi+ pi- NewEta2       PHSP;
+Enddecay
+
+Decay NewEta
+  0.3933  pi+ pi- pi0           ETA_DALITZ;
+  0.2300  gamma gamma           PHSP;
+Enddecay
+
+Decay NewEta2
+  1.0000  gamma gamma           PHSP;
+Enddecay
+
+
+
+###################################################
+
+End

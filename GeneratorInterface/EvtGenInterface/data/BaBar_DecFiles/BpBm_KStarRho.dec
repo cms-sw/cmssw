@@ -1,0 +1,58 @@
+###################################################
+#                                                 #
+# B+ -> K*0 rho+           + C.C.                 #
+#       |    |                                    #
+#       |    `--> pi+ pi0                         #
+#       |                                         #
+#       `--> K+ pi-                               #
+#                                                 #
+# Author: Huw Shorthouse  H.Shorthouse@qmw.ac.uk  #
+# Created: 14/Jun/00                              #
+# Put back in ProdDecayFiles 24/Jul/02 C. Bozzi   #
+#                                                 #
+###################################################
+#
+# 
+#
+Alias MyB+        B+
+Alias MyB-        B-
+Alias Myrho+      rho+
+Alias Myrho-      rho-
+Alias MyK*0       K*0
+Alias Myanti-K*0  anti-K*0
+Alias Mypi0       pi0
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000  MyK*0  Myrho+         SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyB-
+1.000  Myanti-K*0  Myrho-    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myrho+ 
+1.000  pi+  Mypi0            VSS;
+Enddecay
+#
+Decay Myrho- 
+1.000  pi-  Mypi0            VSS;
+Enddecay
+#
+Decay Mypi0
+1.000  gamma   gamma         PHSP;
+Enddecay
+#
+Decay MyK*0
+1.000  K+  pi-               VSS;
+Enddecay
+#
+Decay Myanti-K*0
+1.000  K-  pi+               VSS; 
+Enddecay
+
+End

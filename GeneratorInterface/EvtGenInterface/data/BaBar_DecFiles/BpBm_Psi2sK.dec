@@ -1,0 +1,48 @@
+############################################################
+#                                                          #
+# Decay:  B- -> Psi2s      K-,        B+ -> X              #
+#               |-->mu+mu-/e+e-     [15% + 15%  (VLL)]     #
+#               |                                          #
+#               |-->J/psi pi+pi-    [70%       (VVPIPI)]   #
+#                   |                                      #
+#                   |-->mu+mu-/e+e-                        #
+#                                                          #
+#                                                          #
+#             + cc                                         #
+#                                                          #
+# Author: M. Milek                                         #
+# Mail: MILEK@SLAC.STANFORD.EDU
+# Created:                   30 Nov 99                     #
+############################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias Mypsi(2S) psi(2S)
+Alias MyJ/psi J/psi
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  Mypsi(2S)  K+               SVS;
+Enddecay 
+#
+Decay MyB-
+1.0000  Mypsi(2S)  K-               SVS;
+Enddecay 
+#
+Decay Mypsi(2S)
+#0.700  MyJ/psi  pi+ pi-         PHSP;
+0.700  MyJ/psi  pi+ pi-         VVPIPI;
+0.150    e+   e-                PHOTOS  VLL;
+0.150   mu+  mu-                PHOTOS VLL;
+Enddecay
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+End

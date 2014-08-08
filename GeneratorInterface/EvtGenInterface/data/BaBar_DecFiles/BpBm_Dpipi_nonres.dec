@@ -1,0 +1,60 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X    B- -> D+ pi- pi- (nonresonant)    #
+#                         |-> K- pi+ pi+              #
+#                         |-> Ks pi+                  #
+#                              |-> pi+ pi-            #
+#			+CC			      #
+#                                                     #
+# Contacts:                                           #
+# jong@slac.stanford.edu                              #
+# December 2002					      #
+#                                                     #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyD+  D+
+Alias MyB+  B+
+Alias MyD-  D-
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+Alias MyKs K_S0
+#
+#
+Decay Upsilon(4S)
+0.50000 B-  MyB+                          VSS;
+0.50000 B+  MyB-                          VSS;
+Enddecay
+#
+Decay MyB-
+1.0000 MyD+ pi- pi-                      PHSP;
+Enddecay
+#
+Decay MyB+
+1.0000 MyD- pi+ pi+                      PHSP;
+Enddecay
+#
+Decay MyD-
+0.0277   MyK0  pi-                      PHSP;
+0.0910   K+  pi-  pi-                   D_DALITZ;
+Enddecay
+#
+Decay MyD+
+0.0277   Myanti-K0  pi+                 PHSP;
+0.0910   K-  pi+  pi+                   D_DALITZ;
+Enddecay
+#
+#
+Decay MyK0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay MyKs
+1.00   	pi+ pi- 			PHSP;
+Enddecay
+#
+End

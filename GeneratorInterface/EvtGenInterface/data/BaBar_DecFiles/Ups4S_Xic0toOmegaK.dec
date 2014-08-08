@@ -1,0 +1,48 @@
+
+############################################################
+#   Up(4S) -> B0B0_bar  Or -> B+B-                         #
+#                                                          #
+#            Any B                                         #
+#             |                                            # 
+#             |                                            #
+#             +-> Xi_c0                                    #
+#                    |                     [+CC mode]      #
+#                    |                                     # 
+#                    +-> Omega- K+                         #
+#                                                          #
+# Mail: vziegler@slac.stanford.edu                         #
+############################################################
+#
+Alias myLambda0 Lambda0
+Alias myALambda0 anti-Lambda0
+                                                                                                                                                     
+Alias  myOmega- Omega-
+Alias myanti-Omega+ anti-Omega+
+                                                                                                                                                     
+Decay myLambda0
+1.000     p+     pi-                 PHSP;
+Enddecay
+#
+Decay myALambda0
+1.000     anti-p-     pi+             PHSP;
+Enddecay
+#
+Decay myOmega-
+1.000     K-     myLambda0             PHSP;
+Enddecay
+#
+Decay myanti-Omega+
+1.000     K+     myALambda0          PHSP;
+Enddecay
+#
+Decay Xi_c0
+1.000     myOmega-       K+             PHSP;
+Enddecay
+#
+Decay anti-Xi_c0
+1.000     myanti-Omega+       K-            PHSP;
+Enddecay
+#
+End
+                                                                                                                                                     
+

@@ -1,0 +1,48 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> a_0- pi+ + cc                 #
+#                   |                             #
+#                   -->eta(gg) pi-                #
+#                                                 #
+# Author: Lydia Roos                              #
+# Date:                    20 September 2000      #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mya_0+ a_0+
+Alias Mya_0- a_0-
+Alias Myeta eta
+ChargeConj Mya_0+ Mya_0-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 Mya_0+ pi-                   SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 Mya_0- pi+                   SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay Mya_0-    
+1.0000 Myeta pi-                    PHSP;
+Enddecay 
+#
+Decay Mya_0+    
+1.0000 Myeta pi+                    PHSP;
+Enddecay 
+#
+Decay Myeta
+1.0000     gamma  gamma             PHSP;
+Enddecay
+#
+
+End
+
+
+

@@ -1,0 +1,38 @@
+###################################################
+#                                                 #
+# B- -> K*0 pi-  + cc                             #
+#                                                 #
+# Author: Jim Olsen                               #
+# created:                     3/Feb/99           #
+# modified: g.london          10/Feb/99           #
+###################################################
+#
+# Decay table for B- -> K*0 pi- using a simple (S)calar to (V)ector-(S)calar
+# model.  The K*0 decays to K+ pi-.
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias   myK*0   K*0
+Alias   myantiK*0   K*0
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.00     myK*0   pi+    SVS;
+Enddecay
+#
+Decay myK*0
+1.00     K+      pi-    VSS;
+Enddecay
+#
+Decay MyB-
+1.00     myantiK*0   pi-    SVS;
+Enddecay
+#
+Decay myantiK*0
+1.00     K-      pi+    VSS;
+Enddecay
+End

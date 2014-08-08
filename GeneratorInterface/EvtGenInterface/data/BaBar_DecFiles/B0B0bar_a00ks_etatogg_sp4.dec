@@ -1,0 +1,45 @@
+########################################################
+#                                                      #
+# Decay: anti-B0 -> a_00 Ks + cc                       #
+#                   |                                  #
+#                   |-> eta(gg) pi0                    #
+#                                                      #
+# Author: Paul C. Bloom                                #
+# Date:   30 December 2002                             #
+# To be used for last minute SP4 production            #
+########################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mya_00 a_00
+Alias MyKs K_S0
+Alias Myeta eta
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 Mya_00 MyKs			SSS_CP beta dm  1 1.0 0.0 1.0 0.0;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 Mya_00 MyKs			SSS_CP beta dm  1 1.0 0.0 1.0 0.0;
+Enddecay 
+#
+Decay Mya_00
+1.0000 Myeta pi0                  PHSP;
+Enddecay 
+#
+Decay MyKs
+1.000  pi- pi+               PHSP;
+Enddecay
+#
+Decay Myeta
+1.0000     gamma  gamma      PHSP;
+Enddecay
+#
+End
+
+
+

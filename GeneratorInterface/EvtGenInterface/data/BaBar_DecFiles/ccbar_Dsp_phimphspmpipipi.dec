@@ -1,0 +1,26 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# Ds + -> phi pi+ pi- pi+  decay                  #
+#      phi -> K+ K- (PHSP)                        #
+#                                                 #
+# created: K. Goetzen,      11/04/2002            #
+#          klausg@ep1.ruhr-uni-bochum.de          #
+###################################################
+
+Alias Myphi phi
+#
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+Decay D_s+
+1.000 Myphi pi+ pi- pi+         PHSP;
+Enddecay
+#
+Decay Myphi
+1.000 K+ K-                     PHSP;
+Enddecay
+#
+End
+

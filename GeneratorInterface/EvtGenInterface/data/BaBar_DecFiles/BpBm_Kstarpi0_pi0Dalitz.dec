@@ -1,0 +1,47 @@
+###################################################
+#                                                 #
+# Decay: B+ -> K*+  pi0 + cc,pi0->e+e-gamma       #
+#                                                 #
+# Author: Anders Ryd (ryd@slac.stanford.edu)      #
+# Created:  030414                                #
+#						  #
+###################################################
+#
+#
+Alias myPi0 pi0
+Alias myK*+ K*+
+Alias myK*- K*-
+Alias myKS K_S0
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+  B-                     VSS;
+0.5000 MyB-  B+                     VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 myK*+ myPi0          SVS;         
+Enddecay 
+#
+Decay MyB-
+1.0000 myK*- myPi0          SVS;         
+Enddecay
+#
+Decay myK*+
+1.0000 myKS pi+             VSS;
+Enddecay
+#
+Decay myK*-
+1.0000 myKS pi-             VSS;
+Enddecay
+#
+Decay myKS
+1.0000 pi+   pi-            PHSP;
+Enddecay
+#
+Decay myPi0
+1.00    e+  e- gamma                     PI0_DALITZ;
+Enddecay
+#
+End

@@ -1,0 +1,81 @@
+##########################################################
+#                                                        #
+# Decay: B0 -> Pq(anti-Xi_c0) anti-Lambda0               #
+#              Ds(1968)- p+ anti-p- pi+,   anti-B0 -> X  #
+#              -> anti-Ds- p-                            #
+#              -> phi pi-                                #
+# Authur Valerie Halyo                                   #
+##########################################################
+
+#
+Alias MyB0      B0
+Alias Myanti-B0 anti-B0
+Alias MyD_s-     D_s-
+Alias MyD_s+     D_s+
+Alias myLambda0 Lambda0
+Alias myanti-Lambda0 anti-Lambda0
+Alias MyK0  K0
+Alias Myanti-K0 anti-K0
+
+
+ChargeConj MyD_s+ MyD_s-
+ChargeConj Myanti-K0 MyK0
+
+Particle Xi_c0      3.06 0.001 
+Particle anti-Xi_c0 3.06 0.001 
+ 
+ChangeMassMin anti-Xi_c0 2.2  
+ChangeMassMin Xi_c0 2.2
+  
+ChangeMassMax anti-Xi_c0 3.3  
+ChangeMassMax Xi_c0 3.3  
+
+Alias MyPq anti-Xi_c0 
+Alias Myanti-Pq Xi_c0
+
+#
+# Always one B0 that decays to the signal 
+#     // Vector to Two Scalars with B0 mixing, dm=deltaM
+Decay Upsilon(4S)
+ 1.00000  B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#                                    // Phase Space model
+Decay Myanti-Pq
+1.000 MyD_s+ anti-p- PHSP; 
+Enddecay 
+## 
+Decay MyPq
+1.000 MyD_s- p+ PHSP; 
+Enddecay 
+# 
+Decay MyB0
+ 1.00000  MyPq myanti-Lambda0         PHSP;
+Enddecay
+#
+Decay Myanti-B0
+ 1.00000  Myanti-Pq   myLambda0        PHSP;
+Enddecay
+#
+Decay MyD_s-
+1.000  MyK0    K-                     PHSP;
+Enddecay
+#
+Decay MyD_s+
+1.000  Myanti-K0    K+                     PHSP;
+Enddecay
+##
+Decay myLambda0
+1.000 p+ pi- PHSP;
+Enddecay
+#
+Decay myanti-Lambda0
+1.000 anti-p- pi+ PHSP;
+Enddecay
+#
+##
+Decay Myanti-K0
+1.0000 K_S0                         PHSP;
+Enddecay
+CDecay MyK0
+#
+End

@@ -1,0 +1,36 @@
+#########################################################
+#                                                       #
+# Decay: B- -> D0 rho- (D0 -> pi- pi+)  B+ -> X;   + cc #
+#                                                       #
+# Author: Giampiero Mancinelli                          #
+# Date:                    03/09/2001                   #
+#########################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+1.000   rho+  Myanti-D0                   SVS;
+Enddecay
+Decay MyB-
+1.000   rho-  MyD0                        SVS;
+Enddecay
+#
+Decay MyD0
+1.000   pi-  pi+                            PHSP;
+Enddecay
+Decay Myanti-D0
+1.000   pi+  pi-                            PHSP;
+Enddecay
+#
+End

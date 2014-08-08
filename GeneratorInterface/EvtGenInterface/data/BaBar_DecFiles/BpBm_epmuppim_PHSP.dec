@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# B+ -> e+ mu+ pi- + C.C.                         #
+#                                                 #
+# Author: John Back (jback@slac.stanford.edu)     #
+# created:                     23 Oct 2002        #
+###################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.00   e+ mu+ pi-     PHOTOS PHSP;
+Enddecay
+#
+Decay MyB-
+1.00   e- mu- pi+     PHOTOS PHSP;
+Enddecay
+#
+#
+End
+
+
+
+
+
+

@@ -1,0 +1,64 @@
+
+#########################################################
+#                                                        #
+#       Thetac(Anti-Sigma_c0)		                 #
+#              D*(2010)- p+ anti-p- pi+,   anti-B0 -> X  #
+#              +-> anti-D0 pi-        (  BF  )  Relative #
+#                  +-> K+ pi-         ( 3.80%)  15.599%  #
+#                  +-> K+ pi- pi0     (13.1% )  53.777%  #
+#                  +-> K+ pi- pi- pi+ ( 7.46%)  30.624%  #
+#                      Sum            (24.36%) 100.000%  #
+# Author Valerie Halyo   SLAC                            #
+#  The decay of the Pentaquark thetac			 #
+#  Mar 27 04						 #
+##########################################################
+
+#
+
+Alias MyD*-     D*-
+Alias MyD*+     D*+
+Alias Myanti-D0 anti-D0
+Alias MyD0      D0
+
+
+Particle Sigma_c0      3.099 0.001 
+Particle anti-Sigma_c0 3.099 0.001 
+
+ChangeMassMin anti-Sigma_c0 2.997
+ChangeMassMin Sigma_c0 2.997
+                                                                                                           
+ChangeMassMax anti-Sigma_c0 3.4
+ChangeMassMax Sigma_c0 3.4
+
+## 
+Decay Sigma_c0
+1.000 MyD*+ anti-p- PHSP; 
+Enddecay 
+ 
+## 
+Decay anti-Sigma_c0 
+1.000 MyD*- p+ PHSP; 
+Enddecay 
+ 
+
+Decay MyD*-
+ 1.00000  Myanti-D0 pi-                 VSS;
+Enddecay
+#
+Decay MyD*+
+ 1.00000  MyD0 pi+                      VSS;
+Enddecay
+#
+Decay Myanti-D0
+ 0.15599  K+ pi-                        PHSP;
+ 0.53777  K+ pi- pi0                    D_DALITZ;
+ 0.30624  K+ pi- pi- pi+                PHSP;
+Enddecay
+#             // resonance structure in Dalitz modelled
+Decay MyD0
+ 0.15599  K- pi+                        PHSP;
+ 0.53777  K- pi+ pi0                    D_DALITZ;
+ 0.30624  K- pi+ pi+ pi-                PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,26 @@
+#####################################################
+#  Psi2S                                            #
+#    |                                              #
+#    |-->J/psi pi0 pi0  [100% (VVPIPI)]             #
+#           |                                       #
+#           |-->mu+mu-/e+e-  [50%/50% (PHOTOS VLL)] #
+#                                                   #
+#                                                   #
+# Author: S.Passaggio       06/02/01                #
+# (from analogous decay file by E.Varnes)           #
+#####################################################
+#
+Alias MyJ/psi J/psi
+#
+Decay psi(2S)
+1.000  MyJ/psi pi0 pi0           VVPIPI;
+Enddecay 
+# 
+Decay MyJ/psi
+0.5000    e+   e-                PHOTOS VLL;
+0.5000   mu+  mu-                PHOTOS VLL;
+Enddecay 
+End
+
+
+

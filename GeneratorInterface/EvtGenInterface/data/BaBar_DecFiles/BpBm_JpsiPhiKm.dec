@@ -1,0 +1,40 @@
+###################################################################
+#  B+ -> J/psi Phi K+
+#      
+#         Jinlong  Zhang
+###################################################################
+#
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyPhi phi
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+
+Decay MyPhi
+1.0000  K+ K-                   VSS;                    
+Enddecay
+
+Decay MyB-
+1.000 MyJpsi  MyPhi  K-   PHSP;
+Enddecay
+#
+
+Decay MyB+
+1.000 MyJpsi  MyPhi  K+   PHSP;
+Enddecay
+
+#
+End

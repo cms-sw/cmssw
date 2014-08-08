@@ -1,0 +1,58 @@
+####################################################
+#                                                  #
+# Decay: anti-B0 -> Lambda_c+ anti-p-,     B0 -> X # 
+#			|			   #
+#			|-> p+ K pi		   #
+#                       |-> p+ Ks                  #
+# + cc                  |-> p+ K*0                 #
+#                                                  #
+# Initial version modified from B0B0bar_p+p-.dec   #
+# Use phase space for now                          #
+####################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyLc Lambda_c+
+Alias Myanti-Lc anti-Lambda_c-
+Alias MyK_S0  K_S0
+Alias MyKstar0 K*0
+Alias MyantiKstar0 anti-K*0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 p+ Myanti-Lc                    PHSP;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 MyLc anti-p-                    PHSP;
+Enddecay 
+#
+Decay MyLc
+0.02800	   	p+      K-      pi+     PHSP;
+0.01150         p+      MyK_S0          PHSP;
+0.01600         p+      MyantiKstar0    PHSP;
+Enddecay
+# 
+Decay Myanti-Lc
+0.02800	   	anti-p-      K+      pi-     PHSP;
+0.01150         anti-p-      MyK_S0          PHSP;
+0.01600         anti-p-      MyKstar0        PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+Decay MyKstar0
+1.000 K+   pi-             VSS;
+Enddecay
+#
+Decay MyantiKstar0
+1.000 K-   pi+             VSS;
+Enddecay
+#
+End
+

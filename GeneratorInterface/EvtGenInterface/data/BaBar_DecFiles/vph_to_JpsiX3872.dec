@@ -1,0 +1,26 @@
+##############################################################
+#	                      				     #
+#   vph --> J/psi    X(3872)			             #
+#             |      |	--> Decays like psi(2S)		     #
+#	      |      	                          	     #	
+#	      |						     #
+#             | --> (ee,mumu)				     #	
+#							     #
+#							     #	
+# Author Glenn Williams         williamg@utdallas.edu	     #							     	
+##############################################################							     	
+
+  Particle psi(2S) 3.872 0.0
+  Alias myX psi(2S)
+  Alias myJ/psi J/psi
+  
+  Decay vpho
+  1.00 myJ/psi myX		PHSP;
+  Enddecay
+
+  Decay myJ/psi
+  0.500 e+ e-			VLL;
+  0.500 mu+ mu-                 VLL;
+  Enddecay
+  
+  End

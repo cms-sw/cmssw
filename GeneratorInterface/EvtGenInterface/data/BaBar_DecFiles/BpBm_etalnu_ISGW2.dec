@@ -1,0 +1,35 @@
+###############################################################################
+# This is a DECAY.DEC file for B+(-) -> eta l nu :                            #
+#                                                                             #
+#   Up(4S) -> B+   B-                                    +CC                  #
+#             |    |                                                          #
+#             |     ->  eta l- nu_bar (l = e or mu)                           #
+#             |                                                               #
+#              -> X                                                           #
+#                                                                             #
+# Mail: cote@SLAC.STANFORD.EDU                                                #
+###############################################################################
+# Create our own versions of B-, B+ which will decay to rho l nu
+# and specify that they should be treated as antiparticles
+#
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+# force B- to always decay to eta l nu
+#
+Decay myB-
+0.5000 eta   e-   anti-nu_e          PHOTOS   ISGW2;
+0.5000 eta   mu-   anti-nu_mu        PHOTOS   ISGW2;
+Enddecay
+Decay myB+
+0.5000 eta   e+   nu_e          PHOTOS   ISGW2;
+0.5000 eta   mu+  nu_mu         PHOTOS   ISGW2;
+Enddecay
+#
+End

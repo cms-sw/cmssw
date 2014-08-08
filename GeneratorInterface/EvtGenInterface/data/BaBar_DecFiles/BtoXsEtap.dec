@@ -1,0 +1,98 @@
+# 
+# Author: Adlene Hicheur (LAPP), Date: January 12,2001
+ 
+# non-resonant B->Xs,eta' penguin decays where the
+# B is a B0, anti-B0, B+ or B- and the Xs is Xsd, anti-Xsd, Xsu or
+# anti-Xsu, respectively. It uses the new BTOXSETAP model.
+# The mode for JETSET decays is 11 which gives phase-space production
+# of hadrons from the available quarks.
+#
+
+# Reset some Jetset parameters here rather than recompiling
+
+#   Xsd meson  (sbar-d system, introduced for b->s eta' decays)
+# Set Xsd 3*Charge:
+JetSetPar KCHG(455,1)=0
+# Set Xsd color information:
+JetSetPar KCHG(455,2)=0
+# Set Xsd particle/antiparticle distinction:
+JetSetPar KCHG(455,3)=1
+# Set Xsd mass:
+JetSetPar PMAS(455,1)=1.600
+# Set Xsd width (sigma):
+JetSetPar PMAS(455,2)=0.500
+# Set Xsd truncation:
+JetSetPar PMAS(455,3)=2.000
+# Set Xsd name:
+JetSetPar CHAF(455)=Xsd
+# Set Xsd so it can decay:
+JetSetPar MDCY(455,1)=1
+# Set decay table entry pt for Xsd: 
+JetSetPar MDCY(455,2)=1154
+# Number of decay channels for Xsd:                
+JetSetPar MDCY(455,3)=1
+# Switch on Xsd decay
+JetSetPar MDME(1154,1)=1
+# Phase space decays into hadrons from available quarks
+JetSetPar MDME(1154,2)=11
+# Xsd decays into two quarks a d and an anti-s
+JetSetPar KFDP(1154,1)=-3
+JetSetPar KFDP(1154,2)=1
+
+#   Xsu meson  (sbar-u system, introduced for b->s gamma decays)
+# Set Xsu 3*Charge:
+JetSetPar KCHG(456,1)=3
+# Set Xsu color information:
+JetSetPar KCHG(456,2)=0
+# Set Xsu particle/antiparticle distinction:
+JetSetPar KCHG(456,3)=1
+# Set Xsu mass:
+JetSetPar PMAS(456,1)=1.600
+# Set Xsu width (sigma):
+JetSetPar PMAS(456,2)=0.500
+# Set Xsu truncation:
+JetSetPar PMAS(456,3)=2.000
+# Set Xsu name:
+JetSetPar CHAF(456)=Xsu 
+# Set Xsu so it can decay:
+JetSetPar MDCY(456,1)=1
+# Set decay table entry pt for Xsu: 
+JetSetPar MDCY(456,2)=1155
+# Number of decay channels for Xsu:                
+JetSetPar MDCY(456,3)=1
+# Switch on Xsu decay                                  
+JetSetPar MDME(1155,1)=1 
+# Phase space decays into hadrons from available quarks
+JetSetPar MDME(1155,2)=11
+# Xsu decays into two quarks a u and an anti-s
+JetSetPar KFDP(1155,1)=-3
+JetSetPar KFDP(1155,2)=2
+
+
+
+
+Decay Upsilon(4S)
+0.500   B0       anti-B0                  VSS;
+0.500   B+       B-                       VSS;
+Enddecay
+
+Decay anti-B0
+1.    anti-Xsd  eta' BTOXSETAP;
+Enddecay
+
+Decay B-
+1.   anti-Xsu  eta'   BTOXSETAP;
+Enddecay
+
+Decay eta'
+1.     pi+ pi- eta                      PHSP;
+Enddecay
+#
+
+Decay eta
+1.   gamma  gamma                       PHSP;
+
+Enddecay
+#
+
+End

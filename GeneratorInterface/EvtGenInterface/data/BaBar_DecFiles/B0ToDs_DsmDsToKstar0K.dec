@@ -1,0 +1,65 @@
+#######################################################################
+#                                                                     #
+# Decay: B0 -> D_s-             D_s+,               : anti-B0 -> X    # 
+#              |->K*0(892) K-   |->K*0(892)_bar K+                    #
+#                  |                |                                 #
+#                  -> K+ pi-        -> K- pi+                         #
+#                                                       	      #
+# Author: Asish Satpathy                                	      #
+# Date: 24/April/2004                                      	      #
+#######################################################################
+#
+## B0 -> Ds Ds -> K*0(892) K
+
+Alias MyB0          B0
+Alias Myanti-B0     anti-B0
+Alias MyD_s+        D_s+
+Alias MyD_s-        D_s-
+Alias MyKstar       K*0
+Alias MyantiKstar   anti-K*0
+
+ChargeConj MyB0     Myanti-B0
+ChargeConj MyD_s+   MyD_s-
+ChargeConj MyKstar  MyantiKstar
+
+Decay Upsilon(4S)
+1.000  B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+Decay MyB0
+1.000  MyD_s-   MyD_s+           PHSP;
+Enddecay
+
+CDecay Myanti-B0
+
+Decay MyD_s-
+1.000  MyKstar   K-              SVS;
+Enddecay
+
+CDecay MyD_s+
+
+Decay MyKstar
+1.000      K+  pi-               VSS;
+Enddecay
+
+CDecay MyantiKstar
+
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

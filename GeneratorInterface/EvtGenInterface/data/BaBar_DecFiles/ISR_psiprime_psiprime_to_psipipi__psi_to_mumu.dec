@@ -1,0 +1,28 @@
+############################################################
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Feb 23, 2000 
+#          Jun 18, 2000 add FSR (photos)
+# Mail: JOE@SLAC.STANFORD.EDU 
+#
+# e+e- -> ISRgamma Psi(2S), Psi(2S) -> pi+ pi- Psi, Psi -> mu+ mu-
+#
+############################################################
+#set vphoton to decay to gamma psi(2S, no angular restriction
+Decay vpho
+1.000  psi(2S) gamma VECTORISR 0.999999 0.999999;
+Enddecay
+
+Alias psimm J/psi
+
+Decay psimm
+1.0    mu+   mu-                PHOTOS  VLL;
+Enddecay
+
+Decay psi(2S)
+1.0    psimm  pi+ pi-                   VVPIPI;
+Enddecay
+
+End
+
+

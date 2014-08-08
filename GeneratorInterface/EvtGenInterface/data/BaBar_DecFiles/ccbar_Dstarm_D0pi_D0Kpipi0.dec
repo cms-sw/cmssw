@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> anti-D0 pi-, anti-D0 -> K+ pi- pi0       #
+#                                                 #
+# created: U. Egede 27/10/99                      #
+#          U.Egede@rl.ac.uk                       #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+# the Dalitz mode below includes K*(892)0 pi0, K*(892)+ pi-
+# and K+ rho(770)- resonances.
+0.1307   K+  pi-  pi0                    D_DALITZ;
+Enddecay
+#
+End

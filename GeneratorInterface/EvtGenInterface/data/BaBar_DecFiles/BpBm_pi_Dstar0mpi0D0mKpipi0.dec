@@ -1,0 +1,55 @@
+#####################################################
+#                                                   #
+# Decay: B- -> D*(2007)0 pi-   B+ -> X  	    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |-> D0 pi0			    #
+#		   |-> K- pi+ pi0		    #
+#                                                   #
+# + cc                                              #
+#                                                   #
+# Author: P Robbe                                   #
+# created: 30 Mar 2000 				    #
+# 						    #
+#####################################################
+#
+Alias MyB+ 		B+
+Alias MyB- 	 	B-
+Alias MyD*0 		D*0
+Alias Myanti-D*0 	anti-D*0
+Alias MyD0  		D0
+Alias Myanti-D0		anti-D0
+#
+Decay Upsilon(4S)
+0.500 MyB+  B-                     VSS;
+0.500 MyB-  B+                     VSS;
+Enddecay
+#
+Decay MyB+
+1.00	Myanti-D*0 pi+      		SVS;
+Enddecay 
+#
+Decay MyB-
+1.00	MyD*0 pi-		     	SVS;
+Enddecay 
+#
+Decay MyD*0
+1.0000  MyD0   pi0			VSS;
+Enddecay
+#
+Decay Myanti-D*0
+1.0000  Myanti-D0   pi0                 VSS;
+Enddecay
+#
+Decay Myanti-D0
+1.00	K+ pi- pi0			D_DALITZ;
+Enddecay
+#
+Decay MyD0
+1.00	K- pi+ pi0			D_DALITZ;
+Enddecay
+#
+End
+

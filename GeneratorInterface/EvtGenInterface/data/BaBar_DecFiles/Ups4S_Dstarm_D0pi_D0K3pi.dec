@@ -1,0 +1,48 @@
+###################################################
+#                                                 #
+# Ups(4S) production                              #
+# D*- -> anti-D0 pi-, anti-D0 -> K+ pi- pi+ pi-   #
+#                                                 #
+# created: U. Egede 27/10/99                      #
+#          U.Egede@rl.ac.uk                       #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+Alias my-a_1- a_1-
+Alias my-K*0 K*0
+Alias my-K_1+ K_1+
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+0.0360   my-a_1- K+                      SVS;
+0.0098   my-K*0 rho0                SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0036   my-K_1+ pi-                     SVS;
+0.0095   my-K*0 pi-  pi+            PHSP;
+0.0048   K+  pi-  rho0                   PHSP;
+0.0176   K+  pi-  pi-   pi+              PHSP;
+Enddecay
+#
+Decay my-K*0
+0.6657      K+  pi-                        VSS;
+Enddecay
+#
+Decay my-K_1+
+0.1400   rho0  K+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0710   my-K*0   pi+               VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.1444   K+    pi- pi+                   PHSP;
+Enddecay
+#
+#
+Decay my-a_1-
+0.4920   rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#         
+End

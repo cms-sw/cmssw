@@ -1,0 +1,43 @@
+           #####################################################
+           #                                                   #
+           # Decay: B0 -> omega eta     B0bar -> X    + c.c.     #
+           #               |                                   #
+           #               |                                   #
+           #               !                                   #
+           #               ! -> pi+ pi- pi0                    #
+           #                                                   #
+           # The eta decay is generic.                         #
+           # The decay is unspecified                          #
+           #                                                   #
+           # Author: John LoSecco                              #
+           # Created:                07/January/01             #
+           # Submitted by J. LoSecco (losecco@nd.edu)          #
+	   # Corrected B decay from PHSP to SVS 12/Feb/01      #
+           #####################################################
+
+
+#
+#
+
+Alias Myomega omega
+Alias myB0  B0
+Alias myantiB0 anti-B0
+#
+Decay Upsilon(4S)
+0.500   myB0     anti-B0                   VSS;
+0.500   B0       myantiB0                  VSS;
+Enddecay
+#
+Decay myB0
+1.0000     Myomega  eta                      SVS;
+Enddecay
+#
+Decay myantiB0
+1.0000     Myomega  eta                      SVS;
+Enddecay
+#
+Decay Myomega
+1.0000    pi+ pi- pi0                      OMEGA_DALITZ;
+Enddecay
+#
+End

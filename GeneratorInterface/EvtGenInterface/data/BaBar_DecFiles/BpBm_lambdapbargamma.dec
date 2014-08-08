@@ -1,0 +1,28 @@
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyLambda0 Lambda0
+Alias Myanti-Lambda0 anti-Lambda0
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+Decay MyB-
+1.000 MyLambda0 anti-p- gamma B_TO_LAMBDA_PBAR_GAMMA;
+Enddecay
+
+Decay MyB+
+1.000 Myanti-Lambda0 p+ gamma B_TO_LAMBDA_PBAR_GAMMA;
+Enddecay
+
+Decay MyLambda0
+1.00 p+ pi-                  PHSP;
+Enddecay
+
+Decay Myanti-Lambda0
+1.00 anti-p- pi+             PHSP;
+Enddecay
+
+End
+

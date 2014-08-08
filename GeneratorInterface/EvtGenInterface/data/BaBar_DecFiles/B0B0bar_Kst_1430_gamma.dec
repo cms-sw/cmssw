@@ -1,0 +1,26 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#   Up(4S) -> B0  B0bar                    + CC                               #
+#             |    |                                                          #
+#             |     -> K*0bar(1430) gamma                                     #
+#             |                                                               #
+#              -> X                                                           #
+#                                                                             #
+#      ppenn@slac.stanford.edu                                                #
+###############################################################################
+Alias myB0  B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myantiB0 VSS_BMIX dm;
+Enddecay
+#
+#
+Decay myB0
+1.0000  K_2*0 gamma                        HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+Decay myantiB0
+1.0000 anti-K_2*0  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+End

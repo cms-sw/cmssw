@@ -1,0 +1,29 @@
+###################################################
+#                                                 #
+# B0 -> rho0 e+ mu-                               #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Jeffrey Berryhill (berryhil)            #
+# created:                     5/Sep/03           #
+################################################### 
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+0.5 rho0  mu+  e-    PHOTOS PHSP;
+0.5 rho0  mu-  e+    PHOTOS PHSP;
+Enddecay
+#
+Decay Myanti-B0
+0.5 rho0  mu+  e-    PHOTOS PHSP;
+0.5 rho0  mu-  e+    PHOTOS PHSP;
+Enddecay
+#
+End
+

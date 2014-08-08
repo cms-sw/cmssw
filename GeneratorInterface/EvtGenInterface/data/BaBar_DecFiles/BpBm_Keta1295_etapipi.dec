@@ -1,0 +1,43 @@
+##############################################################
+#                                                            #
+# Decay:      B+ -> eta(1295) K+, eta(1295) -> eta(gg)pi+pi- #
+#             B- -> generic                        +cc       #
+#                                                            #
+# Author: Andrei Gritsan                                     #
+# e-mail: gritsan@slac.stanford.edu                          #
+# Created:  07/30/2001                                       #
+#                                                            #
+##############################################################
+#                                                            #
+#               id  mass/GeV width/GeV max_Dm/GeV            #
+# Meson eta(2S) 20221 1.297  0.053     0.2                   #
+#                                                            #
+##############################################################
+#
+Alias Myetap eta(2S)
+Alias Myeta eta
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                       VSS;
+0.500   B+       MyB-                       VSS;
+Enddecay
+#
+Decay MyB-
+1.0000     Myetap  K-                      PHSP;
+Enddecay
+#
+Decay MyB+
+1.0000     Myetap  K+                      PHSP;
+Enddecay
+#
+Decay Myetap
+1.0000       pi+ pi- Myeta                 PHSP;
+Enddecay
+#
+Decay Myeta
+1.000     gamma  gamma                     PHSP;
+Enddecay
+#
+End

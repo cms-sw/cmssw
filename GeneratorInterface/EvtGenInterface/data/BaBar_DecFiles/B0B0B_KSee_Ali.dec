@@ -1,0 +1,31 @@
+###################################################
+#                                                 #
+# B0 -> Ks e+ e-, with Ks ->pi+ pi-               #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Anders Ryd (ryd@slac.stanford.edu)      #
+# created:                     4/Oct/99           #
+################################################### 
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK_S0 K_S0 
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0 MyK_S0  e+  e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay Myanti-B0
+1.0 MyK_S0  e+  e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay MyK_S0 
+1.0 pi+ pi- PHSP;
+Enddecay
+#
+End

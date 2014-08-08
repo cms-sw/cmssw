@@ -1,0 +1,88 @@
+############################################################
+#                                                          #
+# Exclusive D*D* decay.dec #2                              #
+#                                                          #
+# D*D* . from B0 B0bar for SP3                             #
+#                                                          #
+# Decay: B0 -> D*(2007)0   D*(2007)0  anti-B0 -> X         #
+#              |             |                             #
+#              |->recon-     |-> recon-                    #
+#                 structible     structible                #
+#                 modes          modes                     #
+#                                                          #
+#              Dstar0Dstar0_D0D0_KpiKpi.dec                #
+# + cc                                                     #
+#                                                          #
+# Author: S. Xella (IHB AWG)    06/11/99  (inclusive modes)#
+#         J. Albert             07/02/00  (mod for excl.)  #
+#         J. Schieck            18/08/00                   #
+############################################################
+#
+#
+Define beta 0.39
+#
+Alias MyB0 B0
+Alias Myanti-B0  anti-B0
+Alias MyD*+      D*+
+Alias MyD*-      D*-
+Alias MyD*0      D*0
+Alias Myanti-D*0 anti-D*0 
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+Alias MyD+       D+
+Alias MyD-       D-
+#
+Alias Mya_1+ a_1+
+Alias MyK*0B anti-K*0
+Alias MyK_1- K_1-
+Alias Mya_1- a_1-
+Alias MyK*0  K*0
+Alias MyK_1+ K_1+
+#
+Alias My2ndK*0B anti-K*0
+Alias My2ndK_1- K_1-
+Alias My2ndK*0  K*0
+Alias My2ndK_1+ K_1+
+Alias Myphi     phi
+Alias Myeta     eta
+Alias Myomega   omega
+Alias MyK_10    K_10
+Alias MyK_10B   anti-K_10
+Alias MyK*-     K*-
+Alias MyK*+     K*+
+#
+
+ChargeConj  MyB0 Myanti-B0
+ChargeConj  MyD*+ MyD*-
+ChargeConj  MyD0 Myanti-D0   
+ChargeConj  MyD*0  Myanti-D*0 
+ChargeConj  MyD0 Myanti-D0
+
+
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+#
+Decay MyB0
+1.0000  MyD*0   Myanti-D*0       SVV_CP beta dm 1 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay 
+#
+Decay MyD*0
+1.0000  MyD0    pi0                       VSS;
+Enddecay
+#
+Decay MyD0
+1.0000   K-   pi+                         PHSP;
+Enddecay
+#
+CDecay  Myanti-D*0
+CDecay  Myanti-D0   
+CDecay  Myanti-B0
+#
+#
+#
+End
+
+
+

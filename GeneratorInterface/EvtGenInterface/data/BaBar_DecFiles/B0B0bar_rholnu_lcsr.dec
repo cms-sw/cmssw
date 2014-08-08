@@ -1,0 +1,36 @@
+###############################################################################
+# This is a DECAY.DEC file for B -> rho l nu:                                 #
+#   Up(4S) -> B0  B0bar                                 + CC                  #
+#             |    |                                                          #
+#             |     -> rho+  l- nu_bar (l = e or mu)                          # 
+#             |                                                               #
+#              -> X                                                           #
+#                                                                             #
+#                                                                             #
+#                                                                             #
+# LCSR model
+###############################################################################
+# Create our own versions of B0, B0bar which will decay to rho l nu
+# and specify that they should be treated as antiparticles
+#
+Alias myB0  B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+#
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myantiB0 VSS_BMIX dm;
+Enddecay
+#
+# force anti-B0 to always decay to rho l nu
+#
+Decay myantiB0
+0.500   rho+   e-   anti-nu_e          PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+0.500   rho+   mu-   anti-nu_mu        PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+Enddecay
+Decay myB0
+0.500   rho-   e+   nu_e          PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+0.500   rho-   mu+  nu_mu         PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+Enddecay
+#
+End

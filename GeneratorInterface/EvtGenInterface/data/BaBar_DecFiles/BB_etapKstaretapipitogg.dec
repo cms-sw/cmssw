@@ -1,0 +1,38 @@
+###################################################################
+# quasi inclusive etap production from B's
+#B->EtapX X = K +npi, Bbar -> X                                               ##     |
+#      --eta pi pi
+#        |
+#         -gamma gamma
+#                  
+# Author: A.Hicheur           23 Nov 2000  
+# hicheur@lapp.in2p3.fr                                            #
+###################################################################
+#
+#
+Decay Upsilon(4S)
+0.500   B0       anti-B0                  VSS;
+0.500   B+       B-                       VSS;
+Enddecay
+
+Decay anti-B0
+1. K*S eta'          SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma -1.0 minusGamma;
+Enddecay
+
+Decay B-
+1. K*- eta'                   SVS;
+Enddecay
+
+Decay eta'
+1.     pi+ pi- eta                      PHSP;
+Enddecay
+#
+
+Decay eta
+1.   gamma  gamma                       PHSP;
+
+Enddecay
+#
+
+
+End 

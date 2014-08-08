@@ -1,0 +1,445 @@
+            ####################################################
+           #                                                   #
+           # Decay: B -> all non-charm final states            #
+           #                                                   #
+           # Author: J. Smith                                  #
+           # Created:                September 27, 2000        #
+           # Modified:               September 21, 2001        #
+           #                                                   #
+           #####################################################
+
+#
+#
+
+#
+Decay Upsilon(4S)
+0.500   B+       B-                       VSS;
+0.500   B0       anti-B0                  VSS;
+Enddecay
+
+#Define the B0B0bar mass difference
+Define dm 0.472e12
+Define dgamma 0
+Define qoverp 1
+Define phaseqoverp 0
+# define the values of the CKM angles  (alpha=70, beta=40)
+Define alpha 1.365
+Define beta  0.39
+Define gamma 1.387
+Define twoBetaPlusGamma  2.167
+Define betaPlusHalfGamma 1.0835
+
+# New definitions for psiKstar modes (Lange, July 26, 2000)
+Define PKHplus  0.159
+Define PKHzero  0.775
+Define PKHminus 0.612
+Define PKphHplus  1.563
+Define PKphHzero  0.0
+Define PKphHminus 2.712
+
+Define Aplus  0.490
+Define Azero  1.10
+Define Aminus 0.4
+#
+Define phAplus  2.5
+Define phAzero  0.0
+Define phAminus -0.17
+
+#
+# These particle aliases are used in for CP violating decays
+# in which the decay distributions depends on how the K* decayed.
+#
+#
+Alias K*L       K*0
+Alias K*S       K*0
+Alias K*0T      K*0
+Alias anti-K*0T anti-K*0
+Alias K*BR  anti-K*0
+Alias K*0R  K*0
+Alias anti-K_0*0N anti-K_0*0
+Alias K_0*0N K_0*0
+#
+ChargeConj K*0T    anti-K*0T
+ChargeConj K_0*0N  anti-K_0*0N
+ChargeConj K*0R    K*BR    
+#
+#JetSet parameter modifications
+#
+# O.Long : March 30, 2000
+#  Change from using Peterson fragmentation to Lund fragmentation
+#  with the default parameters (A=0.30, B=0.58)
+#
+#(Very important that there are no blank spaces in the parameter string!)
+# Number of flavor produced. 4 = udsc production (was 5 before)
+JetSetPar MSTJ(104)=5
+# turn on initial state radiation (was off before)
+JetSetPar MSTJ(107)=1
+#use Lund fragmentation with default parameters
+JetSetPar MSTJ(11)=4
+# Lund symmetric fragmentation function parameter a 
+JetSetPar PARJ(41)=.30
+# Lund symmetric fragmentation function parameter b 
+JetSetPar PARJ(42)=.58
+# Lund symmetric fragmentation function parameter a 
+JetSetPar PARJ(43)=.50
+# Lund symmetric fragmentation function parameter b 
+JetSetPar PARJ(44)=.90
+#eps_c   from CLEO 8/97
+JetSetPar PARJ(54)=-.040
+# eps_b
+JetSetPar PARJ(55)=-.004
+#Turn of B0-B0B mixing in JetSet:
+JetSetPar MSTJ(26)=0
+# control of L=1 mesons (in order: J1S0 J0S1 J1S1 J2S1
+JetSetPar PARJ(14)=0.05
+JetSetPar PARJ(15)=0.05
+JetSetPar PARJ(16)=0.05
+JetSetPar PARJ(17)=0.05
+#cut-off parameter used to stop fragmentation process (was .4, CLEO uses.3)
+JetSetPar PARJ(33)=0.3
+#
+### Parameters below are a new tuning of the continuum
+### fragmentation that softens the pion spectrum
+### but commented out untill verified to be physically
+### sound. ryd 00-02-10
+### Lund symmetric fragmentation function parameter a 
+##JetSetPar PARJ(41)=.40
+### Lund symmetric fragmentation function parameter b 
+##JetSetPar PARJ(42)=.29
+### Lund symmetric fragmentation function parameter a 
+##JetSetPar PARJ(43)=.60
+### Lund symmetric fragmentation function parameter b 
+##JetSetPar PARJ(44)=.45
+###eps_c   from CLEO 8/97
+##JetSetPar PARJ(54)=-.040
+##JetSetPar PARJ(46)=0.0
+##JetSetPar PARJ(33)=0.2
+###End of new continuum tuning
+#
+Decay anti-B0
+#
+#                    b -> u l nu
+#
+# 03/28/01 S.Menke included inclusive B -> X_u l nu decays for m(X_u) > 1.26 GeV.
+#                  with some thresholds to gradually switch from excl. to incl.
+#                  modeling without big jumps keeping the better known excl.
+#                  Brs at their actual values and constrain the incl. Br and 
+#                  weights in a way that ~40% of the total BR belongs to 
+#                  the mass region > 1.5 GeV
+#
+0.000180   pi+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000260   rho+   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000165   a_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000102   b_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000014   a_0+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000014   a_2+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   rho(2S)+ e-   anti-nu_e        PHOTOS   ISGW2;
+0.000616   Xu+  e-  anti-nu_e          PHOTOS   VUB 4.8 1.29 0.22 13 
+ 1.264 0.354 1.341 0.639 1.414 0.758 1.483 0.822 1.549 0.881 
+ 1.612 0.949 1.673 0.953 1.732 0.947 1.788 0.968 1.843 0.967 
+ 1.897 0.978 1.949 0.984 2     1;
+0.000180   pi+    mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000260   rho+   mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000165   a_1+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000102   b_1+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000014   a_0+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000014   a_2+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000000   rho(2S)+ mu-  anti-nu_mu      PHOTOS     ISGW2;
+0.000616   Xu+  mu-  anti-nu_mu        PHOTOS   VUB 4.8 1.29 0.22 13 
+ 1.264 0.354 1.341 0.639 1.414 0.758 1.483 0.822 1.549 0.881 
+ 1.612 0.949 1.673 0.953 1.732 0.947 1.788 0.968 1.843 0.967 
+ 1.897 0.978 1.949 0.984 2     1;
+#
+0.000060   pi+    tau- anti-nu_tau                 ISGW2;
+0.000083   rho+   tau- anti-nu_tau                 ISGW2;
+0.000090   a_1+    tau- anti-nu_tau                 ISGW2;
+0.000008   b_1+    tau- anti-nu_tau                 ISGW2;
+0.000008   a_0+    tau- anti-nu_tau                 ISGW2;
+0.000008   a_2+    tau- anti-nu_tau                 ISGW2;
+0.000000   rho(2S)+ tau- anti-nu_tau                 ISGW2;
+#
+#
+0.000045   anti-K*0  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000135  anti-K_10  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000065  anti-K'_10  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000128  anti-K'*0  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000166  anti-K_2*0  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000017  anti-K''*0  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+0.000284     anti-Xsd    gamma     BTOXSGAMMA 2 ;
+#
+0.00000057 anti-K0   e+    e-    PHOTOS BTOSLLBALL;
+0.0000023  anti-K*0  e+    e-    PHOTOS BTOSLLBALL;
+0.000004   anti-Xsd  e+    e-    PHOTOS BTOXSLL;
+0.00000057 anti-K0   mu+   mu-   PHOTOS BTOSLLBALL;
+0.0000019  anti-K*0  mu+   mu-   PHOTOS BTOSLLBALL;
+0.000004   anti-Xsd  mu+   mu-   PHOTOS BTOXSLL;
+0.00000013 anti-K0   tau+  tau-  PHOTOS BTOSLLBALL;
+0.00000019 anti-K*0  tau+  tau-  PHOTOS BTOSLLBALL;
+0.0000002  anti-Xsd  tau+  tau-  PHOTOS BTOXSLL;
+#
+#    B0 -> CP eigenstates  (some exclusive b -> u)   sum=0.00036
+#
+# (pi0pi0 -> 2x10^-6, Jim Olsen - Mar 27, 2001)
+0.000004   pi+  pi-               SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000002   pi0  pi0               SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   pi0  eta               SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   pi0  eta'              SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   pi0  a_00               SSS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   pi0  f_0                SSS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   omega pi0               SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   a_10  pi0               SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   b_10  pi0               SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   eta  eta               SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   eta  eta'              SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   eta  a_00               SSS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   eta  f_0                SSS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   omega eta               SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   rho0 eta               SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   a_10  eta               SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   b_10  eta               SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   eta' eta'              SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   eta' a_00               SSS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   eta' f_0                SSS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   omega eta'              SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   rho0 eta'              SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   a_10  eta'              SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   b_10  eta'              SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   a_00  a_00               SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   a_00  f_0                SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   omega a_00               SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   rho0 a_00               SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   a_10  a_00               SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   b_10  a_00               SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   f_0   f_0                SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001   omega f_0                SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   rho0 f_0                SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   a_10  f_0                SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001   b_10  f_0                SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000030   pi-   pi+   pi0          BTO3PI_CP dm  alpha;
+# Don't use this since other Kpipi states not done
+#0.00000108   K-    pi+   pi0          BTOKPIPI_CP dm  alpha beta;
+#
+0.000005     phi   anti-K*0T        SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000025    phi   K*S              SVV_CP alpha dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000025     phi   K*L             SVV_CP alpha dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000005     phi  K_S0              SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000005     phi  K_L0              SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001     phi  rho0              SVV_CP alpha dm 1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     phi  eta               SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001     phi  eta'              SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001     phi  phi               SVV_CP alpha dm 1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     phi  omega             SVV_CP alpha dm 1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     phi  pi0               SVS_CP alpha dm  -1 1.0 0.0 1.0 0.0;
+0.000001  eta K_S0                  SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001  eta K_L0                  SSS_CP alpha dm  -1 1.0 0.0 1.0 0.0;
+0.0000445 eta' K_S0                 SSS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.0000445 eta' K_L0                 SSS_CP alpha dm  -1 1.0 0.0 1.0 0.0;
+0.0000025 omega K_S0                SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.0000025 omega K_L0                SVS_CP alpha dm  -1 1.0 0.0 1.0 0.0;
+
+0.0000035 K*S eta                   SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.0000035 K*L eta                   SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.0000070 anti-K*0T eta             SVS;
+0.000001 K*S eta'                   SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001 K*L eta'                   SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000002 anti-K*0T eta'             SVS;
+0.000001 K*S omega                  SVV_CP alpha dm  -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001 K*L omega                  SVV_CP alpha dm  -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000002 anti-K*0T omega            SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001 omega omega                SVV_CP alpha dm  -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001 omega rho0                 SVV_CP alpha dm  -1 1.0 0.0 1.0 0.0 1.0 0.0;
+#
+#2-body modes from Jim Olsen
+# (K_S0pi0 and K_L0pi0 -> 4x10^-6, Jim Olsen - Mar 27, 2001)
+0.000017     K-  pi+                PHSP;
+0.000003     K+  K-                 PHSP;
+0.000004     K_S0 K_S0              PHSP;
+0.000008     K_S0 K_L0              PHSP;
+0.000004     K_L0 K_L0              PHSP;
+0.000004     K_S0 pi0               PHSP;
+0.000004     K_L0 pi0               PHSP;
+#3,4-body modes from Jim Smith
+0.000001     rho0  anti-K*0T        SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     rho0  K*S              SVV_CP alpha dm  1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     rho0  K*L              SVV_CP alpha dm -1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000005     rho+  K*-              SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000002     rho0  rho0             SVV_CP alpha dm 1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000030     rho+  rho-             SVV_CP alpha dm 1 1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     K*0   anti-K*0         SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000010     a_1+  pi-              SVS;
+0.000010     a_1-  pi+              SVS;
+#
+0.000002     anti-K*0 pi0           SVS;
+0.000005     K*- pi+                SVS;
+0.000001     rho+ K-                SVS;
+0.000001     rho0 K_S0              SVS_CP alpha dm  1 1.0 0.0 1.0 0.0;
+0.000001     rho0 K_L0              SVS_CP alpha dm -1 1.0 0.0 1.0 0.0;
+0.000001     anti-K*0 K_L0          SVS;
+0.000001     anti-K*0 K_S0          SVS;
+# Put in with 0 BR to keep JETSET from generating these (see BTO3PI_CP above)
+0.000000     rho0 pi0               SVS_CP alpha dm  -1 1.0 0.0 1.0 0.0;
+0.000000     rho+ pi-               PHSP;
+0.000000     rho- pi+               PHSP;
+#
+0.00600         anti-u       d  u       anti-d       JETSET         48;
+#Penguins from Aaron Roodman
+0.00410         anti-u     u  d       anti-d       JETSET         48;
+0.00070         anti-d     d  d       anti-d       JETSET         48;
+0.00090         anti-s     s  d       anti-d       JETSET         48;
+0.00220         anti-u     u  s       anti-d       JETSET         48;
+0.00180         anti-d     d  s       anti-d       JETSET         48;
+0.00150         anti-s     s  s       anti-d       JETSET         48;
+0.00500                    s  g       anti-d       JETSET         33;
+Enddecay
+#
+Decay B-
+#
+#                   b -> u l nu
+#
+0.000090   pi0    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000030   eta    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000130   rho0   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000130   omega   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000060   eta'   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000082   a_10    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000007   a_20    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000048   b_10    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000007   a_00    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f_0     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f'_0    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000041   f_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000041   f'_1    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000024   h_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000024   h'_1    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f_2     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f'_2    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000616   Xu0   e-  anti-nu_e        PHOTOS VUB 4.8 1.29 0.22 13 
+  1.264 0.3   1.341 0.43  1.414 0.242 1.483 0.693 1.549 0.812 
+  1.612 0.9   1.673 0.939 1.732 0.947 1.788 0.96  1.843 0.982 
+  1.897 0.989 1.949 0.99  2     1;
+#
+0.000090   pi0    mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000030   eta    mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000130   rho0   mu-  anti-nu_mu        PHOTOS    ISGW2;
+0.000130   omega   mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000060   eta'   mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000082   a_10    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000007   a_20    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000048   b_10    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000007   a_00    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f_0     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f'_0    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000041   f_1     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000041   f'_1    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000024   h_1     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000024   h'_1    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f_2     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f'_2    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000616   Xu0   mu-  anti-nu_mu        PHOTOS VUB 4.8 1.29 0.22 13 
+  1.264 0.3   1.341 0.43  1.414 0.242 1.483 0.693 1.549 0.812 
+  1.612 0.9   1.673 0.939 1.732 0.947 1.788 0.96  1.843 0.982 
+  1.897 0.989 1.949 0.99  2     1;
+#
+0.000030   pi0    tau- anti-nu_tau                 ISGW2;
+0.000012   eta    tau- anti-nu_tau                 ISGW2;
+0.000042   rho0   tau- anti-nu_tau                 ISGW2;
+0.000042   omega   tau- anti-nu_tau                 ISGW2;
+0.000018   eta'   tau- anti-nu_tau                 ISGW2;
+0.000046   a_10    tau- anti-nu_tau                 ISGW2;
+0.000027   b_10    tau- anti-nu_tau                 ISGW2;
+0.000004   a_00    tau- anti-nu_tau                 ISGW2;
+0.000002   f_0     tau- anti-nu_tau                 ISGW2;
+0.000002   f'_0    tau- anti-nu_tau                 ISGW2;
+0.000023   f_1     tau- anti-nu_tau                 ISGW2;
+0.000023   f'_1    tau- anti-nu_tau                 ISGW2;
+0.000013   h_1     tau- anti-nu_tau                 ISGW2;
+0.000013   h'_1    tau- anti-nu_tau                 ISGW2;
+0.000020   f_2     tau- anti-nu_tau                 ISGW2;
+0.000020   f'_2    tau- anti-nu_tau                 ISGW2;
+#
+#   b -> l nu
+#
+0.000050   tau- anti-nu_tau                        SLN;
+0.000000   mu-  anti-nu_mu               PHOTOS   SLN;
+0.000000   e-   anti-nu_e                PHOTOS  SLN;
+#
+#
+0.000045   K*-  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000135  K_1-  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000065  K'_1-  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000128  K'*-  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000166  K_2*-  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+#0.0000017  K''*-  gamma                   HELAMP 1.0 0.0 1.0 0.0;
+0.000284     anti-Xsu    gamma     BTOXSGAMMA 2 ;
+#
+0.00000057 K-        e+    e-    PHOTOS BTOSLLBALL;
+0.0000023  K*-       e+    e-    PHOTOS BTOSLLBALL;
+0.000004   anti-Xsu  e+    e-    PHOTOS BTOXSLL;
+0.00000057 K-        mu+   mu-   PHOTOS BTOSLLBALL;
+0.0000019  K*-       mu+   mu-   PHOTOS BTOSLLBALL;
+0.000004   anti-Xsu  mu+   mu-   PHOTOS BTOXSLL;
+0.00000013 K-        tau+  tau-  PHOTOS BTOSLLBALL;
+0.00000019 K*-       tau+  tau-  PHOTOS BTOSLLBALL;
+0.0000002  anti-Xsu  tau+  tau-  PHOTOS BTOXSLL;
+#
+# Exclusive hadronic b->u
+#
+0.000026   pi-   pi0   pi0                   CB3PI-P00 alpha;
+0.000011   pi-   pi-   pi+                   CB3PI-MPP alpha;
+####
+0.000005  eta pi-                   PHSP;
+0.000002  eta K-                    PHSP;
+0.0000264 K*- eta                   SVS;
+0.000005  rho- eta                  SVS;
+0.000002  eta' pi-                  PHSP;
+0.000080  eta' K-                   PHSP;
+0.000005  K*- eta'                   SVS;
+0.000005  rho- eta'                   SVS;
+0.0000113 omega pi-                 SVS;
+0.000005  omega K-                  SVS;
+0.000005  omega K*-                 PHSP;
+0.000015  omega rho-                PHSP;
+0.000001  phi pi-                   SVS;
+0.000010  phi K-                    SVS;
+0.000010  K*- phi                   PHSP;
+0.000001  phi rho-                  PHSP;
+#2-body modes from Jim Olsen
+# (K_S0 K- and K_L0 K- -> 1x10^-6, Jim Olsen - Mar 27, 2001)
+# (pi- pi0 -> 5x10^-6 and K- pi0 -> 11x10^-6, Jim Olsen - Mar 27, 2001)
+0.000009     K_S0 pi-               PHSP;
+0.000009     K_L0 pi-               PHSP;
+0.000001     K_S0 K-                PHSP;
+0.000001     K_L0 K-                PHSP;
+0.000005     pi- pi0                PHSP;
+0.000011     K- pi0                 PHSP;
+#3,4-body modes from Jim Smith
+0.000010     rho-  anti-K*0         SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000005     rho0  K*-              SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000010     rho-  rho0             SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000001     K*-   K*0              SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000010     a_10  pi-              SVS;
+0.000010     a_1-  pi0              SVS;
+0.000005     anti-K*0 pi-           SVS;
+0.000005     K*- pi0                SVS;
+0.000001     rho0 K-                SVS;
+0.000001     rho- K_S0              SVS;
+0.000001     rho- K_L0              SVS;
+0.000001     K*0 K-                 SVS;
+0.000001     K*- K_S0               SVS;
+0.000001     K*- K_L0               SVS;
+# Put in with 0 BR to keep JETSET from generating these (see CB3PI above)
+0.000000     rho- pi0               SVS;
+0.000000     rho0 pi-               SVS;
+#
+0.00600         anti-u       d  u          anti-u       JETSET         48;
+#Penguins from Aaron Roodman
+0.00410         anti-u     u  d       anti-u       JETSET         48;
+0.00070         anti-d     d  d       anti-u       JETSET         48;
+0.00090         anti-s     s  d       anti-u       JETSET         48;
+0.00220         anti-u     u  s       anti-u       JETSET         48;
+0.00180         anti-d     d  s       anti-u       JETSET         48;
+0.00150         anti-s     s  s       anti-u       JETSET         48;
+0.00500                    s  g     anti-u       JETSET         33;
+Enddecay
+#
+End

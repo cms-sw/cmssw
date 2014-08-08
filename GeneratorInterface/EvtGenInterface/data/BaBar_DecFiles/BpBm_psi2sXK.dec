@@ -1,0 +1,36 @@
+###################################################################
+# B-  --> psi2s K-             B+ --> Generic                     #
+#         |                                                       #
+#         |                                                       #
+#         |-->J/psi pi+pi-                                        #
+#              |                                                  #
+#              |-->mu+mu-/e+e-                                    #
+#                                                                 #
+#  + cc                                                           #
+#                                                                 #
+# Author: G. London      18/11/99                                 #
+# Mail: GLONDON@SLAC.STANFORD.EDU
+###################################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias Mypsi(2S) psi(2S)
+#
+Decay Upsilon(4S)
+0.500   MyB+  B-                        VSS;
+0.500   MyB-  B+                        VSS;
+Enddecay
+#
+Decay MyB+
+1.000  Mypsi(2S)  K+                    SVS;
+Enddecay
+#
+Decay MyB-
+1.000  Mypsi(2S)  K-                    SVS;
+Enddecay
+#
+Decay Mypsi(2S)
+#0.700  J/psi  pi+ pi-                   PHSP;
+0.700  J/psi  pi+ pi-                   VVPIPI;
+Enddecay 
+End

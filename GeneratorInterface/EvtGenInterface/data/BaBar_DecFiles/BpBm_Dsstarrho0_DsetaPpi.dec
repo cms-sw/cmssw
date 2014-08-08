@@ -1,0 +1,62 @@
+############################################################
+#                                                          #
+# Exclusive Ds* rho decay.dec                              #
+#                                                          #
+# Decay: B+ -> Ds*+ rho0       B-     -> X                 #
+#              |-> Ds+ gamma                               #
+#                   |-> eta' pi+                           #
+#                        |-> eta pi+ pi-                   #
+#                             |-> gamma gamma              #
+# + c.c.                                                   #
+#                                                          #
+# Author:  Toyoko Orimoto  22/Sept/2001                    # 
+#          toyoko@slac.stanford.edu                        #    
+#                                                          #
+############################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Alias MyD_s*+   D_s*+
+Alias MyD_s*-   D_s*-
+#
+Alias MyD_s+    D_s+
+Alias MyD_s-    D_s-
+#
+Alias MyetaP    eta'
+Alias Myeta     eta
+#
+ChargeConj MyB+    MyB-
+ChargeConj MyD_s*+ MyD_s*-
+ChargeConj MyD_s+  MyD_s-
+ChargeConj MyD_s+  MyD_s-
+#
+Decay Upsilon(4S)
+0.5      MyB+     B-       VSS;
+0.5      MyB-     B+       VSS;
+Enddecay
+#
+Decay MyB+
+1.0000   MyD_s*+  rho0     SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;  
+Enddecay
+CDecay MyB-
+#
+Decay MyD_s*+
+1.0000   MyD_s+   gamma    VSP_PWAVE;
+Enddecay
+CDecay MyD_s*-
+#
+Decay MyD_s+
+1.0000   MyetaP   pi+      PHSP;
+Enddecay
+CDecay MyD_s-
+#
+Decay MyetaP
+1.0000   Myeta   pi+  pi-  PHSP;
+Enddecay
+#
+Decay Myeta
+1.0000   gamma     gamma    PHSP;
+Enddecay
+#
+End

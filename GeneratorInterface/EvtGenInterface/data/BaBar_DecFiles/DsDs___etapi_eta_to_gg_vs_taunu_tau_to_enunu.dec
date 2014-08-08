@@ -1,0 +1,272 @@
+############################################################
+#
+# Written as a UDECAY file for use with 
+#
+#      e+e- -> gamma_ISR Ds(*)Ds(*) 
+#
+# events.  Use with a filter that selects ISR events with
+# DsDs, DsDs*, Ds*Ds, and/or Ds*Ds*
+#
+#  or 
+#
+# with a yet to be written (as of 11/99) generator 
+# that produces gamma_ISR Ds(*)Ds(*) directly.
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Nov 23, 1999
+# Mail: JOE@SLAC.STANFORD.EDU 
+#
+# Ds+ -> eta pi+, eta-> g g
+# Ds- -> tau nu nu, tau->e nu nu
+#
+# Ds decays forced at the very bottom of this file
+############################################################
+
+# set virtual photons to go to ccbar 
+Decay vpho
+1.000                     JSCONT   4;
+Enddecay
+
+#Set up forced decay aliases
+Alias phiKK phi
+Alias phineu phi
+
+# Forced K*0 -> K+ pi- 
+Alias K*0-Kp K*0
+Alias anti-K*0-Kp anti-K*0
+ChargeConj K*0-Kp anti-K*0-Kp
+
+Alias K*0-neu K*0
+Alias anti-K*0-neu anti-K*0
+ChargeConj K*0-neu anti-K*0-neu
+
+
+# K*+ -> K0S pi+, K0S->pi+pi0-
+Alias K*+K0ppp K*+
+Alias K*-K0ppp K*-
+ChargeConj K*+K0ppp K*-K0ppp 
+
+# forced eta'->pi0 pi0 eta
+Alias eta'00 eta'
+Alias eta'ppetagg eta'
+Alias eta'ppetapp0 eta'
+Alias eta'neu eta'
+
+# forced eta->neutrals only
+Alias eta-neu eta
+Alias etagg eta
+Alias etapp0 eta
+
+Alias f_0pp f_0
+Alias f_0KK f_0
+
+Alias a_1-1pr a_1-
+Alias a_1+1pr a_1+
+ChargeConj a_1-1pr a_1+1pr
+
+# forced tau 1 prong decays. other1 is all 1prongs but enunu, mununu, pinu
+Alias tau-enunu  tau-
+Alias tau-mununu tau-
+Alias tau-pinu   tau-
+Alias tau-other1 tau-
+Alias tau-all1   tau-
+
+Alias tau+enunu  tau+
+Alias tau+mununu tau+
+Alias tau+pinu   tau+
+Alias tau+other1 tau+
+Alias tau+all1   tau+
+
+ChargeConj tau-enunu   tau+enunu 
+ChargeConj tau-mununu  tau+mununu 
+ChargeConj tau-pinu    tau+pinu 
+ChargeConj tau-other1  tau+other1
+ChargeConj tau-all1    tau+all1
+
+Alias K0-pp K_S0 
+Alias K0-00 K_S0 
+
+##### Define forced decays of daughters 
+Decay phiKK
+1.0   K+   K-                         VSS;
+Enddecay
+
+# Phi ->KL KS, KS->pi0pi0
+Decay phineu
+1.0   K_L0  K0-00                        VSS;
+Enddecay
+
+Decay K*0-Kp
+1.0   K+  pi-                        VSS;
+Enddecay
+
+# neutral K*0 modes.  let jetset rescale
+Decay K*0-neu
+0.0490      K0-00  pi0                        VSS;
+0.1562      K_L0  pi0                        VSS;
+0.0010      K_L0  gamma                       VSP_PWAVE;
+0.0003      K0-00  gamma                       VSP_PWAVE;
+Enddecay
+
+Decay K*+K0ppp 
+1.0 K0-pp  pi+                        VSS;
+Enddecay
+
+# eta' -> pi0pi0 eta, eta-> neutrals
+Decay eta'00
+1.0 pi0 pi0 eta-neu                   PHSP;
+Enddecay
+
+Decay eta'ppetagg
+1.0 pi+ pi- etagg                   PHSP;
+Enddecay
+
+Decay eta'ppetapp0
+1.0 pi+ pi- etapp0                   PHSP;
+Enddecay
+
+Decay eta'neu
+1.0 pi0 pi0 eta-neu                   PHSP;
+Enddecay
+
+# only neutral eta modes.  Let jetset renormalize
+Decay eta-neu
+0.3925    gamma gamma                      PHSP;
+0.3210    pi0 pi0 pi0                    PHSP;
+0.0007    gamma gamma pi0                  PHSP;
+Enddecay
+
+Decay etagg
+1.0    gamma gamma                      PHSP;
+Enddecay
+
+Decay etapp0
+1.0     pi- pi+ pi0                    ETA_DALITZ;
+Enddecay
+
+Decay tau-enunu
+1.0 e-   anti-nu_e   nu_tau              PHOTOS  TAULNUNU;
+Enddecay
+
+Decay tau-mununu
+1.0 mu-  anti-nu_mu   nu_tau              PHOTOS  TAULNUNU;
+Enddecay
+
+Decay tau-pinu
+1.0 pi-  nu_tau                     TAUSCALARNU;
+Enddecay
+
+Decay f_0pp
+1.0   pi+  pi-                        PHSP;
+Enddecay
+
+Decay f_0KK
+1.0  K+   K-                         PHSP;
+Enddecay
+
+
+Decay a_1-1pr
+1.0 rho- pi0                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay tau-other1
+0.2532         rho- nu_tau                     TAUVECTORNU;
+# Tau->pi-2pi0 nu (exc K0) is .0915.  Assume it is all a_1-.
+# a_1-> -> ~50% to pi0 rho-.  Force this a_1- decay late to be
+#100% so enter half the a_1- nu BF, or 0.0915 
+0.0915         a_1-1pr  nu_tau                     TAUVECTORNU;
+0.0071         K-   nu_tau                     TAUSCALARNU;
+Enddecay
+
+# all tau -> 1 prong modes.  let jetset renormalize
+Decay tau-all1
+0.1800         e-   anti-nu_e   nu_tau              PHOTOS  TAULNUNU;
+0.1751         mu-  anti-nu_mu   nu_tau              PHOTOS  TAULNUNU;
+0.1110         pi-  nu_tau                     TAUSCALARNU;
+0.2532         rho- nu_tau                     TAUVECTORNU;
+# Tau->pi-2pi0 nu (exc K0) is .0915.  Assume it is all a_1-.
+# a_1-> -> ~50% to pi0 rho-.  Force this a_1- decay late to be
+#100% so enter half the a_1- nu BF, or 0.0915 
+0.0915         a_1-1pr  nu_tau                     TAUVECTORNU;
+0.0071         K-   nu_tau                     TAUSCALARNU;
+Enddecay
+
+Decay K0-pp
+1.0 pi+  pi-                          PHSP;
+Enddecay
+
+Decay K0-00
+1.0 pi0  pi0                          PHSP;
+Enddecay
+
+# The hadronic tag mode
+Decay D_s+
+#1.0    phiKK   pi+                     SVS;
+#1.0    eta-neu   pi+                  PHSP;
+1.0    etagg   pi+                    PHSP;
+#1.0    etapp0   pi+                   PHSP;
+#1.0    eta'gg  pi+                    PHSP;
+#1.0    f_0pp    pi+                   PHSP;
+#1.0    f_0KK    pi+                   PHSP;
+#1.0    K0-pp     K+                   PHSP;
+
+# KKpi
+#1.0    anti-K*0-Kp   K+               SVS;
+
+# K0 K 
+#1.0    anti-K*0-Kp   K*+K0ppp         SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+#1.0    phiKK   pi+   pi-   pi+          PHSP;
+#1.0    phiKK   pi+   pi0                PHSP;
+Enddecay
+
+Decay D_s-
+# leptonic 1 prongs
+#1.0    mu-        anti-nu_mu        PHOTOS SLN;
+#1.0    tau-       anti-nu_tau                     SLN;
+1.0    tau-enunu  anti-nu_tau                     SLN;
+#1.0    tau-mununu anti-nu_tau                     SLN;
+#1.0    tau-pinu   anti-nu_tau                     SLN;
+#1.0    tau-other1 anti-nu_tau                     SLN;
+#1.0    tau-all1   anti-nu_tau                     SLN;
+
+# semileptonic 1 prongs
+#1.0    phineu   e-     anti-nu_e      PHOTOS  ISGW2;
+#1.0    eta-neu  e-     anti-nu_e      PHOTOS  ISGW2;
+#1.0    etagg    e-     anti-nu_e      PHOTOS  ISGW2;
+#1.0    eta'neu  e-     anti-nu_e      PHOTOS  ISGW2;
+#1.0    K0-00    e-     anti-nu_e      PHOTOS  ISGW2;
+#1.0    K_L0     e-     anti-nu_e      PHOTOS  ISGW2;
+#1.0    K*0-neu  e-     anti-nu_e      PHOTOS  ISGW2;
+
+#1.0    phineu   mu-     anti-nu_mu    PHOTOS  ISGW2;
+#1.0    eta-neu  mu-     anti-nu_mu    PHOTOS  ISGW2;
+#1.0    etagg    mu-     anti-nu_mu    PHOTOS  ISGW2;
+#1.0    eta'neu  mu-     anti-nu_mu    PHOTOS  ISGW2;
+#1.0    K0-00    mu-     anti-nu_mu    PHOTOS  ISGW2;
+#1.0    K_L0     mu-     anti-nu_mu    PHOTOS  ISGW2;
+#1.0    K*0-neu  mu-     anti-nu_mu    PHOTOS  ISGW2;
+
+# hadronic 1 prong bg  - these are the biggies.  Lots more
+#1.0    K_L0    K-                       PHSP;
+#1.0    K0-00   K-                       PHSP;
+
+# hadronic tag modes
+#1.0    phiKK   pi-                     SVS;
+#1.0    eta-neu   pi-                  PHSP;
+#1.0    etagg   pi-                    PHSP;
+#1.0    etapp0   pi-                   PHSP;
+#1.0    eta'gg  pi-                    PHSP;
+#1.0    f_0pp    pi-                   PHSP;
+#1.0    f_0KK    pi-                   PHSP;
+#1.0    K0-pp     K-                   PHSP;
+
+# KKpi
+#1.0    K*0-Kp   K-               SVS;
+
+# K0 K 
+#1.0    K*0-Kp   K*-K0ppp         SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+#1.0    phiKK   pi-   pi+   pi-          PHSP;
+#1.0    phiKK   pi-   pi0                PHSP;
+Enddecay
+
+End

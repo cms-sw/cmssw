@@ -1,0 +1,57 @@
+###############################################################################
+#                                                                             #
+# continuum production:           
+#                                 
+# Xi*(1530) (AKA) pentaquark state
+#            Xi*(1530) ->   Lambda0 K+
+#           All particles are decayed isotropically                           #
+#                                                                             #
+#  Nicolas Berger 29/06/04
+#                                                                             #
+###############################################################################
+#
+
+Alias myLambda0 Lambda0
+Alias myanti-Lambda0 anti-Lambda0
+
+Particle Xi*-      1.650 0.001
+Particle anti-Xi*+ 1.650 0.001
+
+
+ChangeMassMin anti-Xi*+ 1.5
+ChangeMassMin Xi*- 1.5
+                  
+ChangeMassMax anti-Xi*+ 2.5
+ChangeMassMax Xi*- 2.5
+
+##
+Decay vpho 
+0.1    JSCONT 1;
+0.4    JSCONT 2;
+0.1    JSCONT 3;
+0.4    JSCONT 4;
+Enddecay
+
+##
+Decay Xi*-
+1.000 myanti-Lambda0 K- PHSP;
+Enddecay
+
+##
+Decay anti-Xi*+
+1.000 myLambda0 K+ PHSP;
+Enddecay
+
+##
+Decay myLambda0
+1.000 p+ pi- PHSP;
+Enddecay
+
+##
+Decay myanti-Lambda0
+1.000 anti-p- pi+ PHSP;
+Enddecay
+
+End
+
+

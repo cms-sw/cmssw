@@ -1,0 +1,70 @@
+############################################################
+#                                                          #
+# Decay:      B- -> phi      K*-,        B+ -> X           #
+#                   |-> K+K-  |-> K- pi0                   #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author: Paul C. Bloom			                   #
+# e-mail: bloom@slac.stanford.edu                          #
+# Created:                   2000/03/20                    #
+############################################################
+#
+#
+#Define the helicity amplitudes starting
+#from the transversity amplitudes (see for instance B+B-_JpsiKstar.dec 
+#by G. London):
+#	Aplus  0.566
+#	Azero  1.02
+#	Aminus 0.4
+# Hplus = (Aplus + Aminus) / sqrt(2)
+# Hzero = Azero / sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Note:  Hzero following convention from Dunietz et al.  To be consistent
+# with CLEO measurements all phases should be == 0
+Define Hplus  0.683
+Define Hzero  0.721
+Define Hminus 0.117
+Define phHplus  0.0
+Define phHzero  0.0
+Define phHminus 0.0
+#
+# MyB+, MyB- and MyPhi (etc. )will decay not as a normal B+- or phi would, but
+# as I tell them to 
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyPhi phi
+Alias MyKstar+ K*+
+Alias MyKstar- K*-
+#
+# The Upsilon decay part is simple in the B+/B- case; for B0/B0bar look 
+# at other files to see how people define mixing parameters
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+# 'SVS' means 'Scalar -> Vector + Scalar', etc.
+Decay MyB+
+1.0000  MyPhi  MyKstar+          SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyPhi  MyKstar-          SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;  
+Enddecay 
+#
+Decay MyPhi
+1.0000  K+ K-                   VSS;                    
+Enddecay
+#
+Decay MyKstar+
+1.0000  K+ pi0			VSS;
+Enddecay
+#
+Decay MyKstar-
+1.0000  K- pi0			VSS;
+Enddecay
+#
+End
+
+

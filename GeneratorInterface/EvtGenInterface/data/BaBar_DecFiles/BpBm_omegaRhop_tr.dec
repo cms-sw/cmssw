@@ -1,0 +1,57 @@
+############################################################
+#                                                          #
+# Decay:      B+   -> omega rho+ -> (pi+pi-pi0)(pi+pi0)    #
+#             B-   -> generic                    +cc       #
+#                                                          #
+# Author: Paul C. Bloom                                    #
+# e-mail: bloom@slac.stanford.edu                          #
+# Created:  07/13/2001                                     #
+#                                                          #
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyRho+    rho+
+Alias MyRho-    rho-
+Alias Myomega  omega
+
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+#
+# 'Scalar -> Vector Vector'
+# SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+# Tansverse polarization: SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;  ***
+# Longitud. polarization: SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;  
+#
+Decay MyB+
+1.0000  Myomega MyRho+      SVV_HELAMP  1.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay 
+#
+
+Decay MyB-
+1.0000  Myomega MyRho-      SVV_HELAMP   1.0 0.0 0.0 0.0 1.0 0.0;  
+Enddecay 
+#
+Decay MyRho+
+1.0000  pi+ pi0             VSS;
+Enddecay
+#
+Decay MyRho-
+1.0000  pi- pi0          VSS;
+Enddecay
+#
+
+
+Decay Myomega
+1.0000    pi-  pi+  pi0                  OMEGA_DALITZ;
+Enddecay
+#
+End

@@ -1,0 +1,73 @@
+#################################################################
+#                                                   		#
+# Decay: B- -> Dstar0 K-,    B+ -> X;    + cc                   #
+#              Dstar0 -> D0 gamma                               #
+#              D0                                               #
+#               |                                  		#
+#               `-> phi K_S0                       		#
+#                    |   | 					#
+#                    |   `-> pi+ pi-                            #  	  
+#		     |						#
+#		     `--> K+ K-                    		#
+#                                                   		#
+#                                                   		#
+#                                                   		#
+# Author: Steve Schrenk, based on file from                     #
+#         Giovanni Marchiori.                                   #
+# Date:   29 Aug 2003                                           #
+#################################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD*0 D*0
+Alias Myanti-D*0 anti-D*0
+ChargeConj MyD*0 Myanti-D*0
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Alias Myphi phi
+Alias MyK_S0  K_S0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                        VSS;
+0.50000 B-  MyB+                        VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 Myanti-D*0 K+                      SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 MyD*0 K-                           SVS;
+Enddecay
+#
+#
+Decay MyD*0
+1.000  MyD0   gamma                         VSP_PWAVE;
+Enddecay
+#
+Decay Myanti-D*0
+1.000  Myanti-D0   gamma                    VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+1.000   Myphi MyK_S0             	SVS;
+Enddecay
+#
+Decay Myanti-D0
+1.000   Myphi MyK_S0   	                SVS;
+Enddecay
+#
+Decay Myphi
+1.000  K+ K-                 		VSS;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   	PHSP;
+Enddecay
+#
+End

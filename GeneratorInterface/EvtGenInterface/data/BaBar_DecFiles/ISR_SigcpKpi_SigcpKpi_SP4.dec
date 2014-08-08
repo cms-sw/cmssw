@@ -1,0 +1,540 @@
+#######################################################################################
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Jun 20, 2002                Copyright 2002
+#
+# Produce e+e- -> ISRgamma Sigma_c(*) anti-Sigma_c(*) using VectorISR with
+# effective Ecm of 5.0 5.1 5.2 5.3 5.4 5.5 5.6 5.7 5.8 5.9 
+#                  6.0 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9
+#                  7.0
+#
+# Take ratio of Sc,antiSc:(Sc,antiSc* + Sc*,antiSc):Sc*,antiSc* = 1:2:4, energy permitting
+#
+# Need 5.1 GeV to make a Sc* antiSc*
+#
+# All Sigma_c and Sigma_c* -> pi Lamda_c 100%
+# In SP4, all Sigma_c and Sigma_c* have 0 width.
+# Both Lambda_c are forced to pKpi
+#
+# For SP4:
+# Anticipates a bug in EvtGen decay of forced Lambda(1520)0 decay (see note below)
+# This should be resolved for SP5, so this file will need to be rewritten
+# Be sure to run with a generator level filter such as 
+# ProdDecayFiles/one_Lc_pKpi_SP4.tcl,  two_Lc_pKpi_SP4.tcl,  zero_Lc_pKpi_SP4.tcl
+# which will catch phony decays created to avoid an assert.
+#
+###############################################################################
+#
+#
+########
+Alias vphoLcLc vpho
+Alias vphoScSc vpho
+
+#Alias of all redefinable vector particles with no max_Dm in PDT/pdt.table
+Alias LcLc1  eta_b2(2D)
+Alias LcLc2  Upsilon(5S)
+Alias LcLc3  chi_b1(2P)
+Alias LcLc4  chi_b1(3P)
+Alias LcLc5  Upsilon_1(1D)
+Alias LcLc6  Upsilon_1(2D)
+Alias LcLc7  chi_b1
+Alias LcLc8  Z'0
+Alias LcLc9  Z''0
+Alias LcLc10 R0
+Alias LcLc11 anti-R0
+Alias LcLc12 D*(2S)0
+Alias LcLc13 anti-D*(2S)0
+Alias LcLc14 B*0
+Alias LcLc15 anti-B*0
+Alias LcLc16 B_s*0
+Alias LcLc17 anti-B_s*0
+Alias LcLc18 h_b
+Alias LcLc19 h_b(2P)
+Alias LcLc20 h_b(3P)
+Alias LcLc21 eta_b2(1D)
+
+Alias ScSc1  eta_b2(2D)
+Alias ScSc2  Upsilon(5S)
+Alias ScSc3  chi_b1(2P)
+Alias ScSc4  chi_b1(3P)
+Alias ScSc5  Upsilon_1(1D)
+Alias ScSc6  Upsilon_1(2D)
+Alias ScSc7  chi_b1
+Alias ScSc8  Z'0
+Alias ScSc9  Z''0
+Alias ScSc10 R0
+Alias ScSc11 anti-R0
+Alias ScSc12 D*(2S)0
+Alias ScSc13 anti-D*(2S)0
+Alias ScSc14 B*0
+Alias ScSc15 anti-B*0
+Alias ScSc16 B_s*0
+Alias ScSc17 anti-B_s*0
+Alias ScSc18 h_b
+Alias ScSc19 h_b(2P)
+Alias ScSc20 h_b(3P)
+Alias ScSc21 eta_b2(1D)
+
+Alias Lambda_c+_pKpi Lambda_c+  
+Alias anti-Lambda_c-_pKpi anti-Lambda_c-  
+ChargeConj Lambda_c+_pKpi anti-Lambda_c-_pKpi
+
+Alias Sigma_c0_pKpi Sigma_c0  
+Alias anti-Sigma_c0_pKpi anti-Sigma_c0  
+ChargeConj Sigma_c0_pKpi anti-Sigma_c0_pKpi
+
+Alias Sigma_c+_pKpi Sigma_c+  
+Alias anti-Sigma_c-_pKpi anti-Sigma_c-  
+ChargeConj Sigma_c+_pKpi anti-Sigma_c-_pKpi
+
+Alias Sigma_c++_pKpi Sigma_c++  
+Alias anti-Sigma_c--_pKpi anti-Sigma_c--  
+ChargeConj Sigma_c++_pKpi anti-Sigma_c--_pKpi
+
+Alias Sigma_c*0_pKpi Sigma_c*0  
+Alias anti-Sigma_c*0_pKpi anti-Sigma_c*0  
+ChargeConj Sigma_c*0_pKpi anti-Sigma_c*0_pKpi
+
+Alias Sigma_c*+_pKpi Sigma_c*+  
+Alias anti-Sigma_c*-_pKpi anti-Sigma_c*-  
+ChargeConj Sigma_c*+_pKpi anti-Sigma_c*-_pKpi
+
+Alias Sigma_c*++_pKpi Sigma_c*++  
+Alias anti-Sigma_c*--_pKpi anti-Sigma_c*--  
+ChargeConj Sigma_c*++_pKpi anti-Sigma_c*--_pKpi
+
+Alias K*0_Kpi      K*0
+Alias anti-K*0_Kpi anti-K*0
+ChargeConj  K*0_Kpi  anti-K*0_Kpi
+
+Alias Lambda(1520)0_pK Lambda(1520)0
+Alias anti-Lambda(1520)0_pK anti-Lambda(1520)0
+ChargeConj  Lambda(1520)0_pK anti-Lambda(1520)0_pK
+
+# Change particle masses and widths 
+Particle ScSc1         5.0 0.
+Particle ScSc2         5.1 0.
+Particle ScSc3         5.2 0.
+Particle ScSc4         5.3 0.
+Particle ScSc5         5.4 0.
+Particle ScSc6         5.5 0.
+Particle ScSc7         5.6 0.
+Particle ScSc8         5.7 0.
+Particle ScSc9         5.8 0.
+Particle ScSc10        5.9 0.
+Particle ScSc11        6.0 0.
+Particle ScSc12        6.1 0.
+Particle ScSc13        6.2 0.
+Particle ScSc14        6.3 0.
+Particle ScSc15        6.4 0.
+Particle ScSc16        6.5 0.
+Particle ScSc17        6.6 0.
+Particle ScSc18        6.7 0.
+Particle ScSc19        6.8 0.
+Particle ScSc20        6.9 0.
+Particle ScSc21        7.0 0.
+
+#Decay of JP = 1- to 2 spin 1/2, P = + states must have orb ang L=1 to conserve parity
+
+Decay ScSc1
+0.1111 Sigma_c++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+0.1111 Sigma_c+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+0.1111 Sigma_c0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+0.1111 Sigma_c*++_pKpi anti-Sigma_c--_pKpi  PHSP;
+0.1111 Sigma_c*+_pKpi  anti-Sigma_c-_pKpi   PHSP;
+0.1111 Sigma_c*0_pKpi  anti-Sigma_c0_pKpi   PHSP;
+0.1111 Sigma_c++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+0.1111 Sigma_c+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+0.1111 Sigma_c0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc2
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc3
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc4
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc5
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc6
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc7
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc8
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc9
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc10
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc11
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc12
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc13
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc14
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc15
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc16
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc17
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc18
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc19
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc20
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+Decay ScSc21
+1.0 Sigma_c++_pKpi   anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c*++_pKpi  anti-Sigma_c--_pKpi  PHSP;
+1.0 Sigma_c*+_pKpi   anti-Sigma_c-_pKpi   PHSP;
+1.0 Sigma_c*0_pKpi   anti-Sigma_c0_pKpi   PHSP;
+1.0 Sigma_c++_pKpi   anti-Sigma_c*--_pKpi PHSP;
+1.0 Sigma_c+_pKpi    anti-Sigma_c*-_pKpi  PHSP;
+1.0 Sigma_c0_pKpi    anti-Sigma_c*0_pKpi  PHSP;
+4.0 Sigma_c*++_pKpi  anti-Sigma_c*--_pKpi PHSP;
+4.0 Sigma_c*+_pKpi   anti-Sigma_c*-_pKpi  PHSP;
+4.0 Sigma_c*0_pKpi   anti-Sigma_c*0_pKpi  PHSP;
+Enddecay
+
+
+# Forced decays of Lc daughters leading to a pKpi final state
+
+Decay K*0_Kpi
+0.6657      K+  pi-                        VSS;
+Enddecay
+CDecay anti-K*0_Kpi
+
+# There is an EvtGen bug which will crash pK if the 1520 mass is too low
+# give it an excape valve mode which is removed by an event level filter
+# The excape valve is used for (2.82 +/- 0.01)% of the time
+Decay Lambda(1520)0_pK
+0.23   p+     K-    PHSP;
+0.000001   nu_e nu_tau    PHSP;
+Enddecay
+CDecay anti-Lambda(1520)0_pK
+
+# use PDG 2000 BF's  Unfortunately, JETSET decays not allowed for aliased particles as of SP4
+Decay Lambda_c+_pKpi
+# force anti-K*0 -> K- pi+ 
+0.016          p+      anti-K*0_Kpi  PHSP;
+# Delta -> p+ pi 100%
+0.0086         Delta++         K-   PHSP;
+# force Lambda(1520)0 -> p+ K-  
+# SP4: Lambda(1520) decay will abort 2.82% of time so increase BF to compensate
+#Use a generator level filter to remove the aborts which have nu_tau
+#0.0059         Lambda(1520)0_pK         pi+  PHSP;
+0.00607         Lambda(1520)0_pK         pi+  PHSP;
+0.028          p+ K- pi+  PHSP;
+Enddecay
+CDecay anti-Lambda_c-_pKpi 
+
+Decay Sigma_c0_pKpi
+1.0000    Lambda_c+_pKpi  pi-                     PHSP;
+Enddecay
+CDecay anti-Sigma_c0_pKpi 
+
+Decay Sigma_c+_pKpi
+1.0000    Lambda_c+_pKpi  pi0                     PHSP;
+Enddecay
+CDecay anti-Sigma_c-_pKpi 
+
+Decay Sigma_c++_pKpi
+1.0000    Lambda_c+_pKpi  pi+                     PHSP;
+Enddecay
+CDecay anti-Sigma_c--_pKpi 
+
+Decay Sigma_c*0_pKpi
+1.0000    Lambda_c+_pKpi  pi-                     PHSP;
+Enddecay
+CDecay anti-Sigma_c*0_pKpi 
+
+Decay Sigma_c*+_pKpi
+1.0000    Lambda_c+_pKpi  pi0                     PHSP;
+Enddecay
+CDecay anti-Sigma_c*-_pKpi 
+
+Decay Sigma_c*++_pKpi
+1.0000    Lambda_c+_pKpi  pi+                     PHSP;
+Enddecay
+CDecay anti-Sigma_c*--_pKpi 
+
+
+Decay vpho
+1.  ScSc1  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc2  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc3  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc4  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc5  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc6  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc7  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc8  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc9  gamma VECTORISR 0.999999 0.999999;
+1.  ScSc10 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc11 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc12 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc13 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc14 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc15 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc16 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc17 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc18 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc19 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc20 gamma VECTORISR 0.999999 0.999999;
+1.  ScSc21 gamma VECTORISR 0.999999 0.999999;
+Enddecay
+
+End
+
+
