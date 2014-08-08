@@ -56,6 +56,9 @@ namespace pat {
     virtual size_t numberOfMothers() const;
     /// return mother at a given position (throws an exception)
     virtual const reco::Candidate * mother( size_type ) const;
+    /// direct access to the mother reference (may be null)
+    const reco::GenParticleRef & motherRef() const { return mother_; }
+
     /// return daughter at a given position (throws an exception)
     virtual reco::Candidate * daughter( size_type );
     /// return daughter with a specified role name
