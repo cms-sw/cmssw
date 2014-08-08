@@ -89,19 +89,21 @@ public:
 
   virtual void setDebugLevel (unsigned int level) override
   {
+    // 'Error' is way too low of debug level - we have interest
+    // in warning in the default
     switch (level)
     {
       case 0:
-        XrdCl::DefaultEnv::SetLogLevel("Error");
-        break;
-      case 1:
         XrdCl::DefaultEnv::SetLogLevel("Warning");
         break;
-      case 2:
+      case 1:
         XrdCl::DefaultEnv::SetLogLevel("Info");
         break;
-      case 3:
+      case 2:
         XrdCl::DefaultEnv::SetLogLevel("Debug");
+        break;
+      case 3:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
         break;
       case 4:
         XrdCl::DefaultEnv::SetLogLevel("Dump");
@@ -123,6 +125,12 @@ public:
       env->PutInt("StreamTimeout", timeout);
       env->PutInt("RequestTimeout", timeout);
       env->PutInt("ConnectionWindow", timeout);
+      env->PutInt("StreamErrorWindow", timeout);
+      // Crank down some of the connection defaults.  We have more
+      // aggressive error recovery than the default client so we
+      // can error out sooner.
+      env->PutInt("ConnectionWindow", timeout/6+1);
+      env->PutInt("ConnectionRetry", 2);
     }
   }
 

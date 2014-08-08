@@ -43,6 +43,8 @@ private:
 class RequestManager : boost::noncopyable {
 
 public:
+    static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
+
     RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
 
     ~RequestManager();
@@ -138,6 +140,7 @@ private:
     std::set<std::shared_ptr<Source> > m_disabledSources;
 
     timespec m_lastSourceCheck;
+    int m_timeout;
     // If set to true, the next active source should be 1; 0 otherwise.
     bool m_nextInitialSourceToggle;
     // The time when the next active source check should be performed.

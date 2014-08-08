@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "XrdCl/XrdClFile.hh"
+#include "XrdCl/XrdClDefaultEnv.hh"
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -98,13 +99,17 @@ SendMonitoringInfo(XrdCl::File &file)
 
 
 RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
-    : m_nextInitialSourceToggle(false),
+    : m_timeout(XRD_DEFAULT_TIMEOUT),
+      m_nextInitialSourceToggle(false),
       m_name(filename),
       m_flags(flags),
       m_perms(perms),
       m_distribution(0,100),
       m_open_handler(*this)
 {
+  XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+  if (env) {env->GetInt("StreamErrorWindow", m_timeout);}
+
   std::unique_ptr<XrdCl::File> file;
   // TODO: We cannot avoid the previously failed data server until
   // Xrootd 4.0 where file->GetProperty is available.  For now, stupidly
@@ -571,7 +576,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
         // once and the likelihood the program has some inconsistent state is decent.
         // We'd much rather fail hard than deadlock!
         sentry.unlock();
-        std::future_status status = future.wait_for(std::chrono::seconds(180));
+        std::future_status status = future.wait_for(std::chrono::seconds(m_timeout+10));
         if (status == std::future_status::timeout)
         {
             XrootdException ex(c_status, edm::errors::FileOpenError);
@@ -784,7 +789,7 @@ XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
     {
         // Note that we wait for a maximum amount of time - this is as an extra
         // safety net against issues in the XrdCl callback.
-        m_shared_future.wait_for(std::chrono::seconds(180+10));
+        m_shared_future.wait_for(std::chrono::seconds(m_manager.m_timeout+10));
     }
 }
 
