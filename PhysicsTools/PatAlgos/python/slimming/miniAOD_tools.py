@@ -66,15 +66,6 @@ def miniAOD_customizeCommon(process):
     process.selectedPatElectrons.cut = cms.string("") 
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFinding')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
-    #
-    from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-    #switch to AK4 (though it should soon be unnecessary as ak4 should become the 71X default)
-    #FIXME: still using AK5PFchs for jet energy corrections, while waiting for a new globalTag
-    switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
-    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
-    btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
-                         'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
-    )
 
     # add CMS top tagger
     from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos as toptag
