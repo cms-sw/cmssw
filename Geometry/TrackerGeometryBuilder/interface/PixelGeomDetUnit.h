@@ -14,7 +14,7 @@ class SurfaceDeformation;
  * The base PixelGeomDetUnit. Specialized in SiPixelGeomDetUnit.
  */
 
-class PixelGeomDetUnit : public GeomDetUnit {
+class PixelGeomDetUnit final : public GeomDetUnit {
 public:
 
   PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const * type, DetId id);

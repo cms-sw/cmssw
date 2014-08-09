@@ -14,7 +14,7 @@ class SurfaceDeformation;
  * StripGeomDetUnit is the abstract class for SiStripGeomDetUnit.
  */
 
-class StripGeomDetUnit : public GeomDetUnit {
+class StripGeomDetUnit final : public GeomDetUnit {
 public:
 
   StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id);

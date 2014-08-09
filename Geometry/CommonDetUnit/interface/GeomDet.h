@@ -100,11 +100,11 @@ public:
 
 private:
 
-  ReferenceCountingPointer<Plane>  thePlane;
-  AlignmentPositionError*               theAlignmentPositionError;
-  LocalError                            theLocalAlignmentError;
   DetId m_detId;
   int m_index;
+  ReferenceCountingPointer<Plane>  thePlane;
+  LocalError                            theLocalAlignmentError;
+  AlignmentPositionError*               theAlignmentPositionError;
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;
