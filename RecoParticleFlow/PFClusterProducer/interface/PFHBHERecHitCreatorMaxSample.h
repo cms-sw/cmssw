@@ -38,9 +38,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
-      for (unsigned int i=0;i<qualityTests_.size();++i) {
-	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
-      }
+      beginEvent(iEvent,iSetup);
 
       edm::Handle<edm::SortedCollection<HBHERecHit> > recHitHandle;
 
@@ -68,7 +66,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	//CUSTOM ENERGY AND TIME RECO
 	CaloSamples tool;
-	HcalCalibrations calibrations = conditions->getHcalCalibrations(detid);
+	const HcalCalibrations& calibrations = conditions->getHcalCalibrations(detid);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder(detid);
 	const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
 	HcalCoderDb coder(*channelCoder, *shape);
@@ -122,12 +120,18 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	// Convert all 8 TS from fC to GeV (also subtractibg pedestal)
 
-	std::vector<double> samples;
+	std::array<double,8> samples;
 
+	unsigned int maxSample = -1;
+	double maxGain=-1e+18;
 	for (int ii = 0; ii < 8; ii++) {
-	  if (ii>1)
-	    samples.push_back(calibrations.respcorrgain(capid[ii]) *
-			      (tool[ii] - calibrations.pedestal(capid[ii]))); 
+	  double gain = calibrations.respcorrgain(capid[ii]) *
+	    (tool[ii] - calibrations.pedestal(capid[ii]));
+	  samples[ii] = gain;
+	  if (gain>maxGain) {
+	    maxSample=ii;
+	    maxGain=gain;
+	  } 
 
 	  //	  printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
 	  //		 (tool[ii] - calibrations.pedestal(capid[ii])));
@@ -137,9 +141,9 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	/////////////////////////////
 
 	//NAIVE ALGO By michalis -> Find the maximum and assign the maximum energy
-	size_t maxSample  =  (std::max_element(samples.begin(),samples.end()))-samples.begin();
+
 	energy  = samples[maxSample];
-	time = -50. + maxSample*25.0;
+	time = -100. + maxSample*25.0;
 
 	//if possible add the highest neighbour
 	double e2=0.0;
@@ -147,13 +151,13 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	if (maxSample==0) {
 	  if (samples[1]>0) {
 	    e2 = samples[1];
-	    t2 = -25.0;
+	    t2 = -75.0;
 	  }
 	}
 	else if (maxSample==samples.size()-1) {
 	  if (samples[samples.size()-2]>0) {
 	    e2 = samples[samples.size()-2];
-	    t2 = -50.+(samples.size()-2)*25.0;
+	    t2 = -100.+(samples.size()-2)*25.0;
 	  }
 	}
 	else {
@@ -163,12 +167,12 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	  enext=samples[maxSample+1];
 	  if (std::max(eprev,enext)>0.0) {
 	    if (eprev>enext) {
-	      e2=enext;
-	      t2=-50.+(maxSample+1)*25.;
+	      e2=eprev;
+	      t2=-100.+(maxSample-1)*25.;
 	    }
 	    else {
 	      e2=enext;
-	      t2=-50.+(maxSample+1)*25.;
+	      t2=-100.+(maxSample+1)*25.;
 	    }
 	  }
 	}
@@ -206,10 +210,12 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
-  
-	position.SetCoordinates ( thisCell->getPosition().x(),
-				  thisCell->getPosition().y(),
-				  thisCell->getPosition().z() );
+
+
+	auto const point = thisCell->getPosition();
+	position.SetCoordinates ( point.x(),
+				  point.y(),
+				  point.z() );
   
 	reco::PFRecHit rh( detid.rawId(),layer,
 			   energy, 

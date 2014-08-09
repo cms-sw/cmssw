@@ -62,8 +62,8 @@ def customizePFHCALClustering(process,scenario,data = False):
 
     if scenario ==0:
         print '-------------HCAL CLUSTERING-------------'
-        print 'SCENARIO 1: HCAL clustering from hits+new HCAL time reconstruction'
-        print 'Timing cuts are NOTapplied'
+        print 'SCENARIO 0: HCAL clustering from hits+old HCAL time reconstruction'
+        print 'Timing cuts are N OTapplied'
         if not data:
             print 'You are trying to run on MC, if not set data to True'
         else:   

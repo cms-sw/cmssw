@@ -35,10 +35,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
-      for (unsigned int i=0;i<qualityTests_.size();++i) {
-	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
-      }
-
+      beginEvent(iEvent,iSetup);
 
       edm::Handle<EcalRecHitCollection> recHitHandle;
 
@@ -70,28 +67,34 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
-  
-	position.SetCoordinates ( thisCell->getPosition().x(),
-				  thisCell->getPosition().y(),
-				  thisCell->getPosition().z() );
+
+
+	auto const point  = thisCell->getPosition();
+
+	position.SetCoordinates (point.x(),
+				 point.y(),
+				 point.z() );
   
 	// the axis vector is the difference 
 	const TruncatedPyramid* pyr 
 	  = dynamic_cast< const TruncatedPyramid* > (thisCell);    
 
-
 	if( pyr ) {
-	  axis.SetCoordinates( pyr->getPosition(1).x(), 
-			       pyr->getPosition(1).y(), 
-			       pyr->getPosition(1).z() ); 
+	  auto const point1 = pyr->getPosition(1); 
+	  axis.SetCoordinates( point1.x(), 
+			       point1.y(), 
+			       point1.z() ); 
+
+	  auto const point0 = pyr->getPosition(0); 
     
-	  math::XYZVector axis0( pyr->getPosition(0).x(), 
-				 pyr->getPosition(0).y(), 
-				 pyr->getPosition(0).z() );
+	  math::XYZVector axis0( point0.x(), 
+				 point0.y(), 
+				 point0.z() );
     
 	  axis -= axis0;    
 	}
 	else continue;
+
 
 	reco::PFRecHit rh( detid.rawId(),Layer,
 			   energy, 

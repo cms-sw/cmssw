@@ -25,14 +25,12 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<edm::SortedCollection<Digi>  >(iConfig.getParameter<edm::InputTag>("src"));
-      hoDepth_ = iConfig.getUntrackedParameter<int>("hoDepth",4);
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
-      for (unsigned int i=0;i<qualityTests_.size();++i) {
-	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
-      }
+
+      beginEvent(iEvent,iSetup);
 
       edm::Handle<edm::SortedCollection<Digi> > recHitHandle;
 
@@ -58,8 +56,6 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	double energy = erh.energy();
 	double time = erh.time();
 	int depth =detid.depth();
-	if (Detector == HcalOuter)
-	  depth=hoDepth_;
 	  
 	math::XYZVector position;
 	math::XYZVector axis;
@@ -74,10 +70,11 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
-  
-	position.SetCoordinates ( thisCell->getPosition().x(),
-				  thisCell->getPosition().y(),
-				  thisCell->getPosition().z() );
+
+	auto const point  = thisCell->getPosition();
+	position.SetCoordinates ( point.x(),
+				  point.y(),
+				  point.z() );
   
 
 

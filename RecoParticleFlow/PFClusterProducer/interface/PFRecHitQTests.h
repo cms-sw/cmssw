@@ -24,28 +24,28 @@ class PFRecHitQTestThreshold : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       return pass(hit);
     }
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
-      return pass(hit);
-    }
-
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
-      return pass(hit);
-    }
-    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return pass(hit);
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
+      return pass(hit);
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       return pass(hit);
     }
 
  protected:
   double threshold_;
 
-  bool pass(const reco::PFRecHit& hit) {
+  bool pass(const reco::PFRecHit& hit){
     if (hit.energy()>threshold_) return true;
 
     return false;
@@ -119,21 +119,21 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
       hcalSevLvlComputer_  =  hcalSevLvlComputerHndl.product();
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       return true;
     }
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.flags(),clean);
     }
 
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.flags(),clean);
     }
-    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.flags(),clean);
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       return true;
 
     }
@@ -146,8 +146,8 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
     const HcalChannelQuality* theHcalChStatus_;
     const HcalSeverityLevelComputer* hcalSevLvlComputer_;
 
-    bool test(unsigned DETID,double energy,int flags,bool& clean) {
-    const HcalDetId& detid = (HcalDetId)DETID;
+    bool test(unsigned aDETID,double energy,int flags,bool& clean){
+    const HcalDetId& detid = (HcalDetId)aDETID;
     const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
     unsigned theStatusValue = theStatus->getValue();
     // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
@@ -197,21 +197,21 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       return true;
     }
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.time(),clean);
     }
 
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.time(),clean);
     }
     bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
       return test(rh.detid(),rh.energy(),rh.time(),clean);
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       return true;
     }
 
@@ -221,8 +221,8 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
     std::vector<double> maxTimes_;
     std::vector<double> thresholds_;
 
-    bool test(unsigned DETID,double energy,double time,bool& clean) {
-      HcalDetId detid(DETID);
+    bool test(unsigned aDETID,double energy,double time,bool& clean){
+      HcalDetId detid(aDETID);
       for (unsigned int i=0;i<depths_.size();++i) {
 	if (detid.depth() == depths_[i]) {
 	  if ((time <minTimes_[i] || time >maxTimes_[i] ) &&  energy>thresholds_[i])
@@ -262,21 +262,21 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       return true;
     }
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.time(),clean);
     }
 
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.time(),clean);
     }
-    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
       return test(rh.detid(),rh.energy(),rh.time(),clean);
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       return true;
     }
 
@@ -284,8 +284,8 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
     std::vector<int> depths_;
     std::vector<double> thresholds_;
 
-    bool test(unsigned DETID,double energy,double time,bool& clean) {
-      HcalDetId detid(DETID);
+    bool test(unsigned aDETID,double energy,double time,bool& clean){
+      HcalDetId detid(aDETID);
       for (unsigned int i=0;i<depths_.size();++i) {
 	if (detid.depth() == depths_[i]) {
 	  if (  energy<thresholds_[i])
@@ -323,17 +323,17 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       return true;
     }
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return true;
     }
 
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
       return true;
     }
-    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
       HcalDetId detid(rh.detid());
       if (abs(detid.ieta())<=4 && hit.energy()>threshold0_)
 	return true;
@@ -343,7 +343,7 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
       return false;
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       return true;
     }
 
@@ -375,7 +375,7 @@ class PFRecHitQTestECAL : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       if (skipTTRecoveredHits_ && rh.checkFlag(EcalRecHit::kTowerRecovered))
 	{
 	  clean=true;
@@ -397,20 +397,20 @@ class PFRecHitQTestECAL : public PFRecHitQTestBase {
       return true;
     }
 
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return true;
     }
 
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
       return true;
 
     }
 
-    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
       return true;
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       return true;
 
     }
@@ -446,10 +446,10 @@ class PFRecHitQTestHCALCalib29 : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
       return true;
     }
-    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       HcalDetId detId(hit.detId());
       if (abs(detId.ieta())==29)
 	hit.setEnergy(hit.energy()*calibFactor_);
@@ -457,15 +457,15 @@ class PFRecHitQTestHCALCalib29 : public PFRecHitQTestBase {
 
     }
 
-    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
       return true;
 
     }
-    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
       return true;
     }
 
-    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
       CaloTowerDetId detId(hit.detId());
       if (detId.ietaAbs()==29)
 	hit.setEnergy(hit.energy()*calibFactor_);

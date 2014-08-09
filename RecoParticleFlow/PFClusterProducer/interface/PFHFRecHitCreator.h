@@ -41,9 +41,8 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 
 
       reco::PFRecHitCollection tmpOut;
-      for (unsigned int i=0;i<qualityTests_.size();++i) {
-	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
-      }
+
+      beginEvent(iEvent,iSetup);
 
       edm::Handle<edm::SortedCollection<HFRecHit> > recHitHandle;
 
@@ -67,7 +66,7 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	
 	const CaloCellGeometry *thisCell;
 	thisCell= hcalGeo->getGeometry(detid);
-  
+
 	// find rechit geometry
 	if(!thisCell) {
 	  edm::LogError("PFHFRecHitCreator")
@@ -76,23 +75,24 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	  continue;
 	}
 
+	auto const point =  thisCell->getPosition();
 
 
 	PFLayer::Layer layer;
 	double depth_correction;
 	if (depth==1) {
 	  layer = PFLayer::HF_EM;
-          depth_correction = thisCell->getPosition().z() > 0. ? EM_Depth_ : -EM_Depth_;
+          depth_correction = point.z() > 0. ? EM_Depth_ : -EM_Depth_;
 	}
 	else {
 	  layer = PFLayer::HF_HAD;
-	  depth_correction = thisCell->getPosition().z() > 0. ? HAD_Depth_ : -HAD_Depth_;
+	  depth_correction = point.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
 	}
 
   
-	position.SetCoordinates ( thisCell->getPosition().x(),
-				  thisCell->getPosition().y(),
-				  thisCell->getPosition().z()+depth_correction );
+	position.SetCoordinates ( point.x(),
+				  point.y(),
+				  point.z()+depth_correction );
 
 
 	reco::PFRecHit rh( detid.rawId(),layer,
@@ -136,17 +136,17 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 
       /////////////////////HF DUAL READOUT/////////////////////////
       
-      double LONG=0.;
-      double SHORT=0.;
+      double lONG=0.;
+      double sHORT=0.;
 
       for (auto& hit : tmpOut) {
-	LONG=0.0;
-	SHORT=0.0;
+	lONG=0.0;
+	sHORT=0.0;
 
 	reco::PFRecHit newHit = hit;
 	const HcalDetId& detid = (HcalDetId)hit.detId();
 	if (detid.depth()==1) {
-	  LONG=hit.energy();
+	  lONG=hit.energy();
 	  //find the short hit
 	  HcalDetId shortID (HcalForward, detid.ieta(), detid.iphi(), 2);
 	  const reco::PFRecHit temp(shortID,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
@@ -157,22 +157,22 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 					      return a.detId() < b.detId();
 					    });
 	  if( found_hit != tmpOut.end() && found_hit->detId() == shortID.rawId() ) {
-	    SHORT = found_hit->energy();
+	    sHORT = found_hit->energy();
 	    //Ask for fraction
-	    double energy = LONG-SHORT;
+	    double energy = lONG-sHORT;
 
 	    if (abs(detid.ieta())<=32)
 	      energy*=HFCalib_;
 	    newHit.setEnergy(energy);
-	    if (!( LONG > longFibre_Cut && 
-		   ( SHORT/LONG < shortFibre_Fraction)))
+	    if (!( lONG > longFibre_Cut && 
+		   ( sHORT/lONG < shortFibre_Fraction)))
 	      if (energy>thresh_HF_)
 		out->push_back(newHit);
 	  }
 	  else
 	    {
 	      //make only long hit
-	      double energy = LONG;
+	      double energy = lONG;
 	      if (abs(detid.ieta())<=32)
 		energy*=HFCalib_;
 	      newHit.setEnergy(energy);
@@ -184,7 +184,7 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 
 	}
 	else {
-	  SHORT=hit.energy();
+	  sHORT=hit.energy();
 	  HcalDetId longID (HcalForward, detid.ieta(), detid.iphi(), 1);
 	  const reco::PFRecHit temp(longID,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 	  auto found_hit = std::lower_bound(tmpOut.begin(),tmpOut.end(),
@@ -193,21 +193,21 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 					       const reco::PFRecHit& b){
 					      return a.detId() < b.detId();
 					    });
-	  double energy = 2*SHORT;
+	  double energy = 2*sHORT;
 	  if( found_hit != tmpOut.end() && found_hit->detId() == longID.rawId() ) {
-	    LONG = found_hit->energy();
+	    lONG = found_hit->energy();
 	    //Ask for fraction
 
-	    //If in this case LONG-SHORT<0 add the energy to the SHORT
-	    if ((LONG-SHORT)<thresh_HF_)
-	      energy = LONG+SHORT;
+	    //If in this case lONG-sHORT<0 add the energy to the sHORT
+	    if ((lONG-sHORT)<thresh_HF_)
+	      energy = lONG+sHORT;
 
 	    if (abs(detid.ieta())<=32)
 	      energy*=HFCalib_;
 	    
 	    newHit.setEnergy(energy);
-	    if (!( SHORT > shortFibre_Cut && 
-		   ( LONG/SHORT < longFibre_Fraction)))
+	    if (!( sHORT > shortFibre_Cut && 
+		   ( lONG/sHORT < longFibre_Fraction)))
 	      if (energy>thresh_HF_)
 		out->push_back(newHit);
 
