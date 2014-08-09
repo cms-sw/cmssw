@@ -2,12 +2,13 @@
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
-GeomDet::GeomDet( Plane* plane): GeomDet(ReferenceCountingPointer<Plane>(plane)){}
+GeomDet::GeomDet( Plane* plane):
+  thePlane(plane), theAlignmentPositionError(0), theLocalAlignmentError(InvalidError()), m_index(-1) {}
 
 GeomDet::GeomDet( const ReferenceCountingPointer<Plane>& plane) :
-  m_index(-1), thePlane(plane), theLocalAlignmentError(InvalidError()) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalAlignmentError(InvalidError()), m_index(-1) {}
 
-GeomDet::~GeomDet() {}
+GeomDet::~GeomDet() {delete theAlignmentPositionError;}
 
 void GeomDet::move( const GlobalVector& displacement)
 {
@@ -35,6 +36,11 @@ void GeomDet::setPosition( const Surface::PositionType& position,
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 bool GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape) 
 {
+  if (!theAlignmentPositionError) {
+    if (ape.valid()) theAlignmentPositionError = new AlignmentPositionError(ape);
+  } 
+  else *theAlignmentPositionError = ape;
+
   theLocalAlignmentError = ape.valid() ?
     ErrorFrameTransformer().transform( ape.globalError(),
                                        surface()
