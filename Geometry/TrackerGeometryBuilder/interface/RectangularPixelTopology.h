@@ -36,10 +36,6 @@
 # include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 # include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace {
-//  const float EPS = 0.001;     // accuray in pixel units, so about 0.1 um
-//  const float EPSCM = 0.00001; // accuray in cm, so about 0.1 um
-}
 
 class RectangularPixelTopology GCC11_FINAL : public PixelTopology
 {
