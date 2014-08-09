@@ -5,7 +5,10 @@
 
 GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   hepidwtup_(-1),
-  xsec_(0,0)
+  xsec_(0,0),
+  jetMatchPassStat_(0,0,0),
+  jetMatchTotalStat_(0,0,0),
+  totalEffStat_(0,0)
 {
   products_.clear();
 }
@@ -29,12 +32,17 @@ GenXSecAnalyzer::analyze(const edm::Event&, const edm::EventSetup&)
 void
 GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
 
+  edm::Handle<GenFilterInfo> genFilter;
+  if(iLumi.getByLabel("genFilterEfficiencyProducer", genFilter))
+    totalEffStat_.mergeProduct(*genFilter);
+
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
   iLumi.getByLabel("generator",genLumiInfo);
 
   const GenLumiInfoProduct one = *(genLumiInfo);
   sampleInfo thisProcessInfos = one.getProcessInfos();
   hepidwtup_ = one.getHEPIDWTUP();
+
 
   // if it's a pure parton-shower generator, check there should be only one element in thisProcessInfos
   // the error of lheXSec is -1
@@ -49,6 +57,16 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
 	return;
       }
     }
+
+  // doing generic summing 
+  for(unsigned int ip=0; ip < thisProcessInfos.size(); ip++)
+    {
+      GenLumiInfoProduct::FinalStat temp = thisProcessInfos[ip].killed();
+      jetMatchPassStat_.add(temp);
+      temp = thisProcessInfos[ip].selected();
+      jetMatchTotalStat_.add(temp);
+    }
+
 
   // now determine if this LuminosityBlock has the same lheXSec as existing products
   bool sameMC = false;
@@ -170,8 +188,26 @@ GenXSecAnalyzer::endJob() {
 
   if(products_.size()>0)
     compute();
+  
+  double jetmatching_eff_total = jetMatchTotalStat_.sum()>1e-6? 
+    jetMatchPassStat_.sum()/jetMatchTotalStat_.sum():1;
+  std::cout << "jet matching efficiency = " << 
+    jetMatchPassStat_.sum() << "/" << 
+    jetMatchTotalStat_.sum() << " = " << jetmatching_eff_total << std::endl;
+  double total_eff = totalEffStat_.filterWeightedEfficiency();
+  std::cout << "total_eff = " << total_eff << std::endl;
+  double filterOnly_eff = total_eff/jetmatching_eff_total;
 
-  std::cout << "Final Xsec = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() << std::endl;
+  std::cout << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() << std::endl;
+
+  std::cout << "Filter efficiency = " << std::setprecision(6)  
+	    << filterOnly_eff << std::endl;
+
+  std::cout << "After filter: cross section = " 
+	    << std::setprecision(6) << xsec_.value()*filterOnly_eff 
+	    << " +- " 
+	    << std::setprecision(6) << xsec_.error()*filterOnly_eff  
+	    << std::endl;
 
 }
 

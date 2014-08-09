@@ -99,8 +99,8 @@
 
 	<!-- GenFilterInfo -->
 
-	<class name="GenFilterInfo" ClassVersion="10">
-  <version ClassVersion="10" checksum="2060912306"/>
+	<class name="GenFilterInfo" ClassVersion="11">
+	  <version ClassVersion="11" checksum="3079203794"/>
  </class>
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 

@@ -22,6 +22,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 //
 // class declaration
 //
@@ -45,6 +46,9 @@ private:
 
   int hepidwtup_;
   GenLumiInfoProduct::XSec xsec_;
+  GenLumiInfoProduct::FinalStat jetMatchPassStat_;  // statistics from jet-matching
+  GenLumiInfoProduct::FinalStat jetMatchTotalStat_;
+  GenFilterInfo  totalEffStat_;     // statistics from total filter
   // ----------member data ---------------------------
   std::vector<sampleInfo> products_; // the size depends on the number of MC with different LHE information
 };

@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //
 // class declaration
@@ -56,6 +57,15 @@ private:
 
   int numEventsTotal;
   int numEventsPassed;
+  double sumpass_pw;
+  double sumpass_pw2;
+  double sumpass_nw;
+  double sumpass_nw2;
+
+  double sumfail_pw;
+  double sumfail_pw2;
+  double sumfail_nw;
+  double sumfail_nw2;
 
 };
 
