@@ -53,7 +53,7 @@ private:
   /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
   virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
-  boost::shared_ptr<ProxyPixelTopology> theTopology;
+  std::unique_ptr<ProxyPixelTopology> theTopology;
 };
 
 #endif // Tracker_PixelGeomDetUnit_H
