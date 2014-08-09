@@ -84,9 +84,6 @@ public:
   // FIXME: must become pure virtual
   virtual const GeomDet* component(DetId /*id*/) const {return 0;}
 
-  /// Return pointer to alignment errors. 
-  AlignmentPositionError const* alignmentPositionError() const { return theAlignmentPositionError;}
-
 
   // specific unix index in a given subdetector (such as Tracker)
   int index() const { return m_index;}
@@ -104,7 +101,6 @@ private:
   int m_index;
   ReferenceCountingPointer<Plane>  thePlane;
   LocalError                            theLocalAlignmentError;
-  AlignmentPositionError*               theAlignmentPositionError;
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;
