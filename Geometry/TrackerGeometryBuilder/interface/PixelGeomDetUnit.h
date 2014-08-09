@@ -9,7 +9,6 @@
 
 class PixelGeomDetType;
 class PixelTopology;
-class GeometricDet;
 class SurfaceDeformation;
 /**
  * The base PixelGeomDetUnit. Specialized in SiPixelGeomDetUnit.
@@ -18,7 +17,7 @@ class SurfaceDeformation;
 class PixelGeomDetUnit : public GeomDetUnit {
 public:
 
-  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const * type, GeometricDet const * gd);
+  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const * type, DetId id);
 
   // DetUnit interface
 
@@ -55,7 +54,6 @@ private:
   virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
   boost::shared_ptr<ProxyPixelTopology> theTopology;
-  const GeometricDet* theGD;
 };
 
 #endif // Tracker_PixelGeomDetUnit_H
