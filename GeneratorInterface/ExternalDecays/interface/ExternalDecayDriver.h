@@ -48,7 +48,6 @@ namespace gen {
          std::vector<std::string> const& sharedResources() const { return exSharedResources; }
 
       private:
-      	 
 	 bool                     fIsInitialized;
 	 TauolaInterfaceBase*     fTauolaInterface;
 	 EvtGenInterfaceBase*     fEvtGenInterface;

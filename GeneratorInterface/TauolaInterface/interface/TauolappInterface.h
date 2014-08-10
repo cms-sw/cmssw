@@ -37,7 +37,7 @@ namespace gen {
       const std::vector<int>& operatesOnParticles() { return fPDGs; }
       HepMC::GenEvent* decay( HepMC::GenEvent* );
       void statistics() ;
-      virtual void SetLHE(lhef::LHEEvent *l);
+      virtual void SetLHE(lhef::LHEEvent *l){lhe=l;}
       void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
       static double flat();
       

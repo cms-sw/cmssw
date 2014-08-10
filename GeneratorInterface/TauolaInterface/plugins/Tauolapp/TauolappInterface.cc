@@ -56,7 +56,8 @@ TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fPSet(0),
   fIsInitialized(false),
   fMDTAU(-1),
-  fSelectDecayByEvent(false)
+  fSelectDecayByEvent(false),
+  lhe(NULL)
 {
   if ( fPSet != 0 ) throw cms::Exception("TauolappInterfaceError") << "Attempt to override Tauola an existing ParameterSet\n" << std::endl;
   fPSet = new ParameterSet(pset);
@@ -203,25 +204,28 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    
    bool dolhe=true;
    if(dolhe){
+     if(lhe!=NULL){
      std::vector<HepMC::GenParticle*> particles;
-     particles.push_back(HepMC::GenParticle(HepMC::FourVector(hepeup.PUP.at(i)[0],hepeup.PUP.at(i)[1],hepeup.PUP.at(i)[2],hepeup.PUP.at(i)[3]),hepeup.IDUP.at(i)));
-     int status = hepeup.ISTUP.at(i);
-     particles.at(particles.size())->set_generated_mass(hepeup.PUP.at(i)[4]);
-     particles.at(particles.size())->set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
-     
-     std::vector<HepMC::GenParticle*> TauLHE;
      std::vector<double> TauSPINUP;
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
      std::vector<int> pdg =lhe->getHEPEUP()->IDUP;
      for(unsigned int i=0;i<spinup.size();i++){
        if(abs(pdg.at(i))==15){
-	 TauLHE.push_back(lhe->makeHepMCParticle(i));
+	 particles.push_back(new HepMC::GenParticle(HepMC::FourVector(lhe->getHEPEUP()->PUP.at(i)[0],lhe->getHEPEUP()->PUP.at(i)[1],lhe->getHEPEUP()->PUP.at(i)[2],lhe->getHEPEUP()->PUP.at(i)[3]),lhe->getHEPEUP()->IDUP.at(i)));
+	 int status = lhe->getHEPEUP()->ISTUP.at(i);
+	 particles.at(particles.size()-1)->set_generated_mass(lhe->getHEPEUP()->PUP.at(i)[4]);
+	 particles.at(particles.size()-1)->set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
 	 TauSPINUP.push_back(spinup.at(i));
+	 particles.at(particles.size()-1)->print();
+	 std::cout << "Spinup: " << TauSPINUP.at(TauSPINUP.size()-1) << " " << pdg.at(i) << std::endl;
        }
      }
-     //decaySpinup(t_event,TauLHE,TauSPINUP);
+     }
+     //TauolaParticle *tp = new TauolaHepMCParticle(p);
+     //Tauola::decayOne(tp,true,0,0,Polarz);
+
    }
-   else{
+   //else{
      //construct tmp TAUOLA event
      auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
      // another option: if one lets Pythia or another master gen to decay taus, 
@@ -261,7 +265,7 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	 }
        }             
      }
-   }
+     //}
    return evt;
 }
 
