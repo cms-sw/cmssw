@@ -71,7 +71,7 @@ options = VarParsing.VarParsing ()
 
 defaultTag=str(2015);
 defaultLevel=14;
-defaultOutputFileName="cmsSimGeom-" +  str(defaultTag) + ".root"
+defaultOutputFileName="cmsSimGeom.root"
 
 options.register ('tag',
                   defaultTag, # default value
@@ -87,6 +87,9 @@ options.register ('out',
 
 options.parseArguments()
 
+
+if (options.out == defaultOutputFileName ):
+   options.out = "cmsSimGeom-" + str(options.tag) + ".root"
 
 process = cms.Process("SIMDUMP")
 simGeoLoad(options.tag)
