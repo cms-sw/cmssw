@@ -559,43 +559,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
 
-  //  bool first = true;
-  if (false) for (int bx = 5; bx <= 7; bx++){
-    const bool hasALCT1(alct->bestALCT[bx].isValid());
-    const bool hasALCT2(alct->secondALCT[bx].isValid());
-    const bool hasCLCT1(clct->bestCLCT[bx].isValid());
-    const bool hasCLCT2(clct->secondCLCT[bx].isValid());
-    const bool hasCLCT1a(clct1a->bestCLCT[bx].isValid());
-    const bool hasCLCT2a(clct1a->secondCLCT[bx].isValid());
-    const bool hasGEM1(pads_[bx].size()!=0);
-    const bool hasGEM2(coPads_[bx].size()!=0);
-
-    // const bool ALCTandGEM1(hasALCT1 and hasGEM1);
-    // const bool ALCTandGEM2(hasALCT1 and hasGEM2);
-    // const bool CLCTandGEM1(hasCLCT1 and hasGEM1);
-    // const bool CLCTandGEM2(hasCLCT1 and hasGEM2);
-    // const bool ALCTandCLCT(hasALCT1 and hasCLCT1);
-    // const bool twoStubs(ALCTandGEM2 or CLCTandGEM2 or ALCTandCLCT or (ALCTandGEM1 and CLCTandGEM1));
-
-    const std::string ALCT1(hasALCT1? "X" : " ");
-    const std::string ALCT2(hasALCT2? "X" : " ");
-    const std::string CLCT1(hasCLCT1? "X" : " ");
-    const std::string CLCT2(hasCLCT2? "X" : " ");
-    const std::string CLCT1a(hasCLCT1a? "X" : " ");
-    const std::string CLCT2a(hasCLCT2a? "X" : " ");
-    const std::string GEM1(hasGEM1? "X" : " ");
-    const std::string GEM2(hasGEM2? "X" : " ");
-    
-    if (hasALCT1 or hasCLCT1 or hasCLCT1a or hasGEM1 or hasGEM2){
-      // reference BX
-      if (bx==5) std::cout << "BX  ALCT1  ALCT2  CLCTa1  CLCTa2  CLCTb1  CLCTb2  GEM1  GEM2"<<std::endl;
-      std::cout <<bx;
-      if (bx < 10) std::cout <<" ";
-      std::cout<<"    "<<ALCT1<<"      "<<ALCT2<<"       "<<CLCT1a<<"      "<<CLCT2a
-               <<"       "<<CLCT1<<"      "<<CLCT2<<"      "<<GEM1<<"     "<<GEM2<<std::endl;
-    }
-  }
-
   // ALCT-centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
   {
