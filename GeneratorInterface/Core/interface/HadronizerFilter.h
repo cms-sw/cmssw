@@ -322,19 +322,19 @@ namespace edm
     const lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
     lhef::LHERunInfo::XSec xsec = lheRunInfo->xsecLumi();
 
-    std::vector<lhef::LHERunInfo::ProcessLumi> LHELumiProcess = lheRunInfo->getLumiProcesses();
+    std::vector<lhef::LHERunInfo::Process> LHELumiProcess = lheRunInfo->getLumiProcesses();
     std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
     for(unsigned int i=0; i < LHELumiProcess.size(); i++){
-      lhef::LHERunInfo::ProcessLumi thisProcess=LHELumiProcess[i];
+      lhef::LHERunInfo::Process thisProcess=LHELumiProcess[i];
 
       GenLumiInfoProduct::ProcessInfo temp;      
-      temp.setProcess(thisProcess.getProcess().process());
+      temp.setProcess(thisProcess.process());
       temp.setLheXSec(thisProcess.getHepXSec().value(),thisProcess.getHepXSec().error());
-      temp.setTried(thisProcess.getProcess().tried().n(), thisProcess.getProcess().tried().sum(), thisProcess.getProcess().tried().sum2());
-      temp.setSelected(thisProcess.getProcess().selected().n(), thisProcess.getProcess().selected().sum(), thisProcess.getProcess().selected().sum2());
-      temp.setKilled(thisProcess.getProcess().killed().n(), thisProcess.getProcess().killed().sum(), thisProcess.getProcess().killed().sum2());
-      temp.setAccepted(thisProcess.getProcess().accepted().n(), thisProcess.getProcess().accepted().sum(), thisProcess.getProcess().accepted().sum2());
-      temp.setAcceptedBr(thisProcess.getProcess().acceptedBr().n(), thisProcess.getProcess().acceptedBr().sum(), thisProcess.getProcess().acceptedBr().sum2());
+      temp.setTried(thisProcess.tried().n(), thisProcess.tried().sum(), thisProcess.tried().sum2());
+      temp.setSelected(thisProcess.selected().n(), thisProcess.selected().sum(), thisProcess.selected().sum2());
+      temp.setKilled(thisProcess.killed().n(), thisProcess.killed().sum(), thisProcess.killed().sum2());
+      temp.setAccepted(thisProcess.accepted().n(), thisProcess.accepted().sum(), thisProcess.accepted().sum2());
+      temp.setAcceptedBr(thisProcess.acceptedBr().n(), thisProcess.acceptedBr().sum(), thisProcess.acceptedBr().sum2());
       GenLumiProcess.push_back(temp);
     }
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());

@@ -113,6 +113,7 @@ class LHERunInfo {
 	Process(): process_(-1), heprupIndex_(-1){}
 	Process(int id): process_(id), heprupIndex_(-1){}
 	  // accessors
+          XSec  getHepXSec() const {return hepXSec_;}
 	  int process() const {return process_;} 
 	  unsigned int heprupIndex() const {return heprupIndex_;}
 	  Counter tried() const {return tried_;}
@@ -122,6 +123,7 @@ class LHERunInfo {
 	  Counter acceptedBr() const {return acceptedBr_;}	        
 	  
 	  // setters
+          void setHepXSec(double value, double error) {hepXSec_ = XSec(value,error);}
 	  void setProcess(int id) {process_ = id;}
 	  void setHepRupIndex(int id) {heprupIndex_ = id;}
 	  void addTried(double w) {tried_.add(w);}
@@ -131,6 +133,7 @@ class LHERunInfo {
 	  void addAcceptedBr(double w) {acceptedBr_.add(w);}	        
 	  
 	private:
+          XSec          hepXSec_;
 	  int		process_;
 	  unsigned int	heprupIndex_;
 	  Counter		tried_;
@@ -147,36 +150,14 @@ class LHERunInfo {
 	std::vector<Process>		processes;
 	std::vector<Header>		headers;
 	std::vector<std::string>	comments;
-  public:
 
-    struct ProcessLumi {
-    public:
-      ProcessLumi(){}
-      ProcessLumi(int id):thisProcess_(id){}
-      // accessors
-      XSec  getHepXSec() const {return hepXSec_;}
-      Process getProcess() const {return thisProcess_;}
-      // setters
-      void setHepXSec(double value, double error) {hepXSec_ = XSec(value,error);}
-      void setProcess(int id) {thisProcess_.setProcess(id);}
-      void setHepRupIndex(int id) {thisProcess_.setHepRupIndex(id);}
-      void addTried(double w) {thisProcess_.addTried(w);}
-      void addSelected(double w) {thisProcess_.addSelected(w);}
-      void addKilled(double w) {thisProcess_.addKilled(w);}
-      void addAccepted(double w) {thisProcess_.addAccepted(w);}
-      void addAcceptedBr(double w) {thisProcess_.addAcceptedBr(w);}	        
-
-    private:  
-      Process thisProcess_;
-      XSec    hepXSec_;
-    };
-
-    const std::vector<ProcessLumi>& getLumiProcesses() const {return processesLumi;}
+ public:
+    const std::vector<Process>& getLumiProcesses() const {return processesLumi;}
     const int getHEPIDWTUP() const {return heprup.IDWTUP;}
     void initLumi();
     XSec xsecLumi() const;
   private:
-    std::vector<ProcessLumi>       	processesLumi;
+    std::vector<Process>       	processesLumi;
 };
 
 } // namespace lhef

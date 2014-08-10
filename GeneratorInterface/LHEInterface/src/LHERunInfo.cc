@@ -127,7 +127,7 @@ void LHERunInfo::initLumi()
   processesLumi.clear();
   for(int i = 0; i < heprup.NPRUP; i++) {
     
-    ProcessLumi proc;
+    Process proc;
     proc.setProcess(heprup.LPRUP[i]);
     proc.setHepRupIndex((unsigned int)i);
     proc.setHepXSec(heprup.XSECUP[i],heprup.XERRUP[i]);
@@ -152,9 +152,9 @@ void LHERunInfo::count(int process, CountMode mode, double eventWeight,
 	if (proc == processes.end() || proc->process() != process)
 		return;
 
-	std::vector<ProcessLumi>::iterator procLumi =
+	std::vector<Process>::iterator procLumi =
 	  std::lower_bound(processesLumi.begin(), processesLumi.end(), process);
-	if (procLumi == processesLumi.end() || procLumi->getProcess().process() != process)
+	if (procLumi == processesLumi.end() || procLumi->process() != process)
 	  return;
 
 	switch(mode) {
@@ -183,38 +183,37 @@ void LHERunInfo::count(int process, CountMode mode, double eventWeight,
    double err2Sum = 0.0;
    double errBr2Sum = 0.0;
 
-   for(std::vector<ProcessLumi>::const_iterator procLumi = processesLumi.begin();
-       procLumi != processesLumi.end(); ++procLumi) {
+   for(std::vector<Process>::const_iterator proc = processesLumi.begin();
+       proc != processesLumi.end(); ++proc) {
 	  
-     const Process proc = procLumi->getProcess(); 
-     unsigned int idx = proc.heprupIndex();
+     unsigned int idx = proc->heprupIndex();
 
      double sigmaSum, sigma2Sum, sigma2Err;
-     sigmaSum = proc.tried().sum() * heprup.XSECUP[idx];
-     sigma2Sum = proc.tried().sum2() * heprup.XSECUP[idx]
+     sigmaSum = proc->tried().sum() * heprup.XSECUP[idx];
+     sigma2Sum = proc->tried().sum2() * heprup.XSECUP[idx]
        * heprup.XSECUP[idx];
-     sigma2Err = proc.tried().sum2() * heprup.XERRUP[idx]
+     sigma2Err = proc->tried().sum2() * heprup.XERRUP[idx]
        * heprup.XERRUP[idx];
 
-     if (!proc.killed().n())
+     if (!proc->killed().n())
        continue;
 
-     double sigmaAvg = sigmaSum / proc.tried().sum();
-     double fracAcc = proc.killed().sum() / proc.selected().sum();
-     double fracBr = proc.accepted().sum() > 0.0 ?
-       proc.acceptedBr().sum() / proc.accepted().sum() : 1;
+     double sigmaAvg = sigmaSum / proc->tried().sum();
+     double fracAcc = proc->killed().sum() / proc->selected().sum();
+     double fracBr = proc->accepted().sum() > 0.0 ?
+       proc->acceptedBr().sum() / proc->accepted().sum() : 1;
      double sigmaFin = sigmaAvg * fracAcc * fracBr;
      double sigmaFinBr = sigmaFin * fracBr;
 
      double relErr = 1.0;
-     if (proc.killed().n() > 1) {
+     if (proc->killed().n() > 1) {
        double sigmaAvg2 = sigmaAvg * sigmaAvg;
        double delta2Sig =
-	 fabs(sigma2Sum / proc.tried().n() - sigmaAvg2) /
-	 (proc.tried().n() * sigmaAvg2);
+	 fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
+	 (proc->tried().n() * sigmaAvg2);
        double delta2Veto =
-	 ((double)proc.selected().n() - proc.killed().n()) /
-	 ((double)proc.selected().n() * proc.killed().n());
+	 ((double)proc->selected().n() - proc->killed().n()) /
+	 ((double)proc->selected().n() * proc->killed().n());
        double delta2Sum = delta2Sig + delta2Veto
 	 + sigma2Err / sigma2Sum;
        relErr = (delta2Sum > 0.0 ?
@@ -575,12 +574,5 @@ const bool operator == (const LHERunInfo::Process& lhs, const LHERunInfo::Proces
 
 const bool operator < (const LHERunInfo::Process& lhs, const LHERunInfo::Process &rhs) 
 { return (lhs.process() < rhs.process()); }
-
-const bool operator == (const LHERunInfo::ProcessLumi& lhs, const LHERunInfo::ProcessLumi &rhs) 
-{ return (lhs.getProcess().process() == rhs.getProcess().process()); }
-
-const bool operator < (const LHERunInfo::ProcessLumi& lhs, const LHERunInfo::ProcessLumi &rhs) 
-{ return (lhs.getProcess().process() < rhs.getProcess().process()); }
-
 
 } // namespace lhef
