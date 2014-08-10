@@ -154,6 +154,7 @@ private:
     MonitorElement* nClustersOffTrack;
     MonitorElement* nClustersTrendOffTrack;
     MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterStoNOffTrack;
  
@@ -170,7 +171,7 @@ private:
   
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
-  edm::EDGetTokenT<std::vector<Trajectory> > trajectoryToken_;
+  //  edm::EDGetTokenT<std::vector<Trajectory> > trajectoryToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trackTrajToken_;
 
   bool Mod_On_;

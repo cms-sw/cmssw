@@ -39,10 +39,9 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
-  clusterToken_   = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
-  trackToken_     = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
-  trajectoryToken_ = consumes<std::vector<Trajectory> >(edm::InputTag(TrackProducer_,TrackLabel_) );
-  trackTrajToken_ = consumes<TrajTrackAssociationCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
+  clusterToken_    = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
+  trackToken_      = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
+  trackTrajToken_  = consumes<TrajTrackAssociationCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
 
   // cluster quality conditions
   edm::ParameterSet cluster_condition = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
@@ -317,6 +316,7 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
   theSubDetMEs.nClustersOffTrack      = 0;
   theSubDetMEs.nClustersTrendOffTrack = 0;
   theSubDetMEs.ClusterStoNCorrOnTrack = 0;
+  theSubDetMEs.ClusterChargeOnTrack   = 0;
   theSubDetMEs.ClusterChargeOffTrack  = 0;
   theSubDetMEs.ClusterStoNOffTrack    = 0;
 
@@ -333,6 +333,10 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
   // Cluster StoN On Track
   completeName = "Summary_ClusterStoNCorr_OnTrack"  + subdet_tag;
   theSubDetMEs.ClusterStoNCorrOnTrack = bookME1D(ibooker , "TH1ClusterStoNCorr", completeName.c_str());
+
+  // Cluster Charge On Track
+  completeName = "Summary_ClusterCharge_OnTrack" + subdet_tag;
+  theSubDetMEs.ClusterChargeOnTrack=bookME1D(ibooker , "TH1ClusterCharge", completeName.c_str());
 
   // Cluster Charge Off Track
   completeName = "Summary_ClusterCharge_OffTrack" + subdet_tag;
@@ -934,6 +938,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid, co
   std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
   if(iSubdet != SubDetMEsMap.end() ){
     if(flag==OnTrack){
+      fillME(iSubdet->second.ClusterChargeOnTrack,charge);
       if(noise > 0.0) fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
     } else {
       fillME(iSubdet->second.ClusterChargeOffTrack,charge);
