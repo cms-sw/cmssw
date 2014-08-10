@@ -134,7 +134,8 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   void matchGEMPads(enum ME11Part = ME1B);
 
   void buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, 
-			    GEMCSCPadDigiCollection& out_co_pads);
+			    GEMCSCPadDigiCollection& out_co_pads,
+			    CSCDetId csc_id);
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
 

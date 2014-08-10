@@ -81,7 +81,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
                         RPCDigi gemPad,
                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
-  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, bool hasRPC); 
+  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const RPCDigisBX& digis = RPCDigisBX()); 
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCCLCTDigi& clct, const RPCDigi& rpc, int roll, 
                                         bool oldDataFormat);
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const RPCDigi& rpc, bool oldDataFormat);
@@ -154,6 +154,9 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   //  deltas used to match to RPC digis
   int maxDeltaBXRPC_;
   int maxDeltaStripRPC_;
+  int maxDeltaStripRPCOdd_;
+  int maxDeltaStripRPCEven_;
+  int maxDeltaWg_;
 
   bool useOldLCTDataFormatCLCTRPC_;
   bool useOldLCTDataFormatALCTRPC_;
@@ -163,6 +166,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   bool buildLCTfromALCTandRPC_;
   bool buildLCTfromCLCTandRPC_;
+  bool buildLCTfromLowQstubandRPC_;
 
   bool promoteCLCTRPCquality_;
   bool promoteALCTRPCquality_;
