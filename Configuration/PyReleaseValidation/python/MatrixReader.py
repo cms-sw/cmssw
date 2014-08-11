@@ -47,7 +47,8 @@ class MatrixReader(object):
                              'relval_ged': 'ged-',
                              'relval_upgrade':'upg-',
                              'relval_identity':'id-',
-                             'relval_machine': 'mach-'
+                             'relval_machine': 'mach-',
+                             'relval_unsch': 'unsch-'
                              }
 
         self.files = ['relval_standard' ,
@@ -58,7 +59,8 @@ class MatrixReader(object):
                       'relval_ged',
                       'relval_upgrade',
                       'relval_identity',
-                      'relval_machine'
+                      'relval_machine',
+                      'relval_unsch'
                       ]
 
         self.relvalModule = None
