@@ -23,7 +23,7 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
  public:
   explicit PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet&);
   ~PFRecoTauDiscriminationByHPSSelection();
-  double discriminate(const reco::PFTauRef&) override;
+  double discriminate(const reco::PFTauRef&) const override;
 
  private:
   typedef StringObjectFunction<reco::PFTau> TauFunc;
@@ -116,7 +116,7 @@ PFRecoTauDiscriminationByHPSSelection::~PFRecoTauDiscriminationByHPSSelection()
 }
 
 double
-PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) 
+PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) const
 {
   if ( verbosity_ ) {
     edm::LogPrint("PFTauByHPSSelect") << "<PFRecoTauDiscriminationByHPSSelection::discriminate>:" ;

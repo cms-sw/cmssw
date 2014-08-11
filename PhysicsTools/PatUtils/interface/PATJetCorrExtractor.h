@@ -53,9 +53,9 @@ class PATJetCorrExtractor
  public:
 
   reco::Candidate::LorentzVector operator()(const pat::Jet& jet, const std::string& jetCorrLabel, 
-					    const edm::Event* evt = 0, const edm::EventSetup* es = 0, 
+					    const edm::Event* evt = nullptr, const edm::EventSetup* es = nullptr, 
 					    double jetCorrEtaMax = 9.9, 
-					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
+					    const reco::Candidate::LorentzVector* const rawJetP4_specified = nullptr) const 
   {
     reco::Candidate::LorentzVector corrJetP4;
 
