@@ -1,19 +1,19 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_0_0_std">
-<var name="TEST_REF" value="7_0_0_std">
+<var name="TEST_NEW" value="7_1_0_std">
+<var name="TEST_REF" value="7_1_0_pre9_std">
 
-<var name="TAG_STARTUP" value="POSTLS170_V3">
-<var name="DATA_VERSION" value="v2">
+<var name="TAG_STARTUP" value="POSTLS171_V15">
+<var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="POSTLS170_V3-v2">
+<var name="DD_COND_REF" value="POSTLS171_V11_FastSim-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Dev">
 
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
@@ -187,6 +187,7 @@ FastSim
 
       <environment name="ValFastVsFastTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
@@ -194,20 +195,23 @@ FastSim
       
       <environment name="ValFastVsFastZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
         
       <environment name="ValFastVsFastTTbarStartup_gedGsfE">
-        <var name="DD_SAMPLE" value="RelValTTbar">
+        <var name="DD_SAMPLE" value="RelValTTbar_13">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="ValFastVsFastZEEStartup_gedGsfE">
-        <var name="DD_SAMPLE" value="RelValZEE">
+        <var name="DD_SAMPLE" value="RelValZEE_13">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
@@ -227,16 +231,18 @@ FastSim
 
       <environment name="ValFastVsFullTTbarStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValTTbar_13">
-        <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
+ 	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+       <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_NEW} -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="ValFastVsFullZEEStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValZEE_13">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <var name="BLUE_FILE" value="electronHistos.ValFullZEEStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_NEW} -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
       </environment>
       
     </environment>
