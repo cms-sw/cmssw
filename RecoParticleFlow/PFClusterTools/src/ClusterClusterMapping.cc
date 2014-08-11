@@ -16,13 +16,13 @@ bool ClusterClusterMapping::overlap(const reco::CaloCluster & sc1, const reco::C
 	}
       for(unsigned i2=0;i2<nhits2;++i2)
 	{
-	  // consider only with a minimum fraction of minfract (default 1%) of the RecHit
-	  if(hits2[i2].second<minfrac ) {
-	    if(debug) std::cout << " Discarding " << hits2[i2].first << " with " << hits2[i2].second << std::endl;
-	    continue;
-	  }
 	  if(hits1[i1].first==hits2[i2].first)
 	    {
+	      // consider only with a minimum fraction of minfract (default 1%) of the RecHit
+	      if(hits2[i2].second<minfrac ) {
+	        if(debug) std::cout << " Discarding " << hits2[i2].first << " with " << hits2[i2].second << std::endl;
+	        continue;
+	      }
 	      if(debug)
 		{
 		  std::cout << " Matching hits " << hits1[i1].first << " with " <<  hits1[i1].second << " and " <<  hits2[i2].first;
