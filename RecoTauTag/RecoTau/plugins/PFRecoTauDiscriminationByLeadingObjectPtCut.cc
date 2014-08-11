@@ -16,13 +16,13 @@ class PFRecoTauDiscriminationByLeadingObjectPtCut : public PFTauDiscriminationPr
          minPtLeadObject_ = iConfig.getParameter<double>("MinPtLeadingObject");
       }
       ~PFRecoTauDiscriminationByLeadingObjectPtCut(){} 
-      double discriminate(const PFTauRef& pfTau) override;
+      double discriminate(const PFTauRef& pfTau) const override;
    private:
       bool chargedOnly_;
       double minPtLeadObject_;
 };
 
-double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef& thePFTauRef) const
 {
    double leadObjectPt = -1.;
    if( chargedOnly_ )

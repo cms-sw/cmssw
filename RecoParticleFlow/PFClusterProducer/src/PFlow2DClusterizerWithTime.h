@@ -4,7 +4,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 
 #include <unordered_map>
 
@@ -44,8 +44,8 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _convergencePosCalc;
 
-  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalcBarrel;
-  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalcEndcap;
+  std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcBarrel;
+  std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcEndcap;
   
   void seedPFClustersFromTopo(const reco::PFCluster&,
 			      const std::vector<bool>&,

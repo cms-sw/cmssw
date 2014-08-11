@@ -35,10 +35,7 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
-      for (unsigned int i=0;i<qualityTests_.size();++i) {
-	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
-      }
-
+      beginEvent(iEvent,iSetup);
 
       edm::Handle<EcalRecHitCollection> recHitHandle;
       edm::ESHandle<CaloGeometry> geoHandle;
@@ -83,17 +80,19 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
-  
-	position.SetCoordinates ( thisCell->getPosition().x(),
-				  thisCell->getPosition().y(),
-				  thisCell->getPosition().z() );
+
+	auto const point  = thisCell->getPosition();
+	position.SetCoordinates ( point.x(),
+				  point.y(),
+				  point.z() );
   
 	reco::PFRecHit rh( detid.rawId(),layer,
 			   energy, 
 			   position.x(), position.y(), position.z(), 
 			   0.0,0.0,0.0);
 
-
+	rh.setDepth(detid.plane());
+	rh.setTime(erh.time());
 	
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );

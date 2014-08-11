@@ -5,7 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 
 class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
  public:
@@ -20,13 +20,13 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
     if( conf.exists("timeResolutionCalcBarrel") ) {
       const edm::ParameterSet& timeResConf = 
         conf.getParameterSet("timeResolutionCalcBarrel");
-        _timeResolutionCalcBarrel.reset(new ECALRecHitResolutionProvider(timeResConf));
+        _timeResolutionCalcBarrel.reset(new CaloRecHitResolutionProvider(timeResConf));
     }
     _timeResolutionCalcEndcap.reset(NULL);
     if( conf.exists("timeResolutionCalcEndcap") ) {
       const edm::ParameterSet& timeResConf = 
         conf.getParameterSet("timeResolutionCalcEndcap");
-        _timeResolutionCalcEndcap.reset(new ECALRecHitResolutionProvider(timeResConf));
+        _timeResolutionCalcEndcap.reset(new CaloRecHitResolutionProvider(timeResConf));
     }
   }
   Basic2DGenericPFlowPositionCalc(const Basic2DGenericPFlowPositionCalc&) = delete;
@@ -40,8 +40,8 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
   const double _logWeightDenom;
   const double _minAllowedNorm;
   
-  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalcBarrel;
-  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalcEndcap;
+  std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcBarrel;
+  std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcEndcap;
 
   void calculateAndSetPositionActual(reco::PFCluster&) const;
 };
