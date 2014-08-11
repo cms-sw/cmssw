@@ -6,19 +6,19 @@
 #ifndef JETCALIBRATIONMETHODS_H
 #define JETCALIBRATIONMETHODS_H
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
 #include <vector>
 
 namespace l1t {
-  
-  void JetCalibration1(std::vector<l1t::Jet> * uncalibjets,
-		       std::vector<double> jetSF,
-		       std::vector<l1t::Jet> * jets,
-		       bool applyJetCalibration,
-		       double jetLSB); 
-  
+
+  void JetCalibration(std::vector<l1t::Jet> * uncalibjets,
+		      std::vector<double> jetCalibrationParams,
+		      std::vector<l1t::Jet> * jets,
+		      std::string jetCalibrationType,
+		      double jetLSB);
+
 }
 
 #endif
