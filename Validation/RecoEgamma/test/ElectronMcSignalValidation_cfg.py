@@ -29,6 +29,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond[os.environ['TEST_GLOBAL_AUTOCOND']]
+# next line is for old releases, prior to 7XX
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
