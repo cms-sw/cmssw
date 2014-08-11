@@ -9,6 +9,7 @@ dedxTruncated40 = cms.EDProducer("DeDxEstimatorProducer",
  
     UseStrip       = cms.bool(True),
     UsePixel       = cms.bool(False),
+    UseTrajectory  = cms.untracked.bool(False),
     MeVperADCStrip = cms.double(3.61e-06*265),
     MeVperADCPixel = cms.double(3.61e-06),
 

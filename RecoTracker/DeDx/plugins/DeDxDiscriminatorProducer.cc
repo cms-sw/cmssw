@@ -298,6 +298,8 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
       int    size               = vect_probs.size();
       float  Error              = -1;
 
+      printf("Discrim : %6.2f - %+6.2f --> %6.2f  %03i  %03i\n", track.pt(), track.eta(), estimator, size, NClusterSaturating);
+
       //WARNING: Since the dEdX Error is not properly computed for the moment
       //It was decided to store the number of saturating cluster in that dataformat
       Error = NClusterSaturating;
@@ -325,6 +327,7 @@ int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cl
       if(MOD){StripCharge = (int)(StripCharge / MOD->Gain);}
       if(StripCharge>=254)SaturatingStrip++;
    }
+
    return SaturatingStrip;
 }
 

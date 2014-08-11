@@ -6,5 +6,5 @@ from RecoTracker.DeDx.dedxHarmonic2_cfi import *
 from RecoTracker.DeDx.dedxUnbinned_cfi import *
 from RecoTracker.DeDx.dedxDiscriminators_cff import *
 
-doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxDiscrimASmi)
+doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxDiscrimASmi + dedxDiscrimProdNew)
 

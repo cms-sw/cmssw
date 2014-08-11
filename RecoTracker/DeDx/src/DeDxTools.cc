@@ -116,20 +116,6 @@ using namespace reco;
   }
 
 
-
-
-double genericAverage(const reco::DeDxHitCollection &hits, float expo )
-{
- double result=0;
- size_t n = hits.size();
- for(size_t i = 0; i< n; i ++)
- {
-    result+=pow(hits[i].charge(),expo); 
- }
- return (n>0)?pow(result/n,1./expo):0.;
-}
-
-
 bool shapeSelection(const std::vector<uint8_t> & ampls)
 {
   // ----------------  COMPTAGE DU NOMBRE DE MAXIMA   --------------------------
@@ -331,6 +317,74 @@ void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeome
 }
 
 
+void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, std::string Reccord, std::string ProbabilityMode, TH3F*& Prob_ChargePath)
+{
+   edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> deDxMapHandle;    
+   if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxMip_3D_Rcd>() .get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxPion_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxPion_3D_Rcd>().get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxKaon_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxKaon_3D_Rcd>().get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxProton_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxProton_3D_Rcd>().get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxElectron_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxElectron_3D_Rcd>().get(deDxMapHandle);
+   }else{
+//      printf("The reccord %s is not known by the DeDxDiscriminatorProducer\n", Reccord.c_str());
+//      printf("Program will exit now\n");
+      exit(0);
+   }
 
+   float xmin = deDxMapHandle->rangeX().min;
+   float xmax = deDxMapHandle->rangeX().max;
+   float ymin = deDxMapHandle->rangeY().min;
+   float ymax = deDxMapHandle->rangeY().max;
+   float zmin = deDxMapHandle->rangeZ().min;
+   float zmax = deDxMapHandle->rangeZ().max;
+
+   if(Prob_ChargePath)delete Prob_ChargePath;
+   Prob_ChargePath  = new TH3F ("Prob_ChargePath"     , "Prob_ChargePath" , deDxMapHandle->numberOfBinsX(), xmin, xmax, deDxMapHandle->numberOfBinsY() , ymin, ymax, deDxMapHandle->numberOfBinsZ(), zmin, zmax);
+
+   if(strcmp(ProbabilityMode.c_str(),"Accumulation")==0){
+      for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+         for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+            float Ni = 0;
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=deDxMapHandle->binContent(i,j,k);} 
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+               float tmp = 0;
+               for(int l=0;l<=k;l++){ tmp+=deDxMapHandle->binContent(i,j,l);}
+      	       if(Ni>0){
+                  Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+  	       }else{
+                  Prob_ChargePath->SetBinContent (i, j, k, 0);
+	       }
+            }
+         }
+      }
+   }else if(strcmp(ProbabilityMode.c_str(),"Integral")==0){
+      for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+         for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+            float Ni = 0;
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=deDxMapHandle->binContent(i,j,k);}
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+               float tmp = deDxMapHandle->binContent(i,j,k);
+               if(Ni>0){
+                  Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+               }else{
+                  Prob_ChargePath->SetBinContent (i, j, k, 0);
+               }
+            }
+         }
+      }   
+   }else{
+//      printf("The ProbabilityMode: %s is unknown\n",ProbabilityMode.c_str());
+//      printf("The program will stop now\n");
+      exit(0);
+   }
+   std::cout<<"DEBUG MAP POINTER = " << Prob_ChargePath << std::endl;
 }
+
+
+}//END of DEDXTOOLS
 

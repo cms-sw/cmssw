@@ -23,11 +23,19 @@
 
 
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/ProductDeDxDiscriminator.h"
+#include "RecoTracker/DeDx/interface/SmirnovDeDxDiscriminator.h"
+#include "RecoTracker/DeDx/interface/ASmirnovDeDxDiscriminator.h"
+#include "RecoTracker/DeDx/interface/BTagLikeDeDxDiscriminator.h"
+
+
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
+
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -48,7 +56,7 @@ private:
 
   int    getCharge(const SiStripCluster*   cluster, int& nSatStrip,   const GeomDetUnit& detUnit);
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
-  void   processHit(const TrackingRecHit * recHit, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
+  void   processHit(const TrackingRecHit * recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
 
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
@@ -64,6 +72,11 @@ private:
 
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
+  float        MinTrackMomentum;
+  float        MaxTrackMomentum;
+  float        MinTrackEta;
+  float        MaxTrackEta;
+  float        MaxTrackChiOverNdf;
 
   std::string                       m_calibrationPath;
   bool                              useCalibration;
