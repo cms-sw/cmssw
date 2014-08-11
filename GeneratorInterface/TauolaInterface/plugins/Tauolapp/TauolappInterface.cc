@@ -249,10 +249,8 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	 }
        }
      }
-     std::cout << "has tau: " << (int)hastaus << std::endl;
      if(hastaus){
        // if is single gauge boson decay and match helicities
-       std::cout << "match: " << match.size() << std::endl;
        if(match.size()==1){ 
 	 for(int i=0; i<ntries;i++){
 	   // re-decay taus then check if helicities match 
@@ -278,11 +276,23 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	 t_event->undecayTaus();
 	 delete t_event;
 	 // decay all taus manually based on the helicity
-	 
+	 for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++) {
+	   if(abs((*iter)->pdg_id())==15 && isLastTauInChain(*iter)){
+	     TlorenztVector ltau((*iter)->momentum().px(),(*iter)->momentum().py(),(*iter)->momentum().pz(),(*iter)->momentum()->e());
+	     HepMC::GenParticle *m=findMother(*iter);
+	     TLorentzVector mother(m->momentum().px(),m->momentum().py(),m->momentum().pz(),m->momentum()->e());
+	     TVector3 boost=mother->BoostVector();
+	     ltau.Boost(-1.0*boost);
+	     HepMC::GenParticle *tauevt=make_simple_tau_event(ltau,ltau.);
+	     HepMC::GenParticle *p=(*(event->particles_begin()));
+	     TauolaParticle *tp = new TauolaHepMCParticle(p,(*iter)->pdg_id(),(*iter)->status());
+	     Tauola::decayOne(tp,true,l.Px()/l.P(),l.Py()/l.P(),l.Pz()/l.P());
+	     update_particles(evttau,evt,tau,boost);
+	     delete tauevt;
+	   }
+	 }
        }
      }
-     //TauolaParticle *tp = new TauolaHepMCParticle(p);
-     //Tauola::decayOne(tp,true,0,0,Polarz);
    }
    else{
      //construct tmp TAUOLA event
@@ -668,3 +678,60 @@ int TauolappInterface::selectHadronic()
 
 }
 
+HepMC::GenEvent* TauolappInterface::make_simple_tau_event(const TlorentzVector &l,const int &pdgid,int &status){
+  HepMC::GenEvent *event = new HepMC::GenEvent();
+  // make tau's four vector
+  HepMC::FourVector momentum_tau1(l.Px(),l.Py(),l.Pz(),l.E());
+  // make particles
+  HepMC::GenParticle *tau1 = new HepMC::GenParticle(momentum_tau1,pdgid,status);
+  // make the vertex
+  HepMC::GenVertex *vertex = new HepMC::GenVertex();
+  vertex->add_particle_out(tau1);
+  event->add_vertex(vertex);
+  return event;
+}
+
+void TauolappInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,TVector3 &boost){
+  if(p->end_vertex()){
+    if(!partHep->end_vertex()){
+      HepMC::GenVertex* vtx = new HepMC::GenVertex(p->end_vertex()->position());
+      theEvent->add_vertex(vtx);
+      vtx->add_particle_in(partHep);
+    }
+    if(p->end_vertex()->particles_out_size()!=0){
+      for(HepMC::GenVertex::particles_out_const_iterator d=p->end_vertex()->particles_out_const_begin(); d!=p->end_vertex()->particles_out_const_end();d++){
+	// Create daughter and add to event
+	TlorentzVector l((*d)->momentum().px(),(*d)->momentum().py(),(*d)->momentum().pz(),(*d)->momentum()->e());
+	l.Boost(boost);
+	HepMC::FourVector momentum(l.Px(),l.Py(),l.Pz(),l.E());
+	HepMC::GenParticle *daughter = new HepMC::GenParticle(momentum,(*d)->pdg_id(),(*d)->status());
+	daughter->suggest_barcode(theEvent->particles_size()+1);
+	partHep->end_vertex()->add_particle_out(daughter);
+	if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d),boost);
+      }
+    }
+  }
+}
+
+bool TauolappInterface::isLastTauInChain(const HepMC::GenParticle* tau){
+  if ( tau->end_vertex() ) {
+    HepMC::GenVertex::particle_iterator dau;
+    for (dau = tau->end_vertex()->particles_begin(HepMC::children); dau!= tau->end_vertex()->particles_end(HepMC::children); dau++ ) {
+      int dau_pid = (*dau)->pdg_id();
+      if(dau_pid == tau->pdg_id()) return false;
+    }
+  }
+  return true;
+}
+
+HepMC::GenParticle* TauolappInterface::GetMothers(const HepMC::GenParticle* tau){
+  std::vector<HepMC::GenParticle*> mothers;
+  if ( tau->production_vertex() ) {
+    HepMC::GenVertex::particle_iterator mother;
+    for (mother = tau->production_vertex()->particles_begin(HepMC::parents); mother!= tau->production_vertex()->particles_end(HepMC::parents); mother++ ) {
+      if((*mother)->pdg_id() == tau->pdg_id()) return GetMothers(*mother); // recursive call to get mother with different pdgid 
+      return (*mother);
+    }
+  }
+  return tau;
+}

@@ -47,6 +47,11 @@ namespace gen {
       void selectDecayByMDTAU();
       int selectLeptonic();
       int selectHadronic();
+
+      HepMC::GenEvent*    make_simple_tau_event(const TlorentzVector &l,const int &pdgid,int &status);
+      void                update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,TVector3 &boost);
+      bool                isLastTauInChain(const HepMC::GenParticle* tau);
+      HepMC::GenParticle* GetMothers(const HepMC::GenParticle* tau);
       
       //
       static CLHEP::HepRandomEngine*           fRandomEngine;            
