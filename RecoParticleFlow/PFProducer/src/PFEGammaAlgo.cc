@@ -1385,7 +1385,7 @@ bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   const reco::PFBlock& block = *blockref;  
   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();  
   //use this to store linkdata in the associatedElements function below  
-  PFBlock::LinkData linkData =  block.linkData();  
+  const PFBlock::LinkData& linkData =  block.linkData();  
   //calculate MVA Variables  
   chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();  
   nlost=elements[track_index].trackRef()->trackerExpectedHitsInner().numberOfLostHits();  
