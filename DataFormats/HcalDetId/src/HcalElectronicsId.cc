@@ -1,6 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
-
 HcalElectronicsId::HcalElectronicsId() {
   hcalElectronicsId_=0xffffffffu;
 }
@@ -21,9 +20,16 @@ HcalElectronicsId::HcalElectronicsId(int slbChan, int slbSite, int spigot, int d
   hcalElectronicsId_|=0x02000000;
 }
 
+HcalElectronicsId::HcalElectronicsId(int crate, int slot, int fiber, int fc, bool isTrigger) {
+  hcalElectronicsId_=(fc&0xF) | (((fiber)&0x1F)<<4) |
+    ((slot&0xF)<<9) | ((crate&0x3F)<<13);
+  if (isTrigger)   hcalElectronicsId_|=0x02000000;
+  hcalElectronicsId_|=0x04000000;
+}
+
 std::string HcalElectronicsId::slbChannelCode() const {
   std::string retval;
-  if (isTriggerChainId()) {
+  if (isTriggerChainId() && isVMEid()) {
     if (htrTopBottom()) { // top
       switch (slbChannelIndex()) {
       case (0): retval="A0"; break;
@@ -44,18 +50,25 @@ std::string HcalElectronicsId::slbChannelCode() const {
 }
 
 void HcalElectronicsId::setHTR(int crate, int slot, int tb) {
+  if (isUTCAid()) return; // cannot do this for uTCA
   hcalElectronicsId_&=0x3FFF; // keep the readout chain info
   hcalElectronicsId_|=((tb&0x1)<<19) | ((slot&0x1f)<<14) | ((crate&0x3f)<<20);
 }
 
 std::ostream& operator<<(std::ostream& os,const HcalElectronicsId& id) {
-  if (id.isTriggerChainId()) {
-    return os << id.dccid() << ',' << id.spigot() << ",SLB" << id.slbSiteNumber() << ',' << id.slbChannelIndex() << " (HTR "
-	      << id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
-    
+  if (id.isUTCAid()) {
+    if (id.isTriggerChainId()) os << "UTCA(trigger): ";
+    else os << "UTCA: ";
+    return os << id.crateId() << ',' << id.slot() << ',' << id.fiberIndex() << ',' << id.fiberChanId();
   } else {
-    return os << id.dccid() << ',' << id.spigot() << ',' << id.fiberIndex() << ',' << id.fiberChanId() << " (HTR "
-	      << id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
+    if (id.isTriggerChainId()) {
+      return os << id.dccid() << ',' << id.spigot() << ",SLB" << id.slbSiteNumber() << ',' << id.slbChannelIndex() << " (HTR "
+		<< id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
+      
+    } else {
+      return os << id.dccid() << ',' << id.spigot() << ',' << id.fiberIndex() << ',' << id.fiberChanId() << " (HTR "
+		<< id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
+    }
   }
 }
 
