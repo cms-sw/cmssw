@@ -7,6 +7,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
+#include "TLorentzVector.h"
+#include "TVector.h"
+
 
 namespace HepMC 
 {
@@ -48,10 +51,10 @@ namespace gen {
       int selectLeptonic();
       int selectHadronic();
 
-      HepMC::GenEvent*    make_simple_tau_event(const TlorentzVector &l,const int &pdgid,int &status);
+      HepMC::GenEvent*    make_simple_tau_event(const TLorentzVector &l,int pdgid,int status);
       void                update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,TVector3 &boost);
       bool                isLastTauInChain(const HepMC::GenParticle* tau);
-      HepMC::GenParticle* GetMothers(const HepMC::GenParticle* tau);
+      HepMC::GenParticle* GetMother(HepMC::GenParticle* tau);
       
       //
       static CLHEP::HepRandomEngine*           fRandomEngine;            
