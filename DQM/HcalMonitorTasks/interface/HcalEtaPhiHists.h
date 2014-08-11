@@ -8,7 +8,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 
@@ -21,7 +20,10 @@ class EtaPhiHists{
   EtaPhiHists(){};
   ~EtaPhiHists(){};
 
-  void setup(DQMStore* &m_dbe,std::string Name, std::string Units="")
+  // dummy 
+  void setup(DQMStore *& m_dbe,std::string Name, std::string Units="") { }
+
+  void setup(DQMStore::IBooker & m_dbe,std::string Name, std::string Units="")
     {
       std::stringstream name;
       name<<Name;
@@ -41,7 +43,7 @@ class EtaPhiHists{
 	}
       
       // Push back depth plots
-      depth.push_back(m_dbe->book2D(("HB HE HF Depth 1 "+name.str()+unitname.str()).c_str(),
+      depth.push_back(m_dbe.book2D(("HB HE HF Depth 1 "+name.str()+unitname.str()).c_str(),
 				    (name.str()+" Depth 1 -- HB HE HF ("+unittitle.str().c_str()+")"),
 				    85,-42.5,42.5,
 				    72,0.5,72.5));
@@ -53,7 +55,7 @@ class EtaPhiHists{
 		       14.5, 15.5,
 		       16.5,17.5,18.5,19.5,20.5,21.5,22.5,23.5,24.5,25.5,26.5,27.5,28.5,29.5,30.5,
 		       31.5,32.5,33.5,34.5,35.5,36.5,37.5,38.5,39.5,40.5,41.5,42.5};
-      depth.push_back(m_dbe->book2D(("HB HE HF Depth 2 "+name.str()+unitname.str()).c_str(),
+      depth.push_back(m_dbe.book2D(("HB HE HF Depth 2 "+name.str()+unitname.str()).c_str(),
 				    (name.str()+" Depth 2 -- HB HE HF ("+unittitle.str().c_str()+")"),
 				    57, xbinsd2, 72, ybins));
       
@@ -61,12 +63,12 @@ class EtaPhiHists{
       float xbins[]={-28.5,-27.5,-26.5,-16.5,-15.5,
 		     15.5,16.5,26.5,27.5,28.5};
       
-      depth.push_back(m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+      depth.push_back(m_dbe.book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
 				    (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
 				    // Use variable-sized eta bins 
 				    9, xbins, 72, ybins));
       // HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
-      depth.push_back(m_dbe->book2D(("HO Depth 4 "+name.str()+unitname.str()).c_str(),
+      depth.push_back(m_dbe.book2D(("HO Depth 4 "+name.str()+unitname.str()).c_str(),
 				    (name.str()+" Depth 4 -- HO ("+unittitle.str().c_str()+")"),
 				    31,-15.5,15.5,
 				    72,0.5,72.5));
