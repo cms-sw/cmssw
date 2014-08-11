@@ -34,8 +34,6 @@
 
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
-#include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
-
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"

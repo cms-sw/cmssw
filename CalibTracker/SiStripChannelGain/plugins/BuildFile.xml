@@ -13,6 +13,7 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="RecoTracker/DeDx"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>
