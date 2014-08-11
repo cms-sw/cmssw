@@ -39,7 +39,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
       }
     }
     ~PFRecoTauDiscriminationByInvMass(){}
-    double discriminate(const reco::PFTauRef&) override;
+    double discriminate(const reco::PFTauRef&) const override;
 
   private:
     typedef std::pair<unsigned int, unsigned int> IntPair;
@@ -52,7 +52,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
 };
 
 double
-PFRecoTauDiscriminationByInvMass::discriminate(const reco::PFTauRef& tau) {
+PFRecoTauDiscriminationByInvMass::discriminate(const reco::PFTauRef& tau) const {
   double mass = tau->mass();
   if (cut_) {
     unsigned int charged = tau->signalPFChargedHadrCands().size();

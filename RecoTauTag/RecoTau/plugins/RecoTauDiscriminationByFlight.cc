@@ -16,7 +16,7 @@ class PFRecoTauDiscriminationByFlight : public PFTauDiscriminationProducerBase {
     PFRecoTauDiscriminationByFlight(const edm::ParameterSet& pset);
     virtual ~PFRecoTauDiscriminationByFlight(){}
     void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override;
-    double discriminate(const reco::PFTauRef&) override;
+    double discriminate(const reco::PFTauRef&) const override;
   private:
     edm::InputTag vertexSource_;
     edm::InputTag bsSource_;
@@ -51,7 +51,7 @@ void PFRecoTauDiscriminationByFlight::beginEvent(
 }
 
 double PFRecoTauDiscriminationByFlight::discriminate(
-    const reco::PFTauRef& tau) {
+    const reco::PFTauRef& tau) const {
 
   KalmanVertexFitter kvf(true);
   const std::vector<reco::PFCandidatePtr>& signalTracks =

@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFCTRecHitProducer_h_
-#define RecoParticleFlow_PFClusterProducer_PFCTRecHitProducer_h_
+#ifndef RecoParticleFlow_PFClusterProducer_PFClusterTimeSelector_h_
+#define RecoParticleFlow_PFClusterProducer_PFClusterTimeSelector_h_
 
 // system include files
 #include <memory>
@@ -15,10 +15,10 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-class PFClusterSelector : public edm::stream::EDProducer<> {
+class PFClusterTimeSelector : public edm::stream::EDProducer<> {
  public:
-  explicit PFClusterSelector(const edm::ParameterSet&);
-  ~PFClusterSelector();
+  explicit PFClusterTimeSelector(const edm::ParameterSet&);
+  ~PFClusterTimeSelector();
 
   virtual void beginRun(const edm::Run& run, const edm::EventSetup & es);
   
@@ -26,19 +26,25 @@ class PFClusterSelector : public edm::stream::EDProducer<> {
 	       const edm::EventSetup& iSetup);
 
 
-
  protected:
+
+  struct CutInfo {
+    double depth;
+    double minE;
+    double maxE;
+    double minTime;
+    double maxTime;
+    bool endcap;
+
+  };
+
   // ----------access to event data
   edm::EDGetTokenT<reco::PFClusterCollection> clusters_;
-  std::vector<double> energyRanges_;
-  std::vector<double> timingCutsLowBarrel_;
-  std::vector<double> timingCutsHighBarrel_;
-  std::vector<double> timingCutsLowEndcap_;
-  std::vector<double> timingCutsHighEndcap_;
+  std::vector<CutInfo> cutInfo_;
 
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(PFClusterSelector);
+DEFINE_FWK_MODULE(PFClusterTimeSelector);
 
 #endif

@@ -60,9 +60,9 @@ namespace
     es.get<GBRWrapperRcd>().get(mvaName, mva);
     return mva.product();
   }
-}
 
-class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducerBase  
+
+class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationProducerBase  
 {
  public:
   explicit PFRecoTauDiscriminationAgainstMuonMVA(const edm::ParameterSet& cfg)
@@ -90,7 +90,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
 
   void endEvent(edm::Event&);
 
@@ -121,7 +121,6 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   edm::Handle<TauCollection> taus_;
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  size_t tauIndex_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -142,7 +141,6 @@ void PFRecoTauDiscriminationAgainstMuonMVA::beginEvent(const edm::Event& evt, co
 
   evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
 }
 
 namespace
@@ -167,7 +165,7 @@ namespace
   }
 }
 
-double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
+double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) const
 {
   if ( verbosity_ ) {
     edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
@@ -177,7 +175,6 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
   double category = 0.; 
   category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
 
   // CV: computation of anti-muon MVA value requires presence of leading charged hadron
   if ( tau->leadPFChargedHadrCand().isNull() ) return 0.;
@@ -241,6 +238,8 @@ void PFRecoTauDiscriminationAgainstMuonMVA::endEvent(edm::Event& evt)
 {
   // add all category indices to event
   evt.put(category_output_, "category");
+}
+
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuonMVA);

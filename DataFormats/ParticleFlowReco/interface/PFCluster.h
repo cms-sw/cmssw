@@ -80,8 +80,11 @@ namespace reco {
 
     /// cluster time
     double        time() const {return time_;}
+    /// cluster depth
+    double        depth() const {return depth_;}
 
     void         setTime(double time) {time_ = time;}
+    void         setDepth(double depth) {depth_ = depth;}
     
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
@@ -169,8 +172,9 @@ namespace reco {
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
 
-    ///Michalis :Add timing information
+    ///Michalis :Add timing and depth information
     double time_;
+    double depth_;
 
     /// transient layer
     PFLayer::Layer layer_; 
