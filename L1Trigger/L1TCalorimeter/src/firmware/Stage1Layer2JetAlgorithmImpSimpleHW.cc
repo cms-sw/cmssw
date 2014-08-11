@@ -36,10 +36,11 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
   simpleHWSubtraction(regions, subRegions);
-  passThroughJets(subRegions, preGtJets);
-  //slidingWindowJetFinder(0, subRegions, preGtJets);
+  //passThroughJets(subRegions, preGtJets);
+  slidingWindowJetFinder(0, subRegions, preGtJets);
 
   //passThroughJets(&regions,preGtJets);
+  //slidingWindowJetFinder(0, &regions, preGtJets);
 
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that
@@ -51,7 +52,13 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   // std::reverse(preGtJets->begin(), preGtJets->end());
   // sortedJets = preGtJets;
 
+  // for(unsigned i = 0; i < preGtJets->size(); ++i)
+  //   cout << preGtJets->at(i).hwPt() << "\t" << preGtJets->at(i).hwEta() << "\t" << preGtJets->at(i).hwPhi() << endl;
+
   SortJets(preGtJets, sortedJets);
+
+  // for(unsigned i = 0; i < sortedJets->size(); ++i)
+  //   cout << sortedJets->at(i).hwPt() << "\t" << sortedJets->at(i).hwEta() << "\t" << sortedJets->at(i).hwPhi() << endl;
 
   // drop the 4 LSB before passing to GT
   // for(std::vector<l1t::Jet>::const_iterator itJet = sortedJets->begin();
