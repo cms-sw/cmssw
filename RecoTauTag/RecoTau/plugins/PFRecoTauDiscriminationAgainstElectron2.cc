@@ -66,7 +66,7 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
   
   ~PFRecoTauDiscriminationAgainstElectron2()
   {  }
@@ -154,7 +154,7 @@ void PFRecoTauDiscriminationAgainstElectron2::beginEvent(const edm::Event& evt, 
 
 }
 
-double PFRecoTauDiscriminationAgainstElectron2::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstElectron2::discriminate(const PFTauRef& thePFTauRef) const
 {
   double discriminator = 0.;
   

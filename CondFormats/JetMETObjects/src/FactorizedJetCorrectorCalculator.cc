@@ -264,8 +264,8 @@ std::string FactorizedJetCorrectorCalculator::removeSpaces(const std::string& ss
 //------------------------------------------------------------------------
 float FactorizedJetCorrectorCalculator::getCorrection(FactorizedJetCorrectorCalculator::VariableValues& iValues) const
 {
-  std::vector<float> vv = getSubCorrections(iValues);
-  return vv[vv.size()-1];
+  std::vector<float> && vv = getSubCorrections(iValues);
+  return vv.back();
 }
 //------------------------------------------------------------------------
 //--- Returns the vector of subcorrections, up to a given level ----------

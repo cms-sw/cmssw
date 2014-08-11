@@ -36,10 +36,17 @@ class PFRecHitCreatorBase {
   }
 
 
-
   virtual void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&,std::auto_ptr<reco::PFRecHitCollection>& ,const edm::Event&,const edm::EventSetup&)=0;
 
  protected:
+
+  void beginEvent(const edm::Event& event,const edm::EventSetup& setup) {
+    for (unsigned int i=0;i<qualityTests_.size();++i)
+	qualityTests_[i]->beginEvent(event,setup);
+  }
+
+
+
   std::vector<std::unique_ptr<PFRecHitQTestBase> > qualityTests_;
 
 };
