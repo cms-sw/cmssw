@@ -66,6 +66,7 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   
   /// threshold for HF
   double           thresh_HF_;
+
   // Navigation in HF:  False = no real clustering in HF; True  = do clustering 
   bool   navigation_HF_;
   double weight_HFem_;
