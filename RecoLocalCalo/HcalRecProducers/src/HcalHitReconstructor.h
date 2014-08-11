@@ -1,7 +1,7 @@
 #ifndef HCALHITRECONSTRUCTOR_H 
 #define HCALHITRECONSTRUCTOR_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -39,7 +39,7 @@
 
 class HcalTopology;
 
-    class HcalHitReconstructor : public edm::EDProducer {
+    class HcalHitReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalHitReconstructor();

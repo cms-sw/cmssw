@@ -6,6 +6,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigatorWithTime.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFECALHashNavigator.h"
 
+
 class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EBDetId,EcalBarrelTopology> {
  public:
   PFRecHitEcalBarrelNavigatorWithTime(const edm::ParameterSet& iConfig):
@@ -91,6 +92,22 @@ class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopolog
       topology_.reset(hcalTopology.product());
   }
 };
+class PFRecHitHCALNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<HcalDetId,HcalTopology,false> {
+ public:
+  PFRecHitHCALNavigatorWithTime(const edm::ParameterSet& iConfig):
+    PFRecHitCaloNavigatorWithTime(iConfig)
+  {
+    
+  }
+
+
+  void beginEvent(const edm::EventSetup& iSetup) {    
+      edm::ESHandle<HcalTopology> hcalTopology;
+      iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+      topology_.release();
+      topology_.reset(hcalTopology.product());
+  }
+};
 
 
 class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,CaloTowerTopology> {
@@ -128,3 +145,5 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigatorWithTime, "PFR
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecHitCaloTowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigator, "PFRecHitHCALNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigatorWithTime, "PFRecHitHCALNavigatorWithTime");
+

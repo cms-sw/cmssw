@@ -25,7 +25,9 @@
 #include <string>
 #include <iostream>
 
-class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBase 
+namespace {
+
+class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProducerBase
 {
   enum { kLoose, kMedium, kTight, kCustom };
  public:
@@ -66,7 +68,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const reco::PFTauRef&) override;
+  double discriminate(const reco::PFTauRef&) const override;
 
  private:  
   std::string moduleLabel_;
@@ -149,7 +151,7 @@ namespace
   }
 }
 
-double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau)
+double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau) const
 {
   if ( verbosity_ ) {
     edm::LogPrint("PFTauAgainstMuon2") << "<PFRecoTauDiscriminationAgainstMuon2::discriminate>:" ;
@@ -275,5 +277,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 
   return discriminatorValue;
 } 
+
+}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon2);

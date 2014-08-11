@@ -1,12 +1,12 @@
-#ifndef RecoParticleFlow_PFClusterProducer_ECALRecHitResolutionProvider_h
-#define RecoParticleFlow_PFClusterProducer_ECALRecHitResolutionProvider_h
+#ifndef RecoParticleFlow_PFClusterProducer_CaloRecHitResolutionProvider_h
+#define RecoParticleFlow_PFClusterProducer_CaloRecHitResolutionProvider_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class ECALRecHitResolutionProvider{
+class CaloRecHitResolutionProvider{
  public:
-  ECALRecHitResolutionProvider(const edm::ParameterSet& iConfig) {
+  CaloRecHitResolutionProvider(const edm::ParameterSet& iConfig) {
     noiseTerm_ = iConfig.getParameter<double>("noiseTerm"); 
     constantTerm2_ = std::pow(iConfig.getParameter<double>("constantTerm"), 2); 
     noiseTermLowE_ = iConfig.getParameter<double>("noiseTermLowE"); 
