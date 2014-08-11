@@ -202,70 +202,118 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
       selectDecayByMDTAU();
    }
    
-   bool dolhe=true;
-   if(dolhe){
-     if(lhe!=NULL){
-     std::vector<HepMC::GenParticle*> particles;
+   bool dolhe=false;
+   int ntries=10;
+   std::cout << "running Tauola..." << std::endl;
+   if(dolhe && lhe!=NULL){
+     std::vector<HepMC::GenParticle> particles;
      std::vector<double> TauSPINUP;
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
      std::vector<int> pdg =lhe->getHEPEUP()->IDUP;
      for(unsigned int i=0;i<spinup.size();i++){
        if(abs(pdg.at(i))==15){
-	 particles.push_back(new HepMC::GenParticle(HepMC::FourVector(lhe->getHEPEUP()->PUP.at(i)[0],lhe->getHEPEUP()->PUP.at(i)[1],lhe->getHEPEUP()->PUP.at(i)[2],lhe->getHEPEUP()->PUP.at(i)[3]),lhe->getHEPEUP()->IDUP.at(i)));
+	 particles.push_back(HepMC::GenParticle(HepMC::FourVector(lhe->getHEPEUP()->PUP.at(i)[0],lhe->getHEPEUP()->PUP.at(i)[1],lhe->getHEPEUP()->PUP.at(i)[2],lhe->getHEPEUP()->PUP.at(i)[3]),lhe->getHEPEUP()->IDUP.at(i)));
 	 int status = lhe->getHEPEUP()->ISTUP.at(i);
-	 particles.at(particles.size()-1)->set_generated_mass(lhe->getHEPEUP()->PUP.at(i)[4]);
-	 particles.at(particles.size()-1)->set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
+	 particles.at(particles.size()-1).set_generated_mass(lhe->getHEPEUP()->PUP.at(i)[4]);
+	 particles.at(particles.size()-1).set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
 	 TauSPINUP.push_back(spinup.at(i));
-	 particles.at(particles.size()-1)->print();
-	 std::cout << "Spinup: " << TauSPINUP.at(TauSPINUP.size()-1) << " " << pdg.at(i) << std::endl;
        }
      }
+     // match to taus in hepmc and identify mother of taus  
+     bool hastaus(false);
+     std::vector<HepMC::GenParticle*> match;
+     for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++) {
+       if(abs((*iter)->pdg_id())==15){
+	 hastaus=true;
+	 int mother_pid(0);
+	 // check imediate parent to avoid parent tau ie tau->taugamma
+	 for(HepMC::GenVertex::particle_iterator mother=(*iter)->production_vertex()->particles_begin(HepMC::parents); mother!=(*iter)->production_vertex()->particles_end(HepMC::parents); mother++) {
+	   mother_pid = (*mother)->pdg_id();
+	   if(mother_pid!=(*iter)->pdg_id()){
+	     // match against lhe record
+	     if(abs(mother_pid) == 24 || // W
+		abs(mother_pid) == 37 || // H+/-
+		abs(mother_pid) == 23 || // Z
+		abs(mother_pid) == 22 || // gamma
+		abs(mother_pid) == 25 || // H0 SM
+		abs(mother_pid) == 35 || // H0
+		abs(mother_pid) == 36    // A0
+		){
+	       bool isfound=false;
+	       for(unsigned int k=0;k<match.size();k++){
+		 if((*mother)==match.at(k))isfound=true;
+	       }
+	       if(!isfound) match.push_back(*mother);
+	     }
+	   }
+	 }
+       }
+     }
+     std::cout << "has tau: " << (int)hastaus << std::endl;
+     if(hastaus){
+       // if is single gauge boson decay and match helicities
+       std::cout << "match: " << match.size() << std::endl;
+       if(match.size()==1){ 
+	 for(int i=0; i<ntries;i++){
+	   // re-decay taus then check if helicities match 
+	   auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
+	   t_event->undecayTaus();
+	   t_event->decayTaus();
+	   bool ismatch=true;
+	   for(unsigned int j=0;j<spinup.size();j++){
+	     if(abs(pdg.at(j))==15){
+	       double diffhelminus=(-1.0*(double)Tauolapp::Tauola::getHelMinus()-spinup.at(j)); // -1.0 to correct for tauola feature 
+	       double diffhelplus=((double)Tauolapp::Tauola::getHelPlus()-spinup.at(j));
+	       if(pdg.at(j)==15  && diffhelminus>0.5) ismatch=false;
+	       if(pdg.at(j)==-15 && diffhelplus>0.5)  ismatch=false;
+	     }
+	   }
+	   delete t_event;
+	   if(ismatch) break;
+	 }
+       }
+       else{
+	 // remove all tau decays
+	 auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
+	 t_event->undecayTaus();
+	 delete t_event;
+	 // decay all taus manually based on the helicity
+	 
+       }
      }
      //TauolaParticle *tp = new TauolaHepMCParticle(p);
      //Tauola::decayOne(tp,true,0,0,Polarz);
-
    }
-   //else{
+   else{
      //construct tmp TAUOLA event
      auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
-     // another option: if one lets Pythia or another master gen to decay taus, 
-     //                 we have to undecay them first
-     // t_event->undecayTaus();
-     
-     // run Tauola on the tmp event - HepMC::GenEvernt will be MODIFIED !!!
-     //
+     t_event->undecayTaus();
      t_event->decayTaus();
      delete t_event; 
-     // do we also need to apply the lifetime and vtx position shift ??? 
-     // (see TauolappInterface, for example)
+   }
+   for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ ){
+     HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
      //
-     // NOTE: the procedure ASSYMES that vertex barcoding is COUNTIUOUS/SEQUENTIAL,
-     // and that the abs(barcode) corresponds to vertex "plain indexing"
+     // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
+     // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
+     // thus we have to take a 2-step procedure
      //
-     for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ ){
-       HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
-       //
-       // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
-       // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
-       // thus we have to take a 2-step procedure
-       //
-       std::vector<int> BCodes;
-       BCodes.clear();
-       for (HepMC::GenVertex::particle_iterator pitr= GenVtx->particles_begin(HepMC::children);
-	    pitr != GenVtx->particles_end(HepMC::children); ++pitr){
-	 if ( (*pitr)->barcode() > 10000 ){
-	   BCodes.push_back( (*pitr)->barcode() );
-	 }
+     std::vector<int> BCodes;
+     BCodes.clear();
+     for (HepMC::GenVertex::particle_iterator pitr= GenVtx->particles_begin(HepMC::children);
+	  pitr != GenVtx->particles_end(HepMC::children); ++pitr){
+       if ( (*pitr)->barcode() > 10000 ){
+	 BCodes.push_back( (*pitr)->barcode() );
        }
-       if ( BCodes.size() > 0 ){
-	 for ( size_t ibc=0; ibc<BCodes.size(); ibc++ ){
-	   HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
-	   int nbc = p1->barcode() - 10000 + NPartBefore;
-	   p1->suggest_barcode( nbc );
-	 }
-       }             
      }
-     //}
+     if ( BCodes.size() > 0 ){
+       for ( size_t ibc=0; ibc<BCodes.size(); ibc++ ){
+	 HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
+	 int nbc = p1->barcode() - 10000 + NPartBefore;
+	 p1->suggest_barcode( nbc );
+       }
+     }             
+   }
    return evt;
 }
 
@@ -619,5 +667,4 @@ int TauolappInterface::selectHadronic()
    return 0;
 
 }
-
 
