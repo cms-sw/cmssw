@@ -201,8 +201,8 @@ void ElectronDqmAnalyzerBase::remove_other_dirs()
 MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
  ( const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title )
- { return bookH1andDivide(name,get(num),get(denom),titleX,titleY,title) ;  }
+   const std::string & title, const std::string & setEfficiencyFlag )
+ { return bookH1andDivide(name,get(num),get(denom),titleX,titleY,title,setEfficiencyFlag) ;  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
  ( const std::string & name, const std::string & num, const std::string & denom,
@@ -299,7 +299,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookP1
 MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
  ( const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title )
+   const std::string & title,const std::string & setEfficiencyFlag )
  {
   if ((!num)||(!denom)) return 0 ;
   std::string name2 = newName(name) ;
@@ -311,6 +311,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = store_->book1D(name2,h_temp) ;
+  if (setEfficiencyFlag == "true") { me->setEfficiencyFlag(); }
   delete h_temp ;
   return me ;
  }
