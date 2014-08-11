@@ -21,7 +21,8 @@ public:
 
   enum HGCNumberingParameters { HGCCellSize };
 
-  HGCNumberingScheme(const DDCompactView & cpv, std::string& name, bool check);
+  HGCNumberingScheme(const DDCompactView & cpv, std::string& name, bool check,
+		     int verbose);
 
   virtual ~HGCNumberingScheme();
 
@@ -50,6 +51,7 @@ private:
   HGCNumberingScheme();
 
   bool                   check_;
+  int                    verbosity;
   HGCalDDDConstants     *hgcons;
 };
 

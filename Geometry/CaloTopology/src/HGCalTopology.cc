@@ -39,7 +39,7 @@ DetId HGCalTopology::denseId2detId(uint32_t hi) const {
     id_.zside  = ((int)(hi)<kHGhalf_ ? -1 : 1);
     int di     = ((int)(hi)%kHGhalf_);
     int iSubSec= (di%subSectors_);
-    id_.iSubSec= (iSubSec = 0 ? -1 : 1);
+    id_.iSubSec= (iSubSec == 0 ? -1 : 1);
     id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_+1);
     id_.iLay   = (((((di-iSubSec)/subSectors_)-id_.iSec+1)/sectors_)%layers_+1);
     id_.iCell  = (((((di-iSubSec)/subSectors_)-id_.iSec+1)/sectors_-id_.iLay+1)/layers_+1);
@@ -96,7 +96,7 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
     id_.zside  = ((int)(hi)<kHGeomHalf_ ? -1 : 1);
     int di     = ((int)(hi)%kHGeomHalf_);
     int iSubSec= (di%subSectors_);
-    id_.iSubSec= (iSubSec = 0 ? -1 : 1);
+    id_.iSubSec= (iSubSec == 0 ? -1 : 1);
     id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_+1);
     id_.iLay   = (((((di-iSubSec)/subSectors_)-id_.iSec+1)/sectors_)%layers_+1);
   }

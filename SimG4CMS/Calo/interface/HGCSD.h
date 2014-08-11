@@ -44,7 +44,7 @@ private:
   int                           setTrackID(G4Step * step);
 
   HGCNumberingScheme*           numberingScheme;
-  G4int                         mumPDG, mupPDG; 
+  G4int                         verbosity, mumPDG, mupPDG; 
   double                        eminHit;
   ForwardSubdetector            myFwdSubdet_;
 };

@@ -79,6 +79,10 @@ private :
 
   //subdetector id
   ForwardSubdetector mySubDet_;
+
+  //misc switches
+  bool useAllChannels_;
+  int  verbosity_;
 };
 
 #endif

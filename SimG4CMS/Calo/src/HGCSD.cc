@@ -39,6 +39,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*MeV;
   bool checkID     = m_HGC.getUntrackedParameter<bool>("CheckID", false);
+  verbosity        = m_HGC.getUntrackedParameter<int>("Verbosity",0);
 
   //this is defined in the hgcsens.xml
   G4String myName(this->nameOfSD());
@@ -67,7 +68,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 #endif
   edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit;
 
-  numberingScheme = new HGCNumberingScheme(cpv,nameX,checkID);
+  numberingScheme = new HGCNumberingScheme(cpv,nameX,checkID,verbosity);
 }
 
 HGCSD::~HGCSD() { 
@@ -122,7 +123,9 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 
   int layer  = touch->GetReplicaNumber(0);
   int module = touch->GetReplicaNumber(1);
-
+  if (verbosity > 0) 
+    std::cout << "HGCSD::Global " << hitPoint << " local " << localpos 
+	      << std::endl;
   return setDetUnitId (subdet, layer, module, iz, localpos);
 }
 
