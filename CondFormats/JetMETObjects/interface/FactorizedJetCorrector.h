@@ -39,6 +39,7 @@ class FactorizedJetCorrector
     void setLepPy       (float fLepPy);
     void setLepPz       (float fLepPz);
     void setAddLepToJet (bool fAddLepToJet);
+
     float getCorrection();
     std::vector<float> getSubCorrections();
     

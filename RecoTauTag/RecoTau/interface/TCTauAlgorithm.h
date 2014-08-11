@@ -44,7 +44,7 @@
 
 class TCTauAlgorithm {
     public:
-        enum  {TCAlgoUndetermined,
+        enum  TCAlgo {TCAlgoUndetermined,
 	       TCAlgoMomentum,
 	       TCAlgoTrackProblem,
 	       TCAlgoMomentumECAL,
@@ -56,16 +56,19 @@ class TCTauAlgorithm {
 	TCTauAlgorithm(const edm::ParameterSet&, edm::ConsumesCollector&&);
         ~TCTauAlgorithm();
 
-	math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau&);
-	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const reco::TrackRef&,const reco::TrackRefVector&);
+	math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau&, TCAlgo&) const ;
+        math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau& tau) const {
+             TCAlgo dummy = TCAlgoUndetermined;
+             return recalculateEnergy(tau,dummy);
+        }
+	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const reco::TrackRef&,const reco::TrackRefVector&, TCAlgo&) const;
 
 	void inputConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iC);
 	void eventSetup(const edm::Event&,const edm::EventSetup&);
 
-	double efficiency();
-	int    allTauCandidates();
-	int    statistics();
-	int    algoComponent();
+	double efficiency() const;
+	int    allTauCandidates() const;
+	int    statistics() const;
 
     private:
 
@@ -77,16 +80,15 @@ class TCTauAlgorithm {
 
         void init();
 
-	math::XYZVector                 trackEcalHitPoint(const reco::TransientTrack&,const reco::CaloJet&);
-	math::XYZVector		  trackEcalHitPoint(const reco::Track&);
-	std::pair<math::XYZVector,math::XYZVector> getClusterEnergy(const reco::CaloJet&,math::XYZVector&,double);
-	math::XYZVector                 getCellMomentum(const CaloCellGeometry*,double&);
+	math::XYZVector           trackEcalHitPoint(const reco::TransientTrack&,const reco::CaloJet&) const;
+	math::XYZVector		  trackEcalHitPoint(const reco::Track&) const;
+	std::pair<math::XYZVector,math::XYZVector> getClusterEnergy(const reco::CaloJet&,math::XYZVector&,double) const;
+	math::XYZVector                 getCellMomentum(const CaloCellGeometry*,double&) const;
 
 
-        int all,
-            passed;
+      
+        mutable std::atomic<int> all, passed;
 
-	int algoComponentUsed;
 
 	int prongs;
 

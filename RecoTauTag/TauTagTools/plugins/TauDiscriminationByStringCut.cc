@@ -7,6 +7,7 @@
  * author : Christian Veelken (veelken@fnal.gov ; UC Davis)
  */
 
+namespace {
 template<class TauType, class TauDiscriminator>
 class TauDiscriminationByStringCut :
     public TauDiscriminationProducerBase<TauType, TauDiscriminator> {
@@ -25,7 +26,7 @@ class TauDiscriminationByStringCut :
       typedef std::vector<TauType> TauCollection;
       typedef edm::Ref<TauCollection> TauRef;
 
-      double discriminate(const TauRef& tau) {
+      double discriminate(const TauRef& tau) const {
         // StringCutObjectSelector::operator() returns true if tau passes cut
         return ( (*cut_)(*tau) ) ? cutPassValue_ : cutFailValue_;
       }
@@ -35,6 +36,7 @@ class TauDiscriminationByStringCut :
       double cutFailValue_;
       double cutPassValue_;
 };
+}
 
 typedef TauDiscriminationByStringCut<reco::PFTau, reco::PFTauDiscriminator>
   PFRecoTauDiscriminationByStringCut;

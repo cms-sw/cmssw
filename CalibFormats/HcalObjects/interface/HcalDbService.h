@@ -89,8 +89,8 @@ class HcalDbService {
   const HcalPFCorrs* mPFCorrs;
   const HcalLutMetadata* mLutMetadata;
   //  bool mPedestalInADC;
-  mutable std::atomic<HcalCalibrationsSet*> mCalibSet;
-  mutable std::atomic<HcalCalibrationWidthsSet*> mCalibWidthSet;
+  mutable std::atomic<HcalCalibrationsSet const *> mCalibSet;
+  mutable std::atomic<HcalCalibrationWidthsSet const *> mCalibWidthSet;
 };
 
 #endif
