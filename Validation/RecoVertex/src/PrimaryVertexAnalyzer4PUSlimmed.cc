@@ -136,6 +136,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   mes_["root_folder"]["GenAllV_PairDistanceZ"] =
       i.book1D("GenAllV_PairDistanceZ", "GeneratedAllV_PairDistanceZ",
                1000, 0, 20);
+  mes_["root_folder"]["SignalIsHighestPt2"] =
+        i.book1D("SignalIsHighestPt2", "SignalIsHighestPt2", 2, -0.5, 1.5);
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
@@ -164,9 +166,63 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["MisTagRate_vs_NumTracks"] =
         i.bookProfile("MisTagRate_vs_NumTracks", "MisTagRate_vs_NumTracks",
                       200, 0., 200, 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsHighest"] =
+        i.book1D("MisTagRateSignalIsHighest",
+                 "MisTagRateSignalIsHighest", 2, -0.5, 1.5);
+    mes_[label]["MisTagRateSignalIsHighest_vs_PU"] =
+        i.bookProfile("MisTagRateSignalIsHighest_vs_PU",
+                      "MisTagRateSignalIsHighest_vs_PU", 250, 0., 250.,
+                      2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsHighest_vs_sum-pt2"] =
+        i.bookProfile("MisTagRateSignalIsHighest_vs_sum-pt2",
+                      "MisTagRateSignalIsHighest_vs_sum-pt2",
+                      55, &log_pt2_bins_double[0], 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsHighest_vs_Z"] =
+        i.bookProfile("MisTagRateSignalIsHighest_vs_Z",
+                      "MisTagRateSignalIsHighest_vs_Z",
+                      120, -60., 60., 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsHighest_vs_R"] =
+        i.bookProfile("MisTagRateSignalIsHighest_vs_R",
+                      "MisTagRateSignalIsHighest_vs_R",
+                      120, 0., 0.6, 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsHighest_vs_NumTracks"] =
+        i.bookProfile("MisTagRateSignalIsHighest_vs_NumTracks",
+                      "MisTagRateSignalIsHighest_vs_NumTracks",
+                      200, 0., 200, 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsNotHighest"] =
+        i.book1D("MisTagRateSignalIsNotHighest",
+                 "MisTagRateSignalIsNotHighest", 2, -0.5, 1.5);
+    mes_[label]["MisTagRateSignalIsNotHighest_vs_PU"] =
+        i.bookProfile("MisTagRateSignalIsNotHighest_vs_PU",
+                      "MisTagRateSignalIsNotHighest_vs_PU", 250, 0., 250.,
+                      2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsNotHighest_vs_sum-pt2"] =
+        i.bookProfile("MisTagRateSignalIsNotHighest_vs_sum-pt2",
+                      "MisTagRateSignalIsNotHighest_vs_sum-pt2",
+                      55, &log_pt2_bins_double[0], 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsNotHighest_vs_Z"] =
+        i.bookProfile("MisTagRateSignalIsNotHighest_vs_Z",
+                      "MisTagRateSignalIsNotHighest_vs_Z",
+                      120, -60., 60., 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsNotHighest_vs_R"] =
+        i.bookProfile("MisTagRateSignalIsNotHighest_vs_R",
+                      "MisTagRateSignalIsNotHighest_vs_R",
+                      120, 0., 0.6, 2, 0., 1.);
+    mes_[label]["MisTagRateSignalIsNotHighest_vs_NumTracks"] =
+        i.bookProfile("MisTagRateSignalIsNotHighest_vs_NumTracks",
+                      "MisTagRateSignalIsNotHighest_vs_NumTracks",
+                      200, 0., 200, 2, 0., 1.);
     mes_[label]["TruePVLocationIndex"] =
         i.book1D("TruePVLocationIndex",
                  "TruePVLocationIndexInRecoVertexCollection", 12, -1.5, 10.5);
+    mes_[label]["TruePVLocationIndexSignalIsHighest"] =
+        i.book1D("TruePVLocationIndexSignalIsHighest",
+                 "TruePVLocationIndexSignalIsHighestInRecoVertexCollection",
+                 12, -1.5, 10.5);
+    mes_[label]["TruePVLocationIndexSignalIsNotHighest"] =
+        i.book1D("TruePVLocationIndexSignalIsNotHighest",
+                 "TruePVLocationIndexSignalIsNotHighestInRecoVertexCollection",
+                 12, -1.5, 10.5);
     // All Generated Vertices. Used for Efficiency plots We kind of
     // duplicate plots here in case we want to perform more detailed
     // studies on a selection of generated vertices, not on all of them.
@@ -941,6 +997,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   // probably be subtracted?
   int num_pileup_vertices = simpv.size();
   mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
+  bool signal_is_highest_pt = std::max_element(simpv.begin(), simpv.end(),
+                                               [](const simPrimaryVertex& lhs,
+                                                  const simPrimaryVertex& rhs) {
+                                                 return lhs.ptsq < rhs.ptsq;
+                                               }) == simpv.begin();
+  mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
+      signal_is_highest_pt ? 1. : 0.);
   computePairDistance(simpv,
                       mes_["root_folder"]["GenAllV_PairDistanceZ"]);
 
@@ -984,6 +1047,27 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         mes_[label]["MisTagRate_vs_Z"]->Fill(v.z, mistag);
         mes_[label]["MisTagRate_vs_R"]->Fill(v.r, mistag);
         mes_[label]["MisTagRate_vs_NumTracks"]->Fill(v.nGenTrk, mistag);
+        if (signal_is_highest_pt) {
+          mes_[label]["MisTagRateSignalIsHighest"]->Fill(mistag);
+          mes_[label]["MisTagRateSignalIsHighest_vs_PU"]->Fill(simpv.size(),
+                                                               mistag);
+          mes_[label]["MisTagRateSignalIsHighest_vs_sum-pt2"]->Fill(v.ptsq,
+                                                                    mistag);
+          mes_[label]["MisTagRateSignalIsHighest_vs_Z"]->Fill(v.z, mistag);
+          mes_[label]["MisTagRateSignalIsHighest_vs_R"]->Fill(v.r, mistag);
+          mes_[label]["MisTagRateSignalIsHighest_vs_NumTracks"]->Fill(v.nGenTrk,
+                                                                      mistag);
+        } else {
+          mes_[label]["MisTagRateSignalIsNotHighest"]->Fill(mistag);
+          mes_[label]["MisTagRateSignalIsNotHighest_vs_PU"]->Fill(simpv.size(),
+                                                                  mistag);
+          mes_[label]["MisTagRateSignalIsNotHighest_vs_sum-pt2"]->Fill(v.ptsq,
+                                                                       mistag);
+          mes_[label]["MisTagRateSignalIsNotHighest_vs_Z"]->Fill(v.z, mistag);
+          mes_[label]["MisTagRateSignalIsNotHighest_vs_R"]->Fill(v.r, mistag);
+          mes_[label]["MisTagRateSignalIsNotHighest_vs_NumTracks"]->
+              Fill(v.nGenTrk, mistag);
+        }
         // Now check at which location the Simulated PV has been
         // reconstructed in the primary vertex collection
         // at-hand. Mark it with fake index -1 if it was not
@@ -997,6 +1081,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                         &(*iv)) != v.rec_vertices.end()) {
             mes_[label]["TruePVLocationIndex"]
                 ->Fill(pv_position_in_reco_collection);
+            if (signal_is_highest_pt) {
+              mes_[label]["TruePVLocationIndexSignalIsHighest"]
+                ->Fill(pv_position_in_reco_collection);
+            } else {
+              mes_[label]["TruePVLocationIndexSignalIsNotHighest"]
+                ->Fill(pv_position_in_reco_collection);
+            }
             break;
           }
         }
@@ -1005,8 +1096,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         // been associated to any reconstructed vertex: mark it as
         // missing in the reconstructed vertex collection using the fake
         // index -1.
-        if (iv == (*recVtxs.product()).end())
+        if (iv == (*recVtxs.product()).end()) {
           mes_[label]["TruePVLocationIndex"]->Fill(-1.);
+          mes_[label]["TruePVLocationSignalIsHighestIndex"]->Fill(-1.);
+          mes_[label]["TruePVLocationSignalIsNotHighestIndex"]->Fill(-1.);
+        }
       }
 
       if (v.rec_vertices.size()) num_total_gen_vertices_assoc2reco++;
