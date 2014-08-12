@@ -14,12 +14,13 @@ histo_names = [
     {'name': 'RecoAllAssoc2GenProperties', 'o': '', 'xAxis': 'Kind of Reco Vertex', 'yAxis': '', 'yMax': '', 'yMin': ''},
     {'name': 'RecoAllAssoc2Gen_PairDistanceZ', 'o': '', 'xAxis': 'Reco Vertex, Pair Distance', 'yAxis': '', 'yMax': '', 'yMin': ''},
     {'name': 'globalEfficiencies', 'o': '', 'xAxis': '', 'yAxis': '', 'yMax': '', 'yMin': ''},
-    {'name': 'MisTagRate', 'o': '', 'xAxis': 'Misidentification', 'yAxis': '', 'yMax': '', 'yMin': ''},
-    {'name': 'MisTagRate_vs_PU', 'o': '', 'xAxis': 'Pileup Interactions', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': ''},
-    {'name': 'MisTagRate_vs_sum-pt2', 'o': '', 'xAxis': '#sum_{pt^{2}}', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': ''},
-    {'name': 'MisTagRate_vs_Z', 'o': '', 'xAxis': 'Z', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': ''},
-    {'name': 'MisTagRate_vs_R', 'o': '', 'xAxis': 'R', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': ''},
-    {'name': 'MisTagRate_vs_NumTracks', 'o': '', 'xAxis': 'Number of Tracks in Vertex', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': ''},
+    {'name': 'MisTagRate', 'o': '', 'xAxis': 'Misidentification', 'yAxis': '', 'yMax': '', 'yMin': '0'},
+    {'name': 'MisTagRate_vs_PU', 'o': '', 'xAxis': 'Pileup Interactions', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},
+    {'name': 'MisTagRate_vs_sum-pt2', 'o': 'logx', 'xAxis': '#sum_{pt^{2}}', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},
+    {'name': 'MisTagRate_vs_Z', 'o': '', 'xAxis': 'Z', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},
+    {'name': 'MisTagRate_vs_R', 'o': '', 'xAxis': 'R', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},
+    {'name': 'MisTagRate_vs_NumTracks', 'o': '', 'xAxis': 'Number of Tracks in Vertex', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},
+    {'name': 'TruePVLocationIndex', 'o': '', 'xAxis': 'True PV index in RecoVtx collection', 'yAxis': '', 'yMax': '', 'yMin': ''},
     {'name': 'effic_vs_NumVertices', 'o': '', 'xAxis': 'Number of Vertices', 'yAxis': 'Efficiency', 'yMax': '', 'yMin': ''},
     {'name': 'effic_vs_NumTracks', 'o': '', 'xAxis': 'Number of Tracks in Vertex', 'yAxis': 'Efficiency', 'yMax': '', 'yMin': ''},
     {'name': 'effic_vs_ClosestVertexInZ', 'o': 'logx', 'xAxis': 'Closest Distance in Z', 'yAxis': 'Efficiency', 'yMax': '', 'yMin': ''},
@@ -112,7 +113,7 @@ def producePlots():
                 if h['yMax'] != '':
                     histo.SetMaximum(float(h['yMax']))
                 if h['yMin'] != '':
-                    histo.SetMaximum(float(h['yMin']))
+                    histo.SetMinimum(float(h['yMin']))
                 histo.GetXaxis().SetTitle(h['xAxis'])
                 histo.GetYaxis().SetTitle(h['yAxis'])
                 setTextProperties(histo.GetXaxis(), title=True)
