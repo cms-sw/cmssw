@@ -27,6 +27,24 @@ simGtDigis.GmtInputTag = 'gtDigis'
 simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
 simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
 
+# L1Extra
+import L1Trigger.Configuration.L1Extra_cff
+l1ExtraReEmul = L1Trigger.Configuration.L1Extra_cff.l1extraParticles.clone()
+l1ExtraReEmul.isolatedEmSource    = cms.InputTag("caloStage1LegacyFormatDigis","isoEm")
+l1ExtraReEmul.nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm")
+
+l1ExtraReEmul.forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets")
+l1ExtraReEmul.centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
+l1ExtraReEmul.tauJetSource     = cms.InputTag("caloStage1LegacyFormatDigis","tauJets")
+
+l1ExtraReEmul.etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
+l1ExtraReEmul.etHadSource   = cms.InputTag("caloStage1LegacyFormatDigis")
+l1ExtraReEmul.etMissSource  = cms.InputTag("caloStage1LegacyFormatDigis")
+l1ExtraReEmul.htMissSource  = cms.InputTag("caloStage1LegacyFormatDigis")
+
+l1ExtraReEmul.hfRingEtSumsSource    = cms.InputTag("caloStage1LegacyFormatDigis")
+l1ExtraReEmul.hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+
 # the sequence
 L1TCaloStage1_PPFromRaw = cms.Sequence(
     L1TRerunHCALTP_FromRAW
@@ -34,4 +52,5 @@ L1TCaloStage1_PPFromRaw = cms.Sequence(
     +simRctDigis
     +L1TCaloStage1
     +simGtDigis
+    +l1ExtraReEmul
 )
