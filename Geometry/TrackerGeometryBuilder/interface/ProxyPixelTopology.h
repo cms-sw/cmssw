@@ -19,8 +19,6 @@
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
@@ -120,7 +118,7 @@ private:
   
   PixelGeomDetType const * theType;  
   float theLength, theWidth;
-  DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
+  std::unique_ptr<const SurfaceDeformation> theSurfaceDeformation;
 };
 
 #endif

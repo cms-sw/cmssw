@@ -1,13 +1,12 @@
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, GeometricDet const * gd) : 
-  GeomDetUnit(sp), theTopology(new ProxyStripTopology(type, sp)), theGD(gd)
+StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id) : 
+  GeomDetUnit(sp), theTopology(new ProxyStripTopology(type, sp))
 {
-  if(theGD) setDetId(theGD->geographicalID());
+  setDetId(id);
 }
 
 const GeomDetType& StripGeomDetUnit::type() const { return theTopology->type(); }
