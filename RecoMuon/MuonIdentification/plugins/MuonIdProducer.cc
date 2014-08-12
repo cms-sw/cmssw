@@ -587,7 +587,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     {
 		// make muon
 	       reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
-		trackerMuon.setType( reco::Muon::TrackerMuon );
 		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
 
 		if ( debugWithTruthMatching_ ) {
@@ -602,6 +601,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		bool newMuon = true;
 		bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
 		bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+		if ( goodTrackerMuon ) trackerMuon.setType( reco::Muon::TrackerMuon );
+		if ( goodRPCMuon ) trackerMuon.setType( reco::Muon::RPCMuon );
 		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
 		      muon !=  outputMuons->end(); ++muon )
 		  {
@@ -621,7 +622,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 		if ( newMuon ) {
 		   if ( goodTrackerMuon || goodRPCMuon ){
-		      if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
 		      outputMuons->push_back( trackerMuon );
 		   } else {
 		      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
