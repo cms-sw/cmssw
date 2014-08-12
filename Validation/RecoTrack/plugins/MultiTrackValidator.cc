@@ -180,6 +180,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByToken(label_tp_fake,TPCollectionHfake);
 
+
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
     //warning: make sure the TP collection used in the map is the same used in the MTV!
@@ -193,7 +194,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByToken(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot const & bs = *recoBeamSpotHandle;
 
-  edm::Handle< vector<PileupSummaryInfo> > puinfoH;
+  edm::Handle< std::vector<PileupSummaryInfo> > puinfoH;
   event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;
 
@@ -257,10 +258,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       edm::Handle<View<Track> >  trackCollection;
       if(!event.getByToken(labelToken[www], trackCollection)&&ignoremissingtkcollection_)continue;
-      //if (trackCollection->size()==0)
-      //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ;
-      //continue;
-      //}
+
       reco::RecoToSimCollection const * recSimCollP=nullptr;
       reco::SimToRecoCollection const * simRecCollP=nullptr;
       reco::RecoToSimCollection recSimCollL;
@@ -330,7 +328,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
-	if(parametersDefiner=="LhcParametersDefinerForTP")
+	if(parametersDefiner=="LhcParametersDefinerForTP" || parametersDefiner=="hltLhcParametersDefinerForTP")
 	  {
 	    if(! tpSelector(*tp)) continue;
 	    momentumTP = tp->momentum();
@@ -426,7 +424,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx2Handle;
       std::vector<edm::ValueMap<reco::DeDxData> > v_dEdx;
       v_dEdx.clear();
-      //std::cout << "PIPPO: label is " << label[www] << std::endl;
       if (label[www].label()=="generalTracks") {
 	try {
 	  event.getByToken(m_dEdx1Tag, dEdx1Handle);
@@ -487,7 +484,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    isSimMatched = true;
             if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
             if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
-            //std::cout << numAssocRecoTracks << std::endl;
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){
               TrackingParticle trackpart = *(tp[tp_ite].first);
