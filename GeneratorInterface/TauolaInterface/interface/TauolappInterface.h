@@ -55,6 +55,8 @@ namespace gen {
       void                update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,TVector3 &boost);
       bool                isLastTauInChain(const HepMC::GenParticle* tau);
       HepMC::GenParticle* GetMother(HepMC::GenParticle* tau);
+      double MatchedLHESpinUp(HepMC::GenParticle* tau, std::vector<HepMC::GenParticle> &p, std::vector<double> &spinup,std::vector<int> &m_idx);
+      HepMC::GenParticle* FirstTauInChain(HepMC::GenParticle* tau);
       
       //
       static CLHEP::HepRandomEngine*           fRandomEngine;            
@@ -71,6 +73,11 @@ namespace gen {
       std::vector<double>                      fScaledLeptonBrRatios;
       std::vector<double>                      fScaledHadronBrRatios;
       lhef::LHEEvent *lhe;
+
+      double dmMatch;
+      bool   dolhe;
+      int    ntries;
+      double lifetime;
    };
 
 }
