@@ -102,7 +102,7 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
   int   ky(0), testCell(0);
   for (int iky=0; iky<kymax; ++iky) {
     int deltay(floor((iky*cellSize+b)/(a*cellSize)));
-    if (testCell+deltay > cell) break;
+    if (testCell+deltay >= cell) break;
     testCell += deltay;
     ky++;
   }
