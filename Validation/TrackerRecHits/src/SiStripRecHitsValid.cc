@@ -355,7 +355,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
 
   //now fill the cumulative histograms of the hits
-  std::vector<std::string> SubDetList_; 
   for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); iSubdet++){
     std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
     fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
@@ -511,6 +510,8 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     
 
     for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+      SiStripDetId hitDetId(m->detUnitId());
+      if (hitDetId.stereo()) {  // project from the stereo sensor
       //project simhit;
 	hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
 	distx = fabs(rechitpro.x - hitPair.first.x());
@@ -522,6 +523,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 	  mindist = dist;
 	  closestPair = hitPair;
 	}
+      }
     }  
     rechitpro.resx = rechitpro.x - closestPair.first.x();
     rechitpro.resy = rechitpro.y - closestPair.first.y();
