@@ -34,9 +34,7 @@ globalRecoPbPb = cms.Sequence(hiTracking
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
-                              #* hiPfTrackingGlobalReco
                               * hiElectronSequence 
-                              #* hiPfElectronGlobalReco
                               * hiEgammaSequence
                               * hiParticleFlowReco
                               * hiCentrality
@@ -49,9 +47,7 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiEcalClusters
                                               * hiRecoJets
                                               * muonRecoPbPb
-                                              #* hiPfTrackingGlobalReco
                                               * hiElectronSequence
-                                              #* hiPfElectronGlobalReco
                                               * hiEgammaSequence
                                               * hiParticleFlowReco
                                               * hiCentrality
