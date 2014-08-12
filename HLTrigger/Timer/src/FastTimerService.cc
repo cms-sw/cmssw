@@ -592,6 +592,13 @@ void
 FastTimerService::postStreamEndLumi(edm::StreamContext const & sc) {
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
+
+  if (m_enable_dqm) {
+    DQMStore * store = edm::Service<DQMStore>().operator->();
+    assert(store);
+    store->mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, m_module_id);
+  }
+
   stream.timer_last_transition = FastTimer::Clock::now();
 }
 
