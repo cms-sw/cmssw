@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/HLT/V142 (CMSSW_7_1_6)
+# /dev/CMSSW_7_1_1/HLT/V143 (CMSSW_7_1_6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V142')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V143')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -14279,11 +14279,11 @@ hltEG18Iso50T80LCaloId24b40eHE10R9Id65HcalIsoUnseededFilter = cms.EDFilter( "HLT
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( 0.0 ),
-    thrRegularEE = cms.double( 5.0 ),
+    thrRegularEE = cms.double( 8.0 ),
     thrOverEEE = cms.double( 0.005 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidatesUnseeded" ),
     thrOverEEB = cms.double( 0.005 ),
-    thrRegularEB = cms.double( 5.0 ),
+    thrRegularEB = cms.double( 8.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -14579,11 +14579,11 @@ hltEG22Iso50T80LCaloId24b40eHE10R9Id65HcalIsoUnseededFilter = cms.EDFilter( "HLT
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( 0.0 ),
-    thrRegularEE = cms.double( 5.0 ),
+    thrRegularEE = cms.double( 8.0 ),
     thrOverEEE = cms.double( 0.005 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidatesUnseeded" ),
     thrOverEEB = cms.double( 0.005 ),
-    thrRegularEB = cms.double( 5.0 ),
+    thrRegularEB = cms.double( 8.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),

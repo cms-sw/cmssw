@@ -10,13 +10,6 @@
 #include <iterator>
 
 
-namespace {
-  bool sortByDepth(const reco::PFCluster& a,
-		   const reco::PFCluster& b) {
-    return a.depth() < b.depth();
-  }
-}
-
 
 PFMultiDepthClusterizer::
 PFMultiDepthClusterizer(const edm::ParameterSet& conf) :
