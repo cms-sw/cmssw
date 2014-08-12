@@ -62,7 +62,7 @@ namespace gen {
       std::vector<int>                         fHadronModes;
       std::vector<double>                      fScaledLeptonBrRatios;
       std::vector<double>                      fScaledHadronBrRatios;
-      
+      double lifetime;
    };
 
 }
