@@ -601,8 +601,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		bool newMuon = true;
 		bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
 		bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
-		if ( goodTrackerMuon ) trackerMuon.setType( reco::Muon::TrackerMuon );
-		if ( goodRPCMuon ) trackerMuon.setType( reco::Muon::RPCMuon );
+		if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
+		if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
 		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
 		      muon !=  outputMuons->end(); ++muon )
 		  {
