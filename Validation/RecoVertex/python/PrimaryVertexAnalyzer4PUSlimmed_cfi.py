@@ -14,6 +14,7 @@ selectedPixelVertices.src = cms.InputTag('pixelVertices')
 
 vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 simG4 = cms.InputTag("g4SimHits"),
+                                use_only_charged_tracks = cms.untracked.bool(True),
                                 use_TP_associator = cms.untracked.bool(False),
                                 verbose = cms.untracked.bool(False),
                                 sigma_z_match = cms.untracked.double(3.0),

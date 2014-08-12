@@ -151,6 +151,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
   // ----------member data ---------------------------
   bool verbose_;
+  bool use_only_charged_tracks_;
   bool use_TP_associator_;
   double sigma_z_match_;
   double abs_z_match_;

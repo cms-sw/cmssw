@@ -25,6 +25,8 @@
 PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     const edm::ParameterSet& iConfig)
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
+      use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
+          "use_only_charged_tracks", true)),
       use_TP_associator_(
           iConfig.getUntrackedParameter<bool>("use_TP_associator", false)),
       sigma_z_match_(
@@ -603,6 +605,8 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
       auto momentum = (*(*iTP)).momentum();
       const reco::Track* matched_best_reco_track = nullptr;
       double match_quality = -1;
+      if (use_only_charged_tracks_ && (**iTP).charge() == 0)
+          continue;
       if (s2r_.find(*iTP) != s2r_.end()) {
         matched_best_reco_track = s2r_[*iTP][0].first.get();
         match_quality = s2r_[*iTP][0].second;
