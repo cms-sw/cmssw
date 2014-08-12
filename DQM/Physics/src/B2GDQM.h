@@ -90,7 +90,6 @@ public:
   
 protected:
 
-  virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
   virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
   
   virtual void analyzeJets(edm::Event const& e, edm::EventSetup const& eSetup);

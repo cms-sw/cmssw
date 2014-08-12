@@ -150,24 +150,6 @@ B2GDQM::~B2GDQM(){
   edm::LogInfo("B2GDQM") <<  " Deleting B2GDQM " << "\n" ;
 }
 
-//
-// -- Begin Run
-//
-void B2GDQM::dqmBeginRun(Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo ("B2GDQM") <<"[B2GDQM]: Begining of Run";
-
-
-  // passed as parameter to HLTConfigProvider::init(), not yet used
-  bool isConfigChanged = false;
-  
-  // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  //  const std::string hltProcessName( "HLT" );
-  const std::string hltProcessName = theTriggerResultsCollection.process();
-  isValidHltConfig_ = hltConfigProvider_.init( run, eSetup, hltProcessName, isConfigChanged );
-
-}
-
-
 
 //
 //  -- Book histograms
