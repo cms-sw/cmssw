@@ -18,7 +18,6 @@
 <use   name="RecoTracker/MeasurementDet"/>
 <use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/TkNavigation"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/GsfTools"/>
 <use   name="TrackingTools/GsfTracking"/>
