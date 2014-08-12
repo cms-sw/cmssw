@@ -10,7 +10,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-const bool verbose = true;
+const bool verbose = false;
 
 int fw_to_gt_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
 int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
@@ -236,6 +236,38 @@ namespace l1t{
       else
 	edm::LogError("HardwareJetSort") << "Region out of bounds: " << injet->hwEta();
     }
+
+    for(int i = 0; i < cen_nrows; ++i)
+      for(int j = 0; j < cen_ncols; ++j)
+      {
+	if(cen_input_energy[i][j].hwPt() == 0)
+	{
+	  cen_input_energy[i][j].setHwPhi(fw_to_gt_phi_map[i]);
+	  cen_input_energy[i][j].setHwEta(4+j);
+	}
+      }
+
+    for(int i = 0; i < hfm_nrows; ++i)
+      for(int j = 0; j < hfm_ncols; ++j)
+      {
+	if(hfm_input_energy[i][j].hwPt() == 0)
+	{
+	  hfm_input_energy[i][j].setHwPhi(fw_to_gt_phi_map[i]);
+	  hfm_input_energy[i][j].setHwEta(j);
+	  hfm_input_energy[i][j].setHwQual(2);
+	}
+      }
+
+    for(int i = 0; i < hfp_nrows; ++i)
+      for(int j = 0; j < hfp_ncols; ++j)
+      {
+	if(hfp_input_energy[i][j].hwPt() == 0)
+	{
+	  hfp_input_energy[i][j].setHwPhi(fw_to_gt_phi_map[i]);
+	  hfp_input_energy[i][j].setHwEta(j+18);
+	  hfp_input_energy[i][j].setHwQual(2);
+	}
+      }
 
     //Each CLK is one clock
 
