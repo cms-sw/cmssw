@@ -16,12 +16,23 @@
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
 
 TrackerGeometry::~TrackerGeometry() {
-    for (DetContainer::iterator     it = theDets.begin(),     ed = theDets.end();     it != ed; ++it) delete const_cast<GeomDet*>(*it);
-    for (DetTypeContainer::iterator it = theDetTypes.begin(), ed = theDetTypes.end(); it != ed; ++it) delete const_cast<GeomDetType*>(*it);
+    for (auto d : theDets) delete const_cast<GeomDet*>(d);
+    for (auto d : theDetTypes) delete const_cast<GeomDetType*>(d);
 }
 
-GeometricDet const * TrackerGeometry::trackerDet() const {
-  return  theTrackerDet;
+void TrackerGeometry::finalize() {
+    theDetTypes.shrink_to_fit();  // owns the DetTypes
+    theDetUnits.shrink_to_fit();  // they're all also into 'theDets', so we assume 'theDets' owns them
+    theDets.shrink_to_fit();     // owns *ONLY* the GeomDet * corresponding to GluedDets.
+    theDetUnitIds.shrink_to_fit();
+    theDetIds.shrink_to_fit();
+  
+    thePXBDets.shrink_to_fit(); // not owned: they're also in 'theDets'
+    thePXFDets.shrink_to_fit(); // not owned: they're also in 'theDets'
+    theTIBDets.shrink_to_fit(); // not owned: they're also in 'theDets'
+    theTIDDets.shrink_to_fit(); // not owned: they're also in 'theDets'
+    theTOBDets.shrink_to_fit(); // not owned: they're also in 'theDets'
+    theTECDets.shrink_to_fit(); // not owned: they're also in 'theDets'
 }
 
 
