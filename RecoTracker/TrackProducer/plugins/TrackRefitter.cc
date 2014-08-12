@@ -77,6 +77,9 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
       LogDebug("TrackRefitter") << "TrackRefitter::produce(none):Number of Trajectories:" << (*theTCollection).size();
 
+      if (bs.position()==math::XYZPoint(0.,0.,0.) && bs.type() == reco::BeamSpot::Unknown) {
+	edm::LogError("TrackRefitter") << " BeamSpot is (0,0,0), it is probably because is not valid in the event"; break; }
+
       if (theTCollection.failedToGet()){
 	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection."; break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
@@ -96,6 +99,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
+      if (!recoBeamSpotHandle.isValid()) break;
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	//edm::LogError("TrackRefitter")<<"could not get TrackMomConstraintAssociationCollection product.";
@@ -113,6 +117,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       theEvent.getByToken(trkconstrcoll_,theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
+      if (!recoBeamSpotHandle.isValid()) break;
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	edm::LogError("TrackRefitter")<<"could not get TrackVtxConstraintAssociationCollection product."; break;}
@@ -128,6 +133,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       theEvent.getByToken(trkconstrcoll_,theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
+      if (!recoBeamSpotHandle.isValid()) break;
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	//edm::LogError("TrackRefitter")<<"could not get TrackParamConstraintAssociationCollection product.";
