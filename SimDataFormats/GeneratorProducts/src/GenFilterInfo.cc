@@ -132,6 +132,11 @@ double GenFilterInfo::filterWeightedEfficiencyError() const {
 
 double GenFilterInfo::filterWeightedEfficiencyErrorBinomial() const {
 
-  return (filterEfficiency()>1e-6? 
-	  (filterEfficiencyError()/filterEfficiency())*filterWeightedEfficiency():-1);
+  double denominator = sumWeights()*sumWeights()*sumWeights()*sumWeights();
+  double numerator =
+    sumPassWeights2() * sumFailWeights()* sumFailWeights() +
+    sumFailWeights2() * sumPassWeights()* sumPassWeights();
+ 
+  return (denominator>1e-6? 
+	  sqrt(numerator/denominator):-1);
 }
