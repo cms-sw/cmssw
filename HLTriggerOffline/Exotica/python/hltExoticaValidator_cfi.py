@@ -82,7 +82,8 @@ hltExoticaValidator = cms.EDAnalyzer(
     
     # --- MuonTracks
     refittedStandAloneMuons_genCut  = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
-    refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
+    #refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
+    refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4"), 
 
     # --- Electrons
     Ele_genCut      = cms.string("pt > 10 && abs(eta) < 2.5 && abs(pdgId) == 11 && status == 1"),

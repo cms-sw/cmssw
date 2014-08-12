@@ -38,6 +38,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
     _recMuonSelector(0),
+    _recMuonTrkSelector(0),
     _recElecSelector(0),
     _recPFMETSelector(0),
     _recPFTauSelector(0),
@@ -116,6 +117,8 @@ HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
     }
     delete _recMuonSelector;
     _recMuonSelector = 0;
+    delete _recMuonTrkSelector;
+    _recMuonTrkSelector = 0;
     delete _recElecSelector;
     _recElecSelector = 0;
     delete _recPhotonSelector;
@@ -380,7 +383,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
         // before or not) ### Thiago ---> Then why don't we put it in the beginRun???
         this->initSelector(it->first);
         // -- Storing the matchesReco
-        std::cerr << "#### SubAnalysis InputTag : " << it->second << std::endl;
         this->insertCandidates(it->first, cols, &matchesReco);
     }
 
@@ -658,8 +660,6 @@ void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector & iC)
 	    _tokens[it->first] = token;
 	} 
 	else if (it->first == EVTColContainer::MUONTRACK) {
-	    std::cerr << "#### This is HLTExoticaSubAnalysis::registerConsumes()" << std::endl;
-	    std::cerr << "#### InputTag : " << it->second << std::endl;
 	    edm::EDGetTokenT<reco::TrackCollection> particularToken = iC.consumes<reco::TrackCollection>(it->second);
 	    edm::EDGetToken token(particularToken);
 	    _tokens[it->first] = token;
@@ -850,7 +850,7 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 
     if (objtype == EVTColContainer::MUON && _recMuonSelector == 0) {
         _recMuonSelector = new StringCutObjectSelector<reco::Muon>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::ELEC && _recElecSelector == 0) {
+    } else if (objtype == EVTColContainer::MUONTRACK && _recMuonTrkSelector == 0) {
         _recMuonTrkSelector = new StringCutObjectSelector<reco::Track>(_recCut[objtype]);
     } else if (objtype == EVTColContainer::ELEC && _recElecSelector == 0) {
         _recElecSelector = new StringCutObjectSelector<reco::GsfElectron>(_recCut[objtype]);
@@ -886,16 +886,14 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
 	    }
         }
     } else if (objType == EVTColContainer::MUONTRACK) {
-        std::cerr << "#### Number of collection size (MuonTrack) : " << cols->muonTracks->size() << std::endl;
         for (size_t i = 0; i < cols->muonTracks->size(); i++) {
 	    LogDebug("ExoticaValidation") << "Inserting muonTrack " << i ;
 	    if (_recMuonTrkSelector->operator()(cols->muonTracks->at(i))) {
 		ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> mom4;
                 ROOT::Math::XYZVector mom3 = cols->muonTracks->at(i).innerMomentum();
                 mom4.SetXYZT(mom3.x(),mom3.y(),mom3.z(),mom3.r());
-                std::cerr << "##### " <<  mom4 << std::endl;
-		//reco::LeafCandidate m(0, cols->muons->at(i).innerMomentum(), cols->muons->at(i).vertex(), objType, 0, true);
-		//matches->push_back(m);
+		reco::LeafCandidate m(0, mom4, cols->muons->at(i).vertex(), objType, 0, true);
+		matches->push_back(m);
             }
         }
     } else if (objType == EVTColContainer::ELEC) {
