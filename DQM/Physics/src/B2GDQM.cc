@@ -152,130 +152,90 @@ B2GDQM::~B2GDQM(){
 
 
 //
-// -- Begin Job
-//
-void B2GDQM::beginJob(){
-  nLumiSecs_ = 0;
-  nEvents_   = 0;
-}
-
-
-//
-// -- Begin Run
-//
-void B2GDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo ("B2GDQM") <<"[B2GDQM]: Begining of Run";
-
-
-  bei_ = Service<DQMStore>().operator->();
-  bei_->setCurrentFolder("Physics/B2G");
-  bookHistos(bei_);
-  
-  // passed as parameter to HLTConfigProvider::init(), not yet used
-  bool isConfigChanged = false;
-  
-  // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  //  const std::string hltProcessName( "HLT" );
-  const std::string hltProcessName = theTriggerResultsCollection.process();
-  isValidHltConfig_ = hltConfigProvider_.init( run, eSetup, hltProcessName, isConfigChanged );
-
-}
-
-
-//
-// -- Begin  Luminosity Block
-//
-void B2GDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-				  edm::EventSetup const& context) { 
-  //edm::LogInfo ("B2GDQM") <<"[B2GDQM]: Begin of LS transition";
-}
-
-
-//
 //  -- Book histograms
 //
-void B2GDQM::bookHistos(DQMStore* bei){
+void B2GDQM::bookHistograms(DQMStore::IBooker & bei, edm::Run const &, edm::EventSetup const & ){
  
-  bei->cd();
+  bei.setCurrentFolder("Physics/B2G");
+
   
   //--- Jets
 
   for ( unsigned int icoll = 0; icoll < jetLabels_.size(); ++icoll ) {
     std::stringstream ss;
     ss << "Physics/B2G/" << jetLabels_[icoll].label();
-    bei->setCurrentFolder(ss.str().c_str());
-    pfJet_pt          .push_back( bei->book1D("pfJet_pt",     "Pt of PFJet (GeV)",      50, 0.0, 1000) );
-    pfJet_y           .push_back( bei->book1D("pfJet_y",      "Rapidity of PFJet",      60, -6.0, 6.0) );
-    pfJet_phi         .push_back( bei->book1D("pfJet_phi",    "#phi of PFJet (radians)",60, -3.14159, 3.14159) );
-    pfJet_m           .push_back( bei->book1D("pfJet_m",      "Mass of PFJet (GeV)",    50, 0.0, 500) );
-    pfJet_chef        .push_back( bei->book1D("pfJet_pfchef", "PFJetID CHEF", 50, 0.0 , 1.0));
-    pfJet_nhef        .push_back( bei->book1D("pfJet_pfnhef", "PFJetID NHEF", 50, 0.0 , 1.0));
-    pfJet_cemf        .push_back( bei->book1D("pfJet_pfcemf", "PFJetID CEMF", 50, 0.0 , 1.0));
-    pfJet_nemf        .push_back( bei->book1D("pfJet_pfnemf", "PFJetID NEMF", 50, 0.0 , 1.0));
+    bei.setCurrentFolder(ss.str().c_str());
+    pfJet_pt          .push_back( bei.book1D("pfJet_pt",     "Pt of PFJet (GeV)",      50, 0.0, 1000) );
+    pfJet_y           .push_back( bei.book1D("pfJet_y",      "Rapidity of PFJet",      60, -6.0, 6.0) );
+    pfJet_phi         .push_back( bei.book1D("pfJet_phi",    "#phi of PFJet (radians)",60, -3.14159, 3.14159) );
+    pfJet_m           .push_back( bei.book1D("pfJet_m",      "Mass of PFJet (GeV)",    50, 0.0, 500) );
+    pfJet_chef        .push_back( bei.book1D("pfJet_pfchef", "PFJetID CHEF", 50, 0.0 , 1.0));
+    pfJet_nhef        .push_back( bei.book1D("pfJet_pfnhef", "PFJetID NHEF", 50, 0.0 , 1.0));
+    pfJet_cemf        .push_back( bei.book1D("pfJet_pfcemf", "PFJetID CEMF", 50, 0.0 , 1.0));
+    pfJet_nemf        .push_back( bei.book1D("pfJet_pfnemf", "PFJetID NEMF", 50, 0.0 , 1.0));
 
-    boostedJet_subjetPt       .push_back( bei->book1D("boostedJet_subjetPt",  "Pt of subjets (GeV)", 50, 0.0 , 500));
-    boostedJet_subjetY        .push_back( bei->book1D("boostedJet_subjetY",   "Rapidity of subjets", 60, -6.0, 6.0));
-    boostedJet_subjetPhi      .push_back( bei->book1D("boostedJet_subjetPhi", "#phi of subjets (radians)", 60, -3.14159, 3.14159));
-    boostedJet_subjetM        .push_back( bei->book1D("boostedJet_subjetM",   "Mass of subjets (GeV)", 50, 0.0 , 250.));
-    boostedJet_subjetN        .push_back( bei->book1D("boostedJet_subjetN",   "Number of subjets", 10, 0, 10));
-    boostedJet_massDrop       .push_back( bei->book1D("boostedJet_massDrop", "Mass drop for W-like jets", 50, 0.0 , 1.0));
-    boostedJet_minMass        .push_back( bei->book1D("boostedJet_minMass",   "Minimum Mass Pairing for top-like jets", 50, 0.0 , 250.0));
+    boostedJet_subjetPt       .push_back( bei.book1D("boostedJet_subjetPt",  "Pt of subjets (GeV)", 50, 0.0 , 500));
+    boostedJet_subjetY        .push_back( bei.book1D("boostedJet_subjetY",   "Rapidity of subjets", 60, -6.0, 6.0));
+    boostedJet_subjetPhi      .push_back( bei.book1D("boostedJet_subjetPhi", "#phi of subjets (radians)", 60, -3.14159, 3.14159));
+    boostedJet_subjetM        .push_back( bei.book1D("boostedJet_subjetM",   "Mass of subjets (GeV)", 50, 0.0 , 250.));
+    boostedJet_subjetN        .push_back( bei.book1D("boostedJet_subjetN",   "Number of subjets", 10, 0, 10));
+    boostedJet_massDrop       .push_back( bei.book1D("boostedJet_massDrop", "Mass drop for W-like jets", 50, 0.0 , 1.0));
+    boostedJet_minMass        .push_back( bei.book1D("boostedJet_minMass",   "Minimum Mass Pairing for top-like jets", 50, 0.0 , 250.0));
 
   }
 
-  bei->setCurrentFolder("Physics/B2G/MET");
-  pfMet_pt                 = bei->book1D("pfMet_pt", "Pf Missing p_{T}; GeV", 50,  0.0 , 500);
-  pfMet_phi                = bei->book1D("pfMet_phi", "Pf Missing p_{T} #phi;#phi (radians)", 35, -3.5, 3.5 );
+  bei.setCurrentFolder("Physics/B2G/MET");
+  pfMet_pt                 = bei.book1D("pfMet_pt", "Pf Missing p_{T}; GeV", 50,  0.0 , 500);
+  pfMet_phi                = bei.book1D("pfMet_phi", "Pf Missing p_{T} #phi;#phi (radians)", 35, -3.5, 3.5 );
 
 
   //--- Mu+Jets
-  bei->setCurrentFolder("Physics/B2G/SemiMu");
-  semiMu_muPt           = bei->book1D("semiMu_muPt",          "Pt of Muon in #mu+Jets Channel (GeV)",                  50, 0.0, 1000) ;
-  semiMu_muEta          = bei->book1D("semiMu_muEta",         "#eta of Muon in #mu+Jets Channel",                      60, -6.0, 6.0) ;
-  semiMu_muPhi          = bei->book1D("semiMu_muPhi",         "#phi of Muon in #mu+Jets Channel (radians)",            60, -3.14159, 3.14159) ;
-  semiMu_muDRMin        = bei->book1D("semiMu_muDRMin",       "#Delta R(E,nearest jet) in #mu+Jets Channel",               50, 0, 10.0);
-  semiMu_muPtRel        = bei->book1D("semiMu_muPtRel",       "p_{T}^{REL} in #mu+Jets Channel",                           60, 0, 300.);
-  semiMu_hadJetDR       = bei->book1D("semiMu_hadJetDR",     "#Delta R(E,had jet) in #mu+Jets Channel",                   50, 0, 10.0);
-  semiMu_hadJetPt       = bei->book1D("semiMu_hadJetPt",     "Pt of Leading Hadronic Jet in #mu+Jets Channel (GeV)",      50, 0.0, 1000) ;
-  semiMu_hadJetY        = bei->book1D("semiMu_hadJetY",      "Rapidity of Leading Hadronic Jet in #mu+Jets Channel",      60, -6.0, 6.0) ;
-  semiMu_hadJetPhi      = bei->book1D("semiMu_hadJetPhi",    "#phi of Leading Hadronic Jet in #mu+Jets Channel (radians)",60, -3.14159, 3.14159) ;
-  semiMu_hadJetMass     = bei->book1D("semiMu_hadJetMass",   "Mass of Leading Hadronic Jet in #mu+Jets Channel (GeV)",    50, 0.0, 500) ;
-  semiMu_hadJetMinMass  = bei->book1D("semiMu_hadJetminMass","Minimum Mass Pairing for Leading Hadronic Jet in #mu+Jets Channel (GeV)", 50, 0.0 , 250.0);  
-  semiMu_mttbar         = bei->book1D("semiMu_mttbar",       "Mass of #mu+Jets ttbar Candidate", 100, 0., 5000.);  
+  bei.setCurrentFolder("Physics/B2G/SemiMu");
+  semiMu_muPt           = bei.book1D("semiMu_muPt",          "Pt of Muon in #mu+Jets Channel (GeV)",                  50, 0.0, 1000) ;
+  semiMu_muEta          = bei.book1D("semiMu_muEta",         "#eta of Muon in #mu+Jets Channel",                      60, -6.0, 6.0) ;
+  semiMu_muPhi          = bei.book1D("semiMu_muPhi",         "#phi of Muon in #mu+Jets Channel (radians)",            60, -3.14159, 3.14159) ;
+  semiMu_muDRMin        = bei.book1D("semiMu_muDRMin",       "#Delta R(E,nearest jet) in #mu+Jets Channel",               50, 0, 10.0);
+  semiMu_muPtRel        = bei.book1D("semiMu_muPtRel",       "p_{T}^{REL} in #mu+Jets Channel",                           60, 0, 300.);
+  semiMu_hadJetDR       = bei.book1D("semiMu_hadJetDR",     "#Delta R(E,had jet) in #mu+Jets Channel",                   50, 0, 10.0);
+  semiMu_hadJetPt       = bei.book1D("semiMu_hadJetPt",     "Pt of Leading Hadronic Jet in #mu+Jets Channel (GeV)",      50, 0.0, 1000) ;
+  semiMu_hadJetY        = bei.book1D("semiMu_hadJetY",      "Rapidity of Leading Hadronic Jet in #mu+Jets Channel",      60, -6.0, 6.0) ;
+  semiMu_hadJetPhi      = bei.book1D("semiMu_hadJetPhi",    "#phi of Leading Hadronic Jet in #mu+Jets Channel (radians)",60, -3.14159, 3.14159) ;
+  semiMu_hadJetMass     = bei.book1D("semiMu_hadJetMass",   "Mass of Leading Hadronic Jet in #mu+Jets Channel (GeV)",    50, 0.0, 500) ;
+  semiMu_hadJetMinMass  = bei.book1D("semiMu_hadJetminMass","Minimum Mass Pairing for Leading Hadronic Jet in #mu+Jets Channel (GeV)", 50, 0.0 , 250.0);  
+  semiMu_mttbar         = bei.book1D("semiMu_mttbar",       "Mass of #mu+Jets ttbar Candidate", 100, 0., 5000.);  
 
 
   //--- E+Jets
-  bei->setCurrentFolder("Physics/B2G/SemiE");
-  semiE_ePt           = bei->book1D("semiE_ePt",          "Pt of Electron in e+Jets Channel (GeV)",                  50, 0.0, 1000) ;
-  semiE_eEta          = bei->book1D("semiE_eEta",         "#eta of Electron in e+Jets Channel",                      60, -6.0, 6.0) ;
-  semiE_ePhi          = bei->book1D("semiE_ePhi",         "#phi of Electron in e+Jets Channel (radians)",            60, -3.14159, 3.14159) ;
-  semiE_eDRMin        = bei->book1D("semiE_eDRMin",       "#Delta R(E,nearest jet) in e+Jets Channel",               50, 0, 10.0);
-  semiE_ePtRel        = bei->book1D("semiE_ePtRel",       "p_{T}^{REL} in e+Jets Channel",                           60, 0, 300.);
-  semiE_hadJetDR      = bei->book1D("semiE_hadJetDR",     "#Delta R(E,had jet) in e+Jets Channel",                   50, 0, 10.0);
-  semiE_hadJetPt      = bei->book1D("semiE_hadJetPt",     "Pt of Leading Hadronic Jet in e+Jets Channel (GeV)",      50, 0.0, 1000) ;
-  semiE_hadJetY       = bei->book1D("semiE_hadJetY",      "Rapidity of Leading Hadronic Jet in e+Jets Channel",      60, -6.0, 6.0) ;
-  semiE_hadJetPhi     = bei->book1D("semiE_hadJetPhi",    "#phi of Leading Hadronic Jet in e+Jets Channel (radians)",60, -3.14159, 3.14159) ;
-  semiE_hadJetMass    = bei->book1D("semiE_hadJetMass",   "Mass of Leading Hadronic Jet in e+Jets Channel (GeV)",    50, 0.0, 500) ;
-  semiE_hadJetMinMass = bei->book1D("semiE_hadJetminMass","Minimum Mass Pairing for Leading Hadronic Jet in e+Jets Channel (GeV)", 50, 0.0 , 250.0);  
-  semiE_mttbar        = bei->book1D("semiE_mttbar",       "Mass of e+Jets ttbar Candidate", 100, 0., 5000.);  
+  bei.setCurrentFolder("Physics/B2G/SemiE");
+  semiE_ePt           = bei.book1D("semiE_ePt",          "Pt of Electron in e+Jets Channel (GeV)",                  50, 0.0, 1000) ;
+  semiE_eEta          = bei.book1D("semiE_eEta",         "#eta of Electron in e+Jets Channel",                      60, -6.0, 6.0) ;
+  semiE_ePhi          = bei.book1D("semiE_ePhi",         "#phi of Electron in e+Jets Channel (radians)",            60, -3.14159, 3.14159) ;
+  semiE_eDRMin        = bei.book1D("semiE_eDRMin",       "#Delta R(E,nearest jet) in e+Jets Channel",               50, 0, 10.0);
+  semiE_ePtRel        = bei.book1D("semiE_ePtRel",       "p_{T}^{REL} in e+Jets Channel",                           60, 0, 300.);
+  semiE_hadJetDR      = bei.book1D("semiE_hadJetDR",     "#Delta R(E,had jet) in e+Jets Channel",                   50, 0, 10.0);
+  semiE_hadJetPt      = bei.book1D("semiE_hadJetPt",     "Pt of Leading Hadronic Jet in e+Jets Channel (GeV)",      50, 0.0, 1000) ;
+  semiE_hadJetY       = bei.book1D("semiE_hadJetY",      "Rapidity of Leading Hadronic Jet in e+Jets Channel",      60, -6.0, 6.0) ;
+  semiE_hadJetPhi     = bei.book1D("semiE_hadJetPhi",    "#phi of Leading Hadronic Jet in e+Jets Channel (radians)",60, -3.14159, 3.14159) ;
+  semiE_hadJetMass    = bei.book1D("semiE_hadJetMass",   "Mass of Leading Hadronic Jet in e+Jets Channel (GeV)",    50, 0.0, 500) ;
+  semiE_hadJetMinMass = bei.book1D("semiE_hadJetminMass","Minimum Mass Pairing for Leading Hadronic Jet in e+Jets Channel (GeV)", 50, 0.0 , 250.0);  
+  semiE_mttbar        = bei.book1D("semiE_mttbar",       "Mass of e+Jets ttbar Candidate", 100, 0., 5000.);  
 
 
   //--- All-hadronic
-  bei->setCurrentFolder("Physics/B2G/AllHad");
-  allHad_pt0          = bei->book1D("allHad_pt0",     "Pt of Leading All-Hadronic PFJet (GeV)",      50, 0.0, 1000) ;
-  allHad_y0           = bei->book1D("allHad_y0",      "Rapidity of Leading All-Hadronic PFJet",      60, -6.0, 6.0) ;
-  allHad_phi0         = bei->book1D("allHad_phi0",    "#phi of Leading All-Hadronic PFJet (radians)",60, -3.14159, 3.14159) ;
-  allHad_mass0        = bei->book1D("allHad_mass0",   "Mass of Leading All-Hadronic PFJet (GeV)",    50, 0.0, 500) ;
-  allHad_minMass0     = bei->book1D("allHad_minMass0","Minimum Mass Pairing for Leading All-Hadronic PFJet (GeV)", 50, 0.0 , 250.0);
-  allHad_pt1          = bei->book1D("allHad_pt1",     "Pt of Subleading All-Hadronic PFJet (GeV)",      50, 0.0, 1000) ;
-  allHad_y1           = bei->book1D("allHad_y1",      "Rapidity of Subleading All-Hadronic PFJet",      60, -6.0, 6.0) ;
-  allHad_phi1         = bei->book1D("allHad_phi1",    "#phi of Subleading All-Hadronic PFJet (radians)",60, -3.14159, 3.14159) ;
-  allHad_mass1        = bei->book1D("allHad_mass1",   "Mass of Subleading All-Hadronic PFJet (GeV)",    50, 0.0, 500) ;
-  allHad_minMass1     = bei->book1D("allHad_minMass1","Minimum Mass Pairing for Subleading All-Hadronic PFJet (GeV)", 50, 0.0 , 250.0);  
-  allHad_mttbar       = bei->book1D("allHad_mttbar",  "Mass of All-Hadronic ttbar Candidate", 100, 0., 5000.);  
+  bei.setCurrentFolder("Physics/B2G/AllHad");
+  allHad_pt0          = bei.book1D("allHad_pt0",     "Pt of Leading All-Hadronic PFJet (GeV)",      50, 0.0, 1000) ;
+  allHad_y0           = bei.book1D("allHad_y0",      "Rapidity of Leading All-Hadronic PFJet",      60, -6.0, 6.0) ;
+  allHad_phi0         = bei.book1D("allHad_phi0",    "#phi of Leading All-Hadronic PFJet (radians)",60, -3.14159, 3.14159) ;
+  allHad_mass0        = bei.book1D("allHad_mass0",   "Mass of Leading All-Hadronic PFJet (GeV)",    50, 0.0, 500) ;
+  allHad_minMass0     = bei.book1D("allHad_minMass0","Minimum Mass Pairing for Leading All-Hadronic PFJet (GeV)", 50, 0.0 , 250.0);
+  allHad_pt1          = bei.book1D("allHad_pt1",     "Pt of Subleading All-Hadronic PFJet (GeV)",      50, 0.0, 1000) ;
+  allHad_y1           = bei.book1D("allHad_y1",      "Rapidity of Subleading All-Hadronic PFJet",      60, -6.0, 6.0) ;
+  allHad_phi1         = bei.book1D("allHad_phi1",    "#phi of Subleading All-Hadronic PFJet (radians)",60, -3.14159, 3.14159) ;
+  allHad_mass1        = bei.book1D("allHad_mass1",   "Mass of Subleading All-Hadronic PFJet (GeV)",    50, 0.0, 500) ;
+  allHad_minMass1     = bei.book1D("allHad_minMass1","Minimum Mass Pairing for Subleading All-Hadronic PFJet (GeV)", 50, 0.0 , 250.0);  
+  allHad_mttbar       = bei.book1D("allHad_mttbar",  "Mass of All-Hadronic ttbar Candidate", 100, 0., 5000.);  
 
 
-  bei->cd();
 }
 
 
@@ -593,33 +553,3 @@ void B2GDQM::analyzeSemiE(const Event & iEvent, const edm::EventSetup& iSetup){
   }
 
 }
-
-
-
-// -- End Luminosity Block
-//
-void B2GDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  //edm::LogInfo ("B2GDQM") <<"[B2GDQM]: End of LS transition, performing the DQM client operation";
-  nLumiSecs_++;
-  //edm::LogInfo("B2GDQM") << "============================================ " 
-  //<< endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() 
-  //<< endl  << "============================================ " << endl;
-}
-
-
-//
-// -- End Run
-//
-void B2GDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-}
-
-
-//
-// -- End Job
-//
-void B2GDQM::endJob(){
-  //edm::LogInfo("B2GDQM") <<"[B2GDQM]: endjob called!";
-}
-
-
-
