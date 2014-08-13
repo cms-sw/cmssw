@@ -48,6 +48,7 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
 process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
+    +process.l1ExtraLayer2
     )
 
 process.output_step = cms.EndPath(process.output)
