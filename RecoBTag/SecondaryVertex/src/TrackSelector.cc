@@ -57,7 +57,7 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 
 bool
 TrackSelector::operator () (const Track &track,
-                            const TrackIPTagInfo::TrackIPData &ipData,
+                            const btag::TrackIPData &ipData,
                             const Jet &jet,
                             const GlobalPoint &pv) const
 {
