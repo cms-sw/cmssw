@@ -57,8 +57,9 @@ from Validation.RecoTrack.cutsTPFake_cfi import *
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 
 hltMultiTrackValidation = cms.Sequence(
-    simHitTPAssocProducer
-    + hltTPClusterProducer
+#    simHitTPAssocProducer
+#    +
+    hltTPClusterProducer
     + tpToHLTtracksAssociationSequence
     + cms.ignore(cutsTPEffic)
     + cms.ignore(cutsTPFake)
