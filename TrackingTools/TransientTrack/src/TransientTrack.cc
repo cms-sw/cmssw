@@ -1,16 +1,20 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/CandidatePtrTransientTrack.h"
 
 #include <iostream>
 
 using namespace reco;
 
 typedef TrackTransientTrack                              TTT;
+typedef CandidatePtrTransientTrack                              CTT;
 
 
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) : 
   Base( new TTT(tk, field)) {}
 
+TransientTrack::TransientTrack( const CandidatePtr & ptr , const MagneticField* field) : 
+  Base( new CTT(ptr, field)) {}
 
 TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field) : 
   Base( new TTT(tk, field)) {}
@@ -22,6 +26,10 @@ TransientTrack::TransientTrack( const Track & tk , const MagneticField* field,
 TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field,
 				const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   Base( new TTT(tk, field, tg)) {}
+
+TransientTrack::TransientTrack( const CandidatePtr & tk , const MagneticField* field,
+				const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Base( new CTT(tk, field, tg)) {}
 
 
 // TransientTrack::TransientTrack( const TransientTrack & tt ) :

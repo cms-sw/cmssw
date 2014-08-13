@@ -120,7 +120,7 @@ float pat::PackedCandidate::dz(const Point &p) const {
     return (vertex_.Z()-p.Z())  - ((vertex_.X()-p.X()) * std::cos(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::sin(float(p4_.Phi()))) * p4_.Pz()/p4_.Pt();
 }
 
-reco::Track pat::PackedCandidate::pseudoTrack() const {
+void pat::PackedCandidate::unpackTrk() const {
     maybeUnpackBoth();
     reco::TrackBase::CovarianceMatrix m;
 //    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
@@ -146,18 +146,18 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     int i=0;
     LostInnerHits innerLost = lostInnerHits();
     
-    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
+    track_ = reco::Track(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
     if(innerLost == validHitInFirstPixelBarrelLayer){
-        tk.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::valid); 
+        track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::valid); 
         i++; 
     }
     for(;i<numberOfPixelHits_; i++) {
-       tk.appendHitPattern(PXBDetId(i > 1 ? 3 : 2, 0, 0), TrackingRecHit::valid); 
+       track_.appendHitPattern(PXBDetId(i > 1 ? 3 : 2, 0, 0), TrackingRecHit::valid); 
     }
     
     for(;i<numberOfHits_;i++) {
-	   tk.appendHitPattern(TIBDetId(1, 0, 0, 1, 1, 0), TrackingRecHit::valid); 
+	   track_.appendHitPattern(TIBDetId(1, 0, 0, 1, 1, 0), TrackingRecHit::valid); 
     }
 
     switch (innerLost) {
@@ -166,16 +166,17 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
         case noLostInnerHits:
             break;
         case oneLostInnerHit:
-            tk.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
+            track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
             break;
         case moreLostInnerHits:
-            tk.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
-            tk.appendHitPattern(PXBDetId(2, 0, 0), TrackingRecHit::missing_inner);
+            track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
+            track_.appendHitPattern(PXBDetId(2, 0, 0), TrackingRecHit::missing_inner);
             break;
     };
 
-    if (trackHighPurity()) tk.setQuality(reco::TrackBase::highPurity);
-    return tk;
+    if (trackHighPurity()) track_.setQuality(reco::TrackBase::highPurity);
+
+    unpackedTrk_ = true;
 }
 
 //// Everything below is just trivial implementations of reco::Candidate methods
