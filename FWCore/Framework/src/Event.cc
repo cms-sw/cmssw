@@ -161,14 +161,16 @@ namespace edm {
       if(!sameAsPrevious) {
         ProductProvenance prov(pit->second->branchID(), gotBranchIDVector);
         *previousParentageId = prov.parentageID();
-        ep.put(*pit->second, pit->first, prov);
+        std::auto_ptr<EDProduct> pr(pit->first);
+  	ep.put(*pit->second, pr, prov);
         sameAsPrevious = true;
       } else {
         ProductProvenance prov(pit->second->branchID(), *previousParentageId);
-        ep.put(*pit->second, pit->first, prov);
+        std::auto_ptr<EDProduct> pr(pit->first);
+  	ep.put(*pit->second, pr, prov);
       }
       // Ownership has passed, so clear the pointer.
-      pit->first.reset(); 
+      pit->first = nullptr;
       ++pit;
     }
 

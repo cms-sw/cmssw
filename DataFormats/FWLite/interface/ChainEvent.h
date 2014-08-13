@@ -31,7 +31,7 @@
 
 // forward declarations
 namespace edm {
-  class WrapperHolder;
+  class EDProduct;
   class ProductRegistry;
   class ProcessHistory;
   class BranchDescription;
@@ -74,7 +74,6 @@ namespace fwlite {
 
       // This function should only be called by fwlite::Handle<>
       virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
@@ -116,7 +115,7 @@ namespace fwlite {
 
       // ---------- member functions ---------------------------
 
-      edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       fwlite::LuminosityBlock const& getLuminosityBlock();
       fwlite::Run             const& getRun();
 

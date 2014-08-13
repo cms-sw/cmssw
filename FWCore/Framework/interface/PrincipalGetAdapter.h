@@ -9,7 +9,7 @@
 /**\class PrincipalGetAdapter PrincipalGetAdapter.h FWCore/Framework/interface/PrincipalGetAdapter.h
 
 Description: This is the implementation for accessing EDProducts and 
-inserting new EDproducts.
+inserting new EDProducts.
 
 Usage:
 
@@ -112,7 +112,7 @@ namespace edm {
 
   namespace principal_get_adapter_detail {
     struct deleter {
-      void operator()(std::pair<WrapperOwningHolder, BranchDescription const*> const p) const;
+      void operator()(std::pair<EDProduct*, BranchDescription const*> const p) const;
     };
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);

@@ -42,13 +42,15 @@ namespace edm {
     struct BranchInfo {
       BranchInfo(BranchDescription const& prod) :
         branchDescription_(prod),
-        productBranch_(0),
-        provenanceBranch_(0),
-        classCache_(0) {}
+        productBranch_(nullptr),
+        provenanceBranch_(nullptr),
+        classCache_(nullptr),
+        offsetToEDProduct_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_; // For backward compatibility
       mutable TClass* classCache_;
+      mutable Int_t offsetToEDProduct_;
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
@@ -102,7 +104,7 @@ namespace edm {
     }
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, T*& pbuf) {
-      if (metaTree_ != 0) {
+      if (metaTree_ != nullptr) {
         // Metadata was in separate tree.  Not cached.
         branch->SetAddress(&pbuf);
         roottree::getEntry(branch, entryNumber_);
@@ -119,7 +121,7 @@ namespace edm {
 
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
-      if (metaTree_ != 0) {
+      if (metaTree_ != nullptr) {
         // Metadata was in separate tree.  Not cached.
         branch->SetAddress(&pbuf);
         roottree::getEntry(branch, entryNumber);

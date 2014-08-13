@@ -97,7 +97,8 @@ namespace edm {
 
     void put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp);
+        std::auto_ptr<EDProduct> edp);
+
 
     void readImmediate() const;
 

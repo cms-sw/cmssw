@@ -165,7 +165,6 @@ namespace edm {
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
-    WrapperHolder edp(wp, wp->getInterface());
 
     putProducts().push_back(std::make_pair(edp, &desc));
 

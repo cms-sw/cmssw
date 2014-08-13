@@ -15,7 +15,6 @@
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -51,6 +50,7 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "Reflex/Type.h"
 
 namespace edm {
   namespace root {
@@ -61,8 +61,8 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      WrapperOwningHolder getTheProduct(BranchKey const& k) const;
-      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
+      std::auto_ptr<EDProduct> getTheProduct(BranchKey const& k) const;
+      virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -73,12 +73,12 @@ namespace edm {
       std::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    WrapperOwningHolder
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
+    std::auto_ptr<EDProduct>
+    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
       return getTheProduct(k);
     }
 
-    WrapperOwningHolder
+    std::auto_ptr<EDProduct>
     FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -94,22 +94,32 @@ namespace edm {
       }
       //find the class type
       std::string const fullName = wrappedClassName(bDesc.className());
-      TypeWithDict classType = TypeWithDict::byName(fullName);
-      if(!bool(classType)) {
+      Reflex::Type classType = Reflex::Type::ByName(fullName);
+      if(classType == Reflex::Type()) {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
       }
 
       //create an instance of it
-      void const* address  = classType.construct().address();
-      if(nullptr == address) {
+      Reflex::Object wrapperObj = classType.Construct();
+      if(nullptr == wrapperObj.Address()) {
         throw cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
       }
+      void* address = wrapperObj.Address();
       branch->SetAddress(&address);
+      Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::EDProduct"));
 
+      EDProduct* prod = reinterpret_cast<EDProduct*>(edProdObj.Address()); 	 
+	  	 
+      if(nullptr == prod) { 	 
+        throw cms::Exception("FailedConversion") 	 
+          << "failed to convert a '" << fullName 	 
+          << "' to a edm::EDProduct." 	 
+          << "Please contact developers since something is very wrong."; 	 
+      }
       branch->GetEntry(entry_);
-      return WrapperOwningHolder(address, bDesc.getInterface());
+      return std::auto_ptr<EDProduct>(prod);
     }
 
     struct TFWLiteSelectorMembers {

@@ -12,14 +12,14 @@
 namespace edm {
   DelayedReader::~DelayedReader() {}
 
-  WrapperOwningHolder
-  DelayedReader::getProduct(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) {
+  std::auto_ptr<EDProduct> 
+  DelayedReader::getProduct(BranchKey const& k, EDProductGetter const* ep) {
     auto sr = sharedResources_();
     std::unique_lock<SharedResourcesAcquirer> guard;
     if(sr) {
       guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
     }
-    return getProduct_(k, interface, ep);
+    return getProduct_(k, ep);
   }
 
   SharedResourcesAcquirer*

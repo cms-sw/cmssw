@@ -12,8 +12,7 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -147,15 +146,15 @@ namespace edm {
 
     void put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp,
+        std::auto_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance);
 
     void putOnRead(
         BranchDescription const& bd,
-        void const* product,
+        std::auto_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance);
 
-    WrapperHolder getIt(ProductID const& pid) const;
+    EDProduct const* getIt(ProductID const& pid) const;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 

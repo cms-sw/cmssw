@@ -13,8 +13,7 @@ Forward declarations of types in the EDM.
 namespace edm 
 {
   class BasicHandle;
-  class WrapperHolder;
-  class WrapperOwningHolder;
+  class EDProduct;
   class EDProductGetter;
   class ProductID;
   class OutputHandle;

@@ -143,7 +143,7 @@ void LHESource::beginRun(edm::Run&)
 		runInfoProducts.push_back(new LHERunInfoProduct(*product));
 		wasMerged = false;
 
-                edm::WrapperOwningHolder rdp(new edm::Wrapper<LHERunInfoProduct>(product), edm::Wrapper<LHERunInfoProduct>::getInterface());
+                std::auto_ptr<edm::EDProduct> rdp(new edm::Wrapper<LHERunInfoProduct>(product));
 		runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, rdp);
 
 		runInfo.reset();
@@ -155,7 +155,7 @@ void LHESource::endRun(edm::Run&)
 	if (!runInfoProducts.empty()) {
 		std::auto_ptr<LHERunInfoProduct> product(
 					runInfoProducts.pop_front().release());
-                edm::WrapperOwningHolder rdp(new edm::Wrapper<LHERunInfoProduct>(product), edm::Wrapper<LHERunInfoProduct>::getInterface());
+                std::auto_ptr<edm::EDProduct> rdp(new edm::Wrapper<LHERunInfoProduct>(product));
 		runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, rdp);
 	}
 	runPrincipal_ = nullptr;
@@ -201,7 +201,7 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	              boost::bind(&LHEEventProduct::addComment,
 	                          product.get(), _1));
 
-	edm::WrapperOwningHolder edp(new edm::Wrapper<LHEEventProduct>(product), edm::Wrapper<LHEEventProduct>::getInterface());
+	std::auto_ptr<edm::EDProduct> edp(new edm::Wrapper<LHEEventProduct>(product));
 	eventPrincipal.put(lheProvenanceHelper_.eventProductBranchDescription_, edp, lheProvenanceHelper_.eventProductProvenance_);
 
 	partonLevel.reset();

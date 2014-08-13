@@ -732,7 +732,7 @@ namespace edm {
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
     }
-    return OutputHandle(WrapperHolder(phb->product().get(), phb->productData().getInterface()), &phb->branchDescription(), phb->productProvenancePtr());
+    return OutputHandle(phb->product().get(), &phb->branchDescription(), phb->productProvenancePtr());
   }
 
   Provenance
@@ -782,47 +782,46 @@ namespace edm {
     reader_->mergeReaders(other.reader());
   }
 
-  WrapperHolder
+  EDProduct const*
   Principal::getIt(ProductID const&) const {
     assert(nullptr);
-    return WrapperHolder();
+    return nullptr;
   }
 
   void
-  Principal::checkUniquenessAndType(WrapperOwningHolder const& prod, ProductHolderBase const* phb) const {
-    if(!prod.isValid()) return;
+  Principal::checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, ProductHolderBase const* phb) const {
+    if(prod.get() == nullptr) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.
-    bool alreadyPresent = !productPtrs_.insert(prod.wrapper()).second;
+    bool alreadyPresent = !productPtrs_.insert(prod.get()).second;
     if(alreadyPresent) {
-      phb->checkType(prod);
-      const_cast<WrapperOwningHolder&>(prod).reset();
+      phb->checkType(*prod.release());
       throwCorruptionException("checkUniquenessAndType", phb->branchDescription().branchName());
     }
     // Checks that the real type of the product matches the branch.
-    phb->checkType(prod);
+    phb->checkType(*prod);
   }
 
   void
-  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductHolderBase const* phb) const {
+  Principal::putOrMerge(std::auto_ptr<EDProduct> prod, ProductHolderBase const* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod, phb);
       phb->putProduct(prod);
     } else {
-      phb->checkType(prod);
+      phb->checkType(*prod);
       phb->mergeProduct(prod);
     }
   }
 
   void
-  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, ProductHolderBase* phb) {
+  Principal::putOrMerge(std::auto_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* phb) {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod, phb);
       phb->putProduct(prod, prov);
     } else {
-      phb->checkType(prod);
+      phb->checkType(*prod);
       phb->mergeProduct(prod, prov);
     }
   }

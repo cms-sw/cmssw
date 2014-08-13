@@ -38,10 +38,10 @@ namespace edm {
   void
   LuminosityBlockPrincipal::put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp) {
+        std::auto_ptr<EDProduct> edp) {
 
     assert(bd.produced());
-    if(!edp.isValid()) {
+    if(edp.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
         << "put: Cannot put because auto_ptr to product is null."
         << "\n";
@@ -71,10 +71,10 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+    std::auto_ptr<EDProduct> edp(reader()->getProduct(bk, this));
 
     // Now fix up the ProductHolder
-    if(edp.isValid()) {
+    if(edp.get() != nullptr) {
       putOrMerge(edp, &phb);
     }
   }

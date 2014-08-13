@@ -131,12 +131,12 @@ namespace edm {
   void
   EventPrincipal::put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp,
+        std::auto_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance) {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
     //assert(produced());
-    if(!edp.isValid()) {
+    if(edp.get() == nullptr) {
       throw Exception(errors::InsertFailure, "Null Pointer")
         << "put: Cannot put because ptr to product is null."
         << "\n";
@@ -152,14 +152,13 @@ namespace edm {
   void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
-        void const* product,
+        std::auto_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
-    WrapperOwningHolder const edp(product, phb->productData().getInterface());
     checkUniquenessAndType(edp, phb);
     // ProductHolder assumes ownership
     phb->putProduct(edp, productProvenance);
@@ -184,7 +183,7 @@ namespace edm {
         }
       });
       
-      WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+      std::auto_ptr<EDProduct> edp(reader()->getProduct(bk, this));
       
       // Now fix up the ProductHolder
       checkUniquenessAndType(edp, &phb);
@@ -274,9 +273,9 @@ namespace edm {
     return BasicHandle(phb->productData());
   }
 
-  WrapperHolder
+  EDProduct const*
   EventPrincipal::getIt(ProductID const& pid) const {
-    return getByProductID(pid).wrapperHolder();
+    return getByProductID(pid).wrapper();
   }
 
   Provenance

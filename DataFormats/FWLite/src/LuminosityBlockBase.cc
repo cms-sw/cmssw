@@ -42,14 +42,15 @@ namespace fwlite
 
    edm::BasicHandle
    LuminosityBlockBase::getByLabelImpl(std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const {
-      edm::WrapperHolder edp;
+      edm::EDProduct* prod = nullptr;
+      void* prodPtr = &prod;
       getByLabel(iWrapperInfo,
                  iTag.label().c_str(),
                  iTag.instance().empty()?static_cast<char const*>(0):iTag.instance().c_str(),
                  iTag.process().empty()?static_cast<char const*> (0):iTag.process().c_str(),
-                 edp);
-      if(!edp.isValid() || !edp.isPresent()) {
-         edm::TypeID productType(iWrapperInfo);
+                 prodPtr);
+      if(prod == nullptr) {
+        edm::TypeID productType(iWrapperInfo);
 
         edm::BasicHandle failed(edm::makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
           std::shared_ptr<cms::Exception> whyFailed(std::make_shared<edm::Exception>(edm::errors::ProductNotFound));
@@ -63,7 +64,7 @@ namespace fwlite
         }));
          return failed;
       }
-      edm::BasicHandle value(edp, &s_prov);
+      edm::BasicHandle value(std::shared_ptr<edm::EDProduct>(prod,edm::do_nothing_deleter()),&s_prov);
       return value;
    }
 }

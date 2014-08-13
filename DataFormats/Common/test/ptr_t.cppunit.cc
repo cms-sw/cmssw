@@ -287,8 +287,8 @@ void testPtr::comparisonTest() {
 
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      WrapperHolder hold_;
-      virtual WrapperHolder getIt(ProductID const&) const override {
+      EDProduct const* hold_;
+      virtual EDProduct const* getIt(ProductID const&) const override {
          return hold_;
       }
       virtual unsigned int transitionIndex_() const override {
@@ -308,7 +308,7 @@ void testPtr::getTest() {
 
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
-   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+   tester.hold_ = &wrapper;
 
    ProductID const pid(1, 1);
 
@@ -341,7 +341,7 @@ void testPtr::getTest() {
      
      edm::Wrapper<SDCollection> wrapper(ptr);
      TestGetter tester;
-     tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+     tester.hold_ = &wrapper;
      
      ProductID const pid(1, 1);
      
@@ -365,7 +365,7 @@ void testPtr::getTest() {
    
    {
       TestGetter tester;
-      tester.hold_ = WrapperHolder();
+      tester.hold_ = nullptr;
       ProductID const pid(1, 1);
 
       Ptr<IntValue> ref0(pid, 0,&tester);

@@ -89,9 +89,10 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-        rp.put(*pit->second, pit->first);
+        std::auto_ptr<EDProduct> pr(pit->first);
+        rp.put(*pit->second, pr);
         // Ownership has passed, so clear the pointer.
-        pit->first.reset();
+        pit->first = nullptr;
         ++pit;
     }
 

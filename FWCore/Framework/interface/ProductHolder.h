@@ -8,9 +8,8 @@ a set of related EDProducts. This is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ProductData.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Common/interface/Provenance.h"
@@ -26,7 +25,6 @@ namespace edm {
   class DelayedReader;
   class ModuleCallingContext;
   class Principal;
-  class WrapperInterfaceBase;
 
   class ProductHolderBase {
   public:
@@ -80,10 +78,7 @@ namespace edm {
     bool productWasDeleted() const {return productWasDeleted_();}
 
     // Retrieves a shared pointer to the wrapped product.
-    std::shared_ptr<void const> product() const { return getProductData().wrapper_; }
-
-    // Retrieves the wrapped product and type. (non-owning);
-    WrapperHolder wrapper() const { return WrapperHolder(getProductData().wrapper_.get(), getProductData().getInterface()); }
+    std::shared_ptr<EDProduct> product() const { return getProductData().wrapper_; }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance* productProvenancePtr() const { return productProvenancePtr_(); }
@@ -137,12 +132,12 @@ namespace edm {
     ProductID const& productID() const {return getProductData().prov_.productID();}
 
     // Puts the product and its per event(lumi)(run) provenance into the ProductHolder.
-    void putProduct(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) {
+    void putProduct(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
       putProduct_(edp, productProvenance);
     }
 
     // Puts the product into the ProductHolder.
-    void putProduct(WrapperOwningHolder const& edp) const {
+    void putProduct(std::auto_ptr<EDProduct> edp) const {
       putProduct_(edp);
     }
 
@@ -152,20 +147,20 @@ namespace edm {
     }
 
     // merges the product with the pre-existing product
-    void mergeProduct(WrapperOwningHolder const& edp, ProductProvenance& productProvenance) {
+    void mergeProduct(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
       mergeProduct_(edp, productProvenance);
     }
 
-    void mergeProduct(WrapperOwningHolder const& edp) const {
+    void mergeProduct(std::auto_ptr<EDProduct> edp) const {
       mergeProduct_(edp);
     }
 
     // Merges two instances of the product.
-    void mergeTheProduct(WrapperOwningHolder const& edp) const;
+    void mergeTheProduct(std::auto_ptr<EDProduct> edp) const;
 
-    void reallyCheckType(WrapperOwningHolder const& prod) const;
+    void reallyCheckType(EDProduct const& prod) const;
 
-    void checkType(WrapperOwningHolder const& prod) const {
+    void checkType(EDProduct const& prod) const {
       checkType_(prod);
     }
 
@@ -182,12 +177,12 @@ namespace edm {
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productWasDeleted_() const = 0;
-    virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) = 0;
-    virtual void putProduct_(WrapperOwningHolder const& edp) const = 0;
-    virtual void mergeProduct_(WrapperOwningHolder const&  edp, ProductProvenance& productProvenance) = 0;
-    virtual void mergeProduct_(WrapperOwningHolder const& edp) const = 0;
+    virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance) = 0;
+    virtual void putProduct_(std::auto_ptr<EDProduct> edp) const = 0;
+    virtual void mergeProduct_(std::auto_ptr<EDProduct>  edp, ProductProvenance& productProvenance) = 0;
+    virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
-    virtual void checkType_(WrapperOwningHolder const& prod) const = 0;
+    virtual void checkType_(EDProduct const& prod) const = 0;
     virtual void resetStatus_() = 0;
     virtual void setProductDeleted_() = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
@@ -218,7 +213,7 @@ namespace edm {
       // The following is const because we can add an EDProduct to the
       // cache after creation of the ProductHolder, without changing the meaning
       // of the ProductHolder.
-      void setProduct(WrapperOwningHolder const& prod) const;
+      void setProduct(std::auto_ptr<EDProduct> prod) const;
       bool productIsUnavailable() const {return productIsUnavailable_;}
       void setProductUnavailable() const {productIsUnavailable_ = true;}
 
@@ -230,12 +225,12 @@ namespace edm {
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
                                                  ModuleCallingContext const* mcc) const;
-      virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(WrapperOwningHolder const& edp) const;
-      virtual void mergeProduct_(WrapperOwningHolder const& edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(WrapperOwningHolder const& edp) const;
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void checkType_(WrapperOwningHolder const&) const {}
+      virtual void checkType_(EDProduct const&) const {}
       virtual void resetStatus_() {productIsUnavailable_ = false;
         productHasBeenDeleted_=false;}
       virtual bool onDemand_() const {return false;}
@@ -282,12 +277,12 @@ namespace edm {
       void producerCompleted();
       ProductStatus& status() const {return status_();}
     private:
-      virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(WrapperOwningHolder const& edp) const;
-      virtual void mergeProduct_(WrapperOwningHolder const& edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(WrapperOwningHolder const& edp) const;
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void checkType_(WrapperOwningHolder const& prod) const {
+      virtual void checkType_(EDProduct const& prod) const {
         reallyCheckType(prod);
       }
       virtual ProductStatus& status_() const = 0;
@@ -401,20 +396,20 @@ namespace edm {
       virtual void resetStatus_() {realProduct_.resetStatus();}
       virtual bool productUnavailable_() const {return realProduct_.productUnavailable();}
       virtual bool productWasDeleted_() const {return realProduct_.productWasDeleted();}
-      virtual void checkType_(WrapperOwningHolder const& prod) const {realProduct_.checkType(prod);}
+      virtual void checkType_(EDProduct const& prod) const {realProduct_.checkType(prod);}
       virtual ProductData const& getProductData() const {return realProduct_.productData();}
       virtual ProductData& getProductData() {return realProduct_.productData();}
       virtual void setProductDeleted_() {realProduct_.setProductDeleted();}
-      virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) {
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
         realProduct_.putProduct(edp, productProvenance);
       }
-      virtual void putProduct_(WrapperOwningHolder const& edp) const {
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const {
         realProduct_.putProduct(edp);
       }
-      virtual void mergeProduct_(WrapperOwningHolder const& edp, ProductProvenance& productProvenance) {
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
         realProduct_.mergeProduct(edp, productProvenance);
       }
-      virtual void mergeProduct_(WrapperOwningHolder const& edp) const {
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const {
         realProduct_.mergeProduct(edp);
       }
       virtual bool putOrMergeProduct_() const {
@@ -437,7 +432,7 @@ namespace edm {
   class NoProcessProductHolder : public ProductHolderBase {
     public:
       typedef ProducedProductHolder::ProductStatus ProductStatus;
-      NoProcessProductHolder(std::vector<ProductHolderIndex> const&  matchingHolders,
+      NoProcessProductHolder(std::vector<ProductHolderIndex> const& matchingHolders,
                              std::vector<bool> const& ambiguous,
                              Principal* principal);
       virtual ~NoProcessProductHolder();
@@ -450,12 +445,12 @@ namespace edm {
       virtual bool onDemand_() const;
       virtual bool productUnavailable_() const;
       virtual bool productWasDeleted_() const;
-      virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(WrapperOwningHolder const& edp) const;
-      virtual void mergeProduct_(WrapperOwningHolder const&  edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(WrapperOwningHolder const& edp) const;
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void checkType_(WrapperOwningHolder const& prod) const;
+      virtual void checkType_(EDProduct const& prod) const;
       virtual void resetStatus_();
       virtual void setProductDeleted_();
       virtual BranchDescription const& branchDescription_() const;

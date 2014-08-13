@@ -23,19 +23,18 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 
-#include "TClassRef.h"
-
 namespace edm {
 
   // ------------------------------------------
 
+  class EDProduct;
   class StreamedProduct {
   public:
-    StreamedProduct() : desc_(0), present_(false), parents_(0), prod_(0), classRef_() {}
+    StreamedProduct() : prod_(nullptr), desc_(nullptr), present_(false), parents_(nullptr) {}
     explicit StreamedProduct(BranchDescription const& desc) :
-      desc_(&desc), present_(false), parents_(0), prod_(0), classRef_() {}
+      prod_(nullptr), desc_(&desc), present_(false), parents_(nullptr) {}
 
-    StreamedProduct(void const* prod,
+    StreamedProduct(EDProduct const* prod,
                     BranchDescription const& desc,
                     bool present,
                     std::vector<BranchID> const* parents);
@@ -44,27 +43,22 @@ namespace edm {
     BranchID branchID() const {return desc_->branchID();}
     bool present() const {return present_;}
     std::vector<BranchID> const* parents() const {return parents_;}
-    void* prod() {return prod_;}
-    TClassRef const& classRef() const {return classRef_;}
-    void allocateForReading();
-    void setNewClassType();
-    void clearClassType();
+    EDProduct const* prod() {return prod_;}
 
    void clear() {
-     prod_= 0;
+     prod_= nullptr;
      delete desc_;
-     desc_= 0;
+     desc_= nullptr;
      present_ = false;
      delete parents_;
-     parents_ = 0;
+     parents_ = nullptr;
   }
 
   private:
+    EDProduct const* prod_;
     BranchDescription const* desc_;
     bool present_;
     std::vector<BranchID> const* parents_;
-    void* prod_;
-    TClassRef classRef_;
   };
 
   // ------------------------------------------

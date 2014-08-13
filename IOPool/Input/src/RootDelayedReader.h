@@ -42,9 +42,7 @@ namespace edm {
     RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
 
   private:
-    virtual WrapperOwningHolder getProduct_(BranchKey const& k, 
-                                            WrapperInterfaceBase const* interface,
-                                            EDProductGetter const* ep) const override;
+    virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
     virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
     virtual void reset_() {nextReader_ = 0;}
     SharedResourcesAcquirer* sharedResources_() const override;

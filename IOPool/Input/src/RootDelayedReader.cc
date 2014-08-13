@@ -4,7 +4,6 @@
 #include "RootDelayedReader.h"
 #include "InputFile.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
@@ -37,23 +36,23 @@ namespace edm {
     return resourceAcquirer_.get();
   }
 
-  WrapperOwningHolder
-  RootDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const {
+  std::auto_ptr<EDProduct>
+  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
     iterator iter = branchIter(k);
     if (!found(iter)) {
       if (nextReader_) {
-        return nextReader_->getProduct(k, interface, ep);
+        return nextReader_->getProduct(k, ep);
       } else {
-        return WrapperOwningHolder();
+        return std::auto_ptr<EDProduct>();
       }
     }
     roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
     TBranch* br = branchInfo.productBranch_;
     if (br == nullptr) {
       if (nextReader_) {
-        return nextReader_->getProduct(k, interface, ep);
+        return nextReader_->getProduct(k, ep);
       } else {
-        return WrapperOwningHolder();
+        return std::auto_ptr<EDProduct>();
       }
     }
    
@@ -62,8 +61,22 @@ namespace edm {
     if(nullptr == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
+      TClass *edProductClass = gROOT->GetClass("edm::EDProduct"); 	 
+      branchInfo.offsetToEDProduct_ = edProductClass->GetBaseClassOffset(edProductClass);
     }
     void* p = cp->New();
+
+    // A union is used to avoid possible copies during the triple cast that would otherwise be needed. 	 
+    // std::auto_ptr<EDProduct> edp(static_cast<EDProduct *>(static_cast<void *>(static_cast<unsigned char *>(p) + branchInfo.offsetToEDProduct_))); 	 
+    union { 	 
+      void* vp; 	 
+      unsigned char* ucp; 	 
+      EDProduct* edp; 	 
+    } pointerUnion; 	 
+    pointerUnion.vp = p; 	 
+    pointerUnion.ucp += branchInfo.offsetToEDProduct_; 	 
+    std::auto_ptr<EDProduct> edp(pointerUnion.edp);
+
     br->SetAddress(&p);
     tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
     if(tree_.branchType() == InEvent) {
@@ -71,7 +84,6 @@ namespace edm {
       InputFile::reportReadBranch(inputType_, std::string(br->GetName()));
     }
     setRefCoreStreamer(false);
-    WrapperOwningHolder edp(p, interface);
     return edp;
   }
 }

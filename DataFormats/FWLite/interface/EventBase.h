@@ -42,12 +42,6 @@ namespace fwlite
                                   char const*,
                                   char const*,
                                   void*) const = 0;
-         virtual bool getByLabel(
-                                  std::type_info const&,
-                                  char const*,
-                                  char const*,
-                                  char const*,
-                                  edm::WrapperHolder&) const = 0;
 
          using edm::EventBase::getByLabel;
 

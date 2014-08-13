@@ -1,9 +1,8 @@
 
 <lcgdict>
- <class name="edm::StreamedProduct" ClassVersion="10">
+ <class name="edm::StreamedProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="512531612"/>
-   <field name="prod_" transient="true"/>
-   <field name="classRef_" transient="true"/>
+  <version ClassVersion="11" checksum="90168224"/>
  </class>
  <class name="std::vector<edm::StreamedProduct>"/>
  <class name="edm::SendEvent" ClassVersion="10">

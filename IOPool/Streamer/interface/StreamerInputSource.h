@@ -66,7 +66,7 @@ namespace edm {
       EventPrincipalHolder();
       virtual ~EventPrincipalHolder();
 
-      virtual WrapperHolder getIt(edm::ProductID const& id) const override;
+      virtual EDProduct const* getIt(edm::ProductID const& id) const override;
  
       virtual unsigned int transitionIndex_() const override;
 

@@ -6,7 +6,6 @@
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
 
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -1712,8 +1711,8 @@ namespace edm {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
           TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          WrapperOwningHolder edp(cp->New(), prod.getInterface());
-          if(edp.isMergeable()) {
+          std::shared_ptr<EDProduct> edp(static_cast<EDProduct *>(cp->New()));
+          if(edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;
             ++it;

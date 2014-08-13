@@ -287,12 +287,13 @@ namespace edm {
         ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
 
         if(spitem.prod() != nullptr) {
+          std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spitem.prod()));
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, aprod, productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::auto_ptr<EDProduct>(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
         spitem.clear();
@@ -367,9 +368,9 @@ namespace edm {
 
   StreamerInputSource::EventPrincipalHolder::~EventPrincipalHolder() {}
 
-  WrapperHolder
+  EDProduct const*
   StreamerInputSource::EventPrincipalHolder::getIt(ProductID const& id) const {
-    return eventPrincipal_ ? eventPrincipal_->getIt(id) : WrapperHolder();
+    return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
   }
 
   unsigned int
