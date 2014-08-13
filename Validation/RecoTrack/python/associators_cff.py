@@ -40,16 +40,16 @@ tpToHLTpixelTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
 tpToHLTiter0tracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     label_tr = cms.InputTag("hltIter0PFlowCtfWithMaterialTracks"),
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
-#    associator = cms.string('hltTrackAssociatorByHits'),
-    associator = cms.string('hltTrackAssociatorByDeltaR'),
+    associator = cms.string('hltTrackAssociatorByHits'),
+#    associator = cms.string('hltTrackAssociatorByDeltaR'),
     ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
 tpToHLTiter0HPtracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     label_tr = cms.InputTag("hltIter0PFlowTrackSelectionHighPurity"),
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
-#    associator = cms.string('hltTrackAssociatorByHits'),
-    associator = cms.string('hltTrackAssociatorByDeltaR'),
+    associator = cms.string('hltTrackAssociatorByHits'),
+#    associator = cms.string('hltTrackAssociatorByDeltaR'),
     ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
