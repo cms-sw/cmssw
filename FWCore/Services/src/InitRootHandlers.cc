@@ -124,6 +124,9 @@ namespace {
           (el_message.find("already in TClassTable") != std::string::npos) ||
           (el_message.find("matrix not positive definite") != std::string::npos) ||
           (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
+	  //This deals with a missing dictionary problem
+	  ( (el_message.find("Collection proxy for") !=std::string::npos && 
+	     el_message.find("was not properly initialized!") != std::string::npos)) ||
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
