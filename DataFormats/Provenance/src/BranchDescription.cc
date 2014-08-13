@@ -162,16 +162,18 @@ namespace edm {
 
     throwIfInvalid_();
 
-    setWrappedName(wrappedClassName(fullClassName()));
+    try {
+      setWrappedName(wrappedClassName(fullClassName()));
+      
+      // unwrapped type.
+      setUnwrappedType(TypeWithDict::byName(fullClassName()));
+      if(!bool(unwrappedType())) {
+	setSplitLevel(invalidSplitLevel);
+	setBasketSize(invalidBasketSize);
+	setTransient(false);
+	return;
+      }
 
-    // unwrapped type.
-    setUnwrappedType(TypeWithDict::byName(fullClassName()));
-    if(!bool(unwrappedType())) {
-      setSplitLevel(invalidSplitLevel);
-      setBasketSize(invalidBasketSize);
-      setTransient(false);
-      return;
-    }
 
     edm::TypeWithDict wrType(TypeWithDict::byName(wrappedName()));
     setWrappedType(wrType);
