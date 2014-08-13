@@ -43,7 +43,7 @@ namespace gen {
       virtual void SetLHE(lhef::LHEEvent *l){lhe=l;}
       void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
       static double flat();
-      
+
       private: 
       // member function(s)
       void decodeMDTAU( int );

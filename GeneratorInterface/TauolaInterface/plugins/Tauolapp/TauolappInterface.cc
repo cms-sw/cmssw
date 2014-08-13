@@ -288,17 +288,12 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	     HepMC::GenParticle *p=(*(tauevt->particles_begin()));
 	     Tauolapp::TauolaParticle *tp = new Tauolapp::TauolaHepMCParticle(p);
 	     double helicity=MatchedLHESpinUp(*iter,particles,spinup,m_idx); // get helicity from lhe
+	     if((*iter)->pdg_id()==15) helicity*=-1.0;
 	     std::cout << "helicity: " << helicity << " " << (*iter)->pdg_id() << std::endl;
-	     for(int i=0; i<ntries;i++){
-	       tp->undecay();
-	       Tauolapp::Tauola::decayOne(tp,true,0,0,0);
-	       std::cout << helicity << " " << Tauolapp::Tauola::getHelMinus() << " " << Tauolapp::Tauola::getHelPlus() << std::endl;
-	       double diffhelminus=(-1.0*(double)Tauolapp::Tauola::getHelMinus()-helicity); // -1.0 to correct for tauola feature
-               double diffhelplus=((double)Tauolapp::Tauola::getHelPlus()-helicity);
-               if((*iter)->pdg_id()==-15  && diffhelminus<0.5) break;
-               if((*iter)->pdg_id()==15   && diffhelplus<0.5)  break;
-	     }
+	     tp->undecay();
+	     Tauolapp::Tauola::decayOne(tp,true,0,0,((double)helicity)*0.999999);
 	     boost*=-1.0; // boost back to lab frame
+	     mother.Boost(boost);
 	     update_particles((*iter),evt,p,boost);
 	     delete tauevt;
 	   }
@@ -725,6 +720,7 @@ HepMC::GenEvent* TauolappInterface::make_simple_tau_event(const TLorentzVector &
 }
 
 void TauolappInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,TVector3 &boost){
+  partHep->set_status(p->status());
   if(p->end_vertex()){
     if(!partHep->end_vertex()){
       HepMC::GenVertex* vtx = new HepMC::GenVertex(p->end_vertex()->position());
@@ -738,6 +734,7 @@ void TauolappInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenE
 	l.Boost(boost);
 	HepMC::FourVector momentum(l.Px(),l.Py(),l.Pz(),l.E());
 	HepMC::GenParticle *daughter = new HepMC::GenParticle(momentum,(*d)->pdg_id(),(*d)->status());
+	daughter->print();
 	daughter->suggest_barcode(theEvent->particles_size()+1);
 	partHep->end_vertex()->add_particle_out(daughter);
 	if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d),boost);
