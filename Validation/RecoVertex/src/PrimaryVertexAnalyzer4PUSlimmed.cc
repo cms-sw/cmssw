@@ -149,6 +149,16 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["MatchedRecoVtx_vs_GenVtx"] =
         i.bookProfile("MatchedRecoVtx_vs_GenVtx", "MatchedRecoVtx_vs_GenVtx",
                       250, 0., 250., 250, 0., 250.);
+    mes_[label]["KindOfSignalPV"] =
+        i.book1D("KindOfSignalPV", "KindOfSignalPV", 9, -0.5, 8.5);
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(1, "!Highest!Assoc2Any");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(2, "Highest!Assoc2Any");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(3, "!HighestAssoc2First");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(4, "HighestAssoc2First");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(5, "!HighestAssoc2!First");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(6, "HighestAssoc2!First");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(7, "!HighestAssoc2First");
+    mes_[label]["KindOfSignalPV"]->getTH1()->GetXaxis()->SetBinLabel(8, "HighestAssoc2First");
     mes_[label]["MisTagRate"] =
         i.book1D("MisTagRate", "MisTagRate", 2, -0.5, 1.5);
     mes_[label]["MisTagRate_vs_PU"] =
@@ -995,6 +1005,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   simpv = getSimPVs(TVCollectionH);
   // TODO(rovere) 1 vertex is not, by definition, pileup, and should
   // probably be subtracted?
+  int kind_of_signal_vertex = 0;
   int num_pileup_vertices = simpv.size();
   mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
   bool signal_is_highest_pt = std::max_element(simpv.begin(), simpv.end(),
@@ -1002,6 +1013,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                                                   const simPrimaryVertex& rhs) {
                                                  return lhs.ptsq < rhs.ptsq;
                                                }) == simpv.begin();
+  kind_of_signal_vertex = (kind_of_signal_vertex & ~(1<<HIGHEST_PT)) |
+      (signal_is_highest_pt << HIGHEST_PT);
   mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
       signal_is_highest_pt ? 1. : 0.);
   computePairDistance(simpv,
@@ -1040,7 +1053,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
           mistag = 1.;
+          kind_of_signal_vertex =
+              (kind_of_signal_vertex & ~(1<<IS_ASSOC2FIRST_RECO)) |
+              (signal_is_highest_pt << IS_ASSOC2FIRST_RECO);
+        } else {
+          if (v.rec_vertices.size()) {
+            kind_of_signal_vertex =
+                (kind_of_signal_vertex & ~(1<<IS_ASSOC2ANY_RECO)) |
+                (signal_is_highest_pt << IS_ASSOC2ANY_RECO);
+          }
         }
+        mes_[label]["KindOfSignalPV"]->Fill(kind_of_signal_vertex);
         mes_[label]["MisTagRate"]->Fill(mistag);
         mes_[label]["MisTagRate_vs_PU"]->Fill(simpv.size(), mistag);
         mes_[label]["MisTagRate_vs_sum-pt2"]->Fill(v.ptsq, mistag);
@@ -1098,8 +1121,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         // index -1.
         if (iv == (*recVtxs.product()).end()) {
           mes_[label]["TruePVLocationIndex"]->Fill(-1.);
-          mes_[label]["TruePVLocationIndexSignalIsHighest"]->Fill(-1.);
-          mes_[label]["TruePVLocationIndexSignalIsNotHighest"]->Fill(-1.);
+          if (signal_is_highest_pt)
+            mes_[label]["TruePVLocationIndexSignalIsHighest"]->Fill(-1.);
+          else
+            mes_[label]["TruePVLocationIndexSignalIsNotHighest"]->Fill(-1.);
         }
       }
 

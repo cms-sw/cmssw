@@ -14,6 +14,7 @@ histo_names = [
     {'name': 'RecoAllAssoc2GenProperties', 'o': '', 'xAxis': 'Kind of Reco Vertex', 'yAxis': '', 'yMax': '', 'yMin': ''},
     {'name': 'RecoAllAssoc2Gen_PairDistanceZ', 'o': '', 'xAxis': 'Reco Vertex, Pair Distance', 'yAxis': '', 'yMax': '', 'yMin': ''},
     {'name': 'globalEfficiencies', 'o': '', 'xAxis': '', 'yAxis': '', 'yMax': '', 'yMin': ''},
+    {'name': 'KindOfSignalPV', 'o': '', 'xAxis': 'Type Of Signal VTX', 'yAxis': '', 'yMax': '', 'yMin': '0'},
     {'name': 'MisTagRate', 'o': '', 'xAxis': 'Misidentification', 'yAxis': '', 'yMax': '', 'yMin': '0'},
     {'name': 'MisTagRate_vs_PU', 'o': '', 'xAxis': 'Pileup Interactions', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},
     {'name': 'MisTagRate_vs_sum-pt2', 'o': 'logx', 'xAxis': '#sum_{pt^{2}}', 'yAxis': 'Misidentification', 'yMax': '', 'yMin': '0'},

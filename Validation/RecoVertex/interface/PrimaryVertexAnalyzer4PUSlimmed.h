@@ -60,6 +60,12 @@ class MonitorElement;
 class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;
 
+  enum SignalVertexKind {
+    HIGHEST_PT = 0,
+    IS_ASSOC2FIRST_RECO = 1,
+    IS_ASSOC2ANY_RECO = 2
+  };
+
   // auxiliary class holding simulated vertices
   struct simPrimaryVertex {
     simPrimaryVertex(double x1, double y1, double z1)
