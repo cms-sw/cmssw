@@ -162,22 +162,28 @@ namespace edm {
 
     throwIfInvalid_();
 
-    setWrappedName(wrappedClassName(fullClassName()));
+    try {
+      setWrappedName(wrappedClassName(fullClassName()));
+      
+      // unwrapped type.
+      setUnwrappedType(TypeWithDict::byName(fullClassName()));
+      if(!bool(unwrappedType())) {
+	setSplitLevel(invalidSplitLevel);
+	setBasketSize(invalidBasketSize);
+	setTransient(false);
+	return;
+      }
 
-    // unwrapped type.
-    setUnwrappedType(TypeWithDict::byName(fullClassName()));
-    if(!bool(unwrappedType())) {
-      setSplitLevel(invalidSplitLevel);
-      setBasketSize(invalidBasketSize);
-      setTransient(false);
-      return;
-    }
 
-    setWrappedType(TypeWithDict::byName(wrappedName()));
-    if(!bool(wrappedType())) {
-      setSplitLevel(invalidSplitLevel);
-      setBasketSize(invalidBasketSize);
-      return;
+      setWrappedType(TypeWithDict::byName(wrappedName()));
+      if(!bool(wrappedType())) {
+	setSplitLevel(invalidSplitLevel);
+	setBasketSize(invalidBasketSize);
+	return;
+      }
+    } catch( edm::Exception& caughtException) {
+      caughtException.addContext(std::string{"While initializing meta data for branch: "}+branchName());
+      throw;
     }
     wrappedType().invokeByName(wrapperInterfaceBase(), "getInterface");
     assert(wrapperInterfaceBase() != 0);
