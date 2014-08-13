@@ -7,16 +7,13 @@
 
 #include "boost/filesystem.hpp"
 
-#include <memory>
 #include <map>
-#include <string>
 #include <queue>
-#include <iterator>
 #include <chrono>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
-namespace edm {
+#include "DQMMonitoringService.h"
+
+namespace dqmservices {
 
 class DQMFileIterator {
  public:
@@ -54,7 +51,7 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  DQMFileIterator(ParameterSet const& pset, JsonType t);
+  DQMFileIterator(edm::ParameterSet const& pset, JsonType t);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
 
@@ -86,7 +83,7 @@ class DQMFileIterator {
   unsigned int lastLumiFound();
   void advanceToLumi(unsigned int lumi);
 
-  static void fillDescription(ParameterSetDescription& d);
+  static void fillDescription(edm::ParameterSetDescription& d);
 
  private:
   JsonType type_;
@@ -114,7 +111,11 @@ class DQMFileIterator {
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
   void collect(bool ignoreTimers);
+
+  /* this is for monitoring */
+  edm::Service<DQMMonitoringService> mon_;
 };
 
 } /* end of namespace */
+
 #endif

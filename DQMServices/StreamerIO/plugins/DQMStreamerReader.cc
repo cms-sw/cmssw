@@ -1,6 +1,3 @@
-#include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/StreamerInputFile.h"
-#include "IOPool/Streamer/interface/DumpTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -22,18 +19,18 @@
 #include <boost/format.hpp>
 #include <boost/range.hpp>
 #include <boost/filesystem.hpp>
-#include "boost/algorithm/string.hpp"
+#include <boost/algorithm/string.hpp>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
 
-namespace edm {
+namespace dqmservices {
 
-DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
-                                     InputSourceDescription const& desc)
+DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
+                                     edm::InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
       fiterator_(pset, DQMFileIterator::JS_DATA),
       streamReader_(),
-      eventSkipperByID_(EventSkipperByID::create(pset).release()) {
+      eventSkipperByID_(edm::EventSkipperByID::create(pset).release()) {
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
@@ -100,8 +97,8 @@ void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
   processedEventPerLs_ = 0;
   edm::ParameterSet pset;
 
-  streamReader_ = std::unique_ptr<StreamerInputFile>(
-      new StreamerInputFile(newStreamerFile_, eventSkipperByID_));
+  streamReader_ = std::unique_ptr<edm::StreamerInputFile>(
+      new edm::StreamerInputFile(newStreamerFile_, eventSkipperByID_));
 
   InitMsgView const* header = getHeaderMsg();
   deserializeAndMergeWithRegistry(*header, false);
@@ -160,7 +157,7 @@ InitMsgView const* DQMStreamerReader::getHeaderMsg() {
   InitMsgView const* header = streamReader_->startMessage();
 
   if (header->code() != Header::INIT) {  // INIT Msg
-    throw Exception(errors::FileReadError, "DQMStreamerReader::readHeader")
+    throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::readHeader")
         << "received wrong message type: expected INIT, got " << header->code()
         << "\n";
   }
@@ -327,7 +324,7 @@ bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
        i!=end; ++i){
     std::string hltPath(*i);
     boost::erase_all(hltPath, " \t");
-    std::vector<Strings::const_iterator> matches = regexMatch(tnames, hltPath);
+    std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
     if (matches.empty()){
       edm::LogWarning("Trigger selection does not match any trigger path!!!") << std::endl; 
       matchTriggerSel_ = false;
@@ -379,8 +376,9 @@ void DQMStreamerReader::skip(int toSkip) {
 }
 
 void DQMStreamerReader::fillDescriptions(
-    ConfigurationDescriptions& descriptions) {
-  ParameterSetDescription desc;
+    edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
   desc.setComment("Reads events from streamer files.");
 
   desc.addUntracked<std::vector<std::string> >("SelectEvents")
@@ -415,9 +413,16 @@ void DQMStreamerReader::fillDescriptions(
   desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
 
   DQMFileIterator::fillDescription(desc);
-  StreamerInputSource::fillDescription(desc);
-  EventSkipperByID::fillDescription(desc);
+  edm::StreamerInputSource::fillDescription(desc);
+  edm::EventSkipperByID::fillDescription(desc);
 
   descriptions.add("source", desc);
 }
-}
+
+} // end of namespace
+
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+typedef dqmservices::DQMStreamerReader DQMStreamerReader;
+DEFINE_FWK_INPUT_SOURCE(DQMStreamerReader);
