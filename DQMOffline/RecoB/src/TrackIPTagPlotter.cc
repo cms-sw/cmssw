@@ -611,7 +611,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
                        tagInfo->primaryVertex()->position().y(),
                        tagInfo->primaryVertex()->position().z());
 
-  const std::vector<reco::TrackIPTagInfo::TrackIPData>& ip = tagInfo->impactParameterData();
+  const std::vector<reco::btag::TrackIPData>& ip = tagInfo->impactParameterData();
 
   std::vector<float> prob2d, prob3d;
   if (tagInfo->hasProbabilities()) {
@@ -619,7 +619,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     prob3d = tagInfo->probabilities(1);	
   }
 
-  std::vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP2DSig);
+  std::vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::btag::IP2DSig);
   std::vector<std::size_t> selectedIndices;
   reco::TrackRefVector sortedTracks = tagInfo->sortedTracks(sortedIndices);
   reco::TrackRefVector selectedTracks;
@@ -661,7 +661,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosTkNHits2D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
     tkcntHistosTkNPixelHits2D[n]->fill(jetFlavour, trackQual, track->hitPattern().numberOfValidPixelHits(), true,w);
   }
-  sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob2D);
+  sortedIndices = tagInfo->sortedIndexes(reco::btag::Prob2D);
   selectedIndices.clear();
   sortedTracks = tagInfo->sortedTracks(sortedIndices);
   selectedTracks.clear();
@@ -689,7 +689,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosVal2D[n]->fill(jetFlavour, trackQual, lowerIPBound-1.0, false,w);
     tkcntHistosErr2D[n]->fill(jetFlavour, trackQual, lowerIPEBound-1.0, false,w);
   }
-  sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP3DSig);
+  sortedIndices = tagInfo->sortedIndexes(reco::btag::IP3DSig);
   selectedIndices.clear();
   sortedTracks = tagInfo->sortedTracks(sortedIndices);
   selectedTracks.clear();
@@ -737,7 +737,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosTkNHits3D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
     tkcntHistosTkNPixelHits3D[n]->fill(jetFlavour, trackQual, track->hitPattern().numberOfValidPixelHits(), true,w);
   }
-  sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob3D);
+  sortedIndices = tagInfo->sortedIndexes(reco::btag::Prob3D);
   selectedIndices.clear();
   sortedTracks = tagInfo->sortedTracks(sortedIndices);
   selectedTracks.clear();
