@@ -1,15 +1,18 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <ConstantsSection label="castor.xml" eval="true">
+        <Constant name="castLength" value="1583.3*mm" />
+        <Constant name="CASTFarTiltAngle" value="0*deg" />
+        <Constant name="CASTNearTiltAngle" value="0*deg" />
+    </ConstantsSection>
+    <RotationSection label="castor.xml">
+        <Rotation name="CASTFarTilt"  thetaX="90*deg+[CASTFarTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTFarTiltAngle]" phiZ="0*deg" />
+        <Rotation name="CASTNearTilt" thetaX="90*deg+[CASTNearTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTNearTiltAngle]" phiZ="0*deg" />
+    </RotationSection>
     <SolidSection label="castor.xml">
         <!--  -->
         <!-- main CASTOR volume  -->
         <!--  -->
-        <Constant name="castLength" value="1583.3*mm" />
-        <Constant name="CASTFarTiltAngle" value="0*deg" />
-        <Constant name="CASTNearTiltAngle" value="0*deg" />
-        <Rotation name="CASTFarTilt"  thetaX="90*deg+[CASTFarTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTFarTiltAngle]" phiZ="0*deg" />
-        <Rotation name="CASTNearTilt" thetaX="90*deg+[CASTNearTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTNearTiltAngle]" phiZ="0*deg" />
-
         <Polyhedra name="CASTFar" numSide="4" startPhi="-90.0*deg" deltaPhi="180.0*deg" >
             <ZSection rMin="39.00*mm"   rMax="40.00*mm"    z="0.0*mm" />
             <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="263.2*mm" />
