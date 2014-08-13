@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/GRun/V82 (CMSSW_7_1_6)
+# /dev/CMSSW_7_1_1/GRun/V83 (CMSSW_7_1_6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V82')
+  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V83')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -14039,7 +14039,7 @@ hltTowerMakerForPF = cms.EDProducer( "CaloTowersCreator",
     HOGrid = cms.vdouble(  ),
     EBGrid = cms.vdouble(  )
 )
-hltAntiKT4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
+hltAK4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( -9.0 ),
@@ -14099,9 +14099,9 @@ hltAntiKT4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-hltAntiKT4CaloJetsPFEt5 = cms.EDFilter( "EtMinCaloJetSelector",
+hltAK4CaloJetsPFEt5 = cms.EDFilter( "EtMinCaloJetSelector",
     filter = cms.bool( False ),
-    src = cms.InputTag( "hltAntiKT4CaloJetsPF" ),
+    src = cms.InputTag( "hltAK4CaloJetsPF" ),
     etMin = cms.double( 5.0 )
 )
 hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -14207,7 +14207,7 @@ hltTrackIter0RefsForJets4Iter1 = cms.EDProducer( "ChargedRefCandidateProducer",
     src = cms.InputTag( "hltIter0PFlowTrackSelectionHighPurity" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter0TrackJets4Iter1 = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter0TrackJets4Iter1 = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -14273,9 +14273,9 @@ hltIter0TrackAndTauJets4Iter1 = cms.EDProducer( "TauJetSelectorForHLTTrackSeedin
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 1.0 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter0TrackJets4Iter1" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter0TrackJets4Iter1" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
-    inputCaloJetTag = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+    inputCaloJetTag = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
     etaMinCaloJet = cms.double( -2.7 ),
     etaMaxCaloJet = cms.double( 2.7 ),
     ptMinCaloJet = cms.double( 5.0 ),
@@ -14528,7 +14528,7 @@ hltIter1TrackRefsForJets4Iter2 = cms.EDProducer( "ChargedRefCandidateProducer",
     src = cms.InputTag( "hltIter1Merged" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter1TrackJets4Iter2 = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter1TrackJets4Iter2 = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -14594,9 +14594,9 @@ hltIter1TrackAndTauJets4Iter2 = cms.EDProducer( "TauJetSelectorForHLTTrackSeedin
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 1.4 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter1TrackJets4Iter2" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter1TrackJets4Iter2" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
-    inputCaloJetTag = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+    inputCaloJetTag = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
     etaMinCaloJet = cms.double( -2.7 ),
     etaMaxCaloJet = cms.double( 2.7 ),
     ptMinCaloJet = cms.double( 5.0 ),
@@ -14798,7 +14798,7 @@ hltIter2TrackRefsForJets4Iter3 = cms.EDProducer( "ChargedRefCandidateProducer",
     src = cms.InputTag( "hltIter2Merged" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter2TrackJetsIter3 = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter2TrackJets4Iter3 = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -14858,15 +14858,15 @@ hltAntiKT4Iter2TrackJetsIter3 = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.2 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-hltIter2TrackAndTauJetsIter3 = cms.EDProducer( "TauJetSelectorForHLTTrackSeeding",
+hltIter2TrackAndTauJets4Iter3 = cms.EDProducer( "TauJetSelectorForHLTTrackSeeding",
     fractionMinCaloInTauCone = cms.double( 0.7 ),
     fractionMaxChargedPUInCaloCone = cms.double( 0.3 ),
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 3.0 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter2TrackJetsIter3" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter2TrackJets4Iter3" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
-    inputCaloJetTag = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+    inputCaloJetTag = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
     etaMinCaloJet = cms.double( -2.7 ),
     etaMaxCaloJet = cms.double( 2.7 ),
     ptMinCaloJet = cms.double( 5.0 ),
@@ -14957,7 +14957,7 @@ hltIter3PFlowMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         nSigmaZBeamSpot = cms.double( 3.0 ),
         zErrorVetex = cms.double( 0.05 ),
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-        input = cms.InputTag( "hltIter2TrackAndTauJetsIter3" )
+        input = cms.InputTag( "hltIter2TrackAndTauJets4Iter3" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -15136,7 +15136,7 @@ hltIter3TrackRefsForJets4Iter4 = cms.EDProducer( "ChargedRefCandidateProducer",
     src = cms.InputTag( "hltIter3Merged" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter3TrackJets4Iter4 = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter3TrackJets4Iter4 = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -15202,9 +15202,9 @@ hltIter3TrackAndTauJets4Iter4 = cms.EDProducer( "TauJetSelectorForHLTTrackSeedin
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 4.0 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter3TrackJets4Iter4" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter3TrackJets4Iter4" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
-    inputCaloJetTag = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+    inputCaloJetTag = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
     etaMinCaloJet = cms.double( -2.0 ),
     etaMaxCaloJet = cms.double( 2.0 ),
     ptMinCaloJet = cms.double( 5.0 ),
@@ -15702,7 +15702,7 @@ hltMuons = cms.EDProducer( "MuonIdProducer",
       ComponentName = cms.string( "JetExtractor" ),
       DR_Max = cms.double( 1.0 ),
       PropagatorName = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
-      JetCollectionLabel = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+      JetCollectionLabel = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
       DR_Veto = cms.double( 0.1 ),
       Threshold = cms.double( 5.0 )
     ),
@@ -16169,7 +16169,7 @@ hltFixedGridRhoFastjetAll = cms.EDProducer( "FixedGridRhoProducerFastjet",
     maxRapidity = cms.double( 5.0 ),
     pfCandidatesTag = cms.InputTag( "hltParticleFlow" )
 )
-hltAntiKT4PFJets = cms.EDProducer( "FastjetJetProducer",
+hltAK4PFJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( -9.0 ),
@@ -16230,7 +16230,7 @@ hltAntiKT4PFJets = cms.EDProducer( "FastjetJetProducer",
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
 hltAK4PFJetL1FastL2L3Corrected = cms.EDProducer( "PFJetCorrectionProducer",
-    src = cms.InputTag( "hltAntiKT4PFJets" ),
+    src = cms.InputTag( "hltAK4PFJets" ),
     correctors = cms.vstring( 'hltESPAK4PFL1L2L3' )
 )
 hltPFJetsL1Matched = cms.EDProducer( "HLTPFJetL1MatchProducer",
@@ -16266,7 +16266,7 @@ hltPrePFJet260 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltAntiKT4CaloJets = cms.EDProducer( "FastjetJetProducer",
+hltAK4CaloJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -16330,7 +16330,7 @@ hltCaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 1.0E-6 ),
-    jetsInput = cms.InputTag( "hltAntiKT4CaloJets" ),
+    jetsInput = cms.InputTag( "hltAK4CaloJets" ),
     JetIDParams = cms.PSet( 
       useRecHits = cms.bool( True ),
       hbheRecHitsColl = cms.InputTag( "hltHbhereco" ),
@@ -16440,7 +16440,7 @@ hltPFNoPileUp = cms.EDProducer( "TPPFCandidatesOnPFCandidates",
     name = cms.untracked.string( "pileUpOnPFCandidates" ),
     verbose = cms.untracked.bool( False )
 )
-hltAntiKT4PFJetsNoPU = cms.EDProducer( "FastjetJetProducer",
+hltAK4PFJetsNoPU = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( -9.0 ),
@@ -16501,7 +16501,7 @@ hltAntiKT4PFJetsNoPU = cms.EDProducer( "FastjetJetProducer",
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
 hltAK4PFJetL1FastL2L3CorrectedNoPU = cms.EDProducer( "PFJetCorrectionProducer",
-    src = cms.InputTag( "hltAntiKT4PFJetsNoPU" ),
+    src = cms.InputTag( "hltAK4PFJetsNoPU" ),
     correctors = cms.vstring( 'hltESPAK4PFNoPUL1L2L3' )
 )
 hltPFJetsMatchedToCaloJets200NoPU = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
@@ -16914,7 +16914,7 @@ hltTauJet5 = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+    inputTag = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 84 )
 )
@@ -17109,7 +17109,7 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
     usePFSCEleCalib = cms.bool( True )
 )
-hltAntiKT4PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
+hltAK4PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( -9.0 ),
@@ -17171,7 +17171,7 @@ hltAntiKT4PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
 )
 hltTauPFJets08Region = cms.EDProducer( "RecoTauJetRegionProducer",
     pfCandAssocMapSrc = cms.InputTag( "" ),
-    src = cms.InputTag( "hltAntiKT4PFJetsForTaus" ),
+    src = cms.InputTag( "hltAK4PFJetsForTaus" ),
     deltaR = cms.double( 0.8 ),
     pfCandSrc = cms.InputTag( "hltParticleFlowForTaus" )
 )
@@ -17233,7 +17233,7 @@ hltTauPFJetsRecoTauChargedHadrons = cms.EDProducer( "PFRecoTauChargedHadronProdu
       )
     ),
     jetRegionSrc = cms.InputTag( "hltTauPFJets08Region" ),
-    jetSrc = cms.InputTag( "hltAntiKT4PFJetsForTaus" )
+    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" )
 )
 hltPFTauPiZeros = cms.EDProducer( "RecoTauPiZeroProducer",
     outputSelection = cms.string( "pt > 0" ),
@@ -17277,7 +17277,7 @@ hltPFTauPiZeros = cms.EDProducer( "RecoTauPiZeroProducer",
       )
     ),
     massHypothesis = cms.double( 0.136 ),
-    jetSrc = cms.InputTag( "hltAntiKT4PFJetsForTaus" )
+    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" )
 )
 hltPFTausSansRef = cms.EDProducer( "RecoTauProducer",
     piZeroSrc = cms.InputTag( "hltPFTauPiZeros" ),
@@ -17298,7 +17298,7 @@ hltPFTausSansRef = cms.EDProducer( "RecoTauProducer",
     maxJetAbsEta = cms.double( 99.0 ),
     chargedHadronSrc = cms.InputTag( "hltTauPFJetsRecoTauChargedHadrons" ),
     minJetPt = cms.double( -1.0 ),
-    jetSrc = cms.InputTag( "hltAntiKT4PFJetsForTaus" ),
+    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" ),
     builders = cms.VPSet( 
       cms.PSet(  usePFLeptons = cms.bool( True ),
         signalConeNeutralHadrons = cms.string( "0.1" ),
@@ -17820,7 +17820,7 @@ hltEle22WP90RhoGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericFilter",
 hltOverlapFilterIsoEle22GsfCaloJet5 = cms.EDFilter( "HLT2PhotonTau",
     saveTags = cms.bool( False ),
     MinMinv = cms.double( 0.0 ),
-    originTag2 = cms.VInputTag( 'hltAntiKT4CaloJetsPFEt5' ),
+    originTag2 = cms.VInputTag( 'hltAK4CaloJetsPFEt5' ),
     MinDelR = cms.double( 0.3 ),
     MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
@@ -18995,7 +18995,7 @@ hltTrackIter0RefsForJets4Iter1ForTau = cms.EDProducer( "ChargedRefCandidateProdu
     src = cms.InputTag( "hltIter0PFlowTrackSelectionHighPurityForTau" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter0TrackJets4Iter1ForTau = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter0TrackJets4Iter1ForTau = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -19061,7 +19061,7 @@ hltIter0TrackAndTauJets4Iter1ForTau = cms.EDProducer( "TauJetSelectorForHLTTrack
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 1.0 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter0TrackJets4Iter1ForTau" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter0TrackJets4Iter1ForTau" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
     inputCaloJetTag = cms.InputTag( "hltL2TausForPixelIsolation" ),
     etaMinCaloJet = cms.double( -2.7 ),
@@ -19311,7 +19311,7 @@ hltIter1TrackRefsForJets4Iter2ForTau = cms.EDProducer( "ChargedRefCandidateProdu
     src = cms.InputTag( "hltIter1MergedForTau" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter1TrackJets4Iter2ForTau = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter1TrackJets4Iter2ForTau = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -19377,7 +19377,7 @@ hltIter1TrackAndTauJets4Iter2ForTau = cms.EDProducer( "TauJetSelectorForHLTTrack
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 1.4 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter1TrackJets4Iter2ForTau" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter1TrackJets4Iter2ForTau" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
     inputCaloJetTag = cms.InputTag( "hltL2TausForPixelIsolation" ),
     etaMinCaloJet = cms.double( -2.7 ),
@@ -19576,7 +19576,7 @@ hltIter2TrackRefsForJets4Iter3ForTau = cms.EDProducer( "ChargedRefCandidateProdu
     src = cms.InputTag( "hltIter2MergedForTau" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter2TrackJetsIter3ForTau = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter2TrackJets4Iter3ForTau = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -19642,7 +19642,7 @@ hltIter2TrackAndTauJetsIter3ForTau = cms.EDProducer( "TauJetSelectorForHLTTrackS
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 3.0 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter2TrackJetsIter3ForTau" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter2TrackJets4Iter3ForTau" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
     inputCaloJetTag = cms.InputTag( "hltL2TausForPixelIsolation" ),
     etaMinCaloJet = cms.double( -2.7 ),
@@ -19909,7 +19909,7 @@ hltIter3TrackRefsForJets4Iter4ForTau = cms.EDProducer( "ChargedRefCandidateProdu
     src = cms.InputTag( "hltIter3MergedForTau" ),
     particleType = cms.string( "pi+" )
 )
-hltAntiKT4Iter3TrackJets4Iter4ForTau = cms.EDProducer( "FastjetJetProducer",
+hltAK4Iter3TrackJets4Iter4ForTau = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( 0.9 ),
@@ -19975,7 +19975,7 @@ hltIter3TrackAndTauJets4Iter4ForTau = cms.EDProducer( "TauJetSelectorForHLTTrack
     tauConeSize = cms.double( 0.2 ),
     ptTrkMaxInCaloCone = cms.double( 4.0 ),
     isolationConeSize = cms.double( 0.5 ),
-    inputTrackJetTag = cms.InputTag( "hltAntiKT4Iter3TrackJets4Iter4ForTau" ),
+    inputTrackJetTag = cms.InputTag( "hltAK4Iter3TrackJets4Iter4ForTau" ),
     nTrkMaxInCaloCone = cms.int32( 0 ),
     inputCaloJetTag = cms.InputTag( "hltL2TausForPixelIsolation" ),
     etaMinCaloJet = cms.double( -2.0 ),
@@ -20470,7 +20470,7 @@ hltMuonsReg = cms.EDProducer( "MuonIdProducer",
       ComponentName = cms.string( "JetExtractor" ),
       DR_Max = cms.double( 1.0 ),
       PropagatorName = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
-      JetCollectionLabel = cms.InputTag( "hltAntiKT4CaloJetsPFEt5" ),
+      JetCollectionLabel = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
       DR_Veto = cms.double( 0.1 ),
       Threshold = cms.double( 5.0 )
     ),
@@ -20691,7 +20691,7 @@ hltParticleFlowReg = cms.EDProducer( "PFProducer",
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
     usePFSCEleCalib = cms.bool( True )
 )
-hltAntiKT4PFJetsReg = cms.EDProducer( "FastjetJetProducer",
+hltAK4PFJetsReg = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
     doAreaFastjet = cms.bool( False ),
     voronoiRfact = cms.double( -9.0 ),
@@ -20753,7 +20753,7 @@ hltAntiKT4PFJetsReg = cms.EDProducer( "FastjetJetProducer",
 )
 hltTauPFJets08RegionReg = cms.EDProducer( "RecoTauJetRegionProducer",
     pfCandAssocMapSrc = cms.InputTag( "" ),
-    src = cms.InputTag( "hltAntiKT4PFJetsReg" ),
+    src = cms.InputTag( "hltAK4PFJetsReg" ),
     deltaR = cms.double( 0.8 ),
     pfCandSrc = cms.InputTag( "hltParticleFlowReg" )
 )
@@ -20815,7 +20815,7 @@ hltTauPFJetsRecoTauChargedHadronsReg = cms.EDProducer( "PFRecoTauChargedHadronPr
       )
     ),
     jetRegionSrc = cms.InputTag( "hltTauPFJets08RegionReg" ),
-    jetSrc = cms.InputTag( "hltAntiKT4PFJetsReg" )
+    jetSrc = cms.InputTag( "hltAK4PFJetsReg" )
 )
 hltPFTauPiZerosReg = cms.EDProducer( "RecoTauPiZeroProducer",
     outputSelection = cms.string( "pt > 0" ),
@@ -20859,7 +20859,7 @@ hltPFTauPiZerosReg = cms.EDProducer( "RecoTauPiZeroProducer",
       )
     ),
     massHypothesis = cms.double( 0.136 ),
-    jetSrc = cms.InputTag( "hltAntiKT4PFJetsReg" )
+    jetSrc = cms.InputTag( "hltAK4PFJetsReg" )
 )
 hltPFTausSansRefReg = cms.EDProducer( "RecoTauProducer",
     piZeroSrc = cms.InputTag( "hltPFTauPiZerosReg" ),
@@ -20880,7 +20880,7 @@ hltPFTausSansRefReg = cms.EDProducer( "RecoTauProducer",
     maxJetAbsEta = cms.double( 99.0 ),
     chargedHadronSrc = cms.InputTag( "hltTauPFJetsRecoTauChargedHadronsReg" ),
     minJetPt = cms.double( -1.0 ),
-    jetSrc = cms.InputTag( "hltAntiKT4PFJetsReg" ),
+    jetSrc = cms.InputTag( "hltAK4PFJetsReg" ),
     builders = cms.VPSet( 
       cms.PSet(  usePFLeptons = cms.bool( True ),
         signalConeNeutralHadrons = cms.string( "0.1" ),
@@ -21313,7 +21313,7 @@ hltMETClean60 = cms.EDFilter( "HLT1CaloMET",
 hltMetCleanUsingJetID = cms.EDProducer( "HLTMETCleanerUsingJetID",
     minPt = cms.double( 20.0 ),
     maxEta = cms.double( 5.0 ),
-    jetsLabel = cms.InputTag( "hltAntiKT4CaloJets" ),
+    jetsLabel = cms.InputTag( "hltAK4CaloJets" ),
     usePt = cms.bool( False ),
     goodJetsLabel = cms.InputTag( "hltCaloJetIDPassed" ),
     metLabel = cms.InputTag( "hltMet" )
@@ -21331,7 +21331,7 @@ hltMETCleanUsingJetID60 = cms.EDFilter( "HLT1CaloMET",
 hltPFMETProducer = cms.EDProducer( "HLTMhtProducer",
     usePt = cms.bool( True ),
     minPtJet = cms.double( 0.0 ),
-    jetsLabel = cms.InputTag( "hltAntiKT4PFJets" ),
+    jetsLabel = cms.InputTag( "hltAK4PFJets" ),
     minNJet = cms.int32( 0 ),
     maxEtaJet = cms.double( 999.0 ),
     excludePFMuons = cms.bool( False ),
@@ -21527,7 +21527,7 @@ hltPFchMETProducer = cms.EDProducer( "HLTTrackMETProducer",
     useTracks = cms.bool( False ),
     minPtJet = cms.double( 0.0 ),
     usePFCandidates = cms.bool( False ),
-    jetsLabel = cms.InputTag( "hltAntiKT4PFJets" ),
+    jetsLabel = cms.InputTag( "hltAK4PFJets" ),
     minNJet = cms.int32( 0 ),
     usePFCandidatesCharged = cms.bool( True ),
     maxEtaJet = cms.double( 999.0 ),
@@ -24233,40 +24233,40 @@ HLTPFHcalClusteringForEgammaUnseeded = cms.Sequence( hltParticleFlowRecHitHCALFo
 HLTPhoton26R9Id85ORCaloId10Iso50Photon18Mass70Sequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1DoubleEG137Filter + hltEG26EtFilter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEG26HE10HEFilter + hltEgammaClusterShape + hltEG26CaloId10ClusterShapeFilter + hltEgammaEcalPFClusterIso + hltEG26CaloId10Iso50EcalIsoFilter + HLTPFHcalClusteringForEgamma + hltEgammaHcalPFClusterIso + hltEG26CaloId10Iso50HcalIsoLastFilter + hltEgammaR9ID + hltEG26R9Id85LastFilter + hltEG26RId85ORCaloId10Iso50LegCombLastFilter + HLTPFClusteringForEgammaUnseeded + hltEgammaCandidatesUnseeded + hltEgammaCandidatesWrapperUnseeded + hltDiEG18EtUnseededFilter + hltEgammaHoverEUnseeded + hltDiEG18HE10HEUnseededFilter + hltEgammaR9IDUnseeded + hltEG18R9Id85R9UnseededFilter + hltEgammaClusterShapeUnseeded + hltEG18CaloId10ClusterShapeUnseededFilter + hltEgammaEcalPFClusterIsoUnseeded + hltEG18CaloId10Iso50EcalIsoUnseededFilter + HLTPFHcalClusteringForEgammaUnseeded + hltEgammaHcalPFClusterIsoUnseeded + hltEG18CaloId10Iso50HcalIsoUnseededFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTTrackReconstructionForIsoForPhotons + hltEgammaHollowTrackIsoUnseeded + hltEG18CaloId10Iso50TrackIsoUnseededLastFilter + hltEG26R9Id85ORCaloId10Iso50EG18R9Id85ORCaloId10Iso50Mass70CombMassLastFilter )
 HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( hltEcalDigis + hltEcalUncalibRecHit + hltEcalDetIdToBeRecovered + hltEcalRecHit )
 HLTDoCaloSequencePF = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForPF )
-HLTRecoJetSequenceAK4UncorrectedPF = cms.Sequence( HLTDoCaloSequencePF + hltAntiKT4CaloJetsPF )
-HLTRecoJetSequenceAK4PrePF = cms.Sequence( HLTRecoJetSequenceAK4UncorrectedPF + hltAntiKT4CaloJetsPFEt5 )
+HLTRecoJetSequenceAK4UncorrectedPF = cms.Sequence( HLTDoCaloSequencePF + hltAK4CaloJetsPF )
+HLTRecoJetSequenceAK4PrePF = cms.Sequence( HLTRecoJetSequenceAK4UncorrectedPF + hltAK4CaloJetsPFEt5 )
 HLTRecopixelvertexingSequence = cms.Sequence( hltPixelLayerTriplets + hltPixelTracks + hltPixelVertices )
 HLTIterativeTrackingIteration0 = cms.Sequence( hltIter0PFLowPixelSeedsFromPixelTracks + hltIter0PFlowCkfTrackCandidates + hltIter0PFlowCtfWithMaterialTracks + hltIter0PFlowTrackSelectionHighPurity )
-HLTIter0TrackAndTauJet4Iter1Sequence = cms.Sequence( hltTrackIter0RefsForJets4Iter1 + hltAntiKT4Iter0TrackJets4Iter1 + hltIter0TrackAndTauJets4Iter1 )
+HLTIter0TrackAndTauJet4Iter1Sequence = cms.Sequence( hltTrackIter0RefsForJets4Iter1 + hltAK4Iter0TrackJets4Iter1 + hltIter0TrackAndTauJets4Iter1 )
 HLTIterativeTrackingIteration1 = cms.Sequence( hltIter1ClustersRefRemoval + hltIter1MaskedMeasurementTrackerEvent + hltIter1PixelLayerTriplets + hltIter1PFlowPixelSeeds + hltIter1PFlowCkfTrackCandidates + hltIter1PFlowCtfWithMaterialTracks + hltIter1PFlowTrackSelectionHighPurityLoose + hltIter1PFlowTrackSelectionHighPurityTight + hltIter1PFlowTrackSelectionHighPurity )
-HLTIter1TrackAndTauJets4Iter2Sequence = cms.Sequence( hltIter1TrackRefsForJets4Iter2 + hltAntiKT4Iter1TrackJets4Iter2 + hltIter1TrackAndTauJets4Iter2 )
+HLTIter1TrackAndTauJets4Iter2Sequence = cms.Sequence( hltIter1TrackRefsForJets4Iter2 + hltAK4Iter1TrackJets4Iter2 + hltIter1TrackAndTauJets4Iter2 )
 HLTIterativeTrackingIteration2 = cms.Sequence( hltIter2ClustersRefRemoval + hltIter2MaskedMeasurementTrackerEvent + hltIter2PixelLayerPairs + hltIter2PFlowPixelSeeds + hltIter2PFlowCkfTrackCandidates + hltIter2PFlowCtfWithMaterialTracks + hltIter2PFlowTrackSelectionHighPurity )
-HLTIter2TrackAndTauJets4Iter3Sequence = cms.Sequence( hltIter2TrackRefsForJets4Iter3 + hltAntiKT4Iter2TrackJetsIter3 + hltIter2TrackAndTauJetsIter3 )
+HLTIter2TrackAndTauJets4Iter3Sequence = cms.Sequence( hltIter2TrackRefsForJets4Iter3 + hltAK4Iter2TrackJets4Iter3 + hltIter2TrackAndTauJets4Iter3 )
 HLTIterativeTrackingIteration3 = cms.Sequence( hltIter3ClustersRefRemoval + hltIter3MaskedMeasurementTrackerEvent + hltIter3LayerTriplets + hltIter3PFlowMixedSeeds + hltIter3PFlowCkfTrackCandidates + hltIter3PFlowCtfWithMaterialTracks + hltIter3PFlowTrackSelectionHighPurityLoose + hltIter3PFlowTrackSelectionHighPurityTight + hltIter3PFlowTrackSelectionHighPurity )
-HLTIter3TrackAndTauJets4Iter4Sequence = cms.Sequence( hltIter3TrackRefsForJets4Iter4 + hltAntiKT4Iter3TrackJets4Iter4 + hltIter3TrackAndTauJets4Iter4 )
+HLTIter3TrackAndTauJets4Iter4Sequence = cms.Sequence( hltIter3TrackRefsForJets4Iter4 + hltAK4Iter3TrackJets4Iter4 + hltIter3TrackAndTauJets4Iter4 )
 HLTIterativeTrackingIteration4 = cms.Sequence( hltIter4ClustersRefRemoval + hltIter4MaskedMeasurementTrackerEvent + hltIter4PixelLessLayerTriplets + hltIter4PFlowPixelLessSeeds + hltIter4PFlowCkfTrackCandidates + hltIter4PFlowCtfWithMaterialTracks + hltIter4PFlowTrackSelectionHighPurity )
 HLTIterativeTrackingIter04 = cms.Sequence( HLTIterativeTrackingIteration0 + HLTIter0TrackAndTauJet4Iter1Sequence + HLTIterativeTrackingIteration1 + hltIter1Merged + HLTIter1TrackAndTauJets4Iter2Sequence + HLTIterativeTrackingIteration2 + hltIter2Merged + HLTIter2TrackAndTauJets4Iter3Sequence + HLTIterativeTrackingIteration3 + hltIter3Merged + HLTIter3TrackAndTauJets4Iter4Sequence + HLTIterativeTrackingIteration4 + hltIter4Merged )
 HLTTrackReconstructionForPF = cms.Sequence( HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + HLTDoLocalStripSequence + HLTIterativeTrackingIter04 + hltPFMuonMerging + hltMuonLinks + hltMuons )
 HLTPreshowerSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalPreshowerRecHit )
 HLTParticleFlowSequence = cms.Sequence( HLTPreshowerSequence + hltParticleFlowRecHitECALUnseeded + hltParticleFlowRecHitHCAL + hltParticleFlowRecHitPSUnseeded + hltParticleFlowClusterECALUncorrectedUnseeded + hltParticleFlowClusterPSUnseeded + hltParticleFlowClusterECALUnseeded + hltParticleFlowClusterHCAL + hltParticleFlowClusterHFEM + hltParticleFlowClusterHFHAD + hltLightPFTracks + hltParticleFlowBlock + hltParticleFlow )
-HLTPFL1FastL2L3JetsSequence = cms.Sequence( hltFixedGridRhoFastjetAll + hltAntiKT4PFJets + hltAK4PFJetL1FastL2L3Corrected )
+HLTPFL1FastL2L3JetsSequence = cms.Sequence( hltFixedGridRhoFastjetAll + hltAK4PFJets + hltAK4PFJetL1FastL2L3Corrected )
 HLTPFL1FastL2L3JetTriggerSequence = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTTrackReconstructionForPF + HLTParticleFlowSequence + HLTPFL1FastL2L3JetsSequence )
 HLTPFL1FastL2L3ReconstructionSequence = cms.Sequence( HLTRecoJetSequenceAK4PrePF + HLTPFL1FastL2L3JetTriggerSequence )
 HLTDoCaloSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll )
-HLTRecoJetSequenceAK4Corrected = cms.Sequence( HLTDoCaloSequence + hltAntiKT4CaloJets + hltCaloJetIDPassed + hltCaloJetCorrected )
-HLTPFJetRecoNoPUL1FastL2L3Sequence = cms.Sequence( hltOnlinePrimaryVertices + hltGoodOnlinePVs + hltParticleFlowPtrs + hltPFPileUp + hltPFNoPileUp + hltFixedGridRhoFastjetAll + hltAntiKT4PFJetsNoPU + hltAK4PFJetL1FastL2L3CorrectedNoPU )
+HLTRecoJetSequenceAK4Corrected = cms.Sequence( HLTDoCaloSequence + hltAK4CaloJets + hltCaloJetIDPassed + hltCaloJetCorrected )
+HLTPFJetRecoNoPUL1FastL2L3Sequence = cms.Sequence( hltOnlinePrimaryVertices + hltGoodOnlinePVs + hltParticleFlowPtrs + hltPFPileUp + hltPFNoPileUp + hltFixedGridRhoFastjetAll + hltAK4PFJetsNoPU + hltAK4PFJetL1FastL2L3CorrectedNoPU )
 HLTPFnoPUL1FastL2L3JetTriggerSequence = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTTrackReconstructionForPF + HLTParticleFlowSequence + HLTPFJetRecoNoPUL1FastL2L3Sequence )
 HLTPFnoPUL1FastL2L3ReconstructionSequence = cms.Sequence( HLTRecoJetSequenceAK4PrePF + HLTPFnoPUL1FastL2L3JetTriggerSequence )
-HLTRecoJetSequenceAK4L1FastJetCorrected = cms.Sequence( HLTDoCaloSequence + hltFixedGridRhoFastjetAllCalo + hltAntiKT4CaloJets + hltCaloJetIDPassed + hltCaloJetL1FastJetCorrected )
+HLTRecoJetSequenceAK4L1FastJetCorrected = cms.Sequence( HLTDoCaloSequence + hltFixedGridRhoFastjetAllCalo + hltAK4CaloJets + hltCaloJetIDPassed + hltCaloJetL1FastJetCorrected )
 HLTBeginSequenceAntiBPTX = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + hltBPTXAntiCoincidence + HLTBeamSpot )
 HLTStoppedHSCPLocalHcalReco = cms.Sequence( hltHcalDigis + hltHbhereco )
 HLTStoppedHSCPJetSequence = cms.Sequence( hltStoppedHSCPTowerMakerForAll + hltStoppedHSCPIterativeCone4CaloJets )
 HLTParticleFlowSequenceForTaus = cms.Sequence( HLTPreshowerSequence + hltParticleFlowRecHitECALUnseeded + hltParticleFlowRecHitHCAL + hltParticleFlowRecHitPSUnseeded + hltParticleFlowClusterECALUncorrectedUnseeded + hltParticleFlowClusterPSUnseeded + hltParticleFlowClusterECALUnseeded + hltParticleFlowClusterHCAL + hltParticleFlowClusterHFEM + hltParticleFlowClusterHFHAD + hltLightPFTracks + hltParticleFlowBlockForTaus + hltParticleFlowForTaus )
-HLTPFTriggerSequenceMuTau = cms.Sequence( HLTTrackReconstructionForPF + HLTParticleFlowSequenceForTaus + hltAntiKT4PFJetsForTaus )
+HLTPFTriggerSequenceMuTau = cms.Sequence( HLTTrackReconstructionForPF + HLTParticleFlowSequenceForTaus + hltAK4PFJetsForTaus )
 HLTLooseIsoPFTauSequence = cms.Sequence( hltTauPFJets08Region + hltTauPFJetsRecoTauChargedHadrons + hltPFTauPiZeros + hltPFTausSansRef + hltPFTaus + hltPFTauTrackFindingDiscriminator + hltPFTauLooseAbsoluteIsolationDiscriminator + hltPFTauLooseRelativeIsolationDiscriminator + hltPFTauLooseAbsOrRelIsolationDiscriminator )
 HLTIsoMuLooseIsoPFTauSequence = cms.Sequence( HLTLooseIsoPFTauSequence + hltPFTau20 + hltSelectedPFTausTrackFinding + hltPFTau20Track + hltSelectedPFTausTrackFindingLooseIsolation + hltPFTau20TrackLooseIso + hltPFTauAgainstMuonDiscriminator + hltSelectedPFTausTrackFindingLooseIsolationAgainstMuon + hltPFTau20TrackLooseIsoAgainstMuon + hltOverlapFilterIsoMu17LooseIsoPFTau20 )
 HLTEle22WP90RhoGsfSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGRegionalL1SingleIsoEG18erORIsoEG20erOREG22 + hltEG22L1sIso18erOrIso20erOr22EtFilter + hltEgammaClusterShape + hltEle22WP90RhoClusterShapeFilter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEle22WP90RhoHEFilter + hltEgammaEcalPFClusterIso + hltEle22WP90RhoEcalIsoFilter + HLTPFHcalClusteringForEgamma + hltEgammaHcalPFClusterIso + hltEle22WP90RhoHcalIsoFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltEgammaElectronPixelSeeds + hltEle22WP90RhoPixelMatchFilter + HLTGsfElectronSequence + hltEle22WP90RhoGsfOneOESuperMinusOneOPFilter + hltEle22WP90RhoGsfDetaFilter + hltEle22WP90RhoGsfDphiFilter + HLTTrackReconstructionForIsoElectronIter02 + hltEgammaEleGsfTrackIso + hltEle22WP90RhoGsfTrackIsoFilter )
-HLTPFTriggerSequenceForTaus = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTTrackReconstructionForPF + HLTParticleFlowSequenceForTaus + hltAntiKT4PFJetsForTaus )
+HLTPFTriggerSequenceForTaus = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTTrackReconstructionForPF + HLTParticleFlowSequenceForTaus + hltAK4PFJetsForTaus )
 HLTIsoEle22GsfLooseIsoPFTau20Sequence = cms.Sequence( HLTLooseIsoPFTauSequence + hltPFTau20 + hltSelectedPFTausTrackFinding + hltPFTau20Track + hltSelectedPFTausTrackFindingLooseIsolation + hltPFTau20TrackLooseIso + hltOverlapFilterIsoEle22WP90GsfLooseIsoPFTau20 )
 HLTCaloTausCreatorRegionalSequence = cms.Sequence( HLTDoCaloSequence + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )
 HLTL2TauJetsSequence = cms.Sequence( HLTCaloTausCreatorRegionalSequence + hltL2TauJets )
@@ -24276,18 +24276,18 @@ HLTL2TauPixelIsolationSequence = cms.Sequence( hltL2Tau25eta2p1 + hltL2TausForPi
 HLTPFReconstructionSequenceForTaus = cms.Sequence( HLTRecoJetSequenceAK4PrePF + HLTPFTriggerSequenceForTaus )
 HLTMediumIsoPFTauSequence = cms.Sequence( hltTauPFJets08Region + hltTauPFJetsRecoTauChargedHadrons + hltPFTauPiZeros + hltPFTausSansRef + hltPFTaus + hltPFTauTrackFindingDiscriminator + hltPFTauMediumAbsoluteIsolationDiscriminator + hltPFTauMediumRelativeIsolationDiscriminator + hltPFTauMediumAbsOrRelIsolationDiscriminator )
 HLTIterativeTrackingForTauIteration0 = cms.Sequence( hltIter0PFlowPixelSeedsFromPixelTracksForTau + hltIter0PFlowCkfTrackCandidatesForTau + hltIter0PFlowCtfWithMaterialTracksForTau + hltIter0PFlowTrackSelectionHighPurityForTau )
-HLTIter0TrackAndTauJet4Iter1ForTauSequence = cms.Sequence( hltTrackIter0RefsForJets4Iter1ForTau + hltAntiKT4Iter0TrackJets4Iter1ForTau + hltIter0TrackAndTauJets4Iter1ForTau )
+HLTIter0TrackAndTauJet4Iter1ForTauSequence = cms.Sequence( hltTrackIter0RefsForJets4Iter1ForTau + hltAK4Iter0TrackJets4Iter1ForTau + hltIter0TrackAndTauJets4Iter1ForTau )
 HLTIterativeTrackingForTauIteration1 = cms.Sequence( hltIter1ClustersRefRemovalForTau + hltIter1MaskedMeasurementTrackerEventForTau + hltIter1PixelLayerTripletsForTau + hltIter1PFlowPixelSeedsForTau + hltIter1PFlowCkfTrackCandidatesForTau + hltIter1PFlowCtfWithMaterialTracksForTau + hltIter1PFlowTrackSelectionHighPurityLooseForTau + hltIter1PFlowTrackSelectionHighPurityTightForTau + hltIter1PFlowTrackSelectionHighPurityForTau )
-HLTIter1TrackAndTauJet4Iter2ForTauSequence = cms.Sequence( hltIter1TrackRefsForJets4Iter2ForTau + hltAntiKT4Iter1TrackJets4Iter2ForTau + hltIter1TrackAndTauJets4Iter2ForTau )
+HLTIter1TrackAndTauJet4Iter2ForTauSequence = cms.Sequence( hltIter1TrackRefsForJets4Iter2ForTau + hltAK4Iter1TrackJets4Iter2ForTau + hltIter1TrackAndTauJets4Iter2ForTau )
 HLTIterativeTrackingForTauIteration2 = cms.Sequence( hltIter2ClustersRefRemovalForTau + hltIter2MaskedMeasurementTrackerEventForTau + hltIter2PixelLayerPairsForTau + hltIter2PFlowPixelSeedsForTau + hltIter2PFlowCkfTrackCandidatesForTau + hltIter2PFlowCtfWithMaterialTracksForTau + hltIter2PFlowTrackSelectionHighPurityForTau )
-HLTIter2TrackAndTauJet4Iter3ForTauSequence = cms.Sequence( hltIter2TrackRefsForJets4Iter3ForTau + hltAntiKT4Iter2TrackJetsIter3ForTau + hltIter2TrackAndTauJetsIter3ForTau )
+HLTIter2TrackAndTauJet4Iter3ForTauSequence = cms.Sequence( hltIter2TrackRefsForJets4Iter3ForTau + hltAK4Iter2TrackJets4Iter3ForTau + hltIter2TrackAndTauJetsIter3ForTau )
 HLTIterativeTrackingForTauIteration3 = cms.Sequence( hltIter3ClustersRefRemovalForTau + hltIter3MaskedMeasurementTrackerEventForTau + hltIter3LayerTripletsForTau + hltIter3PFlowMixedSeedsForTau + hltIter3PFlowCkfTrackCandidatesForTau + hltIter3PFlowCtfWithMaterialTracksForTau + hltIter3PFlowTrackSelectionHighPurityLooseForTau + hltIter3PFlowTrackSelectionHighPurityTightForTau + hltIter3PFlowTrackSelectionHighPurityForTau )
-HLTIter3TrackAndTauJet4Iter4ForTauSequence = cms.Sequence( hltIter3TrackRefsForJets4Iter4ForTau + hltAntiKT4Iter3TrackJets4Iter4ForTau + hltIter3TrackAndTauJets4Iter4ForTau )
+HLTIter3TrackAndTauJet4Iter4ForTauSequence = cms.Sequence( hltIter3TrackRefsForJets4Iter4ForTau + hltAK4Iter3TrackJets4Iter4ForTau + hltIter3TrackAndTauJets4Iter4ForTau )
 HLTIterativeTrackingForTauIteration4 = cms.Sequence( hltIter4ClustersRefRemovalForTau + hltIter4MaskedMeasurementTrackerEventForTau + hltIter4PixelLessLayerTripletsForTau + hltIter4PFlowPixelLessSeedsForTau + hltIter4PFlowCkfTrackCandidatesForTau + hltIter4PFlowCtfWithMaterialTracksForTau + hltIter4PFlowTrackSelectionHighPurityForTau )
 HLTIterativeTrackingForTauIter04 = cms.Sequence( HLTIterativeTrackingForTauIteration0 + HLTIter0TrackAndTauJet4Iter1ForTauSequence + HLTIterativeTrackingForTauIteration1 + hltIter1MergedForTau + HLTIter1TrackAndTauJet4Iter2ForTauSequence + HLTIterativeTrackingForTauIteration2 + hltIter2MergedForTau + HLTIter2TrackAndTauJet4Iter3ForTauSequence + HLTIterativeTrackingForTauIteration3 + hltIter3MergedForTau + HLTIter3TrackAndTauJet4Iter4ForTauSequence + HLTIterativeTrackingForTauIteration4 + hltIter4MergedForTau )
 HLTTrackReconstructionForPFReg = cms.Sequence( HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltPixelLayerTriplets + hltPixelTracksHybrid + HLTDoLocalStripSequence + HLTIterativeTrackingForTauIter04 + hltPFMuonForTauMerging + hltMuonLinksReg + hltMuonsReg )
 HLTParticleFlowSequenceReg = cms.Sequence( HLTPreshowerSequence + hltParticleFlowRecHitECALUnseeded + hltParticleFlowRecHitHCAL + hltParticleFlowRecHitPSUnseeded + hltParticleFlowClusterECALUncorrectedUnseeded + hltParticleFlowClusterPSUnseeded + hltParticleFlowClusterECALUnseeded + hltParticleFlowClusterHCAL + hltParticleFlowClusterHFEM + hltParticleFlowClusterHFHAD + hltLightPFTracksReg + hltParticleFlowBlockReg + hltParticleFlowReg )
-HLTPFJetsSequenceReg = cms.Sequence( hltAntiKT4PFJetsReg )
+HLTPFJetsSequenceReg = cms.Sequence( hltAK4PFJetsReg )
 HLTPFJetTriggerSequenceRegNoMu = cms.Sequence( HLTTrackReconstructionForPFReg + HLTParticleFlowSequenceReg + HLTPFJetsSequenceReg )
 HLTPFJetTriggerSequenceReg = cms.Sequence( HLTL2muonrecoSequence + HLTL3muonrecoSequence + HLTPFJetTriggerSequenceRegNoMu )
 HLTMediumIsoPFTauSequenceReg = cms.Sequence( hltTauPFJets08RegionReg + hltTauPFJetsRecoTauChargedHadronsReg + hltPFTauPiZerosReg + hltPFTausSansRefReg + hltPFTausReg + hltPFTauTrackFindingDiscriminatorReg + hltPFTauMediumAbsoluteIsolationDiscriminatorReg + hltPFTauMediumRelativeIsolationDiscriminatorReg + hltPFTauMediumAbsOrRelIsolationDiscriminatorReg )
