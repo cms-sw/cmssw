@@ -146,7 +146,7 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
     geometry_p = shgeo.product();
     edm::ESHandle<ShashlikTopology> topo;
     es.get<ShashlikNumberingRecord>().get(topo);
-    topology_p = (CaloSubdetectorTopology *)(topo.product());
+    topology_p = new ShashlikTopology(*topo.product());
   } else {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     topology_p = new EcalEndcapTopology(geoHandle); 
