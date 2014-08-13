@@ -2,14 +2,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
-#include <queue>
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-namespace edm {
+#include <memory>
+#include <string>
+#include <iterator>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+namespace dqmservices {
 
 DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
     const std::string& filename, int lumiNumber, JsonType type) {
@@ -59,7 +64,7 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
   return eor;
 }
 
-DQMFileIterator::DQMFileIterator(ParameterSet const& pset, JsonType t)
+DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset, JsonType t)
     : type_(t), state_(EOR) {
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
@@ -95,9 +100,7 @@ const DQMFileIterator::LumiEntry& DQMFileIterator::front() {
 }
 
 void DQMFileIterator::pop() {
-  lastLumiLoad_ = std::chrono::high_resolution_clock::now();
-
-  currentLumi_ += 1;
+  advanceToLumi(currentLumi_ + 1);
 }
 
 bool DQMFileIterator::lumiReady() {
@@ -119,8 +122,26 @@ unsigned int DQMFileIterator::lastLumiFound() {
 }
 
 void DQMFileIterator::advanceToLumi(unsigned int lumi) {
+  using boost::property_tree::ptree;
+  using boost::str;
+
+  unsigned int prev_lumi = currentLumi_;
+
   currentLumi_ = lumi;
   lastLumiLoad_ = std::chrono::high_resolution_clock::now();
+
+  // report the successful lumi file open
+  if (mon_.isAvailable()) {
+    ptree children;
+
+    auto iter = lumiSeen_.begin();
+    for (; iter != lumiSeen_.end(); ++iter) {
+      children.put(std::to_string(iter->first), iter->second.filename);
+    }
+
+    mon_->registerExtra("lumiSeen", children);
+    mon_->reportLumiSection(runNumber_, prev_lumi);
+  }
 }
 
 std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
@@ -297,7 +318,7 @@ void DQMFileIterator::delay() {
   updateWatchdog();
 }
 
-void DQMFileIterator::fillDescription(ParameterSetDescription& desc) {
+void DQMFileIterator::fillDescription(edm::ParameterSetDescription& desc) {
 
   desc.addUntracked<unsigned int>("runNumber")
       ->setComment("Run number passed via configuration file.");

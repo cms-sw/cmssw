@@ -667,6 +667,7 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
     }
+
     // Store at every lumi section end only if some events have been processed.
     // Caveat: if faking FilterUnit, i.e. not accessing DAQ2 services,
     // we cannot ask FastMonitoringService the processed events, so we are forced

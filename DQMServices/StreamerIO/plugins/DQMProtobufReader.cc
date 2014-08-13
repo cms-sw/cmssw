@@ -4,10 +4,10 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-using namespace edm;
+using namespace dqmservices;
 
-DQMProtobufReader::DQMProtobufReader(ParameterSet const& pset,
-                                     InputSourceDescription const& desc)
+DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
+                                     edm::InputSourceDescription const& desc)
     : InputSource(pset, desc), fiterator_(pset, DQMFileIterator::JS_PROTOBUF) {
 
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
@@ -17,7 +17,7 @@ DQMProtobufReader::DQMProtobufReader(ParameterSet const& pset,
 
 DQMProtobufReader::~DQMProtobufReader() {}
 
-InputSource::ItemType DQMProtobufReader::getNextItemType() {
+edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
   typedef DQMFileIterator::State State;
   typedef DQMFileIterator::LumiEntry LumiEntry;
 
@@ -119,12 +119,13 @@ void DQMProtobufReader::readLuminosityBlock_(
 void DQMProtobufReader::readEvent_(edm::EventPrincipal&) {};
 
 void DQMProtobufReader::fillDescriptions(
-    ConfigurationDescriptions& descriptions) {
-  ParameterSetDescription desc;
+    edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
   desc.setComment(
       "Creates runs and lumis and fills the dqmstore from protocol buffer "
       "files.");
-  ProducerSourceBase::fillDescription(desc);
+  edm::ProducerSourceBase::fillDescription(desc);
 
   desc.addUntracked<bool>("skipFirstLumis", false)->setComment(
       "Skip (and ignore the minEventsPerLumi parameter) for the files "
@@ -144,5 +145,8 @@ void DQMProtobufReader::fillDescriptions(
   descriptions.add("source", desc);
 }
 
-using edm::DQMProtobufReader;
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+using dqmservices::DQMProtobufReader;
 DEFINE_FWK_INPUT_SOURCE(DQMProtobufReader);
