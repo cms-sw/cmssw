@@ -164,24 +164,32 @@ namespace edm {
 
     try {
       setWrappedName(wrappedClassName(fullClassName()));
-      
       // unwrapped type.
       setUnwrappedType(TypeWithDict::byName(fullClassName()));
       if(!bool(unwrappedType())) {
-	setSplitLevel(invalidSplitLevel);
-	setBasketSize(invalidBasketSize);
-	setTransient(false);
-	return;
+        setSplitLevel(invalidSplitLevel);
+        setBasketSize(invalidBasketSize);
+        setTransient(false);
+        return;
       }
-
+    } catch( edm::Exception& caughtException) {
+      caughtException.addContext(std::string{"While initializing meta data for branch: "}+branchName());
+      throw;
+    }
 
     edm::TypeWithDict wrType(TypeWithDict::byName(wrappedName()));
-    setWrappedType(wrType);
-    if(!bool(wrappedType())) {
-      setSplitLevel(invalidSplitLevel);
-      setBasketSize(invalidBasketSize);
-      return;
+    try {
+      setWrappedType(wrType);
+      if(!bool(wrappedType())) {
+        setSplitLevel(invalidSplitLevel);
+        setBasketSize(invalidBasketSize);
+        return;
+      }
+    } catch( edm::Exception& caughtException) {
+      caughtException.addContext(std::string{"While initializing meta data for branch: "}+branchName());
+      throw;
     }
+
     //edm::FunctionWithDict giFunc = wrType.FunctionMemberByName("getInterface");
     //giFunc.Invoke(wrapperInterfaceBase());
     edm::invokeByName(wrapperInterfaceBase(), wrType, "getInterface");
