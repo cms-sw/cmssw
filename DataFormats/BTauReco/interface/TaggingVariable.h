@@ -9,11 +9,25 @@
 #include <boost/pointee.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
+#include <Math/Functions.h>
+
+#include "DataFormats/Math/interface/Vector3D.h"
+
 #include "DataFormats/BTauReco/interface/RefMacros.h"
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
 
 namespace reco {
 
   namespace btau {
+
+    inline double etaRel(const math::XYZVector &dir, const math::XYZVector &track)
+    {
+            double momPar = dir.Dot(track);
+            double energy = std::sqrt(track.Mag2() +
+                                      ROOT::Math::Square(reco::ParticleMasses::piPlus));
+
+            return 0.5 * std::log((energy + momPar) / (energy - momPar));
+    }
 
     // define the enum in a namespace to avoid polluting reco with all the enum values
     enum TaggingVariableName {

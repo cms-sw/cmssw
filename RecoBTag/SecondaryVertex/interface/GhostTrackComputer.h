@@ -20,14 +20,14 @@ class GhostTrackComputer {
 	             const reco::SecondaryVertexTagInfo &svInfo) const;
 
     private:
-	const reco::TrackIPTagInfo::TrackIPData &
+	const reco::btag::TrackIPData &
 	threshTrack(const reco::TrackIPTagInfo &trackIPTagInfo,
-	            const reco::TrackIPTagInfo::SortCriteria sort,
+	            const reco::btag::SortCriteria sort,
 	            const reco::Jet &jet,
 	            const GlobalPoint &pv) const;
 
 	double					charmCut;
-	reco::TrackIPTagInfo::SortCriteria	sortCriterium;
+	reco::btag::SortCriteria		sortCriterium;
 	reco::TrackSelector			trackSelector;
 	reco::TrackSelector			trackNoDeltaRSelector;
 	double					minTrackWeight;
