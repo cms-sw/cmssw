@@ -57,7 +57,8 @@ namespace gen {
       HepMC::GenParticle* GetMother(HepMC::GenParticle* tau);
       double MatchedLHESpinUp(HepMC::GenParticle* tau, std::vector<HepMC::GenParticle> &p, std::vector<double> &spinup,std::vector<int> &m_idx);
       HepMC::GenParticle* FirstTauInChain(HepMC::GenParticle* tau);
-      
+      void setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt);
+
       //
       static CLHEP::HepRandomEngine*           fRandomEngine;            
       std::vector<int>                         fPDGs;

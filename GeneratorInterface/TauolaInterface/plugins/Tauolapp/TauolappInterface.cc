@@ -58,10 +58,9 @@ TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fMDTAU(-1),
   fSelectDecayByEvent(false),
   lhe(NULL),
-  dmMatch(pset.getUntrackedParameter<double>("dmMatch",0.5)),
-  dolhe(pset.getUntrackedParameter<bool>("dolhe",true)),
-  ntries(pset.getUntrackedParameter<int>("ntries",10))
-
+  dmMatch(0.5),
+  dolhe(false),
+  ntries(10)
 {
   if ( fPSet != 0 ) throw cms::Exception("TauolappInterfaceError") << "Attempt to override Tauola an existing ParameterSet\n" << std::endl;
   fPSet = new ParameterSet(pset);
@@ -78,10 +77,13 @@ void TauolappInterface::init( const edm::EventSetup& es ){
    es.getData( fPDGTable ) ;
 
    Tauolapp::Tauola::setDecayingParticle(15);
-   // --> ??? Tauola::setRadiation(false);
+
+   // LHE Information
+   dmMatch=fPSet->getUntrackedParameter<double>("dmMatch",0.5);
+   dolhe=fPSet->getUntrackedParameter<bool>("dolhe",false);
+   ntries=fPSet->getUntrackedParameter<int>("ntries",10);
 
    // polarization switch 
-   //
    // fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
    fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization");
    
@@ -195,25 +197,19 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    // what do we do if Hep::GenEvent size is larger than 10K ???
    // Tauola (& Photos, BTW) can only handle up to 10K via HEPEVT,
    // and in case of CMS, it's only up to 4K !!!
-   //
-   // if ( NPartBefore > 10000 ) return evt;
-   //
-   
    // override decay mode if needs be
-   if ( fSelectDecayByEvent )
-   {
-      selectDecayByMDTAU();
+
+   if(fSelectDecayByEvent){
+     selectDecayByMDTAU();
    }
-   
-   std::cout << "running Tauola..." << std::endl;
    if(dolhe && lhe!=NULL){
      std::vector<HepMC::GenParticle> particles;
      std::vector<int> m_idx; 
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
      std::vector<int> pdg =lhe->getHEPEUP()->IDUP;
      for(unsigned int i=0;i<spinup.size();i++){
-	 particles.push_back(HepMC::GenParticle(HepMC::FourVector(lhe->getHEPEUP()->PUP.at(i)[0],lhe->getHEPEUP()->PUP.at(i)[1],lhe->getHEPEUP()->PUP.at(i)[2],lhe->getHEPEUP()->PUP.at(i)[3]),lhe->getHEPEUP()->IDUP.at(i)));
-	 int status = lhe->getHEPEUP()->ISTUP.at(i);
+       particles.push_back(HepMC::GenParticle(HepMC::FourVector(lhe->getHEPEUP()->PUP.at(i)[0],lhe->getHEPEUP()->PUP.at(i)[1],lhe->getHEPEUP()->PUP.at(i)[2],lhe->getHEPEUP()->PUP.at(i)[3]),lhe->getHEPEUP()->IDUP.at(i)));
+       int status = lhe->getHEPEUP()->ISTUP.at(i);
 	 particles.at(particles.size()-1).set_generated_mass(lhe->getHEPEUP()->PUP.at(i)[4]);
 	 particles.at(particles.size()-1).set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
 	 m_idx.push_back(lhe->getHEPEUP()->MOTHUP.at(i).first-1);// correct for fortran index offset
@@ -289,8 +285,8 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	     Tauolapp::TauolaParticle *tp = new Tauolapp::TauolaHepMCParticle(p);
 	     double helicity=MatchedLHESpinUp(*iter,particles,spinup,m_idx); // get helicity from lhe
 	     if((*iter)->pdg_id()==15) helicity*=-1.0;
-	     std::cout << "helicity: " << helicity << " " << (*iter)->pdg_id() << std::endl;
 	     tp->undecay();
+	     // use |S_{tau}|=0.999999 to avoid issues with numerical roundoff 
 	     Tauolapp::Tauola::decayOne(tp,true,0,0,((double)helicity)*0.999999);
 	     boost*=-1.0; // boost back to lab frame
 	     mother.Boost(boost);
@@ -308,29 +304,22 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
      t_event->decayTaus();
      delete t_event; 
    }
+   // Set tau lifetime here so it is consistent for all methods
+   for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++){ 
+     if(abs((*iter)->pdg_id())==15 && isLastTauInChain(*iter)){ 
+       HepMC::FourVector PMom = (*iter)->momentum(); 
+       double mass = (*iter)->generated_mass(); 
+       float prob = 0.; 
+       int length=1; 
+       ranmar_(&prob,&length); 
+       double ct = -lifetime * std::log(prob); 
+       // d*gamma=t*v*gamma=t*c*beta*gamma=ct*(P/E)*(E/m)=ct*(P/m) 
+       setLifeTimeInDecays((*iter),ct*(PMom.px()/mass),ct*(PMom.py()/mass),ct*(PMom.pz()/mass),ct*(PMom.e()/mass)); 
+     } 
+   } 
+   
    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ ){
      HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
-     HepMC::GenParticle* GenPart = *(GenVtx->particles_in_const_begin()); 
-     HepMC::GenVertex* ProdVtx = GenPart->production_vertex(); 
-     HepMC::FourVector PMom = GenPart->momentum(); 
-     double mass = GenPart->generated_mass(); 
-     float prob = 0.; 
-     int length=1; 
-     ranmar_(&prob,&length); 
-     double ct = -lifetime * std::log(prob); 
-     double VxDec = GenVtx->position().x(); 
-     VxDec += ct * (PMom.px()/mass); 
-     VxDec += ProdVtx->position().x(); 
-     double VyDec = GenVtx->position().y(); 
-     VyDec += ct * (PMom.py()/mass); 
-     VyDec += ProdVtx->position().y(); 
-     double VzDec = GenVtx->position().z(); 
-     VzDec += ct * (PMom.pz()/mass); 
-     VzDec += ProdVtx->position().z(); 
-     double VtDec = GenVtx->position().t(); 
-     VtDec += ct * (PMom.e()/mass); 
-     VtDec += ProdVtx->position().t(); 
-     GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) );  
      //
      // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
      // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
@@ -734,7 +723,6 @@ void TauolappInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenE
 	l.Boost(boost);
 	HepMC::FourVector momentum(l.Px(),l.Py(),l.Pz(),l.E());
 	HepMC::GenParticle *daughter = new HepMC::GenParticle(momentum,(*d)->pdg_id(),(*d)->status());
-	daughter->print();
 	daughter->suggest_barcode(theEvent->particles_size()+1);
 	partHep->end_vertex()->add_particle_out(daughter);
 	if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d),boost);
@@ -792,3 +780,21 @@ HepMC::GenParticle* TauolappInterface::GetMother(HepMC::GenParticle* tau){
   }
   return tau;
 }
+
+void TauolappInterface::setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt){ 
+  if(p->end_vertex()){ 
+    HepMC::GenVertex* GenVtx=p->end_vertex(); 
+    double VxDec = GenVtx->position().x(); 
+    VxDec += vx; 
+    double VyDec = GenVtx->position().y(); 
+    VyDec += vy; 
+    double VzDec = GenVtx->position().z(); 
+    VzDec += vz; 
+    double VtDec = GenVtx->position().t(); 
+    VtDec += vt; 
+    GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) ); 
+    for(HepMC::GenVertex::particle_iterator dau=p->end_vertex()->particles_begin(HepMC::children); dau!=p->end_vertex()->particles_end(HepMC::children); dau++){ 
+      setLifeTimeInDecays((*dau),vx,vy,vz,vt); //recursively modify everything in the decay chain 
+    } 
+  } 
+}  
