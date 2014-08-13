@@ -380,8 +380,8 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
         buildLCTfromALCTandGEM_ME1a = cms.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.bool(True),
-        buildLCTfromCLCTandGEM_ME1a = cms.bool(True),
-        buildLCTfromCLCTandGEM_ME1b = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
+        buildLCTfromCLCTandGEM_ME1b = cms.bool(False),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
@@ -433,21 +433,23 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         
         ## copad construction
         maxDeltaBXInCoPad = cms.int32(1),
-        maxDeltaPadInCoPad = cms.int32(1),
+        maxDeltaPadInCoPad = cms.int32(2),
 
         ## matching to pads in case LowQ CLCT
         maxDeltaBXPad = cms.int32(1),
-        maxDeltaPadPad = cms.int32(2),
+        maxDeltaPadPadOdd = cms.int32(4),
+        maxDeltaPadPadEven = cms.int32(3),
+        maxDeltaWg = cms.int32(2),
 
         ## matching to pads in case absent CLCT
-        maxDeltaBXCoPad = cms.int32(0),
+        maxDeltaBXCoPad = cms.int32(1),
         maxDeltaPadCoPad = cms.int32(2),
 
         ## efficiency recovery switches
         dropLowQualityALCTsNoGEMs = cms.bool(False),
         dropLowQualityCLCTsNoGEMs = cms.bool(True),
         buildLCTfromALCTandGEM = cms.bool(True),
-        buildLCTfromCLCTandGEM = cms.bool(True),
+        buildLCTfromCLCTandGEM = cms.bool(False),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
@@ -461,6 +463,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         gemMatchDeltaPhiOdd = cms.double(1),
         gemMatchDeltaPhiEven = cms.double(1),
         gemMatchMinEta = cms.double(1.5),
+        gemMatchMaxEta = cms.double(2.45),
         gemClearNomatchLCTs = cms.bool(False),
 
         firstTwoLCTsInChamber = cms.bool(True),
@@ -494,12 +497,15 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         ## matching to digis in case LowQ CLCT
         maxDeltaBXRPC = cms.int32(0),
-        maxDeltaStripRPC = cms.int32(3),
+        maxDeltaStripRPCOdd = cms.int32(6),
+        maxDeltaStripRPCEven = cms.int32(4),
+        maxDeltaWg = cms.int32(2),
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPCs = cms.bool(True),
         buildLCTfromALCTandRPC = cms.bool(True),
-        buildLCTfromCLCTandRPC = cms.bool(True),
+        buildLCTfromCLCTandRPC = cms.bool(False),
+        buildLCTfromLowQstubandRPC = cms.bool(True),
         promoteCLCTRPCquality = cms.bool(True),
         promoteALCTRPCpattern = cms.bool(True),
         promoteALCTRPCquality = cms.bool(True),
