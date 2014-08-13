@@ -28,6 +28,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -71,8 +72,9 @@ private:
 
   // Member Variables
   HLTConfigProvider hltConfig_;
-  // DQMStore * dbe_;
 
+  // Triggers 
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
   // CaloJet 
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   // Vertex 
@@ -81,7 +83,8 @@ private:
   edm::EDGetTokenT<reco::PhotonCollection> photonsToken_;
   // PFMET
   edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
-  
+
+
   MonitorElement*  ncalojets_;
   MonitorElement*  nvertices_;
   MonitorElement*  nphotons_;
@@ -100,7 +103,8 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   hltProcessName_ = pset.getParameter<std::string>("hltProcessName"); 
   hltPathsToCheck_ = pset.getParameter<std::vector<std::string>>("hltPathsToCheck"); 
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
-  dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/xshi/"));
+  triggerResultsToken_ = consumes <edm::TriggerResults> (pset.getParameter<edm::InputTag>("triggerResultsToken"));
+  dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/Higgs/PhotonJet/"));
   caloJetsToken_ = consumes<reco::CaloJetCollection> (pset.getParameter<edm::InputTag>("caloJetsToken"));
   pvToken_ = consumes<reco::VertexCollection> (pset.getParameter<edm::InputTag>("pvToken"));
   photonsToken_ = consumes<reco::PhotonCollection> (pset.getParameter<edm::InputTag>("photonsToken"));
@@ -134,7 +138,8 @@ HigPhotonJetHLTOfflineSource::dqmBeginRun(const edm::Run & iRun,
   // Initialize hltConfig
   bool changedConfig;
   if (!hltConfig_.init(iRun, iSetup, hltProcessName_, changedConfig)) {
-    edm::LogError("HLTPhotonJetVal") << "Initialization of HLTConfigProvider failed!!"; 
+    edm::LogError("HLTPhotonJetVal") <<
+      "Initialization of HLTConfigProvider failed!!"; 
     return;
   }
   
@@ -200,7 +205,25 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   // plotterContainer_.analyze(iEvent, iSetup);
   // std::map<std::string, MonitorElements*> elements;
+
+  // Throw out this event if it doesn't pass the required triggers.
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByToken(triggerResultsToken_, triggerResults);
   
+  if(!triggerResults.isValid()) 
+    {
+      edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults collection" << std::endl;
+      return;
+    }
+
+
+  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
+    unsigned int triggerIndex = triggerResults->find(hltPathsToCheck_[i]);
+    if (triggerIndex < triggerResults->size() ||
+        !triggerResults->accept(triggerIndex))
+      return;
+  }
+
   // Get CaloJet
   edm::Handle<reco::CaloJetCollection> calojets;
   iEvent.getByToken(caloJetsToken_, calojets);
