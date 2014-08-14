@@ -5,6 +5,7 @@
 		<Constant name="Zmin" value="[cmsextent:Zmin]"/>
 		<Constant name="HallZ" value="[cmsextent:HallZ]"/>
 		<Constant name="HallR" value="[cmsextent:HallR]"/>
+		<Constant name="HallRMax" value="[cmsextent:HallRMax]"/>
 		<Constant name="CMSR1" value="[cmsextent:CMSR1]"/>
 		<Constant name="CMSR2" value="[cmsextent:CMSR2]"/>
 		<Constant name="CMSZ1" value="[cmsextent:CMSZ1]"/>
@@ -79,8 +80,8 @@
 		<Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="-[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
-			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[HallR]"/>
-			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[HallR]"/>
+			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
+			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
 			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 		</Polycone>
