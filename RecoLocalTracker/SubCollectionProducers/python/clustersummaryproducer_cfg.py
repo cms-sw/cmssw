@@ -19,7 +19,7 @@ process.clusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
                                         pixelClusters=cms.InputTag("siPixelClusters"),                
                                         doStrips=cms.bool(True),
                                         doPixels=cms.bool(True),
-                                        verbose=cms.bool(False)
+                                        verbose=cms.bool(False),
                                         wantedSubDets = cms.VPSet(    
                                           cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("TOB"), selection=cms.vstring("0x1e000000-0x1A000000")),
                                           cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("TIB"), selection=cms.vstring("0x1e000000-0x16000000")),
