@@ -19,8 +19,6 @@
 #include<vector>
 #include<memory>
 
-class GeomDet;
-class GeomDetUnit;
 class TkCloner;
 class TrajectoryStateOnSurface;
 class KfComponentsHolder;

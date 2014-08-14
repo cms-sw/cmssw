@@ -4,10 +4,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 class GluedGeomDet;
-class GeomDetUnit;
-class GeomDet;
 
 class GSRecHitMatcher {
  public:

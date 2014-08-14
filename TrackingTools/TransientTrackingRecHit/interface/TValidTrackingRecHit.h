@@ -5,9 +5,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-class GeomDetUnit;
-
-
 /**
  *
  *  only for valid hits
