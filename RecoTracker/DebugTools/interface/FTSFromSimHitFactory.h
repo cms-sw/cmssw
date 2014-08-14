@@ -4,6 +4,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 class PSimHit;
+class GeomDet;
 class MagneticField;
 
 /** Produces a FreeTrajectoryState from a SimHit.

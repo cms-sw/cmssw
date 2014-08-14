@@ -18,8 +18,7 @@ private:
   LocalError  theLocalAlignmentError;
 
 private:
-  bool setAlignmentPositionError (const AlignmentPositionError& ape) final;
-
+  bool setAlignmentPositionError (const AlignmentPositionError& ape) GCC11_FINAL;
 
 };
 #endif

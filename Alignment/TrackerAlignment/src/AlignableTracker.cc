@@ -62,7 +62,7 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
     if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) {
       // Treat all pixel dets in same way with one AlignableDetUnit.
       auto detUnit = dets[i];
-      if (!detUnit,isLeaf()) {
+      if (!detUnit->isLeaf()) {
         throw cms::Exception("BadHierarchy") 
           << "[AlignableTracker] Pixel GeomDet (subdetector " << subdetId << ") not GeomDetUnit.\n";
       }
@@ -100,7 +100,7 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
 	  aliUnits->insert(aliUnits->end(), detUnits.begin(), detUnits.end()); // only 2...
 	} else { // no components: pure 1D-module
           auto detUnit = dets[i];
-          if (!detUnit.isLeaf()) {
+          if (!detUnit->isLeaf()) {
             throw cms::Exception("BadHierarchy") 
               << "[AlignableTracker] pure 1D GeomDet (subdetector " << subdetId << ") not GeomDetUnit.\n";
           }

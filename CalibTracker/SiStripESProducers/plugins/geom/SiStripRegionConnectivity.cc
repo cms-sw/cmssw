@@ -43,8 +43,8 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     if (!idet->first || (idet->first == sistrip::invalid32_)) continue;
 
     // Check if geom det unit exists
-    GeomDetUnit* geom_det = const_cast<GeomDetUnit*>( tkgeom->idToDetUnit(DetId(idet->first)) );
-    StripGeomDetUnit* strip_det = dynamic_cast<StripGeomDetUnit*>( geom_det );
+    auto geom_det = tkgeom->idToDetUnit(DetId(idet->first));
+    auto strip_det = dynamic_cast<StripGeomDetUnit const *>( geom_det );
     if ( !strip_det ) { continue; }
     
     //Calculate region from geometry

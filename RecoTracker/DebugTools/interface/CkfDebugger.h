@@ -148,10 +148,6 @@ class CkfDebugger {
   };
   const GeomDetUnit* det(const PSimHit* sh) const {return theTrackerGeom->idToDetUnit(DetId(sh->detUnitId()));};
 
-  int layer(const GeomDetUnit* det){
-    //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
-    return theTopo->layer(det->geographicalId());
-  }
   int layer(const GeomDet* det){
     //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
     return theTopo->layer(det->geographicalId());
