@@ -52,7 +52,6 @@ private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  int    getCharge(const SiStripCluster*   cluster, int& nSatStrip,   const GeomDetUnit& detUnit);
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
   void   processHit(const TrackingRecHit * recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
 
