@@ -101,7 +101,7 @@ void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
   store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
                            this->bookHistograms(b, iRun, iSetup);
                          },
-                         0,
+                         iRun.run(),
                          0,
                          0);
 }
