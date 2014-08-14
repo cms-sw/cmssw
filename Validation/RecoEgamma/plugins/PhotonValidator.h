@@ -35,6 +35,7 @@
 //
 #include <map>
 #include <vector>
+#include <memory>
 /** \class PhotonValidator
  **
  **
@@ -66,11 +67,11 @@ class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
   virtual ~PhotonValidator();
 
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
   //  virtual void beginJob();
-  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
-  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
-  virtual void endJob() ;
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
+  virtual void endRun (edm::Run const& r, edm::EventSetup const & es) override;
+  virtual void endJob() override;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
 
  private:
@@ -81,7 +82,6 @@ class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
 
 
   std::string fName_;
-  DQMStore *dbe_;
   edm::ESHandle<MagneticField> theMF_;
 
   int verbosity_;
@@ -131,8 +131,8 @@ class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
   edm::EDGetTokenT<edm::HepMCProduct>  hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
 
-  PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
-  TrackAssociatorBase * theTrackAssociator_;
+  std::unique_ptr<PhotonMCTruthFinder>  thePhotonMCTruthFinder_;
+  const TrackAssociatorBase * theTrackAssociator_;
 
   bool fastSim_;
   bool isRunCentrally_;
