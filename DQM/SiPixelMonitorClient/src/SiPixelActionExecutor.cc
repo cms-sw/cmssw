@@ -763,7 +763,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
 	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap"||
-	   (*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray") 
+	   (*iv)=="FedChLErr"||(*iv)=="FedChNErr"||(*iv)=="FedETypeNErr") 
 	  prefix="SUMRAW";
       }
       if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
@@ -773,22 +773,22 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
         string tag = prefix + "_" + (*iv) + "_FEDErrors";
         MonitorElement* temp = getFEDSummaryME(bei, tag);
         sum_mes.push_back(temp);
-      }else if((*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray"){
+      }else if((*iv)=="FedChLErr"||(*iv)=="FedChNErr"||(*iv)=="FedETypeNErr"){
         string tag = prefix + "_" + (*iv);
 	MonitorElement* temp;
-	if((*iv)=="FedChLErrArray") {if (!isBooked) temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedChLErr") {if (!isBooked) temp = bei->book2D("FedChLErr","Type of last error",40,-0.5,39.5,37,0.,37.);
 	  else{ 
 	    string fullpathname = bei->pwd() + "/" + (*iv);
 	    temp = bei->get(fullpathname);
 	    temp->Reset();}}  //If I don't reset this one, then I instead start adding error codes..
-	if((*iv)=="FedChNErrArray") {if (!isBooked) temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedChNErr") {if (!isBooked) temp = bei->book2D("FedChNErr","Total number of errors",40,-0.5,39.5,37,0.,37.);
 	  else{ 
 	    string fullpathname = bei->pwd() + "/" + (*iv);
 	    temp = bei->get(fullpathname);
 	    temp->Reset();}}  //If I don't reset this one, then I instead start adding error codes..
-	if((*iv)=="FedETypeNErrArray"){
+	if((*iv)=="FedETypeNErr"){
 	  if(!isBooked){
-	    temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,21,0.,21.);
+	    temp = bei->book2D("FedETypeNErr","Number of each error type",40,-0.5,39.5,21,0.,21.);
 	    temp->setBinLabel(1,"ROC of 25",2);
 	    temp->setBinLabel(2,"Gap word",2);
 	    temp->setBinLabel(3,"Dummy word",2);
@@ -839,23 +839,15 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	   isum != sum_mes.end(); isum++) {
 	for (vector<string>::const_iterator im = contents.begin();
 	     im != contents.end(); im++) {
-	  if(((*im).find("FedChNErrArray_")!=std::string::npos && (*isum)->getName().find("FedChNErrArray")!=std::string::npos) ||
-	     ((*im).find("FedChLErrArray_")!=std::string::npos && (*isum)->getName().find("FedChLErrArray")!=std::string::npos) ||
-	     ((*im).find("FedETypeNErrArray_")!=std::string::npos && (*isum)->getName().find("FedETypeNErrArray")!=std::string::npos)){
+	  if(((*im).find("FedChNErr")!=std::string::npos && (*isum)->getName().find("FedChNErr")!=std::string::npos) ||
+	     ((*im).find("FedChLErr")!=std::string::npos && (*isum)->getName().find("FedChLErr")!=std::string::npos) ||
+	     ((*im).find("FedETypeNErr")!=std::string::npos && (*isum)->getName().find("FedETypeNErr")!=std::string::npos)){
 	    string fullpathname = bei->pwd() + "/" + (*im); 
 	    MonitorElement *  me = bei->get(fullpathname);
-	    if(me && me->getIntValue()>0){
+	    if(me){
 	      for(int i=0; i!=37; i++){
-	        int n = (*im).find("_"); n++;
-	        string channel_str = (*im).substr(n);
-		std::istringstream jsst;
-		jsst.str(channel_str);
-		int channel=-1;
-		jsst>>channel;
-	        if(channel==i){
-		  if((*im).find("FedETypeNErrArray_")!=std::string::npos && i<21) (*isum)->Fill(ndet-1,i,me->getIntValue());
-		  else (*isum)->Fill(ndet-1,i,me->getIntValue());
-		}
+                if((*im).find("FedETypeNErr")!=std::string::npos && i<21) (*isum)->Fill(ndet-1,i,me->getBinContent(i+1));
+                else (*isum)->Fill(ndet-1,i,me->getBinContent(i+1));
 	      }
 	    }
 	  }
