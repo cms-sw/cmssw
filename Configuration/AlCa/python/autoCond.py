@@ -1,43 +1,43 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
-    'mc'                :   'MC_71_V8::All',
+    'mc'                :   'MC_72_V1::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START71_V8::All',
+    'startup'           :   'START72_V1::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI71_V15::All',
+    'starthi'           :   'STARTHI72_V1::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'STARTHI71_V16::All',
+    'startpa'           :   'STARTHI72_V2::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_71_V7::All',
+    'com10'             :   'GR_R_72_V2::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS171_V17::All',
-    'upgradePLS150ns'   :   'POSTLS171_V18::All',
+    'upgradePLS1'       :   'POSTLS172_V3::All',
+    'upgradePLS150ns'   :   'POSTLS172_V4::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'MC_71_V8::All',
+    'run1_design'       :   'MC_72_V1::All',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'START71_V8::All',
+    'run1_mc'           :   'START72_V1::All',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'STARTHI71_V15::All',
+    'run1_mc_hi'        :   'STARTHI72_V1::All',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pPb'       :   'STARTHI71_V16::All',
+    'run1_mc_pPb'       :   'STARTHI72_V2::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESIGN71_V6::All',
+    'run2_design'       :   'DESIGN72_V2::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS171_V18::All',
+    'run2_mc_50ns'      :   'POSTLS172_V4::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS171_V17::All',
+    'run2_mc'           :   'POSTLS172_V3::All',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_71_V7::All',
+    'run1_data'         :   'GR_R_72_V2::All',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_71_V7::All',
+    'run2_data'         :   'GR_R_72_V2::All',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
     'run2_hlt'          :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
@@ -105,6 +105,9 @@ autoCond['startup_8E33v2']   = ( autoCond['startup'], ) \
 autoCond['startup_2013']     = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
+autoCond['startup_2014']     = ( autoCond['startup'], ) \
+                             + conditions_L1_Run2012D
+
 autoCond['startup_GRun']     = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
@@ -122,6 +125,9 @@ autoCond['hltonline_8E33v2'] = ( autoCond['hltonline'], ) \
 autoCond['hltonline_2013']   = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
+autoCond['hltonline_2014']   = ( autoCond['hltonline'], ) \
+                             + conditions_L1_Run2012D
+
 autoCond['hltonline_GRun']   = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
@@ -136,6 +142,9 @@ autoCond['com10_8E33v2']     = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012D
 
 autoCond['com10_2013']       = ( autoCond['com10'], ) \
+                             + conditions_L1_Run2012D
+
+autoCond['com10_2014']       = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012D
 
 autoCond['com10_GRun']       = ( autoCond['com10'], ) \

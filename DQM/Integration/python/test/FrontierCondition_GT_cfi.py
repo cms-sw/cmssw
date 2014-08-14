@@ -6,5 +6,5 @@ GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http:
 GlobalTag.connect = "frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_GLOBALTAG"
 GlobalTag.pfnPrefix = cms.untracked.string("frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/")
 
-GlobalTag.globaltag = "GR_H_V38::All"
+GlobalTag.globaltag = "GR_H_V37::All"
 es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
