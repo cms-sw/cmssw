@@ -334,21 +334,22 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     meTBMType_[id]->setAxisTitle("TBM Type",1);
     // For error type 31, the event number of the TBM header with the error
     hid = theHistogramId->setHistoId("EvtNbr",id);
-    meEvtNbr_[id] = iBooker.bookInt(hid);
+    meEvtNbr_[id] = iBooker.book1D(hid,"Event number",1,0,1);
     // For errorType = 34, datastream size according to error word
     hid = theHistogramId->setHistoId("evtSize",id);
-    meEvtSize_[id] = iBooker.bookInt(hid);
-    for(int j=0; j!=37; j++){
-      std::stringstream temp; temp << j;
-      hid = "FedChNErrArray_" + temp.str();
-      meFedChNErrArray_[id*37 + j] = iBooker.bookInt(hid);
-      hid = "FedChLErrArray_" + temp.str();
-      meFedChLErrArray_[id*37 + j] = iBooker.bookInt(hid);
-      hid = "FedETypeNErrArray_" + temp.str();
-      if(j<21) meFedETypeNErrArray_[id*21 + j] = iBooker.bookInt(hid);
-    }
-
-
+    meEvtSize_[id] = iBooker.book1D(hid,"Event size",1,0,1);
+    //
+    hid = theHistogramId->setHistoId("FedChNErr",id);
+    meFedChNErr_[id] = iBooker.book1D(hid,"Number of errors per FED channel",37,0,37);
+    meFedChNErr_[id]->setAxisTitle("FED channel",1);
+    //
+    hid = theHistogramId->setHistoId("FedChLErr",id);
+    meFedChLErr_[id] = iBooker.book1D(hid,"Last error per FED channel",37,0,37);
+    meFedChLErr_[id]->setAxisTitle("FED channel",1);
+    //
+    hid = theHistogramId->setHistoId("FedETypeNErr", id);
+    meFedETypeNErr_[id] = iBooker.book1D(hid,"Number of errors per type",21,0,21);
+    meFedETypeNErr_[id]->setAxisTitle("Error type",1);
   }
   //Add the booked histograms to the histogram map for booking
   meMapFEDs_["meErrorType_"] = meErrorType_;
@@ -358,9 +359,9 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   meMapFEDs_["meTBMType_"] = meTBMType_;
   meMapFEDs_["meEvtNbr_"] = meEvtNbr_;
   meMapFEDs_["meEvtSize_"] = meEvtSize_;
-  meMapFEDs_["meFedChNErrArray_"] = meFedChNErrArray_;
-  meMapFEDs_["meFedChLErrArray_"] = meFedChLErrArray_;
-  meMapFEDs_["meFedETypeNErrArray_"] = meFedETypeNErrArray_;
+  meMapFEDs_["meFedChNErr_"] = meFedChNErr_;
+  meMapFEDs_["meFedChLErr_"] = meFedChLErr_;
+  meMapFEDs_["meFedETypeNErr_"] = meFedETypeNErr_;
 
   //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 }
