@@ -40,8 +40,8 @@
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 
-#include "TPRegexp.h"
-#include "TH1F.h" 
+// #include "TPRegexp.h"
+// #include "TH1F.h" 
 
 //  Define the interface
 
@@ -63,7 +63,7 @@ private:
   virtual void endJob();
 
   // Extra Methods
-  std::vector<std::string> moduleLabels(std::string);
+  // std::vector<std::string> moduleLabels(std::string);
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -115,21 +115,21 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
 
 }
 
-std::vector<std::string> 
-HigPhotonJetHLTOfflineSource::moduleLabels(std::string path) 
-{
+// std::vector<std::string> 
+// HigPhotonJetHLTOfflineSource::moduleLabels(std::string path) 
+// {
 
-  std::vector<std::string> modules = hltConfig_.moduleLabels(path);
-  std::vector<std::string>::iterator iter = modules.begin();
+//   std::vector<std::string> modules = hltConfig_.moduleLabels(path);
+//   std::vector<std::string>::iterator iter = modules.begin();
 
-  while (iter != modules.end())
-    if (iter->find("Filtered") == std::string::npos) 
-      iter = modules.erase(iter);
-    else
-      ++iter;
+//   while (iter != modules.end())
+//     if (iter->find("Filtered") == std::string::npos) 
+//       iter = modules.erase(iter);
+//     else
+//       ++iter;
 
-  return modules;
-}
+//   return modules;
+// }
 
 
 void 
@@ -145,24 +145,24 @@ HigPhotonJetHLTOfflineSource::dqmBeginRun(const edm::Run & iRun,
     return;
   }
   
-  // Get the set of trigger paths we want to make plots for
-  std::set<std::string> hltPaths;
-  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    TPRegexp pattern(hltPathsToCheck_[i]);
-    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
-      if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
-        hltPaths.insert(hltConfig_.triggerNames()[j]);
-  }
+  // // Get the set of trigger paths we want to make plots for
+  // std::set<std::string> hltPaths;
+  // for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
+  //   TPRegexp pattern(hltPathsToCheck_[i]);
+  //   for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
+  //     if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
+  //       hltPaths.insert(hltConfig_.triggerNames()[j]);
+  // }
   
-  // Initialize the plotters
-  std::set<std::string>::iterator iPath;
-  for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
-    std::string path = * iPath;
-    std::vector<std::string> labels = moduleLabels(path);
-    if (labels.size() > 0) {
-      // plotterContainer_.addPlotter(pset_, path, moduleLabels(path));
-    }
-  }
+  // // Initialize the plotters
+  // std::set<std::string>::iterator iPath;
+  // for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
+  //   std::string path = * iPath;
+  //   std::vector<std::string> labels = moduleLabels(path);
+  //   if (labels.size() > 0) {
+  //     // plotterContainer_.addPlotter(pset_, path, moduleLabels(path));
+  //   }
+  // }
 }
 
 
