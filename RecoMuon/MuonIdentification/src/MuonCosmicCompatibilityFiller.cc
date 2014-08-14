@@ -228,7 +228,7 @@ MuonCosmicCompatibilityFiller::backToBack2LegCosmic(const edm::Event& iEvent, co
   unsigned int result = 0; //no partners - collision
   reco::TrackRef track;
   if ( muon.isGlobalMuon()  )            track = muon.innerTrack();
-  else if ( muon.isTrackerMuon() )       track = muon.track();
+  else if ( muon.isTrackerMuon() || muon.isRPCMuon() )       track = muon.track();
   else if ( muon.isStandAloneMuon() )    return false;
 
   for (unsigned int iColl = 0; iColl<trackTokens_.size(); ++iColl){
@@ -405,7 +405,7 @@ MuonCosmicCompatibilityFiller::pvMatches(const edm::Event& iEvent, const reco::M
 
   reco::TrackRef track;
   if ( muon.isGlobalMuon() )          track = muon.innerTrack();
-  else if ( muon.isTrackerMuon() )    track = muon.track();
+  else if ( muon.isTrackerMuon() || muon.isRPCMuon() )    track = muon.track();
   else if ( muon.isStandAloneMuon())  track = muon.standAloneMuon();
   
   bool multipleMu = false;

@@ -124,7 +124,7 @@ void MuonMETValueMapProducer::determine_deltax_deltay(double& deltax, double& de
 {
   reco::TrackRef mu_track;
   if(muon.isGlobalMuon()) mu_track = muon.globalTrack();
-  else if(muon.isTrackerMuon()) mu_track = muon.innerTrack();
+  else if(muon.isTrackerMuon()||muon.isRPCMuon()) mu_track = muon.innerTrack();
   else mu_track = muon.outerTrack();
 
   TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
@@ -152,9 +152,10 @@ reco::MuonMETCorrectionData::Type MuonMETValueMapProducer::decide_correction_typ
 bool MuonMETValueMapProducer::should_type_MuonCandidateValuesUsed(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition)
 {
   if(!muon.isGlobalMuon()) return false;
-  if(!muon.isTrackerMuon() && isAlsoTkMu_) return false;
+  if(!(muon.isTrackerMuon()||muon.isRPCMuon()) && isAlsoTkMu_) return false;
   reco::TrackRef globTk = muon.globalTrack();
   reco::TrackRef siTk   = muon.innerTrack();
+
   if(muon.pt() < minPt_ || fabs(muon.eta()) > maxEta_) return false;
   if(globTk->chi2()/globTk->ndof() > maxNormChi2_) return false;
   if(fabs(globTk->dxy(beamSpotPosition)) > fabs(maxd0_)) return false;
