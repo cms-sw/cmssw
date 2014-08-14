@@ -55,7 +55,6 @@ struct UECalibration{
 
       while( std::getline( in, line)){      
 	 if(!line.size() || line[0]=='#') {
-	    std::cout<<" continue "<<std::endl;
 	    continue;
 	 }
 	 std::istringstream linestream(line);
