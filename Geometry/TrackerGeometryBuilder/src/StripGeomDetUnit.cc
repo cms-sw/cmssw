@@ -4,7 +4,7 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id) : 
-  GeomDetUnit(sp), theTopology(new ProxyStripTopology(type, sp))
+  TrackerGeomDet(sp), theTopology(new ProxyStripTopology(type, sp))
 {
   setDetId(id);
 }

@@ -82,9 +82,6 @@ public:
   /// is a Unit
   virtual bool isLeaf() const { return components().empty();}
 
-  /// Return local alligment error
-  LocalError const & localAlignmentError() const { return theLocalAlignmentError;}
-
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const { return std::vector< const GeomDet*>(); }
 
@@ -121,10 +118,12 @@ public:
 private:
 
   ReferenceCountingPointer<Plane>  thePlane;
-  AlignmentPositionError*               theAlignmentPositionError;
-  LocalError                            theLocalAlignmentError;
   DetId m_detId;
   int m_index;
+protected:
+  AlignmentPositionError*               theAlignmentPositionError;
+
+private:
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;
@@ -147,7 +146,7 @@ private:
   /// set the LocalAlignmentError properly trasforming the ape 
   /// Does not affect the AlignmentPositionError of components (if any).
   
-  bool setAlignmentPositionError (const AlignmentPositionError& ape); 
+  virtual bool setAlignmentPositionError (const AlignmentPositionError& ape); 
 
 private:
 
