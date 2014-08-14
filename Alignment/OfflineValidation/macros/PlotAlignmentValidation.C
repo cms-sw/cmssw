@@ -688,6 +688,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       int maxlayer = plotLayers ? plotinfo.nLayers : plotLayerN;
 
       plotinfo.vars = *it;
+      plotinfo.h1 = plotinfo.h2 = plotinfo.h = 0;
 
       for (int layer = minlayer; layer <= maxlayer; layer++) {
 
@@ -738,8 +739,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     }
 
-    if (plotinfo.h != 0 || plotinfo.h1 != 0 || plotinfo.h2 != 0) {
-
+    if (hstack.GetHists()!=0 && hstack.GetHists()->GetSize()!=0) {
       hstack.Draw("nostack");
       hstack.SetMaximum(plotinfo.maxY*1.3);
       setTitleStyle(hstack, variable.c_str(), "#modules", plotinfo.subDetId);
@@ -750,6 +750,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     else {
       // Draw an empty default histogram
       plotinfo.h = new TH1F("defhist", "Empty default histogram", plotinfo.nbins, plotinfo.min, plotinfo.max);
+      plotinfo.h->SetMaximum(10);
       if (plotinfo.variable.find("Norm") == std::string::npos)
         scaleXaxis(plotinfo.h, 10000);
       setTitleStyle(*plotinfo.h, variable.c_str(), "#modules", plotinfo.subDetId);
