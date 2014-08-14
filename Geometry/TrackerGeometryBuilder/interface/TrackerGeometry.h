@@ -3,6 +3,7 @@
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
 class GeometricDet;
 
@@ -48,8 +49,8 @@ public:
   virtual const DetContainer&      dets()             const;
   virtual const DetIdContainer&    detUnitIds()       const;
   virtual const DetIdContainer&    detIds()           const;
-  virtual const GeomDetUnit*       idToDetUnit(DetId) const;
-  virtual const GeomDet*           idToDet(DetId)     const;
+  virtual const TrackerGeomDet*    idToDetUnit(DetId) const;
+  virtual const TrackerGeomDet*    idToDet(DetId)     const;
 
 
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}

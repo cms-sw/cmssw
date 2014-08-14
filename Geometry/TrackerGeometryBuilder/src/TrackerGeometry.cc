@@ -133,26 +133,24 @@ TrackerGeometry::detsTEC() const
   return theTECDets;
 }
 
-const GeomDetUnit* 
+const TrackerGeomDet * 
 TrackerGeometry::idToDetUnit(DetId s)const
 {
   mapIdToDetUnit::const_iterator p=theMapUnit.find(s.rawId());
   if (p != theMapUnit.end())
-    return (p)->second;
+    return static_cast<const TrackerGeomDet *>(p->second);
   edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDetUnit associated";
-  GeomDetUnit* geom = 0;
-  return geom;
+  return nullptr;
 }
 
-const GeomDet* 
+const TrackerGeomDet* 
 TrackerGeometry::idToDet(DetId s)const
 {
   mapIdToDet::const_iterator p=theMap.find(s.rawId());
   if (p != theMap.end())
-    return (p)->second;
+    return static_cast<const TrackerGeomDet *>(p->second);
   edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDet associated";
-  GeomDet* geom = 0;
-  return geom;
+  return nullptr;
 }
 
 const TrackerGeometry::DetTypeContainer&  

@@ -37,8 +37,6 @@ public:
 			       const SiStripRecHit1D& hit1D,
 			       const GeomDet& det){hit1D.getKfComponents(holder);}
 
-  static void updateWithAPE(LocalError& le, const GeomDet& det);
-  
 };
 
 #endif
