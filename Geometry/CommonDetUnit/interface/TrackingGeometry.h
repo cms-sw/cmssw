@@ -19,12 +19,9 @@
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <vector>
 #include <unordered_map>
-
-class GeomDetType;
-class GeomDetUnit;
-class GeomDet;
 
 class TrackingGeometry
 {

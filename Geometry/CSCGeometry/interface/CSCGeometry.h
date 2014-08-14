@@ -16,7 +16,7 @@
 #include <map>
 
 class GeomDetType;
-class GeomDetUnit;
+
 class CSCChamber;
 class CSCChamberSpecs;
 class CSCWireGroupPackage;
