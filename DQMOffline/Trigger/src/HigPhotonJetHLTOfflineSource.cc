@@ -25,6 +25,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -206,7 +208,8 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   // plotterContainer_.analyze(iEvent, iSetup);
   // std::map<std::string, MonitorElements*> elements;
 
-  // Throw out this event if it doesn't pass the required triggers.
+  // Throw out this event if it doesn't pass any of the mornitored trigger.
+  bool triggered = false; 
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
   
@@ -216,13 +219,23 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       return;
     }
 
+  // Check how many HLT triggers are in triggerResults
+  const edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults);
 
-  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    unsigned int triggerIndex = triggerResults->find(hltPathsToCheck_[i]);
-    if (triggerIndex < triggerResults->size() ||
-        !triggerResults->accept(triggerIndex))
-      return;
+  for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
+    // Only consider the triggered case. 
+    // if ((*triggerResults)[itrig].accept() != 1) continue; 
+    std::string triggername = triggerNames.triggerName(itrig);
+    for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
+      if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
+	triggered = true;
+	break;
+      }
+      if (triggered ) break;
+    }
   }
+
+  if (!triggered) return; 
 
   // Get CaloJet
   edm::Handle<reco::CaloJetCollection> calojets;
