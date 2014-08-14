@@ -1,11 +1,7 @@
 #include "RecoLocalTracker/SubCollectionProducers/interface/ClusterSummaryProducer.h"
 
 ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
-  : stripModules(iConfig.getParameter<std::string>("stripModule")),
-    pixelModules(iConfig.getParameter<std::string>("pixelModule")),
-    stripVariables(iConfig.getParameter<std::string>("stripVariables")),
-    pixelVariables(iConfig.getParameter<std::string>("pixelVariables")),
-    doStrips(iConfig.getParameter<bool>("doStrips")),
+  : doStrips(iConfig.getParameter<bool>("doStrips")),
     doPixels(iConfig.getParameter<bool>("doPixels")),
     verbose(iConfig.getParameter<bool>("verbose"))
 {
@@ -13,13 +9,24 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
   pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
   stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
 
+
+  std::vector<edm::ParameterSet> wantedsubdets_ps = iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets");
+  for(std::vector<edm::ParameterSet>::const_iterator wsdps = wantedsubdets_ps.begin();wsdps!=wantedsubdets_ps.end();++wsdps) {
+    unsigned int             detsel    = wsdps->getParameter<unsigned int>("detSelection");
+    std::string              detname   = wsdps->getParameter<std::string>("detLabel");
+    std::vector<std::string> selection = wsdps->getParameter<std::vector<std::string> >("selection");
+
+    if(ClusterSummary::checkSubDet(detsel)){
+      pixelSelector.push_back(ModuleSelection(DetIdSelector(selection),(ClusterSummary::CMSTracker)detsel));
+      if(verbose)pixelModuleNames.push_back(detname);
+    } else{
+      stripSelector.push_back(ModuleSelection(DetIdSelector(selection),(ClusterSummary::CMSTracker)detsel));
+      if(verbose)stripModuleNames.push_back(detname);
+    }
+  }
+
   //register your products
   produces<ClusterSummary>().setBranchAlias("SummaryCollection");
-  
-  firstpass = true;
-  firstpass_mod = true;
-  firstpassPixel = true;
-  firstpassPixel_mod = true;
 
 }
 
@@ -39,55 +46,29 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    if (doStrips){
      edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
      iEvent.getByToken(stripClusters_, stripClusters);
+     // Loop over the strip clusters
+     edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=stripClusters->begin();
+     for(;itClusters!=stripClusters->end();++itClusters){
+       uint32_t id = itClusters->id();
+       SiStripDetId stripDetI(id);
+       for(edmNew::DetSet<SiStripCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
+         const ClusterVariables Summaryinfo(*cluster);
+         for(unsigned int iS = 0; iS < stripSelector.size(); ++iS){
+           const DetIdSelector& selector = stripSelector[iS].first;
+           const ClusterSummary::CMSTracker  module   = stripSelector[iS].second;
 
-     ModuleSelectionVect.clear();
-     for ( std::vector<std::string>::iterator it=v_stripModuleTypes.begin() ; it < v_stripModuleTypes.end(); it++ ){
-       ModuleSelectionVect.push_back ( new ClusterSummary::ModuleSelection(*it) );
-     }
- 
-     firstpass_mod = true;
-   
-     int CurrMod = -1;
-     //Loop over all the ModuleSelectors
-     for ( unsigned int i = 0; i < ModuleSelectionVect.size(); i++){
-     
-       // Loop over the strip clusters
-       edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=stripClusters->begin();
-       for(;itClusters!=stripClusters->end();++itClusters){
-	 uint32_t id = itClusters->id();
-	 for(edmNew::DetSet<SiStripCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
-
-	   const ClusterVariables Summaryinfo(*cluster);
-      
-	   // For each ModuleSelector, check if the detID belongs to a desired module. If so, update the summary information for that module
-
-	   std::pair<int, int> ModSelect = ModuleSelectionVect.at(i) -> IsStripSelected( id );
-	   int mod_pair = ModSelect.first;
-	   int mod_pair2 = ModSelect.second;
-
-	   if ( mod_pair ){
-	     if ( firstpass_mod ) {
-	       CurrMod = mod_pair2;
-	       cCluster.SetUserModules( mod_pair2 ) ;
-	     }
-	   
-	     firstpass_mod = false;
-	     int CurrModTmp = mod_pair2;
-
-	     if ( CurrMod != CurrModTmp ) {
-	       cCluster.SetUserModules( mod_pair2 ) ;
-	       CurrMod = CurrModTmp;
-	     }
-
-	     cCluster.SetGenericVariable( "cHits", mod_pair2, 1 );
-	     cCluster.SetGenericVariable( "cSize", mod_pair2, Summaryinfo.clusterSize() );
-	     cCluster.SetGenericVariable( "cCharge", mod_pair2, Summaryinfo.charge() );
-
-	   }
-	 }
+           if(!selector.isSelected(id)) continue;
+           int modLocation = cCluster.GetModuleLocation((int)module,false);
+           if(modLocation < 0) {
+             modLocation = cCluster.GetNumberOfModules();
+             cCluster.SetUserModules( module ) ;
+           }
+           cCluster.SetGenericVariableByIndex( ClusterSummary::NMODULES     , modLocation, 1 );
+           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE  , modLocation, Summaryinfo.clusterSize() );
+           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE, modLocation, Summaryinfo.charge() );
+         }
        }
      }
-
    }
 
    //===================++++++++++++========================
@@ -98,87 +79,57 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    if (doPixels){
      edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
      iEvent.getByToken(pixelClusters_, pixelClusters);
+     // Loop over the strip clusters
+     edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusters=pixelClusters->begin();
+     for(;itClusters!=pixelClusters->end();++itClusters){
+       uint32_t detid = itClusters->detId();
+       DetId stripDetI(detid);
+       for(edmNew::DetSet<SiPixelCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
 
-     ModuleSelectionVectPixels.clear();
-     for ( std::vector<std::string>::iterator it=v_pixelModuleTypes.begin() ; it < v_pixelModuleTypes.end(); it++ ){
-       ModuleSelectionVectPixels.push_back ( new ClusterSummary::ModuleSelection(*it) );
-     }
+         for(unsigned int iS = 0; iS < pixelSelector.size(); ++iS){
+           const DetIdSelector& selector = pixelSelector[iS].first;
+           const ClusterSummary::CMSTracker  module   = pixelSelector[iS].second;
 
-     firstpassPixel_mod = true;
-
-     int CurrModPixel = -1;
-     //Loop over all the ModuleSelectors
-     for ( unsigned int i = 0; i < ModuleSelectionVectPixels.size(); i++){
-
-       // Loop over the pixel clusters
-       edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusters=pixelClusters->begin();
-       for(;itClusters!=pixelClusters->end();++itClusters){
-	 uint32_t detid = itClusters->detId();    
-	 for(edmNew::DetSet<SiPixelCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
-
-	   // For each ModuleSelector, check if the detID belongs to a desired module. If so, update the summary information for that module
-	 
-	   std::pair<int, int> ModSelectPixel = ModuleSelectionVectPixels.at(i) -> IsPixelSelected( detid );
-	   int mod_pair = ModSelectPixel.first;
-	   int mod_pair2 = ModSelectPixel.second;
-	   if ( mod_pair ){
-	     if ( firstpassPixel_mod ) {
-	       CurrModPixel = mod_pair2;
-	       cCluster.SetUserModules( mod_pair2 ) ;
-	     }
-	     firstpassPixel_mod = false;
-	     int CurrModTmp = mod_pair2;
-	     if ( CurrModPixel != CurrModTmp ) {
-	       cCluster.SetUserModules( mod_pair2 ) ;
-	       CurrModPixel = CurrModTmp;
-	     }
-
-	     cCluster.SetGenericVariable( "pHits", mod_pair2, 1 );
-	     cCluster.SetGenericVariable( "pSize", mod_pair2, cluster->size() );
-	     cCluster.SetGenericVariable( "pCharge", mod_pair2, float(cluster->charge())/1000. );
-
-	   }
-	 }
+           if(!selector.isSelected(detid)) continue;
+           int modLocation = cCluster.GetModuleLocation((int)module,false);
+           if(modLocation < 0) {
+             modLocation = cCluster.GetNumberOfModules();
+             cCluster.SetUserModules( module ) ;
+           }
+           cCluster.SetGenericVariableByIndex( ClusterSummary::NMODULES     , modLocation, 1 );
+           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE  , modLocation, cluster->size());
+           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE, modLocation, float(cluster->charge())/1000. );
+         }
        }
      }
-   
    }
-
 
    //===================+++++++++++++========================
    //
    //                   Fill Producer
    //
    //===================+++++++++++++========================
-
-
-   unsigned int n = 0;
-   int n_pixel = 0;
-
    cCluster.PrepairGenericVariable( );
    
-   std::vector<int> _mod = cCluster.GetUserModules( );
-   for(std::vector<int>::iterator it = _mod.begin(); it != _mod.end(); ++it) {
-     
-     if ( n < v_stripModuleTypes.size() && doStrips ){
-       if (verbose) std::cout << "n" << v_stripModuleTypes.at(n) <<", avg size, avg charge = "<< cCluster.GetGenericVariable( "cHits",*it ) << ", " << cCluster.GetGenericVariable( "cSize",*it )/cCluster.GetGenericVariable( "cHits",*it ) << ", "<< cCluster.GetGenericVariable( "cCharge",*it )/cCluster.GetGenericVariable( "cHits",*it )  << std::endl;
-       delete ModuleSelectionVect[n];
-     }
-     else if (doPixels) {     
-       if (verbose) {
-	 std::cout << "n" << v_pixelModuleTypes.at(n_pixel) << ", avg size, avg charge = "<< cCluster.GetGenericVariable( "pHits",*it ) << ", " << cCluster.GetGenericVariable( "pSize",*it )/cCluster.GetGenericVariable( "pHits",*it ) << ", "<< cCluster.GetGenericVariable( "pCharge",*it )/cCluster.GetGenericVariable( "pHits",*it )  << std::endl;
-       }
-       delete ModuleSelectionVectPixels[n_pixel];
-       ++n_pixel;
-     } 
-     ++n;
-   }
-   
-   if (verbose) std::cout << "-------------------------------------------------------" << std::endl;
-   
-   firstpass = false;
-   firstpassPixel = false;
 
+
+   if(verbose){
+     auto printMod =  [&] (std::vector<std::string>& modName, ModuleSelections& modSel){
+       for(unsigned int iM = 0; iM < modName.size(); ++iM){
+         int modLoc = cCluster.GetModuleLocation(modSel[iM].second,false);
+         if( modLoc<0 ) continue;
+         std::cout << "n" << modName[iM]   <<", avg size, avg charge = "
+             << cCluster.GetGenericVariableByIndex( ClusterSummary::NMODULES,modLoc ) << ", "
+             << cCluster.GetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE,modLoc )/cCluster.GetGenericVariableByIndex( ClusterSummary::NMODULES,modLoc ) << ", "
+             << cCluster.GetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE,modLoc )/cCluster.GetGenericVariableByIndex( ClusterSummary::NMODULES,modLoc)
+             << std::endl;
+       }
+     };
+
+     printMod(stripModuleNames,stripSelector);
+     printMod(pixelModuleNames,pixelSelector);
+     std::cout << "-------------------------------------------------------" << std::endl;
+   }
    //Put the filled class into the producer
    std::auto_ptr<ClusterSummary> result(new ClusterSummary (cCluster) );
    iEvent.put( result );
@@ -191,82 +142,28 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 void 
 ClusterSummaryProducer::beginStream(edm::StreamID)
 {
-   
-  if (doStrips) decodeInput(v_stripModuleTypes,stripModules.c_str());
-  if (doStrips) decodeInput(v_stripVariables,stripVariables.c_str());  
-  if (doPixels) decodeInput(v_pixelModuleTypes,pixelModules.c_str());
-  if (doPixels) decodeInput(v_pixelVariables,pixelVariables.c_str());  
-
+  if(!verbose) return;
   if (doStrips){
-  if (verbose){
     std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
     std::cout << "FOR STRIPS: "  << std::endl;
     std::cout << "Getting info on " ;
-    for (unsigned int ii = 0; ii < v_stripModuleTypes.size( ); ++ii) {
-      std::cout << v_stripModuleTypes[ii] << " " ;
+    for (unsigned int ii = 0; ii < stripModuleNames.size( ); ++ii) {
+      std::cout << stripModuleNames[ii] << " " ;
     }
     std::cout << std::endl;
   }
-  
-  if (verbose) std::cout << "Getting info on strip variables " ;
-  for (unsigned int ii = 0; ii < v_stripVariables.size( ); ++ii) {
-    if (verbose) std::cout << v_stripVariables[ii] << " " ;
-    v_userContent.push_back(v_stripVariables[ii]);
-  }
-  if (verbose) std::cout << std::endl;
-  }
-  
+
   if (doPixels){
-  if (verbose){
     std::cout << "FOR PIXELS: " << std::endl;
     std::cout << "Getting info on " ;
-    for (unsigned int ii = 0; ii < v_pixelModuleTypes.size( ); ++ii) {
-      std::cout << v_pixelModuleTypes[ii] << " " ;
+    for (unsigned int ii = 0; ii < pixelModuleNames.size( ); ++ii) {
+      std::cout << pixelModuleNames[ii] << " " ;
     }
     std::cout << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
   }
-  
-  if (verbose) std::cout << "Getting info on pixel variables " ;
-  for (unsigned int ii = 0; ii < v_pixelVariables.size( ); ++ii) {
-    if (verbose) std::cout << v_pixelVariables[ii] << " " ;
-    v_userContent.push_back(v_pixelVariables[ii]);
-  }
-  if (verbose) std::cout << std::endl;
-  if (verbose) std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
-  }
-
-  //Create the summary info for output 
-  cCluster.SetUserContent(v_userContent);
-  cCluster.SetUserIterator();
-}
-
-
-
-
-void 
-ClusterSummaryProducer::decodeInput(std::vector<std::string> & vec, std::string mod)
-{
-
-  // Define the Modules to get the summary info out of  
-  std::string::size_type i = 0;
-  std::string::size_type j = mod.find(',');
-
-  if ( j == std::string::npos ){
-    vec.push_back(mod);
-  }
-  else{
-    while (j != std::string::npos) {
-      vec.push_back(mod.substr(i, j-i));
-      i = ++j;
-      j = mod.find(',', j);
-      if (j == std::string::npos)
-	vec.push_back(mod.substr(i, mod.length( )));
-    }
-  }
-
 
 }
-
 
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

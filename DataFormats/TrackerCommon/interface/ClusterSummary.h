@@ -137,7 +137,7 @@ class ClusterSummary {
   ClusterSummary(ClusterSummary&& other);
 #endif
 
-  // Enum for each partition within Tracer
+  // Enum for each partition within Tracker
   enum CMSTracker { TRACKER = 0,
 		    TIB = 1,
 		    TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14, //TIB layer 1-4
@@ -168,13 +168,17 @@ class ClusterSummary {
   };
 
   // Enum which describes the ordering of the summary variables inside vector variables_
-  enum VariablePlacement{ NMODULES = 0,
+  enum VariablePlacement{
+        NMODULES = 0,
 			  CLUSTERSIZE = 1,
 			  CLUSTERCHARGE = 2,
-			  NMODULESPIXELS = 3,
-			  CLUSTERSIZEPIXELS = 4,
-			  CLUSTERCHARGEPIXELS = 5};
- 
+			  NVARIABLES = 3
+  };
+
+  static bool checkSubDet(const int input); //Returns true for pixel, throws an exception if it does not exist
+  static std::string getSubDetName(const CMSTracker subdet); //Returns the string form of the subdet
+  static std::string getVarName(const VariablePlacement var); //Returns the string form of the variable
+
 
   //===================+++++++++++++========================
   //
@@ -182,55 +186,46 @@ class ClusterSummary {
   //                      Variables
   //
   //===================+++++++++++++========================
-
   
-  //Get value of any variable given location of the variable within userContent and the module number based on enum CMSTracker
-  double GetGenericVariable( int variableLocation, int module ) const { 
-    return GetModuleLocation(module) < 0  ? 0. : genericVariables_[variableLocation][GetModuleLocation(module)]; }
+  //These functions are broken into two categories. The standard versions take the enums as input and find the locations in the vector.
+  //The ones labeled "byIndex" take the vector location as input
 
-  //Get value of any variable given variable name and the module number based on enum CMSTracker
-  double GetGenericVariable( std::string variableName, int module ) const { 
-
-    int position = GetVariableLocation(variableName);
+  //Get value of any variable given location of the variable and module within userContent
+  float GetGenericVariableByIndex(VariablePlacement variable, int moduleLocation ) const {
+    if(variable >= NVARIABLES || moduleLocation >= int(genericVariables_[(int)variable].size()))
+      throw cms::Exception( "Missing variable or module") << variable << " "<< moduleLocation;
+    return genericVariables_[(int)variable][moduleLocation];
+  }
+  float GetGenericVariable( VariablePlacement variable, CMSTracker module ) const {
+    if(variable >= NVARIABLES )
+      throw cms::Exception( "Missing variable ") << variable ;
     int mposition = GetModuleLocation(module);
 
-    return mposition < 0 ? 0. : genericVariables_[position][mposition];    
+    return mposition < 0 ? 0. : genericVariables_[(int)variable][mposition];
   }
 
   //Get specific varibale for all modules using the variable name
-  std::vector<double> GetGenericVariable( std::string variableName ) const {     
-    return genericVariables_[GetVariableLocation(variableName)];
-  }
-
-  //Get specific varibale for all modules using the location of the variable within userContent
-  std::vector<double> GetGenericVariable( int variableLocation ) const {     
-    return genericVariables_[variableLocation];
+  std::vector<float> GetGenericVariable( VariablePlacement variable) const {
+    if(variable >= NVARIABLES )
+      throw cms::Exception( "Missing variable ") << variable ;
+    return genericVariables_[int(variable)];
   }
 
   //Get the vector genericVariables_
-  std::vector< std::vector<double> > GetGenericVariable() const { return genericVariables_; }  
+  std::vector< std::vector<float> > GetGenericVariable() const { return genericVariables_; }
 
-  //Set the vector genericVariables_ based on the location of the variable within userContent and the module number based on enum CMSTracker
-  void SetGenericVariable( int variableLocation, int module, double value ) { 
-    if(GetModuleLocation(module) >=0) genericVariablesTmp_[variableLocation][GetModuleLocation(module)] += value; } 
-
-  //Set the vector genericVariables_ given the variable name and the module number based on enum CMSTracker
-  void SetGenericVariable( std::string variableName, int module, double value ) { 
-    
-    /*
-      genericVariablesTmp[ variable ][ module ]
-      
-      This will fill the values in the order as they are filled in the produced.
-      
-      1) Find where the variableName lives in userContent
-      2) Find where module lives in modules_
-
-    */
-
-    int position = GetVariableLocation(variableName);
+  //Set the vector genericVariables_ based on the location of the variable and module
+  void SetGenericVariableByIndex( VariablePlacement variable, int moduleLocation, double value ) {
+    if(variable >= NVARIABLES || moduleLocation >= int(genericVariablesTmp_[(int)variable].size()))
+      throw cms::Exception( "Missing variable or module") << variable << " "<< moduleLocation;
+    genericVariablesTmp_[(int)variable][moduleLocation] += value;
+  }
+  void SetGenericVariable( VariablePlacement variable, CMSTracker module, double value ) {
+    if(variable >= NVARIABLES)
+      throw cms::Exception( "Missing variable ") << variable;
     int mposition = GetModuleLocation(module);
 
-    if(mposition >=0) genericVariablesTmp_[position][mposition] += value;    
+    if(mposition >=0) genericVariablesTmp_[(int)variable][mposition] += value;
   } 
 
   //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.
@@ -238,72 +233,39 @@ class ClusterSummary {
 
   //Clear genericVariablesTmp_. Must be done at the end of each event.
   void ClearGenericVariable() { 
-    
+
     //genericVariablesTmp_.clear();
 
     for (unsigned int i = 0; i < genericVariablesTmp_.size(); ++i){
       for (unsigned int j = 0; j < genericVariablesTmp_[i].size(); ++j){
-	genericVariablesTmp_[i][j] = 0;
+        genericVariablesTmp_[i][j] = 0;
       }
     }    
   } 
 
-
-
-  // Setter and Getter for the User Content. You can also return the size and what is stored in the UserContent 
-  void SetUserContent(const std::vector<std::string>& Content)  const;
-  std::vector<std::string> GetUserContent();
-  int GetUserContentSize();
-  void  GetUserContentInfo() const;
-  int GetVariableLocation ( std::string var ) const;
-
-
   //Set and Get modules_
-  void SetUserModules( int value ) { modules_.push_back( value ); }
+  void SetUserModules( CMSTracker value ) { modules_.push_back( value ); }
   std::vector<int> GetUserModules( ) const { return modules_;  }
   void ClearUserModules( ) { modules_.clear(); }
-  // Return the location of desired module within modules_. 
-  int GetModuleLocation ( int mod ) const;
+  // Return the location of desired module within modules_. If warn is set to true, a warnign will be outputed in case no module was found
+  int GetModuleLocation ( int mod, bool warn = true ) const;
+  unsigned int GetNumberOfModules() const {return modules_.size();}
+  int GetModule(int index) const { return modules_[index];}
 
-
-  //Set and Get iterator_
-  void SetUserIterator() { iterator_.push_back( GetUserContentSize()  );}
-  std::vector<int> GetUserIterator() const { return iterator_; }
-  void ClearUserIterator() { iterator_.clear(); }
     
   // Return a vector of the modules that summary infomation was requested for. This should come from the provenance information. 
   std::vector<std::string> DecodeProvInfo(std::string ProvInfo) const;
 
-  // Class which determines if a detId is part of a desired partition
-  class ModuleSelection{
-  public:
-    ModuleSelection(std::string gs);
-    virtual ~ModuleSelection();
-    virtual std::pair<int,int> IsStripSelected (int DetId);
-    virtual std::pair<int,int> IsPixelSelected (int DetId);
-  private:
-    std::string geosearch; // string of selected modules	
-  };
 
 
 
 
  private:
-  
+  std::vector<int>     modules_;    // <Module1, Module2 ...>
 
-  // String which stores the name of the variables the user is getting the summary info for
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<std::vector<std::string>*>        userContent;
-#else
-  mutable std::vector<std::string>*        userContent;
-#endif
-
-  std::vector<int>    iterator_;   // <number of varibale for Module1, number of varibale for Module2 ...>
-  std::vector<int>    modules_;    // <Module1, Module2 ...>
-
-  std::vector< std::vector<double> > genericVariables_; 
+  std::vector< std::vector<float> > genericVariables_;
   // CMS-THREADSAFE: this mutable member data used in non-const functions
-  mutable std::vector< std::vector<double> > genericVariablesTmp_; 
+  mutable std::vector< std::vector<float> > genericVariablesTmp_;
 
 };
 

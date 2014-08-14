@@ -46,9 +46,8 @@ class ClusterSummarySingleMultiplicity {
 #ifndef __GCCXML__
   edm::EDGetTokenT<ClusterSummary> m_collection;
 #endif
-  int m_subdetenum;
-  std::string m_subdetvar;
-  std::vector<std::string> m_clustsummvar;
+  ClusterSummary::CMSTracker m_subdetenum;
+  ClusterSummary::VariablePlacement m_varenum;
   int m_mult;
     
 };

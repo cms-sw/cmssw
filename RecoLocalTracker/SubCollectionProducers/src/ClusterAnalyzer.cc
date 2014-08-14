@@ -63,28 +63,17 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
 
       std::map<int, std::string> enumModules_;
       std::map< std::string, TH1D* > histos1D_;
-  
-      std::vector<int>   modules_;  
-  
+
       std::vector<int> nType_; 
-      std::vector<double> clusterSize_; 
-      std::vector<double> clusterCharge_;
+      std::vector<float> clusterSize_;
+      std::vector<float> clusterCharge_;
 
-      std::vector<std::string>  v_moduleTypes;
-      std::vector<std::string>  v_variables;
-
-      std::vector< std::vector<double> > genericVariables_; 
+      std::map<int,std::string> allModules_;
 
       bool _firstPass;
       edm::Service<TFileService> fs;
-      std::vector<string> maps;
 
       bool _verbose;
-
-      std::string ProvInfo;
-      std::string ProvInfo_vars;
-      std::string ProvInfoPixels;
-      std::string ProvInfoPixels_vars;
 
       bool doStrips;
       bool doPixels;
@@ -114,134 +103,64 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByToken( token, class_);
       
    if (_firstPass){
-   
-     modules_ . clear();
-     modules_ = class_ -> GetUserModules();
-
      //  Provenance Information
      const Provenance& prov = iEvent.getProvenance(class_.id());
      const edm::ParameterSet& pSet = parameterSet(prov);   
 
-     ProvInfo = "";
-     ProvInfo_vars = "";
-     ProvInfoPixels = "";
-     ProvInfoPixels_vars = "";
-
-     std::string ProvString = "";
-     std::string VarString = "";
-       
      doStrips = pSet.getParameter<bool>("doStrips");
      doPixels = pSet.getParameter<bool>("doPixels");
 
-     if (doStrips){
-       ProvInfo = pSet.getParameter<string>("stripModule");
-       cout << "From provenance infomation the selected strip modules are = "<< ProvInfo << endl;
-       ProvInfo_vars = pSet.getParameter<string>("stripVariables");
-       cout << "From provenance infomation the avaliable strip variables are = "<< ProvInfo_vars << endl;
+     std::vector<edm::ParameterSet> wantedsubdets_ps =  pSet.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets");
+     for(std::vector<edm::ParameterSet>::const_iterator wsdps = wantedsubdets_ps.begin();wsdps!=wantedsubdets_ps.end();++wsdps) {
+       unsigned int             detsel    = wsdps->getParameter<unsigned int>("detSelection");
+       std::string              detname   = wsdps->getParameter<std::string>("detLabel");
 
-     }
-     if (doPixels){
-       ProvInfoPixels = pSet.getParameter<string>("pixelModule");
-       cout << "From provenance infomation the selected pixel modules are = "<< ProvInfoPixels << endl;
-       ProvInfoPixels_vars = pSet.getParameter<string>("pixelVariables");
-       cout << "From provenance infomation the avaliable pixel variables are = "<< ProvInfoPixels_vars << endl;
+       if(ClusterSummary::checkSubDet(detsel)){
+         if(doPixels)
+           allModules_[detsel] =detname;
+       } else{
+         if(doStrips)allModules_[detsel] =detname;
+       }
      }
 
-
-     if (doStrips && doPixels) {
-       ProvString = ProvInfo + "," + ProvInfoPixels;
-       VarString = ProvInfo_vars + "," + ProvInfoPixels_vars;
-     }
-     else if (doStrips && !doPixels) {
-       ProvString = ProvInfo;
-       VarString = ProvInfo_vars;
-     }
-     else if (!doStrips && doPixels) {
-       ProvString = ProvInfoPixels;
-       VarString = ProvInfoPixels_vars;
-     }
-     
-     // Define the Modules to get the summary info out of  
-     v_moduleTypes = class_ -> DecodeProvInfo( ProvString );
-     v_variables = class_ -> DecodeProvInfo( VarString );
-
+     cout << "From provenance infomation the selected modules are = ";
+     for( auto i = allModules_.begin(); i != allModules_.end(); ++i)
+      cout << i->second <<" ";
+     cout << endl;
    }
-   
-   class_ -> SetUserContent( v_variables );   
-	
-   genericVariables_ = class_ -> GetGenericVariable();   
-   
-   //cout << class_ -> GetGenericVariable("cHits", ClusterSummary::TIB) << endl;
 
    if ( _firstPass ){ //only do on the first event
- 
-     // Loop over all the modules to create a Map of Histograms to fill
-     int n = 0;
-     for ( vector<int>::const_iterator mod = modules_ . begin(); mod != modules_ . end(); mod++ ){
 
-       //cout << "Creating histograms for " << *mod << endl;
-       cout << "Creating histograms for " << v_moduleTypes.at(n) << endl;
+     for( auto i = allModules_.begin(); i != allModules_.end(); ++i){
+       std::string tmpstr = i->second;
+       histos1D_[ (tmpstr + "nclusters").c_str() ] = fs->make< TH1D >( (tmpstr + "nclusters").c_str() , (tmpstr + "nclusters").c_str() , 1000 , 0 , 3000   );
+       histos1D_[ (tmpstr + "nclusters").c_str() ]->SetXTitle( ("number of Clusters in " + tmpstr).c_str() );
+
+       histos1D_[ (tmpstr + "avgCharge").c_str() ] = fs->make< TH1D >( (tmpstr + "avgCharge").c_str() , (tmpstr + "avgCharge").c_str() , 500 , 0 , 1000   );
+       histos1D_[ (tmpstr + "avgCharge").c_str() ]->SetXTitle( ("average cluster charge in " + tmpstr).c_str() );
+
+       histos1D_[ (tmpstr + "avgSize").c_str() ] = fs->make< TH1D >( (tmpstr + "avgSize").c_str() , (tmpstr + "avgSize").c_str() , 30 , 0 , 10   );
+       histos1D_[ (tmpstr + "avgSize").c_str() ]->SetXTitle( ("average cluster size in " + tmpstr).c_str() );
        
-       std::string tmpstr = v_moduleTypes.at(n);
-
-       histos1D_[ (tmpstr + "nclusters").c_str() ] = fs->make< TH1D >( (tmpstr + "nclusters").c_str() , (tmpstr + "nclusters").c_str() , 1000 , 0 , 3000   ); 
-       histos1D_[ (tmpstr + "nclusters").c_str() ]->SetXTitle( ("number of Clusters in " + tmpstr).c_str() );    
-  
-       histos1D_[ (tmpstr + "avgCharge").c_str() ] = fs->make< TH1D >( (tmpstr + "avgCharge").c_str() , (tmpstr + "avgCharge").c_str() , 500 , 0 , 1000   ); 
-       histos1D_[ (tmpstr + "avgCharge").c_str() ]->SetXTitle( ("average cluster charge in " + tmpstr).c_str() );    
-  
-       histos1D_[ (tmpstr + "avgSize").c_str() ] = fs->make< TH1D >( (tmpstr + "avgSize").c_str() , (tmpstr + "avgSize").c_str() , 30 , 0 , 10   ); 
-       histos1D_[ (tmpstr + "avgSize").c_str() ]->SetXTitle( ("average cluster size in " + tmpstr).c_str() );    
-
-       maps.push_back( (tmpstr + "nclusters").c_str() );
-       maps.push_back( (tmpstr + "avgSize").c_str() );
-       maps.push_back( (tmpstr + "avgCharge").c_str() );
-       
-       ++n;
-
      }
 
      _firstPass = false;
-   
-   }
-
-   int n = 0;
-   for ( vector<int>::const_iterator mod = modules_ . begin(); mod != modules_ . end(); mod++ ){
-  
-     std::string tmpstr = v_moduleTypes.at(n);
-
-     //Trick to see if it comes from a strip or pixel variable. If the first digit is < 6 then it is from the strips.
-     int mod_tmp = *mod;
-     while (mod_tmp > 9 ){
-       mod_tmp /= 10;
-     }
-     
-     if ( mod_tmp < 5 ){
-
-       histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariable("cHits", *mod) );
-       histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariable("cSize", *mod)  /class_ -> GetGenericVariable("cHits", *mod) );
-       histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> GetGenericVariable("cCharge", *mod)/class_ -> GetGenericVariable("cHits", *mod) );
-
-       cout << "n"<<tmpstr <<", avg size, avg charge = "<< class_ -> GetGenericVariable( "cHits",*mod ); 
-       cout << ", "<< class_ -> GetGenericVariable( "cSize",*mod )  /class_ -> GetGenericVariable( "cHits",*mod ); 
-       cout << ", "<< class_ -> GetGenericVariable( "cCharge",*mod )/class_ -> GetGenericVariable( "cHits",*mod ) <<  endl;
-
-     }
-     else{
-       histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariable("pHits", *mod) );
-       histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariable("pSize", *mod)/class_ -> GetGenericVariable("pHits", *mod) );
-       histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> GetGenericVariable("pCharge", *mod)/class_ -> GetGenericVariable("pHits", *mod) );
-       
-       cout << "n"<<tmpstr <<", avg size, avg charge = "<< class_ -> GetGenericVariable( "pHits",*mod );
-       cout << ", "<< class_ -> GetGenericVariable( "pSize",*mod )  /class_ -> GetGenericVariable( "pHits",*mod );
-       cout << ", "<< class_ -> GetGenericVariable( "pCharge",*mod )/class_ -> GetGenericVariable( "pHits",*mod ) <<  endl;
-
-     }
-     
-     ++n;
-
    }
    
+   for ( unsigned int iM  = 0; iM < class_->GetNumberOfModules(); iM++ ){
+     auto iAllModules = allModules_.find(class_->GetModule(iM));
+     if(iAllModules == allModules_.end()) continue;
+
+     std::string tmpstr = iAllModules->second;
+
+     histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariableByIndex(ClusterSummary::NMODULES     ,iM ));
+     histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariableByIndex(ClusterSummary::CLUSTERSIZE  ,iM )/class_ -> GetGenericVariableByIndex(ClusterSummary::NMODULES, iM ));
+     histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> GetGenericVariableByIndex(ClusterSummary::CLUSTERCHARGE,iM )/class_ -> GetGenericVariableByIndex(ClusterSummary::NMODULES, iM ));
+
+     cout << "n"<<tmpstr <<", avg size, avg charge = "<< class_ -> GetGenericVariableByIndex( ClusterSummary::NMODULES,iM );
+     cout << ", "<< class_ -> GetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE   ,iM)  /class_ -> GetGenericVariableByIndex( ClusterSummary::NMODULES,iM );
+     cout << ", "<< class_ -> GetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE ,iM)  /class_ -> GetGenericVariableByIndex( ClusterSummary::NMODULES,iM ) <<  endl;
+   }
    cout << "-------------------------------------------------------" << endl;
    
 

@@ -2,23 +2,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ClusterSummary::ClusterSummary()
-    : userContent(nullptr), genericVariablesTmp_(6, std::vector<double>(100,0) )
+    : genericVariablesTmp_(NVARIABLES, std::vector<float>(100,0) )
 {
 }
 
 ClusterSummary::~ClusterSummary()
-{
-    delete userContent.load();
-    userContent = nullptr;
-}
+{}
 
 // swap function
 void ClusterSummary::swap(ClusterSummary& other)
 {
-    other.userContent.exchange(
-            userContent.exchange(other.userContent.load(std::memory_order_acquire), std::memory_order_acq_rel),
-            std::memory_order_acq_rel);
-    std::swap(iterator_, other.iterator_);
     std::swap(modules_, other.modules_);
     std::swap(genericVariables_, other.genericVariables_);
     std::swap(genericVariablesTmp_, other.genericVariablesTmp_);
@@ -26,7 +19,7 @@ void ClusterSummary::swap(ClusterSummary& other)
 
 // copy ctor
 ClusterSummary::ClusterSummary(const ClusterSummary& src)
-    : userContent(nullptr), iterator_(src.iterator_), modules_(src.modules_),
+    : modules_(src.modules_),
     genericVariables_(src.genericVariables_),
     genericVariablesTmp_(src.genericVariablesTmp_)
 {
@@ -47,141 +40,113 @@ ClusterSummary::ClusterSummary(ClusterSummary&& other)
     other.swap(*this);
 }
 
-int ClusterSummary::GetModuleLocation ( int mod ) const {
 
-  int placeInModsVector = -1;
-    
-  int cnt = 0;
-  int pixelcnt = 0; 
-  for(std::vector<int>::const_iterator it = modules_.begin(); it != modules_.end(); ++it) {
-    /*
-    if ( mod == (*it) ) { 
-      placeInModsVector = cnt; 
-      break;
-    }
-    else ++cnt;
-    */
-    
-    int mod_tmp = *it;
-    while (mod_tmp > 9 ){
-      mod_tmp /= 10;
-    }
-     
-    if ( mod_tmp < 5 ){
+bool ClusterSummary::checkSubDet(const int input){
 
-      if ( mod == (*it) ) { 
-	placeInModsVector = cnt; 
-	break;
-      }
-      else ++cnt;
-    }
-    else{      
-      if ( mod == (*it) ) { 
-	placeInModsVector = pixelcnt; 
-	break;
-      }
-      else ++pixelcnt;
-    }   
+  switch (input){
+  case TRACKER :
+  case TIB    :  case TID    :   case TIDMR_2:  case TECM_5 :  case TECP_8 :  case TECPR_4:
+  case TIB_1  :  case TIDM   :   case TIDMR_3:  case TECM_6 :  case TECP_9 :  case TECPR_5:
+  case TIB_2  :  case TIDP   :   case TIDPR_1:  case TECM_7 :  case TECMR_1:  case TECPR_6:
+  case TIB_3  :  case TIDM_1 :   case TIDPR_2:  case TECM_8 :  case TECMR_2:  case TECPR_7:
+  case TIB_4  :  case TIDM_2 :   case TIDPR_3:  case TECM_9 :  case TECMR_3:
+  case TOB    :  case TIDM_3 :   case TEC    :  case TECP_1 :  case TECMR_4:
+  case TOB_1  :  case TIDP_1 :   case TECM   :  case TECP_2 :  case TECMR_5:
+  case TOB_2  :  case TIDP_2 :   case TECP   :  case TECP_3 :  case TECMR_6:
+  case TOB_3  :  case TIDP_3 :   case TECM_1 :  case TECP_4 :  case TECMR_7:
+  case TOB_4  :  case TIDMR_1:   case TECM_2 :  case TECP_5 :  case TECPR_1:
+  case TOB_5  :                  case TECM_3 :  case TECP_6 :  case TECPR_2:
+  case TOB_6  :                  case TECM_4 :  case TECP_7 :  case TECPR_3:
+    return false;
+  case PIXEL   : case FPIXP_3 :
+  case FPIX    : case BPIX    :
+  case FPIX_1  : case BPIX_1  :
+  case FPIX_2  : case BPIX_2  :
+  case FPIX_3  : case BPIX_3  :
+  case FPIXM   :
+  case FPIXP   :
+  case FPIXM_1 :
+  case FPIXM_2 :
+  case FPIXM_3 :
+  case FPIXP_1 :
+  case FPIXP_2 :
+    return true;
+  default:
+    throw cms::Exception("ClusterSummary::checkSubDet")  << "Invalid detector: " << input;
   }
 
-  if (placeInModsVector == -1){
+  return false;
 
-    edm::LogWarning("NoModule") << "No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
-      
+}
+
+std::string ClusterSummary::getSubDetName(const CMSTracker subdet){
+  switch (subdet){
+  case TRACKER : return "TRACKER"  ; case TIDM    : return "TIDM"     ; case TEC     : return "TEC"      ; case TECP_3  : return "TECP_3"   ;  case TECPR_1 : return "TECPR_1"  ; case FPIXM_1 : return "FPIXM_1"  ;
+  case TIB     : return "TIB"      ; case TIDP    : return "TIDP"     ; case TECM    : return "TECM"     ; case TECP_4  : return "TECP_4"   ;  case TECPR_2 : return "TECPR_2"  ; case FPIXM_2 : return "FPIXM_2"  ;
+  case TIB_1   : return "TIB_1"    ; case TIDM_1  : return "TIDM_1"   ; case TECP    : return "TECP"     ; case TECP_5  : return "TECP_5"   ;  case TECPR_3 : return "TECPR_3"  ; case FPIXM_3 : return "FPIXM_3"  ;
+  case TIB_2   : return "TIB_2"    ; case TIDM_2  : return "TIDM_2"   ; case TECM_1  : return "TECM_1"   ; case TECP_6  : return "TECP_6"   ;  case TECPR_4 : return "TECPR_4"  ; case FPIXP_1 : return "FPIXP_1"  ;
+  case TIB_3   : return "TIB_3"    ; case TIDM_3  : return "TIDM_3"   ; case TECM_2  : return "TECM_2"   ; case TECP_7  : return "TECP_7"   ;  case TECPR_5 : return "TECPR_5"  ; case FPIXP_2 : return "FPIXP_2"  ;
+  case TIB_4   : return "TIB_4"    ; case TIDP_1  : return "TIDP_1"   ; case TECM_3  : return "TECM_3"   ; case TECP_8  : return "TECP_8"   ;  case TECPR_6 : return "TECPR_6"  ; case FPIXP_3 : return "FPIXP_3"  ;
+  case TOB     : return "TOB"      ; case TIDP_2  : return "TIDP_2"   ; case TECM_4  : return "TECM_4"   ; case TECP_9  : return "TECP_9"   ;  case TECPR_7 : return "TECPR_7"  ; case BPIX    : return "BPIX"     ;
+  case TOB_1   : return "TOB_1"    ; case TIDP_3  : return "TIDP_3"   ; case TECM_5  : return "TECM_5"   ; case TECMR_1 : return "TECMR_1"  ;  case PIXEL   : return "PIXEL"    ; case BPIX_1  : return "BPIX_1"   ;
+  case TOB_2   : return "TOB_2"    ; case TIDMR_1 : return "TIDMR_1"  ; case TECM_6  : return "TECM_6"   ; case TECMR_2 : return "TECMR_2"  ;  case FPIX    : return "FPIX"     ; case BPIX_2  : return "BPIX_2"   ;
+  case TOB_3   : return "TOB_3"    ; case TIDMR_2 : return "TIDMR_2"  ; case TECM_7  : return "TECM_7"   ; case TECMR_3 : return "TECMR_3"  ;  case FPIX_1  : return "FPIX_1"   ; case BPIX_3  : return "BPIX_3"   ;
+  case TOB_4   : return "TOB_4"    ; case TIDMR_3 : return "TIDMR_3"  ; case TECM_8  : return "TECM_8"   ; case TECMR_4 : return "TECMR_4"  ;  case FPIX_2  : return "FPIX_2"   ;
+  case TOB_5   : return "TOB_5"    ; case TIDPR_1 : return "TIDPR_1"  ; case TECM_9  : return "TECM_9"   ; case TECMR_5 : return "TECMR_5"  ;  case FPIX_3  : return "FPIX_3"   ;
+  case TOB_6   : return "TOB_6"    ; case TIDPR_2 : return "TIDPR_2"  ; case TECP_1  : return "TECP_1"   ; case TECMR_6 : return "TECMR_6"  ;  case FPIXM   : return "FPIXM"    ;
+  case TID     : return "TID"      ; case TIDPR_3 : return "TIDPR_3"  ; case TECP_2  : return "TECP_2"   ; case TECMR_7 : return "TECMR_7"  ;  case FPIXP   : return "FPIXP"    ;
+  default:
+    return "UNKOWN";
+  }
+  return "UNKOWN";
+
+}
+
+std::string ClusterSummary::getVarName(const VariablePlacement var){
+  switch (var){
+    case NMODULES     : return "NMODULES";
+    case CLUSTERSIZE  : return "CLUSTERSIZE";
+    case CLUSTERCHARGE: return "CLUSTERCHARGE";
+    default:
+      return "UNKOWN";
+  }
+  return "UNKOWN";
+}
+
+int ClusterSummary::GetModuleLocation ( int mod, bool warn ) const {
+
+  int sortMod = mod;
+  while (sortMod > 9 ){
+    sortMod /= 10;
+  }
+
+  if(sortMod < 5){
+    for(unsigned int iM = 0; iM < modules_.size(); ++iM){
+      if(mod == modules_[iM])
+        return iM;
+    }
+  } else {
+    for(unsigned int iM =  modules_.size(); iM-- > 0;){
+      if(mod == modules_[iM])
+        return iM;
+    }
+  }
+
+  if(!warn)
     return -1;
 
-  }
-
-  return placeInModsVector;
-
+    edm::LogWarning("NoModule") << "No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
+    return -1;
 }
 
 void ClusterSummary::PrepairGenericVariable() { 
 
     genericVariables_ = genericVariablesTmp_;
 
-    for (unsigned int i = 0; i < (*userContent.load(std::memory_order_acquire)).size(); ++i){
+    for (unsigned int i = 0; i <NVARIABLES; ++i){
       genericVariables_[i].erase(std::remove(genericVariables_[i].begin(), genericVariables_[i].end(), 0), genericVariables_[i].end());
     }
 } 
-
-// Setter and Getter for the User Content. You can also return the size and what is stored in the UserContent 
-void ClusterSummary::SetUserContent(const std::vector<std::string>& Content)  const
-{
-    if(!userContent.load(std::memory_order_acquire)) {
-      auto ptr = new std::vector<std::string>;
-      for(auto i=Content.begin(); i!=Content.end(); ++i) {
-          ptr->push_back(*i);
-      }
-      //atomically try to swap this to become mItemsById
-      std::vector<std::string>* expect = nullptr;
-      bool exchanged = userContent.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
-      if(!exchanged) {
-          delete ptr;
-      }
-    }
-}
-std::vector<std::string> ClusterSummary::GetUserContent()
-{
-    return (*userContent.load(std::memory_order_acquire));
-}
-int ClusterSummary::GetUserContentSize()
-{
-    return (*userContent.load(std::memory_order_acquire)).size();
-}
-void  ClusterSummary::GetUserContentInfo() const  { 
-    std::cout << "Saving info for " ;
-    for (unsigned int i = 0; i < (*userContent.load(std::memory_order_acquire)).size(); ++i) {
-        std::cout << (*userContent.load(std::memory_order_acquire)).at(i) << " " ;
-    }
-    std::cout << std::endl;
-}
-
-int ClusterSummary::GetVariableLocation ( std::string var ) const {
-
-  int placeInUserVector = -1;
-    
-
-  int cnt = 0;
-  auto obj = (*userContent.load(std::memory_order_acquire));
-  for(auto it=obj.begin(); it!=obj.end(); ++it) {
-
-    if ( var == (*it) ) { 
-      placeInUserVector = cnt; 
-      break;
-    }
-    else ++cnt;
-      
-  }
-
-
-  /*
-  if ( var == "cHits" )
-    placeInUserVector = NMODULES;
-  else if (var == "cSize" )
-    placeInUserVector = CLUSTERSIZE;
-  else if (var == "cCharge" )
-    placeInUserVector = CLUSTERCHARGE;
-  else if (var == "pHits" )
-    placeInUserVector = NMODULESPIXELS;
-  else if (var == "pSize" )
-    placeInUserVector = CLUSTERSIZEPIXELS;
-  else if (var == "pCharge" )
-    placeInUserVector = CLUSTERCHARGEPIXELS;
-  else
-    placeInUserVector = -1;
-  */
-  if (placeInUserVector == -1){
-    std::ostringstream err;
-    err<<"No information for requested var "<<var<<". Please check if you have chosen a proper variable.";
-      
-    throw cms::Exception( "Missing Variable", err.str());
-  }
-
-  return placeInUserVector;
-
-}
-
 
 
 std::vector<std::string> ClusterSummary::DecodeProvInfo(std::string ProvInfo) const {
@@ -210,457 +175,3 @@ std::vector<std::string> ClusterSummary::DecodeProvInfo(std::string ProvInfo) co
   return v_moduleTypes;
 
 }
-
-
-
-std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
-
-  // true if the module mod is among the selected modules.  
-  int isselected = 0;
-  int enumVal = 99999;
-  
-  SiStripDetId subdet(DetId);
-  int subdetid = subdet.subDetector();
-  
-  std::string::size_type result = geosearch.find("_");
-
-  if(result != std::string::npos) { 
-
-    /****
-	 Check to the layers in the modules
-    ****/
-  
-    std::string modStr = geosearch; //Convert to string to use needed methods	 
-    size_t pos = modStr.find("_", 0); //find the '_'
-    std::string Mod = modStr.substr(0, pos); //find the module
-    std::string Layer = modStr.substr(pos+1, modStr.length()); //find the Layer
-
-    std::stringstream ss(Layer);
-    int layer_id = 0;
-	 
-    ss >> layer_id;
-	 
-    if (SiStripDetId::TIB == subdetid && Mod == "TIB"){
-	   
-      TIBDetId tib(DetId);
-      int layer    = tib.layer(); 
-      if (layer_id == layer){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TIB_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TIB_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TIB_3;
-	else if (layer_id == 4) enumVal = ClusterSummary::TIB_4;
-
-	isselected = 1;
-      }
-    } 
-	 
-    else if (SiStripDetId::TOB == subdetid && Mod == "TOB"){
-
-      TOBDetId tob(DetId);
-      int layer    = tob.layer(); 
-      if (layer_id == layer){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TOB_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TOB_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TOB_3;
-	else if (layer_id == 4) enumVal = ClusterSummary::TOB_4;
-	else if (layer_id == 5) enumVal = ClusterSummary::TOB_5;
-	else if (layer_id == 6) enumVal = ClusterSummary::TOB_6;
-	  
-	isselected = 1;
-      }
-    } 
-
-    else if (SiStripDetId::TEC == subdetid && Mod == "TECM"){
-
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int layerwheel    = tec.wheel(); 
-
-      if (layer_id == layerwheel && side == -1){
-	  
-	if (layer_id == 1) enumVal = ClusterSummary::TECM_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TECM_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TECM_3;
-	else if (layer_id == 4) enumVal = ClusterSummary::TECM_4;
-	else if (layer_id == 5) enumVal = ClusterSummary::TECM_5;
-	else if (layer_id == 6) enumVal = ClusterSummary::TECM_6;
-	else if (layer_id == 7) enumVal = ClusterSummary::TECM_7;
-	else if (layer_id == 8) enumVal = ClusterSummary::TECM_8;
-	else if (layer_id == 9) enumVal = ClusterSummary::TECM_9;
-
-	isselected = 1;
-      }
-    } 
-
-    else if (SiStripDetId::TEC == subdetid && Mod == "TECP"){
-
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int layerwheel    = tec.wheel(); 
-
-      if (layer_id == layerwheel && side == 1){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TECP_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TECP_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TECP_3;
-	else if (layer_id == 4) enumVal = ClusterSummary::TECP_4;
-	else if (layer_id == 5) enumVal = ClusterSummary::TECP_5;
-	else if (layer_id == 6) enumVal = ClusterSummary::TECP_6;
-	else if (layer_id == 7) enumVal = ClusterSummary::TECP_7;
-	else if (layer_id == 8) enumVal = ClusterSummary::TECP_8;
-	else if (layer_id == 9) enumVal = ClusterSummary::TECP_9;
-
-	isselected = 1;
-      }
-    } 
-
-    // TEC minus ring
-    else if (SiStripDetId::TEC == subdetid && Mod == "TECMR"){
-
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int ring    = tec.ringNumber();  
-
-      if (layer_id == ring && side == -1){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TECMR_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TECMR_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TECMR_3;
-	else if (layer_id == 4) enumVal = ClusterSummary::TECMR_4;
-	else if (layer_id == 5) enumVal = ClusterSummary::TECMR_5;
-	else if (layer_id == 6) enumVal = ClusterSummary::TECMR_6;
-	else if (layer_id == 7) enumVal = ClusterSummary::TECMR_7;
-
-	isselected = 1;
-      }
-    } 
-
-    // TEC plus ring
-    else if (SiStripDetId::TEC == subdetid && Mod == "TECPR"){
-
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int ring    = tec.ringNumber();  
-      if (layer_id == ring && side == 1){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TECPR_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TECPR_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TECPR_3;
-	else if (layer_id == 4) enumVal = ClusterSummary::TECPR_4;
-	else if (layer_id == 5) enumVal = ClusterSummary::TECPR_5;
-	else if (layer_id == 6) enumVal = ClusterSummary::TECPR_6;
-	else if (layer_id == 7) enumVal = ClusterSummary::TECPR_7;
-
-	isselected = 1;
-      }
-    } 
-
-    else if (SiStripDetId::TID == subdetid && Mod == "TIDM"){
-
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int layerwheel    = tid.wheel(); 
-
-      if (layer_id == layerwheel && side == -1){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TIDM_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TIDM_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TIDM_3;
-
-	isselected = 1;
-      }
-    } 
-
-    else if (SiStripDetId::TID == subdetid && Mod == "TIDP"){
-
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int layerwheel    = tid.wheel(); 
-
-      if (layer_id == layerwheel && side == 1){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TIDP_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TIDP_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TIDP_3;
-
-	isselected = 1;
-      }
-    } 
-         
-    // TID minus ring
-    else if (SiStripDetId::TID == subdetid && Mod == "TIDMR"){
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int ring    = tid.ringNumber(); 
-      if (layer_id == ring && side == -1){
-	  
-	if (layer_id == 1) enumVal = ClusterSummary::TIDMR_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TIDMR_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TIDMR_3;
-
-	isselected = 1;
-      }
-    } 
-
-    // TID plus ring
-    else if (SiStripDetId::TID == subdetid && Mod == "TIDPR"){
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int ring    = tid.ringNumber(); 
-	
-      if (layer_id == ring && side == 1){
-
-	if (layer_id == 1) enumVal = ClusterSummary::TIDPR_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::TIDPR_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::TIDPR_3;
-
-	isselected = 1;
-      }
-    } 
-  }
-    
-  /****
-       Check the top and bottom for the TEC and TID
-  ****/
-
-  else if( SiStripDetId::TEC == subdetid && geosearch.compare("TECM")==0 ) {
-       
-    TECDetId tec(DetId);
-    int side          = (tec.isZMinusSide())?-1:1;  
-
-    if (side == -1){
-      isselected = 1;
-      enumVal = ClusterSummary::TECM;
-    }
-  }
-
-  else if( SiStripDetId::TEC == subdetid && geosearch.compare("TECP")==0 ) {
-      
-    TECDetId tec(DetId);
-    int side          = (tec.isZMinusSide())?-1:1;  
-
-    if (side == 1){
-      isselected = 1;
-      enumVal = ClusterSummary::TECP;
-    }    
-  }
-
-
-  else if( SiStripDetId::TID == subdetid && geosearch.compare("TIDM")==0 ) {
-       
-    TIDDetId tid(DetId);
-    int side          = (tid.isZMinusSide())?-1:1;  
-
-    if (side == -1){
-      isselected = 1;
-      enumVal = ClusterSummary::TIDM;
-    }
-  }
-
-
-  else if( SiStripDetId::TID == subdetid && geosearch.compare("TIDP")==0 ) {
-       
-    TIDDetId tid(DetId);
-    int side          = (tid.isZMinusSide())?-1:1;  
-
-    if (side == 1){
-      isselected = 1;
-      enumVal = ClusterSummary::TIDP;
-    }
-  }
-
-  /****
-       Check the full TOB, TIB, TID, TEC modules
-  ****/
-
-  else if( SiStripDetId::TIB == subdetid && geosearch.compare("TIB")==0 ) {
-    isselected = 1;
-    enumVal = ClusterSummary::TIB;
-  }
-  else if( SiStripDetId::TID == subdetid && geosearch.compare("TID")==0 ) {
-    isselected = 1;
-    enumVal = ClusterSummary::TID;
-  } 
-  else if( SiStripDetId::TOB == subdetid && geosearch.compare("TOB")==0) {
-    isselected = 1;
-    enumVal = ClusterSummary::TOB;
-  } 
-  else if( SiStripDetId::TEC == subdetid && geosearch.compare("TEC")==0) {
-    isselected = 1;
-    enumVal = ClusterSummary::TEC;
-  }
-  else if( geosearch.compare("TRACKER")==0) {
-    isselected = 1;
-    enumVal = ClusterSummary::TRACKER;
-  }
-  
-
-  return  std::make_pair(isselected, enumVal);
-}
-
-
-
-
-
-
-
-
-std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
-
-  // true if the module mod is among the selected modules.  
-  int isselected = 0;
-  int enumVal = 99999;
-  
-  DetId detId = DetId(detid);       // Get the Detid object
-  unsigned int detType=detId.det(); // det type, pixel=1
-  unsigned int subdetid=detId.subdetId(); //subdetector type, barrel=1, foward=2
-
-  if(detType!=1) return std::make_pair(0,99999); // look only at pixels
-
-  std::string::size_type result = geosearch.find("_");
-
-  if(result != std::string::npos) { 
-  
-    std::string modStr = geosearch; //Convert to string to use needed methods	 
-    size_t pos = modStr.find("_", 0); //find the '_'
-    std::string Mod = modStr.substr(0, pos); //find the module
-    std::string Layer = modStr.substr(pos+1, modStr.length()); //find the Layer
-
-    std::stringstream ss(Layer);
-    int layer_id = 0;
-	 
-    ss >> layer_id;
-
-    /****
-	 Check the Layers of the Barrel
-    ****/
-
-    if (subdetid == 1 && Mod == "BPIX"){
-	   
-      PXBDetId pdetId = PXBDetId(detid);
-      // Barell layer = 1,2,3
-      int layer=pdetId.layer();
-
-      if (layer_id == layer){
-
-	if (layer_id == 1) enumVal = ClusterSummary::BPIX_1;
-	else if (layer_id == 2) enumVal = ClusterSummary::BPIX_2;
-	else if (layer_id == 3) enumVal = ClusterSummary::BPIX_3;
-
-	isselected = 1;
-      }
-    } 
-
-    /****
-	 Check the Disk of the endcaps
-    ****/
-    else if (subdetid == 2 && Mod == "FPIX"){
-      
-      PXFDetId pdetId = PXFDetId(detid);
-      int disk=pdetId.disk(); //1,2,3
-
-      if (layer_id == disk){
-
-	if (disk == 1) enumVal = ClusterSummary::FPIX_1;
-	else if (disk == 2) enumVal = ClusterSummary::FPIX_2;
-	else if (disk == 3) enumVal = ClusterSummary::FPIX_3;
-
-	isselected = 1;
-	
-      }
-    }
-
-    /****
-	 Check the sides of each Disk of the endcaps
-    ****/
-
-    else if (subdetid == 2 && Mod == "FPIXM"){
-      
-      PXFDetId pdetId = PXFDetId(detid);
-      int side=pdetId.side(); //size=1 for -z, 2 for +z
-      int disk=pdetId.disk(); //1,2,3
-
-      if (layer_id == disk && side == 1 ){
-
-	if (disk == 1) enumVal = ClusterSummary::FPIXM_1;
-	else if (disk == 2) enumVal = ClusterSummary::FPIXM_2;
-	else if (disk == 3) enumVal = ClusterSummary::FPIXM_3;
-
-	isselected = 1;
-	
-      }
-    }
-
-    else if (subdetid == 2 && Mod == "FPIXP"){
-      
-      PXFDetId pdetId = PXFDetId(detid);
-      int side=pdetId.side(); //size=1 for -z, 2 for +z
-      int disk=pdetId.disk(); //1,2,3
-
-      if (layer_id == disk && side == 2){
-
-	if (disk == 1) enumVal = ClusterSummary::FPIXP_1;
-	else if (disk == 2) enumVal = ClusterSummary::FPIXP_2;
-	else if (disk == 3) enumVal = ClusterSummary::FPIXP_3;
-
-	isselected = 1;
-	
-      }
-    }
-  }
-   
-  /****
-       Check the top and bottom of the endcaps
-  ****/
-
-  else if( subdetid == 2 && geosearch.compare("FPIXM")==0 ) {
-       
-    PXFDetId pdetId = PXFDetId(detid);
-    int side=pdetId.side(); //size=1 for -z, 2 for +z
-
-    if (side == 1){
-      isselected = 1;
-      enumVal = ClusterSummary::FPIXM;
-    }
-  }
-
-  else if( subdetid == 2 && geosearch.compare("FPIXP")==0 ) {
-      
-    PXFDetId pdetId = PXFDetId(detid);
-    int side=pdetId.side(); //size=1 for -z, 2 for +z
-
-    if (side == 2){
-      isselected = 1;
-      enumVal = ClusterSummary::FPIXP;
-    }    
-  }
-
-
-  /****
-       Check the full Barrel and Endcaps
-  ****/
-    
-  else if(subdetid == 1 && geosearch.compare("BPIX")==0 ) {
-    isselected = 1;
-    enumVal = ClusterSummary::BPIX;
-  }
-  else if(subdetid == 2 && geosearch.compare("FPIX")==0 ) {
-    isselected = 1;
-    enumVal = ClusterSummary::FPIX;
-  }
-  else if( geosearch.compare("PIXEL")==0) {
-    isselected = 1;
-    enumVal = ClusterSummary::PIXEL;
-  }
-
-
-  return  std::make_pair(isselected, enumVal);
-}
-
-ClusterSummary::ModuleSelection::ModuleSelection(std::string gs){
-  geosearch = gs;
-}
-
-ClusterSummary::ModuleSelection::~ModuleSelection() {}
