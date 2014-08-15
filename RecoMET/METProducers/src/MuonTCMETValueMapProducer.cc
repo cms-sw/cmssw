@@ -146,7 +146,7 @@ void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
     reco::MuonMETCorrectionData muMETCorrData(reco::MuonMETCorrectionData::NotUsed, deltax, deltay);
     
     reco::TrackRef mu_track;
-    if( mu->isGlobalMuon() || mu->isTrackerMuon() || mu->isRPCMuon() || mu->isCaloMuon() )
+    if( mu->isGlobalMuon() || mu->isTrackerMuon() || mu->isCaloMuon() )
       mu_track = mu->innerTrack();
     else {
       v_muCorrData.push_back( muMETCorrData );

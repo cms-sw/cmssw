@@ -202,7 +202,7 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
 	hoS9PointingMuDepEnergy_Glb->Fill(muEnergy.hoS9);
       }
       // TK muon
-      if((recoMu->isTrackerMuon()||recoMu->isRPCMuon()) && !(recoMu->isGlobalMuon())){
+      if(recoMu->isTrackerMuon() && !(recoMu->isGlobalMuon())){
 	ecalS9PointingMuDepEnergy_Tk->Fill(muEnergy.emS9);
 	hcalS9PointingMuDepEnergy_Tk->Fill(muEnergy.hadS9);
 	hoS9PointingMuDepEnergy_Tk->Fill(muEnergy.hoS9);
