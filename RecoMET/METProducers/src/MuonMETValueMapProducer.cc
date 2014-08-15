@@ -152,7 +152,7 @@ reco::MuonMETCorrectionData::Type MuonMETValueMapProducer::decide_correction_typ
 bool MuonMETValueMapProducer::should_type_MuonCandidateValuesUsed(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition)
 {
   if(!muon.isGlobalMuon()) return false;
-  if(!(muon.isTrackerMuon()||muon.isRPCMuon()) && isAlsoTkMu_) return false;
+  if(!muon.isTrackerMuon() && isAlsoTkMu_) return false;
   reco::TrackRef globTk = muon.globalTrack();
   reco::TrackRef siTk   = muon.innerTrack();
 
