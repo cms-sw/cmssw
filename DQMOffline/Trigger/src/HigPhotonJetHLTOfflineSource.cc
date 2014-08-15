@@ -86,6 +86,7 @@ private:
   MonitorElement*  nvertices_;
   MonitorElement*  nphotons_;
   MonitorElement*  photonpt_;
+  MonitorElement*  photonrapidity_;
   MonitorElement*  pfmet_;
   MonitorElement*  npfjets_;
   
@@ -135,6 +136,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   nvertices_ = iBooker.book1D("nvertices", "Number of vertices", 100, 0, 100); 
   nphotons_ = iBooker.book1D("nphotons", "Number of photons", 100, 0, 100); 
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 100); 
+  photonrapidity_ = iBooker.book1D("photonrapidity", "Photons rapidity;y_{#gamma}", 100, -5, 5); 
   pfmet_ = iBooker.book1D("pfmet", "PF MET", 100, 0, 100); 
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
 }
@@ -201,6 +203,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   for(reco::PhotonCollection::const_iterator phoIter=photons->begin();
       phoIter!=photons->end();++phoIter){
     photonpt_->Fill(phoIter->pt()); 
+    photonrapidity_->Fill(phoIter->rapidity()); 
   }
 
   // PF MET
