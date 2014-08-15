@@ -1,3 +1,15 @@
+emacs
+
+
+
+
+
+
+
+
+
+
+
 /*class TauValidation
  *  
  *  Class to fill dqm monitor elements from existing EDM file
@@ -16,7 +28,7 @@
 using namespace edm;
 
 TauValidation::TauValidation(const edm::ParameterSet& iPSet): 
-  wmanager_(iPSet)
+  wmanager_(iPSet,consumesCollector())
   ,genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection"))
   ,hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
   ,NJAKID(22)
@@ -30,18 +42,13 @@ TauValidation::TauValidation(const edm::ParameterSet& iPSet):
 
 TauValidation::~TauValidation(){}
 
-void TauValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
+void TauValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
+{
   ///Get PDT Table
   iSetup.getData( fPDGTable );
   return;
 }
-
 void TauValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
-
-void TauValidation::endJob(){
-  return;
-}
-
 
 void TauValidation::beginJob(){
     ///Setting the DQM top directories
@@ -170,7 +177,7 @@ void TauValidation::beginJob(){
 
 
 void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup){ 
-  edm::Handle<reco::GenParticleCollection> genParticles;
+  edm::Handle<reco::GenParticleCollection> genParticles
   iEvent.getByLabel(genparticleCollection_, genParticles);
   
   double weight =   wmanager_.weight(iEvent);
