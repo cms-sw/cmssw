@@ -48,7 +48,7 @@ void GsfEleDzCut::getEventContent(const edm::EventBase& ev) {
 CutApplicatorBase::result_type 
 GsfEleDzCut::
 operator()(const reco::GsfElectronRef& cand) const{  
-  const unsigned dzCutValue = 
+  const float dzCutValue = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _dzCutValueEB : _dzCutValueEE );
   
@@ -56,5 +56,5 @@ operator()(const reco::GsfElectronRef& cand) const{
   const double dz = ( vtxs.size() ? 
 		      cand->gsfTrack()->dz(vtxs[0].position()) : 
 		      cand->gsfTrack()->dz() );
-  return dz < dzCutValue;
+  return std::abs(dz) < dzCutValue;
 }
