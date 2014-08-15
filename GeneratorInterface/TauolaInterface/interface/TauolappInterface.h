@@ -7,6 +7,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
+#include "TLorentzVector.h"
+#include "TVector.h"
+
 
 namespace HepMC 
 {
@@ -37,17 +40,23 @@ namespace gen {
       const std::vector<int>& operatesOnParticles() { return fPDGs; }
       HepMC::GenEvent* decay( HepMC::GenEvent* );
       void statistics() ;
-
+      virtual void SetLHE(lhef::LHEEvent *l){lhe=l;}
       void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
       static double flat();
-      
+
       private: 
       // member function(s)
       void decodeMDTAU( int );
       void selectDecayByMDTAU();
       int selectLeptonic();
       int selectHadronic();
-      bool isLastTauInChain(const HepMC::GenParticle* tau);
+
+      HepMC::GenEvent*    make_simple_tau_event(const TLorentzVector &l,int pdgid,int status);
+      void                update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,TVector3 &boost);
+      bool                isLastTauInChain(const HepMC::GenParticle* tau);
+      HepMC::GenParticle* GetMother(HepMC::GenParticle* tau);
+      double MatchedLHESpinUp(HepMC::GenParticle* tau, std::vector<HepMC::GenParticle> &p, std::vector<double> &spinup,std::vector<int> &m_idx);
+      HepMC::GenParticle* FirstTauInChain(HepMC::GenParticle* tau);
       void setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt);
 
       //
@@ -64,6 +73,11 @@ namespace gen {
       std::vector<int>                         fHadronModes;
       std::vector<double>                      fScaledLeptonBrRatios;
       std::vector<double>                      fScaledHadronBrRatios;
+      lhef::LHEEvent *lhe;
+
+      double dmMatch;
+      bool   dolhe;
+      int    ntries;
       double lifetime;
    };
 
