@@ -8,7 +8,7 @@
 
 namespace pat {
    // forward declaration
-   namespace eventhypothesis { template<typename T> struct Looper; }
+   namespace eventhypothesis { template<typename T> class Looper; }
    // real declarations
    namespace eventhypothesis { 
         // typedef for the Ref
