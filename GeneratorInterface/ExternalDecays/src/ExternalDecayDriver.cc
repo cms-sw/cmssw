@@ -39,6 +39,14 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
+    else if( curSet == "EvtGen130"){
+      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGen130", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPythia8);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+      exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
+    }
     else if ( curSet == "Tauola" || curSet == "Tauolapp114" ){
       fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
@@ -51,6 +59,12 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       if ( !fPhotosInterface ){
 	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
 	exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+      }
+    }
+    else if (curSet == "Photospp355" ){
+      if ( !fPhotosInterface ){
+        fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photospp355", pset.getUntrackedParameter< ParameterSet>(curSet)));
+        exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
   }
@@ -128,6 +142,7 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
 void ExternalDecayDriver::statistics() const
 {
    if ( fTauolaInterface ) fTauolaInterface->statistics();
+   //if ( fPhotosInterface ) fPhotosInterface->statistics();
    // similar for EvtGen if needed
    return;
 }
