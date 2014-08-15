@@ -5,7 +5,7 @@
 // 
 /**\class TauDecay TauDecay_CMSSW.cc TauDataFormat/TauNtuple/src/TauDecay_CMSSW.cc
 
- Description: [one line class summary]
+ Description: Bridge class for TauDecay when using HepMC
 
  Implementation:
      [Notes on implementation]
