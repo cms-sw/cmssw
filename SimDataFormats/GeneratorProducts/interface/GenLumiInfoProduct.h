@@ -19,16 +19,11 @@ class GenLumiInfoProduct {
 
   // getters
 
-  const XSec &internalXSec() const { return internalXSec_; }
   const int  getHEPIDWTUP() const {return hepidwtup_;}
   const std::vector<ProcessInfo>& getProcessInfos() const {return internalProcesses_;}
-  // convenience (return the value, prefer externally specified over internal one)
-  const double crossSection() const {return internalXSec_.value(); }
-  const double crossSectionError() const {return internalXSec_.error(); }
 
   // setters
 
-  void setInternalXSec(const XSec &xsec) { internalXSec_ = xsec; }
   void setHEPIDWTUP(const int id) { hepidwtup_ = id;}
   void setProcessInfo(const std::vector<ProcessInfo> & processes) {internalProcesses_ = processes;}
 
@@ -90,12 +85,18 @@ class GenLumiInfoProduct {
 
   struct ProcessInfo {
   public:
-  ProcessInfo():process_(-1){}
-  ProcessInfo(int id):process_(id){}
+  ProcessInfo():process_(-1),nPassPos_(0),nPassNeg_(0),nFailPos_(0),nFailNeg_(0){}
+  ProcessInfo(int id):process_(id),nPassPos_(0),nPassNeg_(0),nFailPos_(0),nFailNeg_(0){}
 
     // accessors
     int process() const {return process_;}
     XSec lheXSec() const {return lheXSec_;}
+
+    unsigned int nPassPos() const {return nPassPos_;}
+    unsigned int nPassNeg() const {return nPassNeg_;}
+    unsigned int nFailPos() const {return nFailPos_;}
+    unsigned int nFailNeg() const {return nFailNeg_;}
+
     FinalStat tried() const {return tried_;}
     FinalStat selected() const {return selected_;}
     FinalStat killed() const {return killed_;}
@@ -104,23 +105,35 @@ class GenLumiInfoProduct {
 
     // setters
     void addOthers(const ProcessInfo& other){
+      nPassPos_ += other.nPassPos();
+      nPassNeg_ += other.nPassNeg();
+      nFailPos_ += other.nFailPos();
+      nFailNeg_ += other.nFailNeg();
       tried_.add(other.tried());
       selected_.add(other.selected());
       killed_.add(other.killed());
       accepted_.add(other.accepted());
       acceptedBr_.add(other.acceptedBr());
     }
-    void setProcess(int id) {process_ = id;}
-    void setLheXSec(double value, double err) {lheXSec_ = XSec(value,err);}
-    void setTried(unsigned int n, double sum, double sum2) {tried_ = FinalStat(n,sum,sum2);}
-    void setSelected(unsigned int n, double sum, double sum2) {selected_ = FinalStat(n,sum,sum2);}
-    void setKilled(unsigned int n, double sum, double sum2) {killed_ = FinalStat(n,sum,sum2);}
-    void setAccepted(unsigned int n, double sum, double sum2) {accepted_ = FinalStat(n,sum,sum2);}
-    void setAcceptedBr(unsigned int n, double sum, double sum2) {acceptedBr_ = FinalStat(n,sum,sum2);}
+    void setProcess(int id) { process_ = id; }
+    void setLheXSec(double value, double err) { lheXSec_ = XSec(value,err); }
+    void setNPassPos(unsigned int n) { nPassPos_ = n; }
+    void setNPassNeg(unsigned int n) { nPassNeg_ = n; }
+    void setNFailPos(unsigned int n) { nFailPos_ = n; }
+    void setNFailNeg(unsigned int n) { nFailNeg_ = n; }
+    void setTried(unsigned int n, double sum, double sum2) { tried_ = FinalStat(n,sum,sum2); }
+    void setSelected(unsigned int n, double sum, double sum2) { selected_ = FinalStat(n,sum,sum2); }
+    void setKilled(unsigned int n, double sum, double sum2) { killed_ = FinalStat(n,sum,sum2); }
+    void setAccepted(unsigned int n, double sum, double sum2) { accepted_ = FinalStat(n,sum,sum2); }
+    void setAcceptedBr(unsigned int n, double sum, double sum2) { acceptedBr_ = FinalStat(n,sum,sum2); }
 	  
   private:
     int             process_;
     XSec            lheXSec_;
+    unsigned int    nPassPos_;
+    unsigned int    nPassNeg_;
+    unsigned int    nFailPos_;
+    unsigned int    nFailNeg_;
     FinalStat       tried_;
     FinalStat       selected_;
     FinalStat       killed_;
@@ -134,11 +147,10 @@ class GenLumiInfoProduct {
   // methods used by EDM
   virtual bool mergeProduct(const GenLumiInfoProduct &other);
   virtual bool isProductEqual(const GenLumiInfoProduct &other) const;
-
+  virtual bool samePhysics(const GenLumiInfoProduct &other) const;
  private:
   // cross sections
   int     hepidwtup_;
-  XSec	internalXSec_;	// the one computed during cmsRun
   std::vector<ProcessInfo> internalProcesses_; 
 
 

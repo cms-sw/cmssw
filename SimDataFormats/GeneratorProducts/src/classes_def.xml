@@ -100,23 +100,24 @@
 	<!-- GenFilterInfo -->
 
 	<class name="GenFilterInfo" ClassVersion="11">
-	  <version ClassVersion="11" checksum="3079203794"/>
+	  <version ClassVersion="11" checksum="1336970252"/>
  </class>
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
 	<!-- GenLumiInfoProduct -->
 
+
 	<class name="GenLumiInfoProduct" ClassVersion="10">
-	  <version ClassVersion="10" checksum="3487254851"/>
+	  <version ClassVersion="10" checksum="2365797689"/>
 	</class>
 	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1937303025"/> 
+	  <version ClassVersion="10" checksum="1937303025"/>  
 	</class>
 	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1482608724"/>
+	  <version ClassVersion="10" checksum="1482608724"/> 
 	</class>
 	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
-	  <version ClassVersion="10" checksum="16720135"/> 
+	  <version ClassVersion="10" checksum="1665420491"/>
 	</class>
 	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 

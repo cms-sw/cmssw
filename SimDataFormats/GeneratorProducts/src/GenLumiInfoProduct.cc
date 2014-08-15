@@ -22,6 +22,8 @@ const bool operator == (const GenLumiInfoProduct::ProcessInfo& lhs, const GenLum
 { 
   bool condition=
     (lhs.process() == rhs.process() && lhs.lheXSec() == rhs.lheXSec()
+     && lhs.nPassPos() == rhs.nPassPos() && lhs.nPassNeg() == rhs.nPassNeg()
+     && lhs.nFailPos() == rhs.nFailPos() && lhs.nFailNeg() == rhs.nFailNeg()
      && lhs.tried() == rhs.tried() && lhs.selected() == rhs.selected()
      && lhs.killed() == rhs.killed() && lhs.accepted() == rhs.accepted() 
      && lhs.acceptedBr() == rhs.acceptedBr()); 
@@ -95,7 +97,6 @@ GenLumiInfoProduct::GenLumiInfoProduct(const int id) :
 
 GenLumiInfoProduct::GenLumiInfoProduct(GenLumiInfoProduct const &other) :
   hepidwtup_(other.hepidwtup_),
-  internalXSec_(other.internalXSec_),        
   internalProcesses_(other.internalProcesses_)
 {
 }
@@ -115,11 +116,28 @@ bool GenLumiInfoProduct::mergeProduct(GenLumiInfoProduct const &other)
 
       return false;
     }
+  for(unsigned int i=0; i < internalProcesses_.size(); i++)
+    {
+      internalProcesses_[i].addOthers(other.getProcessInfos()[i]);
+      
+    }
+    
   return true;
 }
 
 bool GenLumiInfoProduct::isProductEqual(GenLumiInfoProduct const &other) const
 {
   return ((*this) == other);
+}
+
+
+bool GenLumiInfoProduct::samePhysics(GenLumiInfoProduct const &other) const
+{
+
+  unsigned int lhssize=getProcessInfos().size();
+  unsigned int rhssize=other.getProcessInfos().size();  
+  return ( (getHEPIDWTUP() == other.getHEPIDWTUP()) &&
+	   (lhssize == rhssize));
+
 }
 

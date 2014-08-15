@@ -110,12 +110,18 @@ class LHERunInfo {
 
 	struct Process {
 	public:
-	Process(): process_(-1), heprupIndex_(-1){}
-	Process(int id): process_(id), heprupIndex_(-1){}
+	Process(): process_(-1), heprupIndex_(-1), nPassPos_(0), nPassNeg_(0), nTotalPos_(0), nTotalNeg_(0){}
+	Process(int id): process_(id), heprupIndex_(-1), nPassPos_(0), nPassNeg_(0), nTotalPos_(0), nTotalNeg_(0){}
 	  // accessors
-          XSec  getHepXSec() const {return hepXSec_;}
 	  int process() const {return process_;} 
 	  unsigned int heprupIndex() const {return heprupIndex_;}
+          XSec  getLHEXSec() const {return lheXSec_;}
+
+	  unsigned int nPassPos() const {return nPassPos_;}
+	  unsigned int nPassNeg() const {return nPassNeg_;}
+	  unsigned int nTotalPos() const {return nTotalPos_;}
+	  unsigned int nTotalNeg() const {return nTotalNeg_;}
+
 	  Counter tried() const {return tried_;}
 	  Counter selected() const {return selected_;}
 	  Counter killed() const {return killed_;}
@@ -123,9 +129,15 @@ class LHERunInfo {
 	  Counter acceptedBr() const {return acceptedBr_;}	        
 	  
 	  // setters
-          void setHepXSec(double value, double error) {hepXSec_ = XSec(value,error);}
 	  void setProcess(int id) {process_ = id;}
 	  void setHepRupIndex(int id) {heprupIndex_ = id;}
+          void setLHEXSec(double value, double error) {lheXSec_ = XSec(value,error);}
+
+	  void addNPassPos(unsigned int n=1) { nPassPos_ += n; }
+	  void addNPassNeg(unsigned int n=1) { nPassNeg_ += n; }
+	  void addNTotalPos(unsigned int n=1) { nTotalPos_ += n; }
+	  void addNTotalNeg(unsigned int n=1) { nTotalNeg_ += n; }
+
 	  void addTried(double w) {tried_.add(w);}
 	  void addSelected(double w) {selected_.add(w);}
 	  void addKilled(double w) {killed_.add(w);}
@@ -133,9 +145,13 @@ class LHERunInfo {
 	  void addAcceptedBr(double w) {acceptedBr_.add(w);}	        
 	  
 	private:
-          XSec          hepXSec_;
-	  int		process_;
-	  unsigned int	heprupIndex_;
+	  int		        process_;
+          XSec                  lheXSec_;
+	  unsigned int	        heprupIndex_;
+	  unsigned int          nPassPos_;
+	  unsigned int          nPassNeg_;
+	  unsigned int          nTotalPos_;
+	  unsigned int          nTotalNeg_;
 	  Counter		tried_;
 	  Counter		selected_;
 	  Counter		killed_;
@@ -155,7 +171,6 @@ class LHERunInfo {
     const std::vector<Process>& getLumiProcesses() const {return processesLumi;}
     const int getHEPIDWTUP() const {return heprup.IDWTUP;}
     void initLumi();
-    XSec xsecLumi() const;
   private:
     std::vector<Process>       	processesLumi;
 };

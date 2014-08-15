@@ -55,17 +55,14 @@ private:
   std::string thisProcess;
   unsigned int pathIndex;
 
-  int numEventsTotal;
-  int numEventsPassed;
-  double sumpass_pw;
-  double sumpass_pw2;
-  double sumpass_nw;
-  double sumpass_nw2;
-
-  double sumfail_pw;
-  double sumfail_pw2;
-  double sumfail_nw;
-  double sumfail_nw2;
+  unsigned int numEventsPassPos_;
+  unsigned int numEventsPassNeg_;
+  unsigned int numEventsFailPos_;
+  unsigned int numEventsFailNeg_;
+  double sumpass_w_;
+  double sumpass_w2_;
+  double sumfail_w_;
+  double sumfail_w2_;
 
 };
 

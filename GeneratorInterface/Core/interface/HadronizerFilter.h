@@ -320,7 +320,7 @@ namespace edm
   HadronizerFilter<HAD,DEC>::endLuminosityBlockProduce(LuminosityBlock & lumi, EventSetup const&)
   {
     const lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
-    lhef::LHERunInfo::XSec xsec = lheRunInfo->xsecLumi();
+
 
     std::vector<lhef::LHERunInfo::Process> LHELumiProcess = lheRunInfo->getLumiProcesses();
     std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
@@ -329,7 +329,11 @@ namespace edm
 
       GenLumiInfoProduct::ProcessInfo temp;      
       temp.setProcess(thisProcess.process());
-      temp.setLheXSec(thisProcess.getHepXSec().value(),thisProcess.getHepXSec().error());
+      temp.setLheXSec(thisProcess.getLHEXSec().value(),thisProcess.getLHEXSec().error());
+      temp.setNPassPos(thisProcess.nPassPos());
+      temp.setNPassNeg(thisProcess.nPassNeg());
+      temp.setNFailPos(thisProcess.nTotalPos()-thisProcess.nPassPos());
+      temp.setNFailNeg(thisProcess.nTotalNeg()-thisProcess.nPassNeg());
       temp.setTried(thisProcess.tried().n(), thisProcess.tried().sum(), thisProcess.tried().sum2());
       temp.setSelected(thisProcess.selected().n(), thisProcess.selected().sum(), thisProcess.selected().sum2());
       temp.setKilled(thisProcess.killed().n(), thisProcess.killed().sum(), thisProcess.killed().sum2());
@@ -339,7 +343,6 @@ namespace edm
     }
     std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
-    genLumiInfo->setInternalXSec( GenLumiInfoProduct::XSec(xsec.value(), xsec.error()) );
     genLumiInfo->setProcessInfo( GenLumiProcess );
     lumi.put(genLumiInfo);
 

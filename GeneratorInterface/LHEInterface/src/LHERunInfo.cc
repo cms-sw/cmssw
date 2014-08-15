@@ -130,7 +130,7 @@ void LHERunInfo::initLumi()
     Process proc;
     proc.setProcess(heprup.LPRUP[i]);
     proc.setHepRupIndex((unsigned int)i);
-    proc.setHepXSec(heprup.XSECUP[i],heprup.XERRUP[i]);
+    proc.setLHEXSec(heprup.XSECUP[i],heprup.XERRUP[i]);
     processesLumi.push_back(proc);
     
   }
@@ -166,74 +166,34 @@ void LHERunInfo::count(int process, CountMode mode, double eventWeight,
 	    case kKilled:
 	      proc->addKilled(eventWeight * matchWeight);
 	      procLumi->addKilled(eventWeight * matchWeight);
+	      if(eventWeight>0)
+		{
+		  proc->addNPassPos();
+		  procLumi->addNPassPos();
+		}
+	      else
+		{
+		  proc->addNPassNeg();
+		  procLumi->addNPassNeg();
+		}
 	    case kSelected:
 	      proc->addSelected(eventWeight);
 	      procLumi->addSelected(eventWeight);
+	      if(eventWeight>0)
+		{
+		  proc->addNTotalPos();
+		  procLumi->addNTotalPos();
+		}
+	      else
+		{
+		  proc->addNTotalNeg();
+		  procLumi->addNTotalNeg();
+		}
 	    case kTried:
 	      proc->addTried(eventWeight);
 	      procLumi->addTried(eventWeight);
 	}
 }
-
- LHERunInfo::XSec LHERunInfo::xsecLumi() const
- {
-   double sigSelSum = 0.0;
-   double sigSum = 0.0;
-   double sigBrSum = 0.0;
-   double err2Sum = 0.0;
-   double errBr2Sum = 0.0;
-
-   for(std::vector<Process>::const_iterator proc = processesLumi.begin();
-       proc != processesLumi.end(); ++proc) {
-	  
-     unsigned int idx = proc->heprupIndex();
-
-     double sigmaSum, sigma2Sum, sigma2Err;
-     sigmaSum = proc->tried().sum() * heprup.XSECUP[idx];
-     sigma2Sum = proc->tried().sum2() * heprup.XSECUP[idx]
-       * heprup.XSECUP[idx];
-     sigma2Err = proc->tried().sum2() * heprup.XERRUP[idx]
-       * heprup.XERRUP[idx];
-
-     if (!proc->killed().n())
-       continue;
-
-     double sigmaAvg = sigmaSum / proc->tried().sum();
-     double fracAcc = proc->killed().sum() / proc->selected().sum();
-     double fracBr = proc->accepted().sum() > 0.0 ?
-       proc->acceptedBr().sum() / proc->accepted().sum() : 1;
-     double sigmaFin = sigmaAvg * fracAcc * fracBr;
-     double sigmaFinBr = sigmaFin * fracBr;
-
-     double relErr = 1.0;
-     if (proc->killed().n() > 1) {
-       double sigmaAvg2 = sigmaAvg * sigmaAvg;
-       double delta2Sig =
-	 fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
-	 (proc->tried().n() * sigmaAvg2);
-       double delta2Veto =
-	 ((double)proc->selected().n() - proc->killed().n()) /
-	 ((double)proc->selected().n() * proc->killed().n());
-       double delta2Sum = delta2Sig + delta2Veto
-	 + sigma2Err / sigma2Sum;
-       relErr = (delta2Sum > 0.0 ?
-		 std::sqrt(delta2Sum) : 0.0);
-     }
-     double deltaFin = sigmaFin * relErr;
-     double deltaFinBr = sigmaFinBr * relErr;
-
-     sigSelSum += sigmaAvg;
-     sigSum += sigmaFin;
-     sigBrSum += sigmaFinBr;
-     err2Sum += deltaFin * deltaFin;
-     errBr2Sum += deltaFinBr * deltaFinBr;
-   }
-
-   XSec result(sigBrSum,std::sqrt(errBr2Sum));
-
-   return result;
- }
-
 
 
 LHERunInfo::XSec LHERunInfo::xsec() const
@@ -243,23 +203,36 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 	double sigBrSum = 0.0;
 	double err2Sum = 0.0;
 	double errBr2Sum = 0.0;
-
+	int idwtup = std::abs(heprup.IDWTUP);
 	for(std::vector<Process>::const_iterator proc = processes.begin();
 	    proc != processes.end(); ++proc) {
 	  unsigned int idx = proc->heprupIndex();
 
-		double sigmaSum, sigma2Sum, sigma2Err;
-			sigmaSum = proc->tried().sum() * heprup.XSECUP[idx];
+     	        if (!proc->killed().n())
+		  continue;
+
+		double sigma2Sum, sigma2Err;
 			sigma2Sum = proc->tried().sum2() * heprup.XSECUP[idx]
 			                             * heprup.XSECUP[idx];
 			sigma2Err = proc->tried().sum2() * heprup.XERRUP[idx]
 			                             * heprup.XERRUP[idx];
 
-     	        if (!proc->killed().n())
-		  continue;
+	        double sigmaAvg = heprup.XSECUP[idx];
 
-		double sigmaAvg = sigmaSum / proc->tried().sum();
-		double fracAcc = proc->killed().sum() / proc->selected().sum();
+		double fracAcc = 0;
+		double ntotal = proc->nTotalPos()-proc->nTotalNeg();
+		double npass  = proc->nPassPos() -proc->nPassNeg();
+		switch(idwtup){
+		case 3: case -3:
+		  fracAcc = ntotal > 1e-6? npass/ntotal: -1;
+		    break;
+		default:
+		  fracAcc = proc->selected().sum() > 1e-6? proc->killed().sum() / proc->selected().sum():-1;
+		  break;
+		}
+
+		if(fracAcc<1e-6)continue;
+
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
 		double sigmaFin = sigmaAvg * fracAcc * fracBr;
@@ -271,9 +244,43 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 			double delta2Sig =
 			    fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
 				(proc->tried().n() * sigmaAvg2);
-			double delta2Veto =
-				((double)proc->selected().n() - proc->killed().n()) /
-				((double)proc->selected().n() * proc->killed().n());
+
+			double efferr2=0;
+			switch(idwtup) {
+			case 3: case -3:
+			  {
+			    double ntotal_pos = proc->nTotalPos();
+			    double effp  = ntotal_pos > 1e-6?
+			      (double)proc->nPassPos()/ntotal_pos:0;
+			    double effp_err2 = ntotal_pos > 1e-6?
+			      (1-effp)*effp/ntotal_pos: 0;
+
+			    double ntotal_neg = proc->nTotalNeg();
+			    double effn  = ntotal_neg > 1e-6?
+			      (double)proc->nPassNeg()/ntotal_neg:0;
+			    double effn_err2 = ntotal_neg > 1e-6?
+			      (1-effn)*effn/ntotal_neg: 0;
+
+			    efferr2 = ntotal > 0 ? 
+			      (ntotal_pos*ntotal_pos*effp_err2 +
+			       ntotal_neg*ntotal_neg*effn_err2)/ntotal/ntotal:0;
+			    break;
+			  }
+			default:
+			  {
+			    double denominator = pow(proc->selected().sum(),4);
+			    double passw       = proc->killed().sum();
+			    double passw2      = proc->killed().sum2();
+			    double failw       = proc->selected().sum() - passw;
+			    double failw2      = proc->selected().sum2() - passw2;
+			    double numerator   = (passw2*failw*failw + failw2*passw*passw); 
+			    
+			    efferr2 = denominator>1e-6?
+			      numerator/denominator:0;
+			    break;
+			  }
+			}
+			double delta2Veto = efferr2/fracAcc/fracAcc;
 			double delta2Sum = delta2Sig + delta2Veto
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
@@ -303,7 +310,7 @@ void LHERunInfo::statistics() const
 	double errBr2Sum = 0.0;
 	unsigned long nAccepted = 0;
 	unsigned long nTried = 0;
-
+	int idwtup = std::abs(heprup.IDWTUP);
 	std::cout << std::endl;
 	std::cout << "Process and cross-section statistics" << std::endl;
 	std::cout << "------------------------------------" << std::endl;
@@ -329,7 +336,21 @@ void LHERunInfo::statistics() const
 		}
 
 		double sigmaAvg = sigmaSum / proc->tried().sum();
-		double fracAcc = proc->killed().sum() / proc->selected().sum();
+		double fracAcc = 0;
+		double ntotal = proc->nTotalPos()-proc->nTotalNeg();
+		double npass  = proc->nPassPos() -proc->nPassNeg();
+		switch(idwtup){
+		case 3: case -3:
+		  fracAcc = ntotal > 1e-6? npass/ntotal: -1;
+		    break;
+		default:
+		  fracAcc = proc->selected().sum() > 1e-6? proc->killed().sum() / proc->selected().sum():-1;
+		  break;
+		}
+
+		if(fracAcc<1e-6)continue;
+
+
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
 		double sigmaFin = sigmaAvg * fracAcc;
@@ -341,9 +362,42 @@ void LHERunInfo::statistics() const
 			double delta2Sig =
 			    fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
 				(proc->tried().n() * sigmaAvg2);
-			double delta2Veto =
-				((double)proc->selected().n() - proc->killed().n()) /
-				((double)proc->selected().n() * proc->killed().n());
+			double efferr2=0;
+			switch(idwtup) {
+			case 3: case -3:
+			  {
+			    double ntotal_pos = proc->nTotalPos();
+			    double effp  = ntotal_pos > 1e-6?
+			      (double)proc->nPassPos()/ntotal_pos:0;
+			    double effp_err2 = ntotal_pos > 1e-6?
+			      (1-effp)*effp/ntotal_pos: 0;
+
+			    double ntotal_neg = proc->nTotalNeg();
+			    double effn  = ntotal_neg > 1e-6?
+			      (double)proc->nPassNeg()/ntotal_neg:0;
+			    double effn_err2 = ntotal_neg > 1e-6?
+			      (1-effn)*effn/ntotal_neg: 0;
+
+			    efferr2 = ntotal > 0 ? 
+			      (ntotal_pos*ntotal_pos*effp_err2 +
+			       ntotal_neg*ntotal_neg*effn_err2)/ntotal/ntotal:0;
+			    break;
+			  }
+			default:
+			  {
+			    double denominator = pow(proc->selected().sum(),4);
+			    double passw       = proc->killed().sum();
+			    double passw2      = proc->killed().sum2();
+			    double failw       = proc->selected().sum() - passw;
+			    double failw2      = proc->selected().sum2() - passw2;
+			    double numerator   = (passw2*failw*failw + failw2*passw*passw); 
+			    
+			    efferr2 = denominator>1e-6?
+			      numerator/denominator:0;
+			    break;
+			  }
+			}
+			double delta2Veto = efferr2/fracAcc/fracAcc;
 			double delta2Sum = delta2Sig + delta2Veto
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
