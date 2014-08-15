@@ -42,6 +42,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include <iostream>
 
 namespace edm
 {
@@ -98,7 +99,6 @@ namespace edm
         this->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
       }
     });
-
     // TODO:
     // Put the list of types produced by the filters here.
     // The current design calls for:
@@ -107,7 +107,7 @@ namespace edm
     //   * HepMCProduct
     // But I can not find the LHEGeneratorInfo class; it might need to
     // be invented.
-
+    
     std::vector<std::string> const& sharedResources = hadronizer_.sharedResources();
     for(auto const& resource : sharedResources) {
       usesResource(resource);
@@ -159,7 +159,6 @@ namespace edm
     lhef::LHEEvent *lheEvent =
 		new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
     hadronizer_.setLHEEvent( lheEvent );
-    
     // hadronizer_.generatePartons();
     if ( !hadronizer_.hadronize() ) return false ;
 
@@ -179,7 +178,7 @@ namespace edm
     //
     if ( decayer_ ) 
     {
-      event.reset( decayer_->decay( event.get() ) );
+      event.reset( decayer_->decay( event.get(),lheEvent) );
     }
 
     if ( !event.get() ) return false;
