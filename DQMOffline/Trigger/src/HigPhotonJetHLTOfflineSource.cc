@@ -34,9 +34,11 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+
 
 //  Define the interface
 class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
@@ -76,6 +78,8 @@ private:
   edm::EDGetTokenT<reco::PhotonCollection> photonsToken_;
   // PFMET
   edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
+  // PFJET
+  edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
 
 
   MonitorElement*  ncalojets_;
@@ -83,6 +87,7 @@ private:
   MonitorElement*  nphotons_;
   MonitorElement*  photonpt_;
   MonitorElement*  pfmet_;
+  MonitorElement*  npfjets_;
   
 };
 
@@ -102,6 +107,7 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   pvToken_ = consumes<reco::VertexCollection> (pset.getParameter<edm::InputTag>("pvToken"));
   photonsToken_ = consumes<reco::PhotonCollection> (pset.getParameter<edm::InputTag>("photonsToken"));
   pfMetToken_ = consumes<reco::PFMETCollection> (pset.getParameter<edm::InputTag>("pfMetToken"));
+  pfJetsToken_ = consumes<reco::PFJetCollection> (pset.getParameter<edm::InputTag>("pfJetsToken"));
 
 
 }
@@ -130,6 +136,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   nphotons_ = iBooker.book1D("nphotons", "Number of photons", 100, 0, 100); 
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 100); 
   pfmet_ = iBooker.book1D("pfmet", "PF MET", 100, 0, 100); 
+  npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
 }
 
 
@@ -166,7 +173,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   if (!triggered) return; 
 
-  // Get CaloJet
+  // CaloJet
   edm::Handle<reco::CaloJetCollection> calojets;
   iEvent.getByToken(caloJetsToken_, calojets);
   if(!calojets.isValid()) return;
@@ -202,12 +209,20 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   if (!pfmets.isValid()) return;
   if (verbose_)
     std::cout << "xshi:: N pfmets: " << pfmets->size() << std::endl;
-
   const reco::PFMET pfmet = pfmets->front();
   if (verbose_)
     std::cout << "xshi:: PFMET: " << pfmet.et() << std::endl;
-
   pfmet_->Fill(pfmet.et()); 
+
+  // PF Jet
+  edm::Handle<reco::PFJetCollection> pfjets;
+  iEvent.getByToken(pfJetsToken_, pfjets);
+  if(!pfjets.isValid()) return;
+  if (verbose_)
+    std::cout << "xshi:: N pfjets : " << pfjets->size() << std::endl;
+
+  npfjets_->Fill(pfjets->size()); 
+
 }
 
 

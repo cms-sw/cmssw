@@ -29,10 +29,12 @@ higPhotonJetHLTOfflineSource = cms.EDAnalyzer(
     ),
     # Location of plots in DQM
     dirname = cms.untracked.string("HLT/Higgs/PhotonJet"), 
-    verbose = cms.untracked.bool(False),
+    #verbose = cms.untracked.bool(False),
+    verbose = cms.untracked.bool(True),
     triggerResultsToken = cms.InputTag("TriggerResults"),
     caloJetsToken = cms.InputTag("ak4CaloJets"),
     pvToken = cms.InputTag("offlinePrimaryVertices"),
     photonsToken = cms.InputTag("gedPhotons"),
     pfMetToken = cms.InputTag("pfMet"),
+    pfJetsToken = cms.InputTag("ak4PFJets"),
 )
