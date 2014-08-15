@@ -38,7 +38,7 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 //  Define the interface
 class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
@@ -63,7 +63,8 @@ private:
   std::string hltProcessName_;
   std::vector<std::string> hltPathsToCheck_;
   std::string dirname_; 
-  bool verbose_; 
+  bool verbose_;
+  bool triggerAccept_; 
 
   // Member Variables
   HLTConfigProvider hltConfig_;
@@ -90,6 +91,7 @@ private:
   MonitorElement*  pfmet_;
   MonitorElement*  pfmetphi_;
   MonitorElement*  npfjets_;
+  MonitorElement*  delphiphomet_;
   
 };
 
@@ -102,6 +104,7 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   hltProcessName_ = pset.getParameter<std::string>("hltProcessName"); 
   hltPathsToCheck_ = pset.getParameter<std::vector<std::string>>("hltPathsToCheck"); 
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
+  triggerAccept_ = pset.getUntrackedParameter<bool>("triggerAccept", true);
   triggerResultsToken_ = consumes <edm::TriggerResults> (pset.getParameter<edm::InputTag>("triggerResultsToken"));
   dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/Higgs/PhotonJet/"));
   caloJetsToken_ = consumes<reco::CaloJetCollection> (pset.getParameter<edm::InputTag>("caloJetsToken"));
@@ -139,6 +142,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   photonrapidity_ = iBooker.book1D("photonrapidity", "Photons rapidity;y_{#gamma}", 100, -5, 5); 
   pfmet_ = iBooker.book1D("pfmet", "PF MET", 100, 0, 100); 
   pfmetphi_ = iBooker.book1D("pfmetphi", "PF MET phi;#phi_{PFMET}", 100, -4, 4); 
+  delphiphomet_ = iBooker.book1D("delphiphomet", "#Delta#phi(photon, MET);#Delta#phi(#gamma,MET)", 100, -4, 4); 
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
 }
 
@@ -163,7 +167,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   const edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults);
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
     // Only consider the triggered case. 
-    // if ((*triggerResults)[itrig].accept() != 1) continue; 
+    if ( triggerAccept_ && ( (*triggerResults)[itrig].accept() != 1) ) continue; 
     std::string triggername = triggerNames.triggerName(itrig);
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
@@ -194,19 +198,6 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   nvertices_->Fill(vertices->size());
 
-  // photons pT
-  edm::Handle<reco::PhotonCollection> photons;
-  iEvent.getByToken(photonsToken_, photons);
-  if(!photons.isValid()) return;  
-  if (verbose_)
-    std::cout << "xshi:: N photons : " << photons->size() << std::endl;
-  nphotons_->Fill(photons->size());
-  for(reco::PhotonCollection::const_iterator phoIter=photons->begin();
-      phoIter!=photons->end();++phoIter){
-    photonpt_->Fill(phoIter->pt()); 
-    photonrapidity_->Fill(phoIter->rapidity()); 
-  }
-
   // PF MET
   edm::Handle<reco::PFMETCollection> pfmets;
   iEvent.getByToken(pfMetToken_, pfmets);
@@ -220,7 +211,33 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   if (verbose_)
     std::cout << "xshi:: PFMET: phi " << pfmet.phi() << std::endl;
   pfmetphi_->Fill(pfmet.phi()); 
+
   
+  // photons pT
+  edm::Handle<reco::PhotonCollection> photons;
+  iEvent.getByToken(photonsToken_, photons);
+  if(!photons.isValid()) return;  
+  if (verbose_)
+    std::cout << "xshi:: N photons : " << photons->size() << std::endl;
+  nphotons_->Fill(photons->size());
+  for(reco::PhotonCollection::const_iterator phoIter=photons->begin();
+      phoIter!=photons->end();++phoIter){
+    photonpt_->Fill(phoIter->pt()); 
+    photonrapidity_->Fill(phoIter->rapidity()); 
+
+    if (verbose_)
+      std::cout << "xshi:: delta phi(photon, MET) " <<
+	deltaPhi(phoIter->phi(), pfmet.phi()) << std::endl;
+    delphiphomet_->Fill(deltaPhi(phoIter->phi(), pfmet.phi())); 
+
+}
+
+
+
+ 
+  
+  
+
   // PF Jet
   edm::Handle<reco::PFJetCollection> pfjets;
   iEvent.getByToken(pfJetsToken_, pfjets);
