@@ -118,7 +118,7 @@ namespace pat {
       /// Set the success flag
       void setAccept( bool accept ) { accept_ = accept; };
       /// Set the error flag
-      void setError( bool error ) { error = error; };
+      void setError( bool error ) { error_ = error; };
       /// Set the PhysicsDeclared GT bit
       void setPhysDecl( bool physDecl ) { physDecl_ = physDecl; };
       /// Set the LHC fill number
