@@ -1,7 +1,5 @@
 #include "Validation/EventGenerator/interface/TauDecay.h"
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
-
-
 #include <iomanip>
 #include <cstdlib> 
 #include <iostream>
@@ -255,6 +253,34 @@ void TauDecay::ClassifyDecayMode(unsigned int &JAK_ID,unsigned int &TauBitMask){
   JAK_ID=JAK_UNKNOWN;
 }
 
+unsigned int TauDecay::nProng(unsigned int &TauBitMask){
+  if(OneProng&TauBitMask)   return 1;
+  if(ThreeProng&TauBitMask) return 3;
+  if(FiveProng&TauBitMask)  return 5;
+  return 7;
+}
+unsigned int TauDecay::nPi0(unsigned int &TauBitMask){
+  if(OnePi0&TauBitMask)   return 1;
+  if(TwoPi0&TauBitMask)   return 2;
+  if(ThreePi0&TauBitMask) return 3;
+  return 0;
+}
+
+bool TauDecay::hasResonance(unsigned int &TauBitMask, int pdgid){
+  int p=abs(pdgid);
+  if(p==PdtPdgMini::a_1_plus    && Res_a1_pm&TauBitMask)     return true;
+  if(p==PdtPdgMini::a_10        && Res_a1_0&TauBitMask)      return true;
+  if(p==PdtPdgMini::rho_plus    && Res_rho_pm&TauBitMask)    return true;
+  if(p==PdtPdgMini::rho0        && Res_rho_0&TauBitMask)     return true;
+  if(p==PdtPdgMini::eta         && Res_eta&TauBitMask)       return true;
+  if(p==PdtPdgMini::omega       && Res_omega&TauBitMask)     return true;
+  if(p==PdtPdgMini::K_star0     && Res_Kstar_pm&TauBitMask)  return true;
+  if(p==PdtPdgMini::K_star_plus && Res_Kstar_0&TauBitMask)   return true;
+  if(p==PdtPdgMini::K_S0        && KS0_to_pipi&TauBitMask)   return true;
+  return false;
+}
+
+
 void TauDecay::ClassifyDecayResonance(unsigned int &TauBitMask){
   // Add Resonance info to TauBitMask
   if(n_a1>0)     TauBitMask+=Res_a1_pm;
@@ -266,3 +292,4 @@ void TauDecay::ClassifyDecayResonance(unsigned int &TauBitMask){
   if(n_Kstar>0)  TauBitMask+=Res_Kstar_pm;
   if(n_Kstar0>0) TauBitMask+=Res_Kstar_0;
 }
+
