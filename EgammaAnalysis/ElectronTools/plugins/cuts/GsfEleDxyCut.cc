@@ -48,7 +48,7 @@ void GsfEleDxyCut::getEventContent(const edm::EventBase& ev) {
 CutApplicatorBase::result_type 
 GsfEleDxyCut::
 operator()(const reco::GsfElectronRef& cand) const{  
-  const unsigned dxyCutValue = 
+  const float dxyCutValue = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _dxyCutValueEB : _dxyCutValueEE );
 
@@ -56,5 +56,5 @@ operator()(const reco::GsfElectronRef& cand) const{
   const double dxy = ( vtxs.size() ? 
 		       cand->gsfTrack()->dxy(vtxs[0].position()) : 
 		       cand->gsfTrack()->dxy() );
-  return dxy < dxyCutValue;
+  return std::abs(dxy) < dxyCutValue;
 }
