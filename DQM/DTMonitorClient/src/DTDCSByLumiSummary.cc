@@ -123,24 +123,26 @@ void DTDCSByLumiSummary::endRun(const edm::Run& run, const edm::EventSetup& setu
   map<int,std::vector<float> >::const_iterator fracPerLumiIt  = dcsFracPerLumi.begin();
   map<int,std::vector<float> >::const_iterator fracPerLumiEnd = dcsFracPerLumi.end();
 
-  int fLumi = dcsFracPerLumi.begin()->first;
-  int lLumi = dcsFracPerLumi.rbegin()->first;
-  theDQMStore->setCurrentFolder("DT/EventInfo/DCSContents");
+  if (fracPerLumiIt != fracPerLumiEnd ) {
+    int fLumi = dcsFracPerLumi.begin()->first;
+    int lLumi = dcsFracPerLumi.rbegin()->first;
+    theDQMStore->setCurrentFolder("DT/EventInfo/DCSContents");
 
-  int nLumis = lLumi-fLumi + 1.;
-
-  // trend plots
-  for(int wh=-2; wh<=2; wh++) {
-
-    stringstream wheel_str; wheel_str << wh;	
-
-    DTTimeEvolutionHisto* trend;
-
-    trend = new DTTimeEvolutionHisto(theDQMStore, "hDCSFracTrendWh" + wheel_str.str(), "Fraction of DT-HV ON Wh" + wheel_str.str(),
-        nLumis, fLumi, 1, false, 2);
-
-    hDCSFracTrend.push_back(trend);
-
+    int nLumis = lLumi-fLumi + 1.;
+    
+    // trend plots
+    for(int wh=-2; wh<=2; wh++) {
+      
+      stringstream wheel_str; wheel_str << wh;	
+      
+      DTTimeEvolutionHisto* trend;
+      
+      trend = new DTTimeEvolutionHisto(theDQMStore, "hDCSFracTrendWh" + wheel_str.str(), "Fraction of DT-HV ON Wh" + wheel_str.str(),
+				       nLumis, fLumi, 1, false, 2);
+      
+      hDCSFracTrend.push_back(trend);
+      
+    }
   }
 
   float goodLSperWh[5] = {0,0,0,0,0}; 
