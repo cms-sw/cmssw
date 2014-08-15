@@ -88,10 +88,10 @@ private:
   MonitorElement*  photonpt_;
   MonitorElement*  photonrapidity_;
   MonitorElement*  pfmet_;
+  MonitorElement*  pfmetphi_;
   MonitorElement*  npfjets_;
   
 };
-
 
 
 // Class Methods 
@@ -138,6 +138,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 100); 
   photonrapidity_ = iBooker.book1D("photonrapidity", "Photons rapidity;y_{#gamma}", 100, -5, 5); 
   pfmet_ = iBooker.book1D("pfmet", "PF MET", 100, 0, 100); 
+  pfmetphi_ = iBooker.book1D("pfmetphi", "PF MET phi;#phi_{PFMET}", 100, -4, 4); 
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
 }
 
@@ -154,7 +155,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   
   if(!triggerResults.isValid()) 
     {
-      edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults collection" << std::endl;
+      edm::LogError("HigPhotonJetHLT")<<"Missing triggerResults collection" << std::endl;
       return;
     }
 
@@ -216,7 +217,10 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   if (verbose_)
     std::cout << "xshi:: PFMET: " << pfmet.et() << std::endl;
   pfmet_->Fill(pfmet.et()); 
-
+  if (verbose_)
+    std::cout << "xshi:: PFMET: phi " << pfmet.phi() << std::endl;
+  pfmetphi_->Fill(pfmet.phi()); 
+  
   // PF Jet
   edm::Handle<reco::PFJetCollection> pfjets;
   iEvent.getByToken(pfJetsToken_, pfjets);
