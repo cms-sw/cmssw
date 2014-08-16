@@ -37,7 +37,6 @@ namespace CaloJetMETcorrInputProducer_namespace
   class InputTypeCheckerT
   {
     public:
-
      void operator()(const T&) const {} // no type-checking needed for reco::CaloJet input
   };
 
@@ -128,7 +127,7 @@ class CaloJetMETcorrInputProducerT final : public edm::global::EDProducer<>
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& rawJet = jets->at(jetIndex);
 
-      const CaloJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType;
+      const CaloJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType{};
       checkInputType(rawJet);
 
       const CaloJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
