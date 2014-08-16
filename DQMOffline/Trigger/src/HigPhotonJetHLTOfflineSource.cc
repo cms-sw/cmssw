@@ -92,6 +92,7 @@ private:
   MonitorElement*  pfmetphi_;
   MonitorElement*  npfjets_;
   MonitorElement*  delphiphomet_;
+  MonitorElement*  delphijetmet_;
   
 };
 
@@ -112,8 +113,6 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   photonsToken_ = consumes<reco::PhotonCollection> (pset.getParameter<edm::InputTag>("photonsToken"));
   pfMetToken_ = consumes<reco::PFMETCollection> (pset.getParameter<edm::InputTag>("pfMetToken"));
   pfJetsToken_ = consumes<reco::PFJetCollection> (pset.getParameter<edm::InputTag>("pfJetsToken"));
-
-
 }
 
 void 
@@ -142,8 +141,10 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   photonrapidity_ = iBooker.book1D("photonrapidity", "Photons rapidity;y_{#gamma}", 100, -5, 5); 
   pfmet_ = iBooker.book1D("pfmet", "PF MET", 100, 0, 100); 
   pfmetphi_ = iBooker.book1D("pfmetphi", "PF MET phi;#phi_{PFMET}", 100, -4, 4); 
-  delphiphomet_ = iBooker.book1D("delphiphomet", "#Delta#phi(photon, MET);#Delta#phi(#gamma,MET)", 100, -4, 4); 
+  delphiphomet_ = iBooker.book1D("delphiphomet", "#Delta#phi(photon, MET);#Delta#phi(#gamma,MET)", 100, 0, 4); 
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
+  delphijetmet_ = iBooker.book1D("delphijetmet", "#Delta#phi(PFJet, MET);#Delta#phi(Jet,MET)", 100, 0, 4); 
+
 }
 
 
@@ -225,18 +226,11 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     photonpt_->Fill(phoIter->pt()); 
     photonrapidity_->Fill(phoIter->rapidity()); 
 
+    double tmp_delphiphomet = fabs(deltaPhi(phoIter->phi(), pfmet.phi())); 
     if (verbose_)
-      std::cout << "xshi:: delta phi(photon, MET) " <<
-	deltaPhi(phoIter->phi(), pfmet.phi()) << std::endl;
-    delphiphomet_->Fill(deltaPhi(phoIter->phi(), pfmet.phi())); 
-
-}
-
-
-
- 
-  
-  
+      std::cout << "xshi:: delta phi(photon, MET) " << tmp_delphiphomet << std::endl;
+    delphiphomet_->Fill(tmp_delphiphomet); 
+  }
 
   // PF Jet
   edm::Handle<reco::PFJetCollection> pfjets;
@@ -246,6 +240,23 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     std::cout << "xshi:: N pfjets : " << pfjets->size() << std::endl;
 
   npfjets_->Fill(pfjets->size()); 
+
+  double min_delphijetmet = 6.0; 
+  for(reco::PFJetCollection::const_iterator jetIter=pfjets->begin();
+      jetIter!=pfjets->end();++jetIter){
+
+    double tmp_delphijetmet = fabs(deltaPhi(jetIter->phi(), pfmet.phi())); 
+    // if (verbose_)
+    //   std::cout << "xshi:: delta phi(jet, MET) " << tmp_delphijetmet << std::endl;
+
+    if (tmp_delphijetmet < min_delphijetmet)
+      min_delphijetmet = tmp_delphijetmet;
+  }
+    
+  if (verbose_)
+    std::cout << "xshi:: min delta phi(jet, MET) " << min_delphijetmet << std::endl;
+  
+  delphijetmet_->Fill(min_delphijetmet); 
 
 }
 
