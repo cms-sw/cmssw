@@ -25,21 +25,10 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-namespace
+namespace jetcorrextractor 
 {
-  template <typename T>
-  double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
-		       const edm::Event& evt, const edm::EventSetup& es)
-  {
-    const JetCorrector* jetCorrector = JetCorrector::getJetCorrector(jetCorrLabel, es);
-    if ( !jetCorrector )  
-      throw cms::Exception("JetCorrExtractor")
-	<< "Failed to access Jet corrections for = " << jetCorrLabel << " !!\n";
-    return jetCorrector->correction(rawJet, evt, es);
-  }
-
   // never heard of copysign?
-  double sign(double x)
+  inline double sign(double x)
   {
     if      ( x > 0. ) return +1.;
     else if ( x < 0. ) return -1.;
@@ -71,7 +60,7 @@ class JetCorrExtractorT
       jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);
     } else {
       reco::Candidate::PolarLorentzVector modJetPolarP4(rawJetP4);
-      modJetPolarP4.SetEta(sign(rawJetP4.eta())*jetCorrEtaMax);
+      modJetPolarP4.SetEta(jetcorrextractor::sign(rawJetP4.eta())*jetCorrEtaMax);
       
       reco::Candidate::LorentzVector modJetP4(modJetPolarP4);
       
@@ -86,6 +75,19 @@ class JetCorrExtractorT
 
     return corrJetP4;
   }
+ private:
+
+  static double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
+			      const edm::Event& evt, const edm::EventSetup& es)
+  {
+    const JetCorrector* jetCorrector = JetCorrector::getJetCorrector(jetCorrLabel, es);
+    if ( !jetCorrector )  
+      throw cms::Exception("JetCorrExtractor")
+	<< "Failed to access Jet corrections for = " << jetCorrLabel << " !!\n";
+    return jetCorrector->correction(rawJet, evt, es);
+  }
+
+
 };
 
 #endif
