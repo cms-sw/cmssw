@@ -127,8 +127,8 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
     void* address = buffer->class_->New();
 
-    static TClass* edproductTClass = TClass::GetClass(typeid(edm::EDProduct));
-    edm::EDProduct* prod = static_cast<edm::EDProduct*>(buffer->class_->DynamicCast(edproductTClass,address,true));
+    static TClass const* edproductTClass = TClass::GetClass(typeid(edm::EDProduct));
+    edm::EDProduct const* prod = static_cast<edm::EDProduct const*>(buffer->class_->DynamicCast(edproductTClass,address,true));
 
     if(nullptr == prod) {
       cms::Exception("FailedConversion")
@@ -161,9 +161,9 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   edm::BranchDescription bdesc = branchMap_.productToBranch(iID);
 
   TBranch* branch= branchMap_.getEventTree()->GetBranch(bdesc.branchName().c_str());
-  if(0 == branch) {
+  if(nullptr == branch) {
      //we do not thrown on missing branches since 'getIt' should not throw under that condition
-    return 0;
+    return nullptr;
   }
   //find the class type
   std::string const fullName = edm::wrappedClassName(bdesc.className());
@@ -172,20 +172,20 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
     cms::Exception("MissingDictionary")
        << "could not find dictionary for type '" << fullName << "'"
        << "\n Please make sure all the necessary libraries are available.";
-    return 0;
+    return nullptr;
   }
 
   TClass* rootClassType = TClass::GetClass(classType.typeInfo());
-  if(0 == rootClassType) {
+  if(nullptr == rootClassType) {
     throw cms::Exception("MissingRootDictionary")
     << "could not find a ROOT dictionary for type '" << fullName << "'"
     << "\n Please make sure all the necessary libraries are available.";
-    return 0;
+    return nullptr;
   }
   void* address = rootClassType->New();
 
-  static TClass* edproductTClass = TClass::GetClass(typeid(edm::EDProduct));
-  edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( rootClassType->DynamicCast(edproductTClass,address,true));
+  static TClass const* edproductTClass = TClass::GetClass(typeid(edm::EDProduct));
+  edm::EDProduct const* prod = reinterpret_cast<edm::EDProduct const*>( rootClassType->DynamicCast(edproductTClass,address,true));
   if(nullptr == prod) {
      cms::Exception("FailedConversion")
         << "failed to convert a '" << fullName

@@ -21,7 +21,7 @@ namespace edm {
       //if (isNull()) throwInvalidReference();
       assert (!ref.isTransient());
       EDProduct const* product = ref.getProductPtr(typeid(T));
-      Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
+      Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(product);
       if (wrapper == nullptr) { 	 
         ref.wrongTypeException(typeid(T), typeid(*product)); 	 
       }

@@ -315,7 +315,7 @@ namespace edm {
   Principal::deleteProduct(BranchID const& id) {
     ProductHolderBase* phb = getExistingProduct(id);
     assert(nullptr != phb);
-    auto itFound = productPtrs_.find(phb->product().get());
+    auto itFound = productPtrs_.find(phb->product());
     if(itFound != productPtrs_.end()) {
       productPtrs_.erase(itFound);
     } 
@@ -732,7 +732,7 @@ namespace edm {
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
     }
-    return OutputHandle(phb->product().get(), &phb->branchDescription(), phb->productProvenancePtr());
+    return OutputHandle(phb->product(), &phb->branchDescription(), phb->productProvenancePtr());
   }
 
   Provenance

@@ -671,7 +671,7 @@ namespace edm {
                 StoredProductProvenanceVector* productProvenanceVecPtr,
                 ModuleCallingContext const* mcc) {
 
-    std::vector<std::shared_ptr<EDProduct> > dummies;
+    std::vector<std::unique_ptr<EDProduct> > dummies;
 
     bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
 
@@ -708,7 +708,7 @@ namespace edm {
           // No product with this ID is in the event.
           // Add a null product.
           TClass* cp = gROOT->GetClass(item.branchDescription_->wrappedName().c_str());
-          std::shared_ptr<EDProduct> dummy(static_cast<EDProduct*>(cp->New()));
+          std::unique_ptr<EDProduct> dummy(static_cast<EDProduct*>(cp->New()));
           product = dummy.get();
           dummies.emplace_back(std::move(dummy));
         }

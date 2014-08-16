@@ -36,14 +36,14 @@ namespace fwlite
 
    edm::BasicHandle
    EventBase::getByLabelImpl(std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const {
-      edm::EDProduct* prod = nullptr;
+      edm::EDProduct const* prod = nullptr;
       void* prodPtr = &prod;
       getByLabel(iWrapperInfo,
                  iTag.label().c_str(),
                  iTag.instance().empty()?static_cast<char const*>(0):iTag.instance().c_str(),
                  iTag.process().empty()?static_cast<char const*> (0):iTag.process().c_str(),
                  prodPtr);
-      if(prod == nullptr) {
+      if(prod == nullptr || !prod->isPresent()) {
         edm::TypeID productType(iWrapperInfo);
 
         edm::BasicHandle failed(edm::makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception>{
@@ -60,7 +60,7 @@ namespace fwlite
          return failed;
       }
 
-      edm::BasicHandle value(std::shared_ptr<edm::EDProduct>(prod,edm::do_nothing_deleter()),&s_prov);
+      edm::BasicHandle value(prod, &s_prov);
       return value;
    }
 }

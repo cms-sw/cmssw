@@ -77,8 +77,8 @@ namespace edm {
     // Product was deleted early in order to save memory
     bool productWasDeleted() const {return productWasDeleted_();}
 
-    // Retrieves a shared pointer to the wrapped product.
-    std::shared_ptr<EDProduct> product() const { return getProductData().wrapper_; }
+    // Retrieves a pointer to the wrapped product.
+    EDProduct* product() const { return getProductData().wrapper_.get(); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance* productProvenancePtr() const { return productProvenancePtr_(); }

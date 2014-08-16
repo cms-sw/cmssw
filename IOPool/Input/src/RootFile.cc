@@ -1711,7 +1711,7 @@ namespace edm {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
           TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          std::shared_ptr<EDProduct> edp(static_cast<EDProduct *>(cp->New()));
+          std::unique_ptr<EDProduct> edp(static_cast<EDProduct *>(cp->New()));
           if(edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;

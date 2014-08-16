@@ -54,7 +54,7 @@ namespace edm {
       whyFailedFactory_(h.whyFailedFactory_){}
 
     BasicHandle(ProductData const& productData) :
-      product_(productData.wrapper_),
+      product_(productData.wrapper_.get()),
       prov_(&productData.prov_) {
     }
 
@@ -62,7 +62,7 @@ namespace edm {
     BasicHandle(BasicHandle &&h) = default;
 #endif
     
-    BasicHandle(std::shared_ptr<EDProduct const> iProd, Provenance const* iProv) :
+    BasicHandle(EDProduct const* iProd, Provenance const* iProv) :
       product_(iProd),
       prov_(iProv) {
     }
@@ -97,10 +97,6 @@ namespace edm {
     }
 
     EDProduct const* wrapper() const {
-      return product_.get();
-    }
-
-    std::shared_ptr<EDProduct const> product() const {
       return product_;
     }
 
@@ -125,7 +121,7 @@ namespace edm {
     }
 
   private:
-    std::shared_ptr<EDProduct const> product_;
+    EDProduct const* product_;
     Provenance const* prov_;
     std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };

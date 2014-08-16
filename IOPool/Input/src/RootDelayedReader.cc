@@ -24,8 +24,9 @@ namespace edm {
    tree_(tree),
    filePtr_(filePtr),
    nextReader_(),
-  resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
-   inputType_(inputType) {
+   resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
+   inputType_(inputType),
+   edProductClass_(gROOT->GetClass("edm::EDProduct")) {
   }
 
   RootDelayedReader::~RootDelayedReader() {
@@ -61,8 +62,7 @@ namespace edm {
     if(nullptr == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
-      TClass *edProductClass = gROOT->GetClass("edm::EDProduct"); 	 
-      branchInfo.offsetToEDProduct_ = edProductClass->GetBaseClassOffset(edProductClass);
+      branchInfo.offsetToEDProduct_ = edProductClass_->GetBaseClassOffset(edProductClass_);
     }
     void* p = cp->New();
 

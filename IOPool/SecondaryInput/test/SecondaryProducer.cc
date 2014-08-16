@@ -143,7 +143,7 @@ namespace edm {
                                                nullptr,
                                                nullptr).wrapper();
     assert(ep != nullptr);
-    WTC const* wtp = dynamic_cast<WTC const*>(ep);
+    WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
     std::auto_ptr<TC> thing(new TC(*tp));

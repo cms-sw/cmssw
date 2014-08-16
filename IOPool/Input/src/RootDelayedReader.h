@@ -16,6 +16,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include <memory>
 #include <string>
 
+class TClass;
 namespace edm {
   class InputFile;
   class RootTree;
@@ -43,8 +44,8 @@ namespace edm {
 
   private:
     virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
-    virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
-    virtual void reset_() {nextReader_ = 0;}
+    virtual void mergeReaders_(DelayedReader* other) override {nextReader_ = other;}
+    virtual void reset_() override {nextReader_ = nullptr;}
     SharedResourcesAcquirer* sharedResources_() const override;
 
     BranchMap const& branches() const {return tree_.branches();}
@@ -56,8 +57,9 @@ namespace edm {
     RootTree const& tree_;
     std::shared_ptr<InputFile> filePtr_;
     DelayedReader* nextReader_;
-    std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
+    std::auto_ptr<SharedResourcesAcquirer> resourceAcquirer_;
     InputType inputType_;
+    TClass* edProductClass_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

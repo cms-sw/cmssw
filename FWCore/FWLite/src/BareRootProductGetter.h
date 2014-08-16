@@ -51,7 +51,7 @@ private:
       }
 
       struct Buffer {
-        Buffer(edm::EDProduct* iProd, TBranch* iBranch, void* iAddress,
+        Buffer(edm::EDProduct const* iProd, TBranch* iBranch, void* iAddress,
                TClass* iClass) :
         product_(iProd), branch_(iBranch), address_(iAddress), eventEntry_(-1),
         class_(iClass) {}

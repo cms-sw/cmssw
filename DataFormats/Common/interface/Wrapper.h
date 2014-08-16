@@ -15,6 +15,7 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include "boost/mpl/if.hpp"
@@ -43,27 +44,30 @@ namespace edm {
     //  the constructor takes ownership of T*
     Wrapper(T*);
 
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(3)
+
 private:
-    virtual bool isPresent_() const {return present;}
-    virtual std::type_info const& dynamicTypeInfo_() const {return typeid(T);}
-    virtual std::type_info const& wrappedTypeInfo_() const {return typeid(Wrapper<T>);}
+    virtual bool isPresent_() const GCC11_OVERRIDE {return present;}
+    virtual std::type_info const& dynamicTypeInfo_() const GCC11_OVERRIDE {return typeid(T);}
+    virtual std::type_info const& wrappedTypeInfo_() const GCC11_OVERRIDE {return typeid(Wrapper<T>);}
 
 #ifndef __GCCXML__
-    virtual bool isMergeable_() const;
-    virtual bool mergeProduct_(EDProduct const* newProduct);
-    virtual bool hasIsProductEqual_() const;
-    virtual bool isProductEqual_(EDProduct const* newProduct) const;
+    virtual bool isMergeable_() const GCC11_OVERRIDE;
+    virtual bool mergeProduct_(EDProduct const* newProduct) GCC11_OVERRIDE;
+    virtual bool hasIsProductEqual_() const GCC11_OVERRIDE;
+    virtual bool isProductEqual_(EDProduct const* newProduct) const GCC11_OVERRIDE;
 #endif
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
-                             helper_vector_ptr& helpers) const;
+                             helper_vector_ptr& helpers) const GCC11_OVERRIDE;
     virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
-                           void const*& oPtr) const;
+                           void const*& oPtr) const GCC11_OVERRIDE;
     virtual void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndices,
-                                  std::vector<void const*>& oPtr) const;
+                                  std::vector<void const*>& oPtr) const GCC11_OVERRIDE;
 
   private:
     // We wish to disallow copy construction and assignment.
