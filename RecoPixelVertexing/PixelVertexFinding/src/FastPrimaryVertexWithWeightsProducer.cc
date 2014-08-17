@@ -117,6 +117,10 @@ class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
   double m_zClusterWidth_step3; 	// cluster width in step3
   double m_zClusterSearchArea_step3;	// cluster width in step3
   double m_weightCut_step3; 		// minimum z-projections weight required in step3
+
+  // use the jetPt weighting
+  bool m_ptWeighting;
+  double m_ptWeighting_parameter;	// parameter used in the pt-reweighting: weight=weight*(pt-ptWeighting_parameter)/(40-ptWeighting_parameter);
   
 };
 
@@ -167,6 +171,9 @@ FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const
   m_zClusterSearchArea_step3    = iConfig.getParameter<double>("zClusterSearchArea_step3");
   m_weightCut_step3      	= iConfig.getParameter<double>("weightCut_step3");
 
+  m_ptWeighting		      	= iConfig.getParameter<bool>("ptWeighting");
+  m_ptWeighting_parameter	= iConfig.getParameter<double>("ptWeighting_parameter");
+
   produces<reco::VertexCollection>();
   produces<float>();
 
@@ -210,6 +217,8 @@ FastPrimaryVertexWithWeightsProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<double>("zClusterWidth_step3",0.3);
   desc.add<double>("zClusterSearchArea_step3",0.55);
   desc.add<double>("weightCut_step3",0.1);
+  desc.add<bool>("ptWeighting",false); // <---- newMethod 
+  desc.add<double>("ptWeighting_parameter",20);
   descriptions.add("fastPrimaryVertexWithWeightsProducer",desc);
 }
 
@@ -360,6 +369,7 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 	        	//calculate the final weight
 			weight=	 m_EC_weight*(weight_dPhi) ;    	        
 	        }
+		if(m_ptWeighting)	weight=weight*(pt-m_ptWeighting_parameter)/(40-m_ptWeighting_parameter); // a jetPt=40 doesn't change weight
 	        zWeights.push_back(weight); //add the weight to zWeights
 	      }	
   	    }//if it pass DeltaPhi(Jet,Cluster) requirements
