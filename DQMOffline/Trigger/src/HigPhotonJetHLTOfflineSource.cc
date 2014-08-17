@@ -40,6 +40,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include <TLorentzVector.h>
+
 //  Define the interface
 class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
 
@@ -93,6 +95,7 @@ private:
   MonitorElement*  npfjets_;
   MonitorElement*  delphiphomet_;
   MonitorElement*  delphijetmet_;
+  MonitorElement*  invmassjj_;
   
 };
 
@@ -144,6 +147,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   delphiphomet_ = iBooker.book1D("delphiphomet", "#Delta#phi(photon, MET);#Delta#phi(#gamma,MET)", 100, 0, 4); 
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
   delphijetmet_ = iBooker.book1D("delphijetmet", "#Delta#phi(PFJet, MET);#Delta#phi(Jet,MET)", 100, 0, 4); 
+  invmassjj_ = iBooker.book1D("invmassjj", "Inv mass two leading jets;M_{jj}", 100, 0, 100); 
 
 }
 
@@ -241,22 +245,40 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   npfjets_->Fill(pfjets->size()); 
 
-  double min_delphijetmet = 6.0; 
+  double min_delphijetmet = 6.0;
+  int njet = 0;
+  // Inv mass of two leading jets 
+  TLorentzVector p4jet1, p4jet2, p4jj;
+
   for(reco::PFJetCollection::const_iterator jetIter=pfjets->begin();
       jetIter!=pfjets->end();++jetIter){
-
+    njet++; 
     double tmp_delphijetmet = fabs(deltaPhi(jetIter->phi(), pfmet.phi())); 
     // if (verbose_)
-    //   std::cout << "xshi:: delta phi(jet, MET) " << tmp_delphijetmet << std::endl;
+      // std::cout << "xshi:: delta phi(jet, MET) " << tmp_delphijetmet << std::endl;
+      // std::cout << "xshi:: jet pT " << njet << " : " << jetIter->pt() << std::endl;
+      // std::cout << "xshi:: jet mass " << njet << " : " << jetIter->mass() << std::endl;
 
     if (tmp_delphijetmet < min_delphijetmet)
       min_delphijetmet = tmp_delphijetmet;
+
+    if (njet == 1)
+      p4jet1.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
+
+    if (njet == 2)
+      p4jet2.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
   }
     
   if (verbose_)
     std::cout << "xshi:: min delta phi(jet, MET) " << min_delphijetmet << std::endl;
   
   delphijetmet_->Fill(min_delphijetmet); 
+  p4jj = p4jet1 + p4jet2; 
+  
+  if (verbose_)
+    std::cout << "xshi:: invmass jj " << p4jj.M() << std::endl;
+
+  invmassjj_->Fill(p4jj.M());
 
 }
 
