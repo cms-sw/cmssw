@@ -96,6 +96,7 @@ private:
   MonitorElement*  delphiphomet_;
   MonitorElement*  delphijetmet_;
   MonitorElement*  invmassjj_;
+  MonitorElement*  deletajj_;
   
 };
 
@@ -148,7 +149,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 100); 
   delphijetmet_ = iBooker.book1D("delphijetmet", "#Delta#phi(PFJet, MET);#Delta#phi(Jet,MET)", 100, 0, 4); 
   invmassjj_ = iBooker.book1D("invmassjj", "Inv mass two leading jets;M_{jj}", 100, 0, 100); 
-
+  deletajj_ = iBooker.book1D("deletajj", "#Delta#eta(jj);#Delta#eta_{jj}", 100, -4, 4); 
 }
 
 
@@ -249,7 +250,9 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   int njet = 0;
   // Inv mass of two leading jets 
   TLorentzVector p4jet1, p4jet2, p4jj;
-
+  // Two leading jets eta
+  double etajet1(0), etajet2(0);
+ 
   for(reco::PFJetCollection::const_iterator jetIter=pfjets->begin();
       jetIter!=pfjets->end();++jetIter){
     njet++; 
@@ -262,24 +265,27 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     if (tmp_delphijetmet < min_delphijetmet)
       min_delphijetmet = tmp_delphijetmet;
 
-    if (njet == 1)
+    if (njet == 1) {
       p4jet1.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
-
-    if (njet == 2)
+      etajet1 = jetIter->eta(); 
+    }
+    if (njet == 2){
       p4jet2.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
+      etajet2 = jetIter->eta(); 
+    }
   }
     
-  if (verbose_)
-    std::cout << "xshi:: min delta phi(jet, MET) " << min_delphijetmet << std::endl;
-  
   delphijetmet_->Fill(min_delphijetmet); 
   p4jj = p4jet1 + p4jet2; 
-  
-  if (verbose_)
+  double deletajj = etajet1 - etajet2 ; 
+  if (verbose_) {
+    // std::cout << "xshi:: min delta phi(jet, MET) " << min_delphijetmet << std::endl;
     std::cout << "xshi:: invmass jj " << p4jj.M() << std::endl;
-
+    std::cout << "xshi:: delta eta jj " << deletajj << std::endl;
+  }
+  
   invmassjj_->Fill(p4jj.M());
-
+  deletajj_->Fill(deletajj); 
 }
 
 
