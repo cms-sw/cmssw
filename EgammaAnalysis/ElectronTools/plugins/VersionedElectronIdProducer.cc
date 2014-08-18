@@ -81,13 +81,20 @@ VersionedElectronIdProducer(const edm::ParameterSet& iConfig) {
       forPat_.emplace_back( new VersionedPatElectronSelector(the_id) );
       calculated_md5 = forPat_.back()->md5String();
       forPat_.back()->setConsumes(consumesCollector());
+      if( forPat_.back()->cutFlowSize() == 0 ) {
+	throw cms::Exception("InvalidCutFlow")
+	  << "Post-processing cutflow size is zero! You may have configured"
+	  << " the python incorrectly!";
+      }
     } else {
       forGsf_.emplace_back( new VersionedGsfElectronSelector(the_id) );
-      std::cout << "made the selector" << std::endl;
       calculated_md5 = forGsf_.back()->md5String();
-      std::cout << "got the md5" << std::endl;
       forGsf_.back()->setConsumes(consumesCollector());
-       std::cout << "set consumes" << std::endl;
+      if( forGsf_.back()->cutFlowSize() == 0 ) {
+	throw cms::Exception("InvalidCutFlow")
+	  << "Post-processing cutflow size is zero! You may have configured"
+	  << " the python incorrectly!";
+      }
     }
     if( idMD5 != calculated_md5 ) {
       throw cms::Exception("IdConfigurationNotValidated")
