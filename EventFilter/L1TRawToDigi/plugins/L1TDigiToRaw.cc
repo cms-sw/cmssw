@@ -64,12 +64,19 @@ namespace l1t {
          static const unsigned MAX_BLOCKS = 256;
 
          edm::InputTag inputLabel_;
+         int evtType_;
          int fedId_;
          unsigned fwId_;
 
          PackerList packers_;
+
+         // header and trailer sizes in chars
+         int slinkHeaderSize_;
+         int slinkTrailerSize_;
+         int amcHeaderSize_;
+         int amcTrailerSize_;
    };
-#include <iomanip>
+}
 
 namespace l1t {
    L1TDigiToRaw::L1TDigiToRaw(const edm::ParameterSet& config) :
@@ -80,6 +87,7 @@ namespace l1t {
       produces<FEDRawDataCollection>();
 
       fwId_ = config.getParameter<unsigned int>("FWId");
+      evtType_ = config.getUntrackedParameter<int>("eventType", 1);
 
       auto cc = edm::ConsumesCollector(consumesCollector());
 
@@ -92,6 +100,11 @@ namespace l1t {
          auto packer_list = factory->create(fwId_, fedId_);
          packers_.insert(packers_.end(), packer_list.begin(), packer_list.end());
       }
+
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 12);
+      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 8);
    }
 
 
@@ -125,16 +138,26 @@ namespace l1t {
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
-      unsigned int size = 20; // 12 for the L1T header, 8 for the footer
+      unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amcHeaderSize_ + amcTrailerSize_;
       unsigned int words = 0;
       for (const auto& block: blocks)
          // add one for the block header
          words += block.load.size() + 1;
       size += words * 4;
-      int mod = size % 8;
-      size = (mod == 0) ? size : size + 8 - mod;
+      // add padding to get a full number of 64-bit words
+      int padding = (size % 8 == 0) ? 8 : 8 - size % 8;
+      size += padding;
       fed_data.resize(size);
       unsigned char * payload = fed_data.data();
+      auto payload_start = payload;
+
+      auto bxId = event.bunchCrossing();
+      auto evtId = event.id().event();
+
+      FEDHeader header(payload);
+      header.set(payload, evtType_, evtId, bxId, fedId_);
+
+      payload += slinkHeaderSize_;
 
       // create the header
       payload = push(payload, 0);
@@ -146,6 +169,12 @@ namespace l1t {
          for (const auto& word: block.load)
             payload = push(payload, word);
       }
+
+      payload += amcTrailerSize_;
+      payload += padding;
+
+      FEDTrailer trailer(payload);
+      trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
 
       event.put(raw_coll);
    }

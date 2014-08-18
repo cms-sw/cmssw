@@ -19,6 +19,8 @@
 // system include files
 #include <memory>
 
+#define EDM_ML_DEBUG 1
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
@@ -30,6 +32,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
@@ -55,6 +58,12 @@ namespace l1t {
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
          std::vector<std::auto_ptr<BaseUnpackerFactory>> factories_;
+
+         // header and trailer sizes in chars
+         int slinkHeaderSize_;
+         int slinkTrailerSize_;
+         int amcHeaderSize_;
+         int amcTrailerSize_;
    };
 }
 
@@ -67,6 +76,11 @@ namespace l1t {
       auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
       for (const auto& name: factory_names)
          factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name, config, *this));
+
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 12);
+      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 8);
    }
 
 
@@ -93,18 +107,43 @@ namespace l1t {
          return;
       }
 
-      LogDebug("L1T") << "Found FEDRawDataCollection";
+      LogInfo("L1T") << "Found FEDRawDataCollection";
 
       const FEDRawData& l1tRcd = feds->FEDData(fedId_);
 
-      if (l1tRcd.size() < 20) {
+      if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
          LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
             << l1tRcd.size() << "). Returning empty collections!";
          return;
       }
 
       const unsigned char *data = l1tRcd.data();
-      unsigned idx = 16;
+      unsigned idx = slinkHeaderSize_;
+
+      FEDHeader header(data);
+
+      if (header.check()) {
+         LogDebug("L1T") << "Found SLink header:"
+            << " Trigger type " << header.triggerType()
+            << " L1 event ID " << header.lvl1ID()
+            << " BX Number " << header.bxID()
+            << " FED source " << header.sourceID()
+            << " FED version " << header.version();
+      } else {
+         LogWarning("L1T") << "Did not find a SLink header!";
+      }
+
+      FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
+
+      if (trailer.check()) {
+         LogDebug("L1T") << "Found SLink trailer:"
+            << " Length " << trailer.lenght()
+            << " CRC " << trailer.crc()
+            << " Status " << trailer.evtStatus()
+            << " Throttling bits " << trailer.ttsBits();
+      } else {
+         LogWarning("L1T") << "Did not find a SLink trailer!";
+      }
 
       // Extract header data
       uint32_t event_id = pop(data, idx) & 0xFFFFFF;
@@ -128,9 +167,10 @@ namespace l1t {
                       << " Event Type " << event_type
                       << " Payload size " << payload_size; 
 
-      if (l1tRcd.size() < payload_size * 4 + 20) {
+      if (l1tRcd.size() < payload_size * 4 + amcHeaderSize_ + amcTrailerSize_) {
          LogError("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
-            << l1tRcd.size() << ", expected " << payload_size * 4 + 20
+            << l1tRcd.size() << ", expected "
+            << payload_size * 4 + amcHeaderSize_ + amcTrailerSize_
             << " + padding). Returning empty collections!";
          return;
       }
