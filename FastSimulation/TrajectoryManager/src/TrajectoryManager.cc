@@ -614,7 +614,7 @@ TrajectoryManager::makePSimHits( const GeomDet* det,
     for (std::vector< const GeomDet*>::const_iterator i = comp.begin();
 	 i != comp.end(); i++) {
       auto du = (*i);
-      if (!du->isLeaf())
+      if (du->isLeaf())  // not even needed (or it should iterate if really not leaf)
 	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID,tTopo));
     }
   }
