@@ -4,26 +4,38 @@
 
 VersionedGsfElectronSelector::
 VersionedGsfElectronSelector( edm::ParameterSet const & parameters ):
-  VersionedSelector<reco::GsfElectronRef>(parameters) {
+  VersionedSelector<reco::GsfElectronRef>(parameters),
+  initialized_(false) {
   initialize(parameters);  
   retInternal_ = getBitTemplate();
 }
   
 void VersionedGsfElectronSelector::
 initialize( const edm::ParameterSet& conf ) {
-  if(initialized_) return;
+  if(initialized_) {
+    edm::LogWarning("VersionedGsfElectronSelector")
+      << "ID was already initialized!";
+    return;
+  }
   
   const std::vector<edm::ParameterSet>& cutflow =
     conf.getParameterSetVector("cutFlow");
   
+  if( cutflow.size() == 0 ) {
+    throw cms::Exception("InvalidCutFlow")
+      << "You have supplied a null/empty cutflow to VersionedIDSelector,"
+      << " please add content to the cuflow and try again.";
+  }
+
   // this lets us keep track of cuts without knowing what they are :D
   for( const auto& cut : cutflow ) {
+   
     const std::string& name = cut.getParameter<std::string>("cutName");
-    const bool needsContent = cut.getParameter<bool>("needsAdditionalProducts");    
+    const bool needsContent = cut.getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = cut.getParameter<bool>("isIgnored");
-    const auto* plugin = CutApplicatorFactory::get()->create(name,cut);
+    auto* plugin = CutApplicatorFactory::get()->create(name,cut);
     if( plugin != nullptr ) {
-      cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));    
+      cuts_.emplace_back(plugin);    
     } else {
       throw cms::Exception("BadPluginName")
 	<< "The requested cut: " << name << " is not available!";
