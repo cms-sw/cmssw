@@ -68,7 +68,7 @@ ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& 
     src_ = consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
-  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIEta");  
+  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIEta");
   produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIPhi");  
   produces<edm::ValueMap<float> >("eleFull5x5R9");  
   produces<edm::ValueMap<float> >("eleFull5x5Circularity");  

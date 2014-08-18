@@ -2,14 +2,6 @@
 from EgammaAnalysis.ElectronTools.egmGsfElectronIDs_cfi import *
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
-# Load stuff needed by lazy tools later for the value map producer
-from Configuration.StandardSequences.Services_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.MagneticField_38T_cff import *
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-from Configuration.StandardSequences.Reconstruction_cff import *
-GlobalTag.globaltag = 'POSTLS170_V6::All'
-
 # Load the producer module to build full 5x5 cluster shapes and whatever 
 # else is needed for IDs
 from EgammaAnalysis.ElectronTools.ElectronIDValueMapProducer_cfi import *
