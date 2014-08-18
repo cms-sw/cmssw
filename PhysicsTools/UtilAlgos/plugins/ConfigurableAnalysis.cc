@@ -142,10 +142,10 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if (skip) continue;
 
     //make a specific direction in the plotter
-    if (plotter_) plotter_->setDir(selection->name());
+    if (plotter_)     plotter_->setDir(selection->name());
 
     // apply individual filters on the event
-    std::map<std::string, bool> accept=selection->accept(iEvent);
+    std::map<std::string, bool> accept=selection->acceptMap(iEvent);
 
     bool globalAccept=true;
     std::string separator="";
@@ -159,13 +159,16 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     //loop the filters to make cumulative and allButOne job
     for (Selection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
-      Filter & filter=(**filterIt);
+      SFilter & filter = (*filterIt);
       //      bool lastCut=((filterIt+1)==selection->end());
 
       //increment the directory name
-      cumulative+=separator+filter.name(); separator="_";
+      cumulative+=separator;
+      if (filter.inverted())	cumulative+="not";
+      cumulative+=filter->name(); 
+      separator="_";
 
-      if (accept[filter.name()]){
+      if (accept[filter->name()]){
 	//	if (globalAccept && selection->makeCumulativePlots() && !lastCut)
 	if (globalAccept && selection->makeCumulativePlots() && plotter_)
 	  plotter_->fill(cumulative,iEvent);
@@ -175,13 +178,13 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	// did all the others filter fire
 	bool goodForAllButThisOne=true;
 	for (std::map<std::string,bool>::iterator decision=accept.begin(); decision!=accept.end();++decision){
-	  if (decision->first==filter.name()) continue;
+	  if (decision->first==filter->name()) continue;
 	  if (!decision->second) {
 	    goodForAllButThisOne=false;
 	    break;}
 	}
 	if (goodForAllButThisOne && selection->makeAllButOnePlots() && plotter_){
-	  plotter_->fill(allButOne+filter.name(),iEvent);
+	  plotter_->fill(allButOne+filter->name(),iEvent);
 	}
       }
 
