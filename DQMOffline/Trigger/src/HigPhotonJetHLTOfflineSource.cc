@@ -98,7 +98,7 @@ private:
   MonitorElement*  invmassjj_;
   MonitorElement*  deletajj_;
   MonitorElement*  triggers_;
-  // MonitorElement*  trigvsnvtx_;
+  MonitorElement*  trigvsnvtx_;
   
 };
 
@@ -153,7 +153,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   invmassjj_ = iBooker.book1D("invmassjj", "Inv mass two leading jets;M_{jj}", 100, 0, 100); 
   deletajj_ = iBooker.book1D("deletajj", "#Delta#eta(jj);#Delta#eta_{jj}", 100, -4, 4); 
   triggers_ = iBooker.book1D("triggers", "Triggers", 20, 0, 20); 
-  // trigvsnvtx_ = iBooker.book2D("trigvsnvtx", "Trigger vs. # vertices;N_{vertices};Trigger", 100, -4, 4, 20, 0, 20); 
+  trigvsnvtx_ = iBooker.book2D("trigvsnvtx", "Trigger vs. # vertices;N_{vertices};Trigger", 100, 0, 100, 20, 0, 20); 
 }
 
 
@@ -173,6 +173,13 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       return;
     }
 
+  // N Vertices 
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(pvToken_, vertices);
+  if(!vertices.isValid()) return;  
+  if (verbose_)
+    std::cout << "xshi:: N vertices : " << vertices->size() << std::endl;
+  
   // Set path labels
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     triggers_->setBinLabel(i+1, hltPathsToCheck_[i]); 
@@ -188,7 +195,8 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
 	triggered = true;
 	//break;
-	triggers_->Fill(i); 
+	triggers_->Fill(i);
+	trigvsnvtx_->Fill(vertices->size(), i); 
       }
       // if (triggered ) break;
     }
@@ -205,12 +213,12 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   ncalojets_->Fill(calojets->size()); 
 
-  // N Vertices 
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(pvToken_, vertices);
-  if(!vertices.isValid()) return;  
-  if (verbose_)
-    std::cout << "xshi:: N vertices : " << vertices->size() << std::endl;
+  // // N Vertices 
+  // edm::Handle<reco::VertexCollection> vertices;
+  // iEvent.getByToken(pvToken_, vertices);
+  // if(!vertices.isValid()) return;  
+  // if (verbose_)
+  //   std::cout << "xshi:: N vertices : " << vertices->size() << std::endl;
 
   nvertices_->Fill(vertices->size());
 
