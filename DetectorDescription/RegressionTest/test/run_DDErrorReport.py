@@ -30,7 +30,7 @@ configXMLFile.write('<Root fileName="cms.xml" logicalPartName="OCMS"/>\n')
 configXMLFile.write('</Configuration>\n')
 configXMLFile.close()
 
-command = os.getenv('LOCAL_TOP_DIR') + "/test/" + os.getenv('SCRAM_ARCH') + "/DDErrorReport dddreportconfig.xml -p"
+command = os.getenv('LOCAL_TOP_DIR') + "/bin/" + os.getenv('SCRAM_ARCH') + "/DDErrorReport dddreportconfig.xml -p"
 status = os.system( command )
 if (status != 0):
     sys.exit(1)
