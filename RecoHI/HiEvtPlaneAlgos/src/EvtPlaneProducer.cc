@@ -13,6 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
+// $Id: EvtPlaneProducer.cc,v 1.21 2012/02/15 11:04:09 eulisse Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -128,9 +129,9 @@ private:
 
   GenPlane *rp[NumEPNames];
 
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   
   // ----------member data ---------------------------
   edm::InputTag vtxCollection_;

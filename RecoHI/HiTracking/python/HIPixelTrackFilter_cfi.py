@@ -37,3 +37,15 @@ HiProtoTrackFilterBlock = cms.PSet(
     beamSpot = cms.InputTag( "offlineBeamSpot" ),
     siPixelRecHits = cms.InputTag( "siPixelRecHits" )
     )
+
+HiConformalPixelFilterBlock = cms.PSet(
+    ComponentName = cms.string( "HIPixelTrackFilter" ),
+    ptMin = cms.double( 0.2 ),
+    chi2 = cms.double( 80.0 ),
+    useClusterShape = cms.bool( False ),
+    VertexCollection = cms.InputTag("hiSelectedVertex"),
+    nSigmaTipMaxTolerance = cms.double( 999.0 ),
+    tipMax = cms.double( 999.0 ),
+    nSigmaLipMaxTolerance = cms.double( 14.0 ),
+    lipMax = cms.double( 999.0 )
+    )

@@ -51,12 +51,11 @@ hiRegitMuInitialStepSeeds.skipClusters = cms.InputTag('hiRegitMuInitialStepClust
 
 
 # building: feed the new-named seeds
-hiRegitMuInitialStepTrajectoryFilter =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryFilter.clone()
+hiRegitMuInitialStepTrajectoryFilter = RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryFilter.clone()
 hiRegitMuInitialStepTrajectoryFilter.minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
-
 hiRegitMuInitialStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryBuilder.clone(
-    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilter')),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuInitialStepClusters')
 )
 
