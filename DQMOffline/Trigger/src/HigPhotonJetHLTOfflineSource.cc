@@ -97,6 +97,8 @@ private:
   MonitorElement*  delphijetmet_;
   MonitorElement*  invmassjj_;
   MonitorElement*  deletajj_;
+  MonitorElement*  triggers_;
+  // MonitorElement*  trigvsnvtx_;
   
 };
 
@@ -150,6 +152,8 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   delphijetmet_ = iBooker.book1D("delphijetmet", "#Delta#phi(PFJet, MET);#Delta#phi(Jet,MET)", 100, 0, 4); 
   invmassjj_ = iBooker.book1D("invmassjj", "Inv mass two leading jets;M_{jj}", 100, 0, 100); 
   deletajj_ = iBooker.book1D("deletajj", "#Delta#eta(jj);#Delta#eta_{jj}", 100, -4, 4); 
+  triggers_ = iBooker.book1D("triggers", "Triggers", 20, 0, 20); 
+  // trigvsnvtx_ = iBooker.book2D("trigvsnvtx", "Trigger vs. # vertices;N_{vertices};Trigger", 100, -4, 4, 20, 0, 20); 
 }
 
 
@@ -169,6 +173,11 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       return;
     }
 
+  // Set path labels
+  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
+    triggers_->setBinLabel(i+1, hltPathsToCheck_[i]); 
+  }
+
   // Check how many HLT triggers are in triggerResults
   const edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults);
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
@@ -178,9 +187,10 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
 	triggered = true;
-	break;
+	//break;
+	triggers_->Fill(i); 
       }
-      if (triggered ) break;
+      // if (triggered ) break;
     }
   }
 
@@ -203,6 +213,15 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     std::cout << "xshi:: N vertices : " << vertices->size() << std::endl;
 
   nvertices_->Fill(vertices->size());
+
+  // Active trigger vs. number of vertices
+  // for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
+  //   if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
+  //     triggered = true;
+  //   }
+  // }
+
+
 
   // PF MET
   edm::Handle<reco::PFMETCollection> pfmets;
