@@ -15,9 +15,6 @@ namespace edm {
   }
 
   Run::~Run() {
-    // anything left here must be the result of a failure
-    // let's record them as failed attempts in the event principal
-    for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
   Run::CacheIdentifier_t
@@ -89,7 +86,7 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-        rp.put(*pit->second, std::unique_ptr<EDProduct>(pit->first));
+        rp.put(*pit->second, std::move(pit->first));
         // Ownership has passed, so clear the pointer.
         pit->first = nullptr;
         ++pit;

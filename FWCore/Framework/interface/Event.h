@@ -208,7 +208,7 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
-    typedef std::vector<std::pair<EDProduct*, BranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<std::unique_ptr<EDProduct>, BranchDescription const*> > ProductPtrVec;
 
   private:
     EventPrincipal const&
@@ -283,9 +283,9 @@ namespace edm {
     typedef Event::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& /*ignored*/,
                ptrvec_t& used,
-               Wrapper<PROD>* wp,
+               std::unique_ptr<Wrapper<PROD> > wp,
                BranchDescription const* desc) const {
-      used.emplace_back(wp, desc);
+      used.emplace_back(std::move(wp), desc);
     }
   };
 
@@ -295,9 +295,9 @@ namespace edm {
 
     void do_it(ptrvec_t& used,
                ptrvec_t& /*ignored*/,
-               Wrapper<PROD>* wp,
+               std::unique_ptr<Wrapper<PROD> > wp,
                BranchDescription const* desc) const {
-      used.emplace_back(wp, desc);
+      used.emplace_back(std::move(wp), desc);
     }
   };
 
@@ -354,14 +354,15 @@ namespace edm {
     BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    Wrapper<PROD>* wp(new Wrapper<PROD>(product));
-
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(product));
+    PROD const* prod = wp->product(); 
+     
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
       RecordInParentless<PROD>,
       RecordInParentfull<PROD> >::type parentage_recorder;
     parentage_recorder.do_it(putProducts(),
                              putProductsWithoutParents(),
-                             wp,
+                             std::move(wp),
                              &desc);
 
     //  putProducts().push_back(std::make_pair(edp, &desc));
@@ -369,7 +370,7 @@ namespace edm {
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
 
-    return(OrphanHandle<PROD>(wp->product(), makeProductID(desc)));
+    return(OrphanHandle<PROD>(prod, makeProductID(desc)));
   }
 
   template<typename PROD>
