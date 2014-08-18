@@ -46,9 +46,14 @@ process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
+process.load('EventFilter/L1TRawToDigi/l1tDigiToRaw_cfi')
+process.load('EventFilter/L1TRawToDigi/l1tRawToDigi_cfi')
+
 process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
     +process.l1ExtraLayer2
+    +process.l1tDigiToRaw
+    +process.l1tRawToDigi
     )
 
 process.output_step = cms.EndPath(process.output)

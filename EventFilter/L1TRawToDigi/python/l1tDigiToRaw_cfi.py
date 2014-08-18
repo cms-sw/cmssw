@@ -5,11 +5,11 @@ l1tDigiToRaw = cms.EDProducer(
     packers = cms.PSet(
         egamma = cms.PSet(
             type = cms.string("l1t::EGammaPackerFactory"),
-            EGammas = cms.InputTag("Layer2HW")
+            EGammas = cms.InputTag("caloStage1FinalDigis")
             ),
         etsum = cms.PSet(
             type = cms.string("l1t::EtSumPackerFactory"),
-            EtSums = cms.InputTag("Layer2HW")
+            EtSums = cms.InputTag("caloStage1FinalDigis")
             ),
         # calotower = cms.PSet(
         # type = cms.string("l1t::CaloTowerPackerFactory"),
@@ -17,14 +17,14 @@ l1tDigiToRaw = cms.EDProducer(
         # ),
         jet = cms.PSet(
             type = cms.string("l1t::JetPackerFactory"),
-            Jets = cms.InputTag("Layer2HW")
+            Jets = cms.InputTag("caloStage1FinalDigis")
             ),
         tau = cms.PSet(
             type = cms.string("l1t::TauPackerFactory"),
-            Taus = cms.InputTag("Layer2HW")
+            Taus = cms.InputTag("caloStage1FinalDigis")
             )
         ),
-    InputLabel = cms.InputTag("Layer2HW"),
+    InputLabel = cms.InputTag("caloStage1FinalDigis"),
     FedId = cms.int32(100),
     FWId = cms.uint32(1)
 )
