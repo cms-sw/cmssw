@@ -71,21 +71,12 @@ private:
   // Member Variables
   HLTConfigProvider hltConfig_;
 
-  // Triggers 
   edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
-  // CaloJet 
-  // edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
-  // Vertex 
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
-  // Photon
   edm::EDGetTokenT<reco::PhotonCollection> photonsToken_;
-  // PFMET
   edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
-  // PFJET
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
 
-
-  // MonitorElement*  ncalojets_;
   MonitorElement*  nvertices_;
   MonitorElement*  nphotons_;
   MonitorElement*  photonpt_;
@@ -114,7 +105,6 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   triggerAccept_ = pset.getUntrackedParameter<bool>("triggerAccept", true);
   triggerResultsToken_ = consumes <edm::TriggerResults> (pset.getParameter<edm::InputTag>("triggerResultsToken"));
   dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/Higgs/PhotonJet/"));
-  // caloJetsToken_ = consumes<reco::CaloJetCollection> (pset.getParameter<edm::InputTag>("caloJetsToken"));
   pvToken_ = consumes<reco::VertexCollection> (pset.getParameter<edm::InputTag>("pvToken"));
   photonsToken_ = consumes<reco::PhotonCollection> (pset.getParameter<edm::InputTag>("photonsToken"));
   pfMetToken_ = consumes<reco::PFMETCollection> (pset.getParameter<edm::InputTag>("pfMetToken"));
@@ -140,7 +130,6 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
 					     edm::EventSetup const & iSetup)
 {
   iBooker.setCurrentFolder(dirname_);
-  // ncalojets_ = iBooker.book1D("ncalojets", "Number of Calo Jets", 100, 0., 100.);
   nvertices_ = iBooker.book1D("nvertices", "Number of vertices", 100, 0, 100); 
   nphotons_ = iBooker.book1D("nphotons", "Number of photons", 100, 0, 100); 
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 100); 
@@ -167,11 +156,10 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
   
-  if(!triggerResults.isValid()) 
-    {
+  if(!triggerResults.isValid()) {
       edm::LogError("HigPhotonJetHLT")<<"Missing triggerResults collection" << std::endl;
       return;
-    }
+  }
 
   // N Vertices 
   edm::Handle<reco::VertexCollection> vertices;
@@ -180,7 +168,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   if (verbose_)
     std::cout << "xshi:: N vertices : " << vertices->size() << std::endl;
   
-  // Set path labels
+  // Set trigger name labels
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     triggers_->setBinLabel(i+1, hltPathsToCheck_[i]); 
   }
@@ -194,57 +182,30 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
 	triggered = true;
-	//break;
 	triggers_->Fill(i);
 	trigvsnvtx_->Fill(vertices->size(), i); 
       }
-      // if (triggered ) break;
     }
   }
 
   if (!triggered) return; 
-
-  // CaloJet
-  // edm::Handle<reco::CaloJetCollection> calojets;
-  // iEvent.getByToken(caloJetsToken_, calojets);
-  // if(!calojets.isValid()) return;
-  // if (verbose_)
-  //   std::cout << "xshi:: N calojets : " << calojets->size() << std::endl;
-
-  // ncalojets_->Fill(calojets->size()); 
-
-  // // N Vertices 
-  // edm::Handle<reco::VertexCollection> vertices;
-  // iEvent.getByToken(pvToken_, vertices);
-  // if(!vertices.isValid()) return;  
-  // if (verbose_)
-  //   std::cout << "xshi:: N vertices : " << vertices->size() << std::endl;
-
+  
   nvertices_->Fill(vertices->size());
-
-  // Active trigger vs. number of vertices
-  // for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-  //   if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
-  //     triggered = true;
-  //   }
-  // }
-
-
 
   // PF MET
   edm::Handle<reco::PFMETCollection> pfmets;
   iEvent.getByToken(pfMetToken_, pfmets);
   if (!pfmets.isValid()) return;
-  if (verbose_)
-    std::cout << "xshi:: N pfmets: " << pfmets->size() << std::endl;
   const reco::PFMET pfmet = pfmets->front();
-  if (verbose_)
-    std::cout << "xshi:: PFMET: " << pfmet.et() << std::endl;
-  pfmet_->Fill(pfmet.et()); 
-  if (verbose_)
-    std::cout << "xshi:: PFMET: phi " << pfmet.phi() << std::endl;
-  pfmetphi_->Fill(pfmet.phi()); 
 
+  pfmet_->Fill(pfmet.et()); 
+  if (verbose_) {
+    std::cout << "xshi:: PFMET: " << pfmet.et() << std::endl;
+    std::cout << "         phi: " << pfmet.phi() << std::endl;
+    std::cout << "      pfmets: " << pfmets->size() << std::endl;
+  }
+
+  pfmetphi_->Fill(pfmet.phi()); 
   
   // photons pT
   edm::Handle<reco::PhotonCollection> photons;
