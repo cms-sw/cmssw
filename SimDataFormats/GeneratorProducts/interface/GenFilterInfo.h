@@ -13,7 +13,7 @@ public:
   
   // constructors, destructors
   GenFilterInfo();
-  GenFilterInfo(unsigned int, unsigned int, unsigned int, unsigned int);
+  GenFilterInfo(unsigned int, unsigned int); // obsolete, should be avoided for new classes
   GenFilterInfo(unsigned int, unsigned int, unsigned int, unsigned int,
 		double, double, double, double);
   GenFilterInfo(const GenFilterInfo&);

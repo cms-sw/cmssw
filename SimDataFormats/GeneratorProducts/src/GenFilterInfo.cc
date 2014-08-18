@@ -20,15 +20,15 @@ GenFilterInfo::GenFilterInfo() :
 {
 }
 
-GenFilterInfo::GenFilterInfo(unsigned int passp, unsigned int passn, unsigned int failp, unsigned int failn) :
-  numPassPositiveEvents_(passp),
-  numPassNegativeEvents_(passn),
-  numFailPositiveEvents_(failp),
-  numFailNegativeEvents_(failn),
-  sumPassWeights_(0.),
-  sumPassWeights2_(0.),
-  sumFailWeights_(0.),
-  sumFailWeights2_(0.)
+GenFilterInfo::GenFilterInfo(unsigned int tried, unsigned int pass) :
+  numPassPositiveEvents_(pass),
+  numPassNegativeEvents_(0),
+  numFailPositiveEvents_(tried-pass),
+  numFailNegativeEvents_(0),
+  sumPassWeights_(pass),
+  sumPassWeights2_(pass),
+  sumFailWeights_(tried-pass),
+  sumFailWeights2_(tried-pass)
 {
 }
 
