@@ -45,23 +45,28 @@ class ElectronIDValueMapProducer : public edm::EDProducer {
   
   noZS::EcalClusterLazyTools *lazyToolnoZS;
 
-  edm::InputTag ebReducedRecHitCollection_;
-  edm::InputTag eeReducedRecHitCollection_;
-  edm::InputTag esReducedRecHitCollection_;
-  edm::InputTag src_;
+  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
+  edm::EDGetToken src_;
 
   std::string dataFormat_;
 };
 
 ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& iConfig) {
 
-  ebReducedRecHitCollection_ = iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection");
-  eeReducedRecHitCollection_ = iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection");
-  esReducedRecHitCollection_ = iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection");
+  ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection"));
+  eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection"));
+  esReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection"));
 
-  src_ = iConfig.getParameter<edm::InputTag>("src");
+  
 
   dataFormat_ = iConfig.getParameter<std::string>("dataFormat");
+  if( dataFormat_ == "RECO" ) {
+    src_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  } else if ( dataFormat_ == "PAT") {
+    src_ = consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"));
+  }
 
   produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIEta");  
   produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIPhi");  
@@ -77,12 +82,12 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
   
-  lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+  lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_); //, esReducedRecHitCollection_
 
   if (dataFormat_ == "RECO") {
 
     edm::Handle<reco::GsfElectronCollection> src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
     
     // size_t n = src->size();
     std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
@@ -112,7 +117,7 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
   } else if (dataFormat_ == "PAT") {
 
     edm::Handle<edm::View<pat::Electron> > src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
     
     // size_t n = src->size();
     std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
