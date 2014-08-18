@@ -88,5 +88,7 @@ DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, patTauEventSelector, "patTauEv
 DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, patTauSEventSelector, "patTauSEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, patTauSEventVetoSelector, "patTauSEventVetoSelector");
 
-
+#include "PhysicsTools/PatUtils/interface/RazorComputer.h"
+DEFINE_EDM_PLUGIN(CachingVariableFactory, RazorBox, "RazorBox");
+DEFINE_EDM_PLUGIN(VariableComputerFactory, RazorComputer, "RazorComputer");
 
