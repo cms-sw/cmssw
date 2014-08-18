@@ -74,9 +74,9 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 
   // DQM ROOT input
   // following lines were commented out migrating to MT DQM.  
-  /*inputFile_ = ps.getUntrackedParameter<std::string>("inputFile", "");
+  inputFile_ = ps.getUntrackedParameter<std::string>("inputFile", "");
   if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << std::endl;
-  if( ! enableMonitorDaemon_ ) {  
+  /*if( ! enableMonitorDaemon_ ) {  
     if( inputFile_.size() != 0 && dbe_!=NULL){
       dbe_->open(inputFile_);
       dbe_->showDirStructure();     
@@ -141,18 +141,17 @@ void ZDCMonitorClient::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r, 
   chanquality_= new HcalChannelQuality(*p.product());
   */
 
-  // book the error summary now
-  char meTitle[256];
-  sprintf(meTitle,"%sEventInfo/errorSummary",rootFolder_.c_str() );
-  errorSummary_ = ib.bookFloat(meTitle);
 
   std::string eventinfo="EventInfo";
   if (rootFolder_!="ZDC")
     eventinfo+="DUMMY";
 
+  // book the error summary now
+  ib.setCurrentFolder(rootFolder_+eventinfo.c_str()+"/");
+  errorSummary_ = ib.bookFloat("errorSummary");
+
   // Setup histograms -- this is all we will do for ZDC Monitor at the moment!
   MonitorElement *me;
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str()+"/");
   me = ib.bookFloat("reportSummary");
   mes_.push_back(me);
   me->Fill(-1); // set status to unknown at startup

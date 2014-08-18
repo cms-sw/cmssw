@@ -71,6 +71,7 @@ class HcalDataCertification : public DQMEDHarvester {
    MonitorElement* Hcal_HO12;
    int debug_;
    std::string rootFolder_;
+
 };
 
 //
@@ -90,6 +91,8 @@ HcalDataCertification::HcalDataCertification(const edm::ParameterSet& iConfig)
   // now do what ever initialization is needed
   debug_ = iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
+
+  CertificationSummary = NULL;
 }
 
 HcalDataCertification::~HcalDataCertification()
