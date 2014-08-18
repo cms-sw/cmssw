@@ -113,9 +113,10 @@ class SiPhase2DigitizerAlgorithm  {
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;
+
       //in case of contribution of noise to the digi
       //the MC information are removed 
-      if (other._frac[0]>-0.5){
+      if (other._frac.size() > 0 && other._frac[0]>-0.5){
         if (other._hitInfo) {
           std::vector<unsigned int>& otherTrackIds = other._hitInfo->trackIds_;
           if(_hitInfo) {
@@ -147,15 +148,6 @@ class SiPhase2DigitizerAlgorithm  {
     std::shared_ptr<SimHitInfoForLinks> _hitInfo;
   };  // end class Amplitude
 
-  // Define a class to hold the calibration parameters per pixel
-  // Internal
-  class CalParameters {
-  public:
-    float p0;
-    float p1;
-    float p2;
-    float p3;
-  };
   //
   // Define a class for 3D ionization points and energy
   //
@@ -222,17 +214,15 @@ class SiPhase2DigitizerAlgorithm  {
   };
  
   //
-  // PixelEfficiencies struct
+  // SubdetEfficiencies struct
   //
   /**
    * Internal use only.
    */
-   struct PixelEfficiencies {
-     PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
-     float thePixelEfficiency[20];     // Single pixel effciency
-     float thePixelColEfficiency[20];  // Column effciency
-     float thePixelChipEfficiency[20]; // ROC efficiency
-     unsigned int FPixIndex;         // The Efficiency index for FPix Disks
+   struct SubdetEfficiencies {
+     SubdetEfficiencies(const edm::ParameterSet& conf);
+     std::vector<double> barrel_efficiencies;
+     std::vector<double> endcap_efficiencies;
    };
 
  private:
@@ -273,48 +263,28 @@ class SiPhase2DigitizerAlgorithm  {
     //-- induce_signal
     const float ClusterWidth;       // Gaussian charge cutoff width in sigma units
 
-    //-- Allow for upgrades
-    const int NumberOfBarrelLayers;     // Default = 3
-    const int NumberOfEndcapDisks;      // Default = 2
-
     //-- make_digis 
+    const bool doDigitalReadout;        //  Flag to decide analog or digital readout
     const float theElectronPerADC;     // Gain, number of electrons per adc count.
     const int theAdcFullScale;         // Saturation count, 255=8bit.
-    const int theAdcFullScaleStack;    // Saturation count for stack layers, 1=1bit.
-    const int theFirstStackLayer;      // The first BPix layer to use theAdcFullScaleStack.
     const float theNoiseInElectrons;   // Noise (RMS) in units of electrons.
     const float theReadoutNoise;       // Noise of the readount chain in elec,
-                                 //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
+                                       //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
 
-    const float theThresholdInE_FPix;  // Pixel threshold in electrons FPix.
-    const float theThresholdInE_BPix;  // Pixel threshold in electrons BPix.
-    const float theThresholdInE_BPix_L1; // In case the BPix layer1 gets a different threshold
 
-    const double theThresholdSmearing_FPix;
-    const double theThresholdSmearing_BPix;
-    const double theThresholdSmearing_BPix_L1;
+    const float theThresholdInE_Endcap;  // threshold in electrons Endcap.
+    const float theThresholdInE_Barrel;  // threshold in electrons Barrel.
 
-    const double electronsPerVCAL;          // for electrons - VCAL conversion
-    const double electronsPerVCAL_Offset;   // in misscalibrate()
+    const double theThresholdSmearing_Endcap;
+    const double theThresholdSmearing_Barrel;
 
     const float theTofLowerCut;             // Cut on the particle TOF
     const float theTofUpperCut;             // Cut on the particle TOF
-    const float tanLorentzAnglePerTesla_FPix;   //FPix Lorentz angle tangent per Tesla
-    const float tanLorentzAnglePerTesla_BPix;   //BPix Lorentz angle tangent per Tesla
-
-    const float FPix_p0;
-    const float FPix_p1;
-    const float FPix_p2;
-    const float FPix_p3;
-    const float BPix_p0;
-    const float BPix_p1;
-    const float BPix_p2;
-    const float BPix_p3;
-
+    const float tanLorentzAnglePerTesla_Endcap;   //FPix Lorentz angle tangent per Tesla
+    const float tanLorentzAnglePerTesla_Barrel;   //BPix Lorentz angle tangent per Tesla
 
     //-- add_noise
     const bool addNoise;
-    const bool addChargeVCALSmearing;
     const bool addNoisyPixels;
     const bool fluctuateCharge;
     //-- pixel efficiency
@@ -322,10 +292,6 @@ class SiPhase2DigitizerAlgorithm  {
 
     const bool addThresholdSmearing;
         
-    //-- calibration smearing
-    const bool doMissCalibrate;         // Switch on the calibration smearing
-    const float theGainSmearing;        // The sigma of the gain fluctuation (around 1)
-    const float theOffsetSmearing;      // The sigma of the offset fluct. (around 0)
     
     // pseudoRadDamage
     const double pseudoRadDamage;       // Decrease the amount off freed charge that reaches the collector
@@ -342,13 +308,8 @@ class SiPhase2DigitizerAlgorithm  {
     const std::unique_ptr<SiG4UniversalFluctuation> fluctuate;   // make a pointer
     const std::unique_ptr<GaussianTailNoiseGenerator> theNoiser;
 
-    // To store calibration constants
-    const std::map<int,CalParameters,std::less<int> > calmap;
-
-
     //-- additional member functions    
     // Private methods
-    std::map<int,CalParameters,std::less<int> > initCal() const;
     void primary_ionization( const PSimHit& hit, std::vector<EnergyDepositUnit>& ionization_points) const;
     void drift(const PSimHit& hit,
                const PixelGeomDetUnit *pixdet,
@@ -368,7 +329,7 @@ class SiPhase2DigitizerAlgorithm  {
                     std::vector<PixelDigi>& digis,
                     std::vector<PixelDigiSimLink>& simlinks,
 		    const TrackerTopology *tTopo) const;
-    void pixel_inefficiency(const PixelEfficiencies& eff,
+    void pixel_inefficiency(const SubdetEfficiencies& eff,
 			    const PixelGeomDetUnit* pixdet,
 			    const TrackerTopology *tTopo);
 
@@ -376,7 +337,6 @@ class SiPhase2DigitizerAlgorithm  {
 
     // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
     const std::unique_ptr<SiPixelGainCalibrationOfflineSimService> theSiPixelGainCalibrationService_;    
-    float missCalibrate(uint32_t detID, int col, int row, float amp) const;  
     LocalVector DriftDirection(const PixelGeomDetUnit* pixdet,
                                const GlobalVector& bfield,
                                const DetId& detId) const;
@@ -384,17 +344,15 @@ class SiPhase2DigitizerAlgorithm  {
     void module_killing_conf(uint32_t detID); // remove dead modules using the list in the configuration file PixelDigi_cfi.py
     void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
 
-    const PixelEfficiencies pixelEfficiencies_;
+    const SubdetEfficiencies subdetEfficiencies_;
 
    // For random numbers
     const std::unique_ptr<CLHEP::RandFlat> flatDistribution_;
     const std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution_;
-    const std::unique_ptr<CLHEP::RandGaussQ> gaussDistributionVCALNoise_;
 
     // Threshold gaussian smearing:
-    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_FPix_;
-    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_;
-    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_L1_;
+    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_Endcap_;
+    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_Barrel_;
 
     double calcQ(float x) const {
       // need erf(x/sqrt2)
