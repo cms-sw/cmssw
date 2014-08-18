@@ -146,12 +146,12 @@ namespace edm {
 
     void put(
         BranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        std::unique_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance);
 
     void putOnRead(
         BranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        std::unique_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance);
 
     EDProduct const* getIt(ProductID const& pid) const;

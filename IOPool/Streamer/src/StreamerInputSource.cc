@@ -287,13 +287,12 @@ namespace edm {
         ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
 
         if(spitem.prod() != nullptr) {
-          std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spitem.prod()));
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, aprod, productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<EDProduct>(const_cast<EDProduct*>(spitem.prod())), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::auto_ptr<EDProduct>(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<EDProduct>(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
         spitem.clear();

@@ -131,7 +131,7 @@ void testGenericHandle::getbyLabelTest() {
   typedef edm::Wrapper<DP> WDP;
 
   std::auto_ptr<DP> pr(new DP);
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
+  std::unique_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::string label("fred");
   std::string productInstanceName("Rick");
 
@@ -188,7 +188,7 @@ void testGenericHandle::getbyLabelTest() {
   auto entryDescriptionPtr = std::make_shared<edm::Parentage>();
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
   edm::BranchDescription const desc(branchFromRegistry);
-  ep.put(desc, pprod, prov);
+  ep.put(desc, std::move(pprod), prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");
   try {

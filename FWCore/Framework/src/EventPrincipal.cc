@@ -131,7 +131,7 @@ namespace edm {
   void
   EventPrincipal::put(
         BranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        std::unique_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance) {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
@@ -144,24 +144,24 @@ namespace edm {
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp, phb);
+    checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
-    phb->putProduct(edp, productProvenance);
+    phb->putProduct(std::move(edp), productProvenance);
   }
 
   void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        std::unique_ptr<EDProduct> edp,
         ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp, phb);
+    checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
-    phb->putProduct(edp, productProvenance);
+    phb->putProduct(std::move(edp), productProvenance);
   }
 
    void
@@ -183,11 +183,11 @@ namespace edm {
         }
       });
       
-      std::auto_ptr<EDProduct> edp(reader()->getProduct(bk, this));
+      std::unique_ptr<EDProduct> edp(reader()->getProduct(bk, this));
       
       // Now fix up the ProductHolder
-      checkUniquenessAndType(edp, &phb);
-      phb.putProduct(edp);
+      checkUniquenessAndType(edp.get(), &phb);
+      phb.putProduct(std::move(edp));
     }
   }
 

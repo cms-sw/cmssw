@@ -132,13 +132,13 @@ namespace edm {
     ProductID const& productID() const {return getProductData().prov_.productID();}
 
     // Puts the product and its per event(lumi)(run) provenance into the ProductHolder.
-    void putProduct(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
-      putProduct_(edp, productProvenance);
+    void putProduct(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
+      putProduct_(std::move(edp), productProvenance);
     }
 
     // Puts the product into the ProductHolder.
-    void putProduct(std::auto_ptr<EDProduct> edp) const {
-      putProduct_(edp);
+    void putProduct(std::unique_ptr<EDProduct> edp) const {
+      putProduct_(std::move(edp));
     }
 
     // This returns true if it will be put, false if it will be merged
@@ -147,16 +147,16 @@ namespace edm {
     }
 
     // merges the product with the pre-existing product
-    void mergeProduct(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
-      mergeProduct_(edp, productProvenance);
+    void mergeProduct(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
+      mergeProduct_(std::move(edp), productProvenance);
     }
 
-    void mergeProduct(std::auto_ptr<EDProduct> edp) const {
-      mergeProduct_(edp);
+    void mergeProduct(std::unique_ptr<EDProduct> edp) const {
+      mergeProduct_(std::move(edp));
     }
 
     // Merges two instances of the product.
-    void mergeTheProduct(std::auto_ptr<EDProduct> edp) const;
+    void mergeTheProduct(std::unique_ptr<EDProduct> edp) const;
 
     void reallyCheckType(EDProduct const& prod) const;
 
@@ -177,10 +177,10 @@ namespace edm {
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productWasDeleted_() const = 0;
-    virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance) = 0;
-    virtual void putProduct_(std::auto_ptr<EDProduct> edp) const = 0;
-    virtual void mergeProduct_(std::auto_ptr<EDProduct>  edp, ProductProvenance& productProvenance) = 0;
-    virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const = 0;
+    virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) = 0;
+    virtual void putProduct_(std::unique_ptr<EDProduct> edp) const = 0;
+    virtual void mergeProduct_(std::unique_ptr<EDProduct>  edp, ProductProvenance& productProvenance) = 0;
+    virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
     virtual void checkType_(EDProduct const& prod) const = 0;
     virtual void resetStatus_() = 0;
@@ -213,7 +213,7 @@ namespace edm {
       // The following is const because we can add an EDProduct to the
       // cache after creation of the ProductHolder, without changing the meaning
       // of the ProductHolder.
-      void setProduct(std::auto_ptr<EDProduct> prod) const;
+      void setProduct(std::unique_ptr<EDProduct> prod) const;
       bool productIsUnavailable() const {return productIsUnavailable_;}
       void setProductUnavailable() const {productIsUnavailable_ = true;}
 
@@ -225,10 +225,10 @@ namespace edm {
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
                                                  ModuleCallingContext const* mcc) const;
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void checkType_(EDProduct const&) const {}
       virtual void resetStatus_() {productIsUnavailable_ = false;
@@ -277,10 +277,10 @@ namespace edm {
       void producerCompleted();
       ProductStatus& status() const {return status_();}
     private:
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void checkType_(EDProduct const& prod) const {
         reallyCheckType(prod);
@@ -400,17 +400,17 @@ namespace edm {
       virtual ProductData const& getProductData() const {return realProduct_.productData();}
       virtual ProductData& getProductData() {return realProduct_.productData();}
       virtual void setProductDeleted_() {realProduct_.setProductDeleted();}
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
-        realProduct_.putProduct(edp, productProvenance);
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
+        realProduct_.putProduct(std::move(edp), productProvenance);
       }
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const {
-        realProduct_.putProduct(edp);
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const {
+        realProduct_.putProduct(std::move(edp));
       }
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
-        realProduct_.mergeProduct(edp, productProvenance);
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
+        realProduct_.mergeProduct(std::move(edp), productProvenance);
       }
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const {
-        realProduct_.mergeProduct(edp);
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const {
+        realProduct_.mergeProduct(std::move(edp));
       }
       virtual bool putOrMergeProduct_() const {
         return realProduct_.putOrMergeProduct();
@@ -445,10 +445,10 @@ namespace edm {
       virtual bool onDemand_() const;
       virtual bool productUnavailable_() const;
       virtual bool productWasDeleted_() const;
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void checkType_(EDProduct const& prod) const;
       virtual void resetStatus_();

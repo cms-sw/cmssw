@@ -203,11 +203,11 @@ namespace edm {
     ProductHolderBase* getExistingProduct(ProductHolderBase const& phb);
 
     // throws if the pointed to product is already in the Principal.
-    void checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, ProductHolderBase const* productHolder) const;
+    void checkUniquenessAndType(EDProduct* prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::auto_ptr<EDProduct> prod, ProductHolderBase const* productHolder) const;
+    void putOrMerge(std::unique_ptr<EDProduct> prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::auto_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
+    void putOrMerge(std::unique_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
 
   private:
     virtual EDProduct const* getIt(ProductID const&) const;

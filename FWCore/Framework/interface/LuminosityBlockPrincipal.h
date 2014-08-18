@@ -97,7 +97,7 @@ namespace edm {
 
     void put(
         BranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp);
+        std::unique_ptr<EDProduct> edp);
 
 
     void readImmediate() const;

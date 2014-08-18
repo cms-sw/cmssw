@@ -38,18 +38,18 @@ namespace edm {
   void
   LuminosityBlockPrincipal::put(
         BranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp) {
+        std::unique_ptr<EDProduct> edp) {
 
     assert(bd.produced());
     if(edp.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null."
+        << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductHolder assumes ownership
-    putOrMerge(edp, phb);
+    putOrMerge(std::move(edp), phb);
   }
 
   void
@@ -71,11 +71,11 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    std::auto_ptr<EDProduct> edp(reader()->getProduct(bk, this));
+    std::unique_ptr<EDProduct> edp(reader()->getProduct(bk, this));
 
     // Now fix up the ProductHolder
     if(edp.get() != nullptr) {
-      putOrMerge(edp, &phb);
+      putOrMerge(std::move(edp), &phb);
     }
   }
 

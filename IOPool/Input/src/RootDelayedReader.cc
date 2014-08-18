@@ -37,14 +37,14 @@ namespace edm {
     return resourceAcquirer_.get();
   }
 
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
   RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
     iterator iter = branchIter(k);
     if (!found(iter)) {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
-        return std::auto_ptr<EDProduct>();
+        return std::unique_ptr<EDProduct>();
       }
     }
     roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
@@ -53,7 +53,7 @@ namespace edm {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
-        return std::auto_ptr<EDProduct>();
+        return std::unique_ptr<EDProduct>();
       }
     }
    
@@ -67,7 +67,7 @@ namespace edm {
     void* p = cp->New();
 
     // A union is used to avoid possible copies during the triple cast that would otherwise be needed. 	 
-    // std::auto_ptr<EDProduct> edp(static_cast<EDProduct *>(static_cast<void *>(static_cast<unsigned char *>(p) + branchInfo.offsetToEDProduct_))); 	 
+    // std::unique_ptr<EDProduct> edp(static_cast<EDProduct *>(static_cast<void *>(static_cast<unsigned char *>(p) + branchInfo.offsetToEDProduct_))); 	 
     union { 	 
       void* vp; 	 
       unsigned char* ucp; 	 
@@ -75,7 +75,7 @@ namespace edm {
     } pointerUnion; 	 
     pointerUnion.vp = p; 	 
     pointerUnion.ucp += branchInfo.offsetToEDProduct_; 	 
-    std::auto_ptr<EDProduct> edp(pointerUnion.edp);
+    std::unique_ptr<EDProduct> edp(pointerUnion.edp);
 
     br->SetAddress(&p);
     tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));

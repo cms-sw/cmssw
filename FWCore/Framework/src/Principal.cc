@@ -789,13 +789,13 @@ namespace edm {
   }
 
   void
-  Principal::checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, ProductHolderBase const* phb) const {
-    if(prod.get() == nullptr) return;
+  Principal::checkUniquenessAndType(EDProduct* prod, ProductHolderBase const* phb) const {
+    if(prod == nullptr) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.
-    bool alreadyPresent = !productPtrs_.insert(prod.get()).second;
+    bool alreadyPresent = !productPtrs_.insert(prod).second;
     if(alreadyPresent) {
-      phb->checkType(*prod.release());
+      phb->checkType(*prod);
       throwCorruptionException("checkUniquenessAndType", phb->branchDescription().branchName());
     }
     // Checks that the real type of the product matches the branch.
@@ -803,26 +803,26 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(std::auto_ptr<EDProduct> prod, ProductHolderBase const* phb) const {
+  Principal::putOrMerge(std::unique_ptr<EDProduct> prod, ProductHolderBase const* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod, phb);
-      phb->putProduct(prod);
+      checkUniquenessAndType(prod.get(), phb);
+      phb->putProduct(std::move(prod));
     } else {
       phb->checkType(*prod);
-      phb->mergeProduct(prod);
+      phb->mergeProduct(std::move(prod));
     }
   }
 
   void
-  Principal::putOrMerge(std::auto_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* phb) {
+  Principal::putOrMerge(std::unique_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* phb) {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod, phb);
-      phb->putProduct(prod, prov);
+      checkUniquenessAndType(prod.get(), phb);
+      phb->putProduct(std::move(prod), prov);
     } else {
       phb->checkType(*prod);
-      phb->mergeProduct(prod, prov);
+      phb->mergeProduct(std::move(prod), prov);
     }
   }
 

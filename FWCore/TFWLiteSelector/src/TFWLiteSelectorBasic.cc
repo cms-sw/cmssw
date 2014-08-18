@@ -61,8 +61,8 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      std::auto_ptr<EDProduct> getTheProduct(BranchKey const& k) const;
-      virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
+      std::unique_ptr<EDProduct> getTheProduct(BranchKey const& k) const;
+      virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -73,12 +73,12 @@ namespace edm {
       std::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
       return getTheProduct(k);
     }
 
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -119,7 +119,7 @@ namespace edm {
           << "Please contact developers since something is very wrong."; 	 
       }
       branch->GetEntry(entry_);
-      return std::auto_ptr<EDProduct>(prod);
+      return std::unique_ptr<EDProduct>(prod);
     }
 
     struct TFWLiteSelectorMembers {
