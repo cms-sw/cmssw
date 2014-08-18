@@ -7,8 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -38,11 +37,17 @@ class CutApplicatorBase : public candf::CandidateCut {
  CutApplicatorBase(const edm::ParameterSet& c) :
   _name(c.getParameter<std::string>("cutName")) {
   }
-  
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   CutApplicatorBase(const CutApplicatorBase&) = delete;
   CutApplicatorBase& operator=(const CutApplicatorBase&) = delete;
+#endif
     
-  virtual result_type operator()(const argument_type&) const final;
+  
+  virtual result_type operator()(const argument_type&) const 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    final
+#endif
+    ;
   
   // electrons 
   virtual result_type operator()(const reco::GsfElectronRef&) const {return false;}
@@ -75,7 +80,9 @@ class CutApplicatorBase : public candf::CandidateCut {
   
 };
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory< CutApplicatorBase* (const edm::ParameterSet&) > CutApplicatorFactory;
+#endif
 
 #endif
