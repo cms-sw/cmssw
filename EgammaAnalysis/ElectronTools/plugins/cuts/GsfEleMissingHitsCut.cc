@@ -29,10 +29,12 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 CutApplicatorBase::result_type 
 GsfEleMissingHitsCut::
 operator()(const reco::GsfElectronRef& cand) const{ 
+  constexpr reco::HitPattern::HitCategory missingHitType =
+    reco::HitPattern::MISSING_INNER_HITS;
   const unsigned maxMissingHits = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _maxMissingHitsEB : _maxMissingHitsEE );
   const unsigned mHits = 
-    cand->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+    cand->gsfTrack()->hitPattern().numberOfLostPixelHits(missingHitType);
   return mHits <= maxMissingHits;
 }
