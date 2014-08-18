@@ -48,6 +48,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -117,6 +118,8 @@ public:
 private:
   // ----------member data ---------------------------
   bool PRINT;
+  double phi_min; 
+  double phi_max; 
 
   TH1F* nSimTracks_;  
 
@@ -255,6 +258,7 @@ public:
   void initializeVariables();
   unsigned int getMaxPosition(std::vector<float>& charge_vec);
   unsigned int getLayerNumber(const TrackerGeometry* tkgeom, unsigned int& detid);
+  unsigned int getLayerNumber(unsigned int& detid, const TrackerTopology* topo);
   unsigned int getLayerNumber(unsigned int& detid);
   int isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHits);
   int isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
@@ -269,6 +273,8 @@ DigiValidation::DigiValidation(const edm::ParameterSet& iConfig) {
   PRINT = iConfig.getUntrackedParameter<bool>("Verbosity",false);
   src_ =  iConfig.getParameter<edm::InputTag>("src");
   simG4_ = iConfig.getParameter<edm::InputTag>("simG4");
+  phi_min = iConfig.getParameter<double>("PhiMin");
+  phi_max = iConfig.getParameter<double>("PhiMax");
   if (PRINT) std::cout << ">>> Construct DigiValidation " << std::endl;
 }
 DigiValidation::~DigiValidation() {
@@ -317,6 +323,11 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //  edm::ESHandle<StackedTrackerGeometry>           stackedGeometryHandle;
   //  iSetup.get<StackedTrackerGeometryRecord>().get(stackedGeometryHandle);
   //  const StackedTrackerGeometry* theStackedGeometry = stackedGeometryHandle.product();
+
+  // Tracker Topology 
+  //  edm::ESHandle<TrackerTopology> tTopoHandle;
+  //  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  //  const TrackerTopology* tTopo = tTopoHandle.product();
 
   // Get PSimHits
   edm::Handle<edm::PSimHitContainer> simHits;
@@ -389,14 +400,18 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
     unsigned int layer = getLayerNumber(rawid);
+    //=================Temporary ==============
+    if (layer !=8) continue; 
+    //=================Temporary ==============
     std::map<unsigned int, DigiHistos>::iterator iPos = layerHistoMap.find(layer);
     if (iPos == layerHistoMap.end()) {
       createLayerHistograms(layer);
       iPos = layerHistoMap.find(layer);
     }
     const GeomDetUnit* geomDetUnit = tkGeom->idToDetUnit(detId);
+    if (!geomDetUnit) std::cout << " Id " << " Layer " << layer << std::endl;
     //    const PixelGeomDetUnit* pixdet = (PixelGeomDetUnit*) geomDetUnit;
-    //    std::cout << " Layer " << layer << " Thickness " << pixdet->specificSurface().bounds().thickness() << " Pitch " << pixdet->specificTopology().pitch().first <<std::endl;
+    //    if (pixdet) std::cout << " Layer " << layer << " Thickness " << pixdet->specificSurface().bounds().thickness() << " Pitch " << pixdet->specificTopology().pitch().first <<std::endl;
     edm::DetSet<PixelDigi>::const_iterator di;
     int col_last  = -1;
     int row_last  = -1;
@@ -432,6 +447,10 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         dPhi = reco::deltaPhi((*simTracks)[iSimTrk].momentum().phi(), geomDetUnit->position().phi());
       }
       iPos->second.DeltaPhi->Fill(dPhi);
+      //=================Temporary ==============
+      if (fabs(dPhi) <= phi_min || fabs(dPhi) >= phi_max) continue;
+      //=================Temporary ==============
+
       int primaryTrk = -1; 
       if (iSimTrk != -1) {
 	primaryTrk = processTypes[iSimTrk]; 
@@ -926,6 +945,24 @@ unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsign
     } else if (it->type().isEndcap()) {
       PXFDetId pf_detId = PXFDetId(detid);
       layer = 100*pf_detId.side() + pf_detId.disk();
+    }
+  }
+  return layer;
+}
+//
+// -- Get Layer Number
+//
+unsigned int DigiValidation::getLayerNumber(unsigned int& detid, const TrackerTopology* topo) {
+  unsigned int layer = 999;
+  DetId theDetId(detid);
+
+  if (theDetId.det() == DetId::Tracker) {
+    if (theDetId.subdetId() == PixelSubdetector::PixelBarrel) {
+      layer = topo->pxbLayer(detid);
+    } else if (theDetId.subdetId() == PixelSubdetector::PixelEndcap) {
+      layer = 100 * topo->pxfSide(detid)  + topo->pxfDisk(detid);
+    } else {
+      std::cout << ">>> Invalid subdetId() = " << theDetId.subdetId() << std::endl;
     }
   }
   return layer;
