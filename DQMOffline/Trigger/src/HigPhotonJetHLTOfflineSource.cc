@@ -41,6 +41,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <TLorentzVector.h>
+#include <TH2F.h>
 
 //  Define the interface
 class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
@@ -91,6 +92,8 @@ private:
   MonitorElement*  triggers_;
   MonitorElement*  trigvsnvtx_;
   
+  double evtsrun_; 
+  
 };
 
 
@@ -121,6 +124,8 @@ HigPhotonJetHLTOfflineSource::dqmBeginRun(const edm::Run & iRun,
       "Initialization of HLTConfigProvider failed!!"; 
     return;
   }
+  
+  evtsrun_ = 0; 
 }
 
 
@@ -150,7 +155,9 @@ void
 HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup)
 {
-  
+  // Count total number of events in one run
+  evtsrun_++; 
+
   // Throw out this event if it doesn't pass any of the mornitored trigger.
   bool triggered = false; 
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -189,7 +196,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   }
 
   if (!triggered) return; 
-  
+
   nvertices_->Fill(vertices->size());
 
   // PF MET
@@ -289,7 +296,14 @@ void
 HigPhotonJetHLTOfflineSource::endRun(const edm::Run & iRun, 
 				     const edm::EventSetup& iSetup)
 {
+  if (verbose_) {
+    std::cout << "xshi:: endRun total number of events: " << evtsrun_ << std::endl;
+  }
 
+  // Normalize to the total number of events in the run
+  TH2F* h = trigvsnvtx_->getTH2F();
+  h->Scale( evtsrun_ );
+  
 }
 
 
