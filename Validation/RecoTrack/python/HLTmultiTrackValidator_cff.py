@@ -44,7 +44,7 @@ hltMultiTrackValidator.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXR = hl
 hltMultiTrackValidator.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ = hltMultiTrackValidator.histoProducerAlgoBlock.generalTpSelector.clone()
 hltMultiTrackValidator.parametersDefiner = cms.string('hltLhcParametersDefinerForTP')
 
-from RecoTracker.DeDx.dedxHarmonic2_cfi import *
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
 hltDedxHarmonic2 = dedxHarmonic2.clone()
 hltDedxHarmonic2.tracks                     = cms.InputTag("hltIter4Merged")
 hltDedxHarmonic2.trajectoryTrackAssociation = cms.InputTag("hltIter4Merged")
