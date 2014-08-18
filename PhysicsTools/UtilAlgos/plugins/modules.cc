@@ -34,3 +34,10 @@ DEFINE_EDM_PLUGIN(VariableComputerFactory, VariableComputerTest, "VariableComput
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
 
+
+#include "PhysicsTools/UtilAlgos/interface/StringBasedNTupler.h"
+DEFINE_EDM_PLUGIN(NTuplerFactory, StringBasedNTupler, "StringBasedNTupler");
+#include "PhysicsTools/UtilAlgos/interface/VariableNTupler.h"
+DEFINE_EDM_PLUGIN(NTuplerFactory, VariableNTupler, "VariableNTupler");
+#include "PhysicsTools/UtilAlgos/interface/CompleteNTupler.h"
+DEFINE_EDM_PLUGIN(NTuplerFactory, CompleteNTupler, "CompleteNTupler");
