@@ -81,10 +81,8 @@ class CachingVariable {
   std::string name_;
   mutable std::string holderName_;
   void setCache(valueType & v) const { 
-    eventCacheID_ = std::numeric_limits<edm::Event::CacheIdentifier_t>::max();
     cache_.first=true; cache_.second = v;}
   void setNotCompute() const { 
-    eventCacheID_ = std::numeric_limits<edm::Event::CacheIdentifier_t>::max();
     cache_.first=false; cache_.second = 0;}
   evalType & baseEval(const edm::Event & iEvent) const {
     if(notSeenThisEventAlready(iEvent)) {
@@ -125,7 +123,8 @@ class VariableComputer{
   void doesNotCompute(std::string var) const;
 
   bool notSeenThisEventAlready(const edm::Event& iEvent) const {
-    bool retValue = eventCacheID_ != iEvent.cacheIdentifier();
+    bool retValue = (std::numeric_limits<edm::Event::CacheIdentifier_t>::max() != eventCacheID_ and
+		     eventCacheID_ != iEvent.cacheIdentifier());
     if(retValue) {
       eventCacheID_=iEvent.cacheIdentifier();
     }
