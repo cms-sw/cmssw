@@ -65,6 +65,8 @@ class VersionedSelector : public Selector<T> {
 
   const unsigned howFarInCutFlow() const { return howfar_; }
 
+  const size_t cutFlowSize() const { return cuts_.size(); } 
+
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   void setConsumes(edm::ConsumesCollector);
 #endif
