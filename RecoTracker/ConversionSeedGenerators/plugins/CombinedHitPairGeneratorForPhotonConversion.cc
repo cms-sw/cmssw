@@ -50,6 +50,6 @@ void CombinedHitPairGeneratorForPhotonConversion::hitPairs(
 
 void CombinedHitPairGeneratorForPhotonConversion::clearCache() {
     theLayerCache.clear(); 
-    localRA.update(thePairs.capacity()); thePairs.clear(); thePairs.shrink_to_fit();
+    localRA.update(thePairs.size()); thePairs.clear(); thePairs.shrink_to_fit();
 }
 
