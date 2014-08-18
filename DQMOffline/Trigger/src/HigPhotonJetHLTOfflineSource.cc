@@ -74,7 +74,7 @@ private:
   // Triggers 
   edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
   // CaloJet 
-  edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
+  // edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   // Vertex 
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
   // Photon
@@ -85,7 +85,7 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
 
 
-  MonitorElement*  ncalojets_;
+  // MonitorElement*  ncalojets_;
   MonitorElement*  nvertices_;
   MonitorElement*  nphotons_;
   MonitorElement*  photonpt_;
@@ -114,7 +114,7 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   triggerAccept_ = pset.getUntrackedParameter<bool>("triggerAccept", true);
   triggerResultsToken_ = consumes <edm::TriggerResults> (pset.getParameter<edm::InputTag>("triggerResultsToken"));
   dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/Higgs/PhotonJet/"));
-  caloJetsToken_ = consumes<reco::CaloJetCollection> (pset.getParameter<edm::InputTag>("caloJetsToken"));
+  // caloJetsToken_ = consumes<reco::CaloJetCollection> (pset.getParameter<edm::InputTag>("caloJetsToken"));
   pvToken_ = consumes<reco::VertexCollection> (pset.getParameter<edm::InputTag>("pvToken"));
   photonsToken_ = consumes<reco::PhotonCollection> (pset.getParameter<edm::InputTag>("photonsToken"));
   pfMetToken_ = consumes<reco::PFMETCollection> (pset.getParameter<edm::InputTag>("pfMetToken"));
@@ -140,7 +140,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
 					     edm::EventSetup const & iSetup)
 {
   iBooker.setCurrentFolder(dirname_);
-  ncalojets_ = iBooker.book1D("ncalojets", "Number of Calo Jets", 100, 0., 100.);
+  // ncalojets_ = iBooker.book1D("ncalojets", "Number of Calo Jets", 100, 0., 100.);
   nvertices_ = iBooker.book1D("nvertices", "Number of vertices", 100, 0, 100); 
   nphotons_ = iBooker.book1D("nphotons", "Number of photons", 100, 0, 100); 
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 100); 
@@ -205,13 +205,13 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   if (!triggered) return; 
 
   // CaloJet
-  edm::Handle<reco::CaloJetCollection> calojets;
-  iEvent.getByToken(caloJetsToken_, calojets);
-  if(!calojets.isValid()) return;
-  if (verbose_)
-    std::cout << "xshi:: N calojets : " << calojets->size() << std::endl;
+  // edm::Handle<reco::CaloJetCollection> calojets;
+  // iEvent.getByToken(caloJetsToken_, calojets);
+  // if(!calojets.isValid()) return;
+  // if (verbose_)
+  //   std::cout << "xshi:: N calojets : " << calojets->size() << std::endl;
 
-  ncalojets_->Fill(calojets->size()); 
+  // ncalojets_->Fill(calojets->size()); 
 
   // // N Vertices 
   // edm::Handle<reco::VertexCollection> vertices;
