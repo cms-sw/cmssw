@@ -13,21 +13,10 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
-#include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
 
 #include "TFile.h"
 #include "TH3F.h"
-#include <ext/hash_map>
-
-//using namespace edm;
-//using namespace reco;
-//using namespace std;
-//using namespace __gnu_cxx;
-
 
 class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D> {
 
@@ -41,56 +30,47 @@ private:
   virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&);
   virtual void algoEndJob();
 
-  void         Learn(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState);
+  void         processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine,  const TrajectoryStateOnSurface& trajState);
+  void         algoAnalyzeTheTree(const edm::EventSetup& iSetup);
 
   PhysicsTools::Calibration::HistogramD3D * getNewObject();
-
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
-  bool   usePixel;
-  bool   useStrip;
-  double MeVperADCPixel;
-  double MeVperADCStrip;
-
-  const TrackerGeometry* m_tracker;
-
-  double       MinTrackMomentum;
-  double       MaxTrackMomentum;
-  double       MinTrackEta;
-  double       MaxTrackEta;
+  float        MinTrackMomentum;
+  float        MaxTrackMomentum;
+  float        MinTrackEta;
+  float        MaxTrackEta;
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
-  double       MaxTrackChiOverNdf;
+  float        MaxTrackChiOverNdf;
 
+  float P_Min;
+  float P_Max;
+  int   P_NBins; 
+  float Path_Min;
+  float Path_Max;
+  int   Path_NBins;
+  float Charge_Min;
+  float Charge_Max;
+  int   Charge_NBins;
 
-  double P_Min;
-  double P_Max;
-  int    P_NBins; 
-  double Path_Min;
-  double Path_Max;
-  int    Path_NBins;
-  double Charge_Min;
-  double Charge_Max;
-  int    Charge_NBins;
-
-
+  std::vector<std::string> VInputFiles;
   std::string       algoMode;
   std::string       HistoFile;
 
   TH3F*        Charge_Vs_Path;
 
-private :
-  struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; };
 
-  class isEqual{
-  public:
-    template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
-  };
+  std::string                       m_calibrationPath;
+  bool                              useCalibration;
+  bool                              shapetest;
 
-  __gnu_cxx::hash_map<unsigned int, stModInfo*,  __gnu_cxx::hash<unsigned int>, isEqual > MODsColl;
+  std::vector< std::vector<float> > calibGains;
+  unsigned int m_off;
+
 };
 
 #endif

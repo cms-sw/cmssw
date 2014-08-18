@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    DeDxDiscriminatorLearnerFromCalibTree
-// Class:      DeDxDiscriminatorLearnerFromCalibTree
+// Package:    DeDxDiscriminatorLearner
+// Class:      DeDxDiscriminatorLearner
 // 
-/**\class DeDxDiscriminatorLearnerFromCalibTree DeDxDiscriminatorLearnerFromCalibTree.cc RecoTracker/DeDxDiscriminatorLearnerFromCalibTree/src/DeDxDiscriminatorLearnerFromCalibTree.cc
+/**\class DeDxDiscriminatorLearner DeDxDiscriminatorLearner.cc RecoTracker/DeDxDiscriminatorLearner/src/DeDxDiscriminatorLearner.cc
 
  Description: <one line class summary>
 
@@ -19,9 +19,8 @@
 // system include files
 #include <memory>
 
-#include "RecoTracker/DeDx/plugins/DeDxDiscriminatorLearnerFromCalibTree.h"
+#include "CalibTracker/SiStripChannelGain/plugins/DeDxDiscriminatorLearner.h"
 
-//#include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -33,9 +32,10 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-DeDxDiscriminatorLearnerFromCalibTree::DeDxDiscriminatorLearnerFromCalibTree(const edm::ParameterSet& iConfig) : ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>(iConfig)
+DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iConfig) : ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>(iConfig)
 {
-std::cout << "TEST 0 " << endl;
+   m_tracksTag                 = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+   m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
 
    P_Min	       = iConfig.getParameter<double>  ("P_Min"  );
    P_Max               = iConfig.getParameter<double>  ("P_Max"  );
@@ -47,112 +47,162 @@ std::cout << "TEST 0 " << endl;
    Charge_Max          = iConfig.getParameter<double>  ("Charge_Max"  );
    Charge_NBins        = iConfig.getParameter<int>     ("Charge_NBins");
 
-   MinTrackTMomentum   = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  5.0);
-   MaxTrackTMomentum   = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
+   MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  5.0);
+   MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
    MinTrackEta         = iConfig.getUntrackedParameter<double>  ("minTrackEta"        , -5.0);
    MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);
 
+   algoMode            = iConfig.getUntrackedParameter<string>  ("AlgoMode"           ,  "SingleJob");
    HistoFile           = iConfig.getUntrackedParameter<string>  ("HistoFile"        ,  "out.root");
+   VInputFiles         = iConfig.getUntrackedParameter<vector<string> >        ("InputFiles");
 
-   VInputFiles         = iConfig.getParameter<vector<string> >  ("InputFiles");
-
-std::cout << "TEST 1 " << endl;
-
-
-   useCalibration      = iConfig.getUntrackedParameter<bool>("UseCalibration", false);
+   shapetest           = iConfig.getParameter<bool>("ShapeTest");
+   useCalibration      = iConfig.getUntrackedParameter<bool>("UseCalibration");
    m_calibrationPath   = iConfig.getUntrackedParameter<string>("calibrationPath");
-
-std::cout << "TEST 2 " << endl;
-
 }
 
 
-DeDxDiscriminatorLearnerFromCalibTree::~DeDxDiscriminatorLearnerFromCalibTree(){
-
-std::cout << "TEST Z " << endl;
-}
+DeDxDiscriminatorLearner::~DeDxDiscriminatorLearner(){}
 
 // ------------ method called once each job just before starting event loop  ------------
 
-void  DeDxDiscriminatorLearnerFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
+void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 {
-std::cout << "TEST 3 " << endl;
-
-//   Charge_Vs_Path = new TH2F ("Charge_Vs_Path"     , "Charge_Vs_Path" , 24, 0.2, 1.4, 250, 0, 5000);
    Charge_Vs_Path = new TH3F ("Charge_Vs_Path"     , "Charge_Vs_Path" , P_NBins, P_Min, P_Max, Path_NBins, Path_Min, Path_Max, Charge_NBins, Charge_Min, Charge_Max);
 
-std::cout << "TEST A " << endl;
+   if(useCalibration && calibGains.size()==0){
+      edm::ESHandle<TrackerGeometry> tkGeom;
+      iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+      m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel
 
-   edm::ESHandle<TrackerGeometry> tkGeom;
-   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   m_tracker = tkGeom.product();
-
-   auto const & Det = tkGeom->dets();
-   for(unsigned int i=0;i<Det.size();i++){
-      DetId  Detid  = Det[i]->geographicalId();
-      int    SubDet = Detid.subdetId();
-
-      if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
-          SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
-
-          auto DetUnit     = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
-          if(!DetUnit)continue;
-
-          const StripTopology& Topo     = DetUnit->specificTopology();
-          unsigned int         NAPV     = Topo.nstrips()/128;
-
-          double Eta           = DetUnit->position().basicVector().eta();
-          double R             = DetUnit->position().basicVector().transverse();
-          double Thick         = DetUnit->surface().bounds().thickness();
-          for(unsigned int j=0;j<NAPV;j++){
-
-             stAPVInfo* APV       = new stAPVInfo;
-             APV->DetId           = Detid.rawId();
-             APV->SubDet          = SubDet;
-             APV->Eta             = Eta;
-             APV->R               = R;
-             APV->Thickness       = Thick;
-             APV->APVId           = j;
-             APVsColl[APV->DetId<<3 | APV->APVId] = APV;
-         }
-      }
+      DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
    }
 
-std::cout << "TEST B " << endl;
-
-
-   MakeCalibrationMap();
-std::cout << "TEST C " << endl;
-
-
-   algoAnalyzeTheTree();
-std::cout << "TEST D " << endl;
-
+   //Read the calibTree if in calibTree mode
+   if(strcmp(algoMode.c_str(),"CalibTree")==0)algoAnalyzeTheTree(iSetup);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 
-
-void DeDxDiscriminatorLearnerFromCalibTree::algoEndJob()
+void DeDxDiscriminatorLearner::algoEndJob()
 {
+   if( strcmp(algoMode.c_str(),"MultiJob")==0){
 	TFile* Output = new TFile(HistoFile.c_str(), "RECREATE");
       	Charge_Vs_Path->Write();
 	Output->Write();
 	Output->Close();
+   }else if( strcmp(algoMode.c_str(),"WriteOnDB")==0){
         TFile* Input = new TFile(HistoFile.c_str() );
 	Charge_Vs_Path = (TH3F*)(Input->FindObjectAny("Charge_Vs_Path"))->Clone();  
 	Input->Close();
+   }else if(strcmp(algoMode.c_str(),"CalibTree")==0){
+        TFile* Output = new TFile(HistoFile.c_str(), "RECREATE");
+        Charge_Vs_Path->Write();
+        Output->Write();
+        Output->Close();
+        TFile* Input = new TFile(HistoFile.c_str() );
+        Charge_Vs_Path = (TH3F*)(Input->FindObjectAny("Charge_Vs_Path"))->Clone();
+        Input->Close();
+   }
 }
 
-void DeDxDiscriminatorLearnerFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{   
+   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+   iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
+   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
+
+   edm::Handle<reco::TrackCollection> trackCollectionHandle;
+   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
+
+   unsigned track_index = 0;
+   for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
+      const Track      track = *it->val;
+      const Trajectory traj  = *it->key;
+
+      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){continue;}
+      if(track.pt()   <MinTrackMomentum || track.pt() >MaxTrackMomentum){continue;}
+      if(track.found()<MinTrackHits                                    ){continue;}
+
+      const vector<TrajectoryMeasurement> & measurements = traj.measurements();
+      for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
+         TrajectoryStateOnSurface trajState=it->updatedState();
+         if( !trajState.isValid()) continue;
+
+
+         const TrackingRecHit * recHit=(*it->recHit()).hit();
+         if(!recHit)continue;
+         LocalVector trackDirection = trajState.localDirection();
+         float cosine = trackDirection.z()/trackDirection.mag();
+
+         processHit(recHit, trajState.localMomentum().mag(), cosine, trajState);
+      }
+   }
+
 }
 
 
-void DeDxDiscriminatorLearnerFromCalibTree::algoAnalyzeTheTree()
+void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, const TrajectoryStateOnSurface& trajState){
+      auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
+      if(!thit.isValid())return;
+
+      auto const & clus = thit.firstClusterRef();
+      if(!clus.isValid())return;
+
+      int   NSaturating = 0;
+      if(clus.isPixel()){
+          return;
+       }else if(clus.isStrip() && !thit.isMatched()){
+          auto& detUnit     = *(recHit->detUnit());
+          auto& cluster     = clus.stripCluster();
+          if( cluster.amplitudes().size()>MaxNrStrips)                                            { return; }
+          if( DeDxTools::IsSpanningOver2APV (cluster.firstStrip(), cluster.amplitudes().size()))  { return; }
+          if(!DeDxTools::IsFarFromBorder    (trajState, &detUnit ))                               { return; }
+          float pathLen     = 10.0*detUnit.surface().bounds().thickness()/fabs(cosine);
+          float chargeAbs   = DeDxTools::getCharge(&cluster,NSaturating, detUnit, calibGains, m_off);
+          float charge      = chargeAbs/pathLen;
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(cluster.amplitudes()))){
+             Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
+          }
+       }else if(clus.isStrip() && thit.isMatched()){
+          const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+          if(!matchedHit)return;
+
+          auto& detUnitM    = *(matchedHit->monoHit().detUnit());
+          auto& clusterM    = matchedHit->monoHit().stripCluster();
+          if( clusterM.amplitudes().size()>MaxNrStrips)                                             { return; }
+          if( DeDxTools::IsSpanningOver2APV (clusterM.firstStrip(), clusterM.amplitudes().size()))  { return; }
+          if(!DeDxTools::IsFarFromBorder    (trajState, &detUnitM ))                                { return; }
+          float pathLen     = 10.0*detUnitM.surface().bounds().thickness()/fabs(cosine);
+          float chargeAbs   = DeDxTools::getCharge(&clusterM,NSaturating, detUnitM, calibGains, m_off);
+          float charge      = chargeAbs/pathLen;
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clusterM.amplitudes()))){
+             Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
+          }
+
+          auto& detUnitS    = *(matchedHit->stereoHit().detUnit());
+          auto& clusterS    = matchedHit->stereoHit().stripCluster();
+          if( clusterS.amplitudes().size()>MaxNrStrips)                                             { return; }
+          if( DeDxTools::IsSpanningOver2APV (clusterS.firstStrip(), clusterS.amplitudes().size()))  { return; }
+          if(!DeDxTools::IsFarFromBorder    (trajState, &detUnitS ))                                { return; }
+          pathLen     = 10.0*detUnitS.surface().bounds().thickness()/fabs(cosine);
+          chargeAbs   = DeDxTools::getCharge(&clusterS,NSaturating, detUnitS, calibGains, m_off);
+          charge      = chargeAbs/pathLen;
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clusterS.amplitudes()))){
+             Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
+          }      
+       }
+}
+
+
+//this function is only used when we run over a calibTree instead of running over EDM files
+void DeDxDiscriminatorLearner::algoAnalyzeTheTree(const edm::EventSetup& iSetup)
 {
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+
    unsigned int NEvent = 0;
    for(unsigned int i=0;i<VInputFiles.size();i++){
       printf("Openning file %3i/%3i --> %s\n",i+1, (int)VInputFiles.size(), (char*)(VInputFiles[i].c_str())); fflush(stdout);
@@ -205,11 +255,12 @@ void DeDxDiscriminatorLearnerFromCalibTree::algoAnalyzeTheTree()
 
             int Charge = 0; 
             if(useCalibration){
-               stAPVInfo* APV = APVsColl[((*rawid)[c]<<3) | (unsigned int)((*firststrip)[c]/128)];
+               auto & gains     = calibGains[tkGeom->idToDetUnit(DetId((*rawid)[c]))->index()-m_off];
+               auto & gain      = gains[(*firststrip)[c]/128];
                for(unsigned int s=0;s<(*nstrips)[c];s++){
                  int StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[c]+s];
                  if(StripCharge<254){
-                    StripCharge=(int)(StripCharge/APV->CalibGain);
+                    StripCharge=(int)(StripCharge/gain);
                     if(StripCharge>=1024){
                        StripCharge = 255;
                     }else if(StripCharge>=254){
@@ -231,21 +282,13 @@ void DeDxDiscriminatorLearnerFromCalibTree::algoAnalyzeTheTree()
 }
 
 
-PhysicsTools::Calibration::HistogramD3D* DeDxDiscriminatorLearnerFromCalibTree::getNewObject()
+PhysicsTools::Calibration::HistogramD3D* DeDxDiscriminatorLearner::getNewObject()
 {
-std::cout << "TEST X " << endl;
-
-
-//   if( strcmp(algoMode.c_str(),"MultiJob")==0)return NULL;
-
    PhysicsTools::Calibration::HistogramD3D* obj;
    obj = new PhysicsTools::Calibration::HistogramD3D(
                 Charge_Vs_Path->GetNbinsX(), Charge_Vs_Path->GetXaxis()->GetXmin(),  Charge_Vs_Path->GetXaxis()->GetXmax(),
                 Charge_Vs_Path->GetNbinsY(), Charge_Vs_Path->GetYaxis()->GetXmin(),  Charge_Vs_Path->GetYaxis()->GetXmax(),
 	        Charge_Vs_Path->GetNbinsZ(), Charge_Vs_Path->GetZaxis()->GetXmin(),  Charge_Vs_Path->GetZaxis()->GetXmax());
-
-std::cout << "TEST Y " << endl;
-
 
    for(int ix=0; ix<=Charge_Vs_Path->GetNbinsX()+1; ix++){
       for(int iy=0; iy<=Charge_Vs_Path->GetNbinsY()+1; iy++){
@@ -256,36 +299,9 @@ std::cout << "TEST Y " << endl;
       }
    }
 
-std::cout << "TEST W " << endl;
-
    return obj;
 }
 
 
-
-void DeDxDiscriminatorLearnerFromCalibTree::MakeCalibrationMap(){
-   if(!useCalibration)return;
-
-  
-   TChain* t1 = new TChain("SiStripCalib/APVGain");
-   t1->Add(m_calibrationPath.c_str());
-
-   unsigned int  tree_DetId;
-   unsigned char tree_APVId;
-   double        tree_Gain;
-
-   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
-   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
-   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
-
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-      t1->GetEntry(ientry);
-       stAPVInfo* APV = APVsColl[(tree_DetId<<3) | (unsigned int)tree_APVId];
-       APV->CalibGain = tree_Gain;
-   }
-
-}
-
-
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeDxDiscriminatorLearnerFromCalibTree);
+DEFINE_FWK_MODULE(DeDxDiscriminatorLearner);

@@ -20,27 +20,7 @@
 
 
 // system include files
-#include <memory>
-#include "DataFormats/Common/interface/ValueMap.h"
-
 #include "RecoTracker/DeDx/plugins/DeDxEstimatorProducer.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 
 using namespace reco;
@@ -52,23 +32,31 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 
    produces<ValueMap<DeDxData> >();
 
-
    string estimatorName = iConfig.getParameter<string>("estimator");
-   if(estimatorName == "median")      m_estimator = new MedianDeDxEstimator(-2.);
-   if(estimatorName == "generic")     m_estimator = new GenericAverageDeDxEstimator  (iConfig.getParameter<double>("exponent"));
-   if(estimatorName == "truncated")   m_estimator = new TruncatedAverageDeDxEstimator(iConfig.getParameter<double>("fraction"));
-   if(estimatorName == "unbinnedFit") m_estimator = new UnbinnedFitDeDxEstimator();
+   if     (estimatorName == "median")              m_estimator = new MedianDeDxEstimator(iConfig);
+   else if(estimatorName == "generic")             m_estimator = new GenericAverageDeDxEstimator  (iConfig);
+   else if(estimatorName == "truncated")           m_estimator = new TruncatedAverageDeDxEstimator(iConfig);
+   else if(estimatorName == "unbinnedFit")         m_estimator = new UnbinnedFitDeDxEstimator(iConfig);
+   else if(estimatorName == "productDiscrim")      m_estimator = new ProductDeDxDiscriminator(iConfig);
+   else if(estimatorName == "btagDiscrim")         m_estimator = new BTagLikeDeDxDiscriminator(iConfig);
+   else if(estimatorName == "smirnovDiscrim")      m_estimator = new SmirnovDeDxDiscriminator(iConfig);
+   else if(estimatorName == "asmirnovDiscrim")     m_estimator = new ASmirnovDeDxDiscriminator(iConfig);
 
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);
+   MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  0.0);
+   MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
+   MinTrackEta         = iConfig.getUntrackedParameter<double>  ("minTrackEta"        , -5.0);
+   MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
 
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
    m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
+   useTrajectory = iConfig.getUntrackedParameter<bool>("UseTrajectory", true);
 
    usePixel = iConfig.getParameter<bool>("UsePixel"); 
    useStrip = iConfig.getParameter<bool>("UseStrip");
-   MeVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
-   MeVperADCStrip = iConfig.getParameter<double>("MeVperADCStrip"); 
+   meVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
+   meVperADCStrip = iConfig.getParameter<double>("MeVperADCStrip"); 
 
    shapetest = iConfig.getParameter<bool>("ShapeTest");
    useCalibration = iConfig.getParameter<bool>("UseCalibration");
@@ -76,6 +64,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 
    if(!usePixel && !useStrip)
    edm::LogWarning("DeDxHitsProducer") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
+
 }
 
 
@@ -87,40 +76,15 @@ DeDxEstimatorProducer::~DeDxEstimatorProducer()
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
-   if(MODsColl.size()!=0)return;
+   if(useCalibration && calibGains.size()==0){
+      edm::ESHandle<TrackerGeometry> tkGeom;
+      iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+      m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel
 
-
-   edm::ESHandle<TrackerGeometry> tkGeom;
-   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-
-   auto const & Det = tkGeom->dets();
-   for(unsigned int i=0;i<Det.size();i++){
-      DetId  Detid  = Det[i]->geographicalId();
-
-       auto StripDetUnit = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
-       auto PixelDetUnit = dynamic_cast<PixelGeomDetUnit const*> (Det[i]);
-
-       double Thick=-1, Dist=-1, Norma=-1;
-       if(StripDetUnit){
-          Dist      = StripDetUnit->position().mag();
-          Thick     = StripDetUnit->surface().bounds().thickness();
-          Norma     = MeVperADCStrip/Thick;
-       }else if(PixelDetUnit){
-          Dist      = PixelDetUnit->position().mag();
-          Thick     = PixelDetUnit->surface().bounds().thickness();
-          Norma     = MeVperADCPixel/Thick;
-       }
-
-       stModInfo* MOD       = new stModInfo;
-       MOD->DetId           = Detid.rawId();
-       MOD->Thickness       = Thick;
-       MOD->Distance        = Dist;
-       MOD->Normalization   = Norma;
-       MOD->Gain            = 1;
-       MODsColl[MOD->DetId] = MOD;
+      DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
    }
 
-   MakeCalibrationMap();
+   m_estimator->beginRun(run, iSetup);
 }
 
 
@@ -130,106 +94,48 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   auto_ptr<ValueMap<DeDxData> > trackDeDxEstimateAssociation(new ValueMap<DeDxData> );  
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 
-  Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-  iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-  const TrajTrackAssociationCollection & TrajToTrackMap = *trajTrackAssociationHandle.product();
-
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
 
-  size_t n =  TrajToTrackMap.size();
-  std::vector<DeDxData> dedxEstimate(n);
+  Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+  if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
 
-  //assume trajectory collection size is equal to track collection size and that order is kept
-  int j=0;
-  for(TrajTrackAssociationCollection::const_iterator cit=TrajToTrackMap.begin(); cit!=TrajToTrackMap.end(); cit++,j++){
-     
-     const edm::Ref<std::vector<Trajectory> > traj = cit->key;
-     const reco::TrackRef track = cit->val;
+  std::vector<DeDxData> dedxEstimate( trackCollectionHandle->size() );
 
-     DeDxHitCollection dedxHits;
-     vector<DeDxTools::RawHits> hits; 
-//     DeDxTools::trajectoryRawHits(traj, hits, usePixel, useStrip);
-
-    const vector<TrajectoryMeasurement> & measurements = traj->measurements();
-    for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-      TrajectoryStateOnSurface trajState=it->updatedState();
-      if( !trajState.isValid()) continue;
-     
-      const TrackingRecHit * recHit=(*it->recHit()).hit();
-      LocalVector trackDirection = trajState.localDirection();
-      double cosine = trackDirection.z()/trackDirection.mag();
-              
-       if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
-	   if(!useStrip) continue;
-	   DeDxTools::RawHits mono,stereo; 
-	   mono.trajectoryMeasurement = &(*it);
-	   stereo.trajectoryMeasurement = &(*it);
-	   mono.angleCosine = cosine; 
-	   stereo.angleCosine = cosine;
-
-	   mono.charge = getCharge(DeDxTools::GetCluster(matchedHit->monoHit()),mono.NSaturating,matchedHit->monoId());
-           stereo.charge = getCharge(DeDxTools::GetCluster(matchedHit->stereoHit()),stereo.NSaturating,matchedHit->stereoId());
-
-	   mono.detId= matchedHit->monoId();
-	   stereo.detId= matchedHit->stereoId();
-
-           if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(matchedHit->stereoHit()))->amplitudes()))) hits.push_back(stereo);
-	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(matchedHit->  monoHit()))->amplitudes()))) hits.push_back(mono);
-        }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
-           if(!useStrip) continue;
-           DeDxTools::RawHits mono;
-
-           mono.trajectoryMeasurement = &(*it);
-           mono.angleCosine = cosine;
-           mono.charge = getCharge(DeDxTools::GetCluster(projectedHit->originalHit()),mono.NSaturating,projectedHit->originalId());
-           mono.detId= projectedHit->originalId();
-	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(projectedHit->originalHit()))->amplitudes()))) continue;
-           hits.push_back(mono);
-        }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
-           if(!useStrip) continue;
-           DeDxTools::RawHits mono;
-	       
-           mono.trajectoryMeasurement = &(*it);
-           mono.angleCosine = cosine; 
-           mono.charge = getCharge(DeDxTools::GetCluster(singleHit),mono.NSaturating,singleHit->geographicalId());
-           mono.detId= singleHit->geographicalId();
-	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(singleHit))->amplitudes()))) continue;
-           hits.push_back(mono); 
-        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
-           if(!useStrip) continue;
-           DeDxTools::RawHits mono;
-               
-           mono.trajectoryMeasurement = &(*it);
-           mono.angleCosine = cosine; 
-           mono.charge = getCharge(DeDxTools::GetCluster(single1DHit),mono.NSaturating,single1DHit->geographicalId());
-           mono.detId= single1DHit->geographicalId();
-	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(single1DHit))->amplitudes()))) continue;
-           hits.push_back(mono); 
-        }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
-           if(!usePixel) continue;
-
-           DeDxTools::RawHits pixel;
-
-           pixel.trajectoryMeasurement = &(*it);
-           pixel.angleCosine = cosine; 
-           pixel.charge = pixelHit->cluster()->charge();
-           pixel.NSaturating=-1;
-           pixel.detId= pixelHit->geographicalId();
-           hits.push_back(pixel);
-       } 
-    }
-     ///////////////////////////////////////
+  TrajTrackAssociationCollection::const_iterator cit;
+  if(useTrajectory)cit = trajTrackAssociationHandle->begin();
+  for(unsigned int j=0;j<trackCollectionHandle->size();j++){            
+     const reco::TrackRef track = reco::TrackRef( trackCollectionHandle.product(), j );
 
      int NClusterSaturating = 0; 
-     for(size_t i=0; i < hits.size(); i++)
-     {
-         stModInfo* MOD = MODsColl[hits[i].detId];
-         float pathLen = MOD->Thickness/std::abs(hits[i].angleCosine);
-         float charge  = MOD->Normalization*hits[i].charge*std::abs(hits[i].angleCosine);
-         dedxHits.push_back( DeDxHit( charge, MOD->Distance, pathLen, hits[i].detId) );
+     DeDxHitCollection dedxHits;
+   
+     if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
+        const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
+        const vector<TrajectoryMeasurement> & measurements = traj->measurements();
+        for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
+           TrajectoryStateOnSurface trajState=it->updatedState();
+           if( !trajState.isValid()) continue;
+     
+           const TrackingRecHit * recHit=(*it->recHit()).hit();
+           if(!recHit)continue;
+           LocalVector trackDirection = trajState.localDirection();
+           float cosine = trackDirection.z()/trackDirection.mag();
 
-         if(hits[i].NSaturating>0)NClusterSaturating++;
+           processHit(recHit, trajState.localMomentum().mag(), cosine, dedxHits, NClusterSaturating);
+        }
+
+     }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
+        for(unsigned int h=0;h<track->recHitsSize();h++){
+           const TrackingRecHit* recHit = &(*(track->recHit(h)));
+           auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
+           if(!thit.isValid())continue;//make sure it's a tracker hit
+
+           const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();         
+           float cosine = (track->px()*ModuleNormal.x()+track->py()*ModuleNormal.y()+track->pz()*ModuleNormal.z())/track->p();
+
+           processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
+        } 
      }
 
      sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
@@ -238,82 +144,71 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      //WARNING: Since the dEdX Error is not properly computed for the moment
      //It was decided to store the number of saturating cluster in that dataformat
      val_and_error.second = NClusterSaturating; 
-
      dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, dedxHits.size() );
   }
+  ///////////////////////////////////////
+
   filler.insert(trackCollectionHandle, dedxEstimate.begin(), dedxEstimate.end());
 
-  // really fill the association map
+  // fill the association map and put it into the event
   filler.fill();
-   // put into the event 
   iEvent.put(trackDeDxEstimateAssociation);   
 }
 
 
+void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating){
+      auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
+      if(!thit.isValid())return;
 
-void DeDxEstimatorProducer::MakeCalibrationMap()
-{
-   if(!useCalibration)return;
+      auto const & clus = thit.firstClusterRef();
+      if(!clus.isValid())return;
 
-   TChain* t1 = new TChain("SiStripCalib/APVGain");
-   t1->Add(m_calibrationPath.c_str());
+      if(clus.isPixel()){
+          if(!usePixel) return;
 
-   unsigned int  tree_DetId;
-   unsigned char tree_APVId;
-   double        tree_Gain;
+          auto& detUnit     = *(recHit->detUnit());
+          float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
+          float chargeAbs   = clus.pixelCluster().charge();
+          float charge      = meVperADCPixel*chargeAbs/pathLen;
+          dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
+       }else if(clus.isStrip() && !thit.isMatched()){
+          if(!useStrip) return;
 
-   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
-   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
-   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+          auto& detUnit     = *(recHit->detUnit());
+          int   NSaturating = 0;
+          float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
+          float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
+          float charge      = meVperADCStrip*chargeAbs/pathLen;
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clus.stripCluster().amplitudes()))){
+             dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
+             if(NSaturating>0)NClusterSaturating++;
+          }
+       }else if(clus.isStrip() && thit.isMatched()){
+          if(!useStrip) return;
+          const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+          if(!matchedHit)return;
 
+          auto& detUnitM     = *(matchedHit->monoHit().detUnit());
+          int   NSaturating = 0;
+          float pathLen     = detUnitM.surface().bounds().thickness()/fabs(cosine);
+          float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, detUnitM, calibGains, m_off);
+          float charge      = meVperADCStrip*chargeAbs/pathLen;
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->monoHit().stripCluster().amplitudes()))){
+             dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, matchedHit->monoId()) );
+             if(NSaturating>0)NClusterSaturating++;
+          }
 
-
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-       t1->GetEntry(ientry);
-       stModInfo* MOD  = MODsColl[tree_DetId];
-       MOD->Gain = tree_Gain;
-   }
-
-   delete t1;
-
+          auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
+          NSaturating = 0;
+          pathLen     = detUnitS.surface().bounds().thickness()/fabs(cosine);
+          chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, detUnitS, calibGains, m_off);
+          charge      = meVperADCStrip*chargeAbs/pathLen;
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->stereoHit().stripCluster().amplitudes()))){
+             dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, matchedHit->stereoId()) );
+             if(NSaturating>0)NClusterSaturating++;
+          }      
+       }
 }
-
-
-int DeDxEstimatorProducer::getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips,
-				     const uint32_t & DetId)
-{
-   //const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
-   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
-   //uint32_t                DetId       = Cluster->geographicalId();
-
-//   float G=1.0f;
-
-   int toReturn = 0;
-   Saturating_Strips = 0;
-   for(unsigned int i=0;i<Ampls.size();i++){
-      int CalibratedCharge = Ampls[i];
-
-      if(useCalibration){
-         stModInfo* MOD = MODsColl[DetId];
-//         G = MOD->Gain;
-         CalibratedCharge = (int)(CalibratedCharge / MOD->Gain );
-         if(CalibratedCharge>=1024){
-            CalibratedCharge = 255;
-         }else if(CalibratedCharge>=255){
-            CalibratedCharge = 254;
-         } 
-      }
-
-      toReturn+=CalibratedCharge;
-      if(CalibratedCharge>=254)Saturating_Strips++;
-   }
-
-//   printf("Charge = %i --> %i  (Gain=%f)\n", accumulate(Ampls.begin(), Ampls.end(), 0), toReturn, G);         
-
-
-   return toReturn;
-}
-
 
 
 

@@ -6,129 +6,6 @@ namespace DeDxTools {
 using namespace std;
 using namespace reco;
 
-                   
-  void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, vector<RawHits>& hits, bool usePixel, bool useStrip)
-  {
-
-    //    vector<RawHits> hits;
-
-    const vector<TrajectoryMeasurement> & measurements = trajectory->measurements();
-    for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-
-      //FIXME: check that "updated" State is the best one (wrt state in the middle) 
-      TrajectoryStateOnSurface trajState=it->updatedState();
-      if( !trajState.isValid()) continue;
-     
-      const TrackingRecHit * recHit=(*it->recHit()).hit();
-
-       LocalVector trackDirection = trajState.localDirection();
-       double cosine = trackDirection.z()/trackDirection.mag();
-              
-       if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
-	   if(!useStrip) continue;
-
-	   RawHits mono,stereo; 
-	   mono.trajectoryMeasurement = &(*it);
-	   stereo.trajectoryMeasurement = &(*it);
-	   mono.angleCosine = cosine; 
-	   stereo.angleCosine = cosine;
-	   const std::vector<uint8_t> &  amplitudes = matchedHit->monoCluster().amplitudes(); 
-	   mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
-           mono.NSaturating =0;
-           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
-       
-	   const std::vector<uint8_t> & amplitudesSt = matchedHit->stereoCluster().amplitudes();
-	   stereo.charge = accumulate(amplitudesSt.begin(), amplitudesSt.end(), 0);
-           stereo.NSaturating =0;
-           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)stereo.NSaturating++;}
-   
-	   mono.detId= matchedHit->monoId();
-	   stereo.detId= matchedHit->stereoId();
-
-	   hits.push_back(mono);
-	   hits.push_back(stereo);
-
-        }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
-           if(!useStrip) continue;
-
-           RawHits mono;
-
-           mono.trajectoryMeasurement = &(*it);
-
-           mono.angleCosine = cosine; 
-           const std::vector<uint8_t> & amplitudes = projectedHit->cluster()->amplitudes();
-           mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
-           mono.NSaturating =0;
-           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
-
-           mono.detId= projectedHit->originalId();
-           hits.push_back(mono);
-      
-        }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
-           if(!useStrip) continue;
-
-           RawHits mono;
-	       
-           mono.trajectoryMeasurement = &(*it);
-
-           mono.angleCosine = cosine; 
-           const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
-           mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
-           mono.NSaturating =0;
-           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
-
-           mono.detId= singleHit->geographicalId();
-           hits.push_back(mono);
-
-        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
-           if(!useStrip) continue;
-
-           RawHits mono;
-
-           mono.trajectoryMeasurement = &(*it);
-
-           mono.angleCosine = cosine;
-           const std::vector<uint8_t> & amplitudes = single1DHit->cluster()->amplitudes();
-           mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
-           mono.NSaturating =0;
-           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
-
-           mono.detId= single1DHit->geographicalId();
-           hits.push_back(mono);
-
-      
-        }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
-           if(!usePixel) continue;
-
-           RawHits pixel;
-
-           pixel.trajectoryMeasurement = &(*it);
-
-           pixel.angleCosine = cosine; 
-           pixel.charge = pixelHit->cluster()->charge();
-           pixel.NSaturating=-1;
-           pixel.detId= pixelHit->geographicalId();
-           hits.push_back(pixel);
-       }
-       
-    }
-    // return hits;
-  }
-
-
-
-
-double genericAverage(const reco::DeDxHitCollection &hits, float expo )
-{
- double result=0;
- size_t n = hits.size();
- for(size_t i = 0; i< n; i ++)
- {
-    result+=pow(hits[i].charge(),expo); 
- }
- return (n>0)?pow(result/n,1./expo):0.;
-}
-
 
 bool shapeSelection(const std::vector<uint8_t> & ampls)
 {
@@ -280,7 +157,186 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 
 
 
+int getCharge(const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& detUnit, const std::vector< std::vector< float > >& calibGains, const unsigned int& m_off )
+{
+   const vector<uint8_t>&  Ampls       = cluster->amplitudes();
 
+   nSatStrip = 0;
+   int charge = 0;
+   for(unsigned int i=0;i<Ampls.size();i++){
+      int calibratedCharge = Ampls[i];
 
+      if(calibGains.size()!=0){
+         auto & gains     = calibGains[detUnit.index()-m_off];
+         calibratedCharge = (int)(calibratedCharge / gains[(cluster->firstStrip()+i)/128] );
+         if(calibratedCharge>=1024){
+            calibratedCharge = 255;
+         }else if(calibratedCharge>=255){
+            calibratedCharge = 254;
+         } 
+      }
 
+      charge+=calibratedCharge;
+      if(calibratedCharge>=254)nSatStrip++;
+   }
+
+   return charge;
 }
+
+
+void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeometry& tkGeom, std::vector< std::vector< float > >& calibGains, const unsigned int& m_off)
+{
+   auto const & dus = tkGeom.detUnits();
+   calibGains.resize(dus.size()-m_off);
+
+   TChain* t1 = new TChain("SiStripCalib/APVGain");
+   t1->Add(m_calibrationPath.c_str());
+
+   unsigned int  tree_DetId;
+   unsigned char tree_APVId;
+   double        tree_Gain;
+   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
+   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
+   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+       t1->GetEntry(ientry);
+       auto& gains = calibGains[tkGeom.idToDetUnit(DetId(tree_DetId))->index()-m_off];
+       if(gains.size()<(size_t)(tree_APVId+1)){gains.resize(tree_APVId+1);}
+       gains[tree_APVId] = tree_Gain;
+   }
+}
+
+
+void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, std::string Reccord, std::string ProbabilityMode, TH3F*& Prob_ChargePath)
+{
+   edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> deDxMapHandle;    
+   if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxMip_3D_Rcd>() .get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxPion_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxPion_3D_Rcd>().get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxKaon_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxKaon_3D_Rcd>().get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxProton_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxProton_3D_Rcd>().get(deDxMapHandle);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxElectron_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxElectron_3D_Rcd>().get(deDxMapHandle);
+   }else{
+//      printf("The reccord %s is not known by the DeDxDiscriminatorProducer\n", Reccord.c_str());
+//      printf("Program will exit now\n");
+      exit(0);
+   }
+
+   float xmin = deDxMapHandle->rangeX().min;
+   float xmax = deDxMapHandle->rangeX().max;
+   float ymin = deDxMapHandle->rangeY().min;
+   float ymax = deDxMapHandle->rangeY().max;
+   float zmin = deDxMapHandle->rangeZ().min;
+   float zmax = deDxMapHandle->rangeZ().max;
+
+   if(Prob_ChargePath)delete Prob_ChargePath;
+   Prob_ChargePath  = new TH3F ("Prob_ChargePath"     , "Prob_ChargePath" , deDxMapHandle->numberOfBinsX(), xmin, xmax, deDxMapHandle->numberOfBinsY() , ymin, ymax, deDxMapHandle->numberOfBinsZ(), zmin, zmax);
+
+   if(strcmp(ProbabilityMode.c_str(),"Accumulation")==0){
+      for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+         for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+            float Ni = 0;
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=deDxMapHandle->binContent(i,j,k);} 
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+               float tmp = 0;
+               for(int l=0;l<=k;l++){ tmp+=deDxMapHandle->binContent(i,j,l);}
+      	       if(Ni>0){
+                  Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+  	       }else{
+                  Prob_ChargePath->SetBinContent (i, j, k, 0);
+	       }
+            }
+         }
+      }
+   }else if(strcmp(ProbabilityMode.c_str(),"Integral")==0){
+      for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+         for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+            float Ni = 0;
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=deDxMapHandle->binContent(i,j,k);}
+            for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+               float tmp = deDxMapHandle->binContent(i,j,k);
+               if(Ni>0){
+                  Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+               }else{
+                  Prob_ChargePath->SetBinContent (i, j, k, 0);
+               }
+            }
+         }
+      }   
+   }else{
+//      printf("The ProbabilityMode: %s is unknown\n",ProbabilityMode.c_str());
+//      printf("The program will stop now\n");
+      exit(0);
+   }
+}
+
+
+
+bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize)
+{  
+   if(FirstStrip==0                                ) return true;
+   if(FirstStrip==128                              ) return true;
+   if(FirstStrip==256                              ) return true;
+   if(FirstStrip==384                              ) return true;
+   if(FirstStrip==512                              ) return true;
+   if(FirstStrip==640                              ) return true;
+
+   if(FirstStrip<=127 && FirstStrip+ClusterSize>127) return true;
+   if(FirstStrip<=255 && FirstStrip+ClusterSize>255) return true;
+   if(FirstStrip<=383 && FirstStrip+ClusterSize>383) return true;
+   if(FirstStrip<=511 && FirstStrip+ClusterSize>511) return true;
+   if(FirstStrip<=639 && FirstStrip+ClusterSize>639) return true;
+   
+   if(FirstStrip+ClusterSize==127                  ) return true;
+   if(FirstStrip+ClusterSize==255                  ) return true;
+   if(FirstStrip+ClusterSize==383                  ) return true;
+   if(FirstStrip+ClusterSize==511                  ) return true;
+   if(FirstStrip+ClusterSize==639                  ) return true;
+   if(FirstStrip+ClusterSize==767                  ) return true;
+   
+   return false;
+}
+
+bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it)
+{
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
+     return false;
+  }
+
+  LocalPoint  HitLocalPos   = trajState.localPosition();
+  LocalError  HitLocalError = trajState.localError().positionError() ;
+
+  const BoundPlane plane = it->surface();
+  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+
+  double DistFromBorder = 1.0;
+  //double HalfWidth      = it->surface().bounds().width()  /2.0;
+  double HalfLength     = it->surface().bounds().length() /2.0;
+
+  if(trapezoidalBounds)
+  {
+      std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
+     HalfLength     = parameters[3];
+     //double t       = (HalfLength + HitLocalPos.y()) / (2*HalfLength) ;
+     //HalfWidth      = parameters[0] + (parameters[1]-parameters[0]) * t;
+  }else if(rectangularBounds){
+     //HalfWidth      = it->surface().bounds().width()  /2.0;
+     HalfLength     = it->surface().bounds().length() /2.0;
+  }else{return false;}
+
+//  if (fabs(HitLocalPos.x())+HitLocalError.xx() >= (HalfWidth  - DistFromBorder) ) return false;//Don't think is really necessary
+  if (fabs(HitLocalPos.y())+HitLocalError.yy() >= (HalfLength - DistFromBorder) ) return false;
+
+  return true;
+}
+
+
+}//END of DEDXTOOLS
+
