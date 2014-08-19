@@ -63,6 +63,7 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     TauDecayChannels->setBinLabel(1+stable,"Stable");
     
     TauMothers        = i.book1D("TauMothers","Tau mother particles", 10 ,0,10);
+
     TauMothers->setBinLabel(1+other,"?");
     TauMothers->setBinLabel(1+B,"B Decays");
     TauMothers->setBinLabel(1+D,"D Decays");
