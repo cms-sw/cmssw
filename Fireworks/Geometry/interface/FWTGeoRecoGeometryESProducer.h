@@ -58,6 +58,7 @@ private:
    void addRPCGeometry();
    void addGEMGeometry();
    void addEcalCaloGeometry();
+   void addHcalCaloGeometry();
   
    std::map<std::string, TGeoShape*>    m_nameToShape;
    std::map<TGeoShape*, TGeoVolume*>   m_shapeToVolume;
