@@ -82,6 +82,14 @@ autoCond['run1_data']        = ( autoCond['run1_data'], ) \
                              + conditions_L1_Run2012D \
                              + conditions_HLT_JECs
  
+autoCond['run2_mc']          = ( autoCond['run2_mc'], ) \
+                             + conditions_L1_Run2012D \
+                             + conditions_HLT_JECs
+ 
+autoCond['run2_mc_50ns']     = ( autoCond['run2_mc_50ns'], ) \
+                             + conditions_L1_Run2012D \
+                             + conditions_HLT_JECs
+ 
 # dedicated GlobalTags for MC production with the fixed HLT menus
 autoCond['startup_2014']     = ( autoCond['run1_mc'] )
 
