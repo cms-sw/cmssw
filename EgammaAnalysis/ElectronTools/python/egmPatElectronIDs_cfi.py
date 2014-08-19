@@ -6,11 +6,10 @@ from PhysicsTools.SelectorUtils.trivialCutFlow_cff import *
 trivialCutFlowMD5 = central_id_registry.getMD5FromName(trivialCutFlow.idName)
 
 egmPatElectronIDs = cms.EDProducer(
-    "VersionedElectronIdProducer",
-    electronSrc = cms.InputTag('patElectrons'),
-    electronsArePAT = cms.bool(True),
-    electronIDs = cms.VPSet( cms.PSet( idDefinition = trivialCutFlow,
-                                       idMD5 = cms.string(trivialCutFlowMD5) )
+    "VersionedPatElectronIdProducer",
+    physicsObjectSrc = cms.InputTag('patElectrons'),
+    physicsObjectIDs = cms.VPSet( cms.PSet( idDefinition = trivialCutFlow,
+                                            idMD5 = cms.string(trivialCutFlowMD5) )
                            )
 )
     
