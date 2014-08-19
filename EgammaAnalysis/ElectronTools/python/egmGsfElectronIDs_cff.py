@@ -7,12 +7,12 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from EgammaAnalysis.ElectronTools.ElectronIDValueMapProducer_cfi import *
 
 #simple ID
-from PhysicsTools.SelectorUtils.trivialCutFlow_cff import trivialCutFlow
-trivialCutFlowMD5 = central_id_registry.getMD5FromName(trivialCutFlow.idName)
-egmGsfElectronIDs.electronIDs.append( 
-    cms.PSet( idDefinition = trivialCutFlow,
-              idMD5 = cms.string(trivialCutFlowMD5) )
-    )
+#from PhysicsTools.SelectorUtils.trivialCutFlow_cff import trivialCutFlow
+#trivialCutFlowMD5 = central_id_registry.getMD5FromName(trivialCutFlow.idName)
+#egmGsfElectronIDs.physicsObjectIDs.append( 
+#    cms.PSet( idDefinition = trivialCutFlow,
+#              idMD5 = cms.string(trivialCutFlowMD5) )
+#    )
 
 #
 #CSA14 tight ID for 50ns
@@ -23,7 +23,7 @@ egmGsfElectronIDs.electronIDs.append(
 #
 # from EgammaAnalysis.ElectronTools.cutBasedElectronID_CSA14_50ns_V0_cff import cutBasedElectronID_CSA14_50ns_V0_standalone_tight
 # csa14_50ns_tight_md5 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_50ns_V0_standalone_tight.idName)
-# egmGsfElectronIDs.electronIDs.append( 
+# egmGsfElectronIDs.physicsObjectIDs.append( 
 #     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V0_standalone_tight,
 #               idMD5 = cms.string(csa14_50ns_tight_md5) )
 #     )
@@ -32,7 +32,7 @@ egmGsfElectronIDs.electronIDs.append(
 from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff \
 import cutBasedElectronID_CSA14_50ns_V1_standalone_veto
 csa14_50ns_veto_md5_v1 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_50ns_V1_standalone_veto.idName)
-egmGsfElectronIDs.electronIDs.append( 
+egmGsfElectronIDs.physicsObjectIDs.append( 
     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V1_standalone_veto,
               idMD5 = cms.string(csa14_50ns_veto_md5_v1) )
     )
@@ -40,7 +40,7 @@ egmGsfElectronIDs.electronIDs.append(
 from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff \
 import cutBasedElectronID_CSA14_50ns_V1_standalone_loose
 csa14_50ns_loose_md5_v1 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_50ns_V1_standalone_loose.idName)
-egmGsfElectronIDs.electronIDs.append( 
+egmGsfElectronIDs.physicsObjectIDs.append( 
     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V1_standalone_loose,
               idMD5 = cms.string(csa14_50ns_loose_md5_v1) )
     )
@@ -48,7 +48,7 @@ egmGsfElectronIDs.electronIDs.append(
 from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff \
 import cutBasedElectronID_CSA14_50ns_V1_standalone_medium
 csa14_50ns_medium_md5_v1 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_50ns_V1_standalone_medium.idName)
-egmGsfElectronIDs.electronIDs.append( 
+egmGsfElectronIDs.physicsObjectIDs.append( 
     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V1_standalone_medium,
               idMD5 = cms.string(csa14_50ns_medium_md5_v1) )
     )
@@ -56,7 +56,7 @@ egmGsfElectronIDs.electronIDs.append(
 from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff \
 import cutBasedElectronID_CSA14_50ns_V1_standalone_tight
 csa14_50ns_tight_md5_v1 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_50ns_V1_standalone_tight.idName)
-egmGsfElectronIDs.electronIDs.append( 
+egmGsfElectronIDs.physicsObjectIDs.append( 
     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V1_standalone_tight,
               idMD5 = cms.string(csa14_50ns_tight_md5_v1) )
     )
