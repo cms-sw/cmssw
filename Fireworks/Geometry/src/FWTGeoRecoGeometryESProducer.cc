@@ -196,7 +196,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 
    */
    // addEcalCaloGeometry();
-     addHcalCaloGeometry();
+   addHcalCaloGeometry();
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -204,6 +204,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    m_nameToMaterial.clear();
    m_nameToMedium.clear();
 
+   printf("SHAPE map size %d \nn", (int)m_caloShapeMap.size());
   return m_fwGeometry;
 }
 
@@ -890,39 +891,32 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometry( void )
       const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
       if (!cell) { printf ("not olique \n"); continue; }
-
-      //if (!(/*cell->phiPos() > 0.3 && cell->phiPos() < 0.34 && */cell->dz() > 0 && cell->etaPos() > 1 &&  cell->etaPos()< 1.5)) continue;
   
       TGeoVolume* volume = 0;
       CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
       if  (volIt == m_caloShapeMap.end()) 
       {
-         printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
+         // printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
          IdealObliquePrism::Pt3DVec lc(8);
          IdealObliquePrism::Pt3D ref;
          IdealObliquePrism::localCorners( lc, cell->param(), ref);
          HepGeom::Vector3D<float> lCenter;
-         for( int c = 0; c < 8; ++c) {
+         for( int c = 0; c < 8; ++c)
             lCenter += lc[c];
-            printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n",  lc[c].x(), lc[c].y(), lc[c].z() );
-         }
-         lCenter *= 0.125;
 
          static const int arr[] = { 1, 0, 3, 2,  5, 4, 7, 6 };
          double points[16];
-         for (int c = 0; c < 8; ++c)
-         {
+         for (int c = 0; c < 8; ++c) {
             points[ c*2 + 0 ] = -(lc[arr[c]].z() - lCenter.z()); 
             points[ c*2 + 1 ] =  (lc[arr[c]].y() - lCenter.y());
-            printf("AMT xy[%d] <=>[%d] = (%.4f, %.4f) \n", arr[c], c, points[c*2],  points[c*2+1]);
+            // printf("AMT xy[%d] <=>[%d] = (%.4f, %.4f) \n", arr[c], c, points[c*2],  points[c*2+1]);
          }
 
-         float dz = TMath::Abs((lc[4].x() -lc[0].x())) * 0.5;
+         float dz = (lc[4].x() -lc[0].x()) * 0.5;
          TGeoShape* solid = new TGeoArb8(dz, &points[0]);
          volume = new TGeoVolume("oblique", solid, m_dummyMedium);
          volume->SetLineColor(kRed);
          m_caloShapeMap[cell->param()] = volume;
-         printf("FIREWORKS NEW SHAPE END >>>>>> \n");
       }
       else {
 
@@ -947,22 +941,18 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometry( void )
       if (cell->etaPos() < 0)
          rot.ReflectZ(true, false);
 
-      //assembly->AddNode(volume, 1, new TGeoCombiTrans(gtr, rot));
 
       TGeoVolume* holder  = GetDaughter(assembly, "side", detid.zside());
       holder = GetDaughter(holder, "ieta", detid.ieta());
       std::stringstream nname;
       nname << detid;
       AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
-      //      nname << "box";
-      //AddLeafNode(assembly, volume2, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
    }
 
 
  
    m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 
-   printf("SHAPE map size %d n", (int)m_caloShapeMap.size());
 
 }
 
