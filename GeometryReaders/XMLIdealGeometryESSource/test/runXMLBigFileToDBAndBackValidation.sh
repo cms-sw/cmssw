@@ -96,9 +96,6 @@ cd workarea
 # STEP 2:
 # validate current ddd model has no missing solids, materials or logical parts
 #dddreport.sh >& dddreport.out
-cp ${CMSSW_BASE}/test/${SCRAM_ARCH}/DDErrorReport ${CMSSW_BASE}/bin/${SCRAM_ARCH}/.
-#ls ${CMSSW_BASE}/bin/${SCRAM_ARCH}/
-rehash
 ../testdddreport.sh ${geomtemp}.py >& dddreport.out
 set whst=`(grep -n "Start checking" dddreport.out | awk -F : '{print $1}')`
 set totsiz=`(wc -l dddreport.out | awk '{print $1}')`
