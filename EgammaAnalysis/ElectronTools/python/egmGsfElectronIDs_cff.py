@@ -74,16 +74,6 @@ egmGsfElectronIDs.physicsObjectIDs.append(
               idMD5 = cms.string(csa14_PU20bx25_veto_md5_v0) )
     )
 
-
-from EgammaAnalysis.ElectronTools.heepElectronID_HEEPV50_CSA14_25ns_cff import heepElectronID_HEEPV50_CSA14_25ns
-heepElectronID_HEEPV50_CSA14_25ns_md5 = central_id_registry.getMD5FromName( heepElectronID_HEEPV50_CSA14_25ns.idName )
-egmGsfElectronIDs.electronIDs.append( 
-    cms.PSet( idDefinition = heepElectronID_HEEPV50_CSA14_25ns,
-              idMD5 = cms.string(heepElectronID_HEEPV50_CSA14_25ns_md5) )
-    )
-
-
-    
 from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff \
 import cutBasedElectronID_CSA14_PU20bx25_V0_standalone_loose
 csa14_PU20bx25_loose_md5_v0 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_PU20bx25_V0_standalone_loose.idName)
@@ -108,5 +98,24 @@ egmGsfElectronIDs.physicsObjectIDs.append(
               idMD5 = cms.string(csa14_PU20bx25_tight_md5_v0) )
     )
 
+#
+# HEEP V5.0
+#
+
+## tuned with TSG 25x40PU samples
+
+from EgammaAnalysis.ElectronTools.heepElectronID_HEEPV50_CSA14_25ns_cff import heepElectronID_HEEPV50_CSA14_25ns
+heepElectronID_HEEPV50_CSA14_25ns_md5 = central_id_registry.getMD5FromName( heepElectronID_HEEPV50_CSA14_25ns.idName )
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = heepElectronID_HEEPV50_CSA14_25ns,
+              idMD5 = cms.string(heepElectronID_HEEPV50_CSA14_25ns_md5) )
+    )
+
+from EgammaAnalysis.ElectronTools.heepElectronID_HEEPV50_CSA14_startup_cff import heepElectronID_HEEPV50_CSA14_startup
+heepElectronID_HEEPV50_CSA14_startup_md5 = central_id_registry.getMD5FromName( heepElectronID_HEEPV50_CSA14_startup.idName )
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = heepElectronID_HEEPV50_CSA14_startup,
+              idMD5 = cms.string(heepElectronID_HEEPV50_CSA14_startup_md5) )
+    )
 
 egmGsfElectronIDSequence = cms.Sequence(electronIDValueMapProducer * egmGsfElectronIDs)

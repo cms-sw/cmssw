@@ -68,8 +68,11 @@ ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& 
     src_ = consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
-  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIEta");
-  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIPhi");  
+  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIEta");  
+  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIPhi"); 
+  produces<edm::ValueMap<float> >("eleFull5x5E1x5");
+  produces<edm::ValueMap<float> >("eleFull5x5E2x5");
+  produces<edm::ValueMap<float> >("eleFull5x5E5x5");
   produces<edm::ValueMap<float> >("eleFull5x5R9");  
   produces<edm::ValueMap<float> >("eleFull5x5Circularity");  
 
@@ -92,6 +95,7 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
     // size_t n = src->size();
     std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
     std::vector<float> eleFull5x5R9, eleFull5x5Circularity;
+    std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
 
     for (reco::GsfElectronCollection::const_iterator iEle = src->begin(); iEle != src->end(); ++iEle){
 
@@ -100,19 +104,28 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
       const float sep = vCov[1];
       eleFull5x5SigmaIEtaIEta.push_back(see);
       eleFull5x5SigmaIEtaIPhi.push_back(sep);
-      
       eleFull5x5R9.push_back(lazyToolnoZS->e3x3( *((*iEle).superCluster()->seed()) ) / iEle->superCluster()->rawEnergy() );
-	
-      const float e1x5 = lazyToolnoZS->e5x5( *((*iEle).superCluster()->seed()) );
+     
+      const float e1x5 = lazyToolnoZS->e1x5( *((*iEle).superCluster()->seed()) );
+      const float e2x5 = lazyToolnoZS->e2x5Max( *((*iEle).superCluster()->seed()) );
       const float e5x5 = lazyToolnoZS->e5x5( *((*iEle).superCluster()->seed()) );
       const float circularity = (e5x5 != 0.) ? 1.-e1x5/e5x5 : -1;
+
+      eleFull5x5E1x5.push_back(e1x5); 
+      eleFull5x5E2x5.push_back(e2x5);
+      eleFull5x5E5x5.push_back(e5x5);
       eleFull5x5Circularity.push_back(circularity);
     }
   
     writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIEta, "eleFull5x5SigmaIEtaIEta");  
     writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIPhi, "eleFull5x5SigmaIEtaIPhi");  
     writeValueMap(iEvent, src, eleFull5x5R9, "eleFull5x5R9");  
+    writeValueMap(iEvent, src, eleFull5x5E1x5, "eleFull5x5E1x5");  
+    writeValueMap(iEvent, src, eleFull5x5E2x5, "eleFull5x5E2x5");   
+    writeValueMap(iEvent, src, eleFull5x5E5x5, "eleFull5x5E5x5");  
     writeValueMap(iEvent, src, eleFull5x5Circularity, "eleFull5x5Circularity");  
+
+  
 
   } else if (dataFormat_ == "PAT") {
 
@@ -122,6 +135,7 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
     // size_t n = src->size();
     std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
     std::vector<float> eleFull5x5R9, eleFull5x5Circularity;
+    std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
     
     for (View<pat::Electron>::const_iterator iEle = src->begin(); iEle != src->end(); ++iEle) {
       
@@ -133,17 +147,25 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 
       eleFull5x5R9.push_back(lazyToolnoZS->e3x3( *((*iEle).superCluster()->seed()) ) / iEle->superCluster()->rawEnergy() );
 
-      const float e1x5 = lazyToolnoZS->e5x5( *((*iEle).superCluster()->seed()) );
+
+        const float e1x5 = lazyToolnoZS->e1x5( *((*iEle).superCluster()->seed()) );
+      const float e2x5 = lazyToolnoZS->e2x5Max( *((*iEle).superCluster()->seed()) );
       const float e5x5 = lazyToolnoZS->e5x5( *((*iEle).superCluster()->seed()) );
       const float circularity = (e5x5 != 0.) ? 1.-e1x5/e5x5 : -1;
+
+      eleFull5x5E1x5.push_back(e1x5); 
+      eleFull5x5E2x5.push_back(e2x5);
+      eleFull5x5E5x5.push_back(e5x5);
       eleFull5x5Circularity.push_back(circularity);
     }
   
     writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIEta, "eleFull5x5SigmaIEtaIEta");  
-    writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIPhi, "eleFull5x5SigmaIEtaIPhi");
+    writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIPhi, "eleFull5x5SigmaIEtaIPhi");  
     writeValueMap(iEvent, src, eleFull5x5R9, "eleFull5x5R9");  
-    writeValueMap(iEvent, src, eleFull5x5Circularity, "eleFull5x5Circularity");  
-
+    writeValueMap(iEvent, src, eleFull5x5E1x5, "eleFull5x5E1x5");  
+    writeValueMap(iEvent, src, eleFull5x5E2x5, "eleFull5x5E2x5");   
+    writeValueMap(iEvent, src, eleFull5x5E5x5, "eleFull5x5E5x5");  
+    writeValueMap(iEvent, src, eleFull5x5Circularity, "eleFull5x5Circularity"); 
   }
 
   delete lazyToolnoZS;

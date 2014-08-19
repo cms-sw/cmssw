@@ -5,8 +5,8 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 ebMax = 1.4442
 eeMin = 1.566
 ebCutOff=1.479
-heepElectronID_HEEPV50_CSA14_25ns = cms.PSet(
-    idName = cms.string("heepElectronID-HEEPV50-CSA14-25ns"),
+heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
+    idName = cms.string("heepElectronID-HEEPV50-CSA14-startup"),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MinPtCut"),
                   minPt = cms.double(35.0),
@@ -23,17 +23,17 @@ heepElectronID_HEEPV50_CSA14_25ns = cms.PSet(
                   needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)),
         cms.PSet( cutName = cms.string('GsfEleDEtaInLinearCut'),
-                  constTermEB = cms.double(0.016),
-                  constTermEE = cms.double(0.015),
-                  slopeTermEB = cms.double(1E-4),
-                  slopeTermEE = cms.double(8.5E-5),
-                  minValueEB = cms.double(0.004),
-                  minValueEE = cms.double(0.006),
+                  constTermEB = cms.double(0.0),
+                  constTermEE = cms.double(0.0),
+                  slopeTermEB = cms.double(0.0),
+                  slopeTermEE = cms.double(0.0),
+                  minValueEB = cms.double(0.02),
+                  minValueEE = cms.double(0.02),
                   needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)),
         cms.PSet( cutName = cms.string('GsfEleDPhiInCut'),
-                  dPhiInCutValueEB = cms.double(0.06),
-                  dPhiInCutValueEE = cms.double(0.06),
+                  dPhiInCutValueEB = cms.double(0.15),
+                  dPhiInCutValueEE = cms.double(0.15),
                   barrelCutOff = cms.double(ebCutOff),
                   needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)),
@@ -110,5 +110,5 @@ heepElectronID_HEEPV50_CSA14_25ns = cms.PSet(
 
 
 
-central_id_registry.register(heepElectronID_HEEPV50_CSA14_25ns.idName,
-                             '5eea91f5bbc9a03ed9af0635ad6c99fa')
+central_id_registry.register(heepElectronID_HEEPV50_CSA14_startup.idName,
+                             '404faed16f797c67d5dedffaeab26c2f')

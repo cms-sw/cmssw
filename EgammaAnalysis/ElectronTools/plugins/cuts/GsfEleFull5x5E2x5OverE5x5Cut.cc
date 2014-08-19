@@ -36,8 +36,8 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 GsfEleFull5x5E2x5OverE5x5Cut::GsfEleFull5x5E2x5OverE5x5Cut(const edm::ParameterSet& params) :
   CutApplicatorWithEventContentBase(params),
-  minE1x5OverE5x5Cut_(params,"minE1x5OverE5x5Cut"),
-  minE2x5OverE5x5Cut_(params,"minE2x5OverE5x5Cut"){ 
+  minE1x5OverE5x5Cut_(params,"minE1x5OverE5x5"),
+  minE2x5OverE5x5Cut_(params,"minE2x5OverE5x5"){ 
   edm::InputTag e5x5Tag = params.getParameter<edm::InputTag>("e5x5");
   edm::InputTag e2x5Tag = params.getParameter<edm::InputTag>("e2x5");
   edm::InputTag e1x5Tag = params.getParameter<edm::InputTag>("e1x5");

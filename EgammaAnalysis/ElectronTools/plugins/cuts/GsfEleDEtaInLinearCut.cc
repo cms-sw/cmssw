@@ -32,7 +32,8 @@ CutApplicatorBase::result_type
 GsfEleDEtaInLinearCut::
 operator()(const reco::GsfElectronRef& cand) const
 {  
-  double cutValue = std::max(constTerm_(cand)+slopeTerm_(cand)*cand->et(),minValue_(cand));
+  float et = cand->energy()!=0. ? cand->et()/cand->energy()*cand->caloEnergy() : 0.;
+  double cutValue = std::max(constTerm_(cand)+slopeTerm_(cand)*et,minValue_(cand));
   return std::abs(cand->deltaEtaSuperClusterTrackAtVtx())<cutValue;
  
 }
