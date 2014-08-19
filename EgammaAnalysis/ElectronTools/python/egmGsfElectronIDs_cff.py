@@ -15,13 +15,13 @@ egmGsfElectronIDs.electronIDs.append(
     )
 
 #
-#CSA14 tight ID for 50ns
+#CSA14 ID for 50ns (Scenario 1)
 #
 
 # V0: preliminary safe cuts from Giovanni Zevi Dalla Porta
 # Comment it out, superseeded by V1 below 
 #
-# from EgammaAnalysis.ElectronTools.cutBasedElectronID_CSA14_50ns_V0_cff import cutBasedElectronID_CSA14_50ns_V0_standalone_tight
+# from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V0_cff import cutBasedElectronID_CSA14_50ns_V0_standalone_tight
 # csa14_50ns_tight_md5 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_50ns_V0_standalone_tight.idName)
 # egmGsfElectronIDs.electronIDs.append( 
 #     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V0_standalone_tight,
@@ -61,4 +61,42 @@ egmGsfElectronIDs.electronIDs.append(
               idMD5 = cms.string(csa14_50ns_tight_md5_v1) )
     )
     
+#
+#CSA14 ID for PU20bx25 (Scenario 2)
+#
+
+# V0: tuned cuts for this scenario
+from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff \
+import cutBasedElectronID_CSA14_PU20bx25_V0_standalone_veto
+csa14_PU20bx25_veto_md5_v0 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_PU20bx25_V0_standalone_veto.idName)
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = cutBasedElectronID_CSA14_PU20bx25_V0_standalone_veto,
+              idMD5 = cms.string(csa14_PU20bx25_veto_md5_v0) )
+    )
+    
+from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff \
+import cutBasedElectronID_CSA14_PU20bx25_V0_standalone_loose
+csa14_PU20bx25_loose_md5_v0 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_PU20bx25_V0_standalone_loose.idName)
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = cutBasedElectronID_CSA14_PU20bx25_V0_standalone_loose,
+              idMD5 = cms.string(csa14_PU20bx25_loose_md5_v0) )
+    )
+    
+from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff \
+import cutBasedElectronID_CSA14_PU20bx25_V0_standalone_medium
+csa14_PU20bx25_medium_md5_v0 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_PU20bx25_V0_standalone_medium.idName)
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = cutBasedElectronID_CSA14_PU20bx25_V0_standalone_medium,
+              idMD5 = cms.string(csa14_PU20bx25_medium_md5_v0) )
+    )
+    
+from EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff \
+import cutBasedElectronID_CSA14_PU20bx25_V0_standalone_tight
+csa14_PU20bx25_tight_md5_v0 = central_id_registry.getMD5FromName(cutBasedElectronID_CSA14_PU20bx25_V0_standalone_tight.idName)
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = cutBasedElectronID_CSA14_PU20bx25_V0_standalone_tight,
+              idMD5 = cms.string(csa14_PU20bx25_tight_md5_v0) )
+    )
+
+
 egmGsfElectronIDSequence = cms.Sequence(electronIDValueMapProducer * egmGsfElectronIDs)
