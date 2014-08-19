@@ -4,7 +4,7 @@
 #include "TCanvas.h"
 #include "TCut.h"
 
-TString fname = "electron_ntuple.root";
+TString fname = "electron_ntuple_sc1.root";
 
 const int nWP = 4;
 TString treename[nWP] = {
