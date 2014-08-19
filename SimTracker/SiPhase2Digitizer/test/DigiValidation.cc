@@ -400,9 +400,6 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
     unsigned int layer = getLayerNumber(rawid);
-    //=================Temporary ==============
-    if (layer !=8) continue; 
-    //=================Temporary ==============
     std::map<unsigned int, DigiHistos>::iterator iPos = layerHistoMap.find(layer);
     if (iPos == layerHistoMap.end()) {
       createLayerHistograms(layer);
@@ -447,10 +444,6 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         dPhi = reco::deltaPhi((*simTracks)[iSimTrk].momentum().phi(), geomDetUnit->position().phi());
       }
       iPos->second.DeltaPhi->Fill(dPhi);
-      //=================Temporary ==============
-      if (fabs(dPhi) <= phi_min || fabs(dPhi) >= phi_max) continue;
-      //=================Temporary ==============
-
       int primaryTrk = -1; 
       if (iSimTrk != -1) {
 	primaryTrk = processTypes[iSimTrk]; 

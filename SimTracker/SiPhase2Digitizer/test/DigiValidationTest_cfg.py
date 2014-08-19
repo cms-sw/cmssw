@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-       'file:/afs/cern.ch/user/d/dutta/work/public/Digitizer/Devel2/CMSSW_6_2_0_SLHC15/src/prod/electron_updatedcode.root'
+       'file:SingleElectron.root'
        )
 )
 process.load('Configuration.StandardSequences.Services_cff')
@@ -43,7 +43,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS161_V15::All', '')
 # Output ROOT file
 #-------------
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('./Electron_Updated.root')
+    fileName = cms.string('./Electron_DigiTest.root')
 )
 process.analysis = cms.EDAnalyzer("DigiValidation",
     Verbosity = cms.untracked.bool(False),
