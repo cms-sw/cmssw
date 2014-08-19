@@ -221,12 +221,12 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
 
     if (!onDemand) {
       run(*rawData, *output);
-      
+      output->shrink_to_fit();   
       COUT << output->dataSize() << " clusters from " 
 	   << output->size()     << " modules" 
 	   << std::endl;
     }
-
+   
     ev.put(output);
 
   }

@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
-#    outputFile = cms.untracked.string('sistriprechitshisto.root'),
-    outputFile = cms.string('striptrackingrechitshisto.root'),
-    runStandalone = cms.bool(False),
-    OutputMEsInRootFile = cms.bool(False),
     TopFolderName = cms.string('SiStrip/RecHitsValidation/StiffTrackingRecHits'),
 
     TH1NumTotrphi = cms.PSet(
@@ -32,7 +28,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1Numrphi = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
     ),
@@ -40,7 +36,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1NumStereo = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
     ),
@@ -48,7 +44,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1NumMatched = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
     ),

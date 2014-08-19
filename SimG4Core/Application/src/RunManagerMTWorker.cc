@@ -68,8 +68,8 @@ namespace {
 
   void createWatchers(const edm::ParameterSet& iP,
                       SimActivityRegistry& iReg,
-                      std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
-                      std::vector<boost::shared_ptr<SimProducer> >& oProds
+                      std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
+                      std::vector<std::shared_ptr<SimProducer> >& oProds
                       )
   {
     using namespace std;
@@ -89,8 +89,8 @@ namespace {
         throw SimG4Exception("Unable to find the requested Watcher");
       }
 
-      boost::shared_ptr<SimWatcher> watcherTemp;
-      boost::shared_ptr<SimProducer> producerTemp;
+      std::shared_ptr<SimWatcher> watcherTemp;
+      std::shared_ptr<SimProducer> producerTemp;
       maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
       oWatchers.push_back(watcherTemp);
       if(producerTemp) {
@@ -100,18 +100,24 @@ namespace {
   }
 }
 
-thread_local bool RunManagerMTWorker::m_threadInitialized = false;
-thread_local bool RunManagerMTWorker::m_runTerminated = false;
-thread_local edm::RunNumber_t RunManagerMTWorker::m_currentRunNumber = 0;
-thread_local std::unique_ptr<CustomUIsession> RunManagerMTWorker::m_UIsession;
-thread_local RunAction *RunManagerMTWorker::m_userRunAction = nullptr;
-thread_local SimRunInterface *RunManagerMTWorker::m_runInterface = nullptr;
-thread_local SimActivityRegistry RunManagerMTWorker::m_registry;
-thread_local SimTrackManager *RunManagerMTWorker::m_trackManager = nullptr;
-thread_local std::vector<SensitiveTkDetector*> RunManagerMTWorker::m_sensTkDets;
-thread_local std::vector<SensitiveCaloDetector*> RunManagerMTWorker::m_sensCaloDets;
-thread_local sim::FieldBuilder *RunManagerMTWorker::m_fieldBuilder;
-thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
+struct RunManagerMTWorker::TLSData {
+  std::unique_ptr<CustomUIsession> UIsession;
+  std::unique_ptr<RunAction> userRunAction;
+  std::unique_ptr<SimRunInterface> runInterface;
+  SimActivityRegistry registry;
+  std::unique_ptr<SimTrackManager> trackManager;
+  std::vector<SensitiveTkDetector*> sensTkDets;
+  std::vector<SensitiveCaloDetector*> sensCaloDets;
+  std::vector<std::shared_ptr<SimWatcher> > watchers;
+  std::vector<std::shared_ptr<SimProducer> > producers;
+  std::unique_ptr<sim::FieldBuilder> fieldBuilder;
+  std::unique_ptr<G4Run> currentRun;
+  edm::RunNumber_t currentRunNumber = 0;
+  bool threadInitialized = false;
+  bool runTerminated = false;
+};
+
+thread_local RunManagerMTWorker::TLSData *RunManagerMTWorker::m_tls = nullptr;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -128,18 +134,11 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
   m_p(iConfig)
 {
-  edm::Service<SimActivityRegistry> otherRegistry;
-  //Look for an outside SimActivityRegistry
-  // this is used by the visualization code
-  if(otherRegistry){
-    m_registry.connect(*otherRegistry);
-  }
-
-  createWatchers(m_p, m_registry, m_watchers, m_producers);
+  initializeTLS();
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {
-  if(!m_runTerminated) { terminateRun(); }
+  if(!(m_tls && m_tls->runTerminated)) { terminateRun(); }
   // RunManagerMT has 'delete m_runInterface' in the destructor, but
   // doesn't make much sense here because it is thread_local and we're
   // not guaranteed to run the destructor on each of the threads.
@@ -149,15 +148,31 @@ void RunManagerMTWorker::endRun() {
   terminateRun();
 }
 
+void RunManagerMTWorker::initializeTLS() {
+  if(m_tls)
+    return;
+  m_tls = new TLSData;
+
+  edm::Service<SimActivityRegistry> otherRegistry;
+  //Look for an outside SimActivityRegistry
+  // this is used by the visualization code
+  if(otherRegistry){
+    m_tls->registry.connect(*otherRegistry);
+  }
+
+  createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers);
+}
+
 void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
   // I guess everything initialized here should be in thread_local storage
+  initializeTLS();
 
   int thisID = getThreadIndex();
 
   // Initialize per-thread output
   G4Threading::G4SetThreadId( thisID );
   G4UImanager::GetUIpointer()->SetUpForAThread( thisID );
-  m_UIsession.reset(new CustomUIsession());
+  m_tls->UIsession.reset(new CustomUIsession());
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();
@@ -170,7 +185,7 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   DDDWorld::WorkerSetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
 
   // we need the track manager now
-  m_trackManager = new SimTrackManager();
+  m_tls->trackManager.reset(new SimTrackManager());
 
   // Get DDCompactView, or would it be better to get the object from
   // runManagerMaster instead of EventSetup in here?
@@ -185,11 +200,11 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
       edm::ESHandle<MagneticField> pMF;
       es.get<IdealMagneticFieldRecord>().get(pMF);
 
-      m_fieldBuilder = new sim::FieldBuilder(pMF.product(), m_pField);
+      m_tls->fieldBuilder.reset(new sim::FieldBuilder(pMF.product(), m_pField));
       G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
-      m_fieldBuilder->build( tM->GetFieldManager(),
-			     tM->GetPropagatorInField());
+      m_tls->fieldBuilder->build( tM->GetFieldManager(),
+                                  tM->GetPropagatorInField());
     }
 
 
@@ -201,18 +216,18 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
                   (*pDD),
                   runManagerMaster.catalog(),
                   m_p,
-                  m_trackManager,
-                  m_registry);
+                  m_tls->trackManager.get(),
+                  m_tls->registry);
 
-  m_sensTkDets.swap(sensDets.first);
-  m_sensCaloDets.swap(sensDets.second);
+  m_tls->sensTkDets.swap(sensDets.first);
+  m_tls->sensCaloDets.swap(sensDets.second);
 
   edm::LogInfo("SimG4CoreApplication")
     << " RunManagerMTWorker: Sensitive Detector "
     << "building finished; found "
-    << m_sensTkDets.size()
+    << m_tls->sensTkDets.size()
     << " Tk type Producers, and "
-    << m_sensCaloDets.size()
+    << m_tls->sensCaloDets.size()
     << " Calo type producers ";
 
   // Set the physics list for the worker, share from master
@@ -227,7 +242,7 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
 
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
-  m_registry.beginOfJobSignal_(&aBeginOfJob);
+  m_tls->registry.beginOfJobSignal_(&aBeginOfJob);
 
   initializeUserActions();
 
@@ -239,18 +254,18 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
 }
 
 void RunManagerMTWorker::initializeUserActions() {
-  m_runInterface = new SimRunInterface(this, false);
+  m_tls->runInterface.reset(new SimRunInterface(this, false));
 
-  m_userRunAction = new RunAction(m_pRunAction, m_runInterface);
-  m_userRunAction->SetMaster(false);
-  Connect(m_userRunAction);
+  m_tls->userRunAction.reset(new RunAction(m_pRunAction, m_tls->runInterface.get()));
+  m_tls->userRunAction->SetMaster(false);
+  Connect(m_tls->userRunAction.get());
 
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
   G4EventManager * eventManager = kernel->GetEventManager();
   eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
 
   EventAction * userEventAction =
-    new EventAction(m_pEventAction, m_runInterface, m_trackManager);
+    new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get());
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
 
@@ -264,52 +279,70 @@ void RunManagerMTWorker::initializeUserActions() {
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
 
-  eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+  eventManager->SetUserAction(new StackingAction(userTrackingAction,
+						 m_pStackingAction));
 
 }
 
 void  RunManagerMTWorker::Connect(RunAction* runAction)
 {
-  runAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
-  runAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
+  runAction->m_beginOfRunSignal.connect(m_tls->registry.beginOfRunSignal_);
+  runAction->m_endOfRunSignal.connect(m_tls->registry.endOfRunSignal_);
 }
 
 void  RunManagerMTWorker::Connect(EventAction* eventAction)
 {
-  eventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
-  eventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
+  eventAction->m_beginOfEventSignal.connect(m_tls->registry.beginOfEventSignal_);
+  eventAction->m_endOfEventSignal.connect(m_tls->registry.endOfEventSignal_);
 }
 
 void  RunManagerMTWorker::Connect(TrackingAction* trackingAction)
 {
-  trackingAction->m_beginOfTrackSignal.connect(m_registry.beginOfTrackSignal_);
-  trackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
+  trackingAction->m_beginOfTrackSignal.connect(m_tls->registry.beginOfTrackSignal_);
+  trackingAction->m_endOfTrackSignal.connect(m_tls->registry.endOfTrackSignal_);
 }
 
 void  RunManagerMTWorker::Connect(SteppingAction* steppingAction)
 {
-  steppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
+  steppingAction->m_g4StepSignal.connect(m_tls->registry.g4StepSignal_);
 }
 
+SimTrackManager* RunManagerMTWorker::GetSimTrackManager() {
+  initializeTLS();
+  return m_tls->trackManager.get();
+}
+std::vector<SensitiveTkDetector*>& RunManagerMTWorker::sensTkDetectors() {
+  initializeTLS();
+  return m_tls->sensTkDets; 
+}
+std::vector<SensitiveCaloDetector*>& RunManagerMTWorker::sensCaloDetectors() {
+  initializeTLS();
+  return m_tls->sensCaloDets; 
+}
+std::vector<std::shared_ptr<SimProducer> > RunManagerMTWorker::producers() {
+  initializeTLS();
+  return m_tls->producers;
+}
+
+
 void RunManagerMTWorker::initializeRun() {
-  m_currentRun = new G4Run();
+  m_tls->currentRun.reset(new G4Run());
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_userRunAction!=0) { m_userRunAction->BeginOfRunAction(m_currentRun); }
+  if (m_tls->userRunAction) { m_tls->userRunAction->BeginOfRunAction(m_tls->currentRun.get()); }
 }
 
 void RunManagerMTWorker::terminateRun() {
-  if(m_userRunAction) {
-    m_userRunAction->EndOfRunAction(m_currentRun);
-    delete m_userRunAction;
-    m_userRunAction = nullptr;
+  if(m_tls->userRunAction) {
+    m_tls->userRunAction->EndOfRunAction(m_tls->currentRun.get());
+    m_tls->userRunAction.reset();
   }
 
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
-  if(!kernel && !m_runTerminated) {
+  if(!kernel && !m_tls->runTerminated) {
     m_currentEvent.reset();
     m_simEvent.reset();
     kernel->RunTermination();
-    m_runTerminated = true;
+    m_tls->runTerminated = true;
   }
 }
 
@@ -322,21 +355,21 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
   //
   // We have to do the per-thread initialization, and per-thread
   // per-run initialization here by ourselves. 
-  if(!m_threadInitialized) {
+  if(!(m_tls && m_tls->threadInitialized)) {
     LogDebug("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
     initializeThread(runManagerMaster, es);
-    m_threadInitialized = true;
+    m_tls->threadInitialized = true;
   }
   // Initialize run
-  if(inpevt.id().run() != m_currentRunNumber) {
-    if(m_currentRunNumber != 0 && !m_runTerminated) {
+  if(inpevt.id().run() != m_tls->currentRunNumber) {
+    if(m_tls->currentRunNumber != 0 && !m_tls->runTerminated) {
       // If previous run in this thread was not terminated via endRun() call, terminate it now
       terminateRun();
     }
     initializeRun();
-    m_currentRunNumber = inpevt.id().run();
+    m_tls->currentRunNumber = inpevt.id().run();
   }
-  m_runInterface->setRunManagerMTWorker(this); // For UserActions
+  m_tls->runInterface->setRunManagerMTWorker(this); // For UserActions
 
 
   m_currentEvent.reset(generateEvent(inpevt));
@@ -379,7 +412,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 }
 
 void RunManagerMTWorker::abortEvent() {
-  if(m_runTerminated) { return; }
+  if(m_tls->runTerminated) { return; }
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
   G4Track* t = kernel->GetEventManager()->GetTrackingManager()->GetTrack();
   t->SetTrackStatus(fStopAndKill) ;
@@ -412,8 +445,7 @@ void RunManagerMTWorker::abortEvent() {
 
 void RunManagerMTWorker::abortRun(bool softAbort) {
   if (!softAbort) { abortEvent(); }
-  delete m_currentRun;
-  m_currentRun = nullptr;
+  m_tls->currentRun.reset();
   terminateRun();
 }
 
@@ -450,6 +482,6 @@ void RunManagerMTWorker::resetGenParticleId(const edm::Event& inpevt)
   edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
   inpevt.getByToken( m_theLHCTlinkToken, theLHCTlink );
   if ( theLHCTlink.isValid() ) {
-    m_trackManager->setLHCTransportLink( theLHCTlink.product() );
+    m_tls->trackManager->setLHCTransportLink( theLHCTlink.product() );
   }
 }

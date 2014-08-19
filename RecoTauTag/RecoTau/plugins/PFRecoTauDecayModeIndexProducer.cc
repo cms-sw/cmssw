@@ -14,15 +14,17 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 
+namespace {
+
 using namespace reco;
 
-class PFRecoTauDecayModeIndexProducer : public PFTauDiscriminationProducerBase {
+class PFRecoTauDecayModeIndexProducer final : public PFTauDiscriminationProducerBase {
    public:
       explicit PFRecoTauDecayModeIndexProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
          PFTauDecayModeProducer_     = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
       }
       ~PFRecoTauDecayModeIndexProducer(){} 
-      double discriminate(const PFTauRef& thePFTauRef);
+      double discriminate(const PFTauRef& thePFTauRef) const ;
       void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup);
    private:
       edm::InputTag PFTauDecayModeProducer_;
@@ -36,7 +38,7 @@ void PFRecoTauDecayModeIndexProducer::beginEvent(const edm::Event& event, const 
    event.getByLabel(PFTauDecayModeProducer_, decayModes_);
 }
 
-double PFRecoTauDecayModeIndexProducer::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDecayModeIndexProducer::discriminate(const PFTauRef& thePFTauRef) const
 {
    int theDecayModeIndex = -1;
 
@@ -50,4 +52,6 @@ double PFRecoTauDecayModeIndexProducer::discriminate(const PFTauRef& thePFTauRef
    return theDecayModeIndex;
 }
   
+}
+
 DEFINE_FWK_MODULE(PFRecoTauDecayModeIndexProducer);

@@ -16,6 +16,7 @@ struct CommonMETData
   double mey;
   double mez;
   double sumet;
+  double phi; // MM: used in mva/noPU MET
 };
 
 //____________________________________________________________________________||

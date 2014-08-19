@@ -52,7 +52,7 @@ def adaptPFIsoMuons(process,module, postfix = "PFIso", dR = "04"):
         pfPhotons = cms.InputTag("muPFIsoValueGamma" + dR + postfix)
         )
 
-def adaptPFMuons(process,module,postfix="" ):
+def adaptPFMuons(process,module,postfix="", muonMatchModule=None ):
     print "Adapting PF Muons "
     print "***************** "
     #warningIsolation()
@@ -75,7 +75,10 @@ def adaptPFMuons(process,module,postfix="" ):
     ##     pfPhotons = cms.InputTag("muPFIsoValueGamma04" + postfix)
     ##     )
     # matching the pfMuons, not the standard muons.
-    applyPostfix(process,"muonMatch",postfix).src = module.pfMuonSource
+    if muonMatchModule == None : 
+        applyPostfix(process,"muonMatch",postfix).src = module.pfMuonSource
+    else :
+        muonMatchModule.src = module.pfMuonSource
 
     print " muon source:", module.pfMuonSource
     ## print " isolation  :",

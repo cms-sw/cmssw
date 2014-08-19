@@ -25,20 +25,9 @@ CSCDcsInfo::CSCDcsInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCDcsInfo::beginJob(){
-/*
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
-    it->second->Fill(-1);
-  }
-*/
-}
-
-void CSCDcsInfo::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &)
+void CSCDcsInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
 
-  // dbe = Service<DQMStore>().operator->();
-
-  // dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
   
   ibooker.cd();
   ibooker.setCurrentFolder("CSC/EventInfo/DCSContents");

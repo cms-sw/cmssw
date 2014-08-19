@@ -11,7 +11,7 @@ corrCaloMetType1 = cms.EDProducer(
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
-    srcMET = cms.InputTag('corMetGlobalMuons')
+    srcMET = cms.InputTag('caloMetM')
 )
 
 ##____________________________________________________________________________||
@@ -25,7 +25,7 @@ corrCaloMetType2 = cms.EDProducer(
     "Type2CorrectionProducer",
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type2'),
-        cms.InputTag('muCaloMetCorr') # NOTE: use this for 'corMetGlobalMuons', do **not** use it for 'met' !!
+        cms.InputTag('muCaloMetCorr') # NOTE: use this for 'caloMetM', do **not** use it for 'met' !!
         ),
     type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
     type2CorrParameter = cms.PSet(

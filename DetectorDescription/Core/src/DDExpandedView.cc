@@ -64,26 +64,6 @@ int DDExpandedView::copyno() const
   return history_.back().copyno();
 }
 
-  
-namespace {
-
-  struct Counter {
-    int same;
-    int diff;
-    ~Counter() {
-    }
-
-  };
-
-  inline Counter & counter() {
-    static Counter local;
-    return local;
-  }
-
-
-}
-
-
 /** 
    returns true, if a next sibling exists and updates \c this
    otherwise returns false.
@@ -116,9 +96,7 @@ bool DDExpandedView::nextSibling()
 	// VI in principle we can do this
 	if ( !(expn.posd_->rot()==posdOld->rot()) ) {
 	  expn.rot_ = expnBefore.rot_ * expn.posd_->rot();//.inverse();
-	  ++counter().diff;
-	}else ++counter().same;
-
+	}
       }
       else {
 	expn.trans_ = expn.posd_->trans_;

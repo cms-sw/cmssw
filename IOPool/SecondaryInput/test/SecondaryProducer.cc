@@ -176,7 +176,7 @@ namespace edm {
                                 *productRegistry_,
 				std::make_shared<BranchIDListHelper>(),
 				std::make_shared<ActivityRegistry>(),
-				-1, -1, dummy);
+				-1, -1, -1, dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
       desc).release()));

@@ -1373,7 +1373,11 @@ EmDQM::makePSetForEgammaGenericFilter(const std::string& moduleName)
       inputType == "EgammaHLTClusterShapeProducer" ||             // cluster shape
       inputType == "EgammaHLTEcalRecIsolationProducer" ||         // ecal isolation
       inputType == "EgammaHLTHcalIsolationProducersRegional" ||   // HCAL isolation and HE
-      inputType == "EgammaHLTGsfTrackVarProducer"                 // GSF track deta and dphi filter
+      inputType == "EgammaHLTGsfTrackVarProducer" ||              // GSF track deta and dphi filter
+      inputType == "EgammaHLTBcHcalIsolationProducersRegional" || // HCAL isolation and HE
+      inputType == "EgammaHLTEcalPFClusterIsolationProducer" ||   // ECAL PF isolation filter
+      inputType == "EgammaHLTHcalPFClusterIsolationProducer" ||   // HCAL PF isolation filter
+      inputType == "EgammaHLTElectronTrackIsolationProducers"     // Track isolation filter
      ) {
     retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
     //retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));

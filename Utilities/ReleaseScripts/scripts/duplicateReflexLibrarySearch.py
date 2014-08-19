@@ -36,7 +36,7 @@ equivDict = \
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
-         {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo']},
+         {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
@@ -237,7 +237,9 @@ def searchDuplicatePlugins ():
     edmpluginFile = ''
     libenv = 'LD_LIBRARY_PATH'
     if os.environ.get('SCRAM_ARCH').startswith('osx'): libenv = 'DYLD_FALLBACK_LIBRARY_PATH'
+    biglib = '/biglib/'+os.environ.get('SCRAM_ARCH')
     for libdir in os.environ.get(libenv).split(':'):
+      if libdir.endswith(biglib): continue
       if os.path.exists(libdir+'/.edmplugincache'): edmpluginFile = edmpluginFile + ' ' + libdir+'/.edmplugincache'
     if edmpluginFile == '': edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile

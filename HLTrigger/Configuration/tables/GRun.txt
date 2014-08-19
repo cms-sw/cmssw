@@ -9,14 +9,15 @@ HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v
 HLT_PFMET180_NoiseCleaned_v*				# JIRA: CMSHLT-62
 HLT_PFchMET90_NoiseCleaned_v*				# JIRA: CMSHLT-62
 
-HLT_Mu40_v*						# JIRA: CMSHLT-64
-HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-64
-HLT_Mu17_TkMu8_v*					# JIRA: CMSHLT-64
-HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64
-HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64
-HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64
-HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64
-HLT_DoubleMu4NoFilters_Jpsi_Displaced_v*		# JIRA: CMSHLT-64
+HLT_Mu40_v*						# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_TkMu8_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
+HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86
+#HLT_DoubleMu4NoFilters_Jpsi_Displaced_v*		# JIRA: CMSHLT-64, replaced in CMSHLT-86
+HLT_DoubleMu4_Jpsi_Displaced_v*				# JIRA: CMSHLT-86
 
 HLT_IsoTkMu24_IterTrk02_v*				# JIRA: CMSHLT-72
 
@@ -32,7 +33,6 @@ HLT_PFJet40_v*						# JIRA: CMSHLT-67
 HLT_PFJet260_v*						# JIRA: CMSHLT-67
 HLT_PFNoPUJet260_v*					# JIRA: CMSHLT-67
 HLT_CaloJet260_v*					# JIRA: CMSHLT-67
-HLT_JetE50_NoBPTX3BX_NoHalo_v*				# JIRA: CMSHLT-67
 HLT_HT650_v*						# JIRA: CMSHLT-67
 HLT_PFNoPUHT650_v*					# JIRA: CMSHLT-67
 HLT_PFHT650_v*						# JIRA: CMSHLT-67
@@ -47,15 +47,73 @@ HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v*		# JIRA: CMSHLT-77
 HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77
 HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77
 
+HLT_Ele23_Ele12_CaloId_TrackId_Iso_v*			  	# JIRA: CMSHLT-78
+HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v*				# JIRA: CMSHLT-78
+HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v*	# JIRA: CMSHLT-78
+HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v*	# JIRA: CMSHLT-78
+
+HLT_DoubleMu4_3_Bs_v*						# JIRA: CMSHLT-82
+HLT_DoubleMu4_3_Jpsi_Displaced_v*				# JIRA: CMSHLT-82
+HLT_Dimuon20_Jpsi_v*						# JIRA: CMSHLT-82
+HLT_Dimuon13_PsiPrime_v*					# JIRA: CMSHLT-82
+HLT_Dimuon13_Upsilon_v*						# JIRA: CMSHLT-82
+HLT_Mu25_TkMu0_dEta18_Onia_v*					# JIRA: CMSHLT-82
+HLT_DoubleMu4_JpsiTrk_Displaced_v*				# JIRA: CMSHLT-82
+HLT_DoubleMu4_PsiPrimeTrk_Displaced_v*				# JIRA: CMSHLT-82
+HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v*		# JIRA: CMSHLT-82
+
+#HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v* # JIRA: CMSHLT-81, no DQM yet
+#HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v*        # JIRA: CMSHLT-81, no DQM yet
+
+#HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon135_PFMET40_v*					# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon150_PFMET40_v*					# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon160_PFMET40_v*					# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon250_NoHE_PFMET40_v*					# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon300_NoHE_PFMET40_v*					# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_v*			# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_v*			# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_v*			# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_v*			# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_v*			# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon135_VBF_v*						# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon150_VBF_v*						# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon160_VBF_v*						# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon250_NoHE_VBF_v*					# JIRA: CMSHLT-83, no DQM yet
+#HLT_Photon300_NoHE_VBF_v*					# JIRA: CMSHLT-83, no DQM yet
+
+HLT_Mu30_TkMu11_v*						# JIRA: CMSHLT-84
+
+#HLT_L2Mu10_NoVertex_NoBPTX_v*					# JIRA: CMSHLT-87
+#HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*			# JIRA: CMSHLT-87
+#HLT_L2Mu20_NoVertex_3Sta_NoBPTX3BX_NoHalo_v*			# JIRA: CMSHLT-87
+#HLT_L2Mu30_NoVertex_3Sta_NoBPTX3BX_NoHalo_v*			# JIRA: CMSHLT-87
+#HLT_JetE30_NoBPTX_v*						# JIRA: CMSHLT-87
+#HLT_JetE30_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87
+HLT_JetE50_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87 (previous version in CMSHLT-67)
+#HLT_JetE70_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87
+
+#HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*			# JIRA: CMSHLT-88
+#HLT_Ele95_CaloIdVT_GsfTrkIdT_v*				# JIRA: CMSHLT-88
+#HLT_DoublePho85_v*						# JIRA: CMSHLT-88
+#HLT_Photon155_v*						# JIRA: CMSHLT-88
+
+#HLT_PFNoPUHT750_4Jet_v*					# JIRA: CMSHLT-89
+
+HLT_Physics_v*							# skim
+
 #DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath					# only in 'GRun', not in 'online'
 AOutput
-#DQMOutput						# reintroduced in the 7e33 v2 May 10th bugfix menu (sr #128571)
+DQMOutput						# online DQMFileSaver
 #EcalCalibrationOutput
 #ExpressForCosmicsOutput				# only in 'GRun' and 'cosmics', not in 'online'
 #ExpressOutput
 #HLTDQMOutput
 #HLTMONOutput
-

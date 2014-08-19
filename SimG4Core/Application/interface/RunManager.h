@@ -17,7 +17,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -85,7 +84,7 @@ public:
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { 
     return m_sensCaloDets; 
   }
-  std::vector<boost::shared_ptr<SimProducer> > producers() const {
+  std::vector<std::shared_ptr<SimProducer> > producers() const {
     return m_producers;
   }
 
@@ -149,8 +148,8 @@ private:
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
   SimActivityRegistry m_registry;
-  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-  std::vector<boost::shared_ptr<SimProducer> > m_producers;
+  std::vector<std::shared_ptr<SimWatcher> > m_watchers;
+  std::vector<std::shared_ptr<SimProducer> > m_producers;
     
   std::auto_ptr<SimTrackManager> m_trackManager;
   sim::FieldBuilder             *m_fieldBuilder;

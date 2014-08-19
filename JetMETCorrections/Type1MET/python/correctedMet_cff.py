@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ##____________________________________________________________________________||
 caloMetT1 = cms.EDProducer(
     "AddCorrectionsToCaloMET",
-    src = cms.InputTag('corMetGlobalMuons'),
+    src = cms.InputTag('caloMetM'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type1')
         ),
@@ -12,7 +12,7 @@ caloMetT1 = cms.EDProducer(
 ##____________________________________________________________________________||
 caloMetT1T2 = cms.EDProducer(
     "AddCorrectionsToCaloMET",
-    src = cms.InputTag('corMetGlobalMuons'),
+    src = cms.InputTag('caloMetM'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type1'),
         cms.InputTag('corrCaloMetType2')

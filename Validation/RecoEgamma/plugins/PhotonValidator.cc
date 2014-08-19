@@ -152,8 +152,6 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
   genjets_Token_ = consumes<reco::GenJetCollection>(
       edm::InputTag("iterativeCone5GenJets"));
 
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
 
   nEvt_=0;
   nEntry_=0;
@@ -260,1353 +258,1354 @@ void PhotonValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run cons
 
 
  
-  if (dbe_) {
-    //// All MC photons
-    // SC from reco photons
+  //// All MC photons
+  // SC from reco photons
+  
+  
+  iBooker.setCurrentFolder("EgammaV/"+fName_+"/SimulationInfo");
+  std::cout <<"made directory "<<"EgammaV/"+fName_+"/SimulationInfo"<<std::endl;
+  //
+  // simulation information about all MC photons found
+  std::string histname = "nOfSimPhotons";
+  if ( ! isRunCentrally_ ) {
+    h_nSimPho_[0] = iBooker.book1D(histname,"# of Sim photons per event ",20,-0.5,19.5);
+    histname = "SimPhoMotherEt";
+    h_SimPhoMotherEt_[0] = iBooker.book1D(histname,"Sim photon Mother tranverse energy spectrum",etBin,etMin,etMax);
+    h_SimPhoMotherEta_[0] = iBooker.book1D("SimPhoMotherEta"," Sim Photon Mother Eta ",etaBin,etaMin, etaMax) ;
+    histname = "SimPhoMotherEtMatched";
+    h_SimPhoMotherEt_[1] = iBooker.book1D(histname,"Sim photon  matched by a reco Photon: Mother tranverse energy spectrum",etBin,etMin,etMax);
+    h_SimPhoMotherEta_[1] = iBooker.book1D("SimPhoMotherEtaMatched"," Sim Photon matched by a reco Photon:  Mother Eta ",etaBin,etaMin, etaMax) ;
+  }
+
+  histname = "h_SimPhoEta";
+  h_SimPho_[0] =  iBooker.book1D(histname," All photons simulated #eta",etaBin,etaMin, etaMax);
+  histname = "h_SimPhoPhi";
+  h_SimPho_[1] =  iBooker.book1D(histname," All photons simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimPhoEt";
+  h_SimPho_[2] =  iBooker.book1D(histname," All photons simulated Et",etBin,etMin, etMax);
+  // Numerators
+  histname = "nOfSimPhotonsMatched";
+  h_nSimPho_[1] = iBooker.book1D(histname,"# of Sim photons matched by a reco Photon per event ",20,-0.5,19.5);
+  histname = "h_MatchedSimPhoEta";
+  h_MatchedSimPho_[0] =  iBooker.book1D(histname," Matching photons simulated #eta",etaBin,etaMin, etaMax);
+  histname = "h_MatchedSimPhoPhi";
+  h_MatchedSimPho_[1] =  iBooker.book1D(histname," Matching photons simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_MatchedSimPhoEt";
+  h_MatchedSimPho_[2] =  iBooker.book1D(histname," Matching photons simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_MatchedSimPhoBadChEta";
+  h_MatchedSimPhoBadCh_[0] =  iBooker.book1D(histname," Matching photons simulated #eta",etaBin,etaMin, etaMax);
+  histname = "h_MatchedSimPhoBadChPhi";
+  h_MatchedSimPhoBadCh_[1] =  iBooker.book1D(histname," Matching photons simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_MatchedSimPhoBadChEt";
+  h_MatchedSimPhoBadCh_[2] =  iBooker.book1D(histname," Matching photons simulated Et",etBin,etMin, etMax);
+  
+
+  /// Histograms for efficiencies
+  histname = "nOfSimConversions";
+  if ( ! isRunCentrally_ ) {
+    h_nSimConv_[0] = iBooker.book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
+    histname = "nOfVisSimConversions";
+    h_nSimConv_[1] = iBooker.book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
+  }
+  /// Denominators
+  histname = "h_AllSimConvEta";
+  h_AllSimConv_[0] =  iBooker.book1D(histname," All conversions: simulated #eta",etaBin2,etaMin,etaMax);
+  histname = "h_AllSimConvPhi";
+  h_AllSimConv_[1] =  iBooker.book1D(histname," All conversions: simulated #phi",phiBin,phiMin,phiMax);
+  histname = "h_AllSimConvR";
+  h_AllSimConv_[2] =  iBooker.book1D(histname," All conversions: simulated R",rBin,rMin,rMax);
+  histname = "h_AllSimConvZ";
+  h_AllSimConv_[3] =  iBooker.book1D(histname," All conversions: simulated Z",zBin,zMin,zMax);
+  histname = "h_AllSimConvEt";
+  h_AllSimConv_[4] =  iBooker.book1D(histname," All conversions: simulated Et",etBin,etMin,etMax);
+  //
+  histname = "h_VisSimConvEta";
+  h_VisSimConv_[0] =  iBooker.book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_VisSimConvPhi";
+  h_VisSimConv_[1] =  iBooker.book1D(histname," All vis conversions: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_VisSimConvR";
+  h_VisSimConv_[2] =  iBooker.book1D(histname," All vis conversions: simulated R",rBin,rMin,rMax);
+  histname = "h_VisSimConvZ";
+  h_VisSimConv_[3] =  iBooker.book1D(histname," All vis conversions: simulated Z",zBin,zMin, zMax);
+  histname = "h_VisSimConvEt";
+  h_VisSimConv_[4] =  iBooker.book1D(histname," All vis conversions: simulated Et",etBin,etMin, etMax);
+  /// Numerators
+  histname = "h_SimConvOneTracksEta";
+  h_SimConvOneTracks_[0] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_SimConvOneTracksPhi";
+  h_SimConvOneTracks_[1] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimConvOneTracksR";
+  h_SimConvOneTracks_[2] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated R",rBin,rMin, rMax);
+  histname = "h_SimConvOneTracksZ";
+  h_SimConvOneTracks_[3] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated Z",zBin,zMin, zMax);
+  histname = "h_SimConvOneTracksEt";
+  h_SimConvOneTracks_[4] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_SimConvTwoMTracksEta";
+  h_SimConvTwoMTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_SimConvTwoMTracksPhi";
+  h_SimConvTwoMTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimConvTwoMTracksR";
+  h_SimConvTwoMTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
+  histname = "h_SimConvTwoMTracksZ";
+  h_SimConvTwoMTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
+  histname = "h_SimConvTwoMTracksEt";
+  h_SimConvTwoMTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_SimConvTwoTracksEta";
+  h_SimConvTwoTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_SimConvTwoTracksPhi";
+  h_SimConvTwoTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimConvTwoTracksR";
+  h_SimConvTwoTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
+  histname = "h_SimConvTwoTracksZ";
+  h_SimConvTwoTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
+  histname = "h_SimConvTwoTracksEt";
+  h_SimConvTwoTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_SimConvOneMTracksEta";
+  h_SimConvOneMTracks_[0] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
+  std::cout <<"monitor element "<<h_SimConvOneMTracks_[0]->getFullname()<<std::endl;
+  histname = "h_SimConvOneMTracksPhi";
+  h_SimConvOneMTracks_[1] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimConvOneMTracksR";
+  h_SimConvOneMTracks_[2] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated R",rBin,rMin, rMax);
+  histname = "h_SimConvOneMTracksZ";
+  h_SimConvOneMTracks_[3] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated Z",zBin,zMin, zMax);
+  histname = "h_SimConvOneMTracksEt";
+  h_SimConvOneMTracks_[4] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_SimConvTwoMTracksEtaAndVtxPGT0";
+  h_SimConvTwoMTracksAndVtxPGT0_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_SimConvTwoMTracksPhiAndVtxPGT0";
+  h_SimConvTwoMTracksAndVtxPGT0_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimConvTwoMTracksRAndVtxPGT0";
+  h_SimConvTwoMTracksAndVtxPGT0_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
+  histname = "h_SimConvTwoMTracksZAndVtxPGT0";
+  h_SimConvTwoMTracksAndVtxPGT0_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
+  histname = "h_SimConvTwoMTracksEtAndVtxPGT0";
+  h_SimConvTwoMTracksAndVtxPGT0_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_SimConvTwoMTracksEtaAndVtxPGT0005";
+  h_SimConvTwoMTracksAndVtxPGT0005_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_SimConvTwoMTracksPhiAndVtxPGT0005";
+  h_SimConvTwoMTracksAndVtxPGT0005_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimConvTwoMTracksRAndVtxPGT0005";
+  h_SimConvTwoMTracksAndVtxPGT0005_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
+  histname = "h_SimConvTwoMTracksZAndVtxPGT0005";
+  h_SimConvTwoMTracksAndVtxPGT0005_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
+  histname = "h_SimConvTwoMTracksEtAndVtxPGT0005";
+  h_SimConvTwoMTracksAndVtxPGT0005_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+
+
+
+  if ( ! isRunCentrally_ ) {
+    h_SimConvEtaPix_[0] = iBooker.book1D("simConvEtaPix"," sim converted Photon Eta: Pix ",etaBin,etaMin, etaMax) ;
+    h_simTkPt_ = iBooker.book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
+    h_simTkEta_ = iBooker.book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
+    h_simConvVtxRvsZ_[0] =   iBooker.book2D("simConvVtxRvsZAll"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[1] =   iBooker.book2D("simConvVtxRvsZBarrel"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[2] =   iBooker.book2D("simConvVtxRvsZEndcap"," Photon Sim conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxYvsX_ =   iBooker.book2D("simConvVtxYvsXTrkBarrel"," Photon Sim conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
+  }
+  
+  //// histograms for bkg
+  histname = "h_SimJetEta";
+  h_SimJet_[0] =  iBooker.book1D(histname," Jet bkg simulated #eta",etaBin,etaMin, etaMax);
+  histname = "h_SimJetPhi";
+  h_SimJet_[1] =  iBooker.book1D(histname," Jet bkg simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_SimJetEt";
+  h_SimJet_[2] =  iBooker.book1D(histname," Jet bkg simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_MatchedSimJetEta";
+  h_MatchedSimJet_[0] =  iBooker.book1D(histname," Matching jet simulated #eta",etaBin,etaMin, etaMax);
+  histname = "h_MatchedSimJetPhi";
+  h_MatchedSimJet_[1] =  iBooker.book1D(histname," Matching jet simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_MatchedSimJetEt";
+  h_MatchedSimJet_[2] =  iBooker.book1D(histname," Matching jet simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_MatchedSimJetBadChEta";
+  h_MatchedSimJetBadCh_[0] =  iBooker.book1D(histname," Matching jet simulated #eta",etaBin,etaMin, etaMax);
+  histname = "h_MatchedSimJetBadChPhi";
+  h_MatchedSimJetBadCh_[1] =  iBooker.book1D(histname," Matching jet simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_MatchedSimJetBadChEt";
+  h_MatchedSimJetBadCh_[2] =  iBooker.book1D(histname," Matching jet simulated Et",etBin,etMin, etMax);
+  
+  
+  iBooker.setCurrentFolder("EgammaV/"+fName_+"/Background");
+  
+  histname = "nOfPhotons";
+  h_nPho_ = iBooker.book1D(histname,"# of Reco photons per event ",20,-0.5,19.5);
+  
+  h_scBkgEta_ = iBooker.book1D("scBkgEta"," SC Bkg Eta ",etaBin,etaMin, etaMax) ;
+  h_scBkgPhi_ = iBooker.book1D("scBkgPhi"," SC Bkg  Phi ",phiBin,phiMin,phiMax) ;
+  //
+  h_phoBkgEta_ = iBooker.book1D("phoBkgEta"," Photon Bkg Eta ",etaBin,etaMin, etaMax) ;
+  h_phoBkgPhi_ = iBooker.book1D("phoBkgPhi"," Photon Bkg Phi ",phiBin,phiMin,phiMax) ;
+  //
+  h_phoBkgDEta_ = iBooker.book1D("phoBkgDEta"," Photon Eta(rec)-Eta(true) ",dEtaBin,dEtaMin, dEtaMax) ;
+  h_phoBkgDPhi_ = iBooker.book1D("phoBkgDPhi"," Photon  Phi(rec)-Phi(true) ",dPhiBin,dPhiMin,dPhiMax) ;
+  //
+  histname = "phoBkgE";
+  h_phoBkgE_[0]=iBooker.book1D(histname+"All"," Photon Bkg Energy: All ecal ", eBin,eMin, eMax);
+  h_phoBkgE_[1]=iBooker.book1D(histname+"Barrel"," Photon Bkg Energy: barrel ",eBin,eMin, eMax);
+  h_phoBkgE_[2]=iBooker.book1D(histname+"Endcap"," Photon Bkg Energy: Endcap ",eBin,eMin, eMax);
+  //
+  histname = "phoBkgEt";
+  h_phoBkgEt_[0] = iBooker.book1D(histname+"All"," Photon Bkg Transverse Energy: All ecal ", etBin,etMin, etMax);
+  h_phoBkgEt_[1] = iBooker.book1D(histname+"Barrel"," Photon Bkg Transverse Energy: Barrel ",etBin,etMin, etMax);
+  h_phoBkgEt_[2] = iBooker.book1D(histname+"Endcap"," Photon BkgTransverse Energy: Endcap ",etBin,etMin, etMax);
+  
+  //
+  histname = "scBkgE";
+  h_scBkgE_[0] = iBooker.book1D(histname+"All","    SC bkg Energy: All Ecal  ",eBin,eMin, eMax);
+  h_scBkgE_[1] = iBooker.book1D(histname+"Barrel"," SC bkg Energy: Barrel ",eBin,eMin, eMax);
+  h_scBkgE_[2] = iBooker.book1D(histname+"Endcap"," SC bkg Energy: Endcap ",eBin,eMin, eMax);
+  histname = "scBkgEt";
+  h_scBkgEt_[0] = iBooker.book1D(histname+"All","    SC bkg Et: All Ecal  ",eBin,eMin, eMax);
+  h_scBkgEt_[1] = iBooker.book1D(histname+"Barrel"," SC bkg Et: Barrel ",eBin,eMin, eMax);
+  h_scBkgEt_[2] = iBooker.book1D(histname+"Endcap"," SC bkg Et: Endcap ",eBin,eMin, eMax);
+  //
+  histname = "r9Bkg";
+  h_r9Bkg_[0] = iBooker.book1D(histname+"All",   " r9 bkg: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r9Bkg_[1] = iBooker.book1D(histname+"Barrel"," r9 bkg: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r9Bkg_[2] = iBooker.book1D(histname+"Endcap"," r9 bkg: Endcap ",r9Bin,r9Min, r9Max) ;
+  //
+  histname="R9VsEtaBkg";
+  if ( ! isRunCentrally_ ) h2_r9VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  //
+  histname="R9VsEtBkg";
+  if ( ! isRunCentrally_ ) h2_r9VsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  //
+  histname = "r1Bkg";
+  h_r1Bkg_[0] = iBooker.book1D(histname+"All",   " Bkg photon e1x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r1Bkg_[1] = iBooker.book1D(histname+"Barrel"," Bkg photon e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r1Bkg_[2] = iBooker.book1D(histname+"Endcap"," Bkg photon e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+  //
+  histname="R1VsEtaBkg";
+  if ( ! isRunCentrally_ ) h2_r1VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  histname="pR1VsEtaBkg";
+  if ( ! isRunCentrally_ ) p_r1VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  //
+  histname="R1VsEtBkg";
+  if ( ! isRunCentrally_ ) h2_r1VsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  histname="pR1VsEtBkg";
+  if ( ! isRunCentrally_ ) p_r1VsEtBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  //
+  histname = "r2Bkg";
+  h_r2Bkg_[0] = iBooker.book1D(histname+"All",   " Bkg photon e2x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r2Bkg_[1] = iBooker.book1D(histname+"Barrel"," Bkg photon e2x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r2Bkg_[2] = iBooker.book1D(histname+"Endcap"," Bkg photon e2x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+  //
+  histname="R2VsEtaBkg";
+  if ( ! isRunCentrally_ ) h2_r2VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  histname="pR2VsEtaBkg";
+  if ( ! isRunCentrally_ ) p_r2VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  //
+  histname="R2VsEtBkg";
+  if ( ! isRunCentrally_ ) h2_r2VsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  histname="pR2VsEtBkg";
+  if ( ! isRunCentrally_ ) p_r2VsEtBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  
+  
+  histname = "sigmaIetaIetaBkg";
+  h_sigmaIetaIetaBkg_[0] = iBooker.book1D(histname+"All",   "Bkg sigmaIetaIeta: All Ecal",100,0., 0.1) ;
+  h_sigmaIetaIetaBkg_[1] = iBooker.book1D(histname+"Barrel","Bkg sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
+  h_sigmaIetaIetaBkg_[2] = iBooker.book1D(histname+"Endcap","Bkg sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
+  //
+  histname="sigmaIetaIetaVsEtaBkg";
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+  histname="pSigmaIetaIetaVsEtaBkg";
+  if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+  //
+  histname="sigmaIetaIetaVsEtBkg";
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  //
+  histname="pSigmaIetaIetaVsEtBkg";
+  if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtBkg_[0] = iBooker.bookProfile(histname+"All"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  //
+  histname = "hOverEBkg";
+  h_hOverEBkg_[0] = iBooker.book1D(histname+"All",   "H/E bkg: All Ecal",100,0., 1.) ;
+  h_hOverEBkg_[1] = iBooker.book1D(histname+"Barrel","H/E bkg: Barrel ", 100,0., 1.) ;
+  h_hOverEBkg_[2] = iBooker.book1D(histname+"Endcap","H/E bkg: Endcap ", 100,0., 1.) ;
+  //
+  histname="pHOverEVsEtaBkg";
+  if ( ! isRunCentrally_ ) p_hOverEVsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+  histname="pHOverEVsEtBkg";
+  if ( ! isRunCentrally_ ) p_hOverEVsEtBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) {
+    histname="hOverEVsEtaBkg";
+    h2_hOverEVsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    //
+    histname="hOverEVsEtBkg";
+    h2_hOverEVsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  }
+  //
+  histname = "ecalRecHitSumEtConeDR04Bkg";
+  h_ecalRecHitSumEtConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "bkg ecalRecHitSumEtDR04: All Ecal",etBin,etMin,50.);
+  h_ecalRecHitSumEtConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","bkg ecalRecHitSumEtDR04: Barrel ", etBin,etMin,50.);
+  h_ecalRecHitSumEtConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","bkg ecalRecHitSumEtDR04: Endcap ", etBin,etMin,50.);
+  //
+  if ( ! isRunCentrally_ ) {
+    histname="ecalRecHitSumEtConeDR04VsEtaBkg";
+    h2_ecalRecHitSumEtConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," bkg ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
+    histname="ecalRecHitSumEtConeDR04VsEtBkg";
+    h2_ecalRecHitSumEtConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_ecalRecHitSumEtConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg ecalRecHitSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_ecalRecHitSumEtConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg ecalRecHitSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    histname="hcalTowerSumEtConeDR04VsEtaBkg";
+    h2_hcalTowerSumEtConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," bkg hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
+    histname="hcalTowerSumEtConeDR04VsEtBkg";
+    h2_hcalTowerSumEtConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_hcalTowerSumEtConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg hcalTowerSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_hcalTowerSumEtConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg hcalTowerSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+  }
+  
+  histname="pEcalRecHitSumEtConeDR04VsEtaBkg";
+  if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All","bkg photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
+  //
+  histname="pEcalRecHitSumEtConeDR04VsEtBkg";
+  if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  //
+  histname = "hcalTowerSumEtConeDR04Bkg";
+  h_hcalTowerSumEtConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "bkg hcalTowerSumEtDR04: All Ecal",etBin,etMin,20.);
+  h_hcalTowerSumEtConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","bkg hcalTowerSumEtDR04: Barrel ", etBin,etMin,20.);
+  h_hcalTowerSumEtConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","bkg hcalTowerSumEtDR04: Endcap ", etBin,etMin,20.);
+  //
+  histname="pHcalTowerSumEtConeDR04VsEtaBkg";
+  if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All","bkg photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
+  //
+  histname="pHcalTowerSumEtConeDR04VsEtBkg";
+  if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  //
+  histname = "isoTrkSolidConeDR04Bkg";
+  h_isoTrkSolidConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "isoTrkSolidConeDR04 Bkg: All Ecal",etBin,etMin,etMax*0.1);
+  h_isoTrkSolidConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","isoTrkSolidConeDR04 Bkg: Barrel ", etBin,etMin,etMax*0.1);
+  h_isoTrkSolidConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","isoTrkSolidConeDR04 Bkg: Endcap ", etBin,etMin,etMax*0.1);
+  //
+  histname="isoTrkSolidConeDR04VsEtaBkg";
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
+  histname="pIsoTrkSolidConeDR04VsEtaBkg";
+  if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
+  //
+  histname="isoTrkSolidConeDR04VsEtBkg";
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  histname="pIsoTrkSolidConeDR04VsEtBkg";
+  if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  //
+  histname = "nTrkSolidConeDR04Bkg";
+  h_nTrkSolidConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "Bkg nTrkSolidConeDR04: All Ecal",20,0., 20) ;
+  h_nTrkSolidConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","Bkg nTrkSolidConeDR04: Barrel ", 20,0., 20) ;
+  h_nTrkSolidConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","Bkg nTrkSolidConeDR04: Endcap ", 20,0., 20) ;
+  //
+  histname="nTrkSolidConeDR04VsEtaBkg";
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
+  histname="p_nTrkSolidConeDR04VsEtaBkg";
+  if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
+  //
+  histname="nTrkSolidConeDR04VsEtBkg";
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  //
+  histname="pnTrkSolidConeDR04VsEtBkg";
+  if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  //
+  h_convEtaBkg_ = iBooker.book1D("convEtaBkg"," converted Photon Bkg Eta 2 tracks",etaBin,etaMin, etaMax) ;
+  h_convPhiBkg_ = iBooker.book1D("convPhiBkg"," converted Photon Bkg Phi ",phiBin,phiMin,phiMax) ;
+  //
+  histname="mvaOutBkg";
+  h_mvaOutBkg_[0] = iBooker.book1D(histname+"All"," mvaOut  conversions bkg : All Ecal",100, 0., 1.);
+  h_mvaOutBkg_[1] = iBooker.book1D(histname+"Barrel"," mvaOut conversions bkg: Barrel Ecal",100, 0., 1.);
+  h_mvaOutBkg_[2] = iBooker.book1D(histname+"Endcap"," mvaOut  conversions bkg: Endcap Ecal",100, 0., 1.);
+  
+  histname="PoverEtracksBkg";
+  h_PoverETracksBkg_[0] = iBooker.book1D(histname+"All"," bkg photons conversion p/E: all Ecal ",povereBin, povereMin, povereMax);
+  h_PoverETracksBkg_[1] = iBooker.book1D(histname+"Barrel","bkg photons conversion p/E: Barrel Ecal",povereBin, povereMin, povereMax);
+  h_PoverETracksBkg_[2] = iBooker.book1D(histname+"Endcap"," bkg photons conversion p/E: Endcap Ecal ",povereBin, povereMin, povereMax);
+  
+  histname="EoverPtracksBkg";
+  h_EoverPTracksBkg_[0] = iBooker.book1D(histname+"All"," bkg photons conversion E/p: all Ecal ",eoverpBin, eoverpMin, eoverpMax);
+  h_EoverPTracksBkg_[1] = iBooker.book1D(histname+"Barrel","bkg photons conversion E/p: Barrel Ecal",eoverpBin, eoverpMin, eoverpMax);
+  h_EoverPTracksBkg_[2] = iBooker.book1D(histname+"Endcap"," bkg photons conversion E/p: Endcap Ecal ",eoverpBin, eoverpMin, eoverpMax);
+  
+  histname="hDCotTracksBkg";
+  h_DCotTracksBkg_[0]= iBooker.book1D(histname+"All"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+  h_DCotTracksBkg_[1]= iBooker.book1D(histname+"Barrel"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+  h_DCotTracksBkg_[2]= iBooker.book1D(histname+"Endcap"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+  
+  histname="hDPhiTracksAtVtxBkg";
+  h_DPhiTracksAtVtxBkg_[0] =iBooker.book1D(histname+"All", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+  h_DPhiTracksAtVtxBkg_[1] =iBooker.book1D(histname+"Barrel", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+  h_DPhiTracksAtVtxBkg_[2] =iBooker.book1D(histname+"Endcap", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+  
+  if ( ! isRunCentrally_ ) {
+    h_convVtxRvsZBkg_[0] =   iBooker.book2D("convVtxRvsZAllBkg"," Bkg Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxRvsZBkg_[1] =   iBooker.book2D("convVtxRvsZBarrelBkg"," Bkg Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxYvsXBkg_ =   iBooker.book2D("convVtxYvsXTrkBarrelBkg"," Bkg Photon Reco conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
+  }
+
+  //
+  iBooker.setCurrentFolder("EgammaV/"+fName_+"/Photons");
+  
+  histname="nOfflineVtx";
+  h_nRecoVtx_ = iBooker.book1D(histname,"# of Offline Vertices",80, -0.5, 79.5);
+  
+  h_phoEta_[0] = iBooker.book1D("phoEta"," Photon Eta ",etaBin,etaMin, etaMax) ;
+  h_phoPhi_[0] = iBooker.book1D("phoPhi"," Photon  Phi ",phiBin,phiMin,phiMax) ;
+  
+  h_phoDEta_[0] = iBooker.book1D("phoDEta"," Photon Eta(rec)-Eta(true) ",dEtaBin,dEtaMin, dEtaMax) ;
+  h_phoDPhi_[0] = iBooker.book1D("phoDPhi"," Photon  Phi(rec)-Phi(true) ",dPhiBin,dPhiMin,dPhiMax) ;
+  
+  h_scEta_[0] =   iBooker.book1D("scEta"," SC Eta ",etaBin,etaMin, etaMax);
+  h_scPhi_[0] =   iBooker.book1D("scPhi"," SC Phi ",phiBin,phiMin,phiMax);
+  
+  if ( ! isRunCentrally_ ) {
+    h_scEtaWidth_[0] =   iBooker.book1D("scEtaWidth"," SC Eta Width ",100,0., 0.1);
+    h_scPhiWidth_[0] =   iBooker.book1D("scPhiWidth"," SC Phi Width ",100,0., 1.);
+  }
+  
+  histname = "scE";
+  h_scE_[0][0] = iBooker.book1D(histname+"All"," SC Energy: All Ecal  ",eBin,eMin, eMax);
+  h_scE_[0][1] = iBooker.book1D(histname+"Barrel"," SC Energy: Barrel ",eBin,eMin, eMax);
+  h_scE_[0][2] = iBooker.book1D(histname+"Endcap"," SC Energy: Endcap ",eBin,eMin, eMax);
+  
+  histname = "psE";
+  h_psE_ = iBooker.book1D(histname+"Endcap"," ES Energy  ",eBin,eMin, 50.);
+  
+  
+  histname = "scEt";
+  h_scEt_[0][0] = iBooker.book1D(histname+"All"," SC Et: All Ecal ",etBin,etMin, etMax) ;
+  h_scEt_[0][1] = iBooker.book1D(histname+"Barrel"," SC Et: Barrel",etBin,etMin, etMax) ;
+  h_scEt_[0][2] = iBooker.book1D(histname+"Endcap"," SC Et: Endcap",etBin,etMin, etMax) ;
+  
+  histname = "r9";
+  h_r9_[0][0] = iBooker.book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r9_[0][1] = iBooker.book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r9_[0][2] = iBooker.book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
+  //
+  
+  if ( ! isRunCentrally_ ) {
+    histname = "r9ConvFromMC";
+    h_r9_[1][0] = iBooker.book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
+    h_r9_[1][1] = iBooker.book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
+    h_r9_[1][2] = iBooker.book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
+    //
+    histname = "r9ConvFromReco";
+    h_r9_[2][0] = iBooker.book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
+    h_r9_[2][1] = iBooker.book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
+    h_r9_[2][2] = iBooker.book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
+    //////
+    histname = "EtR9Less093";
+    h_EtR9Less093_[0][0] = iBooker.book1D(histname+"All",   " r9 < 0.94 or 0.95 : All Ecal",etBin,etMin, etMax);
+    h_EtR9Less093_[0][1] = iBooker.book1D(histname+"Barrel"," r9 < 0.94 : Barrel ",etBin,etMin, etMax);
+    h_EtR9Less093_[0][2] = iBooker.book1D(histname+"Endcap"," r9 < 0.95 : Endcap ",etBin,etMin, etMax);
+    histname = "EtR9Less093Conv";
+    h_EtR9Less093_[1][0] = iBooker.book1D(histname+"All",   " r9 < 0.94, 0.95 and good conv : All Ecal",etBin,etMin, etMax);
+    h_EtR9Less093_[1][1] = iBooker.book1D(histname+"Barrel"," r9 < 0.94 and good conv : Barrel ",etBin,etMin, etMax);
+    h_EtR9Less093_[1][2] = iBooker.book1D(histname+"Endcap"," r9 < 0.95 and good conv : Endcap ",etBin,etMin, etMax);
+  }
+  
+  /////    //
+  histname="pR9VsEta";
+  p_r9VsEta_[0] = iBooker.bookProfile(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  p_r9VsEta_[1] = iBooker.bookProfile(histname+"Unconv"," Unconv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  p_r9VsEta_[2] = iBooker.bookProfile(histname+"Conv"," Conv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  //
+  histname="R9VsEt";
+  if ( ! isRunCentrally_ ) h2_r9VsEt_[0] = iBooker.book2D(histname+"All"," All photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  if ( ! isRunCentrally_ ) h2_r9VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  //
+  histname = "r1";
+  h_r1_[0][0] = iBooker.book1D(histname+"All",   " e1x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r1_[0][1] = iBooker.book1D(histname+"Barrel"," e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r1_[0][2] = iBooker.book1D(histname+"Endcap"," e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+  //
+  histname="R1VsEta";
+  if ( ! isRunCentrally_ ) h2_r1VsEta_[0] = iBooker.book2D(histname+"All"," All photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  if ( ! isRunCentrally_ ) h2_r1VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  //
+  histname="R1VsEt";
+  if ( ! isRunCentrally_ ) h2_r1VsEt_[0] = iBooker.book2D(histname+"All"," All photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  if ( ! isRunCentrally_ ) h2_r1VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  //
+  histname = "r2";
+  h_r2_[0][0] = iBooker.book1D(histname+"All",   " e2x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r2_[0][1] = iBooker.book1D(histname+"Barrel"," e2x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r2_[0][2] = iBooker.book1D(histname+"Endcap"," e2x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+  //
+  histname="R2VsEta";
+  if ( ! isRunCentrally_ ) h2_r2VsEta_[0] = iBooker.book2D(histname+"All"," All photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  if ( ! isRunCentrally_ ) h2_r2VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+  //
+  histname="R2VsEt";
+  if ( ! isRunCentrally_ ) h2_r2VsEt_[0] = iBooker.book2D(histname+"All"," All photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  if ( ! isRunCentrally_ ) h2_r2VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+  //
+  histname = "sigmaIetaIeta";
+  h_sigmaIetaIeta_[0][0] = iBooker.book1D(histname+"All",   "sigmaIetaIeta: All Ecal",100,0., 0.1) ;
+  h_sigmaIetaIeta_[0][1] = iBooker.book1D(histname+"Barrel","sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
+  h_sigmaIetaIeta_[0][2] = iBooker.book1D(histname+"Endcap","sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
+  //
+  histname="sigmaIetaIetaVsEta";
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEta_[0] = iBooker.book2D(histname+"All"," All photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons sigmaIetaIeta vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
+  //
+  histname="sigmaIetaIetaVsEt";
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEt_[0] = iBooker.book2D(histname+"All"," All photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  //
+  histname = "hOverE";
+  h_hOverE_[0][0] = iBooker.book1D(histname+"All",   "H/E: All Ecal",100,0., 0.1) ;
+  h_hOverE_[0][1] = iBooker.book1D(histname+"Barrel","H/E: Barrel ", 100,0., 0.1) ;
+  h_hOverE_[0][2] = iBooker.book1D(histname+"Endcap","H/E: Endcap ", 100,0., 0.1) ;
+  //
+  histname = "newhOverE";
+  h_newhOverE_[0][0] = iBooker.book1D(histname+"All",   "new H/E: All Ecal",100,0., 0.1) ;
+  h_newhOverE_[0][1] = iBooker.book1D(histname+"Barrel","new H/E: Barrel ", 100,0., 0.1) ;
+  h_newhOverE_[0][2] = iBooker.book1D(histname+"Endcap","new H/E: Endcap ", 100,0., 0.1) ;
+  
+  //
+  if ( ! isRunCentrally_ ) {
+    histname="hOverEVsEta";
+    h2_hOverEVsEta_[0] = iBooker.book2D(histname+"All"," All photons H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    h2_hOverEVsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
+    //
+    histname="hOverEVsEt";
+    h2_hOverEVsEt_[0] = iBooker.book2D(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    h2_hOverEVsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    //
+  }
+  histname="pHoverEVsEta";
+  p_hOverEVsEta_[0] = iBooker.bookProfile(histname+"All"," All photons H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+  p_hOverEVsEta_[1] = iBooker.bookProfile(histname+"Unconv"," All photons H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
+  //
+  histname="pHoverEVsEt";
+  p_hOverEVsEt_[0] = iBooker.bookProfile(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  p_hOverEVsEt_[1] = iBooker.bookProfile(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  //
+  histname="pnewHoverEVsEta";
+  p_newhOverEVsEta_[0] = iBooker.bookProfile(histname+"All"," All photons new H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+  p_newhOverEVsEta_[1] = iBooker.bookProfile(histname+"Unconv"," All photons new H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
+  //
+  histname="pnewHoverEVsEt";
+  p_newhOverEVsEt_[0] = iBooker.bookProfile(histname+"All"," All photons new H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  p_newhOverEVsEt_[1] = iBooker.bookProfile(histname+"Unconv"," All photons new H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+  //
+  histname = "ecalRecHitSumEtConeDR04";
+  h_ecalRecHitSumEtConeDR04_[0][0] = iBooker.book1D(histname+"All",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
+  h_ecalRecHitSumEtConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","ecalRecHitSumEtDR04: Barrel ", etBin,etMin,20.);
+  h_ecalRecHitSumEtConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","ecalRecHitSumEtDR04: Endcap ", etBin,etMin,20.);
+  //
+  
+  if ( ! isRunCentrally_ ) {
+    histname="ecalRecHitSumEtConeDR04VsEta";
+    h2_ecalRecHitSumEtConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
+    h2_ecalRecHitSumEtConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*etScale);
+  }
+  histname="pEcalRecHitSumEtConeDR04VsEta";
+  p_ecalRecHitSumEtConeDR04VsEta_[0] = iBooker.bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
+  p_ecalRecHitSumEtConeDR04VsEta_[1] = iBooker.bookProfile(histname+"Unconv","All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
+  //
+  if ( ! isRunCentrally_ ) {
+    histname="ecalRecHitSumEtConeDR04VsEt";
+    h2_ecalRecHitSumEtConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_ecalRecHitSumEtConeDR04VsEt_[1] = iBooker.book2D(histname+"Barrel"," All photons ecalRecHitSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_ecalRecHitSumEtConeDR04VsEt_[2] = iBooker.book2D(histname+"Endcap"," All photons ecalRecHitSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+  }
+  histname="pEcalRecHitSumEtConeDR04VsEt";
+  if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEt_[0] = iBooker.bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  p_ecalRecHitSumEtConeDR04VsEt_[1] = iBooker.bookProfile(histname+"Barrel","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  p_ecalRecHitSumEtConeDR04VsEt_[2] = iBooker.bookProfile(histname+"Endcap","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  //
+  histname = "hcalTowerSumEtConeDR04";
+  h_hcalTowerSumEtConeDR04_[0][0] = iBooker.book1D(histname+"All",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,20.);
+  h_hcalTowerSumEtConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","hcalTowerSumEtConeDR04: Barrel ", etBin,etMin,20.);
+  h_hcalTowerSumEtConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","hcalTowerSumEtConeDR04: Endcap ", etBin,etMin,20.);
+  //
+  histname = "hcalTowerBcSumEtConeDR04";
+  if ( ! isRunCentrally_ ) h_hcalTowerBcSumEtConeDR04_[0][0] = iBooker.book1D(histname+"All",   "hcalTowerBcSumEtConeDR04: All Ecal",etBin,etMin,20.);
+  h_hcalTowerBcSumEtConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","hcalTowerBcSumEtConeDR04: Barrel ", etBin,etMin,20.);
+  h_hcalTowerBcSumEtConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","hcalTowerBcSumEtConeDR04: Endcap ", etBin,etMin,20.);
+  
+  //
+  if ( ! isRunCentrally_ ) {
+    histname="hcalTowerSumEtConeDR04VsEta";
+    h2_hcalTowerSumEtConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons hcalTowerSumEtConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
+    h2_hcalTowerSumEtConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons hcalTowerSumEtConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*0.1);
+  }
+  histname="pHcalTowerSumEtConeDR04VsEta";
+  p_hcalTowerSumEtConeDR04VsEta_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+  p_hcalTowerSumEtConeDR04VsEta_[1] = iBooker.bookProfile(histname+"Unconv","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+  histname="pHcalTowerBcSumEtConeDR04VsEta";
+  p_hcalTowerBcSumEtConeDR04VsEta_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerBcSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+  p_hcalTowerBcSumEtConeDR04VsEta_[1] = iBooker.bookProfile(histname+"Unconv","All photons hcalTowerBcSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+  //
+  if ( ! isRunCentrally_ ) {
+    histname="hcalTowerSumEtConeDR04VsEt";
+    h2_hcalTowerSumEtConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons hcalTowerSumEtConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    h2_hcalTowerSumEtConeDR04VsEt_[1] = iBooker.book2D(histname+"Barrel"," All photons hcalTowerSumEtConeDR04 vs Et: Barrel ",etBin,etMin, etMax,etBin,etMin,etMax*0.1);
+    h2_hcalTowerSumEtConeDR04VsEt_[2] = iBooker.book2D(histname+"Endcap"," All photons hcalTowerSumEtConeDR04 vs Et: Endcap ",etBin,etMin, etMax,etBin,etMin,etMax*0.1);
+  }
+  histname="pHcalTowerSumEtConeDR04VsEt";
+  if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEt_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  p_hcalTowerSumEtConeDR04VsEt_[1] = iBooker.bookProfile(histname+"Barrel","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  p_hcalTowerSumEtConeDR04VsEt_[2] = iBooker.bookProfile(histname+"Endcap","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  //
+  histname="pHcalTowerBcSumEtConeDR04VsEt";
+  if ( ! isRunCentrally_ ) p_hcalTowerBcSumEtConeDR04VsEt_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  p_hcalTowerBcSumEtConeDR04VsEt_[1] = iBooker.bookProfile(histname+"Barrel","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  p_hcalTowerBcSumEtConeDR04VsEt_[2] = iBooker.bookProfile(histname+"Endcap","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+  
+  //
+  histname = "isoTrkSolidConeDR04";
+  h_isoTrkSolidConeDR04_[0][0] = iBooker.book1D(histname+"All",   "isoTrkSolidConeDR04: All Ecal",etBin,etMin,etMax*0.1);
+  h_isoTrkSolidConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","isoTrkSolidConeDR04: Barrel ", etBin,etMin,etMax*0.1);
+  h_isoTrkSolidConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","isoTrkSolidConeDR04: Endcap ", etBin,etMin,etMax*0.1);
+  //
+  
+  histname="isoTrkSolidConeDR04VsEta";
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons isoTrkSolidConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*0.1);
+  
+  //
+  histname="isoTrkSolidConeDR04VsEt";
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+  //
+  histname = "nTrkSolidConeDR04";
+  h_nTrkSolidConeDR04_[0][0] = iBooker.book1D(histname+"All",   "nTrkSolidConeDR04: All Ecal",20,0., 20) ;
+  h_nTrkSolidConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","nTrkSolidConeDR04: Barrel ", 20,0., 20) ;
+  h_nTrkSolidConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","nTrkSolidConeDR04: Endcap ", 20,0., 20) ;
+  //
+  histname="nTrkSolidConeDR04VsEta";
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons nTrkSolidConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,20,0., 20) ;
+  //
+  histname="nTrkSolidConeDR04VsEt";
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+  if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax,20,0., 20) ;
+  //
+  histname = "phoE";
+  h_phoE_[0][0]=iBooker.book1D(histname+"All"," Photon Energy: All ecal ", eBin,eMin, eMax);
+  h_phoE_[0][1]=iBooker.book1D(histname+"Barrel"," Photon Energy: barrel ",eBin,eMin, eMax);
+  h_phoE_[0][2]=iBooker.book1D(histname+"Endcap"," Photon Energy: Endcap ",eBin,eMin, eMax);
+  
+  histname = "phoEt";
+  h_phoEt_[0][0] = iBooker.book1D(histname+"All"," Photon Transverse Energy: All ecal ", etBin,etMin, etMax);
+  h_phoEt_[0][1] = iBooker.book1D(histname+"Barrel"," Photon Transverse Energy: Barrel ",etBin,etMin, etMax);
+  h_phoEt_[0][2] = iBooker.book1D(histname+"Endcap"," Photon Transverse Energy: Endcap ",etBin,etMin, etMax);
+  
+  
+  histname = "eRes";
+  h_phoERes_[0][0] = iBooker.book1D(histname+"All"," Photon E/E_{true}: All ecal;  E/E_{true} (GeV)", resBin,resMin, resMax);
+  h_phoERes_[0][1] = iBooker.book1D(histname+"Barrel","Photon E/E_{true}: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+  h_phoERes_[0][2] = iBooker.book1D(histname+"Endcap"," Photon E/E_{true}: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
+  
+  h_phoERes_[1][0] = iBooker.book1D(histname+"unconvAll"," Photon E/E_{true} if r9>0.94, 0.95: All ecal; E/E_{true} (GeV)", resBin,resMin, resMax);
+  h_phoERes_[1][1] = iBooker.book1D(histname+"unconvBarrel"," Photon E/E_{true} if r9>0.94: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+  h_phoERes_[1][2] = iBooker.book1D(histname+"unconvEndcap"," Photon E/E_{true} if r9>0.95: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
+  
+  h_phoERes_[2][0] = iBooker.book1D(histname+"convAll"," Photon E/E_{true} if r9<0.0.94, 0.95: All ecal; E/E_{true} (GeV)", resBin,resMin, resMax);
+  h_phoERes_[2][1] = iBooker.book1D(histname+"convBarrel"," Photon E/E_{true} if r9<0.94: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+  h_phoERes_[2][2] = iBooker.book1D(histname+"convEndcap"," Photon E/E_{true} if r9<0.95: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
+  
+  
+  histname = "sigmaEoE";
+  h_phoSigmaEoE_[0][0] = iBooker.book1D(histname+"All","#sigma_{E}/E: All ecal; #sigma_{E}/E", 100,0., 0.08);
+  h_phoSigmaEoE_[0][1] = iBooker.book1D(histname+"Barrel","#sigma_{E}/E: Barrel; #sigma_{E}/E",100,0., 0.08);
+  h_phoSigmaEoE_[0][2] = iBooker.book1D(histname+"Endcap","#sigma_{E}/E: Endcap, #sigma_{E}/E",100,0., 0.08);
+  
+  h_phoSigmaEoE_[1][0] = iBooker.book1D(histname+"unconvAll","#sigma_{E}/E if r9>0.94, 0.95: All ecal; #sigma_{E}/E", 100,0., 0.08);
+  h_phoSigmaEoE_[1][1] = iBooker.book1D(histname+"unconvBarrel","#sigma_{E}/E if r9>0.94: Barrel; #sigma_{E}/E",100,0., 0.08);
+  h_phoSigmaEoE_[1][2] = iBooker.book1D(histname+"unconvEndcap","#sigma_{E}/E r9>0.95: Endcap; #sigma_{E}/E",100,0., 0.08);
+  
+  h_phoSigmaEoE_[2][0] = iBooker.book1D(histname+"convAll","#sigma_{E}/E if r9<0.0.94, 0.95: All ecal, #sigma_{E}/E", 100,0., 0.08);
+  h_phoSigmaEoE_[2][1] = iBooker.book1D(histname+"convBarrel","#sigma_{E}/E if r9<0.94: Barrel, #sigma_{E}/E",100,0., 0.08);
+  h_phoSigmaEoE_[2][2] = iBooker.book1D(histname+"convEndcap","#sigma_{E}/E if r9<0.95: Endcap, #sigma_{E}/E",100,0., 0.08);
+  
     
 
-    iBooker.setCurrentFolder("EgammaV/"+fName_+"/SimulationInfo");
-    //
-    // simulation information about all MC photons found
-    std::string histname = "nOfSimPhotons";
-    if ( ! isRunCentrally_ ) {
-      h_nSimPho_[0] = iBooker.book1D(histname,"# of Sim photons per event ",20,-0.5,19.5);
-      histname = "SimPhoMotherEt";
-      h_SimPhoMotherEt_[0] = iBooker.book1D(histname,"Sim photon Mother tranverse energy spectrum",etBin,etMin,etMax);
-      h_SimPhoMotherEta_[0] = iBooker.book1D("SimPhoMotherEta"," Sim Photon Mother Eta ",etaBin,etaMin, etaMax) ;
-      histname = "SimPhoMotherEtMatched";
-      h_SimPhoMotherEt_[1] = iBooker.book1D(histname,"Sim photon  matched by a reco Photon: Mother tranverse energy spectrum",etBin,etMin,etMax);
-      h_SimPhoMotherEta_[1] = iBooker.book1D("SimPhoMotherEtaMatched"," Sim Photon matched by a reco Photon:  Mother Eta ",etaBin,etaMin, etaMax) ;
-    }
 
-    histname = "h_SimPhoEta";
-    h_SimPho_[0] =  iBooker.book1D(histname," All photons simulated #eta",etaBin,etaMin, etaMax);
-    histname = "h_SimPhoPhi";
-    h_SimPho_[1] =  iBooker.book1D(histname," All photons simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimPhoEt";
-    h_SimPho_[2] =  iBooker.book1D(histname," All photons simulated Et",etBin,etMin, etMax);
-    // Numerators
-    histname = "nOfSimPhotonsMatched";
-    h_nSimPho_[1] = iBooker.book1D(histname,"# of Sim photons matched by a reco Photon per event ",20,-0.5,19.5);
-    histname = "h_MatchedSimPhoEta";
-    h_MatchedSimPho_[0] =  iBooker.book1D(histname," Matching photons simulated #eta",etaBin,etaMin, etaMax);
-    histname = "h_MatchedSimPhoPhi";
-    h_MatchedSimPho_[1] =  iBooker.book1D(histname," Matching photons simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_MatchedSimPhoEt";
-    h_MatchedSimPho_[2] =  iBooker.book1D(histname," Matching photons simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_MatchedSimPhoBadChEta";
-    h_MatchedSimPhoBadCh_[0] =  iBooker.book1D(histname," Matching photons simulated #eta",etaBin,etaMin, etaMax);
-    histname = "h_MatchedSimPhoBadChPhi";
-    h_MatchedSimPhoBadCh_[1] =  iBooker.book1D(histname," Matching photons simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_MatchedSimPhoBadChEt";
-    h_MatchedSimPhoBadCh_[2] =  iBooker.book1D(histname," Matching photons simulated Et",etBin,etMin, etMax);
+  histname="eResVsEta";
+  if ( ! isRunCentrally_ ) h2_eResVsEta_[0] = iBooker.book2D(histname+"All"," All photons E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
+  if ( ! isRunCentrally_ ) h2_eResVsEta_[1] = iBooker.book2D(histname+"Unconv"," Unconv photons E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
+  
+  histname="pEResVsEta";
+  p_eResVsEta_[0] = iBooker.bookProfile(histname+"All","All photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
+  p_eResVsEta_[1] = iBooker.bookProfile(histname+"Unconv","Unconv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
+  p_eResVsEta_[2] = iBooker.bookProfile(histname+"Conv","Conv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
+  
+  histname="pSigmaEoEVsEta";
+  p_sigmaEoEVsEta_[0] = iBooker.bookProfile(histname+"All","All photons: #sigma_{E}/E vs #eta: all Ecal; #eta; #sigma_{E}/E",etaBin2,etaMin,etaMax,100,0., 0.08,"");
+  p_sigmaEoEVsEta_[1] = iBooker.bookProfile(histname+"Unconv","Unconv photons #sigma_{E}/E vs #eta: all Ecal; #eta; #sigma_{E}/E ",etaBin2,etaMin,etaMax,100,0., 0.08, "");
+  p_sigmaEoEVsEta_[2] = iBooker.bookProfile(histname+"Conv","Conv photons  #sigma_{E}/E vs #eta: all Ecal;  #eta; #sigma_{E}/E",etaBin2,etaMin,etaMax, 100,0., 0.08, "");
 
+    
 
-    /// Histograms for efficiencies
-    histname = "nOfSimConversions";
-    if ( ! isRunCentrally_ ) {
-      h_nSimConv_[0] = iBooker.book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
-      histname = "nOfVisSimConversions";
-      h_nSimConv_[1] = iBooker.book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
-    }
-    /// Denominators
-    histname = "h_AllSimConvEta";
-    h_AllSimConv_[0] =  iBooker.book1D(histname," All conversions: simulated #eta",etaBin2,etaMin,etaMax);
-    histname = "h_AllSimConvPhi";
-    h_AllSimConv_[1] =  iBooker.book1D(histname," All conversions: simulated #phi",phiBin,phiMin,phiMax);
-    histname = "h_AllSimConvR";
-    h_AllSimConv_[2] =  iBooker.book1D(histname," All conversions: simulated R",rBin,rMin,rMax);
-    histname = "h_AllSimConvZ";
-    h_AllSimConv_[3] =  iBooker.book1D(histname," All conversions: simulated Z",zBin,zMin,zMax);
-    histname = "h_AllSimConvEt";
-    h_AllSimConv_[4] =  iBooker.book1D(histname," All conversions: simulated Et",etBin,etMin,etMax);
-    //
-    histname = "h_VisSimConvEta";
-    h_VisSimConv_[0] =  iBooker.book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_VisSimConvPhi";
-    h_VisSimConv_[1] =  iBooker.book1D(histname," All vis conversions: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_VisSimConvR";
-    h_VisSimConv_[2] =  iBooker.book1D(histname," All vis conversions: simulated R",rBin,rMin,rMax);
-    histname = "h_VisSimConvZ";
-    h_VisSimConv_[3] =  iBooker.book1D(histname," All vis conversions: simulated Z",zBin,zMin, zMax);
-    histname = "h_VisSimConvEt";
-    h_VisSimConv_[4] =  iBooker.book1D(histname," All vis conversions: simulated Et",etBin,etMin, etMax);
-    /// Numerators
-    histname = "h_SimConvOneTracksEta";
-    h_SimConvOneTracks_[0] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_SimConvOneTracksPhi";
-    h_SimConvOneTracks_[1] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimConvOneTracksR";
-    h_SimConvOneTracks_[2] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated R",rBin,rMin, rMax);
-    histname = "h_SimConvOneTracksZ";
-    h_SimConvOneTracks_[3] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated Z",zBin,zMin, zMax);
-    histname = "h_SimConvOneTracksEt";
-    h_SimConvOneTracks_[4] =  iBooker.book1D(histname," All vis conversions with 1 reco  tracks: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_SimConvTwoMTracksEta";
-    h_SimConvTwoMTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_SimConvTwoMTracksPhi";
-    h_SimConvTwoMTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimConvTwoMTracksR";
-    h_SimConvTwoMTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
-    histname = "h_SimConvTwoMTracksZ";
-    h_SimConvTwoMTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
-    histname = "h_SimConvTwoMTracksEt";
-    h_SimConvTwoMTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_SimConvTwoTracksEta";
-    h_SimConvTwoTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_SimConvTwoTracksPhi";
-    h_SimConvTwoTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimConvTwoTracksR";
-    h_SimConvTwoTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
-    histname = "h_SimConvTwoTracksZ";
-    h_SimConvTwoTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
-    histname = "h_SimConvTwoTracksEt";
-    h_SimConvTwoTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_SimConvOneMTracksEta";
-    h_SimConvOneMTracks_[0] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_SimConvOneMTracksPhi";
-    h_SimConvOneMTracks_[1] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimConvOneMTracksR";
-    h_SimConvOneMTracks_[2] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated R",rBin,rMin, rMax);
-    histname = "h_SimConvOneMTracksZ";
-    h_SimConvOneMTracks_[3] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated Z",zBin,zMin, zMax);
-    histname = "h_SimConvOneMTracksEt";
-    h_SimConvOneMTracks_[4] =  iBooker.book1D(histname," All vis conversions with 1 reco-matching tracks: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_SimConvTwoMTracksEtaAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_SimConvTwoMTracksPhiAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimConvTwoMTracksRAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
-    histname = "h_SimConvTwoMTracksZAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
-    histname = "h_SimConvTwoMTracksEtAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_SimConvTwoMTracksEtaAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_SimConvTwoMTracksPhiAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimConvTwoMTracksRAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
-    histname = "h_SimConvTwoMTracksZAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
-    histname = "h_SimConvTwoMTracksEtAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+  histname="pSigmaEoEVsEt";
+  p_sigmaEoEVsEt_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+  p_sigmaEoEVsEt_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","Unconv photons #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+  p_sigmaEoEVsEt_[1][2] = iBooker.bookProfile(histname+"convBarrel","Conv photons  #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E",etBin,etMin,etMax, 100,0., 0.08, "");
+  p_sigmaEoEVsEt_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+  p_sigmaEoEVsEt_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","Unconv photons #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+  p_sigmaEoEVsEt_[2][2] = iBooker.bookProfile(histname+"convEndcap","Conv photons  #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E",etBin,etMin,etMax, 100,0., 0.08, "");
+  
+  
 
-
-
-    if ( ! isRunCentrally_ ) {
-      h_SimConvEtaPix_[0] = iBooker.book1D("simConvEtaPix"," sim converted Photon Eta: Pix ",etaBin,etaMin, etaMax) ;
-      h_simTkPt_ = iBooker.book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
-      h_simTkEta_ = iBooker.book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
-      h_simConvVtxRvsZ_[0] =   iBooker.book2D("simConvVtxRvsZAll"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-      h_simConvVtxRvsZ_[1] =   iBooker.book2D("simConvVtxRvsZBarrel"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-      h_simConvVtxRvsZ_[2] =   iBooker.book2D("simConvVtxRvsZEndcap"," Photon Sim conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-      h_simConvVtxYvsX_ =   iBooker.book2D("simConvVtxYvsXTrkBarrel"," Photon Sim conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
-    }
-
-    //// histograms for bkg
-    histname = "h_SimJetEta";
-    h_SimJet_[0] =  iBooker.book1D(histname," Jet bkg simulated #eta",etaBin,etaMin, etaMax);
-    histname = "h_SimJetPhi";
-    h_SimJet_[1] =  iBooker.book1D(histname," Jet bkg simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_SimJetEt";
-    h_SimJet_[2] =  iBooker.book1D(histname," Jet bkg simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_MatchedSimJetEta";
-    h_MatchedSimJet_[0] =  iBooker.book1D(histname," Matching jet simulated #eta",etaBin,etaMin, etaMax);
-    histname = "h_MatchedSimJetPhi";
-    h_MatchedSimJet_[1] =  iBooker.book1D(histname," Matching jet simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_MatchedSimJetEt";
-    h_MatchedSimJet_[2] =  iBooker.book1D(histname," Matching jet simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_MatchedSimJetBadChEta";
-    h_MatchedSimJetBadCh_[0] =  iBooker.book1D(histname," Matching jet simulated #eta",etaBin,etaMin, etaMax);
-    histname = "h_MatchedSimJetBadChPhi";
-    h_MatchedSimJetBadCh_[1] =  iBooker.book1D(histname," Matching jet simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_MatchedSimJetBadChEt";
-    h_MatchedSimJetBadCh_[2] =  iBooker.book1D(histname," Matching jet simulated Et",etBin,etMin, etMax);
-
-
-    iBooker.setCurrentFolder("EgammaV/"+fName_+"/Background");
-
-    histname = "nOfPhotons";
-    h_nPho_ = iBooker.book1D(histname,"# of Reco photons per event ",20,-0.5,19.5);
-
-    h_scBkgEta_ = iBooker.book1D("scBkgEta"," SC Bkg Eta ",etaBin,etaMin, etaMax) ;
-    h_scBkgPhi_ = iBooker.book1D("scBkgPhi"," SC Bkg  Phi ",phiBin,phiMin,phiMax) ;
-    //
-    h_phoBkgEta_ = iBooker.book1D("phoBkgEta"," Photon Bkg Eta ",etaBin,etaMin, etaMax) ;
-    h_phoBkgPhi_ = iBooker.book1D("phoBkgPhi"," Photon Bkg Phi ",phiBin,phiMin,phiMax) ;
-    //
-    h_phoBkgDEta_ = iBooker.book1D("phoBkgDEta"," Photon Eta(rec)-Eta(true) ",dEtaBin,dEtaMin, dEtaMax) ;
-    h_phoBkgDPhi_ = iBooker.book1D("phoBkgDPhi"," Photon  Phi(rec)-Phi(true) ",dPhiBin,dPhiMin,dPhiMax) ;
-    //
-    histname = "phoBkgE";
-    h_phoBkgE_[0]=iBooker.book1D(histname+"All"," Photon Bkg Energy: All ecal ", eBin,eMin, eMax);
-    h_phoBkgE_[1]=iBooker.book1D(histname+"Barrel"," Photon Bkg Energy: barrel ",eBin,eMin, eMax);
-    h_phoBkgE_[2]=iBooker.book1D(histname+"Endcap"," Photon Bkg Energy: Endcap ",eBin,eMin, eMax);
-    //
-    histname = "phoBkgEt";
-    h_phoBkgEt_[0] = iBooker.book1D(histname+"All"," Photon Bkg Transverse Energy: All ecal ", etBin,etMin, etMax);
-    h_phoBkgEt_[1] = iBooker.book1D(histname+"Barrel"," Photon Bkg Transverse Energy: Barrel ",etBin,etMin, etMax);
-    h_phoBkgEt_[2] = iBooker.book1D(histname+"Endcap"," Photon BkgTransverse Energy: Endcap ",etBin,etMin, etMax);
-
-    //
-    histname = "scBkgE";
-    h_scBkgE_[0] = iBooker.book1D(histname+"All","    SC bkg Energy: All Ecal  ",eBin,eMin, eMax);
-    h_scBkgE_[1] = iBooker.book1D(histname+"Barrel"," SC bkg Energy: Barrel ",eBin,eMin, eMax);
-    h_scBkgE_[2] = iBooker.book1D(histname+"Endcap"," SC bkg Energy: Endcap ",eBin,eMin, eMax);
-    histname = "scBkgEt";
-    h_scBkgEt_[0] = iBooker.book1D(histname+"All","    SC bkg Et: All Ecal  ",eBin,eMin, eMax);
-    h_scBkgEt_[1] = iBooker.book1D(histname+"Barrel"," SC bkg Et: Barrel ",eBin,eMin, eMax);
-    h_scBkgEt_[2] = iBooker.book1D(histname+"Endcap"," SC bkg Et: Endcap ",eBin,eMin, eMax);
-    //
-    histname = "r9Bkg";
-    h_r9Bkg_[0] = iBooker.book1D(histname+"All",   " r9 bkg: All Ecal",r9Bin,r9Min, r9Max) ;
-    h_r9Bkg_[1] = iBooker.book1D(histname+"Barrel"," r9 bkg: Barrel ",r9Bin,r9Min, r9Max) ;
-    h_r9Bkg_[2] = iBooker.book1D(histname+"Endcap"," r9 bkg: Endcap ",r9Bin,r9Min, r9Max) ;
-    //
-    histname="R9VsEtaBkg";
-    if ( ! isRunCentrally_ ) h2_r9VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    //
-    histname="R9VsEtBkg";
-    if ( ! isRunCentrally_ ) h2_r9VsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    //
-    histname = "r1Bkg";
-    h_r1Bkg_[0] = iBooker.book1D(histname+"All",   " Bkg photon e1x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
-    h_r1Bkg_[1] = iBooker.book1D(histname+"Barrel"," Bkg photon e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
-    h_r1Bkg_[2] = iBooker.book1D(histname+"Endcap"," Bkg photon e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
-    //
-    histname="R1VsEtaBkg";
-    if ( ! isRunCentrally_ ) h2_r1VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    histname="pR1VsEtaBkg";
-    if ( ! isRunCentrally_ ) p_r1VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    //
-    histname="R1VsEtBkg";
-    if ( ! isRunCentrally_ ) h2_r1VsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    histname="pR1VsEtBkg";
-    if ( ! isRunCentrally_ ) p_r1VsEtBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    //
-    histname = "r2Bkg";
-    h_r2Bkg_[0] = iBooker.book1D(histname+"All",   " Bkg photon e2x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
-    h_r2Bkg_[1] = iBooker.book1D(histname+"Barrel"," Bkg photon e2x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
-    h_r2Bkg_[2] = iBooker.book1D(histname+"Endcap"," Bkg photon e2x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
-    //
-    histname="R2VsEtaBkg";
-    if ( ! isRunCentrally_ ) h2_r2VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    histname="pR2VsEtaBkg";
-    if ( ! isRunCentrally_ ) p_r2VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    //
-    histname="R2VsEtBkg";
-    if ( ! isRunCentrally_ ) h2_r2VsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    histname="pR2VsEtBkg";
-    if ( ! isRunCentrally_ ) p_r2VsEtBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-
-
-    histname = "sigmaIetaIetaBkg";
-    h_sigmaIetaIetaBkg_[0] = iBooker.book1D(histname+"All",   "Bkg sigmaIetaIeta: All Ecal",100,0., 0.1) ;
-    h_sigmaIetaIetaBkg_[1] = iBooker.book1D(histname+"Barrel","Bkg sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
-    h_sigmaIetaIetaBkg_[2] = iBooker.book1D(histname+"Endcap","Bkg sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
-    //
-    histname="sigmaIetaIetaVsEtaBkg";
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-    histname="pSigmaIetaIetaVsEtaBkg";
-    if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-    //
-    histname="sigmaIetaIetaVsEtBkg";
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    //
-    histname="pSigmaIetaIetaVsEtBkg";
-    if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtBkg_[0] = iBooker.bookProfile(histname+"All"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) p_sigmaIetaIetaVsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    //
-    histname = "hOverEBkg";
-    h_hOverEBkg_[0] = iBooker.book1D(histname+"All",   "H/E bkg: All Ecal",100,0., 1.) ;
-    h_hOverEBkg_[1] = iBooker.book1D(histname+"Barrel","H/E bkg: Barrel ", 100,0., 1.) ;
-    h_hOverEBkg_[2] = iBooker.book1D(histname+"Endcap","H/E bkg: Endcap ", 100,0., 1.) ;
-    //
-    histname="pHOverEVsEtaBkg";
-    if ( ! isRunCentrally_ ) p_hOverEVsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-    histname="pHOverEVsEtBkg";
-    if ( ! isRunCentrally_ ) p_hOverEVsEtBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) {
-      histname="hOverEVsEtaBkg";
-      h2_hOverEVsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-      //
-      histname="hOverEVsEtBkg";
-      h2_hOverEVsEtBkg_ = iBooker.book2D(histname+"All"," Bkg photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    }
-    //
-    histname = "ecalRecHitSumEtConeDR04Bkg";
-    h_ecalRecHitSumEtConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "bkg ecalRecHitSumEtDR04: All Ecal",etBin,etMin,50.);
-    h_ecalRecHitSumEtConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","bkg ecalRecHitSumEtDR04: Barrel ", etBin,etMin,50.);
-    h_ecalRecHitSumEtConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","bkg ecalRecHitSumEtDR04: Endcap ", etBin,etMin,50.);
-    //
-    if ( ! isRunCentrally_ ) {
-      histname="ecalRecHitSumEtConeDR04VsEtaBkg";
-      h2_ecalRecHitSumEtConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," bkg ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
-      histname="ecalRecHitSumEtConeDR04VsEtBkg";
-      h2_ecalRecHitSumEtConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      h2_ecalRecHitSumEtConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg ecalRecHitSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      h2_ecalRecHitSumEtConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg ecalRecHitSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      histname="hcalTowerSumEtConeDR04VsEtaBkg";
-      h2_hcalTowerSumEtConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," bkg hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
-      histname="hcalTowerSumEtConeDR04VsEtBkg";
-      h2_hcalTowerSumEtConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      h2_hcalTowerSumEtConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg hcalTowerSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      h2_hcalTowerSumEtConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg hcalTowerSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-    }
-
-    histname="pEcalRecHitSumEtConeDR04VsEtaBkg";
-    if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All","bkg photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
-    //
-    histname="pEcalRecHitSumEtConeDR04VsEtBkg";
-    if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    //
-    histname = "hcalTowerSumEtConeDR04Bkg";
-    h_hcalTowerSumEtConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "bkg hcalTowerSumEtDR04: All Ecal",etBin,etMin,20.);
-    h_hcalTowerSumEtConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","bkg hcalTowerSumEtDR04: Barrel ", etBin,etMin,20.);
-    h_hcalTowerSumEtConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","bkg hcalTowerSumEtDR04: Endcap ", etBin,etMin,20.);
-    //
-    histname="pHcalTowerSumEtConeDR04VsEtaBkg";
-    if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All","bkg photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
-    //
-    histname="pHcalTowerSumEtConeDR04VsEtBkg";
-    if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    //
-    histname = "isoTrkSolidConeDR04Bkg";
-    h_isoTrkSolidConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "isoTrkSolidConeDR04 Bkg: All Ecal",etBin,etMin,etMax*0.1);
-    h_isoTrkSolidConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","isoTrkSolidConeDR04 Bkg: Barrel ", etBin,etMin,etMax*0.1);
-    h_isoTrkSolidConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","isoTrkSolidConeDR04 Bkg: Endcap ", etBin,etMin,etMax*0.1);
-    //
-    histname="isoTrkSolidConeDR04VsEtaBkg";
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
-    histname="pIsoTrkSolidConeDR04VsEtaBkg";
-    if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
-    //
-    histname="isoTrkSolidConeDR04VsEtBkg";
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    histname="pIsoTrkSolidConeDR04VsEtBkg";
-    if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    if ( ! isRunCentrally_ ) p_isoTrkSolidConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    //
-    histname = "nTrkSolidConeDR04Bkg";
-    h_nTrkSolidConeDR04Bkg_[0] = iBooker.book1D(histname+"All",   "Bkg nTrkSolidConeDR04: All Ecal",20,0., 20) ;
-    h_nTrkSolidConeDR04Bkg_[1] = iBooker.book1D(histname+"Barrel","Bkg nTrkSolidConeDR04: Barrel ", 20,0., 20) ;
-    h_nTrkSolidConeDR04Bkg_[2] = iBooker.book1D(histname+"Endcap","Bkg nTrkSolidConeDR04: Endcap ", 20,0., 20) ;
-    //
-    histname="nTrkSolidConeDR04VsEtaBkg";
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtaBkg_ = iBooker.book2D(histname+"All"," Bkg photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
-    histname="p_nTrkSolidConeDR04VsEtaBkg";
-    if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtaBkg_ = iBooker.bookProfile(histname+"All"," Bkg photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
-    //
-    histname="nTrkSolidConeDR04VsEtBkg";
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtBkg_[0] = iBooker.book2D(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtBkg_[1] = iBooker.book2D(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEtBkg_[2] = iBooker.book2D(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    //
-    histname="pnTrkSolidConeDR04VsEtBkg";
-    if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtBkg_[0] = iBooker.bookProfile(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtBkg_[1] = iBooker.bookProfile(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    if ( ! isRunCentrally_ ) p_nTrkSolidConeDR04VsEtBkg_[2] = iBooker.bookProfile(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    //
-    h_convEtaBkg_ = iBooker.book1D("convEtaBkg"," converted Photon Bkg Eta 2 tracks",etaBin,etaMin, etaMax) ;
-    h_convPhiBkg_ = iBooker.book1D("convPhiBkg"," converted Photon Bkg Phi ",phiBin,phiMin,phiMax) ;
-    //
-    histname="mvaOutBkg";
-    h_mvaOutBkg_[0] = iBooker.book1D(histname+"All"," mvaOut  conversions bkg : All Ecal",100, 0., 1.);
-    h_mvaOutBkg_[1] = iBooker.book1D(histname+"Barrel"," mvaOut conversions bkg: Barrel Ecal",100, 0., 1.);
-    h_mvaOutBkg_[2] = iBooker.book1D(histname+"Endcap"," mvaOut  conversions bkg: Endcap Ecal",100, 0., 1.);
-
-    histname="PoverEtracksBkg";
-    h_PoverETracksBkg_[0] = iBooker.book1D(histname+"All"," bkg photons conversion p/E: all Ecal ",povereBin, povereMin, povereMax);
-    h_PoverETracksBkg_[1] = iBooker.book1D(histname+"Barrel","bkg photons conversion p/E: Barrel Ecal",povereBin, povereMin, povereMax);
-    h_PoverETracksBkg_[2] = iBooker.book1D(histname+"Endcap"," bkg photons conversion p/E: Endcap Ecal ",povereBin, povereMin, povereMax);
-
-    histname="EoverPtracksBkg";
-    h_EoverPTracksBkg_[0] = iBooker.book1D(histname+"All"," bkg photons conversion E/p: all Ecal ",eoverpBin, eoverpMin, eoverpMax);
-    h_EoverPTracksBkg_[1] = iBooker.book1D(histname+"Barrel","bkg photons conversion E/p: Barrel Ecal",eoverpBin, eoverpMin, eoverpMax);
-    h_EoverPTracksBkg_[2] = iBooker.book1D(histname+"Endcap"," bkg photons conversion E/p: Endcap Ecal ",eoverpBin, eoverpMin, eoverpMax);
-
-    histname="hDCotTracksBkg";
-    h_DCotTracksBkg_[0]= iBooker.book1D(histname+"All"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracksBkg_[1]= iBooker.book1D(histname+"Barrel"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracksBkg_[2]= iBooker.book1D(histname+"Endcap"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-
-    histname="hDPhiTracksAtVtxBkg";
-    h_DPhiTracksAtVtxBkg_[0] =iBooker.book1D(histname+"All", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtxBkg_[1] =iBooker.book1D(histname+"Barrel", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtxBkg_[2] =iBooker.book1D(histname+"Endcap", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-
-    if ( ! isRunCentrally_ ) {
-      h_convVtxRvsZBkg_[0] =   iBooker.book2D("convVtxRvsZAllBkg"," Bkg Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-      h_convVtxRvsZBkg_[1] =   iBooker.book2D("convVtxRvsZBarrelBkg"," Bkg Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-      h_convVtxYvsXBkg_ =   iBooker.book2D("convVtxYvsXTrkBarrelBkg"," Bkg Photon Reco conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
-    }
-
-    //
-    iBooker.setCurrentFolder("EgammaV/"+fName_+"/Photons");
-
-    histname="nOfflineVtx";
-    h_nRecoVtx_ = iBooker.book1D(histname,"# of Offline Vertices",80, -0.5, 79.5);
-
-    h_phoEta_[0] = iBooker.book1D("phoEta"," Photon Eta ",etaBin,etaMin, etaMax) ;
-    h_phoPhi_[0] = iBooker.book1D("phoPhi"," Photon  Phi ",phiBin,phiMin,phiMax) ;
-
-    h_phoDEta_[0] = iBooker.book1D("phoDEta"," Photon Eta(rec)-Eta(true) ",dEtaBin,dEtaMin, dEtaMax) ;
-    h_phoDPhi_[0] = iBooker.book1D("phoDPhi"," Photon  Phi(rec)-Phi(true) ",dPhiBin,dPhiMin,dPhiMax) ;
-
-    h_scEta_[0] =   iBooker.book1D("scEta"," SC Eta ",etaBin,etaMin, etaMax);
-    h_scPhi_[0] =   iBooker.book1D("scPhi"," SC Phi ",phiBin,phiMin,phiMax);
-
-    if ( ! isRunCentrally_ ) {
-      h_scEtaWidth_[0] =   iBooker.book1D("scEtaWidth"," SC Eta Width ",100,0., 0.1);
-      h_scPhiWidth_[0] =   iBooker.book1D("scPhiWidth"," SC Phi Width ",100,0., 1.);
-    }
-
-    histname = "scE";
-    h_scE_[0][0] = iBooker.book1D(histname+"All"," SC Energy: All Ecal  ",eBin,eMin, eMax);
-    h_scE_[0][1] = iBooker.book1D(histname+"Barrel"," SC Energy: Barrel ",eBin,eMin, eMax);
-    h_scE_[0][2] = iBooker.book1D(histname+"Endcap"," SC Energy: Endcap ",eBin,eMin, eMax);
-
-    histname = "psE";
-    h_psE_ = iBooker.book1D(histname+"Endcap"," ES Energy  ",eBin,eMin, 50.);
-
-
-    histname = "scEt";
-    h_scEt_[0][0] = iBooker.book1D(histname+"All"," SC Et: All Ecal ",etBin,etMin, etMax) ;
-    h_scEt_[0][1] = iBooker.book1D(histname+"Barrel"," SC Et: Barrel",etBin,etMin, etMax) ;
-    h_scEt_[0][2] = iBooker.book1D(histname+"Endcap"," SC Et: Endcap",etBin,etMin, etMax) ;
-
-    histname = "r9";
-    h_r9_[0][0] = iBooker.book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
-    h_r9_[0][1] = iBooker.book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
-    h_r9_[0][2] = iBooker.book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
-    //
-
-    if ( ! isRunCentrally_ ) {
-      histname = "r9ConvFromMC";
-      h_r9_[1][0] = iBooker.book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
-      h_r9_[1][1] = iBooker.book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
-      h_r9_[1][2] = iBooker.book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
-      //
-      histname = "r9ConvFromReco";
-      h_r9_[2][0] = iBooker.book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
-      h_r9_[2][1] = iBooker.book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
-      h_r9_[2][2] = iBooker.book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
-      //////
-      histname = "EtR9Less093";
-      h_EtR9Less093_[0][0] = iBooker.book1D(histname+"All",   " r9 < 0.94 or 0.95 : All Ecal",etBin,etMin, etMax);
-      h_EtR9Less093_[0][1] = iBooker.book1D(histname+"Barrel"," r9 < 0.94 : Barrel ",etBin,etMin, etMax);
-      h_EtR9Less093_[0][2] = iBooker.book1D(histname+"Endcap"," r9 < 0.95 : Endcap ",etBin,etMin, etMax);
-      histname = "EtR9Less093Conv";
-      h_EtR9Less093_[1][0] = iBooker.book1D(histname+"All",   " r9 < 0.94, 0.95 and good conv : All Ecal",etBin,etMin, etMax);
-      h_EtR9Less093_[1][1] = iBooker.book1D(histname+"Barrel"," r9 < 0.94 and good conv : Barrel ",etBin,etMin, etMax);
-      h_EtR9Less093_[1][2] = iBooker.book1D(histname+"Endcap"," r9 < 0.95 and good conv : Endcap ",etBin,etMin, etMax);
-    }
-
-    /////    //
-    histname="pR9VsEta";
-    p_r9VsEta_[0] = iBooker.bookProfile(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    p_r9VsEta_[1] = iBooker.bookProfile(histname+"Unconv"," Unconv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    p_r9VsEta_[2] = iBooker.bookProfile(histname+"Conv"," Conv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    //
-    histname="R9VsEt";
-    if ( ! isRunCentrally_ ) h2_r9VsEt_[0] = iBooker.book2D(histname+"All"," All photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    if ( ! isRunCentrally_ ) h2_r9VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    //
-    histname = "r1";
-    h_r1_[0][0] = iBooker.book1D(histname+"All",   " e1x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
-    h_r1_[0][1] = iBooker.book1D(histname+"Barrel"," e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
-    h_r1_[0][2] = iBooker.book1D(histname+"Endcap"," e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
-    //
-    histname="R1VsEta";
-    if ( ! isRunCentrally_ ) h2_r1VsEta_[0] = iBooker.book2D(histname+"All"," All photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    if ( ! isRunCentrally_ ) h2_r1VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    //
-    histname="R1VsEt";
-    if ( ! isRunCentrally_ ) h2_r1VsEt_[0] = iBooker.book2D(histname+"All"," All photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    if ( ! isRunCentrally_ ) h2_r1VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    //
-    histname = "r2";
-    h_r2_[0][0] = iBooker.book1D(histname+"All",   " e2x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
-    h_r2_[0][1] = iBooker.book1D(histname+"Barrel"," e2x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
-    h_r2_[0][2] = iBooker.book1D(histname+"Endcap"," e2x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
-    //
-    histname="R2VsEta";
-    if ( ! isRunCentrally_ ) h2_r2VsEta_[0] = iBooker.book2D(histname+"All"," All photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    if ( ! isRunCentrally_ ) h2_r2VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    //
-    histname="R2VsEt";
-    if ( ! isRunCentrally_ ) h2_r2VsEt_[0] = iBooker.book2D(histname+"All"," All photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    if ( ! isRunCentrally_ ) h2_r2VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
-    //
-    histname = "sigmaIetaIeta";
-    h_sigmaIetaIeta_[0][0] = iBooker.book1D(histname+"All",   "sigmaIetaIeta: All Ecal",100,0., 0.1) ;
-    h_sigmaIetaIeta_[0][1] = iBooker.book1D(histname+"Barrel","sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
-    h_sigmaIetaIeta_[0][2] = iBooker.book1D(histname+"Endcap","sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
-    //
-    histname="sigmaIetaIetaVsEta";
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEta_[0] = iBooker.book2D(histname+"All"," All photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons sigmaIetaIeta vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
-    //
-    histname="sigmaIetaIetaVsEt";
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEt_[0] = iBooker.book2D(histname+"All"," All photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    if ( ! isRunCentrally_ ) h2_sigmaIetaIetaVsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    //
-    histname = "hOverE";
-    h_hOverE_[0][0] = iBooker.book1D(histname+"All",   "H/E: All Ecal",100,0., 0.1) ;
-    h_hOverE_[0][1] = iBooker.book1D(histname+"Barrel","H/E: Barrel ", 100,0., 0.1) ;
-    h_hOverE_[0][2] = iBooker.book1D(histname+"Endcap","H/E: Endcap ", 100,0., 0.1) ;
-    //
-    histname = "newhOverE";
-    h_newhOverE_[0][0] = iBooker.book1D(histname+"All",   "new H/E: All Ecal",100,0., 0.1) ;
-    h_newhOverE_[0][1] = iBooker.book1D(histname+"Barrel","new H/E: Barrel ", 100,0., 0.1) ;
-    h_newhOverE_[0][2] = iBooker.book1D(histname+"Endcap","new H/E: Endcap ", 100,0., 0.1) ;
-
-    //
-    if ( ! isRunCentrally_ ) {
-      histname="hOverEVsEta";
-      h2_hOverEVsEta_[0] = iBooker.book2D(histname+"All"," All photons H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-      h2_hOverEVsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
-      //
-      histname="hOverEVsEt";
-      h2_hOverEVsEt_[0] = iBooker.book2D(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-      h2_hOverEVsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-      //
-    }
-    histname="pHoverEVsEta";
-    p_hOverEVsEta_[0] = iBooker.bookProfile(histname+"All"," All photons H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-    p_hOverEVsEta_[1] = iBooker.bookProfile(histname+"Unconv"," All photons H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
-    //
-    histname="pHoverEVsEt";
-    p_hOverEVsEt_[0] = iBooker.bookProfile(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    p_hOverEVsEt_[1] = iBooker.bookProfile(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    //
-    histname="pnewHoverEVsEta";
-    p_newhOverEVsEta_[0] = iBooker.bookProfile(histname+"All"," All photons new H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
-    p_newhOverEVsEta_[1] = iBooker.bookProfile(histname+"Unconv"," All photons new H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
-    //
-    histname="pnewHoverEVsEt";
-    p_newhOverEVsEt_[0] = iBooker.bookProfile(histname+"All"," All photons new H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    p_newhOverEVsEt_[1] = iBooker.bookProfile(histname+"Unconv"," All photons new H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
-    //
-    histname = "ecalRecHitSumEtConeDR04";
-    h_ecalRecHitSumEtConeDR04_[0][0] = iBooker.book1D(histname+"All",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
-    h_ecalRecHitSumEtConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","ecalRecHitSumEtDR04: Barrel ", etBin,etMin,20.);
-    h_ecalRecHitSumEtConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","ecalRecHitSumEtDR04: Endcap ", etBin,etMin,20.);
-    //
-
-    if ( ! isRunCentrally_ ) {
-      histname="ecalRecHitSumEtConeDR04VsEta";
-      h2_ecalRecHitSumEtConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
-      h2_ecalRecHitSumEtConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*etScale);
-    }
-    histname="pEcalRecHitSumEtConeDR04VsEta";
-    p_ecalRecHitSumEtConeDR04VsEta_[0] = iBooker.bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
-    p_ecalRecHitSumEtConeDR04VsEta_[1] = iBooker.bookProfile(histname+"Unconv","All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
-    //
-    if ( ! isRunCentrally_ ) {
-      histname="ecalRecHitSumEtConeDR04VsEt";
-      h2_ecalRecHitSumEtConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      h2_ecalRecHitSumEtConeDR04VsEt_[1] = iBooker.book2D(histname+"Barrel"," All photons ecalRecHitSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-      h2_ecalRecHitSumEtConeDR04VsEt_[2] = iBooker.book2D(histname+"Endcap"," All photons ecalRecHitSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
-    }
-    histname="pEcalRecHitSumEtConeDR04VsEt";
-    if ( ! isRunCentrally_ ) p_ecalRecHitSumEtConeDR04VsEt_[0] = iBooker.bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_ecalRecHitSumEtConeDR04VsEt_[1] = iBooker.bookProfile(histname+"Barrel","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_ecalRecHitSumEtConeDR04VsEt_[2] = iBooker.bookProfile(histname+"Endcap","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    //
-    histname = "hcalTowerSumEtConeDR04";
-    h_hcalTowerSumEtConeDR04_[0][0] = iBooker.book1D(histname+"All",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,20.);
-    h_hcalTowerSumEtConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","hcalTowerSumEtConeDR04: Barrel ", etBin,etMin,20.);
-    h_hcalTowerSumEtConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","hcalTowerSumEtConeDR04: Endcap ", etBin,etMin,20.);
-    //
-    histname = "hcalTowerBcSumEtConeDR04";
-    if ( ! isRunCentrally_ ) h_hcalTowerBcSumEtConeDR04_[0][0] = iBooker.book1D(histname+"All",   "hcalTowerBcSumEtConeDR04: All Ecal",etBin,etMin,20.);
-    h_hcalTowerBcSumEtConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","hcalTowerBcSumEtConeDR04: Barrel ", etBin,etMin,20.);
-    h_hcalTowerBcSumEtConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","hcalTowerBcSumEtConeDR04: Endcap ", etBin,etMin,20.);
-
-    //
-    if ( ! isRunCentrally_ ) {
-      histname="hcalTowerSumEtConeDR04VsEta";
-      h2_hcalTowerSumEtConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons hcalTowerSumEtConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
-      h2_hcalTowerSumEtConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons hcalTowerSumEtConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*0.1);
-    }
-    histname="pHcalTowerSumEtConeDR04VsEta";
-    p_hcalTowerSumEtConeDR04VsEta_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
-    p_hcalTowerSumEtConeDR04VsEta_[1] = iBooker.bookProfile(histname+"Unconv","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
-    histname="pHcalTowerBcSumEtConeDR04VsEta";
-    p_hcalTowerBcSumEtConeDR04VsEta_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerBcSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
-    p_hcalTowerBcSumEtConeDR04VsEta_[1] = iBooker.bookProfile(histname+"Unconv","All photons hcalTowerBcSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
-    //
-    if ( ! isRunCentrally_ ) {
-      histname="hcalTowerSumEtConeDR04VsEt";
-      h2_hcalTowerSumEtConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons hcalTowerSumEtConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-      h2_hcalTowerSumEtConeDR04VsEt_[1] = iBooker.book2D(histname+"Barrel"," All photons hcalTowerSumEtConeDR04 vs Et: Barrel ",etBin,etMin, etMax,etBin,etMin,etMax*0.1);
-      h2_hcalTowerSumEtConeDR04VsEt_[2] = iBooker.book2D(histname+"Endcap"," All photons hcalTowerSumEtConeDR04 vs Et: Endcap ",etBin,etMin, etMax,etBin,etMin,etMax*0.1);
-    }
-    histname="pHcalTowerSumEtConeDR04VsEt";
-    if ( ! isRunCentrally_ ) p_hcalTowerSumEtConeDR04VsEt_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_hcalTowerSumEtConeDR04VsEt_[1] = iBooker.bookProfile(histname+"Barrel","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_hcalTowerSumEtConeDR04VsEt_[2] = iBooker.bookProfile(histname+"Endcap","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    //
-    histname="pHcalTowerBcSumEtConeDR04VsEt";
-    if ( ! isRunCentrally_ ) p_hcalTowerBcSumEtConeDR04VsEt_[0] = iBooker.bookProfile(histname+"All","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_hcalTowerBcSumEtConeDR04VsEt_[1] = iBooker.bookProfile(histname+"Barrel","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_hcalTowerBcSumEtConeDR04VsEt_[2] = iBooker.bookProfile(histname+"Endcap","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-
-    //
-    histname = "isoTrkSolidConeDR04";
-    h_isoTrkSolidConeDR04_[0][0] = iBooker.book1D(histname+"All",   "isoTrkSolidConeDR04: All Ecal",etBin,etMin,etMax*0.1);
-    h_isoTrkSolidConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","isoTrkSolidConeDR04: Barrel ", etBin,etMin,etMax*0.1);
-    h_isoTrkSolidConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","isoTrkSolidConeDR04: Endcap ", etBin,etMin,etMax*0.1);
-    //
-
-    histname="isoTrkSolidConeDR04VsEta";
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons isoTrkSolidConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*0.1);
-
-    //
-    histname="isoTrkSolidConeDR04VsEt";
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    if ( ! isRunCentrally_ ) h2_isoTrkSolidConeDR04VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
-    //
-    histname = "nTrkSolidConeDR04";
-    h_nTrkSolidConeDR04_[0][0] = iBooker.book1D(histname+"All",   "nTrkSolidConeDR04: All Ecal",20,0., 20) ;
-    h_nTrkSolidConeDR04_[0][1] = iBooker.book1D(histname+"Barrel","nTrkSolidConeDR04: Barrel ", 20,0., 20) ;
-    h_nTrkSolidConeDR04_[0][2] = iBooker.book1D(histname+"Endcap","nTrkSolidConeDR04: Endcap ", 20,0., 20) ;
-    //
-    histname="nTrkSolidConeDR04VsEta";
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEta_[0] = iBooker.book2D(histname+"All"," All photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEta_[1] = iBooker.book2D(histname+"Unconv"," All photons nTrkSolidConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,20,0., 20) ;
-    //
-    histname="nTrkSolidConeDR04VsEt";
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEt_[0] = iBooker.book2D(histname+"All"," All photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
-    if ( ! isRunCentrally_ ) h2_nTrkSolidConeDR04VsEt_[1] = iBooker.book2D(histname+"Unconv"," All photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax,20,0., 20) ;
-    //
-    histname = "phoE";
-    h_phoE_[0][0]=iBooker.book1D(histname+"All"," Photon Energy: All ecal ", eBin,eMin, eMax);
-    h_phoE_[0][1]=iBooker.book1D(histname+"Barrel"," Photon Energy: barrel ",eBin,eMin, eMax);
-    h_phoE_[0][2]=iBooker.book1D(histname+"Endcap"," Photon Energy: Endcap ",eBin,eMin, eMax);
-
-    histname = "phoEt";
-    h_phoEt_[0][0] = iBooker.book1D(histname+"All"," Photon Transverse Energy: All ecal ", etBin,etMin, etMax);
-    h_phoEt_[0][1] = iBooker.book1D(histname+"Barrel"," Photon Transverse Energy: Barrel ",etBin,etMin, etMax);
-    h_phoEt_[0][2] = iBooker.book1D(histname+"Endcap"," Photon Transverse Energy: Endcap ",etBin,etMin, etMax);
-
- 
-    histname = "eRes";
-    h_phoERes_[0][0] = iBooker.book1D(histname+"All"," Photon E/E_{true}: All ecal;  E/E_{true} (GeV)", resBin,resMin, resMax);
-    h_phoERes_[0][1] = iBooker.book1D(histname+"Barrel","Photon E/E_{true}: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
-    h_phoERes_[0][2] = iBooker.book1D(histname+"Endcap"," Photon E/E_{true}: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
-
-    h_phoERes_[1][0] = iBooker.book1D(histname+"unconvAll"," Photon E/E_{true} if r9>0.94, 0.95: All ecal; E/E_{true} (GeV)", resBin,resMin, resMax);
-    h_phoERes_[1][1] = iBooker.book1D(histname+"unconvBarrel"," Photon E/E_{true} if r9>0.94: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
-    h_phoERes_[1][2] = iBooker.book1D(histname+"unconvEndcap"," Photon E/E_{true} if r9>0.95: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
-
-    h_phoERes_[2][0] = iBooker.book1D(histname+"convAll"," Photon E/E_{true} if r9<0.0.94, 0.95: All ecal; E/E_{true} (GeV)", resBin,resMin, resMax);
-    h_phoERes_[2][1] = iBooker.book1D(histname+"convBarrel"," Photon E/E_{true} if r9<0.94: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
-    h_phoERes_[2][2] = iBooker.book1D(histname+"convEndcap"," Photon E/E_{true} if r9<0.95: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
+  histname="pSigmaEoEVsNVtx";
+  p_sigmaEoEVsNVtx_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons: #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+  p_sigmaEoEVsNVtx_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","Unconv photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
+  p_sigmaEoEVsNVtx_[1][2] = iBooker.bookProfile(histname+"convBarrel","Conv photons  #sigma_{E}/E vs N_{vtx}: Barrel;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+  p_sigmaEoEVsNVtx_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons: #sigma_{E}/E vs N_{vtx}: Endcap; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+  p_sigmaEoEVsNVtx_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","Unconv photons #sigma_{E}/E vs N_{vtx}: Endcap; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
+  p_sigmaEoEVsNVtx_[2][2] = iBooker.bookProfile(histname+"convEndcap","Conv photons  #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
    
 
-    histname = "sigmaEoE";
-    h_phoSigmaEoE_[0][0] = iBooker.book1D(histname+"All","#sigma_{E}/E: All ecal; #sigma_{E}/E", 100,0., 0.08);
-    h_phoSigmaEoE_[0][1] = iBooker.book1D(histname+"Barrel","#sigma_{E}/E: Barrel; #sigma_{E}/E",100,0., 0.08);
-    h_phoSigmaEoE_[0][2] = iBooker.book1D(histname+"Endcap","#sigma_{E}/E: Endcap, #sigma_{E}/E",100,0., 0.08);
-
-    h_phoSigmaEoE_[1][0] = iBooker.book1D(histname+"unconvAll","#sigma_{E}/E if r9>0.94, 0.95: All ecal; #sigma_{E}/E", 100,0., 0.08);
-    h_phoSigmaEoE_[1][1] = iBooker.book1D(histname+"unconvBarrel","#sigma_{E}/E if r9>0.94: Barrel; #sigma_{E}/E",100,0., 0.08);
-    h_phoSigmaEoE_[1][2] = iBooker.book1D(histname+"unconvEndcap","#sigma_{E}/E r9>0.95: Endcap; #sigma_{E}/E",100,0., 0.08);
-
-    h_phoSigmaEoE_[2][0] = iBooker.book1D(histname+"convAll","#sigma_{E}/E if r9<0.0.94, 0.95: All ecal, #sigma_{E}/E", 100,0., 0.08);
-    h_phoSigmaEoE_[2][1] = iBooker.book1D(histname+"convBarrel","#sigma_{E}/E if r9<0.94: Barrel, #sigma_{E}/E",100,0., 0.08);
-    h_phoSigmaEoE_[2][2] = iBooker.book1D(histname+"convEndcap","#sigma_{E}/E if r9<0.95: Endcap, #sigma_{E}/E",100,0., 0.08);
-
-    
-
-
-    histname="eResVsEta";
-    if ( ! isRunCentrally_ ) h2_eResVsEta_[0] = iBooker.book2D(histname+"All"," All photons E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
-    if ( ! isRunCentrally_ ) h2_eResVsEta_[1] = iBooker.book2D(histname+"Unconv"," Unconv photons E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
-
-    histname="pEResVsEta";
-    p_eResVsEta_[0] = iBooker.bookProfile(histname+"All","All photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
-    p_eResVsEta_[1] = iBooker.bookProfile(histname+"Unconv","Unconv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
-    p_eResVsEta_[2] = iBooker.bookProfile(histname+"Conv","Conv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
-
-    histname="pSigmaEoEVsEta";
-    p_sigmaEoEVsEta_[0] = iBooker.bookProfile(histname+"All","All photons: #sigma_{E}/E vs #eta: all Ecal; #eta; #sigma_{E}/E",etaBin2,etaMin,etaMax,100,0., 0.08,"");
-    p_sigmaEoEVsEta_[1] = iBooker.bookProfile(histname+"Unconv","Unconv photons #sigma_{E}/E vs #eta: all Ecal; #eta; #sigma_{E}/E ",etaBin2,etaMin,etaMax,100,0., 0.08, "");
-    p_sigmaEoEVsEta_[2] = iBooker.bookProfile(histname+"Conv","Conv photons  #sigma_{E}/E vs #eta: all Ecal;  #eta; #sigma_{E}/E",etaBin2,etaMin,etaMax, 100,0., 0.08, "");
-
-    
-
-    histname="pSigmaEoEVsEt";
-    p_sigmaEoEVsEt_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
-    p_sigmaEoEVsEt_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","Unconv photons #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
-    p_sigmaEoEVsEt_[1][2] = iBooker.bookProfile(histname+"convBarrel","Conv photons  #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E",etBin,etMin,etMax, 100,0., 0.08, "");
-    p_sigmaEoEVsEt_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
-    p_sigmaEoEVsEt_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","Unconv photons #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
-    p_sigmaEoEVsEt_[2][2] = iBooker.bookProfile(histname+"convEndcap","Conv photons  #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E",etBin,etMin,etMax, 100,0., 0.08, "");
-
-    
-
-    histname="pSigmaEoEVsNVtx";
-    p_sigmaEoEVsNVtx_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons: #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
-    p_sigmaEoEVsNVtx_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","Unconv photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
-    p_sigmaEoEVsNVtx_[1][2] = iBooker.bookProfile(histname+"convBarrel","Conv photons  #sigma_{E}/E vs N_{vtx}: Barrel;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
-    p_sigmaEoEVsNVtx_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons: #sigma_{E}/E vs N_{vtx}: Endcap; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
-    p_sigmaEoEVsNVtx_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","Unconv photons #sigma_{E}/E vs N_{vtx}: Endcap; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
-    p_sigmaEoEVsNVtx_[2][2] = iBooker.bookProfile(histname+"convEndcap","Conv photons  #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
-   
-
-    if ( ! isRunCentrally_ ) {
-      histname="eResVsEt";
-      h2_eResVsEt_[0][0] = iBooker.book2D(histname+"All"," All photons E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[0][1] = iBooker.book2D(histname+"unconv"," All photons E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[0][2] = iBooker.book2D(histname+"conv"," All photons E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[1][0] = iBooker.book2D(histname+"Barrel"," All photons E/Etrue vs true Et: Barrel ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[1][1] = iBooker.book2D(histname+"unconvBarrel"," All photons E/Etrue vs true Et: Barrel ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[1][2] = iBooker.book2D(histname+"convBarrel"," All photons E/Etrue vs true Et: Barrel ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[2][0] = iBooker.book2D(histname+"Endcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[2][1] = iBooker.book2D(histname+"unconvEndcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
-      h2_eResVsEt_[2][2] = iBooker.book2D(histname+"convEndcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
-    }
-
-    histname="pEResVsEt";
-    p_eResVsEt_[0][0] = iBooker.bookProfile(histname+"All","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[0][1] = iBooker.bookProfile(histname+"unconv","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[0][2] = iBooker.bookProfile(histname+"conv","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[1][2] = iBooker.bookProfile(histname+"convBarrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-    p_eResVsEt_[2][2] = iBooker.bookProfile(histname+"convEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
-
-
-    histname="pEResVsNVtx";
-    p_eResVsNVtx_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons  E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true}",80, -0.5, 79.5,resBin,resMin, resMax,"");
-    p_eResVsNVtx_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","Unconverted photons E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
-    p_eResVsNVtx_[1][2] = iBooker.bookProfile(histname+"convBarrel"," Converted photons  E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
-    p_eResVsNVtx_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
-    p_eResVsNVtx_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","Uncoverted photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
-    p_eResVsNVtx_[2][2] = iBooker.bookProfile(histname+"convEndcap","Converted photons E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+  if ( ! isRunCentrally_ ) {
+    histname="eResVsEt";
+    h2_eResVsEt_[0][0] = iBooker.book2D(histname+"All"," All photons E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[0][1] = iBooker.book2D(histname+"unconv"," All photons E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[0][2] = iBooker.book2D(histname+"conv"," All photons E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[1][0] = iBooker.book2D(histname+"Barrel"," All photons E/Etrue vs true Et: Barrel ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[1][1] = iBooker.book2D(histname+"unconvBarrel"," All photons E/Etrue vs true Et: Barrel ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[1][2] = iBooker.book2D(histname+"convBarrel"," All photons E/Etrue vs true Et: Barrel ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[2][0] = iBooker.book2D(histname+"Endcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[2][1] = iBooker.book2D(histname+"unconvEndcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
+    h2_eResVsEt_[2][2] = iBooker.book2D(histname+"convEndcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
+  }
+  
+  histname="pEResVsEt";
+  p_eResVsEt_[0][0] = iBooker.bookProfile(histname+"All","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[0][1] = iBooker.bookProfile(histname+"unconv","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[0][2] = iBooker.bookProfile(histname+"conv","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[1][2] = iBooker.bookProfile(histname+"convBarrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  p_eResVsEt_[2][2] = iBooker.bookProfile(histname+"convEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+  
+  
+  histname="pEResVsNVtx";
+  p_eResVsNVtx_[1][0] = iBooker.bookProfile(histname+"Barrel","All photons  E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true}",80, -0.5, 79.5,resBin,resMin, resMax,"");
+  p_eResVsNVtx_[1][1] = iBooker.bookProfile(histname+"unconvBarrel","Unconverted photons E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+  p_eResVsNVtx_[1][2] = iBooker.bookProfile(histname+"convBarrel"," Converted photons  E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+  p_eResVsNVtx_[2][0] = iBooker.bookProfile(histname+"Endcap","All photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+  p_eResVsNVtx_[2][1] = iBooker.bookProfile(histname+"unconvEndcap","Uncoverted photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+  p_eResVsNVtx_[2][2] = iBooker.bookProfile(histname+"convEndcap","Converted photons E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
 
 
 
-    histname="eResVsR9";
-    if ( ! isRunCentrally_ ) h2_eResVsR9_[0] = iBooker.book2D(histname+"All"," All photons E/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,100, 0., 2.5);
-    if ( ! isRunCentrally_ ) h2_eResVsR9_[1] = iBooker.book2D(histname+"Barrel"," All photons E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,100, 0.,2.5);
-    if ( ! isRunCentrally_ ) h2_eResVsR9_[2] = iBooker.book2D(histname+"Endcap"," All photons E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,100, 0., 2.5);
-    histname="pEResVsR9";
-    if ( ! isRunCentrally_ ) p_eResVsR9_[0] = iBooker.bookProfile(histname+"All"," All photons  E/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
-    p_eResVsR9_[1] = iBooker.bookProfile(histname+"Barrel"," All photons  E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
-    p_eResVsR9_[2] = iBooker.bookProfile(histname+"Endcap"," All photons  E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
-    histname="sceResVsR9";
-    if ( ! isRunCentrally_ ) h2_sceResVsR9_[0] = iBooker.book2D(histname+"All"," All photons scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,100, 0., 2.5);
-    if ( ! isRunCentrally_ ) h2_sceResVsR9_[1] = iBooker.book2D(histname+"Barrel"," All photons scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,100, 0.,2.5);
-    if ( ! isRunCentrally_ ) h2_sceResVsR9_[2] = iBooker.book2D(histname+"Endcap"," All photons scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,100, 0., 2.5);
-    histname="scpEResVsR9";
-    if ( ! isRunCentrally_ ) p_sceResVsR9_[0] = iBooker.bookProfile(histname+"All"," All photons  scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
-    p_sceResVsR9_[1] = iBooker.bookProfile(histname+"Barrel"," All photons  scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
-    p_sceResVsR9_[2] = iBooker.bookProfile(histname+"Endcap"," All photons  scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+  histname="eResVsR9";
+  if ( ! isRunCentrally_ ) h2_eResVsR9_[0] = iBooker.book2D(histname+"All"," All photons E/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,100, 0., 2.5);
+  if ( ! isRunCentrally_ ) h2_eResVsR9_[1] = iBooker.book2D(histname+"Barrel"," All photons E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,100, 0.,2.5);
+  if ( ! isRunCentrally_ ) h2_eResVsR9_[2] = iBooker.book2D(histname+"Endcap"," All photons E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,100, 0., 2.5);
+  histname="pEResVsR9";
+  if ( ! isRunCentrally_ ) p_eResVsR9_[0] = iBooker.bookProfile(histname+"All"," All photons  E/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+  p_eResVsR9_[1] = iBooker.bookProfile(histname+"Barrel"," All photons  E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+  p_eResVsR9_[2] = iBooker.bookProfile(histname+"Endcap"," All photons  E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+  histname="sceResVsR9";
+  if ( ! isRunCentrally_ ) h2_sceResVsR9_[0] = iBooker.book2D(histname+"All"," All photons scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,100, 0., 2.5);
+  if ( ! isRunCentrally_ ) h2_sceResVsR9_[1] = iBooker.book2D(histname+"Barrel"," All photons scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,100, 0.,2.5);
+  if ( ! isRunCentrally_ ) h2_sceResVsR9_[2] = iBooker.book2D(histname+"Endcap"," All photons scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,100, 0., 2.5);
+  histname="scpEResVsR9";
+  if ( ! isRunCentrally_ ) p_sceResVsR9_[0] = iBooker.bookProfile(histname+"All"," All photons  scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+  p_sceResVsR9_[1] = iBooker.bookProfile(histname+"Barrel"," All photons  scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+  p_sceResVsR9_[2] = iBooker.bookProfile(histname+"Endcap"," All photons  scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
 
-    // Photon E reslution when using energy values from regressions
-    histname = "eResRegr1";
-    h_phoEResRegr1_[0][0] = iBooker.book1D(histname+"All"," Photon rec/true Energy from Regression1 : All ecal ", resBin,resMin, resMax);
-    h_phoEResRegr1_[0][1] = iBooker.book1D(histname+"Barrel"," Photon rec/true Energy from Regression1: Barrel ",resBin,resMin, resMax);
-    h_phoEResRegr1_[0][2] = iBooker.book1D(histname+"Endcap"," Photon rec/true Energy from Regression1: Endcap ",resBin,resMin, resMax);
-
-    h_phoEResRegr1_[1][0] = iBooker.book1D(histname+"unconvAll"," Photon rec/true Energy from Regression1 if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoEResRegr1_[1][1] = iBooker.book1D(histname+"unconvBarrel"," Photon rec/true Energy from Regression1 if r9>0.94: Barrel ",resBin,resMin, resMax);
-    h_phoEResRegr1_[1][2] = iBooker.book1D(histname+"unconvEndcap"," Photon rec/true Energy from Regression1 if r9>0.95: Endcap ",resBin,resMin, resMax);
-
-    h_phoEResRegr1_[2][0] = iBooker.book1D(histname+"convAll"," Photon rec/true Energy  from Regression1if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoEResRegr1_[2][1] = iBooker.book1D(histname+"convBarrel"," Photon rec/true Energy from Regression1 if r9<0.94: Barrel ",resBin,resMin, resMax);
-    h_phoEResRegr1_[2][2] = iBooker.book1D(histname+"convEndcap"," Photon rec/true Energy from Regression1 if r9<0.95: Endcap ",resBin,resMin, resMax);
-
-    histname = "eResRegr2";
-    h_phoEResRegr2_[0][0] = iBooker.book1D(histname+"All"," Photon rec/true Energy from Regression2 : All ecal ", resBin,resMin, resMax);
-    h_phoEResRegr2_[0][1] = iBooker.book1D(histname+"Barrel"," Photon rec/true Energy from Regression2: Barrel ",resBin,resMin, resMax);
-    h_phoEResRegr2_[0][2] = iBooker.book1D(histname+"Endcap"," Photon rec/true Energy from Regression2: Endcap ",resBin,resMin, resMax);
-
-    h_phoEResRegr2_[1][0] = iBooker.book1D(histname+"unconvAll"," Photon rec/true Energy from Regression2 if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoEResRegr2_[1][1] = iBooker.book1D(histname+"unconvBarrel"," Photon rec/true Energy from Regression2 if r9>0.94: Barrel ",resBin,resMin, resMax);
-    h_phoEResRegr2_[1][2] = iBooker.book1D(histname+"unconvEndcap"," Photon rec/true Energy from Regression2 if r9>0.95: Endcap ",resBin,resMin, resMax);
-
-    h_phoEResRegr2_[2][0] = iBooker.book1D(histname+"convAll"," Photon rec/true Energy  from Regression2 if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoEResRegr2_[2][1] = iBooker.book1D(histname+"convBarrel"," Photon rec/true Energy from Regression2 if r9<0.94: Barrel ",resBin,resMin, resMax);
-    h_phoEResRegr2_[2][2] = iBooker.book1D(histname+"convEndcap"," Photon rec/true Energy from Regression2 if r9<0.95: Endcap ",resBin,resMin, resMax);
-    //
-    histname = "phoPixSeedSize";
-    h_phoPixSeedSize_[0]= iBooker.book1D(histname+"Barrel","Pixel seeds size ", 100, 0., 100.);
-    h_phoPixSeedSize_[1]= iBooker.book1D(histname+"Endcap","Pixel seeds size ", 100, 0., 100.);
-
-    //  Infos from Particle Flow - isolation and ID
-    histname = "chargedHadIso";
-    h_chHadIso_[0]=  iBooker.book1D(histname+"All",   "PF chargedHadIso:  All Ecal",etBin,etMin,20.);
-    h_chHadIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF chargedHadIso:  Barrel",etBin,etMin,20.);
-    h_chHadIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF chargedHadIso:  Endcap",etBin,etMin,20.);
-    histname = "neutralHadIso";
-    h_nHadIso_[0]=  iBooker.book1D(histname+"All",   "PF neutralHadIso:  All Ecal",etBin,etMin,20.);
-    h_nHadIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF neutralHadIso:  Barrel",etBin,etMin,20.);
-    h_nHadIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF neutralHadIso:  Endcap",etBin,etMin,20.);
-    histname = "photonIso";
-    h_phoIso_[0]=  iBooker.book1D(histname+"All",   "PF photonIso:  All Ecal",etBin,etMin,20.);
-    h_phoIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF photonIso:  Barrel",etBin,etMin,20.);
-    h_phoIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF photonIso:  Endcap",etBin,etMin,20.);
-    histname = "nCluOutMustache";
-    h_nCluOutsideMustache_[0]= iBooker.book1D(histname+"All",   "PF number of clusters outside Mustache:  All Ecal",50,0.,50.);
-    h_nCluOutsideMustache_[1]= iBooker.book1D(histname+"Barrel",   "PF number of clusters outside Mustache:  Barrel",50,0.,50.);
-    h_nCluOutsideMustache_[2]= iBooker.book1D(histname+"Endcap",   "PF number of clusters outside Mustache:  Endcap",50,0.,50.);
-    histname = "etOutMustache";
-    h_etOutsideMustache_[0]= iBooker.book1D(histname+"All",   "PF et outside Mustache:  All Ecal",etBin,etMin,20.);
-    h_etOutsideMustache_[1]= iBooker.book1D(histname+"Barrel",   "PF et outside Mustache:  Barrel",etBin,etMin,20.);
-    h_etOutsideMustache_[2]= iBooker.book1D(histname+"Endcap",   "PF et outside Mustache:  Endcap",etBin,etMin,20.);
-    histname = "pfMVA";
-    h_pfMva_[0]= iBooker.book1D(histname+"All",   "PF MVA output:  All Ecal",50,-1.,2.);
-    h_pfMva_[1]= iBooker.book1D(histname+"Barrel",   "PF MVA output:  Barrel",50,-1.,2.);
-    h_pfMva_[2]= iBooker.book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
-    ////////// particle based isolation from value map
-    histname = "SumPtOverPhoPt_ChHad_Cleaned";
-    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  Endcap",etBin,etMin,2.);
-    histname = "SumPtOverPhoPt_NeuHad_Cleaned";
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  Endcap",etBin,etMin,2.);
-    histname = "SumPtOverPhoPt_Pho_Cleaned";
-    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand SumPt/P_{T}_{#gamma}: Photons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_Pho_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand SumPt/P_{T}_{#gamma}: Photons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_Pho_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand SumPt/P_{T}_{#gamma}: Photons:  Endcap",etBin,etMin,2.);
-
-    histname = "dRPhoPFcand_ChHad_Cleaned";
-    h_dRPhoPFcand_ChHad_Cleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
-    h_dRPhoPFcand_ChHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
-    h_dRPhoPFcand_ChHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
-    histname = "dRPhoPFcand_NeuHad_Cleaned";
-    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
-    h_dRPhoPFcand_NeuHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
-    h_dRPhoPFcand_NeuHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
-    histname = "dRPhoPFcand_Pho_Cleaned";
-    h_dRPhoPFcand_Pho_Cleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
-    h_dRPhoPFcand_Pho_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
-    h_dRPhoPFcand_Pho_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
+  // Photon E resolution when using energy values from regressions
+  histname = "eResRegr1";
+  h_phoEResRegr1_[0][0] = iBooker.book1D(histname+"All"," Photon rec/true Energy from Regression1 : All ecal ", resBin,resMin, resMax);
+  h_phoEResRegr1_[0][1] = iBooker.book1D(histname+"Barrel"," Photon rec/true Energy from Regression1: Barrel ",resBin,resMin, resMax);
+  h_phoEResRegr1_[0][2] = iBooker.book1D(histname+"Endcap"," Photon rec/true Energy from Regression1: Endcap ",resBin,resMin, resMax);
+  
+  h_phoEResRegr1_[1][0] = iBooker.book1D(histname+"unconvAll"," Photon rec/true Energy from Regression1 if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
+  h_phoEResRegr1_[1][1] = iBooker.book1D(histname+"unconvBarrel"," Photon rec/true Energy from Regression1 if r9>0.94: Barrel ",resBin,resMin, resMax);
+  h_phoEResRegr1_[1][2] = iBooker.book1D(histname+"unconvEndcap"," Photon rec/true Energy from Regression1 if r9>0.95: Endcap ",resBin,resMin, resMax);
+  
+  h_phoEResRegr1_[2][0] = iBooker.book1D(histname+"convAll"," Photon rec/true Energy  from Regression1if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
+  h_phoEResRegr1_[2][1] = iBooker.book1D(histname+"convBarrel"," Photon rec/true Energy from Regression1 if r9<0.94: Barrel ",resBin,resMin, resMax);
+  h_phoEResRegr1_[2][2] = iBooker.book1D(histname+"convEndcap"," Photon rec/true Energy from Regression1 if r9<0.95: Endcap ",resBin,resMin, resMax);
+  
+  histname = "eResRegr2";
+  h_phoEResRegr2_[0][0] = iBooker.book1D(histname+"All"," Photon rec/true Energy from Regression2 : All ecal ", resBin,resMin, resMax);
+  h_phoEResRegr2_[0][1] = iBooker.book1D(histname+"Barrel"," Photon rec/true Energy from Regression2: Barrel ",resBin,resMin, resMax);
+  h_phoEResRegr2_[0][2] = iBooker.book1D(histname+"Endcap"," Photon rec/true Energy from Regression2: Endcap ",resBin,resMin, resMax);
+  
+  h_phoEResRegr2_[1][0] = iBooker.book1D(histname+"unconvAll"," Photon rec/true Energy from Regression2 if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
+  h_phoEResRegr2_[1][1] = iBooker.book1D(histname+"unconvBarrel"," Photon rec/true Energy from Regression2 if r9>0.94: Barrel ",resBin,resMin, resMax);
+  h_phoEResRegr2_[1][2] = iBooker.book1D(histname+"unconvEndcap"," Photon rec/true Energy from Regression2 if r9>0.95: Endcap ",resBin,resMin, resMax);
+  
+  h_phoEResRegr2_[2][0] = iBooker.book1D(histname+"convAll"," Photon rec/true Energy  from Regression2 if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
+  h_phoEResRegr2_[2][1] = iBooker.book1D(histname+"convBarrel"," Photon rec/true Energy from Regression2 if r9<0.94: Barrel ",resBin,resMin, resMax);
+  h_phoEResRegr2_[2][2] = iBooker.book1D(histname+"convEndcap"," Photon rec/true Energy from Regression2 if r9<0.95: Endcap ",resBin,resMin, resMax);
+  //
+  histname = "phoPixSeedSize";
+  h_phoPixSeedSize_[0]= iBooker.book1D(histname+"Barrel","Pixel seeds size ", 100, 0., 100.);
+  h_phoPixSeedSize_[1]= iBooker.book1D(histname+"Endcap","Pixel seeds size ", 100, 0., 100.);
+  
+  //  Infos from Particle Flow - isolation and ID
+  histname = "chargedHadIso";
+  h_chHadIso_[0]=  iBooker.book1D(histname+"All",   "PF chargedHadIso:  All Ecal",etBin,etMin,20.);
+  h_chHadIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF chargedHadIso:  Barrel",etBin,etMin,20.);
+  h_chHadIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF chargedHadIso:  Endcap",etBin,etMin,20.);
+  histname = "neutralHadIso";
+  h_nHadIso_[0]=  iBooker.book1D(histname+"All",   "PF neutralHadIso:  All Ecal",etBin,etMin,20.);
+  h_nHadIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF neutralHadIso:  Barrel",etBin,etMin,20.);
+  h_nHadIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF neutralHadIso:  Endcap",etBin,etMin,20.);
+  histname = "photonIso";
+  h_phoIso_[0]=  iBooker.book1D(histname+"All",   "PF photonIso:  All Ecal",etBin,etMin,20.);
+  h_phoIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF photonIso:  Barrel",etBin,etMin,20.);
+  h_phoIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF photonIso:  Endcap",etBin,etMin,20.);
+  histname = "nCluOutMustache";
+  h_nCluOutsideMustache_[0]= iBooker.book1D(histname+"All",   "PF number of clusters outside Mustache:  All Ecal",50,0.,50.);
+  h_nCluOutsideMustache_[1]= iBooker.book1D(histname+"Barrel",   "PF number of clusters outside Mustache:  Barrel",50,0.,50.);
+  h_nCluOutsideMustache_[2]= iBooker.book1D(histname+"Endcap",   "PF number of clusters outside Mustache:  Endcap",50,0.,50.);
+  histname = "etOutMustache";
+  h_etOutsideMustache_[0]= iBooker.book1D(histname+"All",   "PF et outside Mustache:  All Ecal",etBin,etMin,20.);
+  h_etOutsideMustache_[1]= iBooker.book1D(histname+"Barrel",   "PF et outside Mustache:  Barrel",etBin,etMin,20.);
+  h_etOutsideMustache_[2]= iBooker.book1D(histname+"Endcap",   "PF et outside Mustache:  Endcap",etBin,etMin,20.);
+  histname = "pfMVA";
+  h_pfMva_[0]= iBooker.book1D(histname+"All",   "PF MVA output:  All Ecal",50,-1.,2.);
+  h_pfMva_[1]= iBooker.book1D(histname+"Barrel",   "PF MVA output:  Barrel",50,-1.,2.);
+  h_pfMva_[2]= iBooker.book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
+  ////////// particle based isolation from value map
+  histname = "SumPtOverPhoPt_ChHad_Cleaned";
+  h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  All Ecal",etBin,etMin,2.);
+  h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  Barrel",etBin,etMin,2.);
+  h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  Endcap",etBin,etMin,2.);
+  histname = "SumPtOverPhoPt_NeuHad_Cleaned";
+  h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  All Ecal",etBin,etMin,2.);
+  h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  Barrel",etBin,etMin,2.);
+  h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  Endcap",etBin,etMin,2.);
+  histname = "SumPtOverPhoPt_Pho_Cleaned";
+  h_SumPtOverPhoPt_Pho_Cleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand SumPt/P_{T}_{#gamma}: Photons:  All Ecal",etBin,etMin,2.);
+  h_SumPtOverPhoPt_Pho_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand SumPt/P_{T}_{#gamma}: Photons:  Barrel",etBin,etMin,2.);
+  h_SumPtOverPhoPt_Pho_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand SumPt/P_{T}_{#gamma}: Photons:  Endcap",etBin,etMin,2.);
+  
+  histname = "dRPhoPFcand_ChHad_Cleaned";
+  h_dRPhoPFcand_ChHad_Cleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
+  h_dRPhoPFcand_ChHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+  h_dRPhoPFcand_ChHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
+  histname = "dRPhoPFcand_NeuHad_Cleaned";
+  h_dRPhoPFcand_NeuHad_Cleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
+  h_dRPhoPFcand_NeuHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+  h_dRPhoPFcand_NeuHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
+  histname = "dRPhoPFcand_Pho_Cleaned";
+  h_dRPhoPFcand_Pho_Cleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
+  h_dRPhoPFcand_Pho_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
+  h_dRPhoPFcand_Pho_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
  
-   //
-    histname = "SumPtOverPhoPt_ChHad_unCleaned";
-    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
-    histname = "SumPtOverPhoPt_NeuHad_unCleaned";
-    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
-    histname = "SumPtOverPhoPt_Pho_unCleaned";
-    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_Pho_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_Pho_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
-    histname = "dRPhoPFcand_ChHad_unCleaned";
-    h_dRPhoPFcand_ChHad_unCleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
-    h_dRPhoPFcand_ChHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
-    h_dRPhoPFcand_ChHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
-    histname = "dRPhoPFcand_NeuHad_unCleaned";
-    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
-    h_dRPhoPFcand_NeuHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
-    h_dRPhoPFcand_NeuHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
-    histname = "dRPhoPFcand_Pho_unCleaned";
-    h_dRPhoPFcand_Pho_unCleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
-    h_dRPhoPFcand_Pho_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
-    h_dRPhoPFcand_Pho_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
+  //
+  histname = "SumPtOverPhoPt_ChHad_unCleaned";
+  h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
+  h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+  h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+  histname = "SumPtOverPhoPt_NeuHad_unCleaned";
+  h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
+  h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+  h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+  histname = "SumPtOverPhoPt_Pho_unCleaned";
+  h_SumPtOverPhoPt_Pho_unCleaned_[0]=  iBooker.book1D(histname+"All","Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
+  h_SumPtOverPhoPt_Pho_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
+  h_SumPtOverPhoPt_Pho_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
+  histname = "dRPhoPFcand_ChHad_unCleaned";
+  h_dRPhoPFcand_ChHad_unCleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
+  h_dRPhoPFcand_ChHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+  h_dRPhoPFcand_ChHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
+  histname = "dRPhoPFcand_NeuHad_unCleaned";
+  h_dRPhoPFcand_NeuHad_unCleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
+  h_dRPhoPFcand_NeuHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+  h_dRPhoPFcand_NeuHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
+  histname = "dRPhoPFcand_Pho_unCleaned";
+  h_dRPhoPFcand_Pho_unCleaned_[0]=  iBooker.book1D(histname+"All","dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
+  h_dRPhoPFcand_Pho_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
+  h_dRPhoPFcand_Pho_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
 
 
-
-    //    if ( ! isRunCentrally_ ) {
-    // Photon pair invariant mass
-    histname = "gamgamMass";
-    h_gamgamMass_[0][0] = iBooker.book1D(histname+"All","2 photons invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMass_[0][1] = iBooker.book1D(histname+"Barrel","2 photons invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMass_[0][2] = iBooker.book1D(histname+"Endcap","2 photons invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    //
-    histname = "gamgamMassNoConv";
-    h_gamgamMass_[1][0] = iBooker.book1D(histname+"All","2 photons with no conversion invariant mass: All ecal ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMass_[1][1] = iBooker.book1D(histname+"Barrel","2 photons with no conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMass_[1][2] = iBooker.book1D(histname+"Endcap","2 photons with no conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    //
-    histname = "gamgamMassConv";
-    h_gamgamMass_[2][0] = iBooker.book1D(histname+"All","2 photons with conversion invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMass_[2][1] = iBooker.book1D(histname+"Barrel","2 photons with  conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMass_[2][2] = iBooker.book1D(histname+"Endcap","2 photons with  conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    // with energy regression1
-    histname = "gamgamMassRegr1";
-    h_gamgamMassRegr1_[0][0] = iBooker.book1D(histname+"All","2 photons invariant mass Regr1 : All ecal ", ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr1_[0][1] = iBooker.book1D(histname+"Barrel","2 photons invariant mass Regr1 :  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr1_[0][2] = iBooker.book1D(histname+"Endcap","2 photons invariant mass Regr1 :  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    //
-    histname = "gamgamMassRegr1NoConv";
-    h_gamgamMassRegr1_[1][0] = iBooker.book1D(histname+"All","2 photons with no conversion invariant mass Regr1: All ecal ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr1_[1][1] = iBooker.book1D(histname+"Barrel","2 photons with no conversion  invariant mass Regr1:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr1_[1][2] = iBooker.book1D(histname+"Endcap","2 photons with no conversion  invariant mass Regr1:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    //
-    histname = "gamgamMassRegr1Conv";
-    h_gamgamMassRegr1_[2][0] = iBooker.book1D(histname+"All","2 photons with conversion invariant mass Regr1: All ecal ", ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr1_[2][1] = iBooker.book1D(histname+"Barrel","2 photons with  conversion  invariant mass Regr1:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr1_[2][2] = iBooker.book1D(histname+"Endcap","2 photons with  conversion  invariant mass Regr1:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    // with energy regression2
-    histname = "gamgamMassRegr2";
-    h_gamgamMassRegr2_[0][0] = iBooker.book1D(histname+"All","2 photons invariant mass Regr2 : All ecal ", ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr2_[0][1] = iBooker.book1D(histname+"Barrel","2 photons invariant mass Regr2 :  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr2_[0][2] = iBooker.book1D(histname+"Endcap","2 photons invariant mass Regr2 :  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    //
-    histname = "gamgamMassRegr2NoConv";
-    h_gamgamMassRegr2_[1][0] = iBooker.book1D(histname+"All","2 photons with no conversion invariant mass Regr2: All ecal ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr2_[1][1] = iBooker.book1D(histname+"Barrel","2 photons with no conversion  invariant mass Regr2:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr2_[1][2] = iBooker.book1D(histname+"Endcap","2 photons with no conversion  invariant mass Regr2:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    //
-    histname = "gamgamMassRegr2Conv";
-    h_gamgamMassRegr2_[2][0] = iBooker.book1D(histname+"All","2 photons with conversion invariant mass Regr2: All ecal ", ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr2_[2][1] = iBooker.book1D(histname+"Barrel","2 photons with  conversion  invariant mass Regr2:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
-    h_gamgamMassRegr2_[2][2] = iBooker.book1D(histname+"Endcap","2 photons with  conversion  invariant mass Regr2:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-
-
+  
+  //    if ( ! isRunCentrally_ ) {
+  // Photon pair invariant mass
+  histname = "gamgamMass";
+  h_gamgamMass_[0][0] = iBooker.book1D(histname+"All","2 photons invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMass_[0][1] = iBooker.book1D(histname+"Barrel","2 photons invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMass_[0][2] = iBooker.book1D(histname+"Endcap","2 photons invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  //
+  histname = "gamgamMassNoConv";
+  h_gamgamMass_[1][0] = iBooker.book1D(histname+"All","2 photons with no conversion invariant mass: All ecal ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMass_[1][1] = iBooker.book1D(histname+"Barrel","2 photons with no conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMass_[1][2] = iBooker.book1D(histname+"Endcap","2 photons with no conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  //
+  histname = "gamgamMassConv";
+  h_gamgamMass_[2][0] = iBooker.book1D(histname+"All","2 photons with conversion invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMass_[2][1] = iBooker.book1D(histname+"Barrel","2 photons with  conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMass_[2][2] = iBooker.book1D(histname+"Endcap","2 photons with  conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  // with energy regression1
+  histname = "gamgamMassRegr1";
+  h_gamgamMassRegr1_[0][0] = iBooker.book1D(histname+"All","2 photons invariant mass Regr1 : All ecal ", ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr1_[0][1] = iBooker.book1D(histname+"Barrel","2 photons invariant mass Regr1 :  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr1_[0][2] = iBooker.book1D(histname+"Endcap","2 photons invariant mass Regr1 :  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  //
+  histname = "gamgamMassRegr1NoConv";
+  h_gamgamMassRegr1_[1][0] = iBooker.book1D(histname+"All","2 photons with no conversion invariant mass Regr1: All ecal ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr1_[1][1] = iBooker.book1D(histname+"Barrel","2 photons with no conversion  invariant mass Regr1:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr1_[1][2] = iBooker.book1D(histname+"Endcap","2 photons with no conversion  invariant mass Regr1:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  //
+  histname = "gamgamMassRegr1Conv";
+  h_gamgamMassRegr1_[2][0] = iBooker.book1D(histname+"All","2 photons with conversion invariant mass Regr1: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr1_[2][1] = iBooker.book1D(histname+"Barrel","2 photons with  conversion  invariant mass Regr1:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr1_[2][2] = iBooker.book1D(histname+"Endcap","2 photons with  conversion  invariant mass Regr1:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  // with energy regression2
+  histname = "gamgamMassRegr2";
+  h_gamgamMassRegr2_[0][0] = iBooker.book1D(histname+"All","2 photons invariant mass Regr2 : All ecal ", ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr2_[0][1] = iBooker.book1D(histname+"Barrel","2 photons invariant mass Regr2 :  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr2_[0][2] = iBooker.book1D(histname+"Endcap","2 photons invariant mass Regr2 :  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  //
+  histname = "gamgamMassRegr2NoConv";
+  h_gamgamMassRegr2_[1][0] = iBooker.book1D(histname+"All","2 photons with no conversion invariant mass Regr2: All ecal ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr2_[1][1] = iBooker.book1D(histname+"Barrel","2 photons with no conversion  invariant mass Regr2:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr2_[1][2] = iBooker.book1D(histname+"Endcap","2 photons with no conversion  invariant mass Regr2:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  //
+  histname = "gamgamMassRegr2Conv";
+  h_gamgamMassRegr2_[2][0] = iBooker.book1D(histname+"All","2 photons with conversion invariant mass Regr2: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr2_[2][1] = iBooker.book1D(histname+"Barrel","2 photons with  conversion  invariant mass Regr2:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+  h_gamgamMassRegr2_[2][2] = iBooker.book1D(histname+"Endcap","2 photons with  conversion  invariant mass Regr2:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+  
+  
     //}
+  
+  iBooker.setCurrentFolder("EgammaV/"+fName_+"/ConversionInfo");
+  
+  
+  histname="nConv";
+  h_nConv_[0][0] = iBooker.book1D(histname+"All","Number Of two-tracks Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+  h_nConv_[0][1] = iBooker.book1D(histname+"Barrel","Number Of two-tracks Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+  h_nConv_[0][2] = iBooker.book1D(histname+"Endcap","Number Of two-tracks Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+  h_nConv_[1][0] = iBooker.book1D(histname+"OneLegAll","Number Of single leg Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+  h_nConv_[1][1] = iBooker.book1D(histname+"OneLegBarrel","Number Of single leg Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+  h_nConv_[1][2] = iBooker.book1D(histname+"OneLegEndcap","Number Of single leg Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+  
+  
+  h_convEta_[0] = iBooker.book1D("convEta1"," converted Photon Eta >1 track",etaBin,etaMin, etaMax) ;
+  h_convEta_[1] = iBooker.book1D("convEta2"," converted Photon Eta =2 tracks ",etaBin,etaMin, etaMax) ;
+  h_convEta_[2] = iBooker.book1D("convEta2ass"," converted Photon Eta =2 tracks, both ass ",etaBin,etaMin, etaMax) ;
+  h_convPhi_[0] = iBooker.book1D("convPhi"," converted Photon  Phi ",phiBin,phiMin,phiMax) ;
+  
 
-    iBooker.setCurrentFolder("EgammaV/"+fName_+"/ConversionInfo");
+  histname = "convERes";
+  h_convERes_[0][0] = iBooker.book1D(histname+"All"," Conversion rec/true Energy: All ecal ", resBin,resMin, resMax);
+  h_convERes_[0][1] = iBooker.book1D(histname+"Barrel"," Conversion rec/true Energy: Barrel ",resBin,resMin, resMax);
+  h_convERes_[0][2] = iBooker.book1D(histname+"Endcap"," Conversion rec/true Energy: Endcap ",resBin,resMin, resMax);
+  
+  histname="p_EResVsR";
+  p_eResVsR_ = iBooker.bookProfile(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax, 100, 0.,1.5,"");
+  
+  
+  histname = "convPtRes";
+  h_convPtRes_[1][0] = iBooker.book1D(histname+"All"," Conversion Pt rec/true  from tracks : All ecal ", resBin,0.,1.5);
+  h_convPtRes_[1][1] = iBooker.book1D(histname+"Barrel"," Conversion Pt rec/true  from tracks: Barrel ",resBin,0., 1.5);
+  h_convPtRes_[1][2] = iBooker.book1D(histname+"Endcap"," Conversion Pt rec/true  from tracks: Endcap ",resBin,0., 1.5);
+  
+  
+  if ( ! isRunCentrally_ ) {
+    histname="r9VsTracks";
+    h_r9VsNofTracks_[0][0] = iBooker.book2D(histname+"All"," photons r9 vs nTracks from conversions: All Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
+    h_r9VsNofTracks_[0][1] = iBooker.book2D(histname+"Barrel"," photons r9 vs nTracks from conversions: Barrel Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
+    h_r9VsNofTracks_[0][2] = iBooker.book2D(histname+"Endcap"," photons r9 vs nTracks from conversions: Endcap Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
+  }
+  
+  histname="mvaOut";
+  h_mvaOut_[0] = iBooker.book1D(histname+"All"," mvaOut for all conversions : All Ecal",100, 0., 1.);
+  h_mvaOut_[1] = iBooker.book1D(histname+"Barrel"," mvaOut for all conversions : Barrel Ecal",100, 0., 1.);
+  h_mvaOut_[2] = iBooker.book1D(histname+"Endcap"," mvaOut for all conversions : Endcap Ecal",100, 0., 1.);
+  
+  
 
+  histname="EoverPtracks";
+  h_EoverPTracks_[0][0] = iBooker.book1D(histname+"BarrelPix"," photons conversion E/p: barrel pix",eoverpBin, eoverpMin,eoverpMax);
+  h_EoverPTracks_[0][1] = iBooker.book1D(histname+"BarrelTib"," photons conversion E/p: barrel tib",eoverpBin, eoverpMin,eoverpMax);
+  h_EoverPTracks_[0][2] = iBooker.book1D(histname+"BarrelTob"," photons conversion E/p: barrel tob ",eoverpBin, eoverpMin,eoverpMax);
+  
+  h_EoverPTracks_[1][0] = iBooker.book1D(histname+"All"," photons conversion E/p: all Ecal ",100, 0., 5.);
+  h_EoverPTracks_[1][1] = iBooker.book1D(histname+"Barrel"," photons conversion E/p: Barrel Ecal",100, 0., 5.);
+  h_EoverPTracks_[1][2] = iBooker.book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
+  histname="EoverP_SL";
+  h_EoverP_SL_[0] = iBooker.book1D(histname+"All"," photons single leg conversion E/p: all Ecal ",100, 0., 5.);
+  h_EoverP_SL_[1] = iBooker.book1D(histname+"Barrel"," photons single leg conversion E/p: Barrel Ecal",100, 0., 5.);
+  h_EoverP_SL_[2] = iBooker.book1D(histname+"Endcap"," photons single leg conversion E/p: Endcap Ecal ",100, 0., 5.);
+  
+  
+  histname="PoverEtracks";
+  h_PoverETracks_[1][0] = iBooker.book1D(histname+"All"," photons conversion p/E: all Ecal ",povereBin, povereMin, povereMax);
+  h_PoverETracks_[1][1] = iBooker.book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",povereBin, povereMin, povereMax);
+  h_PoverETracks_[1][2] = iBooker.book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",povereBin, povereMin, povereMax);
+  
+  histname="pEoverEtrueVsEta";
+  p_EoverEtrueVsEta_[0] = iBooker.bookProfile(histname+"All"," photons conversion with 2 (associated) reco tracks E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax, 100,0.,2.5,"");
+  
+  histname="pEoverEtrueVsR";
+  p_EoverEtrueVsR_[0] = iBooker.bookProfile(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax, 100, 0., 2.5, "");
+  
+  histname="pEoverEtrueVsEta";
+  p_EoverEtrueVsEta_[1] = iBooker.bookProfile(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5,"");
+  
+  histname="pPoverPtrueVsEta";
+  p_PoverPtrueVsEta_[0] = iBooker.bookProfile(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.,"");
+  
+  histname="pEoverPVsEta";
+  p_EoverPVsEta_[0] = iBooker.bookProfile(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax, 100, 0., 5.,"");
+  
+  
+  if ( ! isRunCentrally_ ) {
+    histname="EoverEtrueVsEoverP";
+    h2_EoverEtrueVsEoverP_[0] = iBooker.book2D(histname+"All"," photons conversion E/Etrue vs E/P: all Ecal ",100, 0., 5., 100, 0.5, 1.5);
+    h2_EoverEtrueVsEoverP_[1] = iBooker.book2D(histname+"Barrel"," photons conversion  E/Etrue vs E/: Barrel Ecal",100, 0., 5.,100, 0.5, 1.5);
+    h2_EoverEtrueVsEoverP_[2] = iBooker.book2D(histname+"Endcap"," photons conversion  E/Etrue vs E/: Endcap Ecal ",100, 0., 5., 100, 0.5, 1.5);
+    histname="PoverPtrueVsEoverP";
+    h2_PoverPtrueVsEoverP_[0] = iBooker.book2D(histname+"All"," photons conversion P/Ptrue vs E/P: all Ecal ",100, 0., 5., 100, 0., 2.5);
+    h2_PoverPtrueVsEoverP_[1] = iBooker.book2D(histname+"Barrel"," photons conversion  P/Ptrue vs E/: Barrel Ecal",100, 0., 5.,100, 0., 2.5);
+    h2_PoverPtrueVsEoverP_[2] = iBooker.book2D(histname+"Endcap"," photons conversion  P/Ptrue vs E/: Endcap Ecal ",100, 0., 5., 100, 0., 2.5);
+    
+    histname="EoverEtrueVsEta";
+    h2_EoverEtrueVsEta_[0] = iBooker.book2D(histname+"All"," photons conversion with 2 (associated) reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
+    
+    
+    histname="EoverEtrueVsEta";
+    h2_EoverEtrueVsEta_[1] = iBooker.book2D(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
+    
+    histname="EoverEtrueVsR";
+    h2_EoverEtrueVsR_[0] = iBooker.book2D(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin, rMax,100, 0., 2.5);
+    
+    histname="PoverPtrueVsEta";
+    h2_PoverPtrueVsEta_[0] = iBooker.book2D(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.);
+    
+    histname="EoverPVsEta";
+    h2_EoverPVsEta_[0] = iBooker.book2D(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.);
+    
+    histname="EoverPVsR";
+    h2_EoverPVsR_[0] = iBooker.book2D(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin, rMax,100, 0., 5.);
+    
+    histname="etaVsRsim";
+    h2_etaVsRsim_[0] = iBooker.book2D(histname+"All"," eta(sim) vs R (sim) for associated conversions: all Ecal ",etaBin, etaMin, etaMax,rBin,rMin, rMax);
+    histname="etaVsRreco";
+    h2_etaVsRreco_[0] = iBooker.book2D(histname+"All"," eta(reco) vs R (reco) for associated conversions: all Ecal ",etaBin, etaMin, etaMax,rBin,rMin, rMax);
+    
+  }
+  
+  histname="pEoverPVsR";
+  p_EoverPVsR_[0] = iBooker.bookProfile(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin,rMax, 100, 0., 5.,"");
+  
 
-    histname="nConv";
-    h_nConv_[0][0] = iBooker.book1D(histname+"All","Number Of two-tracks Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nConv_[0][1] = iBooker.book1D(histname+"Barrel","Number Of two-tracks Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nConv_[0][2] = iBooker.book1D(histname+"Endcap","Number Of two-tracks Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
-    h_nConv_[1][0] = iBooker.book1D(histname+"All","Number Of single leg Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nConv_[1][1] = iBooker.book1D(histname+"Barrel","Number Of single leg Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nConv_[1][2] = iBooker.book1D(histname+"Endcap","Number Of single leg Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+  histname="hInvMass";
+  h_invMass_[0][0]= iBooker.book1D(histname+"All_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+  h_invMass_[0][1]= iBooker.book1D(histname+"Barrel_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+  h_invMass_[0][2]= iBooker.book1D(histname+"Endcap_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+  histname="hInvMass";
+  h_invMass_[1][0]= iBooker.book1D(histname+"All_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+  h_invMass_[1][1]= iBooker.book1D(histname+"Barrel_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+  h_invMass_[1][2]= iBooker.book1D(histname+"Endcap_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+  
+  
+  histname="hDPhiTracksAtVtx";
+  h_DPhiTracksAtVtx_[1][0] =iBooker.book1D(histname+"All", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+  h_DPhiTracksAtVtx_[1][1] =iBooker.book1D(histname+"Barrel", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+  h_DPhiTracksAtVtx_[1][2] =iBooker.book1D(histname+"Endcap", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+  
+  
+  if ( ! isRunCentrally_ ) {
+    histname="hDPhiTracksAtVtxVsEta";
+    h2_DPhiTracksAtVtxVsEta_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta",etaBin2,etaMin, etaMax,100, -0.5, 0.5);
+    
+    histname="hDPhiTracksAtVtxVsR";
+    h2_DPhiTracksAtVtxVsR_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R",rBin,rMin, rMax,100, -0.5, 0.5);
+    
+    histname="hDCotTracksVsEta";
+    h2_DCotTracksVsEta_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta",etaBin2,etaMin, etaMax,100, -0.2, 0.2);
+    
+    histname="hDCotTracksVsR";
+    h2_DCotTracksVsR_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta)  Tracks at vertex vs R",rBin,rMin, rMax,100, -0.2, 0.2);
+    
+    histname="h2_DPhiTracksAtEcalVsR";
+    if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) h2_DPhiTracksAtEcalVsR_= iBooker.book2D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal vs R : all Ecal ",rBin,rMin, rMax, dPhiTracksBin,0.,dPhiTracksMax);
+    
+    histname="h2_DPhiTracksAtEcalVsEta";
+    if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) h2_DPhiTracksAtEcalVsEta_= iBooker.book2D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal vs #eta : all Ecal ",etaBin2,etaMin, etaMax, dPhiTracksBin,0.,dPhiTracksMax);
+    
+    
+  }
+  
+  histname="pDPhiTracksAtVtxVsEta";
+  p_DPhiTracksAtVtxVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta ",etaBin2,etaMin, etaMax, 100, -0.5, 0.5,"");
+  
+  histname="pDPhiTracksAtVtxVsR";
+  p_DPhiTracksAtVtxVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,"");
+  
+  
+  histname="hDCotTracks";
+  h_DCotTracks_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+  h_DCotTracks_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+  h_DCotTracks_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
 
-
-    h_convEta_[0] = iBooker.book1D("convEta1"," converted Photon Eta >1 track",etaBin,etaMin, etaMax) ;
-    h_convEta_[1] = iBooker.book1D("convEta2"," converted Photon Eta =2 tracks ",etaBin,etaMin, etaMax) ;
-    h_convEta_[2] = iBooker.book1D("convEta2ass"," converted Photon Eta =2 tracks, both ass ",etaBin,etaMin, etaMax) ;
-    h_convPhi_[0] = iBooker.book1D("convPhi"," converted Photon  Phi ",phiBin,phiMin,phiMax) ;
-
-
-    histname = "convERes";
-    h_convERes_[0][0] = iBooker.book1D(histname+"All"," Conversion rec/true Energy: All ecal ", resBin,resMin, resMax);
-    h_convERes_[0][1] = iBooker.book1D(histname+"Barrel"," Conversion rec/true Energy: Barrel ",resBin,resMin, resMax);
-    h_convERes_[0][2] = iBooker.book1D(histname+"Endcap"," Conversion rec/true Energy: Endcap ",resBin,resMin, resMax);
-
-    histname="p_EResVsR";
-    p_eResVsR_ = iBooker.bookProfile(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax, 100, 0.,1.5,"");
-
-
-    histname = "convPtRes";
-    h_convPtRes_[1][0] = iBooker.book1D(histname+"All"," Conversion Pt rec/true  from tracks : All ecal ", resBin,0.,1.5);
-    h_convPtRes_[1][1] = iBooker.book1D(histname+"Barrel"," Conversion Pt rec/true  from tracks: Barrel ",resBin,0., 1.5);
-    h_convPtRes_[1][2] = iBooker.book1D(histname+"Endcap"," Conversion Pt rec/true  from tracks: Endcap ",resBin,0., 1.5);
-
-
-    if ( ! isRunCentrally_ ) {
-      histname="r9VsTracks";
-      h_r9VsNofTracks_[0][0] = iBooker.book2D(histname+"All"," photons r9 vs nTracks from conversions: All Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
-      h_r9VsNofTracks_[0][1] = iBooker.book2D(histname+"Barrel"," photons r9 vs nTracks from conversions: Barrel Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
-      h_r9VsNofTracks_[0][2] = iBooker.book2D(histname+"Endcap"," photons r9 vs nTracks from conversions: Endcap Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
-    }
-
-    histname="mvaOut";
-    h_mvaOut_[0] = iBooker.book1D(histname+"All"," mvaOut for all conversions : All Ecal",100, 0., 1.);
-    h_mvaOut_[1] = iBooker.book1D(histname+"Barrel"," mvaOut for all conversions : Barrel Ecal",100, 0., 1.);
-    h_mvaOut_[2] = iBooker.book1D(histname+"Endcap"," mvaOut for all conversions : Endcap Ecal",100, 0., 1.);
-
-
-
-    histname="EoverPtracks";
-    h_EoverPTracks_[0][0] = iBooker.book1D(histname+"BarrelPix"," photons conversion E/p: barrel pix",eoverpBin, eoverpMin,eoverpMax);
-    h_EoverPTracks_[0][1] = iBooker.book1D(histname+"BarrelTib"," photons conversion E/p: barrel tib",eoverpBin, eoverpMin,eoverpMax);
-    h_EoverPTracks_[0][2] = iBooker.book1D(histname+"BarrelTob"," photons conversion E/p: barrel tob ",eoverpBin, eoverpMin,eoverpMax);
-
-    h_EoverPTracks_[1][0] = iBooker.book1D(histname+"All"," photons conversion E/p: all Ecal ",100, 0., 5.);
-    h_EoverPTracks_[1][1] = iBooker.book1D(histname+"Barrel"," photons conversion E/p: Barrel Ecal",100, 0., 5.);
-    h_EoverPTracks_[1][2] = iBooker.book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
-    histname="EoverP_SL";
-    h_EoverP_SL_[0] = iBooker.book1D(histname+"All"," photons single leg conversion E/p: all Ecal ",100, 0., 5.);
-    h_EoverP_SL_[1] = iBooker.book1D(histname+"Barrel"," photons single leg conversion E/p: Barrel Ecal",100, 0., 5.);
-    h_EoverP_SL_[2] = iBooker.book1D(histname+"Endcap"," photons single leg conversion E/p: Endcap Ecal ",100, 0., 5.);
-
-
-    histname="PoverEtracks";
-    h_PoverETracks_[1][0] = iBooker.book1D(histname+"All"," photons conversion p/E: all Ecal ",povereBin, povereMin, povereMax);
-    h_PoverETracks_[1][1] = iBooker.book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",povereBin, povereMin, povereMax);
-    h_PoverETracks_[1][2] = iBooker.book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",povereBin, povereMin, povereMax);
-
-    histname="pEoverEtrueVsEta";
-    p_EoverEtrueVsEta_[0] = iBooker.bookProfile(histname+"All"," photons conversion with 2 (associated) reco tracks E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax, 100,0.,2.5,"");
-
-    histname="pEoverEtrueVsR";
-    p_EoverEtrueVsR_[0] = iBooker.bookProfile(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax, 100, 0., 2.5, "");
-
-    histname="pEoverEtrueVsEta";
-    p_EoverEtrueVsEta_[1] = iBooker.bookProfile(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5,"");
-
-    histname="pPoverPtrueVsEta";
-    p_PoverPtrueVsEta_[0] = iBooker.bookProfile(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.,"");
-
-    histname="pEoverPVsEta";
-    p_EoverPVsEta_[0] = iBooker.bookProfile(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax, 100, 0., 5.,"");
-
-
-    if ( ! isRunCentrally_ ) {
-      histname="EoverEtrueVsEoverP";
-      h2_EoverEtrueVsEoverP_[0] = iBooker.book2D(histname+"All"," photons conversion E/Etrue vs E/P: all Ecal ",100, 0., 5., 100, 0.5, 1.5);
-      h2_EoverEtrueVsEoverP_[1] = iBooker.book2D(histname+"Barrel"," photons conversion  E/Etrue vs E/: Barrel Ecal",100, 0., 5.,100, 0.5, 1.5);
-      h2_EoverEtrueVsEoverP_[2] = iBooker.book2D(histname+"Endcap"," photons conversion  E/Etrue vs E/: Endcap Ecal ",100, 0., 5., 100, 0.5, 1.5);
-      histname="PoverPtrueVsEoverP";
-      h2_PoverPtrueVsEoverP_[0] = iBooker.book2D(histname+"All"," photons conversion P/Ptrue vs E/P: all Ecal ",100, 0., 5., 100, 0., 2.5);
-      h2_PoverPtrueVsEoverP_[1] = iBooker.book2D(histname+"Barrel"," photons conversion  P/Ptrue vs E/: Barrel Ecal",100, 0., 5.,100, 0., 2.5);
-      h2_PoverPtrueVsEoverP_[2] = iBooker.book2D(histname+"Endcap"," photons conversion  P/Ptrue vs E/: Endcap Ecal ",100, 0., 5., 100, 0., 2.5);
-
-      histname="EoverEtrueVsEta";
-      h2_EoverEtrueVsEta_[0] = iBooker.book2D(histname+"All"," photons conversion with 2 (associated) reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
-
-
-      histname="EoverEtrueVsEta";
-      h2_EoverEtrueVsEta_[1] = iBooker.book2D(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
-
-      histname="EoverEtrueVsR";
-      h2_EoverEtrueVsR_[0] = iBooker.book2D(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin, rMax,100, 0., 2.5);
-
-      histname="PoverPtrueVsEta";
-      h2_PoverPtrueVsEta_[0] = iBooker.book2D(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.);
-
-      histname="EoverPVsEta";
-      h2_EoverPVsEta_[0] = iBooker.book2D(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.);
-
-      histname="EoverPVsR";
-      h2_EoverPVsR_[0] = iBooker.book2D(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin, rMax,100, 0., 5.);
-
-      histname="etaVsRsim";
-      h2_etaVsRsim_[0] = iBooker.book2D(histname+"All"," eta(sim) vs R (sim) for associated conversions: all Ecal ",etaBin, etaMin, etaMax,rBin,rMin, rMax);
-      histname="etaVsRreco";
-      h2_etaVsRreco_[0] = iBooker.book2D(histname+"All"," eta(reco) vs R (reco) for associated conversions: all Ecal ",etaBin, etaMin, etaMax,rBin,rMin, rMax);
-
-    }
-
-    histname="pEoverPVsR";
-    p_EoverPVsR_[0] = iBooker.bookProfile(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin,rMax, 100, 0., 5.,"");
-
-
-    histname="hInvMass";
-    h_invMass_[0][0]= iBooker.book1D(histname+"All_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
-    h_invMass_[0][1]= iBooker.book1D(histname+"Barrel_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
-    h_invMass_[0][2]= iBooker.book1D(histname+"Endcap_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
-    histname="hInvMass";
-    h_invMass_[1][0]= iBooker.book1D(histname+"All_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
-    h_invMass_[1][1]= iBooker.book1D(histname+"Barrel_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
-    h_invMass_[1][2]= iBooker.book1D(histname+"Endcap_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
-
-
-    histname="hDPhiTracksAtVtx";
-    h_DPhiTracksAtVtx_[1][0] =iBooker.book1D(histname+"All", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[1][1] =iBooker.book1D(histname+"Barrel", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[1][2] =iBooker.book1D(histname+"Endcap", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-
-
-    if ( ! isRunCentrally_ ) {
-      histname="hDPhiTracksAtVtxVsEta";
-      h2_DPhiTracksAtVtxVsEta_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta",etaBin2,etaMin, etaMax,100, -0.5, 0.5);
-
-      histname="hDPhiTracksAtVtxVsR";
-      h2_DPhiTracksAtVtxVsR_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R",rBin,rMin, rMax,100, -0.5, 0.5);
-
-      histname="hDCotTracksVsEta";
-      h2_DCotTracksVsEta_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta",etaBin2,etaMin, etaMax,100, -0.2, 0.2);
-
-      histname="hDCotTracksVsR";
-      h2_DCotTracksVsR_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta)  Tracks at vertex vs R",rBin,rMin, rMax,100, -0.2, 0.2);
-
-      histname="h2_DPhiTracksAtEcalVsR";
-      if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) h2_DPhiTracksAtEcalVsR_= iBooker.book2D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal vs R : all Ecal ",rBin,rMin, rMax, dPhiTracksBin,0.,dPhiTracksMax);
-
-      histname="h2_DPhiTracksAtEcalVsEta";
-      if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) h2_DPhiTracksAtEcalVsEta_= iBooker.book2D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal vs #eta : all Ecal ",etaBin2,etaMin, etaMax, dPhiTracksBin,0.,dPhiTracksMax);
-
-
-    }
-
-    histname="pDPhiTracksAtVtxVsEta";
-    p_DPhiTracksAtVtxVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta ",etaBin2,etaMin, etaMax, 100, -0.5, 0.5,"");
-
-    histname="pDPhiTracksAtVtxVsR";
-    p_DPhiTracksAtVtxVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,"");
-
-
-    histname="hDCotTracks";
-    h_DCotTracks_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-
-
-    histname="pDCotTracksVsEta";
-    p_DCotTracksVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta ",etaBin2,etaMin, etaMax, 100, -0.2, 0.2,"");
-
-    histname="pDCotTracksVsR";
-    p_DCotTracksVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,"");
-
-
-    histname="hDistMinAppTracks";
-    h_distMinAppTracks_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",dEtaTracksBin,-0.1,0.6);
-    h_distMinAppTracks_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",dEtaTracksBin,-0.1,0.6);
-    h_distMinAppTracks_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",dEtaTracksBin,-0.1,0.6);
-
+  
+  histname="pDCotTracksVsEta";
+  p_DCotTracksVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta ",etaBin2,etaMin, etaMax, 100, -0.2, 0.2,"");
+  
+  histname="pDCotTracksVsR";
+  p_DCotTracksVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,"");
+  
+  
+  histname="hDistMinAppTracks";
+  h_distMinAppTracks_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",dEtaTracksBin,-0.1,0.6);
+  h_distMinAppTracks_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",dEtaTracksBin,-0.1,0.6);
+  h_distMinAppTracks_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",dEtaTracksBin,-0.1,0.6);
+  
     // if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) {
-      histname="hDPhiTracksAtEcal";
-      h_DPhiTracksAtEcal_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal : all Ecal ",dPhiTracksBin,0.,dPhiTracksMax);
-      h_DPhiTracksAtEcal_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions:  #delta#phi at Ecal : Barrel Ecal ",dPhiTracksBin,0.,dPhiTracksMax);
-      h_DPhiTracksAtEcal_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions:  #delta#phi at Ecal : Endcap Ecal ",dPhiTracksBin,0.,dPhiTracksMax);
-
-      histname="pDPhiTracksAtEcalVsR";
-      p_DPhiTracksAtEcalVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs R ",rBin,rMin, rMax, dPhiTracksBin,0.,dPhiTracksMax,"");
-
-      histname="pDPhiTracksAtEcalVsEta";
-      p_DPhiTracksAtEcalVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs #eta ",etaBin2,etaMin, etaMax,dPhiTracksBin,0.,dPhiTracksMax,"");
-
-
-      histname="hDEtaTracksAtEcal";
-      h_DEtaTracksAtEcal_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions:  #delta#eta at Ecal : all Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
-      h_DEtaTracksAtEcal_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions:  #delta#eta at Ecal : Barrel Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
-      h_DEtaTracksAtEcal_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions:  #delta#eta at Ecal : Endcap Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
-
+  histname="hDPhiTracksAtEcal";
+  h_DPhiTracksAtEcal_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal : all Ecal ",dPhiTracksBin,0.,dPhiTracksMax);
+  h_DPhiTracksAtEcal_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions:  #delta#phi at Ecal : Barrel Ecal ",dPhiTracksBin,0.,dPhiTracksMax);
+  h_DPhiTracksAtEcal_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions:  #delta#phi at Ecal : Endcap Ecal ",dPhiTracksBin,0.,dPhiTracksMax);
+  
+  histname="pDPhiTracksAtEcalVsR";
+  p_DPhiTracksAtEcalVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs R ",rBin,rMin, rMax, dPhiTracksBin,0.,dPhiTracksMax,"");
+  
+  histname="pDPhiTracksAtEcalVsEta";
+  p_DPhiTracksAtEcalVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs #eta ",etaBin2,etaMin, etaMax,dPhiTracksBin,0.,dPhiTracksMax,"");
+  
+  
+  histname="hDEtaTracksAtEcal";
+  h_DEtaTracksAtEcal_[1][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions:  #delta#eta at Ecal : all Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
+  h_DEtaTracksAtEcal_[1][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions:  #delta#eta at Ecal : Barrel Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
+  h_DEtaTracksAtEcal_[1][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions:  #delta#eta at Ecal : Endcap Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
+  
       //  }
 
 
-    h_convVtxRvsZ_[0] =   iBooker.book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convVtxRvsZ_[1] =   iBooker.book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convVtxRvsZ_[2] =   iBooker.book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convVtxYvsX_ =   iBooker.book2D("convVtxYvsXTrkBarrel"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
-    //
-    h_convSLVtxRvsZ_[0] =   iBooker.book2D("convSLVtxRvsZAll"," Photon Reco single leg conversion innermost hit  position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convSLVtxRvsZ_[1] =   iBooker.book2D("convSLVtxRvsZBarrel"," Photon Reco single leg conversion innermost hit position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convSLVtxRvsZ_[2] =   iBooker.book2D("convSLVtxRvsZEndcap"," Photon Reco single leg conversion innermost hit position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-
-    /// zooms
-    if ( ! isRunCentrally_ ) {
-      h_convVtxRvsZ_zoom_[0] =  iBooker.book2D("convVtxRvsZBarrelZoom1"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 40.);
-      h_convVtxRvsZ_zoom_[1] =  iBooker.book2D("convVtxRvsZBarrelZoom2"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 20.);
-      h_convVtxYvsX_zoom_[0] =   iBooker.book2D("convVtxYvsXTrkBarrelZoom1"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -40., 40., 100, -40., 40.);
-      h_convVtxYvsX_zoom_[1] =   iBooker.book2D("convVtxYvsXTrkBarrelZoom2"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -20., 20., 100, -20., 20.);
-    }
-
-    h_convVtxdX_ =   iBooker.book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -20.,20.);
-    h_convVtxdY_ =   iBooker.book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -20.,20.);
-    h_convVtxdZ_ =   iBooker.book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
-    h_convVtxdR_ =   iBooker.book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -20.,20.);
-
-    h_convVtxdX_barrel_ =   iBooker.book1D("convVtxdX_barrel"," Photon Reco conversion vtx dX, |eta|<=1.2",100, -20.,20.);
-    h_convVtxdY_barrel_ =   iBooker.book1D("convVtxdY_barrel"," Photon Reco conversion vtx dY, |eta|<=1.2 ",100, -20.,20.);
-    h_convVtxdZ_barrel_ =   iBooker.book1D("convVtxdZ_barrel"," Photon Reco conversion vtx dZ, |eta|<=1.2,",100, -20.,20.);
-    h_convVtxdR_barrel_ =   iBooker.book1D("convVtxdR_barrel"," Photon Reco conversion vtx dR, |eta|<=1.2",100, -20.,20.);
-    h_convVtxdX_endcap_ =   iBooker.book1D("convVtxdX_endcap"," Photon Reco conversion vtx dX,  |eta|>1.2",100, -20.,20.);
-    h_convVtxdY_endcap_ =   iBooker.book1D("convVtxdY_endcap"," Photon Reco conversion vtx dY,  |eta|>1.2",100, -20.,20.);
-    h_convVtxdZ_endcap_ =   iBooker.book1D("convVtxdZ_endcap"," Photon Reco conversion vtx dZ,  |eta|>1.2",100, -20.,20.);
-    h_convVtxdR_endcap_ =   iBooker.book1D("convVtxdR_endcap"," Photon Reco conversion vtx dR,  |eta|>1.2 ",100, -20.,20.);
-
-
-    h_convVtxdPhi_ =   iBooker.book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.005,0.005);
-    h_convVtxdEta_ =   iBooker.book1D("convVtxdEta"," Photon Reco conversion vtx dEta",100, -0.5,0.5);
-
-    if ( ! isRunCentrally_ ) {
-      h2_convVtxdRVsR_ =  iBooker.book2D("h2ConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
-      h2_convVtxdRVsEta_ =  iBooker.book2D("h2ConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
-    }
-
-    p_convVtxdRVsR_ =  iBooker.bookProfile("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
-    p_convVtxdRVsEta_ =  iBooker.bookProfile("pConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
-    p_convVtxdXVsX_ =  iBooker.bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
-    p_convVtxdYVsY_ =  iBooker.bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
-    p_convVtxdZVsZ_ =  iBooker.bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
-
-
-    if ( ! isRunCentrally_ ) {
-      h2_convVtxRrecVsTrue_ =  iBooker.book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
-    }
-
-    histname="vtxChi2";
-    h_vtxChi2_[0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, chi2Min, chi2Max);
-    h_vtxChi2_[1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, chi2Min, chi2Max);
-    h_vtxChi2_[2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, chi2Min, chi2Max);
-    histname="vtxChi2Prob";
-    h_vtxChi2Prob_[0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, 0., 1.);
-    h_vtxChi2Prob_[1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, 0., 1.);
-    h_vtxChi2Prob_[2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, 0., 1.);
-
-    histname="zPVFromTracks";
-    h_zPVFromTracks_[0] =  iBooker.book1D(histname+"All"," Photons: PV z from conversion tracks",   100, -30., 30.);
-    h_zPVFromTracks_[1] =  iBooker.book1D(histname+"Barrel"," Photons: PV z from conversion tracks",100, -30., 30.);
-    h_zPVFromTracks_[2] =  iBooker.book1D(histname+"Endcap"," Photons: PV z from conversion tracks",100, -30., 30.);
-    h_zPVFromTracks_[3] =  iBooker.book1D(histname+"EndcapP"," Photons: PV z from conversion tracks",100, -30., 30.);
-    h_zPVFromTracks_[4] =  iBooker.book1D(histname+"EndcapM"," Photons: PV z from conversion tracks",100, -30., 30.);
-    histname="dzPVFromTracks";
-    h_dzPVFromTracks_[0] =  iBooker.book1D(histname+"All"," Photons: PV Z_rec - Z_true from conversion tracks",   100, -10., 10.);
-    h_dzPVFromTracks_[1] =  iBooker.book1D(histname+"Barrel"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
-    h_dzPVFromTracks_[2] =  iBooker.book1D(histname+"Endcap"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
-    h_dzPVFromTracks_[3] =  iBooker.book1D(histname+"EndcapP"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
-    h_dzPVFromTracks_[4] =  iBooker.book1D(histname+"EndcapM"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
-    p_dzPVVsR_ =  iBooker.bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
-    p_dzPVVsEta_ =  iBooker.bookProfile("pdzPVVsEta","Photon Reco conversions: dz(PV) vs Eta" ,etaBin,etaMin, etaMax, 100, -3.,3.,"");
-
-    if ( ! isRunCentrally_ ) {
-      h2_dzPVVsR_ =  iBooker.book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
-    }
-
-    //////////////////// plots per track
-    if ( ! isRunCentrally_ ) {
-      histname="nHitsVsEta";
-      nHitsVsEta_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,25,0., 25.);
-
-      histname="nHitsVsEta";
-      nHitsVsEta_[1] =  iBooker.book2D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax,25,0., 25.);
-
-      histname="nHitsVsR";
-      nHitsVsR_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,25,0.,25);
-
-      histname="nHitsVsR";
-      nHitsVsR_[1] =  iBooker.book2D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks" ,rBin,rMin, rMax,25,0.,25);
-
-      histname="h2Chi2VsEta";
-      h2_Chi2VsEta_[0]=iBooker.book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
+  h_convVtxRvsZ_[0] =   iBooker.book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+  h_convVtxRvsZ_[1] =   iBooker.book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+  h_convVtxRvsZ_[2] =   iBooker.book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+  h_convVtxYvsX_ =   iBooker.book2D("convVtxYvsXTrkBarrel"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
+  //
+  h_convSLVtxRvsZ_[0] =   iBooker.book2D("convSLVtxRvsZAll"," Photon Reco single leg conversion innermost hit  position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+  h_convSLVtxRvsZ_[1] =   iBooker.book2D("convSLVtxRvsZBarrel"," Photon Reco single leg conversion innermost hit position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+  h_convSLVtxRvsZ_[2] =   iBooker.book2D("convSLVtxRvsZEndcap"," Photon Reco single leg conversion innermost hit position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+  
+  /// zooms
+  if ( ! isRunCentrally_ ) {
+    h_convVtxRvsZ_zoom_[0] =  iBooker.book2D("convVtxRvsZBarrelZoom1"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 40.);
+    h_convVtxRvsZ_zoom_[1] =  iBooker.book2D("convVtxRvsZBarrelZoom2"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 20.);
+    h_convVtxYvsX_zoom_[0] =   iBooker.book2D("convVtxYvsXTrkBarrelZoom1"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -40., 40., 100, -40., 40.);
+    h_convVtxYvsX_zoom_[1] =   iBooker.book2D("convVtxYvsXTrkBarrelZoom2"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -20., 20., 100, -20., 20.);
+  }
+  
+  h_convVtxdX_ =   iBooker.book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -20.,20.);
+  h_convVtxdY_ =   iBooker.book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -20.,20.);
+  h_convVtxdZ_ =   iBooker.book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
+  h_convVtxdR_ =   iBooker.book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -20.,20.);
+  
+  h_convVtxdX_barrel_ =   iBooker.book1D("convVtxdX_barrel"," Photon Reco conversion vtx dX, |eta|<=1.2",100, -20.,20.);
+  h_convVtxdY_barrel_ =   iBooker.book1D("convVtxdY_barrel"," Photon Reco conversion vtx dY, |eta|<=1.2 ",100, -20.,20.);
+  h_convVtxdZ_barrel_ =   iBooker.book1D("convVtxdZ_barrel"," Photon Reco conversion vtx dZ, |eta|<=1.2,",100, -20.,20.);
+  h_convVtxdR_barrel_ =   iBooker.book1D("convVtxdR_barrel"," Photon Reco conversion vtx dR, |eta|<=1.2",100, -20.,20.);
+  h_convVtxdX_endcap_ =   iBooker.book1D("convVtxdX_endcap"," Photon Reco conversion vtx dX,  |eta|>1.2",100, -20.,20.);
+  h_convVtxdY_endcap_ =   iBooker.book1D("convVtxdY_endcap"," Photon Reco conversion vtx dY,  |eta|>1.2",100, -20.,20.);
+  h_convVtxdZ_endcap_ =   iBooker.book1D("convVtxdZ_endcap"," Photon Reco conversion vtx dZ,  |eta|>1.2",100, -20.,20.);
+  h_convVtxdR_endcap_ =   iBooker.book1D("convVtxdR_endcap"," Photon Reco conversion vtx dR,  |eta|>1.2 ",100, -20.,20.);
+  
+  
+  h_convVtxdPhi_ =   iBooker.book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.005,0.005);
+  h_convVtxdEta_ =   iBooker.book1D("convVtxdEta"," Photon Reco conversion vtx dEta",100, -0.5,0.5);
+  
+  if ( ! isRunCentrally_ ) {
+    h2_convVtxdRVsR_ =  iBooker.book2D("h2ConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
+    h2_convVtxdRVsEta_ =  iBooker.book2D("h2ConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
+  }
+  
+  p_convVtxdRVsR_ =  iBooker.bookProfile("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
+  p_convVtxdRVsEta_ =  iBooker.bookProfile("pConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
+  p_convVtxdXVsX_ =  iBooker.bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
+  p_convVtxdYVsY_ =  iBooker.bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
+  p_convVtxdZVsZ_ =  iBooker.bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
 
 
-      histname="h2Chi2VsR";
-      h2_Chi2VsR_[0]=iBooker.book2D(histname+"All"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
-    }
+  if ( ! isRunCentrally_ ) {
+    h2_convVtxRrecVsTrue_ =  iBooker.book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
+  }
+  
+  histname="vtxChi2";
+  h_vtxChi2_[0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, chi2Min, chi2Max);
+  h_vtxChi2_[1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, chi2Min, chi2Max);
+  h_vtxChi2_[2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, chi2Min, chi2Max);
+  histname="vtxChi2Prob";
+  h_vtxChi2Prob_[0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, 0., 1.);
+  h_vtxChi2Prob_[1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, 0., 1.);
+  h_vtxChi2Prob_[2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, 0., 1.);
+  
+  histname="zPVFromTracks";
+  h_zPVFromTracks_[0] =  iBooker.book1D(histname+"All"," Photons: PV z from conversion tracks",   100, -30., 30.);
+  h_zPVFromTracks_[1] =  iBooker.book1D(histname+"Barrel"," Photons: PV z from conversion tracks",100, -30., 30.);
+  h_zPVFromTracks_[2] =  iBooker.book1D(histname+"Endcap"," Photons: PV z from conversion tracks",100, -30., 30.);
+  h_zPVFromTracks_[3] =  iBooker.book1D(histname+"EndcapP"," Photons: PV z from conversion tracks",100, -30., 30.);
+  h_zPVFromTracks_[4] =  iBooker.book1D(histname+"EndcapM"," Photons: PV z from conversion tracks",100, -30., 30.);
+  histname="dzPVFromTracks";
+  h_dzPVFromTracks_[0] =  iBooker.book1D(histname+"All"," Photons: PV Z_rec - Z_true from conversion tracks",   100, -10., 10.);
+  h_dzPVFromTracks_[1] =  iBooker.book1D(histname+"Barrel"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+  h_dzPVFromTracks_[2] =  iBooker.book1D(histname+"Endcap"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+  h_dzPVFromTracks_[3] =  iBooker.book1D(histname+"EndcapP"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+  h_dzPVFromTracks_[4] =  iBooker.book1D(histname+"EndcapM"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+  p_dzPVVsR_ =  iBooker.bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
+  p_dzPVVsEta_ =  iBooker.bookProfile("pdzPVVsEta","Photon Reco conversions: dz(PV) vs Eta" ,etaBin,etaMin, etaMax, 100, -3.,3.,"");
+  
+  if ( ! isRunCentrally_ ) {
+    h2_dzPVVsR_ =  iBooker.book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
+  }
+  
+  //////////////////// plots per track
+  if ( ! isRunCentrally_ ) {
+    histname="nHitsVsEta";
+    nHitsVsEta_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,25,0., 25.);
+    
+    histname="nHitsVsEta";
+    nHitsVsEta_[1] =  iBooker.book2D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax,25,0., 25.);
+    
+    histname="nHitsVsR";
+    nHitsVsR_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,25,0.,25);
+    
+    histname="nHitsVsR";
+    nHitsVsR_[1] =  iBooker.book2D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks" ,rBin,rMin, rMax,25,0.,25);
+    
+    histname="h2Chi2VsEta";
+    h2_Chi2VsEta_[0]=iBooker.book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
 
-    histname="h_nHitsVsEta";
-    p_nHitsVsEta_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
+    
+    histname="h2Chi2VsR";
+    h2_Chi2VsR_[0]=iBooker.book2D(histname+"All"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
+  }
+  
+  histname="h_nHitsVsEta";
+  p_nHitsVsEta_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
+  
+  histname="h_nHitsVsEta";
+  p_nHitsVsEta_[1] =  iBooker.bookProfile(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
+  
+  histname="p_nHitsVsEtaSL";
+  p_nHitsVsEtaSL_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from single leg conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
+  
+  
+  histname="h_nHitsVsR";
+  p_nHitsVsR_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
+  histname="p_nHitsVsRSL";
+  p_nHitsVsRSL_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from single leg conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
+  
+  histname="tkChi2";
+  h_tkChi2_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
+  histname="tkChi2SL";
+  h_tkChi2SL_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from single leg conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max);
+  histname="tkChi2Large";
+  h_tkChi2Large_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
+  
+  
+  histname="h_nHitsVsR";
+  p_nHitsVsR_[1] =  iBooker.bookProfile(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
+  
+  histname="tkChi2";
+  h_tkChi2_[1] = iBooker.book1D(histname+"AssTracks","Photons:Tracks from conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max);
+  histname="tkChi2Large";
+  h_tkChi2Large_[1] = iBooker.book1D(histname+"AssTracks","Photons:Tracks from conversions: #chi^{2} of associated  tracks", 1000, 0., 5000.0);
+  
+  histname="pChi2VsEta";
+  p_Chi2VsEta_[0]=iBooker.bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
+  
+  histname="pChi2VsR";
+  p_Chi2VsR_[0]=iBooker.bookProfile(histname+"All"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
+  
+  
+  histname="hTkD0";
+  h_TkD0_[0]=iBooker.book1D(histname+"All"," Reco Track D0*q: All ",100,-0.1,0.6);
+  h_TkD0_[1]=iBooker.book1D(histname+"Barrel"," Reco Track D0*q: Barrel ",100,-0.1,0.6);
+  h_TkD0_[2]=iBooker.book1D(histname+"Endcap"," Reco Track D0*q: Endcap ",100,-0.1,0.6);
+  
+  
+  histname="hTkPtPull";
+  h_TkPtPull_[0]=iBooker.book1D(histname+"All"," Reco Track Pt pull: All ",100, -10., 10.);
+  histname="hTkPtPull";
+  h_TkPtPull_[1]=iBooker.book1D(histname+"Barrel"," Reco Track Pt pull: Barrel ",100, -10., 10.);
+  histname="hTkPtPull";
+  h_TkPtPull_[2]=iBooker.book1D(histname+"Endcap"," Reco Track Pt pull: Endcap ",100, -10., 10.);
+  
+  histname="pTkPtPullEta";
+  p_TkPtPull_[0]=iBooker.bookProfile(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax, 100, -10., 10., " ");
+  
+  if ( ! isRunCentrally_ ) {
+    histname="h2TkPtPullEta";
+    h2_TkPtPull_[0]=iBooker.book2D(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax,100, -10., 10.);
+    
+    histname="PtRecVsPtSim";
+    h2_PtRecVsPtSim_[0]=iBooker.book2D(histname+"All", "Pt Rec vs Pt sim: All ", etBin,etMin,etMax,etBin,etMin, etMax);
+    h2_PtRecVsPtSim_[1]=iBooker.book2D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", etBin,etMin,etMax,etBin,etMin, etMax);
+    h2_PtRecVsPtSim_[2]=iBooker.book2D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", etBin,etMin,etMax,etBin,etMin, etMax);
+    histname="PtRecVsPtSimMixProv";
+    h2_PtRecVsPtSimMixProv_ =iBooker.book2D(histname+"All", "Pt Rec vs Pt sim All for mix with general tracks ", etBin,etMin,etMax,etBin,etMin, etMax);
+  }
+  
+  // if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) {
+  histname="eBcOverTkPout";
+  hBCEnergyOverTrackPout_[0] = iBooker.book1D(histname+"All","Matrching BC E/P_out: all Ecal ",100, 0., 5.);
+  hBCEnergyOverTrackPout_[1] = iBooker.book1D(histname+"Barrel","Matrching BC E/P_out: Barrel ",100, 0., 5.);
+  hBCEnergyOverTrackPout_[2] = iBooker.book1D(histname+"Endcap","Matrching BC E/P_out: Endcap ",100, 0., 5.);
+  // }
+  
+  ////////////// test on OutIn tracks
+  h_OIinnermostHitR_ = iBooker.book1D("OIinnermostHitR"," R innermost hit for OI tracks ",50, 0., 25);
+  h_IOinnermostHitR_ = iBooker.book1D("IOinnermostHitR"," R innermost hit for IO tracks ",50, 0., 25);
+  
+  /// test track provenance
+  h_trkProv_[0] = iBooker.book1D("allTrkProv"," Track pair provenance ",4, 0., 4.);
+  h_trkProv_[1] = iBooker.book1D("assTrkProv"," Track pair provenance ",4, 0., 4.);
+  //
+  h_trkAlgo_ = iBooker.book1D("allTrackAlgo"," Track Algo ",30, -0.5, 29.5);
+  h_convAlgo_ = iBooker.book1D("allConvAlgo"," Conv Algo ",5, -0.5, 4.5);
+  h_convQuality_ = iBooker.book1D("allConvQuality","Conv quality ",11,-0.5,11.);
+  
+  
+  // histos for fake rate
+  histname = "h_RecoConvTwoTracksEta";
+  h_RecoConvTwoTracks_[0] =  iBooker.book1D(histname," All reco conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_RecoConvTwoTracksPhi";
+  h_RecoConvTwoTracks_[1] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_RecoConvTwoTracksR";
+  h_RecoConvTwoTracks_[2] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
+  histname = "h_RecoConvTwoTracksZ";
+  h_RecoConvTwoTracks_[3] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
+  histname = "h_RecoConvTwoTracksEt";
+  h_RecoConvTwoTracks_[4] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
+  //
+  histname = "h_RecoConvTwoMTracksEta";
+  h_RecoConvTwoMTracks_[0] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated #eta",etaBin2,etaMin, etaMax);
+  histname = "h_RecoConvTwoMTracksPhi";
+  h_RecoConvTwoMTracks_[1] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated #phi",phiBin,phiMin, phiMax);
+  histname = "h_RecoConvTwoMTracksR";
+  h_RecoConvTwoMTracks_[2] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated R",rBin,rMin, rMax);
+  histname = "h_RecoConvTwoMTracksZ";
+  h_RecoConvTwoMTracks_[3] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Z",zBin,zMin, zMax);
+  histname = "h_RecoConvTwoMTracksEt";
+  h_RecoConvTwoMTracks_[4] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Et",etBin,etMin, etMax);
 
-    histname="h_nHitsVsEta";
-    p_nHitsVsEta_[1] =  iBooker.bookProfile(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
-
-    histname="p_nHitsVsEtaSL";
-    p_nHitsVsEtaSL_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from single leg conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
-
-
-    histname="h_nHitsVsR";
-    p_nHitsVsR_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
-    histname="p_nHitsVsRSL";
-    p_nHitsVsRSL_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from single leg conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
-
-    histname="tkChi2";
-    h_tkChi2_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
-    histname="tkChi2SL";
-    h_tkChi2SL_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from single leg conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max);
-    histname="tkChi2Large";
-    h_tkChi2Large_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
-
-
-    histname="h_nHitsVsR";
-    p_nHitsVsR_[1] =  iBooker.bookProfile(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
-
-    histname="tkChi2";
-    h_tkChi2_[1] = iBooker.book1D(histname+"AssTracks","Photons:Tracks from conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max);
-    histname="tkChi2Large";
-    h_tkChi2Large_[1] = iBooker.book1D(histname+"AssTracks","Photons:Tracks from conversions: #chi^{2} of associated  tracks", 1000, 0., 5000.0);
-
-    histname="pChi2VsEta";
-    p_Chi2VsEta_[0]=iBooker.bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
-
-    histname="pChi2VsR";
-    p_Chi2VsR_[0]=iBooker.bookProfile(histname+"All"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
-
-
-    histname="hTkD0";
-    h_TkD0_[0]=iBooker.book1D(histname+"All"," Reco Track D0*q: All ",100,-0.1,0.6);
-    h_TkD0_[1]=iBooker.book1D(histname+"Barrel"," Reco Track D0*q: Barrel ",100,-0.1,0.6);
-    h_TkD0_[2]=iBooker.book1D(histname+"Endcap"," Reco Track D0*q: Endcap ",100,-0.1,0.6);
-
-
-    histname="hTkPtPull";
-    h_TkPtPull_[0]=iBooker.book1D(histname+"All"," Reco Track Pt pull: All ",100, -10., 10.);
-    histname="hTkPtPull";
-    h_TkPtPull_[1]=iBooker.book1D(histname+"Barrel"," Reco Track Pt pull: Barrel ",100, -10., 10.);
-    histname="hTkPtPull";
-    h_TkPtPull_[2]=iBooker.book1D(histname+"Endcap"," Reco Track Pt pull: Endcap ",100, -10., 10.);
-
-    histname="pTkPtPullEta";
-    p_TkPtPull_[0]=iBooker.bookProfile(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax, 100, -10., 10., " ");
-
-    if ( ! isRunCentrally_ ) {
-      histname="h2TkPtPullEta";
-      h2_TkPtPull_[0]=iBooker.book2D(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax,100, -10., 10.);
-
-      histname="PtRecVsPtSim";
-      h2_PtRecVsPtSim_[0]=iBooker.book2D(histname+"All", "Pt Rec vs Pt sim: All ", etBin,etMin,etMax,etBin,etMin, etMax);
-      h2_PtRecVsPtSim_[1]=iBooker.book2D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", etBin,etMin,etMax,etBin,etMin, etMax);
-      h2_PtRecVsPtSim_[2]=iBooker.book2D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", etBin,etMin,etMax,etBin,etMin, etMax);
-      histname="PtRecVsPtSimMixProv";
-      h2_PtRecVsPtSimMixProv_ =iBooker.book2D(histname+"All", "Pt Rec vs Pt sim All for mix with general tracks ", etBin,etMin,etMax,etBin,etMin, etMax);
-    }
-
-    // if ( fName_ != "pfPhotonValidator" &&  fName_ != "oldpfPhotonValidator" ) {
-      histname="eBcOverTkPout";
-      hBCEnergyOverTrackPout_[0] = iBooker.book1D(histname+"All","Matrching BC E/P_out: all Ecal ",100, 0., 5.);
-      hBCEnergyOverTrackPout_[1] = iBooker.book1D(histname+"Barrel","Matrching BC E/P_out: Barrel ",100, 0., 5.);
-      hBCEnergyOverTrackPout_[2] = iBooker.book1D(histname+"Endcap","Matrching BC E/P_out: Endcap ",100, 0., 5.);
-      // }
-
-    ////////////// test on OutIn tracks
-    h_OIinnermostHitR_ = iBooker.book1D("OIinnermostHitR"," R innermost hit for OI tracks ",50, 0., 25);
-    h_IOinnermostHitR_ = iBooker.book1D("IOinnermostHitR"," R innermost hit for IO tracks ",50, 0., 25);
-
-    /// test track provenance
-    h_trkProv_[0] = iBooker.book1D("allTrkProv"," Track pair provenance ",4, 0., 4.);
-    h_trkProv_[1] = iBooker.book1D("assTrkProv"," Track pair provenance ",4, 0., 4.);
-    //
-    h_trkAlgo_ = iBooker.book1D("allTrackAlgo"," Track Algo ",30, -0.5, 29.5);
-    h_convAlgo_ = iBooker.book1D("allConvAlgo"," Conv Algo ",5, -0.5, 4.5);
-    h_convQuality_ = iBooker.book1D("allConvQuality","Conv quality ",11,-0.5,11.);
-
-
-    // histos for fake rate
-    histname = "h_RecoConvTwoTracksEta";
-    h_RecoConvTwoTracks_[0] =  iBooker.book1D(histname," All reco conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_RecoConvTwoTracksPhi";
-    h_RecoConvTwoTracks_[1] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_RecoConvTwoTracksR";
-    h_RecoConvTwoTracks_[2] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
-    histname = "h_RecoConvTwoTracksZ";
-    h_RecoConvTwoTracks_[3] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
-    histname = "h_RecoConvTwoTracksEt";
-    h_RecoConvTwoTracks_[4] =  iBooker.book1D(histname," All reco conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_RecoConvTwoMTracksEta";
-    h_RecoConvTwoMTracks_[0] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    histname = "h_RecoConvTwoMTracksPhi";
-    h_RecoConvTwoMTracks_[1] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated #phi",phiBin,phiMin, phiMax);
-    histname = "h_RecoConvTwoMTracksR";
-    h_RecoConvTwoMTracks_[2] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated R",rBin,rMin, rMax);
-    histname = "h_RecoConvTwoMTracksZ";
-    h_RecoConvTwoMTracks_[3] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Z",zBin,zMin, zMax);
-    histname = "h_RecoConvTwoMTracksEt";
-    h_RecoConvTwoMTracks_[4] =  iBooker.book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Et",etBin,etMin, etMax);
-  } // if DQM
 }
 
 
@@ -1621,16 +1620,15 @@ void  PhotonValidator::dqmBeginRun (edm::Run const & r, edm::EventSetup const & 
 
   edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
   theEventSetup.get<TrackAssociatorRecord>().get("trackAssociatorByHitsForPhotonValidation",theHitsAssociator);
-  theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
+  theTrackAssociator_ = theHitsAssociator.product();
 
-  thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
+  thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder() );
 
 }
 
-void  PhotonValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+void  PhotonValidator::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
-  delete thePhotonMCTruthFinder_;
-
+  thePhotonMCTruthFinder_.reset();
 }
 
 
@@ -3987,7 +3985,7 @@ void PhotonValidator::endJob() {
 
   std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
   if ( ! isRunCentrally_ ) {
-    dbe_->save(outputFileName);
+    edm::Service<DQMStore>()->save(outputFileName);
   }
 
   edm::LogInfo("PhotonValidator") << "Analyzed " << nEvt_  << "\n";

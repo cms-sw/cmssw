@@ -22,7 +22,7 @@ class PFRecoTauDiscriminationByNProngs : public PFTauDiscriminationProducerBase 
       	~PFRecoTauDiscriminationByNProngs(){}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-	double discriminate(const reco::PFTauRef&) override;
+	double discriminate(const reco::PFTauRef&) const override;
 
     private:
 	std::auto_ptr<tau::RecoTauQualityCuts> qcuts_;
@@ -49,7 +49,7 @@ void PFRecoTauDiscriminationByNProngs::beginEvent(const Event& iEvent, const Eve
 	vertexAssociator_->setEvent(iEvent);
 }
 
-double PFRecoTauDiscriminationByNProngs::discriminate(const PFTauRef& tau){
+double PFRecoTauDiscriminationByNProngs::discriminate(const PFTauRef& tau) const{
 
 	reco::VertexRef pv = vertexAssociator_->associatedVertex(*tau);
 	const PFCandidatePtr leadingTrack = tau->leadPFChargedHadrCand();

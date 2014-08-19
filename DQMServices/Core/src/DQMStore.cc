@@ -449,6 +449,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     run_(0),
     streamId_(0),
     moduleId_(0),
+    stream_(nullptr),
     pwd_ (""),
     ibooker_(0),
     igetter_(0)
@@ -483,6 +484,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     run_(0),
     streamId_(0),
     moduleId_(0),
+    stream_(nullptr),
     pwd_ (""),
     ibooker_(0),
     igetter_(0)
@@ -502,6 +504,9 @@ DQMStore::~DQMStore(void)
   for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
     delete i->first;
 
+  if (stream_)
+    stream_->close();
+  delete stream_;
 }
 
 void
@@ -567,7 +572,12 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 void
 DQMStore::print_trace (const std::string &dir, const std::string &name)
 {
-  static std::ofstream stream("histogramBookingBT.log");
+  // the access to the member stream_ is implicitely protected against
+  // concurrency problems because the print_trace method is always called behind
+  // a lock (see bookTransaction).
+  if (!stream_)
+    stream_ = new ofstream("histogramBookingBT.log");
+  
   void *array[10];
   size_t size;
   char **strings;
@@ -582,14 +592,14 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
       &&s_rxtrace.match(strings[4], 0, 0, &m))
   {
     char * demangled = abi::__cxa_demangle(m.matchString(strings[4], 2).c_str(), 0, 0, &r);
-    stream << "\"" << dir << "/"
+    *stream_ << "\"" << dir << "/"
            << name << "\" "
            << (r ? m.matchString(strings[4], 2) : demangled) << " "
            << m.matchString(strings[4], 1) << "\n";
     free(demangled);
   }
   else
-    stream << "Skipping "<< dir << "/" << name
+    *stream_ << "Skipping "<< dir << "/" << name
            << " with stack size " << size << "\n";
   /* In this case print the full stack trace, up to main or to the
    * maximum stack size, i.e. 10. */
@@ -602,7 +612,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
       if (s_rxtrace.match(strings[i], 0, 0, &m))
       {
         char * demangled = abi::__cxa_demangle(m.matchString(strings[i], 2).c_str(), 0, 0, &r);
-        stream << "\t\t" << i << "/" << size << " "
+        *stream_ << "\t\t" << i << "/" << size << " "
                << (r ? m.matchString(strings[i], 2) : demangled) << " "
                << m.matchString(strings[i], 1) << std::endl;
         free (demangled);
@@ -744,7 +754,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
   {
     if (collateHistograms_)
     {
-      collate(me, h);
+      collate(me, h, verbose_);
       delete h;
       return me;
     }
@@ -755,7 +765,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
                   << context << ": monitor element '"
                   << path << "' already exists, collating" << std::endl;
       me->Reset();
-      collate(me, h);
+      collate(me, h, verbose_);
       delete h;
       return me;
     }
@@ -1479,7 +1489,7 @@ DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 bool
-DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
+DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h, unsigned verbose)
 {
   if (me->getTH1()->GetNbinsX() != h->GetNbinsX()
       || me->getTH1()->GetNbinsY() != h->GetNbinsY()
@@ -1489,72 +1499,75 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
       || me->getTH1()->GetZaxis()->GetXmin() != h->GetZaxis()->GetXmin()
       || me->getTH1()->GetXaxis()->GetXmax() != h->GetXaxis()->GetXmax()
       || me->getTH1()->GetYaxis()->GetXmax() != h->GetYaxis()->GetXmax()
-      || me->getTH1()->GetZaxis()->GetXmax() != h->GetZaxis()->GetXmax())
+      || me->getTH1()->GetZaxis()->GetXmax() != h->GetZaxis()->GetXmax()
+      || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetXaxis(),(TAxis*)h->GetXaxis())
+      || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetYaxis(),(TAxis*)h->GetYaxis())
+      || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetZaxis(),(TAxis*)h->GetZaxis()) )
   {
-    //  edm::LogWarning ("DQMStore")
-    std::cout << "*** DQMStore: WARNING:"
-              << "checkBinningMatches: different binning - cannot add object '"
-              << h->GetName() << "' of type "
-              << h->IsA()->GetName() << " to existing ME: '"
-              << me->getFullname() << "'\n";
+    if(verbose > 0)
+      std::cout << "*** DQMStore: WARNING:"
+		<< "checkBinningMatches: different binning - cannot add object '"
+		<< h->GetName() << "' of type "
+		<< h->IsA()->GetName() << " to existing ME: '"
+		<< me->getFullname() << "'\n";
     return false;
   }
   return true;
 }
 
 void
-DQMStore::collate1D(MonitorElement *me, TH1F *h)
+DQMStore::collate1D(MonitorElement *me, TH1F *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH1F()->Add(h);
 }
 
 void
-DQMStore::collate1S(MonitorElement *me, TH1S *h)
+DQMStore::collate1S(MonitorElement *me, TH1S *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH1S()->Add(h);
 }
 
 void
-DQMStore::collate1DD(MonitorElement *me, TH1D *h)
+DQMStore::collate1DD(MonitorElement *me, TH1D *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH1D()->Add(h);
 }
 
 void
-DQMStore::collate2D(MonitorElement *me, TH2F *h)
+DQMStore::collate2D(MonitorElement *me, TH2F *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH2F()->Add(h);
 }
 
 void
-DQMStore::collate2S(MonitorElement *me, TH2S *h)
+DQMStore::collate2S(MonitorElement *me, TH2S *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH2S()->Add(h);
 }
 
 void
-DQMStore::collate2DD(MonitorElement *me, TH2D *h)
+DQMStore::collate2DD(MonitorElement *me, TH2D *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH2D()->Add(h);
 }
 
 void
-DQMStore::collate3D(MonitorElement *me, TH3F *h)
+DQMStore::collate3D(MonitorElement *me, TH3F *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
     me->getTH3F()->Add(h);
 }
 
 void
-DQMStore::collateProfile(MonitorElement *me, TProfile *h)
+DQMStore::collateProfile(MonitorElement *me, TProfile *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
   {
     TProfile *meh = me->getTProfile();
     me->addProfiles(h, meh, meh, 1, 1);
@@ -1562,9 +1575,9 @@ DQMStore::collateProfile(MonitorElement *me, TProfile *h)
 }
 
 void
-DQMStore::collateProfile2D(MonitorElement *me, TProfile2D *h)
+DQMStore::collateProfile2D(MonitorElement *me, TProfile2D *h, unsigned verbose)
 {
-  if (checkBinningMatches(me,h))
+  if (checkBinningMatches(me,h,verbose))
   {
     TProfile2D *meh = me->getTProfile2D();
     me->addProfiles(h, meh, meh, 1, 1);
@@ -2036,7 +2049,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collateProfile(me, h);
+      collateProfile(me, h, verbose_);
     refcheck = me;
   }
   else if (TProfile2D *h = dynamic_cast<TProfile2D *>(obj))
@@ -2047,7 +2060,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collateProfile2D(me, h);
+      collateProfile2D(me, h, verbose_);
     refcheck = me;
   }
   else if (TH1F *h = dynamic_cast<TH1F *>(obj))
@@ -2058,7 +2071,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate1D(me, h);
+      collate1D(me, h, verbose_);
     refcheck = me;
   }
   else if (TH1S *h = dynamic_cast<TH1S *>(obj))
@@ -2069,7 +2082,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate1S(me, h);
+      collate1S(me, h, verbose_);
     refcheck = me;
   }
   else if (TH1D *h = dynamic_cast<TH1D *>(obj))
@@ -2080,7 +2093,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate1DD(me, h);
+      collate1DD(me, h, verbose_);
     refcheck = me;
   }
   else if (TH2F *h = dynamic_cast<TH2F *>(obj))
@@ -2091,7 +2104,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate2D(me, h);
+      collate2D(me, h, verbose_);
     refcheck = me;
   }
   else if (TH2S *h = dynamic_cast<TH2S *>(obj))
@@ -2102,7 +2115,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate2S(me, h);
+      collate2S(me, h, verbose_);
     refcheck = me;
   }
   else if (TH2D *h = dynamic_cast<TH2D *>(obj))
@@ -2113,7 +2126,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate2DD(me, h);
+      collate2DD(me, h, verbose_);
     refcheck = me;
   }
   else if (TH3F *h = dynamic_cast<TH3F *>(obj))
@@ -2124,7 +2137,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
-      collate3D(me, h);
+      collate3D(me, h, verbose_);
     refcheck = me;
   }
   else if (dynamic_cast<TObjString *>(obj))

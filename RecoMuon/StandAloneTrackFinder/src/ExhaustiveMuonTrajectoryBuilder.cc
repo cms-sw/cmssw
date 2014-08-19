@@ -45,8 +45,6 @@ ExhaustiveMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
     TrajectoryContainer trajectories(theTrajBuilder.trajectories(tmpSeed));
     result.insert(result.end(), trajectories.begin(), trajectories.end());
   }
-  // choose the best trajectory
-  if(!result.empty()) clean(result);
   return result;
 }
 

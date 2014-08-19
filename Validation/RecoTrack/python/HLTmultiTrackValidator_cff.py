@@ -114,13 +114,16 @@ hltMultiTrackValidator.associators = cms.vstring('hltTrackAssociatorByHitsRecoDe
 from Validation.RecoTrack.cutsTPEffic_cfi import *
 from Validation.RecoTrack.cutsTPFake_cfi import *
 
-from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
+#see comment below
+#from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 
 hltMultiTrackValidation = cms.Sequence(
 #    hltDedxHarmonic2
 #    + hltDedxTruncated40
-    simHitTPAssocProducer
-    + hltTPClusterProducer
+#already running in prevalidation step - given that the validation step is an endpath
+#we cant run this in both places      
+#    simHitTPAssocProducer +
+    hltTPClusterProducer
     + hltTrackingParticleRecoTrackAsssociation
     + cutsTPEffic
     + cutsTPFake

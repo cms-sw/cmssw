@@ -84,20 +84,15 @@ void TauolappInterface::init( const edm::EventSetup& es ){
       Tauolapp::Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
    }
 
-   Tauolapp::Tauola::setTauLifetime(0.0);
    Tauolapp::Tauola::spin_correlation.setAll(fPolarization);
 
    // some more options, copied over from an example 
-   // - maybe will use later...
-   //
+   // Default values
    //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
-   //
-
-//
-//   const HepPDT::ParticleData* 
-//         PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauola::getDecayingParticle()) )) ;
-//   double lifetime = PData->lifetime().value();
-//   Tauola::setTauLifetime( lifetime );
+   Tauolapp::Tauola::setTauLifetime(0.0);
+   const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauolapp::Tauola::getDecayingParticle()) )) ;
+   lifetime = PData->lifetime().value();
+   //std::cout << "Setting lifetime: ctau=" << lifetime << "m or tau=" << lifetime/(299792458.0*1000.0) << "s" << std::endl;
 
    fPDGs.push_back( Tauolapp::Tauola::getDecayingParticle() );
 
@@ -105,6 +100,53 @@ void TauolappInterface::init( const edm::EventSetup& es ){
    Tauolapp::Tauola::initialize();
 
    Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
+
+   if (fPSet->exists("parameterSets")){
+     std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
+     for (unsigned int ip=0; ip<par.size(); ++ip ){
+       std::string curSet = par[ip];
+       
+       if(curSet=="setNewCurrents") Tauolapp::Tauola::setNewCurrents(fPSet->getParameter<int>(curSet));
+       if(curSet=="spinCorrelationSetAll") Tauolapp::Tauola::spin_correlation.setAll(fPSet->getParameter<bool>(curSet));
+       if(curSet=="spinCorrelationGAMMA") Tauolapp::Tauola::spin_correlation.GAMMA=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationZ0") Tauolapp::Tauola::spin_correlation.Z0=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGS") Tauolapp::Tauola::spin_correlation.HIGGS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSH") Tauolapp::Tauola::spin_correlation.HIGGS_H=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSA") Tauolapp::Tauola::spin_correlation.HIGGS_A=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSPLUS") Tauolapp::Tauola::spin_correlation.HIGGS_PLUS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSMINUS") Tauolapp::Tauola::spin_correlation.HIGGS_MINUS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationWPLUS") Tauolapp::Tauola::spin_correlation.W_PLUS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationWMINUS") Tauolapp::Tauola::spin_correlation.W_MINUS=fPSet->getParameter<bool>(curSet);
+       
+       if(curSet=="setHiggsScalarPseudoscalarPDG") Tauolapp::Tauola::setHiggsScalarPseudoscalarPDG(fPSet->getParameter<int>(curSet));
+       if(curSet=="setHiggsScalarPseudoscalarMixingAngle") Tauolapp::Tauola::setHiggsScalarPseudoscalarMixingAngle(fPSet->getParameter<double>(curSet));
+       
+       if(curSet=="setRadiation") Tauolapp::Tauola::setRadiation(fPSet->getParameter<bool>(curSet));
+       if(curSet=="setRadiationCutOff") Tauolapp::Tauola::setRadiationCutOff(fPSet->getParameter<double>(curSet));
+       
+       if(curSet=="setEtaK0sPi"){
+	 std::vector<int> vpar = fPSet->getParameter<std::vector<int> >(curSet);
+	 if(vpar.size()==3) Tauolapp::Tauola::setEtaK0sPi(vpar[0],vpar[1],vpar[2]);
+	 else {std::cout << "WARNING invalid size for setEtaK0sPi: " << vpar.size() << " Require 3 elements " << std::endl;}
+       }
+       
+       if(curSet=="setTaukle"){
+	 std::vector<double> vpar = fPSet->getParameter<std::vector<double> >(curSet);
+	 if(vpar.size()==4) Tauolapp::Tauola::setTaukle(vpar[0], vpar[1], vpar[2], vpar[3]);
+	 else {std::cout << "WARNING invalid size for setTaukle: " << vpar.size() << " Require 4 elements " << std::endl;}
+       }
+       
+       if(curSet=="setTauBr"){
+	 edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
+	 std::vector<int> vJAK = cfg.getParameter<std::vector<int> >("JAK");
+	 std::vector<double> vBR = cfg.getParameter<std::vector<double> >("BR");
+	 if(vJAK.size() == vBR.size()){
+	   for(unsigned int i=0;i<vJAK.size();i++) Tauolapp::Tauola::setTauBr(vJAK[i],vBR[i]);
+	 }
+	 else {std::cout << "WARNING invalid size for setTauBr - JAK: " << vJAK.size() << " BR: " << vBR.size() << std::endl;}
+       }
+     }
+   }
 
    // override decay modes if needs be
    //
@@ -172,33 +214,21 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
     // NOTE: the procedure ASSYMES that vertex barcoding is COUNTIUOUS/SEQUENTIAL,
     // and that the abs(barcode) corresponds to vertex "plain indexing"
     //
-    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
-    {
+    // manually add lifetimes
+    for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++){
+      if(abs((*iter)->pdg_id())==15 && isLastTauInChain(*iter)){
+	HepMC::FourVector PMom = (*iter)->momentum();
+	double mass = (*iter)->generated_mass();
+	float prob = 0.;
+	int length=1;
+	ranmar_(&prob,&length);
+	double ct = -lifetime * std::log(prob);
+	// d*gamma=t*v*gamma=t*c*beta*gamma=ct*(P/E)*(E/m)=ct*(P/m)
+	setLifeTimeInDecays((*iter),ct*(PMom.px()/mass),ct*(PMom.py()/mass),ct*(PMom.pz()/mass),ct*(PMom.e()/mass));
+      }
+    }
+    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ ){
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
-       HepMC::GenParticle* GenPart = *(GenVtx->particles_in_const_begin());
-       HepMC::GenVertex* ProdVtx = GenPart->production_vertex();
-       HepMC::FourVector PMom = GenPart->momentum();
-       double mass = GenPart->generated_mass();
-       const HepPDT::ParticleData* 
-             PData = fPDGTable->particle(HepPDT::ParticleID(abs(GenPart->pdg_id()))) ;
-       double lifetime = PData->lifetime().value();
-       float prob = 0.;
-       int length=1;
-       ranmar_(&prob,&length);
-       double ct = -lifetime * std::log(prob);
-       double VxDec = GenVtx->position().x();
-       VxDec += ct * (PMom.px()/mass);
-       VxDec += ProdVtx->position().x();
-       double VyDec = GenVtx->position().y();
-       VyDec += ct * (PMom.py()/mass);
-       VyDec += ProdVtx->position().y();
-       double VzDec = GenVtx->position().z();
-       VzDec += ct * (PMom.pz()/mass);
-       VzDec += ProdVtx->position().z();
-       double VtDec = GenVtx->position().t();
-       VtDec += ct * (PMom.e()/mass);
-       VtDec += ProdVtx->position().t();
-       GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) ); 
        //
        // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
        // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
@@ -580,4 +610,31 @@ int TauolappInterface::selectHadronic()
 
 }
 
+bool TauolappInterface::isLastTauInChain(const HepMC::GenParticle* tau){
+  if ( tau->end_vertex() ) {
+    HepMC::GenVertex::particle_iterator dau;
+    for (dau = tau->end_vertex()->particles_begin(HepMC::children); dau!= tau->end_vertex()->particles_end(HepMC::children); dau++ ) {
+      int dau_pid = (*dau)->pdg_id();
+      if(dau_pid == tau->pdg_id()) return false;
+    }
+  }
+  return true;
+}
 
+void TauolappInterface::setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt){
+  if(p->end_vertex()){
+    HepMC::GenVertex* GenVtx=p->end_vertex();
+    double VxDec = GenVtx->position().x();
+    VxDec += vx;
+    double VyDec = GenVtx->position().y();
+    VyDec += vy;
+    double VzDec = GenVtx->position().z();
+    VzDec += vz;
+    double VtDec = GenVtx->position().t();
+    VtDec += vt;
+    GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) );
+    for(HepMC::GenVertex::particle_iterator dau=p->end_vertex()->particles_begin(HepMC::children); dau!=p->end_vertex()->particles_end(HepMC::children); dau++){
+      setLifeTimeInDecays((*dau),vx,vy,vz,vt); //recursively modify everything in the decay chain
+    }
+  }
+} 

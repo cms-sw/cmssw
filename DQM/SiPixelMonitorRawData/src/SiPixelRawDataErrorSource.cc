@@ -261,13 +261,13 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
   
-  SiPixelFolderOrganizer theSiPixelFolder;
+  SiPixelFolderOrganizer theSiPixelFolder(false);
   
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)) {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
         if(!isPIB) throw cms::Exception("LogicError")
                        << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
@@ -275,13 +275,13 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     
     if(ladOn){
-      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     
     if(bladeOn){
-      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
@@ -290,7 +290,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
 
   for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
     /// Create folder tree for errors without detId and book histograms 
-    if(!theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
+    if(!theSiPixelFolder.setFedFolder(iBooker,(*struct_iter2).first)) {
       throw cms::Exception("LogicError")
 	<< "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
     }
@@ -334,21 +334,22 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     meTBMType_[id]->setAxisTitle("TBM Type",1);
     // For error type 31, the event number of the TBM header with the error
     hid = theHistogramId->setHistoId("EvtNbr",id);
-    meEvtNbr_[id] = iBooker.bookInt(hid);
+    meEvtNbr_[id] = iBooker.book1D(hid,"Event number",1,0,1);
     // For errorType = 34, datastream size according to error word
     hid = theHistogramId->setHistoId("evtSize",id);
-    meEvtSize_[id] = iBooker.bookInt(hid);
-    for(int j=0; j!=37; j++){
-      std::stringstream temp; temp << j;
-      hid = "FedChNErrArray_" + temp.str();
-      meFedChNErrArray_[id*37 + j] = iBooker.bookInt(hid);
-      hid = "FedChLErrArray_" + temp.str();
-      meFedChLErrArray_[id*37 + j] = iBooker.bookInt(hid);
-      hid = "FedETypeNErrArray_" + temp.str();
-      if(j<21) meFedETypeNErrArray_[id*21 + j] = iBooker.bookInt(hid);
-    }
-
-
+    meEvtSize_[id] = iBooker.book1D(hid,"Event size",1,0,1);
+    //
+    hid = theHistogramId->setHistoId("FedChNErr",id);
+    meFedChNErr_[id] = iBooker.book1D(hid,"Number of errors per FED channel",37,0,37);
+    meFedChNErr_[id]->setAxisTitle("FED channel",1);
+    //
+    hid = theHistogramId->setHistoId("FedChLErr",id);
+    meFedChLErr_[id] = iBooker.book1D(hid,"Last error per FED channel",37,0,37);
+    meFedChLErr_[id]->setAxisTitle("FED channel",1);
+    //
+    hid = theHistogramId->setHistoId("FedETypeNErr", id);
+    meFedETypeNErr_[id] = iBooker.book1D(hid,"Number of errors per type",21,0,21);
+    meFedETypeNErr_[id]->setAxisTitle("Error type",1);
   }
   //Add the booked histograms to the histogram map for booking
   meMapFEDs_["meErrorType_"] = meErrorType_;
@@ -358,9 +359,9 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   meMapFEDs_["meTBMType_"] = meTBMType_;
   meMapFEDs_["meEvtNbr_"] = meEvtNbr_;
   meMapFEDs_["meEvtSize_"] = meEvtSize_;
-  meMapFEDs_["meFedChNErrArray_"] = meFedChNErrArray_;
-  meMapFEDs_["meFedChLErrArray_"] = meFedChLErrArray_;
-  meMapFEDs_["meFedETypeNErrArray_"] = meFedETypeNErrArray_;
+  meMapFEDs_["meFedChNErr_"] = meFedChNErr_;
+  meMapFEDs_["meFedChLErr_"] = meFedChLErr_;
+  meMapFEDs_["meFedETypeNErr_"] = meFedETypeNErr_;
 
   //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 }

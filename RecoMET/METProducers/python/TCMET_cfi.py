@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ##____________________________________________________________________________||
 tcMet = cms.EDProducer(
     "TCMETProducer",
-    alias = cms.string('TCMET'),
+    alias = cms.string('tcMet'),
     electronVetoCone = cms.bool(True),
     electronInputTag  = cms.InputTag("gedGsfElectrons"),
     muonInputTag      = cms.InputTag("muons"),
@@ -65,6 +65,7 @@ tcMet = cms.EDProducer(
 
 ##____________________________________________________________________________||
 tcMetWithPFclusters = tcMet.clone()
+tcMetWithPFclusters.alias = cms.string('tcMetWithPFclusters')
 tcMetWithPFclusters.usePFClusters = cms.bool(True)
 
 ##____________________________________________________________________________||

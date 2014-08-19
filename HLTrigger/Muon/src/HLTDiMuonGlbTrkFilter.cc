@@ -39,7 +39,13 @@ HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) :
   m_trkMuonId         = muon::SelectionType(iConfig.getParameter<unsigned int>("trkMuonId"));
   m_minPtMuon1        = iConfig.getParameter<double>("minPtMuon1");
   m_minPtMuon2        = iConfig.getParameter<double>("minPtMuon2");
+  m_maxEtaMuon        = iConfig.getParameter<double>("maxEtaMuon");
+  m_maxYDimuon        = iConfig.getParameter<double>("maxYDimuon");
   m_minMass           = iConfig.getParameter<double>("minMass");
+  m_maxMass           = iConfig.getParameter<double>("maxMass");
+  m_chargeOpt         = iConfig.getParameter<int> ("ChargeOpt");
+  m_maxDCAMuMu        = iConfig.getParameter<double>("maxDCAMuMu");
+  m_maxdEtaMuMu       = iConfig.getParameter<double>("maxdEtaMuMu");
 }
 
 void
@@ -57,7 +63,13 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<unsigned int>("trkMuonId",0);
   desc.add<double>("minPtMuon1",17);
   desc.add<double>("minPtMuon2",8);
+  desc.add<double>("maxEtaMuon",1e99);
+  desc.add<double>("maxYDimuon",1e99);
   desc.add<double>("minMass",1);
+  desc.add<double>("maxMass",1e99);
+  desc.add<int>("ChargeOpt",0);
+  desc.add<double>("maxDCAMuMu",1e99);
+  desc.add<double>("maxdEtaMuMu",1e99);
   descriptions.add("hltDiMuonGlbTrkFilter",desc);
 }
 
@@ -85,23 +97,47 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if ( muon.isTrackerMuon() && !muon::isGoodMuon(muon,m_trkMuonId) ) continue;
     if ( muon.pt() < std::min(m_minPtMuon1,m_minPtMuon2) ) continue;
+    if ( std::abs(muon.eta()) > m_maxEtaMuon ) continue;
     filteredMuons.push_back(i);
   }
 
   unsigned int npassed(0);
   std::set<unsigned int> mus;
   if ( filteredMuons.size()>1 ){
+    // Needed for DCA calculation
+    edm::ESHandle<MagneticField> bFieldHandle;
+    if (m_maxDCAMuMu < 100.) iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
     for ( unsigned int i=0; i < filteredMuons.size()-1; ++i )
       for ( unsigned int j=i+1; j < filteredMuons.size(); ++j ){
-	const reco::Muon& mu1(muons->at(filteredMuons.at(i)));
-	const reco::Muon& mu2(muons->at(filteredMuons.at(j)));
-	if ( std::max( mu1.pt(), mu2.pt()) > std::max(m_minPtMuon1,m_minPtMuon2) &&
-	     deltaR(mu1,mu2)>m_minDR && (mu1.p4() + mu2.p4()).mass() > m_minMass )
-	  {
-	    mus.insert(filteredMuons.at(i));
-	    mus.insert(filteredMuons.at(j));
-	    npassed++;
-	  }
+        const reco::Muon& mu1(muons->at(filteredMuons.at(i)));
+        const reco::Muon& mu2(muons->at(filteredMuons.at(j)));
+        if ( std::max( mu1.pt(), mu2.pt()) > std::max(m_minPtMuon1,m_minPtMuon2) &&
+             std::abs(mu2.eta() - mu1.eta()) < m_maxdEtaMuMu &&
+             deltaR(mu1,mu2)>m_minDR && (mu1.p4() + mu2.p4()).mass() > m_minMass &&
+             (mu1.p4() + mu2.p4()).mass() < m_maxMass && std::abs((mu1.p4() + mu2.p4()).Rapidity()) < m_maxYDimuon ) {
+          if (m_chargeOpt<0) {
+            if (mu1.charge()*mu2.charge()>0) continue;
+          }
+          else if (m_chargeOpt>0) {
+            if (mu1.charge()*mu2.charge()<0) continue;
+          }
+          if (m_maxDCAMuMu < 100.) {
+            reco::TrackRef tk1 = mu1.get<reco::TrackRef>();
+            reco::TrackRef tk2 = mu2.get<reco::TrackRef>();
+            reco::TransientTrack mu1TT(*tk1, &(*bFieldHandle));
+            reco::TransientTrack mu2TT(*tk2, &(*bFieldHandle));
+            TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
+            TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
+            if (mu1TS.isValid() && mu2TS.isValid()) {
+              ClosestApproachInRPhi cApp;
+              cApp.calculate(mu1TS.theState(), mu2TS.theState());
+              if (!cApp.status() || cApp.distance() > m_maxDCAMuMu) continue;
+            }
+          }
+          mus.insert(filteredMuons.at(i));
+          mus.insert(filteredMuons.at(j));
+          npassed++;
+        }
       }
   }
 

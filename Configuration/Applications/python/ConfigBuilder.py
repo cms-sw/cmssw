@@ -37,6 +37,7 @@ defaultOptions.filein = ""
 defaultOptions.dasquery=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = []
+defaultOptions.customisation_file_unsch = []
 defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
@@ -210,6 +211,7 @@ class ConfigBuilder(object):
         else:
             self.process = process
         self.imports = []
+        self.importsUnsch = []
         self.define_Configs()
         self.schedule = list()
 
@@ -276,14 +278,18 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile):
+    def loadAndRemember(self, includeFile,unsch=0):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-        self.imports.append(includeFile)
-        self.process.load(includeFile)
-        return sys.modules[includeFile]
+	if unsch==0:
+		self.imports.append(includeFile)
+		self.process.load(includeFile)
+		return sys.modules[includeFile]
+	else:
+		self.importsUnsch.append(includeFile)
+		return 0#sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -760,12 +766,17 @@ class ConfigBuilder(object):
 		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
 		
 
-    def addCustomise(self):
+    def addCustomise(self,unsch=0):
         """Include the customise code """
 
 	custOpt=[]
-	for c in self._options.customisation_file:
-		custOpt.extend(c.split(","))
+	if unsch==0:
+		for c in self._options.customisation_file:
+			custOpt.extend(c.split(","))
+	else:
+		for c in self._options.customisation_file_unsch:
+			custOpt.extend(c.split(","))
+
 	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
@@ -1151,11 +1162,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF)
+                    l=self.loadAndRemember(defaultCFF,unsch)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0])
+                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
                     sequence=sequence.split('.')[1]
             else:
                     print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
@@ -1628,15 +1639,15 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
-            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
-            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
-                self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+                self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
         return
 
     def prepare_EI(self, sequence = None):
@@ -2195,6 +2206,22 @@ class ConfigBuilder(object):
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
+
+	if self._options.runUnscheduled:	
+		# prune and delete paths
+		#this is not supporting the blacklist at this point since I do not understand it
+		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import convertToUnscheduled\n"
+
+		self.pythonCfgCode+="process=convertToUnscheduled(process)\n"
+
+		#now add the unscheduled stuff
+		for module in self.importsUnsch:
+			self.process.load(module)
+			self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+	self.pythonCfgCode += self.addCustomise(1)
+
 
 	# make the .io file
 

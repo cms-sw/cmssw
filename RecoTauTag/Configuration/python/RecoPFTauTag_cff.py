@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
+# to be able to run PFTau sequence standalone on AOD
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import TransientTrackBuilderESProducer
 
 #-------------------------------------------------------------------------------
 #------------------ Jet Production and Preselection-----------------------------

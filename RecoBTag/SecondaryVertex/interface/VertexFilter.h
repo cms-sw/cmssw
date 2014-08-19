@@ -6,6 +6,19 @@
 
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
+#include <functional>
+#include <algorithm>
+#include <iterator>
+#include <cmath>
+#include <set>
+
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
+#include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
 
@@ -14,7 +27,9 @@ class VertexFilter {
 	VertexFilter(const edm::ParameterSet &params);
 	~VertexFilter() {}
 
-	bool operator () (const reco::Vertex &pv, const SecondaryVertex &sv,
+	bool operator () (const reco::Vertex &pv, const TemplatedSecondaryVertex<reco::Vertex> &sv,
+	                  const GlobalVector &direction) const;
+	bool operator () (const reco::Vertex &pv, const TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate> &sv,
 	                  const GlobalVector &direction) const;
 
     private:

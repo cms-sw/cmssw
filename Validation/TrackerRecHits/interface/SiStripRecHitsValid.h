@@ -117,14 +117,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   void beginJob(const edm::EventSetup& es);
-  void endJob();
 
  private: 
-  //Back-End Interface
-  DQMStore* dbe_;
-  bool outputMEsInRootFile;
-  bool runStandalone;
-  std::string outputFileName;
 
   TotalMEs totalMEs;
 

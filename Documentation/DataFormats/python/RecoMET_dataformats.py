@@ -53,7 +53,7 @@ json = {
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF"
      },
      {
-      "instance": "corMetGlobalMuons",
+      "instance": "caloMetM",
       "container": "recoCaloMETs",
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons"
      },
@@ -183,7 +183,7 @@ json = {
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF"
      },
      {
-      "instance": "corMetGlobalMuons",
+      "instance": "caloMetM",
       "container": "recoCaloMETs",
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons"
      },
@@ -268,7 +268,7 @@ json = {
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF"
      },
      {
-      "instance": "corMetGlobalMuons",
+      "instance": "caloMetM",
       "container": "recoCaloMETs",
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HF with corrections for muons"
      },

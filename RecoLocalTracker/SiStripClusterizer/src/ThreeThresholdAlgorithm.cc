@@ -13,6 +13,10 @@ ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, u
   _setDetId=setDetId;
   qualityLabel = (qL);
   ADCs.reserve(128);
+
+  // this has to be initialized before the first call to candidateEnded()
+  // and this is probably a bad place to initialize it
+  lastStrip = 0;
 }
 
 template<class digiDetSet>

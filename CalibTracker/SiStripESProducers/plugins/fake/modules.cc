@@ -97,3 +97,10 @@ DEFINE_FWK_MODULE(SiStripApvGainBuilderFromTag);
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripNoiseNormalizedWithApvGainBuilder.h"
 DEFINE_FWK_MODULE(SiStripNoiseNormalizedWithApvGainBuilder);
+
+
+//---------- Phase2 Fake Source from python config -----------//
+
+#include "CalibTracker/SiStripESProducers/plugins/fake/Phase2TrackerCablingCfgESSource.h"
+DEFINE_FWK_EVENTSETUP_SOURCE(Phase2TrackerCablingCfgESSource);
+

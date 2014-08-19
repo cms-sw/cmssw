@@ -49,10 +49,7 @@
 #include <math.h>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
-  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixelrechitshisto.root" ) )
-  , runStandalone ( ps.getParameter<bool>("runStandalone")  ) 
-  , dbe_(0) 
-  , conf_(ps)
+  : conf_(ps)
   , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
 }
@@ -64,8 +61,6 @@ void SiPixelRecHitsValid::beginJob() {
 }
 
 void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
-  dbe_ = edm::Service<DQMStore>().operator->();
-  //dbe_->showDirStructure();
   ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
   Char_t histo[200];
@@ -262,11 +257,6 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
       sprintf(histo, "RecHit_YPull_Disk2_Plaquette%d", i+1);
       recHitYPullDisk2Plaquettes[i] = ibooker.book1D(histo, "RecHit YPull Disk2 by plaquette", 100, -10.0, 10.0);
     }
-}
-
-void SiPixelRecHitsValid::endJob() {
-  //Save histos in local root file only in standalone mode
-  if (  runStandalone && outputFile_.size() != 0 && dbe_ ){ dbe_->save(outputFile_);}
 }
 
 void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) 

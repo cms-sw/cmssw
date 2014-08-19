@@ -154,7 +154,7 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
   // Jets
   tokJets_ = consumes< edm::View<reco::Jet> >(edm::InputTag(sJets_));
   // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
+  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "")); 
 }
 
 

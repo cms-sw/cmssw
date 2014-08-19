@@ -5,7 +5,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class GluedGeomDet : public GeomDet{
+class GluedGeomDet final : public GeomDet{
 public:
 
   GluedGeomDet( BoundPlane* sp, const GeomDetUnit* monoDet,  const GeomDetUnit* stereoDet);
@@ -23,7 +23,6 @@ public:
 private:
   const GeomDetUnit* theMonoDet;
   const GeomDetUnit* theStereoDet;  
-  std::vector<const GeomDet*> child;
 };
 
 #endif

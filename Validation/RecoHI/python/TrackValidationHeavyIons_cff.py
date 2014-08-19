@@ -26,6 +26,7 @@ from Validation.RecoTrack.MultiTrackValidator_cff import *
 hiTrackValidator = multiTrackValidator.clone(
     label_tp_effic = cms.InputTag("primaryChgSimTracks"),
     label_tp_fake  = cms.InputTag("cutsTPFake"),
+    trackCollectionForDrCalculation = cms.InputTag("cutsRecoTracks"),
     signalOnlyTP = cms.bool(False),
     skipHistoFit = cms.untracked.bool(True), # done in post-processing
     minpT = cms.double(1.0),

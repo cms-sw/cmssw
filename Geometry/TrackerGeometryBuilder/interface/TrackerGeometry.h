@@ -24,13 +24,24 @@ namespace trackerTrie {
  * A specific Tracker Builder which builds a Tracker from a list of DetUnits. 
  * Pattern recognition is used to discover layers, rings etc.
  */
-class TrackerGeometry : public TrackingGeometry {
-public:
-  typedef GeomDetEnumerators::SubDetector SubDetector;
+class TrackerGeometry final : public TrackingGeometry {
 
   explicit TrackerGeometry(GeometricDet const* gd=0);  
 
+  friend class TrackerGeomBuilderFromGeometricDet;
+
+  void addType(GeomDetType const * p);
+  void addDetUnit(GeomDetUnit const * p);
+  void addDetUnitId(DetId p);
+  void addDet(GeomDet const * p);
+  void addDetId(DetId p);
+  void finalize();
+
+public:
+  typedef GeomDetEnumerators::SubDetector SubDetector;
+
   virtual ~TrackerGeometry() ;
+
 
   virtual const DetTypeContainer&  detTypes()         const;
   virtual const DetUnitContainer&  detUnits()         const;
@@ -41,19 +52,13 @@ public:
   virtual const GeomDet*           idToDet(DetId)     const;
 
 
-  void addType(GeomDetType const * p);
-  void addDetUnit(GeomDetUnit const * p);
-  void addDetUnitId(DetId p);
-  void addDet(GeomDet const * p);
-  void addDetId(DetId p);
-
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
   unsigned int endsetDU(SubDetector sid) const { return theEndsetDU[sid];}
   // Magic : better be called at the right moment...
   void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
   void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
 
-  GeometricDet const * trackerDet() const; 
+  GeometricDet const * trackerDet() const {return  theTrackerDet;}
 
   const DetContainer& detsPXB() const;
   const DetContainer& detsPXF() const;

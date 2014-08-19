@@ -12,7 +12,7 @@
 # To RERUN the test, rm -rf workarea.
 
 # What I want to know is 1 where the config file is located (for domcount and dddreport)
-# and 2 what the sub-string corresponding to that is in the Configuration/StandardSequences.
+# and 2 what the sub-string corresponding to that is in the Configuration/Geometry.
 cmsenv
 if ($#argv == 0) then                                                                                                                                                                                    
    setenv geometry "GeometryIdeal"                                                                                                                                                                      
@@ -20,11 +20,11 @@ else
    setenv geometry `echo ${1}`                                                                                                                                                                          
 endif                                                                                                                                                                                                    
                                                                                                                                                                                                         
-set geomtemp = `(grep "Geometry.CMSCommonData" ${CMSSW_RELEASE_BASE}/src/Configuration/StandardSequences/python/${geometry}_cff.py | awk 'split($2,a,"."){print a[3]}')` 
+set geomtemp = `(grep "Geometry.CMSCommonData" ${CMSSW_RELEASE_BASE}/src/Configuration/Geometry/python/${geometry}_cff.py | awk 'split($2,a,"."){print a[3]}')` 
 #awk -F\. '{print $3}')`
 set geomxml = "${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/${geomtemp}.py"
 
-echo "START - All messages in this script pertain to geometry data described in Configuration/StandardSequence/python/${geometry}_cff.py"
+echo "START - All messages in this script pertain to geometry data described in Configuration/Geometry/python/${geometry}_cff.py"
 echo "        and xml files in: ${geomxml}" 
 
 # STEP 1:
@@ -96,7 +96,7 @@ cd workarea
 # STEP 2:
 # validate current ddd model has no missing solids, materials or logical parts
 #dddreport.sh >& dddreport.out
-cp ${CMSSW_RELEASE_BASE}/test/${SCRAM_ARCH}/DDErrorReport ${CMSSW_BASE}/bin/${SCRAM_ARCH}/.
+cp ${CMSSW_BASE}/test/${SCRAM_ARCH}/DDErrorReport ${CMSSW_BASE}/bin/${SCRAM_ARCH}/.
 #ls ${CMSSW_BASE}/bin/${SCRAM_ARCH}/
 rehash
 ../testdddreport.sh ${geomtemp}.py >& dddreport.out

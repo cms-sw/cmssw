@@ -9,16 +9,15 @@
 
 class StripGeomDetType;
 class StripTopology;
-class GeometricDet;
 class SurfaceDeformation;
 /**
  * StripGeomDetUnit is the abstract class for SiStripGeomDetUnit.
  */
 
-class StripGeomDetUnit : public GeomDetUnit {
+class StripGeomDetUnit final : public GeomDetUnit {
 public:
 
-  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, GeometricDet const * gd);
+  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id);
 
   // Det interface
 
@@ -54,8 +53,7 @@ private:
   /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
   virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
-  boost::shared_ptr<ProxyStripTopology> theTopology;
-  const GeometricDet* theGD;
+  std::unique_ptr<ProxyStripTopology> theTopology;
 };
 
 #endif // Tracker_StripGeomDetUnit_H

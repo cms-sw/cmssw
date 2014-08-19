@@ -20,10 +20,8 @@
 
 // system include files
 #ifdef __linux__
-//NOTE: clock_gettime is not available on OS X and is slower
-// than getrusage and gettimeofday on linux but gives greater
-// timing accuracy so we may want to revisit this in the future
-//#define USE_CLOCK_GETTIME
+//clock_gettime is not available on OS X
+#define USE_CLOCK_GETTIME
 #endif
 
 #ifdef USE_CLOCK_GETTIME

@@ -290,7 +290,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
       const reco::TrackIPTagInfo & info   = (*h_L25TagInfo)[i];
       const reco::Jet & jet = * info.jet();
       const reco::TrackRefVector & tracks = info.selectedTracks();
-      const std::vector<reco::TrackIPTagInfo::TrackIPData> & data = info.impactParameterData();
+      const std::vector<reco::btag::TrackIPData> & data = info.impactParameterData();
       const reco::JetTag & tag = (*h_L25JetTags)[info.jet().key()];
       m_plotL25JetsEnergy->Fill( jet.energy() );
       m_plotL25JetsET->Fill(     jet.et() );
@@ -305,7 +305,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
         m_plotL25TrackEtaPhi->Fill( tracks[t]->eta(), tracks[t]->phi() );
         m_plotL25TrackEtaPT->Fill(  tracks[t]->eta(), tracks[t]->pt() );
       }
-      std::vector<size_t> indicesBy2d = info.sortedIndexes(reco::TrackIPTagInfo::IP2DSig);
+      std::vector<size_t> indicesBy2d = info.sortedIndexes(reco::btag::IP2DSig);
       if (indicesBy2d.size() >= 2) {
         m_plotL25IP2ndTrack2d->Fill(    data[indicesBy2d[1]].ip2d.value() );
         m_plotL25IP2ndTrack2dSig->Fill( data[indicesBy2d[1]].ip2d.significance() );
@@ -314,7 +314,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
         m_plotL25IP3ndTrack2d->Fill(    data[indicesBy2d[2]].ip2d.value() );
         m_plotL25IP3ndTrack2dSig->Fill( data[indicesBy2d[2]].ip2d.significance() );
       }
-      std::vector<size_t> indicesBy3d = info.sortedIndexes(reco::TrackIPTagInfo::IP3DSig);
+      std::vector<size_t> indicesBy3d = info.sortedIndexes(reco::btag::IP3DSig);
       if (indicesBy3d.size() >= 2) {
         m_plotL25IP2ndTrack3d->Fill(    data[indicesBy3d[1]].ip3d.value() );
         m_plotL25IP2ndTrack3dSig->Fill( data[indicesBy3d[1]].ip3d.significance() );
@@ -332,7 +332,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
       const reco::TrackIPTagInfo & info   = (*h_L3TagInfo)[i];
       const reco::Jet & jet = * info.jet();
       const reco::TrackRefVector & tracks = info.selectedTracks();
-      const std::vector<reco::TrackIPTagInfo::TrackIPData> & data = info.impactParameterData();
+      const std::vector<reco::btag::TrackIPData> & data = info.impactParameterData();
       const reco::JetTag & tag = (*h_L3JetTags)[info.jet().key()];
       m_plotL3JetsEnergy->Fill( jet.energy() );
       m_plotL3JetsET->Fill(     jet.et() );
@@ -347,7 +347,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
         m_plotL3TrackEtaPhi->Fill( tracks[t]->eta(), tracks[t]->phi() );
         m_plotL3TrackEtaPT->Fill(  tracks[t]->eta(), tracks[t]->pt() );
       }
-      std::vector<size_t> indicesBy2d = info.sortedIndexes(reco::TrackIPTagInfo::IP2DSig);
+      std::vector<size_t> indicesBy2d = info.sortedIndexes(reco::btag::IP2DSig);
       if (indicesBy2d.size() >= 2) {
         m_plotL3IP2ndTrack2d->Fill(    data[indicesBy2d[1]].ip2d.value() );
         m_plotL3IP2ndTrack2dSig->Fill( data[indicesBy2d[1]].ip2d.significance() );
@@ -356,7 +356,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
         m_plotL3IP3ndTrack2d->Fill(    data[indicesBy2d[2]].ip2d.value() );
         m_plotL3IP3ndTrack2dSig->Fill( data[indicesBy2d[2]].ip2d.significance() );
       }
-      std::vector<size_t> indicesBy3d = info.sortedIndexes(reco::TrackIPTagInfo::IP3DSig);
+      std::vector<size_t> indicesBy3d = info.sortedIndexes(reco::btag::IP3DSig);
       if (indicesBy3d.size() >= 2) {
         m_plotL3IP2ndTrack3d->Fill(    data[indicesBy3d[1]].ip3d.value() );
         m_plotL3IP2ndTrack3dSig->Fill( data[indicesBy3d[1]].ip3d.significance() );

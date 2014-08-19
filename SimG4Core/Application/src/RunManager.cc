@@ -75,8 +75,8 @@
 static
 void createWatchers(const edm::ParameterSet& iP,
 		    SimActivityRegistry& iReg,
-		    std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
-		    std::vector<boost::shared_ptr<SimProducer> >& oProds
+		    std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
+		    std::vector<std::shared_ptr<SimProducer> >& oProds
    )
 {
   using namespace std;
@@ -97,8 +97,8 @@ void createWatchers(const edm::ParameterSet& iP,
       throw SimG4Exception("Unable to find the requested Watcher");
     }
     
-    boost::shared_ptr<SimWatcher> watcherTemp;
-    boost::shared_ptr<SimProducer> producerTemp;
+    std::shared_ptr<SimWatcher> watcherTemp;
+    std::shared_ptr<SimProducer> producerTemp;
     maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
     oWatchers.push_back(watcherTemp);
     if(producerTemp) {
@@ -441,7 +441,8 @@ void RunManager::initializeUserActions()
     Connect(userSteppingAction);
     eventManager->SetUserAction(userSteppingAction);
 
-    eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+    eventManager->SetUserAction(new StackingAction(userTrackingAction, 
+						   m_pStackingAction));
 
   } else {
     edm::LogWarning("SimG4CoreApplication") << " RunManager: WARNING : "

@@ -30,6 +30,8 @@ trackingParticles = cms.PSet(
 	removeDeadModules = cms.bool(False), # currently not implemented
 	volumeRadius = cms.double(120.0),
 	volumeZ = cms.double(300.0),
+	vertexDistanceCut = cms.double(0.003),
 	ignoreTracksOutsideVolume = cms.bool(False),
-	allowDifferentSimHitProcesses = cms.bool(False) # should be True for FastSim, False for FullSim
+	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
+	HepMCProductLabel = cms.InputTag('generator')
 )

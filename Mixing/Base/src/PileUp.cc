@@ -45,7 +45,7 @@ namespace edm {
                                                                    *productRegistry_,
                                                                    std::make_shared<BranchIDListHelper>(),
                                                                    std::make_shared<ActivityRegistry>(),
-                                                                   -1, -1,
+                                                                   -1, -1, -1,
                                                                    PreallocationConfiguration()
                                                                    )).release()),
     processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),

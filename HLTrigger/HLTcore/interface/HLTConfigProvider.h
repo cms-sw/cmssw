@@ -32,14 +32,6 @@
 class HLTConfigProvider {
 
  private:
-  struct HLTConfigCounterSentry {
-    HLTConfigCounterSentry();
-    HLTConfigCounterSentry(HLTConfigCounterSentry const&);
-    HLTConfigCounterSentry(HLTConfigCounterSentry&&); // only C++11
-    ~HLTConfigCounterSentry();
-  };
-  HLTConfigCounterSentry sentry_;
-
  public:
   /// c'tor
   HLTConfigProvider();

@@ -54,7 +54,7 @@ public:
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
   
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, CLHEP::HepRandomEngine*);
+  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin, CLHEP::HepRandomEngine*);
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
   typedef std::vector<std::string> vstring;

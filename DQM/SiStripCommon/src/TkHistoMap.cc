@@ -153,7 +153,7 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
     folderOrg.setSiStripFolderName(path);
 
     SiStripDetId::SubDetector subDet;
-    uint32_t subdetlayer, side;
+    uint32_t subdetlayer = 0, side = 0;
     tkdetmap_->getSubDetLayerSide(layer,subDet,subdetlayer,side);
     folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
     

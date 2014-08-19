@@ -5,9 +5,9 @@ ElectronMcSignalValidator/h_recEleNum                       1 1 1 0
 ElectronMcSignalValidator/h_recCoreNum                      1 1 1 0
 ElectronMcSignalValidator/h_recTrackNum                     1 1 1 0
 ElectronMcSignalValidator/h_recSeedNum                      1 1 1 1
-        
-Basic electron quantities       
-        
+
+Basic electron quantities
+
 ElectronMcSignalValidator/h_ele_charge                      1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexPt                    1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexEta                   1 1 1 0

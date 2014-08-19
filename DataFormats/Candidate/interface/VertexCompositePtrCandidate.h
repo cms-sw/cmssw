@@ -59,6 +59,7 @@ namespace reco {
     }
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix &m);
+
   private:
     /// chi-sqared
     Double32_t chi2_;

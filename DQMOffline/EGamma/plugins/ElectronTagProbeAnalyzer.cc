@@ -439,7 +439,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
         h1_classes->Fill(eleClass);
 
         // pflow
-        h1_mva->Fill(bestGsfElectron.mva()) ;
+        h1_mva->Fill(bestGsfElectron.mva_e_pi()) ;
         if (bestGsfElectron.ecalDrivenSeed()) h1_provenance->Fill(1.) ;
         if (bestGsfElectron.trackerDrivenSeed()) h1_provenance->Fill(-1.) ;
         if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h1_provenance->Fill(0.);

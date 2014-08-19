@@ -23,7 +23,7 @@ class OscarMTProducer : public edm::stream::EDProducer<
 >
 {
 public:
-  typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
+  typedef std::vector<std::shared_ptr<SimProducer> > Producers;
 
   explicit OscarMTProducer(edm::ParameterSet const & p, const OscarMTMasterThread *);
   virtual ~OscarMTProducer();

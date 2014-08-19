@@ -14,7 +14,7 @@
 class TrackingRecHit;
 class LocalTrajectoryParameters;
 
-class TkPixelMeasurementDet : public MeasurementDet {
+class dso_hidden TkPixelMeasurementDet final : public MeasurementDet {
 public:
 
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> SiPixelClusterRef;

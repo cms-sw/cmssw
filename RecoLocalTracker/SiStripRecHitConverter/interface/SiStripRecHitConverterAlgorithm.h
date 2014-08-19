@@ -32,6 +32,12 @@ class SiStripRecHitConverterAlgorithm
 	 stereo(new SiStripRecHit2DCollection),
 	 rphiUnmatched(new SiStripRecHit2DCollection),
 	 stereoUnmatched(new SiStripRecHit2DCollection) {}
+
+   void shrink_to_fit() {
+     matched->shrink_to_fit();
+     rphi->shrink_to_fit(); stereo->shrink_to_fit(); 
+     rphiUnmatched->shrink_to_fit(); stereoUnmatched->shrink_to_fit();
+   }
   };
   
   SiStripRecHitConverterAlgorithm(const edm::ParameterSet&);

@@ -173,7 +173,6 @@ void SiStripCertificationInfo::analyze(edm::Event const& event, edm::EventSetup 
 // -- End Luminosity Block
 //
 void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
-  std::cout << "[SiStripCertificationInfo::endLuminosityBlock] " << std::endl;
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
 
   if (nFEDConnected_ > 0) {

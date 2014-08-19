@@ -20,8 +20,8 @@ L1MuGMTParameters = cms.ESProducer("L1MuGMTParametersProducer",
     MergeMethodPhiFwd = cms.string('takeCSC'),
     MergeMethodEtaBrl = cms.string('Special'),
     MergeMethodEtaFwd = cms.string('Special'),
-    MergeMethodPtBrl = cms.string('byMinPt'),
-    MergeMethodPtFwd = cms.string('byMinPt'),
+    MergeMethodPtBrl = cms.string('byCombi'),
+    MergeMethodPtFwd = cms.string('byCombi'),
     MergeMethodChargeBrl = cms.string('takeDT'),
     MergeMethodChargeFwd = cms.string('takeCSC'),
     MergeMethodMIPBrl = cms.string('Special'),
@@ -48,11 +48,12 @@ L1MuGMTParameters = cms.ESProducer("L1MuGMTParametersProducer",
 #   1 = full geometry tuned with ORCA
 #   2 = staged RPC geometry - accept q=2 CSC candidates
 #   275 = modification used since May 2011
-    VersionSortRankEtaQLUT = cms.uint32(2),
+#   273 = foreseen for 2015
+    VersionSortRankEtaQLUT = cms.uint32(273),
 #   General versioning of GMT LUTs introduced Feb 2012
 #   0 = version until the end 2011
 #   1 = version to be used in 2012
-    VersionLUTs = cms.uint32(0),
+    VersionLUTs = cms.uint32(1),
 #   Subsystem Mask:
 #   4 bits: 1..off; 0..on
 #   bit0:DTTF, bit1:RPCb, bit2:CSC, bit3:RPCf

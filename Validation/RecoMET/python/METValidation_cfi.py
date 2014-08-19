@@ -85,7 +85,7 @@ pfMetAnalyzer = cms.EDAnalyzer(
 #corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
 #    "METTester",
 #     OutputFile = cms.untracked.string(''),
-#    InputMETLabel = cms.InputTag("corMetGlobalMuons"),
+#    InputMETLabel = cms.InputTag("caloMetM"),
 #    METType = cms.untracked.string("cor")
 #    ) 
 
@@ -124,19 +124,19 @@ genMetTrueAnalyzer = cms.EDAnalyzer(
 pfType0CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
    OutputFile = cms.untracked.string(''),
-   InputMETLabel = cms.InputTag("pfType0CorrectedMet"),
+   InputMETLabel = cms.InputTag("pfMetT0pc"),
     METType = cms.untracked.string("pf")
    )
 pfType1CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
    OutputFile = cms.untracked.string(''),
-   InputMETLabel = cms.InputTag("pfType1CorrectedMet"),
+   InputMETLabel = cms.InputTag("pfMetT1"),
     METType = cms.untracked.string("pf")
    )
 pfType01CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
    OutputFile = cms.untracked.string(''),
-   InputMETLabel = cms.InputTag("pfType01CorrectedMet"),
+   InputMETLabel = cms.InputTag("pfMetT0pcT1"),
     METType = cms.untracked.string("pf")
    )
 

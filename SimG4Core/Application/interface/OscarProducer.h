@@ -18,7 +18,7 @@
 class OscarProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
 {
 public:
-  typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
+  typedef std::vector<std::shared_ptr<SimProducer> > Producers;
 
   explicit OscarProducer(edm::ParameterSet const & p);
   virtual ~OscarProducer();

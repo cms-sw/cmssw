@@ -44,9 +44,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   }
 
   // get dqm info
-  dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-  enableMultiThread_ = dbe->enableMultiThread_;
 
   std::string sName;
 
@@ -93,6 +91,8 @@ MEtoEDMConverter::~MEtoEDMConverter()
 void
 MEtoEDMConverter::beginJob()
 {
+  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
+  enableMultiThread_ = dbe->enableMultiThread_;
 }
 
 void

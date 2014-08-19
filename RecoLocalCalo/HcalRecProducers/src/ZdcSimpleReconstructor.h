@@ -1,7 +1,7 @@
 #ifndef ZDCSIMPLERECONSTRUCTOR_H
 #define ZDCSIMPLERECONSTRUCTOR_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
@@ -19,7 +19,7 @@
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
-     class ZdcSimpleReconstructor : public edm::EDProducer {
+     class ZdcSimpleReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit ZdcSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~ZdcSimpleReconstructor();

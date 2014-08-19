@@ -15,7 +15,7 @@
 
 #include <RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h>
 
-#include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h"
+#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"

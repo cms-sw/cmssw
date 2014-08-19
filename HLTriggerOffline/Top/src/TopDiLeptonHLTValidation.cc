@@ -101,8 +101,10 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       TString name = triggerNames.triggerNames()[i].c_str();
       for (unsigned int j=0; j<vsPaths_.size(); j++) {
           if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
-              isInteresting = true; 
+            if (triggerTable->accept(j)){
+              isInteresting = true;  
               break;
+            }  
           }
       }
       if (isInteresting) break;
@@ -158,7 +160,9 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           TString name = triggerNames.triggerNames()[i].c_str();
           for (unsigned int j=0; j<vsPaths_.size(); j++) {
               if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
-                  hNumTriggerMon->Fill(j+0.5 );
+                if (triggerTable->accept(j)){
+                  hNumTriggerMon->Fill(j+0.5 ); 
+                }
               }
           }
       }

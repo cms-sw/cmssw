@@ -112,6 +112,8 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
       }
     }
   }
+  triplets->shrink_to_fit();
+  quadruplets->shrink_to_fit();
 
   // clear memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
