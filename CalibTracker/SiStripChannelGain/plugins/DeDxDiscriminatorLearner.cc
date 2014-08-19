@@ -112,15 +112,14 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
 {   
    Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
    iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
 
    edm::Handle<reco::TrackCollection> trackCollectionHandle;
    iEvent.getByToken(m_tracksTag,trackCollectionHandle);
 
    unsigned track_index = 0;
-   for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
-      const Track      track = *it->val;
-      const Trajectory traj  = *it->key;
+   for(TrajTrackAssociationCollection::const_iterator it = trajTrackAssociationHandle->begin(); it!=trajTrackAssociationHandle->end(); ++it, track_index++) {
+      const Track&      track = *it->val;
+      const Trajectory& traj  = *it->key;
 
       if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){continue;}
       if(track.pt()   <MinTrackMomentum || track.pt() >MaxTrackMomentum){continue;}

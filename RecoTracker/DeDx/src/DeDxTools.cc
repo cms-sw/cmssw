@@ -205,6 +205,7 @@ void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeome
        if(gains.size()<(size_t)(tree_APVId+1)){gains.resize(tree_APVId+1);}
        gains[tree_APVId] = tree_Gain;
    }
+   t1->Delete();
 }
 
 
@@ -222,9 +223,7 @@ void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, std::st
    }else if(strcmp(Reccord.c_str(),"SiStripDeDxElectron_3D_Rcd")==0){
       iSetup.get<SiStripDeDxElectron_3D_Rcd>().get(deDxMapHandle);
    }else{
-//      printf("The reccord %s is not known by the DeDxDiscriminatorProducer\n", Reccord.c_str());
-//      printf("Program will exit now\n");
-      exit(0);
+      throw cms::Exception("WrongReccord for dEdx") << "The reccord : " << Reccord << "is unknown\n";
    }
 
    float xmin = deDxMapHandle->rangeX().min;
@@ -269,9 +268,7 @@ void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, std::st
          }
       }   
    }else{
-//      printf("The ProbabilityMode: %s is unknown\n",ProbabilityMode.c_str());
-//      printf("The program will stop now\n");
-      exit(0);
+      throw cms::Exception("WrongConfig for dEdx") << "The ProbabilityMode: " << ProbabilityMode << "is unknown\n";
    }
 }
 
@@ -305,7 +302,7 @@ bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize)
 bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it)
 {
   if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
-     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
+     edm::LogInfo("DeDxTools::IsFarFromBorder") << "this detID doesn't seem to belong to the Tracker" << std::endl;
      return false;
   }
 

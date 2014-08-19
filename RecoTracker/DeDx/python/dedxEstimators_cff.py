@@ -10,16 +10,16 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
  
     UseStrip       = cms.bool(True),
     UsePixel       = cms.bool(False),
-    UseTrajectory  = cms.untracked.bool(False),
+    UseTrajectory  = cms.bool(True),
+    ShapeTest      = cms.bool(True),
     MeVperADCStrip = cms.double(3.61e-06*265),
     MeVperADCPixel = cms.double(3.61e-06),
 
+    Reccord            = cms.string("SiStripDeDxMip_3D_Rcd"), #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+    ProbabilityMode    = cms.string("Accumulation"),          #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(True),
-
-    Reccord            = cms.untracked.string("SiStripDeDxMip_3D_Rcd"), #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
-    ProbabilityMode    = cms.untracked.string("Accumulation"),          #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
 )
 
 dedxTruncated40 = dedxHarmonic2.clone()

@@ -68,12 +68,6 @@ private:
   float meVperADCStrip;
 
   unsigned int MaxNrStrips;
-  unsigned int MinTrackHits;
-  float        MinTrackMomentum;
-  float        MaxTrackMomentum;
-  float        MinTrackEta;
-  float        MaxTrackEta;
-  float        MaxTrackChiOverNdf;
 
   std::string                       m_calibrationPath;
   bool                              useCalibration;
