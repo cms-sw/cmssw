@@ -89,9 +89,10 @@ void TauolappInterface::init( const edm::EventSetup& es ){
    // some more options, copied over from an example 
    // Default values
    //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
-   Tauolapp::Tauola::setTauLifetime(0.0);
+ 
    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauolapp::Tauola::getDecayingParticle()) )) ;
-   lifetime = PData->lifetime().value();
+   double lifetime = PData->lifetime().value();
+   Tauolapp::Tauola::setTauLifetime( lifetime );
    //std::cout << "Setting lifetime: ctau=" << lifetime << "m or tau=" << lifetime/(299792458.0*1000.0) << "s" << std::endl;
 
    fPDGs.push_back( Tauolapp::Tauola::getDecayingParticle() );
@@ -214,20 +215,8 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
     // NOTE: the procedure ASSYMES that vertex barcoding is COUNTIUOUS/SEQUENTIAL,
     // and that the abs(barcode) corresponds to vertex "plain indexing"
     //
-    // manually add lifetimes
-    for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++){
-      if(abs((*iter)->pdg_id())==15 && isLastTauInChain(*iter)){
-	HepMC::FourVector PMom = (*iter)->momentum();
-	double mass = (*iter)->generated_mass();
-	float prob = 0.;
-	int length=1;
-	ranmar_(&prob,&length);
-	double ct = -lifetime * std::log(prob);
-	// d*gamma=t*v*gamma=t*c*beta*gamma=ct*(P/E)*(E/m)=ct*(P/m)
-	setLifeTimeInDecays((*iter),ct*(PMom.px()/mass),ct*(PMom.py()/mass),ct*(PMom.pz()/mass),ct*(PMom.e()/mass));
-      }
-    }
-    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ ){
+    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
+    {
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
        //
        // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
@@ -610,31 +599,4 @@ int TauolappInterface::selectHadronic()
 
 }
 
-bool TauolappInterface::isLastTauInChain(const HepMC::GenParticle* tau){
-  if ( tau->end_vertex() ) {
-    HepMC::GenVertex::particle_iterator dau;
-    for (dau = tau->end_vertex()->particles_begin(HepMC::children); dau!= tau->end_vertex()->particles_end(HepMC::children); dau++ ) {
-      int dau_pid = (*dau)->pdg_id();
-      if(dau_pid == tau->pdg_id()) return false;
-    }
-  }
-  return true;
-}
 
-void TauolappInterface::setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt){
-  if(p->end_vertex()){
-    HepMC::GenVertex* GenVtx=p->end_vertex();
-    double VxDec = GenVtx->position().x();
-    VxDec += vx;
-    double VyDec = GenVtx->position().y();
-    VyDec += vy;
-    double VzDec = GenVtx->position().z();
-    VzDec += vz;
-    double VtDec = GenVtx->position().t();
-    VtDec += vt;
-    GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) );
-    for(HepMC::GenVertex::particle_iterator dau=p->end_vertex()->particles_begin(HepMC::children); dau!=p->end_vertex()->particles_end(HepMC::children); dau++){
-      setLifeTimeInDecays((*dau),vx,vy,vz,vt); //recursively modify everything in the decay chain
-    }
-  }
-} 
