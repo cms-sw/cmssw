@@ -6,7 +6,7 @@ ebMax = 1.4442
 eeMin = 1.566
 ebCutOff=1.479
 heepElectronID_HEEPV50_CSA14_25ns = cms.PSet(
-    idName = cms.string("heepElectronID_HEEPV50_CSA14_25ns"),
+    idName = cms.string("heepElectronID-HEEPV50-CSA14-25ns"),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MinPtCut"),
                   minPt = cms.double(35.0),
@@ -43,14 +43,16 @@ heepElectronID_HEEPV50_CSA14_25ns = cms.PSet(
                   barrelCutOff = cms.double(ebCutOff),
                   needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)),
-        cms.PSet( cutName = cms.string('GsfEleE2x5OverE5x5Cut'),
+        cms.PSet( cutName = cms.string('GsfEleFull5x5E2x5OverE5x5Cut'),
                   minE1x5OverE5x5EB = cms.double(0.83),
                   minE1x5OverE5x5EE = cms.double(-1),
                   minE2x5OverE5x5EB = cms.double(0.94),
                   minE2x5OverE5x5EE = cms.double(-1),
-                  needsAdditionalProducts = cms.bool(False),
+                  needsAdditionalProducts = cms.bool(True),
+                  e1x5 = cms.InputTag("electronIDValueMapProducer","eleFull5x5E1x5"),
+                  e2x5 = cms.InputTag("electronIDValueMapProducer","eleFull5x5E2x5"),
+                  e5x5 = cms.InputTag("electronIDValueMapProducer","eleFull5x5E5x5"),
                   isIgnored = cms.bool(False)),
-        
         cms.PSet( cutName = cms.string('GsfEleHadronicOverEMLinearCut'),
                   slopeTermEB = cms.double(0.05),
                   slopeTermEE = cms.double(0.05),
@@ -105,4 +107,4 @@ heepElectronID_HEEPV50_CSA14_25ns = cms.PSet(
 )
 
 central_id_registry.register(heepElectronID_HEEPV50_CSA14_25ns.idName,
-                             '5a81758de3d482169f3e08491b7aacca')
+                             'e394517a0eaad0b0aa19aa59d0b10e23')
