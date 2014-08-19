@@ -20,6 +20,10 @@ process.load("TestElectronID/ElectronIDAnalyzer/DYJetsToLL_Sc1_AODSIM")
 
 process.load('EgammaAnalysis/ElectronTools/egmGsfElectronIDs_cff')
 
+process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
+process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
+process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
+
 process.wp1 = cms.EDAnalyzer('ElectronIDAnalyzer',
                              electrons = cms.InputTag("gedGsfElectrons"),
                              electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-CSA14-50ns-V1-standalone-veto"),
