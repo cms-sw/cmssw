@@ -40,7 +40,7 @@ struct DDCoreToDDXMLOutput {
 		   , std::ostream& xos );
   // left in for now as legacy...
   void specpar ( const DDSpecifics & sp, std::ostream& xos );
-  void specpar ( const std::pair<DDsvalues_type, std::set<DDPartSelection*> >& pssv, std::ostream& xos );
+  void specpar ( const std::pair<DDsvalues_type, std::set<const DDPartSelection*> >& pssv, std::ostream& xos );
   
   std::string ns_; // default namespace
   double tol_;
