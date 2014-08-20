@@ -123,7 +123,7 @@ namespace edm {
     assert(status() != Uninitialized);
     setProductProvenance(productProvenance);
     assert(provenance()->productProvenanceValid());
-    productData().wrapper_.reset(edp.release());  // ProductHolder takes ownership
+    productData().wrapper_ = std::move(edp); // ProductHolder takes ownership
     status_() = Present;
   }
 
@@ -158,7 +158,7 @@ namespace edm {
     assert(edp.get() != nullptr);
     assert(status() != Present);
     assert(status() != Uninitialized);
-    productData().wrapper_.reset(edp.release());  // ProductHolder takes ownership
+    productData().wrapper_ = std::move(edp);  // ProductHolder takes ownership
     status_() = Present;
   }
 
@@ -229,7 +229,7 @@ namespace edm {
     if(prod.get() == nullptr || !prod->isPresent()) {
       setProductUnavailable();
     }
-    productData().wrapper_.reset(prod.release());  // ProductHolder takes ownership
+    productData().wrapper_ = std::move(prod);  // ProductHolder takes ownership
   }
 
   void InputProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {

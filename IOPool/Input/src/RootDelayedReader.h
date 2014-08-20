@@ -57,7 +57,7 @@ namespace edm {
     RootTree const& tree_;
     std::shared_ptr<InputFile> filePtr_;
     DelayedReader* nextReader_;
-    std::auto_ptr<SharedResourcesAcquirer> resourceAcquirer_;
+    std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
     InputType inputType_;
     TClass* edProductClass_;
   }; // class RootDelayedReader

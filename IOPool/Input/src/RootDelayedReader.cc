@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 
+#include "IOPool/Common/interface/getEDProductPtr.h"
+
 #include "TROOT.h"
 #include "TBranch.h"
 #include "TClass.h"
@@ -62,21 +64,10 @@ namespace edm {
     if(nullptr == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
-      branchInfo.offsetToEDProduct_ = edProductClass_->GetBaseClassOffset(edProductClass_);
+      branchInfo.offsetToEDProduct_ = cp->GetBaseClassOffset(edProductClass_);
     }
     void* p = cp->New();
-
-    // A union is used to avoid possible copies during the triple cast that would otherwise be needed. 	 
-    // std::unique_ptr<EDProduct> edp(static_cast<EDProduct *>(static_cast<void *>(static_cast<unsigned char *>(p) + branchInfo.offsetToEDProduct_))); 	 
-    union { 	 
-      void* vp; 	 
-      unsigned char* ucp; 	 
-      EDProduct* edp; 	 
-    } pointerUnion; 	 
-    pointerUnion.vp = p; 	 
-    pointerUnion.ucp += branchInfo.offsetToEDProduct_; 	 
-    std::unique_ptr<EDProduct> edp(pointerUnion.edp);
-
+    std::unique_ptr<EDProduct> edp = getEDProductPtr(p, branchInfo.offsetToEDProduct_); 
     br->SetAddress(&p);
     tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
     if(tree_.branchType() == InEvent) {

@@ -164,8 +164,6 @@ namespace edm {
         ProductProvenance prov(pit->second->branchID(), *previousParentageId);
   	ep.put(*pit->second, std::move(pit->first), prov);
       }
-      // Ownership has passed, so clear the pointer.
-      pit->first = nullptr;
       ++pit;
     }
 

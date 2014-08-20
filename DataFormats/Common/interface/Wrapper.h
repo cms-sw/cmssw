@@ -319,7 +319,7 @@ namespace edm {
   template <typename T>
   bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct) {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
-    if (wrappedNewProduct == 0) return false;
+    assert(wrappedNewProduct != nullptr);
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
       DoMergeProduct<T>,
       DoNotMergeProduct<T> >::type merge_product;
@@ -337,7 +337,7 @@ namespace edm {
   template <typename T>
   bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
-    if (wrappedNewProduct == 0) return false;
+    assert(wrappedNewProduct != nullptr);
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
       DoIsProductEqual<T>,
       DoNotIsProductEqual<T> >::type is_equal;

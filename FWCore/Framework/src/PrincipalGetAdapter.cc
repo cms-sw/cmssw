@@ -29,12 +29,6 @@ namespace edm {
   PrincipalGetAdapter::~PrincipalGetAdapter() {
   }
 
-
-  void
-  principal_get_adapter_detail::deleter::operator()(std::pair<EDProduct*, BranchDescription const*> const p) const {
-    delete p.first;
-  }
-
   void
   principal_get_adapter_detail::throwOnPutOfNullProduct(
 	char const* principalType,

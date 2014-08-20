@@ -133,7 +133,7 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     if(nullptr == prod) {
       cms::Exception("FailedConversion")
       << "failed to convert a '" << buffer->class_->GetName()
-      << "' to a edm::WrapperHolder."
+      << "' to a edm::EDProduct."
       << "Please contact developers since something is very wrong.";
     }
     buffer->address_ = address;
@@ -189,7 +189,7 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   if(nullptr == prod) {
      cms::Exception("FailedConversion")
         << "failed to convert a '" << fullName
-        << "' to a edm::WrapperOwningHolder."
+        << "' to a edm::EDProduct."
         << "Please contact developers since something is very wrong.";
   }
 

@@ -34,6 +34,7 @@
 
 class TTree;
 class TFile;
+class TClass;
 
 namespace edm {
   class ModuleCallingContext;
@@ -128,6 +129,7 @@ namespace edm {
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
+    TClass* edProductTClass_;
   };
 
 }

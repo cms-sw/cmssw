@@ -340,7 +340,7 @@ namespace fwlite {
             KeyToDataMap::iterator itData = data_.find(k);
             if(data_.end() == itData) {
                 //ask for the data
-                void* dummy = nullptr;
+                edm::EDProduct const* dummy = nullptr;
                 getByLabel(type.typeInfo(),
                             k.module(),
                             k.product(),

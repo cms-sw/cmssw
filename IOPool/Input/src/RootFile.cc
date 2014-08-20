@@ -37,6 +37,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "IOPool/Common/interface/getEDProductPtr.h"
 
 //used for backward compatibility
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -205,7 +206,8 @@ namespace edm {
       provenanceReaderMaker_(),
       eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
-      daqProvenanceHelper_() {
+      daqProvenanceHelper_(),
+      edProductClass_(gROOT->GetClass("edm::EDProduct")) {
 
     hasNewlyDroppedBranch_.fill(false);
 
@@ -1710,8 +1712,10 @@ namespace edm {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
-          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          std::unique_ptr<EDProduct> edp(static_cast<EDProduct *>(cp->New()));
+          TClass* cp = gROOT->GetClass(prod.wrappedName().c_str());
+          void* p = cp->New();
+          int offset = cp->GetBaseClassOffset(edProductClass_);
+          std::unique_ptr<EDProduct> edp = getEDProductPtr(p, offset);
           if(edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;

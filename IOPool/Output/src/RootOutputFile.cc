@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "IOPool/Common/interface/getEDProductPtr.h"
 
 #include "TROOT.h"
 #include "TTree.h"
@@ -95,7 +96,8 @@ namespace edm {
       dataTypeReported_(false),
       processHistoryRegistry_(),
       parentageIDs_(),
-      branchesWithStoredHistory_() {
+      branchesWithStoredHistory_(),
+      edProductTClass_(gROOT->GetClass("edm::EDProduct")) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
@@ -708,7 +710,9 @@ namespace edm {
           // No product with this ID is in the event.
           // Add a null product.
           TClass* cp = gROOT->GetClass(item.branchDescription_->wrappedName().c_str());
-          std::unique_ptr<EDProduct> dummy(static_cast<EDProduct*>(cp->New()));
+          int offset = cp->GetBaseClassOffset(edProductTClass_);
+          void* p = cp->New();
+          std::unique_ptr<EDProduct> dummy = getEDProductPtr(p, offset);
           product = dummy.get();
           dummies.emplace_back(std::move(dummy));
         }

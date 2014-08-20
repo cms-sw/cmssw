@@ -789,7 +789,7 @@ namespace edm {
   }
 
   void
-  Principal::checkUniquenessAndType(EDProduct* prod, ProductHolderBase const* phb) const {
+  Principal::checkUniquenessAndType(EDProduct const* prod, ProductHolderBase const* phb) const {
     if(prod == nullptr) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.

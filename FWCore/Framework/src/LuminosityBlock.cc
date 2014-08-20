@@ -64,8 +64,6 @@ namespace edm {
 
     while(pit != pie) {
         lbp.put(*pit->second, std::move(pit->first));
-        // Ownership has passed, so clear the pointer.
-        pit->first = nullptr;
         ++pit;
     }
 
