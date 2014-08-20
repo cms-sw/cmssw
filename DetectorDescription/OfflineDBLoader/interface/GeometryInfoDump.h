@@ -12,6 +12,6 @@ public:
 		, const DDCompactView& cpv, std::string fname = "GeoHistory", int nVols = 0 );
 
  private:
-  void dumpSpec( const std::vector<std::pair< DDPartSelection*, DDsvalues_type*> >& attspec, std::ostream& dump );
+  void dumpSpec( const std::vector<std::pair< const DDPartSelection*, const DDsvalues_type*> >& attspec, std::ostream& dump );
 };
 

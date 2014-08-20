@@ -29,7 +29,7 @@ DDSpecifics::DDSpecifics(const DDName & name,
  : DDBase<DDName,Specific*>()
 {
   prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
-  typedef std::vector<std::pair<DDLogicalPart,std::pair<DDPartSelection*,DDsvalues_type*> > > strange_type;
+  typedef std::vector<std::pair<DDLogicalPart,std::pair<const DDPartSelection*, const DDsvalues_type*> > > strange_type;
   strange_type v;
   rep().updateLogicalPart(v);
   strange_type::iterator it = v.begin();

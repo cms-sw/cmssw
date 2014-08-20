@@ -443,7 +443,7 @@ DDCoreToDDXMLOutput::specpar( const DDSpecifics& sp, std::ostream& xos )
    xos << "</SpecPar>" << std::endl;
 }
 
-void DDCoreToDDXMLOutput::specpar( const std::pair<DDsvalues_type, std::set<DDPartSelection*> >& pssv, std::ostream& xos ) 
+void DDCoreToDDXMLOutput::specpar( const std::pair<DDsvalues_type, std::set<const DDPartSelection*> >& pssv, std::ostream& xos ) 
 {
    static std::string madeName("specparname");
    static int numspecpars(0);
@@ -451,8 +451,8 @@ void DDCoreToDDXMLOutput::specpar( const std::pair<DDsvalues_type, std::set<DDPa
    ostr << numspecpars++;
    std::string spname = madeName + ostr.str(); 
    xos << "<SpecPar name=\"" << spname << "\" eval=\"false\">" << std::endl;
-   std::set<DDPartSelection*>::const_iterator psit = pssv.second.begin();
-   std::set<DDPartSelection*>::const_iterator psendit = pssv.second.end();
+   std::set<const DDPartSelection*>::const_iterator psit = pssv.second.begin();
+   std::set<const DDPartSelection*>::const_iterator psendit = pssv.second.end();
    for (; psit != psendit; ++psit) {
       xos << "<PartSelector path=\"" << *(*psit) << "\"/>" << std::endl;
    }

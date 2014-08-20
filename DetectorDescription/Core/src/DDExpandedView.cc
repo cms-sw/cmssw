@@ -263,12 +263,12 @@ void
 DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
 {
   unsigned int i(0);
-  const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
+  const std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
   if( specs.size())
   {
     result.reserve(specs.size());
     for (; i<specs.size(); ++i) {
-      const std::pair<DDPartSelection*,DDsvalues_type*>& sp = specs[i];
+      const std::pair<const DDPartSelection*, const DDsvalues_type*>& sp = specs[i];
       // a part selection
       const DDPartSelection & psel = *(sp.first);
       const DDGeoHistory & hist = geoHistory();
@@ -289,11 +289,11 @@ void DDExpandedView::mergedSpecificsV(DDsvalues_type & merged) const
 {
 
   merged.clear();
-  const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
+  const std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
   if (specs.empty()) return;
   const DDGeoHistory & hist = geoHistory();
   for (size_t i=0; i<specs.size(); ++i) {
-    const std::pair<DDPartSelection*,DDsvalues_type*>& sp = specs[i];
+    const std::pair<const DDPartSelection*, const DDsvalues_type*>& sp = specs[i];
     const DDPartSelection & psel = *(sp.first);
     if (DDCompareEqual(hist, psel)())
       merge(merged,*sp.second);
