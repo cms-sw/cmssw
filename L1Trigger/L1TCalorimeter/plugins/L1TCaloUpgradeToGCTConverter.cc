@@ -41,6 +41,7 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   TauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  CaloSpareToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputCollection"));
 }
 
 
@@ -70,12 +71,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
-  edm::ESHandle< L1CaloEtScale > emScale ;
-  es.get< L1EmEtScaleRcd >().get( emScale ) ;
-
-  edm::ESHandle< L1CaloEtScale > jetScale ;
-  es.get< L1JetEtScaleRcd >().get( jetScale ) ;
-
+  Handle<l1t::CaloSpareBxCollection> CaloSpare;
+  e.getByToken(CaloSpareToken_, CaloSpare);
 
   // create the em and jet collections
   std::auto_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection( ) );
@@ -103,15 +100,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   // Assume BX is the same for all collections
   int firstBX = EGamma->getFirstBX();
   int lastBX = EGamma->getLastBX();
-  // //Finding the BX range for each input collection
-  // int firstBxEGamma = EGamma->getFirstBX();
-  // int lastBxEGamma = EGamma->getLastBX();
-  // int firstBxTau = Tau->getFirstBX();
-  // int lastBxTau = Tau->getLastBX();
-  // int firstBxJet = Jet->getFirstBX();
-  // int lastBxJet = Jet->getLastBX();
-  // int firstBxEtSum = EtSum->getFirstBX();
-  // int lastBxEtSum = EtSum->getLastBX();
 
   for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
 
@@ -147,15 +135,10 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     int tauCount = 0; //max 4
     for(l1t::TauBxCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
-      // forward def is okay for Taus
-      const bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
-      const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
+      // taus are not allowed to be forward
+      const bool forward= false;
 
-      unsigned iEta = itTau->hwEta();
-      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
-      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
-
-      L1GctJetCand TauCand(rankPt, itTau->hwPhi(), gtEta,
+      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -172,13 +155,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itJet != Jet->end(itBX); ++itJet){
       // use 2nd quality bit to define forward
       const bool forward = ((itJet->hwQual() & 0x2) != 0);
-      const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
-      
-      unsigned iEta = itJet->hwEta();
-      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
-      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
-
-      L1GctJetCand JetCand(rankPt, itJet->hwPhi(), gtEta,
+      L1GctJetCand JetCand(itJet->hwPt(), itJet->hwPhi(), itJet->hwEta(),
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -195,6 +172,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+
     //looping over EtSum elments with a specific BX
     for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
 	itEtSum != EtSum->end(itBX); ++itEtSum){
@@ -215,29 +193,36 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
       }
     }
+
+    for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = CaloSpare->begin(itBX);
+	 itCaloSpare != CaloSpare->end(itBX); ++itCaloSpare){
+      // L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
+      // 								  const uint16_t capIndex,
+      // 								  const int16_t bx,
+      // 								  const uint32_t data);
+      if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
+      {
+	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(0,
+								    0,
+								    itBX,
+								    itCaloSpare->hwPt() & 0xfff);
+	hfRingEtSumResult->push_back(sum);
+      } else if (CaloSpare::CaloSpareType::Centrality == itCaloSpare->getType())
+      {
+
+	// static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
+	// 						  const uint16_t capIndex,
+	// 						  const int16_t bx,
+	// 						  const uint32_t data);
+
+	L1GctHFBitCounts bitcount = L1GctHFBitCounts::fromConcHFBitCounts(0,
+									  0,
+									  itBX,
+									  itCaloSpare->hwPt() & 0xfff);
+	hfBitCountResult->push_back(bitcount);
+      }
+    }
   }
-
-
-
-  //*isoEmResult =
-  //this->ConvertToNonIsoEmCand(EGamma);
-  //  DataFormatter.ConvertToNonIsoEmCand(*EGamma, nonIsoEmResult);
-  //  DataFormatter.ConvertToCenJetCand(*Jet, cenJetResult);
-  //  DataFormatter.ConvertToForJetCand(*Jet, forJetResult);
-  //  DataFormatter.ConvertToTauJetCand(*Tau, tauJetResult);
-
-  //  DataFormatter.ConvertToEtTotal(EtSum, etTotResult);
-  // DataFormatter.ConvertToEtHad(EtSum,etHadResult);
-  // DataFormatter.ConvertToEtMiss(EtSum,etMissResult);
-  // DataFormatter.ConvertToHtMiss(EtSum,htMissResult);
-  // DataFormatter.ConvertToHFBitCounts(EtSum,hfBitCountResult);
-  // DataFormatter.ConvertToHFRingEtSums(EtSum, hfRingEtSumResult);
-
-  //  DataFormatter.ConvertToIntJet(Jet, internalJetResult);
-  //  DataFormatter.ConvertToIntEtSum(EtSum,internalEtSumResult);
-  //  DataFormatter.ConvertToIntHtMiss(EtSum,internalHtMissResult);
-
-
 
   e.put(isoEmResult,"isoEm");
   e.put(nonIsoEmResult,"nonIsoEm");
