@@ -17,7 +17,7 @@
 namespace dqmservices {
 
 DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
-    const std::string& filename, int lumiNumber, JsonType type) {
+    const std::string& filename, int lumiNumber, unsigned int datafn_position) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
@@ -29,14 +29,8 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
                       ->second.get_value<std::size_t>();
 
   lumi.ls = lumiNumber;
-
-  if (type == JS_PROTOBUF) {
-    lumi.datafilename = std::next(pt.get_child("data").begin(), 4)
-                            ->second.get_value<std::string>();
-  } else {
-    lumi.datafilename = std::next(pt.get_child("data").begin(), 3)
-                            ->second.get_value<std::string>();
-  }
+  lumi.datafilename = std::next(pt.get_child("data").begin(), datafn_position)
+    ->second.get_value<std::string>();
 
   lumi.loaded = true;
   return lumi;
@@ -64,10 +58,11 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
   return eor;
 }
 
-DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset, JsonType t)
-    : type_(t), state_(EOR) {
+DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset)
+    : state_(EOR) {
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
+  datafnPosition_ = pset.getUntrackedParameter<unsigned int>("datafnPosition");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
   streamLabel_ = pset.getUntrackedParameter<std::string>("streamLabel");
   delayMillis_ = pset.getUntrackedParameter<uint32_t>("delayMillis");
@@ -217,7 +212,7 @@ void DQMFileIterator::collect(bool ignoreTimers) {
         continue;
       }
 
-      LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, type_);
+      LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, datafnPosition_);
       lumiSeen_.emplace(lumi, lumi_jsn);
       logFileAction("Found and loaded json file: ", fn);
     }
@@ -322,6 +317,9 @@ void DQMFileIterator::fillDescription(edm::ParameterSetDescription& desc) {
 
   desc.addUntracked<unsigned int>("runNumber")
       ->setComment("Run number passed via configuration file.");
+
+  desc.addUntracked<unsigned int>("datafnPosition", 3)
+      ->setComment("Data filename position in the positional arguments array 'data' in json file.");
 
   desc.addUntracked<std::string>("streamLabel")
       ->setComment("Stream label used in json discovery.");

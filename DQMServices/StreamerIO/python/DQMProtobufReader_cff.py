@@ -9,6 +9,12 @@ options.register('runNumber',
                  VarParsing.VarParsing.varType.int,
                  "Run number.")
 
+options.register('datafnPosition',
+                 3, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Data filename position in the positional arguments array 'data' in json file.")
+
 options.register('runInputDir',
                  '/build1/micius/OnlineDQM_sample/', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -58,6 +64,7 @@ DQMProtobufReader = cms.Source("DQMProtobufReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string(options.streamLabel),
+    datafnPosition = cms.untracked.uint32(options.datafnPosition),
 
     delayMillis = cms.untracked.uint32(options.delayMillis),
     nextLumiTimeoutMillis = cms.untracked.int32(options.nextLumiTimeoutMillis),

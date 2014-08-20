@@ -17,11 +17,6 @@ namespace dqmservices {
 
 class DQMFileIterator {
  public:
-  enum JsonType {
-    JS_PROTOBUF,
-    JS_DATA,
-  };
-
   struct LumiEntry {
     bool loaded = false;
     std::string filename;
@@ -31,7 +26,7 @@ class DQMFileIterator {
     std::string datafilename;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
-                               JsonType type);
+                               unsigned int datafn_position);
   };
 
   struct EorEntry {
@@ -51,7 +46,7 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  DQMFileIterator(edm::ParameterSet const& pset, JsonType t);
+  DQMFileIterator(edm::ParameterSet const& pset);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
 
@@ -86,14 +81,15 @@ class DQMFileIterator {
   static void fillDescription(edm::ParameterSetDescription& d);
 
  private:
-  JsonType type_;
-
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
   unsigned long delayMillis_;
   long nextLumiTimeoutMillis_;
 
+  // file name position in the json file
+  unsigned int datafnPosition_;
+ 
   std::string runPath_;
 
   EorEntry eor_;

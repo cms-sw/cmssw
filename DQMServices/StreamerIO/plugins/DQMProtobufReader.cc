@@ -8,7 +8,7 @@ using namespace dqmservices;
 
 DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
-    : InputSource(pset, desc), fiterator_(pset, DQMFileIterator::JS_PROTOBUF) {
+    : InputSource(pset, desc), fiterator_(pset) {
 
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
@@ -44,7 +44,10 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
     }
 
     fiterator_.delay();
-    return InputSource::IsSynchronize;
+    // BUG: for an unknown reason it fails after a certain time if we use IsSynchronize state
+    // comment out in order to block at this level
+    // the only downside is that we cannot Ctrl+C :)
+    //return InputSource::IsSynchronize;
   }
 
   // this is unreachable

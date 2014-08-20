@@ -28,7 +28,7 @@ namespace dqmservices {
 DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
-      fiterator_(pset, DQMFileIterator::JS_DATA),
+      fiterator_(pset),
       streamReader_(),
       eventSkipperByID_(edm::EventSkipperByID::create(pset).release()) {
 
