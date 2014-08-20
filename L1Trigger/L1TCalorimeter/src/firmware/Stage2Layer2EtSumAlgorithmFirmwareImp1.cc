@@ -45,10 +45,10 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     for (int iphi=iphiMin; iphi<iphiMax; iphi++) {
       
       l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
-      double towPhi = l1t::CaloTools::towerPhi(ieta, iphi);
+      //      double towPhi = l1t::CaloTools::towerPhi(ieta, iphi);
 
-      int32_t towEx = (tower.hwPt() * (int32_t) (511.*std::cos(towPhi))) >> 9;
-      int32_t towEy = (tower.hwPt() * (int32_t) (511.*std::sin(towPhi))) >> 9;
+      int32_t towEx = (int32_t) (tower.hwPt() * std::trunc(511.*std::cos(2*pi*(iphi-1)/72.))) >> 9;
+      int32_t towEy = (int32_t) (tower.hwPt() * std::trunc(511.*std::sin(2*pi*(72-iphi-1)/72.))) >> 9;
       int32_t towEt = tower.hwPt();
 
       ringEx += towEx;
