@@ -298,6 +298,10 @@ bool DQMStreamerReader::checkNextEvent() {
   processedEventPerLs_ += 1;
   deserializeEvent(*eview);
 
+  if (mon_.isAvailable()) {
+    mon_->reportEvents(1);
+  }
+
   return true;
 }
 

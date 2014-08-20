@@ -171,10 +171,10 @@ void DQMFileIterator::collect(bool ignoreTimers) {
   std::time_t t = boost::filesystem::last_write_time(runPath_);
 
   if ((!ignoreTimers) && (t <= runPathMTime_)) {
-    logFileAction("Directory hasn't changed.");
+    //logFileAction("Directory hasn't changed.");
     return;
   } else {
-    logFileAction("Directory changed, updating.");
+    //logFileAction("Directory changed, updating.");
     runPathMTime_ = t;
   }
 
@@ -311,7 +311,7 @@ void DQMFileIterator::updateWatchdog() {
 }
 
 void DQMFileIterator::delay() {
-  logFileAction("Streamer waiting for the next LS.");
+  //logFileAction("Streamer waiting for the next LS.");
 
   updateWatchdog();
   usleep(delayMillis_ * 1000);

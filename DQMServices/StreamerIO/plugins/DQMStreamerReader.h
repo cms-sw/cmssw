@@ -7,6 +7,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "DQMFileIterator.h"
+#include "DQMMonitoringService.h"
 #include "TriggerSelector.h"
 
 #include "boost/filesystem.hpp"
@@ -73,6 +74,9 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   std::unique_ptr<edm::StreamerInputFile> streamReader_;
   std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
   std::shared_ptr<TriggerSelector> eventSelector_;
+
+  /* this is for monitoring */
+  edm::Service<DQMMonitoringService> mon_;
 };
 
 }  //end-of-namespace-def

@@ -1,22 +1,22 @@
 #!/bin/bash
 #
-#	/etc/rc.d/init.d/fff_deleter
+#	/etc/rc.d/init.d/fff_monitoring
 #
-# Init file for fff_deleter.py
-# Copy it to /etc/rc.d/init.d/fff_deleter
+# Init file for fff_monitoring.py
+# Copy it to /etc/rc.d/init.d/fff_monitoring
 #
 # chkconfig: 345 80 20
-# description: FFF Deletion daemon for DQM
+# description: FFF Monitoring daemon for DQM
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-DAEMON_BIN=/usr/local/bin/fff_deleter.py
-PIDFILE=/var/run/fff_deleter.pid
+DAEMON_BIN=/usr/local/bin/fff_monitoring.py
+PIDFILE=/var/run/fff_monitoring.pid
 RETVAL=0
 
 start() {
-	echo -n $"Starting fff_deleter daemon: "	
+	echo -n $"Starting fff_monitoring daemon: "	
 	daemon $DAEMON_BIN
 	RETVAL=$?
 	echo
@@ -25,7 +25,7 @@ start() {
 }
 
 stop() {
-	echo -n $"Stopping fff_deleter daemon: "
+	echo -n $"Stopping fff_monitoring daemon: "
 	killproc -p $PIDFILE
 	RETVAL=$?
 	echo
@@ -37,7 +37,13 @@ stop() {
 restart() {
 	stop
 	start
-}	
+}
+
+reindex() {
+	stop
+	$DAEMON_BIN reindex
+	start
+}
 
 case "$1" in
 start)
@@ -49,6 +55,9 @@ stop)
 reload)
 	echo "$0: Unimplemented feature."
 	RETVAL=3
+	;;
+reindex)
+	reindex
 	;;
 force-reload)
 	echo "$0: Unimplemented feature."
