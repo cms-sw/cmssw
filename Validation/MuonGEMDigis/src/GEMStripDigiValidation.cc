@@ -57,7 +57,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
     if ( nst == 1 ) st_temp = dbe_->book1D( ss1.Data(),st_title.Data(),2000.,8.5,12.5);
     if ( nst == 2 || station->station() == 3 ) st_temp = dbe_->book1D(ss1.Data(),st_title.Data(),2000.,18.5,22.5);
     theStrip_st_dphi.insert( std::map< UInt_t , MonitorElement*>::value_type(ss1.Hash(), st_temp ));
-    std::cout<< ss1.Data()<<std::endl;
+    //std::cout<< ss1.Data()<<std::endl;
 
     for( auto& ring : station->rings() ) 
     for( auto& sCh : ring->superChambers() ) {
@@ -81,7 +81,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
  
      MonitorElement* temp2 = dbe_->book2D( name.Data(), title.Data(), nbin, xmin, xmax ,100, zmin-1, zmax+1);
      theStrip_phiz_st_ch.insert( std::map<UInt_t , MonitorElement*>::value_type(name.Hash(), temp2)) ;
-     std::cout<<name.Hash()<<"  "<<name.Length()<<std::endl;
+     //std::cout<<name.Hash()<<"  "<<name.Length()<<std::endl;
      
 
      for ( auto& ch : sCh->chambers() ) {
