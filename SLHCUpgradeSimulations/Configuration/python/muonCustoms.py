@@ -5,10 +5,8 @@ def unganged_me1a_geometry(process):
     """Customise digi/reco geometry to use unganged ME1/a channels
     """
     if hasattr(process,"CSCGeometryESModule"):
-        print "do csc geom custom"
         process.CSCGeometryESModule.useGangedStripsInME1a = False
     if hasattr(process,"idealForDigiCSCGeometry"):
-        print "do csc digi custom"
         process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
     return process
 
