@@ -18,12 +18,21 @@ process.GlobalTag.globaltag = 'PLS170_V7AN1::All'
 
 process.load("EgammaAnalysis/ElectronTools/Validation/DYJetsToLL_Sc2_AODSIM")
 
-process.load('EgammaAnalysis/ElectronTools/egmGsfElectronIDs_cff')
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+# turn on VID producer
+switchOnVIDElectronIdProducer(process)
+# define which IDs we want to produce
+my_id_modules = ['EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
+                 'EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
+                 'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
+                 'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
+#add them to the VID producer
+for idmod in my_id_modules:
+    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
 process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
 process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
 process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
-
 
 process.wp1 = cms.EDAnalyzer('ElectronIDAnalyzer',
                              electrons = cms.InputTag("gedGsfElectrons"),
