@@ -76,21 +76,24 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
  
   // apply output bitwidth constraints
+  ex     &= 0xfffff;
+  ey     &= 0xfffff;
   met    &= 0xfff;
   metPhi &= 0xfff;
   et     &= 0xfff;
  
   // push output
-  l1t::EtSum::EtSumType typeTotalEt = l1t::EtSum::EtSumType::kTotalEt;
-  l1t::EtSum::EtSumType typeMissingEt = l1t::EtSum::EtSumType::kMissingEt;
-  
   math::XYZTLorentzVector p4;
 
-  l1t::EtSum etSumTotalEt(p4,typeTotalEt,et,0,0,0);
-  l1t::EtSum etSumMissingEt(p4,typeMissingEt,met,0,metPhi,0);
+  l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
+  l1t::EtSum etSumMissingEt(p4,l1t::EtSum::EtSumType::kMissingEt,met,0,metPhi,0);
+  l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEx,ex,0,0,0);
+  l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEy,ey,0,0,0);
   
   etsums.push_back(etSumTotalEt);
   etsums.push_back(etSumMissingEt);
-  
+  etsums.push_back(etSumEx);
+  etsums.push_back(etSumEy);
+
 }
 

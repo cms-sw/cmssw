@@ -254,7 +254,10 @@ namespace l1t {
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalHt:
 		       cout << " HTT: ";
-		       break; 		     
+		       break;
+		     default:
+		       cout << " Unknown: ";
+		       break;
 		  }
 	          cout << " Et "  << std::dec << std::setw(3) << etsum->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << etsum->hwPt()  << ")";
 		  if(etsum->getType() == l1t::EtSum::EtSumType::kMissingEt || etsum->getType() == l1t::EtSum::EtSumType::kMissingHt)
@@ -384,7 +387,9 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	   break; 		     
 	 case l1t::EtSum::EtSumType::kTotalHt:
 	   HTTpackWd = formatTotalET(etsum);
-	   break; 		     
+	   break; 
+         default:
+	   break;
       } //end switch statement
    } //end loop over etsums
    // Fill in the words in appropriate order
