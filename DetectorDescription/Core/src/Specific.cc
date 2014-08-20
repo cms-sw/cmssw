@@ -132,7 +132,6 @@ namespace DDI {
    {
       if (partSelections_.size()) {
          partsel_type::const_iterator it = partSelections_.begin();
-         //DDsvalues_type* sv = const_cast<DDsvalues_type*>(&specifics_);
          const DDsvalues_type* sv = (&specifics_);
          for (; it != partSelections_.end(); ++it) {
             DDLogicalPart logp = it->back().lp_; 
