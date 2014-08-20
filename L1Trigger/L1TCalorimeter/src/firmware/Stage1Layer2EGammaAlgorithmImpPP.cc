@@ -49,7 +49,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  TwelveByTwelveFinder(jetSeedThreshold, subRegions, unCorrJets);
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();

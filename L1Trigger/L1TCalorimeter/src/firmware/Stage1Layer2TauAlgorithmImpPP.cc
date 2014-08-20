@@ -58,7 +58,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  //slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  TwelveByTwelveFinder(jetSeedThreshold, subRegions, unCorrJets);
 
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
 
