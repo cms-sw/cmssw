@@ -25,7 +25,7 @@ heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
         cms.PSet( cutName = cms.string('GsfEleDEtaInLinearCut'),
                   constTermEB = cms.double(0.016),
                   constTermEE = cms.double(0),
-                  slopeTermEB = cms.double(1E-4),
+                  slopeTermEB = cms.double(-1E-4),
                   slopeTermEE = cms.double(0),
                   minValueEB = cms.double(0.004),
                   minValueEE = cms.double(0.02),
@@ -111,4 +111,4 @@ heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
 
 
 central_id_registry.register(heepElectronID_HEEPV50_CSA14_startup.idName,
-                             '33c2d5cdb5f5c524a9d9941799b36d9f')
+                             '6263b722071c650fe885b31db4ebe20c')
