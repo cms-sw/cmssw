@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,7 +18,7 @@
 #include <memory>
 #include <vector>
 
-class ElectronIDValueMapProducer : public edm::EDProducer {
+class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
 
   public:
   
@@ -29,9 +29,7 @@ class ElectronIDValueMapProducer : public edm::EDProducer {
   
   private:
   
-  virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
 
   void writeValueMap(edm::Event &iEvent,
 		     const edm::Handle<reco::GsfElectronCollection> & handle,
@@ -197,12 +195,6 @@ void ElectronIDValueMapProducer::writeValueMap(edm::Event &iEvent,
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
   iEvent.put(valMap, label);
-}
-
-void ElectronIDValueMapProducer::beginJob() {
-}
-
-void ElectronIDValueMapProducer::endJob() {
 }
 
 void ElectronIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
