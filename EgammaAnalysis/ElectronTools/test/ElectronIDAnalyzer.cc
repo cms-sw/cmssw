@@ -238,7 +238,7 @@ ElectronIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      // Conversion rejection
      constexpr reco::HitPattern::HitCategory missingHitType =
        reco::HitPattern::MISSING_INNER_HITS;
-     expectedMissingInnerHits_ = el->gsfTrack()->hitPattern().numberOfLostPixelHits(missingHitType);
+     expectedMissingInnerHits_ = el->gsfTrack()->hitPattern().numberOfHits(missingHitType);
      passConversionVeto_ = false;
      if( thebs.isValid() && convs.isValid() ) {
        passConversionVeto_ = !ConversionTools::hasMatchedConversion(*el,convs,
