@@ -128,20 +128,21 @@ namespace DDI {
       } 
    }
    
-   void Specific::updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<DDPartSelection*,DDsvalues_type*> > >& result) const
+   void Specific::updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<const DDPartSelection*, const DDsvalues_type*> > >& result) const
    {
       if (partSelections_.size()) {
          partsel_type::const_iterator it = partSelections_.begin();
-         DDsvalues_type* sv = const_cast<DDsvalues_type*>(&specifics_);
+         //DDsvalues_type* sv = const_cast<DDsvalues_type*>(&specifics_);
+         const DDsvalues_type* sv = (&specifics_);
          for (; it != partSelections_.end(); ++it) {
             DDLogicalPart logp = it->back().lp_; 
             /*if (!logp.isDefined().second) {
              throw DDException("Specific::updateLogicalPart(..): LogicalPart not defined, name=" + std::string(logp.ddname()));
              }*/
-            DDPartSelection * ps = const_cast<DDPartSelection*>(&(*it));
+            const DDPartSelection * ps = (&(*it));
             assert(ps); 
             assert(sv);
-            std::pair<DDPartSelection*,DDsvalues_type*> pssv(ps,sv);
+            std::pair<const DDPartSelection*,const DDsvalues_type*> pssv(ps,sv);
             result.push_back(std::make_pair(logp,pssv));
          }  
       }  
