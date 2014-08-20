@@ -9,37 +9,33 @@
 namespace l1t {
    class JetUnpacker : public BaseUnpacker {
       public:
-         JetUnpacker(const edm::ParameterSet&, edm::Event&);
-         ~JetUnpacker();
+         JetUnpacker(const edm::ParameterSet&, JetBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
-         edm::Event& ev_;
-         std::auto_ptr<JetBxCollection> res_;
+         JetBxCollection* res_;
    };
 
    class JetUnpackerFactory : public BaseUnpackerFactory {
       public:
          JetUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
+         virtual void beginEvent(edm::Event&) override;
+         virtual void endEvent(edm::Event&) override;
 
       private:
          const edm::ParameterSet& cfg_;
          edm::one::EDProducerBase& prod_;
+
+         std::auto_ptr<JetBxCollection> res_;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   JetUnpacker::JetUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
-      ev_(ev),
-      res_(new JetBxCollection())
+   JetUnpacker::JetUnpacker(const edm::ParameterSet& cfg, JetBxCollection* coll) :
+      res_(coll)
    {
-   };
-
-   JetUnpacker::~JetUnpacker()
-   {
-      ev_.put(res_);
    };
 
    bool
@@ -102,13 +98,26 @@ namespace l1t {
       prod_.produces<JetBxCollection>();
    }
 
+   void
+   JetUnpackerFactory::beginEvent(edm::Event& ev)
+   {
+      res_.reset(new JetBxCollection());
+   }
+
+   void
+   JetUnpackerFactory::endEvent(edm::Event& ev)
+   {
+      ev.put(res_);
+      res_.reset();
+   }
+
    std::vector<UnpackerItem>
-   JetUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
+   JetUnpackerFactory::create(const unsigned& fw, const int fedid) {
 
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
      if (fedid==1){
 
-       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, ev)))};
+       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, res_.get())))};
 
      } else {
 

@@ -9,37 +9,33 @@
 namespace l1t {
    class CaloTowerUnpacker : public BaseUnpacker {
       public:
-         CaloTowerUnpacker(const edm::ParameterSet&, edm::Event&);
-         ~CaloTowerUnpacker();
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size);
+         CaloTowerUnpacker(const edm::ParameterSet&, CaloTowerBxCollection*);
+         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
-         edm::Event& ev_;
-         std::auto_ptr<CaloTowerBxCollection> res_;
+         CaloTowerBxCollection* res_;
    };
 
    class CaloTowerUnpackerFactory : public BaseUnpackerFactory {
       public:
          CaloTowerUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
+         virtual void beginEvent(edm::Event&) override;
+         virtual void endEvent(edm::Event&) override;
 
       private:
          const edm::ParameterSet& cfg_;
          edm::one::EDProducerBase& prod_;
+
+         std::auto_ptr<CaloTowerBxCollection> res_;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   CaloTowerUnpacker::CaloTowerUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
-      ev_(ev),
-      res_(new CaloTowerBxCollection())
+   CaloTowerUnpacker::CaloTowerUnpacker(const edm::ParameterSet& cfg, CaloTowerBxCollection* coll) :
+      res_(coll)
    {
-   };
-
-   CaloTowerUnpacker::~CaloTowerUnpacker()
-   {
-      ev_.put(res_);
    };
 
    bool
@@ -142,8 +138,21 @@ namespace l1t {
       prod_.produces<CaloTowerBxCollection>();
    }
 
+   void
+   CaloTowerUnpackerFactory::beginEvent(edm::Event& ev)
+   {
+      res_.reset(new CaloTowerBxCollection());
+   }
+
+   void
+   CaloTowerUnpackerFactory::endEvent(edm::Event& ev)
+   {
+      ev.put(res_);
+      res_.reset();
+   }
+
    std::vector<UnpackerItem>
-   CaloTowerUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid)
+   CaloTowerUnpackerFactory::create(const unsigned& fw, const int fedid)
    {
 
      // This unpacker is only appropriate for the Main Processor input (FED ID=2). Anything else should not be unpacked.
@@ -155,7 +164,7 @@ namespace l1t {
        // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
        // which receives the block_ID and can convert this to phi
 
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(cfg_, ev));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(cfg_, res_.get()));
 
        for (int link = 0; link < 144; link++){
          if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 

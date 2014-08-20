@@ -10,41 +10,37 @@
 namespace l1t {
    class MPUnpacker : public BaseUnpacker {
       public:
-         MPUnpacker(const edm::ParameterSet&, edm::Event&);
-         ~MPUnpacker();
+         MPUnpacker(const edm::ParameterSet&, JetBxCollection* coll1, EtSumBxCollection* coll2);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
-         edm::Event& ev_;
-         std::auto_ptr<JetBxCollection> res1_;
-         std::auto_ptr<EtSumBxCollection> res2_;
+         JetBxCollection* res1_;
+         EtSumBxCollection* res2_;
 
    };
 
    class MPUnpackerFactory : public BaseUnpackerFactory {
       public:
          MPUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
+         virtual void beginEvent(edm::Event&) override;
+         virtual void endEvent(edm::Event&) override;
 
       private:
          const edm::ParameterSet& cfg_;
          edm::one::EDProducerBase& prod_;
+
+         std::auto_ptr<JetBxCollection> res1_;
+         std::auto_ptr<EtSumBxCollection> res2_;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   MPUnpacker::MPUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
-      ev_(ev),
-      res1_(new JetBxCollection()),
-      res2_(new EtSumBxCollection())
+   MPUnpacker::MPUnpacker(const edm::ParameterSet& cfg, JetBxCollection* coll1, EtSumBxCollection* coll2) :
+      res1_(coll1),
+      res2_(coll2)
    {
-   };
-
-   MPUnpacker::~MPUnpacker()
-   {
-      ev_.put(res1_);
-      ev_.put(res2_);
    };
 
    bool
@@ -127,8 +123,24 @@ namespace l1t {
       prod_.produces<EtSumBxCollection>("MP");
    }
 
+   void
+   MPUnpackerFactory::beginEvent(edm::Event& ev)
+   {
+      res1_.reset(new JetBxCollection());
+      res2_.reset(new EtSumBxCollection());
+   }
+
+   void
+   MPUnpackerFactory::endEvent(edm::Event& ev)
+   {
+      ev.put(res1_);
+      ev.put(res2_);
+      res1_.reset();
+      res2_.reset();
+   }
+
    std::vector<UnpackerItem>
-   MPUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
+   MPUnpackerFactory::create(const unsigned& fw, const int fedid) {
 
      // This unpacker is only appropriate for the Main Processor output (FED ID=2). Anything else should not be unpacked.
      
@@ -136,7 +148,7 @@ namespace l1t {
 
        std::vector<UnpackerItem> linkMap;
     
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker(cfg_, ev));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker(cfg_, res1_.get(), res2_.get()));
 
        // Six links are used to output the data
        

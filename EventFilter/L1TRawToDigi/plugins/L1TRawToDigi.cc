@@ -48,6 +48,7 @@ namespace l1t {
 
       private:
          virtual void produce(edm::Event&, const edm::EventSetup&) override;
+         void unpack(edm::Event&, const edm::EventSetup&);
          
          virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
          virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
@@ -96,6 +97,18 @@ namespace l1t {
    // ------------ method called to produce the data  ------------
    void
    L1TRawToDigi::produce(edm::Event& event, const edm::EventSetup& setup)
+   {
+      for (auto& f: factories_)
+         f->beginEvent(event);
+
+      unpack(event, setup);
+
+      for (auto& f: factories_)
+         f->endEvent(event);
+   }
+
+   void
+   L1TRawToDigi::unpack(edm::Event& event, const edm::EventSetup& setup)
    {
       using namespace edm;
 
@@ -179,7 +192,7 @@ namespace l1t {
 
       UnpackerMap unpackers;
       for (auto& f: factories_) {
-        for (const auto& up: f->create(event, fw, fedId_)) {
+        for (const auto& up: f->create(fw, fedId_)) {
             unpackers.insert(up);
          }
       }

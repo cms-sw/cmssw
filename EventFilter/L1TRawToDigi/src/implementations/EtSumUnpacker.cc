@@ -9,37 +9,33 @@
 namespace l1t {
    class EtSumUnpacker : public BaseUnpacker {
       public:
-         EtSumUnpacker(const edm::ParameterSet&, edm::Event&);
-         ~EtSumUnpacker();
+         EtSumUnpacker(const edm::ParameterSet&, EtSumBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
-         edm::Event& ev_;
-         std::auto_ptr<EtSumBxCollection> res_;
+         EtSumBxCollection* res_;
    };
 
    class EtSumUnpackerFactory : public BaseUnpackerFactory {
       public:
          EtSumUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
+         virtual void beginEvent(edm::Event&) override;
+         virtual void endEvent(edm::Event&) override;
 
       private:
          const edm::ParameterSet& cfg_;
          edm::one::EDProducerBase& prod_;
+
+         std::auto_ptr<EtSumBxCollection> res_;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   EtSumUnpacker::EtSumUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
-      ev_(ev),
-      res_(new EtSumBxCollection())
+   EtSumUnpacker::EtSumUnpacker(const edm::ParameterSet& cfg, EtSumBxCollection* coll) :
+      res_(coll)
    {
-   };
-
-   EtSumUnpacker::~EtSumUnpacker()
-   {
-      ev_.put(res_);
    };
 
    bool
@@ -133,13 +129,26 @@ namespace l1t {
       prod_.produces<EtSumBxCollection>();
    }
 
+   void
+   EtSumUnpackerFactory::beginEvent(edm::Event& ev)
+   {
+      res_.reset(new EtSumBxCollection());
+   }
+
+   void
+   EtSumUnpackerFactory::endEvent(edm::Event& ev)
+   {
+      ev.put(res_);
+      res_.reset();
+   }
+
    std::vector<UnpackerItem>
-   EtSumUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
+   EtSumUnpackerFactory::create(const unsigned& fw, const int fedid) {
 
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
      if (fedid==1){
 
-       return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker(cfg_, ev)))};
+       return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker(cfg_, res_.get())))};
 
      } else {
 

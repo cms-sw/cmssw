@@ -29,7 +29,9 @@ namespace l1t {
 
    class BaseUnpackerFactory {
       public:
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned&, const int fedid) = 0;
+         virtual std::vector<UnpackerItem> create(const unsigned&, const int fedid) = 0;
+         virtual void beginEvent(edm::Event&) = 0;
+         virtual void endEvent(edm::Event&) = 0;
    };
 
    typedef BaseUnpackerFactory*(fct)(const edm::ParameterSet&, edm::one::EDProducerBase&);
