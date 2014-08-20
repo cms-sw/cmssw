@@ -32,9 +32,13 @@ higPhotonJetHLTOfflineSource = cms.EDAnalyzer(
     verbose = cms.untracked.bool(True), # default: False
     triggerAccept = cms.untracked.bool(False), # default: True 
     triggerResultsToken = cms.InputTag("TriggerResults"),
-    caloJetsToken = cms.InputTag("ak4CaloJets"),
     pvToken = cms.InputTag("offlinePrimaryVertices"),
     photonsToken = cms.InputTag("gedPhotons"),
     pfMetToken = cms.InputTag("pfMet"),
     pfJetsToken = cms.InputTag("ak4PFJets"),
+
+    # cuts
+    pfjetMinPt = cms.untracked.double(30.0), #GeV
+    photonMinPt = cms.untracked.double(20.0), #GeV
+    
 )
