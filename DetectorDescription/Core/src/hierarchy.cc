@@ -98,14 +98,14 @@ void generateHtml(std::vector<DDLogicalPart> & v, std::map<DDLogicalPart,int> & 
    }
    file << "<br>SpecPars:<br>" << std::endl;
    file << "<table><tbody>" << std::endl;
-   typedef std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > sv_type;
+   typedef std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > sv_type;
    sv_type sv = v.back().attachedSpecifics();
    sv_type::iterator sit = sv.begin();
    for (; sit != sv.end(); ++sit) {
      file << "<tr>" << std::endl
           << " <td>" << *(sit->first) <<"</td>" << std::endl;
      file << " <td>";	  
-     DDsvalues_type::iterator svit = sit->second->begin();
+     DDsvalues_type::const_iterator svit = sit->second->begin();
      for(; svit != sit->second->end(); ++svit) {
        file << svit->second << "<br>" <<std::endl;
      }
