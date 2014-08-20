@@ -62,7 +62,6 @@ DEFINE_FWK_MODULE(CITKPFIsolationSumProducer);
 namespace citk {
   PFIsolationSumProducer::PFIsolationSumProducer(const edm::ParameterSet& c) :
     _typeMap( { {"h+",1},
-	        {"PUh+",1},
 	        {"h0",5},
 		{"gamma",4},
 		{"electron",2},

@@ -137,6 +137,16 @@ def miniAOD_customizeCommon(process):
                     'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
                     'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
     switchOnVIDElectronIdProducer(process)
+    process.egmGsfElectronIDs.physicsObjectSrc = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronIDValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronIDValueMapProducer.ebReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.electronIDValueMapProducer.eeReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEERecHits") 
+    process.electronIDValueMapProducer.esReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedESRecHits")
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     
