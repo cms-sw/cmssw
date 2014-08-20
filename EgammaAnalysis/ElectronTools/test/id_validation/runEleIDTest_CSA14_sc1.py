@@ -18,7 +18,13 @@ process.GlobalTag.globaltag = 'POSTLS170_V6::All'
 
 process.load("EgammaAnalysis/ElectronTools/Validation/DYJetsToLL_Sc1_AODSIM")
 
-process.load('PhysicsTools/PatAlgos/producersLayer1/electronProducer_cff')
+process.source.fileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_7_2_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU50ns_POSTLS172_V4-v3/00000/207152BC-CF27-E411-BC7C-0025905B8562.root',
+    '/store/relval/CMSSW_7_2_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU50ns_POSTLS172_V4-v3/00000/207CFD5F-C127-E411-BEDB-0026189438C0.root',
+    '/store/relval/CMSSW_7_2_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU50ns_POSTLS172_V4-v3/00000/6807E684-C227-E411-8832-002354EF3BDC.root',
+    '/store/relval/CMSSW_7_2_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU50ns_POSTLS172_V4-v3/00000/92A5C477-C427-E411-874E-0025905A6110.root',
+    '/store/relval/CMSSW_7_2_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU50ns_POSTLS172_V4-v3/00000/A81E8828-C627-E411-AD32-0025905A60D0.root'
+)
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # turn on VID producer
@@ -80,5 +86,5 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('electron_ntuple_sc1.root')
                                    )
 
-process.p = cms.Path(process.egmGsfElectronIDSequence * process.wp1 * process.wp2 * process.wp3 * process.wp4 * process.makePatElectrons)
+process.p = cms.Path(process.egmGsfElectronIDSequence * process.wp1 * process.wp2 * process.wp3 * process.wp4)
 

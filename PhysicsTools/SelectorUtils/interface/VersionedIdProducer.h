@@ -105,6 +105,7 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
 
     produces<std::string>(idname);
     produces<edm::ValueMap<bool> >(idname);
+    produces<edm::ValueMap<float> >(idname); // for PAT
     produces<edm::ValueMap<unsigned> >(idname);
   }
 }
@@ -119,20 +120,31 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   for( const auto& id : ids_ ) {
     std::auto_ptr<edm::ValueMap<bool> > outPass(new edm::ValueMap<bool>() );
+    std::auto_ptr<edm::ValueMap<float> > outPassf(new edm::ValueMap<float>() );
     std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
     std::vector<bool> passfail;
+    std::vector<float> passfailf;
     std::vector<unsigned> howfar;
     for(const auto& po : physicsobjects.refVector()) {
       passfail.push_back((*id)(po.template castTo<PhysicsObjectRef>(),iEvent));
+      passfailf.push_back(passfail.back());
       howfar.push_back(id->howFarInCutFlow());
     }
+    
     edm::ValueMap<bool>::Filler fillerpassfail(*outPass);
     fillerpassfail.insert(physicsObjectsHandle, passfail.begin(), passfail.end());
     fillerpassfail.fill();
+    
+    edm::ValueMap<float>::Filler fillerpassfailf(*outPassf);
+    fillerpassfailf.insert(physicsObjectsHandle, passfailf.begin(), passfailf.end());
+    fillerpassfailf.fill();
+
     edm::ValueMap<unsigned>::Filler fillerhowfar(*outHowFar);
     fillerhowfar.insert(physicsObjectsHandle, howfar.begin(), howfar.end() );
-    fillerhowfar.fill();      
+    fillerhowfar.fill();  
+    
     iEvent.put(outPass,id->name());
+    iEvent.put(outPassf,id->name());
     iEvent.put(outHowFar,id->name());
     iEvent.put(std::auto_ptr<std::string>(new std::string(id->md5String())),
 	       id->name());

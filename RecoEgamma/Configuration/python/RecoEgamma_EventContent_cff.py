@@ -12,7 +12,7 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_eidRobustHighEnergy_*_*',
         'keep *_eidLoose_*_*',
         'keep *_eidTight_*_*',
-        'keep *_egmGedGsfElectronPFIsolation_*_*',
+        'keep *_egmGedGsfElectronPF*Isolation_*_*',
         'keep *_egmGsfElectronIDs_*_*',
         'keep *_conversions_*_*',
         'keep *_mustacheConversions_*_*',
