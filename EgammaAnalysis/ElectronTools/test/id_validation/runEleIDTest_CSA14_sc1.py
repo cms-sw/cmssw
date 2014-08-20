@@ -16,7 +16,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 #  as a rule, find the global tag in the DAS under the Configs for given dataset
 process.GlobalTag.globaltag = 'POSTLS170_V6::All'
 
-process.load("TestElectronID/ElectronIDAnalyzer/DYJetsToLL_Sc1_AODSIM")
+process.load("EgammaAnalysis/ElectronTools/Validation/DYJetsToLL_Sc1_AODSIM")
 
 process.load('EgammaAnalysis/ElectronTools/egmGsfElectronIDs_cff')
 
