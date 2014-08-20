@@ -9,7 +9,7 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
-  set tables = ( GRun PIon 2013 HIon )
+  set tables = ( GRun PIon 2013 HIon FULL )
 else if ( $2 == DEV ) then
   set tables = ( GRun PIon HIon )
 else if ( $2 == FROZEN ) then
@@ -43,6 +43,9 @@ foreach gtag ( $1 )
 
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
     set autogt = "--globaltag=${basegt}_${table}"
+    if ( $table == FULL ) then
+      set autogt = "--globaltag=${basegt}_GRun"
+    endif
     set infile = file:../RelVal_Raw_${table}_${gtag}.root
 
 #   -x "--l1-emulator" -x "--l1 L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc" 
