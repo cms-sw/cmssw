@@ -211,11 +211,8 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   const reco::PFMET pfmet = pfmets->front();
 
   pfmet_->Fill(pfmet.et()); 
-  if (verbose_) {
-    std::cout << "xshi:: PFMET: " << pfmet.et() << std::endl;
-    std::cout << "         phi: " << pfmet.phi() << std::endl;
-    std::cout << "      pfmets: " << pfmets->size() << std::endl;
-  }
+  if (verbose_)
+    std::cout << "xshi:: number of pfmets: " << pfmets->size() << std::endl;
 
   pfmetphi_->Fill(pfmet.phi()); 
   
@@ -224,10 +221,6 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   iEvent.getByToken(photonsToken_, photons);
   if(!photons.isValid()) return;
 
-  // if (verbose_)
-  //   std::cout << "xshi:: N photons : " << photons->size() << std::endl;
-  // nphotons_->Fill(photons->size());
-
   int nphotons = 0; 
   for(reco::PhotonCollection::const_iterator phoIter=photons->begin();
       phoIter!=photons->end();++phoIter){
@@ -235,7 +228,6 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     nphotons++;
     photonpt_->Fill(phoIter->pt()); 
     photonrapidity_->Fill(phoIter->rapidity()); 
-
     double tmp_delphiphomet = fabs(deltaPhi(phoIter->phi(), pfmet.phi())); 
     if (verbose_)
       std::cout << "xshi:: delta phi(photon, MET) " << tmp_delphiphomet << std::endl;
@@ -249,17 +241,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   if(!pfjets.isValid()) return;
   if (verbose_)
     std::cout << "xshi:: N pfjets : " << pfjets->size() << std::endl;
- 
-  // npfjets_->Fill(pfjets->size()); 
-  // int npfjets = 0; 
-  // for(reco::PFJetCollection::const_iterator jetIter=pfjets->begin();
-  //     jetIter!=pfjets->end();++jetIter){
-  //   if (jetIter->pt() < pfjetMinPt_ )
-  //     continue; 
-  //   npfjets++;
-  // }
-  // npfjets_->Fill(npfjets);   
- 
+
   double min_delphijetmet = 6.0;
 
   // Inv mass of two leading jets 
@@ -290,11 +272,8 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   delphijetmet_->Fill(min_delphijetmet); 
   p4jj = p4jet1 + p4jet2; 
   double deletajj = etajet1 - etajet2 ; 
-  if (verbose_) {
-    // std::cout << "xshi:: min delta phi(jet, MET) " << min_delphijetmet << std::endl;
+  if (verbose_) 
     std::cout << "xshi:: invmass jj " << p4jj.M() << std::endl;
-    std::cout << "xshi:: delta eta jj " << deletajj << std::endl;
-  }
   
   invmassjj_->Fill(p4jj.M());
   deletajj_->Fill(deletajj); 
