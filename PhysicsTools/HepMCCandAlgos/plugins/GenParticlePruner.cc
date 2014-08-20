@@ -296,7 +296,7 @@ void GenParticlePruner::addMotherRefs(vector<size_t> & moIndxs,
     if ( find(moIndxs.begin(), moIndxs.end(), mom.key()) == moIndxs.end() ) {
       int idx = flags_[mom.key()];
       moIndxs.push_back( mom.key() );
-      if(idx > 0) {
+      if(idx >= 0) {
 	GenParticleRef newMom(outRef, static_cast<size_t>(idx));
 	newGen.addMother(newMom);
       } else {
