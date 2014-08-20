@@ -3,8 +3,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "TLorentzVector.h"
 
-RazorBox::RazorBox( const CachingVariable::CachingVariableFactoryArg& arg) :
-  CachingVariable("RazorBox",arg.n,arg.iConfig){
+RazorBox::RazorBox( const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
+  CachingVariable("RazorBox",arg.n,arg.iConfig,iC){
 
 }
 
@@ -12,16 +12,16 @@ void RazorBox::compute( const edm::Event & iEvent) const{
   
 }
 
-RazorComputer::RazorComputer( const CachingVariable::CachingVariableFactoryArg& arg) : VariableComputer(arg){
+RazorComputer::RazorComputer( const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) : VariableComputer(arg,iC){
   jet_ = edm::Service<InputTagDistributorService>()->retrieve("jet",arg.iConfig);
   met_ = edm::Service<InputTagDistributorService>()->retrieve("met",arg.iConfig);
   pt_ = 40.;
   eta_=2.4;
 
-  declare("MRT");
-  declare("MR");
-  declare("R2");
-  declare("R");
+  declare("MRT",iC);
+  declare("MR",iC);
+  declare("R2",iC);
+  declare("R",iC);
 
 }
 
