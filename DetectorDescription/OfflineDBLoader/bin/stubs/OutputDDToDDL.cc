@@ -68,7 +68,7 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es)
   // 2009-08-19: MEC: I've tried this with set<DDPartSelection> and
   // had to write operator< for DDPartSelection and DDPartSelectionLevel
   // the output from such an effort is different than this one.
-  std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > specStore;
+  std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > specStore;
   std::set<DDRotation> rotStore;
 
   DDCoreToDDXMLOutput out;
@@ -171,7 +171,7 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es)
   (*xos_) << "</LogicalPartSection>" << std::endl;
 
   (*xos_) << std::fixed << std::setprecision(18);
-  std::map<DDsvalues_type, std::set<DDPartSelection*> >::const_iterator mit(specStore.begin()), mend (specStore.end());
+  std::map<DDsvalues_type, std::set<const DDPartSelection*> >::const_iterator mit(specStore.begin()), mend (specStore.end());
   (*xos_) << "<SpecParSection label=\"" << ns_ << "\">" << std::endl;
   for (; mit != mend; ++mit) {
     out.specpar ( *mit, *xos_ );
@@ -208,8 +208,8 @@ void  OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solS
       }
 }
 
-void OutputDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > & specStore ) {
-  std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator spit(lp.attachedSpecifics().begin()), spend(lp.attachedSpecifics().end());
+void OutputDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > & specStore ) {
+  std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> >::const_iterator spit(lp.attachedSpecifics().begin()), spend(lp.attachedSpecifics().end());
   for ( ; spit != spend; ++spit ) {
     specStore[*spit->second].insert(spit->first);
   }
