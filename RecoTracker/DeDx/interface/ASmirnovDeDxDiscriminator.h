@@ -32,6 +32,7 @@ public:
     }
 
     size_t size  = vect_probs.size();
+    if(size<=0) return std::make_pair( -1 , -1);     
     std::sort(vect_probs.begin(), vect_probs.end(), std::less<float>() );
     float TotalProb = 1.0/(12*size);
     for(size_t i=1;i<=size;i++){

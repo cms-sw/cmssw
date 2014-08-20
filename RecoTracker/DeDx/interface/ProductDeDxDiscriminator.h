@@ -32,6 +32,7 @@ public:
     }
 
     size_t size  = vect_probs.size();
+    if(size<=0) return std::make_pair( -1 , -1);       
     float TotalProb = 1;
     for(size_t i=0;i<size;i++){
          if(vect_probs[i]<=0.0001){TotalProb *= pow(0.0001       , 1.0/size);}
