@@ -35,6 +35,6 @@ operator()(const reco::GsfElectronRef& cand) const{
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _maxMissingHitsEB : _maxMissingHitsEE );
   const unsigned mHits = 
-    cand->gsfTrack()->hitPattern().numberOfLostPixelHits(missingHitType);
+    cand->gsfTrack()->hitPattern().numberOfHits(missingHitType);
   return mHits <= maxMissingHits;
 }

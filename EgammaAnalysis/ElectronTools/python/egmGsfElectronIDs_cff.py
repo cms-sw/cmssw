@@ -106,14 +106,14 @@ egmGsfElectronIDs.physicsObjectIDs.append(
 
 from EgammaAnalysis.ElectronTools.heepElectronID_HEEPV50_CSA14_25ns_cff import heepElectronID_HEEPV50_CSA14_25ns
 heepElectronID_HEEPV50_CSA14_25ns_md5 = central_id_registry.getMD5FromName( heepElectronID_HEEPV50_CSA14_25ns.idName )
-egmGsfElectronIDs.electronIDs.append( 
+egmGsfElectronIDs.physicsObjectIDs.append( 
     cms.PSet( idDefinition = heepElectronID_HEEPV50_CSA14_25ns,
               idMD5 = cms.string(heepElectronID_HEEPV50_CSA14_25ns_md5) )
     )
 
 from EgammaAnalysis.ElectronTools.heepElectronID_HEEPV50_CSA14_startup_cff import heepElectronID_HEEPV50_CSA14_startup
 heepElectronID_HEEPV50_CSA14_startup_md5 = central_id_registry.getMD5FromName( heepElectronID_HEEPV50_CSA14_startup.idName )
-egmGsfElectronIDs.electronIDs.append( 
+egmGsfElectronIDs.physicsObjectIDs.append( 
     cms.PSet( idDefinition = heepElectronID_HEEPV50_CSA14_startup,
               idMD5 = cms.string(heepElectronID_HEEPV50_CSA14_startup_md5) )
     )
