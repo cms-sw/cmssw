@@ -117,7 +117,9 @@ process.dumpGT = cms.EDAnalyzer("l1t::GtInputDump",
 		muInputTag    = cms.InputTag("gtInput"),
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
-		etsumInputTag = cms.InputTag("gtInput") 
+		etsumInputTag = cms.InputTag("gtInput"), 
+		minBx         = cms.int32(0),
+		maxBx         = cms.int32(0)
 		 )
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -226,7 +228,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(False),
+		dumpGTRecord   = cms.bool(True),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job )
 		 )
