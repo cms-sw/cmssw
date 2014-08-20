@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
@@ -137,6 +139,16 @@ def miniAOD_customizeCommon(process):
     ## PU JetID
     process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
+
+    #VID Electron IDs
+    electron_ids = ['EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
+                    'EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
+                    'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
+                    'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
+    switchOnVIDElectronIdProducer(process)
+    for idmod in electron_ids:
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+    
 
 
 def miniAOD_customizeMC(process):
