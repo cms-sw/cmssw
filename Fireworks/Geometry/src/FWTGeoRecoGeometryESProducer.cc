@@ -51,6 +51,12 @@
 #include "TError.h"
 #include "TMath.h"
 
+
+//std::map< const CaloCellGeometry::CCGFloat*, TGeoVolume*> m_caloShapeMap;
+namespace {
+typedef std::map< const float*, TGeoVolume*> CaloVolMap;
+CaloVolMap m_caloShapeMap;
+}
 FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& /*pset*/ ):
 m_dummyMedium(0)
 {
@@ -196,7 +202,8 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 
    */
    // addEcalCaloGeometry();
-   addHcalCaloGeometry();
+   addHcalCaloGeometryBarrel();
+   addHcalCaloGeometryEndcap();
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -761,12 +768,6 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 
 //______________________________________________________________________________
 
-
-//std::map< const CaloCellGeometry::CCGFloat*, TGeoVolume*> m_caloShapeMap;
-namespace {
-typedef std::map< const float*, TGeoVolume*> CaloVolMap;
-CaloVolMap m_caloShapeMap;
-}
 //______________________________________________________________________________
 
 
@@ -867,17 +868,12 @@ double etatotheta(double eta)
       return 2*ATan(Exp(- Abs(eta)));
 }
 
+//______________________________________________________________________________
+
+
 void
-FWTGeoRecoGeometryESProducer::addHcalCaloGeometry( void )
+FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 {
-
-   TGeoShape* solid = new TGeoBBox(2, 2, 2); 
-   TGeoVolume* volume1 = new TGeoVolume( "Attempt" ,solid, m_dummyMedium);
-   volume1->SetLineColor(kRed);
-   TGeoVolume* volume2 = new TGeoVolume( "center-box" ,solid, m_dummyMedium);
-   volume2->SetLineColor(kYellow);
-
-
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalBarrel");
 
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
@@ -894,7 +890,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometry( void )
   
       TGeoVolume* volume = 0;
       CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
-      if  (volIt == m_caloShapeMap.end()) 
+      if  (1 || volIt == m_caloShapeMap.end()) 
       {
          // printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
          IdealObliquePrism::Pt3DVec lc(8);
@@ -903,6 +899,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometry( void )
          HepGeom::Vector3D<float> lCenter;
          for( int c = 0; c < 8; ++c)
             lCenter += lc[c];
+         lCenter *= 0.125;
 
          static const int arr[] = { 1, 0, 3, 2,  5, 4, 7, 6 };
          double points[16];
@@ -955,6 +952,102 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometry( void )
 
 
 }
+//______________________________________________________________________________
+
+void
+FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
+{
+   TGeoShape* solid = new TGeoBBox(2, 2, 2);
+   TGeoVolume* volume1 = new TGeoVolume( "Attempt" ,solid, m_dummyMedium);
+   volume1->SetLineColor(kYellow);
+
+   TGeoVolume *assembly = new TGeoVolumeAssembly("HcalEndcap");
+
+   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
+
+   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+   {
+      HcalDetId detid = HcalDetId(it->rawId());
+      const CaloCellGeometry* cellb= m_caloGeom->getGeometry(*it);
+
+      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
+   
+      if (!cell) { printf ("not olique \n"); continue; }
+   
+      //if ( (cell->etaPos() > -1) ) continue;
+      // if ((cell->phiPos() > 0.3 && cell->phiPos() < 0.35)== false) continue;
+
+      std::cout << detid <<std::endl;
+      TGeoVolume* volume = 0;
+      CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
+      if  (1 || volIt == m_caloShapeMap.end()) 
+      {
+         printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
+         IdealObliquePrism::Pt3DVec lc(8);
+         IdealObliquePrism::Pt3D ref;
+         IdealObliquePrism::localCorners( lc, cell->param(), ref);
+         HepGeom::Vector3D<float> lCenter; 
+         for( int c = 0; c < 8; ++c) {
+            lCenter += lc[c];
+            printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", lc[c].x(), lc[c].y(), lc[c].z() );
+         }
+         lCenter *= 0.125;
+
+
+         static const int arr[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
+         // static const int arr[] = { 0 , 1, 2, 3, 4, 5, 6, 7 };
+         double points[16];
+         for (int c = 0; c < 8; ++c) {
+            points[ c*2 + 0 ] = lc[arr[c]].x() - lCenter.x(); 
+            points[ c*2 + 1 ] = lc[arr[c]].y() - lCenter.y();
+            // printf("AMT xy[%d] <=>[%d] = (%.4f, %.4f) \n", arr[c], c, points[c*2],  points[c*2+1]);
+            printf("AMT xy[%d] <=>[%d] = (%.4f, %.4f) \n", arr[c], c, points[c*2], points[c*2+1]);
+         }
+
+         float dz = (lc[4].z() -lc[0].z()) * 0.5;
+         TGeoShape* solid = new TGeoArb8(dz, &points[0]);
+         volume = new TGeoVolume("oblique", solid, m_dummyMedium);
+         volume->SetLineColor(kRed);
+         m_caloShapeMap[cell->param()] = volume;
+      }
+      else {
+
+         volume = volIt->second;
+
+      }      
+
+      HepGeom::Vector3D<float> gCenter;
+      CaloCellGeometry::CornersVec const & gc = cell->getCorners();
+      for (int c = 0; c < 8; ++c) {
+         gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+         printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(), gc[c].z() );
+      }
+      gCenter *= 0.125;
+
+      TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
+      TGeoRotation rot; 
+      rot.SetAngles(cell->phiPos()*TMath::RadToDeg(), 0, 0);
+      if (cell->etaPos() < 0)
+         rot.ReflectZ(true, false);
+
+
+      TGeoVolume* holder  = GetDaughter(assembly, "side", detid.zside());
+      holder = GetDaughter(holder, "ieta", detid.ieta());
+      std::stringstream nname;
+      nname << detid;
+      AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+      nname << "box";
+      AddLeafNode(holder, volume1, nname.str().c_str(), new TGeoTranslation(gCenter.x(), gCenter.y(), gCenter.z()));
+
+   }
+
+
+ 
+   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+
+
+}
+
 
 //______________________________________________________________________________
 
