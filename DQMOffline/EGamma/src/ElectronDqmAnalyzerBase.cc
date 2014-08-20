@@ -151,7 +151,7 @@ MonitorElement * ElectronDqmAnalyzerBase::get( const std::string & name )
   if (fullName)
    { return store_->get(inputInternalPath_+"/"+*fullName) ; }
   else
-  { return 0 ; }
+  { return nullptr ; }
  }
 
 void ElectronDqmAnalyzerBase::remove( const std::string & name )
@@ -301,7 +301,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
    const std::string & titleX, const std::string & titleY,
    const std::string & title,const std::string & setEfficiencyFlag )
  {
-  if ((!num)||(!denom)) return 0 ;
+  if ((!num)||(!denom)) return nullptr ;
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)num->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -321,7 +321,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
-  if ((!num)||(!denom)) return 0 ;
+  if ((!num)||(!denom)) return nullptr ;
   std::string name2 = newName(name) ;
   TH2F * h_temp = (TH2F *)num->getTH2F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -339,7 +339,7 @@ MonitorElement * ElectronDqmAnalyzerBase::cloneH1
  ( const std::string & name, MonitorElement * original,
    const std::string & title )
  {
-  if (!original) return 0 ;
+  if (!original) return nullptr ;
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)original->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -354,6 +354,7 @@ MonitorElement * ElectronDqmAnalyzerBase::profileX
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
+  if(!me2d) { return nullptr;}
   std::string name2 = me2d->getName()+"_pfx" ;
   TProfile * p1_temp = me2d->getTH2F()->ProfileX() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
@@ -371,6 +372,7 @@ MonitorElement * ElectronDqmAnalyzerBase::profileY
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
+  if(!me2d) { return nullptr;}
   std::string name2 = me2d->getName()+"_pfy" ;
   TProfile * p1_temp = me2d->getTH2F()->ProfileY() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }

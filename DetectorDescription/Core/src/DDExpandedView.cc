@@ -14,7 +14,7 @@ DDExpandedView::DDExpandedView( const DDCompactView & cpv )
 {
   walker_ = &w2_;
 
-  DDPosData * pd((*walker_).current().second);
+  const DDPosData * pd((*walker_).current().second);
   if (!pd)
     pd = worldpos_;
   DDExpandedNode expn((*walker_).current().first,

@@ -43,15 +43,17 @@ void ElectronMcFakePostValidator::finalize()
 
   // fbrem
   MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
-  TAxis * etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis() ;
-  MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2("xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
-  for (int ibin=1;ibin<etaAxis->GetNbins()+1;ibin++) {
-    double xOverX0 = 0.;
-    if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
-     { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
-    h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
+  if( p1_ele_fbremVsEta_mean ) {
+    TAxis * etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis() ;
+    MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2("xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
+    for (int ibin=1;ibin<etaAxis->GetNbins()+1;ibin++) {
+      double xOverX0 = 0.;
+      if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
+	{ xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
+      h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
+    }
   }
-
+    
   // profiles from 2D histos
   profileX("PoPmatchingObjectVsEta","","#eta","<P/P_{gen}>");
   profileX("PoPmatchingObjectVsPhi","","#phi (rad)","<P/P_{gen}>");

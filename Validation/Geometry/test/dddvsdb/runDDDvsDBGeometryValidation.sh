@@ -4,11 +4,11 @@ cmsenv
 echo " START Geometry Validation"
 set loctag = ''
 if ($#argv == 0) then
-    set gtag="MC_31X_V8::All"
-    set geometry="GeometryIdeal"
+    set gtag="POSTLS172_V6::All"
+    set geometry="GeometryExtended2015"
 else if($#argv == 1) then
     set gtag=`echo ${1}`
-    set geometry="GeometryIdeal"
+    set geometry="GeometryExtended2015"
 else if ($#argv == 2) then
     set gtag=`echo ${1}`
     set geometry=`echo ${2}`
@@ -20,7 +20,8 @@ endif
 echo geometry = ${geometry}
 #global tag gtag is assumed to be of the form GeometryWORD such as GeometryExtended or GeometryIdeal
 #as of 3.4.X loaded objects in the DB, these correspond to condlabels Extended, Ideal, etc...
-set condlabel = `(echo $geometry | sed '{s/Geometry//g}')`
+# Run 2 Extended condlabel corresponds to GeometryExtended2015 scenario. 
+set condlabel = `(echo $geometry | sed '{s/Geometry//g}' | sed '{s/2015//g}')`
 echo ${condlabel} " geometry label from db"
 echo "Check out and compile the needed packages"
 git cms-addpkg DetectorDescription/Schema
