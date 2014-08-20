@@ -17,6 +17,7 @@
 #include <map>
 #include <queue>
 #include <sstream>
+#include <chrono>
 #include <unordered_map>
 
 #include <boost/filesystem.hpp>
@@ -40,13 +41,26 @@ class DQMMonitoringService {
 
     void registerExtra(std::string name, ptree data);
     void reportLumiSection(int run, int lumi);
+    void reportEvents(int nevts);
 
   private:
     boost::filesystem::path json_path_;
     std::string hostname_;
+    std::string tag_;
     int fseq_;
+    long nevents_;
 
     ptree extra_;
+    ptree ps_info_;
+
+    long last_report_nevents_;
+    std::chrono::high_resolution_clock::time_point last_report_time_;
+
+    void reportLumiSectionUnsafe(int run, int lumi);
+
+    void fillProcessInfoCmdline();
+    void fillProcessInfoStatus();
+    std::string hackoutTheStdErr();
 };
 
 } // end-of-namespace
