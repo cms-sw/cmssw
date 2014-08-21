@@ -201,9 +201,9 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    }
 
    */
-   // addEcalCaloGeometry();
-   addHcalCaloGeometryBarrel();
-   addHcalCaloGeometryEndcap();
+   addEcalCaloGeometry();
+   //addHcalCaloGeometryBarrel();
+   //addHcalCaloGeometryEndcap();
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -1036,38 +1036,90 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 void
 FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 {
+   TGeoShape* solid = new TGeoBBox(2, 2, 2);
+   TGeoVolume* volume2 = new TGeoVolume( "center-box" ,solid, m_dummyMedium);
+   volume2->SetLineColor(kYellow);
    if (1)
-   {/*
+   {
       TGeoVolume *assembly = new TGeoVolumeAssembly("EcalBarrel");
       std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
          EBDetId detid(*it);
+         const CaloCellGeometry* cello = m_caloGeom->getGeometry( *it );
+
+         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (cello);
+         if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
+
+         // if (cell->etaPos() < 0) continue;
+         //         if (!(cell->phiPos() > 0.3 && cell->phiPos() < 0.34 &&   cell->etaPos()<2))            continue;
+         TGeoVolume* volume = 0;
+
+         CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
+         if  ( volIt == m_caloShapeMap.end()) 
+         {
+            printf("BEGIN SHAPE --------------------------------\n");
+            std::cout << detid << std::endl;
+            const HepGeom::Transform3D idtr;
+            TruncatedPyramid::Pt3DVec co(8);
+            TruncatedPyramid::Pt3D ref;
+            TruncatedPyramid::localCorners( co, cell->param(), ref);
+            //for( int c = 0; c < 8; ++c)
+            //   printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", co[c].x(),co[c].y(),co[c].z() );
+
+            double points[16];
+            for( int c = 0; c < 8; ++c )
+            {
+               points[c*2  ] = co[c].x();
+               points[c*2+1] = co[c].y();
+            }
+            TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
+
+            volume = new TGeoVolume( "TruncatedPyramid" ,solid, m_dummyMedium);
+            volume->SetLineColor(kGray);
+         }
+         else {
+            volume = volIt->second;
+         }
+
+         HepGeom::Vector3D<float> gCenter;
+         CaloCellGeometry::CornersVec const & gc = cell->getCorners();
+         for (int c = 0; c < 8; ++c) {
+            gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+            // printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(),gc[c].z() );
+         }
+         gCenter *= 0.125;
+
+
+         // printf("phiPos %f == phiAxis %f, thetaPos = %f , getThetaAxis = %f\n",cell->phiPos(), cell->getPhiAxis(), etatotheta(cell->etaPos()), cell->getThetaAxis() );
+
+
+         TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
+         TGeoRotation rot;
+         if (cell->etaPos() < 0) {
+            rot.ReflectZ(true);
+         }
+         rot.SetAngles((90 - cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
+
+         TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
+         holder = GetDaughter(holder, "ieta", detid.ieta());
+         std::stringstream nname;
+         nname << detid;
+         AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+      }
+      m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   }
+   
+
+   if (1) {
+      TGeoVolume *assembly = new TGeoVolumeAssembly("EcalEndcap");
+      std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
+      for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+      {
+         EEDetId detid(*it);
          const CaloCellGeometry* cell = m_caloGeom->getGeometry( *it );
-
-         if (!(cell->phiPos() > 0.3 && cell->phiPos() < 0.34 && cell->dz() > 0 && cell->etaPos() > 1 &&  cell->etaPos()<2)) continue;
-
-         TGeoVolume* holder  = GetDaughter(assembly, "ism", detid.ism());
-         holder->AddNode( getCalloCellVolume(cell), 1, createCaloPlacement(cell));
 
       }
       m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
-    */
    }
-   /*
-
-     if (1) {
-     TGeoVolume *assembly = new TGeoVolumeAssembly("EcalEndcap");
-     std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
-     for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
-     {
-     EEDetId detid(*it);
-     const CaloCellGeometry* cell = m_caloGeom->getGeometry( *it );
-
-     TGeoVolume* holder  = GetDaughter(assembly, "zside", detid.zside());
-     holder  = GetDaughter(holder, "sc", detid.sc());
-     holder->AddNode( getCalloCellVolume(cell), 1, createCaloPlacement(cell));
-     }
-     m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
-     }*/
 }
