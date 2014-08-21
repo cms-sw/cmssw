@@ -238,10 +238,8 @@ MiniAODElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm
     d0_ = (-1) * el->gsfTrack()->dxy(pv.position() );
     dz_ = el->gsfTrack()->dz( pv.position() );
     
-    // Conversion rejection
-    constexpr reco::HitPattern::HitCategory missingHitType =
-      reco::HitPattern::MISSING_INNER_HITS;
-    expectedMissingInnerHits_ = el->gsfTrack()->hitPattern().numberOfHits(missingHitType);
+    // Conversion rejection    
+    expectedMissingInnerHits_ = el->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
     passConversionVeto_ = false;
     if( thebs.isValid() && convs.isValid() ) {
       passConversionVeto_ = !ConversionTools::hasMatchedConversion(*el,convs,
