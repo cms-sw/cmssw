@@ -4,8 +4,10 @@ import FWCore.ParameterSet.Config as cms
 def unganged_me1a_geometry(process):
     """Customise digi/reco geometry to use unganged ME1/a channels
     """
-    process.CSCGeometryESModule.useGangedStripsInME1a = False
-    process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
+    if hasattr(process,"CSCGeometryESModule"):
+        process.CSCGeometryESModule.useGangedStripsInME1a = False
+    if hasattr(process,"idealForDigiCSCGeometry"):
+        process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
     return process
 
 
