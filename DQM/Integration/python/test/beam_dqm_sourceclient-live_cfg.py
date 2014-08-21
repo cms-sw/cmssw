@@ -24,7 +24,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitor'
 # uncomment for running local test
-process.dqmSaver.dirName     = '.'
+#process.dqmSaver.dirName     = '.'
 
 import DQMServices.Components.DQMEnvironment_cfi
 process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
