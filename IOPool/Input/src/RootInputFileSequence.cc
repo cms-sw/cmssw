@@ -58,6 +58,8 @@ namespace edm {
     treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
+    setRuns_(pset.getUntrackedParameter<std::vector<unsigned int>>("setRunNumbers",std::vector<unsigned int>())),
+    setRunFrequency_(pset.getUntrackedParameter<std::vector<double>>("setRunFrequency",std::vector<double>())),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
@@ -247,7 +249,7 @@ namespace edm {
           orderedProcessHistoryIDs_,
           labelRawDataLikeMC_,
           usingGoToEvent_));
-
+      rootFile_->passRunAndFrequency(setRuns_,setRunFrequency_);
       fileIterLastOpened_ = fileIter_;
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
       char const* inputType = 0;
@@ -763,6 +765,9 @@ namespace edm {
         ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
     desc.addUntracked<unsigned int>("setRunNumber", 0U)
         ->setComment("If non-zero, change number of first run to this number. Apply same offset to all runs.  Allowed only for simulation.");
+    desc.addUntracked<std::vector<unsigned int>>("setRunNumbers",std::vector<unsigned int>())->setComment("If not empty, change run number.");
+    desc.addUntracked<std::vector<double>>("setRunFrequency",std::vector<double>())->setComment("If not empty, change run number frequency.");
+
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     std::string defaultString("permissive");

@@ -107,6 +107,8 @@ namespace edm {
     unsigned int treeCacheSize_;
     int const treeMaxVirtualSize_;
     RunNumber_t setRun_;
+    std::vector<RunNumber_t> setRuns_;
+    std::vector<double> setRunFrequency_;
     GroupSelectorRules groupSelectorRules_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;

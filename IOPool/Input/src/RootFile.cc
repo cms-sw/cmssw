@@ -54,6 +54,9 @@
 #include "TString.h"
 #include "TTree.h"
 #include "TTreeCache.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include <algorithm>
 #include <list>
@@ -187,6 +190,8 @@ namespace edm {
       parentageIDLookup_(),
       daqProvenanceHelper_() {
 
+    edm::Service<RandomNumberGenerator> rng;
+    randRun_.reset(new CLHEP::RandFlat(rng->getEngine(), 0.0, 1.0));
     hasNewlyDroppedBranch_.fill(false);
 
     treePointers_[InEvent] = &eventTree_;
@@ -479,6 +484,25 @@ namespace edm {
   RootFile::~RootFile() {
   }
 
+  void 
+  RootFile::passRunAndFrequency(const std::vector<unsigned int> & runs, const std::vector<double> & freq)
+  {
+    assert( runs.size()==freq.size());
+    if (runs.size() == 0) return ;
+
+    std::vector<double> normalized(freq.size());
+    double sum=0;
+    for (unsigned int ir=0;ir!=freq.size();++ir)  sum+=freq[ir];
+    assert ( sum !=0 );
+    for (unsigned int ir=0;ir!=freq.size();++ir)  normalized[ir] = freq[ir]/sum;
+    double f=0;
+    for (unsigned int ir=0;ir!=freq.size();++ir)
+      {
+	f+=normalized[ir];
+	forcedRunOffsetS_[f] = forcedRunOffset(runs[ir], indexIntoFileBegin_, indexIntoFileEnd_);
+	//	std::cout<< " cumulative frequency"<<f<<"run associated"<< forcedRunOffsetS_[f] <<std::endl;
+      }
+  }
   void
   RootFile::readEntryDescriptionTree() {
     // Called only for old format files.
@@ -1441,7 +1465,7 @@ namespace edm {
     runTree_.setEntryNumber(indexIntoFileIter_.entry());
     boost::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
     assert(runAuxiliary->run() == indexIntoFileIter_.run());
-    overrideRunNumber(runAuxiliary->id());
+    overrideRunNumber(runAuxiliary->id()); //this is the call that should be giving away a run# depending on the lumi
     filePtr_->reportInputRunNumber(runAuxiliary->run());
     // If RunAuxiliary did not contain a valid begin timestamp, invalidate any end timestamp.
     if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
@@ -1603,7 +1627,17 @@ namespace edm {
 
   void
   RootFile::overrideRunNumber(RunID& id) {
-    if(forcedRunOffset_ != 0) {
+    if (forcedRunOffsetS_.size()!=0){
+      // this is where you can start putting stuff in to set the run number in a certain way
+      double draw = randRun_->fire();
+      std::map<double,unsigned int>::iterator which = forcedRunOffsetS_.lower_bound( draw );
+      //      std::cout<<"rnd"<<draw<<std::endl;
+      if (which != forcedRunOffsetS_.end()){
+	//	std::cout<<"r ="<< which->second<<std::endl;
+	forcedRunOffset_ = which->second;
+	id = RunID(id.run() + which->second);
+      }
+    }else if(forcedRunOffset_ != 0) {
       id = RunID(id.run() + forcedRunOffset_);
     }
     if(id < RunID::firstValidRun()) id = RunID::firstValidRun();

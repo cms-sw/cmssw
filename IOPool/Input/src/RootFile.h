@@ -28,6 +28,10 @@ RootFile.h // used by ROOT input sources
 #include <string>
 #include <vector>
 
+namespace CLHEP {
+  class RandFlat;
+}
+
 namespace edm {
 
   //------------------------------------------------------------
@@ -140,7 +144,9 @@ namespace edm {
     EventPrincipal& secondaryEventPrincipal() {
       return *secondaryEventPrincipal_;
     }
-
+    
+    void passRunAndFrequency(const std::vector<unsigned int> & runs, const std::vector<double> & freq);
+    
   private:
     void checkReleaseVersion();
     RootTreePtrArray& treePointers() {return treePointers_;}
@@ -202,6 +208,8 @@ namespace edm {
     boost::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
+    std::map<double,unsigned int> forcedRunOffsetS_;
+    boost::shared_ptr<CLHEP::RandFlat> randRun_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     TTree* eventHistoryTree_;			// backward compatibility
     boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
