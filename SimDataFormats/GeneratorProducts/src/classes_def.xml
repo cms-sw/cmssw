@@ -100,7 +100,32 @@
 	<!-- GenFilterInfo -->
 
 	<class name="GenFilterInfo" ClassVersion="11">
-	  <version ClassVersion="11" checksum="1336970252"/>
+  <version ClassVersion="11" checksum="1336970252"/>
+  <version ClassVersion="10" checksum="2060912306"/>
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numPassPositiveEvents_">
+	  <![CDATA[numPassPositiveEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numPassNegativeEvents_">
+	  <![CDATA[numPassNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numFailPositiveEvents_">
+	  <![CDATA[numFailPositiveEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numFailNegativeEvents_">
+	  <![CDATA[numFailNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumPassWeights_">
+	  <![CDATA[sumPassWeights_ = 0.;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumPassWeights2_">
+	  <![CDATA[sumPassWeights2_ = 0.;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumFailWeights_">
+	  <![CDATA[sumFailWeights_ = 0.;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumFailWeights2_">
+	  <![CDATA[sumFailWeights2_ = 0.;]]>
+	</ioread> 
  </class>
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
