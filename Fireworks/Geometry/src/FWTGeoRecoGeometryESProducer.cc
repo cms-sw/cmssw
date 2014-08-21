@@ -123,8 +123,9 @@ TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const 
 
 
 
-TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const char* prefix)
+TGeoVolume* FWTGeoRecoGeometryESProducer::GetTopHolder( const char* prefix)
 {
+   TGeoVolume* mother = gGeoManager->GetTopVolume();
    TGeoVolume* res = 0;
    if (mother->GetNdaughters()) { 
       TGeoNode* n = mother->FindNode(Form("%s_1",prefix));
@@ -360,7 +361,7 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
    }
   
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("SiPixel")->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
@@ -393,8 +394,7 @@ FWTGeoRecoGeometryESProducer::addPixelForwardGeometry()
 
    }
   
-
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("SiPixel")->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
@@ -424,7 +424,7 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry()
       child->SetLineColor( kGreen );
    }
   
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("SiStrip")->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
@@ -455,7 +455,7 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry()
       child->SetLineColor( kGreen );
    }
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("SiStrip")->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
@@ -485,7 +485,7 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry()
       child->SetLineColor( kGreen );
    }
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("SiStrip")->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
@@ -515,7 +515,7 @@ FWTGeoRecoGeometryESProducer::addTECGeometry()
       child->SetLineColor( kGreen );
    }
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("SiStrip")->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
@@ -610,7 +610,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
    } 
 
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("Muon")->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
@@ -653,7 +653,7 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
       }
    }
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("Muon")->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
@@ -691,8 +691,7 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
       }
    }
 
-   printf("ADD GEM!!!\n");
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("Muon")->AddNode( assembly, 1 );
 }
 
 //______________________________________________________________________________
@@ -761,7 +760,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
    }
    */
 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   GetTopHolder("Muon")->AddNode( assembly, 1 );
 }
 
 
@@ -783,11 +782,8 @@ double etatotheta(double eta)
 void
 FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 {
-   TGeoVolume* hcalHolder = GetDaughter(gGeoManager->GetTopVolume(), "Hcal");
+
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalBarrel");
-   hcalHolder->AddNode( assembly, 1 );
-
-
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
 
    CaloVolMap caloShapeMapP;
@@ -865,6 +861,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    printf("HB map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
 
 
+   GetTopHolder("Hcal")->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
@@ -875,9 +872,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
    CaloVolMap caloShapeMapP;
    CaloVolMap caloShapeMapN;
 
-   TGeoVolume* hcalHolder = GetDaughter(gGeoManager->GetTopVolume(), "Hcal");
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalEndcap");
-   hcalHolder->AddNode(assembly, 1);
 
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
 
@@ -949,7 +944,9 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
       nname << detid;
       AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
    }
+
    printf("HE map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
+   GetTopHolder("Hcal")->AddNode( assembly, 1 );
 }
 
 
@@ -960,12 +957,10 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 void
 FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 {
-   TGeoVolume *assemblyTop = new TGeoVolumeAssembly("Ecal");
+
    CaloVolMap caloShapeMap;
 
-   TGeoShape* solid = new TGeoBBox(2, 2, 2);
-   TGeoVolume* volume2 = new TGeoVolume( "center-box" ,solid, m_dummyMedium);
-   volume2->SetLineColor(kYellow);
+
    if (1)
    {
       TGeoVolume *assembly = new TGeoVolumeAssembly("EcalBarrel");
@@ -1027,13 +1022,13 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 
          rot.SetAngles(90 - (cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
 
-         TGeoVolume* holder = GetDaughter(assemblyTop, "side", detid.zside());
+         TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
          holder = GetDaughter(holder, "ieta", detid.ieta());
          std::stringstream nname;
          nname << detid;
          AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
       }
-      assemblyTop->AddNode( assembly, 1 );
+      GetTopHolder("Ecal")->AddNode( assembly, 1 );
    }
    
 
@@ -1094,15 +1089,12 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          }
          rot.SetAngles(90 - (cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
 
-         TGeoVolume* holder = GetDaughter(assemblyTop, "side", detid.zside());
+         TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
          holder = GetDaughter(holder, "ix", detid.ix());
          std::stringstream nname;
          nname << detid;
          AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
       }
-      assemblyTop->AddNode( assembly, 1 );
+      GetTopHolder("Ecal")->AddNode( assembly, 1 );
    }
-
-   m_fwGeometry->manager()->GetTopVolume()->AddNode(assemblyTop, 1);
-
 }

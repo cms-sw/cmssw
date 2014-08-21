@@ -43,7 +43,7 @@ private:
    TGeoMaterial*     createMaterial( const std::string& name );
 
    TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, int id);
-   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix);
+   TGeoVolume*  GetTopHolder(const char* prefix);
 
    void addPixelBarrelGeometry();
    void addPixelForwardGeometry();
