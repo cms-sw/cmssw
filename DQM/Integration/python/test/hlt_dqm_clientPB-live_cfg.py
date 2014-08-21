@@ -14,6 +14,7 @@ process.source = DQMProtobufReader
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'HLT'
+process.dqmEnv.eventInfoFolder = 'EventInfo/HLTfromPBfile'
 process.dqmSaver.dirName = './HLT'
 #-----------------------------
 
@@ -22,4 +23,4 @@ process.dqmSaver.dirName = './HLT'
 process.load('HLTrigger.Timer.fastTimerServiceClient_cfi')
 process.fastTimerServiceClient.dqmPath = "HLT/TimerService"
 
-process.p = cms.EndPath( process.fastTimerServiceClient + process.dqmSaver )
+process.p = cms.EndPath( process.fastTimerServiceClient + process.dqmEnv + process.dqmSaver )
