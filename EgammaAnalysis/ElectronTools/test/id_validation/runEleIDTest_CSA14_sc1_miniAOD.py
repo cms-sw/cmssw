@@ -18,7 +18,7 @@ process.GlobalTag.globaltag = 'PLS170_V7AN1::All'
 
 process.load("EgammaAnalysis/ElectronTools/Validation/DYJetsToLL_Sc1_MINIAOD")
 
-process.wp1 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
+process.wp1 = cms.EDAnalyzer('MiniAODElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("slimmedElectrons"),
                              electronIDs = cms.InputTag("cutBasedElectronID-CSA14-50ns-V1-standalone-veto"),
                              vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -28,7 +28,7 @@ process.wp1 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
                              full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer:eleFull5x5SigmaIEtaIEta"),
                              )
 
-process.wp2 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
+process.wp2 = cms.EDAnalyzer('MiniAODElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("slimmedElectrons"),
                              electronIDs = cms.InputTag("cutBasedElectronID-CSA14-50ns-V1-standalone-loose"),
                              vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -38,7 +38,7 @@ process.wp2 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
                              full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer:eleFull5x5SigmaIEtaIEta"),
                              )
 
-process.wp3 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
+process.wp3 = cms.EDAnalyzer('MiniAODElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("slimmedElectrons"),
                              electronIDs = cms.InputTag("cutBasedElectronID-CSA14-50ns-V1-standalone-medium"),
                              vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -48,7 +48,7 @@ process.wp3 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
                              full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer:eleFull5x5SigmaIEtaIEta"),
                              )
 
-process.wp4 = cms.EDAnalyzer('MiniAODElectronIDAnalyzer',
+process.wp4 = cms.EDAnalyzer('MiniAODElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("slimmedElectrons"),
                              electronIDs = cms.InputTag("cutBasedElectronID-CSA14-50ns-V1-standalone-tight"),
                              vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
