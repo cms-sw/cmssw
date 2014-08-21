@@ -165,16 +165,13 @@ def customise_csc_L1Emulator(process):
 def customise_csc_Packer(process):
     """Get rid of process.cscpacker and process.csctfpacker in all the paths
     """
-    process = remove_from_all_paths(process, 'cscpacker')
-    process = remove_from_all_paths(process, 'csctfpacker')
+    process.cscpacker.useFormatVersion = cms.uint32(2013)
     return process
 
 
 def customise_csc_Unpacker(process):
     """Get rid of process.muonCSCDigis and process.csctfDigis in all the paths
     """
-    process = remove_from_all_paths(process, 'muonCSCDigis')
-    process = remove_from_all_paths(process, 'csctfDigis')
     return process
 
 
