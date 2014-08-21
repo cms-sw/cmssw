@@ -121,6 +121,29 @@ TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const 
    return res;
 }
 
+
+
+TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const char* prefix)
+{
+   TGeoVolume* res = 0;
+   if (mother->GetNdaughters()) { 
+      TGeoNode* n = mother->FindNode(Form("%s_1",prefix));
+      if ( n ) res = n->GetVolume();
+   }
+
+   if (!res) {
+      res = new TGeoVolumeAssembly(prefix);
+      res->SetMedium(m_dummyMedium);
+      mother->AddNode(res, 1);
+   }
+
+   return res;
+}
+
+//______________________________________________________________________________
+
+
+
 boost::shared_ptr<FWTGeoRecoGeometry> 
 FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
@@ -760,12 +783,15 @@ double etatotheta(double eta)
 void
 FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 {
-   CaloVolMap caloShapeMapP;
-   CaloVolMap caloShapeMapN;
+   TGeoVolume* hcalHolder = GetDaughter(gGeoManager->GetTopVolume(), "Hcal");
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalBarrel");
+   hcalHolder->AddNode( assembly, 1 );
+
 
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
 
+   CaloVolMap caloShapeMapP;
+   CaloVolMap caloShapeMapN;
    for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
    {
       HcalDetId detid = HcalDetId(it->rawId());
@@ -836,8 +862,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    }
 
 
-   printf("map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   printf("HB map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
 
 
 }
@@ -849,7 +874,10 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 
    CaloVolMap caloShapeMapP;
    CaloVolMap caloShapeMapN;
+
+   TGeoVolume* hcalHolder = GetDaughter(gGeoManager->GetTopVolume(), "Hcal");
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalEndcap");
+   hcalHolder->AddNode(assembly, 1);
 
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
 
@@ -921,9 +949,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
       nname << detid;
       AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
    }
-
- 
-   m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
+   printf("HE map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
 }
 
 
