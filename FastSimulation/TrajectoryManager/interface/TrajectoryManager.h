@@ -4,6 +4,7 @@
 //DataFormats
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
@@ -45,8 +46,6 @@ class FSimEvent;
 class RandomEngineAndDistribution;
 class TrajectoryStateOnSurface;
 class DetLayer;
-class GeomDet;
-class GeomDetUnit;
 class MagneticField;
 class MagneticFieldMap;
 class GeometricSearchTracker;
