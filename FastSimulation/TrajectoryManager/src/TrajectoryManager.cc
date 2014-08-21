@@ -613,15 +613,14 @@ TrajectoryManager::makePSimHits( const GeomDet* det,
   if (!comp.empty()) {
     for (std::vector< const GeomDet*>::const_iterator i = comp.begin();
 	 i != comp.end(); i++) {
-      const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(*i);
-      if (du != 0)
+      auto du = (*i);
+      if (du->isLeaf())  // not even needed (or it should iterate if really not leaf)
 	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID,tTopo));
     }
   }
   else {
-    const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(det);
-    if (du != 0)
-      theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID,tTopo));
+    auto du = (det);
+    theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID,tTopo));
   }
 
 }
