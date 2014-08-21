@@ -32,11 +32,6 @@ DEFINE_EDM_PLUGIN(CachingVariableFactory, CandidateExpressionVariable, "Candidat
 DEFINE_EDM_PLUGIN(CachingVariableFactory, GenParticleExpressionVariable, "GenParticleExpressionVariable");
 
 
-#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
-#include "PhysicsTools/UtilAlgos/plugins/VariableEventSelector.h"
-DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, VariableEventSelector, "VariableEventSelector");
-DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, VariableFormulaEventSelector, "VariableFormulaEventSelector");
-
 #include "PhysicsTools/RecoUtils/plugins/TriggerVariables.h"
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, HLTBitVariable, "HLTBitVariable");
