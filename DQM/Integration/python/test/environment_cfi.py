@@ -9,7 +9,11 @@ DQM = cms.Service("DQM",
                   collectorPort = cms.untracked.int32(9090),
                   collectorHost = cms.untracked.string('dqm-prod-local.cms'),
                   filter = cms.untracked.string('')
-                  )      
+                  )
+
+DQMMonitoringService = cms.Service("DQMMonitoringService",
+    jsonPath = cms.untracked.string("/tmp/dqm_monitoring/"),
+)
 
 from DQMServices.Components.DQMEnvironment_cfi import *
 

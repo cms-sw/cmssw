@@ -22,7 +22,7 @@ options.register('runInputDir',
                  "Directory where the DQM files will appear.")
 
 options.register('streamLabel',
-                 '_streamDQMHistograms', # default value
+                 '_streamDQMHistograms_StorageManager', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Stream label used in json discovery.")
@@ -34,7 +34,7 @@ options.register('delayMillis',
                  "Number of milliseconds to wait between file checks.")
 
 options.register('nextLumiTimeoutMillis',
-                 -1, # default value
+                 30000, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of milliseconds to wait before switching to the next lumi section if the current is missing, -1 to disable.")
