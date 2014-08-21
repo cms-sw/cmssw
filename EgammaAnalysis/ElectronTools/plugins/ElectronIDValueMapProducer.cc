@@ -43,8 +43,11 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   
   noZS::EcalClusterLazyTools *lazyToolnoZS;
 
+  edm::InputTag ebReducedRecHitTag_;
   edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
+  edm::InputTag eeReducedRecHitTag_;
   edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
+  edm::InputTag esReducedRecHitTag_;
   edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
   edm::EDGetToken src_;
 
@@ -53,9 +56,13 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
 
 ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& iConfig) {
 
-  ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection"));
-  eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection"));
-  esReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection"));
+  ebReducedRecHitTag_ = iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection");
+  eeReducedRecHitTag_ = iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection");
+  esReducedRecHitTag_ = iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection");
+
+  ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>(ebReducedRecHitTag_);
+  eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(eeReducedRecHitTag_);
+  esReducedRecHitCollection_ = consumes<EcalRecHitCollection>(esReducedRecHitTag_);
 
   
 
@@ -83,7 +90,7 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
   
-  lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_); //, esReducedRecHitCollection_
+  lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitTag_, eeReducedRecHitTag_, esReducedRecHitTag_); //, esReducedRecHitCollection_
 
   if (dataFormat_ == "RECO") {
 
