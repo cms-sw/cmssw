@@ -12,28 +12,20 @@ TrackingAnalyser = cms.EDAnalyzer("TrackingAnalyser",
     PrintFaultyModuleList    = cms.untracked.bool(True),                                
     RawDataTag               = cms.untracked.InputTag("source"),                              
     TrackRatePSet            = cms.PSet(
-           Name     = cms.string("NumberOfGoodTracks_"),
+           Name     = cms.string("NumberOfTracks_"),
                   LowerCut = cms.double(1.0),
                   UpperCut = cms.double(1000.0),
                ),
                                             TrackChi2PSet            = cms.PSet(
-           Name     = cms.string("GoodTrackChi2oNDF_"),
+           Name     = cms.string("TrackChi2oNDF_"),
                   LowerCut = cms.double(0.0),
                   UpperCut = cms.double(25.0),
                ),
                                             TrackHitPSet            = cms.PSet(
-           Name     = cms.string("GoodTrackNumberOfRecHitsPerTrack_"),
+           Name     = cms.string("TrackNumberOfRecHitsPerTrack_"),
                   LowerCut = cms.double(5.0),
                   UpperCut = cms.double(20.0),
                ),
-    TkmapParameters = cms.PSet(
-        loadFedCabling = cms.untracked.bool(True),
-        loadFecCabling = cms.untracked.bool(True),
-        loadLVCabling  = cms.untracked.bool(True),
-        loadHVCabling  = cms.untracked.bool(True),
-        trackerdatPath = cms.untracked.string('CommonTools/TrackerMap/data/'),
-        trackermaptxtPath = cms.untracked.string('DQM/Integration/test/TkMap/')
-    )
 )
 # Track Efficiency Client
 

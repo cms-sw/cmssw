@@ -46,7 +46,7 @@
 TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps) {
   
   // Get TkMap ParameterSet 
-  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
+  //  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
 
   std::string localPath = std::string("DQM/TrackingMonitorClient/test/loader.html");
   std::ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), std::ios::in);

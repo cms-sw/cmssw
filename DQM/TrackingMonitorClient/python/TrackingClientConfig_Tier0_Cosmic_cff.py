@@ -8,39 +8,39 @@ trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
     TrackingGlobalQualityPSets = cms.VPSet(
          cms.PSet(
              QT         = cms.string("Rate"),
-             dir        = cms.string("TrackParameters/highPurityTracks/pt_1/GeneralProperties"),
-             name       = cms.string("NumberOfGoodTracks_"),
+             dir        = cms.string("TrackParameters/GeneralProperties"),
+             name       = cms.string("NumberOfTracks_"),
          ),
          cms.PSet(
              QT         = cms.string("Chi2"),
-             dir        = cms.string("TrackParameters/highPurityTracks/pt_1/GeneralProperties"),
-             name       = cms.string("GoodTrackChi2oNDF_"),
+             dir        = cms.string("TrackParameters/GeneralProperties"),
+             name       = cms.string("TrackChi2oNDF_"),
          ),
          cms.PSet(
              QT         = cms.string("RecHits"),
-             dir        = cms.string("TrackParameters/highPurityTracks/pt_1/HitProperties"),
-             name       = cms.string("GoodTrackNumberOfRecHitsPerTrack_"),
+             dir        = cms.string("TrackParameters/HitProperties"),
+             name       = cms.string("TrackNumberOfRecHitsPerTrack_"),
          ),
     ),
     TrackingLSQualityPSets = cms.VPSet(
          cms.PSet(
              QT         = cms.string("Rate"),
-             LSdir      = cms.string("TrackParameters/highPurityTracks/pt_1/GeneralProperties/LSanalysis"),
-             LSname     = cms.string("NumberOfGoodTracks_lumiFlag_"),
+             LSdir      = cms.string("TrackParameters/GeneralProperties/LSanalysis"),
+             LSname     = cms.string("NumberOfTracks_lumiFlag_"),
              LSlowerCut = cms.double( -1.0 ),
              LSupperCut = cms.double(  1.0 )    
          ),
          cms.PSet(
              QT         = cms.string("Chi2"),
-             LSdir      = cms.string("TrackParameters/highPurityTracks/pt_1/GeneralProperties/LSanalysis"),
-             LSname     = cms.string("GoodTrackChi2oNDF_lumiFlag_"),
+             LSdir      = cms.string("TrackParameters/GeneralProperties/LSanalysis"),
+             LSname     = cms.string("TrackChi2oNDF_lumiFlag_"),
              LSlowerCut = cms.double(  0.0 ),
              LSupperCut = cms.double( 25.0 )
          ),
          cms.PSet(
              QT         = cms.string("RecHits"),
-             LSdir      = cms.string("TrackParameters/highPurityTracks/pt_1/GeneralProperties/LSanalysis"),
-             LSname     = cms.string("GoodTrackNumberOfRecHitsPerTrack_lumiFlag_"),
+             LSdir      = cms.string("TrackParameters/GeneralProperties/LSanalysis"),
+             LSname     = cms.string("TrackNumberOfRecHitsPerTrack_lumiFlag_"),
              LSlowerCut = cms.double(  3.0 ),
              LSupperCut = cms.double( 35.0 )
          ),
