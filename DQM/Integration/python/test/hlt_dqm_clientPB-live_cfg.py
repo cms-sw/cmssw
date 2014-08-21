@@ -22,4 +22,4 @@ process.dqmSaver.dirName = './HLT'
 process.load('HLTrigger.Timer.fastTimerServiceClient_cfi')
 process.fastTimerServiceClient.dqmPath = "HLT/TimerService"
 
-process.p = cms.EndPath( process.fastTimerServiceClient + process.dqmSaver )
+process.p = cms.EndPath( process.fastTimerServiceClient + process.dqmEnv + process.dqmSaver )

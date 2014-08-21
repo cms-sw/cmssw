@@ -141,7 +141,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
 
-#process.l1tMonitorOnline.remove(process.l1tRate)
+process.l1tMonitorOnline.remove(process.l1tRate)
 
 #process.l1tMonitorOnline.remove(process.l1tRctSeq)
 
@@ -154,7 +154,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
 
 #
-#process.schedule.remove(process.l1tSyncPath)
+process.schedule.remove(process.l1tSyncPath)
 
 # 
 # un-comment next lines in case you use the file for private tests on the playback server
