@@ -7,7 +7,6 @@ pfImpactParameterTagInfos = cms.EDProducer("CandIPProducer",
     maximumLongitudinalImpactParameter = cms.double(17.0),
     computeProbabilities = cms.bool(True),
     ghostTrackPriorDeltaR = cms.double(0.03),
-    maxDeltaR= cms.double(0.5),
     jetDirectionUsingGhostTrack = cms.bool(False),
     minimumNumberOfPixelHits = cms.int32(2),
     jetDirectionUsingTracks = cms.bool(False),
@@ -17,5 +16,6 @@ pfImpactParameterTagInfos = cms.EDProducer("CandIPProducer",
 #this is candidate specific
     jets = cms.InputTag("ak4PFJets"),
     candidates = cms.InputTag("particleFlow"),
+    maxDeltaR= cms.double(0.4),
 
 )
