@@ -140,6 +140,15 @@ process.qTester = cms.EDAnalyzer("QualityTester",
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
+process.trackingQTester = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'),
+    prescaleFactor = cms.untracked.int32(3),                               
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(True),
+    qtestOnEndRun = cms.untracked.bool(True)
+)
+
+
 #--------------------------
 # Service
 #--------------------------
@@ -185,7 +194,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
-process.DQMCommon                = cms.Sequence(process.qTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
+process.DQMCommon                = cms.Sequence(process.qTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
 process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco*process.gtEvmDigis)
 
 #--------------------------
@@ -209,6 +218,8 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     process.SiStripAnalyserCosmic.MonitorSiStripBackPlaneCorrection = cms.bool(False)
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyserCosmic)
 
+    process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_Cosmic_cff")
+
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
     process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
@@ -222,6 +233,14 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
                                      qtestOnEndLumi = cms.untracked.bool(True),
                                      qtestOnEndRun = cms.untracked.bool(True)
                                      )
+    process.trackingQTester = cms.EDAnalyzer("QualityTester",
+                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml'),
+                                               prescaleFactor = cms.untracked.int32(2),
+                                               getQualityTestsFromFile = cms.untracked.bool(True),
+                                               qtestOnEndLumi = cms.untracked.bool(True),
+                                               qtestOnEndRun = cms.untracked.bool(True)
+                                            )
+
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.APVPhases*
@@ -230,6 +249,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
                          process.RecoForDQM_LocalReco*
                          process.DQMCommon*
                          process.SiStripClients*
+                         process.TrackingAnalyserCosmic*
                          process.SiStripSources_LocalReco*
                          process.RecoForDQM_TrkReco_cosmic*
                          process.SiStripSources_TrkReco_cosmic
@@ -464,6 +484,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                      qtestOnEndRun = cms.untracked.bool(True)
                                      )
 
+    process.trackingQTester = cms.EDAnalyzer("QualityTester",
+                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml'),
+                                               prescaleFactor = cms.untracked.int32(2),
+                                               getQualityTestsFromFile = cms.untracked.bool(True),
+                                               qtestOnEndLumi = cms.untracked.bool(True),
+                                               qtestOnEndRun = cms.untracked.bool(True)
+                                            )
     # Sources for HI 
     process.load("Configuration.StandardSequences.RawToDigi_Repacked_cff")
     process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripVRDigis','VirginRaw')
