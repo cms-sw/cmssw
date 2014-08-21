@@ -31,8 +31,13 @@ btagging = cms.Sequence(
 	softPFMuonBJetTags *
 	softPFElectronsTagInfos*
 	softPFElectronBJetTags
-        
+        *
 
+#new candidate model, with PF inputs	
+	pfImpactParameterTagInfos *
+	pfSecondaryVertexTagInfos *
+	pfCombinedSecondaryVertexBJetTags
+	
     )
 
     # overall combined taggers

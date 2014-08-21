@@ -49,8 +49,12 @@ computeSharedTracks(const Vertex &pv, const std::vector<CandidatePtr> &svTracks,
         unsigned int count = 0;
         for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
             iter != svTracks.end(); iter++)
-                count += pvTracks.count((*iter)->bestTrack());
-
+               {
+			if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < 2.0 &&
+			    std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError() < 2.0 )
+				count++;
+			  )  
+		}
         return count;
 }
 
