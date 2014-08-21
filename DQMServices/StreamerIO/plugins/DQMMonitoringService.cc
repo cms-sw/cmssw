@@ -2,6 +2,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <ctime>
+
 /*
  * This service is very similar to the FastMonitoringService in the HLT,
  * except that it is used for monitoring online DQM applications
@@ -64,15 +66,25 @@ void DQMMonitoringService::reportLumiSectionUnsafe(int run, int lumi) {
     return; // no directory present, quit
   }
 
+  auto now = std::chrono::high_resolution_clock::now();
+
   // document unique id
   std::string id =
     str(boost::format("dqm-source-state-run%06d-host%s-pid%06d") % run % hostname_ % pid);
 
   // output jsn file
-  std::string tmp_path = (json_path_ / (id + ".jsn.tmp")).string();
-  std::string final_path = (json_path_ / (id + ".jsn")).string();
+  std::string path_id;
 
-  auto now = std::chrono::high_resolution_clock::now();
+  // check for debug fn
+  if (fs::exists(json_path_ / ".debug")) {
+    path_id = str(boost::format("%d.%08d+%s.jsn") % std::time(NULL) % fseq_ % id);
+  } else {
+    path_id = id + ".jsn";
+  }
+
+  std::string tmp_path = (json_path_ / (path_id + ".tmp")).string();
+  std::string final_path = (json_path_ / path_id).string();
+
   float rate = (nevents_ - last_report_nevents_);
   rate = rate / duration_cast<milliseconds>(now - last_report_time_).count();
   rate = rate / 100;
