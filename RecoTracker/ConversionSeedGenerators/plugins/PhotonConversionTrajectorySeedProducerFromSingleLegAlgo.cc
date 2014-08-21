@@ -53,14 +53,14 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event &
   if (clustsOrZero){
     if (!theSilentOnClusterCheck)
       edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
-    return ;
+    seedCollection= nullptr; return ;
   }
 
 
   edm::ESHandle<MagneticField> handleMagField;
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
-  if (unlikely(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)) return;
+  if (unlikely(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)){seedCollection= nullptr;  return;}
 
   _IdealHelixParameters.setMagnField(magField);
 
@@ -68,7 +68,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event &
   event.getByToken(token_vertex, vertexHandle);
   if (!vertexHandle.isValid() || vertexHandle->empty()){
       edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _primaryVtxInputTag <<  "\n";
-      return;
+      seedCollection= nullptr; return;
   }
 
   event.getByToken(token_bs,recoBeamSpotHandle);
