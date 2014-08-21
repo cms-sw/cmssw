@@ -49,6 +49,12 @@ hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
 hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 
 
+globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+
+
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors 
                                           * TrackMonDQMTier0_hi
                                           * jetMETDQMOfflineSource
