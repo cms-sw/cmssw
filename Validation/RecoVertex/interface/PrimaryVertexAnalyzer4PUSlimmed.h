@@ -60,6 +60,12 @@ class MonitorElement;
 class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;
 
+  enum SignalVertexKind {
+    HIGHEST_PT = 0,
+    IS_ASSOC2FIRST_RECO = 1,
+    IS_ASSOC2ANY_RECO = 2
+  };
+
   // auxiliary class holding simulated vertices
   struct simPrimaryVertex {
     simPrimaryVertex(double x1, double y1, double z1)
@@ -91,10 +97,17 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
   // auxiliary class holding reconstructed vertices
   struct recoPrimaryVertex {
+    enum VertexProperties {
+      NONE = 0,
+      MATCHED = 1,
+      DUPLICATE = 2,
+      MERGED = 4
+    };
     recoPrimaryVertex(double x1, double y1, double z1)
         :x(x1), y(y1), z(z1),
          ptsq(0), closest_vertex_distance_z(-1.),
          nRecoTrk(0),
+         kind_of_vertex(0),
          recVtx(nullptr) {
       r = sqrt(x*x + y*y);
     };
@@ -102,6 +115,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     double ptsq;
     double closest_vertex_distance_z;
     int nRecoTrk;
+    int kind_of_vertex;
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
     const reco::Vertex *recVtx;
@@ -129,7 +143,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   void fillRecoAssociatedGenVertexHistograms(const std::string &,
                                              const simPrimaryVertex &v);
   void fillGenAssociatedRecoVertexHistograms(const std::string &,
-                                             const recoPrimaryVertex &v);
+                                             int,
+                                             recoPrimaryVertex &v);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);
@@ -137,10 +152,15 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> getRecoPVs(
       const edm::Handle<reco::VertexCollection>);
 
+  template<class T>
+  void computePairDistance(const T &collection, MonitorElement *me);
+
   // ----------member data ---------------------------
   bool verbose_;
+  bool use_only_charged_tracks_;
   bool use_TP_associator_;
   double sigma_z_match_;
+  double abs_z_match_;
   std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
