@@ -52,10 +52,9 @@
 #include "TMath.h"
 
 
-//std::map< const CaloCellGeometry::CCGFloat*, TGeoVolume*> m_caloShapeMap;
+//std::map< const CaloCellGeometry::CCGFloat*, TGeoVolume*> caloShapeMap;
 namespace {
 typedef std::map< const float*, TGeoVolume*> CaloVolMap;
-CaloVolMap m_caloShapeMap;
 }
 FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& /*pset*/ ):
 m_dummyMedium(0)
@@ -127,8 +126,8 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
    using namespace edm;
 
-  m_fwGeometry = boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
-    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+   m_fwGeometry = boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
+   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
    DetId detId( DetId::Tracker, 0 );
    m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -141,7 +140,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
       gGeoIdentity = new TGeoIdentity( "Identity" );
    }
 
-  m_fwGeometry->manager( geom );
+   m_fwGeometry->manager( geom );
   
    // Default material is Vacuum
    TGeoMaterial *vacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
@@ -151,37 +150,37 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   
    if( 0 == top )
    {
-     return boost::shared_ptr<FWTGeoRecoGeometry>();
+      return boost::shared_ptr<FWTGeoRecoGeometry>();
    }
    geom->SetTopVolume( top );
    // ROOT chokes unless colors are assigned
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
-   /*
-   addPixelBarrelGeometry();
-   addPixelForwardGeometry();
-   addTIBGeometry();
-   addTIDGeometry();
-   addTOBGeometry();
-   addTECGeometry();
-   addDTGeometry();
-   addCSCGeometry();
-   addRPCGeometry();
-   try {
-      addGEMGeometry();
-   }
-   catch ( cms::Exception& exception ) {
-   edm::LogWarning("FWRecoGeometryProducerException")
+   
+     addPixelBarrelGeometry();
+     addPixelForwardGeometry();
+     addTIBGeometry();
+     addTIDGeometry();
+     addTOBGeometry();
+     addTECGeometry();
+     addDTGeometry();
+     addCSCGeometry();
+     addRPCGeometry();
+     try {
+     addGEMGeometry();
+     }
+     catch ( cms::Exception& exception ) {
+     edm::LogWarning("FWRecoGeometryProducerException")
      << "addGEMGeometry() Exception caught while building GEM geometry: " << exception.what()
      << std::endl; 
-   }
-   */
+     }
+
 
    addEcalCaloGeometry();
-   /*
-   addHcalCaloGeometryBarrel();
-   addHcalCaloGeometryEndcap();
-   */
+   
+     addHcalCaloGeometryBarrel();
+     addHcalCaloGeometryEndcap();
+
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -189,8 +188,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    m_nameToMaterial.clear();
    m_nameToMedium.clear();
 
-   printf("SHAPE map size %d \nn", (int)m_caloShapeMap.size());
-  return m_fwGeometry;
+   return m_fwGeometry;
 }
 
 /** Create TGeo shape for GeomDet */
@@ -762,6 +760,8 @@ double etatotheta(double eta)
 void
 FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 {
+   CaloVolMap caloShapeMapP;
+   CaloVolMap caloShapeMapN;
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalBarrel");
 
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
@@ -774,11 +774,12 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 
       const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
-      if (!cell) { printf ("not olique \n"); continue; }
+      if (!cell) { printf ("HB not olique !!!\n"); continue; }
   
       TGeoVolume* volume = 0;
-      CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
-      if  (volIt == m_caloShapeMap.end()) 
+      CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
+      CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+      if  (volIt == caloShapeMap.end()) 
       {
          // printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
          IdealObliquePrism::Pt3DVec lc(8);
@@ -792,7 +793,11 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
          static const int arr[] = { 1, 0, 3, 2,  5, 4, 7, 6 };
          double points[16];
          for (int c = 0; c < 8; ++c) {
-            points[ c*2 + 0 ] = -(lc[arr[c]].z() - lCenter.z()); 
+            if (cell->etaPos() > 0 )
+               points[ c*2 + 0 ] = -(lc[arr[c]].z() - lCenter.z());
+            else
+               points[ c*2 + 0 ] = (lc[arr[c]].z() - lCenter.z()); 
+
             points[ c*2 + 1 ] =  (lc[arr[c]].y() - lCenter.y());
             // printf("AMT xy[%d] <=>[%d] = (%.4f, %.4f) \n", arr[c], c, points[c*2],  points[c*2+1]);
          }
@@ -801,7 +806,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
          TGeoShape* solid = new TGeoArb8(dz, &points[0]);
          volume = new TGeoVolume("hcal oblique prism", solid, m_dummyMedium);
          volume->SetLineColor(kRed);
-         m_caloShapeMap[cell->param()] = volume;
+         caloShapeMap[cell->param()] = volume;
       }
       else {
 
@@ -821,11 +826,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
      
       TGeoRotation rotPhi;
       rotPhi.SetAngles(0, -cell->phiPos()*TMath::RadToDeg(), 0);
-      rot.MultiplyBy(&rotPhi);
-
-      if (cell->etaPos() < 0)
-         rot.ReflectZ(true, false);
-
+      rot.MultiplyBy(&rotPhi);    
 
       TGeoVolume* holder  = GetDaughter(assembly, "side", detid.zside());
       holder = GetDaughter(holder, "ieta", detid.ieta());
@@ -835,7 +836,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    }
 
 
- 
+   printf("map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
    m_fwGeometry->manager()->GetTopVolume()->AddNode( assembly, 1 );
 
 
@@ -845,6 +846,9 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 void
 FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 {
+
+   CaloVolMap caloShapeMapP;
+   CaloVolMap caloShapeMapN;
    TGeoVolume *assembly = new TGeoVolumeAssembly("HcalEndcap");
 
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
@@ -855,12 +859,16 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
       const CaloCellGeometry* cellb= m_caloGeom->getGeometry(*it);
       const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
-      if (!cell) { printf ("not olique \n"); continue; }
+      if (!cell) { printf ("EC not olique \n"); continue; }
       
+      //   if (!(detid.ieta() == -24 && detid.iphi() == 29 )) continue;
+
       TGeoVolume* volume = 0;
-      CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
-      if  ( volIt == m_caloShapeMap.end()) 
+      CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
+      CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+      if  ( volIt == caloShapeMap.end()) 
       {
+         std::cout << detid <<std::endl;
          IdealObliquePrism::Pt3DVec lc(8);
          IdealObliquePrism::Pt3D ref;
          IdealObliquePrism::localCorners( lc, cell->param(), ref);
@@ -869,8 +877,14 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
             lCenter += lc[c];
          lCenter *= 0.125;
 
+         //for( int c = 0; c < 8; ++c)
+         //   printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", lc[c].x(), lc[c].y(), lc[c].z() );
 
-         static const int arr[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
+
+         static const int arrP[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
+         static const int arrN[] = {  7, 6, 5, 4 ,3, 2, 1, 0};
+         const int* arr = (detid.ieta() > 0) ?  &arrP[0] : &arrN[0];
+
          double points[16];
          for (int c = 0; c < 8; ++c) {
             points[ c*2 + 0 ] = lc[arr[c]].x() - lCenter.x(); 
@@ -881,7 +895,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
          TGeoShape* solid = new TGeoArb8(dz, &points[0]);
          volume = new TGeoVolume("ecal oblique prism", solid, m_dummyMedium);
          volume->SetLineColor(kRed);
-         m_caloShapeMap[cell->param()] = volume;
+         caloShapeMap[cell->param()] = volume;
       }
       else {
 
@@ -891,16 +905,15 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 
       HepGeom::Vector3D<float> gCenter;
       CaloCellGeometry::CornersVec const & gc = cell->getCorners();
-      for (int c = 0; c < 8; ++c)
+      for (int c = 0; c < 8; ++c) {
          gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+         printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(),gc[c].z() );
+      }
       gCenter *= 0.125;
 
       TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
-      TGeoRotation rot; 
+      TGeoRotation rot;
       rot.SetAngles(cell->phiPos()*TMath::RadToDeg(), 0, 0);
-      if (cell->etaPos() < 0)
-         rot.ReflectZ(true, false);
-
 
       TGeoVolume* holder  = GetDaughter(assembly, "side", detid.zside());
       holder = GetDaughter(holder, "ieta", detid.ieta());
@@ -921,6 +934,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 void
 FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 {
+   CaloVolMap caloShapeMap;
+
    TGeoShape* solid = new TGeoBBox(2, 2, 2);
    TGeoVolume* volume2 = new TGeoVolume( "center-box" ,solid, m_dummyMedium);
    volume2->SetLineColor(kYellow);
@@ -940,11 +955,11 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 
          TGeoVolume* volume = 0;
 
-         CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
-         if  ( volIt == m_caloShapeMap.end()) 
+         CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+         if  ( volIt == caloShapeMap.end()) 
          {
-            printf("BEGIN SHAPE --------------------------------\n");
-            std::cout << detid << std::endl;
+            // printf("BEGIN SHAPE --------------------------------\n");
+            // std::cout << detid << std::endl;
             const HepGeom::Transform3D idtr;
             TruncatedPyramid::Pt3DVec co(8);
             TruncatedPyramid::Pt3D ref;
@@ -962,7 +977,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 
             volume = new TGeoVolume( "TruncatedPyramid" ,solid, m_dummyMedium);
             volume->SetLineColor(kGray);
-            m_caloShapeMap[cell->param()] = volume;
+            caloShapeMap[cell->param()] = volume;
          }
          else {
             volume = volIt->second;
@@ -1009,8 +1024,8 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          //         if (!(cell->phiPos() > 0.3 && cell->phiPos() < 0.34 &&   cell->etaPos()<2))            continue;
          TGeoVolume* volume = 0;
 
-         CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
-         if  ( volIt == m_caloShapeMap.end()) 
+         CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+         if  ( volIt == caloShapeMap.end()) 
          {
             // printf("BEGIN EE SHAPE --------------------------------\n");
             // std::cout << detid << std::endl;
@@ -1031,7 +1046,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 
             volume = new TGeoVolume( "EE TruncatedPyramid" ,solid, m_dummyMedium);
             volume->SetLineColor(kGray); 
-            m_caloShapeMap[cell->param()] = volume;
+            caloShapeMap[cell->param()] = volume;
          }
          else {
             volume = volIt->second;
