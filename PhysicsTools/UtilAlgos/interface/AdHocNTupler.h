@@ -40,8 +40,6 @@
 
 #include "CMGTools/External/interface/PileupJetIdentifier.h"
 
-using namespace std;
-
 class AdHocNTupler : public NTupler {
  public:
 
