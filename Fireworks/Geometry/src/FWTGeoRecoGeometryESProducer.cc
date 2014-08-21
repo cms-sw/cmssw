@@ -128,8 +128,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    using namespace edm;
 
   m_fwGeometry = boost::shared_ptr<FWTGeoRecoGeometry>( new FWTGeoRecoGeometry );
-
-   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
    DetId detId( DetId::Tracker, 0 );
    m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -158,7 +157,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    // ROOT chokes unless colors are assigned
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
-  
+   /*
    addPixelBarrelGeometry();
    addPixelForwardGeometry();
    addTIBGeometry();
@@ -176,11 +175,13 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
      << "addGEMGeometry() Exception caught while building GEM geometry: " << exception.what()
      << std::endl; 
    }
-
+   */
 
    addEcalCaloGeometry();
+   /*
    addHcalCaloGeometryBarrel();
    addHcalCaloGeometryEndcap();
+   */
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -744,7 +745,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 
 
 
-/*
+
 double etatotheta(double eta)
 {
    using namespace TMath;
@@ -754,7 +755,7 @@ double etatotheta(double eta)
    else
       return 2*ATan(Exp(- Abs(eta)));
 }
-*/
+
 //______________________________________________________________________________
 
 
@@ -935,15 +936,15 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (cello);
          if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
 
-         // if (cell->etaPos() < 0) continue;
-         //         if (!(cell->phiPos() > 0.3 && cell->phiPos() < 0.34 &&   cell->etaPos()<2))            continue;
+         // if ((detid.ieta() == 85 && detid.iphi() == 29) == false) continue;
+
          TGeoVolume* volume = 0;
 
          CaloVolMap::iterator volIt =  m_caloShapeMap.find(cell->param());
          if  ( volIt == m_caloShapeMap.end()) 
          {
-            //  printf("BEGIN SHAPE --------------------------------\n");
-            // std::cout << detid << std::endl;
+            printf("BEGIN SHAPE --------------------------------\n");
+            std::cout << detid << std::endl;
             const HepGeom::Transform3D idtr;
             TruncatedPyramid::Pt3DVec co(8);
             TruncatedPyramid::Pt3D ref;
@@ -954,8 +955,8 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
             double points[16];
             for( int c = 0; c < 8; ++c )
             {
-               points[c*2  ] = co[c].x();
-               points[c*2+1] = co[c].y();
+               points[c*2  ]    = co[c].x();
+               points[c*2 + 1 ] = co[c].y();
             }
             TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
 
@@ -981,7 +982,8 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          if (cell->etaPos() < 0) {
             rot.ReflectZ(true);
          }
-         rot.SetAngles((90 - cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
+
+         rot.SetAngles(90 - (cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
 
          TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
          holder = GetDaughter(holder, "ieta", detid.ieta());
@@ -993,7 +995,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
    }
    
 
-   if (0) {
+   if (1) {
       TGeoVolume *assembly = new TGeoVolumeAssembly("EcalEndcap");
       std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
@@ -1048,7 +1050,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          if (cell->etaPos() < 0) {
             rot.ReflectZ(true);
          }
-         rot.SetAngles((90 - cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
+         rot.SetAngles(90 - (cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
 
          TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
          holder = GetDaughter(holder, "ix", detid.ix());
