@@ -7,24 +7,16 @@
 
 #include "boost/filesystem.hpp"
 
-#include <memory>
 #include <map>
-#include <string>
 #include <queue>
-#include <iterator>
 #include <chrono>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
-namespace edm {
+#include "DQMMonitoringService.h"
+
+namespace dqmservices {
 
 class DQMFileIterator {
  public:
-  enum JsonType {
-    JS_PROTOBUF,
-    JS_DATA,
-  };
-
   struct LumiEntry {
     bool loaded = false;
     std::string filename;
@@ -34,7 +26,7 @@ class DQMFileIterator {
     std::string datafilename;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
-                               JsonType type);
+                               unsigned int datafn_position);
   };
 
   struct EorEntry {
@@ -54,7 +46,7 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  DQMFileIterator(ParameterSet const& pset, JsonType t);
+  DQMFileIterator(edm::ParameterSet const& pset);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
 
@@ -86,17 +78,18 @@ class DQMFileIterator {
   unsigned int lastLumiFound();
   void advanceToLumi(unsigned int lumi);
 
-  static void fillDescription(ParameterSetDescription& d);
+  static void fillDescription(edm::ParameterSetDescription& d);
 
  private:
-  JsonType type_;
-
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
   unsigned long delayMillis_;
   long nextLumiTimeoutMillis_;
 
+  // file name position in the json file
+  unsigned int datafnPosition_;
+ 
   std::string runPath_;
 
   EorEntry eor_;
@@ -114,7 +107,11 @@ class DQMFileIterator {
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
   void collect(bool ignoreTimers);
+
+  /* this is for monitoring */
+  edm::Service<DQMMonitoringService> mon_;
 };
 
 } /* end of namespace */
+
 #endif

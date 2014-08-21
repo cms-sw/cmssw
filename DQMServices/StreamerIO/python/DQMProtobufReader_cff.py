@@ -9,6 +9,12 @@ options.register('runNumber',
                  VarParsing.VarParsing.varType.int,
                  "Run number.")
 
+options.register('datafnPosition',
+                 3, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Data filename position in the positional arguments array 'data' in json file.")
+
 options.register('runInputDir',
                  '/build1/micius/OnlineDQM_sample/', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -16,7 +22,7 @@ options.register('runInputDir',
                  "Directory where the DQM files will appear.")
 
 options.register('streamLabel',
-                 '_streamDQMHistograms', # default value
+                 '_streamDQMHistograms_StorageManager', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Stream label used in json discovery.")
@@ -28,7 +34,7 @@ options.register('delayMillis',
                  "Number of milliseconds to wait between file checks.")
 
 options.register('nextLumiTimeoutMillis',
-                 -1, # default value
+                 30000, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of milliseconds to wait before switching to the next lumi section if the current is missing, -1 to disable.")
@@ -58,6 +64,7 @@ DQMProtobufReader = cms.Source("DQMProtobufReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string(options.streamLabel),
+    datafnPosition = cms.untracked.uint32(options.datafnPosition),
 
     delayMillis = cms.untracked.uint32(options.delayMillis),
     nextLumiTimeoutMillis = cms.untracked.int32(options.nextLumiTimeoutMillis),
