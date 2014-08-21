@@ -17,7 +17,7 @@ namespace DDI {
    static std::unique_ptr<value_type> m_instance;
    static std::once_flag m_onceFlag;
    Singleton(void);
-   Singleton(const Singleton&);
+   Singleton(const Singleton&) = delete;
    Singleton& operator=(const Singleton &);
  };
 
