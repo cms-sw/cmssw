@@ -70,7 +70,12 @@ EcalRecHit::Flags
 EcalCleaningAlgo::checkTopology(const DetId& id,
 				const EcalRecHitCollection& rhs){
 
+  // skip Shashlik, no abnormal pulses expected
+  if(id.subdetId()==EcalShashlik ){
+    return EcalRecHit::kGood;
+  }
 
+ 
   float a=0,b=0,e4e1thresh=0,ethresh=0;
 
 
