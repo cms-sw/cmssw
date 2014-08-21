@@ -15,6 +15,8 @@ void RazorBox::compute( const edm::Event & iEvent) const{
 RazorComputer::RazorComputer( const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) : VariableComputer(arg,iC){
   jet_ = edm::Service<InputTagDistributorService>()->retrieve("jet",arg.iConfig);
   met_ = edm::Service<InputTagDistributorService>()->retrieve("met",arg.iConfig);
+  iC.consumes<std::vector<pat::Jet>>(jet_);
+  iC.consumes<std::vector<pat::MET>>(met_);
   pt_ = 40.;
   eta_=2.4;
 
