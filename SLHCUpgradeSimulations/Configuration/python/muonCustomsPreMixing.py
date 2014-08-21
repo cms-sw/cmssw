@@ -127,7 +127,7 @@ def customise_csc_Digitizer(process):
     return process
 
 
-def customise_csc_L1Stubs(process):
+def customise_csc_L1Stubs_sim(process):
     """Configure the local CSC trigger stubs emulator with the upgrade 
     algorithm version that efficiently uses unganged ME1a
     """
@@ -142,7 +142,7 @@ def customise_csc_L1Stubs(process):
     return process
 
 
-def customise_csc_L1TrackFinder(process):
+def customise_csc_L1TrackFinder_sim(process):
     """Regular CSCTF configuration adapted to deal with unganged ME1a
     """
 
@@ -154,23 +154,23 @@ def customise_csc_L1TrackFinder(process):
     return process
 
 
-def customise_csc_L1Emulator(process):
+def customise_csc_L1Emulator_sim(process):
     """Customise both stubs and TF emulators
     """
-    process = customise_csc_L1Stubs(process)
-    process = customise_csc_L1TrackFinder(process)
+    process = customise_csc_L1Stubs_sim(process)
+    process = customise_csc_L1TrackFinder_sim(process)
     return process
 
 
 def customise_csc_Packer(process):
-    """Get rid of process.cscpacker and process.csctfpacker in all the paths
+    """Use 2013 a.k.a. post-LS1 version 
     """
     process.cscpacker.useFormatVersion = cms.uint32(2013)
     return process
 
 
 def customise_csc_Unpacker(process):
-    """Get rid of process.muonCSCDigis and process.csctfDigis in all the paths
+    """Do nothing at the moment
     """
     return process
 
@@ -210,35 +210,18 @@ def customise_csc_LocalReco(process):
     process.csc2DRecHits.readBadChannels = cms.bool(False)
     process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
-    # Switch input for CSCRecHitD to  s i m u l a t e d (and Mixed!)  digis
-    process.csc2DRecHits.wireDigiTag  = cms.InputTag("mixData", "MuonCSCWireDigisDM")
-    process.csc2DRecHits.stripDigiTag = cms.InputTag("mixData", "MuonCSCStripDigisDM")
-
     return process
 
 
 def customise_csc_DQM(process):
-    """At this point: get rid of process.muonAnalyzer, adjust cscMonitor's input
+    """Runs after RAW2DIGI, so, should use defaults
     """
-    process = remove_from_all_paths(process, 'muonAnalyzer')
-
-    process.cscMonitor.clctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis")
-    process.cscMonitor.stripDigiTag = cms.InputTag("mixData", "MuonCSCStripDigisDM")
-    process.cscMonitor.wireDigiTag = cms.InputTag("mixData", "MuonCSCWireDigisDM")
-    process.cscMonitor.alctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis")
-
-    process.l1tCsctf.statusProducer=cms.InputTag("null")
-    process.l1tCsctf.lctProducer=cms.InputTag("null")
-    process.l1tCsctf.trackProducer=cms.InputTag("null")
-    process.l1tCsctf.mbProducer=cms.InputTag("null")
-
     return process
 
 
 def customise_csc_Validation(process):
-    """At this point, just get rid of process.relvalMuonBits
+    """Nothing for now
     """
-    process = remove_from_all_paths(process, 'relvalMuonBits')
     return process
 
 
@@ -261,11 +244,11 @@ def customise_csc_PostLS1(process):
 
     # L1 stub emulator upgrade algorithm
     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-        process = customise_csc_L1Stubs(process)
+        process = customise_csc_L1Stubs_sim(process)
 
     # CSCTF that can deal with unganged ME1a
     if hasattr(process, 'simCsctfTrackDigis'):
-        process = customise_csc_L1TrackFinder(process)
+        process = customise_csc_L1TrackFinder_sim(process)
 
     # packer - simply get rid of it
     if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
@@ -296,9 +279,6 @@ def customise_csc_hlt(process):
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
     process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     
-    # Switch input for CSCRecHitD to  s i m u l a t e d (and Mixed!) digis
-    
-    process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("mixData","MuonCSCWireDigisDM")
-    process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
+    process = customise_csc_Indexing(process)
     
     return process
