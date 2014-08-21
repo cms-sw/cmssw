@@ -77,7 +77,7 @@ namespace edm {
     // Product was deleted early in order to save memory
     bool productWasDeleted() const {return productWasDeleted_();}
 
-    // Retrieves a pointer to the wrapped product.
+    // Retrieves a pointer to the wrapper of the product.
     EDProduct* product() const { return getProductData().wrapper_.get(); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.

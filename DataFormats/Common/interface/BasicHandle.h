@@ -53,7 +53,7 @@ namespace edm {
       prov_(h.prov_),
       whyFailedFactory_(h.whyFailedFactory_){}
 
-    BasicHandle(ProductData const& productData) :
+    explicit BasicHandle(ProductData const& productData) :
       product_(productData.wrapper_.get()),
       prov_(&productData.prov_) {
     }
