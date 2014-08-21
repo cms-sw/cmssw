@@ -18,7 +18,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     
     		'WeakSingleBoson:ffbar2W = on',
     		'24:onMode = off',
-    		'24:onIfAny = 11,12,13,14,15,16',
+    		'24:onIfAny = 11 12 13 14 15 16',
 	),
         parameterSets = cms.vstring('processParameters')
     )
