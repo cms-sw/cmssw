@@ -16,7 +16,7 @@
 #include <map>
 
 class GeomDetType;
-class GeomDetUnit;
+
 
 class GEMGeometry : public TrackingGeometry {
 
