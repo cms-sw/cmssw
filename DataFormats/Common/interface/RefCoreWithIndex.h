@@ -8,7 +8,7 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
     implementation to RefCore.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -69,7 +69,7 @@ namespace edm {
       toRefCore().setProductGetter(prodGetter);
     }
 
-    EDProduct const* getProductPtr(std::type_info const& type) const {
+    WrapperBase const* getProductPtr(std::type_info const& type) const {
       return toRefCore().getProductPtr(type);
     }
 

@@ -90,7 +90,7 @@ namespace edm {
 
     void put(
         BranchDescription const& bd,
-        std::unique_ptr<EDProduct> edp);
+        std::unique_ptr<WrapperBase> edp);
 
     void readImmediate() const;
 

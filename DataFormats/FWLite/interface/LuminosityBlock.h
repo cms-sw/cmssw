@@ -38,7 +38,7 @@
 
 // forward declarations
 namespace edm {
-   class EDProduct;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -98,7 +98,7 @@ namespace fwlite {
 
 //       void setGetter(//Copy from Event if needed
 
-         edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);

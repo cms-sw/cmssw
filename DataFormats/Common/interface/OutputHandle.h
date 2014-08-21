@@ -35,7 +35,7 @@ namespace cms {
 
 namespace edm {
   class BranchDescription;
-  class EDProduct;
+  class WrapperBase;
   class OutputHandle {
   public:
     OutputHandle() :
@@ -49,7 +49,7 @@ namespace edm {
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(EDProduct const* product, BranchDescription const* desc, ProductProvenance* productProvenance) :
+    OutputHandle(WrapperBase const* product, BranchDescription const* desc, ProductProvenance* productProvenance) :
       product_(product),
       desc_(desc),
       productProvenance_(productProvenance) {}
@@ -86,7 +86,7 @@ namespace edm {
       return 0 != whyFailed_.get();
     }
     
-    EDProduct const* wrapper() const {
+    WrapperBase const* wrapper() const {
       return product_;
     }
 
@@ -103,7 +103,7 @@ namespace edm {
     }
 
   private:
-    EDProduct const* product_;
+    WrapperBase const* product_;
     BranchDescription const* desc_;
     ProductProvenance* productProvenance_;
     std::shared_ptr<cms::Exception> whyFailed_;

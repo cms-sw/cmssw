@@ -39,7 +39,7 @@ namespace cms {
 }
 
 namespace edm {
-  class EDProduct;
+  class WrapperBase;
   template <typename T> class Wrapper;
 
   class BasicHandle {
@@ -62,7 +62,7 @@ namespace edm {
     BasicHandle(BasicHandle &&h) = default;
 #endif
     
-    BasicHandle(EDProduct const* iProd, Provenance const* iProv) :
+    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) :
       product_(iProd),
       prov_(iProv) {
     }
@@ -96,7 +96,7 @@ namespace edm {
       return bool(whyFailedFactory_);
     }
 
-    EDProduct const* wrapper() const {
+    WrapperBase const* wrapper() const {
       return product_;
     }
 
@@ -121,7 +121,7 @@ namespace edm {
     }
 
   private:
-    EDProduct const* product_;
+    WrapperBase const* product_;
     Provenance const* prov_;
     std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };

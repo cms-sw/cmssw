@@ -273,7 +273,7 @@ ChainEvent::getByLabel(std::type_info const& iType,
   return event_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
 }
 
-edm::EDProduct const* ChainEvent::getByProductID(edm::ProductID const& iID) const
+edm::WrapperBase const* ChainEvent::getByProductID(edm::ProductID const& iID) const
 {
   return event_->getByProductID(iID);
 }

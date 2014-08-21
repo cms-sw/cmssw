@@ -23,7 +23,7 @@
 #include <typeinfo>
 //
 // // user include files
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "FWCore/Common/interface/RunBase.h"
 
 #include "Rtypes.h"

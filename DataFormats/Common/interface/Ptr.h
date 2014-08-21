@@ -20,7 +20,7 @@
 
 // user include files
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -194,7 +194,7 @@ namespace edm {
     void getData_() const {
       if(!hasProductCache() && 0 != productGetter()) {
         void const* ad = 0;
-        EDProduct const* prod = productGetter()->getIt(core_.id());
+        WrapperBase const* prod = productGetter()->getIt(core_.id());
         if(prod == nullptr) {
           core_.productNotFoundException(typeid(T));
         }

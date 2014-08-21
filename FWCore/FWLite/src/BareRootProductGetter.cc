@@ -66,7 +66,7 @@ BareRootProductGetter::~BareRootProductGetter() {
 //
 // const member functions
 //
-edm::EDProduct const*
+edm::WrapperBase const*
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   // std::cout << "getIt called" << std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
@@ -127,17 +127,17 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
     void* address = buffer->class_->New();
 
-    static TClass const* edproductTClass = TClass::GetClass(typeid(edm::EDProduct));
-    edm::EDProduct const* prod = static_cast<edm::EDProduct const*>(buffer->class_->DynamicCast(edproductTClass,address,true));
+    static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
+    edm::WrapperBase const* prod = static_cast<edm::WrapperBase const*>(buffer->class_->DynamicCast(edproductTClass,address,true));
 
     if(nullptr == prod) {
       cms::Exception("FailedConversion")
       << "failed to convert a '" << buffer->class_->GetName()
-      << "' to a edm::EDProduct."
+      << "' to a edm::WrapperBase."
       << "Please contact developers since something is very wrong.";
     }
     buffer->address_ = address;
-    buffer->product_ = std::shared_ptr<edm::EDProduct const>(prod);
+    buffer->product_ = std::shared_ptr<edm::WrapperBase const>(prod);
     //END WORKAROUND
 
     address = &(buffer->address_);
@@ -184,12 +184,12 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   }
   void* address = rootClassType->New();
 
-  static TClass const* edproductTClass = TClass::GetClass(typeid(edm::EDProduct));
-  edm::EDProduct const* prod = reinterpret_cast<edm::EDProduct const*>( rootClassType->DynamicCast(edproductTClass,address,true));
+  static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
+  edm::WrapperBase const* prod = reinterpret_cast<edm::WrapperBase const*>( rootClassType->DynamicCast(edproductTClass,address,true));
   if(nullptr == prod) {
      cms::Exception("FailedConversion")
         << "failed to convert a '" << fullName
-        << "' to a edm::EDProduct."
+        << "' to a edm::WrapperBase."
         << "Please contact developers since something is very wrong.";
   }
 

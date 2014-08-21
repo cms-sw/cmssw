@@ -282,7 +282,7 @@ namespace edm {
       assert(branch != nullptr);
       if(pProd != nullptr) {
         // Delete the product that ROOT has allocated.
-        EDProduct const* edp = static_cast<EDProduct const *>(pProd);
+        WrapperBase const* edp = static_cast<WrapperBase const *>(pProd);
         delete edp;
         pProd = nullptr;
       }

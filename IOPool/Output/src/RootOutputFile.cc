@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "IOPool/Common/interface/getEDProductPtr.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
 
 #include "TROOT.h"
 #include "TTree.h"
@@ -97,7 +97,7 @@ namespace edm {
       processHistoryRegistry_(),
       parentageIDs_(),
       branchesWithStoredHistory_(),
-      edProductTClass_(gROOT->GetClass("edm::EDProduct")) {
+      wrapperBaseTClass_(gROOT->GetClass("edm::WrapperBase")) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
@@ -673,7 +673,7 @@ namespace edm {
                 StoredProductProvenanceVector* productProvenanceVecPtr,
                 ModuleCallingContext const* mcc) {
 
-    std::vector<std::unique_ptr<EDProduct> > dummies;
+    std::vector<std::unique_ptr<WrapperBase> > dummies;
 
     bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
 
@@ -695,7 +695,7 @@ namespace edm {
       bool getProd = (produced || !fastCloning ||
          treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
 
-      EDProduct const* product = nullptr;
+      WrapperBase const* product = nullptr;
       OutputHandle const oh = principal.getForOutput(id, getProd, mcc);
       if(keepProvenance && oh.productProvenance()) {
         insertProductProvenance(*oh.productProvenance(),provenanceToKeep);
@@ -710,9 +710,9 @@ namespace edm {
           // No product with this ID is in the event.
           // Add a null product.
           TClass* cp = gROOT->GetClass(item.branchDescription_->wrappedName().c_str());
-          int offset = cp->GetBaseClassOffset(edProductTClass_);
+          int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
-          std::unique_ptr<EDProduct> dummy = getEDProductPtr(p, offset);
+          std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
           product = dummy.get();
           dummies.emplace_back(std::move(dummy));
         }

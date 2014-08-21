@@ -31,7 +31,7 @@
 
 // forward declarations
 namespace edm {
-  class EDProduct;
+  class WrapperBase;
   class ProductRegistry;
   class ProcessHistory;
   class BranchDescription;
@@ -133,7 +133,7 @@ class MultiChainEvent: public EventBase
 
       // ---------- member functions ---------------------------
 
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+      edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
 
    private:

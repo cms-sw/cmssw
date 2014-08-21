@@ -66,7 +66,7 @@
 
 // forward declarations
 namespace edm {
-   class EDProduct;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -144,7 +144,7 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 

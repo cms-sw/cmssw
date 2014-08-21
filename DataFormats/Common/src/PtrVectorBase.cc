@@ -11,7 +11,7 @@
 //
 
 // user include files
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -83,7 +83,7 @@ namespace edm {
     if(0 == productGetter()) {
       throw Exception(errors::LogicError) << "Tried to get data for a PtrVector which has no EDProductGetter\n";
     }
-    EDProduct const* product = productGetter()->getIt(id());
+    WrapperBase const* product = productGetter()->getIt(id());
 
     if(product == nullptr) {
       throw Exception(errors::InvalidReference) << "Asked for data from a PtrVector which refers to a non-existent product which id " << id() << "\n";

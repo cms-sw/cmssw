@@ -8,7 +8,7 @@ RefCoreGet: Free function to get the pointer to a referenced product.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace edm {
@@ -20,7 +20,7 @@ namespace edm {
     getProductPtr_(RefCore const& ref) {
       //if (isNull()) throwInvalidReference();
       assert (!ref.isTransient());
-      EDProduct const* product = ref.getProductPtr(typeid(T));
+      WrapperBase const* product = ref.getProductPtr(typeid(T));
       Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(product);
       if (wrapper == nullptr) { 	 
         ref.wrongTypeException(typeid(T), typeid(*product)); 	 

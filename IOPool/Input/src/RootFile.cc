@@ -37,7 +37,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "IOPool/Common/interface/getEDProductPtr.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
 
 //used for backward compatibility
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -207,7 +207,7 @@ namespace edm {
       eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
       daqProvenanceHelper_(),
-      edProductClass_(gROOT->GetClass("edm::EDProduct")) {
+      edProductClass_(gROOT->GetClass("edm::WrapperBase")) {
 
     hasNewlyDroppedBranch_.fill(false);
 
@@ -1715,7 +1715,7 @@ namespace edm {
           TClass* cp = gROOT->GetClass(prod.wrappedName().c_str());
           void* p = cp->New();
           int offset = cp->GetBaseClassOffset(edProductClass_);
-          std::unique_ptr<EDProduct> edp = getEDProductPtr(p, offset);
+          std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
           if(edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;

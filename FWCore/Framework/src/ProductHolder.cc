@@ -110,7 +110,7 @@ namespace edm {
 
   void
   ProducedProductHolder::putProduct_(
-        std::unique_ptr<EDProduct> edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
     if(product()) {
       throw Exception(errors::InsertFailure)
@@ -129,7 +129,7 @@ namespace edm {
 
   void
   ProducedProductHolder::mergeProduct_(
-        std::unique_ptr<EDProduct> edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance& productProvenance) {
     assert(provenance()->productProvenanceValid());
     assert(status() == Present);
@@ -143,13 +143,13 @@ namespace edm {
   }
 
   void
-  ProducedProductHolder::mergeProduct_(std::unique_ptr<EDProduct> edp) const {
+  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     assert(status() == Present);
     mergeTheProduct(std::move(edp));
   }
 
   void
-  ProducedProductHolder::putProduct_(std::unique_ptr<EDProduct> edp) const {
+  ProducedProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
@@ -164,7 +164,7 @@ namespace edm {
 
   void
   InputProductHolder::putProduct_(
-        std::unique_ptr<EDProduct> edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
     assert(!product());
     assert(!provenance()->productProvenanceValid());
@@ -175,13 +175,13 @@ namespace edm {
 
   void
   InputProductHolder::mergeProduct_(
-        std::unique_ptr<EDProduct>,
+        std::unique_ptr<WrapperBase>,
         ProductProvenance&) {
     assert(nullptr);
   }
 
   void
-  InputProductHolder::mergeProduct_(std::unique_ptr<EDProduct> edp) const {
+  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     mergeTheProduct(std::move(edp));
   }
 
@@ -191,13 +191,13 @@ namespace edm {
   }
 
   void
-  InputProductHolder::putProduct_(std::unique_ptr<EDProduct> edp) const {
+  InputProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     assert(!product());
     setProduct(std::move(edp));
   }
 
   void
-  ProductHolderBase::mergeTheProduct(std::unique_ptr<EDProduct> edp) const {
+  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) const {
     if(product()->isMergeable()) {
       product()->mergeProduct(edp.get());
     } else if(product()->hasIsProductEqual()) {
@@ -224,7 +224,7 @@ namespace edm {
   }
 
   void
-  InputProductHolder::setProduct(std::unique_ptr<EDProduct> prod) const {
+  InputProductHolder::setProduct(std::unique_ptr<WrapperBase> prod) const {
     assert (!product());
     if(prod.get() == nullptr || !prod->isPresent()) {
       setProductUnavailable();
@@ -353,7 +353,7 @@ namespace edm {
   }
 
   void
-  ProductHolderBase::reallyCheckType(EDProduct const& prod) const {
+  ProductHolderBase::reallyCheckType(WrapperBase const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
     if(typeID != branchDescription().unwrappedTypeID()) {
@@ -498,25 +498,25 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<EDProduct> edp) const {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<EDProduct>  edp, ProductProvenance& productProvenance) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>  edp, ProductProvenance& productProvenance) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<EDProduct> edp) const {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -528,7 +528,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::checkType_(EDProduct const& prod) const {
+  void NoProcessProductHolder::checkType_(WrapperBase const& prod) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::checkType_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";

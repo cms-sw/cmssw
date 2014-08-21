@@ -131,7 +131,7 @@ namespace edm {
   void
   EventPrincipal::put(
         BranchDescription const& bd,
-        std::unique_ptr<EDProduct> edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
@@ -152,7 +152,7 @@ namespace edm {
   void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
-        std::unique_ptr<EDProduct> edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
@@ -183,7 +183,7 @@ namespace edm {
         }
       });
       
-      std::unique_ptr<EDProduct> edp(reader()->getProduct(bk, this));
+      std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
       
       // Now fix up the ProductHolder
       checkUniquenessAndType(edp.get(), &phb);
@@ -273,7 +273,7 @@ namespace edm {
     return BasicHandle(phb->productData());
   }
 
-  EDProduct const*
+  WrapperBase const*
   EventPrincipal::getIt(ProductID const& pid) const {
     return getByProductID(pid).wrapper();
   }

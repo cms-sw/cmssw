@@ -10,7 +10,7 @@
 class SimpleEDProductGetter : public edm::EDProductGetter {
 public:
 
-  typedef std::map<edm::ProductID, std::shared_ptr<edm::EDProduct> > map_t;
+  typedef std::map<edm::ProductID, std::shared_ptr<edm::WrapperBase> > map_t;
 
   template<typename T>
   void
@@ -24,7 +24,7 @@ public:
     return database.size();
   }
 
-  virtual edm::EDProduct const* getIt(edm::ProductID const& id) const override {
+  virtual edm::WrapperBase const* getIt(edm::ProductID const& id) const override {
     map_t::const_iterator i = database.find(id);
     if (i == database.end()) {
       edm::Exception e(edm::errors::ProductNotFound, "InvalidID");

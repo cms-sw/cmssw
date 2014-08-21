@@ -17,7 +17,7 @@ namespace edm {
   }
 
   // For use by FWLite
-  ProductData::ProductData(EDProduct* product, Provenance const& prov) :
+  ProductData::ProductData(WrapperBase* product, Provenance const& prov) :
     wrapper_(product, do_nothing_deleter()),
     prov_(prov) {
   }

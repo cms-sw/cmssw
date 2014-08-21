@@ -19,7 +19,7 @@ pointer to a ProductHolder, when queried.
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -203,14 +203,14 @@ namespace edm {
     ProductHolderBase* getExistingProduct(ProductHolderBase const& phb);
 
     // throws if the pointed to product is already in the Principal.
-    void checkUniquenessAndType(EDProduct const* prod, ProductHolderBase const* productHolder) const;
+    void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::unique_ptr<EDProduct> prod, ProductHolderBase const* productHolder) const;
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::unique_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
 
   private:
-    virtual EDProduct const* getIt(ProductID const&) const;
+    virtual WrapperBase const* getIt(ProductID const&) const;
 
     void findProducts(std::vector<ProductHolderBase const*> const& holders,
                       TypeID const& typeID,

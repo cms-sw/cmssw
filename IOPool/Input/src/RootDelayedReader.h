@@ -43,7 +43,7 @@ namespace edm {
     RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
 
   private:
-    virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
+    virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
     virtual void mergeReaders_(DelayedReader* other) override {nextReader_ = other;}
     virtual void reset_() override {nextReader_ = nullptr;}
     SharedResourcesAcquirer* sharedResources_() const override;
@@ -59,7 +59,7 @@ namespace edm {
     DelayedReader* nextReader_;
     std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
     InputType inputType_;
-    TClass* edProductClass_;
+    TClass* wrapperBaseTClass_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

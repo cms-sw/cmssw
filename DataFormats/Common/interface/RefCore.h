@@ -6,7 +6,7 @@
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/refcore_implementation.h"
@@ -56,7 +56,7 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
 
-    EDProduct const* getProductPtr(std::type_info const& type) const;
+    WrapperBase const* getProductPtr(std::type_info const& type) const;
 
     void productNotFoundException(std::type_info const& type) const;
 

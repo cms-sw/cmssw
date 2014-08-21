@@ -129,7 +129,7 @@ namespace edm {
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
-    TClass* edProductTClass_;
+    TClass* wrapperBaseTClass_;
   };
 
 }

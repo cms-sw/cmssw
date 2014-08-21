@@ -39,8 +39,8 @@ namespace testPtr {
   };
 
   struct TestGetter : public edm::EDProductGetter {
-    edm::EDProduct const* hold_;
-    virtual edm::EDProduct const* getIt(edm::ProductID const&) const override {
+    edm::WrapperBase const* hold_;
+    virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override {
       return hold_;
     }
     virtual unsigned int transitionIndex_() const override {

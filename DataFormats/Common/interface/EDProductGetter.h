@@ -17,7 +17,7 @@
 //
 
 // user include files
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 // system include files
@@ -34,7 +34,7 @@ namespace edm {
      virtual ~EDProductGetter();
 
      // ---------- const member functions ---------------------
-     virtual EDProduct const* getIt(ProductID const&) const = 0;
+     virtual WrapperBase const* getIt(ProductID const&) const = 0;
 
      unsigned int transitionIndex() const {
        return transitionIndex_();

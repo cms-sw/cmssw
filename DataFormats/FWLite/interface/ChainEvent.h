@@ -31,7 +31,7 @@
 
 // forward declarations
 namespace edm {
-  class EDProduct;
+  class WrapperBase;
   class ProductRegistry;
   class ProcessHistory;
   class BranchDescription;
@@ -115,7 +115,7 @@ namespace fwlite {
 
       // ---------- member functions ---------------------------
 
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+      edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
       fwlite::LuminosityBlock const& getLuminosityBlock();
       fwlite::Run             const& getRun();
 

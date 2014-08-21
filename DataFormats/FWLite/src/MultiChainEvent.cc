@@ -29,7 +29,7 @@ namespace fwlite {
 public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
 
-      virtual edm::EDProduct const*
+      virtual edm::WrapperBase const*
       getIt(edm::ProductID const& iID) const override {
         return event_->getByProductID(iID);
       }
@@ -359,10 +359,10 @@ MultiChainEvent::getByLabel(
   return true;
 }
 
-edm::EDProduct const* MultiChainEvent::getByProductID(edm::ProductID const&iID) const
+edm::WrapperBase const* MultiChainEvent::getByProductID(edm::ProductID const&iID) const
 {
   // First try the first file
-  edm::EDProduct const* edp = event1_->getByProductID(iID);
+  edm::WrapperBase const* edp = event1_->getByProductID(iID);
   // Did not find the product, try secondary file
   if (edp == nullptr) {
     (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());

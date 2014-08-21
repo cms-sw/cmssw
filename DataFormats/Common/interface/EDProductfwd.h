@@ -13,11 +13,11 @@ Forward declarations of types in the EDM.
 namespace edm 
 {
   class BasicHandle;
-  class EDProduct;
   class EDProductGetter;
   class ProductID;
   class OutputHandle;
   class RefCore;
+  class WrapperBase;
 
   template <typename C, typename T, typename F> class Ref;
   template <typename T> class RefToBase;

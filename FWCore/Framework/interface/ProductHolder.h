@@ -3,12 +3,12 @@
 
 /*----------------------------------------------------------------------
 
-ProductHolder: A collection of information related to a single EDProduct or
+ProductHolder: A collection of information related to a single WrapperBase or
 a set of related EDProducts. This is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -78,7 +78,7 @@ namespace edm {
     bool productWasDeleted() const {return productWasDeleted_();}
 
     // Retrieves a pointer to the wrapper of the product.
-    EDProduct* product() const { return getProductData().wrapper_.get(); }
+    WrapperBase* product() const { return getProductData().wrapper_.get(); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance* productProvenancePtr() const { return productProvenancePtr_(); }
@@ -132,12 +132,12 @@ namespace edm {
     ProductID const& productID() const {return getProductData().prov_.productID();}
 
     // Puts the product and its per event(lumi)(run) provenance into the ProductHolder.
-    void putProduct(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) {
+    void putProduct(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) {
       putProduct_(std::move(edp), productProvenance);
     }
 
     // Puts the product into the ProductHolder.
-    void putProduct(std::unique_ptr<EDProduct> edp) const {
+    void putProduct(std::unique_ptr<WrapperBase> edp) const {
       putProduct_(std::move(edp));
     }
 
@@ -147,20 +147,20 @@ namespace edm {
     }
 
     // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) {
+    void mergeProduct(std::unique_ptr<WrapperBase> edp, ProductProvenance& productProvenance) {
       mergeProduct_(std::move(edp), productProvenance);
     }
 
-    void mergeProduct(std::unique_ptr<EDProduct> edp) const {
+    void mergeProduct(std::unique_ptr<WrapperBase> edp) const {
       mergeProduct_(std::move(edp));
     }
 
     // Merges two instances of the product.
-    void mergeTheProduct(std::unique_ptr<EDProduct> edp) const;
+    void mergeTheProduct(std::unique_ptr<WrapperBase> edp) const;
 
-    void reallyCheckType(EDProduct const& prod) const;
+    void reallyCheckType(WrapperBase const& prod) const;
 
-    void checkType(EDProduct const& prod) const {
+    void checkType(WrapperBase const& prod) const {
       checkType_(prod);
     }
 
@@ -177,12 +177,12 @@ namespace edm {
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productWasDeleted_() const = 0;
-    virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) = 0;
-    virtual void putProduct_(std::unique_ptr<EDProduct> edp) const = 0;
-    virtual void mergeProduct_(std::unique_ptr<EDProduct>  edp, ProductProvenance& productProvenance) = 0;
-    virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const = 0;
+    virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) = 0;
+    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
+    virtual void mergeProduct_(std::unique_ptr<WrapperBase>  edp, ProductProvenance& productProvenance) = 0;
+    virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
-    virtual void checkType_(EDProduct const& prod) const = 0;
+    virtual void checkType_(WrapperBase const& prod) const = 0;
     virtual void resetStatus_() = 0;
     virtual void setProductDeleted_() = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
@@ -213,7 +213,7 @@ namespace edm {
       // The following is const because we can add an EDProduct to the
       // cache after creation of the ProductHolder, without changing the meaning
       // of the ProductHolder.
-      void setProduct(std::unique_ptr<EDProduct> prod) const;
+      void setProduct(std::unique_ptr<WrapperBase> prod) const;
       bool productIsUnavailable() const {return productIsUnavailable_;}
       void setProductUnavailable() const {productIsUnavailable_ = true;}
 
@@ -225,12 +225,12 @@ namespace edm {
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
                                                  ModuleCallingContext const* mcc) const override;
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) override;
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const override;
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) override;
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance& productProvenance) override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
-      virtual void checkType_(EDProduct const&) const override {}
+      virtual void checkType_(WrapperBase const&) const override {}
       virtual void resetStatus_() override {productIsUnavailable_ = false;
         productHasBeenDeleted_=false;}
       virtual bool onDemand_() const override {return false;}
@@ -277,12 +277,12 @@ namespace edm {
       void producerCompleted();
       ProductStatus& status() const {return status_();}
     private:
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) override;
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const override;
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) override;
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance& productProvenance) override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
-      virtual void checkType_(EDProduct const& prod) const override {
+      virtual void checkType_(WrapperBase const& prod) const override {
         reallyCheckType(prod);
       }
       virtual ProductStatus& status_() const = 0;
@@ -396,20 +396,20 @@ namespace edm {
       virtual void resetStatus_() override {realProduct_.resetStatus();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
       virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
-      virtual void checkType_(EDProduct const& prod) const override {realProduct_.checkType(prod);}
+      virtual void checkType_(WrapperBase const& prod) const override {realProduct_.checkType(prod);}
       virtual ProductData const& getProductData() const override {return realProduct_.productData();}
       virtual ProductData& getProductData() override {return realProduct_.productData();}
       virtual void setProductDeleted_() override {realProduct_.setProductDeleted();}
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) override {
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) override {
         realProduct_.putProduct(std::move(edp), productProvenance);
       }
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const override {
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override {
         realProduct_.putProduct(std::move(edp));
       }
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) override {
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance& productProvenance) override {
         realProduct_.mergeProduct(std::move(edp), productProvenance);
       }
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const override {
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override {
         realProduct_.mergeProduct(std::move(edp));
       }
       virtual bool putOrMergeProduct_() const override {
@@ -445,12 +445,12 @@ namespace edm {
       virtual bool onDemand_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance const& productProvenance) override;
-      virtual void putProduct_(std::unique_ptr<EDProduct> edp) const override;
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp, ProductProvenance& productProvenance) override;
-      virtual void mergeProduct_(std::unique_ptr<EDProduct> edp) const override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) override;
+      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance& productProvenance) override;
+      virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool putOrMergeProduct_() const override;
-      virtual void checkType_(EDProduct const& prod) const override;
+      virtual void checkType_(WrapperBase const& prod) const override;
       virtual void resetStatus_() override;
       virtual void setProductDeleted_() override;
       virtual BranchDescription const& branchDescription_() const override;

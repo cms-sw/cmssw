@@ -25,7 +25,7 @@ void convert_handle(BasicHandle const& orig,
     return;
   }
 
-  EDProduct const* originalWrap = orig.wrapper();
+  WrapperBase const* originalWrap = orig.wrapper();
   if(originalWrap == nullptr) {
     throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
       << "edm::BasicHandle has null pointer to Wrapper";

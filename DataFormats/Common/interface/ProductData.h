@@ -13,14 +13,14 @@ is the storage unit of such information.
 
 namespace edm {
   class BranchDescription;
-  class EDProduct;
+  class WrapperBase;
   struct ProductData {
     ProductData();
 
     explicit ProductData(std::shared_ptr<BranchDescription const> bd);
 
     // For use by FWLite
-    ProductData(EDProduct* product, Provenance const& prov);
+    ProductData(WrapperBase* product, Provenance const& prov);
 
     std::shared_ptr<BranchDescription const> const& branchDescription() const {
       return prov_.constBranchDescriptionPtr();
@@ -43,7 +43,7 @@ namespace edm {
     // the effort to make the Framework multithread capable ...
 
     // "non-const data" (updated every event)
-    mutable std::shared_ptr<EDProduct> wrapper_;
+    mutable std::shared_ptr<WrapperBase> wrapper_;
     mutable Provenance prov_;
   };
 

@@ -313,7 +313,7 @@ Run::history() const
 }
 
 
-edm::EDProduct const*
+edm::WrapperBase const*
 Run::getByProductID(edm::ProductID const& iID) const
 {
   Long_t runIndex = branchMap_->getRunEntry();

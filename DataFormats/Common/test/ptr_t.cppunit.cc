@@ -287,8 +287,8 @@ void testPtr::comparisonTest() {
 
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      EDProduct const* hold_;
-      virtual EDProduct const* getIt(ProductID const&) const override {
+      WrapperBase const* hold_;
+      virtual WrapperBase const* getIt(ProductID const&) const override {
          return hold_;
       }
       virtual unsigned int transitionIndex_() const override {

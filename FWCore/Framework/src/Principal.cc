@@ -782,14 +782,14 @@ namespace edm {
     reader_->mergeReaders(other.reader());
   }
 
-  EDProduct const*
+  WrapperBase const*
   Principal::getIt(ProductID const&) const {
     assert(nullptr);
     return nullptr;
   }
 
   void
-  Principal::checkUniquenessAndType(EDProduct const* prod, ProductHolderBase const* phb) const {
+  Principal::checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* phb) const {
     if(prod == nullptr) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.
@@ -803,7 +803,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(std::unique_ptr<EDProduct> prod, ProductHolderBase const* phb) const {
+  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod.get(), phb);
@@ -815,7 +815,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(std::unique_ptr<EDProduct> prod, ProductProvenance& prov, ProductHolderBase* phb) {
+  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance& prov, ProductHolderBase* phb) {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod.get(), phb);

@@ -178,7 +178,7 @@ namespace edm {
       ProductID tId = product_.id();
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
-      EDProduct const* prod = product_.productGetter()->getIt(tId);
+      WrapperBase const* prod = product_.productGetter()->getIt(tId);
       if(prod == nullptr) {
         Exception::throwThis(errors::InvalidReference,
                              "attempting to get view from an unavailable RefToBaseProd.");

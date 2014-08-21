@@ -60,7 +60,7 @@ namespace fwlite {
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
                 virtual
-                edm::EDProduct const*
+                edm::WrapperBase const*
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
                 }
@@ -375,7 +375,7 @@ Event::history() const {
 }
 
 
-edm::EDProduct const*
+edm::WrapperBase const*
 Event::getByProductID(edm::ProductID const& iID) const {
   Long_t eventIndex = branchMap_.getEventEntry();
   return dataHelper_.getByProductID(iID, eventIndex);

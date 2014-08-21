@@ -288,11 +288,11 @@ namespace edm {
 
         if(spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<EDProduct>(const_cast<EDProduct*>(spitem.prod())), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<EDProduct>(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
         spitem.clear();
@@ -367,7 +367,7 @@ namespace edm {
 
   StreamerInputSource::EventPrincipalHolder::~EventPrincipalHolder() {}
 
-  EDProduct const*
+  WrapperBase const*
   StreamerInputSource::EventPrincipalHolder::getIt(ProductID const& id) const {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
   }

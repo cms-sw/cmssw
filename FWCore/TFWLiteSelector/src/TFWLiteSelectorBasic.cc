@@ -61,8 +61,8 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      std::unique_ptr<EDProduct> getTheProduct(BranchKey const& k) const;
-      virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
+      std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
+      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -73,12 +73,12 @@ namespace edm {
       std::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    std::unique_ptr<EDProduct>
+    std::unique_ptr<WrapperBase>
     FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
       return getTheProduct(k);
     }
 
-    std::unique_ptr<EDProduct>
+    std::unique_ptr<WrapperBase>
     FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -108,18 +108,18 @@ namespace edm {
       }
       void* address = wrapperObj.Address();
       branch->SetAddress(&address);
-      Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::EDProduct"));
+      Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperBase"));
 
-      EDProduct* prod = reinterpret_cast<EDProduct*>(edProdObj.Address()); 	 
+      WrapperBase* prod = reinterpret_cast<WrapperBase*>(edProdObj.Address()); 	 
 	  	 
       if(nullptr == prod) { 	 
         throw cms::Exception("FailedConversion") 	 
           << "failed to convert a '" << fullName 	 
-          << "' to a edm::EDProduct." 	 
+          << "' to a edm::WrapperBase." 	 
           << "Please contact developers since something is very wrong."; 	 
       }
       branch->GetEntry(entry_);
-      return std::unique_ptr<EDProduct>(prod);
+      return std::unique_ptr<WrapperBase>(prod);
     }
 
     struct TFWLiteSelectorMembers {

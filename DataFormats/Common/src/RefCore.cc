@@ -44,7 +44,7 @@ namespace edm {
         }
       }
 
-  EDProduct const*
+  WrapperBase const*
   RefCore::getProductPtr(std::type_info const& type) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
@@ -70,7 +70,7 @@ namespace edm {
     if (cachePtr_ == 0) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
-    EDProduct const* product = productGetter()->getIt(tId);
+    WrapperBase const* product = productGetter()->getIt(tId);
     if (product == nullptr) {
       productNotFoundException(type);
     }

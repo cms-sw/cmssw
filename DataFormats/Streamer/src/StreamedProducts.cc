@@ -1,9 +1,9 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 
 namespace edm {
-    StreamedProduct::StreamedProduct(EDProduct const* prod,
+    StreamedProduct::StreamedProduct(WrapperBase const* prod,
 		    BranchDescription const& desc,
 		    bool present,
 		    std::vector<BranchID> const* parents) :

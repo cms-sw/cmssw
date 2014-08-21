@@ -36,7 +36,7 @@ namespace fwlite
 
    edm::BasicHandle
    EventBase::getByLabelImpl(std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const {
-      edm::EDProduct const* prod = nullptr;
+      edm::WrapperBase const* prod = nullptr;
       void* prodPtr = &prod;
       getByLabel(iWrapperInfo,
                  iTag.label().c_str(),

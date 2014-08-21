@@ -208,7 +208,7 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
-    typedef std::vector<std::pair<std::unique_ptr<EDProduct>, BranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<std::unique_ptr<WrapperBase>, BranchDescription const*> > ProductPtrVec;
 
   private:
     EventPrincipal const&

@@ -1,9 +1,9 @@
-#ifndef DataFormats_Common_EDProduct_h
-#define DataFormats_Common_EDProduct_h
+#ifndef DataFormats_Common_WrapperBase_h
+#define DataFormats_Common_WrapperBase_h
 
 /*----------------------------------------------------------------------
 
-EDProduct: The base class of all things that will be inserted into the Event.
+WrapperBase: The base class of all things that will be inserted into the Event.
 
 ----------------------------------------------------------------------*/
 
@@ -13,14 +13,14 @@ EDProduct: The base class of all things that will be inserted into the Event.
 #include <vector>
 
 namespace edm {
-  class EDProduct {
+  class WrapperBase {
   public:
-    EDProduct();
-    virtual ~EDProduct();
+    WrapperBase();
+    virtual ~WrapperBase();
     bool isPresent() const {return isPresent_();}
 
     // We have to use vector<void*> to keep the type information out
-    // of the EDProduct class.
+    // of the WrapperBase class.
     void fillView(ProductID const& id,
                   std::vector<void const*>& view,
                   helper_vector_ptr& helpers) const;
@@ -37,15 +37,15 @@ namespace edm {
 
     std::type_info const& wrappedTypeInfo() const {return wrappedTypeInfo_();}
 
-    bool sameType(EDProduct const& other) const {
+    bool sameType(WrapperBase const& other) const {
       return other.dynamicTypeInfo() == dynamicTypeInfo();
     }
 
 #ifndef __GCCXML__
     bool isMergeable() const {return isMergeable_();}
-    bool mergeProduct(EDProduct const* newProduct) {return mergeProduct_(newProduct);}
+    bool mergeProduct(WrapperBase const* newProduct) {return mergeProduct_(newProduct);}
     bool hasIsProductEqual() const {return hasIsProductEqual_();}
-    bool isProductEqual(EDProduct const* newProduct) const {return isProductEqual_(newProduct);}
+    bool isProductEqual(WrapperBase const* newProduct) const {return isProductEqual_(newProduct);}
 #endif
 
   private:
@@ -60,9 +60,9 @@ namespace edm {
 
 #ifndef __GCCXML__
     virtual bool isMergeable_() const { return true; }
-    virtual bool mergeProduct_(EDProduct const* newProduct) { return true; }
+    virtual bool mergeProduct_(WrapperBase const* newProduct) { return true; }
     virtual bool hasIsProductEqual_() const { return true; }
-    virtual bool isProductEqual_(EDProduct const* newProduct) const { return true; }
+    virtual bool isProductEqual_(WrapperBase const* newProduct) const { return true; }
 #endif
 
     virtual void do_fillView(ProductID const& id,

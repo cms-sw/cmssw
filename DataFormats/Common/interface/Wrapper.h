@@ -7,7 +7,7 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 #include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
@@ -27,11 +27,11 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 namespace edm {
   template <typename T>
-  class Wrapper : public EDProduct {
+  class Wrapper : public WrapperBase {
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with the dictionary to identify Wrappers
-    Wrapper() : EDProduct(), present(false), obj() {}
+    Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::auto_ptr<T> ptr);
     virtual ~Wrapper() {}
     T const* product() const {return (present ? &obj : 0);}
@@ -54,9 +54,9 @@ private:
 
 #ifndef __GCCXML__
     virtual bool isMergeable_() const GCC11_OVERRIDE;
-    virtual bool mergeProduct_(EDProduct const* newProduct) GCC11_OVERRIDE;
+    virtual bool mergeProduct_(WrapperBase const* newProduct) GCC11_OVERRIDE;
     virtual bool hasIsProductEqual_() const GCC11_OVERRIDE;
-    virtual bool isProductEqual_(EDProduct const* newProduct) const GCC11_OVERRIDE;
+    virtual bool isProductEqual_(WrapperBase const* newProduct) const GCC11_OVERRIDE;
 #endif
 
     virtual void do_fillView(ProductID const& id,
@@ -277,7 +277,7 @@ namespace edm {
 
   template <typename T>
   Wrapper<T>::Wrapper(std::auto_ptr<T> ptr) :
-    EDProduct(),
+    WrapperBase(),
     present(ptr.get() != 0),
     obj() {
     if (present) {
@@ -292,7 +292,7 @@ namespace edm {
 
   template <typename T>
   Wrapper<T>::Wrapper(T* ptr) :
-  EDProduct(),
+  WrapperBase(),
   present(ptr != 0),
   obj() {
      std::auto_ptr<T> temp(ptr);
@@ -317,7 +317,7 @@ namespace edm {
   }
 
   template <typename T>
-  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct) {
+  bool Wrapper<T>::mergeProduct_(WrapperBase const* newProduct) {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
@@ -335,7 +335,7 @@ namespace edm {
   }
 
   template <typename T>
-  bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const {
+  bool Wrapper<T>::isProductEqual_(WrapperBase const* newProduct) const {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,

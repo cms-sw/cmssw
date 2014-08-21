@@ -19,7 +19,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCache.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
@@ -307,7 +307,7 @@ namespace fwlite {
         else return true;
     }
 
-    edm::EDProduct const*
+    edm::WrapperBase const*
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
         typedef std::pair<edm::ProductID,edm::BranchListIndex> IDPair;
@@ -340,7 +340,7 @@ namespace fwlite {
             KeyToDataMap::iterator itData = data_.find(k);
             if(data_.end() == itData) {
                 //ask for the data
-                edm::EDProduct const* dummy = nullptr;
+                edm::WrapperBase const* dummy = nullptr;
                 getByLabel(type.typeInfo(),
                             k.module(),
                             k.product(),
@@ -360,7 +360,7 @@ namespace fwlite {
             getBranchData(getter_.get(), index, *(itFound->second));
         }
         if(nullptr == itFound->second->pProd_) {
-            itFound->second->pProd_ = static_cast<edm::EDProduct*>(itFound->second->obj_.address());
+            itFound->second->pProd_ = static_cast<edm::WrapperBase*>(itFound->second->obj_.address());
 
             if(nullptr == itFound->second->pProd_) {
               return nullptr;

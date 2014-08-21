@@ -32,7 +32,7 @@ namespace edm {
   void
   RunPrincipal::put(
         BranchDescription const& bd,
-        std::unique_ptr<EDProduct>  edp) {
+        std::unique_ptr<WrapperBase>  edp) {
 
     // Assert commented out for LHESource.
     // assert(bd.produced());
@@ -66,7 +66,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    std::unique_ptr<EDProduct> edp(reader()->getProduct(bk, this));
+    std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
 
     // Now fix up the ProductHolder
     if(edp.get() != nullptr) {

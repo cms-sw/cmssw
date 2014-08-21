@@ -2,16 +2,16 @@
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include <cassert>
 
 namespace edm {
-  EDProduct::EDProduct() {}
+  WrapperBase::WrapperBase() {}
 
-  EDProduct::~EDProduct() {}
+  WrapperBase::~WrapperBase() {}
 
-  void EDProduct::fillView(ProductID const& id,
+  void WrapperBase::fillView(ProductID const& id,
                            std::vector<void const*>& pointers,
                            helper_vector_ptr& helpers) const {
     // This should never be called with non-empty arguments, or an
@@ -24,14 +24,14 @@ namespace edm {
     do_fillView(id, pointers, helpers);
   }
 
-  void EDProduct::setPtr(std::type_info const& iToType,
+  void WrapperBase::setPtr(std::type_info const& iToType,
                          unsigned long iIndex,
                          void const*& oPtr) const {
     do_setPtr(iToType, iIndex, oPtr);
   }
 
   void
-  EDProduct::fillPtrVector(std::type_info const& iToType,
+  WrapperBase::fillPtrVector(std::type_info const& iToType,
                               std::vector<unsigned long> const& iIndicies,
                               std::vector<void const*>& oPtr) const {
     do_fillPtrVector(iToType, iIndicies, oPtr);

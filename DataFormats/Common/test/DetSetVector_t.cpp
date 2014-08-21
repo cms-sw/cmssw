@@ -166,7 +166,7 @@ namespace {
   template<typename T>
   struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
-    virtual EDProduct const*
+    virtual WrapperBase const*
     getIt(ProductID const&) const override {return prod_;}
     virtual unsigned int
     transitionIndex_() const override {return 0U;}

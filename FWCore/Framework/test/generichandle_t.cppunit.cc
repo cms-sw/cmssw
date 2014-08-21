@@ -131,7 +131,7 @@ void testGenericHandle::getbyLabelTest() {
   typedef edm::Wrapper<DP> WDP;
 
   std::auto_ptr<DP> pr(new DP);
-  std::unique_ptr<edm::EDProduct> pprod(new WDP(pr));
+  std::unique_ptr<edm::WrapperBase> pprod(new WDP(pr));
   std::string label("fred");
   std::string productInstanceName("Rick");
 

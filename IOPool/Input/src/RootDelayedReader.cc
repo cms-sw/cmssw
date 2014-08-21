@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 
-#include "IOPool/Common/interface/getEDProductPtr.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
 
 #include "TROOT.h"
 #include "TBranch.h"
@@ -28,7 +28,7 @@ namespace edm {
    nextReader_(),
    resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
    inputType_(inputType),
-   edProductClass_(gROOT->GetClass("edm::EDProduct")) {
+   wrapperBaseTClass_(gROOT->GetClass("edm::WrapperBase")) {
   }
 
   RootDelayedReader::~RootDelayedReader() {
@@ -39,14 +39,14 @@ namespace edm {
     return resourceAcquirer_.get();
   }
 
-  std::unique_ptr<EDProduct>
+  std::unique_ptr<WrapperBase>
   RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
     iterator iter = branchIter(k);
     if (!found(iter)) {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
-        return std::unique_ptr<EDProduct>();
+        return std::unique_ptr<WrapperBase>();
       }
     }
     roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
@@ -55,7 +55,7 @@ namespace edm {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
-        return std::unique_ptr<EDProduct>();
+        return std::unique_ptr<WrapperBase>();
       }
     }
    
@@ -64,10 +64,10 @@ namespace edm {
     if(nullptr == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
-      branchInfo.offsetToEDProduct_ = cp->GetBaseClassOffset(edProductClass_);
+      branchInfo.offsetToWrapperBase_ = cp->GetBaseClassOffset(wrapperBaseTClass_);
     }
     void* p = cp->New();
-    std::unique_ptr<EDProduct> edp = getEDProductPtr(p, branchInfo.offsetToEDProduct_); 
+    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, branchInfo.offsetToWrapperBase_); 
     br->SetAddress(&p);
     tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
     if(tree_.branchType() == InEvent) {

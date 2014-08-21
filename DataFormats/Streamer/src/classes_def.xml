@@ -2,7 +2,7 @@
 <lcgdict>
  <class name="edm::StreamedProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="512531612"/>
-  <version ClassVersion="11" checksum="90168224"/>
+  <version ClassVersion="11" checksum="1146084488"/>
  </class>
  <class name="std::vector<edm::StreamedProduct>"/>
  <class name="edm::SendEvent" ClassVersion="10">

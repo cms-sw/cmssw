@@ -42,7 +42,7 @@ namespace fwlite
 
    edm::BasicHandle
    LuminosityBlockBase::getByLabelImpl(std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const {
-      edm::EDProduct* prod = nullptr;
+      edm::WrapperBase* prod = nullptr;
       void* prodPtr = &prod;
       getByLabel(iWrapperInfo,
                  iTag.label().c_str(),

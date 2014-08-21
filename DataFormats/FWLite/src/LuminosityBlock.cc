@@ -316,7 +316,7 @@ LuminosityBlock::history() const
 }
 
 
-edm::EDProduct const*
+edm::WrapperBase const*
 LuminosityBlock::getByProductID(edm::ProductID const& iID) const {
   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
   return dataHelper_.getByProductID(iID, luminosityBlockIndex);

@@ -27,14 +27,14 @@ namespace edm {
 
   // ------------------------------------------
 
-  class EDProduct;
+  class WrapperBase;
   class StreamedProduct {
   public:
     StreamedProduct() : prod_(nullptr), desc_(nullptr), present_(false), parents_(nullptr) {}
     explicit StreamedProduct(BranchDescription const& desc) :
       prod_(nullptr), desc_(&desc), present_(false), parents_(nullptr) {}
 
-    StreamedProduct(EDProduct const* prod,
+    StreamedProduct(WrapperBase const* prod,
                     BranchDescription const& desc,
                     bool present,
                     std::vector<BranchID> const* parents);
@@ -43,7 +43,7 @@ namespace edm {
     BranchID branchID() const {return desc_->branchID();}
     bool present() const {return present_;}
     std::vector<BranchID> const* parents() const {return parents_;}
-    EDProduct const* prod() {return prod_;}
+    WrapperBase const* prod() {return prod_;}
 
    void clear() {
      prod_= nullptr;
@@ -55,7 +55,7 @@ namespace edm {
   }
 
   private:
-    EDProduct const* prod_;
+    WrapperBase const* prod_;
     BranchDescription const* desc_;
     bool present_;
     std::vector<BranchID> const* parents_;
