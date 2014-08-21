@@ -102,9 +102,20 @@ void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   //retrieve the luminosity
   edm::Handle<LumiScalersCollection> lumiScalers;
-  e.getByToken(scalerToken_, lumiScalers);
-  LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
-  trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
+  if (e.getByToken(scalerToken_, lumiScalers)) {
+    if (lumiScalers->begin() != lumiScalers->end()) {
+      LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
+      trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
+    }
+    else {
+      LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask")
+	<< "[DTScalerInfoTask]: LumiScalersCollection size == 0" << endl;
+    }
+  }
+  else {
+    LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask")
+      << "[DTScalerInfoTask]: LumiScalersCollection getByToken call failed" << endl;
+  }
 
 }
 
