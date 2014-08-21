@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    TestElectronID/MiniAODElectronIDAnalyzer
-// Class:      MiniAODElectronIDAnalyzer
+// Package:    TestElectronID/MiniAODElectronIDValidationAnalyzer
+// Class:      MiniAODElectronIDValidationAnalyzer
 // 
-/**\class MiniAODElectronIDAnalyzer MiniAODElectronIDAnalyzer.cc TestElectronID/MiniAODElectronIDAnalyzer/plugins/MiniAODElectronIDAnalyzer.cc
+/**\class MiniAODElectronIDValidationAnalyzer MiniAODElectronIDValidationAnalyzer.cc TestElectronID/MiniAODElectronIDValidationAnalyzer/plugins/MiniAODElectronIDValidationAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -58,10 +58,10 @@
 // class declaration
 //
 
-class MiniAODElectronIDAnalyzer : public edm::EDAnalyzer {
+class MiniAODElectronIDValidationAnalyzer : public edm::EDAnalyzer {
    public:
-      explicit MiniAODElectronIDAnalyzer(const edm::ParameterSet&);
-      ~MiniAODElectronIDAnalyzer();
+      explicit MiniAODElectronIDValidationAnalyzer(const edm::ParameterSet&);
+      ~MiniAODElectronIDValidationAnalyzer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -124,7 +124,7 @@ class MiniAODElectronIDAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-MiniAODElectronIDAnalyzer::MiniAODElectronIDAnalyzer(const edm::ParameterSet& iConfig):
+MiniAODElectronIDValidationAnalyzer::MiniAODElectronIDValidationAnalyzer(const edm::ParameterSet& iConfig):
   vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   genToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genparticles"))),
   convToken_(consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("convcollection"))),
@@ -160,7 +160,7 @@ MiniAODElectronIDAnalyzer::MiniAODElectronIDAnalyzer(const edm::ParameterSet& iC
 }
 
 
-MiniAODElectronIDAnalyzer::~MiniAODElectronIDAnalyzer()
+MiniAODElectronIDValidationAnalyzer::~MiniAODElectronIDValidationAnalyzer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -175,7 +175,7 @@ MiniAODElectronIDAnalyzer::~MiniAODElectronIDAnalyzer()
 
 // ------------ method called for each event  ------------
 void
-MiniAODElectronIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+MiniAODElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // using namespace edm;
 
@@ -260,20 +260,20 @@ MiniAODElectronIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MiniAODElectronIDAnalyzer::beginJob()
+MiniAODElectronIDValidationAnalyzer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-MiniAODElectronIDAnalyzer::endJob() 
+MiniAODElectronIDValidationAnalyzer::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void 
-MiniAODElectronIDAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
+MiniAODElectronIDValidationAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -281,7 +281,7 @@ MiniAODElectronIDAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void 
-MiniAODElectronIDAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+MiniAODElectronIDValidationAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -289,7 +289,7 @@ MiniAODElectronIDAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void 
-MiniAODElectronIDAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+MiniAODElectronIDValidationAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -297,14 +297,14 @@ MiniAODElectronIDAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void 
-MiniAODElectronIDAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+MiniAODElectronIDValidationAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-MiniAODElectronIDAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+MiniAODElectronIDValidationAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -314,7 +314,7 @@ MiniAODElectronIDAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
 
 // The function that uses algorith from Josh Bendavid with 
 // an explicit loop over gen particles. 
-int MiniAODElectronIDAnalyzer::matchToTruth(const reco::GsfElectron &el, 
+int MiniAODElectronIDValidationAnalyzer::matchToTruth(const reco::GsfElectron &el, 
 				    const edm::Handle<edm::View<reco::GenParticle>> &genParticles){
 
   // 
@@ -364,7 +364,7 @@ int MiniAODElectronIDAnalyzer::matchToTruth(const reco::GsfElectron &el,
   return TRUE_PROMPT_ELECTRON;
 }
 
-void MiniAODElectronIDAnalyzer::findFirstNonElectronMother(const reco::Candidate *particle,
+void MiniAODElectronIDValidationAnalyzer::findFirstNonElectronMother(const reco::Candidate *particle,
 						   int &ancestorPID, int &ancestorStatus){
   
   if( particle == 0 ){
@@ -385,4 +385,4 @@ void MiniAODElectronIDAnalyzer::findFirstNonElectronMother(const reco::Candidate
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MiniAODElectronIDAnalyzer);
+DEFINE_FWK_MODULE(MiniAODElectronIDValidationAnalyzer);

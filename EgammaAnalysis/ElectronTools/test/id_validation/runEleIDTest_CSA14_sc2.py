@@ -34,7 +34,7 @@ process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag('red
 process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
 process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
 
-process.wp1 = cms.EDAnalyzer('ElectronIDAnalyzer',
+process.wp1 = cms.EDAnalyzer('ElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("gedGsfElectrons"),
                              electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-CSA14-PU20bx25-V0-standalone-veto"),
                              vertices = cms.InputTag("offlinePrimaryVertices"),
@@ -44,7 +44,7 @@ process.wp1 = cms.EDAnalyzer('ElectronIDAnalyzer',
                              full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer:eleFull5x5SigmaIEtaIEta"),
                              )
 
-process.wp2 = cms.EDAnalyzer('ElectronIDAnalyzer',
+process.wp2 = cms.EDAnalyzer('ElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("gedGsfElectrons"),
                              electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-CSA14-PU20bx25-V0-standalone-loose"),
                              vertices = cms.InputTag("offlinePrimaryVertices"),
@@ -54,7 +54,7 @@ process.wp2 = cms.EDAnalyzer('ElectronIDAnalyzer',
                              full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer:eleFull5x5SigmaIEtaIEta"),
                              )
 
-process.wp3 = cms.EDAnalyzer('ElectronIDAnalyzer',
+process.wp3 = cms.EDAnalyzer('ElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("gedGsfElectrons"),
                              electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-CSA14-PU20bx25-V0-standalone-medium"),
                              vertices = cms.InputTag("offlinePrimaryVertices"),
@@ -64,7 +64,7 @@ process.wp3 = cms.EDAnalyzer('ElectronIDAnalyzer',
                              full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer:eleFull5x5SigmaIEtaIEta"),
                              )
 
-process.wp4 = cms.EDAnalyzer('ElectronIDAnalyzer',
+process.wp4 = cms.EDAnalyzer('ElectronIDValidationAnalyzer',
                              electrons = cms.InputTag("gedGsfElectrons"),
                              electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-CSA14-PU20bx25-V0-standalone-tight"),
                              vertices = cms.InputTag("offlinePrimaryVertices"),
