@@ -211,7 +211,7 @@ def customise_csc_LocalReco(process):
 
     # Turn off some flags for CSCRecHitD that are turned ON in default config
     process.csc2DRecHits.readBadChannels = cms.bool(False)
-    process.csc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+    process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
     # Switch input for CSCRecHitD to  s i m u l a t e d (and Mixed!)  digis
     process.csc2DRecHits.wireDigiTag  = cms.InputTag("mixData", "MuonCSCWireDigisDM")
@@ -297,7 +297,7 @@ def customise_csc_hlt(process):
     process.CSCGeometryESModule.useGangedStripsInME1a = False
     
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+    process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     
     # Switch input for CSCRecHitD to  s i m u l a t e d (and Mixed!) digis
     
