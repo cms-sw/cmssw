@@ -196,8 +196,8 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       std::string hid;
       //Mono single sided detectors
       LocalPoint p;
-      const GeomDetUnit * stripdet=dynamic_cast<const GeomDetUnit*>(tracker->idToDet(subid));
-      if(stripdet==0)continue;
+      auto stripdet = tracker->idToDet(subid);
+      if(!stripdet->isLeaf())continue;
       const StripTopology& topol=(const StripTopology&)stripdet->topology();
       float thickness=stripdet->specificSurface().bounds().thickness();
       

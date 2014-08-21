@@ -780,7 +780,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       
       // Inflate errors in case of geometry misaligniment  
       // (still needed! what done in constructor of BaseTrackerRecHit is not effective ad geometry is not missaligned)
-      const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
+      auto theMADet = misAlignedGeometry->idToDet(det);
       auto const & lape  =  theMADet->localAlignmentError();
       if ( lape.valid() )
 	error = LocalError ( error.xx()+lape.xx(),

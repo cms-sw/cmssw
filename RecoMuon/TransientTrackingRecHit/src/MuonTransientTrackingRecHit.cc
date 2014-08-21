@@ -55,7 +55,7 @@ GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
   
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
- 
+  /*  FIMXE : new MUON APE CODE GOES HERE 
     LocalError lape = det()->localAlignmentError();
     if (lape.valid()) {
 
@@ -79,6 +79,7 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
       err += lapeMatrixProj;
     }
   }
+  */
   return err;
 }
 
