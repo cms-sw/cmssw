@@ -3,6 +3,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -1271,7 +1272,8 @@ float  EcalClusterTools::getIEta(const DetId& id)
         if(id.subdetId()==EcalBarrel){
             EBDetId ebId(id);
             return ebId.ieta();
-        }else if(id.subdetId()==EcalEndcap){
+        }else if( id.subdetId() == EcalEndcap || 
+		  id.subdetId() == EcalShashlik  ) {
             float iXNorm = getNormedIX(id);
             float iYNorm = getNormedIY(id);
 
@@ -1300,25 +1302,33 @@ float  EcalClusterTools::getIPhi(const DetId& id)
 //want to map 1=-50,50=-1,51=1 and 100 to 50 so sub off one if zero or neg
 float EcalClusterTools::getNormedIX(const DetId& id)
 {
-    if(id.det()==DetId::Ecal && id.subdetId()==EcalEndcap){
-        EEDetId eeId(id);      
-        int iXNorm  = eeId.ix()-50;
-        if(iXNorm<=0) iXNorm--;
-        return iXNorm;
+  if(id.det()==DetId::Ecal ) {
+    int ix = 0;
+    if( id.subdetId()==EcalEndcap ) ix = EEDetId(id).ix();
+    if( id.subdetId()==EcalShashlik ) ix = EKDetId(id).ix();
+    if( ix != 0) {
+      int iXNorm  = ix - 50;
+      if(iXNorm<=0) iXNorm--;
+      return iXNorm;
     }
-    return 0;
+  }
+  return 0;
 }
 
 //want to map 1=-50,50=-1,51=1 and 100 to 50 so sub off one if zero or neg
 float EcalClusterTools::getNormedIY(const DetId& id)
 {
-    if(id.det()==DetId::Ecal && id.subdetId()==EcalEndcap){
-        EEDetId eeId(id);      
-        int iYNorm  = eeId.iy()-50;
-        if(iYNorm<=0) iYNorm--;
-        return iYNorm;
+  if(id.det()==DetId::Ecal ) {
+    int iy = 0;
+    if( id.subdetId()==EcalEndcap ) iy = EEDetId(id).iy();
+    if( id.subdetId()==EcalShashlik ) iy = EKDetId(id).iy();
+    if( iy != 0 ) {
+      int iYNorm  = iy - 50;
+      if(iYNorm<=0) iYNorm--;
+      return iYNorm;
     }
-    return 0;
+  }
+  return 0;
 }
 
 //nr crystals crysId is away from orgin id in eta
