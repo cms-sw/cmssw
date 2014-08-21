@@ -182,7 +182,7 @@ const EcalRecHitCollection * EcalClusterLazyTools::getEcalRecHitCollection( cons
         const EcalRecHitCollection *recHits = 0;
         if ( id.subdetId() == EcalBarrel ) {
                 recHits = ebRecHits_;
-        } else if ( id.subdetId() == EcalEndcap ) {
+        } else if ( id.subdetId() == EcalEndcap || id.subdetId() == EcalShashlik ) {
                 recHits = eeRecHits_;
         } else {
                 throw cms::Exception("InvalidSubdetector") << "The subdetId() " << id.subdetId() << " does not correspond to EcalBarrel neither EcalEndcap";
@@ -569,12 +569,14 @@ float EcalClusterLazyTools::BasicClusterTime(const reco::BasicCluster &cluster, 
       float adcToGeV = 1.;
       if       ( (detitr -> first).subdetId() == EcalBarrel )  adcToGeV = float(agc->getEBValue());
       else if  ( (detitr -> first).subdetId() == EcalEndcap )  adcToGeV = float(agc->getEEValue());
+      else if  ( (detitr -> first).subdetId() == EcalShashlik )  adcToGeV = float(agc->getEKValue());
             float adc = 2.;
       if (icalconst>0 && lasercalib>0 && adcToGeV>0)  adc= (*oneHit).energy()/(icalconst*lasercalib*adcToGeV);
 
       // don't consider recHits with too little amplitude; take sigma_noise_total into account
       if( (detitr -> first).subdetId() == EcalBarrel  &&  adc< (1.1*20) ) continue;
       if( (detitr -> first).subdetId() == EcalEndcap  &&  adc< (2.2*20) ) continue;
+      if( (detitr -> first).subdetId() == EcalShashlik  &&  adc< (1.1*20) ) continue;
 
       // count only on rechits whose error is trusted by the method (ratio)
       if(! (*oneHit).isTimeErrorValid()) continue;

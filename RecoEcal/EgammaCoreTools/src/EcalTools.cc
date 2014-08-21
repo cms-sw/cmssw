@@ -3,6 +3,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannel.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannelRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,8 +33,9 @@ float EcalTools::swissCross( const DetId& id,
     s4 += recHitE( id, recHits,  0,  1 );
     s4 += recHitE( id, recHits,  0, -1 );
     return 1 - s4 / e1;
-  } else if ( id.subdetId() == EcalEndcap ) {
-    EEDetId eeId( id );
+  } else if ( id.subdetId() == EcalEndcap || 
+	      id.subdetId() == EcalShashlik  ) {
+    //EEDetId eeId( id );
     // select recHits with E above recHitThreshold
     float e1 = recHitE( id, recHits );
     if ( e1 < recHitThreshold ) return 0;
@@ -92,9 +94,10 @@ bool EcalTools::deadNeighbour(const DetId& id,
 			      int dx, int dy){
 
   
-  DetId nid;
+  DetId nid(0);
   if( id.subdetId() == EcalBarrel) nid = EBDetId::offsetBy( id, dx, dy );
   else if( id.subdetId() == EcalEndcap) nid = EEDetId::offsetBy( id, dx, dy );
+  //else if( id.subdetId() == EcalShashlik) nid = EKDetId::offsetBy( id, dx, dy );
 
   if (!nid) return false;
 
@@ -123,9 +126,10 @@ float EcalTools::recHitE( const DetId id,
   // in the barrel:   di = dEta   dj = dPhi
   // in the endcap:   di = dX     dj = dY
   
-  DetId nid;
+  DetId nid(0);
   if( id.subdetId() == EcalBarrel) nid = EBDetId::offsetBy( id, di, dj );
   else if( id.subdetId() == EcalEndcap) nid = EEDetId::offsetBy( id, di, dj );
+  //else if( id.subdetId() == EcalShashlik) nid = EKDetId::offsetBy( id, di, dj );
   
   return ( nid == DetId(0) ? 0 : recHitE( nid, recHits ) );
 }
@@ -155,6 +159,10 @@ bool isNextToBoundary(const DetId& id){
     return EBDetId::isNextToBoundary(EBDetId(id));
   else  if ( id.subdetId() == EcalEndcap )
     return EEDetId::isNextToBoundary(EEDetId(id));
+  /*
+  else  if ( id.subdetId() == EcalShashlik )
+    return EKDetId::isNextToBoundary(EKDetId(id));
+  */
 
   return false;
 }
