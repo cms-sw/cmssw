@@ -30,11 +30,11 @@
   <!-- LogicalPartSection label="Support Structures" -->
   <LogicalPart name="SFFA" category="unspecified">
     <rSolid name="SFFA"/>
-    <rMaterial name="materials:E_Aluminium"/>
+    <rMaterial name="materials:E_Polythene"/>
   </LogicalPart>
   <LogicalPart name="SFRA" category="unspecified">
     <rSolid name="SFRA"/>
-    <rMaterial name="materials:E_Aluminium"/>
+    <rMaterial name="materials:E_Polythene"/>
   </LogicalPart>
   <LogicalPart name="SFNM1" category="unspecified">
     <rSolid name="SFNM1"/>
