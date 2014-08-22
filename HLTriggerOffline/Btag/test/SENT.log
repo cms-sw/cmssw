@@ -1,0 +1,82 @@
+POST /srm/v2/server HTTP/1.1
+Host: srm-eoscms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 755
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/marfin/RelValTTbar/53x2011redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: srm-cms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 782
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-cms.cern.ch:8443/srm/managerv2?SFN=/castor/cern.ch/user/m/marfin//53xRelVal2011Redig/marfin/RelValTTbar/53x2011redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: srm-cms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 789
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-cms.cern.ch:8443/srm/managerv2?SFN=/castor/cern.ch/user/m/marfin//53xRelVal2011Redigi/marfin/RelValTTbar/53xRelVal2011Redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: srm-cms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 789
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-cms.cern.ch:8443/srm/managerv2?SFN=/castor/cern.ch/user/m/marfin//53xRelVal2011Redigi/marfin/RelValTTbar/53xRelVal2011Redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: srm-cms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 789
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-cms.cern.ch:8443/srm/managerv2?SFN=/castor/cern.ch/user/m/marfin//53xRelVal2011Redigi/marfin/RelValTTbar/53xRelVal2011Redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/v2/server HTTP/1.1
+Host: srm-eoscms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 761
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/marfin/RelValTTbar/53xRelVal2011Redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: srm-cms.cern.ch:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 789
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://srm-cms.cern.ch:8443/srm/managerv2?SFN=/castor/cern.ch/user/m/marfin//53xRelVal2011Redigi/marfin/RelValTTbar/53xRelVal2011Redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: dcache-se-cms.desy.de:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 779
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2/store/user/marfin/RelValTTbar/53xRelVal2011Redigi/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>POST /srm/managerv2 HTTP/1.1
+Host: dcache-se-cms.desy.de:8443
+User-Agent: gSOAP/2.7
+Content-Type: text/xml; charset=utf-8
+Content-Length: 782
+Connection: close
+SOAPAction: "Ls"
+
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:srm2="http://srm.lbl.gov/StorageResourceManager"><SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><srm2:srmLs><srmLsRequest><arrayOfSURLs><urlArray>srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2/store/user/marfin/RelValTTbar/53xRelVal2011Redigi_v2/844a175eacc74cc51be2e7d71ca2539e/</urlArray></arrayOfSURLs><fullDetailedList>true</fullDetailedList><numOfLevels>0</numOfLevels></srmLsRequest></srm2:srmLs></SOAP-ENV:Body></SOAP-ENV:Envelope>

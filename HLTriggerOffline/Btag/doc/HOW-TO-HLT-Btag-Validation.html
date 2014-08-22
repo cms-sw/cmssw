@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<title>HLT/Btag Validation</title>
+<meta name="author" content="Igor Marfin" />
+<meta name="organization" content="DESY" />
+<meta name="copyright" content="This document has been placed in the public domain. You may do with it as you wish. You may copy, modify, redistribute, reattribute, sell, buy, rent, lease, destroy, or improve it, quote it at length, excerpt, incorporate, collate, fold, staple, or mutilate it, or do anything else to it that your or anyone else's heart desires." />
+<meta name="date" content="05/18/13" />
+<meta content="reStructuredText, demonstration, demo, parser" name="keywords" />
+<meta content="A demonstration of the reStructuredText markup language, containing examples of all basic constructs and many advanced constructs." lang="en" name="description" />
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: HOW-TO-HLT-Btag-Validation.html,v 1.2 2013/06/18 10:16:00 marfin Exp $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { /* line numbers */
+  color: grey;
+}
+
+.code {
+  background-color: #eeeeee
+}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="hlt-btag-validation">
+<h1 class="title">HLT/Btag Validation</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>Igor Marfin</td></tr>
+<tr><th class="docinfo-name">Contact:</th>
+<td>&lt;<a class="reference external" href="mailto:marfin&#64;mail.desy.de">marfin&#64;mail.desy.de</a>&gt; &lt;<a class="reference external" href="mailto:marfin&#64;cern.ch">marfin&#64;cern.ch</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>work in progress</td></tr>
+<tr><th class="docinfo-name">Organization:</th>
+<td>DESY</td></tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>v0.2</td></tr>
+<tr><th class="docinfo-name">Copyright:</th>
+<td>This document has been placed in the public domain. You
+may do with it as you wish. You may copy, modify,
+redistribute, reattribute, sell, buy, rent, lease,
+destroy, or improve it, quote it at length, excerpt,
+incorporate, collate, fold, staple, or mutilate it, or do
+anything else to it that your or anyone else's heart
+desires.</td></tr>
+<tr><th class="docinfo-name">Date:</th>
+<td>05/18/13</td></tr>
+</tbody>
+</table>
+<div class="dedication topic">
+<p class="topic-title first">Dedication</p>
+<p>For Btag POG/ TSG</p>
+</div>
+<div class="abstract topic">
+<p class="topic-title first">Abstract</p>
+<p>This document is a brief introduction into the technical
+details of HLTriggerOffline/Btag. It covers a few topics related to 'how-to start', 'how-to run', 'how-to plot and test'
+etc</p>
+</div>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#how-to-start" id="id15">1&nbsp;&nbsp;&nbsp;HOW-TO start</a><ul class="auto-toc">
+<li><a class="reference internal" href="#cvs-repository" id="id16">1.1&nbsp;&nbsp;&nbsp;CVS repository</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-relval-samples" id="id17">2&nbsp;&nbsp;&nbsp;Getting Relval samples</a><ul class="auto-toc">
+<li><a class="reference internal" href="#producing-local-relval-samples" id="id18">2.1&nbsp;&nbsp;&nbsp;Producing local RelVal samples</a></li>
+<li><a class="reference internal" href="#getting-central-produced-relval-samples" id="id19">2.2&nbsp;&nbsp;&nbsp;Getting  central  produced RelVal samples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-test-of-dqm-harvesting" id="id20">3&nbsp;&nbsp;&nbsp;The test of DQM harvesting</a><ul class="auto-toc">
+<li><a class="reference internal" href="#plotting-dqm-v0001-r00000001-cmssw-5-3-3-relval-trigval-root" id="id21">3.1&nbsp;&nbsp;&nbsp;Plotting <tt class="docutils literal">DQM_V0001_R00000001_CMSSW_5_3_3_Relval_TrigVal.root</tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#harvesting-hlt-btagging-for-cmssw-5-2-7" id="id22">4&nbsp;&nbsp;&nbsp;Harvesting  HLT Btagging  for CMSSW_5_2_7</a></li>
+<li><a class="reference internal" href="#additional-how-tos" id="id23">5&nbsp;&nbsp;&nbsp;Additional <tt class="docutils literal"><span class="pre">HOW-TOs</span></tt></a></li>
+<li><a class="reference internal" href="#what-next" id="id24">6&nbsp;&nbsp;&nbsp;What next?</a></li>
+<li><a class="reference internal" href="#references" id="id25">7&nbsp;&nbsp;&nbsp;References</a></li>
+<li><a class="reference internal" href="#rst" id="id26">8&nbsp;&nbsp;&nbsp;RsT</a><ul class="auto-toc">
+<li><a class="reference internal" href="#more-details" id="id27">8.1&nbsp;&nbsp;&nbsp;More details</a></li>
+<li><a class="reference internal" href="#how-to-obtain-from-rst-different-outputs" id="id28">8.2&nbsp;&nbsp;&nbsp;HOW to obtain from RST different  outputs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">That's only a short introduction. Please, look at the reffered twikis for more details</p>
+</div>
+<div class="section" id="how-to-start">
+<h1><a class="toc-backref" href="#id15">1&nbsp;&nbsp;&nbsp;HOW-TO start</a></h1>
+<p>The package HLTriggerOffline/Btag is designed to do a validation in  offline DQM
+So far, there is only support of  RelVal MC.</p>
+<p>The structure of package is</p>
+<pre class="literal-block">
+BuildFile.xml
+doc/
+interface/
+src/
+python/
+test/
+</pre>
+<div class="section" id="cvs-repository">
+<h2><a class="toc-backref" href="#id16">1.1&nbsp;&nbsp;&nbsp;CVS repository</a></h2>
+<p>First, we have to get the code from CVS repo.</p>
+<pre class="code bash literal-block">
+cmsrel CMSSW_5_3_3
+<span class="nb">cd </span>CMSSW_5_3_3/src
+cmsenv
+cvs co HLTriggerOffline/Btag
+</pre>
+<p>Then we have to update the package(s) which are provides the configurations of the validation</p>
+<pre class="code bash literal-block">
+cvs co HLTriggerOffline/Common
+checkdeps -a
+scram b -j4
+<span class="nb">hash</span> -r
+</pre>
+<p>To test the code, we have to fix the files  <tt class="docutils literal">HLTriggerOffline/Common/python/HLTValidation_cff.py</tt>,
+<tt class="docutils literal">HLTriggerOffline/Common/test/hltHarvesting_cff.py</tt> and   <tt class="docutils literal">HLTriggerOffline/Common/test/HLTValidationHarvest_cff.py</tt></p>
+<pre class="code bash literal-block">
+cp HLTriggerOffline/Btag/doc/HLTValidation_cff.py HLTriggerOffline/Common/python/
+cp HLTriggerOffline/Btag/doc/hltHarvesting_cfg.py HLTriggerOffline/Common/test
+cp HLTriggerOffline/Btag/doc/HLTValidationHarvest_cff.py HLTriggerOffline/Common/test
+
+scram b -j4
+</pre>
+</div>
+</div>
+<div class="section" id="getting-relval-samples">
+<h1><a class="toc-backref" href="#id17">2&nbsp;&nbsp;&nbsp;Getting Relval samples</a></h1>
+<div class="section" id="producing-local-relval-samples">
+<h2><a class="toc-backref" href="#id18">2.1&nbsp;&nbsp;&nbsp;Producing local RelVal samples</a></h2>
+<p>I've tested the code w/o the access to central produced relval mc files.
+I've produced 10 events of <tt class="docutils literal">TTbar</tt> for testing purpose  at  <tt class="docutils literal"><span class="pre">desy-cms013.desy.de</span></tt>  Higgs group server &#64; DESY.</p>
+<ul class="simple">
+<li>Production  <tt class="docutils literal">RelVal</tt> TTbar, so called <tt class="docutils literal"><span class="pre">stage-i</span></tt><ul>
+<li><tt class="docutils literal"><span class="pre">GEN-SIM-DIGI-etc</span></tt>,  step 1</li>
+</ul>
+</li>
+</ul>
+<pre class="code bash literal-block">
+<span class="nb">cd </span>HLTriggerOffline/Btag/test
+cmsDriver.py TTbar_7TeV_cfi.py -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n 10 --eventcontent FEVTDEBUGHLT --conditions auto:startup_GRun --mc
+</pre>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal">RAW2DIGI,RECO,VALIDATION:hltvalidation</tt>, step 2</li>
+</ul>
+</blockquote>
+<pre class="code bash literal-block">
+cmsDriver.py step2 -s RAW2DIGI,RECO,VALIDATION:hltvalidation --eventcontent FEVTDEBUGHLT --conditions auto:startup_GRun -n 10 --mc --filein file:TTbar_7TeV_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root
+</pre>
+<p>After <tt class="docutils literal">step 1</tt> and <tt class="docutils literal">step 2</tt>, you should have two files</p>
+<pre class="literal-block">
+TTbar_7TeV_cfi_bla_bla.root
+step2_bla_bla_VALIDATION.root
+</pre>
+</div>
+<div class="section" id="getting-central-produced-relval-samples">
+<h2><a class="toc-backref" href="#id19">2.2&nbsp;&nbsp;&nbsp;Getting  central  produced RelVal samples</a></h2>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">The central produced samples can usually be used only  at lxplus.cern.ch</p>
+</div>
+<p>Of course, the code should be tested on the number of events &gt;10 . First, we have to find relval samples. There are
+a few ways to get the list of the datasets and the needed files. You can visit the page  <a class="footnote-reference" href="#relvalstat" id="id1">[1]</a>. But there is
+a more sophisticated way to get not only names of datasets but and the names of root files</p>
+<p>Here is an example how to use DAS query <a class="footnote-reference" href="#das" id="id2">[2]</a></p>
+<pre class="literal-block">
+dataset dataset=/RelValTT*/*/*HLTDEBUG | grep dataset.name
+</pre>
+<p>This is an example of getting the same info using das CLI <tt class="docutils literal">das_client.py</tt></p>
+<pre class="code bash literal-block">
+das_client.py --query<span class="o">=</span><span class="s2">&quot;dataset dataset=/RelValTT*/*/*HLTDEBUG  | grep dataset.name &quot;</span>  --idx<span class="o">=</span>0 --limit<span class="o">=</span>100000
+</pre>
+<p>I don't know why but <tt class="docutils literal">das_client.py</tt> doesn't support <tt class="docutils literal">plain</tt> format anymore. It outputs in JSON format.</p>
+<p>You can find a very useful and simple parser <tt class="docutils literal">JSON.sh</tt> in the package folder <tt class="docutils literal">scripts/</tt> . To get the same with parsing JSON,
+please do</p>
+<pre class="code bash literal-block">
+das_client.py --query<span class="o">=</span><span class="s2">&quot;dataset dataset=/RelValTT*/*/*HLTDEBUG  | grep dataset.name &quot;</span>  --idx<span class="o">=</span>0 --limit<span class="o">=</span>100000  | ./JSON.sh -b  |  egrep <span class="s1">'\[&quot;data.*&quot;name.*&quot;\]'</span> | awk <span class="s1">'{print $2}'</span>
+</pre>
+<p>To get the list of all root files for datasets</p>
+<pre class="code bash literal-block">
+<span class="nv">_dataset</span><span class="o">=</span><span class="s2">&quot;/RelValTT*/*/*HLTDEBUG&quot;</span>
+das_client.py --query<span class="o">=</span><span class="s2">&quot;dataset dataset=$_dataset  | grep dataset.name &quot;</span>  --idx<span class="o">=</span>0 --limit<span class="o">=</span>100000  | ./JSON.sh -b  |  egrep <span class="s1">'\[&quot;data.*&quot;name.*&quot;\]'</span> | awk <span class="s1">'{print $2}'</span> | tr -d <span class="s2">&quot;\&quot;&quot;</span> &gt; list <span class="o">&amp;&amp;</span> cat list | xargs -I <span class="o">{}</span> <span class="nb">echo</span> <span class="s2">&quot;echo {}; echo; das_client.py --query=\&quot; file dataset={} \&quot; --idx=0 --limit=100000 |   ./JSON.sh -b  |  egrep '\[\&quot;data.*\&quot;name.*\&quot;\]' | awk '{print \$2}'; echo ;echo  &quot;</span> | sh
+</pre>
+<p>Ok, if we've chose some root file <tt class="docutils literal">file.root</tt>  provided by the previous command, then the <tt class="docutils literal">steps 1,2</tt>  are not needed any more.</p>
+</div>
+</div>
+<div class="section" id="the-test-of-dqm-harvesting">
+<h1><a class="toc-backref" href="#id20">3&nbsp;&nbsp;&nbsp;The test of DQM harvesting</a></h1>
+<p>Ok. Before we'll continue, we have to be sure that we either `` step2_bla_bla_VALIDATION.root `` or `` file.root`` under hands.
+Harvesting in DQM is a production of a set of TH1 objects stored somehow in the files with names like</p>
+<pre class="literal-block">
+DQM_V0001_R00000001_CMSSW_5_3_3_Relval_TrigVal.root
+</pre>
+<p>If you used to get <tt class="docutils literal">step2_bla_bla_VALIDATION.root</tt>, you can use  fixed <tt class="docutils literal">hltHarvesting_cfg.py</tt> . If you use the
+central RelVal file, please replace the <tt class="docutils literal">PoolSource</tt> attribute <tt class="docutils literal">fileNames</tt> value by <tt class="docutils literal">file.root</tt></p>
+<p>Harvesting is done via</p>
+<pre class="code bash literal-block">
+cmsRun ../../Common/test/hltHarvesting_cfg.py
+</pre>
+<div class="section" id="plotting-dqm-v0001-r00000001-cmssw-5-3-3-relval-trigval-root">
+<h2><a class="toc-backref" href="#id21">3.1&nbsp;&nbsp;&nbsp;Plotting <tt class="docutils literal">DQM_V0001_R00000001_CMSSW_5_3_3_Relval_TrigVal.root</tt></a></h2>
+<p>If we've done all correctly, we can produce a few plots. Later, we'll start DQM GUI server for the operation.  But now, it
+has a sense, to produce plots manually with some script. I've prepared in  <tt class="docutils literal">scripts/</tt> folder a few useful tools.</p>
+<pre class="literal-block">
+cuy.py
+v_root_lsRoot
+</pre>
+<p>All plottings can be done via running the command</p>
+<pre class="code bash literal-block">
+<span class="nv">$CMSSW_BASE</span>/src/HLTriggerOffline/Btag/scripts/cuy.py -x HLTBtagPlot.xml --verbose
+</pre>
+<p>where <tt class="docutils literal">HLTBtagPlot.xml</tt> is  a configuration file of the form</p>
+<pre class="literal-block">
+&lt;cuy&gt;
+&lt;validation type=REFREL_SAMPLE_Val file=DQM_V0001_R000000001__CMSSW_3_1_0__RelVal__TrigVal.root release=REFREL_SAMPLE_Val&gt;
+&lt;TH1 name=REFREL_JetTag_L3 source=/DQMData/Run 1/HLT/Run summary/BTag/HLT_DiJet40Eta2p6_BTagIP3DFastPV/JetTag_L3/&gt;
+&lt;TH1 name=REFREL_JetTag_Offline source=/DQMData/Run 1/HLT/Run summary/BTag/HLT_DiJet40Eta2p6_BTagIP3DFastPV/JetTag_Offline/&gt;
+&lt;!--
+JetTag_L3
+JetTag_Offline
+JetTag_OffvsL3
+Vertex_HLT_x
+Vertex_HLT_y
+Vertex_HLT_z
+Vertex_Off_x
+Vertex_Off_y
+Vertex_Off_z
+Vertex_OffvsHLT_x
+Vertex_OffvsHLT_y
+Vertex_OffvsHLT_z
+--&gt;
+&lt;/validation&gt;
+&lt;superimpose name=SAMPLE_Val title=JetTag SetLogy=false SetGrid=true XTitle=Discriminator YTitle=Nevents   &gt;
+&lt;superimposeItem name=REFREL_JetTag_L3 color=1 MarkerStyle=22 legend=JetTag_L3/&gt;
+&lt;superimposeItem name=REFREL_JetTag_Offline color=2 MarkerStyle=22 legend=JetTag_Offline/&gt;
+&lt;/superimpose&gt;
+&lt;/cuy&gt;
+</pre>
+<p>Also here is a commented list of TH1 objects. How did I obtained it? You can use  <tt class="docutils literal">scripts/v_root_lsRoot</tt> described here <a class="footnote-reference" href="#lsroot" id="id3">[3]</a>
+The commands below do compilation of the tool and extracting the list of TH1(2) objects.</p>
+<pre class="code bash literal-block">
+<span class="nb">cd</span> ../scripts/v_root_lsRoot
+make; <span class="nb">cd</span>-
+<span class="c"># create a map
+</span><span class="nv">$CMSSW_BASE</span>/src/HLTriggerOffline/Btag/scripts/v_root_lsRoot/lsRoot -l -m   DQM_V0001_R000000001__CMSSW_3_1_0__RelVal__TrigVal.root
+<span class="c"># get a list of histograms
+</span><span class="nv">$CMSSW_BASE</span>/src/HLTriggerOffline/Btag/scripts/v_root_lsRoot/lsRoot    <span class="s2">&quot;DQM_V0001_R000000001__CMSSW_3_1_0__RelVal__TrigVal.root:/DQMData/Run 1/HLT/Run summary/BTag/HLT_DiJet40Eta2p6_BTagIP3DFastPV&quot;</span> | awk <span class="s1">'{if(NR&gt;5) print $1}'</span>
+</pre>
+<p>The output of <tt class="docutils literal">cuy.py</tt> is a nice plot  <cite>$ref{fig1}$</cite></p>
+<div class="figure align-center">
+<img alt="SAMPLE_Val.png" src="SAMPLE_Val.png" style="width: 50%;" />
+<p class="caption">L3/Offline discriminator distribution for 10 events  <cite>label{fig1}</cite></p>
+</div>
+</div>
+</div>
+<div class="section" id="harvesting-hlt-btagging-for-cmssw-5-2-7">
+<h1><a class="toc-backref" href="#id22">4&nbsp;&nbsp;&nbsp;Harvesting  HLT Btagging  for CMSSW_5_2_7</a></h1>
+<p>The example of testing HLT Btagging at L25 and L3 is shown below. In order to start,
+first one needs to get list of input <tt class="docutils literal">RelVal</tt> files to put into the <tt class="docutils literal">hltHarvesting_cfg.py</tt>.
+Let's go to <a class="footnote-reference" href="#relvalstat" id="id4">[1]</a>, take the name of <tt class="docutils literal">/RelVal/TTbar</tt> dataset and get a list of files.</p>
+<pre class="code bash literal-block">
+ <span class="nv">_dataset</span><span class="o">=</span><span class="s2">&quot;/RelVal/TTbar/CMSSW_5_2_7/...&quot;</span>
+ <span class="nb">cd</span> ../scripts
+ das_client.py --query<span class="o">=</span><span class="s2">&quot;dataset dataset=$_dataset  | grep dataset.name &quot;</span>
+ --idx<span class="o">=</span>0 --limit<span class="o">=</span>100000  | ./JSON.sh -b  |  egrep <span class="s1">'\[&quot;data.*&quot;name.*&quot;\]'</span>
+ | awk <span class="s1">'{print $2}'</span> | tr -d <span class="s2">&quot;\&quot;&quot;</span> &gt; list <span class="o">&amp;&amp;</span> cat list | xargs -I <span class="o">{}</span> <span class="nb">echo</span> <span class="s2">&quot;echo {};
+ echo; das_client.py --query=\&quot; file dataset={} \&quot; --idx=0 --limit=100000 |
+./JSON.sh -b  |  egrep '\[\&quot;data.*\&quot;name.*\&quot;\]' | awk '{print \$2}'; echo ;echo  &quot;</span> | sh
+</pre>
+<p>Then, the obtained list is being used directly in a local run   of <tt class="docutils literal">cmsRun</tt>. Hovewer, it is now possible
+to start <tt class="docutils literal">CRAB</tt> jobs  in <tt class="docutils literal">$CMSSW_BASE/src/HLTriggerOffline/Btag/test/</tt> folder.</p>
+<p>After running the</p>
+<pre class="literal-block">
+cmsRun ../../Comon/test/hltHarvesting_cfg.py
+</pre>
+<p>in the <tt class="docutils literal">test</tt> folder, the file <tt class="docutils literal">DQM_R00001_V00001_CMSSW_5_2_7__RelTrig.root</tt> is produced.
+Then a template of the <tt class="docutils literal">xml</tt> file for plotting can be created if one does the following</p>
+<pre class="literal-block">
+$CMSSW_BASE/src/HLTriggerOffline/Btag/scripts/cuy.py -c  DQM_R0001_V00001_CMSSW_5_2_7__RelTrig.root &gt; HTLBTagPlot_CMSSW_5_2_7_MC.xml
+</pre>
+<p>The file mentioned abore requres additional efforts to clean unnecessery lines with references to <tt class="docutils literal">TH1</tt> objects
+which originate from other parts of DQM like ECAL, HCAL etc.
+Finally, the plots are created</p>
+<pre class="literal-block">
+$CMSSW_BASE/src/HLTriggerOffline/Btag/scripts/cuy.py -x  HTLBTagPlot_CMSSW_5_2_7_MC.xml  --verbose
+</pre>
+<p>The full set of the validation plots is shown below  <a class="citation-reference" href="#figure2" id="id5">[figure2]</a></p>
+<table class="docutils citation" frame="void" id="figure2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[figure2]</a></td><td><img alt="CMSSW_5_2_7_plot1.png" class="first" src="CMSSW_5_2_7_plot1.png" style="width: 30%;" />
+<img alt="CMSSW_5_2_7_plot2.png" src="CMSSW_5_2_7_plot2.png" style="width: 30%;" />
+<img alt="CMSSW_5_2_7_plot3.png" src="CMSSW_5_2_7_plot3.png" style="width: 30%;" />
+<img alt="CMSSW_5_2_7_plot4.png" src="CMSSW_5_2_7_plot4.png" style="width: 30%;" />
+<img alt="CMSSW_5_2_7_plot5.png" src="CMSSW_5_2_7_plot5.png" style="width: 30%;" />
+<img alt="CMSSW_5_2_7_plot6.png" src="CMSSW_5_2_7_plot6.png" style="width: 30%;" />
+<div class="last figure align-left">
+<img alt="CMSSW_5_2_7_plot7.png" src="CMSSW_5_2_7_plot7.png" style="width: 30%;" />
+<p class="caption">Performance plots</p>
+<div class="legend">
+From top-left side to bottom-right sides:
+JetTag distribution; efficiency vs JetTag for b/c jets; efficiency vs pT;
+Mistag-rates vs efficiency(b) for L25/L3</div>
+</div>
+</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="additional-how-tos">
+<h1><a class="toc-backref" href="#id23">5&nbsp;&nbsp;&nbsp;Additional <tt class="docutils literal"><span class="pre">HOW-TOs</span></tt></a></h1>
+<ul class="simple">
+<li>HOW-TO get a list of <tt class="docutils literal">hltBtag</tt> collections needed for feeding <tt class="docutils literal">HLTBtagPerformanceAnalyzer.cc</tt></li>
+</ul>
+<pre class="code bash literal-block">
+edmDumpEventContent step2_RAW2DIGI_RECO_VALIDATION.root | grep <span class="err">&quot;</span>hltBLifetime
+</pre>
+<p>or go to <tt class="docutils literal"><span class="pre">https://savannah.cern.ch/support/index.php?130651</span></tt></p>
+<p>and get</p>
+<pre class="literal-block">
+hltCaloJetL1FastJetCorrected
+hltSelector4JetsL1FastJet
+hltSelectorJets20L1FastJet
+hltPixelTracks
+hltFastPVPixelTracks
+hltFastPVPixelTracksRecover
+hltFastPVPixelTracksMerger
+hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV
+hltPixelVertices
+hltFastPVPixelVertices
+hltFastPVPixelVertices3D
+hltBLifetimeL25AssociatorbbPhiL1FastJetFastPV
+hltBLifetimeL3AssociatorbbPhiL1FastJetFastPV
+hltBLifetimeL25TagInfosbbPhiL1FastJetFastPV
+hltBLifetimeL3TagInfosbbPhiL1FastJetFastPV
+hltBLifetimeL25BJetTagsbbPhiL1FastJetFastPV
+hltBLifetimeL3BJetTagsbbPhiL1FastJetFastPV
+</pre>
+<ul class="simple">
+<li>HOW-TO submit to CVS</li>
+</ul>
+<pre class="code bash literal-block">
+<span class="c"># go to subpackage folder
+</span><span class="nb">cd </span>HLTriggerOffline/Btag/
+<span class="c"># add all sub folders and files
+</span>find . -type d -print | grep -v CVS | grep -v <span class="s2">&quot;admin&quot;</span> | sed -ne <span class="s1">'s/.\///p'</span> | xargs -I <span class="o">{}</span>  <span class="nb">echo</span> <span class="s2">&quot;cvs add {} &quot;</span> | sh
+find . -type f -print | grep -v CVS | grep -v <span class="s2">&quot;admin&quot;</span> | sed -ne <span class="s1">'s/.\///p'</span> | xargs -I <span class="o">{}</span>  <span class="nb">echo</span> <span class="s2">&quot;cvs add {} &quot;</span> | sh
+<span class="c"># commit changes
+</span>cvs ci -m <span class="s2">&quot;Working version of HLTriggerOffline/Btag/&quot;</span>
+</pre>
+</div>
+<div class="section" id="what-next">
+<h1><a class="toc-backref" href="#id24">6&nbsp;&nbsp;&nbsp;What next?</a></h1>
+<p>We have to test the code with  DQM GUI  service. We can repeat all steps
+done by Dmitry (DESY summer student) sometimes ago <a class="footnote-reference" href="#dima" id="id6">[4]</a>.</p>
+</div>
+<div class="section" id="references">
+<h1><a class="toc-backref" href="#id25">7&nbsp;&nbsp;&nbsp;References</a></h1>
+<p>The <tt class="docutils literal">online</tt> list of RelVal datasets <a class="footnote-reference" href="#relvalstat" id="id7">[1]</a></p>
+<table class="docutils footnote" frame="void" id="relvalstat" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id4">2</a>, <a class="fn-backref" href="#id7">3</a>)</em> <a class="reference external" href="http://cms-project-relval.web.cern.ch/cms-project-relval/relval_stats/">http://cms-project-relval.web.cern.ch/cms-project-relval/relval_stats/</a></td></tr>
+</tbody>
+</table>
+<p>The DAS system <a class="footnote-reference" href="#das" id="id8">[2]</a></p>
+<table class="docutils footnote" frame="void" id="das" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id8">2</a>)</em> <a class="reference external" href="https://cmsweb.cern.ch/das">https://cmsweb.cern.ch/das</a></td></tr>
+</tbody>
+</table>
+<p>The tool for dumping content of any root file <a class="footnote-reference" href="#lsroot" id="id9">[3]</a></p>
+<table class="docutils footnote" frame="void" id="lsroot" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id9">2</a>)</em> <a class="reference external" href="http://root.cern.ch/phpBB3/viewtopic.php?f=12&amp;t=10786">http://root.cern.ch/phpBB3/viewtopic.php?f=12&amp;t=10786</a></td></tr>
+</tbody>
+</table>
+<p>How to start DQM GUI <a class="footnote-reference" href="#dima" id="id10">[4]</a></p>
+<table class="docutils footnote" frame="void" id="dima" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[4]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id10">2</a>)</em> <a class="reference external" href="https://twiki.cern.ch/twiki/bin/view/Sandbox/DQMonlineDOliinychenko">https://twiki.cern.ch/twiki/bin/view/Sandbox/DQMonlineDOliinychenko</a></td></tr>
+</tbody>
+</table>
+<p>Other useful twiki <a class="footnote-reference" href="#id12" id="id11">[5]</a></p>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[5]</a></td><td><a class="reference external" href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTriggerSoftwareValidation">https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTriggerSoftwareValidation</a>
+<a class="reference external" href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHLTriggerOffline">https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHLTriggerOffline</a>
+<a class="reference external" href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookDQM#How_to_visualize_the_DQM_histogr">https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookDQM#How_to_visualize_the_DQM_histogr</a>
+<a class="reference external" href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideValidationTableHLT">https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideValidationTableHLT</a>
+<a class="reference external" href="https://twiki.cern.ch/twiki/bin/view/Atlas/ATLASStorageAtCERN#How_to_list_a_directory_in_EOS">https://twiki.cern.ch/twiki/bin/view/Atlas/ATLASStorageAtCERN#How_to_list_a_directory_in_EOS</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="rst">
+<h1><a class="toc-backref" href="#id26">8&nbsp;&nbsp;&nbsp;RsT</a></h1>
+<p>The documentation was written in RsT markup.</p>
+<div class="section" id="more-details">
+<h2><a class="toc-backref" href="#id27">8.1&nbsp;&nbsp;&nbsp;More details</a></h2>
+<p>you can find more details here <a class="footnote-reference" href="#demorst" id="id13">[6]</a> and here <a class="footnote-reference" href="#demohtml" id="id14">[7]</a></p>
+<table class="docutils footnote" frame="void" id="demorst" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id13">[6]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/docs/user/rst/demo.txt">http://docutils.sourceforge.net/docs/user/rst/demo.txt</a> <a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.txt">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.txt</a> <a class="reference external" href="http://docutils.sourceforge.net/rst.txt">http://docutils.sourceforge.net/rst.txt</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="demohtml" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id14">[7]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/docs/user/rst/demo.html#inline-markup">http://docutils.sourceforge.net/docs/user/rst/demo.html#inline-markup</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="how-to-obtain-from-rst-different-outputs">
+<h2><a class="toc-backref" href="#id28">8.2&nbsp;&nbsp;&nbsp;HOW to obtain from RST different  outputs</a></h2>
+<ul class="simple">
+<li>Obtain HTML</li>
+</ul>
+<pre class="code bash literal-block">
+rst2html.py HOW-TO.rst --syntax-highlight<span class="o">=</span><span class="s2">&quot;long&quot;</span> &gt; HOW-TO.html
+</pre>
+<ul class="simple">
+<li>Obtain  PDF</li>
+</ul>
+<pre class="code bash literal-block">
+rst2pdf   HOW-TO.rst
+</pre>
+<ul class="simple">
+<li>Obtain TeX</li>
+</ul>
+<pre class="code bash literal-block">
+rst2latex   HOW-TO.rst  &gt; HOW-TO.tex
+</pre>
+<ul class="simple">
+<li>Obtain twiki (for CERN twiki)</li>
+</ul>
+<pre class="code bash literal-block">
+cat   HOW-TO.rst | rst2twiki.py  &gt; HOW-TO.twiki
+</pre>
+<ul class="simple">
+<li>Obtain wiki</li>
+</ul>
+<pre class="code bash literal-block">
+cat   HOW-TO.rst | rst3wiki.py  &gt; HOW-TO.wiki
+</pre>
+<p>Good Luck!</p>
+</div>
+</div>
+</div>
+</body>
+</html>

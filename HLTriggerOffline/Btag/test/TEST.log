@@ -1,0 +1,3397 @@
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x1fa22510
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fff65bcbbf0 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x1fa23b60
+Pointer enter location=0x7fff65bcbbf0 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fff65bcbbf0 type=87 (0 0)
+Lookup location=0x1fa22510 type=27: not found
+Pointer enter location=0x1fa22510 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x1fa22510 type=27 (0 0)
+Lookup location=0x7fff65bce3db type=3: not found
+Pointer enter location=0x7fff65bce3db array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fff65bce3db type=3 (0 0)
+Lookup location=0x7fff65bb26dc type=7: not found
+Pointer enter location=0x7fff65bb26dc array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fff65bb26dc type=7 (0 0)
+Lookup location=0x7fff65bb2664 type=1: not found
+Pointer enter location=0x7fff65bb2664 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fff65bb2664 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x1fa240a0
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff65bb2610 type=329: not found
+Embedded_id 0x7fff65bb2610 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff65bcbbf0 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff65bcbbf0 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x1fa22510 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x1fa22510 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff65bce3db type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff65bb26dc type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff65bb26dc type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff65bb2664 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff65bb2664 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-eoscms.cern.ch' path='/srm/v2/server' port=8443
+Opening socket 5 to host='srm-eoscms.cern.ch' port=8443
+Calculating the message size with attachments, current count=755
+New count is 755 bytes
+Begin send phase (socket=5 mode=0x1 count=755)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff65bb2610 type=329: not found
+Embedded_id 0x7fff65bb2610 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff65bcbbf0 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff65bcbbf0 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x1fa22510 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x1fa22510 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff65bce3db type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff65bb26dc type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff65bb26dc type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff65bb2664 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff65bb2664 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x1fa240a0)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x1fa23b60)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x1fa240a0
+Free ID hashtable
+Read 145 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Date: Mon, 02 Sep 2013 15:27:06 GMT
+HTTP header: Content-Type: text/xml;charset=UTF-8
+HTTP header: Connection: close
+HTTP header: Server: Jetty(8.0.1.v20110908)
+Finished HTTP header parsing
+Keep alive connection = 0
+Read 3896 bytes from socket 5
+stdsoap2.c(7172): malloc(45) = 0x1fa2b350
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x1faa9d60
+stdsoap2.c(7219): malloc(64) = 0x1faa94d0
+stdsoap2.c(2336): malloc(39) = 0x1fa2aa20
+Push namespace binding (level=0) 'soapenv' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('soapenv' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x1fa26790
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x1fa2e7e0
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+Tags and (default) namespaces match: 'soapenv:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x1fa2d5d0
+Tags and (default) namespaces match: 'soapenv:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'soapenv:Body'='SOAP-ENV:Body'
+stdsoap2.c(7172): malloc(61) = 0x1fa2db10
+stdsoap2.c(7219): malloc(64) = 0x1fa2d440
+stdsoap2.c(2336): malloc(35) = 0x1fa2d490
+Push namespace binding (level=2) 'ns1' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns1' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'ns1:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fff65bcbc40 size=8 level=0
+stdsoap2.c(7172): malloc(44) = 0x1fa400e0
+stdsoap2.c(7219): malloc(64) = 0x1fa2af30
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=3) 'srmLsResponse'='srmLsResponse'
+stdsoap2.c(4701): malloc(68) = 0x1fa2b080
+Forwarding first href='#id0' type=88 0x7fff65bcbc40 (24 bytes)
+Popped namespace binding (level=2) 'ns1'
+stdsoap2.c(2368): free(0x1fa2d490)
+End element found (level=2) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+stdsoap2.c(7172): malloc(42) = 0x1fa2d490
+stdsoap2.c(7219): malloc(64) = 0x1fa2e570
+stdsoap2.c(7172): malloc(52) = 0x1fa2e5f0
+stdsoap2.c(7219): malloc(64) = 0x1fa34350
+stdsoap2.c(7172): malloc(48) = 0x1fa343d0
+stdsoap2.c(7219): malloc(64) = 0x1fa31630
+stdsoap2.c(2314): free(0x1fa2d5d0)
+stdsoap2.c(2336): malloc(39) = 0x1fa316b0
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x1fa31710
+Push namespace binding (level=2) 'ns2' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns2' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id0' type=88
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns2:srmLsResponse' 'srm2:srmLsResponse'
+Enter id='#id0' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x1fa31770
+Lookup entry id='#id0 for location=0x1fa31770'
+Update entry id='#id0' type=88 location=0x1fa31770 size=24 level=0
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=3) 'returnStatus'='returnStatus'
+stdsoap2.c(4701): malloc(68) = 0x1fa23b90
+Forwarding first href='#id1' type=15 0x1fa31770 (16 bytes)
+stdsoap2.c(7172): malloc(47) = 0x1fa2d5d0
+stdsoap2.c(7219): malloc(64) = 0x1fa23c40
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'requestToken' 'requestToken'
+Begin element found (level=3) 'requestToken'='requestToken'
+Tags match: 'details' 'details'
+Begin element found (level=3) 'details'='details'
+stdsoap2.c(4701): malloc(68) = 0x1fa23cc0
+Forwarding first href='#id2' type=21 0x1fa31780 (16 bytes)
+Popped namespace binding (level=2) 'ns2'
+stdsoap2.c(2368): free(0x1fa31710)
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns3' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns3' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa23d40
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id2' type=21
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns3:ArrayOfTMetaDataPathDetail' 'srm2:ArrayOfTMetaDataPathDetail'
+Enter id='#id2' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1fa23da0
+Lookup entry id='#id2 for location=0x1fa23da0'
+Update entry id='#id2' type=21 location=0x1fa23da0 size=16 level=0
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x1fa2d520
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=3) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x1fa2e850
+Reverting last element (level=3)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=3) 'pathDetailArray'='pathDetailArray'
+stdsoap2.c(4701): malloc(68) = 0x1fa23e60
+Forwarding first href='#id3' type=20 0x1fa2e860 (144 bytes)
+Save all blocks in contiguous memory space of 8 bytes (0x1fa2e850->(nil))
+stdsoap2.c(4726): malloc(24) = 0x1fa31c40
+First block
+Link update id='#id3' 0x1fa2e860
+Copy 8 bytes from 0x1fa2e860 to 0x1fa31c40
+Next block
+stdsoap2.c(2026): free(0x1fa2e850)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x1fa2d520)
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa23d40)
+Popped namespace binding (level=2) 'ns3'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns4' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns4' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa23f10
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id1' type=15
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns4:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='#id1' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1fa23f70
+Lookup entry id='#id1 for location=0x1fa23f70'
+Update entry id='#id1' type=15 location=0x1fa23f70 size=16 level=0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=3) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x1fa23f70 size=4 level=0
+stdsoap2.c(4701): malloc(68) = 0x1fa23fd0
+New entry href='#id4' type=142 size=4 level=0 location=0x1fa23f70
+stdsoap2.c(5092): malloc(40) = 0x1fa35a70
+Forwarding type=142 (target type=0) size=4 location=0x1fa23f70 level=0 href='#id4'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=3) 'explanation'='explanation'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa23f10)
+Popped namespace binding (level=2) 'ns4'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns5' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns5' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa35ad0
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id3' type=20
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns5:TMetaDataPathDetail' 'srm2:TMetaDataPathDetail'
+Enter id='#id3' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x1fa35b30
+Lookup entry id='#id3 for location=0x1fa35b30'
+Update entry id='#id3' type=20 location=0x1fa35b30 size=144 level=0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'path' 'path'
+Begin element found (level=4) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x1fa35c10
+stdsoap2.c(6963): free(0x1faa9d60)
+stdsoap2.c(4726): malloc(104) = 0x1fa35cd0
+Enter id='' type=3 loc=0x1fa35cd0 size=8 level=0
+End element found (level=3) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=3) 'status'='status'
+stdsoap2.c(4701): malloc(68) = 0x1faa9d60
+Forwarding first href='#id5' type=15 0x1fa35b38 (16 bytes)
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'size' 'size'
+Begin element found (level=3) 'size'='size'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'createdAtTime' 'createdAtTime'
+Begin element found (level=3) 'createdAtTime'='createdAtTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lastModificationTime' 'lastModificationTime'
+Begin element found (level=3) 'lastModificationTime'='lastModificationTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'fileStorageType' 'fileStorageType'
+Begin element found (level=3) 'fileStorageType'='fileStorageType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'retentionPolicyInfo' 'retentionPolicyInfo'
+Begin element found (level=3) 'retentionPolicyInfo'='retentionPolicyInfo'
+Tags match: 'fileLocality' 'fileLocality'
+Begin element found (level=3) 'fileLocality'='fileLocality'
+stdsoap2.c(4701): malloc(68) = 0x1fa35da0
+Forwarding first href='#id6' type=139 0x1fa35b68 (4 bytes)
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSpaceTokens' 'arrayOfSpaceTokens'
+Begin element found (level=3) 'arrayOfSpaceTokens'='arrayOfSpaceTokens'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'type' 'type'
+Begin element found (level=3) 'type'='type'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeAssigned' 'lifetimeAssigned'
+Begin element found (level=3) 'lifetimeAssigned'='lifetimeAssigned'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeLeft' 'lifetimeLeft'
+Begin element found (level=3) 'lifetimeLeft'='lifetimeLeft'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'ownerPermission' 'ownerPermission'
+Begin element found (level=3) 'ownerPermission'='ownerPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'groupPermission' 'groupPermission'
+Begin element found (level=3) 'groupPermission'='groupPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'otherPermission' 'otherPermission'
+Begin element found (level=3) 'otherPermission'='otherPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumType' 'checkSumType'
+Begin element found (level=3) 'checkSumType'='checkSumType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumValue' 'checkSumValue'
+Begin element found (level=3) 'checkSumValue'='checkSumValue'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSubPaths' 'arrayOfSubPaths'
+Begin element found (level=3) 'arrayOfSubPaths'='arrayOfSubPaths'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa35ad0)
+Popped namespace binding (level=2) 'ns5'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns6' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns6' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa35e20
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id4' type=142
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns6:TStatusCode' 'srm2:TStatusCode'
+Enter id='#id4' type=142 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1fa2d520
+Lookup entry id='#id4 for location=0x1fa2d520'
+Update entry id='#id4' type=142 location=0x1fa2d520 size=4 level=0
+Element content value='SRM_FAILURE'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa35e20)
+Popped namespace binding (level=2) 'ns6'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns7' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns7' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa35eb0
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id6' type=139
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns7:TFileLocality' 'srm2:TFileLocality'
+Enter id='#id6' type=139 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1fa2e850
+Lookup entry id='#id6 for location=0x1fa2e850'
+Update entry id='#id6' type=139 location=0x1fa2e850 size=4 level=0
+Element content value='ONLINE'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa35eb0)
+Popped namespace binding (level=2) 'ns7'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns8' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns8' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa35f40
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id5' type=15
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns8:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='#id5' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1fa35fa0
+Lookup entry id='#id5 for location=0x1fa35fa0'
+Update entry id='#id5' type=15 location=0x1fa35fa0 size=16 level=0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=3) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x1fa35fa0 size=4 level=0
+stdsoap2.c(4701): malloc(68) = 0x1fa36000
+New entry href='#id7' type=142 size=4 level=0 location=0x1fa35fa0
+stdsoap2.c(5092): malloc(40) = 0x1fa36080
+Forwarding type=142 (target type=0) size=4 location=0x1fa35fa0 level=0 href='#id7'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=4) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(48) = 0x1fa360e0
+Enter id='' type=3 loc=0x1fa360e0 size=8 level=0
+End element found (level=3) 'explanation'='explanation'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa35f40)
+Popped namespace binding (level=2) 'ns8'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0x1fa316b0
+Push namespace binding (level=2) 'ns9' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns9' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0x1fa36150
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id7' type=142
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns9:TStatusCode' 'srm2:TStatusCode'
+Enter id='#id7' type=142 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1fa35930
+Lookup entry id='#id7 for location=0x1fa35930'
+Update entry id='#id7' type=142 location=0x1fa35930 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0x1fa36150)
+Popped namespace binding (level=2) 'ns9'
+stdsoap2.c(2368): free(0x1fa316b0)
+End element found (level=2) 'multiRef'=''
+End element found (level=1) 'soapenv:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x1fa2e7e0)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x1fa26790)
+Popped namespace binding (level=0) 'soapenv'
+stdsoap2.c(2368): free(0x1fa2aa20)
+End element found (level=0) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Traversing link chain to resolve id='#id0'
+... link 0x7fff65bcbc40 -> 0x1fa31770
+Traversing link chain to resolve id='#id1'
+... link 0x1fa31770 -> 0x1fa23f70
+Traversing link chain to resolve id='#id2'
+... link 0x1fa31780 -> 0x1fa23da0
+Traversing link chain to resolve id='#id3'
+... link 0x1fa31c40 -> 0x1fa35b30
+Traversing link chain to resolve id='#id5'
+... link 0x1fa35b38 -> 0x1fa35fa0
+Traversing link chain to resolve id='#id6'
+... link 0x1fa35b68 -> 0x1fa2e850
+Resolution phase
+Resolving forwarded data type=142 location=0x1fa2d520 level=0,0 id='#id4'
+Copying data type=142 (target type=0) 0x1fa2d520 -> 0x1fa23f70 (4 bytes)
+stdsoap2.c(1956): free(0x1fa35a70)
+Resolving forwarded data type=142 location=0x1fa35930 level=0,0 id='#id7'
+Copying data type=142 (target type=0) 0x1fa35930 -> 0x1fa35fa0 (4 bytes)
+stdsoap2.c(1956): free(0x1fa36080)
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x1fa23c40)
+stdsoap2.c(5406): free(0x1fa2d5d0)
+stdsoap2.c(5405): free(0x1fa31630)
+stdsoap2.c(5406): free(0x1fa343d0)
+stdsoap2.c(5405): free(0x1fa34350)
+stdsoap2.c(5406): free(0x1fa2e5f0)
+stdsoap2.c(5405): free(0x1fa2e570)
+stdsoap2.c(5406): free(0x1fa2d490)
+stdsoap2.c(5405): free(0x1fa2af30)
+stdsoap2.c(5406): free(0x1fa400e0)
+stdsoap2.c(5405): free(0x1fa2d440)
+stdsoap2.c(5406): free(0x1fa2db10)
+stdsoap2.c(5405): free(0x1faa94d0)
+stdsoap2.c(5406): free(0x1fa2b350)
+stdsoap2.c(5411): free(0x1fa35c10)
+stdsoap2.c(5428): free(0x1fa240a0)
+Free pointer hashtable
+Free ID hashtable
+stdsoap2.c(4668): free(0x1fa2b080)
+stdsoap2.c(4668): free(0x1fa23b90)
+stdsoap2.c(4668): free(0x1fa23cc0)
+stdsoap2.c(4668): free(0x1fa23e60)
+stdsoap2.c(4668): free(0x1fa23fd0)
+stdsoap2.c(4668): free(0x1faa9d60)
+stdsoap2.c(4668): free(0x1fa35da0)
+stdsoap2.c(4668): free(0x1fa36000)
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x1fa35930)
+stdsoap2.c(4857): free(0x1fa360e0)
+stdsoap2.c(4857): free(0x1fa35fa0)
+stdsoap2.c(4857): free(0x1fa2e850)
+stdsoap2.c(4857): free(0x1fa2d520)
+stdsoap2.c(4857): free(0x1fa35cd0)
+stdsoap2.c(4857): free(0x1fa35b30)
+stdsoap2.c(4857): free(0x1fa23f70)
+stdsoap2.c(4857): free(0x1fa31c40)
+stdsoap2.c(4857): free(0x1fa23da0)
+stdsoap2.c(4857): free(0x1fa31770)
+stdsoap2.c(4857): free(0x1fa22510)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x1fa0b8d0)
+Free logfiles
+stdsoap2.c(2959): free(0x1fa0b460)
+stdsoap2.c(2959): free(0x1fa0b3b0)
+stdsoap2.c(2959): free(0x1fa0b610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x815c4f0
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fff88d0aa90 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x815db40
+Pointer enter location=0x7fff88d0aa90 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fff88d0aa90 type=87 (0 0)
+Lookup location=0x815c4f0 type=27: not found
+Pointer enter location=0x815c4f0 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x815c4f0 type=27 (0 0)
+Lookup location=0x7fff88d0d3c0 type=3: not found
+Pointer enter location=0x7fff88d0d3c0 array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fff88d0d3c0 type=3 (0 0)
+Lookup location=0x7fff88cf157c type=7: not found
+Pointer enter location=0x7fff88cf157c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fff88cf157c type=7 (0 0)
+Lookup location=0x7fff88cf1504 type=1: not found
+Pointer enter location=0x7fff88cf1504 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fff88cf1504 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x815e080
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff88cf14b0 type=329: not found
+Embedded_id 0x7fff88cf14b0 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff88d0aa90 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff88d0aa90 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x815c4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x815c4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff88d0d3c0 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff88cf157c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff88cf157c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff88cf1504 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff88cf1504 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-cms.cern.ch' path='/srm/managerv2' port=8443
+Opening socket 5 to host='srm-cms.cern.ch' port=8443
+Calculating the message size with attachments, current count=782
+New count is 782 bytes
+Begin send phase (socket=5 mode=0x1 count=782)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff88cf14b0 type=329: not found
+Embedded_id 0x7fff88cf14b0 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff88d0aa90 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff88d0aa90 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x815c4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x815c4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff88d0d3c0 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff88cf157c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff88cf157c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff88cf1504 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff88cf1504 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x815e080)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x815db40)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x815e080
+Free ID hashtable
+Read 1056 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Server: gSOAP/2.7
+HTTP header: Content-Type: text/xml; charset=utf-8
+HTTP header: Content-Length: 939
+HTTP header: Connection: close
+Finished HTTP header parsing
+Keep alive connection = 0
+stdsoap2.c(7172): malloc(45) = 0x817c1b0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x8165330
+stdsoap2.c(7219): malloc(64) = 0x818d440
+stdsoap2.c(2336): malloc(40) = 0x8164a00
+Push namespace binding (level=0) 'SOAP-ENV' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('SOAP-ENV' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(40) = 0x8160770
+Push namespace binding (level=0) 'SOAP-ENC' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('SOAP-ENC' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x8179ac0
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x81687c0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x81675b0
+Push namespace binding (level=0) 'srm' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('srm' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'SOAP-ENV:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x8167b20
+stdsoap2.c(7172): malloc(62) = 0x8167450
+stdsoap2.c(7219): malloc(64) = 0x8164f90
+Tags and (default) namespaces match: 'SOAP-ENV:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Tags and (default) namespaces match: 'srm:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'srm:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fff88d0aae0 size=8 level=0
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x817ab60
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x81650b0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x81650b0 size=4 level=0
+Element content value='SRM_FAILURE'
+End element found (level=5) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(40) = 0x8165110
+Enter id='' type=3 loc=0x8165110 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x8168580
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x8167500
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x8168830
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x816dc20
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x817b370
+stdsoap2.c(6963): free(0x8165330)
+stdsoap2.c(4726): malloc(136) = 0x817b430
+Enter id='' type=3 loc=0x817b430 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x817b4f0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x817b4f0 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+End element found (level=7) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(48) = 0x815db40
+Enter id='' type=3 loc=0x815db40 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Reverting last element (level=6)
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Enter id='' type=132 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x816b510
+Element content value='FILE'
+End element found (level=6) 'type'='type'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0x8168830->(nil))
+stdsoap2.c(4726): malloc(24) = 0x816f260
+First block
+Copy 8 bytes from 0x8168840 to 0x816f260
+Next block
+stdsoap2.c(2026): free(0x8168830)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x8167500)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+End element found (level=2) 'srm:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'srm'
+stdsoap2.c(2368): free(0x81675b0)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x81687c0)
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x8179ac0)
+Popped namespace binding (level=0) 'SOAP-ENC'
+stdsoap2.c(2368): free(0x8160770)
+Popped namespace binding (level=0) 'SOAP-ENV'
+stdsoap2.c(2368): free(0x8164a00)
+End element found (level=0) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x8164f90)
+stdsoap2.c(5406): free(0x8167450)
+stdsoap2.c(5405): free(0x818d440)
+stdsoap2.c(5406): free(0x817c1b0)
+stdsoap2.c(5411): free(0x817b370)
+stdsoap2.c(5422): free(0x8167b20)
+stdsoap2.c(5428): free(0x815e080)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x816f260)
+stdsoap2.c(4857): free(0x816b510)
+stdsoap2.c(4857): free(0x815db40)
+stdsoap2.c(4857): free(0x817b4f0)
+stdsoap2.c(4857): free(0x817b430)
+stdsoap2.c(4857): free(0x816dc20)
+stdsoap2.c(4857): free(0x8168580)
+stdsoap2.c(4857): free(0x8165110)
+stdsoap2.c(4857): free(0x81650b0)
+stdsoap2.c(4857): free(0x817ab60)
+stdsoap2.c(4857): free(0x815c4f0)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x81458b0)
+Free logfiles
+stdsoap2.c(2959): free(0x8145460)
+stdsoap2.c(2959): free(0x81453b0)
+stdsoap2.c(2959): free(0x8145610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x2e654f0
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fff7c049da0 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x2e66b40
+Pointer enter location=0x7fff7c049da0 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fff7c049da0 type=87 (0 0)
+Lookup location=0x2e654f0 type=27: not found
+Pointer enter location=0x2e654f0 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x2e654f0 type=27 (0 0)
+Lookup location=0x7fff7c04c3b9 type=3: not found
+Pointer enter location=0x7fff7c04c3b9 array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fff7c04c3b9 type=3 (0 0)
+Lookup location=0x7fff7c03088c type=7: not found
+Pointer enter location=0x7fff7c03088c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fff7c03088c type=7 (0 0)
+Lookup location=0x7fff7c030814 type=1: not found
+Pointer enter location=0x7fff7c030814 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fff7c030814 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x2e67080
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff7c0307c0 type=329: not found
+Embedded_id 0x7fff7c0307c0 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff7c049da0 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff7c049da0 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x2e654f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x2e654f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff7c04c3b9 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff7c03088c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff7c03088c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff7c030814 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff7c030814 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-cms.cern.ch' path='/srm/managerv2' port=8443
+Opening socket 5 to host='srm-cms.cern.ch' port=8443
+Calculating the message size with attachments, current count=789
+New count is 789 bytes
+Begin send phase (socket=5 mode=0x1 count=789)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff7c0307c0 type=329: not found
+Embedded_id 0x7fff7c0307c0 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff7c049da0 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff7c049da0 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x2e654f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x2e654f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff7c04c3b9 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff7c03088c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff7c03088c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff7c030814 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff7c030814 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x2e67080)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x2e66b40)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x2e67080
+Free ID hashtable
+Read 1063 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Server: gSOAP/2.7
+HTTP header: Content-Type: text/xml; charset=utf-8
+HTTP header: Content-Length: 946
+HTTP header: Connection: close
+Finished HTTP header parsing
+Keep alive connection = 0
+stdsoap2.c(7172): malloc(45) = 0x2e6e330
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x2e84ef0
+stdsoap2.c(7219): malloc(64) = 0x2e6d9d0
+stdsoap2.c(2336): malloc(40) = 0x2e976c0
+Push namespace binding (level=0) 'SOAP-ENV' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('SOAP-ENV' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(40) = 0x2e69770
+Push namespace binding (level=0) 'SOAP-ENC' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('SOAP-ENC' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x2e717c0
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x2e705b0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x2e70b20
+Push namespace binding (level=0) 'srm' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('srm' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'SOAP-ENV:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x2e70450
+stdsoap2.c(7172): malloc(62) = 0x2e6df90
+stdsoap2.c(7219): malloc(64) = 0x2e83b90
+Tags and (default) namespaces match: 'SOAP-ENV:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Tags and (default) namespaces match: 'srm:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'srm:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fff7c049df0 size=8 level=0
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x2e6e0e0
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x2e71550
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x2e71550 size=4 level=0
+Element content value='SRM_FAILURE'
+End element found (level=5) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(40) = 0x2e715b0
+Enter id='' type=3 loc=0x2e715b0 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x2e76c10
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x2e70500
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x2e71830
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x2e84350
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x2e84430
+stdsoap2.c(6963): free(0x2e84ef0)
+stdsoap2.c(4726): malloc(144) = 0x2e66b40
+Enter id='' type=3 loc=0x2e66b40 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x2e66c10
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x2e66c10 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+End element found (level=7) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(48) = 0x2e844f0
+Enter id='' type=3 loc=0x2e844f0 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Reverting last element (level=6)
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Enter id='' type=132 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x2e74530
+Element content value='FILE'
+End element found (level=6) 'type'='type'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0x2e71830->(nil))
+stdsoap2.c(4726): malloc(24) = 0x2e78240
+First block
+Copy 8 bytes from 0x2e71840 to 0x2e78240
+Next block
+stdsoap2.c(2026): free(0x2e71830)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x2e70500)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+End element found (level=2) 'srm:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'srm'
+stdsoap2.c(2368): free(0x2e70b20)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x2e705b0)
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x2e717c0)
+Popped namespace binding (level=0) 'SOAP-ENC'
+stdsoap2.c(2368): free(0x2e69770)
+Popped namespace binding (level=0) 'SOAP-ENV'
+stdsoap2.c(2368): free(0x2e976c0)
+End element found (level=0) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x2e83b90)
+stdsoap2.c(5406): free(0x2e6df90)
+stdsoap2.c(5405): free(0x2e6d9d0)
+stdsoap2.c(5406): free(0x2e6e330)
+stdsoap2.c(5411): free(0x2e84430)
+stdsoap2.c(5422): free(0x2e70450)
+stdsoap2.c(5428): free(0x2e67080)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x2e78240)
+stdsoap2.c(4857): free(0x2e74530)
+stdsoap2.c(4857): free(0x2e844f0)
+stdsoap2.c(4857): free(0x2e66c10)
+stdsoap2.c(4857): free(0x2e66b40)
+stdsoap2.c(4857): free(0x2e84350)
+stdsoap2.c(4857): free(0x2e76c10)
+stdsoap2.c(4857): free(0x2e715b0)
+stdsoap2.c(4857): free(0x2e71550)
+stdsoap2.c(4857): free(0x2e6e0e0)
+stdsoap2.c(4857): free(0x2e654f0)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x2e4e8b0)
+Free logfiles
+stdsoap2.c(2959): free(0x2e4e460)
+stdsoap2.c(2959): free(0x2e4e3b0)
+stdsoap2.c(2959): free(0x2e4e610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0xd51f4f0
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7ffff66d8150 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0xd520b40
+Pointer enter location=0x7ffff66d8150 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7ffff66d8150 type=87 (0 0)
+Lookup location=0xd51f4f0 type=27: not found
+Pointer enter location=0xd51f4f0 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0xd51f4f0 type=27 (0 0)
+Lookup location=0x7ffff66d93b9 type=3: not found
+Pointer enter location=0x7ffff66d93b9 array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7ffff66d93b9 type=3 (0 0)
+Lookup location=0x7ffff66bec3c type=7: not found
+Pointer enter location=0x7ffff66bec3c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7ffff66bec3c type=7 (0 0)
+Lookup location=0x7ffff66bebc4 type=1: not found
+Pointer enter location=0x7ffff66bebc4 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7ffff66bebc4 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0xd521080
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7ffff66beb70 type=329: not found
+Embedded_id 0x7ffff66beb70 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7ffff66d8150 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7ffff66d8150 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0xd51f4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0xd51f4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7ffff66d93b9 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7ffff66bec3c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7ffff66bec3c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7ffff66bebc4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7ffff66bebc4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-cms.cern.ch' path='/srm/managerv2' port=8443
+Opening socket 5 to host='srm-cms.cern.ch' port=8443
+Calculating the message size with attachments, current count=789
+New count is 789 bytes
+Begin send phase (socket=5 mode=0x1 count=789)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7ffff66beb70 type=329: not found
+Embedded_id 0x7ffff66beb70 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7ffff66d8150 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7ffff66d8150 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0xd51f4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0xd51f4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7ffff66d93b9 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7ffff66bec3c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7ffff66bec3c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7ffff66bebc4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7ffff66bebc4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0xd521080)
+Free pointer hashtable
+stdsoap2.c(4079): free(0xd520b40)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0xd521080
+Free ID hashtable
+Read 1063 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Server: gSOAP/2.7
+HTTP header: Content-Type: text/xml; charset=utf-8
+HTTP header: Content-Length: 946
+HTTP header: Connection: close
+Finished HTTP header parsing
+Keep alive connection = 0
+stdsoap2.c(7172): malloc(45) = 0xd53f1b0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0xd528330
+stdsoap2.c(7219): malloc(64) = 0xd53eef0
+stdsoap2.c(2336): malloc(40) = 0xd527a00
+Push namespace binding (level=0) 'SOAP-ENV' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('SOAP-ENV' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(40) = 0xd523770
+Push namespace binding (level=0) 'SOAP-ENC' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('SOAP-ENC' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0xd53cac0
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0xd52b7c0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0xd52a5b0
+Push namespace binding (level=0) 'srm' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('srm' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'SOAP-ENV:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0xd52ab20
+stdsoap2.c(7172): malloc(62) = 0xd52a450
+stdsoap2.c(7219): malloc(64) = 0xd527f90
+Tags and (default) namespaces match: 'SOAP-ENV:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Tags and (default) namespaces match: 'srm:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'srm:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7ffff66d81a0 size=8 level=0
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0xd53db70
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0xd5280b0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0xd5280b0 size=4 level=0
+Element content value='SRM_FAILURE'
+End element found (level=5) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(40) = 0xd528110
+Enter id='' type=3 loc=0xd528110 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0xd52b580
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0xd52a500
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0xd52b830
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0xd530c40
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0xd53e380
+stdsoap2.c(6963): free(0xd528330)
+stdsoap2.c(4726): malloc(144) = 0xd53e440
+Enter id='' type=3 loc=0xd53e440 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0xd53e510
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0xd53e510 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+End element found (level=7) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(48) = 0xd520b70
+Enter id='' type=3 loc=0xd520b70 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Reverting last element (level=6)
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Enter id='' type=132 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0xd52e530
+Element content value='FILE'
+End element found (level=6) 'type'='type'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0xd52b830->(nil))
+stdsoap2.c(4726): malloc(24) = 0xd532260
+First block
+Copy 8 bytes from 0xd52b840 to 0xd532260
+Next block
+stdsoap2.c(2026): free(0xd52b830)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0xd52a500)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+End element found (level=2) 'srm:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'srm'
+stdsoap2.c(2368): free(0xd52a5b0)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0xd52b7c0)
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0xd53cac0)
+Popped namespace binding (level=0) 'SOAP-ENC'
+stdsoap2.c(2368): free(0xd523770)
+Popped namespace binding (level=0) 'SOAP-ENV'
+stdsoap2.c(2368): free(0xd527a00)
+End element found (level=0) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0xd527f90)
+stdsoap2.c(5406): free(0xd52a450)
+stdsoap2.c(5405): free(0xd53eef0)
+stdsoap2.c(5406): free(0xd53f1b0)
+stdsoap2.c(5411): free(0xd53e380)
+stdsoap2.c(5422): free(0xd52ab20)
+stdsoap2.c(5428): free(0xd521080)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0xd532260)
+stdsoap2.c(4857): free(0xd52e530)
+stdsoap2.c(4857): free(0xd520b70)
+stdsoap2.c(4857): free(0xd53e510)
+stdsoap2.c(4857): free(0xd53e440)
+stdsoap2.c(4857): free(0xd530c40)
+stdsoap2.c(4857): free(0xd52b580)
+stdsoap2.c(4857): free(0xd528110)
+stdsoap2.c(4857): free(0xd5280b0)
+stdsoap2.c(4857): free(0xd53db70)
+stdsoap2.c(4857): free(0xd51f4f0)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0xd5088b0)
+Free logfiles
+stdsoap2.c(2959): free(0xd508460)
+stdsoap2.c(2959): free(0xd5083b0)
+stdsoap2.c(2959): free(0xd508610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x6b8c4f0
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fffaf9cb130 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x6b8db40
+Pointer enter location=0x7fffaf9cb130 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fffaf9cb130 type=87 (0 0)
+Lookup location=0x6b8c4f0 type=27: not found
+Pointer enter location=0x6b8c4f0 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x6b8c4f0 type=27 (0 0)
+Lookup location=0x7fffaf9cc3d6 type=3: not found
+Pointer enter location=0x7fffaf9cc3d6 array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fffaf9cc3d6 type=3 (0 0)
+Lookup location=0x7fffaf9b1c1c type=7: not found
+Pointer enter location=0x7fffaf9b1c1c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fffaf9b1c1c type=7 (0 0)
+Lookup location=0x7fffaf9b1ba4 type=1: not found
+Pointer enter location=0x7fffaf9b1ba4 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fffaf9b1ba4 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x6b8e080
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fffaf9b1b50 type=329: not found
+Embedded_id 0x7fffaf9b1b50 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fffaf9cb130 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fffaf9cb130 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x6b8c4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x6b8c4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fffaf9cc3d6 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fffaf9b1c1c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fffaf9b1c1c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fffaf9b1ba4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fffaf9b1ba4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-cms.cern.ch' path='/srm/managerv2' port=8443
+Opening socket 5 to host='srm-cms.cern.ch' port=8443
+Calculating the message size with attachments, current count=789
+New count is 789 bytes
+Begin send phase (socket=5 mode=0x1 count=789)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fffaf9b1b50 type=329: not found
+Embedded_id 0x7fffaf9b1b50 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fffaf9cb130 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fffaf9cb130 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x6b8c4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x6b8c4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fffaf9cc3d6 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fffaf9b1c1c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fffaf9b1c1c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fffaf9b1ba4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fffaf9b1ba4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x6b8e080)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x6b8db40)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x6b8e080
+Free ID hashtable
+Read 1063 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Server: gSOAP/2.7
+HTTP header: Content-Type: text/xml; charset=utf-8
+HTTP header: Content-Length: 946
+HTTP header: Connection: close
+Finished HTTP header parsing
+Keep alive connection = 0
+stdsoap2.c(7172): malloc(45) = 0x6bac1b0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x6b95330
+stdsoap2.c(7219): malloc(64) = 0x6babef0
+stdsoap2.c(2336): malloc(40) = 0x6b94a00
+Push namespace binding (level=0) 'SOAP-ENV' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('SOAP-ENV' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(40) = 0x6b90770
+Push namespace binding (level=0) 'SOAP-ENC' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('SOAP-ENC' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x6ba9ac0
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x6b987c0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x6b975b0
+Push namespace binding (level=0) 'srm' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('srm' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'SOAP-ENV:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x6b97b20
+stdsoap2.c(7172): malloc(62) = 0x6b97450
+stdsoap2.c(7219): malloc(64) = 0x6b94f90
+Tags and (default) namespaces match: 'SOAP-ENV:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Tags and (default) namespaces match: 'srm:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'srm:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fffaf9cb180 size=8 level=0
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x6baab70
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x6b950b0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x6b950b0 size=4 level=0
+Element content value='SRM_FAILURE'
+End element found (level=5) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(40) = 0x6b95110
+Enter id='' type=3 loc=0x6b95110 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x6b98580
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x6b97500
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x6b98830
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x6b9dc40
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x6bab380
+stdsoap2.c(6963): free(0x6b95330)
+stdsoap2.c(4726): malloc(144) = 0x6bab440
+Enter id='' type=3 loc=0x6bab440 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x6bab510
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x6bab510 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+End element found (level=7) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(48) = 0x6b8db70
+Enter id='' type=3 loc=0x6b8db70 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Reverting last element (level=6)
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Enter id='' type=132 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x6b9b530
+Element content value='FILE'
+End element found (level=6) 'type'='type'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0x6b98830->(nil))
+stdsoap2.c(4726): malloc(24) = 0x6b9f260
+First block
+Copy 8 bytes from 0x6b98840 to 0x6b9f260
+Next block
+stdsoap2.c(2026): free(0x6b98830)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x6b97500)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+End element found (level=2) 'srm:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'srm'
+stdsoap2.c(2368): free(0x6b975b0)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x6b987c0)
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x6ba9ac0)
+Popped namespace binding (level=0) 'SOAP-ENC'
+stdsoap2.c(2368): free(0x6b90770)
+Popped namespace binding (level=0) 'SOAP-ENV'
+stdsoap2.c(2368): free(0x6b94a00)
+End element found (level=0) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x6b94f90)
+stdsoap2.c(5406): free(0x6b97450)
+stdsoap2.c(5405): free(0x6babef0)
+stdsoap2.c(5406): free(0x6bac1b0)
+stdsoap2.c(5411): free(0x6bab380)
+stdsoap2.c(5422): free(0x6b97b20)
+stdsoap2.c(5428): free(0x6b8e080)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x6b9f260)
+stdsoap2.c(4857): free(0x6b9b530)
+stdsoap2.c(4857): free(0x6b8db70)
+stdsoap2.c(4857): free(0x6bab510)
+stdsoap2.c(4857): free(0x6bab440)
+stdsoap2.c(4857): free(0x6b9dc40)
+stdsoap2.c(4857): free(0x6b98580)
+stdsoap2.c(4857): free(0x6b95110)
+stdsoap2.c(4857): free(0x6b950b0)
+stdsoap2.c(4857): free(0x6baab70)
+stdsoap2.c(4857): free(0x6b8c4f0)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x6b758b0)
+Free logfiles
+stdsoap2.c(2959): free(0x6b75460)
+stdsoap2.c(2959): free(0x6b753b0)
+stdsoap2.c(2959): free(0x6b75610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0xb7c1510
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fff8a134770 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0xb7c2b60
+Pointer enter location=0x7fff8a134770 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fff8a134770 type=87 (0 0)
+Lookup location=0xb7c1510 type=27: not found
+Pointer enter location=0xb7c1510 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0xb7c1510 type=27 (0 0)
+Lookup location=0x7fff8a1363f2 type=3: not found
+Pointer enter location=0x7fff8a1363f2 array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fff8a1363f2 type=3 (0 0)
+Lookup location=0x7fff8a11b25c type=7: not found
+Pointer enter location=0x7fff8a11b25c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fff8a11b25c type=7 (0 0)
+Lookup location=0x7fff8a11b1e4 type=1: not found
+Pointer enter location=0x7fff8a11b1e4 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fff8a11b1e4 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0xb7c30a0
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff8a11b190 type=329: not found
+Embedded_id 0x7fff8a11b190 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff8a134770 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff8a134770 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0xb7c1510 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0xb7c1510 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff8a1363f2 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff8a11b25c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff8a11b25c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff8a11b1e4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff8a11b1e4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-eoscms.cern.ch' path='/srm/v2/server' port=8443
+Opening socket 5 to host='srm-eoscms.cern.ch' port=8443
+Calculating the message size with attachments, current count=761
+New count is 761 bytes
+Begin send phase (socket=5 mode=0x1 count=761)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff8a11b190 type=329: not found
+Embedded_id 0x7fff8a11b190 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff8a134770 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff8a134770 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0xb7c1510 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0xb7c1510 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff8a1363f2 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff8a11b25c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff8a11b25c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff8a11b1e4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff8a11b1e4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0xb7c30a0)
+Free pointer hashtable
+stdsoap2.c(4079): free(0xb7c2b60)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0xb7c30a0
+Free ID hashtable
+Read 145 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Date: Wed, 04 Sep 2013 08:43:48 GMT
+HTTP header: Content-Type: text/xml;charset=UTF-8
+HTTP header: Connection: close
+HTTP header: Server: Jetty(8.0.1.v20110908)
+Finished HTTP header parsing
+Keep alive connection = 0
+Read 3902 bytes from socket 5
+stdsoap2.c(7172): malloc(45) = 0xb848ba0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0xb848310
+stdsoap2.c(7219): malloc(64) = 0xb848670
+stdsoap2.c(2336): malloc(39) = 0xb7cc760
+Push namespace binding (level=0) 'soapenv' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('soapenv' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0xb7cc2a0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0xb7ca230
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+Tags and (default) namespaces match: 'soapenv:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0xb7cc440
+Tags and (default) namespaces match: 'soapenv:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'soapenv:Body'='SOAP-ENV:Body'
+stdsoap2.c(7172): malloc(61) = 0xb7df0f0
+stdsoap2.c(7219): malloc(64) = 0xb7cf310
+stdsoap2.c(2336): malloc(35) = 0xb7cf460
+Push namespace binding (level=2) 'ns1' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns1' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'ns1:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fff8a1347c0 size=8 level=0
+stdsoap2.c(7172): malloc(44) = 0xb7cf4c0
+stdsoap2.c(7219): malloc(64) = 0xb7c9a20
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=3) 'srmLsResponse'='srmLsResponse'
+stdsoap2.c(4701): malloc(68) = 0xb7cd2a0
+Forwarding first href='#id0' type=88 0x7fff8a1347c0 (24 bytes)
+Popped namespace binding (level=2) 'ns1'
+stdsoap2.c(2368): free(0xb7cf460)
+End element found (level=2) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+stdsoap2.c(7172): malloc(42) = 0xb7cd2f0
+stdsoap2.c(7219): malloc(64) = 0xb7cd330
+stdsoap2.c(7172): malloc(52) = 0xb7d3390
+stdsoap2.c(7219): malloc(64) = 0xb7d3400
+stdsoap2.c(7172): malloc(48) = 0xb7d0670
+stdsoap2.c(7219): malloc(64) = 0xb7d06e0
+stdsoap2.c(2314): free(0xb7cc440)
+stdsoap2.c(2336): malloc(39) = 0xb7d0760
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0xb7d07c0
+Push namespace binding (level=2) 'ns2' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns2' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id0' type=88
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns2:srmLsResponse' 'srm2:srmLsResponse'
+Enter id='#id0' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0xb7c2b90
+Lookup entry id='#id0 for location=0xb7c2b90'
+Update entry id='#id0' type=88 location=0xb7c2b90 size=24 level=0
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=3) 'returnStatus'='returnStatus'
+stdsoap2.c(4701): malloc(68) = 0xb7c2bf0
+Forwarding first href='#id1' type=15 0xb7c2b90 (16 bytes)
+stdsoap2.c(7172): malloc(47) = 0xb7cc440
+stdsoap2.c(7219): malloc(64) = 0xb7c2ca0
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'requestToken' 'requestToken'
+Begin element found (level=3) 'requestToken'='requestToken'
+Tags match: 'details' 'details'
+Begin element found (level=3) 'details'='details'
+stdsoap2.c(4701): malloc(68) = 0xb7c2d20
+Forwarding first href='#id2' type=21 0xb7c2ba0 (16 bytes)
+Popped namespace binding (level=2) 'ns2'
+stdsoap2.c(2368): free(0xb7d07c0)
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns3' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns3' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7c2dd0
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id2' type=21
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns3:ArrayOfTMetaDataPathDetail' 'srm2:ArrayOfTMetaDataPathDetail'
+Enter id='#id2' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0xb7c2e30
+Lookup entry id='#id2 for location=0xb7c2e30'
+Update entry id='#id2' type=21 location=0xb7c2e30 size=16 level=0
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0xb7cd5c0
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=3) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0xb7ca3e0
+Reverting last element (level=3)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=3) 'pathDetailArray'='pathDetailArray'
+stdsoap2.c(4701): malloc(68) = 0xb7c2ef0
+Forwarding first href='#id3' type=20 0xb7ca3f0 (144 bytes)
+Save all blocks in contiguous memory space of 8 bytes (0xb7ca3e0->(nil))
+stdsoap2.c(4726): malloc(24) = 0xb7d0c80
+First block
+Link update id='#id3' 0xb7ca3f0
+Copy 8 bytes from 0xb7ca3f0 to 0xb7d0c80
+Next block
+stdsoap2.c(2026): free(0xb7ca3e0)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0xb7cd5c0)
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7c2dd0)
+Popped namespace binding (level=2) 'ns3'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns4' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns4' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7c2fa0
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id1' type=15
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns4:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='#id1' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0xb7c3000
+Lookup entry id='#id1 for location=0xb7c3000'
+Update entry id='#id1' type=15 location=0xb7c3000 size=16 level=0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=3) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0xb7c3000 size=4 level=0
+stdsoap2.c(4701): malloc(68) = 0xb7d4ab0
+New entry href='#id4' type=142 size=4 level=0 location=0xb7c3000
+stdsoap2.c(5092): malloc(40) = 0xb7d4b30
+Forwarding type=142 (target type=0) size=4 location=0xb7c3000 level=0 href='#id4'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=3) 'explanation'='explanation'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7c2fa0)
+Popped namespace binding (level=2) 'ns4'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns5' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns5' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7d4b90
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id4' type=142
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns5:TStatusCode' 'srm2:TStatusCode'
+Enter id='#id4' type=142 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0xb7cd5c0
+Lookup entry id='#id4 for location=0xb7cd5c0'
+Update entry id='#id4' type=142 location=0xb7cd5c0 size=4 level=0
+Element content value='SRM_FAILURE'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7d4b90)
+Popped namespace binding (level=2) 'ns5'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns6' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns6' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7d4c20
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id3' type=20
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns6:TMetaDataPathDetail' 'srm2:TMetaDataPathDetail'
+Enter id='#id3' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0xb7d4c80
+Lookup entry id='#id3 for location=0xb7d4c80'
+Update entry id='#id3' type=20 location=0xb7d4c80 size=144 level=0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'path' 'path'
+Begin element found (level=4) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0xb7d4d60
+stdsoap2.c(6963): free(0xb848310)
+stdsoap2.c(4726): malloc(112) = 0xb7d4e20
+Enter id='' type=3 loc=0xb7d4e20 size=8 level=0
+End element found (level=3) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=3) 'status'='status'
+stdsoap2.c(4701): malloc(68) = 0xb848310
+Forwarding first href='#id5' type=15 0xb7d4c88 (16 bytes)
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'size' 'size'
+Begin element found (level=3) 'size'='size'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'createdAtTime' 'createdAtTime'
+Begin element found (level=3) 'createdAtTime'='createdAtTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lastModificationTime' 'lastModificationTime'
+Begin element found (level=3) 'lastModificationTime'='lastModificationTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'fileStorageType' 'fileStorageType'
+Begin element found (level=3) 'fileStorageType'='fileStorageType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'retentionPolicyInfo' 'retentionPolicyInfo'
+Begin element found (level=3) 'retentionPolicyInfo'='retentionPolicyInfo'
+Tags match: 'fileLocality' 'fileLocality'
+Begin element found (level=3) 'fileLocality'='fileLocality'
+stdsoap2.c(4701): malloc(68) = 0xb7d4f00
+Forwarding first href='#id6' type=139 0xb7d4cb8 (4 bytes)
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSpaceTokens' 'arrayOfSpaceTokens'
+Begin element found (level=3) 'arrayOfSpaceTokens'='arrayOfSpaceTokens'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'type' 'type'
+Begin element found (level=3) 'type'='type'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeAssigned' 'lifetimeAssigned'
+Begin element found (level=3) 'lifetimeAssigned'='lifetimeAssigned'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeLeft' 'lifetimeLeft'
+Begin element found (level=3) 'lifetimeLeft'='lifetimeLeft'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'ownerPermission' 'ownerPermission'
+Begin element found (level=3) 'ownerPermission'='ownerPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'groupPermission' 'groupPermission'
+Begin element found (level=3) 'groupPermission'='groupPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'otherPermission' 'otherPermission'
+Begin element found (level=3) 'otherPermission'='otherPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumType' 'checkSumType'
+Begin element found (level=3) 'checkSumType'='checkSumType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumValue' 'checkSumValue'
+Begin element found (level=3) 'checkSumValue'='checkSumValue'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSubPaths' 'arrayOfSubPaths'
+Begin element found (level=3) 'arrayOfSubPaths'='arrayOfSubPaths'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7d4c20)
+Popped namespace binding (level=2) 'ns6'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns7' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns7' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7d4f80
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id6' type=139
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns7:TFileLocality' 'srm2:TFileLocality'
+Enter id='#id6' type=139 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0xb7ca3e0
+Lookup entry id='#id6 for location=0xb7ca3e0'
+Update entry id='#id6' type=139 location=0xb7ca3e0 size=4 level=0
+Element content value='ONLINE'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7d4f80)
+Popped namespace binding (level=2) 'ns7'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns8' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns8' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7d5010
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id5' type=15
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns8:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='#id5' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0xb7d5070
+Lookup entry id='#id5 for location=0xb7d5070'
+Update entry id='#id5' type=15 location=0xb7d5070 size=16 level=0
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=3) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0xb7d5070 size=4 level=0
+stdsoap2.c(4701): malloc(68) = 0xb7d50d0
+New entry href='#id7' type=142 size=4 level=0 location=0xb7d5070
+stdsoap2.c(5092): malloc(40) = 0xb7d5150
+Forwarding type=142 (target type=0) size=4 location=0xb7d5070 level=0 href='#id7'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=4) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(48) = 0xb7d07c0
+Enter id='' type=3 loc=0xb7d07c0 size=8 level=0
+End element found (level=3) 'explanation'='explanation'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7d5010)
+Popped namespace binding (level=2) 'ns8'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+stdsoap2.c(2336): malloc(35) = 0xb7d0760
+Push namespace binding (level=2) 'ns9' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns9' matches 'srm2' in namespace table)
+stdsoap2.c(2336): malloc(39) = 0xb7d51e0
+Push namespace binding (level=2) 'soapenc' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('soapenc' matches 'SOAP-ENC' in namespace table)
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags and (default) namespaces match: 'soapenc:root' 'SOAP-ENC:root'
+Lookup id='#id7' type=142
+Begin element found (level=3) 'multiRef'=''
+Tags and (default) namespaces match: 'ns9:TStatusCode' 'srm2:TStatusCode'
+Enter id='#id7' type=142 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0xb7d4970
+Lookup entry id='#id7 for location=0xb7d4970'
+Update entry id='#id7' type=142 location=0xb7d4970 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+Popped namespace binding (level=2) 'soapenc'
+stdsoap2.c(2368): free(0xb7d51e0)
+Popped namespace binding (level=2) 'ns9'
+stdsoap2.c(2368): free(0xb7d0760)
+End element found (level=2) 'multiRef'=''
+End element found (level=1) 'soapenv:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0xb7ca230)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0xb7cc2a0)
+Popped namespace binding (level=0) 'soapenv'
+stdsoap2.c(2368): free(0xb7cc760)
+End element found (level=0) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Traversing link chain to resolve id='#id0'
+... link 0x7fff8a1347c0 -> 0xb7c2b90
+Traversing link chain to resolve id='#id1'
+... link 0xb7c2b90 -> 0xb7c3000
+Traversing link chain to resolve id='#id2'
+... link 0xb7c2ba0 -> 0xb7c2e30
+Traversing link chain to resolve id='#id3'
+... link 0xb7d0c80 -> 0xb7d4c80
+Traversing link chain to resolve id='#id5'
+... link 0xb7d4c88 -> 0xb7d5070
+Traversing link chain to resolve id='#id6'
+... link 0xb7d4cb8 -> 0xb7ca3e0
+Resolution phase
+Resolving forwarded data type=142 location=0xb7cd5c0 level=0,0 id='#id4'
+Copying data type=142 (target type=0) 0xb7cd5c0 -> 0xb7c3000 (4 bytes)
+stdsoap2.c(1956): free(0xb7d4b30)
+Resolving forwarded data type=142 location=0xb7d4970 level=0,0 id='#id7'
+Copying data type=142 (target type=0) 0xb7d4970 -> 0xb7d5070 (4 bytes)
+stdsoap2.c(1956): free(0xb7d5150)
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0xb7c2ca0)
+stdsoap2.c(5406): free(0xb7cc440)
+stdsoap2.c(5405): free(0xb7d06e0)
+stdsoap2.c(5406): free(0xb7d0670)
+stdsoap2.c(5405): free(0xb7d3400)
+stdsoap2.c(5406): free(0xb7d3390)
+stdsoap2.c(5405): free(0xb7cd330)
+stdsoap2.c(5406): free(0xb7cd2f0)
+stdsoap2.c(5405): free(0xb7c9a20)
+stdsoap2.c(5406): free(0xb7cf4c0)
+stdsoap2.c(5405): free(0xb7cf310)
+stdsoap2.c(5406): free(0xb7df0f0)
+stdsoap2.c(5405): free(0xb848670)
+stdsoap2.c(5406): free(0xb848ba0)
+stdsoap2.c(5411): free(0xb7d4d60)
+stdsoap2.c(5428): free(0xb7c30a0)
+Free pointer hashtable
+Free ID hashtable
+stdsoap2.c(4668): free(0xb7cd2a0)
+stdsoap2.c(4668): free(0xb7c2bf0)
+stdsoap2.c(4668): free(0xb7c2d20)
+stdsoap2.c(4668): free(0xb7c2ef0)
+stdsoap2.c(4668): free(0xb7d4ab0)
+stdsoap2.c(4668): free(0xb848310)
+stdsoap2.c(4668): free(0xb7d4f00)
+stdsoap2.c(4668): free(0xb7d50d0)
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0xb7d4970)
+stdsoap2.c(4857): free(0xb7d07c0)
+stdsoap2.c(4857): free(0xb7d5070)
+stdsoap2.c(4857): free(0xb7ca3e0)
+stdsoap2.c(4857): free(0xb7d4e20)
+stdsoap2.c(4857): free(0xb7d4c80)
+stdsoap2.c(4857): free(0xb7cd5c0)
+stdsoap2.c(4857): free(0xb7c3000)
+stdsoap2.c(4857): free(0xb7d0c80)
+stdsoap2.c(4857): free(0xb7c2e30)
+stdsoap2.c(4857): free(0xb7c2b90)
+stdsoap2.c(4857): free(0xb7c1510)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0xb7aa8d0)
+Free logfiles
+stdsoap2.c(2959): free(0xb7aa460)
+stdsoap2.c(2959): free(0xb7aa3b0)
+stdsoap2.c(2959): free(0xb7aa610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x1b2ac4f0
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fff52aec110 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x1b2adb40
+Pointer enter location=0x7fff52aec110 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fff52aec110 type=87 (0 0)
+Lookup location=0x1b2ac4f0 type=27: not found
+Pointer enter location=0x1b2ac4f0 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x1b2ac4f0 type=27 (0 0)
+Lookup location=0x7fff52aed3bd type=3: not found
+Pointer enter location=0x7fff52aed3bd array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fff52aed3bd type=3 (0 0)
+Lookup location=0x7fff52ad2bfc type=7: not found
+Pointer enter location=0x7fff52ad2bfc array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fff52ad2bfc type=7 (0 0)
+Lookup location=0x7fff52ad2b84 type=1: not found
+Pointer enter location=0x7fff52ad2b84 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fff52ad2b84 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x1b2ae080
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff52ad2b30 type=329: not found
+Embedded_id 0x7fff52ad2b30 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff52aec110 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff52aec110 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x1b2ac4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x1b2ac4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff52aed3bd type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff52ad2bfc type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff52ad2bfc type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff52ad2b84 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff52ad2b84 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='srm-cms.cern.ch' path='/srm/managerv2' port=8443
+Opening socket 5 to host='srm-cms.cern.ch' port=8443
+Calculating the message size with attachments, current count=789
+New count is 789 bytes
+Begin send phase (socket=5 mode=0x1 count=789)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff52ad2b30 type=329: not found
+Embedded_id 0x7fff52ad2b30 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff52aec110 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff52aec110 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x1b2ac4f0 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x1b2ac4f0 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff52aed3bd type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff52ad2bfc type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff52ad2bfc type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff52ad2b84 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff52ad2b84 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x1b2ae080)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x1b2adb40)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x1b2ae080
+Free ID hashtable
+Read 1411 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Server: gSOAP/2.7
+HTTP header: Content-Type: text/xml; charset=utf-8
+HTTP header: Content-Length: 1293
+HTTP header: Connection: close
+Finished HTTP header parsing
+Keep alive connection = 0
+stdsoap2.c(7172): malloc(45) = 0x1b2cc1e0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x1b2cbf20
+stdsoap2.c(7219): malloc(64) = 0x1b2ba260
+stdsoap2.c(2336): malloc(40) = 0x1b2c9ac0
+Push namespace binding (level=0) 'SOAP-ENV' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('SOAP-ENV' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(40) = 0x1b2b7240
+Push namespace binding (level=0) 'SOAP-ENC' 'http://schemas.xmlsoap.org/soap/encoding/'
+Push OK ('SOAP-ENC' matches 'SOAP-ENC' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x1b2ba310
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x1b2b51e0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x1b2b5240
+Push namespace binding (level=0) 'srm' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('srm' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'SOAP-ENV:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x1b2b7440
+stdsoap2.c(7172): malloc(62) = 0x1b2caba0
+stdsoap2.c(7219): malloc(64) = 0x1b2ba470
+Tags and (default) namespaces match: 'SOAP-ENV:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Tags and (default) namespaces match: 'srm:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'srm:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fff52aec160 size=8 level=0
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x1b2b49d0
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1b2b4a30
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x1b2b4a30 size=4 level=0
+Element content value='SRM_SUCCESS'
+End element found (level=5) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(24) = 0x1b2b8590
+Enter id='' type=3 loc=0x1b2b8590 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1b2b82a0
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x1b2b53c0
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x1b2bb560
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x1b2bdc40
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x1b2cb3b0
+stdsoap2.c(6963): free(0x1b2cbf20)
+stdsoap2.c(4726): malloc(144) = 0x1b2cb470
+Enter id='' type=3 loc=0x1b2cb470 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1b2bdd20
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Enter id='' type=142 loc=0x1b2bdd20 size=4 level=0
+Element content value='SRM_SUCCESS'
+End element found (level=7) 'statusCode'='statusCode'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(24) = 0x1b2bf290
+Enter id='' type=3 loc=0x1b2bf290 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags match: 'size' 'size'
+Begin element found (level=7) 'size'='size'
+Reverting last element (level=6)
+Tags match: 'size' 'size'
+Begin element found (level=7) 'size'='size'
+Enter id='' type=148 loc=(nil) size=8 level=0
+stdsoap2.c(4726): malloc(24) = 0x1b2ba370
+Element content value='0'
+End element found (level=6) 'size'='size'
+Tags match: 'createdAtTime' 'createdAtTime'
+Begin element found (level=7) 'createdAtTime'='createdAtTime'
+Reading string content
+stdsoap2.c(4726): malloc(40) = 0x1b2adba0
+Enter id='' type=3 loc=0x1b2adba0 size=8 level=0
+End element found (level=6) 'createdAtTime'='createdAtTime'
+Tags match: 'lastModificationTime' 'lastModificationTime'
+Begin element found (level=7) 'lastModificationTime'='lastModificationTime'
+Reading string content
+stdsoap2.c(4726): malloc(40) = 0x1b2adc00
+Enter id='' type=3 loc=0x1b2adc00 size=8 level=0
+End element found (level=6) 'lastModificationTime'='lastModificationTime'
+Tags match: 'fileLocality' 'fileLocality'
+Begin element found (level=7) 'fileLocality'='fileLocality'
+Reverting last element (level=6)
+Tags match: 'fileLocality' 'fileLocality'
+Begin element found (level=7) 'fileLocality'='fileLocality'
+Enter id='' type=139 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1b2b7480
+Element content value='ONLINE_AND_NEARLINE'
+End element found (level=6) 'fileLocality'='fileLocality'
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Reverting last element (level=6)
+Tags match: 'type' 'type'
+Begin element found (level=7) 'type'='type'
+Enter id='' type=132 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1b2cabf0
+Element content value='DIRECTORY'
+End element found (level=6) 'type'='type'
+Tags match: 'lifetimeLeft' 'lifetimeLeft'
+Begin element found (level=7) 'lifetimeLeft'='lifetimeLeft'
+Reverting last element (level=6)
+Tags match: 'lifetimeLeft' 'lifetimeLeft'
+Begin element found (level=7) 'lifetimeLeft'='lifetimeLeft'
+Enter id='' type=1 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1b2b4a90
+Element content value='-1'
+End element found (level=6) 'lifetimeLeft'='lifetimeLeft'
+Tags match: 'ownerPermission' 'ownerPermission'
+Begin element found (level=7) 'ownerPermission'='ownerPermission'
+Reverting last element (level=6)
+Tags match: 'ownerPermission' 'ownerPermission'
+Begin element found (level=7) 'ownerPermission'='ownerPermission'
+Enter id='' type=9 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1b2adcf0
+Tags match: 'userID' 'userID'
+Begin element found (level=8) 'userID'='userID'
+Reading string content
+stdsoap2.c(4726): malloc(24) = 0x1b2cb570
+Enter id='' type=3 loc=0x1b2cb570 size=8 level=0
+End element found (level=7) 'userID'='userID'
+Tags match: 'mode' 'mode'
+Begin element found (level=8) 'mode'='mode'
+Enter id='' type=135 loc=0x1b2adcf8 size=4 level=0
+Element content value='RWX'
+End element found (level=7) 'mode'='mode'
+End element found (level=6) 'ownerPermission'='ownerPermission'
+Tags match: 'groupPermission' 'groupPermission'
+Begin element found (level=7) 'groupPermission'='groupPermission'
+Reverting last element (level=6)
+Tags match: 'groupPermission' 'groupPermission'
+Begin element found (level=7) 'groupPermission'='groupPermission'
+Enter id='' type=11 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x1b2add80
+Tags match: 'groupID' 'groupID'
+Begin element found (level=8) 'groupID'='groupID'
+Reading string content
+stdsoap2.c(4726): malloc(24) = 0x1b2adde0
+Enter id='' type=3 loc=0x1b2adde0 size=8 level=0
+End element found (level=7) 'groupID'='groupID'
+Tags match: 'mode' 'mode'
+Begin element found (level=8) 'mode'='mode'
+Enter id='' type=135 loc=0x1b2add88 size=4 level=0
+Element content value='RWX'
+End element found (level=7) 'mode'='mode'
+End element found (level=6) 'groupPermission'='groupPermission'
+Tags match: 'otherPermission' 'otherPermission'
+Begin element found (level=7) 'otherPermission'='otherPermission'
+Reverting last element (level=6)
+Tags match: 'otherPermission' 'otherPermission'
+Begin element found (level=7) 'otherPermission'='otherPermission'
+Enter id='' type=135 loc=(nil) size=4 level=0
+stdsoap2.c(4726): malloc(24) = 0x1b2ade30
+Element content value='RX'
+End element found (level=6) 'otherPermission'='otherPermission'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0x1b2bb560->(nil))
+stdsoap2.c(4726): malloc(24) = 0x1b2ade80
+First block
+Copy 8 bytes from 0x1b2bb570 to 0x1b2ade80
+Next block
+stdsoap2.c(2026): free(0x1b2bb560)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x1b2b53c0)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+End element found (level=2) 'srm:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'SOAP-ENV:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'srm'
+stdsoap2.c(2368): free(0x1b2b5240)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x1b2b51e0)
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x1b2ba310)
+Popped namespace binding (level=0) 'SOAP-ENC'
+stdsoap2.c(2368): free(0x1b2b7240)
+Popped namespace binding (level=0) 'SOAP-ENV'
+stdsoap2.c(2368): free(0x1b2c9ac0)
+End element found (level=0) 'SOAP-ENV:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x1b2ba470)
+stdsoap2.c(5406): free(0x1b2caba0)
+stdsoap2.c(5405): free(0x1b2ba260)
+stdsoap2.c(5406): free(0x1b2cc1e0)
+stdsoap2.c(5411): free(0x1b2cb3b0)
+stdsoap2.c(5422): free(0x1b2b7440)
+stdsoap2.c(5428): free(0x1b2ae080)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x1b2ade80)
+stdsoap2.c(4857): free(0x1b2ade30)
+stdsoap2.c(4857): free(0x1b2adde0)
+stdsoap2.c(4857): free(0x1b2add80)
+stdsoap2.c(4857): free(0x1b2cb570)
+stdsoap2.c(4857): free(0x1b2adcf0)
+stdsoap2.c(4857): free(0x1b2b4a90)
+stdsoap2.c(4857): free(0x1b2cabf0)
+stdsoap2.c(4857): free(0x1b2b7480)
+stdsoap2.c(4857): free(0x1b2adc00)
+stdsoap2.c(4857): free(0x1b2adba0)
+stdsoap2.c(4857): free(0x1b2ba370)
+stdsoap2.c(4857): free(0x1b2bf290)
+stdsoap2.c(4857): free(0x1b2bdd20)
+stdsoap2.c(4857): free(0x1b2cb470)
+stdsoap2.c(4857): free(0x1b2bdc40)
+stdsoap2.c(4857): free(0x1b2b82a0)
+stdsoap2.c(4857): free(0x1b2b8590)
+stdsoap2.c(4857): free(0x1b2b4a30)
+stdsoap2.c(4857): free(0x1b2b49d0)
+stdsoap2.c(4857): free(0x1b2ac4f0)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x1b2958b0)
+Free logfiles
+stdsoap2.c(2959): free(0x1b295460)
+stdsoap2.c(2959): free(0x1b2953b0)
+stdsoap2.c(2959): free(0x1b295610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x285e520
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fff147afb80 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x285fb70
+Pointer enter location=0x7fff147afb80 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fff147afb80 type=87 (0 0)
+Lookup location=0x285e520 type=27: not found
+Pointer enter location=0x285e520 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x285e520 type=27 (0 0)
+Lookup location=0x7fff147b13c7 type=3: not found
+Pointer enter location=0x7fff147b13c7 array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fff147b13c7 type=3 (0 0)
+Lookup location=0x7fff1479666c type=7: not found
+Pointer enter location=0x7fff1479666c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fff1479666c type=7 (0 0)
+Lookup location=0x7fff147965f4 type=1: not found
+Pointer enter location=0x7fff147965f4 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fff147965f4 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x28600b0
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff147965a0 type=329: not found
+Embedded_id 0x7fff147965a0 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff147afb80 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff147afb80 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x285e520 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x285e520 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff147b13c7 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff1479666c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff1479666c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff147965f4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff147965f4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='dcache-se-cms.desy.de' path='/srm/managerv2' port=8443
+Opening socket 5 to host='dcache-se-cms.desy.de' port=8443
+Calculating the message size with attachments, current count=779
+New count is 779 bytes
+Begin send phase (socket=5 mode=0x1 count=779)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fff147965a0 type=329: not found
+Embedded_id 0x7fff147965a0 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fff147afb80 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fff147afb80 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x285e520 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x285e520 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fff147b13c7 type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fff1479666c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fff1479666c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fff147965f4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fff147965f4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x28600b0)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x285fb70)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x286c300
+Free ID hashtable
+Read 109 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Content-Type: text/xml;charset=UTF-8
+HTTP header: Connection: close
+HTTP header: Server: Jetty(7.6.10.v20130312)
+Finished HTTP header parsing
+Keep alive connection = 0
+Read 2266 bytes from socket 5
+stdsoap2.c(7172): malloc(45) = 0x28dd0f0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x28e0fa0
+stdsoap2.c(7219): malloc(64) = 0x2869280
+stdsoap2.c(2336): malloc(39) = 0x2869450
+Push namespace binding (level=0) 'soapenv' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('soapenv' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x28694b0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x2867240
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+Tags and (default) namespaces match: 'soapenv:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x286c4a0
+Tags and (default) namespaces match: 'soapenv:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'soapenv:Body'='SOAP-ENV:Body'
+stdsoap2.c(7172): malloc(61) = 0x286c510
+stdsoap2.c(7219): malloc(64) = 0x28600e0
+stdsoap2.c(2336): malloc(35) = 0x2866a00
+Push namespace binding (level=2) 'ns1' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns1' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'ns1:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fff147afbd0 size=8 level=0
+stdsoap2.c(7172): malloc(48) = 0x2866a60
+stdsoap2.c(7219): malloc(64) = 0x286a2b0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Tags and (default) namespaces match: 'ns1:srmLsResponse' 'srm2:srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x286a330
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Tags and (default) namespaces match: 'ns1:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x287f8c0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'ns1:TStatusCode' 'srm2:TStatusCode'
+Enter id='' type=142 loc=0x287f8c0 size=4 level=0
+Element content value='SRM_FAILURE'
+End element found (level=5) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(64) = 0x287f920
+Enter id='' type=3 loc=0x287f920 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+stdsoap2.c(7172): malloc(47) = 0x287f9a0
+stdsoap2.c(7219): malloc(64) = 0x287ce60
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'requestToken' 'requestToken'
+Begin element found (level=4) 'requestToken'='requestToken'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Tags and (default) namespaces match: 'ns1:ArrayOfTMetaDataPathDetail' 'srm2:ArrayOfTMetaDataPathDetail'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x287cee0
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x286a5d0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x28673f0
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Tags and (default) namespaces match: 'ns1:TMetaDataPathDetail' 'srm2:TMetaDataPathDetail'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x287dae0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x287e220
+stdsoap2.c(6963): free(0x28e0fa0)
+stdsoap2.c(4726): malloc(128) = 0x287e2e0
+Enter id='' type=3 loc=0x287e2e0 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Tags and (default) namespaces match: 'ns1:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x287e3a0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'ns1:TStatusCode' 'srm2:TStatusCode'
+Enter id='' type=142 loc=0x287e3a0 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+End element found (level=7) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+Enlarging look-aside buffer to append data, old size=128, new size=256
+stdsoap2.c(6955): malloc(256) = 0x285fb70
+stdsoap2.c(6963): free(0x287e220)
+stdsoap2.c(4726): malloc(152) = 0x285fc80
+Enter id='' type=3 loc=0x285fc80 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'size' 'size'
+Begin element found (level=6) 'size'='size'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'createdAtTime' 'createdAtTime'
+Begin element found (level=6) 'createdAtTime'='createdAtTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lastModificationTime' 'lastModificationTime'
+Begin element found (level=6) 'lastModificationTime'='lastModificationTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'fileStorageType' 'fileStorageType'
+Begin element found (level=6) 'fileStorageType'='fileStorageType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'retentionPolicyInfo' 'retentionPolicyInfo'
+Begin element found (level=6) 'retentionPolicyInfo'='retentionPolicyInfo'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'fileLocality' 'fileLocality'
+Begin element found (level=6) 'fileLocality'='fileLocality'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSpaceTokens' 'arrayOfSpaceTokens'
+Begin element found (level=6) 'arrayOfSpaceTokens'='arrayOfSpaceTokens'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'type' 'type'
+Begin element found (level=6) 'type'='type'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeAssigned' 'lifetimeAssigned'
+Begin element found (level=6) 'lifetimeAssigned'='lifetimeAssigned'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeLeft' 'lifetimeLeft'
+Begin element found (level=6) 'lifetimeLeft'='lifetimeLeft'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'ownerPermission' 'ownerPermission'
+Begin element found (level=6) 'ownerPermission'='ownerPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'groupPermission' 'groupPermission'
+Begin element found (level=6) 'groupPermission'='groupPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'otherPermission' 'otherPermission'
+Begin element found (level=6) 'otherPermission'='otherPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumType' 'checkSumType'
+Begin element found (level=6) 'checkSumType'='checkSumType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumValue' 'checkSumValue'
+Begin element found (level=6) 'checkSumValue'='checkSumValue'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSubPaths' 'arrayOfSubPaths'
+Begin element found (level=6) 'arrayOfSubPaths'='arrayOfSubPaths'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0x28673f0->(nil))
+stdsoap2.c(4726): malloc(24) = 0x287e640
+First block
+Copy 8 bytes from 0x2867400 to 0x287e640
+Next block
+stdsoap2.c(2026): free(0x28673f0)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x286a5d0)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+Popped namespace binding (level=2) 'ns1'
+stdsoap2.c(2368): free(0x2866a00)
+End element found (level=2) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'soapenv:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x2867240)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x28694b0)
+Popped namespace binding (level=0) 'soapenv'
+stdsoap2.c(2368): free(0x2869450)
+End element found (level=0) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x287ce60)
+stdsoap2.c(5406): free(0x287f9a0)
+stdsoap2.c(5405): free(0x286a2b0)
+stdsoap2.c(5406): free(0x2866a60)
+stdsoap2.c(5405): free(0x28600e0)
+stdsoap2.c(5406): free(0x286c510)
+stdsoap2.c(5405): free(0x2869280)
+stdsoap2.c(5406): free(0x28dd0f0)
+stdsoap2.c(5411): free(0x285fb70)
+stdsoap2.c(5422): free(0x286c4a0)
+stdsoap2.c(5428): free(0x286c300)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x287e640)
+stdsoap2.c(4857): free(0x285fc80)
+stdsoap2.c(4857): free(0x287e3a0)
+stdsoap2.c(4857): free(0x287e2e0)
+stdsoap2.c(4857): free(0x287dae0)
+stdsoap2.c(4857): free(0x287cee0)
+stdsoap2.c(4857): free(0x287f920)
+stdsoap2.c(4857): free(0x287f8c0)
+stdsoap2.c(4857): free(0x286a330)
+stdsoap2.c(4857): free(0x285e520)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x28478e0)
+Free logfiles
+stdsoap2.c(2959): free(0x2847460)
+stdsoap2.c(2959): free(0x28473b0)
+stdsoap2.c(2959): free(0x2847610)
+Registered 'CGSI_PLUGIN_CLIENT_1.0' plugin
+stdsoap2.c(4726): malloc(32) = 0x89c2520
+Initializing
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Lookup location=0x7fffa8bd2670 type=87: not found
+stdsoap2.c(4149): malloc(1288) = 0x89c3b70
+Pointer enter location=0x7fffa8bd2670 array=(nil) size=0 dim=0 type=87 id=1
+Reference 0x7fffa8bd2670 type=87 (0 0)
+Lookup location=0x89c2520 type=27: not found
+Pointer enter location=0x89c2520 array=(nil) size=0 dim=0 type=27 id=2
+Reference 0x89c2520 type=27 (0 0)
+Lookup location=0x7fffa8bd336d type=3: not found
+Pointer enter location=0x7fffa8bd336d array=(nil) size=0 dim=0 type=3 id=3
+Reference 0x7fffa8bd336d type=3 (0 0)
+Lookup location=0x7fffa8bb915c type=7: not found
+Pointer enter location=0x7fffa8bb915c array=(nil) size=0 dim=0 type=7 id=4
+Reference 0x7fffa8bb915c type=7 (0 0)
+Lookup location=0x7fffa8bb90e4 type=1: not found
+Pointer enter location=0x7fffa8bb90e4 array=(nil) size=0 dim=0 type=1 id=5
+Reference 0x7fffa8bb90e4 type=1 (0 0)
+stdsoap2.c(5956): malloc(192) = 0x89c40b0
+Begin count phase (socket=-1 mode=0x8 count=0)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fffa8bb9090 type=329: not found
+Embedded_id 0x7fffa8bb9090 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fffa8bd2670 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fffa8bd2670 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x89c2520 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x89c2520 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fffa8bd336d type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fffa8bb915c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fffa8bb915c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fffa8bb90e4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fffa8bb90e4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End of count phase
+Connect/reconnect to host='dcache-se-cms.desy.de' path='/srm/managerv2' port=8443
+Opening socket 5 to host='dcache-se-cms.desy.de' port=8443
+Calculating the message size with attachments, current count=782
+New count is 782 bytes
+Begin send phase (socket=5 mode=0x1 count=782)
+Element begin tag='SOAP-ENV:Envelope' id='0' type=''
+Element begin tag='SOAP-ENV:Body' id='0' type=''
+Lookup location=0x7fffa8bb9090 type=329: not found
+Embedded_id 0x7fffa8bb9090 type=329 id=0
+Element begin tag='srm2:srmLs' id='0' type=''
+Lookup location=0x7fffa8bd2670 type=87 id=1
+Is embedded? 0 0
+Embedded_id 0x7fffa8bd2670 type=87 id=0
+Element begin tag='srmLsRequest' id='0' type=''
+Lookup location=0x89c2520 type=27 id=2
+Is embedded? 0 0
+Embedded_id 0x89c2520 type=27 id=0
+Element begin tag='arrayOfSURLs' id='0' type=''
+Lookup location=0x7fffa8bd336d type=6: not found
+Element begin tag='urlArray' id='0' type=''
+Element ending tag='urlArray'
+Element ending tag='arrayOfSURLs'
+Lookup location=0x7fffa8bb915c type=7 id=4
+Is embedded? 0 0
+Embedded_id 0x7fffa8bb915c type=7 id=0
+Element begin tag='fullDetailedList' id='0' type=''
+Element ending tag='fullDetailedList'
+Lookup location=0x7fffa8bb90e4 type=1 id=5
+Is embedded? 0 0
+Embedded_id 0x7fffa8bb90e4 type=1 id=0
+Element begin tag='numOfLevels' id='0' type=''
+Element ending tag='numOfLevels'
+Element ending tag='srmLsRequest'
+Element ending tag='srm2:srmLs'
+Element ending tag='SOAP-ENV:Body'
+Element ending tag='SOAP-ENV:Envelope'
+End send
+Shutdown socket 5 how=1
+End of send phase
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5428): free(0x89c40b0)
+Free pointer hashtable
+stdsoap2.c(4079): free(0x89c3b70)
+Free ID hashtable
+stdsoap2.c(5956): malloc(192) = 0x89d0300
+Free ID hashtable
+Read 109 bytes from socket 5
+Waiting for HTTP request/response...
+HTTP status: HTTP/1.1 200 OK
+HTTP header: Content-Type: text/xml;charset=UTF-8
+HTTP header: Connection: close
+HTTP header: Server: Jetty(7.6.10.v20130312)
+Finished HTTP header parsing
+Keep alive connection = 0
+Read 2272 bytes from socket 5
+stdsoap2.c(7172): malloc(45) = 0x8a410f0
+Enlarging look-aside buffer to append data, old size=0, new size=64
+stdsoap2.c(6955): malloc(64) = 0x8a44fc0
+stdsoap2.c(7219): malloc(64) = 0x89cd280
+stdsoap2.c(2336): malloc(39) = 0x89cd450
+Push namespace binding (level=0) 'soapenv' 'http://schemas.xmlsoap.org/soap/envelope/'
+Push OK ('soapenv' matches 'SOAP-ENV' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x89cd4b0
+Push namespace binding (level=0) 'xsd' 'http://www.w3.org/2001/XMLSchema'
+Push OK ('xsd' matches 'xsd' in namespace table)
+stdsoap2.c(2336): malloc(35) = 0x89cb240
+Push namespace binding (level=0) 'xsi' 'http://www.w3.org/2001/XMLSchema-instance'
+Push OK ('xsi' matches 'xsi' in namespace table)
+Tags and (default) namespaces match: 'soapenv:Envelope' 'SOAP-ENV:Envelope'
+Begin element found (level=1) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+stdsoap2.c(11824): malloc(42) = 0x89d04a0
+Tags and (default) namespaces match: 'soapenv:Body' 'SOAP-ENV:Body'
+Begin element found (level=2) 'soapenv:Body'='SOAP-ENV:Body'
+stdsoap2.c(7172): malloc(61) = 0x89d0510
+stdsoap2.c(7219): malloc(64) = 0x89c40e0
+stdsoap2.c(2336): malloc(35) = 0x89caa00
+Push namespace binding (level=2) 'ns1' 'http://srm.lbl.gov/StorageResourceManager'
+Push OK ('ns1' matches 'srm2' in namespace table)
+Tags and (default) namespaces match: 'ns1:srmLsResponse' 'srm2:srmLsResponse'
+Begin element found (level=3) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+Enter id='' type=324 loc=0x7fffa8bd26c0 size=8 level=0
+stdsoap2.c(7172): malloc(48) = 0x89caa60
+stdsoap2.c(7219): malloc(64) = 0x89ce2b0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Reverting last element (level=3)
+Tags match: 'srmLsResponse' 'srmLsResponse'
+Begin element found (level=4) 'srmLsResponse'='srmLsResponse'
+Tags and (default) namespaces match: 'ns1:srmLsResponse' 'srm2:srmLsResponse'
+Enter id='' type=88 loc=(nil) size=24 level=0
+stdsoap2.c(4726): malloc(40) = 0x89ce330
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Reverting last element (level=4)
+Tags match: 'returnStatus' 'returnStatus'
+Begin element found (level=5) 'returnStatus'='returnStatus'
+Tags and (default) namespaces match: 'ns1:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x89e3920
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=6) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'ns1:TStatusCode' 'srm2:TStatusCode'
+Enter id='' type=142 loc=0x89e3920 size=4 level=0
+Element content value='SRM_FAILURE'
+End element found (level=5) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=6) 'explanation'='explanation'
+Reading string content
+stdsoap2.c(4726): malloc(64) = 0x89e3980
+Enter id='' type=3 loc=0x89e3980 size=8 level=0
+End element found (level=5) 'explanation'='explanation'
+End element found (level=4) 'returnStatus'='returnStatus'
+stdsoap2.c(7172): malloc(47) = 0x89e3a00
+stdsoap2.c(7219): malloc(64) = 0x89e0ec0
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'requestToken' 'requestToken'
+Begin element found (level=4) 'requestToken'='requestToken'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Reverting last element (level=4)
+Tags match: 'details' 'details'
+Begin element found (level=5) 'details'='details'
+Tags and (default) namespaces match: 'ns1:ArrayOfTMetaDataPathDetail' 'srm2:ArrayOfTMetaDataPathDetail'
+Enter id='' type=21 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x89e0f40
+New block sequence (prev=(nil))
+stdsoap2.c(1760): malloc(24) = 0x89ce5d0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Push block of 8 bytes (8 bytes total)
+stdsoap2.c(1778): malloc(24) = 0x89cb3f0
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Reverting last element (level=5)
+Tags match: 'pathDetailArray' 'pathDetailArray'
+Begin element found (level=6) 'pathDetailArray'='pathDetailArray'
+Tags and (default) namespaces match: 'ns1:TMetaDataPathDetail' 'srm2:TMetaDataPathDetail'
+Enter id='' type=20 loc=(nil) size=144 level=0
+stdsoap2.c(4726): malloc(160) = 0x89e1af0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'path' 'path'
+Begin element found (level=7) 'path'='path'
+Reading string content
+Enlarging look-aside buffer to append data, old size=64, new size=128
+stdsoap2.c(6955): malloc(128) = 0x89e2220
+stdsoap2.c(6963): free(0x8a44fc0)
+stdsoap2.c(4726): malloc(128) = 0x89e22e0
+Enter id='' type=3 loc=0x89e22e0 size=8 level=0
+End element found (level=6) 'path'='path'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Reverting last element (level=6)
+Tags match: 'status' 'status'
+Begin element found (level=7) 'status'='status'
+Tags and (default) namespaces match: 'ns1:TReturnStatus' 'srm2:TReturnStatus'
+Enter id='' type=15 loc=(nil) size=16 level=0
+stdsoap2.c(4726): malloc(32) = 0x89e23a0
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'statusCode' 'statusCode'
+Begin element found (level=8) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'ns1:TStatusCode' 'srm2:TStatusCode'
+Enter id='' type=142 loc=0x89e23a0 size=4 level=0
+Element content value='SRM_INVALID_PATH'
+End element found (level=7) 'statusCode'='statusCode'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'explanation' 'explanation'
+Begin element found (level=8) 'explanation'='explanation'
+Reading string content
+Enlarging look-aside buffer to append data, old size=128, new size=256
+stdsoap2.c(6955): malloc(256) = 0x89c3b70
+stdsoap2.c(6963): free(0x89e2220)
+stdsoap2.c(4726): malloc(152) = 0x89c3c80
+Enter id='' type=3 loc=0x89c3c80 size=8 level=0
+End element found (level=7) 'explanation'='explanation'
+End element found (level=6) 'status'='status'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'size' 'size'
+Begin element found (level=6) 'size'='size'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'createdAtTime' 'createdAtTime'
+Begin element found (level=6) 'createdAtTime'='createdAtTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lastModificationTime' 'lastModificationTime'
+Begin element found (level=6) 'lastModificationTime'='lastModificationTime'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'fileStorageType' 'fileStorageType'
+Begin element found (level=6) 'fileStorageType'='fileStorageType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'retentionPolicyInfo' 'retentionPolicyInfo'
+Begin element found (level=6) 'retentionPolicyInfo'='retentionPolicyInfo'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'fileLocality' 'fileLocality'
+Begin element found (level=6) 'fileLocality'='fileLocality'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSpaceTokens' 'arrayOfSpaceTokens'
+Begin element found (level=6) 'arrayOfSpaceTokens'='arrayOfSpaceTokens'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'type' 'type'
+Begin element found (level=6) 'type'='type'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeAssigned' 'lifetimeAssigned'
+Begin element found (level=6) 'lifetimeAssigned'='lifetimeAssigned'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'lifetimeLeft' 'lifetimeLeft'
+Begin element found (level=6) 'lifetimeLeft'='lifetimeLeft'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'ownerPermission' 'ownerPermission'
+Begin element found (level=6) 'ownerPermission'='ownerPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'groupPermission' 'groupPermission'
+Begin element found (level=6) 'groupPermission'='groupPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'otherPermission' 'otherPermission'
+Begin element found (level=6) 'otherPermission'='otherPermission'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumType' 'checkSumType'
+Begin element found (level=6) 'checkSumType'='checkSumType'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'checkSumValue' 'checkSumValue'
+Begin element found (level=6) 'checkSumValue'='checkSumValue'
+Tags and (default) namespaces match: 'xsi:nil' 'xsi:nil'
+Tags and (default) namespaces match: 'xsi:type' 'xsi:type'
+Tags match: 'arrayOfSubPaths' 'arrayOfSubPaths'
+Begin element found (level=6) 'arrayOfSubPaths'='arrayOfSubPaths'
+End element found (level=5) 'pathDetailArray'='pathDetailArray'
+Save all blocks in contiguous memory space of 8 bytes (0x89cb3f0->(nil))
+stdsoap2.c(4726): malloc(24) = 0x89e26a0
+First block
+Copy 8 bytes from 0x89cb400 to 0x89e26a0
+Next block
+stdsoap2.c(2026): free(0x89cb3f0)
+End of block sequence, free all remaining blocks
+stdsoap2.c(2060): free(0x89ce5d0)
+End element found (level=4) 'details'='details'
+End element found (level=3) 'srmLsResponse'='srmLsResponse'
+Popped namespace binding (level=2) 'ns1'
+stdsoap2.c(2368): free(0x89caa00)
+End element found (level=2) 'ns1:srmLsResponse'='srm2:srmLsResponse'
+End element found (level=1) 'soapenv:Body'='SOAP-ENV:Body'
+Popped namespace binding (level=0) 'xsi'
+stdsoap2.c(2368): free(0x89cb240)
+Popped namespace binding (level=0) 'xsd'
+stdsoap2.c(2368): free(0x89cd4b0)
+Popped namespace binding (level=0) 'soapenv'
+stdsoap2.c(2368): free(0x89cd450)
+End element found (level=0) 'soapenv:Envelope'='SOAP-ENV:Envelope'
+End of receive message ok
+Resolving forwarded data
+Resolution phase
+Resolution done
+Shutdown socket 5 how=2
+Close socket 5
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+stdsoap2.c(5405): free(0x89e0ec0)
+stdsoap2.c(5406): free(0x89e3a00)
+stdsoap2.c(5405): free(0x89ce2b0)
+stdsoap2.c(5406): free(0x89caa60)
+stdsoap2.c(5405): free(0x89c40e0)
+stdsoap2.c(5406): free(0x89d0510)
+stdsoap2.c(5405): free(0x89cd280)
+stdsoap2.c(5406): free(0x8a410f0)
+stdsoap2.c(5411): free(0x89c3b70)
+stdsoap2.c(5422): free(0x89d04a0)
+stdsoap2.c(5428): free(0x89d0300)
+Free pointer hashtable
+Free ID hashtable
+Free all soap_malloc() data
+stdsoap2.c(4857): free(0x89e26a0)
+stdsoap2.c(4857): free(0x89c3c80)
+stdsoap2.c(4857): free(0x89e23a0)
+stdsoap2.c(4857): free(0x89e22e0)
+stdsoap2.c(4857): free(0x89e1af0)
+stdsoap2.c(4857): free(0x89e0f40)
+stdsoap2.c(4857): free(0x89e3980)
+stdsoap2.c(4857): free(0x89e3920)
+stdsoap2.c(4857): free(0x89ce330)
+stdsoap2.c(4857): free(0x89c2520)
+Free namespace stack
+Free any remaining temp blocks
+Free attribute storage
+Free pointer hashtable
+Free ID hashtable
+Removing plugin 'CGSI_PLUGIN_CLIENT_1.0'
+stdsoap2.c(2896): free(0x89ab8e0)
+Free logfiles
+stdsoap2.c(2959): free(0x89ab460)
+stdsoap2.c(2959): free(0x89ab3b0)
+stdsoap2.c(2959): free(0x89ab610)

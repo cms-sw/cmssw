@@ -1,0 +1,17 @@
+130904_082006: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -create -submit
+130904_082130: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_082243: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_082451: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_082800: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_082953: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_083230: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_083446: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_084746: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130904_084752: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -getoutput
+130904_084835: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -getoutput
+130904_084840: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130905_112521: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -create -submit
+130905_112609: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -create -submit
+130905_123859: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
+130905_123907: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -getoutput
+130905_123925: /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_9_0/python/crab.py -status
