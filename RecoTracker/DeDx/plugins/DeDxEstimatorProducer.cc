@@ -207,23 +207,24 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float track
           if(!useStrip) return;
           const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
           if(!matchedHit)return;
+          const GluedGeomDet* gdet = static_cast<const GluedGeomDet*>(matchedHit->det());
 
-          auto& detUnitM     = *(matchedHit->monoHit().detUnit());
+          auto& detUnitM     = *(gdet->monoDet());
           int   NSaturating = 0;
           float pathLen     = detUnitM.surface().bounds().thickness()/fabs(cosine);
-          float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, detUnitM, calibGains, m_off);
+          float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoCluster()),NSaturating, detUnitM, calibGains, m_off);
           float charge      = meVperADCStrip*chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->monoHit().stripCluster().amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->monoCluster().amplitudes()))){
              dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, matchedHit->monoId()) );
              if(NSaturating>0)NClusterSaturating++;
           }
 
-          auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
+          auto& detUnitS     = *(gdet->stereoDet());
           NSaturating = 0;
           pathLen     = detUnitS.surface().bounds().thickness()/fabs(cosine);
-          chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, detUnitS, calibGains, m_off);
+          chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoCluster()),NSaturating, detUnitS, calibGains, m_off);
           charge      = meVperADCStrip*chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->stereoHit().stripCluster().amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->stereoCluster().amplitudes()))){
              dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, matchedHit->stereoId()) );
              if(NSaturating>0)NClusterSaturating++;
           }      

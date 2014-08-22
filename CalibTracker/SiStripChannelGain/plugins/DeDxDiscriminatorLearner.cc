@@ -168,9 +168,10 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit, float tr
        }else if(clus.isStrip() && thit.isMatched()){
           const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
           if(!matchedHit)return;
+          const GluedGeomDet* gdet = static_cast<const GluedGeomDet*>(matchedHit->det());
 
-          auto& detUnitM    = *(matchedHit->monoHit().detUnit());
-          auto& clusterM    = matchedHit->monoHit().stripCluster();
+          auto& detUnitM    = *(gdet->monoDet());
+          auto& clusterM    = matchedHit->monoCluster();
           if( clusterM.amplitudes().size()>MaxNrStrips)                                             { return; }
           if( DeDxTools::IsSpanningOver2APV (clusterM.firstStrip(), clusterM.amplitudes().size()))  { return; }
           if(!DeDxTools::IsFarFromBorder    (trajState, &detUnitM ))                                { return; }
@@ -181,8 +182,8 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit, float tr
              Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
           }
 
-          auto& detUnitS    = *(matchedHit->stereoHit().detUnit());
-          auto& clusterS    = matchedHit->stereoHit().stripCluster();
+          auto& detUnitS    = *(gdet->stereoDet());
+          auto& clusterS    = matchedHit->stereoCluster();
           if( clusterS.amplitudes().size()>MaxNrStrips)                                             { return; }
           if( DeDxTools::IsSpanningOver2APV (clusterS.firstStrip(), clusterS.amplitudes().size()))  { return; }
           if(!DeDxTools::IsFarFromBorder    (trajState, &detUnitS ))                                { return; }
