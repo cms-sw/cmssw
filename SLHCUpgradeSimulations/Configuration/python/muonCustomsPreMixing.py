@@ -167,6 +167,7 @@ def customise_csc_Packer(process):
     """
     process.cscpacker.useFormatVersion = cms.uint32(2013)
     process.cscpacker.usePreTriggers = cms.bool(False)
+    process.cscpacker.packEverything = cms.bool(True)
     return process
 
 
