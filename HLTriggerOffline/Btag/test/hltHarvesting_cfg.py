@@ -10,12 +10,12 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
-process.load("HLTriggerOffline.Btag.Validation.hltJetMCTools_cff")
+process.load("HLTriggerOffline.Btag.hltJetMCTools_cff")
 
 # read them from my.ini
 
 #process.load("HLTriggerOffline.Btag.Validation.readConfig")
-from HLTriggerOffline.Btag.Validation.readConfig import *
+from HLTriggerOffline.Btag.readConfig import *
 #ReadFile("my.ini")
 
 filexml = fileXML("my.ini")
