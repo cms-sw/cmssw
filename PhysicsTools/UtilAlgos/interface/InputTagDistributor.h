@@ -43,7 +43,8 @@ class InputTagDistributorService{
 
  public:
   InputTagDistributorService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){
-    r.watchPreModule(this, &InputTagDistributorService::preModule );
+    //r.watchPreModule(this, &InputTagDistributorService::preModule );
+    r.watchPreModuleConstruction(this, &InputTagDistributorService::preModule ); 
   };
   ~InputTagDistributorService(){};
 
