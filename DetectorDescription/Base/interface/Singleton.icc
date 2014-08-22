@@ -1,12 +1,8 @@
 
 namespace DDI {
-
    template <class I> 
 	 I& Singleton<I>::instance() {
-	   std::call_once(m_onceFlag,
-  	     [] {
- 		  m_instance.reset(new I);
-	        });
-    	  return *m_instance.get();
+		static I value;
+		return value;
 	}
 }
