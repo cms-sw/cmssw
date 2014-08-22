@@ -85,8 +85,8 @@ class GenLumiInfoProduct {
 
   struct ProcessInfo {
   public:
-  ProcessInfo():process_(-1),nPassPos_(0),nPassNeg_(0),nFailPos_(0),nFailNeg_(0){}
-  ProcessInfo(int id):process_(id),nPassPos_(0),nPassNeg_(0),nFailPos_(0),nFailNeg_(0){}
+  ProcessInfo():process_(-1),nPassPos_(0),nPassNeg_(0),nTotalPos_(0),nTotalNeg_(0){}
+  ProcessInfo(int id):process_(id),nPassPos_(0),nPassNeg_(0),nTotalPos_(0),nTotalNeg_(0){}
 
     // accessors
     int process() const {return process_;}
@@ -94,8 +94,8 @@ class GenLumiInfoProduct {
 
     unsigned int nPassPos() const {return nPassPos_;}
     unsigned int nPassNeg() const {return nPassNeg_;}
-    unsigned int nFailPos() const {return nFailPos_;}
-    unsigned int nFailNeg() const {return nFailNeg_;}
+    unsigned int nTotalPos() const {return nTotalPos_;}
+    unsigned int nTotalNeg() const {return nTotalNeg_;}
 
     FinalStat tried() const {return tried_;}
     FinalStat selected() const {return selected_;}
@@ -107,8 +107,8 @@ class GenLumiInfoProduct {
     void addOthers(const ProcessInfo& other){
       nPassPos_ += other.nPassPos();
       nPassNeg_ += other.nPassNeg();
-      nFailPos_ += other.nFailPos();
-      nFailNeg_ += other.nFailNeg();
+      nTotalPos_ += other.nTotalPos();
+      nTotalNeg_ += other.nTotalNeg();
       tried_.add(other.tried());
       selected_.add(other.selected());
       killed_.add(other.killed());
@@ -119,8 +119,8 @@ class GenLumiInfoProduct {
     void setLheXSec(double value, double err) { lheXSec_ = XSec(value,err); }
     void setNPassPos(unsigned int n) { nPassPos_ = n; }
     void setNPassNeg(unsigned int n) { nPassNeg_ = n; }
-    void setNFailPos(unsigned int n) { nFailPos_ = n; }
-    void setNFailNeg(unsigned int n) { nFailNeg_ = n; }
+    void setNTotalPos(unsigned int n) { nTotalPos_ = n; }
+    void setNTotalNeg(unsigned int n) { nTotalNeg_ = n; }
     void setTried(unsigned int n, double sum, double sum2) { tried_ = FinalStat(n,sum,sum2); }
     void setSelected(unsigned int n, double sum, double sum2) { selected_ = FinalStat(n,sum,sum2); }
     void setKilled(unsigned int n, double sum, double sum2) { killed_ = FinalStat(n,sum,sum2); }
@@ -132,8 +132,8 @@ class GenLumiInfoProduct {
     XSec            lheXSec_;
     unsigned int    nPassPos_;
     unsigned int    nPassNeg_;
-    unsigned int    nFailPos_;
-    unsigned int    nFailNeg_;
+    unsigned int    nTotalPos_;
+    unsigned int    nTotalNeg_;
     FinalStat       tried_;
     FinalStat       selected_;
     FinalStat       killed_;

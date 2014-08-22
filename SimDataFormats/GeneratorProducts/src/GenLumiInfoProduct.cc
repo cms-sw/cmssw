@@ -23,7 +23,7 @@ const bool operator == (const GenLumiInfoProduct::ProcessInfo& lhs, const GenLum
   bool condition=
     (lhs.process() == rhs.process() && lhs.lheXSec() == rhs.lheXSec()
      && lhs.nPassPos() == rhs.nPassPos() && lhs.nPassNeg() == rhs.nPassNeg()
-     && lhs.nFailPos() == rhs.nFailPos() && lhs.nFailNeg() == rhs.nFailNeg()
+     && lhs.nTotalPos() == rhs.nTotalPos() && lhs.nTotalNeg() == rhs.nTotalNeg()
      && lhs.tried() == rhs.tried() && lhs.selected() == rhs.selected()
      && lhs.killed() == rhs.killed() && lhs.accepted() == rhs.accepted() 
      && lhs.acceptedBr() == rhs.acceptedBr()); 

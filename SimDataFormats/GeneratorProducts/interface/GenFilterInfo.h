@@ -20,17 +20,15 @@ public:
   virtual ~GenFilterInfo();
   
   // getters
-  unsigned int numEventsTried() const { return (numPassPositiveEvents_ + numPassNegativeEvents_ + numFailPositiveEvents_ + numFailNegativeEvents_);}
+  unsigned int numEventsTried() const { return (numTotalPositiveEvents_ + numTotalNegativeEvents_);}
   unsigned int numEventsPassed() const { return fmax(0, (numPassPositiveEvents_ - numPassNegativeEvents_));}
-  unsigned int numEventsTotal() const { return fmax(0, (numPassPositiveEvents_ + numFailPositiveEvents_ - numPassNegativeEvents_ - numFailNegativeEvents_));}
+  unsigned int numEventsTotal() const { return fmax(0, (numTotalPositiveEvents_ - numTotalNegativeEvents_));}
 
   unsigned int  numPassPositiveEvents() const { return numPassPositiveEvents_;}
-  unsigned int  numFailPositiveEvents() const { return numFailPositiveEvents_;}
-  unsigned int  numPositiveEvents() const { return (numPassPositiveEvents_+numFailPositiveEvents_);}
+  unsigned int  numTotalPositiveEvents() const { return numTotalPositiveEvents_;}
 
   unsigned int  numPassNegativeEvents() const { return numPassNegativeEvents_;}
-  unsigned int  numFailNegativeEvents() const { return numFailNegativeEvents_;}
-  unsigned int  numNegativeEvents() const { return (numPassNegativeEvents_+numFailNegativeEvents_);}
+  unsigned int  numTotalNegativeEvents() const { return numTotalNegativeEvents_;}
 
 
   double sumPassWeights() const { return sumPassWeights_;}
@@ -51,8 +49,8 @@ private:
   
   unsigned int  numPassPositiveEvents_;
   unsigned int  numPassNegativeEvents_;
-  unsigned int  numFailPositiveEvents_;
-  unsigned int  numFailNegativeEvents_;
+  unsigned int  numTotalPositiveEvents_;
+  unsigned int  numTotalNegativeEvents_;
 
   double        sumPassWeights_;
   double        sumPassWeights2_;

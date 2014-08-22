@@ -57,8 +57,8 @@ private:
 
   unsigned int numEventsPassPos_;
   unsigned int numEventsPassNeg_;
-  unsigned int numEventsFailPos_;
-  unsigned int numEventsFailNeg_;
+  unsigned int numEventsTotalPos_;
+  unsigned int numEventsTotalNeg_;
   double sumpass_w_;
   double sumpass_w2_;
   double sumfail_w_;

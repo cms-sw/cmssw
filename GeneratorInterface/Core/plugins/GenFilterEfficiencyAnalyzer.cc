@@ -26,7 +26,7 @@ GenFilterEfficiencyAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLum
 
   std::cout << "Lumi section " << iLumi.id() << std::endl;
 
-  std::cout << "N total = " << genFilter->sumWeights() << " N passed = " << genFilter->sumPassWeights() << std::endl;
+  std::cout << "N total = " << genFilter->sumWeights() << " N passed = " << genFilter->sumPassWeights() << " N failed = " << genFilter->sumFailWeights() << std::endl;
   std::cout << "Generator filter efficiency = " << genFilter->filterEfficiency(-1) << " +- " << genFilter->filterEfficiencyError(-1) << std::endl;
   totalGenFilterInfo_.mergeProduct(*genFilter);
   

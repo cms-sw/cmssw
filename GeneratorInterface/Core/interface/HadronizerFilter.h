@@ -332,8 +332,8 @@ namespace edm
       temp.setLheXSec(thisProcess.getLHEXSec().value(),thisProcess.getLHEXSec().error());
       temp.setNPassPos(thisProcess.nPassPos());
       temp.setNPassNeg(thisProcess.nPassNeg());
-      temp.setNFailPos(thisProcess.nTotalPos()-thisProcess.nPassPos());
-      temp.setNFailNeg(thisProcess.nTotalNeg()-thisProcess.nPassNeg());
+      temp.setNTotalPos(thisProcess.nTotalPos());
+      temp.setNTotalNeg(thisProcess.nTotalNeg());
       temp.setTried(thisProcess.tried().n(), thisProcess.tried().sum(), thisProcess.tried().sum2());
       temp.setSelected(thisProcess.selected().n(), thisProcess.selected().sum(), thisProcess.selected().sum2());
       temp.setKilled(thisProcess.killed().n(), thisProcess.killed().sum(), thisProcess.killed().sum2());

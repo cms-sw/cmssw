@@ -69,8 +69,8 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
       jetMatchEffStat_.mergeProduct(GenFilterInfo(
 						  theProcesses[ip].nPassPos(),
 						  theProcesses[ip].nPassNeg(),
-						  theProcesses[ip].nFailPos(),
-						  theProcesses[ip].nFailNeg(),
+						  theProcesses[ip].nTotalPos(),
+						  theProcesses[ip].nTotalNeg(),
 						  passw,
 						  passw2,
 						  failw,
@@ -148,7 +148,7 @@ GenXSecAnalyzer::compute()
 	double sigmaAvg = hepxsec_value;
 
 	double fracAcc = 0;
-	double ntotal = proc.nPassPos()+proc.nFailPos()-proc.nPassNeg()-proc.nFailNeg();
+	double ntotal = proc.nTotalPos()-proc.nTotalNeg();
 	double npass  = proc.nPassPos() -proc.nPassNeg();
 	switch(hepidwtup_){
 	case 3: case -3:
@@ -177,13 +177,13 @@ GenXSecAnalyzer::compute()
 	  switch(hepidwtup_) {
 	  case 3: case -3:
 	    {
-	      double ntotal_pos = proc.nPassPos()+proc.nFailPos();
+	      double ntotal_pos = proc.nTotalPos();
 	      double effp  = ntotal_pos > 1e-6?
 		(double)proc.nPassPos()/ntotal_pos:0;
 	      double effp_err2 = ntotal_pos > 1e-6?
 		(1-effp)*effp/ntotal_pos: 0;
 
-	      double ntotal_neg = proc.nPassNeg()+proc.nFailNeg();
+	      double ntotal_neg = proc.nTotalNeg();
 	      double effn  = ntotal_neg > 1e-6?
 		(double)proc.nPassNeg()/ntotal_neg:0;
 	      double effn_err2 = ntotal_neg > 1e-6?

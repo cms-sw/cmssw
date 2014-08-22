@@ -100,40 +100,39 @@
 	<!-- GenFilterInfo -->
 
 	<class name="GenFilterInfo" ClassVersion="11">
-  <version ClassVersion="11" checksum="1336970252"/>
+  <version ClassVersion="11" checksum="1579572950"/>
   <version ClassVersion="10" checksum="2060912306"/>
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numPassPositiveEvents_">
-	  <![CDATA[numPassPositiveEvents_ = 0;]]>
+ </class>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[1-10]" targetClass="GenFilterInfo" target="numPassPositiveEvents_">
+	  <![CDATA[numPassPositiveEvents_ = onfile.numEventsPassed_;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numPassNegativeEvents_">
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[1-10]" targetClass="GenFilterInfo" target="numPassNegativeEvents_">
 	  <![CDATA[numPassNegativeEvents_ = 0;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numFailPositiveEvents_">
-	  <![CDATA[numFailPositiveEvents_ = 0;]]>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[1-10]" targetClass="GenFilterInfo" target="numTotalPositiveEvents_">
+	  <![CDATA[numTotalPositiveEvents_ = onfile.numEventsTried_;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="numFailNegativeEvents_">
-	  <![CDATA[numFailNegativeEvents_ = 0;]]>
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[1-10]" targetClass="GenFilterInfo" target="numTotalNegativeEvents_">
+	  <![CDATA[numTotalNegativeEvents_ = 0;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumPassWeights_">
-	  <![CDATA[sumPassWeights_ = 0.;]]>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[1-10]" targetClass="GenFilterInfo" target="sumPassWeights_">
+	  <![CDATA[sumPassWeights_ = onfile.numEventsPassed_;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumPassWeights2_">
-	  <![CDATA[sumPassWeights2_ = 0.;]]>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[1-10]" targetClass="GenFilterInfo" target="sumPassWeights2_">
+	  <![CDATA[sumPassWeights2_ = onfile.numEventsPassed_;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumFailWeights_">
-	  <![CDATA[sumFailWeights_ = 0.;]]>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_; unsigned int numEventsTried_" version="[1-10]" targetClass="GenFilterInfo" target="sumFailWeights_">
+	  <![CDATA[sumFailWeights_ = onfile.numEventsTried_ - onfile.numEventsPassed_;]]>
 	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" version="[-10]" targetClass="GenFilterInfo" source = "" target="sumFailWeights2_">
-	  <![CDATA[sumFailWeights2_ = 0.;]]>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_; unsigned int numEventsTried_" version="[1-10]" targetClass="GenFilterInfo" target="sumFailWeights2_">
+	  <![CDATA[sumFailWeights2_ = onfile.numEventsTried_ - onfile.numEventsPassed_;]]>
 	</ioread> 
- </class>
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
 	<!-- GenLumiInfoProduct -->
 
-
 	<class name="GenLumiInfoProduct" ClassVersion="10">
-	  <version ClassVersion="10" checksum="2365797689"/>
+	  <version ClassVersion="10" checksum="2365797689"/> 
 	</class>
 	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
 	  <version ClassVersion="10" checksum="1937303025"/>  
@@ -142,7 +141,7 @@
 	  <version ClassVersion="10" checksum="1482608724"/> 
 	</class>
 	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1665420491"/>
+	  <version ClassVersion="10" checksum="621228037"/>
 	</class>
 	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 

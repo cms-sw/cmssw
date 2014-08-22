@@ -267,11 +267,11 @@ namespace edm
     temp.setLheXSec(xsec.value(), xsec.error()); // Pythia gives error of -1
     temp.setNPassPos(nEventsInLumiBlock_);
     temp.setNPassNeg(0);
-    temp.setNFailPos(0);
-    temp.setNFailNeg(0);
-    temp.setTried(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_*nEventsInLumiBlock_);
-    temp.setSelected(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_*nEventsInLumiBlock_);
-    temp.setKilled(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_*nEventsInLumiBlock_);
+    temp.setNTotalPos(nEventsInLumiBlock_);
+    temp.setNTotalNeg(0);
+    temp.setTried(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_);
+    temp.setSelected(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_);
+    temp.setKilled(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_);
     temp.setAccepted(0,-1,-1);
     temp.setAcceptedBr(0,-1,-1);
     GenLumiProcess.push_back(temp);
