@@ -165,6 +165,7 @@ def customise_csc_Packer(process):
     """Use 2013 a.k.a. post-LS1 version
     """
     process.cscpacker.useFormatVersion = cms.uint32(2013)
+    process.cscpacker.usePreTriggers = cms.bool(False)
     return process
 
 
