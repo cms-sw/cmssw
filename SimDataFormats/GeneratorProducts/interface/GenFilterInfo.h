@@ -34,11 +34,11 @@ public:
   double sumPassWeights() const { return sumPassWeights_;}
   double sumPassWeights2() const { return sumPassWeights2_;}
 
-  double sumFailWeights() const { return sumFailWeights_;}
-  double sumFailWeights2() const { return sumFailWeights2_;}
+  double sumFailWeights() const { return sumTotalWeights_ - sumPassWeights_;}
+  double sumFailWeights2() const { return sumTotalWeights2_ - sumPassWeights2_;}
 
-  double sumWeights() const { return (sumPassWeights() + sumFailWeights());}
-  double sumWeights2() const { return (sumPassWeights2() + sumFailWeights2());}
+  double sumWeights() const { return sumTotalWeights_;}
+  double sumWeights2() const { return sumTotalWeights2_;}
 
   double filterEfficiency(int idwtup=+3) const;
   double filterEfficiencyError(int idwtup=+3) const;
@@ -54,8 +54,8 @@ private:
 
   double        sumPassWeights_;
   double        sumPassWeights2_;
-  double        sumFailWeights_;
-  double        sumFailWeights2_;
+  double        sumTotalWeights_;
+  double        sumTotalWeights2_;
 
 
 

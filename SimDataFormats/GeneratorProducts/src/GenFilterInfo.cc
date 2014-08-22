@@ -15,8 +15,8 @@ GenFilterInfo::GenFilterInfo() :
   numTotalNegativeEvents_(0),
   sumPassWeights_(0.),
   sumPassWeights2_(0.),
-  sumFailWeights_(0.),
-  sumFailWeights2_(0.)
+  sumTotalWeights_(0.),
+  sumTotalWeights2_(0.)
 {
 }
 
@@ -27,21 +27,21 @@ GenFilterInfo::GenFilterInfo(unsigned int tried, unsigned int pass) :
   numTotalNegativeEvents_(0),
   sumPassWeights_(pass),
   sumPassWeights2_(pass),
-  sumFailWeights_(tried-pass),
-  sumFailWeights2_(tried-pass)
+  sumTotalWeights_(tried),
+  sumTotalWeights2_(tried)
 {
 }
 
 GenFilterInfo::GenFilterInfo(unsigned int passp, unsigned int passn, unsigned int totalp, unsigned int totaln,
-			     double passw, double passw2, double failw, double failw2) :
+			     double passw, double passw2, double totalw, double totalw2) :
   numPassPositiveEvents_(passp),
   numPassNegativeEvents_(passn),
   numTotalPositiveEvents_(totalp),
   numTotalNegativeEvents_(totaln),
   sumPassWeights_(passw),
   sumPassWeights2_(passw2),
-  sumFailWeights_(failw),
-  sumFailWeights2_(failw2)
+  sumTotalWeights_(totalw),
+  sumTotalWeights2_(totalw2)
 {
 }
 
@@ -52,8 +52,8 @@ GenFilterInfo::GenFilterInfo(const GenFilterInfo& other):
   numTotalNegativeEvents_(other.numTotalNegativeEvents_),
   sumPassWeights_(other.sumPassWeights_),
   sumPassWeights2_(other.sumPassWeights2_),
-  sumFailWeights_(other.sumFailWeights_),
-  sumFailWeights2_(other.sumFailWeights2_)
+  sumTotalWeights_(other.sumTotalWeights_),
+  sumTotalWeights2_(other.sumTotalWeights2_)
 {
 }
 
@@ -73,8 +73,8 @@ bool GenFilterInfo::mergeProduct(GenFilterInfo const &other)
   numTotalNegativeEvents_ += other.numTotalNegativeEvents_;
   sumPassWeights_        += other.sumPassWeights_;
   sumPassWeights2_       += other.sumPassWeights2_;
-  sumFailWeights_        += other.sumFailWeights_;
-  sumFailWeights2_       += other.sumFailWeights2_;
+  sumTotalWeights_        += other.sumTotalWeights_;
+  sumTotalWeights2_       += other.sumTotalWeights2_;
 
   return true;
 }

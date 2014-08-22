@@ -64,8 +64,8 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
       GenLumiInfoProduct::FinalStat temp_selected = theProcesses[ip].selected();
       double passw  = temp_killed.sum();
       double passw2 = temp_killed.sum2();
-      double failw  = temp_selected.sum() - passw;
-      double failw2 = temp_selected.sum2() - passw2;
+      double totalw  = temp_selected.sum();
+      double totalw2 = temp_selected.sum2();
       jetMatchEffStat_.mergeProduct(GenFilterInfo(
 						  theProcesses[ip].nPassPos(),
 						  theProcesses[ip].nPassNeg(),
@@ -73,8 +73,8 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
 						  theProcesses[ip].nTotalNeg(),
 						  passw,
 						  passw2,
-						  failw,
-						  failw2)
+						  totalw,
+						  totalw2)
 				    );
 
     }

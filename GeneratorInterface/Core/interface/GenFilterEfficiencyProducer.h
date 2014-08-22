@@ -61,8 +61,8 @@ private:
   unsigned int numEventsTotalNeg_;
   double sumpass_w_;
   double sumpass_w2_;
-  double sumfail_w_;
-  double sumfail_w2_;
+  double sumtotal_w_;
+  double sumtotal_w2_;
 
 };
 

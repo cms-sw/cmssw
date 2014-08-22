@@ -11,8 +11,8 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
   numEventsTotalNeg_(0),
   sumpass_w_(0.),
   sumpass_w2_(0.),
-  sumfail_w_(0.),
-  sumfail_w2_(0.)
+  sumtotal_w_(0.),
+  sumtotal_w2_(0.)
 {
    //now do what ever initialization is needed
   if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
@@ -66,6 +66,10 @@ GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     if ( trigR->accept(pathIndex) ) { 
       sumpass_w_ += weight;
       sumpass_w2_+= weight*weight;
+      
+      sumtotal_w_ += weight;
+      sumtotal_w2_+= weight*weight;
+
       if(weight > 0)
 	{
 	  numEventsPassPos_++;
@@ -80,12 +84,13 @@ GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
     else // if fail the filter
       {
-      sumfail_w_ += weight;
-      sumfail_w2_+= weight*weight;
-      if(weight > 0)
-	numEventsTotalPos_++;
-      else
-	numEventsTotalNeg_++;
+	sumtotal_w_ += weight;
+	sumtotal_w2_+= weight*weight;
+
+	if(weight > 0)
+	  numEventsTotalPos_++;
+	else
+	  numEventsTotalNeg_++;
       }
     //    std::cout << "Total events = " << numEventsTotal << " passed = " << numEventsPassed << std::endl;
 
@@ -102,8 +107,8 @@ GenFilterEfficiencyProducer::beginLuminosityBlock(edm::LuminosityBlock const&, c
   numEventsTotalNeg_=0;
   sumpass_w_=0;
   sumpass_w2_=0;
-  sumfail_w_=0;
-  sumfail_w2_=0;
+  sumtotal_w_=0;
+  sumtotal_w2_=0;
  
 }
 void
@@ -120,8 +125,8 @@ GenFilterEfficiencyProducer::endLuminosityBlockProduce(edm::LuminosityBlock & iL
 							     numEventsTotalNeg_,
 							     sumpass_w_,
 							     sumpass_w2_,
-							     sumfail_w_,
-							     sumfail_w2_
+							     sumtotal_w_,
+							     sumtotal_w2_
 							     ));
   iLumi.put(thisProduct);
 }
