@@ -24,6 +24,7 @@ namespace cond {
       // iov data
       cond::Time_t lowerGroup = cond::time::MAX_VAL;
       cond::Time_t higherGroup = cond::time::MIN_VAL;
+      cond::Time_t groupEdge = cond::time::MIN_VAL;
       std::vector<cond::Time_t> sinceGroups;
       IOVProxy::IOVContainer iovSequence;
       size_t numberOfQueries = 0;
@@ -208,6 +209,8 @@ namespace cond {
       
       m_data->lowerGroup = lowerGroup;
       m_data->higherGroup = higherGroup;
+      m_data->groupEdge = higherGroup;
+      if( higherGroup < cond::time::MAX_VAL && !m_data->iovSequence.empty() ) m_data->groupEdge = std::get<0>(m_data->iovSequence.back());
       
       m_data->numberOfQueries++;
     }
@@ -249,7 +252,7 @@ namespace cond {
       
       if( m_data->lowerGroup==cond::time::MAX_VAL ||
 	  // case 1 : target outside
-	  time < m_data->lowerGroup || time>= m_data->higherGroup ){
+	  time < m_data->lowerGroup || time>= m_data->groupEdge ){
 	
 	// a new query required!
 	// first determine the groups
