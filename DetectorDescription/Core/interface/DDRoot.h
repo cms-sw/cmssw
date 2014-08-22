@@ -15,6 +15,7 @@ class DDRoot
 {
   friend class DDI::Singleton<DDRoot>; //FIXME: should not be, because DDSingleton inherits from DDRoot!
 public:
+  ~DDRoot();
   //! set the root by using its qualified name DDName
   void set(const DDName & rootName);
   
@@ -26,7 +27,6 @@ public:
   //const DDLogicalPart & root() const; 
 protected:
   DDRoot();
-  ~DDRoot();
 private:
   DDLogicalPart root_;
 };
