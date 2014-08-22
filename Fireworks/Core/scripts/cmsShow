@@ -98,7 +98,7 @@ setupEnv()
    # see if we are running in standalone mode
    if [ ! -d $SHELLDIR/../../.SCRAM ] ; then
      export CMSSW_BASE=$SHELLDIR
-     export CMSSW_SEARCH_PATH="."
+     export CMSSW_SEARCH_PATH=".:$CMSSW_BASE"
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
      export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
