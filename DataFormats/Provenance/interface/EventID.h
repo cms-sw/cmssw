@@ -5,7 +5,7 @@
 // Package:     DataFormats/Provenance
 // Class  :     EventID
 //
-/**\class EventID EventID.h DataFormats/Provenance/interface/EventID.h
+/**\class edm::EventID
 
  Description: Holds run, lumi, and event numbers.
 
@@ -23,18 +23,15 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 // forward declarations
 namespace edm {
 
-   typedef unsigned int EventNumber_t;
-   typedef unsigned int LuminosityBlockNumber_t;
-
-
   class EventID {
 
     public:
-      EventID() : run_(0), luminosityBlock_(0), event_(0) {}
+      EventID() : run_(invalidRunNumber), luminosityBlock_(invalidLuminosityBlockNumber), event_(invalidEventNumber) {}
       EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
         run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
 
