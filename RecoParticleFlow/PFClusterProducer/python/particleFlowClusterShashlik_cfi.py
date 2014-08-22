@@ -25,7 +25,7 @@ _topoClusterizer_EK = cms.PSet(
     thresholdsByDetector = cms.VPSet(   
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
               gatheringThreshold = cms.double(0.08),
-              gatheringThresholdPt = cms.double(0.0)
+              gatheringThresholdPt = cms.double(0.03)
               )
     ),
     useCornerCells = cms.bool(True)
