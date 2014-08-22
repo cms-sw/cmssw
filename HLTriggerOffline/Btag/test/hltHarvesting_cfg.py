@@ -141,6 +141,7 @@ massSearchReplaceParam(process.hltpostvalidation,"HLTPathNames",cms.vstring('HLT
 
 # fix Trigger results
 massSearchReplaceAnyInputTag(process.hltvalidation,cms.InputTag("TriggerResults"),cms.InputTag("TriggerResults",'',processname),verbose=True)
+#massSearchReplaceAnyInputTag(process.hltvalidation,cms.InputTag("TriggerResults"),cms.InputTag("TriggerResults",'',processname),verbose=True)
 
 #fix BTagAlgorithms
 massSearchReplaceParam(process.hltvalidation,"BTagAlgorithms",cms.vstring('TCHE'),BTagAlgorithms,verbose=True)
@@ -215,7 +216,9 @@ process.post_validation = cms.Path(
 # fix hltCaloJets and genParticles
 process.extra_jetmctools  = cms.Path( process.hltJetMCTools )
 massSearchReplaceAnyInputTag(process.extra_jetmctools,cms.InputTag("hltCaloJetL1FastJetCorrected","","HLT"),cms.InputTag(jets,'',processname),verbose=True)
-massSearchReplaceAnyInputTag(process.extra_jetmctools,cms.InputTag("genParticles","","HLT"),cms.InputTag("genParticles",'',genParticlesProcess),verbose=True)
+#massSearchReplaceAnyInputTag(process.extra_jetmctools,cms.InputTag("genParticles","","HLT"),cms.InputTag("genParticles",'',genParticlesProcess),verbose=True)
+massSearchReplaceAnyInputTag(process.extra_jetmctools,cms.InputTag("genParticles","","HLT"),cms.InputTag("genParticles",''),verbose=True)
+
 
 
 process.EDMtoMEconv_and_saver= cms.Path(process.EDMtoMEConverter*process.dqmSaver)

@@ -129,7 +129,12 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     	   iEvent.getByLabel(m_mcPartons, h_mcPartons);
 			try {
 				if (h_mcPartons.isValid()) MCOK=true;
-				else std::cout<<"Something wrong with partons "<<std::endl;
+				else {
+					std::cout<<"Something wrong with partons "<<std::endl;
+					std::cout<<"Partons:" << m_mcPartons.label()  <<std::endl;
+					std::cout<<"Partons valid:" << h_mcPartons.isValid()  <<std::endl;
+					std::cout<<"mcMatching:" << m_mcMatching <<std::endl;
+					}
 			} catch(...) { std::cout<<"Partons collection is not valid "<<std::endl; }
 
 
@@ -263,7 +268,12 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 
 //      if ( !(L25OK || L3OK) ) continue;
-      if ( !(L25OK || L3OK) ) {    excp << "Collections for L2.5 and L3 ==> not found";            excp.raise(); }
+      if ( !(L25OK || L3OK) ) {    
+      std::cout << "JetTagCollectionL3=" << l3JetTagCollection_[ind].label() << std::endl;
+      std::cout << "JetTagCollectionL25=" << l25JetTagCollection_[ind].label() << std::endl;
+      excp << "Collections for L2.5 and L3 ==> not found";            
+      
+      excp.raise(); }
 
 
 

@@ -7,32 +7,14 @@ minTags= cms.vdouble(0.89, 3.41, 3.41)
 ['HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v5', 'HLT_QuadJet75_55_35_20_BTagIP_VBF_v7', 'HLT_QuadJet75_55_38_20_BTagIP_VBF_v7']
 CMSSW_test
 HLTX
-['/store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root']
+['root://xrootd.ba.infn.it//store/relval/CMSSW_7_2_0_pre3/RelValTTbar_13/DQMIO/PU50ns_POSTLS172_V4-v1/00000/5C071CA0-E11D-E411-A283-02163E00EF4D.root']
 hltCaloJetL1FastJetCorrected
 ['CSV', 'TCHE', 'TCHE']
 genParticlesProcess= SIM
-cms.untracked.vstring('/store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root')
+cms.untracked.vstring('root://xrootd.ba.infn.it//store/relval/CMSSW_7_2_0_pre3/RelValTTbar_13/DQMIO/PU50ns_POSTLS172_V4-v1/00000/5C071CA0-E11D-E411-A283-02163E00EF4D.root')
 Replace require_hltJets.requirement cms.InputTag("hltCaloJetL1FastJetCorrected","","HLT") ==> cms.InputTag("hltCaloJetL1FastJetCorrected","","HLTX") 
 Replace hltJetsbyRef.jets cms.InputTag("hltCaloJetL1FastJetCorrected","","HLT") ==> cms.InputTag("hltCaloJetL1FastJetCorrected","","HLTX") 
 Replace hltPartons.src cms.InputTag("genParticles","","HLT") ==> cms.InputTag("genParticles","","SIM") 
-22-Aug-2014 10:36:04 CEST  Initiating request to open file file:/gpfs/ddn/srm/cms/store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root
-22-Aug-2014 10:36:58 CEST  Fallback request to file root://xrootd-cms.infn.it:1194//store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root
-XrdSec: No authentication protocols are available.
-140822 10:37:10 2381 Xrd: GoToAnotherServer: Error handshaking to [dcache-cms-xrootd.desy.de:1094]
-140822 10:37:10 2381 Xrd: Open: Error in handling a redirection.
-140822 10:37:10 2381 Xrd: CheckErrorStatus: Error while being redirected for request Open
------ Begin Fatal Exception 22-Aug-2014 10:37:10 CEST-----------------------
-An exception of category 'FallbackFileOpenError' occurred while
-   [0] Constructing the EventProcessor
-   [1] Constructing input source of type PoolSource
-   [2] Calling RootInputFileSequence::initFile()
-   [3] Calling StorageFactory::open()
-   [4] Calling XrdFile::open()
-Exception Message:
-Failed to open the file 'root://xrootd-cms.infn.it:1194//store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root'
-   Additional Info:
-      [a] Input file file:/gpfs/ddn/srm/cms/store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root could not be opened.
-Fallback Input file root://xrootd-cms.infn.it:1194//store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root also could not be opened.
-      [b] XrdClient::Open(name='root://xrootd-cms.infn.it:1194//store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root', flags=0x10, permissions=0666) => error 'cannot obtain credentials for protocol: Secgsi: ErrParseBuffer: error getting user proxies: kXGS_init: unable to get protocol object.' (errno=3010)
-      [c] Current server connection: root://dcache-cms-xrootd.desy.de:1094//store/user/marfin/TTbar_TuneZ2star_13TeV-powheg-tauola/RelValTTbar_8e33_2pt1v4/317184e5e599f32779cb714fb62573b2/output_10_1_e6v.root
------ End Fatal Exception -------------------------------------------------
+22-Aug-2014 10:47:31 CEST  Initiating request to open file root://xrootd.ba.infn.it//store/relval/CMSSW_7_2_0_pre3/RelValTTbar_13/DQMIO/PU50ns_POSTLS172_V4-v1/00000/5C071CA0-E11D-E411-A283-02163E00EF4D.root
+22-Aug-2014 10:47:32 CEST  Successfully opened file root://xrootd.ba.infn.it//store/relval/CMSSW_7_2_0_pre3/RelValTTbar_13/DQMIO/PU50ns_POSTLS172_V4-v1/00000/5C071CA0-E11D-E411-A283-02163E00EF4D.root
+cmsRun: /build/dmendezl/CMSSW_7_2_0_pre4-build/tmp/BUILDROOT/c35558ecc4f61a2d8353928339104db5/opt/cmssw/slc6_amd64_gcc481/cms/cmssw/CMSSW_7_2_0_pre4/src/IOPool/Input/src/RootTree.cc:65: edm::RootTree::RootTree(std::shared_ptr<edm::InputFile>, const edm::BranchType&, unsigned int, unsigned int, unsigned int, unsigned int, bool, edm::InputType): Assertion `tree_' failed.
