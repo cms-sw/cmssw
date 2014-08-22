@@ -2,15 +2,9 @@
 
 namespace DDI { } using namespace DDI;
 
-AxesNames::AxesNames() {
-  axesmap_["x"] = x;
-  axesmap_["y"] = y;
-  axesmap_["z"] = z;
-  axesmap_["rho"] = rho;
-  axesmap_["radial3D"] = radial3D;
-  axesmap_["phi"] = phi;
-  axesmap_["undefined"] = undefined;
-}
+AxesNames::AxesNames()
+  : axesmap_{{"x", x }, {"y", y}, {"z", z}, {"rho", rho}, {"radial3D", radial3D}, {"phi", phi}, {"undefined", undefined }}
+{}
 
 AxesNames::~AxesNames() { }
 
