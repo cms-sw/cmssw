@@ -33,7 +33,7 @@ namespace l1t {
 namespace l1t {
    EtSumPacker::EtSumPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
-      etSumToken_ = cc.consumes<EtSumBxCollection>(cfg.getParameter<edm::InputTag>("EtSums"));
+      etSumToken_ = cc.consumes<EtSumBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
    }
 
    Blocks

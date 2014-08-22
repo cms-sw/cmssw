@@ -33,7 +33,7 @@ namespace l1t {
 namespace l1t {
    JetPacker::JetPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
-      jetToken_ = cc.consumes<JetBxCollection>(cfg.getParameter<edm::InputTag>("Jets"));
+      jetToken_ = cc.consumes<JetBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
    }
 
    Blocks

@@ -18,14 +18,13 @@ namespace l1t {
    PackerFactory::~PackerFactory() {};
 
    std::auto_ptr<BasePackerFactory>
-   PackerFactory::makePackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) const
+   PackerFactory::makePackerFactory(const std::string& name, const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) const
    {
-      auto type = cfg.getParameter<std::string>("type");
-      auto factory = std::auto_ptr<BasePackerFactory>(PackerFactoryFacility::get()->create(type, cfg, cc));
+      auto factory = std::auto_ptr<BasePackerFactory>(PackerFactoryFacility::get()->create(name, cfg, cc));
 
       if (factory.get() == 0) {
          throw edm::Exception(edm::errors::Configuration, "NoSourceModule")
-            << "PACKER CANT FIND " << type;
+            << "Packer factory can't find plugin " << name;
       }
 
       return factory;

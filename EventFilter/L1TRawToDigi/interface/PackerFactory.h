@@ -32,7 +32,7 @@ namespace l1t {
 
          static const PackerFactory* get();
 
-         std::auto_ptr<BasePackerFactory> makePackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&) const;
+         std::auto_ptr<BasePackerFactory> makePackerFactory(const std::string&, const edm::ParameterSet&, edm::ConsumesCollector&) const;
 
       private:
          PackerFactory();

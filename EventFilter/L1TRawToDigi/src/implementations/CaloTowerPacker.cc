@@ -34,7 +34,7 @@ namespace l1t {
 namespace l1t {
    CaloTowerPacker::CaloTowerPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
-      towerToken_ = cc.consumes<CaloTowerBxCollection>(cfg.getParameter<edm::InputTag>("CaloTowers"));
+      towerToken_ = cc.consumes<CaloTowerBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
    }
 
    Blocks

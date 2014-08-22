@@ -91,12 +91,10 @@ namespace l1t {
 
       auto cc = edm::ConsumesCollector(consumesCollector());
 
-      auto packer_cfg = config.getParameterSet("packers");
-      auto packer_names = packer_cfg.getParameterNames();
+      auto packer_names = config.getParameter<std::vector<std::string>>("Packers");
 
       for (const auto& name: packer_names) {
-         const auto& pset = packer_cfg.getParameterSet(name);
-         auto factory = std::auto_ptr<BasePackerFactory>(PackerFactory::get()->makePackerFactory(pset, cc));
+         auto factory = std::auto_ptr<BasePackerFactory>(PackerFactory::get()->makePackerFactory(name, config, cc));
          auto packer_list = factory->create(fwId_, fedId_);
          packers_.insert(packers_.end(), packer_list.begin(), packer_list.end());
       }

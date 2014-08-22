@@ -33,7 +33,7 @@ namespace l1t {
 namespace l1t {
    EGammaPacker::EGammaPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
-      egToken_ = cc.consumes<EGammaBxCollection>(cfg.getParameter<edm::InputTag>("EGammas"));
+      egToken_ = cc.consumes<EGammaBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
    }
 
    Blocks
