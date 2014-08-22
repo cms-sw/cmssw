@@ -132,7 +132,7 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
 
 
          const TrackingRecHit * recHit=(*it->recHit()).hit();
-         if(!recHit)continue;
+         if(!recHit || !recHit->isValid())continue;
          LocalVector trackDirection = trajState.localDirection();
          float cosine = trackDirection.z()/trackDirection.mag();
 

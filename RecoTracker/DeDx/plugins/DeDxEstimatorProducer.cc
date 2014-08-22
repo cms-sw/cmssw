@@ -27,6 +27,29 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
+
+void DeDxEstimatorProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<string>("estimator","generic");
+  desc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("trajectoryTrackAssociation",edm::InputTag("generalTracks"));
+  desc.add<bool>("UseTrajectory",true);  
+  desc.add<bool>("UsePixel",false); 
+  desc.add<bool>("UseStrip",true); 
+  desc.add<double>("MeVperADCPixel",3.61e-06*265);
+  desc.add<double>("MeVperADCStrip",3.61e-06);
+  desc.add<bool>("ShapeTest",true);      
+  desc.add<bool>("UseCalibration",false);  
+  desc.add<string>("calibrationPath", "");
+  desc.add<string>("Reccord", "SiStripDeDxMip_3D_Rcd");
+  desc.add<string>("ProbabilityMode", "Accumulation");
+  desc.add<double>("fraction", 0.4);
+  desc.add<double>("exponent",-2.0);
+
+  descriptions.add("DeDxEstimatorProducer",desc);
+}
+
+
 DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 {
 
@@ -47,7 +70,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
    m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
-   useTrajectory = iConfig.getParameter<bool>("UseTrajectory");
+   useTrajectory = iConfig.getParameter<bool>("UseTrajectory"); 
 
    usePixel = iConfig.getParameter<bool>("UsePixel"); 
    useStrip = iConfig.getParameter<bool>("UseStrip");
@@ -114,7 +137,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
            if( !trajState.isValid()) continue;
      
            const TrackingRecHit * recHit=(*it->recHit()).hit();
-           if(!recHit)continue;
+           if(!recHit || !recHit->isValid())continue;
            LocalVector trackDirection = trajState.localDirection();
            float cosine = trackDirection.z()/trackDirection.mag();
 
@@ -124,6 +147,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
         for(unsigned int h=0;h<track->recHitsSize();h++){
            const TrackingRecHit* recHit = &(*(track->recHit(h)));
+           if(!recHit || !recHit->isValid())continue;
            auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
            if(!thit.isValid())continue;//make sure it's a tracker hit
 

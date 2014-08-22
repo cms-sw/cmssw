@@ -47,6 +47,7 @@ class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
 public:
   explicit DeDxEstimatorProducer(const edm::ParameterSet&);
   ~DeDxEstimatorProducer();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
