@@ -30,3 +30,9 @@ process.load("PhysicsTools.JetMCAlgos.sequences.GenHFHadronMatching_cff")
 process.p1 = cms.Path(
     process.genBCHadronMatchingSequence
 )
+
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('genHFHadronMatching_out.root'),
+    outputCommands = cms.untracked.vstring('drop *', 'keep *_matchGen*_*_*')
+    )
+process.outpath = cms.EndPath(process.out)
