@@ -87,14 +87,15 @@ bool accept(const CSCDetId & cscId, const CSCCLCTPreTriggerCollection & lcts,
 
 
 CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet & pset)
-    : alctWindowMin_(pset.getParameter<int>("alctWindowMin")),
+  : alctWindowMin_(pset.getParameter<int>("alctWindowMin")),
     alctWindowMax_(pset.getParameter<int>("alctWindowMax")),
     clctWindowMin_(pset.getParameter<int>("clctWindowMin")),
     clctWindowMax_(pset.getParameter<int>("clctWindowMax")),
     preTriggerWindowMin_(pset.getParameter<int>("preTriggerWindowMin")),
     preTriggerWindowMax_(pset.getParameter<int>("preTriggerWindowMax")),
     formatVersion_(2005),
-    usePreTriggers_(true)
+    usePreTriggers_(true),
+    packEverything_(false)
 {}
 
 void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
