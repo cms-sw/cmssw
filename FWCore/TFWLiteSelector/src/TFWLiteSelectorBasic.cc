@@ -15,7 +15,6 @@
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -66,8 +65,8 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      WrapperOwningHolder getTheProduct(BranchKey const& k) const;
-      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
+      std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
+      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -78,12 +77,12 @@ namespace edm {
       std::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    WrapperOwningHolder
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
+    std::unique_ptr<WrapperBase>
+    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
       return getTheProduct(k);
     }
 
-    WrapperOwningHolder
+    std::unique_ptr<WrapperBase>
     FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -107,14 +106,24 @@ namespace edm {
       }
 
       //create an instance of it
-      void const* address  = classType.construct().address();
-      if(nullptr == address) {
+      ObjectWithDict wrapperObj = classType.construct();
+      if(nullptr == wrapperObj.address()) {
         throw cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
       }
+      void* address = wrapperObj.address();
       branch->SetAddress(&address);
+      ObjectWithDict edProdObj = wrapperObj.castObject(TypeWithDict::byName("edm::WrapperBase"));
 
+      WrapperBase* prod = reinterpret_cast<WrapperBase*>(edProdObj.address()); 	 
+	  	 
+      if(nullptr == prod) { 	 
+        throw cms::Exception("FailedConversion") 	 
+          << "failed to convert a '" << fullName 	 
+          << "' to a edm::WrapperBase." 	 
+          << "Please contact developers since something is very wrong."; 	 
+      }
       branch->GetEntry(entry_);
-      return WrapperOwningHolder(address, bDesc.getInterface());
+      return std::unique_ptr<WrapperBase>(prod);
     }
 
     struct TFWLiteSelectorMembers {

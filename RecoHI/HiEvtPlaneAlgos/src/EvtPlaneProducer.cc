@@ -41,7 +41,6 @@ Implementation:
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/Common/interface/Handle.h"

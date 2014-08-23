@@ -90,7 +90,7 @@ namespace edm {
 
     void put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp);
+        std::unique_ptr<WrapperBase> edp);
 
     void readImmediate() const;
 
