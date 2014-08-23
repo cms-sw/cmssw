@@ -16,7 +16,7 @@ Parentage: The products that were read in producing this product.
   Parentage
 
   definitions:
-  Product: The EDProduct to which a provenance object is associated
+  Product: The WrapperBase to which a provenance object is associated
 
   Parents: The EDProducts used as input by the creator.
 */

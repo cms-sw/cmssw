@@ -1,6 +1,5 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 
-#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -28,7 +27,6 @@ namespace edm {
     transient_(false),
     wrappedType_(),
     unwrappedType_(),
-    wrapperInterfaceBase_(nullptr),
     splitLevel_(),
     basketSize_() {
    }
@@ -190,11 +188,6 @@ namespace edm {
       throw;
     }
 
-    //edm::FunctionWithDict giFunc = wrType.FunctionMemberByName("getInterface");
-    //giFunc.Invoke(wrapperInterfaceBase());
-    edm::invokeByName(wrapperInterfaceBase(), wrType, "getInterface");
-    assert((wrapperInterfaceBase() != nullptr) && "BranchDescription::initFromDictionary(): "
-      "wrapperInterfaceBase() is nullptr!!");
     setTransient(false);
     setSplitLevel(invalidSplitLevel);
     setBasketSize(invalidBasketSize);
@@ -346,10 +339,4 @@ namespace edm {
     }
     return differences.str();
   }
-
-  WrapperInterfaceBase const*
-  BranchDescription::getInterface() const {
-    return transient_.wrapperInterfaceBase_;
-  }
 } // namespace edm
-

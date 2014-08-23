@@ -8,7 +8,6 @@
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -179,12 +178,12 @@ namespace edm {
       ProductID tId = product_.id();
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
-      WrapperHolder it = product_.productGetter()->getIt(tId);
-      if(!it.isValid()) {
+      WrapperBase const* prod = product_.productGetter()->getIt(tId);
+      if(prod == nullptr) {
         Exception::throwThis(errors::InvalidReference,
                              "attempting to get view from an unavailable RefToBaseProd.");
       }
-      it.fillView(tId, pointers, helpers);
+      prod->fillView(tId, pointers, helpers);
       product_.setProductPtr((new View<T>(pointers, helpers)));
     }
     return viewPtr();

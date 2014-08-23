@@ -218,6 +218,7 @@ namespace edm {
     mutable std::vector<std::shared_ptr<ProductProvenanceRetriever>> eventProductProvenanceRetrievers_;
     std::vector<ParentageID> parentageIDLookup_;
     std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
+    TClass* edProductClass_;
   }; // class RootFile
 
 }

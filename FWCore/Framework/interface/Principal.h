@@ -19,11 +19,10 @@ pointer to a ProductHolder, when queried.
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -204,14 +203,14 @@ namespace edm {
     ProductHolderBase* getExistingProduct(ProductHolderBase const& phb);
 
     // throws if the pointed to product is already in the Principal.
-    void checkUniquenessAndType(WrapperOwningHolder const& prod, ProductHolderBase const* productHolder) const;
+    void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(WrapperOwningHolder const& prod, ProductHolderBase const* productHolder) const;
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, ProductHolderBase* productHolder);
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
 
   private:
-    virtual WrapperHolder getIt(ProductID const&) const;
+    virtual WrapperBase const* getIt(ProductID const&) const;
 
     void findProducts(std::vector<ProductHolderBase const*> const& holders,
                       TypeID const& typeID,
@@ -281,9 +280,8 @@ namespace edm {
       return std::shared_ptr<Wrapper<PROD> const>(); 
     }
 
-    if(result->getInterface() &&
-       (!(result->getInterface()->dynamicTypeInfo() == typeid(PROD)))) {
-      handleimpl::throwConvertTypeError(typeid(PROD), result->getInterface()->dynamicTypeInfo());
+    if(!(result->wrapper_->dynamicTypeInfo() == typeid(PROD))) {
+      handleimpl::throwConvertTypeError(typeid(PROD), result->wrapper_->dynamicTypeInfo());
     }
     return std::static_pointer_cast<Wrapper<PROD> const>(result->wrapper_);
   }
