@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //
 // class declaration
@@ -54,8 +55,14 @@ private:
   std::string thisProcess;
   unsigned int pathIndex;
 
-  int numEventsTotal;
-  int numEventsPassed;
+  unsigned int numEventsPassPos_;
+  unsigned int numEventsPassNeg_;
+  unsigned int numEventsTotalPos_;
+  unsigned int numEventsTotalNeg_;
+  double sumpass_w_;
+  double sumpass_w2_;
+  double sumtotal_w_;
+  double sumtotal_w2_;
 
 };
 
