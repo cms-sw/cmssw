@@ -1,23 +1,17 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 
-
-//DDRootDef::pointer_type DDRootDef::instance_ = 0;
-
 DDRoot::DDRoot()
 { }
 
-
 DDRoot::~DDRoot()
 { }
-
 
 void DDRoot::set(const DDName & name)
 {
    DCOUT('C',"DDRoot::set() root=" << name);
    root_ = DDLogicalPart(name);
 }
-
 
 void DDRoot::set(const DDLogicalPart & root)
 {
@@ -38,9 +32,3 @@ void DDRoot::set(const DDLogicalPart & root)
    \endcode 
 */ 
 DDLogicalPart DDRoot::root() const { return root_; } 
-/*
-const DDLogicalPart & DDRoot::root() const      
-{
-   return root_;
-}
-*/   
