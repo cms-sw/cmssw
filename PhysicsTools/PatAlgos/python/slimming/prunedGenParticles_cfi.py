@@ -7,8 +7,9 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "keep status == 3 || status == 22 || status == 23",  #keep event summary status3 (for pythia), 22,23 (pythia8)
         "++keep abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15", # keep leptons, with history
         "keep abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16",   # keep neutrinos
-        "+keep pdgId == 22 && status == 1 && pt > 10",                     # keep gamma above 10 GeV
         "drop   status == 2",                                              # drop the shower part of the history
+        "+keep pdgId == 22 && status == 1 && pt > 10",                     # keep gamma above 10 GeV and its first parent
+        "+keep pdgId == 11 && status == 1 && pt > 3",                     # keep first parent of electrons above 10 GeV
         "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
 	"drop  status > 30 && status < 70 ", 				   #remove pythia8 garbage
 	"drop  pdgId == 21 && pt < 5",                                    #remove pythia8 garbage
