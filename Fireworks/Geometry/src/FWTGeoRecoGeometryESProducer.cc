@@ -43,6 +43,10 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
+
 #include "TGeoManager.h"
 #include "TGeoArb8.h"
 #include "TGeoMatrix.h"
@@ -144,7 +148,6 @@ TGeoVolume* FWTGeoRecoGeometryESProducer::GetTopHolder( const char* prefix)
 //______________________________________________________________________________
 
 
-
 boost::shared_ptr<FWTGeoRecoGeometry> 
 FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
@@ -157,7 +160,16 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   
    record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+   
+   m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+   record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
+   m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+   record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
+   m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+   record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
 
+
+  
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
    if( 0 == gGeoIdentity )
    {
@@ -180,7 +192,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    // ROOT chokes unless colors are assigned
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
-   
+   /*
    addPixelBarrelGeometry();
    addPixelForwardGeometry();
    addTIBGeometry();
@@ -204,7 +216,8 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    
    addHcalCaloGeometryBarrel();
    addHcalCaloGeometryEndcap();
-
+*/
+   addHGCal();
    geom->CloseGeometry();
 
    m_nameToShape.clear();
@@ -1098,3 +1111,46 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
       GetTopHolder("Ecal")->AddNode( assembly, 1 );
    }
 }
+
+
+
+//______________________________________________________________________________
+
+
+
+void
+FWTGeoRecoGeometryESProducer::addHGCal( void )
+{
+
+   int cnt = 0;
+   for( const auto& hgcGeom : m_hgcGeom ){
+      if( hgcGeom.product() ) {
+
+         //TGeoVolume* th = GetTopHolder(hgcGeom->cellElement());
+         const std::vector<DetId>& hids = hgcGeom->getValidDetIds();
+         for( const auto& hid : hids ) {
+
+            DetId tid = hid;
+            const CaloCellGeometry* cell = hgcGeom->getGeometry( tid );
+
+            if (dynamic_cast<const TruncatedPyramid*> (cell))
+               printf("TruncPy \n");
+            else if (dynamic_cast<const IdealZPrism*> (cell))
+               printf("IDealP \n");
+            else if (dynamic_cast<const IdealObliquePrism*> (cell))
+               printf("OBLIQ \n");
+            else if(dynamic_cast<const FlatTrd*> (cell)) {
+               printf("FlaTr \n");
+            }
+            else 
+               printf("unknow \n");
+
+
+            if (cnt++ > 100) break;
+         }
+      }
+
+   }
+  
+}
+

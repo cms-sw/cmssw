@@ -25,6 +25,8 @@ class TGeoMaterial;
 class TGeoMedium;
 class GeomDet;
 class CaloCellGeometry;
+class HGCalGeometry;
+
 class FWTGeoRecoGeometryESProducer : public edm::ESProducer
 {
 public:
@@ -58,6 +60,7 @@ private:
    void addEcalCaloGeometry();
    void addHcalCaloGeometryBarrel();
    void addHcalCaloGeometryEndcap();
+   void addHGCal();
   
    std::map<std::string, TGeoShape*>    m_nameToShape;
    std::map<TGeoShape*, TGeoVolume*>   m_shapeToVolume;
@@ -68,6 +71,10 @@ private:
    edm::ESHandle<CaloGeometry>           m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
   
+   std::vector<edm::ESHandle<HGCalGeometry> >  m_hgcGeom;
+
+   //edm::ESHandle<HGCalGeometry>  m_hgcGeom;
+
    boost::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 
    TGeoMedium* m_dummyMedium;
