@@ -395,7 +395,7 @@ reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
     if (i >= associatedPackedFCandidateIndices_.size()) {
         return reco::CandidatePtr();
     } else {
-        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, i)));
+        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, associatedPackedFCandidateIndices_[i])));
     }
 }
 
