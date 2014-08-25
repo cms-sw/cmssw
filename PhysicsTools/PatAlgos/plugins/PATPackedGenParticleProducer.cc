@@ -88,7 +88,7 @@ void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::E
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::GenParticle &cand=(*cands)[ic];
-	if(cand.status() ==1 && std::abs(cand.eta() < maxEta_))
+	if(cand.status() ==1 && std::abs(cand.eta()) < maxEta_)
         {
 		if(cand.numberOfMothers() > 0) {
 			edm::Ref<reco::GenParticleCollection> newRef=(*asso)[cand.motherRef(0)];
