@@ -9,12 +9,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <vector>
 #include <TH1.h>
-#include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 #include <TEfficiency.h>
-#else
-#include <TGraphAsymmErrors.h>
-#endif
 
 class MonitorElement;
 
