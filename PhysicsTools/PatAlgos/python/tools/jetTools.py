@@ -315,8 +315,6 @@ class AddJetCollection(ConfigToolBase):
             ## expand tagInfos to what is explicitely required by user + implicit
             ## requirements that come in from one or the other discriminator
             requiredTagInfos = list(btagInfos)
-            if len(requiredTagInfos) > 0 :
-                _newPatJets.addTagInfos = True
             for btagDiscr in btagDiscriminators :
                 for requiredTagInfo in supportedBtagDiscr[btagDiscr] :
                     tagInfoCovered = False
@@ -347,7 +345,7 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'pfImpactParameterTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfImpactParameterTagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
                     if btagInfo == 'pfSecondaryVertexTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfSecondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'impactParameterTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix),primaryVertex=pvSource))
                     if btagInfo == 'secondaryVertexTagInfos':
@@ -380,6 +378,8 @@ class AddJetCollection(ConfigToolBase):
             ## replace corresponding tags for pat jet production
             _newPatJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in acceptedTagInfos ] )
             _newPatJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in acceptedBtagDiscriminators ] )
+            if len(acceptedBtagDiscriminators) > 0 :
+                _newPatJets.addBTagInfo = True
             if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
                 if not hasattr( process, 'inclusiveVertexing' ):
                     process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
@@ -391,10 +391,12 @@ class AddJetCollection(ConfigToolBase):
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
             if 'caTopTagInfos' in acceptedTagInfos :
+                _newPatJets.addTagInfos = True
                 if not hasattr( process, 'caTopTagInfos' ):
                     process.load( 'RecoJets.JetProducers.CATopTagInfos_cff' )
         else:
             _newPatJets.addBTagInfo = False
+            _newPatJets.addTagInfos = False
             ## adjust output module; these collections will be empty anyhow, but we do it to stay clean
             for outputModule in outputModules:
                     if hasattr(process,outputModule):
