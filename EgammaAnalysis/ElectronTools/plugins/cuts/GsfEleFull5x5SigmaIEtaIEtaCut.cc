@@ -19,7 +19,11 @@ private:
   float _full5x5SigmaIEtaIEtaCutValueEE;
   float _barrelCutOff;
   edm::Handle<edm::ValueMap<float> > _full5x5SigmaIEtaIEtaMap;
+
+  constexpr static char full5x5SigmaIEtaIEta_[] = "full5x5SigmaIEtaIEta";
 };
+
+constexpr char GsfEleFull5x5SigmaIEtaIEtaCut::full5x5SigmaIEtaIEta_[];
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 		  GsfEleFull5x5SigmaIEtaIEtaCut,
@@ -32,17 +36,17 @@ GsfEleFull5x5SigmaIEtaIEtaCut::GsfEleFull5x5SigmaIEtaIEtaCut(const edm::Paramete
   _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   
   edm::InputTag maptag = c.getParameter<edm::InputTag>("full5x5SigmaIEtaIEtaMap");
-  contentTags_.emplace("full5x5SigmaIEtaIEta",maptag);
+  contentTags_.emplace(full5x5SigmaIEtaIEta_,maptag);
 }
 
 void GsfEleFull5x5SigmaIEtaIEtaCut::setConsumes(edm::ConsumesCollector& cc) {
   auto full5x5SigmaIEtaIEta = 
-    cc.consumes<edm::ValueMap<float> >(contentTags_["full5x5SigmaIEtaIEta"]);
-  contentTokens_.emplace("full5x5SigmaIEtaIEta",full5x5SigmaIEtaIEta);
+    cc.consumes<edm::ValueMap<float> >(contentTags_[full5x5SigmaIEtaIEta_]);
+  contentTokens_.emplace(full5x5SigmaIEtaIEta_,full5x5SigmaIEtaIEta);
 }
 
 void GsfEleFull5x5SigmaIEtaIEtaCut::getEventContent(const edm::EventBase& ev) {  
-  ev.getByLabel(contentTags_["full5x5SigmaIEtaIEta"],_full5x5SigmaIEtaIEtaMap);
+  ev.getByLabel(contentTags_[full5x5SigmaIEtaIEta_],_full5x5SigmaIEtaIEtaMap);
 }
 
 CutApplicatorBase::result_type 
