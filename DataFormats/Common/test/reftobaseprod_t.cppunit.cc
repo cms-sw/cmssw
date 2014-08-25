@@ -174,8 +174,8 @@ void testRefToBaseProd::constructTest() {
 
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      WrapperHolder hold_;
-      virtual WrapperHolder getIt(ProductID const&) const override {
+      WrapperBase const* hold_;
+      virtual WrapperBase const* getIt(ProductID const&) const override {
          return hold_;
       }
       virtual unsigned int transitionIndex_() const override {
@@ -195,7 +195,7 @@ void testRefToBaseProd::getTest() {
 
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
-   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+   tester.hold_ = &wrapper;
 
    ProductID const pid(1, 1);
 
@@ -237,7 +237,7 @@ void testRefToBaseProd::getTest() {
 
       edm::Wrapper<SDCollection> wrapper(ptr);
       TestGetter tester;
-      tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+      tester.hold_ = &wrapper;
 
       ProductID const pid(1, 1);
 
@@ -262,7 +262,7 @@ void testRefToBaseProd::getTest() {
    
    {
       TestGetter tester;
-      tester.hold_ = WrapperHolder();
+      tester.hold_ = nullptr;
       ProductID const pid(1, 1);
 
       //NOTE: ROOT will touch the private variables directly and since the RefToBaseProd

@@ -10,7 +10,6 @@
 #include <sstream>
 #include <cstdlib>
 
-class TClass;
 /*----------------------------------------------------------------------
 
 
@@ -28,7 +27,6 @@ namespace edm {
     transient_(false),
     wrappedType_(),
     unwrappedType_(),
-    wrapperInterfaceBase_(nullptr),
     splitLevel_(),
     basketSize_() {
    }
@@ -185,8 +183,6 @@ namespace edm {
       caughtException.addContext(std::string{"While initializing meta data for branch: "}+branchName());
       throw;
     }
-    wrappedType().invokeByName(wrapperInterfaceBase(), "getInterface");
-    assert(wrapperInterfaceBase() != 0);
     Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(wrappedType().typeInfo()).Properties();
     setTransient((wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false));
     if(transient()) {
@@ -339,10 +335,5 @@ namespace edm {
       differences << "Branch '" << a.branchName() << "' was dropped in the first input file but is present in '" << fileName << "'.\n";
     }
     return differences.str();
-  }
-
-  WrapperInterfaceBase const*
-  BranchDescription::getInterface() const {
-    return transient_.wrapperInterfaceBase_;
   }
 }
