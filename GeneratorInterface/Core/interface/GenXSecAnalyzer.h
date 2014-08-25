@@ -1,7 +1,6 @@
-#ifndef GENFILTEREFFICIENCYANALYZER_H
-#define GENFILTEREFFICIENCYANALYZER_H
+#ifndef GENXSECANALYZER_H
+#define GENXSECANALYZER_H
 
-// F. Cossutti
 // $Revision://
 
 // analyzer of a summary information product on filter efficiency for a user specified path
@@ -10,6 +9,7 @@
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -18,31 +18,38 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 //
 // class declaration
 //
 
-class GenFilterEfficiencyAnalyzer : public edm::EDAnalyzer {
+class GenXSecAnalyzer : public edm::EDAnalyzer {
+
+
 public:
-  explicit GenFilterEfficiencyAnalyzer(const edm::ParameterSet&);
-  ~GenFilterEfficiencyAnalyzer();
-  
+  explicit GenXSecAnalyzer(const edm::ParameterSet&);
+  ~GenXSecAnalyzer();
+  const double final_xsec_value() const {return xsec_.value();}
+  const double final_xsec_error() const {return xsec_.error();}
   
 private:
+
+  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endJob() override;
+  void compute();
 
-  edm::InputTag genFilterInfoTag_;
-  GenFilterInfo totalGenFilterInfo_;
-
+  int hepidwtup_;
+  GenLumiInfoProduct::XSec xsec_;
+  GenFilterInfo  jetMatchEffStat_;
+  GenFilterInfo  totalEffStat_;     // statistics from total filter
   // ----------member data ---------------------------
-  
+  std::vector<GenLumiInfoProduct> products_; // the size depends on the number of MC with different LHE information
 };
 
 #endif
