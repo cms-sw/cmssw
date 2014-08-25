@@ -32,12 +32,7 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   void writeValueMap(edm::Event &iEvent,
-		     const edm::Handle<reco::GsfElectronCollection> & handle,
-		     const std::vector<float> & values,
-		     const std::string    & label) const ;
-
-  void writeValueMap(edm::Event &iEvent,
-		     const edm::Handle<edm::View<pat::Electron> > & handle,
+		     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
 		     const std::vector<float> & values,
 		     const std::string    & label) const ;
   
@@ -49,7 +44,23 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   edm::EDGetToken src_;
 
   std::string dataFormat_;
+ 
+  constexpr static char eleFull5x5SigmaIEtaIEta_[] = "eleFull5x5SigmaIEtaIEta";
+  constexpr static char eleFull5x5SigmaIEtaIPhi_[] = "eleFull5x5SigmaIEtaIPhi";
+  constexpr static char eleFull5x5E1x5_[] = "eleFull5x5E1x5";
+  constexpr static char eleFull5x5E2x5_[] = "eleFull5x5E2x5";
+  constexpr static char eleFull5x5E5x5_[] = "eleFull5x5E5x5";
+  constexpr static char eleFull5x5R9_[] = "eleFull5x5R9";
+  constexpr static char eleFull5x5Circularity_[] = "eleFull5x5Circularity";
 };
+
+constexpr char ElectronIDValueMapProducer::eleFull5x5SigmaIEtaIEta_[];
+constexpr char ElectronIDValueMapProducer::eleFull5x5SigmaIEtaIPhi_[];
+constexpr char ElectronIDValueMapProducer::eleFull5x5E1x5_[];
+constexpr char ElectronIDValueMapProducer::eleFull5x5E2x5_[];
+constexpr char ElectronIDValueMapProducer::eleFull5x5E5x5_[];
+constexpr char ElectronIDValueMapProducer::eleFull5x5R9_[];
+constexpr char ElectronIDValueMapProducer::eleFull5x5Circularity_[];
 
 ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& iConfig) {
 
@@ -57,22 +68,21 @@ ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& 
   eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection"));
   esReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection"));
 
-  
+  src_ = consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"));
 
   dataFormat_ = iConfig.getParameter<std::string>("dataFormat");
-  if( dataFormat_ == "RECO" ) {
-    src_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"));
-  } else if ( dataFormat_ == "PAT") {
-    src_ = consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"));
+  if( dataFormat_ != "RECO" &&  dataFormat_ != "PAT") {
+    throw cms::Exception("InvalidConfiguration") 
+      << "ElectronIDValueMapProducer runs in \"RECO\" or \"PAT\" mode!";
   }
-
-  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIEta");  
-  produces<edm::ValueMap<float> >("eleFull5x5SigmaIEtaIPhi"); 
-  produces<edm::ValueMap<float> >("eleFull5x5E1x5");
-  produces<edm::ValueMap<float> >("eleFull5x5E2x5");
-  produces<edm::ValueMap<float> >("eleFull5x5E5x5");
-  produces<edm::ValueMap<float> >("eleFull5x5R9");  
-  produces<edm::ValueMap<float> >("eleFull5x5Circularity");  
+  
+  produces<edm::ValueMap<float> >(eleFull5x5SigmaIEtaIEta_);  
+  produces<edm::ValueMap<float> >(eleFull5x5SigmaIEtaIPhi_); 
+  produces<edm::ValueMap<float> >(eleFull5x5E1x5_);
+  produces<edm::ValueMap<float> >(eleFull5x5E2x5_);
+  produces<edm::ValueMap<float> >(eleFull5x5E5x5_);
+  produces<edm::ValueMap<float> >(eleFull5x5R9_);  
+  produces<edm::ValueMap<float> >(eleFull5x5Circularity_);  
 
 }
 
@@ -84,107 +94,59 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
   using namespace edm;
   
   lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_); //, esReducedRecHitCollection_
-
-  if (dataFormat_ == "RECO") {
-
-    edm::Handle<reco::GsfElectronCollection> src;
-    iEvent.getByToken(src_, src);
-    
-    // size_t n = src->size();
-    std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
-    std::vector<float> eleFull5x5R9, eleFull5x5Circularity;
-    std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
-
-    for (reco::GsfElectronCollection::const_iterator iEle = src->begin(); iEle != src->end(); ++iEle){
-
-      std::vector<float> vCov = lazyToolnoZS->localCovariances( *(iEle->superCluster()->seed()) );
-      const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-      const float sep = vCov[1];
-      eleFull5x5SigmaIEtaIEta.push_back(see);
-      eleFull5x5SigmaIEtaIPhi.push_back(sep);
-      eleFull5x5R9.push_back(lazyToolnoZS->e3x3( *((*iEle).superCluster()->seed()) ) / iEle->superCluster()->rawEnergy() );
-     
-      const float e1x5 = lazyToolnoZS->e1x5( *((*iEle).superCluster()->seed()) );
-      const float e2x5 = lazyToolnoZS->e2x5Max( *((*iEle).superCluster()->seed()) );
-      const float e5x5 = lazyToolnoZS->e5x5( *((*iEle).superCluster()->seed()) );
-      const float circularity = (e5x5 != 0.) ? 1.-e1x5/e5x5 : -1;
-
-      eleFull5x5E1x5.push_back(e1x5); 
-      eleFull5x5E2x5.push_back(e2x5);
-      eleFull5x5E5x5.push_back(e5x5);
-      eleFull5x5Circularity.push_back(circularity);
+ 
+  edm::Handle<edm::View<reco::GsfElectron> > src;
+  iEvent.getByToken(src_, src);
+  
+  if( dataFormat_ == "PAT" && src->size() ) {
+    edm::Ptr<pat::Electron> test(src->ptrVector()[0]);
+    if( test.isNull() || !test.isAvailable() ) {
+      throw cms::Exception("InvalidConfiguration")
+	<<"DataFormat set to \"PAT\" but cannot cast to pat::Electron!";
     }
-  
-    writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIEta, "eleFull5x5SigmaIEtaIEta");  
-    writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIPhi, "eleFull5x5SigmaIEtaIPhi");  
-    writeValueMap(iEvent, src, eleFull5x5R9, "eleFull5x5R9");  
-    writeValueMap(iEvent, src, eleFull5x5E1x5, "eleFull5x5E1x5");  
-    writeValueMap(iEvent, src, eleFull5x5E2x5, "eleFull5x5E2x5");   
-    writeValueMap(iEvent, src, eleFull5x5E5x5, "eleFull5x5E5x5");  
-    writeValueMap(iEvent, src, eleFull5x5Circularity, "eleFull5x5Circularity");  
-
-  
-
-  } else if (dataFormat_ == "PAT") {
-
-    edm::Handle<edm::View<pat::Electron> > src;
-    iEvent.getByToken(src_, src);
-    
-    // size_t n = src->size();
-    std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
-    std::vector<float> eleFull5x5R9, eleFull5x5Circularity;
-    std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
-    
-    for (View<pat::Electron>::const_iterator iEle = src->begin(); iEle != src->end(); ++iEle) {
-      
-      std::vector<float> vCov = lazyToolnoZS->localCovariances( *((*iEle).superCluster()->seed()) );
-      const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-      const float sep = vCov[1];
-      eleFull5x5SigmaIEtaIEta.push_back(see);
-      eleFull5x5SigmaIEtaIPhi.push_back(sep);
-
-      eleFull5x5R9.push_back(lazyToolnoZS->e3x3( *((*iEle).superCluster()->seed()) ) / iEle->superCluster()->rawEnergy() );
-
-
-        const float e1x5 = lazyToolnoZS->e1x5( *((*iEle).superCluster()->seed()) );
-      const float e2x5 = lazyToolnoZS->e2x5Max( *((*iEle).superCluster()->seed()) );
-      const float e5x5 = lazyToolnoZS->e5x5( *((*iEle).superCluster()->seed()) );
-      const float circularity = (e5x5 != 0.) ? 1.-e1x5/e5x5 : -1;
-
-      eleFull5x5E1x5.push_back(e1x5); 
-      eleFull5x5E2x5.push_back(e2x5);
-      eleFull5x5E5x5.push_back(e5x5);
-      eleFull5x5Circularity.push_back(circularity);
-    }
-  
-    writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIEta, "eleFull5x5SigmaIEtaIEta");  
-    writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIPhi, "eleFull5x5SigmaIEtaIPhi");  
-    writeValueMap(iEvent, src, eleFull5x5R9, "eleFull5x5R9");  
-    writeValueMap(iEvent, src, eleFull5x5E1x5, "eleFull5x5E1x5");  
-    writeValueMap(iEvent, src, eleFull5x5E2x5, "eleFull5x5E2x5");   
-    writeValueMap(iEvent, src, eleFull5x5E5x5, "eleFull5x5E5x5");  
-    writeValueMap(iEvent, src, eleFull5x5Circularity, "eleFull5x5Circularity"); 
   }
 
+  // size_t n = src->size();
+  std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
+  std::vector<float> eleFull5x5R9, eleFull5x5Circularity;
+  std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
+  
+  // reco::GsfElectron::superCluster() is virtual so we can exploit polymorphism
+  for (const auto& iEle : src->ptrVector()){
+    
+    const auto& theseed = *(iEle->superCluster()->seed());
+
+    std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
+    const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+    const float sep = vCov[1];
+    eleFull5x5SigmaIEtaIEta.push_back(see);
+    eleFull5x5SigmaIEtaIPhi.push_back(sep);
+    eleFull5x5R9.push_back(lazyToolnoZS->e3x3( theseed ) / iEle->superCluster()->rawEnergy() );    
+    
+    const float e1x5 = lazyToolnoZS->e1x5( theseed );
+    const float e2x5 = lazyToolnoZS->e2x5Max( theseed );
+    const float e5x5 = lazyToolnoZS->e5x5( theseed );
+    const float circularity = (e5x5 != 0.) ? 1.-e1x5/e5x5 : -1;
+    
+    eleFull5x5E1x5.push_back(e1x5); 
+    eleFull5x5E2x5.push_back(e2x5);
+    eleFull5x5E5x5.push_back(e5x5);
+    eleFull5x5Circularity.push_back(circularity);
+  }
+  
+  writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIEta_);  
+  writeValueMap(iEvent, src, eleFull5x5SigmaIEtaIPhi, eleFull5x5SigmaIEtaIPhi_);  
+  writeValueMap(iEvent, src, eleFull5x5R9, eleFull5x5R9_);  
+  writeValueMap(iEvent, src, eleFull5x5E1x5, eleFull5x5E1x5_);  
+  writeValueMap(iEvent, src, eleFull5x5E2x5, eleFull5x5E2x5_);   
+  writeValueMap(iEvent, src, eleFull5x5E5x5, eleFull5x5E5x5_);  
+  writeValueMap(iEvent, src, eleFull5x5Circularity, eleFull5x5Circularity_);  
+  
   delete lazyToolnoZS;
 }
 
 void ElectronIDValueMapProducer::writeValueMap(edm::Event &iEvent,
-					     const edm::Handle<reco::GsfElectronCollection> & handle,
-					     const std::vector<float> & values,
-					     const std::string    & label) const 
-{
-  using namespace edm; 
-  using namespace std;
-  auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
-  edm::ValueMap<float>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(valMap, label);
-}
-
-void ElectronIDValueMapProducer::writeValueMap(edm::Event &iEvent,
-					     const edm::Handle<edm::View<pat::Electron> > & handle,
+					     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
 					     const std::vector<float> & values,
 					     const std::string    & label) const 
 {

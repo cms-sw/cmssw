@@ -28,7 +28,14 @@ private:
   edm::Handle<edm::ValueMap<float> > e2x5Handle_;  
   edm::Handle<edm::ValueMap<float> > e5x5Handle_;
   
+  constexpr static char e5x5_[] = "e5x5";
+  constexpr static char e2x5_[] = "e2x5";
+  constexpr static char e1x5_[] = "e1x5";
 };
+
+constexpr char GsfEleFull5x5E2x5OverE5x5Cut::e5x5_[];
+constexpr char GsfEleFull5x5E2x5OverE5x5Cut::e2x5_[];
+constexpr char GsfEleFull5x5E2x5OverE5x5Cut::e1x5_[];
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 		  GsfEleFull5x5E2x5OverE5x5Cut,
@@ -38,28 +45,27 @@ GsfEleFull5x5E2x5OverE5x5Cut::GsfEleFull5x5E2x5OverE5x5Cut(const edm::ParameterS
   CutApplicatorWithEventContentBase(params),
   minE1x5OverE5x5Cut_(params,"minE1x5OverE5x5"),
   minE2x5OverE5x5Cut_(params,"minE2x5OverE5x5"){ 
-  edm::InputTag e5x5Tag = params.getParameter<edm::InputTag>("e5x5");
-  edm::InputTag e2x5Tag = params.getParameter<edm::InputTag>("e2x5");
-  edm::InputTag e1x5Tag = params.getParameter<edm::InputTag>("e1x5");
-  contentTags_.emplace("e1x5",e1x5Tag);
-  contentTags_.emplace("e2x5",e2x5Tag);
-  contentTags_.emplace("e5x5",e5x5Tag);
- 
+  edm::InputTag e5x5Tag = params.getParameter<edm::InputTag>(e5x5_);
+  edm::InputTag e2x5Tag = params.getParameter<edm::InputTag>(e2x5_);
+  edm::InputTag e1x5Tag = params.getParameter<edm::InputTag>(e1x5_);
+  contentTags_.emplace(e5x5_,e5x5Tag);
+  contentTags_.emplace(e2x5_,e2x5Tag);
+  contentTags_.emplace(e1x5_,e1x5Tag); 
 }
 
 void GsfEleFull5x5E2x5OverE5x5Cut::setConsumes(edm::ConsumesCollector& cc) {
-  auto e1x5 = cc.consumes<double>(contentTags_["e1x5"]);
-  contentTokens_.emplace("e1x5",e1x5);
-  auto e2x5 = cc.consumes<double>(contentTags_["e2x5"]);
-  contentTokens_.emplace("e2x5",e2x5); 
-  auto e5x5 = cc.consumes<double>(contentTags_["e5x5"]);
-  contentTokens_.emplace("e5x5",e5x5); 
+  auto e5x5 = cc.consumes<double>(contentTags_[e5x5_]);
+  contentTokens_.emplace(e5x5_,e5x5); 
+  auto e2x5 = cc.consumes<double>(contentTags_[e2x5_]);
+  contentTokens_.emplace(e2x5_,e2x5); 
+  auto e1x5 = cc.consumes<double>(contentTags_[e1x5_]);
+  contentTokens_.emplace(e1x5_,e1x5);  
 }
 
 void GsfEleFull5x5E2x5OverE5x5Cut::getEventContent(const edm::EventBase& ev) {  
-  ev.getByLabel(contentTags_["e1x5"],e1x5Handle_);
-  ev.getByLabel(contentTags_["e2x5"],e2x5Handle_);  
-  ev.getByLabel(contentTags_["e5x5"],e5x5Handle_);
+  ev.getByLabel(contentTags_[e5x5_],e5x5Handle_);
+  ev.getByLabel(contentTags_[e2x5_],e2x5Handle_);  
+  ev.getByLabel(contentTags_[e1x5_],e1x5Handle_);  
 }
 
 CutApplicatorBase::result_type 
