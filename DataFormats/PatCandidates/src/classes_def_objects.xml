@@ -351,6 +351,10 @@
   <class name="edm::Association<pat::PackedCandidateCollection>" />
   <class name="edm::Wrapper<edm::Association<pat::PackedCandidateCollection> >" />
 
+  <class name="edm::RefProd<std::vector<pat::PackedGenParticle> >" />
+  <class name="edm::Association<std::vector<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > >"/>
+
   </selection>
  <exclusion>
  </exclusion>
