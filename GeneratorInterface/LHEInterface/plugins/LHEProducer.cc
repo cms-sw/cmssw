@@ -160,8 +160,8 @@ bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 	std::auto_ptr<GenRunInfoProduct> runInfo(new GenRunInfoProduct);
 
 	runInfo->setInternalXSec(
-			GenRunInfoProduct::XSec(crossSection.value,
-			                        crossSection.error));
+				 GenRunInfoProduct::XSec(crossSection.value(),
+							 crossSection.error()));
 	runInfo->setExternalXSecLO(extCrossSect);
 	runInfo->setFilterEfficiency(extFilterEff);
 

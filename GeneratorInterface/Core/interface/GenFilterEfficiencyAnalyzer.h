@@ -38,8 +38,7 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endJob();
 
-  int nTota_;
-  int nPass_;
+  GenFilterInfo totalGenFilterInfo_;
 
   // ----------member data ---------------------------
   

@@ -108,11 +108,51 @@
 
 	<!-- GenFilterInfo -->
 
-	<class name="GenFilterInfo" ClassVersion="10">
+	<class name="GenFilterInfo" ClassVersion="11">
+  <version ClassVersion="11" checksum="1506634242"/>
   <version ClassVersion="10" checksum="2060912306"/>
  </class>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="numPassPositiveEvents_">
+	  <![CDATA[numPassPositiveEvents_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numPassNegativeEvents_">
+	  <![CDATA[numPassNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="numTotalPositiveEvents_">
+	  <![CDATA[numTotalPositiveEvents_ = onfile.numEventsTried_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numTotalNegativeEvents_">
+	  <![CDATA[numTotalNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights_">
+	  <![CDATA[sumPassWeights_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights2_">
+	  <![CDATA[sumPassWeights2_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights_">
+	  <![CDATA[sumTotalWeights_ = onfile.numEventsTried_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights2_">
+	  <![CDATA[sumTotalWeights2_ = onfile.numEventsTried_;]]>
+	</ioread> 
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
+	<!-- GenLumiInfoProduct -->
+
+	<class name="GenLumiInfoProduct" ClassVersion="10">
+	  <version ClassVersion="10" checksum="2365797689"/> 
+	</class>
+	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1937303025"/>  
+	</class>
+	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1482608724"/> 
+	</class>
+	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
+	  <version ClassVersion="10" checksum="621228037"/>
+	</class>
+	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 
 	<!-- GenEventInfoProduct -->
 
