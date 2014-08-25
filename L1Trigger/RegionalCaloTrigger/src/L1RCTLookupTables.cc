@@ -4,6 +4,7 @@ using std::endl;
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -192,6 +193,15 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
     {
       et = 0;
     }
+
+  cout << (int) rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] << endl;
+
+  float scalehf = 1.;
+  if(rctParameters_->jetMETHCalScaleFactors().size()==32){
+     scalehf = (float) rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1];
+  } // The max eta for the various scale factors is 32, check to see if used.
+
+  et=scalehf*et; // Allow for scaling the HF as well e.g. zero out if needed
 
   unsigned int result = convertToInteger(et, rctParameters_->jetMETLSB(), 8);
   return result;
