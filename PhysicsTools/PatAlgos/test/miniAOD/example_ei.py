@@ -6,8 +6,8 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
-from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 from RecoMET.METProducers.PFMET_cfi import pfMet
 
 #select isolated collections
@@ -35,9 +35,9 @@ process.pfNoElectrons = cms.EDProducer("CandPtrProjector", src = cms.InputTag("p
 
 
 
-process.ak5PFJets = ak5PFJets.clone(src = 'pfNoElectrons', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
-process.ak5PFJetsCHS = ak5PFJets.clone(src = 'pfNoElectronsCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
-process.ak5GenJets = ak5GenJets.clone(src = 'packedGenParticles')
+process.ak4PFJets = ak4PFJets.clone(src = 'pfNoElectrons', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
+process.ak4PFJetsCHS = ak4PFJets.clone(src = 'pfNoElectronsCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
+process.ak4GenJets = ak4GenJets.clone(src = 'packedGenParticles')
 
 
 # The following is make patJets, but EI is done with the above
@@ -54,23 +54,25 @@ addJetCollection(
    process,
    postfix   = "",
    labelName = 'AK4PFCHS',
-   jetSource = cms.InputTag('ak5PFJetsCHS'),
+   jetSource = cms.InputTag('ak4PFJetsCHS'),
    trackSource = cms.InputTag('unpackedTracksAndVertices'), 
    pfCandidates = cms.InputTag('packedPFCandidates'), 
    pvSource = cms.InputTag('unpackedTracksAndVertices'), 
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ]
+   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ],
+   genJetCollection=cms.InputTag('ak4GenJets')
    )
 addJetCollection(
    process,
    postfix   = "",
    labelName = 'AK4PF',
-   jetSource = cms.InputTag('ak5PFJets'),
+   jetSource = cms.InputTag('ak4PFJets'),
    trackSource = cms.InputTag('unpackedTracksAndVertices'),
    pfCandidates = cms.InputTag('packedPFCandidates'), 
    pvSource = cms.InputTag('unpackedTracksAndVertices'), 
    jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ]
+   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ],
+   genJetCollection=cms.InputTag('ak4GenJets')
    )
 
 #adjust MC matching
