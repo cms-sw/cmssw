@@ -46,41 +46,45 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START70_V6::All'
+process.GlobalTag.globaltag =  'POSTLS172_V3::All'
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 addJetCollection(
    process,
    postfix   = "",
-   labelName = 'AK5PFCHS',
+   labelName = 'AK4PFCHS',
    jetSource = cms.InputTag('ak5PFJetsCHS'),
    trackSource = cms.InputTag('unpackedTracksAndVertices'), 
+   pfCandidates = cms.InputTag('packedPFCandidates'), 
    pvSource = cms.InputTag('unpackedTracksAndVertices'), 
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [      'combinedSecondaryVertexBJetTags'     ]
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ]
    )
 addJetCollection(
    process,
    postfix   = "",
-   labelName = 'AK5PF',
+   labelName = 'AK4PF',
    jetSource = cms.InputTag('ak5PFJets'),
    trackSource = cms.InputTag('unpackedTracksAndVertices'),
+   pfCandidates = cms.InputTag('packedPFCandidates'), 
    pvSource = cms.InputTag('unpackedTracksAndVertices'), 
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [      'combinedSecondaryVertexBJetTags'     ]
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ]
    )
 
 #adjust MC matching
-process.patJetPartonMatchPatJetsAK5PFCHS.matched = "prunedGenParticles"
-process.patJetPartonMatchPatJetsAK5PF.matched = "prunedGenParticles"
-process.patJetPartons.src = "prunedGenParticles"
+process.patJetGenJetMatchAK4PF.matched = "slimmedGenJets"
+process.patJetGenJetMatchAK4PFCHS.matched = "slimmedGenJets"
+process.patJetPartonMatchAK4PFCHS.matched = "prunedGenParticles"
+process.patJetPartonMatchAK4PF.matched = "prunedGenParticles"
+process.patJetPartons.particles  = "prunedGenParticles"
 process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
 process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
 
 #adjust PV
-process.patJetCorrFactorsPatJetsAK5PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
-process.patJetCorrFactorsPatJetsAK5PF.primaryVertices = "offlineSlimmedPrimaryVertices"
+process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
+process.patJetCorrFactorsAK4PF.primaryVertices = "offlineSlimmedPrimaryVertices"
 
 #recreate tracks and pv for btagging
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
@@ -95,7 +99,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.OUT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test.root'),
-    outputCommands = cms.untracked.vstring(['drop *','keep patJets_patJetsAK5PF_*_*','keep patJets_patJetsAK5PFCHS_*_*','keep *_*_*_PAT'])
+    outputCommands = cms.untracked.vstring(['drop *','keep patJets_patJetsAK4PF_*_*','keep patJets_patJetsAK4PFCHS_*_*','keep *_*_*_PAT'])
 )
 process.endpath= cms.EndPath(process.OUT)
 

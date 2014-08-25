@@ -31,6 +31,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'labelName', 'UNDEFINED', "Label name of the new patJet collection.", str)
         self.addParameter(self._defaultParameters,'postfix','', "Postfix from usePF2PAT.", str)
         self.addParameter(self._defaultParameters,'jetSource','', "Label of the input collection from which the new patJet collection should be created", cms.InputTag)
+        self.addParameter(self._defaultParameters,'pfCandidates',cms.InputTag('particleFlow'), "Label of the input collection for candidatecandidatese used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'trackSource',cms.InputTag('generalTracks'), "Label of the input collection for tracks to be used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'pvSource',cms.InputTag('offlinePrimaryVertices'), "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'svSource',cms.InputTag('inclusiveSecondaryVertices'), "Label of the input collection for IVF vertices used in b-tagging", cms.InputTag)
@@ -73,7 +74,7 @@ class AddJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,jetSource=None,trackSource=None,pvSource=None,svSource=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,labelName=None,postfix=None,jetSource=None,trackSource=None,pfCandidates=None,pvSource=None,svSource=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -90,6 +91,9 @@ class AddJetCollection(ConfigToolBase):
         if svSource is None:
             svSource=self._defaultParameters['svSource'].value
         self.setParameter('svSource', svSource)
+        if pfCandidates is None:
+            pfCandidates=self._defaultParameters['pfCandidates'].value
+        self.setParameter('pfCandidates', pfCandidates)
         if trackSource is None:
             trackSource=self._defaultParameters['trackSource'].value
         self.setParameter('trackSource', trackSource)
@@ -137,6 +141,7 @@ class AddJetCollection(ConfigToolBase):
         postfix=self._parameters['postfix'].value
         jetSource=self._parameters['jetSource'].value
         trackSource=self._parameters['trackSource'].value
+        pfCandidates=self._parameters['pfCandidates'].value
         pvSource=self._parameters['pvSource'].value
         svSource=self._parameters['svSource'].value
         algo=self._parameters['algo'].value
@@ -339,6 +344,10 @@ class AddJetCollection(ConfigToolBase):
             acceptedTagInfos = list()
             for btagInfo in requiredTagInfos:
                 if hasattr(btag,btagInfo):
+                    if btagInfo == 'pfImpactParameterTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfImpactParameterTagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
+                    if btagInfo == 'pfSecondaryVertexTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'impactParameterTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix),primaryVertex=pvSource))
                     if btagInfo == 'secondaryVertexTagInfos':
@@ -550,6 +559,7 @@ class SwitchJetCollection(ConfigToolBase):
         ## add all parameters that should be known to the class
         self.addParameter(self._defaultParameters,'postfix','', "postfix from usePF2PAT")
         self.addParameter(self._defaultParameters,'jetSource','', "Label of the input collection from which the new patJet collection should be created", cms.InputTag)
+        self.addParameter(self._defaultParameters,'pfCandidates',cms.InputTag('particleFlow'), "Label of the input collection for candidatecandidatese used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'trackSource',cms.InputTag('generalTracks'), "Label of the input collection for tracks to be used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'pvSource',cms.InputTag('offlinePrimaryVertices'), "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'svSource',cms.InputTag('inclusiveSecondaryVertices'), "Label of the input collection for IVF vertices used in b-tagging", cms.InputTag)
@@ -589,7 +599,7 @@ class SwitchJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,postfix=None,jetSource=None,trackSource=None,pvSource=None,svSource=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,postfix=None,jetSource=None,trackSource=None,pfCandidates=None,pvSource=None,svSource=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -600,6 +610,9 @@ class SwitchJetCollection(ConfigToolBase):
         if jetSource is None:
             jetSource=self._defaultParameters['jetSource'].value
         self.setParameter('jetSource', jetSource)
+        if pfCandidates is None:
+            pfCandidates=self._defaultParameters['pfCandidates'].value
+        self.setParameter('pfCandidates', pfCandidates)
         if trackSource is None:
             trackSource=self._defaultParameters['trackSource'].value
         self.setParameter('trackSource', trackSource)
@@ -645,6 +658,7 @@ class SwitchJetCollection(ConfigToolBase):
         ## initialize parameters
         postfix=self._parameters['postfix'].value
         jetSource=self._parameters['jetSource'].value
+        pfCandidates=self._parameters['pfCandidates'].value
         trackSource=self._parameters['trackSource'].value
         pvSource=self._parameters['pvSource'].value
         svSource=self._parameters['svSource'].value
@@ -665,6 +679,7 @@ class SwitchJetCollection(ConfigToolBase):
             postfix=postfix,
             jetSource=jetSource,
             trackSource=trackSource,
+            pfCandidates=pfCandidates,
             pvSource=pvSource,
             svSource=svSource,
             algo=algo,
