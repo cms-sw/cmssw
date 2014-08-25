@@ -72,7 +72,7 @@ namespace SimDataFormats_GeneratorProducts {
 		edm::Wrapper<GenRunInfoProduct> wgenruninfo;
 		edm::Wrapper<GenFilterInfo> wgenfilterinfo;
 		edm::Wrapper<GenEventInfoProduct> wgeneventinfo;
-
+		edm::Wrapper<GenLumiInfoProduct> wgenlumiinfo;
 		// LHE products
 
 		edm::Wrapper<LHERunInfoProduct>	wcommon;
