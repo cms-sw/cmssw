@@ -14,7 +14,8 @@ class EcalCondDBWriter : public edm::EDAnalyzer {
   ~EcalCondDBWriter();
 
  private:
-  void analyze(edm::Event const&, edm::EventSetup const&);
+  void analyze(edm::Event const&, edm::EventSetup const&) {}
+  void endJob();
 
   // DON'T CHANGE - ORDER MATTERS IN DB
   enum Tasks {
