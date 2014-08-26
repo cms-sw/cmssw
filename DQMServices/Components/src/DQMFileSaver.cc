@@ -112,13 +112,14 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
   {
     std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
-    std::cout << " DQMFileSaver: storing EventInfo folders for Run: "
+    edm::LogAbsolute("fileAction") << " DQMFileSaver: storing EventInfo folders for Run: "
               << run << ", Lumi Section: " << lumi << ", Subsystems: " ;
 
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       if (systems[i] != "Reference") {
         dbe_->cd();
-	std::cout << systems[i] << "  " ;
+        edm::LogAbsolute("fileAction") << systems[i] << "  " ;
+
         dbe_->save(filename,
                    systems[i]+"/EventInfo", "^(Reference/)?([^/]+)",
                    rewrite,
