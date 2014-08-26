@@ -90,6 +90,41 @@ class Reco(Scenario):
         return process
 
 
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        Proton collision data taking express processing
+
+        """
+
+        options = Options()
+        options.__dict__.update(defaultOptions.__dict__)
+        options.scenario = self.cbSc
+        # FIXME: do we need L1Reco here?
+        options.step = 'RAW2DIGI,L1Reco,RECO,ENDJOB'
+        dictIO(options,args)
+        options.conditions = globalTag
+        options.filein = 'tobeoverwritten.xyz'
+        if 'inputSource' in args:
+            options.fileType = args['inputSource']
+        else:
+            # this is the default as this is what is needed on the OnlineCluster
+            options.fileType = 'DAQ'
+            
+        process = cms.Process('RECO')
+        cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
+
+        cb.prepare()
+
+        # FIXME: not sure abou this one...drop for the moment
+        # addMonitoring(process)
+                
+        return process
+
+
+
+
     def alcaSkim(self, skims, **args):
         """
         _alcaSkim_
