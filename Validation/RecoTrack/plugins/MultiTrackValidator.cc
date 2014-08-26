@@ -55,8 +55,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   associatormapRtS = mayConsume<reco::RecoToSimCollection>(assMapInput);
   UseAssociators = pset.getParameter< bool >("UseAssociators");
 
-  m_dEdx1Tag = mayConsume<reco::DeDxData>(pset.getParameter< edm::InputTag >("dEdx1Tag"));
-  m_dEdx2Tag = mayConsume<reco::DeDxData>(pset.getParameter< edm::InputTag >("dEdx2Tag"));
+  m_dEdx1Tag = mayConsume<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx1Tag"));
+  m_dEdx2Tag = mayConsume<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx2Tag"));
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
 					pset.getParameter<double>("minRapidityTP"),
