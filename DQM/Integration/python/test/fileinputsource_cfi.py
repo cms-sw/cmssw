@@ -6,7 +6,7 @@ source = cms.Source("PoolSource",
         )
 )
 maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 # Parameters for runType
