@@ -16,12 +16,14 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class DQMStore;
 class MonitorElement;
 
-class DQMHcalPhiSymAlCaReco : public edm::EDAnalyzer {
+class DQMHcalPhiSymAlCaReco : public DQMEDAnalyzer {
 
 public:
 
@@ -32,8 +34,8 @@ protected:
    
   void beginJob();
 
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
+//  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
@@ -49,7 +51,6 @@ protected:
 private:
  
 
-  DQMStore*   dbe_;  
   int eventCounter_;  
       
 //                        

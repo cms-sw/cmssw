@@ -10,7 +10,7 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,13 +27,12 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
 class MonitorElement;
-class DQMStore;
 class  HcalZDCMonitor;
 
 #include <iostream>
 #include <fstream>
 
-class ZDCMonitorModule : public edm::EDAnalyzer{
+class ZDCMonitorModule : public DQMEDAnalyzer{
 
 public:
   
@@ -42,18 +41,14 @@ public:
 
   // Destructor
   ~ZDCMonitorModule();
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
   
  protected:
   
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
-  // BeginJob
-  void beginJob();
-  
-  // BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-
   // Begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& c) ;
@@ -63,7 +58,9 @@ public:
                           const edm::EventSetup& c);
 
   // EndJob
-  void endJob(void);
+  //  removed in the MT migration, but there is an update to the meStatus monitor element.
+  //  I mask it out for now to see what breaks.
+  //void endJob(void);
   
   // EndRun
   void endRun(const edm::Run& run, const edm::EventSetup& c);
@@ -97,6 +94,11 @@ public:
   int prescaleUpdate_; ///units of "updates", TBD
 
   // Reset histograms every N events
+  //
+
+  /// keep a reference to the paramter set.  This is needed to pass the 
+  // HcalZDCMonitor helper class
+  const edm::ParameterSet & ps_;
 
   /// The name of the monitoring process which derives from this
   /// class, used to standardize filename and file structure
@@ -119,9 +121,6 @@ public:
     double updateTime;
   } psTime_;    
 
-  ///Connection to the DQM backend
-  DQMStore* dbe_;  
-  
   // environment variables
   int irun_,ievent_,itime_;
   unsigned int ilumisec;

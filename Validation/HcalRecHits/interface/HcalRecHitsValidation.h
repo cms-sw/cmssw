@@ -2,7 +2,7 @@
 #define HcalRecHitsValidation_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -55,13 +55,14 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 
-class HcalRecHitsValidation : public edm::EDAnalyzer {
+class HcalRecHitsValidation : public DQMEDAnalyzer {
  public:
   HcalRecHitsValidation(edm::ParameterSet const& conf);
   ~HcalRecHitsValidation();
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-  virtual void beginJob() ;
-  virtual void endJob() ;
+
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
  private:
   
   virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
@@ -69,8 +70,6 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
 
-  DQMStore* dbe_;
-  
   std::string outputFile_;
   std::string hcalselector_;
   std::string ecalselector_;
