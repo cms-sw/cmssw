@@ -396,6 +396,14 @@ class ConfigBuilder(object):
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
 		   filesFromOption(self)
+
+	   elif self._options.filetype == "DAQ":
+		   # FIXME: this needs to import the special DQM source
+		   self.process.source=cms.Source("PoolSource",
+						  fileNames = cms.untracked.vstring(),
+						  secondaryFileNames= cms.untracked.vstring())
+		   filesFromOption(self)
+		   
 			   
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
