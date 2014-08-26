@@ -413,7 +413,7 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
       det.addParam(&m_showTrackerBarrel);
       det.addParam(&m_showPixelEndcap);
       det.addParam(&m_showRpcEndcap);
-      bool showGEM = m_context->getGeom()->versionInfo().haveGEM();
+      bool showGEM = m_context->getGeom()->versionInfo().haveExtraDet("GEM");
       if (showGEM) det.addParam(&m_showGEM);
    }
 

@@ -496,7 +496,7 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
 
 
        std::vector<RPCDetId> ids;
-       int mxSt = m_geom->versionInfo().haveRE4() ? 4:3; 
+       int mxSt = m_geom->versionInfo().haveExtraDet("RE4") ? 4:3; 
        for (int region = -1; region <=1; ++ region )
        {
            if (region == 0 ) continue;
@@ -556,23 +556,21 @@ FWRPZViewGeometry::showGEM( bool show )
       
       std::vector<GEMDetId> ids;
       int rArr [] = { -1, 1};  // front back region
-      int cArr [] = { 10, 30}; // top bottom chamber
+      int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
 
-      for (int st = 1; st <= 2; ++st ) 
-         for (int ri = 0; ri < 2; ++ri ) 
-            for (int ci= 0; ci < 2; ++ci) {
-               int maxRoll = st == 1 ? 8 : 12;
-               for (int roll = 1; roll <=maxRoll; ++roll)
-                  for (int layer = 1; layer <=2; ++layer)
-                  {
-                     GEMDetId id(rArr[ri], 1, st, layer, cArr[ci]/st, roll);
-                     TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-                     addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                     m_GEMElements->AddElement( shape );
-                     // gEve->AddToListTree(shape, true);
-                     //gEve->AddElement(shape);
-                  }
-            }
+      for (int ri = 0; ri < 2; ++ri ) 
+         for (int ci= 0; ci < 4; ++ci) {
+            int minRoll = 2; 
+            //if (ci == 1 || ci == 3) minRoll = 2;
+            for (int roll = minRoll; roll <=10; ++roll)
+               for (int layer = 1; layer <=2; ++layer)
+               {
+                  GEMDetId id(rArr[ri], 1, 1, layer, cArr[ci], roll);
+                  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
+                  m_GEMElements->AddElement( shape );
+               }
+         }
 
 
 

@@ -4,6 +4,7 @@
 #include "TPRegexp.h"
 #include "TSystem.h"
 #include "TGeoArb8.h"
+#include "TObjArray.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -120,18 +121,17 @@ FWGeometry::loadMap( const char* fileName )
    }
 
 
-   TNamed* tag = static_cast<TNamed*>(file->Get( "TAG" ));
-   if (tag) {
-      m_versionInfo.ProcessProductionTag(tag->GetTitle());
-   }
+   m_versionInfo.productionTag  = static_cast<TNamed*>(file->Get( "tag" ));
+   m_versionInfo.cmsswVersion   = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
+   m_versionInfo.extraDetectors = static_cast<TObjArray*>(file->Get( "ExtraDetectors" ));
+  
+   TString path = file->GetPath();
+   if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
 
-
-   TNamed* version = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
-
-   if (version)
-      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(), version->GetTitle(), file->GetPath());  
+   if (m_versionInfo.productionTag)
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(),  m_versionInfo.productionTag->GetName(), path.Data());  
    else 
-      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), file->GetPath());  
+      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), path.Data());  
 
    file->Close();
 }
@@ -373,18 +373,8 @@ FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* g
 
 //______________________________________________________________________________
 
-void FWGeometry::VersionInfo::ProcessProductionTag(const char* tag)
+bool FWGeometry::VersionInfo::haveExtraDet(const char* det) const
 {
-   if (!strncmp(tag,"2015",4))
-   {
-      m_haveRE4 = true;
-   }
-   else if (!strncmp(tag,"2019",4))
-   {
-      m_haveRE4 = true;
-      m_haveGEM = true;
-   }
-
-
-   fwLog( fwlog::kDebug ) << Form("FWGeometry::VersionInfo parse tag [%s] GEM=%d RE4=%d \n", tag, m_haveGEM,  m_haveRE4);
+   
+   return (extraDetectors && extraDetectors->FindObject(det)) ? true : false;
 }

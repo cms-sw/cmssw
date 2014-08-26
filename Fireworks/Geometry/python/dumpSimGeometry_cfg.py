@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 PhaseIPixel Phase1_R34F16 Phase2Tk SLHCDB SLHC DB")
+varType = Enumerate ("Run1 2015 2019 PhaseIPixel Phase1_R34F16 Phase2Tk  2023Muon SLHC DB SLHCDB")
 
 def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
@@ -11,9 +11,8 @@ def help():
    print "       indentify geometry condition database tag"
    print "      ", varType.keys()
    print ""
-   print "   load=filename"
-   print "       a single load instruction, this option excludes 'tag' option"
-   print "       e.g load=Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff"
+   print "   out=outputFileName"
+   print "       default is cmsSimGeom<tag>.root"
    print 
    exit(1);
 
@@ -25,11 +24,30 @@ def simGeoLoad(score):
     elif score == "2015":
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi")
 
+    elif score == "2019":
+       process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+  
     elif score == "PhaseIPixel":
        process.load('Geometry.CMSCommonData.GeometryExtendedPhaseIPixel_cfi')
 
+    elif score == "Phase1_R34F16":
+        process.load('Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
+ 
     elif score == "Phase2Tk":
        process.load('Geometry.CMSCommonData.cmsExtendedGeometryPhase2TkBEXML_cfi')
+
+    elif score == "2023Muon":
+       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+
+
+    elif score == "SLHC":
+        process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
+        
+    elif score == "DB":
+        process.load("Configuration.StandardSequences.GeometryDB_cff")
+        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+        from Configuration.AlCa.autoCond import autoCond
+        process.GlobalTag.globaltag = autoCond['mc']
 
     elif score == "SLHCDB":
         process.load("Configuration.StandardSequences.GeometryDB_cff")
@@ -44,19 +62,6 @@ def simGeoLoad(score):
                  )
         )
 
-    elif score == "DB":
-        process.load("Configuration.StandardSequences.GeometryDB_cff")
-        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-        from Configuration.AlCa.autoCond import autoCond
-        process.GlobalTag.globaltag = autoCond['mc']
-
-    elif score == "SLHC":
-        process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
-        
-
-    elif score == "Phase1_R34F16":
-        process.load('Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
-        
     else:
       help()
 
@@ -64,28 +69,30 @@ def simGeoLoad(score):
 
 options = VarParsing.VarParsing ()
 
+defaultTag=str(2015);
+defaultLevel=14;
+defaultOutputFileName="cmsSimGeom.root"
+
 options.register ('tag',
-                  "2015", # default value
+                  defaultTag, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "info about geometry database conditions")
-
-options.register ('load',
-                  "", # default value
+options.register ('out',
+                  defaultOutputFileName, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "load path e.g Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff")
+                  "Output file name")
 
 
 options.parseArguments()
 
 
-process = cms.Process("SIMDUMP")
+if (options.out == defaultOutputFileName ):
+   options.out = "cmsSimGeom-" + str(options.tag) + ".root"
 
-if not options.load:
-   simGeoLoad(options.tag)
-else:
-   process.load(options.load)
+process = cms.Process("SIMDUMP")
+simGeoLoad(options.tag)
 
 process.source = cms.Source("EmptySource")
 
@@ -93,9 +100,11 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.add_(cms.ESProducer("TGeoMgrFromDdd",
         verbose = cms.untracked.bool(False),
-        level = cms.untracked.int32(14)
+                            level = cms.untracked.int32(defaultLevel)
 ))
 
-process.dump = cms.EDAnalyzer("DumpSimGeometry")
+process.dump = cms.EDAnalyzer("DumpSimGeometry", 
+               tag = cms.untracked.string(options.tag),
+               outputFileName = cms.untracked.string(options.out))
 
 process.p = cms.Path(process.dump)
