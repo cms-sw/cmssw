@@ -6,18 +6,6 @@
     <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
     <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
   </Polycone>
-  <Polycone name="SFFA" startPhi="0" deltaPhi="360*deg">
-    <ZSection z="[escon:Front_window_Z]"      rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
-    <ZSection z="[escon:Front_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/> 
-    <ZSection z="[escon:Front_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
-    <ZSection z="[escon:Front_window_Back_Z]" rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
-  </Polycone>
-  <Polycone name="SFRA" startPhi="0" deltaPhi="360*deg">
-    <ZSection z="[escon:Rear_window_Z]"      rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
-    <ZSection z="[escon:Rear_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
-    <ZSection z="[escon:Rear_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Rear_window_Al]"/>
-    <ZSection z="[escon:Rear_window_Back_Z]" rMin="[escon:R_MIN]" rMax="[escon:Rear_window_Al]"/>
-  </Polycone>
   <Tubs name="SFNM1" rMin="[escon:InnerNM1_RMin]" rMax="[escon:InnerNM1_RMax]" dz="[escon:InnerNM1_Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="SFNM2" rMin="[escon:InnerNM2_RMin]" rMax="[escon:InnerNM2_RMax]" dz="[escon:InnerNM2_Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
@@ -26,15 +14,6 @@
   <LogicalPart name="SF" category="unspecified">
     <rSolid name="SF"/>
     <rMaterial name="materials:E_Polythene"/>
-  </LogicalPart>
-  <!-- LogicalPartSection label="Support Structures" -->
-  <LogicalPart name="SFFA" category="unspecified">
-    <rSolid name="SFFA"/>
-    <rMaterial name="materials:E_Aluminium"/>
-  </LogicalPart>
-  <LogicalPart name="SFRA" category="unspecified">
-    <rSolid name="SFRA"/>
-    <rMaterial name="materials:E_Aluminium"/>
   </LogicalPart>
   <LogicalPart name="SFNM1" category="unspecified">
     <rSolid name="SFNM1"/>
@@ -50,14 +29,6 @@
   <PosPart copyNumber="1">
     <rParent name="eregalgo:EREG"/>
     <rChild name="esalgo:SF"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="esalgo:SF"/>
-    <rChild name="esalgo:SFFA"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="esalgo:SF"/>
-    <rChild name="esalgo:SFRA"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="eregalgo:EREG"/>
