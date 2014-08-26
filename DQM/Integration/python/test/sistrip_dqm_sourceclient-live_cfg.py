@@ -219,6 +219,10 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyserCosmic)
 
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_Cosmic_cff")
+    process.TrackingAnalyserCosmic.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.TrackingAnalyserCosmic.ShiftReportFrequency = -1
+    process.TrackingAnalyserCosmic.StaticUpdateFrequency = 5
+    process.TrackingClient = cms.Sequence( process.TrackingAnalyserCosmic )
 
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
@@ -233,13 +237,20 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
                                      qtestOnEndLumi = cms.untracked.bool(True),
                                      qtestOnEndRun = cms.untracked.bool(True)
                                      )
-    process.trackingQTester = cms.EDAnalyzer("QualityTester",
-                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml'),
-                                               prescaleFactor = cms.untracked.int32(2),
-                                               getQualityTestsFromFile = cms.untracked.bool(True),
-                                               qtestOnEndLumi = cms.untracked.bool(True),
-                                               qtestOnEndRun = cms.untracked.bool(True)
-                                            )
+
+    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml')
+    process.trackingQTester.prescaleFactor          = cms.untracked.int32(2)
+    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)                                                                    
+
+#    process.trackingQTester = cms.EDAnalyzer("QualityTester",
+#                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml'),
+#                                               prescaleFactor = cms.untracked.int32(2),
+#                                               getQualityTestsFromFile = cms.untracked.bool(True),
+#                                               qtestOnEndLumi = cms.untracked.bool(True),
+#                                               qtestOnEndRun = cms.untracked.bool(True)                                                                    
+#                                            )
 
 
     process.p = cms.Path(process.scalersRawToDigi*
@@ -249,7 +260,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
                          process.RecoForDQM_LocalReco*
                          process.DQMCommon*
                          process.SiStripClients*
-                         process.TrackingAnalyserCosmic*
+                         process.TrackingClient *
                          process.SiStripSources_LocalReco*
                          process.RecoForDQM_TrkReco_cosmic*
                          process.SiStripSources_TrkReco_cosmic
@@ -292,6 +303,12 @@ if (process.runType.getRunType() == process.runType.pp_run):
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
     process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = cms.int32(25)
+
+    process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
+    process.TrackingAnalyser.ShiftReportFrequency = -1
+    process.TrackingAnalyser.StaticUpdateFrequency = 5
+    process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
     
     # Reco for pp collisions
 
@@ -335,7 +352,8 @@ if (process.runType.getRunType() == process.runType.pp_run):
                          process.SiStripSources_LocalReco*
                          process.hltHighLevel*
                          process.RecoForDQM_TrkReco*
-                         process.SiStripSources_TrkReco
+                         process.SiStripSources_TrkReco*
+                         process.TrackingClient
                          )
 #--------------------------------------------------
 # For high PU run - no tracking in cmssw42x
@@ -377,6 +395,12 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
     process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
+
+    process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_HeavyIons_cff")
+    process.TrackingAnalyserHI.ShiftReportFrequency = -1
+    process.TrackingAnalyserHI.StaticUpdateFrequency = 5
+    process.TrackingAnalyserHI.RawDataTag            = cms.untracked.InputTag("rawDataCollector")
+    process.TrackingClient = cms.Sequence( process.TrackingAnalyserHI )
 
     # Reco for pp collisions
 
@@ -421,7 +445,8 @@ if (process.runType.getRunType() == process.runType.hpu_run):
                          process.hltHighLevel*
                          process.eventFilter*
                          process.RecoForDQM_TrkReco*
-                         process.SiStripSources_TrkReco
+                         process.SiStripSources_TrkReco*
+                         process.TrackingClient
                          )
 
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
@@ -484,13 +509,20 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                      qtestOnEndRun = cms.untracked.bool(True)
                                      )
 
-    process.trackingQTester = cms.EDAnalyzer("QualityTester",
-                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml'),
-                                               prescaleFactor = cms.untracked.int32(2),
-                                               getQualityTestsFromFile = cms.untracked.bool(True),
-                                               qtestOnEndLumi = cms.untracked.bool(True),
-                                               qtestOnEndRun = cms.untracked.bool(True)
-                                            )
+    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml')
+    process.trackingQTester.prescaleFactor          = cms.untracked.int32(2)
+    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
+
+#    process.trackingQTester = cms.EDAnalyzer("QualityTester",
+#                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml'),
+#                                               prescaleFactor = cms.untracked.int32(2),
+#                                               getQualityTestsFromFile = cms.untracked.bool(True),
+#                                               qtestOnEndLumi = cms.untracked.bool(True),
+#                                               qtestOnEndRun = cms.untracked.bool(True)
+#                                            )
+
     # Sources for HI 
     process.load("Configuration.StandardSequences.RawToDigi_Repacked_cff")
     process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripVRDigis','VirginRaw')
