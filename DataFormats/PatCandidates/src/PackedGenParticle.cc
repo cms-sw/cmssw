@@ -79,7 +79,8 @@ size_t pat::PackedGenParticle::numberOfDaughters() const {
 }
 
 size_t pat::PackedGenParticle::numberOfMothers() const { 
-  return 1; 
+  if(mother_.isNonnull())   return 1; 
+  return 0;
 }
 
 bool pat::PackedGenParticle::overlap( const reco::Candidate & o ) const { 
