@@ -8,7 +8,7 @@
 */
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
-// $Id$
+// $Id: PFCand_AssoMapAlgos.h,v 1.1 2012/11/21 09:46:43 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PF_PU_AssoMapAlgos.h"
@@ -39,7 +39,10 @@ class PFCand_AssoMapAlgos : public PF_PU_AssoMapAlgos  {
    PFCand_AssoMapAlgos(const edm::ParameterSet&); 
 
    //get all needed collections at the beginning
-   void GetInputCollections(edm::Event&, const edm::EventSetup&);
+   void GetPFCandInputCollections(edm::Event&, const edm::EventSetup&);
+
+   //get all needed collections at the beginning
+   void SetMotherPointer(edm::Handle<reco::PFCandidateCollection>&);
 
    //create the pf candidate to vertex association map
    std::auto_ptr<PFCandToVertexAssMap> CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection>, const edm::EventSetup&);

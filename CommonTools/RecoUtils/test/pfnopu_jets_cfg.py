@@ -5,12 +5,12 @@ process = cms.Process("PFJETS")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/user/geisler/QCD_Pt-15to3000_Tune2C_Flat_8TeV_pythia8_AODSIM.root'),
+    fileNames = cms.untracked.vstring('step2.root'),
 )
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START53_V11::All'
+process.GlobalTag.globaltag = 'POSTLS162_V1::All'
 		
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
