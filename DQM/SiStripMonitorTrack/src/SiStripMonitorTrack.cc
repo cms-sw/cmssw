@@ -656,32 +656,31 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
     
       // if the hit is valid and in pixel barrel, print out the layer
       if (hitsPattern.validHitFilter(hit) && hitsPattern.pixelBarrelHitFilter(hit))
-        std::cout << "valid hit found in pixel barrel layer "
-                  << hitsPattern.getLayer(hit) << std::endl;
+	//        std::cout << "valid hit found in pixel barrel layer "
+	//                  << hitsPattern.getLayer(hit) << std::endl;
       
       if (!hitsPattern.validHitFilter(hit)) continue;
-      if (hitsPattern.pixelHitFilter(hit))       std::cout << "pixel"        << std::endl;       // pixel
-      if (hitsPattern.pixelBarrelHitFilter(hit)) std::cout << "pixel barrel" << std::endl; // pixel barrel
-      if (hitsPattern.pixelEndcapHitFilter(hit)) std::cout << "pixel endcap" << std::endl; // pixel endcap
-      if (hitsPattern.stripHitFilter(hit))       std::cout << "strip" << std::endl;       // strip 
-      if (hitsPattern.stripTIBHitFilter(hit))    std::cout << "TIB" << std::endl;    // strip TIB
-      if (hitsPattern.stripTIDHitFilter(hit))    std::cout << "TID" << std::endl;    // strip TID
-      if (hitsPattern.stripTOBHitFilter(hit))    std::cout << "TOB" << std::endl;    // strip TOB
-      if (hitsPattern.stripTECHitFilter(hit))    std::cout << "TEC" << std::endl;    // strip TEC
-      if (hitsPattern.muonDTHitFilter(hit))      std::cout << "DT"  << std::endl;      // muon DT
-      if (hitsPattern.muonCSCHitFilter(hit))     std::cout << "CSC" << std::endl;     // muon CSC
-      if (hitsPattern.muonRPCHitFilter(hit))     std::cout << "RPC" << std::endl;     // muon RPC      
-  
-      // expert level: printout the hit in 10-bit binary format
-      std::cout << "hit in 10-bit binary format = "; 
-      for (int j=9; j>=0; j--) {
-        int bit = (hit >> j) & 0x1;
-        std::cout << bit;
-      }
-      std::cout << std::endl;
+//      if (hitsPattern.pixelHitFilter(hit))       std::cout << "pixel"        << std::endl;       // pixel
+//      if (hitsPattern.pixelBarrelHitFilter(hit)) std::cout << "pixel barrel" << std::endl; // pixel barrel
+//      if (hitsPattern.pixelEndcapHitFilter(hit)) std::cout << "pixel endcap" << std::endl; // pixel endcap
+//      if (hitsPattern.stripHitFilter(hit))       std::cout << "strip" << std::endl;       // strip 
+//      if (hitsPattern.stripTIBHitFilter(hit))    std::cout << "TIB" << std::endl;    // strip TIB
+//      if (hitsPattern.stripTIDHitFilter(hit))    std::cout << "TID" << std::endl;    // strip TID
+//      if (hitsPattern.stripTOBHitFilter(hit))    std::cout << "TOB" << std::endl;    // strip TOB
+//      if (hitsPattern.stripTECHitFilter(hit))    std::cout << "TEC" << std::endl;    // strip TEC
+//      if (hitsPattern.muonDTHitFilter(hit))      std::cout << "DT"  << std::endl;      // muon DT
+//      if (hitsPattern.muonCSCHitFilter(hit))     std::cout << "CSC" << std::endl;     // muon CSC
+//      if (hitsPattern.muonRPCHitFilter(hit))     std::cout << "RPC" << std::endl;     // muon RPC      
+//  
+//      // expert level: printout the hit in 10-bit binary format
+//      std::cout << "hit in 10-bit binary format = "; 
+//      for (int j=9; j>=0; j--) {
+//        int bit = (hit >> j) & 0x1;
+//        std::cout << bit;
+//      }
+//      std::cout << std::endl;
     }
   }
-
 }
 
 void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es) {
