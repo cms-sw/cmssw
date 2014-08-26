@@ -59,7 +59,7 @@ parser.add_option("--filetype",
                   help="The type of the infile (EDM, LHE or MCDB).",
                   default=defaultOptions.filetype,
                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM']
+                  choices=['EDM','DAT','LHE','MDCB','DQM','DAQ']
                   )
 
 parser.add_option("-n", "--number",
