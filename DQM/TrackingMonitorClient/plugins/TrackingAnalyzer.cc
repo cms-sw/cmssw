@@ -101,7 +101,6 @@ void TrackingAnalyser::beginJob(){
 // -- Begin Run
 //
 void TrackingAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  std::cout << "[TrackingAnalyser::beginRun] .. starting" << std::endl;
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
@@ -125,7 +124,6 @@ void TrackingAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //  -- Analyze 
 //
 void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
-  std::cout << "[TrackingAnalyser::analyze] .. starting" << std::endl;
   nEvents_++;  
   if (nEvents_ == 1 && globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
@@ -202,7 +200,7 @@ void TrackingAnalyser::checkTrackerFEDs(edm::Event const& e) {
   }
 
   trackerFEDsFound_ = (nFed > 0);
-
+  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
