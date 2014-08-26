@@ -676,19 +676,19 @@ void TkLasBeamFitter::fitter(TkFittedLasBeam &beam, AlgebraicSymMatrix &covMatri
     TF1 tecPlus("tecPlus", tecPlusFunction, zMin, zMax, nFitParams );
     tecPlus.SetParameter( 1, 0 ); // slope
     tecPlus.SetParameter( nFitParams - 1, 0 ); // BS 
-    lasData->Fit("tecPlus", "R"); // "R", "RV" or "RQ"
+    lasData->Fit(&tecPlus, "R"); // "R", "RV" or "RQ"
   }
   else if(beam.isTecInternal(-1)){
     TF1 tecMinus("tecMinus", tecMinusFunction, zMin, zMax, nFitParams );
     tecMinus.SetParameter( 1, 0 ); // slope
     tecMinus.SetParameter( nFitParams - 1, 0 ); // BS 
-    lasData->Fit("tecMinus", "R");
+    lasData->Fit(&tecMinus, "R");
   }
   else{
     TF1 at("at", atFunction, zMin, zMax, nFitParams );
     at.SetParameter( 1, 0 ); // slope
     at.SetParameter( nFitParams - 1, 0 ); // BS 
-    lasData->Fit("at","R");
+    lasData->Fit(&at,"R");
   }
   
   // get values and errors for offset and slope

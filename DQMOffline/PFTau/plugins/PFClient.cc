@@ -288,12 +288,11 @@ void PFClient::getHistogramParameters(MonitorElement* me_slice, double& average,
     rms     = me_slice->getRMS();  
     TH1F* th_slice = me_slice->getTH1F();
     if (th_slice && th_slice->GetEntries() > 0) {
-      th_slice->Fit( "gaus","Q0");
-      TF1* gaus = th_slice->GetFunction( "gaus" );
-      if (gaus) {
-	sigma = gaus->GetParameter(2);
-        mean  = gaus->GetParameter(1);
-      }
+      //need our own copy for thread safety
+      TF1 gaus("mygaus","gaus");
+      th_slice->Fit( &gaus,"Q0");
+      sigma = gaus.GetParameter(2);
+      mean  = gaus.GetParameter(1);
     }
   }
 }

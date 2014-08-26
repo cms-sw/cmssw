@@ -114,7 +114,7 @@ void PixelVertexProducerMedian::produce
     TF1 f1("f1","[0]*exp(-0.5 * ((x-[1])/[2])^2) + [3]");
     f1.SetParameters(10.,0.,0.01, 1.);
   
-    histo.Fit("f1","QN");
+    histo.Fit(&f1,"QN");
   
     LogTrace("MinBiasTracking")
               << "  [vertex position] fitted    = "
