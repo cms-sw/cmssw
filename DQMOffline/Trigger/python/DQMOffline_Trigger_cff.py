@@ -57,13 +57,8 @@ from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 # tracking
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 
-# photon jet 
-from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
-
-#import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-#TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-#TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
-#TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
+# tracking
+from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -83,9 +78,8 @@ offlineHLTSource = cms.Sequence(
     jetMETHLTOfflineAnalyzer *
     #TnPEfficiency *
     hltInclusiveVBFSource *
-#    TrackerCollisionTrackMonHLT *
     trackingMonitorHLT *
-    higPhotonJetHLTOfflineSource * 
+    sistripMonitorHLTsequence *
     dqmEnvHLT *
     topHLTriggerOfflineDQM)
 
