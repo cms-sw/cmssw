@@ -15,12 +15,12 @@ class LayerSpec
                 return layerSpec.getSubDet()*10000+layerSpec.getLayerNumber()*100+layerSpec.getSide()+1;
             }
         };
-        struct eq
+        struct eqfct
         {
             static hashfct gethash;
             inline bool operator()(const LayerSpec &l1, const LayerSpec &l2) const 
             {
-                return gethash(l1)==gethash(l2);
+                return l1.getSubDet()==l2.getSubDet() and l1.getLayerNumber()==l2.getLayerNumber() and l1.getSide()==l2.getSide();
             }
         };
         
@@ -38,8 +38,8 @@ class LayerSpec
         
         Det subDet;
         Side side;
-        static eq eqfct;
-        static hashfct cmpfct;
+        static eqfct _eqfct;
+        static hashfct _hashfct;
         unsigned int layerNumber;
         
         LayerSpec():
@@ -289,13 +289,12 @@ class LayerSpec
         
         inline bool operator==(const LayerSpec& layer) const
         {
-            return eqfct(*this, layer);
-            //return (getSubDet()==layer.getSubDet()) && (getSide()==layer.getSide()) && (getLayerNumber()==layer.getLayerNumber());
+            return _eqfct(*this, layer);
         }
         
         inline bool operator<(const LayerSpec& layer) const
         {
-            return cmpfct(*this)<cmpfct(layer);
+            return _hashfct(*this)<_hashfct(layer);
         }
         
         inline std::string print() const

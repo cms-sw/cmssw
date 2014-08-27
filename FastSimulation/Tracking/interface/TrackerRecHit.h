@@ -84,7 +84,7 @@ public:
     return theSplitHit ? (GSSiTrackerRecHit2DLocalPos*)theSplitHit : 
       (GSSiTrackerRecHit2DLocalPos*)theMatchedHit; }
       
-  inline const LayerSpec getSeedingLayer() const
+  inline const LayerSpec& getSeedingLayer() const
   {
     return seedingLayer;
   }
