@@ -32,12 +32,12 @@ from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 
 # Negative taggers
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
-from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderNegativeTagInfos_cfi import * # DOES IT MAKE SENSE?
+from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderNegativeTagInfos_cfi import * 
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexNegativeES_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexNegativeBJetTags_cfi import *
-from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexNegativeBJetTags_cfi import * # DOES IT MAKE SENSE?
+from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexNegativeBJetTags_cfi import * 
 
 # Positive taggers
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexPositiveES_cfi import *
