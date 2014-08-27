@@ -22,10 +22,10 @@ btagging = cms.Sequence(
           combinedSecondaryVertexBJetTags  
           + combinedSecondaryVertexMVABJetTags
         )
-				+ inclusiveSecondaryVertexFinderTagInfos *
-				combinedInclusiveSecondaryVertexV2BJetTags
+	+ inclusiveSecondaryVertexFinderTagInfos *
+	combinedInclusiveSecondaryVertexV2BJetTags
 				
-				+ ghostTrackVertexTagInfos *
+	+ ghostTrackVertexTagInfos *
           ghostTrackBJetTags
       ) +
 
