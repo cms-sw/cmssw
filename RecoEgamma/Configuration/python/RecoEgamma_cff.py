@@ -16,8 +16,6 @@ from TrackingTools.Configuration.TrackingTools_cff import *
 
 from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import *
 
-from EgammaAnalysis.ElectronTools.egmGsfElectronIDs_cff import *
-
 #importing new gedGsfElectronSequence :
 #from RecoEgamma.EgammaElectronProducers.gedGsfElectronSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *
@@ -29,11 +27,11 @@ egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedO
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 #adding new gedGsfElectronSequence and gedPhotonSequence :
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*gedGsfElectronSequence*interestingEgammaIsoDetIds*gedPhotonSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
-egammaHighLevelRecoPostPF = cms.Sequence(interestingEgammaIsoDetIds*egmIsolationSequence*photonIDSequence*photonIDSequenceGED*eIdSequence*egmGsfElectronIDSequence*hfEMClusteringSequence)
+egammaHighLevelRecoPostPF = cms.Sequence(interestingEgammaIsoDetIds*egmIsolationSequence*photonIDSequence*photonIDSequenceGED*eIdSequence*hfEMClusteringSequence)
 
 
-egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*egmIsolationSequence*photonIDSequence*eIdSequence*egmGsfElectronIDSequence*hfEMClusteringSequence)
-egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence*egmGsfElectronIDSequence)
+egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*egmIsolationSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
+egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence)
 egammareco_woConvPhotons = cms.Sequence(electronSequence*photonSequence)
 egammareco_withIsolation = cms.Sequence(egammareco*egammaIsolationSequence)
 egammareco_withIsolation_woConvPhotons = cms.Sequence(egammareco_woConvPhotons*egammaIsolationSequence)

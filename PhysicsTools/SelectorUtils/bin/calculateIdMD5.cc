@@ -1,20 +1,11 @@
-#include <TH1F.h>
-#include <TROOT.h>
-#include <TFile.h>
+#include <iostream>
 #include <TSystem.h>
 
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/FWLite/interface/InputSource.h"
-#include "DataFormats/FWLite/interface/OutputFiles.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "PhysicsTools/FWLite/interface/TFileService.h"
 
 #include <openssl/md5.h>
 
