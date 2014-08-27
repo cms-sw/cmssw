@@ -16,8 +16,9 @@ namespace HcalCaloFlagLabels
 		      HSCP_FracLeader=3,
 		      HSCP_OuterEnergy=4,
 		      HSCP_ExpFit=5,
-                      HBHETimingTrustBits=6, // 2-bit counter; not yet in use
-                      HBHETimingShapedCutsBits=8, // 3-bit counter
+            HBHETimingTrustBits=6, // 2-bit counter; not yet in use
+            HBHETimingShapedCutsBits=8, // 3-bit counter
+            HBHENegativeNoise=10,
 		      HBHEIsolatedNoise=11,
 		      HBHEFlatNoise=12,
 		      HBHESpikeNoise=13,

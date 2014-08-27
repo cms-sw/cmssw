@@ -75,6 +75,13 @@ hbheprereco = cms.EDProducer(
                                     UseDualFit = cms.bool(True),
                                     TriangleIgnoreSlow = cms.bool(False)),
 
+    negativeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
+                                  TS4TS5ChargeTheshold = cms.double(70),
+                                  First = cms.int32(4),
+                                  Last = cms.int32(6),
+                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500),
+                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100)),
+
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.
     # win_gain is applied to both threshold values before win_offset.

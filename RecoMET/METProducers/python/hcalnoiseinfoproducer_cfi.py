@@ -5,6 +5,7 @@ HcalNoiseParameterSet = cms.PSet(
     minRecHitE = cms.double(1.5),
     minLowHitE = cms.double(10.0),
     minHighHitE = cms.double(25.0),
+    minR45HitE = cms.double(5.0),
 
     # define energy threshold for "problematic" cuts
     pMinERatio = cms.double(25.0),
@@ -30,6 +31,9 @@ HcalNoiseParameterSet = cms.PSet(
     pMaxHighEHitTime = cms.double(5.0),
     pMaxHPDEMF = cms.double(0.02),
     pMaxRBXEMF = cms.double(0.02),
+    pMinRBXRechitR45Count = cms.int32(1),
+    pMinRBXRechitR45Fraction = cms.double(0.1),
+    pMinRBXRechitR45EnergyFraction = cms.double(0.1),
 
     # define loose noise cuts
     lMinRatio = cms.double(-999.),
@@ -64,14 +68,21 @@ HcalNoiseParameterSet = cms.PSet(
     calibdigiHBHEtimeslices=cms.vint32(3,4,5,6),  # time slices to use when determining charge of HBHE calib digis
     calibdigiHFthreshold = cms.double(-999), # minimum threshold in fC of any HF calib digi to be counted in summary
     calibdigiHFtimeslices=cms.vint32(0,1,2,3,4,5,6,7,8,9),  # time slices to use when determining charge of HF calib digis
-    
 
     # RBX-wide TS4TS5 variable
     TS4TS5EnergyThreshold = cms.double(50),
     TS4TS5UpperThreshold = cms.vdouble(70, 90, 100, 400, 4000),
     TS4TS5UpperCut = cms.vdouble(1, 0.8, 0.75, 0.72, 0.72),
     TS4TS5LowerThreshold = cms.vdouble(100, 120, 150, 200, 300, 400, 500),
-    TS4TS5LowerCut = cms.vdouble(-1, -0.7, -0.4, -0.2, -0.08, 0, 0.1)
+    TS4TS5LowerCut = cms.vdouble(-1, -0.7, -0.4, -0.2, -0.08, 0, 0.1),
+
+    # rechit R45 population filter variables
+    # this comes in groups of four: (a_Count, a_Fraction, a_EnergyFraction, const)
+    # flat as noise if (count * a_count + fraction * a_fraction + energyfraction * a_energyfraction + const) > 0
+    lRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.5,   # equivalent to "fraction > 0.5"
+                                    0.0, 0.0, 1.0, -0.5),  # equivalent to "energy fraction > 0.5"
+    tRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.2,   # equivalent to "fraction > 0.2"
+                                    0.0, 0.0, 1.0, -0.2)   # equivalent to "energy fraction > 0.2"
     )
 
 

@@ -3,7 +3,8 @@
 CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE,
    double minLowHitE, double minHighHitE, double TS4TS5EnergyThreshold,
    std::vector<std::pair<double, double> > &TS4TS5UpperCut,
-   std::vector<std::pair<double, double> > &TS4TS5LowerCut)
+   std::vector<std::pair<double, double> > &TS4TS5LowerCut,
+   double MinRBXRechitR45E)
 {
   // energy
   energy_ = rbx.recHitEnergy(minRecHitE); 
@@ -29,6 +30,14 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
   }
   else
      TS4TS5Decision_ = true;
+
+  // Rechit-wide R45
+  if(rbx.numRecHits(MinRBXRechitR45E) > 0)
+  {
+     r45Count_ = rbx.numRecHitsFailR45(MinRBXRechitR45E);
+     r45Fraction_ = r45Count_ / rbx.numRecHits(MinRBXRechitR45E);
+     r45EnergyFraction_ = rbx.recHitEnergyFailR45(MinRBXRechitR45E) / rbx.recHitEnergy(MinRBXRechitR45E);
+  }
 
   // # of hits
   numHPDHits_ = 0;
@@ -111,6 +120,9 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
   pMaxHighEHitTime_ = iConfig.getParameter<double>("pMaxHighEHitTime");
   pMaxHPDEMF_ = iConfig.getParameter<double>("pMaxHPDEMF");
   pMaxRBXEMF_ = iConfig.getParameter<double>("pMaxRBXEMF");
+  pMinRBXRechitR45Count_ = iConfig.getParameter<int>("pMinRBXRechitR45Count");
+  pMinRBXRechitR45Fraction_ = iConfig.getParameter<double>("pMinRBXRechitR45Fraction");
+  pMinRBXRechitR45EnergyFraction_ = iConfig.getParameter<double>("pMinRBXRechitR45EnergyFraction");
 
   lMinRatio_ = iConfig.getParameter<double>("lMinRatio");
   lMaxRatio_ = iConfig.getParameter<double>("lMaxRatio");
@@ -122,6 +134,7 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
   lMaxLowEHitTime_ = iConfig.getParameter<double>("lMaxLowEHitTime");
   lMinHighEHitTime_ = iConfig.getParameter<double>("lMinHighEHitTime");
   lMaxHighEHitTime_ = iConfig.getParameter<double>("lMaxHighEHitTime");
+  lMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("lRBXRecHitR45Cuts");
 
   tMinRatio_ = iConfig.getParameter<double>("tMinRatio");
   tMaxRatio_ = iConfig.getParameter<double>("tMaxRatio");
@@ -133,6 +146,7 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
   tMaxLowEHitTime_ = iConfig.getParameter<double>("tMaxLowEHitTime");
   tMinHighEHitTime_ = iConfig.getParameter<double>("tMinHighEHitTime");
   tMaxHighEHitTime_ = iConfig.getParameter<double>("tMaxHighEHitTime");
+  tMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("tRBXRecHitR45Cuts");
 
   hlMaxHPDEMF_ = iConfig.getParameter<double>("hlMaxHPDEMF");
   hlMaxRBXEMF_ = iConfig.getParameter<double>("hlMaxRBXEMF");
@@ -152,18 +166,23 @@ bool HcalNoiseAlgo::isProblematic(const CommonHcalNoiseRBXData& data) const
   if(data.minHighEHitTime()<pMinHighEHitTime_) return true;
   if(data.maxHighEHitTime()>pMaxHighEHitTime_) return true;
   if(data.HPDEMF()<pMaxHPDEMF_ && data.energy()>pMinEEMF_) return true;
-  if(data.RBXEMF()<pMaxRBXEMF_ && data.energy()>pMinEEMF_) return true;  return false;
+  if(data.RBXEMF()<pMaxRBXEMF_ && data.energy()>pMinEEMF_) return true;
+  if(data.r45Count() >= pMinRBXRechitR45Count_)   return true;
+  if(data.r45Fraction() >= pMinRBXRechitR45Fraction_)   return true;
+  if(data.r45EnergyFraction() >= pMinRBXRechitR45EnergyFraction_)   return true;
+  
+  return false;
 }
 
 
 bool HcalNoiseAlgo::passLooseNoiseFilter(const CommonHcalNoiseRBXData& data) const
 {
-  return (passLooseRatio(data) && passLooseHits(data) && passLooseZeros(data) && passLooseTiming(data));
+  return (passLooseRatio(data) && passLooseHits(data) && passLooseZeros(data) && passLooseTiming(data) && passLooseRBXRechitR45(data));
 }
 
 bool HcalNoiseAlgo::passTightNoiseFilter(const CommonHcalNoiseRBXData& data) const
 {
-  return (passTightRatio(data) && passTightHits(data) && passTightZeros(data) && passTightTiming(data));
+  return (passTightRatio(data) && passTightHits(data) && passTightZeros(data) && passTightTiming(data) && passTightRBXRechitR45(data));
 }
 
 bool HcalNoiseAlgo::passHighLevelNoiseFilter(const CommonHcalNoiseRBXData& data) const
@@ -209,6 +228,22 @@ bool HcalNoiseAlgo::passLooseTiming(const CommonHcalNoiseRBXData& data) const
   return true;
 }
 
+bool HcalNoiseAlgo::passLooseRBXRechitR45(const CommonHcalNoiseRBXData &data) const
+{
+   int Count = data.r45Count();
+   double Fraction = data.r45Fraction();
+   double EnergyFraction = data.r45EnergyFraction();
+
+   for(int i = 0; i + 4 < (int)lMinRBXRechitR45Cuts_.size(); i++)
+   {
+      double Value = Count * lMinRBXRechitR45Cuts_[i] + Fraction * lMinRBXRechitR45Cuts_[i+1] + EnergyFraction * lMinRBXRechitR45Cuts_[i+2] + lMinRBXRechitR45Cuts_[i+3];
+      if(Value > 0)
+         return false;
+   }
+   
+   return true;
+}
+
 bool HcalNoiseAlgo::passTightRatio(const CommonHcalNoiseRBXData& data) const
 {
   if(passRatioThreshold(data)) {
@@ -241,6 +276,22 @@ bool HcalNoiseAlgo::passTightTiming(const CommonHcalNoiseRBXData& data) const
   if(data.minHighEHitTime()<tMinHighEHitTime_) return false;
   if(data.maxHighEHitTime()>tMaxHighEHitTime_) return false;
   return true;
+}
+
+bool HcalNoiseAlgo::passTightRBXRechitR45(const CommonHcalNoiseRBXData &data) const
+{
+   int Count = data.r45Count();
+   double Fraction = data.r45Fraction();
+   double EnergyFraction = data.r45EnergyFraction();
+
+   for(int i = 0; i + 4 < (int)tMinRBXRechitR45Cuts_.size(); i++)
+   {
+      double Value = Count * tMinRBXRechitR45Cuts_[i] + Fraction * tMinRBXRechitR45Cuts_[i+1] + EnergyFraction * tMinRBXRechitR45Cuts_[i+2] + tMinRBXRechitR45Cuts_[i+3];
+      if(Value > 0)
+         return false;
+   }
+   
+   return true;
 }
 
 bool HcalNoiseAlgo::passRatioThreshold(const CommonHcalNoiseRBXData& data) const
