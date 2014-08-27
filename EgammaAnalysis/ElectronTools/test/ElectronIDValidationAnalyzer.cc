@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,7 +57,7 @@
 // class declaration
 //
 
-class ElectronIDValidationAnalyzer : public edm::EDAnalyzer {
+class ElectronIDValidationAnalyzer : public edm::stream::EDAnalyzer<> {
    public:
       explicit ElectronIDValidationAnalyzer(const edm::ParameterSet&);
       ~ElectronIDValidationAnalyzer();
@@ -70,14 +70,7 @@ class ElectronIDValidationAnalyzer : public edm::EDAnalyzer {
 			  TRUE_NON_PROMPT_ELECTRON}; // The last does not include tau parents
 
    private:
-      virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
       int matchToTruth(const reco::GsfElectron &el, const edm::Handle<edm::View<reco::GenParticle>>  &genParticles);
       void findFirstNonElectronMother(const reco::Candidate *particle, int &ancestorPID, int &ancestorStatus);
@@ -215,10 +208,10 @@ ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
      // The if protects against ecalEnergy == inf or zero (always
      // the case for electrons below 5 GeV in miniAOD)
      if( el->ecalEnergy() == 0 ){
-       printf("Electron energy is zero!\n");
+       std::cout << "Electron energy is zero!\n";
        ooEmooP_ = 1e30;
      }else if( !std::isfinite(el->ecalEnergy())){
-       printf("Electron energy is not finite!\n");
+       std::cout << "Electron energy is not finite!\n";
        ooEmooP_ = 1e30;
      }else{
        ooEmooP_ = fabs(1.0/el->ecalEnergy() - el->eSuperClusterOverP()/el->ecalEnergy() );
@@ -242,7 +235,7 @@ ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
        passConversionVeto_ = !ConversionTools::hasMatchedConversion(*el,convs,
 								   thebs->position());
      }else{
-       printf("\n\nERROR!!! conversions not found!!!\n");
+       std::cout << "\n\nERROR!!! conversions not found!!!\n" ;
      }
  
      isTrue_ = matchToTruth(*el, genParticles);
@@ -253,51 +246,6 @@ ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
    
    
 }
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ElectronIDValidationAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ElectronIDValidationAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-ElectronIDValidationAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-ElectronIDValidationAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-ElectronIDValidationAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-ElectronIDValidationAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
@@ -347,7 +295,7 @@ int ElectronIDValidationAnalyzer::matchToTruth(const reco::GsfElectron &el,
   if( ancestorPID == -999 && ancestorStatus == -999 ){
     // No non-electron parent??? This should never happen.
     // Complain.
-    printf("ElectronNtupler: ERROR! Electron does not apper to have a non-electron parent\n");
+    std::cout << "ElectronNtupler: ERROR! Electron does not apper to have a non-electron parent\n" ;
     return UNMATCHED;
   }
   
@@ -365,7 +313,7 @@ void ElectronIDValidationAnalyzer::findFirstNonElectronMother(const reco::Candid
 						   int &ancestorPID, int &ancestorStatus){
   
   if( particle == 0 ){
-    printf("ElectronNtupler: ERROR! null candidate pointer, this should never happen\n");
+    std::cout << "ElectronNtupler: ERROR! null candidate pointer, this should never happen\n";
     return;
   }
   

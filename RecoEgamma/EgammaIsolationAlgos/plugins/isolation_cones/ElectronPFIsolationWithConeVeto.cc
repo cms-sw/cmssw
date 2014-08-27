@@ -68,14 +68,18 @@ isInIsolationCone(const reco::CandidateBaseRef& physob,
 		  const reco::CandidateBaseRef& other  ) const {
   reco::GsfElectronRef eleref = physob.castTo<reco::GsfElectronRef>();
   pat::PackedCandidateRef aspacked;
-  reco::PFCandidateRef aspf;   
-  try {
-    aspacked =  other.castTo<pat::PackedCandidateRef>();
-  } catch ( cms::Exception& ) {
-  }
+  reco::PFCandidateRef aspf;
+  bool cast_failed = false;  
   try {
     aspf = other.castTo<reco::PFCandidateRef>();
   } catch ( cms::Exception& ) {
+    cast_failed = true;
+  }
+  if( cast_failed ) { // user analysis code has to suffer a little...
+    try {
+      aspacked =  other.castTo<pat::PackedCandidateRef>();
+    } catch ( cms::Exception& ) {    
+    }
   }
   const reco::CaloClusterPtr& seed = eleref->superCluster()->seed();
   bool isEB = ( seed->seed().subdetId() == EcalBarrel );
