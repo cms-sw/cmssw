@@ -194,7 +194,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
       et = 0;
     }
 
-  cout << (int) rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] << endl;
+  //cout << (int) rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] << endl;
 
   float scalehf = 1.;
   if(rctParameters_->jetMETHCalScaleFactors().size()==32){
