@@ -107,13 +107,13 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
     //for (unsigned i=0; i<layerList.size();i++) std::cout << "------- Layers = " << layerList[i] << std::endl; 
 
     for(std::vector<std::string>::const_iterator it=layerList.begin(); it < layerList.end(); ++it) {
-      std::vector<LayerSpec> tempResult;
+      std::vector<TrackingLayer> tempResult;
       std::string line = *it;
       std::string::size_type pos=0;
       while (pos != std::string::npos) {
         pos=line.find("+");
         std::string layer = line.substr(0, pos);
-        LayerSpec layerSpec = LayerSpec::createFromString(layer);
+        TrackingLayer layerSpec = TrackingLayer::createFromString(layer);
 
         tempResult.push_back(layerSpec);
         line=line.substr(pos+1,std::string::npos); 

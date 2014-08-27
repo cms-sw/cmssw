@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "FastSimulation/Tracking/interface/SeedingLayerSpec.h"
+#include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
 #include <vector>
 
@@ -48,7 +48,7 @@ public:
     theSplitHit(theSplitHit),
     theMatchedHit(0),
     theGeomDet(other.geomDet()),
-    seedingLayer(other.getSeedingLayer()),
+    seedingLayer(other.getTrackingLayer()),
     theRingNumber(other.ringNumber()), 
     theCylinderNumber(other.cylinderNumber()), 
     theLocalError(0.),
@@ -84,16 +84,16 @@ public:
     return theSplitHit ? (GSSiTrackerRecHit2DLocalPos*)theSplitHit : 
       (GSSiTrackerRecHit2DLocalPos*)theMatchedHit; }
       
-  inline const LayerSpec& getSeedingLayer() const
+  inline const TrackingLayer& getTrackingLayer() const
   {
     return seedingLayer;
   }
   
   /// The subdet Id
-  inline unsigned int subDetId() const { return static_cast<unsigned int>(seedingLayer.subDet); }
+  inline unsigned int subDetId() const { return seedingLayer.getSubDetNumber(); }
   
   /// The Layer Number
-  inline unsigned int layerNumber() const { return static_cast<unsigned int>(seedingLayer.layerNumber); }
+  inline unsigned int layerNumber() const { return seedingLayer.getLayerNumber(); }
   
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
@@ -118,17 +118,15 @@ public:
   //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
 
   /// request check with 1, 2 and 3 seeds
-  bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets) const;
-  bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
-  bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
 
 
   /// Check if two hits are on the same layer of the same subdetector
   inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
     
-    return 
-      subDetId() == other.subDetId() && 
-      layerNumber() == other.layerNumber();
+    return seedingLayer==other.seedingLayer;
   }
 
   // The smaller local error
@@ -178,7 +176,7 @@ public:
   const SiTrackerGSRecHit2D* theSplitHit;
   const SiTrackerGSMatchedRecHit2D* theMatchedHit;
   const GeomDet* theGeomDet;
-  LayerSpec seedingLayer;
+  TrackingLayer seedingLayer;
   unsigned int theRingNumber;
   unsigned int theCylinderNumber;
   mutable double theLocalError; //only for caching

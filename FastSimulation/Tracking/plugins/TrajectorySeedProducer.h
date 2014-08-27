@@ -12,7 +12,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
-#include "FastSimulation/Tracking/interface/SeedingLayerSpec.h"
+#include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
 #include <vector>
 #include <string>
@@ -92,7 +92,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector< std::vector<unsigned int> > thirdHitSubDetectors;
   /////
   bool newSyntax;
-  std::vector< std::vector<LayerSpec> > theLayersInSets;
+  std::vector< std::vector<TrackingLayer> > theLayersInSets;
   //
   
   std::vector<double> originRadius;

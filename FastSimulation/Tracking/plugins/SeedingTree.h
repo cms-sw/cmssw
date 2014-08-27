@@ -146,7 +146,7 @@ class SeedingNode
             {
                 std::cout<<" -- ";
             }
-            printf("[%s, %s] \r\n",_data.print().c_str(),_data.printN().c_str());
+            printf("[%s, %s] \r\n",_data.toString().c_str(),_data.toIdString().c_str());
             
         }
         void printRecursive() const

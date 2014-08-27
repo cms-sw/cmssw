@@ -18,7 +18,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FastSimulation/Tracking/plugins/SeedingTree.h"
-#include "FastSimulation/Tracking/interface/SeedingLayerSpec.h"
+#include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
 #include <vector>
 #include <sstream>
@@ -32,7 +32,7 @@ namespace edm {
 class TrajectorySeedProducer2 : public TrajectorySeedProducer
 {
  private:
-    SeedingTree<LayerSpec> _seedingTree;
+    SeedingTree<TrackingLayer> _seedingTree;
  public:
 
 	virtual ~TrajectorySeedProducer2()
@@ -60,7 +60,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
     \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
     \return true if a hit fulfills the requirements.
     */
-  inline bool passHitTuplesCuts(const SeedingNode<LayerSpec>& seedingNode,
+  inline bool passHitTuplesCuts(const SeedingNode<TrackingLayer>& seedingNode,
         const std::vector<TrackerRecHit>& trackerRecHits,
 		const std::vector<int>& hitIndicesInTree,
 		const TrackerRecHit& currentTrackerHit,
@@ -80,7 +80,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
             
         case 1:
         {
-            const SeedingNode<LayerSpec>* parentNode = &seedingNode;
+            const SeedingNode<TrackingLayer>* parentNode = &seedingNode;
             parentNode = parentNode->getParent();
             const TrackerRecHit& hit1 = trackerRecHits[hitIndicesInTree[parentNode->getIndex()]];
             const TrackerRecHit& hit2 = currentTrackerHit;
@@ -115,15 +115,15 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 	unsigned int trackingAlgorithmId
   ) const;
   
-  inline bool isHitOnLayer(const TrackerRecHit& trackerRecHit, const LayerSpec& layer) const
+  inline bool isHitOnLayer(const TrackerRecHit& trackerRecHit, const TrackingLayer& layer) const
   {
-    return layer==trackerRecHit.getSeedingLayer();
+    return layer==trackerRecHit.getTrackingLayer();
   }
   
-const SeedingNode<LayerSpec>* insertHit(
+const SeedingNode<TrackingLayer>* insertHit(
     const std::vector<TrackerRecHit>& trackerRecHits,
     std::vector<int>& hitIndicesInTree,
-    const SeedingNode<LayerSpec>* node, unsigned int trackerHit,const unsigned int trackingAlgorithmId
+    const SeedingNode<TrackingLayer>* node, unsigned int trackerHit,const unsigned int trackingAlgorithmId
 ) const;
 
 };
