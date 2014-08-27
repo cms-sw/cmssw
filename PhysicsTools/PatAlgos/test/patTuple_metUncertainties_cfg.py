@@ -4,7 +4,6 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
@@ -16,15 +15,13 @@ switchJetCollection(process,
 
 ## let it run
 process.p = cms.Path(
-    process.selectedPatCandidates*
-    process.cleanPatCandidates
+    process.selectedPatCandidates
 )
 
 # apply type I/type I + II PFMEt corrections to pat::MET object
 # and estimate systematic uncertainties on MET
-from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
-runType1PFMEtUncertainties(process,addToPatDefaultSequence=False)
-
+from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
+runMEtUncertainties(process)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
