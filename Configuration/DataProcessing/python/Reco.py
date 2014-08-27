@@ -89,12 +89,9 @@ class Reco(Scenario):
                 
         return process
 
-
     def visualizationProcessing(self, globalTag, **args):
         """
         _visualizationProcessing_
-
-        Proton collision data taking express processing
 
         """
 
@@ -102,20 +99,32 @@ class Reco(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
         # FIXME: do we need L1Reco here?
-        options.step = 'RAW2DIGI,L1Reco,RECO,ENDJOB'
+        options.step =''
+        if 'filterFile' in args:
+            options.step +='FILTER:'+args['filterFile']+','
+
+        options.step += 'RAW2DIGI,L1Reco,RECO,ENDJOB'
         dictIO(options,args)
         options.conditions = globalTag
+        options.timeoutOutput = True
+        # FIXME: maybe can go...maybe not
         options.filein = 'tobeoverwritten.xyz'
+
         if 'inputSource' in args:
-            options.fileType = args['inputSource']
+            options.filetype = args['inputSource']
         else:
             # this is the default as this is what is needed on the OnlineCluster
-            options.fileType = 'DAQ'
-            
+            options.filetype = 'DQMDAQ'
+
+        print "Will use %s source"%options.filetype            
+
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
         cb.prepare()
+
+
+        
 
         # FIXME: not sure abou this one...drop for the moment
         # addMonitoring(process)
