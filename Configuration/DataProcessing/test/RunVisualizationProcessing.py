@@ -26,6 +26,7 @@ class RunVisualizationProcessing:
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
+
  #FIXME: should add an option to specify an EDM input source?
  
 
@@ -36,9 +37,8 @@ class RunVisualizationProcessing:
         if self.globalTag == None:
             msg = "No --global-tag specified"
             raise RuntimeError, msg
-        if self.inputLFN == None:
-            msg = "No --lfn specified"
-            raise RuntimeError, msg
+
+
         
         try:
             scenario = getScenario(self.scenario)
@@ -70,7 +70,9 @@ class RunVisualizationProcessing:
 
         try:
             kwds = {}
-
+            if self.inputLFN != None:
+                kwds['inputSource'] = 'EDM'
+                
             if self.noOutput:
                 # get config without any output
                 kwds['writeTiers'] = []
@@ -80,9 +82,6 @@ class RunVisualizationProcessing:
                 kwds['writeTiers'] = dataTiers
 
             # if none of the above use default output data tiers
-
-
-
 
             process = scenario.visualizationProcessing(self.globalTag, **kwds)
 
@@ -94,7 +93,8 @@ class RunVisualizationProcessing:
             msg += str(ex)
             raise RuntimeError, msg
 
-        process.source.fileNames = [self.inputLFN]
+        if self.inputLFN != None:
+            process.source.fileNames = [self.inputLFN]
 
         import FWCore.ParameterSet.Config as cms
 
