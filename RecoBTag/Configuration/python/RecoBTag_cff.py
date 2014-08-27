@@ -33,8 +33,7 @@ btagging = cms.Sequence(
 	softPFMuonsTagInfos*
 	softPFMuonBJetTags *
 	softPFElectronsTagInfos*
-	softPFElectronBJetTags
-        *
+	softPFElectronBJetTags *
 
 #new candidate model, with PF inputs	
 	pfImpactParameterTagInfos *
