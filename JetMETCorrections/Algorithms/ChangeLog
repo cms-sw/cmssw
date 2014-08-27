@@ -1,0 +1,15 @@
+2009-11-17  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* adjust ZSPCorrector and JetPlusTrackCorrector to interface
+	change in JetCorrector baseclass.
+
+2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* remove tagName parameters, introduce parameters era, level,
+	algorithm instead. Look at
+	JetMETCorrections/Configuration/JetCorrectionServices_cff.py to
+	see how this makes sense.
+
+2009-11-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* added L6SLBCorrector and L1FastjetCorrector
