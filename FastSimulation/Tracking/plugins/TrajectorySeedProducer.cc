@@ -283,7 +283,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
   
   // Functions that gets called by framework every event
 void 
-TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<std::pair<int,TrackerRecHit >>>& hits) {        
+TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<std::pair<int,TrajectorySeedHitCandidate >>>& hits) {        
 
 
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
@@ -426,12 +426,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 
     // Check the number of layers crossed
     unsigned numberOfRecHits = 0;
-    TrackerRecHit previousHit, currentHit;
+    TrajectorySeedHitCandidate previousHit, currentHit;
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	  iterRecHit != theRecHitRangeIteratorEnd; 
 	  ++iterRecHit) { 
       previousHit = currentHit;
-      currentHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
+      currentHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
       if ( currentHit.isOnTheSameLayer(previousHit) ) continue;
       ++numberOfRecHits;
       if ( numberOfRecHits == absMinRecHits ) break;
@@ -459,12 +459,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
       if ( fabs( theParticle.zImpactParameter(x0,y0) - z0 ) > maxZ0[ialgo] ) continue;
       ++nTracksWithD0Z0;
       
-      std::vector<TrackerRecHit > 
+      std::vector<TrajectorySeedHitCandidate > 
 	theSeedHits(numberOfHits[ialgo],
-		    static_cast<TrackerRecHit >(TrackerRecHit()));
-      TrackerRecHit& theSeedHits0 = theSeedHits[0];
-      TrackerRecHit& theSeedHits1 = theSeedHits[1];
-      TrackerRecHit& theSeedHits2 = theSeedHits[2];
+		    static_cast<TrajectorySeedHitCandidate >(TrajectorySeedHitCandidate()));
+      TrajectorySeedHitCandidate& theSeedHits0 = theSeedHits[0];
+      TrajectorySeedHitCandidate& theSeedHits1 = theSeedHits[1];
+      TrajectorySeedHitCandidate& theSeedHits2 = theSeedHits[2];
       
       bool compatible = false;
       
@@ -473,7 +473,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
       hit1=iterRecHit1-theRecHitRangeIteratorBegin;
       //std::cout << (*iterRecHit1).localPosition().phi() << " | J - iterRecHit1"<< std::endl; // 
-	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry,tTopo);
+	theSeedHits[0] = TrajectorySeedHitCandidate(&(*iterRecHit1),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
 	std::cout << "The first hit subDetId = " << theSeedHits0.subDetId() << std::endl;
@@ -509,7 +509,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 #endif
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 	hit2=iterRecHit2-theRecHitRangeIteratorBegin;
-	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
+	  theSeedHits[1] = TrajectorySeedHitCandidate(&(*iterRecHit2),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
 	  std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
@@ -566,7 +566,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 	  // Check if there is a third satisfying hit otherwise
 	  for ( iterRecHit3 = iterRecHit2+1; iterRecHit3 != theRecHitRangeIteratorEnd; ++iterRecHit3) {
     hit3=iterRecHit3-theRecHitRangeIteratorBegin;
-	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry,tTopo);
+	    theSeedHits[2] = TrajectorySeedHitCandidate(&(*iterRecHit3),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	    std::cout << "The third hit position = " << theSeedHits2.globalPosition() << std::endl;
 	    std::cout << "The third hit subDetId = " << theSeedHits2.subDetId() << std::endl;
@@ -699,10 +699,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
       std::cout << "Trajectory seed created ! " << std::endl;
 #endif
     
-        hits[simTrackId].push_back(std::pair<int,TrackerRecHit >(hit1,theSeedHits0));
-        hits[simTrackId].push_back(std::pair<int,TrackerRecHit >(hit2,theSeedHits1));
+        hits[simTrackId].push_back(std::pair<int,TrajectorySeedHitCandidate >(hit1,theSeedHits0));
+        hits[simTrackId].push_back(std::pair<int,TrajectorySeedHitCandidate >(hit2,theSeedHits1));
         if (theSeedHits.size()>2)
-        hits[simTrackId].push_back(std::pair<int,TrackerRecHit >(hit3,theSeedHits2));
+        hits[simTrackId].push_back(std::pair<int,TrajectorySeedHitCandidate >(hit3,theSeedHits2));
         
 
       break;

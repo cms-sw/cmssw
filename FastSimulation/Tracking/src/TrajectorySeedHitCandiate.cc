@@ -1,7 +1,10 @@
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
-TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
+TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const SiTrackerGSMatchedRecHit2D* theHit, 
 			     const TrackerGeometry* theGeometry,
 			     const TrackerTopology* tTopo) :
   theSplitHit(0),
@@ -15,7 +18,7 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit,
   init(theGeometry, tTopo);
 }
 
-TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const SiTrackerGSRecHit2D* theHit, 
 			     const TrackerGeometry* theGeometry,
 			     const TrackerTopology* tTopo ) :
   theSplitHit(theHit),
@@ -30,7 +33,7 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit,
 }
 
 void
-TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *tTopo) { 
+TrajectorySeedHitCandidate::init(const TrackerGeometry* theGeometry, const TrackerTopology *tTopo) { 
 
   const DetId& theDetId = hit()->geographicalId();
   int subDetId = theDetId.subdetId();
@@ -66,7 +69,7 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets) const{ 
+TrajectorySeedHitCandidate::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets) const{ 
   
   for(unsigned int i=0; i<theLayersInSets.size(); ++i) {
     if(theLayersInSets[i][0]==seedingLayer) return true;
@@ -76,7 +79,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& 
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond) const{ 
+TrajectorySeedHitCandidate::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets,  const TrajectorySeedHitCandidate& theSeedHitSecond) const{ 
 
   for(unsigned int i=0; i<theLayersInSets.size(); ++i){
     if( theLayersInSets[i][0]==seedingLayer && 
@@ -88,7 +91,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& 
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const{ 
+TrajectorySeedHitCandidate::isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets,  const TrajectorySeedHitCandidate& theSeedHitSecond, const TrajectorySeedHitCandidate& theSeedHitThird) const{ 
 
   for(unsigned int i=0; i<theLayersInSets.size(); ++i){
     if( theLayersInSets[i][0]==seedingLayer && 

@@ -10,7 +10,8 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
@@ -47,7 +48,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& es) override
   {
   }
-  virtual void produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<std::pair<int,TrackerRecHit >>>& hits);
+  virtual void produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<std::pair<int,TrajectorySeedHitCandidate >>>& hits);
 
  protected:
 

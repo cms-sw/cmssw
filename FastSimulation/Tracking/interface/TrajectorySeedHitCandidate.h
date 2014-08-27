@@ -1,32 +1,29 @@
-#ifndef FastSimulation_Tracking_TrackerRecHit_H_
-#define FastSimulation_Tracking_TrackerRecHit_H_
+#ifndef FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
+#define FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
 #include <vector>
 
 class TrackerTopology;
+class TrackerGeometry;
 
-/** A class that gives some properties of the Tracker Layers in FAMOS
- */
-
-class TrackerRecHit {
+class TrajectorySeedHitCandidate {
 public:
   
   /// Default Constructor
-  TrackerRecHit() :
+  TrajectorySeedHitCandidate() :
     theSplitHit(0),
     theMatchedHit(0),
     theGeomDet(0),
@@ -43,8 +40,8 @@ public:
    }
     
   /// Soft Copy Constructor from private members
-  TrackerRecHit( const SiTrackerGSRecHit2D* theSplitHit, 
-		 const TrackerRecHit& other ) : 
+  TrajectorySeedHitCandidate( const SiTrackerGSRecHit2D* theSplitHit, 
+		 const TrajectorySeedHitCandidate& other ) : 
     theSplitHit(theSplitHit),
     theMatchedHit(0),
     theGeomDet(other.geomDet()),
@@ -60,11 +57,11 @@ public:
     }
 
   /// Constructor from a GSRecHit and the Geometry
-  TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+  TrajectorySeedHitCandidate(const SiTrackerGSRecHit2D* theHit, 
 		const TrackerGeometry* theGeometry,
 		const TrackerTopology* tTopo);
   
-  TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
+  TrajectorySeedHitCandidate(const SiTrackerGSMatchedRecHit2D* theHit, 
 		const TrackerGeometry* theGeometry,
 		const TrackerTopology *tTopo);
 
@@ -119,12 +116,12 @@ public:
 
   /// request check with 1, 2 and 3 seeds
   bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets) const;
-  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
-  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrajectorySeedHitCandidate& theSeedHitSecond) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrajectorySeedHitCandidate& theSeedHitSecond, const TrajectorySeedHitCandidate& theSeedHitThird) const;
 
 
   /// Check if two hits are on the same layer of the same subdetector
-  inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
+  inline bool isOnTheSameLayer(const TrajectorySeedHitCandidate& other) const {
     
     return seedingLayer==other.seedingLayer;
   }
@@ -163,7 +160,7 @@ public:
 
   }
   
-  inline bool operator!=(const TrackerRecHit& aHit) const {
+  inline bool operator!=(const TrajectorySeedHitCandidate& aHit) const {
     return 
       aHit.geomDet() != this->geomDet() ||
       aHit.hit()->localPosition().x() != this->hit()->localPosition().x() ||

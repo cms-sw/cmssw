@@ -17,7 +17,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 //#include "FastSimulation/Tracking/interface/TrackerRecHitSplit.h"
 
 #include "FastSimulation/Tracking/plugins/TrackCandidateProducer.h"
@@ -289,7 +289,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     std::map<int,TrajectoryStateOnSurface> seedStates;
     std::map<int,TrajectoryStateOnSurface> simtkStates;
 
-    TrackerRecHit theFirstSeedingTrackerRecHit;
+    TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
     if (theSeeds->at(seednr).nHits()==0){
       //new stuff for no hits on seed
 
@@ -391,7 +391,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // Find the first hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
       const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
-      theFirstSeedingTrackerRecHit = TrackerRecHit(theFirstSeedingRecHit,theGeometry,tTopo);
+      theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,theGeometry,tTopo);
       // The SimTrack id associated to that recHit
       simTrackIds.push_back( theFirstSeedingRecHit->simtrackId() );
     }
@@ -408,7 +408,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       currentTrackId = simTrackId;
       
       // A vector of TrackerRecHits belonging to the track and the number of crossed layers
-      std::vector<TrackerRecHit> theTrackerRecHits;
+      std::vector<TrajectorySeedHitCandidate> theTrackerRecHits;
       unsigned theNumberOfCrossedLayers = 0;
       
       // The track has indeed been reconstructed already -> Save the pertaining info
@@ -456,8 +456,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	LogDebug("FastTracking")<<"counting: "<<theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin<<" hits to be considered.";
 
 	bool firstRecHit = true;
-	TrackerRecHit theCurrentRecHit, thePreviousRecHit;
-	TrackerRecHit theFirstHitComp, theSecondHitComp;
+	TrajectorySeedHitCandidate theCurrentRecHit, thePreviousRecHit;
+	TrajectorySeedHitCandidate theFirstHitComp, theSecondHitComp;
 	
 	for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	      iterRecHit != theRecHitRangeIteratorEnd; 
@@ -468,7 +468,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  
 	  // Get current and previous rechits
 	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
-	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
+	  theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
 	  
 	  //>>>>>>>>>BACKBUILDING CHANGE: DO NOT STAT FROM THE FIRST HIT OF THE SEED
 
@@ -734,8 +734,8 @@ TrackCandidateProducer::findId(const reco::Track& aTrack) const {
 }
 
 void 
-TrackCandidateProducer::addSplitHits(const TrackerRecHit& theCurrentRecHit,
-				     std::vector<TrackerRecHit>& theTrackerRecHits) { 
+TrackCandidateProducer::addSplitHits(const TrajectorySeedHitCandidate& theCurrentRecHit,
+				     std::vector<TrajectorySeedHitCandidate>& theTrackerRecHits) { 
   
   const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.matchedHit()->monoHit();
   const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.matchedHit()->stereoHit();
@@ -743,13 +743,13 @@ TrackCandidateProducer::addSplitHits(const TrackerRecHit& theCurrentRecHit,
   // Add the new hits
   if( mHit->simhitId() < sHit->simhitId() ) {
     
-    theTrackerRecHits.push_back(TrackerRecHit(mHit,theCurrentRecHit));
-    theTrackerRecHits.push_back(TrackerRecHit(sHit,theCurrentRecHit));
+    theTrackerRecHits.push_back(TrajectorySeedHitCandidate(mHit,theCurrentRecHit));
+    theTrackerRecHits.push_back(TrajectorySeedHitCandidate(sHit,theCurrentRecHit));
     
   } else {
     
-    theTrackerRecHits.push_back(TrackerRecHit(sHit,theCurrentRecHit));
-    theTrackerRecHits.push_back(TrackerRecHit(mHit,theCurrentRecHit));
+    theTrackerRecHits.push_back(TrajectorySeedHitCandidate(sHit,theCurrentRecHit));
+    theTrackerRecHits.push_back(TrajectorySeedHitCandidate(mHit,theCurrentRecHit));
     
   }
 

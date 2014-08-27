@@ -26,7 +26,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+//#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

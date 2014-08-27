@@ -1,6 +1,9 @@
 #ifndef FastSimulation_Tracking_TrackingLayer_h
 #define FastSimulation_Tracking_TrackingLayer_h
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include <sstream>
 
 class TrackingLayer
