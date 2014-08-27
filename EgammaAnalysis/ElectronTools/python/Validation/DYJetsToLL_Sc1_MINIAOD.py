@@ -4,7 +4,7 @@ maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [ 'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_2_0_pre4/src/miniAOD-prod_PAT.root'
+readFiles.extend( [ 'root://eoscms.cern.ch//store/group/phys_egamma/ElectronValidationArchives/MiniAOD_IDValidation/miniAOD-prod_PAT_zee14_50ns.root'
         ] );
 
 
