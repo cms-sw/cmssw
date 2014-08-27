@@ -8972,10 +8972,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in process.__dict__:
-    process.hltHfreco.setNoiseFlags = cms.bool( False )
-
 # customise the HLT menu for running on MC
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)

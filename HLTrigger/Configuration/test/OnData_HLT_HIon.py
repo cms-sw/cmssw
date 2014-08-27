@@ -8972,10 +8972,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in process.__dict__:
-    process.hltHfreco.setNoiseFlags = cms.bool( False )
-
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']

@@ -8388,10 +8388,6 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Mu40_v1, HLT_Ele27_WP80_Gsf_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_PFJet260_v1, HLT_CaloJet260_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in locals():
-    hltHfreco.setNoiseFlags = cms.bool( False )
-
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
