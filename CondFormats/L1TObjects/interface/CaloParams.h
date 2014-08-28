@@ -76,7 +76,8 @@ namespace l1t {
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
-    double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
+    double egRelativeJetIsolationBarrelCut() const { return egRelativeJetIsolationBarrelCut_; }
+    double egRelativeJetIsolationEndcapCut() const { return egRelativeJetIsolationEndcapCut_; }
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
@@ -97,7 +98,8 @@ namespace l1t {
     void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
     void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
     void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
-    void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
+    void setEgRelativeJetIsolationBarrelCut(double cutValue) { egRelativeJetIsolationBarrelCut_ = cutValue; }
+    void setEgRelativeJetIsolationEndcapCut(double cutValue) { egRelativeJetIsolationEndcapCut_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
@@ -265,8 +267,11 @@ namespace l1t {
     // Shape identification bits (indexed by |ieta|, shape)
     std::shared_ptr<l1t::LUT> egShapeIdLUT_;
 
-    // Relative jet isolation cut for EG (Stage1Layer2)
-    double egRelativeJetIsolationCut_;
+    // Relative jet isolation cut for EG in the barrel (Stage1Layer2)
+    double egRelativeJetIsolationBarrelCut_;
+
+    // Relative jet isolation cut for EG in the endcap (Stage1Layer2)
+    double egRelativeJetIsolationEndcapCut_;
 
     // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
     unsigned egIsoAreaNrTowersEta_;
