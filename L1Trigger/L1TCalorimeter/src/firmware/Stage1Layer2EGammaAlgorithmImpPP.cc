@@ -32,9 +32,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   double jetLsb=params_->jetLsb();
   int egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  double egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
-
-  //std::cout << "egrelativejetiso " << egRelativeJetIsolationCut << std::endl;
+  double egRelativeJetIsolationBarrelCut = params_->egRelativeJetIsolationBarrelCut();
+  double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
@@ -59,9 +58,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    // std::cout << "eg_et: " << eg_et << " thresh: " << egSeedThreshold << std::endl;
+    //std::cout << "eg_et: " << eg_et << " thresh: " << egSeedThreshold << std::endl;
     if(eg_et <= egSeedThreshold) continue;
-
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
@@ -75,11 +73,13 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
     double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
     jet_pt=jet_pt*jetLsb;
+    bool isinBarrel = (eg_eta>=7 && eg_eta<=14);
     if (jet_pt>0){
       double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
       double relativeJetIsolationEG = jetIsolationEG / eg_et;
 
-      if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1;
+      if(eg_et >0 && eg_et<63 && isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationBarrelCut) isoFlag=1;
+      if(eg_et >0 && eg_et<63 && !isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationEndcapCut) isoFlag=1;
       if( eg_et >= 63) isoFlag=1;
     }else{ // no associated jet; assume it's an isolated eg
       isoFlag=1;
