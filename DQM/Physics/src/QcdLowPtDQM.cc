@@ -1053,7 +1053,7 @@ void QcdLowPtDQM::fillTracklets(const std::vector<Tracklet> &tracklets,
   }
 
   // fill tracklet based info
-  TAxis *xa = AlphaTracklets->GetXaxis();
+  const TAxis *xa = AlphaTracklets->GetXaxis();
   int ybin  = AlphaTracklets->GetYaxis()->FindFixBin(pixels.size());
   int zbin  = AlphaTracklets->GetZaxis()->FindFixBin(trackletV.z());
   int tbin  = AlphaTracklets->GetBin(0,ybin,zbin);
