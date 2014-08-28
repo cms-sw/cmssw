@@ -225,11 +225,10 @@ def cust_2023SHCal(process):
         process.photons.isolationSumsCalculatorSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.uncleanedOnlyConversionTrackCandidates.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.uncleanedOnlyGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
-        ## The following ones don't work out of the box, so until they're fixed let them use the wrong collection
-        #process.multi5x5BasicClustersCleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
-        #process.multi5x5BasicClustersUncleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
-        #process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
-        #process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.multi5x5BasicClustersCleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        process.multi5x5BasicClustersUncleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
 
     if hasattr(process,'validation_step'):
         process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
