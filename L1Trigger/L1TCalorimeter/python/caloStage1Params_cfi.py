@@ -14,7 +14,8 @@ caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 # EG
 caloStage1Params.egLsb                = cms.double(1.)
 caloStage1Params.egSeedThreshold      = cms.double(1.)
-caloStage1Params.egRelativeJetIsolationCut = cms.double(0.5)
+caloStage1Params.egRelativeJetIsolationBarrelCut = cms.double(0.3)  # 0.3 for loose, 0.2 for tight
+caloStage1Params.egRelativeJetIsolationEndcapCut = cms.double(0.5)  # 0.5 for loose, 0.4 for tight
 
 # Tau
 caloStage1Params.tauSeedThreshold      = cms.double(7.)
