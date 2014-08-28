@@ -145,6 +145,9 @@
 	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
 	  <version ClassVersion="10" checksum="621228037"/>
 	</class>
+	<class name="std::vector<GenLumiInfoProduct::ProcessInfo>" ClassVersion="10">
+	  <version ClassVersion="10" checksum="999999999"/>
+	</class>
 	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 
 	<!-- GenEventInfoProduct -->
