@@ -55,6 +55,18 @@ class pp(Reco):
                 
         return process
 
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        Proton collision data taking visualization processing
+
+        """
+        process = Reco.visualizationProcessing(self,globalTag, **args)
+        
+        customiseExpress(process)
+                
+        return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):
         """
