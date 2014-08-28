@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -92,9 +93,21 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgLsb(conf.getParameter<double>("egLsb"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
+  m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
-  m_params.setEgMaxHOverE(conf.getParameter<double>("egMaxHOverE"));  
+  m_params.setEgRelativeJetIsolationCut(conf.getParameter<double>("egRelativeJetIsolationCut"));
+
+  edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
+  std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
+  m_params.setEgMaxHOverELUT(egMaxHOverELUT);
+
+  edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
+  std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egShapeIdLUT( new l1t::LUT(egShapeIdLUTStream) );
+  m_params.setEgShapeIdLUT(egShapeIdLUT);
+
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
   
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
@@ -108,17 +121,52 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
   m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
   m_params.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
+
+  edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
+  std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
+  m_params.setEgCalibrationLUT(egCalibrationLUT);
   
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
+  m_params.setTauRelativeJetIsolationCut(conf.getParameter<double>("tauRelativeJetIsolationCut"));
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(tauIsoLUTStream) );
   m_params.setTauIsolationLUT(tauIsoLUT);
+
+  edm::FileInPath tauCalibrationLUTFileBarrelA = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileBarrelA");
+  edm::FileInPath tauCalibrationLUTFileBarrelB = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileBarrelB");
+  edm::FileInPath tauCalibrationLUTFileBarrelC = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileBarrelC");
+  edm::FileInPath tauCalibrationLUTFileEndcapsA = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEndcapsA");
+  edm::FileInPath tauCalibrationLUTFileEndcapsB = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEndcapsB");
+  edm::FileInPath tauCalibrationLUTFileEndcapsC = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEndcapsC");
+  edm::FileInPath tauCalibrationLUTFileEta      = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEta");
+  std::ifstream tauCalibrationLUTStreamBarrelA(tauCalibrationLUTFileBarrelA.fullPath());
+  std::ifstream tauCalibrationLUTStreamBarrelB(tauCalibrationLUTFileBarrelB.fullPath());
+  std::ifstream tauCalibrationLUTStreamBarrelC(tauCalibrationLUTFileBarrelC.fullPath());
+  std::ifstream tauCalibrationLUTStreamEndcapsA(tauCalibrationLUTFileEndcapsA.fullPath());
+  std::ifstream tauCalibrationLUTStreamEndcapsB(tauCalibrationLUTFileEndcapsB.fullPath());
+  std::ifstream tauCalibrationLUTStreamEndcapsC(tauCalibrationLUTFileEndcapsC.fullPath());
+  std::ifstream tauCalibrationLUTStreamEta(tauCalibrationLUTFileEta.fullPath());
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelA( new l1t::LUT(tauCalibrationLUTStreamBarrelA) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelB( new l1t::LUT(tauCalibrationLUTStreamBarrelB) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelC( new l1t::LUT(tauCalibrationLUTStreamBarrelC) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsA( new l1t::LUT(tauCalibrationLUTStreamEndcapsA) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsB( new l1t::LUT(tauCalibrationLUTStreamEndcapsB) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC( new l1t::LUT(tauCalibrationLUTStreamEndcapsC) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEta( new l1t::LUT(tauCalibrationLUTStreamEta) );
+  m_params.setTauCalibrationLUTBarrelA(tauCalibrationLUTBarrelA);
+  m_params.setTauCalibrationLUTBarrelB(tauCalibrationLUTBarrelB);
+  m_params.setTauCalibrationLUTBarrelC(tauCalibrationLUTBarrelC);
+  m_params.setTauCalibrationLUTEndcapsA(tauCalibrationLUTEndcapsA);
+  m_params.setTauCalibrationLUTEndcapsB(tauCalibrationLUTEndcapsB);
+  m_params.setTauCalibrationLUTEndcapsC(tauCalibrationLUTEndcapsC);
+  m_params.setTauCalibrationLUTEta(tauCalibrationLUTEta);
 
   // jets
   m_params.setJetLsb(conf.getParameter<double>("jetLsb"));
@@ -130,19 +178,22 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   
   // sums
   m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
-  m_params.setEtSumEtaMin(0, conf.getParameter<int>("ettEtaMin"));
-  m_params.setEtSumEtaMax(0, conf.getParameter<int>("ettEtaMax"));
-  m_params.setEtSumEtThreshold(0, conf.getParameter<double>("ettEtThreshold"));
-  m_params.setEtSumEtaMin(1, conf.getParameter<int>("httEtaMin"));
-  m_params.setEtSumEtaMax(1, conf.getParameter<int>("httEtaMax"));
-  m_params.setEtSumEtThreshold(1, conf.getParameter<double>("httEtThreshold"));
-  m_params.setEtSumEtaMin(2, conf.getParameter<int>("metEtaMin"));
-  m_params.setEtSumEtaMax(2, conf.getParameter<int>("metEtaMax"));
-  m_params.setEtSumEtThreshold(2, conf.getParameter<double>("metEtThreshold"));
-  m_params.setEtSumEtaMin(3, conf.getParameter<int>("mhtEtaMin"));
-  m_params.setEtSumEtaMax(3, conf.getParameter<int>("mhtEtaMax"));
-  m_params.setEtSumEtThreshold(3, conf.getParameter<double>("mhtEtThreshold"));
+
+  std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
+  std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
+  std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double> >("etSumEtThreshold");
   
+  if ((etSumEtaMin.size() == etSumEtaMax.size()) &&  (etSumEtaMin.size() == etSumEtThreshold.size())) {
+    for (unsigned i=0; i<etSumEtaMin.size(); ++i) {
+      m_params.setEtSumEtaMin(i, etSumEtaMin.at(i));
+      m_params.setEtSumEtaMax(i, etSumEtaMax.at(i));
+      m_params.setEtSumEtThreshold(i, etSumEtThreshold.at(i));
+    }
+  }
+  else {
+    edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
+  }
+
 }
 
 
