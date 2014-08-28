@@ -89,6 +89,7 @@ class Reco(Scenario):
                 
         return process
 
+
     def visualizationProcessing(self, globalTag, **args):
         """
         _visualizationProcessing_
@@ -100,10 +101,12 @@ class Reco(Scenario):
         options.scenario = self.cbSc
         # FIXME: do we need L1Reco here?
         options.step =''
-        if 'filterFile' in args:
-            options.step +='FILTER:'+args['filterFile']+','
+        if 'preFilter' in args:
+            options.step +='FILTER:'+args['preFilter']+','
 
         options.step += 'RAW2DIGI,L1Reco,RECO,ENDJOB'
+
+
         dictIO(options,args)
         options.conditions = globalTag
         options.timeoutOutput = True
@@ -116,7 +119,7 @@ class Reco(Scenario):
             # this is the default as this is what is needed on the OnlineCluster
             options.filetype = 'DQMDAQ'
 
-        print "Will use %s source"%options.filetype            
+        print "Using %s source"%options.filetype            
 
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
