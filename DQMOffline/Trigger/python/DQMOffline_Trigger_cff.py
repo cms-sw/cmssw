@@ -57,8 +57,11 @@ from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 # tracking
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 
-# tracking
+# strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
+
+# photon jet
+from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -80,6 +83,7 @@ offlineHLTSource = cms.Sequence(
     hltInclusiveVBFSource *
     trackingMonitorHLT *
     sistripMonitorHLTsequence *
+    higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
     topHLTriggerOfflineDQM)
 
