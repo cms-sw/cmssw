@@ -96,7 +96,8 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
-  m_params.setEgRelativeJetIsolationCut(conf.getParameter<double>("egRelativeJetIsolationCut"));
+  m_params.setEgRelativeJetIsolationBarrelCut(conf.getParameter<double>("egRelativeJetIsolationBarrelCut"));
+  m_params.setEgRelativeJetIsolationEndcapCut(conf.getParameter<double>("egRelativeJetIsolationEndcapCut"));
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
