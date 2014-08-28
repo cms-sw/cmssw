@@ -45,6 +45,7 @@ private:
    TGeoMaterial*     createMaterial( const std::string& name );
 
    TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, int id);
+   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix);
    TGeoVolume*  GetTopHolder(const char* prefix);
 
    void addPixelBarrelGeometry();
@@ -71,7 +72,7 @@ private:
    edm::ESHandle<CaloGeometry>           m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
   
-   std::vector<edm::ESHandle<HGCalGeometry> >  m_hgcGeom;
+   std::map<std::string, edm::ESHandle<HGCalGeometry> >  m_hgcGeom;
 
    //edm::ESHandle<HGCalGeometry>  m_hgcGeom;
 
