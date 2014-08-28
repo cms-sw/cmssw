@@ -26,7 +26,9 @@ class RunVisualizationProcessing:
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
+        self.preFilter = None
 
+        
  #FIXME: should add an option to specify an EDM input source?
  
 
@@ -68,6 +70,8 @@ class RunVisualizationProcessing:
             dataTiers.append("DQM")
             print "Configuring to Write out Dqm..."
 
+
+
         try:
             kwds = {}
             if self.inputLFN != None:
@@ -80,6 +84,10 @@ class RunVisualizationProcessing:
             elif len(dataTiers) > 0:
                 # get config with specified output
                 kwds['writeTiers'] = dataTiers
+
+            if self.preFilter:
+                kwds['preFilter'] = self.preFilter
+
 
             # if none of the above use default output data tiers
 
@@ -110,7 +118,7 @@ class RunVisualizationProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "reco", "fevt", "no-output",
-             "global-tag=", "lfn="]
+             "global-tag=", "lfn=",'preFilter=']
     usage = \
 """
 RunVisualizationProcessing.py <options>
@@ -122,7 +130,8 @@ Where options are:
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
-
+ --preFilter=/sybsystem/package/filtername.sequence
+ 
 Example:
 python RunVisualizationProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --reco
 
@@ -150,5 +159,7 @@ python RunVisualizationProcessing.py --scenario cosmics --global-tag GLOBALTAG::
             visualizator.globalTag = arg
         if opt == "--lfn" :
             visualizator.inputLFN = arg
+        if opt == "--preFilter":
+            visualizator.preFilter = arg
 
     visualizator()
