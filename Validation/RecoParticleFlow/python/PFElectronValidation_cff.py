@@ -2,10 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.PFTau.PFElectronDQMAnalyzer_cfi import pfElectronDQMAnalyzer
 
-pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
-                                      pdgId = cms.vint32(11, -11),
-                                      src = cms.InputTag("particleFlow")
-                                      )
+from CommonTools.ParticleFlow.ParticleSelectors.pfAllElectrons_cfi import pfAllElectrons
 
 gensource = cms.EDProducer("GenParticlePruner",
                            src = cms.InputTag("genParticles"),
