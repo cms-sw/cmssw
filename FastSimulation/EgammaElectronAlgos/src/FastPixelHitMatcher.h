@@ -20,6 +20,7 @@
 //
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include <vector>
 
 /** Class to match an ECAL cluster to the pixel hits.
@@ -30,7 +31,6 @@ class TrackerGeometry;
 class GeometricSearchTracker;
 class TrackerInteractionGeometry;
 class TrackerLayer;
-class TrackerRecHit;
 class TrackingRecHit;
 class ParticlePropagator;
 class MagneticFieldMap;
@@ -57,7 +57,7 @@ class FastPixelHitMatcher{
     compatibleHits(const GlobalPoint& xmeas,
 		   const GlobalPoint& vprim,
 		   float energy,
-		   std::vector<TrackerRecHit>& theHits);
+		   std::vector<TrajectorySeedHitCandidate>& theHits);
 
   inline double getVertex() { return vertex; }
 
@@ -81,8 +81,8 @@ class FastPixelHitMatcher{
 	       const GlobalPoint& theVertex,
 	       double rCluster,
 	       double zCluster,
-	       const TrackerRecHit& hit1,
-	       const TrackerRecHit& hit2);
+	       const TrajectorySeedHitCandidate& hit1,
+	       const TrajectorySeedHitCandidate& hit2);
 
   bool propagateToLayer(ParticlePropagator& myPart,
 			const GlobalPoint& theVertex,
