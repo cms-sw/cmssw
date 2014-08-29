@@ -304,7 +304,7 @@ TIDLayer::findClosest(const GlobalPoint ringCrossing[3] ) const
 {
   int theBin = 0;
   float initialR =  ringPars[0].theRingR;
-  float rDiff = fabs( ringCrossing[0].perp() - initialR);
+  float rDiff = std::abs( ringCrossing[0].perp() - initialR);
   for (int i = 1; i < 3 ; i++){
     float ringR =  ringPars[i].theRingR;
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
@@ -322,7 +322,7 @@ TIDLayer::findNextIndex(const GlobalPoint ringCrossing[3], int closest ) const
 
   int firstIndexToCheck = (closest != 0)? 0 : 1; 
   float initialR =  ringPars[firstIndexToCheck].theRingR;	     
-  float rDiff = fabs( ringCrossing[0].perp() - initialR);
+  float rDiff = std::abs( ringCrossing[firstIndexToCheck].perp() - initialR);
   int theBin = firstIndexToCheck;
   for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
