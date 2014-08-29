@@ -180,12 +180,12 @@ namespace edm {
     
     void
     EDAnalyzerBase::doPreForkReleaseResources() {
-      //preForkReleaseResources();
+      preForkReleaseResources();
     }
     
     void
     EDAnalyzerBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources(iChildIndex, iNumberOfChildren);
+      postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
     void EDAnalyzerBase::preallocStreams(unsigned int) {}
