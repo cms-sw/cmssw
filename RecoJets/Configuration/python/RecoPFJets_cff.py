@@ -160,6 +160,7 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
+                           ak4PFJets+
                            ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
