@@ -144,13 +144,11 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	    double phiSlope = 0;
 	    double phiCorr  = 0;
 	    try {
-	      PhitkvsPhitrigProf->Fit("pol1","CQO");
-	      TF1 *ffPhi= PhitkvsPhitrigProf->GetFunction("pol1");
-	      if (ffPhi) {
-		phiInt   = ffPhi->GetParameter(0);
-		phiSlope = ffPhi->GetParameter(1);
-		phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
-	      }
+	      TF1 ffPhi("mypol1","pol1");
+	      PhitkvsPhitrigProf->Fit(&ffPhi,"CQO");
+	      phiInt   = ffPhi.GetParameter(0);
+	      phiSlope = ffPhi.GetParameter(1);
+	      phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
 	    } catch (cms::Exception& iException) {
 	      edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhitkvsPhitrig for Wheel " << wh 
 					<<" Sector " << sect << " Station " << stat;
@@ -180,13 +178,11 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	    double phibSlope = 0;
 	    double phibCorr  = 0;
 	    try {
-	      PhibtkvsPhibtrigProf->Fit("pol1","CQO");
-	      TF1 *ffPhib= PhibtkvsPhibtrigProf->GetFunction("pol1");
-	      if (ffPhib) {
-		phibInt   = ffPhib->GetParameter(0);
-		phibSlope = ffPhib->GetParameter(1);
-		phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
-	      }
+	      TF1 ffPhib("ffPhib","pol1");
+	      PhibtkvsPhibtrigProf->Fit(&ffPhib,"CQO");
+	      phibInt   = ffPhib.GetParameter(0);
+	      phibSlope = ffPhib.GetParameter(1);
+	      phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
 	    } catch (cms::Exception& iException) {
 	      edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibtkvsPhibtrig for Wheel " << wh 
 					<<" Sector " << sect << " Station " << stat;
@@ -217,12 +213,10 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	  double phiMean = 0;
 	  double phiRMS  = 0;
 	  try {
-	    PhiResidual->Fit("gaus","CQO","",peak-5,peak+5);
-	    TF1 *ffPhi = PhiResidual->GetFunction("gaus");
-	    if ( ffPhi ) {
-	      phiMean = ffPhi->GetParameter(1);
-	      phiRMS  = ffPhi->GetParameter(2);
-	    }
+	    TF1 ffPhi("ffPhi","gaus");
+	    PhiResidual->Fit(&ffPhi,"CQO","",peak-5,peak+5);
+	    phiMean = ffPhi.GetParameter(1);
+	    phiRMS  = ffPhi.GetParameter(2);
 	  } catch (cms::Exception& iException) {
 	    edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhiResidual for Wheel " << wh 
 				      <<" Sector " << sect << " Station " << stat;
@@ -253,12 +247,10 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	  double phibMean = 0;
 	  double phibRMS  = 0;
 	  try {
-	    PhibResidual->Fit("gaus","CQO","",peak-5,peak+5);
-	    TF1 *ffPhib = PhibResidual->GetFunction("gaus");
-	    if ( ffPhib ) {
-	      phibMean = ffPhib->GetParameter(1);
-	      phibRMS  = ffPhib->GetParameter(2);
-	    }
+	    TF1 ffPhib("ffPhib","gaus");
+	    PhibResidual->Fit(&ffPhib,"CQO","",peak-5,peak+5);
+	    phibMean = ffPhib.GetParameter(1);
+	    phibRMS  = ffPhib.GetParameter(2);
 	  } catch (cms::Exception& iException) {
 	    edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibResidual for Wheel " << wh 
 				      <<" Sector " << sect << " Station " << stat;

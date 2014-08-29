@@ -5,9 +5,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-ElectronMVAEstimator::ElectronMVAEstimator(){}
+ElectronMVAEstimator::ElectronMVAEstimator():
+  cfg_{}
+{}
 
-ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName){
+ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
+  cfg_{} 
+{
   tmvaReader_ = new TMVA::Reader("!Color:Silent");
   tmvaReader_->AddVariable("fbrem",&fbrem);
   tmvaReader_->AddVariable("detain", &detain);

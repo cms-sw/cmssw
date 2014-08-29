@@ -50,6 +50,7 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "Reflex/Type.h"
 
 #include <iostream>
 #include <memory>
@@ -98,8 +99,8 @@ namespace edm {
       }
       //find the class type
       std::string const fullName = wrappedClassName(bDesc.className());
-      TypeWithDict classType = TypeWithDict::byName(fullName);
-      if(!bool(classType)) {
+      Reflex::Type classType = Reflex::Type::ByName(fullName);
+      if(classType == Reflex::Type()) {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";

@@ -11,47 +11,57 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_6_1_0'
+RefRelease='CMSSW_7_2_0_pre3'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_6_2_0_pre1'
+NewRelease='CMSSW_7_2_0_pre4'
 
 ### sample list 
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
-'RelValMinBias',   ### list of samples to be validated for each pre-release  
-'RelValQCD_Pt_3000_3500',
-'RelValQCD_Pt_600_800',
+#'RelValMinBias',   ### list of samples to be validated for each pre-release  
+#'RelValTTbar', 
+#'RelValQCD_Pt_3000_3500',
+#'RelValQCD_Pt_600_800',
 'RelValSingleElectronPt35', 
 'RelValSingleElectronPt10', 
-'RelValTTbar', 
 'RelValSingleMuPt10', 
 'RelValSingleMuPt100',
 ]
 
 pileupstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 fastsimstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 pileupfastsimstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
+putype = '25ns'
+
 ### Sample version: v1,v2,etc..
-Version='v1'
+Version='v2'
 
 # Global tags
-StartupTag='START61_V8'
+StartupTag='POSTLS172_V3'
 
-RefStartupTag='START61_V8'
+RefStartupTag='POSTLS172_V3'
+
+
+#FastSimStartupTag='START72_V1'
+FastSimStartupTag='POSTLS172_V3'
+
+#FastSimRefStartupTag='START71_V7'
+FastSimRefStartupTag='POSTLS172_V3'
+
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6','iter9','iter10']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6','iter7','iter9','iter10']
 Qualities=['', 'highPurity']
 
 ### Leave unchanged unless the track collection name changes
@@ -122,8 +132,8 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, sampleType, dofastfull):
     global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
-    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom','iter9':'cutsRecoNinth_AssociatorByHitsRecoDenom','iter10':'cutsRecoTenth_AssociatorByHitsRecoDenom'}
-    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom','iter9':'cutsRecoNinthHp_AssociatorByHitsRecoDenom','iter10':'cutsRecoTenthHp_AssociatorByHitsRecoDenom'}
+    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom','iter7':'cutsRecoSeventh_AssociatorByHitsRecoDenom','iter9':'cutsRecoNinth_AssociatorByHitsRecoDenom','iter10':'cutsRecoTenth_AssociatorByHitsRecoDenom'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom','iter7':'cutsRecoSeventhHp_AssociatorByHitsRecoDenom','iter9':'cutsRecoNinthHp_AssociatorByHitsRecoDenom','iter10':'cutsRecoTenthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
         mineff='0.0'
         maxeff='1.025'
@@ -170,24 +180,28 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
     for sample in samples :
         templatecfgFile = open(cfg, 'r')
         templatemacroFile = open(macro, 'r')
-        newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
+        #newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample
+        if (sampleType == 'FullSim' and PileUp == 'PU' and putype != '') : newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'_'+putype+'/'+sample 
+        else : newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample
 	cfgFileName=sample+GlobalTag
         #check if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
 
             if( Sequence=="harvesting"):
             	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
-                print harvestedfile
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
             elif( Sequence=="comparison_only"):
-                if (sampleType == 'FullSim' and PileUp == 'noPU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQM.root'
-                if (sampleType == 'FullSim' and PileUp == 'PU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '-' + Version + '__DQM.root'
-                if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__DQM.root'
-                if (sampleType == 'FastSim' and PileUp == 'PU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__DQM.root'
+                if (sampleType == 'FullSim' and PileUp == 'noPU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '_UP15__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQMIO.root'
+                #if (sampleType == 'FullSim' and PileUp == 'noPU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '_13__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQMIO.root'
+                if (sampleType == 'FullSim' and PileUp == 'PU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '_13__' + NewRelease+ '-PU'+putype+'_' +GlobalTag + '-' + Version + '__DQMIO.root'
+                #if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__DQMIO.root'
+                if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '_13__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__DQMIO.root'
+                #if (sampleType == 'FastSim' and PileUp == 'PU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__DQMIO.root'
+                if (sampleType == 'FastSim' and PileUp == 'PU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '_13_AVE20__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__DQMIO.root'
 
             print 'Sample:  ', sample, sampleType, PileUp, trackquality, trackalgorithm, '\n'
-
+            
             if (Sequence != "comparison_only"):
                 print 'Get information from DBS for sample', sample
                 #search the primary dataset
@@ -392,31 +406,34 @@ for algo in Algos:
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
+        if(putype != ''):
+            RefSelection+= '_'
+            RefSelection+= putype
         do_validation(pileupstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
         NewRepository = copy.copy(NewRepositoryBase) + '/fastsim'
         PileUp = 'noPU'
         sampleType = 'FastSim'
-        RefSelection=RefStartupTag+'_'+PileUp
+        RefSelection=FastSimRefStartupTag+'_'+PileUp
         if( quality !=''):
             RefSelection+='_'+quality
         if(algo!=''and not(algo=='ootb' and quality !='')):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        do_validation(fastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+        do_validation(fastsimstartupsamples, FastSimStartupTag, quality , algo, PileUp, sampleType, dofastfull)
         
         NewRepository = copy.copy(NewRepositoryBase) + '/fastsim'
         PileUp = 'PU'
         sampleType = 'FastSim'
-        RefSelection=RefStartupTag+'_'+PileUp
+        RefSelection=FastSimRefStartupTag+'_'+PileUp
         if( quality !=''):
             RefSelection+='_'+quality
         if(algo!=''and not(algo=='ootb' and quality !='')):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        do_validation(pileupfastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+        do_validation(pileupfastsimstartupsamples, FastSimStartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
         NewRepository = copy.copy(NewRepositoryBase) + '/fastfull'
         dofastfull = True
@@ -429,7 +446,7 @@ for algo in Algos:
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        do_validation(fastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+        do_validation(fastsimstartupsamples, FastSimStartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
         NewRepository = copy.copy(NewRepositoryBase) + '/fastfull'
         PileUp = 'PU'
@@ -442,5 +459,8 @@ for algo in Algos:
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        do_validation(pileupfastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+        if(putype != ''):
+            RefSelection+= '_'
+            RefSelection+= putype
+        do_validation(pileupfastsimstartupsamples, FastSimStartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
