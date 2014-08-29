@@ -38,6 +38,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
     _recMuonSelector(0),
+    _recMuonTrkSelector(0),
     _recElecSelector(0),
     _recPFMETSelector(0),
     _recPFTauSelector(0),
@@ -49,6 +50,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::constructor()";
 
     // Specific parameters for this analysis
+    //std::cerr << "analysis name = " << analysisname << std::endl;
     edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
 
     // If this analysis has a particular set of binnings, use it.
@@ -115,6 +117,8 @@ HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
     }
     delete _recMuonSelector;
     _recMuonSelector = 0;
+    delete _recMuonTrkSelector;
+    _recMuonTrkSelector = 0;
     delete _recElecSelector;
     _recElecSelector = 0;
     delete _recPhotonSelector;
@@ -152,10 +156,12 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
     std::string baseDir = "HLT/Exotica/" + _analysisname + "/";
     iBooker.setCurrentFolder(baseDir);
 
+    //std::cerr << "### TEST : "  << baseDir << std::endl;
     // Book the gen/reco analysis-dependent histograms (denominators)
     for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
 	const std::string objStr = EVTColContainer::getTypeString(it->first);
+        //std::cerr << "### TEST : "  << objStr << std::endl;
         std::vector<std::string> sources(2);
         sources[0] = "gen";
         sources[1] = "rec";
@@ -199,6 +205,7 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
     for (size_t i = 0; i < _hltPathsToCheck.size(); ++i) {
         bool found = false;
         TPRegexp pattern(_hltPathsToCheck[i]);
+        //std::cerr << "_hltPathsToCheck[" << i << "] = " << _hltPathsToCheck[i] << std::endl;
 	
 	// Loop over triggerNames from _hltConfig
 	for (size_t j = 0 ; j < _hltConfig.triggerNames().size(); ++j) {
@@ -234,6 +241,7 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
          iPath != _hltPaths.end(); ++iPath) {
         // Avoiding the dependence of the version number for the trigger paths
         std::string path = * iPath;
+        //std::cerr << "path = " << path << std::endl;
         std::string shortpath = path;
         if (path.rfind("_v") < path.length()) {
             shortpath = path.substr(0, path.rfind("_v"));
@@ -339,7 +347,9 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
         // Fancy syntax: for objects X and Y, X.operator()(Y) is the same as X(Y).
         for (size_t i = 0; i < cols->genParticles->size(); ++i) {
 	    //std::cout << "Now matchesGen.size() is " << matchesGen.size() << std::endl;
+            //std::cerr << "OK1 " << it->first << " " << cols->genParticles->at(i) << std::endl;
             if (_genSelectorMap[it->first]->operator()(cols->genParticles->at(i))) {
+                //std::cerr << "OK2" << std::endl;
                 const reco::Candidate* cand = &(cols->genParticles->at(i));
 		//std::cout << "Found good cand: cand->pt() = " << cand->pt() << std::endl;
 		//matchesGen.push_back(MatchStruct(cand, it->first));
@@ -347,6 +357,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 		/// This is an alternative to the older implementation with MatchStruct.
 		reco::LeafCandidate v(0,cand->p4(),cand->vertex(),it->first,0,true);
 		matchesGen.push_back(v);
+                //std::cerr << "matchesGen.push_back()" << std::endl;
             }
         }
     }
@@ -403,7 +414,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     //////////////// 
     {
 	if(matchesGen.size() < _minCandidates) return; // FIXME: A bug is potentially here: what about the mixed channels?
-
 	// Okay, there are enough candidates. Move on!
     
 	// Filling the gen/reco objects (eff-denominators):
@@ -463,6 +473,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
 	    const std::string hltPath = _shortpath2long[an->gethltpath()];
 	    const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
+            //if(ispassTrigger) std::cerr << "SubAnalysis (GEN) : " << trigNames.triggerIndex(hltPath) << " " << an->gethltpath() << " " << hltPath<< std::endl;
 	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
 	    an->analyze(ispassTrigger, "gen", matchesGen);
 	    LogDebug("ExoticaValidation") << "                        called the plotter";
@@ -538,6 +549,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
 	    const std::string hltPath = _shortpath2long[an->gethltpath()];
 	    const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
+            //if(ispassTrigger) std::cerr << "SubAnalysis (RECO) : " << trigNames.triggerIndex(hltPath) << " " << an->gethltpath() << " " << hltPath<< std::endl;
 	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
 	    an->analyze(ispassTrigger, "rec", matchesReco);
 	    LogDebug("ExoticaValidation") << "                        called the plotter";
@@ -555,6 +567,7 @@ const std::vector<unsigned int> HLTExoticaSubAnalysis::getObjectsType(const std:
     static const unsigned int objSize = 7;
     static const unsigned int objtriggernames[] = {
         EVTColContainer::MUON,
+        EVTColContainer::MUONTRACK,
         EVTColContainer::ELEC,
         EVTColContainer::PHOTON,
         EVTColContainer::PFMET,
@@ -587,6 +600,10 @@ void HLTExoticaSubAnalysis::getNamesOfObjects(const edm::ParameterSet & anpset)
     if (anpset.exists("recMuonLabel")) {
         _recLabels[EVTColContainer::MUON] = anpset.getParameter<edm::InputTag>("recMuonLabel");
         _genSelectorMap[EVTColContainer::MUON] = 0 ;
+    }
+    if (anpset.exists("recMuonTrkLabel")) {
+        _recLabels[EVTColContainer::MUONTRACK] = anpset.getParameter<edm::InputTag>("recMuonTrkLabel");
+        _genSelectorMap[EVTColContainer::MUONTRACK] = 0 ;
     }
     if (anpset.exists("recElecLabel")) {
         _recLabels[EVTColContainer::ELEC] = anpset.getParameter<edm::InputTag>("recElecLabel");
@@ -642,8 +659,14 @@ void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector & iC)
 	    edm::EDGetToken token(particularToken);
 	    _tokens[it->first] = token;
 	} 
+	else if (it->first == EVTColContainer::MUONTRACK) {
+	    edm::EDGetTokenT<reco::TrackCollection> particularToken = iC.consumes<reco::TrackCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+        }
 	else if (it->first == EVTColContainer::ELEC) {
             edm::EDGetTokenT<reco::GsfElectronCollection> particularToken = iC.consumes<reco::GsfElectronCollection>(it->second);
+            std::cerr << it->second << std::endl;
 	    edm::EDGetToken token(particularToken);
 	    _tokens[it->first] = token;
 	} 
@@ -712,6 +735,11 @@ void HLTExoticaSubAnalysis::getHandlesToObjects(const edm::Event & iEvent, EVTCo
             iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
         } 
+	else if (it->first == EVTColContainer::MUONTRACK) {
+            edm::Handle<reco::TrackCollection> theHandle;
+            iEvent.getByToken(it->second, theHandle);
+            col->set(theHandle.product());
+        }
 	else if (it->first == EVTColContainer::ELEC) {
             edm::Handle<reco::GsfElectronCollection> theHandle;
             iEvent.getByToken(it->second, theHandle);
@@ -822,6 +850,8 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 
     if (objtype == EVTColContainer::MUON && _recMuonSelector == 0) {
         _recMuonSelector = new StringCutObjectSelector<reco::Muon>(_recCut[objtype]);
+    } else if (objtype == EVTColContainer::MUONTRACK && _recMuonTrkSelector == 0) {
+        _recMuonTrkSelector = new StringCutObjectSelector<reco::Track>(_recCut[objtype]);
     } else if (objtype == EVTColContainer::ELEC && _recElecSelector == 0) {
         _recElecSelector = new StringCutObjectSelector<reco::GsfElectron>(_recCut[objtype]);
     } else if (objtype == EVTColContainer::PHOTON && _recPhotonSelector == 0) {
@@ -854,6 +884,17 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
 		reco::LeafCandidate m(0, cols->muons->at(i).p4(), cols->muons->at(i).vertex(), objType, 0, true);
 		matches->push_back(m);
 	    }
+        }
+    } else if (objType == EVTColContainer::MUONTRACK) {
+        for (size_t i = 0; i < cols->muonTracks->size(); i++) {
+	    LogDebug("ExoticaValidation") << "Inserting muonTrack " << i ;
+	    if (_recMuonTrkSelector->operator()(cols->muonTracks->at(i))) {
+		ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> mom4;
+                ROOT::Math::XYZVector mom3 = cols->muonTracks->at(i).innerMomentum();
+                mom4.SetXYZT(mom3.x(),mom3.y(),mom3.z(),mom3.r());
+		reco::LeafCandidate m(0, mom4, cols->muons->at(i).vertex(), objType, 0, true);
+		matches->push_back(m);
+            }
         }
     } else if (objType == EVTColContainer::ELEC) {
         for (size_t i = 0; i < cols->electrons->size(); i++) {

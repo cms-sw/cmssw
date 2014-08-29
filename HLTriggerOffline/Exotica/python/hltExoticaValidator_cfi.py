@@ -29,7 +29,6 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff       import Muo
 from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff   import EleMuPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
-
 hltExoticaValidator = cms.EDAnalyzer(
 
     "HLTExoticaValidator",
@@ -81,6 +80,11 @@ hltExoticaValidator = cms.EDAnalyzer(
     Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
     Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
     
+    # --- MuonTracks
+    refittedStandAloneMuons_genCut  = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
+    #refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
+    refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4"), 
+
     # --- Electrons
     Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && status==3 "),
     Ele_recCut      = cms.string(

@@ -24,6 +24,10 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#if 1
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#endif
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -145,6 +149,7 @@ private:
     /// via the config python)
     std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
     StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
+    StringCutObjectSelector<reco::Track>        * _recMuonTrkSelector;
     StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
     StringCutObjectSelector<reco::PFMET>       * _recPFMETSelector;
     StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
