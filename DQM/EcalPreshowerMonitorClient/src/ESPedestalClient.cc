@@ -14,7 +14,8 @@
 using namespace edm;
 using namespace std;
 
-ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps) {
+ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps):
+  fg(nullptr) {
   
   verbose_       = ps.getUntrackedParameter<bool>("verbose", true);
   debug_         = ps.getUntrackedParameter<bool>("debug", true);
@@ -34,6 +35,7 @@ ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps) {
 }
 
 ESPedestalClient::~ESPedestalClient() {
+  delete fg;
 }
 
 void ESPedestalClient::beginJob(DQMStore* dqmStore) {
@@ -79,8 +81,8 @@ void ESPedestalClient::endJob(void) {
 
 	    if (meFit==0) continue;
 	    TH1F *rootHisto = meFit->getTH1F();
-	    rootHisto->Fit("fg", "Q", "", 500, 1800);
-	    rootHisto->Fit("fg", "RQ", "", fg->GetParameter(1)-2.*fg->GetParameter(2),fg->GetParameter(1)+2.*fg->GetParameter(2));
+	    rootHisto->Fit(fg, "Q", "", 500, 1800);
+	    rootHisto->Fit(fg, "RQ", "", fg->GetParameter(1)-2.*fg->GetParameter(2),fg->GetParameter(1)+2.*fg->GetParameter(2));
 	    hPed_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, (int)(fg->GetParameter(1)+0.5));
 	    hTotN_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, fg->GetParameter(2));
 

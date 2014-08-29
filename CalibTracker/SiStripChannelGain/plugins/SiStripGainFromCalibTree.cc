@@ -376,7 +376,7 @@ void SiStripGainFromCalibTree::getPeakOfLandau(TH1* InputHisto, double* FitResul
    // perform fit with standard landau
    TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
    MyLandau->SetParameter(1,300);
-   InputHisto->Fit("MyLandau","0QR WW");
+   InputHisto->Fit(MyLandau,"0QR WW");
 
    // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
    FitResults[0]         = MyLandau->GetParameter(1);  //MPV

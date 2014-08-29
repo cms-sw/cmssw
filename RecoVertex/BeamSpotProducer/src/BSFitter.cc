@@ -360,17 +360,18 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 		 //std::cout<<"z0="<<iparam->z0()<<"; sigZ0="<<iparam->sigz0()<<std::endl;
 	}
 
-	h1z->Fit("gaus","QLM0");
+	//Use our own copy for thread safety
+	TF1 fgaus("fgaus","gaus");
+	h1z->Fit(&fgaus,"QLM0");
 	//std::cout << "fitted "<< std::endl;
 	
-	TF1 *fgaus = h1z->GetFunction("gaus");
 	//std::cout << "got function" << std::endl;
-	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
+	double fpar[2] = {fgaus.GetParameter(1), fgaus.GetParameter(2) };
 	//std::cout<<"Debug fpar[2] = (" <<fpar[0]<<","<<fpar[1]<<")"<<std::endl;
 	reco::BeamSpot::CovarianceMatrix matrix;
 	// add matrix values.
-	matrix(2,2) = fgaus->GetParError(1) * fgaus->GetParError(1);
-	matrix(3,3) = fgaus->GetParError(2) * fgaus->GetParError(2);
+	matrix(2,2) = fgaus.GetParError(1) * fgaus.GetParError(1);
+	matrix(3,3) = fgaus.GetParError(2) * fgaus.GetParError(2);
 	
 	//delete h1z;
 
@@ -564,16 +565,19 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//LogDebug ("BSFitter") << " d0-phi fit done.";
 	//std::cout<< " d0-phi fit done." << std::endl;
 
-	h1z->Fit("gaus","QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
+	//Use our own copy for thread safety
+	TF1 fgaus("fgaus","gaus");
+	//returns 0 if OK
+	auto status = h1z->Fit(&fgaus,"QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
 
 	//std::cout << "fitted "<< std::endl;
-	TF1 *fgaus = h1z->GetFunction("gaus");
+
 	//std::cout << "got function" << std::endl;
-	if (!fgaus){	
+	if (status){	
 	  edm::LogError("NoBeamSpotFit")<<"gaussian fit failed. no BS d0 fit";		
 	  return reco::BeamSpot();
 	}
-	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
+	double fpar[2] = {fgaus.GetParameter(1), fgaus.GetParameter(2) };
     
 	reco::BeamSpot::CovarianceMatrix matrix;
 	// first two parameters
@@ -590,8 +594,8 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	}
 
     // Z0 and sigmaZ
-	matrix(2,2) = fgaus->GetParError(1) * fgaus->GetParError(1);
-	matrix(3,3) = fgaus->GetParError(2) * fgaus->GetParError(2);
+	matrix(2,2) = fgaus.GetParError(1) * fgaus.GetParError(1);
+	matrix(3,3) = fgaus.GetParError(2) * fgaus.GetParError(2);
     
 	ftmp = x_result;
 
