@@ -181,11 +181,15 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   
    record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
    
-
+   try {
    const char* hgl [] = {"HGCalEESensitive", "HGCalHESiliconSensitive" , "HGCalHEScintillatorSensitive"};
    for (int i = 0; i < 3; ++i) 
       record.getRecord<IdealGeometryRecord>().get( hgl[i],  m_hgcGeom[ hgl[i]] );
-
+   }
+   catch (cms::Exception& ex)
+   {
+      edm::LogWarning("FWTRecoGeometryProducerException") << ex.what() << std::endl;
+   }
   
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
    if( 0 == gGeoIdentity )
