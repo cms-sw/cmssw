@@ -7,7 +7,7 @@
 //
 /**\class edm::View<T>
 
-Description: Provide access to the collected elements contained by any EDProduct that is a sequence.
+Description: Provide access to the collected elements contained by any WrapperBase that is a sequence.
 
 */
 //

@@ -73,13 +73,13 @@ struct DummyTopology final : public Topology {
   measurementError( const LocalPoint&, const LocalError& ) const { return MeasurementError();}
   virtual int channel( const LocalPoint& p) const { return -1;}
 };
-const DummyTopology dummyTopology;
+  const DummyTopology dummyTopology{};
 
 struct DummyGeomDetType final : public GeomDetType {
    DummyGeomDetType() : GeomDetType("", GeomDetEnumerators::invalidDet){}
    const Topology& topology() const { return dummyTopology;}
 };
-const DummyGeomDetType dummyGeomDetType;
+  const DummyGeomDetType dummyGeomDetType{};
 }
 
 

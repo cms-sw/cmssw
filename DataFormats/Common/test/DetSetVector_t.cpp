@@ -165,9 +165,9 @@ void detsetTest() {
 namespace {
   template<typename T>
   struct DSVGetter : edm::EDProductGetter {
-    DSVGetter() : edm::EDProductGetter(), prod_(0) {}
-    virtual WrapperHolder
-    getIt(ProductID const&) const override {return WrapperHolder(prod_, prod_->getInterface());}
+    DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
+    virtual WrapperBase const*
+    getIt(ProductID const&) const override {return prod_;}
     virtual unsigned int
     transitionIndex_() const override {return 0U;}
 

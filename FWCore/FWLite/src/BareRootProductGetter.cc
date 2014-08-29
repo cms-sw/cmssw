@@ -25,6 +25,8 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
+
+#include <memory>
 //
 // constants, enums and typedefs
 //
@@ -64,7 +66,7 @@ BareRootProductGetter::~BareRootProductGetter() {
 //
 // const member functions
 //
-edm::WrapperHolder
+edm::WrapperBase const*
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   // std::cout << "getIt called" << std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
@@ -96,24 +98,24 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
         ;
   }
 
-  Buffer* buffer = 0;
+  Buffer* buffer = nullptr;
   IdToBuffers::iterator itBuffer = idToBuffers_.find(iID);
   // std::cout << "Buffers" << std::endl;
   if(itBuffer == idToBuffers_.end()) {
     buffer = createNewBuffer(iID);
     // std::cout << "buffer " << buffer << std::endl;
-    if(0 == buffer) {
-       return edm::WrapperHolder();
+    if(nullptr == buffer) {
+       return nullptr;
     }
   } else {
     buffer = &(itBuffer->second);
   }
-  if(0 == buffer) {
+  if(nullptr == buffer) {
      throw cms::Exception("NullBuffer")
         << "Found a null buffer which is supposed to hold the data item."
         << "\n Please contact developers since this message should not happen.";
   }
-  if(0 == buffer->branch_) {
+  if(nullptr == buffer->branch_) {
      throw cms::Exception("NullBranch")
         << "The TBranch which should hold the data item is null."
         << "\n Please contact the developers since this message should not happen.";
@@ -122,19 +124,20 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     //NOTE: Need to reset address because user could have set the address themselves
     //std::cout << "new event" << std::endl;
 
-    edm::WrapperInterfaceBase const* interface = branchMap_.productToBranch(iID).getInterface();
     //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
     void* address = buffer->class_->New();
 
-    edm::WrapperOwningHolder prod = edm::WrapperOwningHolder(address, interface);
-    if(!prod.isValid()) {
+    static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
+    edm::WrapperBase const* prod = static_cast<edm::WrapperBase const*>(buffer->class_->DynamicCast(edproductTClass,address,true));
+
+    if(nullptr == prod) {
       cms::Exception("FailedConversion")
       << "failed to convert a '" << buffer->class_->GetName()
-      << "' to a edm::WrapperHolder."
+      << "' to a edm::WrapperBase."
       << "Please contact developers since something is very wrong.";
     }
     buffer->address_ = address;
-    buffer->product_ = prod;
+    buffer->product_ = std::shared_ptr<edm::WrapperBase const>(prod);
     //END WORKAROUND
 
     address = &(buffer->address_);
@@ -143,13 +146,13 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     buffer->branch_->GetEntry(eventEntry);
     buffer->eventEntry_ = eventEntry;
   }
-  if(!buffer->product_.isValid()) {
+  if(!buffer->product_) {
      throw cms::Exception("BranchGetEntryFailed")
         << "Calling GetEntry with index " << eventEntry
         << "for branch " << buffer->branch_->GetName() << " failed.";
   }
 
-  return edm::WrapperHolder(buffer->product_.wrapper(), buffer->product_.interface());
+  return buffer->product_.get();
 }
 
 BareRootProductGetter::Buffer*
@@ -158,9 +161,9 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   edm::BranchDescription bdesc = branchMap_.productToBranch(iID);
 
   TBranch* branch= branchMap_.getEventTree()->GetBranch(bdesc.branchName().c_str());
-  if(0 == branch) {
+  if(nullptr == branch) {
      //we do not thrown on missing branches since 'getIt' should not throw under that condition
-    return 0;
+    return nullptr;
   }
   //find the class type
   std::string const fullName = edm::wrappedClassName(bdesc.className());
@@ -169,25 +172,24 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
     cms::Exception("MissingDictionary")
        << "could not find dictionary for type '" << fullName << "'"
        << "\n Please make sure all the necessary libraries are available.";
-    return 0;
+    return nullptr;
   }
 
   TClass* rootClassType = TClass::GetClass(classType.typeInfo());
-  if(0 == rootClassType) {
+  if(nullptr == rootClassType) {
     throw cms::Exception("MissingRootDictionary")
     << "could not find a ROOT dictionary for type '" << fullName << "'"
     << "\n Please make sure all the necessary libraries are available.";
-    return 0;
+    return nullptr;
   }
   void* address = rootClassType->New();
 
-  //static TClass* edproductTClass = TClass::GetClass(typeid(edm::WrapperHolder));
-  //edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(rootClassType->DynamicCast(edproductTClass, address, true));
-  edm::WrapperOwningHolder prod = edm::WrapperOwningHolder(address, bdesc.getInterface());
-  if(!prod.isValid()) {
+  static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
+  edm::WrapperBase const* prod = reinterpret_cast<edm::WrapperBase const*>( rootClassType->DynamicCast(edproductTClass,address,true));
+  if(nullptr == prod) {
      cms::Exception("FailedConversion")
         << "failed to convert a '" << fullName
-        << "' to a edm::WrapperOwningHolder."
+        << "' to a edm::WrapperBase."
         << "Please contact developers since something is very wrong.";
   }
 

@@ -44,7 +44,7 @@ namespace edm {
         }
       }
 
-  WrapperHolder
+  WrapperBase const*
   RefCore::getProductPtr(std::type_info const& type) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
@@ -70,12 +70,12 @@ namespace edm {
     if (cachePtr_ == 0) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
-    WrapperHolder product = productGetter()->getIt(tId);
-    if (!product.isValid()) {
+    WrapperBase const* product = productGetter()->getIt(tId);
+    if (product == nullptr) {
       productNotFoundException(type);
     }
-    if(!(type == product.dynamicTypeInfo())) {
-      wrongTypeException(type, product.dynamicTypeInfo());
+    if(!(type == product->dynamicTypeInfo())) {
+      wrongTypeException(type, product->dynamicTypeInfo());
     }
     return product;
   }
@@ -111,7 +111,7 @@ namespace edm {
   bool
   RefCore::isAvailable() const {
     ProductID tId = id();
-    return productPtr() != 0 || (tId.isValid() && productGetter() != 0 && productGetter()->getIt(tId).isValid());
+    return productPtr() != nullptr || (tId.isValid() && productGetter() != nullptr && productGetter()->getIt(tId) != nullptr);
   }
 
   void

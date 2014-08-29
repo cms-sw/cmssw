@@ -35,6 +35,7 @@ namespace std {
   public:
     shared_ptr();
     shared_ptr(T*);
+    template<typename U> shared_ptr(const U&);
     void reset(T* iValue=0);
     T* get();
     T const* get() const;

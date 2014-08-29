@@ -88,11 +88,18 @@ private:
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
   void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
   void trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es);
-  void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, reco::TrackRef trackref, const edm::EventSetup& es);
+  void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, const edm::EventSetup& es);
+  //  void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, reco::TrackRef trackref, const edm::EventSetup& es);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
+  void hitStudy(const edm::EventSetup& es,
+		const ProjectedSiStripRecHit2D* projhit,
+		const SiStripMatchedRecHit2D*   matchedhit,
+		const SiStripRecHit2D*          hit2D,
+		const SiStripRecHit1D*          hit1D,
+		LocalVector localMomentum);
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid, const TrackerTopology* tTopo, enum ClusterFlags flags, LocalVector LV);	
-  template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
+  template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::EventSetup&);
 
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,std::string,float);
@@ -147,6 +154,7 @@ private:
     MonitorElement* nClustersOffTrack;
     MonitorElement* nClustersTrendOffTrack;
     MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterStoNOffTrack;
  
@@ -155,7 +163,7 @@ private:
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;  
   
-  edm::ESHandle<TrackerGeometry> tkgeom;
+  edm::ESHandle<TrackerGeometry> tkgeom_;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   
   edm::ParameterSet Parameters;
@@ -163,6 +171,7 @@ private:
   
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  //  edm::EDGetTokenT<std::vector<Trajectory> > trajectoryToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trackTrajToken_;
 
   bool Mod_On_;

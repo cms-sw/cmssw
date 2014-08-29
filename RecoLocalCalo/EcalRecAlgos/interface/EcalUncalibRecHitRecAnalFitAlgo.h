@@ -125,14 +125,14 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
 
 
-    graph.Fit("pulseShape","QRM");
+    graph.Fit(&pulseShape,"QRM");
     //TF1 *pulseShape2=graph.GetFunction("pulseShape");
 
     if ( std::string(gMinuit->fCstatu.Data()) == std::string("CONVERGED ") ) {
 
       double amplitude_value=pulseShape.GetParameter(0);
 
-      graph.Fit("pedestal","QRL");
+      graph.Fit(&pedestal,"QRL");
       //TF1 *pedestal2=graph.GetFunction("pedestal");
       double pedestal_value=pedestal.GetParameter(0);
 

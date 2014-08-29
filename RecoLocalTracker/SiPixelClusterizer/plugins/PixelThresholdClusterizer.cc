@@ -33,6 +33,7 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include <atomic>
 using namespace std;
 
 //----------------------------------------------------------------------------
@@ -181,11 +182,13 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator end ) 
 {
-  static int ic=0;
-  if (ic==0) {
+#ifdef PIXELREGRESSION
+  static std::atomic<int> s_ic=0;
+  in ic = ++s_ic;
+  if (ic==1) {
     // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
-  ic++;
+#endif
   int electron[end-begin];
   if ( doMissCalibrate ) {
     (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor, theOffset,electron);
@@ -213,7 +216,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 
   int i=0;
 #ifdef PIXELREGRESSION
-  static int eqD=0;
+  static std::atomic<int> eqD=0;
 #endif
   for(DigiIterator di = begin; di != end; ++di) {
     int row = di->row();

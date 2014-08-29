@@ -19,9 +19,8 @@
 //
 
 // user include files
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // system include files
@@ -40,7 +39,7 @@ class BareRootProductGetter : public edm::EDProductGetter {
       virtual ~BareRootProductGetter();
 
       // ---------- const member functions ---------------------
-      virtual edm::WrapperHolder getIt(edm::ProductID const&) const override;
+      virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override;
 
 private:
 
@@ -52,13 +51,13 @@ private:
       }
 
       struct Buffer {
-        Buffer(edm::WrapperOwningHolder const& iProd, TBranch* iBranch, void* iAddress,
+        Buffer(edm::WrapperBase const* iProd, TBranch* iBranch, void* iAddress,
                TClass* iClass) :
         product_(iProd), branch_(iBranch), address_(iAddress), eventEntry_(-1),
         class_(iClass) {}
-        Buffer() : product_(), branch_(), address_(), eventEntry_(-1),class_(0) {}
+        Buffer() : product_(), branch_(), address_(), eventEntry_(-1), class_(nullptr) {}
 
-        edm::WrapperOwningHolder product_;
+        std::shared_ptr<edm::WrapperBase const> product_;
         TBranch* branch_;
         void* address_; //the address to pass to Root since as of 5.13 they cache that info
         Long_t eventEntry_; //the event Entry used with the last GetEntry call

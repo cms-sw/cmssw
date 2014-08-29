@@ -59,8 +59,7 @@ namespace fwlite {
 
             // This function should only be called by fwlite::Handle<>
             virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
-            virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&, Long_t) const;
-            edm::WrapperHolder getByProductID(edm::ProductID const&, Long_t) const;
+            edm::WrapperBase const* getByProductID(edm::ProductID const&, Long_t) const;
 
             // ---------- static member functions --------------------
             static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);

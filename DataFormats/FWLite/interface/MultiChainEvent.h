@@ -31,7 +31,7 @@
 
 // forward declarations
 namespace edm {
-  class WrapperHolder;
+  class WrapperBase;
   class ProductRegistry;
   class ProcessHistory;
   class BranchDescription;
@@ -84,7 +84,6 @@ class MultiChainEvent: public EventBase
 
       /** This function should only be called by fwlite::Handle<>*/
       virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
@@ -134,7 +133,7 @@ class MultiChainEvent: public EventBase
 
       // ---------- member functions ---------------------------
 
-      edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+      edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
 
    private:
