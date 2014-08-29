@@ -149,7 +149,7 @@ Float_t Fit_MaximumPoint( TH2F *h2, Int_t Ireturn = 0){  // xxx
   Double_t fitresults_errors[3]   = {0.};
   TF1 *f1 = new TF1("f1",Pol2,-50.,50.,3);  
   f1->SetParameters( 1.,1.,1.);
-  h1->Fit("f1","Q","",posmin_fit, posmax_fit);
+  h1->Fit(f1,"Q","",posmin_fit, posmax_fit);
   for(int i=0 ; i< 3 ; i++) { 
     fitresults[i]        = f1->GetParameter(i); 
     fitresults_errors[i] = f1->GetParError(i); 
@@ -208,7 +208,7 @@ Float_t Fit_MaximumPoint( TH2F *h2, Int_t Ireturn = 0){  // xxx
   Double_t fitresults0_errors[3]   = {0.};
   TF1 *f0 = new TF1("f0",Pol2_Special,-50.,50.,3);  
   f0->SetParameters( -1.,x_max_guess,5000.);
-  h0->Fit("f0","Q","",posmin_fit, posmax_fit);
+  h0->Fit(f0,"Q","",posmin_fit, posmax_fit);
   for(int i=0 ; i< 3 ; i++) { 
     fitresults0[i]        = f0->GetParameter(i); 
     fitresults0_errors[i] = f0->GetParError(i); 

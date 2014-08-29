@@ -47,12 +47,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
 
-namespace{
-   const float kSliderRangeFactor = 0.2;
-}
-
-
-
 FWPFCandidateDetailView::FWPFCandidateDetailView ():
    m_range(1),
    m_candidate(0),

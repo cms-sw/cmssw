@@ -64,7 +64,10 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.addParameter( self._defaultParameters, 'relVal'       , 'RelValTTbar'                                                       , '' )
         self.addParameter( self._defaultParameters, 'dataTier'     , 'GEN-SIM-RECO'                                                      , '' )
         self.addParameter( self._defaultParameters, 'condition'    , 'startup'                                                           , '' )
-        self.addParameter( self._defaultParameters, 'globalTag'    , autoCond[ self.getDefaultParameters()[ 'condition' ].value ][ : -5 ], 'auto from \'condition\'' )
+        gt = autoCond[ self.getDefaultParameters()[ 'condition' ].value ]
+        if isinstance(gt,tuple) or isinstance(gt,list):
+            gt = gt[0]
+        self.addParameter( self._defaultParameters, 'globalTag'    , gt[ : -5 ]                                                          , 'auto from \'condition\'' )
         self.addParameter( self._defaultParameters, 'maxVersions'  , 3                                                                   , '' )
         self.addParameter( self._defaultParameters, 'skipFiles'    , 0                                                                   , '' )
         self.addParameter( self._defaultParameters, 'numberOfFiles', -1                                                                  , 'all' )

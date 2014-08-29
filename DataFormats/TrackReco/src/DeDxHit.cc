@@ -9,9 +9,9 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 using namespace reco;
 
-DeDxHit::DeDxHit(float ch, float dist, float len, DetId id):
+DeDxHit::DeDxHit(float ch, float mom, float len, DetId id):
     m_charge(ch),
-    m_distance(dist),
+    m_momentum(mom),
     m_pathLength(len)
 
 {

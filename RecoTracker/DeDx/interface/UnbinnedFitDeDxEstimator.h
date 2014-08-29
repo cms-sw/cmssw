@@ -14,7 +14,7 @@ class UnbinnedFitDeDxEstimator: public BaseDeDxEstimator
 {
  public: 
 
-  UnbinnedFitDeDxEstimator() {
+  UnbinnedFitDeDxEstimator(const edm::ParameterSet& iConfig) {
     fitter.setFunction((f1 = new TF1("myLandau","TMath::Landau(x,[0],[1],1)",0,255)));
   }
   

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 selectedDeDxHarm = {}
 
-from RecoTracker.DeDx.dedxHarmonic2_cfi import *
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
 dedxDQMHarm2SP = dedxHarmonic2.clone()
 dedxDQMHarm2SP.tracks                     = cms.InputTag("generalTracks")
 dedxDQMHarm2SP.trajectoryTrackAssociation = cms.InputTag("generalTracks")

@@ -1,4 +1,7 @@
-<flags   CXXFLAGS="-Ofast -mrecip"/>
+<flags   CXXFLAGS="-Ofast"/>
+<compiler name="gcc">
+  <flags   CXXFLAGS="-mrecip"/>
+</compiler>
 
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/GeometrySurface"/>

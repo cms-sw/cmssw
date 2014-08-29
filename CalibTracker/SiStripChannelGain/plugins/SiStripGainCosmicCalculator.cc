@@ -222,8 +222,9 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
 //  delete landaufit;
 //
   // perform fit with standard landau
-  inputHisto->Fit("landau","0Q");
-  TF1 * fitfunction = (TF1*) inputHisto->GetListOfFunctions()->First();
+  // make our own copy to avoid problems with threads
+  std::unique_ptr<TF1> fitfunction( new TF1("landaufit","landau") );
+  inputHisto->Fit(fitfunction.get(),"0Q");
   adcs = fitfunction->GetParameter("MPV");
   error = fitfunction->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
   double chi2 = fitfunction->GetChisquare();
@@ -231,15 +232,14 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
   double chi2overndf = chi2 / ndf;
   // in case things went wrong, try to refit in smaller range
   if(adcs< 2. || (error/adcs)>1.8 ){
-     inputHisto->Fit("landau","0Q",0,0.,400.);
-     TF1 * fitfunction2 = (TF1*) inputHisto->GetListOfFunctions()->First();
+     inputHisto->Fit(fitfunction.get(),"0Q",0,0.,400.);
      std::cout<<"refitting landau for histogram "<<inputHisto->GetTitle()<<std::endl;
      std::cout<<"initial error/adcs ="<<error<<" / "<<adcs<<std::endl;
-     std::cout<<"new     error/adcs ="<<fitfunction2->GetParError(1)<<" / "<<fitfunction2->GetParameter("MPV")<<std::endl;
-     adcs = fitfunction2->GetParameter("MPV");
-     error = fitfunction2->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-     chi2 = fitfunction2->GetChisquare();
-     ndf = fitfunction2->GetNDF();
+     std::cout<<"new     error/adcs ="<<fitfunction->GetParError(1)<<" / "<<fitfunction->GetParameter("MPV")<<std::endl;
+     adcs = fitfunction->GetParameter("MPV");
+     error = fitfunction->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+     chi2 = fitfunction->GetChisquare();
+     ndf = fitfunction->GetNDF();
      chi2overndf = chi2 / ndf;
    }
    // if still wrong, give up
