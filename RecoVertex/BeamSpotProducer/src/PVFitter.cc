@@ -345,13 +345,16 @@ bool PVFitter::runFitter() {
       TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
       TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
 
-      h1PVx->Fit("gaus","QLM0");
-      h1PVy->Fit("gaus","QLM0");
-      h1PVz->Fit("gaus","QLM0");
+      //Use our own copy for thread safety
+      TF1 gaus("localGaus","gaus");
 
-      TF1 *gausx = h1PVx->GetFunction("gaus");
-      TF1 *gausy = h1PVy->GetFunction("gaus");
-      TF1 *gausz = h1PVz->GetFunction("gaus");
+      h1PVx->Fit(&gaus,"QLM0");
+      h1PVy->Fit(&gaus,"QLM0");
+      h1PVz->Fit(&gaus,"QLM0");
+
+      TF1 *gausx = h1PVx->GetFunction("localGaus");
+      TF1 *gausy = h1PVy->GetFunction("localGaus");
+      TF1 *gausz = h1PVz->GetFunction("localGaus");
 
       fwidthX = gausx->GetParameter(2);
       fwidthY = gausy->GetParameter(2);

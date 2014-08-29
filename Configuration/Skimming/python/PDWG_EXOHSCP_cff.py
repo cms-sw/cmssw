@@ -23,26 +23,11 @@ TrackRefitterSkim = TrackRefitter.clone()
 TrackRefitterSkim.src = "generalTracksSkim"
 
 
-dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitterSkim"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim"),
-
-    estimator      = cms.string('generic'),
-    exponent       = cms.double(-2.0),
-
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(False),
-    MeVperADCStrip = cms.double(3.61e-06*265),
-    MeVperADCPixel = cms.double(3.61e-06),
-
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(True),
-)
-
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
+dedxSkimNPHarm2 = dedxHarmonic2.clone()
+dedxSkimNPHarm2.tracks                     = cms.InputTag("TrackRefitterSkim")
+dedxSkimNPHarm2.trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim")
+dedxSkimNPHarm2.UsePixel                   = cms.bool(False)
 
 DedxFilter = cms.EDFilter("HSCPFilter",
      inputMuonCollection = cms.InputTag("muons"),

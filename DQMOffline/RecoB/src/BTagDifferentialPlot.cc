@@ -334,8 +334,10 @@ BTagDifferentialPlot::getMistag(const double& fixedBEfficiency, TH1F * effPurHis
     // is above or below.
     // Fit a plynomial, and evaluate the mistag at the requested value.
     int fitStatus;
+    //need our own copy for thread safety
+    TF1 myfunc("myfunc","pol4");
     try {
-      fitStatus = effPurHist->Fit("pol4", "q");
+      fitStatus = effPurHist->Fit(&myfunc, "q");
     }catch (cms::Exception& iException){
       return pair<double, double>(effForBEff, effForBEffErr);
     }
@@ -345,9 +347,8 @@ BTagDifferentialPlot::getMistag(const double& fixedBEfficiency, TH1F * effPurHis
       //      edm::LogInfo("BTagDifferentialPlot")<<"Fit OK to hisogram " << effPurHist->GetTitle() << " entries = " << effPurHist->GetEntries();
       return pair<double, double>(effForBEff, effForBEffErr);
     }
-    TF1 *myfunc = effPurHist->GetFunction("pol4");
-    effForBEff = myfunc->Eval(fixedBEfficiency);
-    effPurHist->RecursiveRemove(myfunc);
+    effForBEff = myfunc.Eval(fixedBEfficiency);
+    effPurHist->RecursiveRemove(&myfunc);
     //Error: first non-empty bin on the right and take its error
     for (int i = iBinGet+1; i< effPurHist->GetNbinsX(); ++i) {
       if (effPurHist->GetBinContent(i)!=0) {

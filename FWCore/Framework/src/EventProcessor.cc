@@ -129,7 +129,7 @@ namespace edm {
     main_input->registerIt();
 
     // Fill in "ModuleDescription", in case the input source produces
-    // any EDproducts, which would be registered in the ProductRegistry.
+    // any EDProducts, which would be registered in the ProductRegistry.
     // Also fill in the process history item for this process.
     // There is no module label for the unnamed input source, so
     // just use "source".

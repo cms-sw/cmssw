@@ -1127,16 +1127,43 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh2->GetYaxis()->SetTitleOffset(1.2);
    rh2->SetTitle("");
 
+   rdir->GetObject(collname1+"/effic_vs_dr",rh3);
+   sdir->GetObject(collname2+"/effic_vs_dr",sh3);
+   rh3->GetYaxis()->SetRangeUser(0.,1.);
+   sh3->GetYaxis()->SetRangeUser(0.,1.);
+   rh3->GetXaxis()->SetTitle("#DeltaR");
+   rh3->GetYaxis()->SetTitle("efficiency vs #DeltaR");
+   rh3->GetYaxis()->SetTitleSize(0.05);
+   rh3->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/fakerate_vs_dr",rh4);
+   sdir->GetObject(collname2+"/fakerate_vs_dr",sh4);
+   rh4->GetXaxis()->SetTitle("#DeltaR");
+   rh4->GetYaxis()->SetTitle("Fake rate vs #DeltaR");
+   rh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   sh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   rh4->GetYaxis()->SetTitleSize(0.05);
+   rh4->GetYaxis()->SetTitleOffset(1.2);
+   rh4->SetTitle("");
+
+
    canvas = new TCanvas("Tracks9","Tracks: efficiency & fakerate",1000,1400);
 
-   TH1 * r[2]={rh1,rh2};
-   TH1 * s[2]={sh1,sh2};
+   //TH1 * r[2]={rh1,rh2};
+   //TH1 * s[2]={sh1,sh2};
 
-   plotBuilding(canvas,s, r,2,
-		te,"UU",-1);
+   //plotBuilding(canvas,s, r,2,
+   //	te,"UU",-1);
+
+   Int_t optstat = gStyle->GetOptStat();
+   plot4histos(canvas,
+           sh1,rh1,sh2,rh2,
+           sh3,rh3,sh4,rh4,
+           te,"UU",-1,0.1,false,false);
 
    canvas->cd();
-   l = new TLegend(0.10,0.14,0.90,0.19);
+   //l = new TLegend(0.10,0.14,0.90,0.19);
+   l = new TLegend(0.17,0.465,0.97,0.515);
    l->SetTextSize(0.016);
    l->SetLineColor(1);
    l->SetLineWidth(1);
@@ -1147,6 +1174,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
    canvas->Print("effvspos.pdf");   
+   gStyle->SetOptStat(optstat);
    delete l;
 
    //===== dE/dx
@@ -1371,7 +1399,7 @@ void plot4histos(TCanvas *canvas,
 		TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, 
 		TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
 		TText* te,
-	       char * option, double startingY, double startingX = .1,bool fit = false){
+	       char * option, double startingY, double startingX = .1,bool fit = false, bool statflag = true){
   canvas->Divide(2,2);
 
   s1->SetMarkerStyle(20);
@@ -1423,24 +1451,34 @@ void plot4histos(TCanvas *canvas,
 
   //setStats(r1,s1, startingY, startingX, fit);
   canvas->cd(1);
-  setStats(s1,r1, 0.6, 0.65, false);
+  if (statflag) setStats(s1,r1, 0.6, 0.65, false);
   r1->Draw();
-  s1->Draw("sames");
+  if (statflag) s1->Draw("sames");
+  else s1->Draw("same");    
 
   canvas->cd(2);
-  setStats(s2,r2, 0.6, 0.65, false);
+  if (statflag) setStats(s2,r2, 0.6, 0.65, false);
   r2->Draw();
-  s2->Draw("sames");
+  if (statflag) s2->Draw("sames");
+  else s2->Draw("same");    
 
   canvas->cd(3);
-  setStats(s3,r3, 0.6, 0.65, false);
+  if (statflag) setStats(s3,r3, 0.6, 0.65, false);
   r3->Draw();
-  s3->Draw("sames");
+  if (statflag) s3->Draw("sames");
+  else s3->Draw("same");    
 
   canvas->cd(4);
-  setStats(s4,r4, 0.6, 0.65, false);
+  if (statflag) setStats(s4,r4, 0.6, 0.65, false);
+  else gStyle->SetOptStat(0);
   r4->Draw();
-  s4->Draw("sames");
+  if (statflag) s4->Draw("sames");
+  else s4->Draw("same");    
+
+  TPad *pad=canvas->cd(3);
+  if(!statflag)pad->SetLogx();
+  pad=(TPad*)canvas->cd(4);
+  if(!statflag)pad->SetLogx();
 
 }
 

@@ -1907,7 +1907,7 @@ char str[100];
             S2[i]->Fill(adc2fC[j]-2.5,Raddam_data[i].s2_adc[j]); 
           }
           double parm[3];
-          S1[i]->Fit("fitFunc");
+          S1[i]->Fit(fitFunc);
           S1[i]->GetFunction("fitFunc")->GetParameters(parm);
           Raddam_data[i].S1MEAN=S1[i]->GetMean();
           Raddam_data[i].S1RMS=S1[i]->GetRMS();
@@ -1917,7 +1917,7 @@ char str[100];
           Raddam_data[i].S1CHI2=S1[i]->GetFunction("fitFunc")->GetChisquare();
           Raddam_data[i].S1NDF=S1[i]->GetFunction("fitFunc")->GetNDF();
           Raddam_data[i].S1BINWIDTH=Ws1;
-          S2[i]->Fit("fitFunc");
+          S2[i]->Fit(fitFunc);
           S2[i]->GetFunction("fitFunc")->GetParameters(parm);
           Raddam_data[i].S2MEAN=S2[i]->GetMean();
           Raddam_data[i].S2RMS=S2[i]->GetRMS();
