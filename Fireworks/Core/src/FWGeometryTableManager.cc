@@ -223,14 +223,17 @@ void FWGeometryTableManager::updateFilter(int iType)
    for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i)
    {
       const char* res = 0;
-      
+     
+     
       if (iType == FWGeometryTableView::kFilterMaterialName)
       {
-         res = strcasestr( i->first->GetMaterial()->GetName() , filterExp.c_str());
+         if (i->first->IsAssembly() == false) 
+            res = strcasestr( i->first->GetMaterial()->GetName() , filterExp.c_str());
       }
       else if (iType == FWGeometryTableView::kFilterMaterialTitle)
       {
-         res = strcasestr( i->first->GetMaterial()->GetTitle() , filterExp.c_str());
+         if ( i->first->IsAssembly() == false) 
+            res = strcasestr( i->first->GetMaterial()->GetTitle() , filterExp.c_str());
       }
       else if (iType == FWGeometryTableView::kFilterShapeName) 
       {
@@ -240,7 +243,8 @@ void FWGeometryTableManager::updateFilter(int iType)
       {
          res = strcasestr( i->first->GetShape()->ClassName() , filterExp.c_str());
       }
-      
+
+
       i->second.m_matches = (res != 0);
       i->second.m_childMatches = false;
       if (res != 0) numMatched++;
@@ -253,7 +257,7 @@ void FWGeometryTableManager::updateFilter(int iType)
    for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
    {
       ni->resetBit(kFilterCached);
-     assertNodeFilterCache(*ni);
+      assertNodeFilterCache(*ni);
    }
    
 }
