@@ -13,7 +13,7 @@ def dropNonMTSafe(process):
                                        numberOfStreams = cms.untracked.uint32(0))
   if not hasattr(process,"ZombieKillerService"):
     process.add_(cms.Service("ZombieKillerService",
-                             secondsBetweenChecks = cms.untracked.uint32(60),
+                             secondsBetweenChecks = cms.untracked.uint32(120),
                              numberOfAllowedFailedChecksInARow = cms.untracked.uint32(4)))
 
   return process

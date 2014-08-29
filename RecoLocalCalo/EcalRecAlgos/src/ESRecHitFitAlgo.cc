@@ -59,7 +59,7 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) cons
     double para[10];
     TGraph *gr = new TGraph(3, tx, adc);
     fit_->SetParameters(50, 10);
-    gr->Fit("fit", "MQ");
+    gr->Fit(fit_, "MQ");
     fit_->GetParameters(para); 
     fitresults[0] = para[0]; 
     fitresults[1] = para[1];  

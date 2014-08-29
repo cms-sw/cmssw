@@ -580,14 +580,13 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   aux.setProcessHistoryID(processHistoryID_);
   makeEvent(eventPrincipal, aux);
 
-  edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
-                               edm::Wrapper<FEDRawDataCollection>::getInterface());
+  std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(rawData));
 
   //FWCore/Sources DaqProvenanceHelper before 7_1_0_pre3
   //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
   //                   daqProvenanceHelper_.dummyProvenance_);
   
-  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
+  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), std::move(edp),
                      daqProvenanceHelper_.dummyProvenance());
 
   eventsThisLumi_++;

@@ -199,18 +199,18 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
-    if self.config.type in ('GRun','FULL'):
-      self.data += """
-# Enable HF Noise filters in GRun menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-"""
-    if self.config.type in ('HIon', ):
-      self.data += """
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-"""
+#    if self.config.type in ('HIon', ):
+#      self.data += """
+## Disable HF Noise filters in HIon menu
+#if 'hltHfreco' in %(dict)s:
+#    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
+#"""
+#    else:
+#      self.data += """
+## Enable HF Noise filters in non-HIon menu
+#if 'hltHfreco' in %(dict)s:
+#    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
+#"""
 
 #    self.data += """
 ## untracked parameters with NO default in the code

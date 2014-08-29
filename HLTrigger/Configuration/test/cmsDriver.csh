@@ -50,12 +50,15 @@ set XL1TPI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTri
 # specific workflows, first varying the globaltags, then the hlt tables
 
 # Append new JECs (as long as not in GT):
+#set XJEC = "JetCorrectorParametersCollection_HLT_V1_AK4Calo,JetCorrectionsRecord,frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS,AK4CaloHLT+JetCorrectorParametersCollection_HLT_trk0_V1_AK4PF,JetCorrectionsRecord,frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS,AK4PFHLT"
 #set XJEC = "JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_CONDITIONS,AK5CaloHLT+JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_CONDITIONS,AK5PFHLT+JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_CONDITIONS,AK5PFchsHLT"
 #set XJEC = "JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_CONDITIONS,AK5PFHLT+JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_CONDITIONS,AK5PFchsHLT"
 
 #set XL1TPP1 = ${XL1TPP1}+${XJEC}
 #set XL1TPP2 = ${XL1TPP2}+${XJEC}
-#set XL1THI  = ${XL1THI}+${XJEC}
+#set XL1TPP3 = ${XJEC}
+#set XL1THI  = ${XJEC}
+#set XL1TPI  = ${XJEC}
 
 foreach gtag ( STARTUP DATA )
 #foreach gtag ( DATA STARTUP MC )
@@ -109,7 +112,7 @@ foreach gtag ( STARTUP DATA )
       set InputGenSim = $InputGenSimGRun
       set InputLHCRaw = $InputLHCRawGRun
     else if ( $table == 2014 ) then
-      set XL1T = $XL1TPP3
+      set XL1T = $XL1TPP2
       set XHLT = HLT:2014
       set GTAG = ${GTAGPP}_2014
       set NN   = $NNPP

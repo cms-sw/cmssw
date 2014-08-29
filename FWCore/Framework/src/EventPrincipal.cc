@@ -137,12 +137,12 @@ namespace edm {
   void
   EventPrincipal::put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
     //assert(produced());
-    if(!edp.isValid()) {
+    if(edp.get() == nullptr) {
       throw Exception(errors::InsertFailure, "Null Pointer")
         << "put: Cannot put because ptr to product is null."
         << "\n";
@@ -150,25 +150,24 @@ namespace edm {
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp, phb);
+    checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
-    phb->putProduct(edp, productProvenance);
+    phb->putProduct(std::move(edp), productProvenance);
   }
 
   void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
-        void const* product,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
-    WrapperOwningHolder const edp(product, phb->productData().getInterface());
-    checkUniquenessAndType(edp, phb);
+    checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
-    phb->putProduct(edp, productProvenance);
+    phb->putProduct(std::move(edp), productProvenance);
   }
 
    void
@@ -190,11 +189,11 @@ namespace edm {
         }
       });
       
-      WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+      std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
       
       // Now fix up the ProductHolder
-      checkUniquenessAndType(edp, &phb);
-      phb.putProduct(edp);
+      checkUniquenessAndType(edp.get(), &phb);
+      phb.putProduct(std::move(edp));
     }
   }
 
@@ -280,9 +279,9 @@ namespace edm {
     return BasicHandle(phb->productData());
   }
 
-  WrapperHolder
+  WrapperBase const*
   EventPrincipal::getIt(ProductID const& pid) const {
-    return getByProductID(pid).wrapperHolder();
+    return getByProductID(pid).wrapper();
   }
 
   Provenance
