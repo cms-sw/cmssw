@@ -15,6 +15,7 @@ from DQM.Physics.HiggsDQM_cfi import *
 from DQM.Physics.ExoticaDQM_cfi import *
 from DQM.Physics.B2GDQM_cfi import *
 from DQM.PhysicsHWW.hwwDQM_cfi import *
+from DQM.Physics.CentralityDQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
@@ -34,10 +35,11 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ExoticaDQM
                            *B2GDQM
                            *hwwDQM
+                           *CentralityDQM
                            )
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
-dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI)
+dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
 
 from DQM.Physics.qcdPhotonsCosmicDQM_cff import *
 dqmPhysicsCosmics = cms.Sequence(dqmPhysics)

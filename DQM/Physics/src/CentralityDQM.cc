@@ -125,12 +125,12 @@ void CentralityDQM::bookHistos(DQMStore* bei){
 //
 void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ 
   using namespace edm;  
-  edm::Handle<reco::Centrality> cent;
-  iEvent.getByToken(centralityToken, cent); //_centralitytag comes from the cfg as an inputTag and is "hiCentrality"
+  //  edm::Handle<reco::Centrality> cent;
+  //  iEvent.getByToken(centralityToken, cent); //_centralitytag comes from the cfg as an inputTag and is "hiCentrality"
 
-  if (!cent.isValid()) return;
+  //  if (!cent.isValid()) return;
 
-  h_hiNpix->Fill(cent->multiplicityPixel());
+  /*  h_hiNpix->Fill(cent->multiplicityPixel());
   h_hiNpixelTracks ->Fill( cent->NpixelTracks());
   h_hiNtracks ->Fill( cent->Ntracks()); // 
 
@@ -157,7 +157,8 @@ void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   h_hiEE->Fill( cent->EtEESum());
   h_hiEB->Fill( cent->EtEBSum());
   h_hiET->Fill( cent->EtMidRapiditySum());
-  
+  */
+
   edm::Handle<std::vector<reco::Vertex> > vertex;
   iEvent.getByToken(vertexToken, vertex);
   h_vertex_x->Fill(vertex->begin()->x());
