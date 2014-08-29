@@ -1,6 +1,7 @@
 <use   name="Utilities/StorageFactory"/>
 <use   name="FWCore/ParameterSet"/>
 <bin   file="RunUtilitiesStorageFactory.cpp" name="testUtilitiesStorageFactory">
+  <flags NO_TESTRUN="1"/>
   <flags   TEST_RUNNER_ARGS=" /bin/bash Utilities/StorageFactory/test run_StorageFactoryTests.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
