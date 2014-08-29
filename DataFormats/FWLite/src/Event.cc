@@ -29,7 +29,6 @@
 
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
@@ -61,7 +60,7 @@ namespace fwlite {
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
                 virtual
-                edm::WrapperHolder
+                edm::WrapperBase const*
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
                 }
@@ -294,19 +293,6 @@ Event::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, eventIndex);
 }
 
-bool
-Event::getByLabel(std::type_info const& iInfo,
-                  char const* iModuleLabel,
-                  char const* iProductInstanceLabel,
-                  char const* iProcessLabel,
-                  edm::WrapperHolder& holder) const {
-    if(atEnd()) {
-        throw cms::Exception("OffEnd") << "You have requested data past the last event";
-    }
-    Long_t eventIndex = branchMap_.getEventEntry();
-    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, eventIndex);
-}
-
 edm::EventAuxiliary const&
 Event::eventAuxiliary() const {
    Long_t eventIndex = branchMap_.getEventEntry();
@@ -389,7 +375,7 @@ Event::history() const {
 }
 
 
-edm::WrapperHolder
+edm::WrapperBase const*
 Event::getByProductID(edm::ProductID const& iID) const {
   Long_t eventIndex = branchMap_.getEventEntry();
   return dataHelper_.getByProductID(iID, eventIndex);

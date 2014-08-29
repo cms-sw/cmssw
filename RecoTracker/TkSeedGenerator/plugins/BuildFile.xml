@@ -5,5 +5,5 @@
 <use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <library   file="*.cc" name="RecoTrackerTkSeedGeneratorPlugins">
   <flags   EDM_PLUGIN="1"/>
-  <use   name="RecoTracker/TrackProducer"/>
+  <use   name="DataFormats/TrackerRecHit2D"/>
 </library>

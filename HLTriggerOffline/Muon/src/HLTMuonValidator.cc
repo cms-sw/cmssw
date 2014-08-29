@@ -131,6 +131,14 @@ HLTMuonValidator::stepLabels(const vector<string>& modules) {
       else
         steps.push_back("L2Iso");
     }
+    else if (modules[i].find("IsoRhoFiltered") != string::npos) {
+	if (modules[i].find("L3") != string::npos)
+        steps.push_back("L3Iso");
+	if (modules[i].find("TkFiltered") != string::npos)
+        steps.push_back("TkIso");
+    }
+    else if (modules[i].find("TkFiltered") != string::npos)
+      steps.push_back("Tk");
     else if (modules[i].find("L3") != string::npos)
       steps.push_back("L3");
     else if (modules[i].find("L2") != string::npos)
@@ -140,7 +148,7 @@ HLTMuonValidator::stepLabels(const vector<string>& modules) {
     else
       return vector<string>();
   }
-  if (steps.size() < 2 || steps[1] != "L1")
+  if (steps.size() < 2 || ((steps[1] != "L1")&&(steps[1] != "Tk")))
     return vector<string>();
   return steps;
 
@@ -180,7 +188,7 @@ HLTMuonValidator::dqmBeginRun(const edm::Run & iRun,
     
     vector<string> labels = moduleLabels(path);
     vector<string> steps = stepLabels(labels);
-    
+
     if (labels.size() > 0 && steps.size() > 0) {
       HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
       analyzers_.push_back(analyzer);

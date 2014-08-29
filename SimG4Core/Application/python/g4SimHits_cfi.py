@@ -137,6 +137,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ApplyPhiCuts = cms.bool(False),
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
+        ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
         Verbosity = cms.untracked.int32(0)
     ),
     RunAction = cms.PSet(

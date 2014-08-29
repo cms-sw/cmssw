@@ -16,6 +16,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -154,6 +155,17 @@ namespace reco {
     /// otherwise, return a null reference
     reco::TrackRef trackRef() const;
 
+    /// return a pointer to the best track, if available.
+    /// otherwise, return a null pointer
+    virtual const reco::Track * bestTrack() const {
+      if ( (abs(pdgId()) == 11 || pdgId() == 22) && gsfTrackRef().isNonnull() && gsfTrackRef().isAvailable() )
+        return &(*gsfTrackRef());
+      else if ( trackRef().isNonnull() && trackRef().isAvailable() )
+        return &(*trackRef());
+      else
+        return nullptr;
+    }
+
     /// set gsftrack reference 
     void setGsfTrackRef(const reco::GsfTrackRef& ref);   
 
@@ -287,12 +299,13 @@ namespace reco {
     ///   to 1 otherwise
     /// For neutral particles, it is set to the default value
 
+    void set_mva_Isolated( float mvaI ){ mva_Isolated_=mvaI;}
+    // mva for isolated electrons
+    float mva_Isolated() const { return mva_Isolated_;}
 
-    void set_mva_e_pi( float mva ){ mva_e_pi_=mva;}
-    
+    void set_mva_e_pi( float mvaNI ){ mva_e_pi_=mvaNI;}
     /// mva for electron-pion discrimination
     float mva_e_pi() const { return mva_e_pi_;}
-
     
     /// set mva for electron-muon discrimination
     void set_mva_e_mu( float mva ) { mva_e_mu_=mva;}
@@ -453,6 +466,9 @@ namespace reco {
     float      deltaP_;
 
     PFVertexType vertexType_;
+
+    // mva for isolated electrons
+    float       mva_Isolated_;
 
     /// mva for electron-pion discrimination
     float       mva_e_pi_;

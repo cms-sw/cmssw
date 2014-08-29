@@ -62,6 +62,11 @@ CastorUnpacker::CastorUnpacker(int sourceIdOffset, int beg, int end) : sourceIdO
  }
 }
 
+static int slb(const HcalTriggerPrimitiveSample& theSample) { return ((theSample.raw()>>13)&0x7); }
+static int slbChan(const HcalTriggerPrimitiveSample& theSample) { return (theSample.raw()>>11)&0x3; }
+static int slbAndChan(const HcalTriggerPrimitiveSample& theSample) { return (theSample.raw()>>11)&0x1F; }
+
+
 
 void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap,
 			  CastorRawCollections& colls, HcalUnpackerReport& report, bool silent) {
@@ -165,9 +170,9 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	//	  std::cout << "raw=0x"<<std::hex<< tp_work->raw()<<std::dec <<std::endl;
 	if (tp_work->raw()==0xFFFF) continue; // filler word
-	if (tp_work->slbAndChan()!=currFiberChan) { // start new set
+	if (slbAndChan(*tp_work)!=currFiberChan) { // start new set
 	  npre=0;
-	  currFiberChan=tp_work->slbAndChan();
+	  currFiberChan=slbAndChan(*tp_work);
 	  
 		// std::cout<< " NEW SET "<<std::endl;
 	  //HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
@@ -190,7 +195,7 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
 	  colls.tpCont->push_back(CastorTriggerPrimitiveDigi(id));
 	  // set the various bits
 	  if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
-	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(tp_work->slb(),tp_work->slbChan()));
+	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(slb(*tp_work),slbChan(*tp_work)));
 
 	  // no hits recorded for current
 	  ncurr=0;

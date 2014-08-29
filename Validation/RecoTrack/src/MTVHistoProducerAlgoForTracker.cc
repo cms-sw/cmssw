@@ -707,8 +707,8 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     h_losthits[count]->Fill(track.numberOfLostHits());
     chi2_vs_nhits[count]->Fill(track.numberOfValidHits(),track.normalizedChi2());
     h_charge[count]->Fill( track.charge() );
-    h_nmisslayers_inner[count]->Fill(track.trackerExpectedHitsInner().numberOfHits());
-    h_nmisslayers_outer[count]->Fill(track.trackerExpectedHitsOuter().numberOfHits());
+    h_nmisslayers_inner[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    h_nmisslayers_outer[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
     //chi2 and #hit vs eta: fill 2D histos
     chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());

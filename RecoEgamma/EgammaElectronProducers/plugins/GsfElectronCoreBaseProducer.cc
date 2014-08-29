@@ -93,7 +93,7 @@ std::pair<TrackRef,float> GsfElectronCoreBaseProducer::getCtfTrackRef
     int numGsfInnerHits = 0 ;
     int numCtfInnerHits = 0 ;
     // get the CTF Track Hit Pattern
-    const HitPattern& ctfHitPattern = ctfTkIter->hitPattern() ;
+    const HitPattern& ctfHitPattern = ctfTkIter->hitPattern();
 
     trackingRecHit_iterator elHitsIt ;
     for ( elHitsIt = gsfTrackRef->recHitsBegin() ;
@@ -104,10 +104,10 @@ std::pair<TrackRef,float> GsfElectronCoreBaseProducer::getCtfTrackRef
        { continue ; }
 
       // look only in the pixels/TIB/TID
-      uint32_t gsfHit = gsfHitPattern.getHitPattern(gsfHitCounter) ;
-      if (!(gsfHitPattern.pixelHitFilter(gsfHit) ||
-          gsfHitPattern.stripTIBHitFilter(gsfHit) ||
-          gsfHitPattern.stripTIDHitFilter(gsfHit) ) )
+      uint32_t gsfHit = gsfHitPattern.getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter);
+      if (!(HitPattern::pixelHitFilter(gsfHit) ||
+          HitPattern::stripTIBHitFilter(gsfHit) ||
+          HitPattern::stripTIDHitFilter(gsfHit)))
        { continue ; }
 
       numGsfInnerHits++ ;
@@ -122,10 +122,10 @@ std::pair<TrackRef,float> GsfElectronCoreBaseProducer::getCtfTrackRef
         if(!((**ctfHitsIt).isValid())) //count only valid Hits!
          { continue ; }
 
-      uint32_t ctfHit = ctfHitPattern.getHitPattern(ctfHitsCounter);
-      if( !(ctfHitPattern.pixelHitFilter(ctfHit) ||
-            ctfHitPattern.stripTIBHitFilter(ctfHit) ||
-            ctfHitPattern.stripTIDHitFilter(ctfHit) ) )
+      uint32_t ctfHit = ctfHitPattern.getHitPattern(HitPattern::TRACK_HITS, ctfHitsCounter);
+      if(!(HitPattern::pixelHitFilter(ctfHit) ||
+            HitPattern::stripTIBHitFilter(ctfHit) ||
+            HitPattern::stripTIDHitFilter(ctfHit)))
        { continue ; }
 
       numCtfInnerHits++ ;

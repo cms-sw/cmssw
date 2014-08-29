@@ -28,8 +28,8 @@ namespace edm {
     if(basicWrapper == 0) {
       handleimpl::throwInvalidReference();
     }
-    if(!(bh.interface()->dynamicTypeInfo() == typeid(T))) {
-      handleimpl::throwConvertTypeError(typeid(T), bh.interface()->dynamicTypeInfo());
+    if(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
+      handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
     }
     Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
 

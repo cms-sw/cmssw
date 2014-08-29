@@ -10,27 +10,30 @@
 
 using namespace reco;
 
-class TCRecoTauDiscriminationAlgoComponent : public CaloTauDiscriminationProducerBase {
+class TCRecoTauDiscriminationAlgoComponent final : public CaloTauDiscriminationProducerBase {
     public:
-      	explicit TCRecoTauDiscriminationAlgoComponent(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-	  tcTauAlgorithm = new TCTauAlgorithm(iConfig, consumesCollector());
+      	explicit TCRecoTauDiscriminationAlgoComponent(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig),    
+	  tcTauAlgorithm(iConfig, consumesCollector()) {
       	}
       	~TCRecoTauDiscriminationAlgoComponent(){} 
-      	double discriminate(const CaloTauRef& theCaloTauRef) override;
+
+      	double discriminate(const CaloTauRef& theCaloTauRef) const override;
+
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
     private:
-	TCTauAlgorithm*  tcTauAlgorithm;
+	TCTauAlgorithm tcTauAlgorithm;
 };
 
 void TCRecoTauDiscriminationAlgoComponent::beginEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-	tcTauAlgorithm->eventSetup(iEvent,iSetup);
+	tcTauAlgorithm.eventSetup(iEvent,iSetup);
 }
 
 
-double TCRecoTauDiscriminationAlgoComponent::discriminate(const CaloTauRef& theCaloTauRef){
-	tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
-	return (tcTauAlgorithm->algoComponent());
+double TCRecoTauDiscriminationAlgoComponent::discriminate(const CaloTauRef& theCaloTauRef) const {
+        auto algoused = TCTauAlgorithm::TCAlgoUndetermined;
+	tcTauAlgorithm.recalculateEnergy(*theCaloTauRef, algoused);
+	return algoused; // is this correct???  (elsewehre is  ? 1.:0.;)
 }
 
 DEFINE_FWK_MODULE(TCRecoTauDiscriminationAlgoComponent);

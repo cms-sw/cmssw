@@ -69,13 +69,15 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
+
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
   local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
-  local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
+# local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
+  local L1THI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
 # local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db"
-  local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc"
-
+# local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc"
+  local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
 
   log "  dumping full HLT for $NAME from $CONFIG"
   # override L1 menus
@@ -89,7 +91,7 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:hltonline_PIon    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:startup_PIon      > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline         > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline_GRun    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:startup_GRun      > OnLine_HLT_$NAME.py
   fi
 
@@ -104,7 +106,7 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
-FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLT_{$TABLES_}_Famos_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
+FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLT_FULL_Famos_cff.py HLT_{$TABLES_}_Famos_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
 rm -f $FILES
 getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER

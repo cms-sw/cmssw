@@ -29,17 +29,20 @@ int main()
     testSerialization<SiStripThreshold::Container>();
     testSerialization<SiStripThreshold::Data>();
     testSerialization<SiStripThreshold::DetRegistry>();
-    testSerialization<std::vector<std::vector<FedChannelConnection>>>();
-    testSerialization<std::vector<FedChannelConnection>>();
-    testSerialization<std::vector<SiStripBadStrip::DetRegistry>>();
-    testSerialization<std::vector<SiStripBaseDelay::Delay>>();
-    testSerialization<std::vector<SiStripLatency::Latency>>();
-    testSerialization<std::vector<SiStripNoises::DetRegistry>>();
-    testSerialization<std::vector<SiStripPedestals::DetRegistry>>();
-    testSerialization<std::vector<SiStripSummary::DetRegistry>>();
-    testSerialization<std::vector<SiStripThreshold::Container>>();
-    testSerialization<std::vector<SiStripThreshold::Data>>();
-    testSerialization<std::vector<SiStripThreshold::DetRegistry>>();
+    testSerialization<std::vector<std::vector<FedChannelConnection> > >();
+    testSerialization<std::vector<FedChannelConnection> >();
+    testSerialization<std::vector<SiStripBadStrip::DetRegistry> >();
+    testSerialization<std::vector<SiStripBaseDelay::Delay> >();
+    testSerialization<std::vector<SiStripLatency::Latency> >();
+    testSerialization<std::vector<SiStripNoises::DetRegistry> >();
+    testSerialization<std::vector<SiStripPedestals::DetRegistry> >();
+    testSerialization<std::vector<SiStripSummary::DetRegistry> >();
+    testSerialization<std::vector<SiStripThreshold::Container> >();
+    testSerialization<std::vector<SiStripThreshold::Data> >();
+    testSerialization<std::vector<SiStripThreshold::DetRegistry> >();
+    testSerialization<Phase2TrackerCabling>();
+    testSerialization<Phase2TrackerModule>();
+    testSerialization<std::vector<Phase2TrackerModule> >();
 
     return 0;
 }

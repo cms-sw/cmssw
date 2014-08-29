@@ -16,6 +16,7 @@
 
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "XProtocol/XProtocol.hh"
+#include "XrdClient/XrdClientConn.hh"
 #include "XrdClient/XrdClientProtocol.hh"
 #include "XrdClient/XrdClientConst.hh"
 #include "XrdClient/XrdClientSid.hh"

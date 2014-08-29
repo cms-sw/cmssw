@@ -65,7 +65,6 @@
        typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
        virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

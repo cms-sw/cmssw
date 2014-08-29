@@ -381,9 +381,25 @@ namespace evf {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
     int retval = -1;
+    int lock_attempts = 0;
+
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
       if (retval==-1) usleep(50000);
+      else continue;
+
+      lock_attempts++;
+      if (lock_attempts>100 ||  errno==116) {
+        if (errno==116)
+          edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
+        else
+          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "<< errno <<":"<< strerror(errno) << std::endl;
+
+        struct stat buf;
+        if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
+        if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
+        lock_attempts=0;
+      }
     }
     if(retval!=0) return fileStatus;
 

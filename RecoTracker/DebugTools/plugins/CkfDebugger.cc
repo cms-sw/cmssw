@@ -20,7 +20,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
+#include "TrackingTools/DetLayers/interface/TkLayerLess.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 // #include "RecoTracker/TkDetLayers/interface/PixelBarrelLayer.h"

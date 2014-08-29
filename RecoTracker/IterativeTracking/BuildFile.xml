@@ -1,6 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="FWCore/Framework"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/TrackingRecHit"/>
-

@@ -49,7 +49,7 @@ public:
 		       const int pixelMultiplicityY
 		       );  
 
-  virtual SiTrackerGSMatchedRecHit2D * clone() const {return new SiTrackerGSMatchedRecHit2D( * this); }
+  virtual SiTrackerGSMatchedRecHit2D * clone() const {SiTrackerGSMatchedRecHit2D * p =  new SiTrackerGSMatchedRecHit2D( * this); p->load(); return p;}
   
   const int& simhitId()    const { return simhitId_;}
   const int& simtrackId()  const { return simtrackId_;}

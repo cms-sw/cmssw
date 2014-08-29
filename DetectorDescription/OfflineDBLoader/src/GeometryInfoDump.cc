@@ -207,11 +207,11 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
 // >>>>>>> 1.12
  }
 
-void GeometryInfoDump::dumpSpec( const std::vector<std::pair< DDPartSelection*, DDsvalues_type*> >& attspec, std::ostream& dump) {
-  std::vector<std::pair< DDPartSelection*, DDsvalues_type*> >::const_iterator bit(attspec.begin()), eit(attspec.end());
+void GeometryInfoDump::dumpSpec( const std::vector<std::pair< const DDPartSelection*, const DDsvalues_type*> >& attspec, std::ostream& dump) {
+  std::vector<std::pair< const DDPartSelection*, const DDsvalues_type*> >::const_iterator bit(attspec.begin()), eit(attspec.end());
   for ( ; bit != eit; ++bit ) {
     //  DDPartSelection is a std::vector<DDPartSelectionLevel>
-    std::vector<DDPartSelectionLevel>::iterator psit(bit->first->begin()), pseit(bit->first->end());
+    std::vector<DDPartSelectionLevel>::const_iterator psit(bit->first->begin()), pseit(bit->first->end());
     for ( ; psit != pseit; ++psit ) {
       switch ( psit->selectionType_ ) {
       case ddunknown:
@@ -241,7 +241,7 @@ void GeometryInfoDump::dumpSpec( const std::vector<std::pair< DDPartSelection*, 
     }
     dump << " ";
     // DDsvalues_type is typedef std::vector< std::pair<unsigned int, DDValue> > DDsvalues_type;
-    DDsvalues_type::iterator bsit(bit->second->begin()), bseit(bit->second->end());
+    DDsvalues_type::const_iterator bsit(bit->second->begin()), bseit(bit->second->end());
     for ( ; bsit != bseit; ++bsit ) { 
       dump << bsit->second.name() << " ";
       dump << ( bsit->second.isEvaluated() ?  "eval " : "NOT eval " );

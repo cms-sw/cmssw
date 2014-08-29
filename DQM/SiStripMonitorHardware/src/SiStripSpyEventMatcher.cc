@@ -76,7 +76,7 @@ namespace sistrip {
                                             *productRegistry_,
                                             std::make_shared<edm::BranchIDListHelper>(),
                                             std::make_shared<edm::ActivityRegistry>(),
-                                            -1, -1,
+                                            -1, -1, -1,
                                             edm::PreallocationConfiguration());
     return sourceFactory->makeVectorInputSource(sourceConfig, description);
   }

@@ -64,3 +64,9 @@ REGISTER_PLUGIN(SiStripSummaryRcd,SiStripSummary);
 
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 REGISTER_PLUGIN(SiStripConfObjectRcd, SiStripConfObject);
+
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
+namespace {
+  struct initializeCabling {void operator()(Phase2TrackerCabling& c){ c.initializeCabling();}};
+  }
+REGISTER_PLUGIN_INIT(Phase2TrackerCablingRcd, Phase2TrackerCabling, initializeCabling);

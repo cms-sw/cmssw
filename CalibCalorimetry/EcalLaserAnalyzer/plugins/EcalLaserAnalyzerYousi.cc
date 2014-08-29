@@ -451,7 +451,7 @@ EcalLaserAnalyzerYousi::endJob() {
       min_r = C_APD[j]->GetBinCenter(C_APD[j]->GetMaximumBin()) - K*RMS;
       max_r = C_APD[j]->GetBinCenter(C_APD[j]->GetMaximumBin()) + K*RMS;
       gs1 = new TF1("gs1", "gaus", min_r, max_r);
-      C_APD[j]->Fit("gs1", "RQI");
+      C_APD[j]->Fit(gs1, "RQI");
       Sigma = gs1->GetParameter(2);
       K = K*1.5;
       iCount++;
@@ -471,7 +471,7 @@ EcalLaserAnalyzerYousi::endJob() {
       min_r = C_APDPN[j]->GetBinCenter(C_APDPN[j]->GetMaximumBin()) - K*RMS;
       max_r = C_APDPN[j]->GetBinCenter(C_APDPN[j]->GetMaximumBin()) + K*RMS;
       gs2 = new TF1("gs2", "gaus", min_r, max_r);
-      C_APDPN[j]->Fit("gs2", "RQI");
+      C_APDPN[j]->Fit(gs2, "RQI");
       Sigma = gs2->GetParameter(2);
       K = K*1.5;
       iCount++;

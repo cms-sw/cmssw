@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 // user include files
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -100,8 +101,8 @@ private:
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
+  void getSubDetTag(std::string& folder_name, std::string& tag);
 
-  void getSubDetTag(std::string& folder_name, std::string& tag);   
   // ----------member data ---------------------------
   
 private:
@@ -174,8 +175,7 @@ private:
   std::string TrackProducer_;
   std::string TrackLabel_;
 
-  std::vector<uint32_t> ModulesToBeExcluded_;
-  std::vector<const SiStripCluster*> vPSiStripCluster;
+  std::unordered_set<const SiStripCluster*> vPSiStripCluster;
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
   bool flag_ring;

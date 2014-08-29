@@ -755,10 +755,11 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        quality_ = itTrack->qualityMask();
        foundhits_ = itTrack->found();
        lostHits_  = itTrack->lost();
-       foundhitsStrips_ = itTrack->hitPattern().numberOfValidStripHits();
-       foundhitsPixels_ = itTrack->hitPattern().numberOfValidPixelHits();
-       losthitsStrips_  = itTrack->hitPattern().numberOfLostStripHits();
-       losthitsPixels_  = itTrack->hitPattern().numberOfLostPixelHits();
+       foundhitsStrips_ =  itTrack->hitPattern().numberOfValidStripHits();
+       foundhitsPixels_ =  itTrack->hitPattern().numberOfValidPixelHits();
+       losthitsStrips_  =  itTrack->hitPattern().numberOfLostStripHits(reco::HitPattern::TRACK_HITS);
+       losthitsPixels_  =  itTrack->hitPattern().numberOfLostPixelHits(reco::HitPattern::TRACK_HITS);
+       nLayers_ = uint32_t(itTrack->hitPattern().trackerLayersWithMeasurement());
        p_ = itTrack->p();
        pt_ = itTrack->pt();
        chi2_  = itTrack->chi2();
@@ -776,7 +777,6 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        xPCA_ = itTrack->vertex().x();
        yPCA_ = itTrack->vertex().y();
        zPCA_ = itTrack->vertex().z();
-       nLayers_ = uint32_t(itTrack->hitPattern().trackerLayersWithMeasurement());
        try { // only one track collection (at best) is connected to the main vertex
          if(vertexColl.size()>0 && !vertexColl.begin()->isFake()) {
            trkWeightpvtx_ =  vertexColl.begin()->trackWeight(itTrack);

@@ -58,11 +58,11 @@ namespace reco {
 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
-
+    TransientTrack( const CandidatePtr & ptr , const MagneticField* field);
     TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-
+  
     TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-
+    TransientTrack( const CandidatePtr & ptr , const MagneticField* field,  const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
 
     void setES(const edm::EventSetup& es) {sharedData().setES(es);}
@@ -129,11 +129,11 @@ namespace reco {
     /// number of RecHits
     size_t recHitsSize() const { return track().recHitsSize(); }
     //  hit pattern
-    const HitPattern & hitPattern() const { return track().hitPattern(); }
+    const HitPattern &hitPattern() const { return track().hitPattern(); }
     /// number of hits found 
     unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(); }
     /// number of hits lost
-    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(); }
+    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(HitPattern::TRACK_HITS); }
     /// chi-squared of the fit
     double chi2() const { return track().chi2(); }
     /// number of degrees of freedom of the fit

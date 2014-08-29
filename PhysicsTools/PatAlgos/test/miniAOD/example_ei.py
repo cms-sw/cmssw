@@ -19,7 +19,7 @@ process.selectedMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slim
     (isPFMuon && (isGlobalMuon || isTrackerMuon) )'''))
 process.selectedElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedElectrons"), cut = cms.string('''abs(eta)<2.5 && pt>20. &&
     gsfTrack.isAvailable() &&
-    gsfTrack.trackerExpectedHitsInner.numberOfLostHits<2 &&
+    gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') < 2 &&
     (pfIsolationVariables().sumChargedHadronPt+
     max(0.,pfIsolationVariables().sumNeutralHadronEt+
     pfIsolationVariables().sumPhotonEt-

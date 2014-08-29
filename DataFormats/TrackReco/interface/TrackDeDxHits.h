@@ -6,15 +6,17 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include <vector>
 
-namespace reco {
+namespace reco
+{
 
-// Association Track -> DeDx hits   
-typedef  edm::AssociationVector<reco::TrackRefProd,std::vector<reco::DeDxHitCollection> >  TrackDeDxHitsCollection;
+// Association Track -> DeDx hits
+typedef  edm::AssociationVector<reco::TrackRefProd, std::vector<reco::DeDxHitCollection> > TrackDeDxHitsCollection;
 typedef  TrackDeDxHitsCollection::value_type TrackDeDxHits;
 typedef  edm::Ref<TrackDeDxHitsCollection> TrackDeDxHitsRef;
 typedef  edm::RefProd<TrackDeDxHitsCollection> TrackDeDxHitsRefProd;
 typedef  edm::RefVector<TrackDeDxHitsCollection> TrackDeDxHitsRefVector;
 
-}
+} // namespace reco
 
 #endif
+

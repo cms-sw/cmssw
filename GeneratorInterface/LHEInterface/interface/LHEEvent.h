@@ -53,7 +53,7 @@ class LHEEvent {
 	const std::vector<WGT>& weights() const { return weights_; }
 
 	const std::vector<float> &scales() const { return scales_; }
-	std::vector<float> &scales() { return scales_; }
+	void setScales(const std::vector<float> &scales) { scales_ = scales; }
 	
 	int npLO() const { return npLO_; }
 	int npNLO() const { return npNLO_; }

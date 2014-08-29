@@ -74,7 +74,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_IsoMu24_IterTrk02'])
+      paths = cms.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -87,7 +87,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_IsoMu24_IterTrk02'])
+      select = cms.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -211,7 +211,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Ele27_WP80_Gsf'])
+      paths = cms.vstring(['HLT_Ele27_WP80_Gsf_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v'])
      )
   ),
   ## ------------------------------------------------------
@@ -224,7 +224,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Ele27_WP80_Gsf'])
+      select = cms.vstring(['HLT_Ele27_WP80_Gsf_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v'])
      ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(

@@ -162,6 +162,10 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   std::string DirName = FolderName_+metCollectionLabel_.label();
   ibooker.setCurrentFolder(DirName);
 
+  if(!folderNames_.empty()){
+    folderNames_.clear();
+  }
+
   folderNames_.push_back("Uncleaned");
   folderNames_.push_back("Cleaned");
   folderNames_.push_back("DiJet");

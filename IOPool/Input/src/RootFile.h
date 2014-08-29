@@ -78,6 +78,7 @@ namespace edm {
              std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
              std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+             bool bypassVersionCheck,
              bool labelRawDataLikeMC,
              bool usingGoToEvent,
              bool enablePrefetching);
@@ -217,6 +218,7 @@ namespace edm {
     mutable std::vector<std::shared_ptr<ProductProvenanceRetriever>> eventProductProvenanceRetrievers_;
     std::vector<ParentageID> parentageIDLookup_;
     std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
+    TClass* edProductClass_;
   }; // class RootFile
 
 }

@@ -11,7 +11,7 @@ class SeedGeneratorFromRegionHits;
 class TrackingRegionProducer;
 class QuadrupletSeedMerger;
 
-class SeedGeneratorFromRegionHitsEDProducer : public edm::stream::EDProducer<> {
+class dso_hidden SeedGeneratorFromRegionHitsEDProducer : public edm::stream::EDProducer<> {
 public:
 
   SeedGeneratorFromRegionHitsEDProducer(const edm::ParameterSet& cfg);

@@ -107,6 +107,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;
   runNb   = e.id().run();
   eventNb = e.id().event();
+//  vPSiStripCluster.clear();
   vPSiStripCluster.clear();
 
   iOrbitSec = e.orbitNumber()/11223.0;
@@ -573,10 +574,6 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
     }
 
     const uint32_t& detid = tkrecHit->geographicalId().rawId();
-    if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()){
-      LogTrace("SiStripMonitorTrack") << "Modules Excluded" << std::endl;
-      return;
-    }
 
     LogTrace("SiStripMonitorTrack")
       <<"\n\t\tRecHit on det "<<tkrecHit->geographicalId().rawId()
@@ -597,10 +594,13 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
 
       //      std::cout << "[SiStripMonitorTrack::RecHitInfo] SiStripClusterInfo DONE" << std::endl;
 
-      if ( clusterInfos(&SiStripClusterInfo_,detid, tTopo, OnTrack, LV ) ) {
-	vPSiStripCluster.push_back(SiStripCluster_);
+      if ( clusterInfos(&SiStripClusterInfo_,detid, tTopo, OnTrack, LV ) )
+      {
+        vPSiStripCluster.insert(SiStripCluster_);
       }
-    }else{
+    }
+    else
+    {
      edm::LogError("SiStripMonitorTrack") << "NULL hit" << std::endl;
     }
   }
@@ -621,21 +621,30 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
   if (!siStripClusterHandle.isValid()){
     edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
     return;
-  } else {
+  }
+  else
+  {
     //    std::cout << "[SiStripMonitorTrack::AllClusters] OK cluster collection: " << siStripClusterHandle->size() << std::endl;
 
     //Loop on Dets
-    for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=siStripClusterHandle->begin(); DSViter!=siStripClusterHandle->end();DSViter++){
+    for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=siStripClusterHandle->begin();
+         DSViter!=siStripClusterHandle->end();
+         DSViter++)
+    {
       uint32_t detid=DSViter->id();
-      if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()) continue;
-      //Loop on Clusters
+
       LogDebug("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->size();
-      edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
-      for(; ClusIter!=DSViter->end(); ClusIter++) {
-	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
-	  SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
-	  clusterInfos(&SiStripClusterInfo_,detid,tTopo,OffTrack,LV);
-	}
+
+      //Loop on Clusters
+      for(edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
+          ClusIter!=DSViter->end();
+          ClusIter++)
+      {
+        if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end())
+        {
+          SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
+          clusterInfos(&SiStripClusterInfo_,detid,tTopo,OffTrack,LV);
+        }
       }
     }
   }

@@ -29,3 +29,4 @@ void VertexCompositePtrCandidate::setCovariance(const CovarianceMatrix & err) {
     for(index j = 0; j <= i; ++j)
       covariance_[idx++] = err(i, j);
 }
+

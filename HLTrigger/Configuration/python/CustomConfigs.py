@@ -24,11 +24,13 @@ def Base(process):
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
-# override the GlobalTag, connection string and pfnPrefix
-    if 'GlobalTag' in process.__dict__:
-        process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
-        process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-        
+#
+# No longer override - instead use GT config as provided via cmsDriver
+## override the GlobalTag, connection string and pfnPrefix
+#    if 'GlobalTag' in process.__dict__:
+#        process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
+#        process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://Frontie#rProd/')
+#        
     process=ProcessName(process)
 
     return(process)

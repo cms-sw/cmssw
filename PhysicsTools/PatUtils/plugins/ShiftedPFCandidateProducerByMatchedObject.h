@@ -18,6 +18,13 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include <string>
 #include <vector>
 
@@ -34,12 +41,14 @@ class ShiftedPFCandidateProducerByMatchedObject : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag srcPFCandidates_; 
-  edm::InputTag srcUnshiftedObjects_; 
-  edm::InputTag srcShiftedObjects_; 
+  edm::EDGetTokenT<edm::Handle<reco::PFCandidateCollection> > srcPFCandidates_; 
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_; 
 
   double dRmatch_PFCandidate_;
+  double dR2match_PFCandidate_;
   double dRmatch_Object_;
+  double dR2match_Object_;
 
   struct objectEntryType
   {

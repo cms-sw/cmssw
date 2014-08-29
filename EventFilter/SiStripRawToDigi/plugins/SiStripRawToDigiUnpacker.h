@@ -26,7 +26,7 @@ class SiStripFedCabling;
 
 namespace sistrip {
   
-  class RawToDigiUnpacker {
+  class dso_hidden RawToDigiUnpacker {
     
     friend class RawToClustersLazyUnpacker;
     

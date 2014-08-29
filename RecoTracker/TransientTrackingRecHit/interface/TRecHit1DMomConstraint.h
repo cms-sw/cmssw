@@ -4,7 +4,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-class GeomDetUnit;
+
 
 class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
  public:

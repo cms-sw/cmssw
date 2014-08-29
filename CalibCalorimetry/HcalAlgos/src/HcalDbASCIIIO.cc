@@ -1327,7 +1327,12 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int dcc = atoi (items [4].c_str());
     int spigot = atoi (items [5].c_str());
     HcalElectronicsId elId;
-    if (items[8] == "HT" || items[8] == "NT") {
+    if (items[3][0] == 'u') { // uTCA!
+      int fiber = atoi (items [6].c_str());
+      int fiberCh = atoi (items [7].c_str());
+      bool isTrig=(items[8] == "HT" || items[8] == "NT");
+      elId=HcalElectronicsId(crate, slot, fiber, fiberCh,isTrig);
+    } else if (items[8] == "HT" || items[8] == "NT") {
       int slb = atoi (items [6].c_str());
       int slbCh = atoi (items [7].c_str());
       elId=HcalElectronicsId(slbCh, slb, spigot, dcc,crate,slot,top);
@@ -1399,14 +1404,23 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       DetId channel = fObject.lookup (eid);
       if (channel.rawId()) {
 	HcalText2DetIdConverter converter (channel);
-	// changes by Jared, 6.03.09/(included 25.03.09)
-	//	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
-	sprintf (buf, " %7X %3d %3d %3c %4d %7d %10d %14d %7s %5s %5s %6s",
-		 //		 i,
-		 converter.getId().rawId(),
-		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
-	       );
+	if (eid.isVMEid()) {
+	  // changes by Jared, 6.03.09/(included 25.03.09)
+	  //	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	  sprintf (buf, " %7X %3d %3d %3c %4d %7d %10d %14d %7s %5s %5s %6s",
+		   //		 i,
+		   converter.getId().rawId(),
+		   eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		   converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+		   );
+	} else {
+	  sprintf (buf, " %7X %3d %3d u %4d %7d %10d %14d %7s %5s %5s %6s",
+		   //		 i,
+		   converter.getId().rawId(),
+		   eid.crateId(), eid.slot(), 0, eid.slot(), eid.fiberIndex(), eid.fiberChanId(),
+		   converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+		   );
+	}
 	fOutput << buf << std::endl;
       }
     }

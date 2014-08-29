@@ -396,8 +396,7 @@ namespace edm {
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
           KeepTrackOfPileup+=NumPU_Events;
         } else {
-          int dummyId = 0;
-          const std::vector<edm::EventID>& playEventID =
+	  const std::vector<edm::EventID>& playEventID =
             playbackInfo_H->getStartEventId(readSrcIdx, bunchIdx);
           if(readSrcIdx == 0) {
             PileupList.push_back(playEventID.size());
@@ -406,7 +405,7 @@ namespace edm {
           inputSources_[readSrcIdx]->playPileUp(
             playEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
-                        dummyId, vertexOffset, boost::ref(setup), boost::cref(e.streamID()))
+                        _2, vertexOffset, boost::ref(setup), boost::cref(e.streamID()))
             );
         }
       }
@@ -468,24 +467,28 @@ namespace edm {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginRun(run, setup);
     }
+    BMixingModule::beginRun( run, setup);
   }
 
   void MixingModule::endRun(edm::Run const& run, edm::EventSetup const& setup) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endRun(run, setup);
     }
+    BMixingModule::endRun( run, setup);
   }
 
   void MixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginLuminosityBlock(lumi, setup);
     }
+    BMixingModule::beginLuminosityBlock(lumi, setup);
   }
 
   void MixingModule::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const& setup) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endLuminosityBlock(lumi, setup);
     }
+    BMixingModule::endLuminosityBlock(lumi, setup);
   }
 
   void

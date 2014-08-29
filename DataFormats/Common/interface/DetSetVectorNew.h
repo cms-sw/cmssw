@@ -153,7 +153,8 @@ namespace edmNew {
       void reserve(size_type s) {
 	v.m_data.reserve(item.offset+s);
       }
-
+      
+      
       void resize(size_type s) {
 	v.m_data.resize(item.offset+s);
 	item.size=s;
@@ -229,6 +230,13 @@ namespace edmNew {
       m_data.reserve(dsize);
     }
     
+    void shrink_to_fit() {
+#ifndef CMS_NOCXX11
+      m_ids.shrink_to_fit();
+      m_data.shrink_to_fit();
+#endif
+    }
+
     void resize(size_t isize, size_t dsize) {
       m_ids.resize(isize);
       m_data.resize(dsize);

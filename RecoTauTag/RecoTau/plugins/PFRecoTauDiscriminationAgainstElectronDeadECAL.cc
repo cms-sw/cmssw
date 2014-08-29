@@ -53,7 +53,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     updateBadTowers(es);
   }
 
-  double discriminate(const PFTauRef& pfTau) override
+  double discriminate(const PFTauRef& pfTau) const override
   {
     if ( verbosity_ ) {
       edm::LogPrint("PFTauAgainstEleDeadECAL") << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" ;

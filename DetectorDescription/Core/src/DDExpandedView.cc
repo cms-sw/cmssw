@@ -14,7 +14,7 @@ DDExpandedView::DDExpandedView( const DDCompactView & cpv )
 {
   walker_ = &w2_;
 
-  DDPosData * pd((*walker_).current().second);
+  const DDPosData * pd((*walker_).current().second);
   if (!pd)
     pd = worldpos_;
   DDExpandedNode expn((*walker_).current().first,
@@ -64,26 +64,6 @@ int DDExpandedView::copyno() const
   return history_.back().copyno();
 }
 
-  
-namespace {
-
-  struct Counter {
-    int same;
-    int diff;
-    ~Counter() {
-    }
-
-  };
-
-  inline Counter & counter() {
-    static Counter local;
-    return local;
-  }
-
-
-}
-
-
 /** 
    returns true, if a next sibling exists and updates \c this
    otherwise returns false.
@@ -116,9 +96,7 @@ bool DDExpandedView::nextSibling()
 	// VI in principle we can do this
 	if ( !(expn.posd_->rot()==posdOld->rot()) ) {
 	  expn.rot_ = expnBefore.rot_ * expn.posd_->rot();//.inverse();
-	  ++counter().diff;
-	}else ++counter().same;
-
+	}
       }
       else {
 	expn.trans_ = expn.posd_->trans_;
@@ -285,12 +263,12 @@ void
 DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
 {
   unsigned int i(0);
-  const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
+  const std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
   if( specs.size())
   {
     result.reserve(specs.size());
     for (; i<specs.size(); ++i) {
-      const std::pair<DDPartSelection*,DDsvalues_type*>& sp = specs[i];
+      const std::pair<const DDPartSelection*, const DDsvalues_type*>& sp = specs[i];
       // a part selection
       const DDPartSelection & psel = *(sp.first);
       const DDGeoHistory & hist = geoHistory();
@@ -311,11 +289,11 @@ void DDExpandedView::mergedSpecificsV(DDsvalues_type & merged) const
 {
 
   merged.clear();
-  const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
+  const std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
   if (specs.empty()) return;
   const DDGeoHistory & hist = geoHistory();
   for (size_t i=0; i<specs.size(); ++i) {
-    const std::pair<DDPartSelection*,DDsvalues_type*>& sp = specs[i];
+    const std::pair<const DDPartSelection*, const DDsvalues_type*>& sp = specs[i];
     const DDPartSelection & psel = *(sp.first);
     if (DDCompareEqual(hist, psel)())
       merge(merged,*sp.second);

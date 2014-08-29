@@ -144,8 +144,10 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
 	  if(fabs(1/scRef->seed()->energy() - 1/trkP)<oneOverESeedMinusOneOverPValue) oneOverESeedMinusOneOverPValue =fabs(1/scRef->seed()->energy() - 1/trkP);
 	}
 
-	if (gsfTracks[trkNr]->trackerExpectedHitsInner().numberOfLostHits() < missingHitsValue) 
-	  missingHitsValue = gsfTracks[trkNr]->trackerExpectedHitsInner().numberOfLostHits();
+	if (gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue){ 
+        missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    }
+
 	if (fabs(scAtVtx.dEta())<dEtaInValue) 
 	  dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
 	if (fabs(scAtVtx.dPhi())<dPhiInValue) 

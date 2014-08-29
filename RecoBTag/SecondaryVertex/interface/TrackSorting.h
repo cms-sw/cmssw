@@ -3,10 +3,10 @@
 
 #include <string>
 
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 namespace TrackSorting {
-	extern reco::TrackIPTagInfo::SortCriteria
+	extern reco::btag::SortCriteria
 	getCriterium(const std::string &name);
 }
 

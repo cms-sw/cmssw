@@ -76,7 +76,7 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     MonitorElement * bookH1andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="" ) ;
+       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;
 
     MonitorElement * bookH2andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
@@ -100,7 +100,7 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     MonitorElement * bookH1andDivide
      ( const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="" ) ;
+       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;
 
     MonitorElement * bookH2andDivide
      ( const std::string & name, const std::string & num, const std::string & denom,

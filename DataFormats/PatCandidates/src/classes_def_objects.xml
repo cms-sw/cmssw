@@ -163,7 +163,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="13">
+  <class name="pat::PackedCandidate" ClassVersion="14">
+    <version ClassVersion="14" checksum="1075333340"/>
     <version ClassVersion="13" checksum="981046949"/>
     <version ClassVersion="12" checksum="981046949"/>
     <version ClassVersion="11" checksum="3135186025"/>
@@ -193,7 +194,10 @@
     <![CDATA[unpackedVtx_ = false;
     ]]>
   </ioread>
-
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpackedTrk_">
+    <![CDATA[unpackedTrk_ = false;
+    ]]>
+  </ioread>
 
  <class name="pat::PackedGenParticle">
     <field name="p4_" transient="true" />

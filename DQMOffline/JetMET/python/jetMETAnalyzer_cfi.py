@@ -155,7 +155,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      # For mucorrMET
      #
      mucorrMETAnalysis = metDQMParameters.clone(
-         METCollectionLabel = cms.InputTag("corMetGlobalMuons"),
+         METCollectionLabel = cms.InputTag("caloMetM"),
          Source             = cms.string("MuCorrMET"),
          InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
          DCSFilter = cms.PSet(

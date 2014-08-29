@@ -244,6 +244,9 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     case TrackBase::iter4:
     case TrackBase::iter5:
     case TrackBase::iter6:
+    case TrackBase::iter7:
+    case TrackBase::iter9:
+    case TrackBase::iter10:
     default:
       break;
     }

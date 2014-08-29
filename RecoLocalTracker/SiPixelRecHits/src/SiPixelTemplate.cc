@@ -550,8 +550,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	const int code_version={17};
 	
 	// We must create a new object because dbobject must be a const and our stream must not be
-	SiPixelTemplateDBObject db = dbobject;
-	//	SiPixelTemplateDBObject & db = const_cast<SiPixelTemplateDBObject&>(dbobject);
+	auto db(dbobject.reader());
 	
 	// Create a local template storage entry
 	SiPixelTemplateStore theCurrentTemp;

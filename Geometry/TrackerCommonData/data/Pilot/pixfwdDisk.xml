@@ -312,7 +312,7 @@
         <Numeric name="Endcap" value="-1."/>
         <String name="Child" value="pixfwdPilotBlade:PixelForwardBlade3"/> 
         <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPilot]+0.096*cm </Vector>
-        <String name="ChildRotation" value="pixfwdCommon:ReflectionX"/> -->
+        <String name="ChildRotation" value="pixfwdCommon:ReflectionX"/>
         <String name="FlagString" value="-------RR----------RR---"/>
         <!-- Panel Layout ZMinus 3  -->
         <String name="FlagSelector" value="R"/> 

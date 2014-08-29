@@ -1,4 +1,7 @@
-<flags   CXXFLAGS="-Ofast -mrecip"/>
+<flags   CXXFLAGS="-Ofast"/>
+<compiler name="gcc">
+  <flags   CXXFLAGS="-mrecip"/>
+</compiler>
 
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
@@ -18,8 +21,7 @@
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/TkNavigation"/>
+<use   name="RecoTracker/MeasurementDet"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoTracker/CkfPattern"/>
 <use   name="RecoTracker/TkSeedGenerator"/>

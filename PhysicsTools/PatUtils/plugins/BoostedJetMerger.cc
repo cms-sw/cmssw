@@ -17,7 +17,7 @@ BoostedJetMerger::~BoostedJetMerger()
 
 // ------------ method called to produce the data  ------------
 void
-BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
 {  
 
   std::auto_ptr< std::vector<pat::Jet> > outputs( new std::vector<pat::Jet> );
@@ -55,17 +55,6 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(outputs);
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-BoostedJetMerger::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-BoostedJetMerger::endJob() {
 }
 
 //define this as a plug-in

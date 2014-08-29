@@ -255,33 +255,7 @@ SKIMStreamEcalActivity = cms.FilteredStream(
 
 #####################
 
-
 from DPGAnalysis.Skims.WMuSkim_cff import *
-WMuPath = cms.Path( pfMetWMuNuSeq )
-SKIMStreamWMu = cms.FilteredStream(
-    responsible = 'DDT Test',
-    name = 'WMu',
-    paths = ( WMuPath ),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-
-from DPGAnalysis.Skims.WElectronSkim_cff import *
-WElectronPath = cms.Path( elecMetSeq )
-SKIMStreamWElectron = cms.FilteredStream(
-    responsible = 'Egamma POG',
-    name = 'WElectron',
-    paths = ( WElectronPath ),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-
-
-
 from DPGAnalysis.Skims.ZMuSkim_cff import *
 from DPGAnalysis.Skims.ZmmgSkim_cff import *
 
@@ -368,11 +342,10 @@ SKIMStreamZElectron = cms.FilteredStream(
 
 from DPGAnalysis.Skims.HighMETSkim_cff import *
 pfPath = cms.Path(pfMETSelSeq)
-tcPath = cms.Path(tcMETSelSeq)
 SKIMStreamHighMET   = cms.FilteredStream(
             responsible = 'MET Group',
             name = 'HighMET',
-            paths = (pfPath,tcPath),
+            paths = (pfPath),
             content = skimContent.outputCommands,
             selectEvents = cms.untracked.PSet(),
             dataTier = cms.untracked.string('RAW-RECO')

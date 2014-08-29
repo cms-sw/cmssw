@@ -47,6 +47,12 @@ using namespace std;
 
 namespace {
 
+  class StrictWeakOrdering{
+    public:
+     bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
+  };
+
+
   struct CmpTKD {
     bool operator()(MeasurementDet const* rh, MeasurementDet const * lh) {
       return rh->fastGeomDet().geographicalId().rawId() < lh->fastGeomDet().geographicalId().rawId();
@@ -171,14 +177,14 @@ void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer&
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
 
-    const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
+    auto gdu = (*gd);
 
     //    StripSubdetector stripId( (**gd).geographicalId());
     //     bool isDetUnit( gdu != 0);
     //     cout << "StripSubdetector glued? " << stripId.glued() 
     // 	 << " is DetUnit? " << isDetUnit << endl;
 
-    if (gdu != 0) {
+    if (gdu->isLeaf()) {
       addStripDet(*gd);
     }
     else {

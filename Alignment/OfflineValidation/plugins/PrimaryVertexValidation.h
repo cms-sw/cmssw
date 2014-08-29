@@ -48,8 +48,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

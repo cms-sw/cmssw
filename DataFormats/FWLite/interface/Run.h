@@ -40,7 +40,7 @@
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -79,7 +79,6 @@ namespace fwlite {
          // This function should only be called by fwlite::Handle<>
          using fwlite::RunBase::getByLabel;
          virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          bool isValid() const;
@@ -96,7 +95,7 @@ namespace fwlite {
 
 //       void setGetter(//Copy from Event if needed
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);

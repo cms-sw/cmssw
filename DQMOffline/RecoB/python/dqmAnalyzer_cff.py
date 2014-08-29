@@ -67,4 +67,6 @@ bTagPlotsMC = cms.Sequence(bTagValidation)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
 bTagValidationNoall = bTagValidation.clone(flavPlots="noall")
-bTagPlotsMCbcl = cms.Sequence(myPartons*AK4Flavour*bTagValidationNoall)
+#bTagPlotsMCbcl = cms.Sequence(myPartons*AK4Flavour*bTagValidationNoall)
+#mypartons is already running elsewhere (and cannot mix endpath and path
+bTagPlotsMCbcl = cms.Sequence(AK4Flavour*bTagValidationNoall)

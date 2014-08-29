@@ -136,18 +136,14 @@ namespace edm {
     e.getByLabel<edmtest::IntProduct>("EventNumber", handle);
     assert(static_cast<EventNumber_t>(handle->value) == e.id().event());
 
-    BasicHandle bh = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
+    WrapperBase const* ep = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
                                                "Thing",
                                                "",
                                                "",
                                                nullptr,
-                                               nullptr);
-    assert(bh.isValid());
-    if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
-      handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());
-    }
-    WTC const* wtp = static_cast<WTC const*>(bh.wrapper());
-
+                                               nullptr).wrapper();
+    assert(ep != nullptr);
+    WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
     std::auto_ptr<TC> thing(new TC(*tp));
@@ -176,7 +172,7 @@ namespace edm {
                                 *productRegistry_,
 				std::make_shared<BranchIDListHelper>(),
 				std::make_shared<ActivityRegistry>(),
-				-1, -1, dummy);
+				-1, -1, -1, dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
       desc).release()));

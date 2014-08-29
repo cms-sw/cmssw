@@ -145,7 +145,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
         wgt_info weightsinevent;
         int                             npLO;
         int                             npNLO;
-        std::map<int,float>             scalesmap;
+        std::vector<float>              scales;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -210,13 +210,19 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
       for (XMLSize_t iscale=0; iscale<attributes.getLength(); ++iscale) {
         int ipart = 0;
         const char *scalename = XMLSimpleStr(attributes.getQName(iscale));
-        sscanf(scalename,"pt_clust_%d",&ipart);
+        int nmatch = sscanf(scalename,"pt_clust_%d",&ipart);
         
+        if (nmatch!=1) {
+          edm::LogError("Generator|LHEInterface")
+          << "invalid attribute in <scales> tag"
+          << std::endl;
+        }
+
         float scaleval;
         const char *scalevalstr = XMLSimpleStr(attributes.getValue(iscale));
         sscanf(scalevalstr,"%e",&scaleval);
         
-        scalesmap[ipart] = scaleval;
+        scales.push_back(scaleval);
       }
     }
     xmlEventNodes.push_back(elem);
@@ -246,7 +252,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if(xmlEvent)  xmlEvent->release();
     xmlEvent = impl->createDocument(0, qname, 0);
     weightsinevent.resize(0);
-    scalesmap.clear();
+    scales.clear();
     
     npLO = -99;
     npNLO = -99;
@@ -530,13 +536,8 @@ LHEReader::~LHEReader()
 	lheevent->setNpLO(handler->npLO);
         lheevent->setNpNLO(handler->npNLO);
         //fill scales
-        if (handler->scalesmap.size()>0) {
-          std::vector<float> &scales = lheevent->scales();
-          scales = std::vector<float>(lheevent->getHEPEUP()->NUP, -1.);
-          for (const std::pair<int,float> &scale : handler->scalesmap) {
-            //index differs by one
-            scales[scale.first-1] = scale.second;
-          }
+        if (handler->scales.size()>0) {
+          lheevent->setScales(handler->scales);
         }
         return lheevent;
       }

@@ -589,10 +589,11 @@ class GsfElectron : public RecoCandidate
     struct MvaOutput
      {
       int status ; // see PFCandidateElectronExtra::StatusFlag
-      float mva ;
+      float mva_Isolated ;
+      float mva_e_pi ;
       float mvaByPassForIsolated ; // complementary MVA used in preselection
       MvaOutput()
-       : status(-1), mva(-999999999.), mvaByPassForIsolated(-999999999.)
+       : status(-1), mva_Isolated(-999999999.),mva_e_pi(-999999999.), mvaByPassForIsolated(-999999999.)
        {}
      } ;
 
@@ -609,7 +610,8 @@ class GsfElectron : public RecoCandidate
     void setMvaOutput( const MvaOutput & mo ) { mvaOutput_ = mo ; }
 
     // for backward compatibility
-    float mva() const { return mvaOutput_.mva ; }
+    float mva_Isolated() const { return mvaOutput_.mva_Isolated ; }
+    float mva_e_pi() const { return mvaOutput_.mva_e_pi ; }
 
   private:
 

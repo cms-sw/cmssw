@@ -91,7 +91,7 @@ BVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
             GlobalVector axis(0,0,0);
             if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
-            if(svFilter(primary,reco::SecondaryVertex(primary,*it,axis,true),axis))  {
+            if(svFilter(primary,reco::TemplatedSecondaryVertex<reco::Vertex>(primary,*it,axis,true),axis))  {
                   count++;
                   recoVertices->push_back(*it);
              }

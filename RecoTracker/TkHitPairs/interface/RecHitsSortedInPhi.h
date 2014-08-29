@@ -141,6 +141,7 @@ public:
   std::size_t size() const { return indeces.size()/2;}
   bool empty() const { return indeces.empty();}
   void clear() { indeces.clear();}
+  void shrink_to_fit() { indeces.shrink_to_fit();}
 
   void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
 

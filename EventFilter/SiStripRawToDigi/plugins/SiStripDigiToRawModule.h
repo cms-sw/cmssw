@@ -21,7 +21,7 @@ namespace sistrip {
      @brief A plug-in module that takes StripDigis as input from the
      Event and creates an EDProduct comprising a FEDRawDataCollection.
   */
-  class DigiToRawModule : public edm::EDProducer {
+  class dso_hidden DigiToRawModule final : public edm::EDProducer {
   
   public:
   

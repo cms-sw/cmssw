@@ -25,20 +25,10 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-namespace
+namespace jetcorrextractor 
 {
-  template <typename T>
-  double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
-		       const edm::Event& evt, const edm::EventSetup& es)
-  {
-    const JetCorrector* jetCorrector = JetCorrector::getJetCorrector(jetCorrLabel, es);
-    if ( !jetCorrector )  
-      throw cms::Exception("JetCorrExtractor")
-	<< "Failed to access Jet corrections for = " << jetCorrLabel << " !!\n";
-    return jetCorrector->correction(rawJet, evt, es);
-  }
-
-  double sign(double x)
+  // never heard of copysign?
+  inline double sign(double x)
   {
     if      ( x > 0. ) return +1.;
     else if ( x < 0. ) return -1.;
@@ -52,9 +42,9 @@ class JetCorrExtractorT
  public:
 
   reco::Candidate::LorentzVector operator()(const T& rawJet, const std::string& jetCorrLabel, 
-					    const edm::Event* evt = 0, const edm::EventSetup* es = 0, 
+					    const edm::Event* evt = nullptr, const edm::EventSetup* es = nullptr, 
 					    double jetCorrEtaMax = 9.9, 
-					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
+					    const reco::Candidate::LorentzVector * const rawJetP4_specified = nullptr) const
   {
     // "general" implementation requires access to edm::Event and edm::EventSetup,
     // only specialization for pat::Jets doesn't
@@ -70,7 +60,7 @@ class JetCorrExtractorT
       jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);
     } else {
       reco::Candidate::PolarLorentzVector modJetPolarP4(rawJetP4);
-      modJetPolarP4.SetEta(sign(rawJetP4.eta())*jetCorrEtaMax);
+      modJetPolarP4.SetEta(jetcorrextractor::sign(rawJetP4.eta())*jetCorrEtaMax);
       
       reco::Candidate::LorentzVector modJetP4(modJetPolarP4);
       
@@ -85,6 +75,19 @@ class JetCorrExtractorT
 
     return corrJetP4;
   }
+ private:
+
+  static double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
+			      const edm::Event& evt, const edm::EventSetup& es)
+  {
+    const JetCorrector* jetCorrector = JetCorrector::getJetCorrector(jetCorrLabel, es);
+    if ( !jetCorrector )  
+      throw cms::Exception("JetCorrExtractor")
+	<< "Failed to access Jet corrections for = " << jetCorrLabel << " !!\n";
+    return jetCorrector->correction(rawJet, evt, es);
+  }
+
+
 };
 
 #endif

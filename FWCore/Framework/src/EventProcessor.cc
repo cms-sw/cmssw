@@ -129,7 +129,7 @@ namespace edm {
     main_input->registerIt();
 
     // Fill in "ModuleDescription", in case the input source produces
-    // any EDproducts, which would be registered in the ProductRegistry.
+    // any EDProducts, which would be registered in the ProductRegistry.
     // Also fill in the process history item for this process.
     // There is no module label for the unnamed input source, so
     // just use "source".
@@ -140,7 +140,7 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, allocations);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, common.maxSecondsUntilRampdown_, allocations);
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {
@@ -1491,7 +1491,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if(looper_) {
-      ModuleChanger changer(schedule_.get());
+      ModuleChanger changer(schedule_.get(),preg_.get());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetup());
       looper_->setModuleChanger(nullptr);

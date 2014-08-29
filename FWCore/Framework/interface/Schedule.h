@@ -229,7 +229,7 @@ namespace edm {
 
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet, const ProductRegistry& iRegistry);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;

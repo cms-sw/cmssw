@@ -6,7 +6,6 @@
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
 
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -38,6 +37,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
 
 //used for backward compatibility
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -158,6 +158,7 @@ namespace edm {
                      std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+                     bool bypassVersionCheck,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent,
                      bool enablePrefetching) :
@@ -205,7 +206,8 @@ namespace edm {
       provenanceReaderMaker_(),
       eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
-      daqProvenanceHelper_() {
+      daqProvenanceHelper_(),
+      edProductClass_(gROOT->GetClass("edm::WrapperBase")) {
 
     hasNewlyDroppedBranch_.fill(false);
 
@@ -367,7 +369,9 @@ namespace edm {
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
 
-    checkReleaseVersion(pHistVector, file());
+    if(!bypassVersionCheck) { 
+      checkReleaseVersion(pHistVector, file());
+    }
 
     if(labelRawDataLikeMC) {
       std::string const rawData("FEDRawDataCollection");
@@ -1708,9 +1712,11 @@ namespace edm {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
-          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          WrapperOwningHolder edp(cp->New(), prod.getInterface());
-          if(edp.isMergeable()) {
+          TClass* cp = gROOT->GetClass(prod.wrappedName().c_str());
+          void* p = cp->New();
+          int offset = cp->GetBaseClassOffset(edProductClass_);
+          std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
+          if(edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;
             ++it;

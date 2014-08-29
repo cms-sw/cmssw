@@ -106,6 +106,53 @@ void TauolappInterface::init( const edm::EventSetup& es ){
 
    Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
+   if (fPSet->exists("parameterSets")){
+     std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
+     for (unsigned int ip=0; ip<par.size(); ++ip ){
+       std::string curSet = par[ip];
+       
+       if(curSet=="setNewCurrents") Tauolapp::Tauola::setNewCurrents(fPSet->getParameter<int>(curSet));
+       if(curSet=="spinCorrelationSetAll") Tauolapp::Tauola::spin_correlation.setAll(fPSet->getParameter<bool>(curSet));
+       if(curSet=="spinCorrelationGAMMA") Tauolapp::Tauola::spin_correlation.GAMMA=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationZ0") Tauolapp::Tauola::spin_correlation.Z0=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGS") Tauolapp::Tauola::spin_correlation.HIGGS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSH") Tauolapp::Tauola::spin_correlation.HIGGS_H=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSA") Tauolapp::Tauola::spin_correlation.HIGGS_A=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSPLUS") Tauolapp::Tauola::spin_correlation.HIGGS_PLUS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationHIGGSMINUS") Tauolapp::Tauola::spin_correlation.HIGGS_MINUS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationWPLUS") Tauolapp::Tauola::spin_correlation.W_PLUS=fPSet->getParameter<bool>(curSet);
+       if(curSet=="spinCorrelationWMINUS") Tauolapp::Tauola::spin_correlation.W_MINUS=fPSet->getParameter<bool>(curSet);
+       
+       if(curSet=="setHiggsScalarPseudoscalarPDG") Tauolapp::Tauola::setHiggsScalarPseudoscalarPDG(fPSet->getParameter<int>(curSet));
+       if(curSet=="setHiggsScalarPseudoscalarMixingAngle") Tauolapp::Tauola::setHiggsScalarPseudoscalarMixingAngle(fPSet->getParameter<double>(curSet));
+       
+       if(curSet=="setRadiation") Tauolapp::Tauola::setRadiation(fPSet->getParameter<bool>(curSet));
+       if(curSet=="setRadiationCutOff") Tauolapp::Tauola::setRadiationCutOff(fPSet->getParameter<double>(curSet));
+       
+       if(curSet=="setEtaK0sPi"){
+	 std::vector<int> vpar = fPSet->getParameter<std::vector<int> >(curSet);
+	 if(vpar.size()==3) Tauolapp::Tauola::setEtaK0sPi(vpar[0],vpar[1],vpar[2]);
+	 else {std::cout << "WARNING invalid size for setEtaK0sPi: " << vpar.size() << " Require 3 elements " << std::endl;}
+       }
+       
+       if(curSet=="setTaukle"){
+	 std::vector<double> vpar = fPSet->getParameter<std::vector<double> >(curSet);
+	 if(vpar.size()==4) Tauolapp::Tauola::setTaukle(vpar[0], vpar[1], vpar[2], vpar[3]);
+	 else {std::cout << "WARNING invalid size for setTaukle: " << vpar.size() << " Require 4 elements " << std::endl;}
+       }
+       
+       if(curSet=="setTauBr"){
+	 edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
+	 std::vector<int> vJAK = cfg.getParameter<std::vector<int> >("JAK");
+	 std::vector<double> vBR = cfg.getParameter<std::vector<double> >("BR");
+	 if(vJAK.size() == vBR.size()){
+	   for(unsigned int i=0;i<vJAK.size();i++) Tauolapp::Tauola::setTauBr(vJAK[i],vBR[i]);
+	 }
+	 else {std::cout << "WARNING invalid size for setTauBr - JAK: " << vJAK.size() << " BR: " << vBR.size() << std::endl;}
+       }
+     }
+   }
+
    // override decay modes if needs be
    //
    // we have to do it AFTER init because otherwises branching ratios are NOT filled in

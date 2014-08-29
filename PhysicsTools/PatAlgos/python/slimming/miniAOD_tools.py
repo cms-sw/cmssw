@@ -68,8 +68,8 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
     #switch to AK4 (though it should soon be unnecessary as ak4 should become the 71X default)
     #FIXME: still using AK5PFchs for jet energy corrections, while waiting for a new globalTag
-    switchJetCollection(process, jetSource = cms.InputTag('ak5PFJetsCHS'),  
-    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
+    switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
+    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
@@ -108,18 +108,19 @@ def miniAOD_customizeCommon(process):
     #
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
-    # FIXME: this and the typeI MET should become AK4 once we have the proper JEC? MM:yes
+    # FIXME: this and the typeI MET should become AK4 once we have the proper JEC?
     from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
-    addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK5PF', jetSource = cms.InputTag('ak5PFJets'), jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
-    process.patJetsAK5PFForMetUnc.getJetMCFlavour = False
+    addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
+    process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
-                               jetCollection="selectedPatJetsAK5PFForMetUnc",
+                               jetCollection="selectedPatJetsAK4PFForMetUnc",
                                electronCollection="selectedPatElectrons",
                                muonCollection="selectedPatMuons",
                                tauCollection="selectedPatTaus",
+                               makeType1p2corrPFMEt=True,
                                outputModule=None)
-    
+ 
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars

@@ -19,7 +19,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include <utility>
 #include <map>
 
@@ -66,7 +66,7 @@ private:
   // Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
 
-  void print(const reco::HitPattern& hp) const;
+  void print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const;
 
 private:
   // Note if geometry info is already initialized.

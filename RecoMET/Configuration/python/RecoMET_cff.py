@@ -5,7 +5,6 @@ from RecoJets.Configuration.CaloTowersES_cfi import *
 from RecoMET.METProducers.CaloMET_cfi import *
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 from RecoMET.METProducers.MuonMETValueMapProducer_cff import *
-from RecoMET.METProducers.MetMuonCorrections_cff import *
 from RecoMET.METProducers.caloMetM_cfi import *
 from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
@@ -15,7 +14,6 @@ metreco = cms.Sequence(
         caloMetBE+
         caloMetBEFO+
         muonMETValueMapProducer+
-        corMetGlobalMuons+
         caloMetM +
         BeamHaloId
         )

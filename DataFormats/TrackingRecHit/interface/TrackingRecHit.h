@@ -19,8 +19,6 @@
 #include<vector>
 #include<memory>
 
-class GeomDet;
-class GeomDetUnit;
 class TkCloner;
 class TrajectoryStateOnSurface;
 class KfComponentsHolder;
@@ -52,7 +50,7 @@ public:
    *   bad      = there were many bad strips within the ellipse (in Tracker)
    *            = hit is compatible with the trajectory, but chi2 is too large (in Muon System)
    */
-  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3 };
+  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3, missing_inner = 4, missing_outer = 5};
   static const int typeMask = 0xf;  // mask for the above
   static const int rttiShift = 24; // shift amount to get the rtti
  
@@ -85,8 +83,9 @@ public:
     const_cast<TrackingRecHit&>(*cl).setDet(idet); // const_cast (can be fixed editing some 100 files)
     return cl;  
   }
-  void setDet(const GeomDet & idet) {m_det = &idet;}
 #endif
+  virtual void setDet(const GeomDet & idet) {m_det = &idet;}
+
   
   virtual AlgebraicVector parameters() const = 0;
   

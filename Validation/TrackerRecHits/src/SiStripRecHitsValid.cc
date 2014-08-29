@@ -49,7 +49,6 @@ namespace helper {
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
-  dbe_(edm::Service<DQMStore>().operator->()),
   conf_(ps),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
@@ -65,12 +64,6 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
   SubDetList_ = conf_.getParameter<std::vector<std::string> >("SubDetList");
-  
-  outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  
-  outputFileName = conf_.getParameter<std::string>("outputFile");
-
-  runStandalone = conf_.getParameter<bool>("runStandalone");
 
   edm::ParameterSet ParametersNumTotrphi =  conf_.getParameter<edm::ParameterSet>("TH1NumTotrphi");
   switchNumTotrphi = ParametersNumTotrphi.getParameter<bool>("switchon");
@@ -179,13 +172,6 @@ void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
 
 void SiStripRecHitsValid::beginJob(const edm::EventSetup& es){
 }
-
-void SiStripRecHitsValid::endJob() {
-  //Only in standalone mode save local root file 
-  if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
-  
-}
-
 
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
@@ -369,7 +355,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
 
   //now fill the cumulative histograms of the hits
-  std::vector<std::string> SubDetList_; 
   for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); iSubdet++){
     std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
     fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
@@ -525,6 +510,8 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     
 
     for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+      SiStripDetId hitDetId(m->detUnitId());
+      if (hitDetId.stereo()) {  // project from the stereo sensor
       //project simhit;
 	hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
 	distx = fabs(rechitpro.x - hitPair.first.x());
@@ -536,6 +523,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 	  mindist = dist;
 	  closestPair = hitPair;
 	}
+      }
     }  
     rechitpro.resx = rechitpro.x - closestPair.first.x();
     rechitpro.resy = rechitpro.y - closestPair.first.y();

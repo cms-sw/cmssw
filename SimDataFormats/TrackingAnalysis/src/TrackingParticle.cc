@@ -24,13 +24,13 @@ TrackingParticle::~TrackingParticle()
 
 int TrackingParticle::pdgId() const
 {
-	if( genParticles_.empty() ) return g4Tracks_.at( 0 ).type();
+	if( genParticles_.empty() ) return g4Tracks_[0].type();
 	else return (*genParticles_.begin())->pdgId();
 }
 
 EncodedEventId TrackingParticle::eventId() const
 {
-	return g4Tracks_.at( 0 ).eventId();
+	return g4Tracks_[0].eventId();
 }
 
 void TrackingParticle::addGenParticle( const reco::GenParticleRef& ref )
@@ -113,19 +113,10 @@ tv_iterator TrackingParticle::decayVertices_end() const
 	return decayVertices_.end();
 }
 
-int TrackingParticle::charge() const
-{
-	return g4Tracks_.at( 0 ).charge();
-}
-
-int TrackingParticle::threeCharge() const
-{
-	return g4Tracks_.at( 0 ).charge()*3;
-}
 
 const TrackingParticle::LorentzVector& TrackingParticle::p4() const
 {
-	return g4Tracks_.at( 0 ).momentum();
+	return g4Tracks_[0].momentum();
 }
 
 TrackingParticle::Vector TrackingParticle::momentum() const
@@ -218,11 +209,6 @@ double TrackingParticle::y() const
 	return rapidity();
 }
 
-TrackingParticle::Point TrackingParticle::vertex() const
-{
-	return Point( vx(), vy(), vz() );
-}
-
 double TrackingParticle::vx() const
 {
 	const TrackingVertex& r=( *parentVertex_);
@@ -241,26 +227,6 @@ double TrackingParticle::vz() const
 	return r.position().Z();
 }
 
-int TrackingParticle::status() const
-{
-	if( genParticles_.empty() ) return -99; // Use the old invalid status flag that used to be set by TrackingTruthProducer.
-	else return (*genParticles_.begin())->status();
-}
-
-bool TrackingParticle::longLived() const
-{
-	return status()&longLivedTag;
-}
-
-int TrackingParticle::numberOfHits() const
-{
-    return numberOfHits_;
-}
-
-int TrackingParticle::numberOfTrackerHits() const
-{
-    return numberOfTrackerHits_;
-}
 
 int TrackingParticle::matchedHit() const
 {
@@ -268,10 +234,6 @@ int TrackingParticle::matchedHit() const
 	return numberOfTrackerLayers_;
 }
 
-int TrackingParticle::numberOfTrackerLayers() const
-{
-	return numberOfTrackerLayers_;
-}
 
 void TrackingParticle::setNumberOfHits( int numberOfHits )
 {

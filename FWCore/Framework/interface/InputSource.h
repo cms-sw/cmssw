@@ -54,6 +54,7 @@ Some examples of InputSource subclasses may be:
 
 #include <memory>
 #include <string>
+#include <chrono>
 
 namespace edm {
   class ActivityRegistry;
@@ -386,7 +387,14 @@ namespace edm {
 
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
-    bool lumiLimitReached() const {return remainingLumis_ == 0;}
+    bool lumiLimitReached() const {
+      if (remainingLumis_ == 0) {return true;}
+      if (maxSecondsUntilRampdown_ <= 0) {return false;}
+      auto end = std::chrono::steady_clock::now();
+      auto elapsed = end - processingStart_;
+      if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() > maxSecondsUntilRampdown_) {return true;}
+      return false;
+    }
     bool limitReached() const {return eventLimitReached() || lumiLimitReached();}
     virtual ItemType getNextItemType() = 0;
     ItemType nextItemType_();
@@ -424,6 +432,8 @@ namespace edm {
     int maxLumis_;
     int remainingLumis_;
     int readCount_;
+    int maxSecondsUntilRampdown_;
+    std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
     std::shared_ptr<ProductRegistry> productRegistry_;

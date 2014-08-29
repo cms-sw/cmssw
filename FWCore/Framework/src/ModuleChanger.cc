@@ -28,8 +28,9 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ModuleChanger::ModuleChanger(Schedule* iSchedule):
-schedule_(iSchedule)
+ModuleChanger::ModuleChanger(Schedule* iSchedule, ProductRegistry const* iRegistry):
+schedule_(iSchedule),
+registry_(iRegistry)
 {
 }
 
@@ -65,7 +66,7 @@ bool
 ModuleChanger::changeModule(const std::string& iLabel,
                             const ParameterSet& iPSet) const
 {
-   return schedule_->changeModule(iLabel,iPSet);
+   return schedule_->changeModule(iLabel,iPSet, *registry_);
 }
 
 //

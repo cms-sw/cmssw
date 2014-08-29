@@ -11,7 +11,7 @@ public:
   ~GSSiTrackerRecHit2DLocalPos() {}
 
   GSSiTrackerRecHit2DLocalPos( const LocalPoint& p, const LocalError&e, GeomDet const & idet) :  
-  BaseTrackerRecHit(p,e,idet, trackerHitRTTI::gs) {}
+  BaseTrackerRecHit(p,e,idet, trackerHitRTTI::gs) {store();}
 
   virtual GSSiTrackerRecHit2DLocalPos * clone() const =0;
 
@@ -32,6 +32,16 @@ public:
 
 private:
   virtual TrackingRecHit* clone(const TkCloner&, const TrajectoryStateOnSurface&) const { return clone();}
+
+
+protected:
+
+  LocalPoint m_myPos;
+  LocalError m_myErr;
+
+  void store() { m_myPos=pos_;  m_myErr=err_;}  
+  void load()  { pos_=m_myPos; err_=m_myErr;}
+
 
 };
 

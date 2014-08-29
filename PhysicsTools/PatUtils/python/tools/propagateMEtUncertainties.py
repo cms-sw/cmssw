@@ -74,13 +74,13 @@ def propagateShiftedSingleParticles(process, shiftedParticleCollections, metProd
             continue
 
         particleType=""
-        if shiftedCol.find('electron'):
+        if shiftedCol.find('electron')!=-1:
             particleType="Electron"
-        if shiftedCol.find('photon'):
+        if shiftedCol.find('photon')!=-1:
             particleType="Photon"
-        if shiftedCol.find('muon'):
+        if shiftedCol.find('muon')!=-1:
             particleType="Muon"
-        if shiftedCol.find('tau'):     
+        if shiftedCol.find('tau')!=-1:     
             particleType="Tau"
 
         for metProducer in metProducers:

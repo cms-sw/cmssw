@@ -1,16 +1,16 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
-class MaskedMeasurementTrackerEventProducer : public edm::EDProducer {
+class dso_hidden MaskedMeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
       explicit MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
       ~MaskedMeasurementTrackerEventProducer() {}
 private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripMask;
       typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMask;

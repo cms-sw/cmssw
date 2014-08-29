@@ -25,7 +25,7 @@ produce(edm::Event& e, const edm::EventSetup& es)
   e.getByToken(clusterProducer, clusters);
   recHitConverterAlgorithm.initialize(es);
   recHitConverterAlgorithm.run(clusters, output);
-  
+  output.shrink_to_fit();  
   LogDebug("SiStripRecHitConverter") << "found\n"  
 				     << output.rphi->dataSize()   << "  clusters in mono detectors\n"                            
 				     << output.stereo->dataSize() << "  clusters in partners stereo detectors\n";

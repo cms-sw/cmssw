@@ -23,8 +23,8 @@ from DPGAnalysis.Skims.WElectronSkim_cff import *
 PassingVeryLooseId = goodElectrons.clone(
     cut = cms.string(
         goodElectrons.cut.value() +
-        #    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits
-            " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 )" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
+        #    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits
+            " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 )" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
             " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN_LOOSE) + ")"
             " && ((isEB"
             " && ( dr03TkSumPt/p4.Pt <0.2 && dr03EcalRecHitSumEt/p4.Pt < 0.3 && dr03HcalTowerSumEt/p4.Pt  < 0.3 )"

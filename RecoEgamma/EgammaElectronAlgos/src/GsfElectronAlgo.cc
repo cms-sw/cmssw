@@ -70,7 +70,8 @@ struct GsfElectronAlgo::GeneralData
      const EcalRecHitsConfiguration &,
      EcalClusterFunctionBaseClass * superClusterErrorFunction,
      EcalClusterFunctionBaseClass * crackCorrectionFunction,
-     const SoftElectronMVAEstimator::Configuration & mvaCfg ,
+     const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg ,
+     const ElectronMVAEstimator::Configuration & mva_Iso_Cfg ,
      const RegressionHelper::Configuration &) ;
   ~GeneralData() ;
 
@@ -87,6 +88,7 @@ struct GsfElectronAlgo::GeneralData
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
   SoftElectronMVAEstimator *sElectronMVAEstimator;
+  ElectronMVAEstimator *iElectronMVAEstimator;
   const RegressionHelper::Configuration regCfg;
   RegressionHelper * regHelper;
  } ;
@@ -102,7 +104,9 @@ struct GsfElectronAlgo::GeneralData
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc,
-   const SoftElectronMVAEstimator::Configuration & mvaConfig,
+   const SoftElectronMVAEstimator::Configuration & mva_NIso_Config,
+   const ElectronMVAEstimator::Configuration & mva_Iso_Config,
+
    const RegressionHelper::Configuration & regConfig
    )
  : inputCfg(inputConfig),
@@ -115,7 +119,8 @@ struct GsfElectronAlgo::GeneralData
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
-   sElectronMVAEstimator(new SoftElectronMVAEstimator(mvaConfig)),
+   sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
+   iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
    regCfg(regConfig),
    regHelper(new RegressionHelper(regConfig))
   {}
@@ -125,6 +130,7 @@ GsfElectronAlgo::GeneralData::~GeneralData()
   delete hcalHelper ;
   delete hcalHelperPflow ;
   delete sElectronMVAEstimator;
+  delete iElectronMVAEstimator;
   delete regHelper;
  }
 
@@ -324,94 +330,96 @@ GsfElectronAlgo::ElectronData::~ElectronData()
  {}
 
 void GsfElectronAlgo::ElectronData::checkCtfTrack( edm::Handle<reco::TrackCollection> currentCtfTracks )
- {
-  if (!ctfTrackRef.isNull()) return ;
+{
+    if (!ctfTrackRef.isNull()) return ;
 
-  // Code below from Puneeth Kalavase
+    // Code below from Puneeth Kalavase
 
-  shFracInnerHits = 0 ;
-  const TrackCollection * ctfTrackCollection = currentCtfTracks.product() ;
+    shFracInnerHits = 0 ;
+    const TrackCollection * ctfTrackCollection = currentCtfTracks.product() ;
 
-  // get the Hit Pattern for the gsfTrack
-  const HitPattern & gsfHitPattern = gsfTrackRef->hitPattern() ;
+    // get the Hit Pattern for the gsfTrack
+    const HitPattern &gsfHitPattern = gsfTrackRef->hitPattern() ;
 
-  unsigned int counter ;
-  TrackCollection::const_iterator ctfTkIter ;
-  for ( ctfTkIter = ctfTrackCollection->begin() , counter = 0 ;
-        ctfTkIter != ctfTrackCollection->end() ; ctfTkIter++, counter++ )
-   {
+    unsigned int counter ;
+    TrackCollection::const_iterator ctfTkIter ;
+    for (ctfTkIter = ctfTrackCollection->begin(), counter = 0;
+            ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++)
+    {
+        double dEta = gsfTrackRef->eta() - ctfTkIter->eta() ;
+        double dPhi = gsfTrackRef->phi() - ctfTkIter->phi() ;
+        double pi = acos(-1.);
+        if(std::abs(dPhi) > pi) dPhi = 2*pi - std::abs(dPhi) ;
 
-    double dEta = gsfTrackRef->eta() - ctfTkIter->eta() ;
-    double dPhi = gsfTrackRef->phi() - ctfTkIter->phi() ;
-    double pi = acos(-1.);
-    if(std::abs(dPhi) > pi) dPhi = 2*pi - std::abs(dPhi) ;
+        // dont want to look at every single track in the event!
+        if (sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue ;
 
-    // dont want to look at every single track in the event!
-    if (sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue ;
+        unsigned int shared = 0 ;
+        int gsfHitCounter = 0 ;
+        int numGsfInnerHits = 0 ;
+        int numCtfInnerHits = 0 ;
 
-    unsigned int shared = 0 ;
-    int gsfHitCounter = 0 ;
-    int numGsfInnerHits = 0 ;
-    int numCtfInnerHits = 0 ;
+        // get the CTF Track Hit Pattern
+        const HitPattern &ctfHitPattern = ctfTkIter->hitPattern() ;
 
-    // get the CTF Track Hit Pattern
-    const HitPattern & ctfHitPattern = ctfTkIter->hitPattern() ;
+        trackingRecHit_iterator elHitsIt;
+        for (elHitsIt = gsfTrackRef->recHitsBegin();
+                elHitsIt != gsfTrackRef->recHitsEnd();
+                elHitsIt++, gsfHitCounter++)
+        {
+            if (!((**elHitsIt).isValid()))  //count only valid Hits
+            { continue ; }
 
-    trackingRecHit_iterator elHitsIt ;
-    for ( elHitsIt = gsfTrackRef->recHitsBegin() ;
-          elHitsIt != gsfTrackRef->recHitsEnd() ;
-          elHitsIt++, gsfHitCounter++ )
-     {
-      if (!((**elHitsIt).isValid()))  //count only valid Hits
-       { continue ; }
+            // look only in the pixels/TIB/TID
+            uint32_t gsfHit = gsfHitPattern.getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter) ;
+            if (!(HitPattern::pixelHitFilter(gsfHit)
+                        || HitPattern::stripTIBHitFilter(gsfHit)
+                        || HitPattern::stripTIDHitFilter(gsfHit))){
+                continue;
+            }
 
-      // look only in the pixels/TIB/TID
-      uint32_t gsfHit = gsfHitPattern.getHitPattern(gsfHitCounter) ;
-      if (!(gsfHitPattern.pixelHitFilter(gsfHit) ||
-          gsfHitPattern.stripTIBHitFilter(gsfHit) ||
-          gsfHitPattern.stripTIDHitFilter(gsfHit) ) )
-       { continue ; }
+            numGsfInnerHits++ ;
 
-      numGsfInnerHits++ ;
+            int ctfHitsCounter = 0 ;
+            numCtfInnerHits = 0 ;
+            trackingRecHit_iterator ctfHitsIt ;
+            for (ctfHitsIt = ctfTkIter->recHitsBegin();
+                    ctfHitsIt != ctfTkIter->recHitsEnd();
+                    ctfHitsIt++, ctfHitsCounter++ )
+            {
+                if(!((**ctfHitsIt).isValid())) //count only valid Hits!
+                { continue; }
 
-      int ctfHitsCounter = 0 ;
-      numCtfInnerHits = 0 ;
-      trackingRecHit_iterator ctfHitsIt ;
-      for ( ctfHitsIt = ctfTkIter->recHitsBegin() ;
-            ctfHitsIt != ctfTkIter->recHitsEnd() ;
-            ctfHitsIt++, ctfHitsCounter++ )
-       {
-        if(!((**ctfHitsIt).isValid())) //count only valid Hits!
-         { continue ; }
+                uint32_t ctfHit = ctfHitPattern.getHitPattern(HitPattern::TRACK_HITS, ctfHitsCounter);
+                if(!(HitPattern::pixelHitFilter(ctfHit)
+                            || HitPattern::stripTIBHitFilter(ctfHit)
+                            || HitPattern::stripTIDHitFilter(ctfHit)))
+                {
+                    continue;
+                }
 
-        uint32_t ctfHit = ctfHitPattern.getHitPattern(ctfHitsCounter);
-        if( !(ctfHitPattern.pixelHitFilter(ctfHit) ||
-              ctfHitPattern.stripTIBHitFilter(ctfHit) ||
-              ctfHitPattern.stripTIDHitFilter(ctfHit) ) )
-         { continue ; }
+                numCtfInnerHits++ ;
 
-        numCtfInnerHits++ ;
+                if((**elHitsIt).sharesInput(&(**ctfHitsIt), TrackingRecHit::all))
+                {
+                    shared++ ;
+                    break ;
+                }
 
-        if( (**elHitsIt).sharesInput(&(**ctfHitsIt),TrackingRecHit::all) )
-         {
-          shared++ ;
-          break ;
-         }
+            } //ctfHits iterator
 
-       } //ctfHits iterator
+        } //gsfHits iterator
 
-     } //gsfHits iterator
+        if ((numGsfInnerHits==0)||(numCtfInnerHits==0))
+        { continue ; }
 
-    if ((numGsfInnerHits==0)||(numCtfInnerHits==0))
-     { continue ; }
-
-    if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > shFracInnerHits )
-     {
-      shFracInnerHits = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits);
-      ctfTrackRef = TrackRef(currentCtfTracks,counter);
-     }
-   } //ctfTrack iterator
- }
+        if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > shFracInnerHits )
+        {
+            shFracInnerHits = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits);
+            ctfTrackRef = TrackRef(currentCtfTracks,counter);
+        }
+    } //ctfTrack iterator
+}
 
 void GsfElectronAlgo::ElectronData::computeCharge
  ( int & charge, GsfElectron::ChargeInfo & info )
@@ -646,10 +654,11 @@ GsfElectronAlgo::GsfElectronAlgo
    const EcalRecHitsConfiguration & recHitsCfg,
    EcalClusterFunctionBaseClass * superClusterErrorFunction,
    EcalClusterFunctionBaseClass * crackCorrectionFunction,
-   const SoftElectronMVAEstimator::Configuration & mvaCfg,
+   const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
+   const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,
    const RegressionHelper::Configuration & regCfg
  )
-   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mvaCfg,regCfg)),
+   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mva_NIso_Cfg,mva_Iso_Cfg,regCfg)),
    eventSetupData_(new EventSetupData),
    eventData_(0), electronData_(0)
  {}
@@ -984,7 +993,7 @@ void GsfElectronAlgo::addPflowInfo()
           else
            { (*el)->setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),true) ; }
           double noCutMin = -999999999. ;
-          if ((*el)->mva()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva() ; }
+          if ((*el)->mva_e_pi()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva_e_pi() ; }
          }
        }
      }
@@ -1179,9 +1188,9 @@ void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
   ele->setPassMvaPreselection(false) ;
 
   if (ele->core()->ecalDrivenSeed())
-   { if (ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mvaOutput().mva_e_pi>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
   else
-   { if (ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mvaOutput().mva_e_pi>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
 
   if (ele->passingMvaPreselection())
    { LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied" ; }
@@ -1227,9 +1236,11 @@ void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfEl
       el++ )
     {
 	if(generalData_->strategyCfg.gedElectronMode==true){
-		float mvaValue=generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
+		float mva_NIso_Value=	generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
+		float mva_Iso_Value =   generalData_->iElectronMVAEstimator->mva( *(*el), eventData_->vertices->size() );
 	        GsfElectron::MvaOutput mvaOutput ;
-	        mvaOutput.mva = mvaValue ;
+	        mvaOutput.mva_e_pi = mva_NIso_Value ;
+		mvaOutput.mva_Isolated = mva_Iso_Value ;
 	        (*el)->setMvaOutput(mvaOutput);
 	}
 	else{
