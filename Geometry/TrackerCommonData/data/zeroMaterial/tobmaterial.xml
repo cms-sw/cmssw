@@ -887,6 +887,11 @@
         <rMaterial name="trackermaterial:T_Aluminium" />
       </MaterialFraction>
     </CompositeMaterial>
+    <CompositeMaterial name="TOB_AlCentralConnect" density="3.19e-05*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="1.">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+    </CompositeMaterial>
      <CompositeMaterial name="TIB_rail" density="1.69e-05*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1">
         <rMaterial name="trackermaterial:T_CarbonFibreStr" />
