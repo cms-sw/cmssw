@@ -1236,8 +1236,8 @@ void FWTGeoRecoGeometryESProducer::addHGCal( void )
                AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
             }
             catch(cms::Exception& exception) {
-               edm::LogWarning("FWTGRecoGeometryProducerException")
-                  << "addGEMGeometry() Exception caught: " << exception.what()
+               edm::LogWarning("FWTGRecoGeometryProducerException") 
+                  << "Exception caught "<< hgcGeom.first << ": " << exception.what()
                   << std::endl; 
    
             }
