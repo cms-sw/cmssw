@@ -82,9 +82,16 @@ hltExoticaValidator = cms.EDAnalyzer(
     Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
     
     # --- Electrons
-    Ele_genCut      = cms.string("pt > 10 && abs(eta) < 2.5 && abs(pdgId) == 11 && status == 1"),
-    Ele_recCut      = cms.string("pt > 10 && abs(eta) < 2.5 && hadronicOverEm < 0.05 &&"+\
-                                     "eSuperClusterOverP > 0.5 && eSuperClusterOverP < 2.5"), # Loose-like electron
+    Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && status==3 "),
+    Ele_recCut      = cms.string(
+        "pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)< 2.5 "+
+        " && hadronicOverEm < 0.05 "+ #&& eSuperClusterOverP > 0.5 && eSuperClusterOverP < 1.5 "+
+        " && abs(deltaEtaSuperClusterTrackAtVtx)<0.007 &&  abs(deltaPhiSuperClusterTrackAtVtx)<0.06 "+
+        " && sigmaIetaIeta<0.03 "+
+        " && (pfIsolationVariables.sumChargedParticlePt + pfIsolationVariables.sumNeutralHadronEtHighThreshold + pfIsolationVariables.sumPhotonEtHighThreshold )/pt < 0.10 "+
+        " && abs(1/energy - 1/p)<0.05"),
+        #" && abs(trackPositionAtVtx.z-vertexPosition.z)<"),
+    #" && "), # Loose-like electron
 
     # --- Photons
     Photon_genCut     = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 22 && status == 1"),
@@ -96,12 +103,12 @@ hltExoticaValidator = cms.EDAnalyzer(
    
     # --- Jets: 
     PFJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
-    PFJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4 &&"+\
-                                     "(neutralHadronEnergy + HFHadronEnergy)/energy < 0.99 &&"+\
-                                     "neutralEmEnergyFraction < 0.99 &&"+\
-                                     "numberOfDaughters > 1 &&"+\
-                                     "chargedHadronEnergyFraction > 0 &&"+\
-                                     "chargedMultiplicity > 0 && "+\
+    PFJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4 &&"+
+                                     "(neutralHadronEnergy + HFHadronEnergy)/energy < 0.99 &&"+
+                                     "neutralEmEnergyFraction < 0.99 &&"+
+                                     "numberOfDaughters > 1 &&"+
+                                     "chargedHadronEnergyFraction > 0 &&"+
+                                     "chargedMultiplicity > 0 && "+
                                      "chargedEmEnergyFraction < 0.99"),  # Loose PFJet
 
     CaloJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),

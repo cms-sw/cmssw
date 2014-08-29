@@ -9,8 +9,10 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # Decide input data
 myinput   = ""
 myfileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_7_2_0_pre1/RelValZEE_13/GEN-SIM-RECO/POSTLS172_V1-v1/00000/0A69FE2A-DAFD-E311-9FA2-00261894391C.root',
-    '/store/relval/CMSSW_7_2_0_pre1/RelValZEE_13/GEN-SIM-RECO/POSTLS172_V1-v1/00000/4ACF05B1-ABFD-E311-BC8C-0026189438BC.root')
+    #'/store/relval/CMSSW_7_2_0_pre1/RelValZEE_13/GEN-SIM-RECO/POSTLS172_V1-v1/00000/0A69FE2A-DAFD-E311-9FA2-00261894391C.root',
+    #'/store/relval/CMSSW_7_2_0_pre1/RelValZEE_13/GEN-SIM-RECO/POSTLS172_V1-v1/00000/4ACF05B1-ABFD-E311-BC8C-0026189438BC.root'
+    'file:/results_exo_nobptx.root'
+    )
 
 for i in range(0,len(sys.argv)):
     if str(sys.argv[i])=="_input" and len(sys.argv)>i+1:
