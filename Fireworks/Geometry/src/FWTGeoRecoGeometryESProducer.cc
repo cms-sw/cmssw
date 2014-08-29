@@ -165,6 +165,71 @@ TGeoVolume* FWTGeoRecoGeometryESProducer::GetTopHolder( const char* prefix)
    return res;
 }
 
+
+TGeoMedium*
+FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
+{
+   std::map<ERecoDet, TGeoMedium*>::iterator it = m_recoMedium.find(det);
+   if (it != m_recoMedium.end())
+      return it->second;
+
+   std::string name;
+   int color;
+   // see TGeoManager::DefaultColors()
+   switch (det)
+   {
+      case kSiPixel:
+         name = "SiPixel";
+         color = 4;//kGreen-10
+         break;
+      case kSiStrip:
+         name = "SiStrip";
+         color = 29; // kOrange+9
+         break;
+      case kMuonDT:
+         name = "MuonDT";
+         color = kBlue;
+         break;
+      case kMuonGEM:
+         name = "MuonGEM";
+         color = 16; //kYellow+1
+         break;
+      case kMuonRPC:
+         name = "MuonRPC";
+         color = 10; //kRed-10
+         break;
+      case kMuonCSC:
+         name = "MuonCSC"; // kMagenta
+         color = 9;
+         break;
+      case kECal:
+         name = "ECal";
+         color = 6;
+         break;
+      case kHCal:
+         name = "HCal";    
+         color = 10; // kRed-10
+         break;
+      case kHGCE:
+         name = "HGCEE";
+         color = 10;
+         break;
+      case kHGCH:
+         name = "HGCEH";
+         color = 6; // kBlue -7
+         break;
+      default:
+         printf("invalid medium id \n");
+         return m_dummyMedium;
+   }
+
+   TGeoMaterial* mat = new TGeoMaterial(name.c_str(), 0, 0, 0);
+   mat->SetZ(color);
+   m_recoMedium[det] = new TGeoMedium(name.c_str(), 0, mat);
+   return m_recoMedium[det];
+}
+
+
 //______________________________________________________________________________
 
 
@@ -202,9 +267,11 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    // Default material is Vacuum
    TGeoMaterial *vacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
    m_dummyMedium = new TGeoMedium( "reco", 0, vacuum);
-   // so is default medium
+
+
    TGeoVolume *top = geom->MakeBox( "CMS", m_dummyMedium, 270., 270., 120. );
   
+
    if( 0 == top )
    {
       return boost::shared_ptr<FWTGeoRecoGeometry>();
@@ -239,12 +306,9 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    addHcalCaloGeometryEndcap();
 
    addHGCal();
-   geom->CloseGeometry();
 
-   m_nameToShape.clear();
-   m_shapeToVolume.clear();
-   m_nameToMaterial.clear();
-   m_nameToMedium.clear();
+   geom->DefaultColors();
+   geom->CloseGeometry();
 
    return m_fwGeometry;
 }
@@ -328,7 +392,7 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
 
 /** Create TGeo volume for GeomDet */
 TGeoVolume* 
-FWTGeoRecoGeometryESProducer::createVolume( const std::string& name, const GeomDet *det, const std::string& material )
+FWTGeoRecoGeometryESProducer::createVolume( const std::string& name, const GeomDet *det, ERecoDet mid )
 {
    TGeoShape* solid = createShape( det );
 
@@ -336,29 +400,13 @@ FWTGeoRecoGeometryESProducer::createVolume( const std::string& name, const GeomD
    if (vIt != m_shapeToVolume.end()) return  vIt->second;
    
 
-   TGeoVolume* volume = new TGeoVolume( name.c_str(),solid, m_dummyMedium);
+   TGeoVolume* volume = new TGeoVolume( name.c_str(),solid, GetMedium(mid));
 
    m_shapeToVolume[solid] = volume;
 
    return volume;
 }
 
-/** Create TGeo material based on its name */
-TGeoMaterial*
-FWTGeoRecoGeometryESProducer::createMaterial( const std::string& name )
-{
-  TGeoMaterial *material = m_nameToMaterial[name];
-
-  if( material == 0 )
-  {
-    // FIXME: Do we need to set real parameters of the material?
-    material = new TGeoMaterial( name.c_str(),
-                                 0, 0, 0 );
-    m_nameToMaterial[name] = material;
-  }
-
-  return material;
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -375,6 +423,8 @@ void
 FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
 {
    TGeoVolume *assembly = new TGeoVolumeAssembly("PXB");
+   GetTopHolder("SiPixel")->AddNode( assembly, 1);
+
 
    for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
            end = m_trackerGeom->detsPXB().end();
@@ -385,8 +435,7 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
 
        PXBDetId xx(rawid);
        std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
-       TGeoVolume* child = createVolume( name, *it );
-       child->SetLineColor( kGreen );
+       TGeoVolume* child = createVolume( name, *it, kSiPixel );
 
        TGeoVolume* holder  = GetDaughter(assembly, "Layer", xx.layer());
        holder = GetDaughter(holder, "Module", xx.module());
@@ -395,7 +444,6 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
    }
   
 
-   GetTopHolder("SiPixel")->AddNode( assembly, 1 );
 }
 //______________________________________________________________________________
 
@@ -414,7 +462,7 @@ FWTGeoRecoGeometryESProducer::addPixelForwardGeometry()
       s << detid;
       std::string name = s.str();
 
-      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* child = createVolume( name, *it, kSiPixel );
 
 
       TGeoVolume* holder  = GetDaughter(assembly, "Side", detid.side());
@@ -424,7 +472,6 @@ FWTGeoRecoGeometryESProducer::addPixelForwardGeometry()
    
       // holder->AddNode( child, 1, createPlacement( *it ));
       AddLeafNode(holder, child, name.c_str(),  createPlacement( *it ));
-      child->SetLineColor( kGreen );
 
    }
   
@@ -448,14 +495,13 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry()
       s << detid;
       std::string name = s.str();
 
-      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* child = createVolume( name, *it, kSiStrip );
 
       TGeoVolume* holder  = GetDaughter(assembly, "Module", detid.module());
       holder = GetDaughter(holder, "Order", detid.order());
       holder = GetDaughter(holder, "Side", detid.side());
       // holder->AddNode( child, 1, createPlacement( *it ));
       AddLeafNode(holder, child, name.c_str(),  createPlacement( *it ));
-      child->SetLineColor( kGreen );
    }
   
    GetTopHolder("SiStrip")->AddNode( assembly, 1 );
@@ -479,14 +525,12 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry()
       s << detid;
       std::string name = s.str();
 
-      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* child = createVolume( name, *it, kSiStrip );
       TGeoVolume* holder  = GetDaughter(assembly, "Side", detid.side());
       holder = GetDaughter(holder, "Wheel", detid.wheel());
       holder = GetDaughter(holder, "Ring", detid.ring());
       //  holder->AddNode( child, 1, createPlacement( *it ));
       AddLeafNode(holder, child, name.c_str(),  createPlacement( *it ));
-   
-      child->SetLineColor( kGreen );
    }
 
    GetTopHolder("SiStrip")->AddNode( assembly, 1 );
@@ -509,14 +553,12 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry()
       s << detid;
       std::string name = s.str();
 
-      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* child = createVolume( name, *it, kSiStrip );
       TGeoVolume* holder  = GetDaughter(assembly, "Rod", detid.rodNumber());
       holder = GetDaughter(holder, "Side", detid.side());
       holder = GetDaughter(holder, "Module", detid.moduleNumber());
       //holder->AddNode( child, 1, createPlacement( *it ));
       AddLeafNode(holder, child, name.c_str(),  createPlacement( *it ));
-   
-      child->SetLineColor( kGreen );
    }
 
    GetTopHolder("SiStrip")->AddNode( assembly, 1 );
@@ -539,14 +581,13 @@ FWTGeoRecoGeometryESProducer::addTECGeometry()
       s << detid;
       std::string name = s.str();
 
-      TGeoVolume* child = createVolume( name, *it );
+      TGeoVolume* child = createVolume( name, *it, kSiStrip );
 
       TGeoVolume* holder  = GetDaughter(assembly, "Order", detid.order());
       holder = GetDaughter(holder, "Ring", detid.ring());
       holder = GetDaughter(holder, "Module", detid.module());
       // holder->AddNode( child, 1, createPlacement( *it ));
       AddLeafNode(holder, child, name.c_str(),  createPlacement( *it ));
-      child->SetLineColor( kGreen );
    }
 
    GetTopHolder("SiStrip")->AddNode( assembly, 1 );
@@ -574,14 +615,13 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
          s << detid;
          std::string name = s.str();
       
-         TGeoVolume* child = createVolume( name, chamber );
+         TGeoVolume* child = createVolume( name, chamber, kMuonDT );
          TGeoVolume* holder  = GetDaughter(assembly, "Wheel", detid.wheel());
          holder = GetDaughter(holder, "Station", detid.station());
          holder = GetDaughter(holder, "Sector", detid.sector());
    
          //   holder->AddNode( child, 1, createPlacement( chamber ));
-      AddLeafNode(holder, child, name.c_str(),  createPlacement( chamber));
-         child->SetLineColor( kRed );
+        AddLeafNode(holder, child, name.c_str(),  createPlacement( chamber));
       }
    }
 
@@ -599,7 +639,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
          s << detid;
          std::string name = s.str();
       
-         TGeoVolume* child = createVolume( name, superlayer );
+         TGeoVolume* child = createVolume( name, superlayer, kMuonDT );
 
          TGeoVolume* holder  = GetDaughter(assembly, "Wheel", detid.wheel());
          holder = GetDaughter(holder, "Station", detid.station());
@@ -608,9 +648,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
          // holder = GetDaughter(holder, "Layer", detid.layer());
 
          //holder->AddNode( child, 1, createPlacement( superlayer ));
-      AddLeafNode(holder, child, name.c_str(),  createPlacement( superlayer));
-
-         child->SetLineColor( kBlue );
+         AddLeafNode(holder, child, name.c_str(),  createPlacement( superlayer));
       }
    }
    
@@ -629,7 +667,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
          s << detid;
          std::string name = s.str();
       
-         TGeoVolume* child = createVolume( name, layer );
+         TGeoVolume* child = createVolume( name, layer, kMuonDT );
 
          TGeoVolume* holder  = GetDaughter(assembly, "Wheel", detid.wheel());
          holder = GetDaughter(holder, "Station", detid.station());
@@ -638,8 +676,7 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
          holder = GetDaughter(holder, "Layer", detid.layer());
 
          //         holder->AddNode( child, 1, createPlacement( layer ));
-      AddLeafNode(holder, child, name.c_str(),  createPlacement( layer));
-         child->SetLineColor( kBlue );
+         AddLeafNode(holder, child, name.c_str(),  createPlacement( layer));
       }
    } 
 
@@ -669,9 +706,9 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
       TGeoVolume* child = 0;
 
       if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
-         child = createVolume( name, chamber );
+         child = createVolume( name, chamber, kMuonCSC );
       else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
-         child = createVolume( name, layer );
+         child = createVolume( name, layer, kMuonCSC );
 
 
 
@@ -681,9 +718,8 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
          holder = GetDaughter(holder, "Ring", detId.ring());
          holder = GetDaughter(holder, "Chamber", detId.chamber());
       
-         child->SetLineColor( kBlue );
          //   holder->AddNode(child, 1,  createPlacement( *it ));
-      AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+         AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
       }
    }
 
@@ -711,7 +747,7 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
          s << detid;
          std::string name = s.str();
       
-         TGeoVolume* child = createVolume( name, roll );
+         TGeoVolume* child = createVolume( name, roll, kMuonGEM );
 
          TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", detid.region());
          holder = GetDaughter(holder, "Ring", detid.ring());
@@ -720,8 +756,6 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
          holder = GetDaughter(holder, "Chamber", detid.chamber()); 
 
          AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
-
-         child->SetLineColor( kYellow );     
       }
    }
 
@@ -750,7 +784,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
          s << detid;
          std::string name = s.str();
       
-         TGeoVolume* child = createVolume( name, roll );
+         TGeoVolume* child = createVolume( name, roll, kMuonRPC );
 
          TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", detid.region());
          holder = GetDaughter(holder, "Ring", detid.ring());
@@ -760,8 +794,6 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
          holder = GetDaughter(holder, "Subsector", detid.subsector()); 
 
          AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
-
-         child->SetLineColor( kYellow );     
       }
    }
    /*
@@ -860,8 +892,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 
          float dz = (lc[4].x() -lc[0].x()) * 0.5;
          TGeoShape* solid = new TGeoArb8(dz, &points[0]);
-         volume = new TGeoVolume("hcal oblique prism", solid, m_dummyMedium);
-         volume->SetLineColor(kRed);
+         volume = new TGeoVolume("hcal oblique prism", solid, GetMedium(kHCal));
          caloShapeMap[cell->param()] = volume;
       }
       else {
@@ -950,8 +981,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 
          float dz = (lc[4].z() -lc[0].z()) * 0.5;
          TGeoShape* solid = new TGeoArb8(dz, &points[0]);
-         volume = new TGeoVolume("ecal oblique prism", solid, m_dummyMedium);
-         volume->SetLineColor(kRed);
+         volume = new TGeoVolume("ecal oblique prism", solid, GetMedium(kHCal));
          caloShapeMap[cell->param()] = volume;
       }
       else {
@@ -1031,8 +1061,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
             }
             TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
 
-            volume = new TGeoVolume( "TruncatedPyramid" ,solid, m_dummyMedium);
-            volume->SetLineColor(kGray);
+            volume = new TGeoVolume( "TruncatedPyramid" ,solid, GetMedium(kECal));
             caloShapeMap[cell->param()] = volume;
          }
          else {
@@ -1100,8 +1129,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
             }
             TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
 
-            volume = new TGeoVolume( "EE TruncatedPyramid" ,solid, m_dummyMedium);
-            volume->SetLineColor(kGray); 
+            volume = new TGeoVolume( "EE TruncatedPyramid" ,solid, GetMedium(kECal));
             caloShapeMap[cell->param()] = volume;
          }
          else {
@@ -1182,6 +1210,7 @@ void FWTGeoRecoGeometryESProducer::addHGCal( void )
          
          TGeoVolume* prodHolder  = GetDaughter(GetTopHolder("HGCal"),  hgcGeom.first.c_str());
 
+         TGeoMedium* medium = (hgcGeom.first=="HGCalEESensitive") ? GetMedium(kHGCE) : GetMedium(kHGCH);
          for (CMap::iterator i = xxx.begin(); i != xxx.end(); ++i) {
             try {
                HGCalDetId detid(i->second.front());
@@ -1204,8 +1233,7 @@ void FWTGeoRecoGeometryESProducer::addHGCal( void )
                      points[c*2 + 1 ] = co[c].y();
                   }
                   TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
-                  volume = new TGeoVolume( "FlatTr" ,solid, m_dummyMedium);
-                  volume->SetLineColor(kGray); 
+                  volume = new TGeoVolume( "FlatTr" ,solid, medium);
                }
                else {
                   volume = volIt->second;
