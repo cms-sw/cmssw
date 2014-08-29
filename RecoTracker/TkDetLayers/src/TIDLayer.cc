@@ -101,8 +101,8 @@ const std::vector<const GeometricSearchDet*>& TIDLayer::components() const{
 void
 TIDLayer::fillRingPars(int i) {
   const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[i]->surface());
-  float ringMinZ = fabs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
-  float ringMaxZ = fabs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
+  float ringMinZ = std::abs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
+  float ringMaxZ = std::abs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
   ringPars[i].thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;
   ringPars[i].thetaRingMax =  ringDisk.outerRadius()/ ringMinZ;
   ringPars[i].theRingR=( ringDisk.innerRadius() +
@@ -307,7 +307,7 @@ TIDLayer::findClosest(const GlobalPoint ringCrossing[3] ) const
   float rDiff = std::abs( ringCrossing[0].perp() - initialR);
   for (int i = 1; i < 3 ; i++){
     float ringR =  ringPars[i].theRingR;
-    float testDiff = fabs( ringCrossing[i].perp() - ringR);
+    float testDiff = std::abs( ringCrossing[i].perp() - ringR);
     if ( testDiff<rDiff ) {
       rDiff = testDiff;
       theBin = i;
@@ -327,7 +327,7 @@ TIDLayer::findNextIndex(const GlobalPoint ringCrossing[3], int closest ) const
   for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
       float ringR =  ringPars[i].theRingR;
-      float testDiff = fabs( ringCrossing[i].perp() - ringR);
+      float testDiff = std::abs( ringCrossing[i].perp() - ringR);
       if ( testDiff<rDiff ) {
 	rDiff = testDiff;
 	theBin = i;
@@ -344,8 +344,8 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
 {
   // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
   float tsRadius = tsos.globalPosition().perp();
-  float thetamin = ( max(0.,tsRadius-ymax))/(fabs(tsos.globalPosition().z())+10.f); // add 10 cm contingency 
-  float thetamax = ( tsRadius + ymax)/(fabs(tsos.globalPosition().z())-10.f);
+  float thetamin = ( max(0.,tsRadius-ymax))/(std::abs(tsos.globalPosition().z())+10.f); // add 10 cm contingency 
+  float thetamax = ( tsRadius + ymax)/(std::abs(tsos.globalPosition().z())-10.f);
   
   // do the theta regions overlap ?
 
