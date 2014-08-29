@@ -209,31 +209,31 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    // ROOT chokes unless colors are assigned
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
-   /*
-     addPixelBarrelGeometry();
-     addPixelForwardGeometry();
-     addTIBGeometry();
-     addTIDGeometry();
-     addTOBGeometry();
-     addTECGeometry();
-     addDTGeometry();
-     addCSCGeometry();
-     addRPCGeometry();
-     try {
-     addGEMGeometry();
-     }
-     catch ( cms::Exception& exception ) {
-     edm::LogWarning("FWRecoGeometryProducerException")
-     << "addGEMGeometry() Exception caught while building GEM geometry: " << exception.what()
-     << std::endl; 
-     }
-
-
-     addEcalCaloGeometry();
    
-     addHcalCaloGeometryBarrel();
-     addHcalCaloGeometryEndcap();
-   */
+   addPixelBarrelGeometry();
+   addPixelForwardGeometry();
+   addTIBGeometry();
+   addTIDGeometry();
+   addTOBGeometry();
+   addTECGeometry();
+   addDTGeometry();
+   addCSCGeometry();
+   addRPCGeometry();
+   try {
+      addGEMGeometry();
+   }
+   catch ( cms::Exception& exception ) {
+      edm::LogWarning("FWRecoGeometryProducerException")
+         << "addGEMGeometry() Exception caught while building GEM geometry: " << exception.what()
+         << std::endl; 
+   }
+
+
+   addEcalCaloGeometry();
+   
+   addHcalCaloGeometryBarrel();
+   addHcalCaloGeometryEndcap();
+
    addHGCal();
    geom->CloseGeometry();
 
@@ -1136,77 +1136,109 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 
 void FWTGeoRecoGeometryESProducer::addHGCal( void )
 {
-   CaloVolMap caloShapeMap;
-   std::map<std::vector<int>, bool > xxx;
+   typedef std::map<std::vector<float>, std::vector<int>> CMap;
+   CMap xxx;
 
+   CaloVolMap caloShapeMap;
    for( const auto& hgcGeom : m_hgcGeom ){
       if( hgcGeom.second.product()) {
 
 
-         TGeoVolume* prodHolder  = GetDaughter(GetTopHolder("HGCal"),  hgcGeom.first.c_str());
    
          const std::vector<DetId>& hids = hgcGeom.second->getValidDetIds();
          for( const auto& hid : hids ) {
-            HGCalDetId detid = HGCalDetId(hid.rawId());
-           
+            const CaloCellGeometry* cell =  hgcGeom.second->getGeometry( hid);
+            CaloCellGeometry::CornersVec dd = cell->getCorners();
 
-            const FlatTrd* cell = dynamic_cast<const FlatTrd*>(hgcGeom.second->getGeometry( hid ));
-            if (!cell) {printf("HGcal cell not a FlatTr\n"); continue;}
-
-
-            //  if (detid.cell() ) continue; // skip duplicaltion within cells
-            std::vector<int> yyy  = {detid.zside(), detid.layer(), detid.sector(), detid.subsector(),  detid.cell() };
-            if (xxx.find(yyy) != xxx.end()) continue;
-            xxx[yyy] = true;
-
-            TGeoVolume* volume = 0;
-            CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
-            if  ( volIt == caloShapeMap.end()) 
+            std::vector<float> pnts(8);
+            for( std::vector<GlobalPoint>::const_iterator i = dd.begin(); i != dd.end(); ++i )
             {
-               const HepGeom::Transform3D idtr;
-               FlatTrd::Pt3DVec co(8);
-               FlatTrd::Pt3D ref;
-               FlatTrd::localCorners( co, cell->param(), ref);
-               double points[16];
-               for( int c = 0; c < 8; ++c )
+               pnts.push_back(i->x());
+               pnts.push_back(i->y());
+               pnts.push_back(i->z());
+            }
+
+            xxx[pnts].push_back(hid.rawId());
+         }
+ 
+         /*
+           for (CMap::iterator i = xxx.begin(); i != xxx.end(); ++i)
+           {
+           if (i->second.size() > 1)
+           {
+           printf ("duplicate corners %lu  \n", i->second.size());
+           for (std::vector<int>::iterator det = i->second.begin(); det != i->second.end() ; ++det)
+           printf( " %d ", *det);
+           printf("\n");
+           }
+           }
+         */
+         printf("%s: unique cornes = %lu, cell number = %lu \n", hgcGeom.first.c_str(), xxx.size(), hids.size());
+
+         
+         TGeoVolume* prodHolder  = GetDaughter(GetTopHolder("HGCal"),  hgcGeom.first.c_str());
+
+         for (CMap::iterator i = xxx.begin(); i != xxx.end(); ++i) {
+            try {
+               HGCalDetId detid(i->second.front());
+
+               const FlatTrd* cell = dynamic_cast<const FlatTrd*>(hgcGeom.second->getGeometry( detid ));
+               if (!cell) {printf("HGcal cell not a FlatTr\n"); continue;}
+
+               TGeoVolume* volume = 0;
+               CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+               if  ( volIt == caloShapeMap.end()) 
                {
-                  points[c*2  ]    = co[c].x();
-                  points[c*2 + 1 ] = co[c].y();
+                  const HepGeom::Transform3D idtr;
+                  FlatTrd::Pt3DVec co(8);
+                  FlatTrd::Pt3D ref;
+                  FlatTrd::localCorners( co, cell->param(), ref);
+                  double points[16];
+                  for( int c = 0; c < 8; ++c )
+                  {
+                     points[c*2  ]    = co[c].x();
+                     points[c*2 + 1 ] = co[c].y();
+                  }
+                  TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
+                  volume = new TGeoVolume( "FlatTr" ,solid, m_dummyMedium);
+                  volume->SetLineColor(kGray); 
                }
-               TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
-               volume = new TGeoVolume( "FlatTr" ,solid, m_dummyMedium);
-               volume->SetLineColor(kGray); 
+               else {
+                  volume = volIt->second;
+               }
+               HepGeom::Vector3D<float> gCenter;
+               CaloCellGeometry::CornersVec const & gc = cell->getCorners();
+               for (int c = 0; c < 8; ++c) {
+                  gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+               }
+
+               gCenter *= 0.125;
+               TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
+               TGeoRotation rot;
+               float phi = (gCenter.getPhi() + cell->param()[6])*TMath::RadToDeg() -90; 
+
+
+               if (cell->etaPos() < 0) 
+                  rot.ReflectZ(true);
+
+               rot.SetAngles(phi, 0, 0);
+
+               std::stringstream nname;
+               nname << detid;
+               // std::cout << detid <<std::endl;
+               TGeoVolume* holder = 0;
+               holder = GetDaughter(prodHolder, "zside", detid.zside()); 
+               holder = GetDaughter(holder, "sector", detid.sector()); 
+               AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
             }
-            else {
-               volume = volIt->second;
+            catch(cms::Exception& exception) {
+               edm::LogWarning("FWTGRecoGeometryProducerException")
+                  << "addGEMGeometry() Exception caught: " << exception.what()
+                  << std::endl; 
+   
             }
-            HepGeom::Vector3D<float> gCenter;
-            CaloCellGeometry::CornersVec const & gc = cell->getCorners();
-            for (int c = 0; c < 8; ++c) {
-               gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
-            }
-
-            gCenter *= 0.125;
-            TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
-            TGeoRotation rot;
-            float phi = (gCenter.getPhi() + cell->param()[6])*TMath::RadToDeg() -90; 
-
-
-            if (cell->etaPos() < 0) 
-               rot.ReflectZ(true);
-
-            rot.SetAngles(phi, 0, 0);
-
-            std::stringstream nname;
-            nname << detid;
-            std::cout << detid <<std::endl;
-            TGeoVolume* holder = 0;
-            holder = GetDaughter(prodHolder, "zside", detid.zside()); 
-            holder = GetDaughter(holder, "sector", detid.sector()); 
-            AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
          }
       }
-      break;
 
    }
   
