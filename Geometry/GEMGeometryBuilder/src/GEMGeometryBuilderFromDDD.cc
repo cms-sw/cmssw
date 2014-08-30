@@ -238,20 +238,20 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 	for (unsigned sch=0; sch<superChambers.size(); ++sch){
 	  const GEMDetId detId(superChambers.at(sch)->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
-	  ring->add(superChambers.at(sch));
+	  ring->add(const_cast<GEMSuperChamber*>(superChambers.at(sch)));
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
 						<< "re " << re << " st " << st << " ri " << ri << std::endl;
  	}
 	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
-	station->add(ring);
-	geometry->add(ring);
+	station->add(const_cast<GEMRing*>(ring));
+	geometry->add(const_cast<GEMRing*>(ring));
       }
       LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
-      region->add(station);
-      geometry->add(station);
+      region->add(const_cast<GEMStation*>(station));
+      geometry->add(const_cast<GEMStation*>(station));
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-    geometry->add(region);
+    geometry->add(const_cast<GEMRegion*>(region));
   }
   return geometry;
 }

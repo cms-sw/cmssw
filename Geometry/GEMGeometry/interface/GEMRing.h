@@ -46,7 +46,7 @@ class GEMRing
   const GEMSuperChamber* superChamber(int sch) const;
   
   /// Return the chambers in the ring
-  std::vector<const GEMSuperChamber*> superChambers() const;
+  const std::vector<const GEMSuperChamber*>& superChambers() const;
 
   /// Return numbers of chambers
   int nSuperChambers() const;

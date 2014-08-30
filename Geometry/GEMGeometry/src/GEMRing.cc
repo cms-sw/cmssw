@@ -50,7 +50,7 @@ const GEMSuperChamber* GEMRing::superChamber(int isch) const {
   return 0;
 }
   
-std::vector<const GEMSuperChamber*> GEMRing::superChambers() const {
+const std::vector<const GEMSuperChamber*>& GEMRing::superChambers() const {
   return superChambers_;
 }
 
