@@ -46,7 +46,9 @@ namespace pat {
 
         private:
             edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;
+            edm::EDGetTokenT<reco::GenParticleCollection>    GenOrigs_;
             edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
+            edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    AssoOriginal_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
             double maxEta_;
     };
@@ -54,11 +56,15 @@ namespace pat {
 
 pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::ParameterSet& iConfig) :
   Cands_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"))),
+  GenOrigs_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputOriginal"))),
   Asso_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("map"))),
+  AssoOriginal_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("inputCollection"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   maxEta_(iConfig.getParameter<double>("maxEta"))
 {
   produces< std::vector<pat::PackedGenParticle> > ();
+  produces< edm::Association< std::vector<pat::PackedGenParticle> > >();
+
 }
 
 pat::PATPackedGenParticleProducer::~PATPackedGenParticleProducer() {}
@@ -73,6 +79,13 @@ void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::E
     edm::Handle<edm::Association<reco::GenParticleCollection> > asso;
     iEvent.getByToken( Asso_, asso );
 
+    edm::Handle<edm::Association<reco::GenParticleCollection> > assoOriginal;
+    iEvent.getByToken( AssoOriginal_, assoOriginal);
+
+    edm::Handle<reco::GenParticleCollection> genOrigs;
+    iEvent.getByToken( GenOrigs_, genOrigs);
+    std::vector<int> mapping(genOrigs->size(), -1);
+
 
     edm::Handle<reco::VertexCollection> PVs;
     iEvent.getByToken( PVs_, PVs );
@@ -83,13 +96,27 @@ void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::E
         PVpos = PV->position();
     }
 
+    //invert the value map from Orig2New to New2Orig
+    std::map< edm::Ref<reco::GenParticleCollection> ,  edm::Ref<reco::GenParticleCollection> > reverseMap;
+    for(unsigned int ic=0, nc = genOrigs->size(); ic < nc; ++ic)
+    {	
+	edm::Ref<reco::GenParticleCollection> originalRef = edm::Ref<reco::GenParticleCollection>(genOrigs,ic);
+	edm::Ref<reco::GenParticleCollection> newRef = (*assoOriginal)[originalRef];
+	reverseMap.insert(std::pair<edm::Ref<reco::GenParticleCollection>,edm::Ref<reco::GenParticleCollection>>(newRef,originalRef));
+    }
+
     std::auto_ptr< std::vector<pat::PackedGenParticle> > outPtrP( new std::vector<pat::PackedGenParticle> );
 
-
+    unsigned int packed=0;
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::GenParticle &cand=(*cands)[ic];
 	if(cand.status() ==1 && std::abs(cand.eta()) < maxEta_)
         {
+		// Obtain original gen particle collection reference from input reference and map
+		edm::Ref<reco::GenParticleCollection> inputRef = edm::Ref<reco::GenParticleCollection>(cands,ic);
+		edm::Ref<reco::GenParticleCollection> originalRef=reverseMap[inputRef];
+		mapping[originalRef.key()]=packed;
+		packed++;
 		if(cand.numberOfMothers() > 0) {
 			edm::Ref<reco::GenParticleCollection> newRef=(*asso)[cand.motherRef(0)];
 	        	outPtrP->push_back( pat::PackedGenParticle(cand,newRef));
@@ -102,8 +129,14 @@ void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::E
     }
 
 
-    iEvent.put( outPtrP );
+    edm::OrphanHandle<std::vector<pat::PackedGenParticle> > oh= iEvent.put( outPtrP );
 
+    std::auto_ptr<edm::Association< std::vector<pat::PackedGenParticle> > > gp2pgp(new edm::Association< std::vector<pat::PackedGenParticle> > (oh   ));
+    edm::Association< std::vector<pat::PackedGenParticle> >::Filler gp2pgpFiller(*gp2pgp);
+    gp2pgpFiller.insert(genOrigs, mapping.begin(), mapping.end());
+    gp2pgpFiller.fill();
+    iEvent.put(gp2pgp);
+ 
 
 }
 
