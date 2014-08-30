@@ -81,18 +81,12 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
     }
 
-    try {
-      record.getRecord<MuonGeometryRecord>().get(me0);      
-    } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
-      // No ME0 geo available
-      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
-    }
-
-    try {
-      record.getRecord<MuonGeometryRecord>().get(me0);      
-    } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
-      // No ME0 geo available
-      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
+    edm::ESHandle<ME0Geometry> me0H;
+    record.getRecord<MuonGeometryRecord>().get(me0H);
+    if(me0H.isValid()) {
+      me0 = me0H.product();
+    } else {
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
     }
 
   } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){
