@@ -12,15 +12,14 @@ public:
 
   SoftLeptonTagPlotter(const std::string & tagName, const EtaPtBin & etaPtBin,
 		       const edm::ParameterSet& pSet, const unsigned int& mc, 
-		       const bool& update, DQMStore::IBooker & ibook);
+		       const bool& willFinalize, DQMStore::IBooker & ibook);
   
   ~SoftLeptonTagPlotter( void ) ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
-  virtual void finalize() {}
-
+  virtual void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) {}
 
   void psPlot( const std::string & name );
   void epsPlot( const std::string & name );
@@ -28,6 +27,7 @@ public:
 private:
 
   unsigned int mcPlots_;
+  bool willFinalize_;
 
   // keep plots for up to 3 leptons per jet
   static const int s_leptons = 2;

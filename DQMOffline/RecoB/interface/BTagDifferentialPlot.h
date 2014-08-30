@@ -19,14 +19,13 @@ class BTagDifferentialPlot {
 
   enum ConstVarType {constPT, constETA };
 
-  BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable, const std::string & tagName, DQMStore::IBooker & ibook) ;
+  BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable, const std::string & tagName, const unsigned int& mc) ;
 
   ~BTagDifferentialPlot () ;
 
-
   void addBinPlotter ( JetTagPlotter * aPlotter ) { theBinPlotters.push_back ( aPlotter ) ; }
 
-  void process () ;
+  void process (DQMStore::IBooker & ibook) ;
 
 
   void epsPlot(const std::string & name);
@@ -37,8 +36,6 @@ class BTagDifferentialPlot {
 
   void plot(const std::string & name, const std::string & ext);
 
-
-// 
 //   void print () const ;
 
   TH1F * getDifferentialHistoB_d    () { return theDifferentialHistoB_d ->getTH1F()   ; }
@@ -51,13 +48,12 @@ class BTagDifferentialPlot {
   TH1F * getDifferentialHistoB_dus  () { return theDifferentialHistoB_dus->getTH1F()  ; }
   TH1F * getDifferentialHistoB_dusg () { return theDifferentialHistoB_dusg->getTH1F() ; }
   TH1F * getDifferentialHistoB_pu   () { return theDifferentialHistoB_pu->getTH1F()   ; }
-
   
  private:
   
   void setVariableName () ;
   
-  void bookHisto () ;
+  void bookHisto (DQMStore::IBooker & ibook) ;
 
 
   void fillHisto () ;
@@ -82,7 +78,6 @@ class BTagDifferentialPlot {
 
   // the common name to describe histograms
   std::string commonName ;
-  DQMStore::IBooker & ibook_;
 
   // the input
   std::vector<JetTagPlotter *> theBinPlotters ;
@@ -99,10 +94,8 @@ class BTagDifferentialPlot {
   MonitorElement * theDifferentialHistoB_dusg ;
   MonitorElement * theDifferentialHistoB_pu   ;
 
-  // the plot Canvas
-//   TCanvas * thePlotCanvas ;
-
-  
+  //flavour histograms choice
+  unsigned int mcPlots_;
 } ;
 
 
