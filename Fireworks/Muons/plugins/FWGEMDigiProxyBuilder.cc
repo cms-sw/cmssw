@@ -22,7 +22,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 
@@ -114,39 +114,39 @@ REGISTER_FWPROXYBUILDER(FWGEMDigiProxyBuilder, GEMDigiCollection, "GEMDigi",
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
 
-class FWGEMCSCPadDigiProxyBuilder : public FWProxyBuilderBase
+class FWGEMPadDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWGEMCSCPadDigiProxyBuilder() {}
-  virtual ~FWGEMCSCPadDigiProxyBuilder() {}
+  FWGEMPadDigiProxyBuilder() {}
+  virtual ~FWGEMPadDigiProxyBuilder() {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWGEMCSCPadDigiProxyBuilder(const FWGEMCSCPadDigiProxyBuilder&);    
-  const FWGEMCSCPadDigiProxyBuilder& operator=(const FWGEMCSCPadDigiProxyBuilder&);
+  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&);    
+  const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&);
 };
 
 void
-FWGEMCSCPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
+FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const GEMCSCPadDigiCollection* digis = 0;
+  const GEMPadDigiCollection* digis = 0;
  
   iItem->get(digis);
 
   if ( ! digis ) 
   {
-    fwLog(fwlog::kWarning)<<"Failed to get GEMCSCPadDigis"<<std::endl;
+    fwLog(fwlog::kWarning)<<"Failed to get GEMPadDigis"<<std::endl;
     return;
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( GEMCSCPadDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
+  for ( GEMPadDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
         dri != driEnd; ++dri )
   {
     unsigned int rawid = (*dri).first.rawId();
-    const GEMCSCPadDigiCollection::Range& range = (*dri).second;
+    const GEMPadDigiCollection::Range& range = (*dri).second;
 
     if( ! geom->contains( rawid ))
     {
@@ -166,7 +166,7 @@ FWGEMCSCPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
     float topPitch = parameters[3]*nStrips/nPads;
     float bottomPitch = parameters[4]*nStrips/nPads;
 
-    for( GEMCSCPadDigiCollection::const_iterator dit = range.first;
+    for( GEMPadDigiCollection::const_iterator dit = range.first;
 	 dit != range.second; ++dit )
     {
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
@@ -198,6 +198,6 @@ FWGEMCSCPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWGEMCSCPadDigiProxyBuilder, GEMCSCPadDigiCollection, "GEMCSCPadDigi", 
+REGISTER_FWPROXYBUILDER(FWGEMPadDigiProxyBuilder, GEMPadDigiCollection, "GEMPadDigi", 
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
