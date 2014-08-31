@@ -41,7 +41,7 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
 def switchOnVIDElectronIdProducer(process):
-    process.load('EgammaAnalysis.ElectronTools.egmGsfElectronIDs_cff')
+    process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
     print 'Added \'egmGsfElectronIDs\' to process definition!'
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
