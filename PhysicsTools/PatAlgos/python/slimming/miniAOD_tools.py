@@ -141,10 +141,10 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
 
     #VID Electron IDs
-    electron_ids = ['EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
-                    'EgammaAnalysis.ElectronTools.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
-                    'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
-                    'EgammaAnalysis.ElectronTools.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
+    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
     switchOnVIDElectronIdProducer(process)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
