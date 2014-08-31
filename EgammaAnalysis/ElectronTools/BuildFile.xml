@@ -20,7 +20,6 @@
 <use   name="PhysicsTools/SelectorUtils"/>
 <use   name="clhep"/>
 <use   name="root"/>
-<use name="rootrflx"/>
 <use name="rootcore"/>
 <use   name="roottmva"/>
 <export>
