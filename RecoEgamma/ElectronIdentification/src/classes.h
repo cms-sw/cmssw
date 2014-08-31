@@ -1,10 +1,10 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 //Add includes for your classes here
-#include "EgammaAnalysis/ElectronTools/interface/VersionedGsfElectronSelector.h"
-#include "EgammaAnalysis/ElectronTools/interface/VersionedPatElectronSelector.h"
+#include "RecoEgamma/ElectronIdentification/interface/VersionedGsfElectronSelector.h"
+#include "RecoEgamma/ElectronIdentification/interface/VersionedPatElectronSelector.h"
 
-namespace EgammaAnalysis_ElectronTools {
+namespace RecoEgamma_ElectronIdentification {
   struct dictionary {    
     //for using the selectors in python
     VersionedGsfElectronSelector vGsfElectronSelector; 
