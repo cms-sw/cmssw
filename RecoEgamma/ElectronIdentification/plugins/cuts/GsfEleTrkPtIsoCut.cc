@@ -4,7 +4,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-#include "EgammaAnalysis/ElectronTools/interface/EBEECutValues.h"
+#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
 
 class GsfEleTrkPtIsoCut : public CutApplicatorBase {
 public:

@@ -4,7 +4,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-#include "EgammaAnalysis/ElectronTools/interface/EBEECutValues.h"
+#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
 
 class GsfEleFull5x5E2x5OverE5x5Cut : public CutApplicatorWithEventContentBase {
 public:
