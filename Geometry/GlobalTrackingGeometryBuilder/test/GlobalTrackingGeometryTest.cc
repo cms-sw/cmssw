@@ -6,22 +6,21 @@
 
 #include <memory>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <Geometry/GlobalTrackingGeometryBuilder/test/GlobalTrackingGeometryTest.h>
-#include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
-#include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
+#include "Geometry/GlobalTrackingGeometryBuilder/test/GlobalTrackingGeometryTest.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
-
-#include <DataFormats/DetId/interface/DetId.h>
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include <string>
 #include <cmath>

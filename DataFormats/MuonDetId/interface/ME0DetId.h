@@ -7,8 +7,8 @@
  *
  */
 
-#include <DataFormats/DetId/interface/DetId.h>
-#include <FWCore/Utilities/interface/Exception.h>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iosfwd>
 #include <iostream>
