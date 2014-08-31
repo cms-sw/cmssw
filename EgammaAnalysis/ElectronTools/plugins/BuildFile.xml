@@ -14,10 +14,5 @@
 <library name="EgammaAnalysisElectronToolsPlugins" file="*.cc">
    <flags   EDM_PLUGIN="1"/>
 </library>
-
-<library name="EgammaAnalysisElectronToolsPlugins_cuts" file="cuts/*.cc">
-   <flags   EDM_PLUGIN="1"/>
-</library>
-
 <export>
 </export>
