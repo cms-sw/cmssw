@@ -12,7 +12,7 @@ public:
   {
   }
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -30,7 +30,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleDEtaInLinearCut::
-operator()(const reco::GsfElectronRef& cand) const
+operator()(const reco::GsfElectronPtr& cand) const
 {  
   float et = cand->energy()!=0. ? cand->et()/cand->energy()*cand->caloEnergy() : 0.;
   double cutValue = std::max(constTerm_(cand)+slopeTerm_(cand)*et,minValue_(cand));

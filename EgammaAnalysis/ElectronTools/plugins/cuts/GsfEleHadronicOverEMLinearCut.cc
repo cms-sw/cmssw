@@ -9,7 +9,7 @@ public:
     slopeStart_(params,"slopeStart"),
     constTerm_(params,"constTerm"){}
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -28,7 +28,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleHadronicOverEMLinearCut::
-operator()(const reco::GsfElectronRef& cand) const { 
+operator()(const reco::GsfElectronPtr& cand) const { 
 
   const float energy = cand->superCluster()->energy();
   const float cutValue = energy > slopeStart_(cand)  ? slopeTerm_(cand)*(energy-slopeStart_(cand)) + constTerm_(cand) : constTerm_(cand);

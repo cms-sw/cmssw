@@ -6,56 +6,56 @@ CutApplicatorBase::result_type
 CutApplicatorBase::
 operator()(const CutApplicatorBase::argument_type& arg) const {
   if( arg.isNull() ) { 
-    throw cms::Exception("BadProductRef")
+    throw cms::Exception("BadProductPtr")
       << _name << "received a bad product ref to process!" << std::endl;
   }
   
   switch(candidateType()) {
   case ELECTRON:
     {      
-      const reco::GsfElectronRef ele = arg.castTo<reco::GsfElectronRef>();
+      const reco::GsfElectronPtr ele(arg);
       return this->operator()(ele);
     }
     break;
   case MUON:
     {
-      const reco::MuonRef mu = arg.castTo<reco::MuonRef>();
+      const reco::MuonPtr mu(arg);
       return this->operator()(mu);
     }
     break;
   case PHOTON:
     {
-      const reco::PhotonRef pho = arg.castTo<reco::PhotonRef>();
+      const reco::PhotonPtr pho(arg);
       return this->operator()(pho);
     }
     break;
   case TAU:
     {
-      const reco::PFTauRef tau = arg.castTo<reco::PFTauRef>();
+      const reco::PFTauPtr tau(arg);
       return this->operator()(tau);
     }
     break;
   case PATELECTRON:
     {
-      const pat::ElectronRef ele = arg.castTo<pat::ElectronRef>();
+      const pat::ElectronPtr ele(arg);
       return this->operator()(ele);
     }
     break;
   case PATMUON:
     {
-      const pat::MuonRef mu = arg.castTo<pat::MuonRef>();
+      const pat::MuonPtr mu(arg);
       return this->operator()(mu);
     }
     break;
   case PATPHOTON:
     {
-      const pat::PhotonRef pho = arg.castTo<pat::PhotonRef>();
+      const pat::PhotonPtr pho(arg);
       return this->operator()(pho);
     }
     break;
   case PATTAU:
     {
-      const pat::TauRef tau = arg.castTo<pat::TauRef>();
+      const pat::TauPtr tau(arg);
       return this->operator()(tau);
     }
     break;

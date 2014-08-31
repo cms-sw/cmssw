@@ -10,7 +10,7 @@ public:
     _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   }
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -26,7 +26,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleSigmaIEtaIEtaCut::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronPtr& cand) const{  
   const float sigmaIEtaIEtaCutValue = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _sigmaIEtaIEtaCutValueEB : _sigmaIEtaIEtaCutValueEE );

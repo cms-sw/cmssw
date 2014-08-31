@@ -4,6 +4,6 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
 
-typedef VersionedSelector<pat::ElectronRef> VersionedPatElectronSelector;
+typedef VersionedSelector<edm::Ptr<pat::Electron> > VersionedPatElectronSelector;
 
 #endif
