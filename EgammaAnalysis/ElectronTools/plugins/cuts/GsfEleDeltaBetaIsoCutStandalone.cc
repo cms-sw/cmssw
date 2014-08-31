@@ -9,7 +9,7 @@ class GsfEleDeltaBetaIsoCutStandalone : public CutApplicatorBase {
 public:
   GsfEleDeltaBetaIsoCutStandalone(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
   
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -40,7 +40,7 @@ GsfEleDeltaBetaIsoCutStandalone::GsfEleDeltaBetaIsoCutStandalone(const edm::Para
 
 CutApplicatorBase::result_type 
 GsfEleDeltaBetaIsoCutStandalone::
-operator()(const reco::GsfElectronRef& cand) const{
+operator()(const reco::GsfElectronPtr& cand) const{
   const float isoCut = 
     ( cand->p4().pt() < _ptCutOff ? 
       ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?

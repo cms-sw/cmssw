@@ -16,7 +16,7 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-typedef VersionedIdProducer<pat::ElectronRef> VersionedPatElectronIdProducer;
+typedef VersionedIdProducer<pat::ElectronPtr> VersionedPatElectronIdProducer;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(VersionedPatElectronIdProducer);

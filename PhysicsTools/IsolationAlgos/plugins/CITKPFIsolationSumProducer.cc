@@ -132,7 +132,7 @@ namespace citk {
     }
     reco::PFCandidate helper; // to translate pdg id to type    
     // loop over the candidates we are isolating and fill the values
-    for( const auto& cand_to_isolate : to_isolate->refVector() ) {
+    for( const auto& cand_to_isolate : to_isolate->ptrVector() ) {
       std::array<std::vector<float>,kNPFTypes> cand_values;      
       unsigned k = 0;
       for( const auto& isolators_for_type : _isolation_types ) {
@@ -140,7 +140,7 @@ namespace citk {
 	for( auto& value : cand_values[k] ) value = 0.0;
 	++k;
       }
-      for( const auto& isocand : isolate_with->refVector() ) {
+      for( const auto& isocand : isolate_with->ptrVector() ) {
 	auto isotype = helper.translatePdgIdToType(isocand->pdgId());	
 	const auto& isolations = _isolation_types[isotype];	
 	for( unsigned i = 0; i < isolations.size(); ++ i  ) {

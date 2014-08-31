@@ -29,8 +29,8 @@ namespace citk {
     virtual void getEventInfo(const edm::Event&) {}
     virtual void setConsumes(edm::ConsumesCollector) = 0;
 
-    virtual bool isInIsolationCone(const reco::CandidateBaseRef& physob,
-				   const reco::CandidateBaseRef& other) const = 0;
+    virtual bool isInIsolationCone(const reco::CandidatePtr& physob,
+				   const reco::CandidatePtr& other) const = 0;
 
     const std::string& name() const { return _name; }
 

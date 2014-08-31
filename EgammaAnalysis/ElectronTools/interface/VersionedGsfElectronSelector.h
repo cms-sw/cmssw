@@ -5,6 +5,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
 
-typedef VersionedSelector<reco::GsfElectronRef> VersionedGsfElectronSelector;
+typedef VersionedSelector<edm::Ptr<reco::GsfElectron> > VersionedGsfElectronSelector;
 
 #endif

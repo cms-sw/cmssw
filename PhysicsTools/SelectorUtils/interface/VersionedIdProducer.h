@@ -17,11 +17,10 @@
 #include <memory>
 #include <sstream>
 
-template< class PhysicsObjectRef , class SelectorType=VersionedSelector<PhysicsObjectRef> >
+template< class PhysicsObjectPtr , class SelectorType=VersionedSelector<PhysicsObjectPtr> >
 class VersionedIdProducer : public edm::stream::EDProducer<> {
 public:
-  typedef typename PhysicsObjectRef::product_type BaseProductType;
-  typedef typename BaseProductType::value_type   PhysicsObjectType;
+  typedef typename PhysicsObjectPtr::value_type   PhysicsObjectType;
 
   typedef edm::View<PhysicsObjectType> Collection;
   typedef edm::EDGetTokenT<Collection> TokenType;
@@ -50,8 +49,8 @@ private:
 //
 // constructors and destructor
 //
-template< class PhysicsObjectRef , class SelectorType >
-VersionedIdProducer<PhysicsObjectRef,SelectorType>::
+template< class PhysicsObjectPtr , class SelectorType >
+VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 VersionedIdProducer(const edm::ParameterSet& iConfig) {
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
   
@@ -110,8 +109,8 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
   }
 }
 
-template< class PhysicsObjectRef , class SelectorType >
-void VersionedIdProducer<PhysicsObjectRef,SelectorType>::
+template< class PhysicsObjectPtr , class SelectorType >
+void VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<Collection> physicsObjectsHandle;
   iEvent.getByToken(physicsObjectSrc_,physicsObjectsHandle);
@@ -125,8 +124,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::vector<bool> passfail;
     std::vector<float> passfailf;
     std::vector<unsigned> howfar;
-    for(const auto& po : physicsobjects.refVector()) {
-      passfail.push_back((*id)(po.template castTo<PhysicsObjectRef>(),iEvent));
+    for(const auto& po : physicsobjects.ptrVector()) {
+      passfail.push_back((*id)(po,iEvent));
       passfailf.push_back(passfail.back());
       howfar.push_back(id->howFarInCutFlow());
     }

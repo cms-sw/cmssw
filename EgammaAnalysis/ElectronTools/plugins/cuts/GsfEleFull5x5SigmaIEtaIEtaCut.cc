@@ -5,7 +5,7 @@ class GsfEleFull5x5SigmaIEtaIEtaCut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleFull5x5SigmaIEtaIEtaCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -51,7 +51,7 @@ void GsfEleFull5x5SigmaIEtaIEtaCut::getEventContent(const edm::EventBase& ev) {
 
 CutApplicatorBase::result_type 
 GsfEleFull5x5SigmaIEtaIEtaCut::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronPtr& cand) const{  
 
   // Figure out the cut value
   const float full5x5SigmaIEtaIEtaCutValue = 

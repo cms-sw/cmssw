@@ -9,7 +9,7 @@ class GsfEleDeltaBetaIsoCut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleDeltaBetaIsoCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -19,7 +19,8 @@ public:
   }
 
 private:
-  float _deltaBetaConstant;
+  const float _isoCutEBLowPt,_isoCutEBHighPt,_isoCutEELowPt,_isoCutEEHighPt;
+  const float _deltaBetaConstant,_ptCutOff,_barrelCutOff;
   bool _relativeIso;
   edm::Handle<edm::ValueMap<float> > _chad_iso,_nhad_iso,_ph_iso,_PUchad_iso;
 };
@@ -30,7 +31,13 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 GsfEleDeltaBetaIsoCut::GsfEleDeltaBetaIsoCut(const edm::ParameterSet& c) :
   CutApplicatorWithEventContentBase(c),
+  _isoCutEBLowPt(c.getParameter<double>("isoCutEBLowPt")),
+  _isoCutEBHighPt(c.getParameter<double>("isoCutEBHighPt")),
+  _isoCutEELowPt(c.getParameter<double>("isoCutEELowPt")),
+  _isoCutEEHighPt(c.getParameter<double>("isoCutEEHighPt")),
   _deltaBetaConstant(c.getParameter<double>("deltaBetaConstant")),
+  _ptCutOff(c.getParameter<double>("ptCutOff")),
+  _barrelCutOff(c.getParameter<double>("barrelCutOff")),
   _relativeIso(c.getParameter<bool>("isRelativeIso")) {  
   edm::InputTag chadtag = c.getParameter<edm::InputTag>("chargedHadronIsoDR03Src");
   edm::InputTag nhadtag = c.getParameter<edm::InputTag>("neutralHadronIsoDR03Src");
@@ -66,12 +73,18 @@ void GsfEleDeltaBetaIsoCut::getEventContent(const edm::EventBase& ev) {
 
 CutApplicatorBase::result_type 
 GsfEleDeltaBetaIsoCut::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronPtr& cand) const{ 
+  const float isoCut = 
+    ( cand->p4().pt() < _ptCutOff ? 
+      ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?
+	_isoCutEBLowPt : _isoCutEELowPt ) :
+      ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?
+	_isoCutEBHighPt : _isoCutEEHighPt ) );
   const float chad = (*_chad_iso)[cand];
   const float nhad = (*_nhad_iso)[cand];
   const float pho = (*_ph_iso)[cand];
   const float puchad = (*_PUchad_iso)[cand];
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
-  return iso;
+  return iso < isoCut;
 }
