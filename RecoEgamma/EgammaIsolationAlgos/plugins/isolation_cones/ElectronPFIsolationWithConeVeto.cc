@@ -6,6 +6,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -21,6 +24,14 @@
 
 
 #include <unordered_map>
+
+namespace reco {
+  typedef edm::Ptr<reco::GsfElectron> GsfElectronPtr;
+}
+
+namespace pat {
+  typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
+}
 
 class ElectronPFIsolationWithConeVeto : public citk::IsolationConeDefinitionBase {
 public:
@@ -46,8 +57,8 @@ public:
   
   void setConsumes(edm::ConsumesCollector) {}
 
-  bool isInIsolationCone(const reco::CandidateBaseRef& physob,
-			 const reco::CandidateBaseRef& other) const override final;
+  bool isInIsolationCone(const reco::CandidatePtr& physob,
+			 const reco::CandidatePtr& other) const override final;
   
   //! Destructor
   virtual ~ElectronPFIsolationWithConeVeto(){};
@@ -64,29 +75,17 @@ DEFINE_EDM_PLUGIN(CITKIsolationConeDefinitionFactory,
 		  "ElectronPFIsolationWithConeVeto");
 
 bool ElectronPFIsolationWithConeVeto::
-isInIsolationCone(const reco::CandidateBaseRef& physob,
-		  const reco::CandidateBaseRef& other  ) const {
-  reco::GsfElectronRef eleref = physob.castTo<reco::GsfElectronRef>();
-  pat::PackedCandidateRef aspacked;
-  reco::PFCandidateRef aspf;
-  bool cast_failed = false;  
-  try {
-    aspf = other.castTo<reco::PFCandidateRef>();
-  } catch ( cms::Exception& ) {
-    cast_failed = true;
-  }
-  if( cast_failed ) { // user analysis code has to suffer a little...
-    try {
-      aspacked =  other.castTo<pat::PackedCandidateRef>();
-    } catch ( cms::Exception& ) {    
-    }
-  }
+isInIsolationCone(const reco::CandidatePtr& physob,
+		  const reco::CandidatePtr& iso_obj  ) const {
+  reco::GsfElectronPtr eleref(physob);
+  pat::PackedCandidatePtr aspacked(iso_obj);
+  reco::PFCandidatePtr aspf(iso_obj);
   const reco::CaloClusterPtr& seed = eleref->superCluster()->seed();
   bool isEB = ( seed->seed().subdetId() == EcalBarrel );
-  const float deltar2 = reco::deltaR2(*physob,*other);  
+  const float deltar2 = reco::deltaR2(*physob,*iso_obj);  
   const float vetoConeSize2 = ( isEB ? _vetoConeSize2EB : _vetoConeSize2EE );
   bool result = true;
-  if( aspacked.isNonnull() ) {    
+  if( aspacked.isNonnull() && aspacked.get() ) {    
     if( aspacked->charge() != 0 ) {
       bool is_vertex_allowed = false;
       for( const unsigned vtxtype : _miniAODVertexCodes ) {
@@ -98,7 +97,7 @@ isInIsolationCone(const reco::CandidateBaseRef& physob,
       result *= ( is_vertex_allowed );
     }
     result *= deltar2 > vetoConeSize2 && deltar2 < _coneSize2 ;
-  } else if ( aspf.isNonnull() ) {    
+  } else if ( aspf.isNonnull() && aspf.get() ) {    
     result *= deltar2 > vetoConeSize2 && deltar2 < _coneSize2;
   } else {
     throw cms::Exception("InvalidIsolationInput")

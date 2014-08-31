@@ -10,7 +10,7 @@ class GsfEleFull5x5E2x5OverE5x5Cut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleFull5x5E2x5OverE5x5Cut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -70,7 +70,7 @@ void GsfEleFull5x5E2x5OverE5x5Cut::getEventContent(const edm::EventBase& ev) {
 
 CutApplicatorBase::result_type 
 GsfEleFull5x5E2x5OverE5x5Cut::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronPtr& cand) const{  
 
   const double e5x5 = (*e5x5Handle_)[cand];
   const double e1x5OverE5x5 = e5x5!=0 ? (*e1x5Handle_)[cand]/e5x5 : 0; 

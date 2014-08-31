@@ -9,7 +9,7 @@ public:
     minE1x5OverE5x5_(params,"minE1x5OverE5x5"),
     minE2x5OverE5x5_(params,"minE2x5OverE5x5"){}
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -28,7 +28,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleE2x5OverE5x5Cut::
-operator()(const reco::GsfElectronRef& cand) const{
+operator()(const reco::GsfElectronPtr& cand) const{
   
   return cand->e2x5Max() > minE2x5OverE5x5_(cand)*cand->e5x5() || 
          cand->e1x5()    > minE1x5OverE5x5_(cand)*cand->e5x5();

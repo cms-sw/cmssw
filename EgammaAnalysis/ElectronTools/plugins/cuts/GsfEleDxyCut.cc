@@ -8,7 +8,7 @@ class GsfEleDxyCut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleDxyCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -47,7 +47,7 @@ void GsfEleDxyCut::getEventContent(const edm::EventBase& ev) {
 
 CutApplicatorBase::result_type 
 GsfEleDxyCut::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronPtr& cand) const{  
   const float dxyCutValue = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _dxyCutValueEB : _dxyCutValueEE );

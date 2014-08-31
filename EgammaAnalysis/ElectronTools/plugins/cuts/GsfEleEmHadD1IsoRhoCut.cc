@@ -10,7 +10,7 @@ class GsfEleEmHadD1IsoRhoCut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleEmHadD1IsoRhoCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -56,7 +56,7 @@ void GsfEleEmHadD1IsoRhoCut::getEventContent(const edm::EventBase& ev) {
 
 CutApplicatorBase::result_type 
 GsfEleEmHadD1IsoRhoCut::
-operator()(const reco::GsfElectronRef& cand) const{  
+operator()(const reco::GsfElectronPtr& cand) const{  
   const double rho = (*rhoHandle_);
   
   const float isolEmHadDepth1 = cand->dr03EcalRecHitSumEt() + cand->dr03HcalDepth1TowerSumEt(); 

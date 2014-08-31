@@ -71,7 +71,7 @@ class VersionedSelector : public Selector<T> {
 	<< "VersionedGsfElectronSelector not initialized!" << std::endl;
     }  
     for( unsigned i = 0; i < cuts_.size(); ++i ) {
-      reco::CandidateBaseRef temp(ref);
+      reco::CandidatePtr temp(ref);
       const bool result = (*cuts_[i])(temp);
       if( result || this->ignoreCut(cut_indices_[i]) ) {
 	this->passCut(ret,cut_indices_[i]);

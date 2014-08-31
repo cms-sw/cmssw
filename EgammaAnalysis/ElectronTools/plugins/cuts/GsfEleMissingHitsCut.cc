@@ -11,7 +11,7 @@ public:
     _barrelCutOff(c.getParameter<double>("barrelCutOff")){
   }
   
-  result_type operator()(const reco::GsfElectronRef&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
   CandidateType candidateType() const override final { 
     return ELECTRON; 
@@ -28,7 +28,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 
 CutApplicatorBase::result_type 
 GsfEleMissingHitsCut::
-operator()(const reco::GsfElectronRef& cand) const{ 
+operator()(const reco::GsfElectronPtr& cand) const{ 
   constexpr reco::HitPattern::HitCategory missingHitType =
     reco::HitPattern::MISSING_INNER_HITS;
   const unsigned maxMissingHits = 
