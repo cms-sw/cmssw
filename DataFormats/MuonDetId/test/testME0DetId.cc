@@ -7,8 +7,8 @@
 */
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <DataFormats/MuonDetId/interface/ME0DetId.h>
-#include <FWCore/Utilities/interface/Exception.h>
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 using namespace std;

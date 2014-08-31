@@ -1,6 +1,5 @@
 /** \file
  *
- *  $Date: 2012/11/15 23:06:37 $
  *  \author M. Maggi - INFN Bari
  */
 

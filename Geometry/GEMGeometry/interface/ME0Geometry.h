@@ -1,5 +1,5 @@
-#ifndef ME0Geometry_ME0Geometry_h
-#define ME0Geometry_ME0Geometry_h
+#ifndef Geometry_GEMGeometry_ME0Geometry_h
+#define Geometry_GEMGeometry_ME0Geometry_h
 
 /** \class ME0Geometry
  *

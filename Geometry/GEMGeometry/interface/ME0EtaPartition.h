@@ -1,5 +1,5 @@
-#ifndef Geometry_ME0Geometry_ME0EtaPartition_H
-#define Geometry_ME0Geometry_ME0EtaPartition_H
+#ifndef Geometry_GEMGeometry_ME0EtaPartition_H
+#define Geometry_GEMGeometry_ME0EtaPartition_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
