@@ -31,10 +31,10 @@ HLT_LooseIsoPFTau40_Trk25_Prong1_eta2p1_PFMET65_v*	# JIRA: CMSHLT-73
 
 HLT_PFJet40_v*						# JIRA: CMSHLT-67
 HLT_PFJet260_v*						# JIRA: CMSHLT-67
-#HLT_PFNoPUJet260_v*					# JIRA: CMSHLT-67 removal of PFNoPU CMSHLT-90
+#HLT_PFNoPUJet260_v*					# JIRA: CMSHLT-67, removal of PFNoPU by CMSHLT-90
 HLT_CaloJet260_v*					# JIRA: CMSHLT-67
 HLT_HT650_v*						# JIRA: CMSHLT-67
-#HLT_PFNoPUHT650_v*					# JIRA: CMSHLT-67 removal of PFNoPU CMSHLT-90
+#HLT_PFNoPUHT650_v*					# JIRA: CMSHLT-67, removal of PFNoPU by CMSHLT-90
 HLT_PFHT650_v*						# JIRA: CMSHLT-67
 
 HLT_IterativeTracking_v*				# JIRA: CMSHLT-68
@@ -62,8 +62,8 @@ HLT_DoubleMu4_JpsiTrk_Displaced_v*				# JIRA: CMSHLT-82
 HLT_DoubleMu4_PsiPrimeTrk_Displaced_v*				# JIRA: CMSHLT-82
 HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v*		# JIRA: CMSHLT-82
 
-#HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v* # JIRA: CMSHLT-81, no DQM yet
-#HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v*        # JIRA: CMSHLT-81, no DQM yet
+HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v* # JIRA: CMSHLT-81
+HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v*        # JIRA: CMSHLT-81
 
 HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83
 HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_v*		# JIRA: CMSHLT-83
@@ -102,7 +102,7 @@ HLT_JetE50_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87 (previous version in CMSHLT
 #HLT_DoublePho85_v*						# JIRA: CMSHLT-88
 #HLT_Photon155_v*						# JIRA: CMSHLT-88
 
-#HLT_PFNoPUHT750_4Jet_v*					# JIRA: CMSHLT-89
+#HLT_PFHT750_4Jet_v*						# JIRA: CMSHLT-90 (PFnoPU version was from CMSHLT-89)
 
 HLT_Physics_v*							# skim
 
