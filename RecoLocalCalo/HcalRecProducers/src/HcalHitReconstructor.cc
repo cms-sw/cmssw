@@ -32,6 +32,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
+  setNegativeFlags_(conf.getParameter<bool>("setNegativeFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   firstAuxTS_(conf.getParameter<int>("firstAuxTS")),
   firstSample_(conf.getParameter<int>("firstSample")),
@@ -148,12 +149,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
       }  // if (setPulseShapeFlags_)
     if (setNegativeFlags_)
       {
-        const edm::ParameterSet &psNegative = conf.getParameter<edm::ParameterSet>("NegativeParameters");
+        const edm::ParameterSet &psNegative = conf.getParameter<edm::ParameterSet>("negativeParameters");
         hbheNegativeFlagSetter_ = new HBHENegativeFlagSetter(
 								 psNegative.getParameter<double>("MinimumChargeThreshold"),
 								 psNegative.getParameter<double>("TS4TS5ChargeThreshold"),
-                         psNegative.getParameter<int>("first"),
-                         psNegative.getParameter<int>("last"),
+                         psNegative.getParameter<int>("First"),
+                         psNegative.getParameter<int>("Last"),
 								 psNegative.getParameter<std::vector<double> >("Threshold"),
 								 psNegative.getParameter<std::vector<double> >("Cut"));
       }

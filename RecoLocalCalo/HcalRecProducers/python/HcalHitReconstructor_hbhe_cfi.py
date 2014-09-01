@@ -30,6 +30,7 @@ hbheprereco = cms.EDProducer(
     setTimingShapedCutsFlags  = cms.bool(True),
     setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags        = cms.bool(True),
+    setNegativeFlags          = cms.bool(False), # only in HBHE; not turned on yet
 
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(1.0), #GeV
@@ -76,7 +77,7 @@ hbheprereco = cms.EDProducer(
                                     TriangleIgnoreSlow = cms.bool(False)),
 
     negativeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
-                                  TS4TS5ChargeTheshold = cms.double(70),
+                                  TS4TS5ChargeThreshold = cms.double(70),
                                   First = cms.int32(4),
                                   Last = cms.int32(6),
                                   Threshold = cms.vdouble(100, 120, 160, 200, 300, 500),
