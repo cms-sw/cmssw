@@ -37,8 +37,6 @@ namespace gen {
     void selectDecayByMDTAU();
     int selectLeptonic();
     int selectHadronic();
-    bool isLastTauInChain(const HepMC::GenParticle* tau);
-    void setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt);
     //
     static CLHEP::HepRandomEngine* fRandomEngine;
     std::vector<int> fPDGs;
@@ -52,7 +50,6 @@ namespace gen {
     std::vector<int> fHadronModes;
     std::vector<double> fScaledLeptonBrRatios;
     std::vector<double> fScaledHadronBrRatios;
-    double lifetime;
   };
 }
 #endif
