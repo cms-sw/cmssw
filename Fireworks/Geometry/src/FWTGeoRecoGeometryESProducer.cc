@@ -202,6 +202,9 @@ FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
    TGeoMaterial* mat = new TGeoMaterial(name.c_str(), 0, 0, 0);
    mat->SetZ(color);
    m_recoMedium[det] = new TGeoMedium(name.c_str(), 0, mat);
+   mat->SetFillStyle(3000); // tansparency 3000-3100
+   mat->SetDensity(1); // disable override of transparency in TGeoManager::DefaultColors()
+
    return m_recoMedium[det];
 }
 
@@ -961,7 +964,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
       CaloCellGeometry::CornersVec const & gc = cell->getCorners();
       for (int c = 0; c < 8; ++c) {
          gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
-         printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(),gc[c].z() );
+         //  printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(),gc[c].z() );
       }
       gCenter *= 0.125;
 
