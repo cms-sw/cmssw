@@ -99,14 +99,15 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
-  for(unsigned int ipulse=0; ipulse<activeBX.size(); ++ipulse) {
-    if(ipulse==ipulseintime) {
-      rh.setOutOfTimeAmplitude(ipulse,0.);
-      rh.setOutOfTimeAmplitudeError(ipulse,0.);
+  for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
+    int ipulse = std::distance(activeBX.begin(),bxit);    
+    if(*bxit==0) {
+      rh.setOutOfTimeAmplitude(*bxit,0.);
+      rh.setOutOfTimeAmplitudeError(*bxit,0.);
     } else {
-      rh.setOutOfTimeAmplitude(ipulse, pulsefuncnnls.X()[ipulse]);
-      //rh.setOutOfTimeAmplitudeError(ipulse, status ? minim.Errors()[ipulse] : 0.);
-      rh.setOutOfTimeAmplitudeError(ipulse, 0.);
+      rh.setOutOfTimeAmplitude(*bxit, pulsefuncnnls.X()[ipulse]);
+      //rh.setOutOfTimeAmplitudeError(*bxit, pulsefuncnnls.Errors()[ipulse]);
+      rh.setOutOfTimeAmplitudeError(*bxit, 0.);
     }
   }
 
