@@ -62,7 +62,8 @@ class TrajectorySeedProducer2:
         /////
         bool newSyntax;
         std::vector< std::vector<TrackingLayer> > theLayersInSets;
-        //
+        
+        math::XYZPoint beamspotPosition;
 
         std::vector<double> originRadius;
         std::vector<double> originHalfLength;
@@ -74,7 +75,6 @@ class TrajectorySeedProducer2:
         bool selectMuons;
 
         std::vector<const reco::VertexCollection*> vertices;
-        double x0, y0, z0;
 
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
@@ -176,8 +176,8 @@ class TrajectorySeedProducer2:
     /// Check that the seed is compatible with a track coming from within
     /// a cylinder of radius originRadius, with a decent pT.
     bool compatibleWithBeamAxis(
-            GlobalPoint& gpos1, 
-            GlobalPoint& gpos2,
+            const GlobalPoint& gpos1, 
+            const GlobalPoint& gpos2,
             double error,
             bool forward,
             unsigned algo

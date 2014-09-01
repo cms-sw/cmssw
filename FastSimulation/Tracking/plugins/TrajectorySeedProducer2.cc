@@ -464,23 +464,14 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::vector<TrajectorySeedCollection*> output(seedingAlgo.size());
 	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
 	{
-		//TODO: is this really destroyed?
+		//this gets moved in edm::Event::put - no need to destroy it
 		output[ialgo] = new TrajectorySeedCollection();
 	}
 
 	// Beam spot
 	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 	e.getByLabel(theBeamSpot,recoBeamSpotHandle);
-	math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
-
-	//not used anymore. take the value from the py
-
-	//double sigmaZ=recoBeamSpotHandle->sigmaZ();
-	//double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
-	//double sigmaz0=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-	x0 = BSPosition_.X();
-	y0 = BSPosition_.Y();
-	z0 = BSPosition_.Z();
+	beamspotPosition = recoBeamSpotHandle->position();
 
 	// SimTracks and SimVertices
 	edm::Handle<edm::SimTrackContainer> theSimTracks;
@@ -662,83 +653,100 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
 bool
-TrajectorySeedProducer2::compatibleWithBeamAxis(GlobalPoint& gpos1, 
-					       GlobalPoint& gpos2,
-					       double error,
-					       bool forward,
-					       unsigned algo) const {
+TrajectorySeedProducer2::compatibleWithBeamAxis(
+        const GlobalPoint& gpos1, 
+        const GlobalPoint& gpos2,
+        double error,
+        bool forward,
+        unsigned algo
+    ) const 
+{
 
-  if ( !seedCleaning ) return true;
+    const double x0 = beamspotPosition.X();
+    const double y0 = beamspotPosition.Y();
+    const double z0 = beamspotPosition.Z();
+    
+    if ( !seedCleaning ) 
+    {
+        return true;
+    }
 
-  // The hits 1 and 2 positions, in HepLorentzVector's
-  XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
-  XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
-#ifdef FAMOS_DEBUG
-  std::cout << "ThePos1 = " << thePos1 << std::endl;
-  std::cout << "ThePos2 = " << thePos2 << std::endl;
-#endif
+    // The hits 1 and 2 positions, in HepLorentzVector's
+    XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
+    XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
+    
+    // Create new particles that pass through the second hit with pT = ptMin 
+    // and charge = +/-1
 
+    // The momentum direction is by default joining the two hits 
+    XYZTLorentzVector theMom2 = (thePos2-thePos1);
 
-  // Create new particles that pass through the second hit with pT = ptMin 
-  // and charge = +/-1
-  
-  // The momentum direction is by default joining the two hits 
-  XYZTLorentzVector theMom2 = (thePos2-thePos1);
+    // The corresponding RawParticle, with an (irrelevant) electric charge
+    // (The charge is determined in the next step)
+    ParticlePropagator myPart(theMom2,thePos2,1.,theFieldMap);
 
-  // The corresponding RawParticle, with an (irrelevant) electric charge
-  // (The charge is determined in the next step)
-  ParticlePropagator myPart(theMom2,thePos2,1.,theFieldMap);
+    /// Check that the seed is compatible with a track coming from within
+    /// a cylinder of radius originRadius, with a decent pT, and propagate
+    /// to the distance of closest approach, for the appropriate charge
+    bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius[algo]*1.);
+    if ( !intersect ) 
+    {
+        return false;
+    }
 
-  /// Check that the seed is compatible with a track coming from within
-  /// a cylinder of radius originRadius, with a decent pT, and propagate
-  /// to the distance of closest approach, for the appropriate charge
-  bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius[algo]*1.);
-  if ( !intersect ) return false;
+    // Check if the constraints are satisfied
+    // 1. pT at cylinder with radius originRadius
+    if ( myPart.Pt() < originpTMin[algo] ) 
+    {
+        return false;
+    }
 
-#ifdef FAMOS_DEBUG
-  std::cout << "MyPart R = " << myPart.R() << "\t Z = " << myPart.Z() 
-	    << "\t pT = " << myPart.Pt() << std::endl;
-#endif
+    // 2. Z compatible with beam spot size
+    if ( fabs(myPart.Z()-z0) > originHalfLength[algo] ) 
+    {
+        return false;
+    }
 
-  // Check if the constraints are satisfied
-  // 1. pT at cylinder with radius originRadius
-  if ( myPart.Pt() < originpTMin[algo] ) return false;
-
-  // 2. Z compatible with beam spot size
-  if ( fabs(myPart.Z()-z0) > originHalfLength[algo] ) return false;
-
-  // 3. Z compatible with one of the primary vertices (always the case if no primary vertex)
-  const reco::VertexCollection* theVertices = vertices[algo];
-  if (!theVertices) return true;
-  unsigned nVertices = theVertices->size();
-  if ( !nVertices || zVertexConstraint[algo] < 0. ) return true;
-  // Radii of the two hits with respect to the beam spot position
-  double R1 = std::sqrt ( (thePos1.X()-x0)*(thePos1.X()-x0) 
-			+ (thePos1.Y()-y0)*(thePos1.Y()-y0) );
-  double R2 = std::sqrt ( (thePos2.X()-x0)*(thePos2.X()-x0) 
-			+ (thePos2.Y()-y0)*(thePos2.Y()-y0) );
-  // Loop on primary vertices
-  for ( unsigned iv=0; iv<nVertices; ++iv ) { 
-    // Z position of the primary vertex
-    double zV = (*theVertices)[iv].z();
-    // Constraints on the inner hit
-    double checkRZ1 = forward ?
-      (thePos1.Z()-zV+zVertexConstraint[algo]) / (thePos2.Z()-zV+zVertexConstraint[algo]) * R2 : 
-      -zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV+zVertexConstraint[algo]);
-    double checkRZ2 = forward ?
-      (thePos1.Z()-zV-zVertexConstraint[algo])/(thePos2.Z()-zV-zVertexConstraint[algo]) * R2 :
-      +zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV-zVertexConstraint[algo]);
-    double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
-    double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
-    // Check if the innerhit is within bounds
-    bool compat = forward ?
-      checkRZmin < R1 && R1 < checkRZmax : 
-      checkRZmin < thePos1.Z()-zV && thePos1.Z()-zV < checkRZmax; 
-    // If it is, just return ok
-    if ( compat ) return compat;
-  }
-  // Otherwise, return not ok
-  return false;
+    // 3. Z compatible with one of the primary vertices (always the case if no primary vertex)
+    const reco::VertexCollection* theVertices = vertices[algo];
+    if (!theVertices) 
+    {
+        return true;
+    }
+    unsigned nVertices = theVertices->size();
+    if ( !nVertices || zVertexConstraint[algo] < 0. ) 
+    {
+        return true;
+    }
+    // Radii of the two hits with respect to the beam spot position
+    double R1 = std::sqrt ( (thePos1.X()-x0)*(thePos1.X()-x0) + (thePos1.Y()-y0)*(thePos1.Y()-y0) );
+    double R2 = std::sqrt ( (thePos2.X()-x0)*(thePos2.X()-x0) + (thePos2.Y()-y0)*(thePos2.Y()-y0) );
+    // Loop on primary vertices
+    for ( unsigned iv=0; iv<nVertices; ++iv ) 
+    { 
+        // Z position of the primary vertex
+        double zV = (*theVertices)[iv].z();
+        // Constraints on the inner hit
+        double checkRZ1 = forward ?
+        (thePos1.Z()-zV+zVertexConstraint[algo]) / (thePos2.Z()-zV+zVertexConstraint[algo]) * R2 : 
+        -zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV+zVertexConstraint[algo]);
+        double checkRZ2 = forward ?
+        (thePos1.Z()-zV-zVertexConstraint[algo])/(thePos2.Z()-zV-zVertexConstraint[algo]) * R2 :
+        +zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV-zVertexConstraint[algo]);
+        double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
+        double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
+        // Check if the innerhit is within bounds
+        bool compat = forward ?
+        checkRZmin < R1 && R1 < checkRZmax : 
+        checkRZmin < thePos1.Z()-zV && thePos1.Z()-zV < checkRZmax; 
+        // If it is, just return ok
+        if ( compat ) 
+        {
+            return compat;
+        }
+    }
+    // Otherwise, return not ok
+    return false;
 
 }  
 
