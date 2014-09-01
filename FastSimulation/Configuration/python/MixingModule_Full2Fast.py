@@ -6,6 +6,10 @@ import FWCore.ParameterSet.Config as cms
 def setVertexGeneratorPileUpProducer(process):
     
     # get right vertex generator parameters
+    if not hasattr(process,"VtxSmeared"):
+        "WARNING: no vtx smearing applied (ok for steps other than SIM)"
+        return process
+
     vertexGenerator = process.VtxSmeared
     vertexGeneratorParameterNames = vertexGenerator.parameterNames_()
     vertexGeneratorType = vertexGenerator.type_() 
