@@ -23,32 +23,18 @@ process.GlobalTag.toGet = cms.VPSet(
 
 #### CONFIGURE IT HERE
 isMC = True
-runOnRAW = False
-useTrivial = True
 #####################
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
-# get timing service up for profiling
-# process.TimerService = cms.Service("TimerService")
-# process.options = cms.untracked.PSet(
-#     wantSummary = cms.untracked.bool(True)
-# )
-
+# start from RAW format for more flexibility
 process.raw2digi_step = cms.Sequence(process.RawToDigi)
 
 # get uncalibrechits with weights method
 import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 process.ecalWeightsUncalibRecHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
-
 # get uncalib rechits from multifit method
 import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
 process.ecalMultiFitUncalibRecHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
-
-# get rechits e.g. from the weights
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
-
-process.ecalRecHit.triggerPrimitiveDigiCollection = 'ecalEBunpacker:EcalTriggerPrimitives'
 
 # get the recovered digis
 if isMC:
@@ -57,16 +43,6 @@ if isMC:
     process.ecalRecHit.recoverEBFE = False
     process.ecalRecHit.recoverEEFE = False
     process.ecalRecHit.killDeadChannels = False
-if runOnRAW:
-    process.ecalDetIdToBeRecovered.ebIntegrityGainErrors = 'ecalEBunpacker:EcalIntegrityGainErrors'
-    process.ecalDetIdToBeRecovered.ebIntegrityGainSwitchErrors = 'ecalEBunpacker:EcalIntegrityGainSwitchErrors'
-    process.ecalDetIdToBeRecovered.ebIntegrityChIdErrors = 'ecalEBunpacker:EcalIntegrityChIdErrors'
-    process.ecalDetIdToBeRecovered.eeIntegrityGainErrors = 'ecalEBunpacker:EcalIntegrityGainErrors'
-    process.ecalDetIdToBeRecovered.eeIntegrityGainSwitchErrors = 'ecalEBunpacker:EcalIntegrityGainSwitchErrors'
-    process.ecalDetIdToBeRecovered.eeIntegrityChIdErrors = 'ecalEBunpacker:EcalIntegrityChIdErrors'
-    process.ecalDetIdToBeRecovered.integrityTTIdErrors = 'ecalEBunpacker:EcalIntegrityTTIdErrors'
-    process.ecalDetIdToBeRecovered.integrityBlockSizeErrors = 'ecalEBunpacker:EcalIntegrityBlockSizeErrors'
-else:
     process.ecalRecHit.ebDetIdToBeRecovered = ''
     process.ecalRecHit.eeDetIdToBeRecovered = ''
     process.ecalRecHit.ebFEToBeRecovered = ''
@@ -87,8 +63,7 @@ process.ecalRecHitMultiFit.EErechitCollection = 'EcalRecHitsMultiFitEE'
 
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100) )
 process.source = cms.Source("PoolSource",
-              fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/e/emanuele/ecalreco/generate-720pre4-slc6/CMSSW_7_2_0_pre4/src/crab/pu40_25ns/photongun_pu25.root')
-                ) 
+                            fileNames = cms.untracked.vstring('/store/group/comm_ecal/localreco/cmssw_720p4/photongun_pu25_ave40/photongun_pu25_ave40_lsf_750.root')) 
 
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -98,28 +73,21 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                       'keep *_offlineBeamSpot_*_*',
                                                                       'keep *_addPileupInfo_*_*'
                                                                       ),
-                               fileName = cms.untracked.string('testEcalLocalRecoA.root')
+                               fileName = cms.untracked.string('reco2.root')
                                )
 
 
-process.ecalAmplitudeReco = cms.Sequence(process.ecalWeightsUncalibRecHit *
-                                         process.ecalMultiFitUncalibRecHit)
+process.ecalAmplitudeReco = cms.Sequence( process.ecalWeightsUncalibRecHit *
+                                          process.ecalMultiFitUncalibRecHit )
 
-process.ecalRecHitsReco = cms.Sequence(process.ecalRecHitWeights
-                                       *process.ecalRecHitMultiFit)
+process.ecalRecHitsReco = cms.Sequence( process.ecalRecHitWeights *
+                                        process.ecalRecHitMultiFit )
 
-process.ecalTestRecoLocal = cms.Sequence(process.raw2digi_step
-                                         *process.ecalAmplitudeReco
-                                         *process.ecalRecHitsReco
-                                         )
+process.ecalTestRecoLocal = cms.Sequence( process.raw2digi_step *
+                                          process.ecalAmplitudeReco *
+                                          process.ecalRecHitsReco )
 
 from PhysicsTools.PatAlgos.tools.helpers import *
-#if isMC:
-#     massSearchReplaceAnyInputTag(process.ecalTestRecoLocal,cms.InputTag("ecalDigis:ebDigis"), cms.InputTag("simEcalDigis:ebDigis"),True)
-#     massSearchReplaceAnyInputTag(process.ecalTestRecoLocal,cms.InputTag("ecalDigis:eeDigis"), cms.InputTag("simEcalDigis:eeDigis"),True)
-if runOnRAW:
-    massSearchReplaceAnyInputTag(process.ecalTestRecoLocal,cms.InputTag("ecalDigis:ebDigis"), cms.InputTag("ecalEBunpacker:ebDigis"),True)
-    massSearchReplaceAnyInputTag(process.ecalTestRecoLocal,cms.InputTag("ecalDigis:eeDigis"), cms.InputTag("ecalEBunpacker:eeDigis"),True)
 
 process.p = cms.Path(process.ecalTestRecoLocal)
 process.outpath = cms.EndPath(process.out)
