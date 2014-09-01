@@ -73,25 +73,34 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     4.0, 6.0, 8.0, 10.0, 20.0,
     40.0, 60.0, 80.0, 100.0
   };
-  float log_pt2_bins[31] = {
-    0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2,
-    0.4, 0.6, 0.8, 1.0, 2.0,
-    4.0, 6.0, 8.0, 10.0, 20.0,
-    40.0, 60.0, 80.0, 100.0, 200.0,
-    400.0, 600.0, 800.0, 1000.0, 2000.0,
-    4000.0, 6000.0, 8000.0, 10000.0
+  float log_mergez_bins[18] = {
+    0.0, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1,
+    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
+  };
+  float log_pt2_bins[16] = {
+    0.0, 0.1, 0.5, 
+    1.0, 2.0, 5.0,
+    10.0, 20.0, 50.0,
+    100.0, 200.0, 500.0, 
+    1000.0, 2000.0, 5000.0,10000.0
+  };
+  float log_ntrk_bins[25] = {
+    0., 2.0,  4.0,  6.0,  8.0,  10.,
+    12.0, 14.0, 16.0, 18.0, 22.0,
+    26.0, 30.0, 35.0, 40.0,
+    45.0, 50.0, 55.0, 60.0, 70.0,
+    80.0, 90.0, 100.0, 150.0, 200.0
   };
   // TODO(rovere) Possibly change or add the main DQMStore booking
   // interface to allow booking a TProfile with variable bin-width
   // using an array of floats, as done for the TH1F case, not of
   // doubles.
-  double log_pt2_bins_double[31] = {
-    0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2,
-    0.4, 0.6, 0.8, 1.0, 2.0,
-    4.0, 6.0, 8.0, 10.0, 20.0,
-    40.0, 60.0, 80.0, 100.0, 200.0,
-    400.0, 600.0, 800.0, 1000.0, 2000.0,
-    4000.0, 6000.0, 8000.0, 10000.0
+  double log_pt2_bins_double[16] = {
+    0.0, 0.1, 0.5, 
+    1.0, 2.0, 5.0,
+    10.0, 20.0, 50.0,
+    100.0, 200.0, 500.0, 
+    1000.0, 2000.0, 5000.0,10000.0
   };
 
   i.setCurrentFolder(root_folder_);
@@ -107,9 +116,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   mes_["root_folder"]["GenPV_R"] =
       i.book1D("GenPV_R", "GeneratedPV_R", 120, 0, 0.6);
   mes_["root_folder"]["GenPV_Pt2"] =
-      i.book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 30, &log_pt2_bins[0]);
+      i.book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 15, &log_pt2_bins[0]);
   mes_["root_folder"]["GenPV_NumTracks"] =
-      i.book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 100, 0., 200.);
+      i.book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 24, &log_ntrk_bins[0]);
   mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
       i.book1D("GenPV_ClosestDistanceZ", "GeneratedPV_ClosestDistanceZ", 30,
                &log_bins[0]);
@@ -126,9 +135,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   mes_["root_folder"]["GenAllV_R"] =
       i.book1D("GenAllV_R", "GeneratedAllV_R", 120, 0, 0.6);
   mes_["root_folder"]["GenAllV_Pt2"] =
-      i.book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 30, &log_pt2_bins[0]);
+      i.book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 15, &log_pt2_bins[0]);
   mes_["root_folder"]["GenAllV_NumTracks"] =
-      i.book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 100, 0., 200.);
+      i.book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 24, &log_ntrk_bins[0]);
   mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
       i.book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 30,
                &log_bins[0]);
@@ -165,7 +174,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                       2, 0., 1.);
     mes_[label]["MisTagRate_vs_sum-pt2"] =
         i.bookProfile("MisTagRate_vs_sum-pt2", "MisTagRate_vs_sum-pt2",
-                      30, &log_pt2_bins_double[0], 2, 0., 1.);
+                      15, &log_pt2_bins_double[0], 2, 0., 1.);
     mes_[label]["MisTagRate_vs_Z"] =
         i.bookProfile("MisTagRate_vs_Z", "MisTagRate_vs_Z",
                       120, -60., 60., 2, 0., 1.);
@@ -185,7 +194,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["MisTagRateSignalIsHighest_vs_sum-pt2"] =
         i.bookProfile("MisTagRateSignalIsHighest_vs_sum-pt2",
                       "MisTagRateSignalIsHighest_vs_sum-pt2",
-                      30, &log_pt2_bins_double[0], 2, 0., 1.);
+                      15, &log_pt2_bins_double[0], 2, 0., 1.);
     mes_[label]["MisTagRateSignalIsHighest_vs_Z"] =
         i.bookProfile("MisTagRateSignalIsHighest_vs_Z",
                       "MisTagRateSignalIsHighest_vs_Z",
@@ -208,7 +217,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["MisTagRateSignalIsNotHighest_vs_sum-pt2"] =
         i.bookProfile("MisTagRateSignalIsNotHighest_vs_sum-pt2",
                       "MisTagRateSignalIsNotHighest_vs_sum-pt2",
-                      30, &log_pt2_bins_double[0], 2, 0., 1.);
+                      15, &log_pt2_bins_double[0], 2, 0., 1.);
     mes_[label]["MisTagRateSignalIsNotHighest_vs_Z"] =
         i.bookProfile("MisTagRateSignalIsNotHighest_vs_Z",
                       "MisTagRateSignalIsNotHighest_vs_Z",
@@ -251,11 +260,15 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["GenAllAssoc2Reco_R"] =
         i.book1D("GenAllAssoc2Reco_R", "GeneratedAllAssoc2Reco_R", 120, 0, 0.6);
     mes_[label]["GenAllAssoc2Reco_Pt2"] =
-        i.book1D("GenAllAssoc2Reco_Pt2", "GeneratedAllAssoc2Reco_Sum-pt2", 30,
+        i.book1D("GenAllAssoc2Reco_Pt2", "GeneratedAllAssoc2Reco_Sum-pt2", 15,
                  &log_pt2_bins[0]);
     mes_[label]["GenAllAssoc2Reco_NumTracks"] =
         i.book1D("GenAllAssoc2Reco_NumTracks",
+<<<<<<< HEAD
                  "GeneratedAllAssoc2Reco_NumTracks", 100, 0., 200.);
+=======
+                 "GeneratedAllAssoc2Reco_NumTracks", 24, &log_ntrk_bins[0]);
+>>>>>>> 14d4019... rebin again
     mes_[label]["GenAllAssoc2Reco_ClosestDistanceZ"] =
         i.book1D("GenAllAssoc2Reco_ClosestDistanceZ",
                  "GeneratedAllAssoc2Reco_ClosestDistanceZ", 30, &log_bins[0]);
@@ -279,10 +292,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  120, 0, 0.6);
     mes_[label]["GenAllAssoc2RecoMatched_Pt2"] =
         i.book1D("GenAllAssoc2RecoMatched_Pt2",
-                 "GeneratedAllAssoc2RecoMatched_Sum-pt2", 30, &log_pt2_bins[0]);
+                 "GeneratedAllAssoc2RecoMatched_Sum-pt2", 15, &log_pt2_bins[0]);
     mes_[label]["GenAllAssoc2RecoMatched_NumTracks"] =
         i.book1D("GenAllAssoc2RecoMatched_NumTracks",
-                 "GeneratedAllAssoc2RecoMatched_NumTracks", 100, 0., 200.);
+                 "GeneratedAllAssoc2RecoMatched_NumTracks", 24, &log_ntrk_bins[0]);
     mes_[label]["GenAllAssoc2RecoMatched_ClosestDistanceZ"] = i.book1D(
         "GenAllAssoc2RecoMatched_ClosestDistanceZ",
         "GeneratedAllAssoc2RecoMatched_ClosestDistanceZ", 30, &log_bins[0]);
@@ -307,10 +320,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["GenAllAssoc2RecoMultiMatched_Pt2"] =
         i.book1D("GenAllAssoc2RecoMultiMatched_Pt2",
                  "GeneratedAllAssoc2RecoMultiMatched_Sum-pt2",
-                 30, &log_pt2_bins[0]);
+                 15, &log_pt2_bins[0]);
     mes_[label]["GenAllAssoc2RecoMultiMatched_NumTracks"] =
         i.book1D("GenAllAssoc2RecoMultiMatched_NumTracks",
-                 "GeneratedAllAssoc2RecoMultiMatched_NumTracks", 100, 0., 200.);
+                 "GeneratedAllAssoc2RecoMultiMatched_NumTracks", 24, &log_ntrk_bins[0]);
     mes_[label]["GenAllAssoc2RecoMultiMatched_ClosestDistanceZ"] = i.book1D(
         "GenAllAssoc2RecoMultiMatched_ClosestDistanceZ",
         "GeneratedAllAssoc2RecoMultiMatched_ClosestDistanceZ",
@@ -330,13 +343,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
         "RecoAllAssoc2Gen_R", "ReconstructedAllAssoc2Gen_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2Gen_Pt2"] =
         i.book1D("RecoAllAssoc2Gen_Pt2", "ReconstructedAllAssoc2Gen_Sum-pt2",
-                 30, &log_pt2_bins[0]);
+                 15, &log_pt2_bins[0]);
     mes_[label]["RecoAllAssoc2Gen_Ndof"] =
         i.book1D("RecoAllAssoc2Gen_Ndof",
                  "ReconstructedAllAssoc2Gen_Ndof", 120, 0., 240.);
     mes_[label]["RecoAllAssoc2Gen_NumTracks"] =
         i.book1D("RecoAllAssoc2Gen_NumTracks",
-                 "ReconstructedAllAssoc2Gen_NumTracks", 100, 0., 200.);
+                 "ReconstructedAllAssoc2Gen_NumTracks", 24, &log_ntrk_bins[0]);
     mes_[label]["RecoAllAssoc2Gen_PU"] =
         i.book1D("RecoAllAssoc2Gen_PU",
                  "ReconstructedAllAssoc2Gen_PU", 125, 0., 250.);
@@ -371,13 +384,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenMatched_Pt2"] =
         i.book1D("RecoAllAssoc2GenMatched_Pt2",
                  "ReconstructedAllAssoc2GenMatched_Sum-pt2",
-                 30, &log_pt2_bins[0]);
+                 15, &log_pt2_bins[0]);
     mes_[label]["RecoAllAssoc2GenMatched_Ndof"] =
         i.book1D("RecoAllAssoc2GenMatched_Ndof",
                  "ReconstructedAllAssoc2GenMatched_Ndof", 120, 0., 240.);
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"] =
         i.book1D("RecoAllAssoc2GenMatched_NumTracks",
-                 "ReconstructedAllAssoc2GenMatched_NumTracks", 100, 0., 200.);
+                 "ReconstructedAllAssoc2GenMatched_NumTracks", 24, &log_ntrk_bins[0]);
     mes_[label]["RecoAllAssoc2GenMatched_PU"] =
         i.book1D("RecoAllAssoc2GenMatched_PU",
                  "ReconstructedAllAssoc2GenMatched_PU", 125, 0., 250.);
@@ -404,17 +417,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  "ReconstructedAllAssoc2GenMultiMatched_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2GenMultiMatched_Pt2"] = i.book1D(
         "RecoAllAssoc2GenMultiMatched_Pt2",
-        "ReconstructedAllAssoc2GenMultiMatched_Sum-pt2", 30, &log_pt2_bins[0]);
+        "ReconstructedAllAssoc2GenMultiMatched_Sum-pt2", 15, &log_pt2_bins[0]);
     mes_[label]["RecoAllAssoc2GenMultiMatched_NumTracks"] = i.book1D(
         "RecoAllAssoc2GenMultiMatched_NumTracks",
-        "ReconstructedAllAssoc2GenMultiMatched_NumTracks", 100, 0., 200.);
+        "ReconstructedAllAssoc2GenMultiMatched_NumTracks", 24, &log_ntrk_bins[0]);
     mes_[label]["RecoAllAssoc2GenMultiMatched_PU"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_PU",
                  "ReconstructedAllAssoc2GenMultiMatched_PU", 125, 0., 250.);
     mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  "ReconstructedAllAssoc2GenMultiMatched_ClosestDistanceZ",
-                 400, 0., 1);
+                 17, &log_mergez_bins[0]);
 
     // All Reconstructed Vertices Matched to a Multi-Matched Gen
     // Vertex. Used for Duplicate rate plots done w.r.t. Reco
@@ -439,10 +452,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  "RecoAllAssoc2MultiMatchedGen_R", 120, 0, 0.6);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_Pt2"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_Pt2",
-                 "RecoAllAssoc2MultiMatchedGen_Sum-pt2", 30, &log_pt2_bins[0]);
+                 "RecoAllAssoc2MultiMatchedGen_Sum-pt2", 15, &log_pt2_bins[0]);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_NumTracks"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_NumTracks",
-                 "RecoAllAssoc2MultiMatchedGen_NumTracks", 100, 0., 200.);
+                 "RecoAllAssoc2MultiMatchedGen_NumTracks", 24, &log_ntrk_bins[0]);
     mes_[label]["RecoAllAssoc2MultiMatchedGen_PU"] =
         i.book1D("RecoAllAssoc2MultiMatchedGen_PU",
                  "RecoAllAssoc2MultiMatchedGen_PU", 125, 0., 250.);
@@ -452,7 +465,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
-        400, 0., 1.);
+        17, &log_mergez_bins[0]);
   }
 }
 
