@@ -107,6 +107,9 @@ def miniAOD_customizeCommon(process):
     #
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
+    # reclustering of ak4 jets needed in 70X
+   # from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+    process.load("RecoJets.JetProducers.ak4PFJets_cfi")
     from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
     runMEtUncertainties(process,jetCollection="selectedPatJetsAK4PFForMetUnc", outputModule=None)
