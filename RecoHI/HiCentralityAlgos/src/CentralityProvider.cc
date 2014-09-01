@@ -1,4 +1,4 @@
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
    prevRun_(0),
@@ -9,7 +9,13 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
       tag_ = hiPset.getParameter<edm::InputTag>("centralitySrc");
       centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
+      pPbRunFlip_ = hiPset.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
       if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
+      if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
+      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
+      if(centralityVariable_.compare("HFtowersTrunc") == 0) varType_ = HFtowersTrunc;
+      if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+      if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
       if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
       if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
       if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
@@ -34,6 +40,13 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
 void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iSetup){
    ev.getByLabel(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
+   if(prevRun_ < pPbRunFlip_ && ev.id().run() >= pPbRunFlip_){
+     std::cout<<"Attention, the sides are flipped from this run on!"<<std::endl;
+     if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
+     if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
+     if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
+     if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+   }
    prevRun_ = ev.id().run();
    newRun(iSetup);
 }
@@ -91,6 +104,11 @@ double CentralityProvider::centralityValue() const {
    double var = -99;
    if(varType_ == HFhits) var = chandle_->EtHFhitSum();
    if(varType_ == HFtowers) var = chandle_->EtHFtowerSum();
+   if(varType_ == HFtowersPlus) var = chandle_->EtHFtowerSumPlus();
+   if(varType_ == HFtowersMinus) var = chandle_->EtHFtowerSumMinus();
+   if(varType_ == HFtowersTrunc) var = chandle_->EtHFtruncated();
+   if(varType_ == HFtowersPlusTrunc) var = chandle_->EtHFtruncatedPlus();
+   if(varType_ == HFtowersMinusTrunc) var = chandle_->EtHFtruncatedMinus();
    if(varType_ == PixelHits) var = chandle_->multiplicityPixel();
    if(varType_ == PixelTracks) var = chandle_->NpixelTracks();
    if(varType_ == Tracks) var = chandle_->Ntracks();

@@ -7,12 +7,15 @@ from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.preshowerClusteringSequence_cff import *
 from RecoHI.HiEgammaAlgos.HiIsolationCommonParameters_cff import *
+from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import *
 
-hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence)
+particleFlowSuperClusterECAL.regressionConfig.vertexCollection = 'hiSelectedVertex'
+
+hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence*particleFlowSuperClusteringSequence)
 
 # high purity tracks
 #highPurityTracks = cms.EDFilter("TrackSelector",
-#    src = cms.InputTag("hiSelectedTracks"),
+#    src = cms.InputTag("hiGeneralTracks"),
 ##    cut = cms.string('quality("highPurity")')
 #)
 
