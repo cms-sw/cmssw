@@ -189,12 +189,12 @@ namespace edm {
     
     void
     EDFilterBase::doPreForkReleaseResources() {
-      //preForkReleaseResources();
+      preForkReleaseResources();
     }
     
     void
     EDFilterBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources(iChildIndex, iNumberOfChildren);
+      postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
     void EDFilterBase::preallocStreams(unsigned int) {}
