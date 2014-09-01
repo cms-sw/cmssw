@@ -92,7 +92,10 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
   EcalRecHit rechit(digi.id(), energy, t0);
-  rechit.setOutOfTimeEnergy(otenergy);
+  // edm: this is just a placeholder for alternative energy reconstruction,
+  // so put it in the same float, with different name
+  // rechit.setOutOfTimeEnergy(otenergy);
+  rechit.setEnergyError(otenergy);
 
   rechit.setFlag(statusCh.getStatusCode() == 1 ? EcalRecHit::kESDead : status);
 
@@ -225,7 +228,10 @@ EcalRecHit ESRecHitSimAlgo::oldreconstruct(const ESDataFrame& digi) const {
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
   EcalRecHit rechit(digi.id(), energy, t0);
-  rechit.setOutOfTimeEnergy(otenergy);
+  // edm: this is just a placeholder for alternative energy reconstruction,
+  // so put it in the same float, with different name
+  // rechit.setOutOfTimeEnergy(otenergy);
+  rechit.setEnergyError(otenergy);
 
   if (it_status->getStatusCode() == 1) {
     rechit.setFlag(EcalRecHit::kESDead);
