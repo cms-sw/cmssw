@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/GRun/V87 (CMSSW_7_1_6)
+# /dev/CMSSW_7_1_1/GRun/V88 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V87')
+  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V88')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -12363,7 +12363,7 @@ hlt2PFJet50 = cms.EDFilter( "HLT1PFJet",
 )
 hlt1PFJet60 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
-    MinPt = cms.double( 45.0 ),
+    MinPt = cms.double( 60.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.6 ),
     MinMass = cms.double( -1.0 ),
