@@ -273,6 +273,9 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 			0.,0.,4.
 	);
 	theParticle.setCharge(theSimTrack.charge());
+    const double x0 = beamspotPosition.X();
+    const double y0 = beamspotPosition.Y();
+    const double z0 = beamspotPosition.Z();
 	if ( theParticle.xyImpactParameter(x0,y0) > maxD0[trackingAlgorithmId] )
 	{
 		return false;
