@@ -24,6 +24,7 @@
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include <DQMServices/Core/interface/DQMStore.h>
 
@@ -71,8 +72,8 @@ class MultiTrackValidatorBase {
 
   std::string out;
 
-  edm::EDGetTokenT<reco::DeDxData> m_dEdx1Tag;
-  edm::EDGetTokenT<reco::DeDxData> m_dEdx2Tag;
+  edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx1Tag;
+  edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx2Tag;
 
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;

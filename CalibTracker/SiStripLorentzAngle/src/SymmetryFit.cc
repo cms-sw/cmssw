@@ -1,6 +1,7 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/SymmetryFit.h"
 #include <cmath>
 #include <cassert>
+#include <memory>
 #include "boost/foreach.hpp"
 
 TH1* SymmetryFit::symmetryChi2(std::string basename, const std::vector<TH1*>& candidates, const std::pair<unsigned,unsigned> range)
@@ -128,12 +129,12 @@ int SymmetryFit::fit() {
       p[0] > chi2_->GetBinCenter(chi2_->GetNbinsX()))
     return 7;
 
-  TF1* f = fitfunction();
+  std::unique_ptr<TF1> f( fitfunction() );
   f->SetParameter(0, p[0]);  f->SetParLimits(0, p[0], p[0]);
   f->SetParameter(1, p[1]);  f->SetParLimits(1, p[1], p[1]);
   f->SetParameter(2, p[2]);  f->SetParLimits(2, p[2], p[2]);
   f->SetParameter(3, ndf_);  f->SetParLimits(3, ndf_,ndf_); //Fixed
-  chi2_->Fit(f,"WQ");
+  chi2_->Fit(f.get(),"WQ");
   return 0;
 }
 
@@ -151,12 +152,14 @@ TF1* SymmetryFit::fitfunction()
 std::vector<double> SymmetryFit::pol2_from_pol2(TH1* hist) {
   std::vector<double> v;
 
-  int status = hist->Fit("pol2","WQ");
+  //Need our own copy for thread safety
+  TF1 func("mypol2","pol2"); 
+  int status = hist->Fit(&func,"WQ");
   if(!status) {
     std::vector<double> p;
-    p.push_back(hist->GetFunction("pol2")->GetParameter(0));
-    p.push_back(hist->GetFunction("pol2")->GetParameter(1));
-    p.push_back(hist->GetFunction("pol2")->GetParameter(2));
+    p.push_back(func.GetParameter(0));
+    p.push_back(func.GetParameter(1));
+    p.push_back(func.GetParameter(2));
     if(p[2]>0) {
       v.push_back( -0.5*p[1]/p[2] );
       v.push_back( 1./sqrt(p[2]) );
@@ -169,13 +172,14 @@ std::vector<double> SymmetryFit::pol2_from_pol2(TH1* hist) {
 std::vector<double> SymmetryFit::pol2_from_pol3(TH1* hist) {
   std::vector<double> v;
 
-  int status = hist->Fit("pol3","WQ");
+  std::unique_ptr<TF1> func( new TF1("mypol3","pol3")); 
+  int status = hist->Fit(func.get(),"WQ");
   if(!status) {
     std::vector<double> p;
-    p.push_back(hist->GetFunction("pol3")->GetParameter(0));
-    p.push_back(hist->GetFunction("pol3")->GetParameter(1));
-    p.push_back(hist->GetFunction("pol3")->GetParameter(2));
-    p.push_back(hist->GetFunction("pol3")->GetParameter(3));
+    p.push_back(func->GetParameter(0));
+    p.push_back(func->GetParameter(1));
+    p.push_back(func->GetParameter(2));
+    p.push_back(func->GetParameter(3));
     double radical = p[2]*p[2] - 3*p[1]*p[3] ;
     if(radical>0) {
       double x0 = ( -p[2] + sqrt(radical) ) / ( 3*p[3] ) ;

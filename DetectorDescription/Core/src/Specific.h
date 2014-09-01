@@ -33,7 +33,7 @@ namespace DDI {
     	     
     const std::vector<DDPartSelection> & selection() const;
     
-    void updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<DDPartSelection*,DDsvalues_type*> > >&) const;
+    void updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<const DDPartSelection*, const DDsvalues_type*> > >&) const;
     
     void tokenize();
     

@@ -20,7 +20,7 @@
 #include <map>
 
 class GeomDetType;
-class GeomDetUnit;
+
 
 class DTGeometry : public TrackingGeometry {
 

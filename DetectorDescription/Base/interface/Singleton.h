@@ -7,12 +7,13 @@ namespace DDI {
  {
  public:
    typedef I value_type;
-
+   virtual ~Singleton() {}
    static value_type & instance();
    
- private:  
-   Singleton();
-   Singleton& operator=(const Singleton &);
+ private:
+   Singleton(void) = delete;
+   Singleton(const Singleton&) = delete;
+   Singleton& operator=(const Singleton &) = delete;
  };
 }
 #endif

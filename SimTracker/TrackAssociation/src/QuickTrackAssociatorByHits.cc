@@ -198,11 +198,9 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplemen
 
 	size_t collectionSize=::collectionSize(trackCollection); // Delegate away type specific part
 
-	//std::cout << "#reco Tracks = " << collectionSize << std::endl;
 	for( size_t i=0; i < collectionSize; ++i )
 	{
 		const reco::Track* pTrack=::getTrackAt(trackCollection,i); // Get a normal pointer for ease of use. This part is type specific so delegate.
-		//    std::cout << ">>> recoTrack #index = " << i << " pt = " << pTrack->pt() << std::endl;
 
 		// The return of this function has first as the index and second as the number of associated hits
 		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( hitOrClusterAssociator, trackingParticleCollection, pTrack->recHitsBegin(), pTrack->recHitsEnd() );
@@ -216,7 +214,6 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplemen
 			size_t numberOfSharedHits=iTrackingParticleQualityPair->second;
 			size_t numberOfValidTrackHits=pTrack->found();
 
-			//std::cout << ">>> reco2sim. numberOfSharedHits = " << nt++ << ", " << numberOfSharedHits << std::endl;
 			if( numberOfSharedHits == 0 ) continue; // No point in continuing if there was no association
 
 			//if electron subtract double counting
@@ -263,7 +260,6 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 			size_t numberOfValidTrackHits=pTrack->found();
 			size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
 
-			//std::cout << ">>> sim2reco. numberOfSharedHits = " << nt++ << ", " << numberOfSharedHits << std::endl;
 			if( numberOfSharedHits==0 ) continue; // No point in continuing if there was no association
 
 			if( simToRecoDenominator_==denomsim || (numberOfSharedHits<3 && threeHitTracksAreSpecial_) ) // the numberOfSimulatedHits is not always required, so can skip counting in some circumstances
@@ -429,48 +425,52 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 
 template<typename iter> std::vector<OmniClusterRef> QuickTrackAssociatorByHits::getMatchedClusters(iter begin, iter end) const
 {
-	std::vector<OmniClusterRef> returnValue;
-	for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
-		const TrackingRecHit* rhit = getHitFromIter(iRecHit);
-		if (rhit->isValid()) {
-			int subdetid = rhit->geographicalId().subdetId();
-			if (subdetid==PixelSubdetector::PixelBarrel||subdetid==PixelSubdetector::PixelEndcap) {
-				const SiPixelRecHit* pRHit = dynamic_cast<const SiPixelRecHit*>(rhit);
-				if (!pRHit->cluster().isNonnull())
-					edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-				returnValue.push_back(pRHit->omniClusterRef());
-			}
-			else if (subdetid==SiStripDetId::TIB||subdetid==SiStripDetId::TOB||subdetid==SiStripDetId::TID||subdetid==SiStripDetId::TEC) {
-				const std::type_info &tid = typeid(*rhit);
-				if (tid == typeid(SiStripMatchedRecHit2D)) {
-					const SiStripMatchedRecHit2D* sMatchedRHit = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit);
-					if (!sMatchedRHit->monoHit().cluster().isNonnull() || !sMatchedRHit->stereoHit().cluster().isNonnull())
-						edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-					returnValue.push_back(sMatchedRHit->monoClusterRef());
-					returnValue.push_back(sMatchedRHit->stereoClusterRef());
-				}
-				else if (tid == typeid(SiStripRecHit2D)) {
-					const SiStripRecHit2D* sRHit = dynamic_cast<const SiStripRecHit2D*>(rhit);
-					if (!sRHit->cluster().isNonnull())
-						edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-					returnValue.push_back(sRHit->omniClusterRef());
-				}
-				else if (tid == typeid(SiStripRecHit1D)) {
-					const SiStripRecHit1D* sRHit = dynamic_cast<const SiStripRecHit1D*>(rhit);
-					if (!sRHit->cluster().isNonnull())
-						edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-					returnValue.push_back(sRHit->omniClusterRef());
-				}
-				else {
-					edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any SiStripCluster! subdetid = " << subdetid;
-				}
-			}
-			else {
-				edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any cluster! subdetid = " << subdetid;
-			}
-		}
+  std::vector<OmniClusterRef> returnValue;
+  for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
+    const TrackingRecHit* rhit = getHitFromIter(iRecHit);
+    if (rhit->isValid()) {
+      int subdetid = rhit->geographicalId().subdetId();
+      if (subdetid==PixelSubdetector::PixelBarrel||subdetid==PixelSubdetector::PixelEndcap) {
+	const SiPixelRecHit* pRHit = dynamic_cast<const SiPixelRecHit*>(rhit);
+	if (!pRHit->cluster().isNonnull())
+	  edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+	returnValue.push_back(pRHit->omniClusterRef());
+      }
+      else if (subdetid==SiStripDetId::TIB||subdetid==SiStripDetId::TOB||subdetid==SiStripDetId::TID||subdetid==SiStripDetId::TEC) {
+	const std::type_info &tid = typeid(*rhit);
+	if (tid == typeid(SiStripMatchedRecHit2D)) {
+	  const SiStripMatchedRecHit2D* sMatchedRHit = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit);
+	  if (!sMatchedRHit->monoHit().cluster().isNonnull() || !sMatchedRHit->stereoHit().cluster().isNonnull())
+	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+	  returnValue.push_back(sMatchedRHit->monoClusterRef());
+	  returnValue.push_back(sMatchedRHit->stereoClusterRef());
 	}
-	return returnValue;
+	else if (tid == typeid(SiStripRecHit2D)) {
+	  const SiStripRecHit2D* sRHit = dynamic_cast<const SiStripRecHit2D*>(rhit);
+	  if (!sRHit->cluster().isNonnull())
+	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+	  returnValue.push_back(sRHit->omniClusterRef());
+	}
+	else if (tid == typeid(SiStripRecHit1D)) {
+	  const SiStripRecHit1D* sRHit = dynamic_cast<const SiStripRecHit1D*>(rhit);
+	  if (!sRHit->cluster().isNonnull())
+	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+	  returnValue.push_back(sRHit->omniClusterRef());
+	}
+	else {
+	  auto const & thit = static_cast<BaseTrackerRecHit const&>(*rhit);
+	  if ( thit.isProjected() ) {
+	  } else {
+	    edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any SiStripCluster! subdetid = " << subdetid;
+	  }
+	}
+      }
+      else {
+	edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any cluster! subdetid = " << subdetid;
+      }
+    }
+  }
+  return returnValue;
 }
 
 template<typename iter> std::vector< std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const

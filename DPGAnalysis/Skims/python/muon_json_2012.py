@@ -32,3 +32,5 @@ muon_json_2012_pickEvents = cms.EDFilter(
 
     
     )
+
+muon_json_2012 = cms.Sequence( muon_json_2012_pickEvents )

@@ -199,18 +199,18 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
-    if self.config.type in ('GRun','FULL'):
-      self.data += """
-# Enable HF Noise filters in GRun menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-"""
-    if self.config.type in ('HIon', ):
-      self.data += """
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-"""
+#    if self.config.type in ('HIon', ):
+#      self.data += """
+## Disable HF Noise filters in HIon menu
+#if 'hltHfreco' in %(dict)s:
+#    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
+#"""
+#    else:
+#      self.data += """
+## Enable HF Noise filters in non-HIon menu
+#if 'hltHfreco' in %(dict)s:
+#    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
+#"""
 
 #    self.data += """
 ## untracked parameters with NO default in the code
@@ -356,7 +356,7 @@ process = customizeHLTforMC(process)
       # fix the definition of module
       # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
-      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
+      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
       self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')

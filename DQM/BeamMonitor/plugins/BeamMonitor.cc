@@ -33,6 +33,7 @@ V00-03-25
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <numeric>
 #include <math.h>
+#include <memory>
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>
@@ -854,10 +855,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       sprintf(tmpTitle,"%s %i %s %i","Fitted Primary Vertex (cm) of LS: ",beginLumiOfPVFit_," to ",endLumiOfPVFit_);
       pvResults->setAxisTitle(tmpTitle,1);
 
-      TF1 *fgaus = new TF1("fgaus","gaus");
+      std::unique_ptr<TF1> fgaus{ new TF1("fgaus","gaus") };
       double mean,width,meanErr,widthErr;
       fgaus->SetLineColor(4);
-      h_PVx[0]->getTH1()->Fit("fgaus","QLM0");
+      h_PVx[0]->getTH1()->Fit(fgaus.get(),"QLM0");
       mean = fgaus->GetParameter(1);
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
@@ -892,10 +893,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       tmphisto = static_cast<TH1D *>((h_PVx[0]->getTH1())->Clone("tmphisto"));
       h_PVx[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
       h_PVx[1] = dbe_->book1D(tmpfile,h_PVx[0]->getTH1F());
-      h_PVx[1]->getTH1()->Fit("fgaus","QLM");
+      h_PVx[1]->getTH1()->Fit(fgaus.get(),"QLM");
 
 
-      h_PVy[0]->getTH1()->Fit("fgaus","QLM0");
+      h_PVy[0]->getTH1()->Fit(fgaus.get(),"QLM0");
       mean = fgaus->GetParameter(1);
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
@@ -921,10 +922,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_PVy[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
       h_PVy[1]->update();
       h_PVy[1] = dbe_->book1D(tmpfile,h_PVy[0]->getTH1F());
-      h_PVy[1]->getTH1()->Fit("fgaus","QLM");
+      h_PVy[1]->getTH1()->Fit(fgaus.get(),"QLM");
 
 
-      h_PVz[0]->getTH1()->Fit("fgaus","QLM0");
+      h_PVz[0]->getTH1()->Fit(fgaus.get(),"QLM0");
       mean = fgaus->GetParameter(1);
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
@@ -950,7 +951,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_PVz[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
       h_PVz[1]->update();
       h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
-      h_PVz[1]->getTH1()->Fit("fgaus","QLM");
+      h_PVz[1]->getTH1()->Fit(fgaus.get(),"QLM");
 
     }//check if found min Vertices
   }//do PVfit
@@ -1165,10 +1166,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
 	double mean = bs.z0();
 	double width = bs.sigmaZ();
-	TF1 *fgaus = new TF1("fgaus","gaus");
+	std::unique_ptr<TF1> fgaus{ new TF1("fgaus","gaus") };
 	fgaus->SetParameters(mean,width);
 	fgaus->SetLineColor(4);
-	h_trk_z0->getTH1()->Fit("fgaus","QLRM","",mean-3*width,mean+3*width);
+	h_trk_z0->getTH1()->Fit(fgaus.get(),"QLRM","",mean-3*width,mean+3*width);
       }
 
       fitResults->Reset();

@@ -44,6 +44,7 @@ class CSCDigiToRawModule : public edm::EDProducer {
 
   unsigned int 	theFormatVersion; // Select which version of data format to use Pre-LS1: 2005, Post-LS1: 2013
   bool		usePreTriggers;   // Select if to use Pre-Triigers CLCT digis
+  bool		packEverything_;   // bypass all cuts and (pre)trigger requirements
 
   CSCDigiToRaw * packer;
 

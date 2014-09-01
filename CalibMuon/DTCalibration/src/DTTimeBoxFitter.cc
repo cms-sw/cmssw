@@ -84,7 +84,7 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
   if(theVerbosityLevel >= 2)
     option = "";
 
-  hTimeBox->Fit("IntGauss", option.c_str(), "",xFitMin, xFitMax);
+  hTimeBox->Fit(fIntGaus, option.c_str(), "",xFitMin, xFitMax);
 
   // Get fitted parameters
   double mean =  fIntGaus->GetParameter("Mean");
