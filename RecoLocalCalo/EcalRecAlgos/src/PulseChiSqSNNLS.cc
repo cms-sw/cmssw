@@ -9,13 +9,14 @@ PulseChiSqSNNLS::PulseChiSqSNNLS(const std::vector<double> &samples, const TMatr
   _ampvec(bxs.size()),
   _workvec(samples.size()),
   _workmat(bxs.size(),samples.size()),
-  _aTamat(bxs.size()),
+  _aTamat(bxs.size(),bxs.size()),
   _wvec(bxs.size()),
   _aTbvec(bxs.size())
 {
   
-  _invcov.Invert();
- 
+  _decompP.SetMatrixFast(_invcov,_decompPstorage.data());
+  _decompP.Invert(_invcov);
+  
   const unsigned int nsample = _sampvec.GetNrows();
     
   for (std::set<int>::const_iterator bxit = bxs.begin(); bxit!=bxs.end(); ++bxit) {
@@ -36,9 +37,10 @@ PulseChiSqSNNLS::~PulseChiSqSNNLS() {
 }
 
 
-void PulseChiSqSNNLS::updateCov(const double *invals, const TMatrixDSym &samplecov, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov) {
+bool PulseChiSqSNNLS::updateCov(const double *invals, const TMatrixDSym &samplecov, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov) {
  
   const unsigned int nsample = _sampvec.GetNrows();
+  
   
   _invcov = samplecov;
   
@@ -55,7 +57,11 @@ void PulseChiSqSNNLS::updateCov(const double *invals, const TMatrixDSym &samplec
       }
     }
   }
-  _invcov.Invert();
+    
+  _decompP.SetMatrixFast(_invcov,_decompPstorage.data());
+  bool status = _decompP.Invert(_invcov);
+  
+  return status;
     
 }
 
@@ -67,22 +73,30 @@ double PulseChiSqSNNLS::ChiSq() {
   
 }
 
-int PulseChiSqSNNLS::Minimize() {
+bool PulseChiSqSNNLS::Minimize() {
   
-  TMatrixDSym invcovtmp(_invcov);
-  _aTamat = invcovtmp.SimilarityT(_pulsemat);
+  //Fast NNLS (fnnls) algorithm as per http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.157.9203&rep=rep1&type=pdf
   
   _workmat.TMult(_pulsemat,_invcov);
-  _aTbvec = _workmat*_sampvec;
+  _aTamat.Mult(_workmat,_pulsemat);
+  _aTbvec = _sampvec;
+  _aTbvec *= _workmat;
   
   const unsigned int npulse = _ampvec.GetNrows();
   int iter = 0;
   while (true) {
     //printf("iter out, idxsP = %i\n",int(_idxsP.size()));
+    
+    //can only perform this step if solution is guaranteed viable
     if (iter>0 || !_idxsP.size()) {
       if (_idxsP.size()==npulse) break;
       
-      _wvec = _aTbvec - _aTamat*_ampvec;
+      //compute derivatives
+      _wvec = _ampvec;
+      _wvec *= _aTamat;
+      _wvec -= _aTbvec;
+      _wvec *= -1.0;
+      
       //find wmax in active set
       double wmax = -std::numeric_limits<double>::max();
       unsigned int idxwmax = 0;
@@ -94,8 +108,10 @@ int PulseChiSqSNNLS::Minimize() {
         }
       }
       
-      //if (wmax<=0.) break;
+      //convergence
       if (wmax<1e-11) break;
+      
+      //unconstrain parameter
       _idxsP.insert(idxwmax);
     }
 
@@ -105,11 +121,12 @@ int PulseChiSqSNNLS::Minimize() {
       
       if (_idxsP.size()==0) break;
       
+      //trick: resize matrices without reallocating memory
       const unsigned int npulseP = _idxsP.size();
       _aPmat.Use(npulseP,_aPstorage.data());
       _sPvec.Use(npulseP,_sPstorage.data()); 
       
-//       //fill reduced matrix AP
+      //fill reduced matrix AP
       for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
         unsigned int iidx = std::distance(_idxsP.begin(),itidx);
         _sPvec(iidx) = _aTbvec(*itidx);        
@@ -119,9 +136,12 @@ int PulseChiSqSNNLS::Minimize() {
         }
       }
       
-      _aPmat.Invert();
-      _sPvec *= _aPmat;
-
+      //solve for unconstrained parameters
+      _decompP.SetMatrixFast(_aPmat,_decompPstorage.data());
+      bool status = _decompP.Solve(_sPvec);
+      if (!status) return false;
+      
+      //check solution
       if (_sPvec.Min()>0.) {
         _ampvec.Zero();
         for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
@@ -132,7 +152,7 @@ int PulseChiSqSNNLS::Minimize() {
         break;
       }      
       
-      
+      //update parameter vector
       double minratio = std::numeric_limits<double>::max();
       unsigned int minratioidx = 0;
       for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
@@ -144,6 +164,7 @@ int PulseChiSqSNNLS::Minimize() {
         }
       }
       
+      //re-constraint parameters at the boundary
       for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
         unsigned int iidx = std::distance(_idxsP.begin(),itidx);
         _ampvec[*itidx] += minratio*(_sPvec[iidx] - _ampvec[*itidx]);
@@ -164,7 +185,7 @@ int PulseChiSqSNNLS::Minimize() {
     ++iter;
   }
   
-  return 0;
+  return true;
   
   
 }

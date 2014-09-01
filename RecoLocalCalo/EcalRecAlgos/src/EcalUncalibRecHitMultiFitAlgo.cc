@@ -76,9 +76,14 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   const int maxiter = 50;
   int nnlsiter = 0;
   double chisqnnls = 0.;
+  bool status = false;
   while (true) {
-    pulsefuncnnls.Minimize();
-    if (nnlsiter>=maxiter) break;
+    status = pulsefuncnnls.Minimize();
+    if (!status) break;
+    if (nnlsiter>=maxiter) {
+      printf("max iters reached (nnlsiter = %i)\n",nnlsiter);
+      break;
+    }
     
     double chisqnow = pulsefuncnnls.ChiSq();
     double deltachisq = chisqnow-chisqnnls;
@@ -87,8 +92,10 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       break;
     }
     ++nnlsiter;
-    pulsefuncnnls.updateCov(pulsefuncnnls.X(),noisecov,activeBX,fullpulsecov);    
+    status = pulsefuncnnls.updateCov(pulsefuncnnls.X(),noisecov,activeBX,fullpulsecov);    
+    if (!status) break;
   }
+  if (!status) printf("failed minimization\n");
 
   unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
   double amplitude = pulsefuncnnls.X()[ipulseintime];
@@ -96,6 +103,8 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   double amperr = 0.;  
   
   double jitter = 0.;
+  
+  //printf("amplitude = %5f, chisq = %5f\n",amplitude,chisqnnls);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);

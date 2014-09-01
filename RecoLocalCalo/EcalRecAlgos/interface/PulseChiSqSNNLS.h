@@ -6,7 +6,7 @@
 #include "TMatrixDSym.h"
 #include "Math/Minimizer.h"
 #include "Math/IFunction.h"
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/TDecompCholFast.h"
 
 #include <set>
 #include <array>
@@ -17,14 +17,14 @@ class PulseChiSqSNNLS {
     ~PulseChiSqSNNLS();
     unsigned int NDim() const { return _pulsemat.GetNcols(); }
     
-    void updateCov(const double *invals, const TMatrixDSym &samplecov, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov);
+    bool updateCov(const double *invals, const TMatrixDSym &samplecov, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov);
     
     const TMatrixD &pulsemat() const { return _pulsemat; }
     const TMatrixDSym &invcov() const { return _invcov; }
     
     const double *X() const { return _ampvec.GetMatrixArray(); }
     
-    int Minimize();
+    bool Minimize();
     
     double ChiSq();
         
@@ -33,16 +33,17 @@ class PulseChiSqSNNLS {
     TMatrixD _pulsemat;
     TMatrixDSym _invcov;
     TVectorD _ampvec;
-    TVectorD _workvecamp;
     TVectorD _workvec;
     TMatrixD _workmat;
-    TMatrixDSym _aTamat;
+    TMatrixD _aTamat;
     TVectorD _wvec;
     TVectorD _aTbvec;
     TMatrixDSym _aPmat;
     TVectorD _sPvec;
+    TDecompCholFast _decompP;
     std::array<double,10*10> _aPstorage;
     std::array<double,10> _sPstorage;
+    std::array<double,10*10> _decompPstorage;
     std::set<unsigned int> _idxsP;
 };
 
