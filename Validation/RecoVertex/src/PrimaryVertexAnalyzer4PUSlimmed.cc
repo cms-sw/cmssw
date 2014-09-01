@@ -264,11 +264,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
                  &log_pt2_bins[0]);
     mes_[label]["GenAllAssoc2Reco_NumTracks"] =
         i.book1D("GenAllAssoc2Reco_NumTracks",
-<<<<<<< HEAD
-                 "GeneratedAllAssoc2Reco_NumTracks", 100, 0., 200.);
-=======
                  "GeneratedAllAssoc2Reco_NumTracks", 24, &log_ntrk_bins[0]);
->>>>>>> 14d4019... rebin again
     mes_[label]["GenAllAssoc2Reco_ClosestDistanceZ"] =
         i.book1D("GenAllAssoc2Reco_ClosestDistanceZ",
                  "GeneratedAllAssoc2Reco_ClosestDistanceZ", 30, &log_bins[0]);
