@@ -229,7 +229,7 @@ int HGCalDDDConstants::maxCells(float h, float bl, float tl, float alpha,
  
   int   ncells(0);
   int   kymax = floor((2*h)/cellSize);
-  for (int iky=0; iky<=kymax; ++iky)
+  for (int iky=0; iky<kymax; ++iky)
     {
       int cellsInRow=floor((iky*cellSize+b)/(a*cellSize));
       ncells += cellsInRow;
