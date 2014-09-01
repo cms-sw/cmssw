@@ -105,11 +105,22 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
 
   unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
   double amplitude = status ? minim.X()[ipulseintime] : 0.;
-  //double amperr = status ? minim.Errors()[ipulseintime] : 0.;
+  double amperr = status ? minim.Errors()[ipulseintime] : 0.;
   
   double jitter = 0.;
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
+  rh.setAmplitudeError(amperr);
+  for(unsigned int ipulse=0; ipulse<activeBX.size(); ++ipulse) {
+    if(ipulse==ipulseintime) {
+      rh.setOutOfTimeAmplitude(ipulse,0.);
+      rh.setOutOfTimeAmplitudeError(ipulse,0.);
+    } else {
+      rh.setOutOfTimeAmplitude(ipulse, status ? minim.X()[ipulse] : 0.);
+      rh.setOutOfTimeAmplitudeError(ipulse, status ? minim.Errors()[ipulse] : 0.);
+    }
+  }
+
   return rh;
 }
 

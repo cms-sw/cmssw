@@ -588,7 +588,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 }
 		// do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
                 uncalibRecHit.setChi2(0);
-		uncalibRecHit.setOutOfTimeChi2(0);
         } else {
                 // multifit
                 bool barrel = detid.subdetId()==EcalBarrel;
@@ -618,8 +617,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 
                                 uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
                                 uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-                                uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
-				// consider flagging as kOutOfTime only if above noise
 				
                 } else {
  		                ratioMethod_barrel_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
@@ -634,7 +631,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
 
                                 uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-                                uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
 		}
 		
         }
