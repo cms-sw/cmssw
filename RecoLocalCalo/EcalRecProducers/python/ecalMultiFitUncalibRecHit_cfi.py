@@ -15,12 +15,21 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EBtimeFitLimits_Upper = cms.double(1.4),
     EEtimeFitLimits_Lower = cms.double(0.2),
     EEtimeFitLimits_Upper = cms.double(1.4),
-    # for kOutOfTime flag
+    # for time error
     EBtimeConstantTerm= cms.double(.6),
     EEtimeConstantTerm= cms.double(1.0),
    
     ebPulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
     eePulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),   
-   
+
+    # for kOutOfTime flag
+    significanceOutOfTime = cms.double(5.0),
+
+    # for kPoorReco flag
+    kPoorRecoFlagEB = cms.bool(True),
+    kPoorRecoFlagEE = cms.bool(False),
+    chi2ThreshEB_ = cms.double(65.0),
+    chi2ThreshEE_ = cms.double(50.0),
+                                           
     algo = cms.string("EcalUncalibRecHitWorkerMultiFit")
 )

@@ -99,6 +99,16 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
 
+
+                // chi2 thresholds for flags settings
+                bool kPoorRecoFlagEB_;
+                bool kPoorRecoFlagEE_;
+                double chi2ThreshEB_;
+                double chi2ThreshEE_;
+
+                // significance of the additional OOT pulses
+                double significanceOutOfTime_;
+
 };
 
 #endif

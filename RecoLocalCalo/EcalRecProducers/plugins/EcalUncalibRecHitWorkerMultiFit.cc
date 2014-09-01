@@ -386,7 +386,16 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
         // leading edge parameters
         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
         eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
-}
+
+        // chi2 parameters for flags determination
+        kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
+        kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");;
+        chi2ThreshEB_=ps.getParameter<double>("chi2ThreshEB_");
+        chi2ThreshEE_=ps.getParameter<double>("chi2ThreshEE_");
+
+        // significance of the additional OOT pulses 
+        significanceOutOfTime_ = ps.getParameter<double>("significanceOutOfTime");
+ }
 
 
 
@@ -604,6 +613,19 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                                 
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
+                // out of time flags (not proper flag with this method, but says if the Detid is populated just by OOT PU
+                // not active for tests of the clustering
+                /*
+                if(uncalibRecHit.amplitude()/uncalibRecHit.amplitudeError() < significanceOutOfTime_) {
+                  bool significantOOTPulse=false;
+                  for(int ibx=0; ibx<EcalDataFrame::MAXSAMPLES; ++ibx) {
+                    if(uncalibRecHit.outOfTimeAmplitudeErr(ibx) > 0. && 
+                       uncalibRecHit.outOfTimeAmplitude(ibx)/uncalibRecHit.outOfTimeAmplitudeErr(ibx) > significanceOutOfTime_) significantOOTPulse=true;
+                  }
+                  if(significantOOTPulse) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );
+                }
+                */
+
                 // === time computation ===
                 // ratio method
                 float const clockToNsConstant = 25.;
@@ -638,6 +660,33 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 	// set flags if gain switch has occurred
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain6()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain6 );
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
+
+        // set quality flags based on chi2 of the the fit
+        if(detid.subdetId()==EcalEndcap) { 
+          if(kPoorRecoFlagEE_ && uncalibRecHit.chi2()>chi2ThreshEE_) {
+          bool samplesok = true;
+          for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
+            if (!sampleMask_->useSampleEE(sample)) {
+              samplesok = false;
+              break;
+            }
+          }
+          if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
+          }
+        } else {
+          if(kPoorRecoFlagEB_ && uncalibRecHit.chi2()>chi2ThreshEB_) {
+          bool samplesok = true;
+          for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
+            if (!sampleMask_->useSampleEB(sample)) {
+              samplesok = false;
+              break;
+            }
+          }
+          if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
+          }
+        }
+
+        
 
         // put the recHit in the collection
         if (detid.subdetId()==EcalEndcap) {
