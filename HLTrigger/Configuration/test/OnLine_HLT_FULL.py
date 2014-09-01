@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/HLT/V156 (CMSSW_7_1_6)
+# /dev/CMSSW_7_1_1/HLT/V159 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V156')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V159')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2010,34 +2010,29 @@ process.DQMStore = cms.Service( "DQMStore",
 process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
-    luminosityProduct = cms.untracked.InputTag( "hltScalersRawToDigi" ),
-    enableTimingExclusive = cms.untracked.bool( False ),
+    useRealTimeClock = cms.untracked.bool( True ),
     enableTimingModules = cms.untracked.bool( True ),
-    enableDQMbyPathOverhead = cms.untracked.bool( False ),
-    dqmTimeResolution = cms.untracked.double( 5.0 ),
+    enableDQM = cms.untracked.bool( True ),
     enableDQMbyModule = cms.untracked.bool( False ),
-    dqmLuminosityResolution = cms.untracked.double( 1.0E31 ),
+    enableTimingExclusive = cms.untracked.bool( True ),
     skipFirstPath = cms.untracked.bool( False ),
-    enableTimingPaths = cms.untracked.bool( True ),
     enableDQMbyLumiSection = cms.untracked.bool( True ),
     dqmPathTimeResolution = cms.untracked.double( 0.5 ),
     dqmPathTimeRange = cms.untracked.double( 100.0 ),
     dqmTimeRange = cms.untracked.double( 1000.0 ),
     dqmLumiSectionsRange = cms.untracked.uint32( 2500 ),
-    enableDQMSummary = cms.untracked.bool( True ),
-    enableTimingSummary = cms.untracked.bool( False ),
-    enableDQMbyPathTotal = cms.untracked.bool( False ),
-    useRealTimeClock = cms.untracked.bool( True ),
-    enableDQMbyPathExclusive = cms.untracked.bool( False ),
-    enableDQMbyLuminosity = cms.untracked.bool( True ),
-    enableDQM = cms.untracked.bool( True ),
-    supportedProcesses = cms.untracked.vuint32( 8, 12, 16, 24, 32 ),
-    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
-    dqmLuminosityRange = cms.untracked.double( 1.0E34 ),
-    enableDQMbyPathActive = cms.untracked.bool( False ),
-    enableDQMbyPathDetails = cms.untracked.bool( False ),
     enableDQMbyProcesses = cms.untracked.bool( True ),
-    enableDQMbyPathCounters = cms.untracked.bool( False ),
+    enableDQMSummary = cms.untracked.bool( True ),
+    enableTimingSummary = cms.untracked.bool( True ),
+    enableDQMbyPathTotal = cms.untracked.bool( True ),
+    enableTimingPaths = cms.untracked.bool( True ),
+    enableDQMbyPathExclusive = cms.untracked.bool( True ),
+    dqmTimeResolution = cms.untracked.double( 5.0 ),
+    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
+    enableDQMbyPathActive = cms.untracked.bool( True ),
+    enableDQMbyPathDetails = cms.untracked.bool( True ),
+    enableDQMbyPathOverhead = cms.untracked.bool( False ),
+    enableDQMbyPathCounters = cms.untracked.bool( True ),
     enableDQMbyModuleType = cms.untracked.bool( False )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
@@ -23741,7 +23736,7 @@ process.hlt2PFJet50 = cms.EDFilter( "HLT1PFJet",
 )
 process.hlt1PFJet60 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
-    MinPt = cms.double( 45.0 ),
+    MinPt = cms.double( 60.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.6 ),
     MinMass = cms.double( -1.0 ),
