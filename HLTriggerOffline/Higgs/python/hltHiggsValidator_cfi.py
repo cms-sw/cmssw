@@ -108,6 +108,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_Mu17_TkMu8_v",
 		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+            "HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v"
 		    ),
 	    recMuonLabel  = cms.string("muons"),
 	    recElecLabel  = cms.string("gedGsfElectrons"),
