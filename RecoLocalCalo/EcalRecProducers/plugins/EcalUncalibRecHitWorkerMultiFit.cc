@@ -662,6 +662,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
 
         // set quality flags based on chi2 of the the fit
+        /*
         if(detid.subdetId()==EcalEndcap) { 
           if(kPoorRecoFlagEE_ && uncalibRecHit.chi2()>chi2ThreshEE_) {
           bool samplesok = true;
@@ -685,7 +686,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
           if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
           }
         }
-
+        */
         
 
         // put the recHit in the collection
