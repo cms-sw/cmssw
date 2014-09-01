@@ -35,53 +35,51 @@ class TrajectorySeedProducer2:
         SeedingTree<TrackingLayer> _seedingTree;
 
 
-        const MagneticField*  theMagField;
-        const MagneticFieldMap*  theFieldMap;
-        const TrackerGeometry*  theGeometry;
+        const MagneticField* magneticField;
+        const MagneticFieldMap* magneticFieldMap;
+        const TrackerGeometry* trackerGeometry;
+        const TrackerTopology* trackerTopology;
+        
         PropagatorWithMaterial* thePropagator;
 
-        std::vector<double> pTMin;
-        std::vector<double> maxD0;
-        std::vector<double> maxZ0;
-        std::vector<unsigned> minRecHits;
+        double pTMin;
+        double maxD0;
+        double maxZ0;
+        unsigned int minRecHits;
         edm::InputTag hitProducer;
         edm::InputTag theBeamSpot;
 
         bool seedCleaning;
         bool rejectOverlaps;
         unsigned int absMinRecHits;
-        std::vector<std::string> seedingAlgo;
-        std::vector<unsigned int> numberOfHits;
-        ///// TO BE REMOVED (AG)
-        std::vector<unsigned int> firstHitSubDetectorNumber;
-        std::vector<unsigned int> secondHitSubDetectorNumber;
-        std::vector<unsigned int> thirdHitSubDetectorNumber;
-        std::vector< std::vector<unsigned int> > firstHitSubDetectors;
-        std::vector< std::vector<unsigned int> > secondHitSubDetectors;
-        std::vector< std::vector<unsigned int> > thirdHitSubDetectors;
-        /////
-        bool newSyntax;
-        std::vector< std::vector<TrackingLayer> > theLayersInSets;
+        unsigned int numberOfHits;
+        
+        std::string outputSeedCollectionName;
+
+
+        std::vector<std::vector<TrackingLayer>> seedingLayers;
         
         math::XYZPoint beamspotPosition;
 
-        std::vector<double> originRadius;
-        std::vector<double> originHalfLength;
-        std::vector<double> originpTMin;
+        double originRadius;
+        double originHalfLength;
+        double originpTMin;
 
-        std::vector<edm::InputTag> primaryVertices;
-        std::vector<double> zVertexConstraint;
+        edm::InputTag primaryVertices;
+        double zVertexConstraint;
 
         bool selectMuons;
+        
+        bool skipPVCompatibility;
 
-        std::vector<const reco::VertexCollection*> vertices;
-
+        const reco::VertexCollection* vertices;
+ 
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
         edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
-        std::vector<edm::EDGetTokenT<reco::VertexCollection> > recoVertexToken;
+        edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
 
     public:
 

@@ -53,86 +53,46 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     theBeamSpot = conf.getParameter<edm::InputTag>("beamSpot");
 
     // The name of the TrajectorySeed Collections
-    seedingAlgo = conf.getParameter<std::vector<std::string> >("seedingAlgo");
-    for ( unsigned i=0; i<seedingAlgo.size(); ++i )
-    {
-        produces<TrajectorySeedCollection>(seedingAlgo[i]);
-    }
+    produces<TrajectorySeedCollection>();
     
     
     
     // The smallest true pT for a track candidate
-    pTMin = conf.getParameter<std::vector<double> >("pTMin");
-    if ( pTMin.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : pTMin does not have the proper size "
-        << std::endl;
-    }
-    
-    for ( unsigned i=0; i<pTMin.size(); ++i )
-    {
-        pTMin[i] *= pTMin[i];  // Cut is done of perp2() - CPU saver
-    }
+    pTMin = conf.getParameter<double>("pTMin");
+
     
     // The smallest number of Rec Hits for a track candidate
-    minRecHits = conf.getParameter<std::vector<unsigned int> >("minRecHits");
-    if ( minRecHits.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : minRecHits does not have the proper size "
-        << std::endl;
-    }
-    
+    minRecHits = conf.getParameter<unsigned int>("minRecHits");
+
+    //TODO: REMOVE
     // Set the overall number hits to be checked
-    absMinRecHits = 0;
-    for ( unsigned ialgo=0; ialgo<minRecHits.size(); ++ialgo ) 
-    {
-        if ( minRecHits[ialgo] > absMinRecHits ) 
-        {
-            absMinRecHits = minRecHits[ialgo];
-        }
-    }
-    
+    absMinRecHits = minRecHits;
+
     // The smallest true impact parameters (d0 and z0) for a track candidate
-    maxD0 = conf.getParameter<std::vector<double> >("maxD0");
-    if ( maxD0.size() != seedingAlgo.size() )
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : maxD0 does not have the proper size "
-        << std::endl;
-    }
-    maxZ0 = conf.getParameter<std::vector<double> >("maxZ0");
-    if ( maxZ0.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : maxZ0 does not have the proper size "
-        << std::endl;
-    }
+    maxD0 = conf.getParameter<double>("maxD0");
+    
+    maxZ0 = conf.getParameter<double>("maxZ0");
+    
     // The name of the hit producer
     hitProducer = conf.getParameter<edm::InputTag>("HitProducer");
 
+    //TODO: What is this???
     // The cuts for seed cleaning
     seedCleaning = conf.getParameter<bool>("seedCleaning");
 
     // Number of hits needed for a seed
-    numberOfHits = conf.getParameter<std::vector<unsigned int> >("numberOfHits");
-    if ( numberOfHits.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : numberOfHits does not have the proper size "
-        << std::endl;
-    }
+    numberOfHits = conf.getParameter<unsigned int>("numberOfHits");
+    
+    //TODO: What is this??
     // Seeding based on muons
     selectMuons = conf.getParameter<bool>("selectMuons");
 
     // read Layers
-    std::vector<std::string> layerList = conf.getParameter<std::vector<std::string> >("layerList");
-    //for (unsigned i=0; i<layerList.size();i++) std::cout << "------- Layers = " << layerList[i] << std::endl; 
+    std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
 
-    for(std::vector<std::string>::const_iterator it=layerList.begin(); it < layerList.end(); ++it) 
+    for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it) 
     {
-        std::vector<TrackingLayer> tempResult;
+        std::vector<TrackingLayer> trackingLayerList;
         std::string line = *it;
         std::string::size_type pos=0;
         while (pos != std::string::npos) 
@@ -141,46 +101,34 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
             std::string layer = line.substr(0, pos);
             TrackingLayer layerSpec = TrackingLayer::createFromString(layer);
 
-            tempResult.push_back(layerSpec);
+            trackingLayerList.push_back(layerSpec);
             line=line.substr(pos+1,std::string::npos); 
         }
-        theLayersInSets.push_back(tempResult);
+        _seedingTree.insert(trackingLayerList);
+        seedingLayers.push_back(std::move(trackingLayerList));
     }
 
-    originRadius = conf.getParameter<std::vector<double> >("originRadius");
-    if ( originRadius.size() != seedingAlgo.size() ) 
+    originRadius = conf.getParameter<double>("originRadius");
+
+    originHalfLength = conf.getParameter<double>("originHalfLength");
+
+    originpTMin = conf.getParameter<double>("originpTMin");
+ 
+    primaryVertices = conf.getParameter<edm::InputTag>("primaryVertices");
+
+    zVertexConstraint = conf.getParameter<double>("zVertexConstraint");
+
+    outputSeedCollectionName="seeds";
+    if (conf.exists("outputSeedCollectionName"))
     {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : originRadius does not have the proper size "
-        << std::endl;
+        outputSeedCollectionName=conf.getParameter<std::string>("outputSeedCollectionName");
     }
-    originHalfLength = conf.getParameter<std::vector<double> >("originHalfLength");
-    if ( originHalfLength.size() != seedingAlgo.size() ) 
+
+
+    skipPVCompatibility=false;
+    if (conf.exists("skipPVCompatibility"))
     {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : originHalfLength does not have the proper size "
-        << std::endl;
-    }
-    originpTMin = conf.getParameter<std::vector<double> >("originpTMin");
-    if ( originpTMin.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : originpTMin does not have the proper size "
-        << std::endl;
-    }
-    primaryVertices = conf.getParameter<std::vector<edm::InputTag> >("primaryVertices");
-    if ( primaryVertices.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : primaryVertices does not have the proper size "
-        << std::endl;
-    }
-    zVertexConstraint = conf.getParameter<std::vector<double> >("zVertexConstraint");
-    if ( zVertexConstraint.size() != seedingAlgo.size() ) 
-    {
-        throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-        << " WARNING : zVertexConstraint does not have the proper size "
-        << std::endl;
+        skipPVCompatibility = conf.getParameter<bool>("skipPVCompatibility");
     }
 
 
@@ -190,59 +138,36 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     simTrackToken = consumes<edm::SimTrackContainer>(_label);
     simVertexToken = consumes<edm::SimVertexContainer>(_label);
     recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducer);
-    for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) 
-    {
-        _label = edm::InputTag(primaryVertices[ialgo]);
-        recoVertexToken.push_back(consumes<reco::VertexCollection>(_label));
-    }
 
-
-    std::cout<<std::endl;
-	std::cout<<"config: "<<seedingAlgo[0]<<std::endl;
-	for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
-	{
-		_seedingTree.insert(theLayersInSets[ilayerset]);
-	}
-    std::cout<<"---------"<<std::endl;
-    _seedingTree.sort();
-    _seedingTree.printRecursive();
+    _label = edm::InputTag(primaryVertices);
     
-    for (auto const& layer: _seedingTree.getSingleSet())
-    //for (SeedingTree<LayerSpec>::SingleSet::const_iterator it = _seedingTree.getSingleSet().begin(); it!=_seedingTree.getSingleSet().end(); ++it)
-    {
-        
-        //std::cout<<it-_seedingTree.getSingleSet().begin()<<",";
-        std::cout<<layer.toString().c_str()<<" ["<<layer.toIdString().c_str()<<"], ";
-    }
-    std::cout<<std::endl;
-    std::cout<<std::endl;
+    recoVertexToken=consumes<reco::VertexCollection>(_label);
+
+
+
 } 
 
 
 void 
 TrajectorySeedProducer2::beginRun(edm::Run const&, const edm::EventSetup & es) 
 {
+    edm::ESHandle<MagneticField> magneticFieldHandle;
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    edm::ESHandle<MagneticFieldMap> magneticFieldMapHandle;
+	edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+	
+    es.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
+    es.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    es.get<MagneticFieldMapRecord>().get(magneticFieldMapHandle);
+    es.get<IdealGeometryRecord>().get(trackerTopologyHandle);
+    
+    magneticField = &(*magneticFieldHandle);
+    trackerGeometry = &(*trackerGeometryHandle);
+    magneticFieldMap = &(*magneticFieldMapHandle);
+    trackerTopology = &(*trackerTopologyHandle);
 
-    //services
-    //  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
-
-    edm::ESHandle<MagneticField>          magField;
-    edm::ESHandle<TrackerGeometry>        geometry;
-    edm::ESHandle<MagneticFieldMap>       magFieldMap;
-
-
-    es.get<IdealMagneticFieldRecord>().get(magField);
-    es.get<TrackerDigiGeometryRecord>().get(geometry);
-    es.get<MagneticFieldMapRecord>().get(magFieldMap);
-
-    theMagField = &(*magField);
-    theGeometry = &(*geometry);
-    theFieldMap = &(*magFieldMap);
-
-    thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
-
-    const GlobalPoint g(0.,0.,0.);
-
+    //TODO: What is this???
+    thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,magneticField); 
 }
 
 bool
@@ -250,7 +175,7 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 {
 
 	//require min pT of the simtrack
-	if ( theSimTrack.momentum().Perp2() < pTMin[trackingAlgorithmId] )
+	if ( theSimTrack.momentum().Perp2() < pTMin*pTMin)
 	{
 		return false;
 	}
@@ -276,11 +201,11 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
     const double x0 = beamspotPosition.X();
     const double y0 = beamspotPosition.Y();
     const double z0 = beamspotPosition.Z();
-	if ( theParticle.xyImpactParameter(x0,y0) > maxD0[trackingAlgorithmId] )
+	if ( theParticle.xyImpactParameter(x0,y0) > maxD0 )
 	{
 		return false;
 	}
-    if ( fabs( theParticle.zImpactParameter(x0,y0) - z0 ) > maxZ0[trackingAlgorithmId] )
+    if ( fabs( theParticle.zImpactParameter(x0,y0) - z0 ) > maxZ0)
 	{
     	return false;
 	}
@@ -290,20 +215,18 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 bool
 TrajectorySeedProducer2::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2, unsigned int trackingAlgorithmId) const
 {
-	GlobalPoint gpos1 = hit1.globalPosition();
-	GlobalPoint gpos2 = hit2.globalPosition();
-	bool forward = hit1.isForward();
-	double error = std::sqrt(hit1.largerError()+hit2.largerError());
 	bool compatible=false;
-
-	//TODO: get rid of evil string comp!!!!
-	//if this is important => add a config option to specify if compatibility with PV is required
-	
-	if(seedingAlgo[trackingAlgorithmId] == "PixelLess" ||  seedingAlgo[trackingAlgorithmId] ==  "TobTecLayerPairs")
+	if(skipPVCompatibility)
 	{
 		compatible = true;
-	} else {
-		compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,trackingAlgorithmId);
+	} 
+	else 
+	{
+	    GlobalPoint gpos1 = hit1.globalPosition();
+	    GlobalPoint gpos2 = hit2.globalPosition();
+	    bool forward = hit1.isForward();
+	    double error = std::sqrt(hit1.largerError()+hit2.largerError());
+		compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,0);
 		//if (!compatible) std::cout<<"reject beam axis"<<std::endl;
 	}
 	return compatible;
@@ -316,10 +239,6 @@ const SeedingNode<TrackingLayer>* TrajectorySeedProducer2::insertHit(
     const unsigned int trackingAlgorithmId
 ) const
 {
-    //std::cout<<"\tchecking: ";
-    //std::cout<<"\t\t";
-    //node->print();
-    //std::cout<<"\t\thitIndex="<<hitIndicesInTree[node->getIndex()]<<std::endl;
     if (hitIndicesInTree[node->getIndex()]<0)
     {
         const TrajectorySeedHitCandidate& currentTrackerHit = trackerRecHits[trackerHit];
@@ -368,7 +287,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 	for (unsigned int irecHit = start; irecHit<trackerRecHits.size(); ++irecHit)
 	{
         unsigned int currentHitIndex=irecHit;
-        //std::cout<<"hit="<<currentHitIndex<<std::endl;
+
         /*
 		if ( currentHitIndex >= trackerRecHits.size())
 		{
@@ -376,9 +295,6 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 			return std::vector<unsigned int>();
 		}
 		*/
-		//const TrajectorySeedHitCandidate& currentTrackerHit = trackerRecHits[irecHit];
-		
-		//process all hits after currentHit on the same layer
 		
 		for (unsigned int inext=currentHitIndex+1; inext< trackerRecHits.size(); ++inext)
 		{
@@ -386,11 +302,6 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 			{
 			    if (processSkippedHits)
 			    {
-			        
-			        //std::cout<<"skipping hit: "<<inext<<std::endl;
-			        
-	                //std::cout<<"\t\t"<<trackerRecHits[inext].getSeedingLayer().subDet<<":"<<trackerRecHits[inext].getSeedingLayer().idLayer<<std::endl;//<<", pos=("<<trackerRecHits[inext].globalPosition().x()<<","<<trackerRecHits[inext].globalPosition().y()<<","<<trackerRecHits[inext].globalPosition().z()<<")"<<std::endl;
-	                //TODO: check if hit can even be on free position within tree's layer
 			        std::vector<unsigned int> seedHits = iterateHits(
 		                inext,
 		                trackerRecHits,
@@ -405,8 +316,8 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 	                
 	                
                 }
-                irecHit+=1; //skipping all following hits on the same layer
-	            
+                //skipping all following hits on the same layer
+                irecHit+=1; 
 			}
 			else
 			{
@@ -422,7 +333,6 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 		const SeedingNode<TrackingLayer>* seedNode = nullptr;
 		for (unsigned int iroot=0; seedNode==nullptr && iroot<_seedingTree.numberOfRoots(); ++iroot)
 		{
-		    //std::cout<<"\troot: "<<iroot<<std::endl;
 		    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), currentHitIndex,trackingAlgorithmId);
 		}
 		if (seedNode)
@@ -443,75 +353,49 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 }
 
 void 
-TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
-
-    /*
-    std::cout<<std::endl;
-	std::cout<<std::endl;
-	std::cout<<"-------------------"<<std::endl;
-	std::cout<<seedingAlgo[0]<<std::endl;
-	std::cout<<"-------------------"<<std::endl;
-    */
+TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) 
+{        
 
 
-	//Retrieve tracker topology from geometry
-	edm::ESHandle<TrackerTopology> tTopoHand;
-	es.get<IdealGeometryRecord>().get(tTopoHand);
-	const TrackerTopology *tTopo=tTopoHand.product();
+
+
 
 
 	//  unsigned nTrackCandidates = 0;
 	PTrajectoryStateOnDet initialState;
 
-	// Output
-	std::vector<TrajectorySeedCollection*> output(seedingAlgo.size());
-	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
-	{
-		//this gets moved in edm::Event::put - no need to destroy it
-		output[ialgo] = new TrajectorySeedCollection();
-	}
-
 	// Beam spot
 	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-	e.getByLabel(theBeamSpot,recoBeamSpotHandle);
+	e.getByToken(beamSpotToken,recoBeamSpotHandle);
 	beamspotPosition = recoBeamSpotHandle->position();
 
 	// SimTracks and SimVertices
 	edm::Handle<edm::SimTrackContainer> theSimTracks;
-	e.getByLabel("famosSimHits",theSimTracks);
+	e.getByToken(simTrackToken,theSimTracks);
 
 	edm::Handle<edm::SimVertexContainer> theSimVtx;
-	e.getByLabel("famosSimHits",theSimVtx);
+	e.getByToken(simVertexToken,theSimVtx);
   
 	//  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
 	edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-	e.getByLabel(hitProducer, theGSRecHits);
+	e.getByToken(recHitToken, theGSRecHits);
 
-	//std::cout<<"event contains: "<<theSimTracks->size()<<" simtracks"<<std::endl;
-	//std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" simtracks associated to hits"<<std::endl;
-	//std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
-	
-    
+    // Primary vertices
+    edm::Handle<reco::VertexCollection> theRecVtx;
+    e.getByToken(recoVertexToken,theRecVtx);
+    vertices = &(*theRecVtx);
+	    
+	    
+    // Output - gets moved, no delete needed
+	std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
+	    
 	//if no hits -> directly write empty collection
 	if(theGSRecHits->size() == 0)
 	{
-		for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
-		{
-			std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
-			e.put(p,seedingAlgo[ialgo]);
-		}
+	    e.put(output,outputSeedCollectionName);
 		return;
 	}
 
-	  // Primary vertices
-	vertices = std::vector<const reco::VertexCollection*>(seedingAlgo.size(),static_cast<const reco::VertexCollection*>(0));
-	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
-	{
-	    edm::Handle<reco::VertexCollection> aHandle;
-	    bool isVertexCollection = e.getByLabel(primaryVertices[ialgo],aHandle);
-	    if (!isVertexCollection ) continue;
-	    vertices[ialgo] = &(*aHandle);
-	}
     
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
@@ -528,130 +412,120 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 		}
 		const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex];
 
-
-        
-		for ( unsigned int ialgo = 0; ialgo < seedingAlgo.size(); ++ialgo )
+		if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex,0))
 		{
-			if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex,ialgo))
+			continue;
+		}
+		SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(currentSimTrackId);
+		//std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
+
+		TrajectorySeedHitCandidate previousTrackerHit;
+		TrajectorySeedHitCandidate currentTrackerHit;
+		unsigned int numberOfNonEqualHits=0;
+
+		std::vector<TrajectorySeedHitCandidate> trackerRecHits;
+		for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
+		{
+			const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
+			previousTrackerHit=currentTrackerHit;
+			
+			currentTrackerHit = TrajectorySeedHitCandidate(&vec,trackerGeometry,trackerTopology);
+			//std::cout<<"creating TrajectorySeedHitCandidate: "<<itRecHit-recHitRange.first<<": "<<currentTrackerHit.getSeedingLayer().subDet<<":"<<currentTrackerHit.getSeedingLayer().idLayer<<", pos=("<<currentTrackerHit.globalPosition().x()<<","<<currentTrackerHit.globalPosition().y()<<","<<currentTrackerHit.globalPosition().z()<<")"<<std::endl;
+			
+			if (!currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
 			{
-				continue;
+				++numberOfNonEqualHits;
 			}
-			SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(currentSimTrackId);
-			//std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
-
-			TrajectorySeedHitCandidate previousTrackerHit;
-			TrajectorySeedHitCandidate currentTrackerHit;
-			unsigned int numberOfNonEqualHits=0;
-
-			std::vector<TrajectorySeedHitCandidate> trackerRecHits;
-			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
+			trackerRecHits.push_back(std::move(currentTrackerHit));
+			/*
+			if (_seedingTree.getSingleSet().find(currentTrackerHit.getSeedingLayer())!=_seedingTree.getSingleSet().end())
 			{
-				const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
-				previousTrackerHit=currentTrackerHit;
-				
-				currentTrackerHit = TrajectorySeedHitCandidate(&vec,theGeometry,tTopo);
-				//std::cout<<"creating TrajectorySeedHitCandidate: "<<itRecHit-recHitRange.first<<": "<<currentTrackerHit.getSeedingLayer().subDet<<":"<<currentTrackerHit.getSeedingLayer().idLayer<<", pos=("<<currentTrackerHit.globalPosition().x()<<","<<currentTrackerHit.globalPosition().y()<<","<<currentTrackerHit.globalPosition().z()<<")"<<std::endl;
-				
-				if (!currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
-				{
-					++numberOfNonEqualHits;
-				}
-				trackerRecHits.push_back(std::move(currentTrackerHit));
-				/*
-				if (_seedingTree.getSingleSet().find(currentTrackerHit.getSeedingLayer())!=_seedingTree.getSingleSet().end())
-				{
-				    
-				}
-                */
-			}
-			if ( numberOfNonEqualHits < minRecHits[ialgo] ) continue;
-
-            std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
-			//A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'
-			/* example
-			    SeedingNode                     | hit index                 | hit
-			    -------------------------------------------------------------------------------
-			    index=  0:  [BPix1]             | hitIndicesInTree[0] (=1)  | trackerRecHits[1]
-                index=  1:   -- [BPix2]         | hitIndicesInTree[1] (=3)  | trackerRecHits[3]
-                index=  2:   --  -- [BPix3]     | hitIndicesInTree[2] (=4)  | trackerRecHits[4]
-                index=  3:   --  -- [FPix1_pos] | hitIndicesInTree[3] (=6)  | trackerRecHits[6]
-                index=  4:   --  -- [FPix1_neg] | hitIndicesInTree[4] (=7)  | trackerRecHits[7]
-			
-			    The implementation has been chosen such that the tree only needs to be build once upon construction.
-			*/
-			
-			
-			
-			std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true,ialgo);
-
-			if (seedHitNumbers.size()>0)
-			{
-
-				edm::OwnVector<TrackingRecHit> recHits;
-				for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
-				{
-					TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
-					recHits.push_back(aTrackingRecHit);
-					
-				}
-				
-				
-
-				GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
-				(*theSimVtx)[vertexIndex].position().y(),
-				(*theSimVtx)[vertexIndex].position().z());
-
-				GlobalVector momentum(theSimTrack.momentum().x(),theSimTrack.momentum().y(),theSimTrack.momentum().z());
-				float charge = theSimTrack.charge();
-				GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
-				AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();
-				//this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
-				//for the future: probably the best thing is to use the mini-kalmanFilter
-				if(trackerRecHits[seedHitNumbers[0]].subDetId() !=1 ||trackerRecHits[seedHitNumbers[0]].subDetId() !=2)
-				{
-					errorMatrix = errorMatrix * 0.0000001;
-				}
-				CurvilinearTrajectoryError initialError(errorMatrix);
-				FreeTrajectoryState initialFTS(initialParams, initialError);
-				
-				
-				const GeomDet* initialLayer = theGeometry->idToDet( recHits.front().geographicalId() );
-				const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
-
-
-				if (!initialTSOS.isValid())
-				{
-					break; //continues with the next seeding algorithm
-				}
-				
-				const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
-				int dim = 5; /// should check if corresponds to m
-				float localErrors[15];
-				int k = 0;
-				for (int i=0; i<dim; ++i)
-				{
-					for (int j=0; j<=i; ++j)
-					{
-						localErrors[k++] = m(i,j);
-					}
-				}
-				int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
-				initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),localErrors, recHits.front().geographicalId().rawId(), surfaceSide);
-				output[ialgo]->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-			
-			
 			    
 			}
-		} //end loop over seeding algorithms
+            */
+		}
+		if ( numberOfNonEqualHits < minRecHits) continue;
+
+        std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
+		//A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'
+		/* example
+		    SeedingNode                     | hit index                 | hit
+		    -------------------------------------------------------------------------------
+		    index=  0:  [BPix1]             | hitIndicesInTree[0] (=1)  | trackerRecHits[1]
+            index=  1:   -- [BPix2]         | hitIndicesInTree[1] (=3)  | trackerRecHits[3]
+            index=  2:   --  -- [BPix3]     | hitIndicesInTree[2] (=4)  | trackerRecHits[4]
+            index=  3:   --  -- [FPix1_pos] | hitIndicesInTree[3] (=6)  | trackerRecHits[6]
+            index=  4:   --  -- [FPix1_neg] | hitIndicesInTree[4] (=7)  | trackerRecHits[7]
+		
+		    The implementation has been chosen such that the tree only needs to be build once upon construction.
+		*/
+		
+		
+		
+		std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true,0);
+
+		if (seedHitNumbers.size()>0)
+		{
+
+			edm::OwnVector<TrackingRecHit> recHits;
+			for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
+			{
+				TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
+				recHits.push_back(aTrackingRecHit);
+				
+			}
+			
+			
+
+			GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
+			(*theSimVtx)[vertexIndex].position().y(),
+			(*theSimVtx)[vertexIndex].position().z());
+
+			GlobalVector momentum(theSimTrack.momentum().x(),theSimTrack.momentum().y(),theSimTrack.momentum().z());
+			float charge = theSimTrack.charge();
+			GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField);
+			AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();
+			//this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
+			//for the future: probably the best thing is to use the mini-kalmanFilter
+			if(trackerRecHits[seedHitNumbers[0]].subDetId() !=1 ||trackerRecHits[seedHitNumbers[0]].subDetId() !=2)
+			{
+				errorMatrix = errorMatrix * 0.0000001;
+			}
+			CurvilinearTrajectoryError initialError(errorMatrix);
+			FreeTrajectoryState initialFTS(initialParams, initialError);
+			
+			
+			const GeomDet* initialLayer = trackerGeometry->idToDet( recHits.front().geographicalId() );
+			const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
+
+
+			if (!initialTSOS.isValid())
+			{
+				break; //continues with the next seeding algorithm
+			}
+			
+			const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
+			int dim = 5; /// should check if corresponds to m
+			float localErrors[15];
+			int k = 0;
+			for (int i=0; i<dim; ++i)
+			{
+				for (int j=0; j<=i; ++j)
+				{
+					localErrors[k++] = m(i,j);
+				}
+			}
+			int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
+			initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),localErrors, recHits.front().geographicalId().rawId(), surfaceSide);
+			output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
+		
+		
+		    
+		}
 	} //end loop over simtracks
     
-    
-    
-	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
-	{
-		std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
-		e.put(p,seedingAlgo[ialgo]);
-	}
+
+	e.put(output,outputSeedCollectionName);
 }
 
 
@@ -686,12 +560,12 @@ TrajectorySeedProducer2::compatibleWithBeamAxis(
 
     // The corresponding RawParticle, with an (irrelevant) electric charge
     // (The charge is determined in the next step)
-    ParticlePropagator myPart(theMom2,thePos2,1.,theFieldMap);
+    ParticlePropagator myPart(theMom2,thePos2,1.,magneticFieldMap);
 
     /// Check that the seed is compatible with a track coming from within
     /// a cylinder of radius originRadius, with a decent pT, and propagate
     /// to the distance of closest approach, for the appropriate charge
-    bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius[algo]*1.);
+    bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius*1.);
     if ( !intersect ) 
     {
         return false;
@@ -699,25 +573,26 @@ TrajectorySeedProducer2::compatibleWithBeamAxis(
 
     // Check if the constraints are satisfied
     // 1. pT at cylinder with radius originRadius
-    if ( myPart.Pt() < originpTMin[algo] ) 
+    if ( myPart.Pt() < originpTMin ) 
     {
         return false;
     }
 
     // 2. Z compatible with beam spot size
-    if ( fabs(myPart.Z()-z0) > originHalfLength[algo] ) 
+    if ( fabs(myPart.Z()-z0) > originHalfLength ) 
     {
         return false;
     }
 
+
     // 3. Z compatible with one of the primary vertices (always the case if no primary vertex)
-    const reco::VertexCollection* theVertices = vertices[algo];
+    const reco::VertexCollection* theVertices = vertices;
     if (!theVertices) 
     {
         return true;
     }
     unsigned nVertices = theVertices->size();
-    if ( !nVertices || zVertexConstraint[algo] < 0. ) 
+    if ( !nVertices || zVertexConstraint < 0. ) 
     {
         return true;
     }
@@ -725,17 +600,20 @@ TrajectorySeedProducer2::compatibleWithBeamAxis(
     double R1 = std::sqrt ( (thePos1.X()-x0)*(thePos1.X()-x0) + (thePos1.Y()-y0)*(thePos1.Y()-y0) );
     double R2 = std::sqrt ( (thePos2.X()-x0)*(thePos2.X()-x0) + (thePos2.Y()-y0)*(thePos2.Y()-y0) );
     // Loop on primary vertices
+    
+    //TODO: Check if pTMin is correctly used (old code stored pTMin^2 in pTMin) 
+    
     for ( unsigned iv=0; iv<nVertices; ++iv ) 
     { 
         // Z position of the primary vertex
         double zV = (*theVertices)[iv].z();
         // Constraints on the inner hit
         double checkRZ1 = forward ?
-        (thePos1.Z()-zV+zVertexConstraint[algo]) / (thePos2.Z()-zV+zVertexConstraint[algo]) * R2 : 
-        -zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV+zVertexConstraint[algo]);
+        (thePos1.Z()-zV+zVertexConstraint) / (thePos2.Z()-zV+zVertexConstraint) * R2 : 
+        -zVertexConstraint + R1/R2*(thePos2.Z()-zV+zVertexConstraint);
         double checkRZ2 = forward ?
-        (thePos1.Z()-zV-zVertexConstraint[algo])/(thePos2.Z()-zV-zVertexConstraint[algo]) * R2 :
-        +zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV-zVertexConstraint[algo]);
+        (thePos1.Z()-zV-zVertexConstraint)/(thePos2.Z()-zV-zVertexConstraint) * R2 :
+        +zVertexConstraint + R1/R2*(thePos2.Z()-zV-zVertexConstraint);
         double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
         double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
         // Check if the innerhit is within bounds
