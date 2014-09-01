@@ -30,6 +30,10 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
 #define HAVE_POSIX_CLOCK_MONOTONIC_RAW
 #endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
+#define HAVE_POSIX_CLOCK_REALTIME_COARSE
+#define HAVE_POSIX_CLOCK_MONOTONIC_COARSE
+#endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32)
 #endif // __linux__
 
 #endif // _POSIX_TIMERS
@@ -58,6 +62,30 @@ struct clock_gettime_realtime
 #endif // HAVE_POSIX_CLOCK_REALTIME
 
 
+#ifdef HAVE_POSIX_CLOCK_REALTIME_COARSE
+// based on clock_gettime(CLOCK_REALTIME_COARSE, ...)
+struct clock_gettime_realtime_coarse
+{
+  typedef std::chrono::nanoseconds                                          duration;
+  typedef duration::rep                                                     rep;
+  typedef duration::period                                                  period;
+  typedef std::chrono::time_point<clock_gettime_realtime_coarse, duration>  time_point;
+
+  static constexpr bool is_steady = false;
+  static const     bool is_available;
+
+  static time_point now() noexcept
+  {
+    timespec t;
+    clock_gettime(CLOCK_REALTIME_COARSE, &t);
+
+    return time_point( std::chrono::seconds(t.tv_sec) + std::chrono::nanoseconds(t.tv_nsec) );
+  }
+
+};
+#endif // HAVE_POSIX_CLOCK_REALTIME_COARSE
+
+
 #ifdef HAVE_POSIX_CLOCK_MONOTONIC
 // based on clock_gettime(CLOCK_MONOTONIC, ...)
 struct clock_gettime_monotonic
@@ -80,6 +108,30 @@ struct clock_gettime_monotonic
 
 };
 #endif // HAVE_POSIX_CLOCK_MONOTONIC
+
+
+#ifdef HAVE_POSIX_CLOCK_MONOTONIC_COARSE
+// based on clock_gettime(CLOCK_MONOTONIC_COARSE, ...)
+struct clock_gettime_monotonic_coarse
+{
+  typedef std::chrono::nanoseconds                                          duration;
+  typedef duration::rep                                                     rep;
+  typedef duration::period                                                  period;
+  typedef std::chrono::time_point<clock_gettime_monotonic_coarse, duration> time_point;
+
+  static constexpr bool is_steady = true;
+  static const     bool is_available;
+
+  static time_point now() noexcept
+  {
+    timespec t;
+    clock_gettime(CLOCK_MONOTONIC_COARSE, &t);
+
+    return time_point( std::chrono::seconds(t.tv_sec) + std::chrono::nanoseconds(t.tv_nsec) );
+  }
+
+};
+#endif // HAVE_POSIX_CLOCK_MONOTONIC_COARSE
 
 
 #ifdef HAVE_POSIX_CLOCK_MONOTONIC_RAW
