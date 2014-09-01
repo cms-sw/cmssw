@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/HLT/V159 (CMSSW_7_1_6_HLT1)
+# /dev/CMSSW_7_1_1/HLT/V160 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V159')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V160')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -5632,11 +5632,11 @@ hltEle27WP80ClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.03 ),
+    thrRegularEE = cms.double( 0.033 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 0.011 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
@@ -5667,9 +5667,9 @@ hltEle27WP80HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.05 ),
+    thrOverEEE = cms.double( 0.2 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEB = cms.double( 0.15 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
@@ -5702,9 +5702,9 @@ hltEle27WP80EcalIsoFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.15 ),
+    thrOverEEE = cms.double( 0.12 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.2 ),
+    thrOverEEB = cms.double( 0.16 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
@@ -5853,10 +5853,10 @@ hltEle27WP80HcalIsoFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.11 ),
+    thrOverEEE = cms.double( 0.3 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.11 ),
-    thrRegularEB = cms.double( 999999.0 ),
+    thrOverEEB = cms.double( 0.2 ),
+    thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -6000,11 +6000,11 @@ hltEle27WP80GsfOneOEMinusOneOPFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.05 ),
+    thrRegularEE = cms.double( 0.009 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.05 ),
+    thrRegularEB = cms.double( 0.012 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -6012,17 +6012,25 @@ hltEle27WP80GsfOneOEMinusOneOPFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEle27WP80PixelMatchFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
+hltEle27WP80MissingHitsFilter = cms.EDFilter( "HLTElectronMissingHitsFilter",
+    saveTags = cms.bool( False ),
+    barrelcut = cms.int32( 999 ),
+    electronProducer = cms.InputTag( "hltEgammaGsfElectrons" ),
+    ncandcut = cms.int32( 1 ),
+    candTag = cms.InputTag( "hltEle27WP80GsfOneOEMinusOneOPFilter" ),
+    endcapcut = cms.int32( 1 )
+)
 hltEle27WP80GsfDetaFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     doIsolated = cms.bool( True ),
     thrOverE2EE = cms.double( -1.0 ),
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.007 ),
+    thrRegularEE = cms.double( 0.01 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.007 ),
+    thrRegularEB = cms.double( 0.005 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -6040,7 +6048,7 @@ hltEle27WP80GsfDphiFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.06 ),
+    thrRegularEB = cms.double( 0.03 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -15953,7 +15961,7 @@ HLTGsfElectronSequence = cms.Sequence( hltEgammaCkfTrackCandidatesForGSF + hltEg
 HLTRecoPixelVertexingForElectronSequence = cms.Sequence( hltPixelLayerTriplets + hltPixelTracksElectrons + hltPixelVerticesElectrons )
 HLTPixelTrackingForElectron = cms.Sequence( hltElectronsVertex + HLTDoLocalPixelSequence + HLTRecoPixelVertexingForElectronSequence )
 HLTTrackReconstructionForIsoElectronIter02 = cms.Sequence( HLTPixelTrackingForElectron + HLTDoLocalStripSequence + HLTIterativeTrackingForElectronIter02 )
-HLTEle27WP80GsfSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1SingleEG20ORL1SingleEG22Filter + hltEG27EtFilter + hltEgammaClusterShape + hltEle27WP80ClusterShapeFilter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEle27WP80HEFilter + hltEgammaEcalPFClusterIso + hltEle27WP80EcalIsoFilter + HLTPFHcalClusteringForEgamma + hltEgammaHcalPFClusterIso + hltEle27WP80HcalIsoFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltEgammaElectronPixelSeeds + hltEle27WP80PixelMatchFilter + HLTGsfElectronSequence + hltEle27WP80GsfOneOEMinusOneOPFilter + hltEle27WP80GsfDetaFilter + hltEle27WP80GsfDphiFilter + HLTTrackReconstructionForIsoElectronIter02 + hltEgammaEleGsfTrackIso + hltEle27WP80GsfTrackIsoFilter )
+HLTEle27WP80GsfSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1SingleEG20ORL1SingleEG22Filter + hltEG27EtFilter + hltEgammaClusterShape + hltEle27WP80ClusterShapeFilter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEle27WP80HEFilter + hltEgammaEcalPFClusterIso + hltEle27WP80EcalIsoFilter + HLTPFHcalClusteringForEgamma + hltEgammaHcalPFClusterIso + hltEle27WP80HcalIsoFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltEgammaElectronPixelSeeds + hltEle27WP80PixelMatchFilter + HLTGsfElectronSequence + hltEle27WP80GsfOneOEMinusOneOPFilter + hltEle27WP80MissingHitsFilter + hltEle27WP80GsfDetaFilter + hltEle27WP80GsfDphiFilter + HLTTrackReconstructionForIsoElectronIter02 + hltEgammaEleGsfTrackIso + hltEle27WP80GsfTrackIsoFilter )
 HLTEle17Ele8GsfSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1DoubleEG137Filter + hltEle17Ele8EtLeg1Filter + hltEle17Ele8EtLeg2Filter + hltEgammaClusterShape + hltEle17Ele8ClusterShapeLeg1Filter + hltEle17Ele8ClusterShapeLeg2Filter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEle17Ele8HELeg1Filter + hltEle17Ele8HELeg2Filter + hltEgammaEcalPFClusterIso + hltEle17Ele8EcalIsoLeg1Filter + hltEle17Ele8EcalIsoLeg2Filter + HLTPFHcalClusteringForEgamma + hltEgammaHcalPFClusterIso + hltEle17Ele8HcalIsoLeg1Filter + hltEle17Ele8HcalIsoLeg2Filter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltEgammaElectronPixelSeeds + hltEle17Ele8PixelMatchLeg1Filter + hltEle17Ele8PixelMatchLeg2Filter + HLTGsfElectronSequence + hltEle17Ele8GsfDetaLeg1Filter + hltEle17Ele8GsfDetaLeg2Filter + hltEle17Ele8GsfDphiLeg1Filter + hltEle17Ele8GsfDphiLeg2Filter + HLTTrackReconstructionForIsoElectronIter02 + hltEgammaEleGsfTrackIso + hltEle17Ele8GsfTrackIsoLeg1Filter + hltEle17Ele8GsfTrackIsoLeg2Filter )
 HLTPFClusteringForEgammaUnseeded = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + hltParticleFlowRecHitECALUnseeded + hltParticleFlowRecHitPSUnseeded + hltParticleFlowClusterPSUnseeded + hltParticleFlowClusterECALUncorrectedUnseeded + hltParticleFlowClusterECALUnseeded + hltParticleFlowSuperClusterECALUnseeded )
 HLTElePixelMatchUnseededSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltMixedLayerPairs + hltEgammaElectronPixelSeedsUnseeded )
