@@ -17,20 +17,8 @@ MonitorTrackResiduals_hi.trajectoryInput     = "hiGeneralTracks"
 MonitorTrackResiduals_hi.OutputMEsInRootFile = False
 MonitorTrackResiduals_hi.Mod_On              = False
 
-# TrackingMonitor ####
-#import DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi
-#TrackMon_hi = DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi.TrackerHeavyIonTrackMon.clone()
-#TrackMon_hi.FolderName          = 'Tracking/TrackParameters'
-#TrackMon_hi.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
-
-#removed all modules using TkDetMap service
-#SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs * 
-#                                  siStripFEDCheck * 
-#                                  MonitorTrackResiduals_hi *
-#                                  TrackMon_hi)
 SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs *
                                   siStripFEDCheck * siStripFEDMonitor *
                                   SiStripMonitorDigi * SiStripMonitorCluster *
                                   SiStripMonitorTrack_hi *
-                                  MonitorTrackResiduals_hi)# *
-                                  #TrackMon_hi)
+                                  MonitorTrackResiduals_hi)
