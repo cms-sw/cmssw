@@ -95,11 +95,12 @@ namespace edm {
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
       
+      void doPreForkReleaseResources();
+      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
       
       
       void registerProductsAndCallbacks(EDAnalyzerBase* module, ProductRegistry* reg);
@@ -108,6 +109,10 @@ namespace edm {
       virtual void analyze(StreamID, Event const& , EventSetup const&) const= 0;
       virtual void beginJob() {}
       virtual void endJob(){}
+      
+      virtual void preForkReleaseResources() {}
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+
 
       virtual void preallocStreams(unsigned int);
       virtual void doBeginStream_(StreamID id);
