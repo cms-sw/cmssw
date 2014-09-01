@@ -11,7 +11,6 @@
 
 <use   name="root"/>
 <use   name="rootminuit"/>
-<use name="rootminuit2"/>
 
 <export>
   <lib   name="1"/>

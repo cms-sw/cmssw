@@ -1,14 +1,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSq.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSqSNNLS.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-
-#include "Minuit2/Minuit2Minimizer.h"
-
-
 
 /// compute rechits
 EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TMatrixDSym &noisecor, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov, std::set<int> activeBX) {
@@ -67,45 +63,37 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     }    
         
   }
-  
-  //printf("%5f, %i\n",pedrms,gain);
-  
+    
   
   std::vector<double> fitvals;
   std::vector<double> fiterrs;
   double chisq = 0.;
 
-  bool status = false;
       
   TMatrixDSym noisecov = pedrms*pedrms*noisecor;
-            
-  ROOT::Minuit2::Minuit2Minimizer minim;
-  minim.SetStrategy(0);
-  //minim.SetPrintLevel(9);
-  PulseChiSq pulsefunc(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,minim);                
   
+  PulseChiSqSNNLS pulsefuncnnls(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov);
   const int maxiter = 50;
-  int iter = 0;
+  int nnlsiter = 0;
+  double chisqnnls = 0.;
   while (true) {
-    status = minim.Minimize();
-    if (!status) break;
+    pulsefuncnnls.Minimize();
+    if (nnlsiter>=maxiter) break;
     
-    if (iter>=maxiter) break;
-    
-    double chisqnow = minim.MinValue();
-    double deltachisq = chisqnow-chisq;
-    chisq = chisqnow;
+    double chisqnow = pulsefuncnnls.ChiSq();
+    double deltachisq = chisqnow-chisqnnls;
+    chisqnnls = chisqnow;
     if (std::abs(deltachisq)<1e-3) {
       break;
     }
-    ++iter;
-    pulsefunc.updateCov(minim.X(),noisecov,activeBX,fullpulsecov);
+    ++nnlsiter;
+    pulsefuncnnls.updateCov(pulsefuncnnls.X(),noisecov,activeBX,fullpulsecov);    
   }
-  
 
   unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
-  double amplitude = status ? minim.X()[ipulseintime] : 0.;
-  double amperr = status ? minim.Errors()[ipulseintime] : 0.;
+  double amplitude = pulsefuncnnls.X()[ipulseintime];
+  //double amperr = status ? minim.Errors()[ipulseintime] : 0.;
+  double amperr = 0.;  
   
   double jitter = 0.;
   
@@ -116,8 +104,9 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       rh.setOutOfTimeAmplitude(ipulse,0.);
       rh.setOutOfTimeAmplitudeError(ipulse,0.);
     } else {
-      rh.setOutOfTimeAmplitude(ipulse, status ? minim.X()[ipulse] : 0.);
-      rh.setOutOfTimeAmplitudeError(ipulse, status ? minim.Errors()[ipulse] : 0.);
+      rh.setOutOfTimeAmplitude(ipulse, pulsefuncnnls.X()[ipulse]);
+      //rh.setOutOfTimeAmplitudeError(ipulse, status ? minim.Errors()[ipulse] : 0.);
+      rh.setOutOfTimeAmplitudeError(ipulse, 0.);
     }
   }
 
