@@ -108,8 +108,6 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
 
-                // significance of the additional OOT pulses
-                double significanceOutOfTime_;
 
  private:
                 void fillInputs(const edm::ParameterSet& params);

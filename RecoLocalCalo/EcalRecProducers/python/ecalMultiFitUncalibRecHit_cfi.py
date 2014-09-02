@@ -28,9 +28,6 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     ebPulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
     eePulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),   
 
-    # for kOutOfTime flag
-    significanceOutOfTime = cms.double(5.0),
-
     # for kPoorReco flag
     kPoorRecoFlagEB = cms.bool(True),
     kPoorRecoFlagEE = cms.bool(False),

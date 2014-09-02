@@ -34,7 +34,6 @@ class EcalUncalibratedRecHit {
   float jitter() const { return jitter_; }
   float chi2() const { return chi2_; }
   float outOfTimeAmplitude(int bx) const { return OOTamplitudes_[bx]; }
-  float outOfTimeAmplitudeErr(int bx) const { return OOTamplitudeErrors_[bx]; }
 
   uint32_t flags() const { return flags_; }
   float jitterError() const;
@@ -47,7 +46,6 @@ class EcalUncalibratedRecHit {
   void setJitter( float jitter ) { jitter_ = jitter; }
   void setChi2( float chi2 ) { chi2_ = chi2; }
   void setOutOfTimeAmplitude( int bx, float amplitude ) { OOTamplitudes_[bx] = amplitude; }
-  void setOutOfTimeAmplitudeError( int bx, float amplitudeerr ) { OOTamplitudeErrors_[bx] = amplitudeerr; }
 
   void setJitterError( float jitterErr );
   void setFlags( uint32_t flags ) { flags_ = flags; }
@@ -67,7 +65,6 @@ class EcalUncalibratedRecHit {
   float jitter_;              //< Reconstructed time jitter
   float chi2_;                //< Chi2 of the pulse
   float OOTamplitudes_[EcalDataFrame::MAXSAMPLES];       //< Out-Of-Time reconstructed amplitude, one for each active BX, from readout sample 0 to 9
-  float OOTamplitudeErrors_[EcalDataFrame::MAXSAMPLES];  //< Out-Of-Time reconstructed amplitude uncertainties, one for each active BX, from readout sample 0 to 9
   float OOTchi2_;             //< Out-Of-Time Chi2 
   uint32_t flags_;            //< flag to be propagated to RecHit
   uint32_t aux_;              //< aux word; first 8 bits contain time (jitter) error

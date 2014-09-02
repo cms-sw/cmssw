@@ -53,8 +53,6 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   chi2ThreshEB_=ps.getParameter<double>("chi2ThreshEB_");
   chi2ThreshEE_=ps.getParameter<double>("chi2ThreshEE_");
 
-  // significance of the additional OOT pulses 
-  significanceOutOfTime_ = ps.getParameter<double>("significanceOutOfTime");
 }
 
 
@@ -273,19 +271,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                                 
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
-                // out of time flags (not proper flag with this method, but says if the Detid is populated just by OOT PU
-                // not active for tests of the clustering
-                /*
-                if(uncalibRecHit.amplitude()/uncalibRecHit.amplitudeError() < significanceOutOfTime_) {
-                  bool significantOOTPulse=false;
-                  for(int ibx=0; ibx<EcalDataFrame::MAXSAMPLES; ++ibx) {
-                    if(uncalibRecHit.outOfTimeAmplitudeErr(ibx) > 0. && 
-                       uncalibRecHit.outOfTimeAmplitude(ibx)/uncalibRecHit.outOfTimeAmplitudeErr(ibx) > significanceOutOfTime_) significantOOTPulse=true;
-                  }
-                  if(significantOOTPulse) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );
-                }
-                */
-
                 // === time computation ===
                 // ratio method
                 float const clockToNsConstant = 25.;

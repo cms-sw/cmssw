@@ -47,7 +47,6 @@ void testEcalUncalibratedRecHit::testOne(){
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
   for(unsigned int ibx=0; ibx<nsample; ++ibx) {
     urh.setOutOfTimeAmplitude(ibx,11.2 + ibx); CPPUNIT_ASSERT(urh.outOfTimeAmplitude(ibx)==(float)(11.2 + ibx)); 
-    urh.setOutOfTimeAmplitudeError(ibx, 0.2 + ibx); CPPUNIT_ASSERT(urh.outOfTimeAmplitude(ibx)==(float)(0.2 + ibx)); 
   }
   print(urh.flags());
 
