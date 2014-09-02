@@ -46,14 +46,23 @@ template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
 TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
-    thePropagator(nullptr) //TODO:: what else should be initialized properly?
+    thePropagator(nullptr),
+    vertices(nullptr) //TODO:: what else should be initialized properly?
 {  
-
+    outputSeedCollectionName="seeds";
+    if (conf.exists("outputSeedCollectionName"))
+    {
+        outputSeedCollectionName=conf.getParameter<std::string>("outputSeedCollectionName");
+    }
+    if (conf.exists("seedingAlgo"))
+    {
+        std::vector<std::string> algoNames=conf.getParameter<std::vector<std::string>>("seedingAlgo");
+    }
     // The input tag for the beam spot
     theBeamSpot = conf.getParameter<edm::InputTag>("beamSpot");
 
     // The name of the TrajectorySeed Collections
-    produces<TrajectorySeedCollection>();
+    produces<TrajectorySeedCollection>(outputSeedCollectionName);
     
     
     
@@ -114,15 +123,11 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
 
     originpTMin = conf.getParameter<double>("originpTMin");
  
-    primaryVertices = conf.getParameter<edm::InputTag>("primaryVertices");
+    edm::InputTag primaryVertex = conf.getParameter<edm::InputTag>("primaryVertex");
 
     zVertexConstraint = conf.getParameter<double>("zVertexConstraint");
 
-    outputSeedCollectionName="seeds";
-    if (conf.exists("outputSeedCollectionName"))
-    {
-        outputSeedCollectionName=conf.getParameter<std::string>("outputSeedCollectionName");
-    }
+   
 
 
     skipPVCompatibility=false;
@@ -134,17 +139,12 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
 
     // consumes
     beamSpotToken = consumes<reco::BeamSpot>(theBeamSpot);
-    edm::InputTag _label("famosSimHits");
-    simTrackToken = consumes<edm::SimTrackContainer>(_label);
-    simVertexToken = consumes<edm::SimVertexContainer>(_label);
+    edm::InputTag("famosSimHits");
+    simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
+    simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
     recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducer);
-
-    _label = edm::InputTag(primaryVertices);
     
-    recoVertexToken=consumes<reco::VertexCollection>(_label);
-
-
-
+    recoVertexToken=consumes<reco::VertexCollection>(primaryVertex);
 } 
 
 
@@ -382,8 +382,12 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 
     // Primary vertices
     edm::Handle<reco::VertexCollection> theRecVtx;
-    e.getByToken(recoVertexToken,theRecVtx);
-    vertices = &(*theRecVtx);
+    if (e.getByToken(recoVertexToken,theRecVtx))
+    {
+    
+        //this can be nullptr if the PV compatiblity should not be tested against
+        vertices = &(*theRecVtx);
+    }
 	    
 	    
     // Output - gets moved, no delete needed
@@ -586,12 +590,11 @@ TrajectorySeedProducer2::compatibleWithBeamAxis(
 
 
     // 3. Z compatible with one of the primary vertices (always the case if no primary vertex)
-    const reco::VertexCollection* theVertices = vertices;
-    if (!theVertices) 
+    if (!vertices) 
     {
         return true;
     }
-    unsigned nVertices = theVertices->size();
+    unsigned int nVertices = vertices->size();
     if ( !nVertices || zVertexConstraint < 0. ) 
     {
         return true;
@@ -606,7 +609,7 @@ TrajectorySeedProducer2::compatibleWithBeamAxis(
     for ( unsigned iv=0; iv<nVertices; ++iv ) 
     { 
         // Z position of the primary vertex
-        double zV = (*theVertices)[iv].z();
+        double zV = (*vertices)[iv].z();
         // Constraints on the inner hit
         double checkRZ1 = forward ?
         (thePos1.Z()-zV+zVertexConstraint) / (thePos2.Z()-zV+zVertexConstraint) * R2 : 

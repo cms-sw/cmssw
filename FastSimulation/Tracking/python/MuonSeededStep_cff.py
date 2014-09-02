@@ -6,22 +6,22 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 muonSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 muonSeeds.selectMuons = True
-muonSeeds.seedingAlgo = ['MuonSeeded']
-muonSeeds.minRecHits = [3] # placeholder; how much should it be?
-muonSeeds.pTMin = [2.0]
-muonSeeds.maxD0 = [999.]
-muonSeeds.maxZ0 = [999.]
-muonSeeds.numberOfHits = [3] # placeholder; how much should it be?
-muonSeeds.originRadius = [999.]
-muonSeeds.originHalfLength = [999.] 
-muonSeeds.originpTMin = [2.0] 
-muonSeeds.zVertexConstraint = [-1.0]
-muonSeeds.primaryVertices = ['none']
+muonSeeds.outputSeedCollectionName = 'MuonSeeded'
+muonSeeds.minRecHits = 3 # placeholder; how much should it be?
+muonSeeds.pTMin = 2.0
+muonSeeds.maxD0 = 999.
+muonSeeds.maxZ0 = 999.
+muonSeeds.numberOfHits = 3 # placeholder; how much should it be?
+muonSeeds.originRadius = 999.
+muonSeeds.originHalfLength = 999.
+muonSeeds.originpTMin = 2.0 
+muonSeeds.zVertexConstraint = -1.0
+muonSeeds.primaryVertex = 'none'
 
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 muonSeededCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-muonSeededCandidates.SeedProducer = cms.InputTag("muonSeeds","MuonSeeded")
+muonSeededCandidates.SeedProducer = cms.InputTag("muonSeeds",'MuonSeeded')
 muonSeededCandidates.TrackProducers = ['initialStep','lowPtTripletStep','pixelPairStep','detachedTripletStepTracks','mixedTripletStepTracks','pixelLessStepTracks','tobTecStep']
 muonSeededCandidates.MinNumberOfCrossedLayers = 3 # placeholder; how much should it be?
 

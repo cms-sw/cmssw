@@ -65,7 +65,6 @@ class TrajectorySeedProducer2:
         double originHalfLength;
         double originpTMin;
 
-        edm::InputTag primaryVertices;
         double zVertexConstraint;
 
         bool selectMuons;
