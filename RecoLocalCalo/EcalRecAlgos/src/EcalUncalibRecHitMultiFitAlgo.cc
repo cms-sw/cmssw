@@ -71,21 +71,27 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   bool status = _pulsefunc.DoFit(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
   double chisq = _pulsefunc.ChiSq();
   
-  if (!status) printf("failed minimization\n");
+  if (!status) {
+    edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
+  }
 
   unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
-  double amplitude = _pulsefunc.X()[ipulseintime];
-  double amperr = _pulsefunc.Errors()[ipulseintime];
+  double amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
+  double amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
   
   double jitter = 0.;
   
-  printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
+  //printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
   for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
-    int ipulse = std::distance(activeBX.begin(),bxit);    
-    rh.setOutOfTimeAmplitude(*bxit, *bxit==0 ? 0. : _pulsefunc.X()[ipulse]);
+    int ipulse = std::distance(activeBX.begin(),bxit);
+    if(*bxit==0) {
+      rh.setOutOfTimeAmplitude(*bxit,0.);
+    } else {
+      rh.setOutOfTimeAmplitude(*bxit, status ? _pulsefunc.X()[ipulse] : 0.);
+    }
   }
 
   return rh;

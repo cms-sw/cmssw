@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSqSNNLS.h"
 #include <math.h>
-#include "vdt/vdtMath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 PulseChiSqSNNLS::PulseChiSqSNNLS() :
   _sampvec(10),
@@ -53,11 +53,12 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
   bool status = Minimize(samplecor,pederr,bxs,fullpulsecov);
   _ampvecmin = _ampvec;
   _errvec = _wvec;
+  if (!status) return status;
+  
   
   //compute MINOS-like uncertainties for in-time amplitude
   if (bxs.count(0)) {
     int ipulseintime = std::distance(bxs.begin(), bxs.find(0));
-    printf("approx uncertainty = %5f\n",_errvec[ipulseintime]);
     double chisq0 = _chisq;
     double x0 = _ampvecmin[ipulseintime];
 
@@ -71,24 +72,22 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
     //two point interpolation for upper uncertainty when amplitude is away from boundary
     double xplus100 = x0 + _errvec[ipulseintime];
     _ampvec[ipulseintime] = xplus100;
-    status = Minimize(samplecor,pederr,bxs,fullpulsecov);
+    status &= Minimize(samplecor,pederr,bxs,fullpulsecov);
+    if (!status) return status;
     double chisqplus100 = ComputeChiSq();
     
     double sigmaplus = std::abs(xplus100-x0)/sqrt(chisqplus100-chisq0);
-    
-    printf("x0 = %5f, xplus100 = %5f, chisq0 = %5f, chisqplus100 = %5f, sigmaplus = %5f\n",x0,xplus100,chisq0,chisqplus100, sigmaplus);
     
     //if amplitude is sufficiently far from the boundary, compute also the lower uncertainty and average them
     if ( (x0/sigmaplus) > 0.5 ) {
       double xminus100 = std::max(0.,x0-_errvec[ipulseintime]);
       _ampvec[ipulseintime] = xminus100;
-      status = Minimize(samplecor,pederr,bxs,fullpulsecov);
+      status &= Minimize(samplecor,pederr,bxs,fullpulsecov);
+      if (!status) return status;
       double chisqminus100 = ComputeChiSq();
       
       double sigmaminus = std::abs(xminus100-x0)/sqrt(chisqminus100-chisq0);
       _errvec[ipulseintime] = 0.5*(sigmaplus + sigmaminus);
-      
-      printf("x0 = %5f, xminus100 = %5f, chisq0 = %5f, chisqminus100 = %5f, sigmaminus = %5f\n",x0,xminus100,chisq0,chisqminus100, sigmaminus);
       
     }
     else {
@@ -108,24 +107,26 @@ bool PulseChiSqSNNLS::Minimize(const TMatrixDSym &samplecor, double pederr, cons
   const int maxiter = 50;
   int iter = 0;
   bool status = false;
-  while (true) {
+  while (true) {    
+    
+    if (iter>=maxiter) {
+      edm::LogWarning("PulseChiSqSNNLS::Minimize") << "Max Iterations reached at iter " << iter <<  std::endl;
+      break;
+    }    
+    
     status = updateCov(samplecor,pederr,bxs,fullpulsecov);    
     if (!status) break;    
     status = NNLS();
     if (!status) break;
-    
-    if (iter>=maxiter) {
-      printf("max iters reached (nnlsiter = %i)\n",iter);
-      break;
-    }
-    
+        
     double chisqnow = ComputeChiSq();
     double deltachisq = chisqnow-_chisq;
+        
     _chisq = chisqnow;
     if (std::abs(deltachisq)<1e-3) {
       break;
     }
-    ++iter;
+    ++iter;    
   }  
   
   return status;  
@@ -220,7 +221,6 @@ bool PulseChiSqSNNLS::NNLS() {
       if (wmax<1e-11) break;
       
       //unconstrain parameter
-      printf("adding index %i\n",idxwmax);
       _idxsP.insert(idxwmax);
     }
 
@@ -285,7 +285,6 @@ bool PulseChiSqSNNLS::NNLS() {
         if (_ampvec[ipulse]==0. || ipulse==minratioidx) {
           std::set<unsigned int>::const_iterator itpulse = _idxsP.find(ipulse);
           if (itpulse!=_idxsP.end()) {
-            printf("removing index %i\n",ipulse);
             _ampvec[ipulse] = 0.;
             _idxsP.erase(itpulse);
           }
