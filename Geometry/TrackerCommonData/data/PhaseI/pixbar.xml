@@ -1023,9 +1023,6 @@
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelSupTubCables"/>
-<!--  
-<rRotation name="pixbar:180D"/>
--->
   <Translation x="[zero]" y="[zero]" z="-[ServCablZ]" />
  </PosPart>
 
