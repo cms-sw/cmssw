@@ -1270,6 +1270,3 @@ void FWTGeoRecoGeometryESProducer::addHGCal( void )
    }
   
 }
-
-=======
->>>>>>> f943f61... Fix EE transformation.
