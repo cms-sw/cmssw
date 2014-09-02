@@ -5,9 +5,9 @@
 
 namespace math {
   /// point in space with cartesian internal representation
-  typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>, ROOT::Math::DefaultCoordinateSystemTag> XYZPointD;
+  typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > XYZPointD;
   /// point in space with cartesian internal representation
-  typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::DefaultCoordinateSystemTag> XYZPointF;
+  typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float> > XYZPointF;
   /// point in space with cartesian internal representation
   typedef XYZPointD XYZPoint;
 
