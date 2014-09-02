@@ -7,12 +7,8 @@ float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N, const float uP
   if( loc == SiStripDetId::UNKNOWN)
     throw cms::Exception("StripCPEfromTrackAngle::stripErrorSquared", "Incompatible sub-detector.");
 
-  float uerr = 0;
-  if(N <= 4)
-    uerr = LC_P0*uProj*vdt::fast_expf(-uProj*LC_P1)+LC_P2;
-  else{
-    uerr = HC_P0.at(loc)+uProj*HC_P1.at(loc);
-  }
+  auto fun = [&] (float x)  -> float { return LC_P[0]*x*vdt::fast_expf(-x*LC_P[1])+LC_P[2];};
+  auto uerr = (N <= 4) ?  fun(uProj) :  HC_P[loc-3][0]+uProj*HC_P[loc-3][1];
   return uerr*uerr;
 }
 
@@ -33,7 +29,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
   const float uerr2 = stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
   const float strip = cluster.barycenter() -  0.5f*(1.f-p.backplanecorrection) * fullProjection
     + 0.5f*p.coveredStrips(track, ltp.position());
-  
+
   return std::make_pair( p.topology->localPosition(strip, ltp.vector()),
 			 p.topology->localError(strip, uerr2, ltp.vector()) );
 }
