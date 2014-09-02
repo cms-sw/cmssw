@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-HighPtDielectronPSet = cms.PSet(
+DiPhotonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v", # Run2
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"     # Run1
+        "HLT_DoublePho80_v",    # Run2 proposal
+        "HLT_DoublePhoton70_v"  # Run1 (frozenHLT)
         ),
-    recElecLabel  = cms.InputTag("gedGsfElectrons"),
+    recPhotonLabel  = cms.InputTag("gedPhotons"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings

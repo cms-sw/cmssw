@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-MonojetPSet = cms.PSet(
+JetNoBptxPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v" # Run1
+        "HLT_JetE50_NoBPTX3BX_NoHalo_v" # Run2 proposal AND Run1 (frozenHLT)
         ),
-    recJetLabel    = cms.InputTag("ak5PFJetsCHS"),
-    recPFMETLabel  = cms.InputTag("pfMet"),
+    recCaloJetLabel    = cms.InputTag("ak5CaloJets"),
+
     # -- Analysis specific cuts
-    minCandidates = cms.uint32(2),
+    minCandidates = cms.uint32(1),
+
     # -- Analysis specific binnings
     parametersTurnOn = cms.vdouble( 0, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
                                     160, 170, 180, 190, 200,
