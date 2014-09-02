@@ -54,10 +54,14 @@
 #include "TGeoManager.h"
 #include "TGeoArb8.h"
 #include "TGeoMatrix.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TError.h"
 #include "TMath.h"
+
+#include "TEveVector.h"
+#include "TEveTrans.h"
 
 
 //std::map< const CaloCellGeometry::CCGFloat*, TGeoVolume*> caloShapeMap;
@@ -948,8 +952,6 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
       const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
       if (!cell) { printf ("EC not olique \n"); continue; }
-      
-      //   if (!(detid.ieta() == -24 && detid.iphi() == 29 )) continue;
 
       TGeoVolume* volume = 0;
       CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
@@ -1016,6 +1018,72 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
 
 //______________________________________________________________________________
 
+TGeoHMatrix* getEcalTrans(CaloCellGeometry::CornersVec const & gc)
+{
+
+   TEveVector gCenter;
+   for (int i = 0; i < 8; ++i)
+      gCenter += TEveVector(gc[i].x(), gc[i].y(), gc[i].z());
+   gCenter *= 0.125;
+
+  TEveVector tgCenter; // top center 4 corners
+   for (int i = 4; i < 8; ++i)
+      tgCenter += TEveVector(gc[i].x(), gc[i].y(), gc[i].z());
+   tgCenter *= 0.25;
+
+
+   TEveVector axis = tgCenter - gCenter;
+   axis.Normalize();
+
+   TEveTrans tr;
+   TVector3 v1t;
+   tr.GetBaseVec(1, v1t);
+
+
+   TEveVector v1(v1t.x(), v1t.y(), v1t.z());
+   double dot13 = axis.Dot(v1);
+   TEveVector gd = axis;
+   gd*= dot13;
+   v1 -= gd;
+   v1.Normalize();
+   TEveVector v2;
+   TMath::Cross(v1.Arr(), axis.Arr(), v2.Arr());
+   TMath::Cross(axis.Arr(), v1.Arr(), v2.Arr());
+   v2.Normalize();
+
+   tr.SetBaseVec(1, v1.fX, v1.fY, v1.fZ);
+   tr.SetBaseVec(2, v2.fX, v2.fY, v2.fZ);
+   tr.SetBaseVec(3, axis.fX, axis.fY, axis.fZ);
+   tr.Move3PF(gCenter.fX, gCenter.fY, gCenter.fZ);
+
+   TGeoHMatrix* out = new TGeoHMatrix();
+   tr.SetGeoHMatrix(*out);
+   return out;
+}
+
+TGeoShape* makeEcalShape(const TruncatedPyramid* cell)
+{
+   // printf("BEGIN EE SHAPE --------------------------------\n");
+   // std::cout << detid << std::endl;
+   const HepGeom::Transform3D idtr;
+   TruncatedPyramid::Pt3DVec co(8);
+   TruncatedPyramid::Pt3D ref;
+   TruncatedPyramid::localCorners( co, cell->param(), ref);
+   //for( int c = 0; c < 8; ++c)
+   //   printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", co[c].x(),co[c].y(),co[c].z() );
+
+   double points[16];
+   for( int c = 0; c < 8; ++c )
+   {
+      points[c*2  ] = co[c].x();
+      points[c*2+1] = co[c].y();
+   }
+   TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
+   return solid;
+}
+
+//______________________________________________________________________________
+
 
 
 void
@@ -1024,143 +1092,67 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
 
    CaloVolMap caloShapeMap;
 
-
-   if (1)
    {
       TGeoVolume *assembly = new TGeoVolumeAssembly("EcalBarrel");
       std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
          EBDetId detid(*it);
-         const CaloCellGeometry* cello = m_caloGeom->getGeometry( *it );
-
-         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (cello);
+         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> ( m_caloGeom->getGeometry( *it ));
          if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
 
-         // if ((detid.ieta() == 85 && detid.iphi() == 29) == false) continue;
-
          TGeoVolume* volume = 0;
-
          CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
          if  ( volIt == caloShapeMap.end()) 
-         {
-            // printf("BEGIN SHAPE --------------------------------\n");
-            // std::cout << detid << std::endl;
-            const HepGeom::Transform3D idtr;
-            TruncatedPyramid::Pt3DVec co(8);
-            TruncatedPyramid::Pt3D ref;
-            TruncatedPyramid::localCorners( co, cell->param(), ref);
-            //for( int c = 0; c < 8; ++c)
-            //   printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", co[c].x(),co[c].y(),co[c].z() );
 
-            double points[16];
-            for( int c = 0; c < 8; ++c )
-            {
-               points[c*2  ]    = co[c].x();
-               points[c*2 + 1 ] = co[c].y();
-            }
-            TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
-
-            volume = new TGeoVolume( "TruncatedPyramid" ,solid, GetMedium(kECal));
+         {           
+            volume = new TGeoVolume( "EE TruncatedPyramid" , makeEcalShape(cell), GetMedium(kECal));
             caloShapeMap[cell->param()] = volume;
          }
          else {
             volume = volIt->second;
          }
-
-         HepGeom::Vector3D<float> gCenter;
-         CaloCellGeometry::CornersVec const & gc = cell->getCorners();
-         for (int c = 0; c < 8; ++c) {
-            gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
-            // printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(),gc[c].z() );
-         }
-         gCenter *= 0.125;
-         // printf("phiPos %f == phiAxis %f, thetaPos = %f , getThetaAxis = %f\n",cell->phiPos(), cell->getPhiAxis(), etatotheta(cell->etaPos()), cell->getThetaAxis() );
-
-         TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
-         TGeoRotation rot;
-         if (cell->etaPos() < 0) {
-            rot.ReflectZ(true);
-         }
-
-         rot.SetAngles(90 - (cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
-
+         TGeoHMatrix* mtx= getEcalTrans(cell->getCorners());
          TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
          holder = GetDaughter(holder, "ieta", detid.ieta());
          std::stringstream nname;
          nname << detid;
-         AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+         AddLeafNode(holder, volume, nname.str().c_str(), mtx);
       }
       GetTopHolder("Ecal")->AddNode( assembly, 1 );
    }
    
 
-   if (1) {
+   {
       TGeoVolume *assembly = new TGeoVolumeAssembly("EcalEndcap");
       std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
          EEDetId detid(*it);
-         const CaloCellGeometry* cello = m_caloGeom->getGeometry( *it );
-         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (cello);
-         if (!cell) { printf("ecalEndcap cell not a TruncatedPyramid !!\n"); return; }
+         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (m_caloGeom->getGeometry( *it ));
+         if (!cell) { printf("ecalEndcap cell not a TruncatedPyramid !!\n"); continue;}
 
-         // if (cell->etaPos() < 0) continue;
-         //         if (!(cell->phiPos() > 0.3 && cell->phiPos() < 0.34 &&   cell->etaPos()<2))            continue;
          TGeoVolume* volume = 0;
-
          CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
          if  ( volIt == caloShapeMap.end()) 
          {
-            // printf("BEGIN EE SHAPE --------------------------------\n");
-            // std::cout << detid << std::endl;
-            const HepGeom::Transform3D idtr;
-            TruncatedPyramid::Pt3DVec co(8);
-            TruncatedPyramid::Pt3D ref;
-            TruncatedPyramid::localCorners( co, cell->param(), ref);
-            //for( int c = 0; c < 8; ++c)
-            //   printf("lc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", co[c].x(),co[c].y(),co[c].z() );
-
-            double points[16];
-            for( int c = 0; c < 8; ++c )
-            {
-               points[c*2  ] = co[c].x();
-               points[c*2+1] = co[c].y();
-            }
-            TGeoShape* solid = new TGeoArb8(cell->param()[0], points);
-
-            volume = new TGeoVolume( "EE TruncatedPyramid" ,solid, GetMedium(kECal));
+            
+            volume = new TGeoVolume( "EE TruncatedPyramid" , makeEcalShape(cell), GetMedium(kECal));
             caloShapeMap[cell->param()] = volume;
          }
          else {
             volume = volIt->second;
          }
-
-         HepGeom::Vector3D<float> gCenter;
-         CaloCellGeometry::CornersVec const & gc = cell->getCorners();
-         for (int c = 0; c < 8; ++c) {
-            gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
-            // printf("gc.push_back(TEveVector(%.4f, %.4f, %.4f));\n", gc[c].x(), gc[c].y(),gc[c].z() );
-         }
-         gCenter *= 0.125;
-         // printf("phiPos %f == phiAxis %f, thetaPos = %f , getThetaAxis = %f\n",cell->phiPos(), cell->getPhiAxis(), etatotheta(cell->etaPos()), cell->getThetaAxis() );
-         TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
-         TGeoRotation rot;
-         if (cell->etaPos() < 0) {
-            rot.ReflectZ(true);
-         }
-         rot.SetAngles(90 - (cell->getPhiAxis())*TMath::RadToDeg(), -cell->getThetaAxis()*TMath::RadToDeg(), 0);
-
+         TGeoHMatrix* mtx= getEcalTrans(cell->getCorners());
          TGeoVolume* holder = GetDaughter(assembly, "side", detid.zside());
          holder = GetDaughter(holder, "ix", detid.ix());
          std::stringstream nname;
          nname << detid;
-         AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+         AddLeafNode(holder, volume, nname.str().c_str(), mtx);
       }
       GetTopHolder("Ecal")->AddNode( assembly, 1 );
    }
 }
-
 
 
 //______________________________________________________________________________
@@ -1276,3 +1268,5 @@ void FWTGeoRecoGeometryESProducer::addHGCal( void )
   
 }
 
+=======
+>>>>>>> f943f61... Fix EE transformation.
