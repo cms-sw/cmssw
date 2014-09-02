@@ -35,7 +35,6 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ExoticaDQM
                            *B2GDQM
                            *hwwDQM
-                           *CentralityDQM
                            )
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
