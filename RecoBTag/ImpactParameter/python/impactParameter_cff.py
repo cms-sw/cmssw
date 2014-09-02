@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoBTag.ImpactParameter.impactParameter_cfi import *
+from RecoBTag.ImpactParameter.pfImpactParameter_cfi import *
 #tmp fix, use fake/frontier
 #include "RecoBTag/Configuration/data/RecoBTag_FakeConditions.cff"
 from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
