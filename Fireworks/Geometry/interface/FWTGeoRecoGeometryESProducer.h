@@ -42,11 +42,9 @@ private:
    TGeoVolume*       createVolume( const std::string& name, const GeomDet *det, const std::string& matname = "Air" );
    TGeoMaterial*     createMaterial( const std::string& name );
 
-   TGeoVolume* getTruncatedPyramidVolume(const CaloCellGeometry* cell);
-   TGeoVolume* getIdealZPrismVolume(const CaloCellGeometry* cell);
-   TGeoVolume* getIdealObliquePrismVolume(const CaloCellGeometry* cell);
-   TGeoVolume* getCalloCellVolume(const CaloCellGeometry* cell);
    TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, int id);
+   TGeoVolume*  GetTopHolder(const char* prefix);
+
    void addPixelBarrelGeometry();
    void addPixelForwardGeometry();
    void addTIBGeometry();
@@ -58,6 +56,8 @@ private:
    void addRPCGeometry();
    void addGEMGeometry();
    void addEcalCaloGeometry();
+   void addHcalCaloGeometryBarrel();
+   void addHcalCaloGeometryEndcap();
   
    std::map<std::string, TGeoShape*>    m_nameToShape;
    std::map<TGeoShape*, TGeoVolume*>   m_shapeToVolume;

@@ -60,7 +60,6 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    // selection state
    //
    const NodeInfo& data = m_entries[unsortedRow];
-   TGeoNode& gn = *data.m_node;
    bool isSelected = data.testBit(kHighlighted) ||  data.testBit(kSelected);
    // printf("cell render %s \n", data.name());
    if (data.testBit(kSelected))
@@ -122,7 +121,10 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kMaterialColumn)
       {
-         renderer->setData( gn.GetVolume()->GetMaterial()->GetName(), isSelected);
+         if (data.m_node->GetVolume()->IsAssembly())
+            renderer->setData( "assembly", isSelected);
+         else
+            renderer->setData( data.m_node->GetVolume()->GetMaterial()->GetName(), isSelected);
          return renderer;
       }
       else
