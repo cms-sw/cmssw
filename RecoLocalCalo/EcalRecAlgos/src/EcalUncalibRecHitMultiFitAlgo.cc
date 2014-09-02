@@ -68,19 +68,18 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   std::vector<double> fiterrs;
   
 
-  bool status = _pulsefunc.Minimize(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
+  bool status = _pulsefunc.DoFit(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
   double chisq = _pulsefunc.ChiSq();
   
   if (!status) printf("failed minimization\n");
 
   unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
   double amplitude = _pulsefunc.X()[ipulseintime];
-  //double amperr = _pulsefunc.Errors()[ipulseintime] : 0.;
-  double amperr = 0.;  
+  double amperr = _pulsefunc.Errors()[ipulseintime];
   
   double jitter = 0.;
   
-  //printf("amplitude = %5f, chisq = %5f\n",amplitude,chisq);
+  printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
