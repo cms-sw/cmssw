@@ -1,10 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalCalo.EcalRecProducers.ecalPulseShapeParameters_cff import *
+
 ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
     EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
     EBhitCollection = cms.string("EcalUncalibRecHitsEB"),
     EEhitCollection = cms.string('EcalUncalibRecHitsEE'),
+
+    # for multifit method
+    EcalPulseShapeParameters = cms.PSet( ecal_pulse_shape_parameters ),
+    activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4),
 
     # for ratio method
     EBtimeFitParameters = cms.vdouble(-2.015452e+00, 3.130702e+00, -1.234730e+01, 4.188921e+01, -8.283944e+01, 9.101147e+01, -5.035761e+01, 1.105621e+01),

@@ -14,388 +14,48 @@
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
+
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c),
   noisecorEBg12(10), noisecorEEg12(10),
   noisecorEBg6(10), noisecorEEg6(10),
   noisecorEBg1(10), noisecorEEg1(10),
-  fullpulseEB(12),fullpulseEE(12),fullpulsecovEB(12),fullpulsecovEE(12)  
-{
+  fullpulseEB(12),fullpulseEE(12),fullpulsecovEB(12),fullpulsecovEE(12) {
+
+  // get the pulse shape, amplitude covariances and noise correlations
+  EcalPulseShapeParameters_ = ps.getParameter<edm::ParameterSet>("EcalPulseShapeParameters");
+  fillInputs(EcalPulseShapeParameters_);
+
+  // get the BX for the pulses to be activated
+  std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
+  for(unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) activeBX.insert(activeBXs[ibx]);
   
-        //multifit method parameters
-        const int nnoise = 10;
-        
-        double noisecorvEBg12[nnoise] = {1.00000, 0.71073, 0.55721, 0.46089, 0.40449, 0.35931, 0.33924, 0.32439, 0.31581, 0.30481};
-        double noisecorvEEg12[nnoise] = {1.00000, 0.71373, 0.44825, 0.30152, 0.21609, 0.14786, 0.11772, 0.10165, 0.09465, 0.08098};
-        
-        double noisecorvEBg6[nnoise] = {1.00000, 0.70946, 0.58021, 0.49846, 0.45006, 0.41366, 0.39699, 0.38478, 0.37847, 0.37055};
-        double noisecorvEEg6[nnoise] = {1.00000, 0.71217, 0.47464, 0.34056, 0.26282, 0.20287, 0.17734, 0.16256, 0.15618, 0.14443};
-        
-        double noisecorvEBg1[nnoise] = {1.00000, 0.73354, 0.64442, 0.58851, 0.55425, 0.53082, 0.51916, 0.51097, 0.50732, 0.50409};
-        double noisecorvEEg1[nnoise] = {1.00000, 0.72698, 0.62048, 0.55691, 0.51848, 0.49147, 0.47813, 0.47007, 0.46621, 0.46265};
-        
-        //fill correlation matrices
-        for (int i=0; i<nnoise; ++i) {
-          for (int j=0; j<nnoise; ++j) {
-            int vidx = std::abs(j-i);
-            noisecorEBg12(i,j) = noisecorvEBg12[vidx];
-            noisecorEEg12(i,j) = noisecorvEEg12[vidx];
-            noisecorEBg6(i,j) = noisecorvEBg6[vidx];
-            noisecorEEg6(i,j) = noisecorvEEg6[vidx];
-            noisecorEBg1(i,j) = noisecorvEBg1[vidx];
-            noisecorEEg1(i,j) = noisecorvEEg1[vidx];        
-          }
-        }
-        
-        fullpulseEB(0) = 1.123570e-02;
-        fullpulseEB(1) = 7.572697e-01;
-        fullpulseEB(2) = 1.000000e+00;
-        fullpulseEB(3) = 8.880847e-01;
-        fullpulseEB(4) = 6.739063e-01;
-        fullpulseEB(5) = 4.746290e-01;
-        fullpulseEB(6) = 3.198094e-01;
-        fullpulseEB(7) = 2.002313e-01;
-        fullpulseEB(8) = 1.240913e-01;
-        fullpulseEB(9) = 7.523601e-02;
-        fullpulseEB(10) = 4.482069e-02;
-        fullpulseEB(11) = 2.637229e-02;
-        fullpulseEE(0) = 1.155830e-01;
-        fullpulseEE(1) = 7.554980e-01;
-        fullpulseEE(2) = 1.000000e+00;
-        fullpulseEE(3) = 8.975266e-01;
-        fullpulseEE(4) = 6.872156e-01;
-        fullpulseEE(5) = 4.918896e-01;
-        fullpulseEE(6) = 3.444126e-01;
-        fullpulseEE(7) = 2.120742e-01;
-        fullpulseEE(8) = 1.318843e-01;
-        fullpulseEE(9) = 8.005721e-02;
-        fullpulseEE(10) = 4.765987e-02;
-        fullpulseEE(11) = 2.797843e-02;
-        fullpulsecovEB(0,0) = 3.089231e-06;
-        fullpulsecovEB(0,1) = 1.364223e-05;
-        fullpulsecovEB(0,2) = 0.000000e+00;
-        fullpulsecovEB(0,3) = -4.841374e-06;
-        fullpulsecovEB(0,4) = -5.016645e-06;
-        fullpulsecovEB(0,5) = -3.978544e-06;
-        fullpulsecovEB(0,6) = -2.954626e-06;
-        fullpulsecovEB(0,7) = 0.000000e+00;
-        fullpulsecovEB(0,8) = 0.000000e+00;
-        fullpulsecovEB(0,9) = 0.000000e+00;
-        fullpulsecovEB(0,10) = 0.000000e+00;
-        fullpulsecovEB(0,11) = 0.000000e+00;
-        fullpulsecovEB(1,0) = 1.364223e-05;
-        fullpulsecovEB(1,1) = 6.723361e-05;
-        fullpulsecovEB(1,2) = 0.000000e+00;
-        fullpulsecovEB(1,3) = -2.390276e-05;
-        fullpulsecovEB(1,4) = -2.487319e-05;
-        fullpulsecovEB(1,5) = -1.987776e-05;
-        fullpulsecovEB(1,6) = -1.482751e-05;
-        fullpulsecovEB(1,7) = 0.000000e+00;
-        fullpulsecovEB(1,8) = 0.000000e+00;
-        fullpulsecovEB(1,9) = 0.000000e+00;
-        fullpulsecovEB(1,10) = 0.000000e+00;
-        fullpulsecovEB(1,11) = 0.000000e+00;
-        fullpulsecovEB(2,0) = 0.000000e+00;
-        fullpulsecovEB(2,1) = 0.000000e+00;
-        fullpulsecovEB(2,2) = 0.000000e+00;
-        fullpulsecovEB(2,3) = 0.000000e+00;
-        fullpulsecovEB(2,4) = 0.000000e+00;
-        fullpulsecovEB(2,5) = 0.000000e+00;
-        fullpulsecovEB(2,6) = 0.000000e+00;
-        fullpulsecovEB(2,7) = 0.000000e+00;
-        fullpulsecovEB(2,8) = 0.000000e+00;
-        fullpulsecovEB(2,9) = 0.000000e+00;
-        fullpulsecovEB(2,10) = 0.000000e+00;
-        fullpulsecovEB(2,11) = 0.000000e+00;
-        fullpulsecovEB(3,0) = -4.841374e-06;
-        fullpulsecovEB(3,1) = -2.390276e-05;
-        fullpulsecovEB(3,2) = 0.000000e+00;
-        fullpulsecovEB(3,3) = 8.821379e-06;
-        fullpulsecovEB(3,4) = 9.053254e-06;
-        fullpulsecovEB(3,5) = 7.222126e-06;
-        fullpulsecovEB(3,6) = 5.379169e-06;
-        fullpulsecovEB(3,7) = 0.000000e+00;
-        fullpulsecovEB(3,8) = 0.000000e+00;
-        fullpulsecovEB(3,9) = 0.000000e+00;
-        fullpulsecovEB(3,10) = 0.000000e+00;
-        fullpulsecovEB(3,11) = 0.000000e+00;
-        fullpulsecovEB(4,0) = -5.016645e-06;
-        fullpulsecovEB(4,1) = -2.487319e-05;
-        fullpulsecovEB(4,2) = 0.000000e+00;
-        fullpulsecovEB(4,3) = 9.053254e-06;
-        fullpulsecovEB(4,4) = 9.555901e-06;
-        fullpulsecovEB(4,5) = 7.581942e-06;
-        fullpulsecovEB(4,6) = 5.657722e-06;
-        fullpulsecovEB(4,7) = 0.000000e+00;
-        fullpulsecovEB(4,8) = 0.000000e+00;
-        fullpulsecovEB(4,9) = 0.000000e+00;
-        fullpulsecovEB(4,10) = 0.000000e+00;
-        fullpulsecovEB(4,11) = 0.000000e+00;
-        fullpulsecovEB(5,0) = -3.978544e-06;
-        fullpulsecovEB(5,1) = -1.987776e-05;
-        fullpulsecovEB(5,2) = 0.000000e+00;
-        fullpulsecovEB(5,3) = 7.222126e-06;
-        fullpulsecovEB(5,4) = 7.581942e-06;
-        fullpulsecovEB(5,5) = 6.252068e-06;
-        fullpulsecovEB(5,6) = 4.612691e-06;
-        fullpulsecovEB(5,7) = 0.000000e+00;
-        fullpulsecovEB(5,8) = 0.000000e+00;
-        fullpulsecovEB(5,9) = 0.000000e+00;
-        fullpulsecovEB(5,10) = 0.000000e+00;
-        fullpulsecovEB(5,11) = 0.000000e+00;
-        fullpulsecovEB(6,0) = -2.954626e-06;
-        fullpulsecovEB(6,1) = -1.482751e-05;
-        fullpulsecovEB(6,2) = 0.000000e+00;
-        fullpulsecovEB(6,3) = 5.379169e-06;
-        fullpulsecovEB(6,4) = 5.657722e-06;
-        fullpulsecovEB(6,5) = 4.612691e-06;
-        fullpulsecovEB(6,6) = 3.627807e-06;
-        fullpulsecovEB(6,7) = 0.000000e+00;
-        fullpulsecovEB(6,8) = 0.000000e+00;
-        fullpulsecovEB(6,9) = 0.000000e+00;
-        fullpulsecovEB(6,10) = 0.000000e+00;
-        fullpulsecovEB(6,11) = 0.000000e+00;
-        fullpulsecovEB(7,0) = 0.000000e+00;
-        fullpulsecovEB(7,1) = 0.000000e+00;
-        fullpulsecovEB(7,2) = 0.000000e+00;
-        fullpulsecovEB(7,3) = 0.000000e+00;
-        fullpulsecovEB(7,4) = 0.000000e+00;
-        fullpulsecovEB(7,5) = 0.000000e+00;
-        fullpulsecovEB(7,6) = 0.000000e+00;
-        fullpulsecovEB(7,7) = 3.627807e-06;
-        fullpulsecovEB(7,8) = 0.000000e+00;
-        fullpulsecovEB(7,9) = 0.000000e+00;
-        fullpulsecovEB(7,10) = 0.000000e+00;
-        fullpulsecovEB(7,11) = 0.000000e+00;
-        fullpulsecovEB(8,0) = 0.000000e+00;
-        fullpulsecovEB(8,1) = 0.000000e+00;
-        fullpulsecovEB(8,2) = 0.000000e+00;
-        fullpulsecovEB(8,3) = 0.000000e+00;
-        fullpulsecovEB(8,4) = 0.000000e+00;
-        fullpulsecovEB(8,5) = 0.000000e+00;
-        fullpulsecovEB(8,6) = 0.000000e+00;
-        fullpulsecovEB(8,7) = 0.000000e+00;
-        fullpulsecovEB(8,8) = 3.627807e-06;
-        fullpulsecovEB(8,9) = 0.000000e+00;
-        fullpulsecovEB(8,10) = 0.000000e+00;
-        fullpulsecovEB(8,11) = 0.000000e+00;
-        fullpulsecovEB(9,0) = 0.000000e+00;
-        fullpulsecovEB(9,1) = 0.000000e+00;
-        fullpulsecovEB(9,2) = 0.000000e+00;
-        fullpulsecovEB(9,3) = 0.000000e+00;
-        fullpulsecovEB(9,4) = 0.000000e+00;
-        fullpulsecovEB(9,5) = 0.000000e+00;
-        fullpulsecovEB(9,6) = 0.000000e+00;
-        fullpulsecovEB(9,7) = 0.000000e+00;
-        fullpulsecovEB(9,8) = 0.000000e+00;
-        fullpulsecovEB(9,9) = 3.627807e-06;
-        fullpulsecovEB(9,10) = 0.000000e+00;
-        fullpulsecovEB(9,11) = 0.000000e+00;
-        fullpulsecovEB(10,0) = 0.000000e+00;
-        fullpulsecovEB(10,1) = 0.000000e+00;
-        fullpulsecovEB(10,2) = 0.000000e+00;
-        fullpulsecovEB(10,3) = 0.000000e+00;
-        fullpulsecovEB(10,4) = 0.000000e+00;
-        fullpulsecovEB(10,5) = 0.000000e+00;
-        fullpulsecovEB(10,6) = 0.000000e+00;
-        fullpulsecovEB(10,7) = 0.000000e+00;
-        fullpulsecovEB(10,8) = 0.000000e+00;
-        fullpulsecovEB(10,9) = 0.000000e+00;
-        fullpulsecovEB(10,10) = 3.627807e-06;
-        fullpulsecovEB(10,11) = 0.000000e+00;
-        fullpulsecovEB(11,0) = 0.000000e+00;
-        fullpulsecovEB(11,1) = 0.000000e+00;
-        fullpulsecovEB(11,2) = 0.000000e+00;
-        fullpulsecovEB(11,3) = 0.000000e+00;
-        fullpulsecovEB(11,4) = 0.000000e+00;
-        fullpulsecovEB(11,5) = 0.000000e+00;
-        fullpulsecovEB(11,6) = 0.000000e+00;
-        fullpulsecovEB(11,7) = 0.000000e+00;
-        fullpulsecovEB(11,8) = 0.000000e+00;
-        fullpulsecovEB(11,9) = 0.000000e+00;
-        fullpulsecovEB(11,10) = 0.000000e+00;
-        fullpulsecovEB(11,11) = 3.627807e-06;
-        fullpulsecovEE(0,0) = 4.488648e-05;
-        fullpulsecovEE(0,1) = 3.855150e-05;
-        fullpulsecovEE(0,2) = 0.000000e+00;
-        fullpulsecovEE(0,3) = -1.716703e-05;
-        fullpulsecovEE(0,4) = -1.966737e-05;
-        fullpulsecovEE(0,5) = -1.729944e-05;
-        fullpulsecovEE(0,6) = -1.469454e-05;
-        fullpulsecovEE(0,7) = 0.000000e+00;
-        fullpulsecovEE(0,8) = 0.000000e+00;
-        fullpulsecovEE(0,9) = 0.000000e+00;
-        fullpulsecovEE(0,10) = 0.000000e+00;
-        fullpulsecovEE(0,11) = 0.000000e+00;
-        fullpulsecovEE(1,0) = 3.855150e-05;
-        fullpulsecovEE(1,1) = 3.373966e-05;
-        fullpulsecovEE(1,2) = 0.000000e+00;
-        fullpulsecovEE(1,3) = -1.497342e-05;
-        fullpulsecovEE(1,4) = -1.720638e-05;
-        fullpulsecovEE(1,5) = -1.522689e-05;
-        fullpulsecovEE(1,6) = -1.307713e-05;
-        fullpulsecovEE(1,7) = 0.000000e+00;
-        fullpulsecovEE(1,8) = 0.000000e+00;
-        fullpulsecovEE(1,9) = 0.000000e+00;
-        fullpulsecovEE(1,10) = 0.000000e+00;
-        fullpulsecovEE(1,11) = 0.000000e+00;
-        fullpulsecovEE(2,0) = 0.000000e+00;
-        fullpulsecovEE(2,1) = 0.000000e+00;
-        fullpulsecovEE(2,2) = 0.000000e+00;
-        fullpulsecovEE(2,3) = 0.000000e+00;
-        fullpulsecovEE(2,4) = 0.000000e+00;
-        fullpulsecovEE(2,5) = 0.000000e+00;
-        fullpulsecovEE(2,6) = 0.000000e+00;
-        fullpulsecovEE(2,7) = 0.000000e+00;
-        fullpulsecovEE(2,8) = 0.000000e+00;
-        fullpulsecovEE(2,9) = 0.000000e+00;
-        fullpulsecovEE(2,10) = 0.000000e+00;
-        fullpulsecovEE(2,11) = 0.000000e+00;
-        fullpulsecovEE(3,0) = -1.716703e-05;
-        fullpulsecovEE(3,1) = -1.497342e-05;
-        fullpulsecovEE(3,2) = 0.000000e+00;
-        fullpulsecovEE(3,3) = 7.317861e-06;
-        fullpulsecovEE(3,4) = 8.272783e-06;
-        fullpulsecovEE(3,5) = 7.267976e-06;
-        fullpulsecovEE(3,6) = 6.225963e-06;
-        fullpulsecovEE(3,7) = 0.000000e+00;
-        fullpulsecovEE(3,8) = 0.000000e+00;
-        fullpulsecovEE(3,9) = 0.000000e+00;
-        fullpulsecovEE(3,10) = 0.000000e+00;
-        fullpulsecovEE(3,11) = 0.000000e+00;
-        fullpulsecovEE(4,0) = -1.966737e-05;
-        fullpulsecovEE(4,1) = -1.720638e-05;
-        fullpulsecovEE(4,2) = 0.000000e+00;
-        fullpulsecovEE(4,3) = 8.272783e-06;
-        fullpulsecovEE(4,4) = 9.960259e-06;
-        fullpulsecovEE(4,5) = 8.757415e-06;
-        fullpulsecovEE(4,6) = 7.487101e-06;
-        fullpulsecovEE(4,7) = 0.000000e+00;
-        fullpulsecovEE(4,8) = 0.000000e+00;
-        fullpulsecovEE(4,9) = 0.000000e+00;
-        fullpulsecovEE(4,10) = 0.000000e+00;
-        fullpulsecovEE(4,11) = 0.000000e+00;
-        fullpulsecovEE(5,0) = -1.729944e-05;
-        fullpulsecovEE(5,1) = -1.522689e-05;
-        fullpulsecovEE(5,2) = 0.000000e+00;
-        fullpulsecovEE(5,3) = 7.267976e-06;
-        fullpulsecovEE(5,4) = 8.757415e-06;
-        fullpulsecovEE(5,5) = 8.286420e-06;
-        fullpulsecovEE(5,6) = 7.079047e-06;
-        fullpulsecovEE(5,7) = 0.000000e+00;
-        fullpulsecovEE(5,8) = 0.000000e+00;
-        fullpulsecovEE(5,9) = 0.000000e+00;
-        fullpulsecovEE(5,10) = 0.000000e+00;
-        fullpulsecovEE(5,11) = 0.000000e+00;
-        fullpulsecovEE(6,0) = -1.469454e-05;
-        fullpulsecovEE(6,1) = -1.307713e-05;
-        fullpulsecovEE(6,2) = 0.000000e+00;
-        fullpulsecovEE(6,3) = 6.225963e-06;
-        fullpulsecovEE(6,4) = 7.487101e-06;
-        fullpulsecovEE(6,5) = 7.079047e-06;
-        fullpulsecovEE(6,6) = 6.623356e-06;
-        fullpulsecovEE(6,7) = 0.000000e+00;
-        fullpulsecovEE(6,8) = 0.000000e+00;
-        fullpulsecovEE(6,9) = 0.000000e+00;
-        fullpulsecovEE(6,10) = 0.000000e+00;
-        fullpulsecovEE(6,11) = 0.000000e+00;
-        fullpulsecovEE(7,0) = 0.000000e+00;
-        fullpulsecovEE(7,1) = 0.000000e+00;
-        fullpulsecovEE(7,2) = 0.000000e+00;
-        fullpulsecovEE(7,3) = 0.000000e+00;
-        fullpulsecovEE(7,4) = 0.000000e+00;
-        fullpulsecovEE(7,5) = 0.000000e+00;
-        fullpulsecovEE(7,6) = 0.000000e+00;
-        fullpulsecovEE(7,7) = 6.623356e-06;
-        fullpulsecovEE(7,8) = 0.000000e+00;
-        fullpulsecovEE(7,9) = 0.000000e+00;
-        fullpulsecovEE(7,10) = 0.000000e+00;
-        fullpulsecovEE(7,11) = 0.000000e+00;
-        fullpulsecovEE(8,0) = 0.000000e+00;
-        fullpulsecovEE(8,1) = 0.000000e+00;
-        fullpulsecovEE(8,2) = 0.000000e+00;
-        fullpulsecovEE(8,3) = 0.000000e+00;
-        fullpulsecovEE(8,4) = 0.000000e+00;
-        fullpulsecovEE(8,5) = 0.000000e+00;
-        fullpulsecovEE(8,6) = 0.000000e+00;
-        fullpulsecovEE(8,7) = 0.000000e+00;
-        fullpulsecovEE(8,8) = 6.623356e-06;
-        fullpulsecovEE(8,9) = 0.000000e+00;
-        fullpulsecovEE(8,10) = 0.000000e+00;
-        fullpulsecovEE(8,11) = 0.000000e+00;
-        fullpulsecovEE(9,0) = 0.000000e+00;
-        fullpulsecovEE(9,1) = 0.000000e+00;
-        fullpulsecovEE(9,2) = 0.000000e+00;
-        fullpulsecovEE(9,3) = 0.000000e+00;
-        fullpulsecovEE(9,4) = 0.000000e+00;
-        fullpulsecovEE(9,5) = 0.000000e+00;
-        fullpulsecovEE(9,6) = 0.000000e+00;
-        fullpulsecovEE(9,7) = 0.000000e+00;
-        fullpulsecovEE(9,8) = 0.000000e+00;
-        fullpulsecovEE(9,9) = 6.623356e-06;
-        fullpulsecovEE(9,10) = 0.000000e+00;
-        fullpulsecovEE(9,11) = 0.000000e+00;
-        fullpulsecovEE(10,0) = 0.000000e+00;
-        fullpulsecovEE(10,1) = 0.000000e+00;
-        fullpulsecovEE(10,2) = 0.000000e+00;
-        fullpulsecovEE(10,3) = 0.000000e+00;
-        fullpulsecovEE(10,4) = 0.000000e+00;
-        fullpulsecovEE(10,5) = 0.000000e+00;
-        fullpulsecovEE(10,6) = 0.000000e+00;
-        fullpulsecovEE(10,7) = 0.000000e+00;
-        fullpulsecovEE(10,8) = 0.000000e+00;
-        fullpulsecovEE(10,9) = 0.000000e+00;
-        fullpulsecovEE(10,10) = 6.623356e-06;
-        fullpulsecovEE(10,11) = 0.000000e+00;
-        fullpulsecovEE(11,0) = 0.000000e+00;
-        fullpulsecovEE(11,1) = 0.000000e+00;
-        fullpulsecovEE(11,2) = 0.000000e+00;
-        fullpulsecovEE(11,3) = 0.000000e+00;
-        fullpulsecovEE(11,4) = 0.000000e+00;
-        fullpulsecovEE(11,5) = 0.000000e+00;
-        fullpulsecovEE(11,6) = 0.000000e+00;
-        fullpulsecovEE(11,7) = 0.000000e+00;
-        fullpulsecovEE(11,8) = 0.000000e+00;
-        fullpulsecovEE(11,9) = 0.000000e+00;
-        fullpulsecovEE(11,10) = 0.000000e+00;
-        fullpulsecovEE(11,11) = 6.623356e-06;        
   
-        activeBX.insert(-5);
-        activeBX.insert(-4);
-        activeBX.insert(-3);
-        activeBX.insert(-2);
-        activeBX.insert(-1);
-        activeBX.insert(0);
-        activeBX.insert(1);
-        activeBX.insert(2);
-        activeBX.insert(3);
-        activeBX.insert(4);        
-        
-        // ratio method parameters
-        EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
-        EEtimeFitParameters_ = ps.getParameter<std::vector<double> >("EEtimeFitParameters"); 
-        EBamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EBamplitudeFitParameters");
-        EEamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EEamplitudeFitParameters");
-        EBtimeFitLimits_.first  = ps.getParameter<double>("EBtimeFitLimits_Lower");
-        EBtimeFitLimits_.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
-        EEtimeFitLimits_.first  = ps.getParameter<double>("EEtimeFitLimits_Lower");
-        EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
-        EBtimeConstantTerm_=ps.getParameter<double>("EBtimeConstantTerm");
-        EEtimeConstantTerm_=ps.getParameter<double>("EEtimeConstantTerm");
+  // ratio method parameters
+  EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
+  EEtimeFitParameters_ = ps.getParameter<std::vector<double> >("EEtimeFitParameters"); 
+  EBamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EBamplitudeFitParameters");
+  EEamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EEamplitudeFitParameters");
+  EBtimeFitLimits_.first  = ps.getParameter<double>("EBtimeFitLimits_Lower");
+  EBtimeFitLimits_.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
+  EEtimeFitLimits_.first  = ps.getParameter<double>("EEtimeFitLimits_Lower");
+  EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
+  EBtimeConstantTerm_=ps.getParameter<double>("EBtimeConstantTerm");
+  EEtimeConstantTerm_=ps.getParameter<double>("EEtimeConstantTerm");
 
-        // leading edge parameters
-        ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
-        eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
+  // leading edge parameters
+  ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
+  eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
 
-        // chi2 parameters for flags determination
-        kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
-        kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");;
-        chi2ThreshEB_=ps.getParameter<double>("chi2ThreshEB_");
-        chi2ThreshEE_=ps.getParameter<double>("chi2ThreshEE_");
+  // chi2 parameters for flags determination
+  kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
+  kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");;
+  chi2ThreshEB_=ps.getParameter<double>("chi2ThreshEB_");
+  chi2ThreshEE_=ps.getParameter<double>("chi2ThreshEE_");
 
-        // significance of the additional OOT pulses 
-        significanceOutOfTime_ = ps.getParameter<double>("significanceOutOfTime");
- }
+  // significance of the additional OOT pulses 
+  significanceOutOfTime_ = ps.getParameter<double>("significanceOutOfTime");
+}
 
 
 
@@ -726,6 +386,50 @@ const TMatrixDSym &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int ga
   
   return noisecorEBg12;
   
+}
+
+void EcalUncalibRecHitWorkerMultiFit::fillInputs(const edm::ParameterSet& params) {
+
+  const std::vector<double> ebCorMatG12 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG12");
+  const std::vector<double> eeCorMatG12 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG12");
+  const std::vector<double> ebCorMatG06 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG06");
+  const std::vector<double> eeCorMatG06 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG06");
+  const std::vector<double> ebCorMatG01 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG01");
+  const std::vector<double> eeCorMatG01 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG01");
+  
+  int nnoise = ebCorMatG12.size();
+
+  // fill correlation matrices: noise (HF (+) LF)
+  for (int i=0; i<nnoise; ++i) {
+    for (int j=0; j<nnoise; ++j) {
+      int vidx = std::abs(j-i);
+      noisecorEBg12(i,j) = ebCorMatG12[vidx];
+      noisecorEEg12(i,j) = eeCorMatG12[vidx];
+      noisecorEBg6(i,j)  = ebCorMatG06[vidx];
+      noisecorEEg6(i,j)  = eeCorMatG06[vidx];
+      noisecorEBg1(i,j)  = ebCorMatG01[vidx];
+      noisecorEEg1(i,j)  = eeCorMatG01[vidx];        
+    }
+  }
+  
+  // fill shape: from simulation for samples 3-9, from alpha/beta shape for 10-14
+  const std::vector<double> ebPulse = params.getParameter< std::vector<double> >("EBPulseShapeTemplate");
+  const std::vector<double> eePulse = params.getParameter< std::vector<double> >("EEPulseShapeTemplate");
+  int nShapeSamples = ebPulse.size();
+  for (int i=0; i<nShapeSamples; ++i) {
+    fullpulseEB(i) = ebPulse[i];
+    fullpulseEE(i) = eePulse[i];
+  }
+
+  const std::vector<double> ebPulseCov = params.getParameter< std::vector<double> >("EBPulseShapeCovariance");
+  const std::vector<double> eePulseCov = params.getParameter< std::vector<double> >("EEPulseShapeCovariance");
+  for(int k=0; k<std::pow(nShapeSamples,2); ++k) {
+    int i = k/nShapeSamples;
+    int j = k%nShapeSamples;
+    fullpulsecovEB(i,j) = 1.0e-6 * ebPulseCov[k];
+    fullpulsecovEE(i,j) = 1.0e-6 * eePulseCov[k];
+  }
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
