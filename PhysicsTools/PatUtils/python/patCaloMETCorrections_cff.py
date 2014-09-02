@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # produce "raw" (uncorrected) pat::MET of calo-type
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
 patCaloMet = patMETs.clone(
-    metSource = cms.InputTag('corMetGlobalMuons'),
+    metSource = cms.InputTag('caloMetM'),
     addMuonCorrections = cms.bool(False),
     genMETSource = cms.InputTag('genMetTrue')
 )
@@ -20,7 +20,7 @@ patCaloMetType1Corr = cms.EDProducer(
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
-    srcMET = cms.InputTag('corMetGlobalMuons')
+    srcMET = cms.InputTag('caloMetM')
 )
 
 ##____________________________________________________________________________||

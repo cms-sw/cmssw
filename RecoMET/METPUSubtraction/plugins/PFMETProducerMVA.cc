@@ -76,13 +76,18 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
     mvaMEtAlgo_isInitialized_(false),
     mvaJetIdAlgo_(cfg)   
 {
-  srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
-  srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
-  srcPFCandidates_ = cfg.getParameter<edm::InputTag>("srcPFCandidates");
-  srcVertices_     = cfg.getParameter<edm::InputTag>("srcVertices");
-  srcLeptons_      = cfg.getParameter<vInputTag>("srcLeptons");
+  srcCorrJets_     = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcCorrJets"));
+  srcUncorrJets_   = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcUncorrJets"));
+  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcPFCandidatesView_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcVertices_     = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
+  vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
+  for(vInputTag::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+    srcLeptons_.push_back( consumes<edm::View<reco::Candidate> >( *it ) );
+  }
+
   minNumLeptons_   = cfg.getParameter<int>("minNumLeptons");
-  srcRho_          = cfg.getParameter<edm::InputTag>("srcRho");
+  srcRho_          = consumes<edm::Handle<double> >(cfg.getParameter<edm::InputTag>("srcRho"));
 
   globalThreshold_ = cfg.getParameter<double>("globalThreshold");
 
@@ -96,12 +101,12 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
 
   if ( verbosity_ ) {
     std::cout << "<PFMETProducerMVA::PFMETProducerMVA>:" << std::endl;
-    std::cout << " srcCorrJets = " << srcCorrJets_.label() << std::endl;
-    std::cout << " srcUncorrJets = " << srcUncorrJets_.label() << std::endl;
-    std::cout << " srcPFCandidates = " << srcPFCandidates_.label() << std::endl;
-    std::cout << " srcVertices = " << srcVertices_.label() << std::endl;
-    std::cout << " srcLeptons = " << format_vInputTag(srcLeptons_) << std::endl;
-    std::cout << " srcRho = " << srcVertices_.label() << std::endl;
+    // std::cout << " srcCorrJets = " << srcCorrJets_.label() << std::endl;
+    // std::cout << " srcUncorrJets = " << srcUncorrJets_.label() << std::endl;
+    // std::cout << " srcPFCandidates = " << srcPFCandidates_.label() << std::endl;
+    // std::cout << " srcVertices = " << srcVertices_.label() << std::endl;
+    // std::cout << " srcLeptons = " << format_vInputTag(srcLeptons_) << std::endl;
+    // std::cout << " srcRho = " << srcVertices_.label() << std::endl;
   }
 
   produces<reco::PFMETCollection>();
@@ -114,10 +119,10 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   // CV: check if the event is to be skipped
   if ( minNumLeptons_ > 0 ) {
     int numLeptons = 0;
-    for ( vInputTag::const_iterator srcLeptons_i = srcLeptons_.begin();
+    for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = srcLeptons_.begin();
 	  srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
       edm::Handle<CandidateView> leptons;
-      evt.getByLabel(*srcLeptons_i, leptons);
+      evt.getByToken(*srcLeptons_i, leptons);
       numLeptons += leptons->size();
     }
     if ( !(numLeptons >= minNumLeptons_) ) {
@@ -136,24 +141,24 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get jets (corrected and uncorrected)
   edm::Handle<reco::PFJetCollection> corrJets;
-  evt.getByLabel(srcCorrJets_, corrJets);
+  evt.getByToken(srcCorrJets_, corrJets);
 
   edm::Handle<reco::PFJetCollection> uncorrJets;
-  evt.getByLabel(srcUncorrJets_, uncorrJets);
+  evt.getByToken(srcUncorrJets_, uncorrJets);
 
   const JetCorrector* corrector = 0;
   if( useType1_ ) corrector = JetCorrector::getJetCorrector(correctorLabel_, es);
 
   // get PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  evt.getByLabel(srcPFCandidates_, pfCandidates);
+  evt.getByToken(srcPFCandidates_, pfCandidates);
 
   edm::Handle<CandidateView> pfCandidates_view;
-  evt.getByLabel(srcPFCandidates_, pfCandidates_view);
+  evt.getByToken(srcPFCandidatesView_, pfCandidates_view);
 
   // get vertices
   edm::Handle<reco::VertexCollection> vertices;
-  evt.getByLabel(srcVertices_, vertices); 
+  evt.getByToken(srcVertices_, vertices); 
   // take vertex with highest sum(trackPt) as the vertex of the "hard scatter" interaction
   // (= first entry in vertex collection)
   const reco::Vertex* hardScatterVertex = ( vertices->size() >= 1 ) ?
@@ -164,17 +169,17 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   int  lId         = 0;
   bool lHasPhotons = false;
   std::vector<mvaMEtUtilities::leptonInfo> leptonInfo;
-  for ( vInputTag::const_iterator srcLeptons_i = srcLeptons_.begin();
+  for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = srcLeptons_.begin();
 	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
     edm::Handle<CandidateView> leptons;
-    evt.getByLabel(*srcLeptons_i, leptons);
+    evt.getByToken(*srcLeptons_i, leptons);
     for ( CandidateView::const_iterator lepton1 = leptons->begin();
 	  lepton1 != leptons->end(); ++lepton1 ) {
       bool pMatch = false;
-      for ( vInputTag::const_iterator srcLeptons_j = srcLeptons_.begin();
+      for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_j = srcLeptons_.begin();
 	    srcLeptons_j != srcLeptons_.end(); ++srcLeptons_j ) {
 	edm::Handle<CandidateView> leptons2;
-	evt.getByLabel(*srcLeptons_j, leptons2);
+	evt.getByToken(*srcLeptons_j, leptons2);
 	for ( CandidateView::const_iterator lepton2 = leptons2->begin();
 	      lepton2 != leptons2->end(); ++lepton2 ) {
 	  if(&(*lepton1) == &(*lepton2)) continue;
@@ -205,7 +210,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get average energy density in the event
   //edm::Handle<double> rho;
-  //evt.getByLabel(srcRho_, rho);
+  //evt.getByToken(srcRho_, rho);
 
   // initialize MVA MET algorithm
   // (this will load the BDTs, stored as GBRForrest objects;

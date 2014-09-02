@@ -41,7 +41,7 @@ class ShiftedPFCandidateProducerByMatchedObject : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::EDGetTokenT<edm::Handle<reco::PFCandidateCollection> > srcPFCandidates_; 
+  edm::EDGetTokenT<reco::PFCandidateCollection > srcPFCandidates_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_; 
 

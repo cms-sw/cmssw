@@ -3,22 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/METReco/interface/MVAMEtData.h"       
-#include "DataFormats/METReco/interface/MVAMEtDataFwd.h"    
-#include "DataFormats/METReco/interface/SigInputObj.h"    //PH: preserve 5_3_x dependence
-
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
 
 #include <algorithm>
 #include <math.h>
@@ -32,8 +16,8 @@ NoPileUpPFMEtDataProducer::NoPileUpPFMEtDataProducer(const edm::ParameterSet& cf
     looseJetIdAlgo_(0),
     pfMEtSignInterface_(0)
 {
-  srcJets_ = cfg.getParameter<edm::InputTag>("srcJets");
-  srcJetIds_ = cfg.getParameter<edm::InputTag>("srcJetIds");
+  srcJets_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
+  srcJetIds_ = consumes<edm::ValueMap<int> >(cfg.getParameter<edm::InputTag>("srcJetIds"));
   minJetPt_ = cfg.getParameter<double>("minJetPt");
   std::string jetIdSelection_string = cfg.getParameter<std::string>("jetIdSelection");
   if      ( jetIdSelection_string == "loose"  ) jetIdSelection_ = PileupJetIdentifier::kLoose;
@@ -43,11 +27,12 @@ NoPileUpPFMEtDataProducer::NoPileUpPFMEtDataProducer(const edm::ParameterSet& cf
     << "Invalid Configuration Parameter 'jetIdSelection' = " << jetIdSelection_string << " !!\n";
   jetEnOffsetCorrLabel_ = cfg.getParameter<std::string>("jetEnOffsetCorrLabel");
 
-  srcPFCandidates_ = cfg.getParameter<edm::InputTag>("srcPFCandidates");
-  srcPFCandToVertexAssociations_ = cfg.getParameter<edm::InputTag>("srcPFCandToVertexAssociations");
-  srcJetsForMEtCov_ = cfg.getParameter<edm::InputTag>("srcJetsForMEtCov");
+  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcPFCandidatesView_ = consumes<edm::View<reco::PFCandidate> >(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcPFCandToVertexAssociations_ = consumes<PFCandToVertexAssMap>(cfg.getParameter<edm::InputTag>("srcPFCandToVertexAssociations"));
+  srcJetsForMEtCov_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJetsForMEtCov"));
   minJetPtForMEtCov_ = cfg.getParameter<double>("minJetPtForMEtCov");
-  srcHardScatterVertex_ = cfg.getParameter<edm::InputTag>("srcHardScatterVertex");
+  srcHardScatterVertex_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcHardScatterVertex"));
   dZcut_ = cfg.getParameter<double>("dZcut");
 
   edm::ParameterSet cfgPFJetIdAlgo;
@@ -153,35 +138,35 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   
   // get jets 
   edm::Handle<reco::PFJetCollection> jets;
-  evt.getByLabel(srcJets_, jets);
+  evt.getByToken(srcJets_, jets);
 
   typedef edm::ValueMap<int> jetIdMap;
   edm::Handle<jetIdMap> jetIds;
-  evt.getByLabel(srcJetIds_, jetIds);
+  evt.getByToken(srcJetIds_, jetIds);
 
   // get jets for computing contributions to PFMEt significance matrix
   edm::Handle<reco::PFJetCollection> jetsForMEtCov;
-  if ( srcJetsForMEtCov_.label() != "" ) evt.getByLabel(srcJetsForMEtCov_, jetsForMEtCov);
+  if ( ! srcJetsForMEtCov_.isUninitialized() ) evt.getByToken(srcJetsForMEtCov_, jetsForMEtCov);
 
   // get PFCandidates
   typedef edm::View<reco::PFCandidate> PFCandidateView;
   edm::Handle<PFCandidateView> pfCandidates;
-  evt.getByLabel(srcPFCandidates_, pfCandidates);
+  evt.getByToken(srcPFCandidatesView_, pfCandidates);
 
   std::vector<int> pfCandidateFlags(pfCandidates->size());
   std::vector<const reco::PFJet*> pfCandidateToJetAssociations(pfCandidates->size());
 
   edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  evt.getByLabel(srcPFCandidates_, pfCandidateHandle);
+  evt.getByToken(srcPFCandidates_, pfCandidateHandle);
 
   // get PFCandidate-to-vertex associations and "the" hard-scatter vertex
   edm::Handle<PFCandToVertexAssMap> pfCandToVertexAssociations;
-  evt.getByLabel(srcPFCandToVertexAssociations_, pfCandToVertexAssociations);
+  evt.getByToken(srcPFCandToVertexAssociations_, pfCandToVertexAssociations);
 
   reversedPFCandidateToVertexAssociationMap pfCandToVertexAssociations_reversed = reversePFCandToVertexAssociation(*pfCandToVertexAssociations);
 
   edm::Handle<reco::VertexCollection> hardScatterVertex;
-  evt.getByLabel(srcHardScatterVertex_, hardScatterVertex);
+  evt.getByToken(srcHardScatterVertex_, hardScatterVertex);
   if ( verbosity_ && hardScatterVertex->size() >= 1 ) {
     reco::Vertex::Point hardScatterVertexPos = hardScatterVertex->front().position();
     std::cout << "hard-scatter Vertex: x = " << hardScatterVertexPos.x() << ", y = " << hardScatterVertexPos.y() << ", z = " << hardScatterVertexPos.z() << std::endl;    

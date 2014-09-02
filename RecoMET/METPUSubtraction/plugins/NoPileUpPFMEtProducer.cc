@@ -2,14 +2,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtUtilities.h"
-#include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h"
+//#include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h" //never used so far
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
 
@@ -25,15 +18,20 @@ const double epsilon = 1.e-9;
 NoPileUpPFMEtProducer::NoPileUpPFMEtProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  srcMEt_ = cfg.getParameter<edm::InputTag>("srcMEt");
-  srcMEtCov_ = ( cfg.exists("srcMEtCov") ) ?
-    cfg.getParameter<edm::InputTag>("srcMEtCov") : edm::InputTag();
-  srcJetInfo_ = cfg.getParameter<edm::InputTag>("srcMVAMEtData");
-  srcJetInfoLeptonMatch_ = cfg.getParameter<edm::InputTag>("srcMVAMEtDataLeptonMatch");
-  srcPFCandInfo_ = cfg.getParameter<edm::InputTag>("srcMVAMEtData");
-  srcPFCandInfoLeptonMatch_ = cfg.getParameter<edm::InputTag>("srcMVAMEtDataLeptonMatch");
-  srcLeptons_ = cfg.getParameter<vInputTag>("srcLeptons");
-  srcType0Correction_ = cfg.getParameter<edm::InputTag>("srcType0Correction");
+  srcMEt_ = consumes<reco::PFMETCollection>(cfg.getParameter<edm::InputTag>("srcMEt"));
+   srcMEtCov_ = edm::InputTag(); //MM, disabled for the moment until we really need it
+  //( cfg.exists("srcMEtCov") ) ?
+  //  consumes<edm::Handle<> >(cfg.getParameter<edm::InputTag>("srcMEtCov")) : edm::InputTag();
+  srcJetInfo_ = consumes<reco::MVAMEtJetInfoCollection>(cfg.getParameter<edm::InputTag>("srcMVAMEtData"));
+  srcJetInfoLeptonMatch_ = consumes<reco::MVAMEtJetInfoCollection>(cfg.getParameter<edm::InputTag>("srcMVAMEtDataLeptonMatch"));
+  srcPFCandInfo_ = consumes<reco::MVAMEtPFCandInfoCollection>(cfg.getParameter<edm::InputTag>("srcMVAMEtData"));
+  srcPFCandInfoLeptonMatch_ = consumes<reco::MVAMEtPFCandInfoCollection>(cfg.getParameter<edm::InputTag>("srcMVAMEtDataLeptonMatch"));
+  vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
+  for(vInputTag::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+    srcLeptons_.push_back( consumes<edm::View<reco::Candidate> >( *it ) );
+  }
+
+  srcType0Correction_ = consumes<CorrMETData>(cfg.getParameter<edm::InputTag>("srcType0Correction"));
 
   sfNoPUjets_ = cfg.getParameter<double>("sfNoPUjets");
   sfNoPUjetOffsetEnCorr_ = cfg.getParameter<double>("sfNoPUjetOffsetEnCorr");
@@ -212,7 +210,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get original MET
   edm::Handle<reco::PFMETCollection> pfMETs;
-  evt.getByLabel(srcMEt_, pfMETs);
+  evt.getByToken(srcMEt_, pfMETs);
   if ( !(pfMETs->size() == 1) )
     throw cms::Exception("NoPileUpPFMEtProducer::produce") 
       << "Failed to find unique MET object !!\n";
@@ -221,9 +219,11 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // get MET covariance matrix
   TMatrixD pfMEtCov(2,2);
   if ( srcMEtCov_.label() != "" ) {
-    edm::Handle<PFMEtSignCovMatrix> pfMEtCovHandle;    
-    evt.getByLabel(srcMEtCov_, pfMEtCovHandle);
-    pfMEtCov = (*pfMEtCovHandle);
+    //MM manual bypass to pfMET as this case has neer been presented
+    // edm::Handle<PFMEtSignCovMatrix> pfMEtCovHandle;    
+    // evt.getByToken(srcMEtCov_, pfMEtCovHandle);
+    // pfMEtCov = (*pfMEtCovHandle);
+    pfMEtCov = pfMEt_original.getSignificanceMatrix();
   } else {
     pfMEtCov = pfMEt_original.getSignificanceMatrix();
   }
@@ -232,15 +232,15 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   std::vector<reco::Candidate::LorentzVector> leptons;
   std::vector<metsig::SigInputObj> metSignObjectsLeptons;
   reco::Candidate::LorentzVector sumLeptonP4s;
-  for ( vInputTag::const_iterator srcLeptons_i = srcLeptons_.begin();
+  for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = srcLeptons_.begin();
 	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
     typedef edm::View<reco::Candidate> CandidateView;
     edm::Handle<CandidateView> leptons_i;
-    evt.getByLabel(*srcLeptons_i, leptons_i);
+    evt.getByToken(*srcLeptons_i, leptons_i);
     int leptonIdx = 0;
     for ( CandidateView::const_iterator lepton = leptons_i->begin();
 	  lepton != leptons_i->end(); ++lepton ) {
-      if ( verbosity_ ) printP4(srcLeptons_i->label(), leptonIdx, "", *lepton);
+      //if ( verbosity_ ) printP4(srcLeptons_i->label(), leptonIdx, "", *lepton);
       leptons.push_back(lepton->p4());
       metSignObjectsLeptons.push_back(pfMEtSignInterface_->compResolution(&(*lepton)));
       sumLeptonP4s += lepton->p4();
@@ -254,13 +254,13 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get jet and PFCandidate information
   edm::Handle<reco::MVAMEtJetInfoCollection> jets;
-  evt.getByLabel(srcJetInfo_, jets);
+  evt.getByToken(srcJetInfo_, jets);
   edm::Handle<reco::MVAMEtJetInfoCollection> jetsLeptonMatch;
-  evt.getByLabel(srcJetInfoLeptonMatch_, jetsLeptonMatch);
+  evt.getByToken(srcJetInfoLeptonMatch_, jetsLeptonMatch);
   edm::Handle<reco::MVAMEtPFCandInfoCollection> pfCandidates;
-  evt.getByLabel(srcPFCandInfo_, pfCandidates);
+  evt.getByToken(srcPFCandInfo_, pfCandidates);
   edm::Handle<reco::MVAMEtPFCandInfoCollection> pfCandidatesLeptonMatch;
-  evt.getByLabel(srcPFCandInfoLeptonMatch_, pfCandidatesLeptonMatch);
+  evt.getByToken(srcPFCandInfoLeptonMatch_, pfCandidatesLeptonMatch);
 
   reco::MVAMEtJetInfoCollection jets_leptons = cleanJets(*jetsLeptonMatch, leptons, 0.5, true);
   reco::MVAMEtPFCandInfoCollection pfCandidates_leptons = cleanPFCandidates(*pfCandidatesLeptonMatch, leptons, 0.3, true);
@@ -405,7 +405,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   edm::Handle<CorrMETData> type0Correction_input;
-  evt.getByLabel(srcType0Correction_, type0Correction_input);
+  evt.getByToken(srcType0Correction_, type0Correction_input);
   std::auto_ptr<CommonMETData> type0Correction_output(new CommonMETData());
   initializeCommonMETData(*type0Correction_output);
   type0Correction_output->mex = type0Correction_input->mex;

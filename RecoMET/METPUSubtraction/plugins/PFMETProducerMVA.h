@@ -61,14 +61,15 @@ namespace reco
     double chargedFracInCone(const reco::Candidate *iCand,const reco::PFCandidateCollection& pfCandidates,const reco::Vertex* hardScatterVertex,double iDRMax=0.2);
 
    // configuration parameter
-    edm::InputTag srcCorrJets_;
-    edm::InputTag srcUncorrJets_;
-    edm::InputTag srcPFCandidates_;
-    edm::InputTag srcVertices_;
+    edm::EDGetTokenT<reco::PFJetCollection> srcCorrJets_;
+    edm::EDGetTokenT<reco::PFJetCollection> srcUncorrJets_;
+    edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
+    edm::EDGetTokenT<edm::View<reco::Candidate> > srcPFCandidatesView_;
+    edm::EDGetTokenT<reco::VertexCollection> srcVertices_;
     typedef std::vector<edm::InputTag> vInputTag;
-    vInputTag srcLeptons_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > srcLeptons_;
     int minNumLeptons_; // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
-    edm::InputTag srcRho_;
+    edm::EDGetTokenT<edm::Handle<double> > srcRho_;
 
     std::string correctorLabel_;
     bool isOld42_ ;

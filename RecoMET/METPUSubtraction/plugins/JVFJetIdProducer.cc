@@ -14,17 +14,16 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
 
 enum { kNeutralJetPU, kNeutralJetNoPU };
 
 JVFJetIdProducer::JVFJetIdProducer(const edm::ParameterSet& cfg)
 {
-  srcJets_ = cfg.getParameter<edm::InputTag>("srcJets");
+  srcJets_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
 
-  srcPFCandidates_ = cfg.getParameter<edm::InputTag>("srcPFCandidates");
-  srcPFCandToVertexAssociations_ = cfg.getParameter<edm::InputTag>("srcPFCandToVertexAssociations");
-  srcHardScatterVertex_ = cfg.getParameter<edm::InputTag>("srcHardScatterVertex");
+  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcPFCandToVertexAssociations_ = consumes<PFCandToVertexAssMap>(cfg.getParameter<edm::InputTag>("srcPFCandToVertexAssociations") );
+  srcHardScatterVertex_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcHardScatterVertex") );
   minTrackPt_ = cfg.getParameter<double>("minTrackPt");
   dZcut_ = cfg.getParameter<double>("dZcut");
 
@@ -111,18 +110,18 @@ void JVFJetIdProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
 // get jets 
   edm::Handle<reco::PFJetCollection> jets;
-  evt.getByLabel(srcJets_, jets);
+  evt.getByToken(srcJets_, jets);
 
   // get PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  evt.getByLabel(srcPFCandidates_, pfCandidates);
+  evt.getByToken(srcPFCandidates_, pfCandidates);
 
   // get PFCandidate-to-vertex associations and "the" hard-scatter vertex
   edm::Handle<PFCandToVertexAssMap> pfCandToVertexAssociations;
-  evt.getByLabel(srcPFCandToVertexAssociations_, pfCandToVertexAssociations);
+  evt.getByToken(srcPFCandToVertexAssociations_, pfCandToVertexAssociations);
 
   edm::Handle<reco::VertexCollection> hardScatterVertex;
-  evt.getByLabel(srcHardScatterVertex_, hardScatterVertex);
+  evt.getByToken(srcHardScatterVertex_, hardScatterVertex);
 
   std::vector<double> jetIdDiscriminants;
   std::vector<int> jetIdFlags;

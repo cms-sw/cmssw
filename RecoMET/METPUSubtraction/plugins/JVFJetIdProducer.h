@@ -20,6 +20,8 @@
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
 
+#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
+
 class JVFJetIdProducer : public edm::EDProducer
 {
  public:
@@ -31,11 +33,11 @@ class JVFJetIdProducer : public edm::EDProducer
   
   void produce(edm::Event&, const edm::EventSetup&);
   
-  edm::InputTag srcJets_;
+  edm::EDGetTokenT<reco::PFJetCollection > srcJets_;
 
-  edm::InputTag srcPFCandidates_;
-  edm::InputTag srcPFCandToVertexAssociations_;
-  edm::InputTag srcHardScatterVertex_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
+  edm::EDGetTokenT<PFCandToVertexAssMap> srcPFCandToVertexAssociations_;
+  edm::EDGetTokenT<reco::VertexCollection> srcHardScatterVertex_;
   double minTrackPt_;
   double dZcut_;
 

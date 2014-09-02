@@ -19,6 +19,22 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
 
 #include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
+#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/METReco/interface/MVAMEtData.h"       
+#include "DataFormats/METReco/interface/MVAMEtDataFwd.h"    
+#include "DataFormats/METReco/interface/SigInputObj.h"    //PH: preserve 5_3_x dependence
+
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 class NoPileUpPFMEtDataProducer : public edm::EDProducer
 {
@@ -33,17 +49,18 @@ class NoPileUpPFMEtDataProducer : public edm::EDProducer
   
   std::string moduleLabel_;
 
-  edm::InputTag srcJets_;
-  edm::InputTag srcJetIds_;
+  edm::EDGetTokenT<reco::PFJetCollection> srcJets_;
+  edm::EDGetTokenT<edm::ValueMap<int> > srcJetIds_;
   double minJetPt_;
   PileupJetIdentifier::Id jetIdSelection_;
   std::string jetEnOffsetCorrLabel_;
   
-  edm::InputTag srcPFCandidates_;
-  edm::InputTag srcPFCandToVertexAssociations_;
-  edm::InputTag srcJetsForMEtCov_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
+  edm::EDGetTokenT<edm::View<reco::PFCandidate> > srcPFCandidatesView_;
+  edm::EDGetTokenT<PFCandToVertexAssMap> srcPFCandToVertexAssociations_;
+  edm::EDGetTokenT<reco::PFJetCollection> srcJetsForMEtCov_;
   double minJetPtForMEtCov_;
-  edm::InputTag srcHardScatterVertex_;
+  edm::EDGetTokenT<reco::VertexCollection> srcHardScatterVertex_;
   double dZcut_;
   
   PFJetIDSelectionFunctor* looseJetIdAlgo_;
