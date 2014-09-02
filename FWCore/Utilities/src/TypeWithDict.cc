@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include "TClass.h"
+#include "TClassTable.h"
 #include "TDataType.h"
 #include "TEnum.h"
 #include "TEnumConstant.h"
@@ -242,10 +243,11 @@ namespace edm {
     if (*ti_ == typeid(void)) {
       return true;
     }
-    if (type_ == nullptr) {
-      throwTypeException("TypeWithDict::hasDictionary(): ", name());
+    if(ti_->name()[1] == '\0') {
+      // returns true for built in types (single character mangled names)
+      return true; 
     }
-    return gInterpreter->Type_Bool(type_);
+    return (TClassTable::GetDict(*ti_) != nullptr);
   }
 
   std::type_info const&
@@ -806,7 +808,11 @@ namespace edm {
   // A related free function
   bool
   hasDictionary(std::type_info const& ti) {
-    return gInterpreter->Type_IsValid(gInterpreter->Type_Factory(ti));
+    if(ti.name()[1] == '\0') {
+      // returns true for built in types (single character mangled names)
+      return true; 
+    }
+    return (TClassTable::GetDict(ti) != nullptr);
   }
 
   bool
