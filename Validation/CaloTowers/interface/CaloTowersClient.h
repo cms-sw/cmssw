@@ -29,14 +29,17 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class DQMStore;
 class MonitorElement;
 
-class CaloTowersClient : public edm::EDAnalyzer {
+class CaloTowersClient : public DQMEDHarvester {
  
  private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string outputFile_;
 
   edm::ParameterSet conf_;
@@ -53,12 +56,12 @@ class CaloTowersClient : public edm::EDAnalyzer {
   virtual ~CaloTowersClient();
   
   virtual void beginJob(void);
-  virtual void endJob();
+//  virtual void endJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
   virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  virtual void runClient_();   
+//  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+//  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
   int CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
