@@ -124,7 +124,8 @@ public:
     extra_ = setMasked(extra_, rawChi2, 0, 7);
   }
 
-
+  float outOfTimeEnergy() const { return 0.; }
+  
   float energyError() const {
     uint32_t rawEnergy = getMasked(extra_, 8, 13);
     uint16_t exponent = rawEnergy >> 10;
@@ -164,6 +165,8 @@ public:
   void setTimeError(uint8_t timeErrBits) {
     extra_ = setMasked(extra_, timeErrBits & 0xFF, 24, 8);
   }
+  
+  float outOfTimeChi2() const { return 0; }
 
   /// set the flags (from Flags or ESFlags) 
   void setFlag(int flag) {flagBits_|= (0x1 << flag);}
