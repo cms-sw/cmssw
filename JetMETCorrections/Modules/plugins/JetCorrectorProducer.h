@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 // forward declarations
 
@@ -44,6 +45,10 @@ class JetCorrectorProducer : public edm::stream::EDProducer<>
     auto impl =maker_.make(iEvent,iSetup);
     std::auto_ptr<reco::JetCorrector> corrector{ new reco::JetCorrector{std::move(impl) } };
     iEvent.put(corrector);
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
+    T::Maker::fillDescriptions(iDescriptions);
   }
   
  private:

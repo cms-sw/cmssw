@@ -15,6 +15,7 @@ namespace edm
   class Event;
   class EventSetup;
   class ConsumesCollector;
+  class ConfigurationDescriptions;
 }
 
 namespace reco {
@@ -25,6 +26,8 @@ class L1JPTOffsetCorrectorImplMaker : public JetCorrectorImplMakerBase {
  public:
   L1JPTOffsetCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
  private:
   edm::EDGetTokenT<reco::JetCorrector> offsetCorrectorToken_;
   bool useOffset_;

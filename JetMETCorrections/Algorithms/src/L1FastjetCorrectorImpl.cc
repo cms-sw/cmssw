@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 using namespace std;
@@ -40,6 +42,15 @@ L1FastjetCorrectorImplMaker::make(edm::Event const& fEvent, edm::EventSetup cons
   edm::Handle<double> hRho;
   fEvent.getByToken(rhoToken_,hRho);
   return std::unique_ptr<L1FastjetCorrectorImpl>(new L1FastjetCorrectorImpl(corrector, *hRho) );
+}
+
+void 
+L1FastjetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions)
+{
+  edm::ParameterSetDescription desc;
+  addToDescription(desc);
+  desc.add<edm::InputTag>("srcRho");
+  iDescriptions.addDefault(desc);
 }
 
 

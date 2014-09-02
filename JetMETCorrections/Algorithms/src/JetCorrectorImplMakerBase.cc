@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -71,4 +72,10 @@ JetCorrectorImplMakerBase::getCalculator(edm::EventSetup const& iSetup, std::fun
     cacheId_ = rec.cacheIdentifier();
   }
   return corrector_;
+}
+
+void 
+JetCorrectorImplMakerBase::addToDescription(edm::ParameterSetDescription& iDescription) {
+  iDescription.add<std::string>("level");
+  iDescription.add<std::string>("algorithm");
 }

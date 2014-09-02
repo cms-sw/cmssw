@@ -17,12 +17,15 @@ namespace edm {
   class Event;
   class EventSetup;
   class ConsumesCollector;
+  class ConfigurationDescriptions;
 }
 
 class L1FastjetCorrectorImplMaker : public JetCorrectorImplMakerBase {
  public:
   L1FastjetCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
  private:
   edm::EDGetTokenT<double> rhoToken_;
 };

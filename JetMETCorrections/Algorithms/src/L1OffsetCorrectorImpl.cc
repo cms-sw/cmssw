@@ -6,7 +6,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -44,6 +45,16 @@ L1OffsetCorrectorImplMaker::make(edm::Event const& fEvent, edm::EventSetup const
       }
     });
   return std::unique_ptr<reco::JetCorrectorImpl>(new L1OffsetCorrectorImpl(calculator,NPV));
+}
+
+void 
+L1OffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions)
+{
+  edm::ParameterSetDescription desc;
+  addToDescription(desc);
+  desc.add<edm::InputTag>("vertexCollection");
+  desc.add<int>("minVtxNdof");
+  iDescriptions.addDefault(desc);
 }
 
 //------------------------------------------------------------------------ 

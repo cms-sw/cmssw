@@ -7,6 +7,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -22,10 +24,10 @@ L1JPTOffsetCorrectorImplMaker::L1JPTOffsetCorrectorImplMaker(edm::ParameterSet c
   JetCorrectorImplMakerBase(fConfig),
   useOffset_(false)
 {
-  auto const& offsetService = fConfig.getParameter<std::string>("offsetService");
-  if(not offsetService.empty()) {
+  auto const& offsetService = fConfig.getParameter<edm::InputTag>("offsetService");
+  if(not offsetService.label().empty()) {
     useOffset_ =true;
-    offsetCorrectorToken_ = fCollector.consumes<reco::JetCorrector>(edm::InputTag{offsetService});
+    offsetCorrectorToken_ = fCollector.consumes<reco::JetCorrector>(offsetService);
   }
 }
 
@@ -45,6 +47,15 @@ L1JPTOffsetCorrectorImplMaker::make(edm::Event const& fEvent, edm::EventSetup co
       }
     });
   return std::unique_ptr<reco::JetCorrectorImpl>( new L1JPTOffsetCorrectorImpl(calculator,offset) );
+}
+
+void 
+L1JPTOffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions)
+{
+  edm::ParameterSetDescription desc;
+  addToDescription(desc);
+  desc.add<edm::InputTag>("offsetService");
+  iDescriptions.addDefault(desc);
 }
 
 

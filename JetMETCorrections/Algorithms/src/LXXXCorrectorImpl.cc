@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/JPTJet.h"
@@ -40,6 +42,15 @@ LXXXCorrectorImplMaker::make(edm::Event const&, edm::EventSetup const& fSetup)
 	throw cms::Exception("LXXXCorrectorImpl")<<" unknown correction level "<<levelName;
     });
   return std::unique_ptr<reco::JetCorrectorImpl>(new LXXXCorrectorImpl(calculator,level));
+}
+
+void 
+LXXXCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions)
+{
+  edm::ParameterSetDescription desc;
+  addToDescription(desc);
+
+  iDescriptions.addDefault(desc);
 }
 
 //------------------------------------------------------------------------ 

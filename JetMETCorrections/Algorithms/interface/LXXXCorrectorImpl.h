@@ -14,6 +14,7 @@ namespace edm
   class Event;
   class EventSetup;
   class ConsumesCollector;
+  class ConfigurationDescriptions;
 }
 class FactorizedJetCorrector;
 
@@ -21,6 +22,8 @@ class LXXXCorrectorImplMaker : public JetCorrectorImplMakerBase {
  public:
   LXXXCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
 };
 
 //----- LXXXCorrectorImpl interface -------------------------------

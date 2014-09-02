@@ -30,6 +30,7 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
+  class ParameterSetDescription;
 }
 
 class JetCorrectorImplMakerBase
@@ -42,6 +43,7 @@ class JetCorrectorImplMakerBase
   // ---------- const member functions ---------------------
   
   // ---------- static member functions --------------------
+  static void addToDescription(edm::ParameterSetDescription& iDescription);
   
   // ---------- member functions ---------------------------
 

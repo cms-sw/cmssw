@@ -11,6 +11,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -49,6 +51,17 @@ L6SLBCorrectorImplMaker::make(edm::Event const&fEvent, edm::EventSetup const& fS
 									muonProd,
 									elecProd,
 									addMuonToJet_));
+}
+
+void 
+L6SLBCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions)
+{
+  edm::ParameterSetDescription desc;
+  addToDescription(desc);
+  desc.add<edm::InputTag>("srcBTagInfoElectron");
+  desc.add<edm::InputTag>("srcBTagInfoMuon");
+  desc.add<bool>("addMuonToJet");
+  iDescriptions.addDefault(desc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

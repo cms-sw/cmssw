@@ -22,12 +22,15 @@ namespace edm
   class Event;
   class EventSetup;
   class ConsumesCollector;
+  class ConfigurationDescriptions;
 }
 
 class L6SLBCorrectorImplMaker : public JetCorrectorImplMakerBase {
  public:
   L6SLBCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
  private:
   edm::EDGetTokenT<std::vector<reco::SoftLeptonTagInfo>> elecToken_;
   edm::EDGetTokenT<std::vector<reco::SoftLeptonTagInfo>> muonToken_;
