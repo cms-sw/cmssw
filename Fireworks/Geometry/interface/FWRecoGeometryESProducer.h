@@ -6,6 +6,7 @@
 # include "FWCore/Framework/interface/ESProducer.h"
 # include "FWCore/Framework/interface/ESHandle.h"
 # include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
 
 namespace edm
 {

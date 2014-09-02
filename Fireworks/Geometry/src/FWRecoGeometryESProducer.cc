@@ -95,6 +95,13 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
   // record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
   
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
+
   addPixelBarrelGeometry( );
   addPixelForwardGeometry();
   addTIBGeometry();
@@ -462,7 +469,7 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
     fillPoints( id, cor.begin(), cor.end());
   }
 
-  // do the HGCal if we actually got it
+  // do the HGCal if we actually got it  
   for( const auto& hgcGeom : m_hgcGeom ){
     if( hgcGeom.product() ) {
       float minZ = 1e6, maxZ = 0;
