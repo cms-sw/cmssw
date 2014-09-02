@@ -35,6 +35,12 @@
   <class name="l1t::MuonBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
 
+  <class name="l1t::CaloSpare" ClassVersion="10">
+   <version ClassVersion="10" checksum="3477497140"/>
+  </class>
+  <class name="l1t::CaloSpareBxCollection"/>
+  <class name="edm::Wrapper<l1t::CaloSpareBxCollection>"/>
+
   <class name="l1extra::L1EmParticle" ClassVersion="10">
    <version ClassVersion="10" checksum="2019457791"/>
   </class>
