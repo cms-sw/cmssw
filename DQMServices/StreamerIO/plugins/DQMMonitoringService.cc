@@ -27,6 +27,9 @@ DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet &pset, edm::A
   hostname_ = host;
   fseq_ = 0;
   tag_ = "";
+  nevents_ = 0;
+  last_report_nevents_ = 0;
+  last_report_time_ = std::chrono::high_resolution_clock::now();
 
   try {
     fillProcessInfoCmdline();
@@ -150,6 +153,11 @@ void DQMMonitoringService::fillProcessInfoCmdline() {
         tag_ = token;
         boost::replace_last(tag_, ".py", "");
         boost::replace_last(tag_, "_cfg", "");
+
+        size_t pos = tag_.rfind("/");
+        if (pos != std::string::npos) {
+          tag_ = tag_.substr(pos + 1);
+        }
       }
 
       while (*p++); // skip until start of next 0-terminated section

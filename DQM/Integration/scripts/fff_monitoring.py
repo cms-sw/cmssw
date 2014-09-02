@@ -10,6 +10,7 @@ import socket
 import time
 import select
 import json
+import datetime
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +85,7 @@ class DQMMonitor(object):
                     'lumi' : { 'type' : 'integer' },
                 },
                 '_timestamp' : { 'enabled' : True, 'store' : True, },
-                '_ttl' : { 'enabled' : True, 'default' : '24h' }
+                '_ttl' : { 'enabled' : True, 'default' : '15d' }
             },
             'dqm-diskspace' : {
                 'properties' : {
@@ -94,7 +95,7 @@ class DQMMonitor(object):
                     'sequence' : { 'type' : 'integer', "index" : "not_analyzed" },
                 },
                 '_timestamp' : { 'enabled' : True, 'store' : True, },
-                '_ttl' : { 'enabled' : True, 'default' : '24h' }
+                '_ttl' : { 'enabled' : True, 'default' : '15d' }
             },
         }
 
@@ -108,7 +109,7 @@ class DQMMonitor(object):
 
         log.info("Created index: %s", self.index_name)
 
-    def upload_file(self, fp):
+    def upload_file(self, fp, preprocess=None):
         log.info("Uploading: %s", fp)
 
         try:
@@ -116,11 +117,12 @@ class DQMMonitor(object):
             document = json.load(f)
             f.close()
 
+            if preprocess:
+                document = preprocess(document)
+
             ret = self.es.index(self.index_name, document["type"], document, id=document["_id"])
-            print ret
-            
         except:
-            log.warning("Failure to upload the document: %s", fp, exc_info=True)    
+            log.warning("Failure to upload the document: %s", fp, exc_info=True)
 
     def process_file(self, fp):
         fname = os.path.basename(fp)
@@ -137,13 +139,13 @@ class DQMMonitor(object):
     def process_dir(self):
         for f in os.listdir(self.path):
             fp = os.path.join(self.path, f)
-            self.process_file(fp) 
+            self.process_file(fp)
 
     def run(self):
         poll = select.poll()
         poll.register(self.w, select.POLLIN)
         poll.poll(self.rescan_timeout*1000)
-        
+
         # clear the events
         for event in self.w.read(bufsize=0):
             pass
@@ -156,7 +158,42 @@ class DQMMonitor(object):
 
         while True:
             service.run()
-    
+
+    def run_playback(self, directory, scale=2):
+        files = os.listdir(directory)
+        todo = []
+        for f in files:
+            spl = f.split("+")
+            if len(spl) < 2:
+                continue
+
+            date, seq = spl[0].split(".")
+            date, seq = datetime.datetime.fromtimestamp(long(date)), long(seq)
+
+            todo.append({'date': date, 'seq': seq, 'f': os.path.join(directory, f)})
+
+        def ts(td):
+            # because total_seconds() is missing in 2.6
+            return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
+        todo.sort(key=lambda x: (x["date"], x["seq"], ))
+        m = todo[0]["date"]
+        for f in todo:
+            f["diff"] = ts(f["date"] - m) / scale
+
+        def hotfix(doc):
+            doc["tag"] = os.path.basename(doc["tag"])
+            return doc
+
+        start_time = datetime.datetime.now()
+        while todo:
+            elapsed = ts(datetime.datetime.now() - start_time)
+            if todo[0]["diff"] <= elapsed:
+                item = todo.pop(0)
+                self.upload_file(item["f"], preprocess=hotfix)
+            else:
+                time.sleep(0.2)
+
 # use a named socket check if we are running
 # this is very clean and atomic and leave no files
 # from: http://stackoverflow.com/a/7758075
@@ -192,21 +229,27 @@ def daemonize(logfile, pidfile):
         f = open(pidfile, "w")
         f.write("%d\n" % os.getpid())
         f.close()
-   
-if __name__ == "__main__":
-    do_reindex = False
-    if len(sys.argv) > 1 and sys.argv[1] == "reindex":
-        do_reindex = True
-        
-    # try to take the lock or quit
-    sock = lock("fff_dqmmon")
-    if sock is None:
-        sys.stderr.write("Already running, exitting.\n")
-        sys.stderr.flush()
-        sys.exit(1)
 
-    # setup logging
-    if not do_reindex:
+if __name__ == "__main__":
+    do_mode = "daemon"
+
+    do_foreground = False
+    if len(sys.argv) > 1 and sys.argv[1] == "reindex":
+        do_mode = "reindex"
+        do_foreground = True
+
+    if len(sys.argv) > 1 and sys.argv[1] == "playback":
+        do_mode = "playback"
+        do_foreground = True
+
+    if not do_foreground:
+        # try to take the lock or quit
+        sock = lock("fff_dqmmon")
+        if sock is None:
+            sys.stderr.write("Already running, exitting.\n")
+            sys.stderr.flush()
+            sys.exit(1)
+
         daemonize("/var/log/fff_monitoring.log", "/var/run/fff_monitoring.pid")
 
     # log to stderr (it might be redirected)
@@ -216,7 +259,7 @@ if __name__ == "__main__":
     flog_ch.setFormatter(formatter)
     log.setLevel(logging.INFO)
     log.addHandler(flog_ch)
-   
+
     # write the pid file
     log.info("Pid is %d", os.getpid())
 
@@ -226,8 +269,10 @@ if __name__ == "__main__":
         top_path = "/tmp/dqm_monitoring/",
     )
 
-    if do_reindex:
+    if do_mode == "reindex":
         service.recreate_index()
-        sys.exit(0)
-     
-    service.run_daemon()
+    elif do_mode == "playback":
+        #service.recreate_index()
+        service.run_playback(sys.argv[2])
+    else:
+        service.run_daemon()
