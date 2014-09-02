@@ -127,8 +127,6 @@ class ClusterSummary {
   
   ClusterSummary();
   ~ClusterSummary();
-  // swap function
-  void swap(ClusterSummary& other);
   // copy ctor
   ClusterSummary(const ClusterSummary& src);
   // copy assingment operator
@@ -190,82 +188,61 @@ class ClusterSummary {
   //These functions are broken into two categories. The standard versions take the enums as input and find the locations in the vector.
   //The ones labeled "byIndex" take the vector location as input
 
-  //Get value of any variable given location of the variable and module within userContent
-  float GetGenericVariableByIndex(VariablePlacement variable, int moduleLocation ) const {
-    if(variable >= NVARIABLES || moduleLocation >= int(genericVariables_[(int)variable].size()))
-      throw cms::Exception( "Missing variable or module") << variable << " "<< moduleLocation;
-    return genericVariables_[(int)variable][moduleLocation];
-  }
-  float GetGenericVariable( VariablePlacement variable, CMSTracker module ) const {
-    if(variable >= NVARIABLES )
-      throw cms::Exception( "Missing variable ") << variable ;
-    int mposition = GetModuleLocation(module);
+ private:
+  void checkModule(const int moduleLocation,const unsigned int vSize) const {if(moduleLocation >= int(vSize)) throw cms::Exception( "Missing module") << moduleLocation;}
+ public:
+  int   getNModulesByIndex  (const int mod) const {checkModule(mod,nModules  .size()); return nModules  [mod];}
+  int   getClusSizeByIndex  (const int mod) const {checkModule(mod,clusSize  .size()); return clusSize  [mod];}
+  float getClusChargeByIndex(const int mod) const {checkModule(mod,clusCharge.size()); return clusCharge[mod];}
 
-    return mposition < 0 ? 0. : genericVariables_[(int)variable][mposition];
-  }
+  int   getNModules  (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : nModules  [pos];}
+  int   getClusSize  (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : clusSize  [pos];}
+  float getClusCharge(const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : clusCharge[pos];}
 
-  //Get specific varibale for all modules using the variable name
-  std::vector<float> GetGenericVariable( VariablePlacement variable) const {
-    if(variable >= NVARIABLES )
-      throw cms::Exception( "Missing variable ") << variable ;
-    return genericVariables_[int(variable)];
-  }
+  std::vector<int>   getNModulesVector()   const {return nModules;}
+  std::vector<int>   getClusSizeVector()   const {return clusSize;}
+  std::vector<float> getClusChargeVector() const {return clusCharge;}
 
-  //Get the vector genericVariables_
-  std::vector< std::vector<float> > GetGenericVariable() const { return genericVariables_; }
+  void setNModulesByIndex  (const int mod, const int   val) const {checkModule(mod,nModules_tmp  .size()); nModules_tmp  [mod]+=val;}
+  void setClusSizeByIndex  (const int mod, const int   val) const {checkModule(mod,clusSize_tmp  .size()); clusSize_tmp  [mod]+=val;}
+  void setClusChargeByIndex(const int mod, const float val) const {checkModule(mod,clusCharge_tmp.size()); clusCharge_tmp[mod]+=val;}
 
-  //Set the vector genericVariables_ based on the location of the variable and module
-  void SetGenericVariableByIndex( VariablePlacement variable, int moduleLocation, double value ) {
-    if(variable >= NVARIABLES || moduleLocation >= int(genericVariablesTmp_[(int)variable].size()))
-      throw cms::Exception( "Missing variable or module") << variable << " "<< moduleLocation;
-    genericVariablesTmp_[(int)variable][moduleLocation] += value;
-  }
-  void SetGenericVariable( VariablePlacement variable, CMSTracker module, double value ) {
-    if(variable >= NVARIABLES)
-      throw cms::Exception( "Missing variable ") << variable;
-    int mposition = GetModuleLocation(module);
-
-    if(mposition >=0) genericVariablesTmp_[(int)variable][mposition] += value;
-  } 
+  void setNModules  (const CMSTracker mod, const int   val) const {int pos = GetModuleLocation(mod); nModules_tmp  [pos]+=val;}
+  void setClusSize  (const CMSTracker mod, const int   val) const {int pos = GetModuleLocation(mod); clusSize_tmp  [pos]+=val;}
+  void setClusCharge(const CMSTracker mod, const float val) const {int pos = GetModuleLocation(mod); clusCharge_tmp[pos]+=val;}
 
   //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.
   void PrepairGenericVariable();
 
   //Clear genericVariablesTmp_. Must be done at the end of each event.
   void ClearGenericVariable() { 
-
-    //genericVariablesTmp_.clear();
-
-    for (unsigned int i = 0; i < genericVariablesTmp_.size(); ++i){
-      for (unsigned int j = 0; j < genericVariablesTmp_[i].size(); ++j){
-        genericVariablesTmp_[i][j] = 0;
-      }
-    }    
+    for(unsigned int i = 0; i < nModules_tmp.size(); ++i) nModules_tmp[i] = 0;
+    for(unsigned int i = 0; i < clusSize_tmp.size(); ++i) clusSize_tmp[i] = 0;
+    for(unsigned int i = 0; i < clusCharge_tmp.size(); ++i) clusCharge_tmp[i] = 0;
   } 
 
   //Set and Get modules_
-  void SetUserModules( CMSTracker value ) { modules_.push_back( value ); }
-  std::vector<int> GetUserModules( ) const { return modules_;  }
-  void ClearUserModules( ) { modules_.clear(); }
+  void SetUserModules( const CMSTracker value ) { modules.push_back( value ); }
+  std::vector<int> GetUserModules() const { return modules;  }
+  void ClearUserModules( ) { modules.clear(); }
   // Return the location of desired module within modules_. If warn is set to true, a warnign will be outputed in case no module was found
   int GetModuleLocation ( int mod, bool warn = true ) const;
-  unsigned int GetNumberOfModules() const {return modules_.size();}
-  int GetModule(int index) const { return modules_[index];}
-
+  unsigned int GetNumberOfModules() const {return modules.size();}
+  int GetModule(const int index) const { return modules[index];}
     
   // Return a vector of the modules that summary infomation was requested for. This should come from the provenance information. 
   std::vector<std::string> DecodeProvInfo(std::string ProvInfo) const;
 
-
-
-
-
  private:
-  std::vector<int>     modules_;    // <Module1, Module2 ...>
+  std::vector<int>   modules;    // <Module1, Module2 ...>
+  std::vector<int>   nModules;
+  std::vector<int>   clusSize;
+  std::vector<float> clusCharge;
 
-  std::vector< std::vector<float> > genericVariables_;
   // CMS-THREADSAFE: this mutable member data used in non-const functions
-  mutable std::vector< std::vector<float> > genericVariablesTmp_;
+  mutable std::vector<int>   nModules_tmp;
+  mutable std::vector<int>   clusSize_tmp;
+  mutable std::vector<float> clusCharge_tmp;
 
 };
 

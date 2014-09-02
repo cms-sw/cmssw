@@ -118,7 +118,12 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
   iEvent.getByToken(m_collectionToken,clustsumm);
 
   for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS){
-    (*mults)[m_subdetsel[iS]] = int(clustsumm->GetGenericVariable(m_subdetvar,m_subdetenums[iS]));
+    switch(m_subdetvar){
+      case ClusterSummary::NMODULES      :(*mults)[m_subdetsel[iS]] = int(clustsumm->getNModules  (m_subdetenums[iS])); break;
+      case ClusterSummary::CLUSTERSIZE   :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusSize  (m_subdetenums[iS])); break;
+      case ClusterSummary::CLUSTERCHARGE :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusCharge(m_subdetenums[iS])); break;
+      default : (*mults)[m_subdetsel[iS]] = -1;
+    }
     LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " " << clustsumm->GetModuleLocation(m_subdetenums[iS]);
   }
 

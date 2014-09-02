@@ -21,8 +21,13 @@ void ClusterSummarySingleMultiplicity::getEvent(const edm::Event& iEvent, const 
 
   edm::Handle<ClusterSummary> clustsumm;
   iEvent.getByToken(m_collection,clustsumm);
-  m_mult = int(clustsumm->GetGenericVariable(m_varenum,m_subdetenum));
 
+  switch(m_varenum){
+    case ClusterSummary::NMODULES      : m_mult = int(clustsumm->getNModules  (m_subdetenum)); break;
+    case ClusterSummary::CLUSTERSIZE   : m_mult = int(clustsumm->getClusSize  (m_subdetenum)); break;
+    case ClusterSummary::CLUSTERCHARGE : m_mult = int(clustsumm->getClusCharge(m_subdetenum)); break;
+    default : m_mult = -1;
+  }
 }
 
 int ClusterSummarySingleMultiplicity::mult() const { return m_mult; }

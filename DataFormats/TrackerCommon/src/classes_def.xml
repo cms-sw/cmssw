@@ -1,6 +1,8 @@
 <lcgdict>
  <class name="ClusterSummary">
-   <field name="genericVariablesTmp_" transient="true"/>
+   <field name="nModules_tmp" transient="true"/>
+   <field name="clusSize_tmp" transient="true"/>
+   <field name="clusCharge_tmp" transient="true"/>
  </class>
  <class name="edm::Wrapper<ClusterSummary>"/>
 </lcgdict>

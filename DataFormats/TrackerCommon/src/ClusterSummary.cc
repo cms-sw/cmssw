@@ -1,43 +1,43 @@
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ClusterSummary::ClusterSummary()
-    : genericVariablesTmp_(NVARIABLES, std::vector<float>(100,0) )
-{
-}
+ClusterSummary::ClusterSummary() :
+  nModules_tmp  (100,0),
+  clusSize_tmp  (100,0),
+  clusCharge_tmp(100,0)
+{}
 
 ClusterSummary::~ClusterSummary()
 {}
 
-// swap function
-void ClusterSummary::swap(ClusterSummary& other)
-{
-    std::swap(modules_, other.modules_);
-    std::swap(genericVariables_, other.genericVariables_);
-    std::swap(genericVariablesTmp_, other.genericVariablesTmp_);
-}
-
 // copy ctor
-ClusterSummary::ClusterSummary(const ClusterSummary& src)
-    : modules_(src.modules_),
-    genericVariables_(src.genericVariables_),
-    genericVariablesTmp_(src.genericVariablesTmp_)
-{
-}
+ClusterSummary::ClusterSummary(const ClusterSummary& src) :
+    modules       (src.modules       ),
+    nModules      (src.nModules      ),
+    clusSize      (src.clusSize      ),
+    clusCharge    (src.clusCharge    ),
+    nModules_tmp  (src.nModules_tmp  ),
+    clusSize_tmp  (src.clusSize_tmp  ),
+    clusCharge_tmp(src.clusCharge_tmp)
+{}
 
 // copy assingment operator
 ClusterSummary& ClusterSummary::operator=(const ClusterSummary& rhs)
 {
-    ClusterSummary temp(rhs);
-    temp.swap(*this);
-    return *this;
+  modules       = rhs.modules       ;
+  nModules      = rhs.nModules      ;
+  clusSize      = rhs.clusSize      ;
+  clusCharge    = rhs.clusCharge    ;
+  nModules_tmp  = rhs.nModules_tmp  ;
+  clusSize_tmp  = rhs.clusSize_tmp  ;
+  clusCharge_tmp= rhs.clusCharge_tmp;
+  return *this;
 }
 
 // move ctor
-ClusterSummary::ClusterSummary(ClusterSummary&& other) 
-    : ClusterSummary() 
+ClusterSummary::ClusterSummary(ClusterSummary&& other) : ClusterSummary()
 {
-    other.swap(*this);
+    *this = other;
 }
 
 
@@ -121,13 +121,13 @@ int ClusterSummary::GetModuleLocation ( int mod, bool warn ) const {
   }
 
   if(sortMod < 5){
-    for(unsigned int iM = 0; iM < modules_.size(); ++iM){
-      if(mod == modules_[iM])
+    for(unsigned int iM = 0; iM < modules.size(); ++iM){
+      if(mod == modules[iM])
         return iM;
     }
   } else {
-    for(unsigned int iM =  modules_.size(); iM-- > 0;){
-      if(mod == modules_[iM])
+    for(unsigned int iM =  modules.size(); iM-- > 0;){
+      if(mod == modules[iM])
         return iM;
     }
   }
@@ -139,13 +139,14 @@ int ClusterSummary::GetModuleLocation ( int mod, bool warn ) const {
     return -1;
 }
 
-void ClusterSummary::PrepairGenericVariable() { 
+void ClusterSummary::PrepairGenericVariable() {
+  nModules   = nModules_tmp  ;
+  clusSize   = clusSize_tmp  ;
+  clusCharge = clusCharge_tmp;
 
-    genericVariables_ = genericVariablesTmp_;
-
-    for (unsigned int i = 0; i <NVARIABLES; ++i){
-      genericVariables_[i].erase(std::remove(genericVariables_[i].begin(), genericVariables_[i].end(), 0), genericVariables_[i].end());
-    }
+  nModules.erase(std::remove(nModules.begin(), nModules.end(), 0), nModules.end());
+  clusSize.erase(std::remove(clusSize.begin(), clusSize.end(), 0), clusSize.end());
+  clusCharge.erase(std::remove(clusCharge.begin(), clusCharge.end(), 0), clusCharge.end());
 } 
 
 

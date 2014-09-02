@@ -63,9 +63,9 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              modLocation = cCluster.GetNumberOfModules();
              cCluster.SetUserModules( module ) ;
            }
-           cCluster.SetGenericVariableByIndex( ClusterSummary::NMODULES     , modLocation, 1 );
-           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE  , modLocation, Summaryinfo.clusterSize() );
-           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE, modLocation, Summaryinfo.charge() );
+           cCluster.setNModulesByIndex  (modLocation, 1 );
+           cCluster.setClusSizeByIndex  (modLocation, Summaryinfo.clusterSize() );
+           cCluster.setClusChargeByIndex(modLocation, Summaryinfo.charge() );
          }
        }
      }
@@ -96,9 +96,9 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              modLocation = cCluster.GetNumberOfModules();
              cCluster.SetUserModules( module ) ;
            }
-           cCluster.SetGenericVariableByIndex( ClusterSummary::NMODULES     , modLocation, 1 );
-           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE  , modLocation, cluster->size());
-           cCluster.SetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE, modLocation, float(cluster->charge())/1000. );
+           cCluster.setNModulesByIndex  (modLocation, 1 );
+           cCluster.setClusSizeByIndex  (modLocation, cluster->size());
+           cCluster.setClusChargeByIndex(modLocation, float(cluster->charge())/1000. );
          }
        }
      }
@@ -111,17 +111,15 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    //===================+++++++++++++========================
    cCluster.PrepairGenericVariable( );
    
-
-
    if(verbose){
      auto printMod =  [&] (std::vector<std::string>& modName, ModuleSelections& modSel){
        for(unsigned int iM = 0; iM < modName.size(); ++iM){
          int modLoc = cCluster.GetModuleLocation(modSel[iM].second,false);
          if( modLoc<0 ) continue;
          std::cout << "n" << modName[iM]   <<", avg size, avg charge = "
-             << cCluster.GetGenericVariableByIndex( ClusterSummary::NMODULES,modLoc ) << ", "
-             << cCluster.GetGenericVariableByIndex( ClusterSummary::CLUSTERSIZE,modLoc )/cCluster.GetGenericVariableByIndex( ClusterSummary::NMODULES,modLoc ) << ", "
-             << cCluster.GetGenericVariableByIndex( ClusterSummary::CLUSTERCHARGE,modLoc )/cCluster.GetGenericVariableByIndex( ClusterSummary::NMODULES,modLoc)
+             << cCluster.getNModulesByIndex  (modLoc ) << ", "
+             << cCluster.getClusSizeByIndex  (modLoc )/cCluster.getNModulesByIndex(modLoc ) << ", "
+             << cCluster.getClusChargeByIndex(modLoc )/cCluster.getNModulesByIndex(modLoc)
              << std::endl;
        }
      };
