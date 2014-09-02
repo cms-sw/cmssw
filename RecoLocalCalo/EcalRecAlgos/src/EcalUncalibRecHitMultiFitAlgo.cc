@@ -1,5 +1,4 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSqSNNLS.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -67,44 +66,21 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   std::vector<double> fitvals;
   std::vector<double> fiterrs;
-  double chisq = 0.;
-
-      
-  TMatrixDSym noisecov = pedrms*pedrms*noisecor;
   
-  PulseChiSqSNNLS pulsefuncnnls(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov);
-  const int maxiter = 50;
-  int nnlsiter = 0;
-  double chisqnnls = 0.;
-  bool status = false;
-  while (true) {
-    status = pulsefuncnnls.Minimize();
-    if (!status) break;
-    if (nnlsiter>=maxiter) {
-      printf("max iters reached (nnlsiter = %i)\n",nnlsiter);
-      break;
-    }
-    
-    double chisqnow = pulsefuncnnls.ChiSq();
-    double deltachisq = chisqnow-chisqnnls;
-    chisqnnls = chisqnow;
-    if (std::abs(deltachisq)<1e-3) {
-      break;
-    }
-    ++nnlsiter;
-    status = pulsefuncnnls.updateCov(pulsefuncnnls.X(),noisecov,activeBX,fullpulsecov);    
-    if (!status) break;
-  }
+
+  bool status = _pulsefunc.Minimize(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
+  double chisq = _pulsefunc.ChiSq();
+  
   if (!status) printf("failed minimization\n");
 
   unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
-  double amplitude = pulsefuncnnls.X()[ipulseintime];
-  //double amperr = status ? minim.Errors()[ipulseintime] : 0.;
+  double amplitude = _pulsefunc.X()[ipulseintime];
+  //double amperr = _pulsefunc.Errors()[ipulseintime] : 0.;
   double amperr = 0.;  
   
   double jitter = 0.;
   
-  //printf("amplitude = %5f, chisq = %5f\n",amplitude,chisqnnls);
+  //printf("amplitude = %5f, chisq = %5f\n",amplitude,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
@@ -114,8 +90,8 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       rh.setOutOfTimeAmplitude(*bxit,0.);
       rh.setOutOfTimeAmplitudeError(*bxit,0.);
     } else {
-      rh.setOutOfTimeAmplitude(*bxit, pulsefuncnnls.X()[ipulse]);
-      //rh.setOutOfTimeAmplitudeError(*bxit, pulsefuncnnls.Errors()[ipulse]);
+      rh.setOutOfTimeAmplitude(*bxit, _pulsefunc.X()[ipulse]);
+      //rh.setOutOfTimeAmplitudeError(*bxit, _pulsefunc.Errors()[ipulse]);
       rh.setOutOfTimeAmplitudeError(*bxit, 0.);
     }
   }

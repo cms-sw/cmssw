@@ -12,6 +12,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSqSNNLS.h"
+
 
 #include "TMatrixDSym.h"
 #include "TVectorD.h"
@@ -25,6 +27,7 @@ class EcalUncalibRecHitMultiFitAlgo
   EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TMatrixDSym &noisecor, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov, std::set<int> activeBX);
   
  private:
+   PulseChiSqSNNLS _pulsefunc;
 
 };
 

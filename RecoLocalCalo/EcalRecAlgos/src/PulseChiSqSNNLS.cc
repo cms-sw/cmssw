@@ -2,23 +2,39 @@
 #include <math.h>
 #include "vdt/vdtMath.h"
 
-PulseChiSqSNNLS::PulseChiSqSNNLS(const std::vector<double> &samples, const TMatrixDSym &samplecov, const std::set<int> &bxs, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov) :
-  _sampvec(samples.size(),samples.data()),
-  _pulsemat(samples.size(),bxs.size()),
-  _invcov(samplecov),
-  _ampvec(bxs.size()),
-  _workvec(samples.size()),
-  _workmat(bxs.size(),samples.size()),
-  _aTamat(bxs.size(),bxs.size()),
-  _wvec(bxs.size()),
-  _aTbvec(bxs.size())
+PulseChiSqSNNLS::PulseChiSqSNNLS() :
+  _sampvec(10),
+  _invcov(10),
+  _workvec(10),
+  _chisq(0.)
 {
+      
+}  
+
+PulseChiSqSNNLS::~PulseChiSqSNNLS() {
   
-  _decompP.SetMatrixFast(_invcov,_decompPstorage.data());
-  _decompP.Invert(_invcov);
-  
-  const unsigned int nsample = _sampvec.GetNrows();
+}
+
+bool PulseChiSqSNNLS::Minimize(const std::vector<double> &samples, const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov) {
+ 
+  const unsigned int nsample = samples.size();
+  const unsigned int npulse = bxs.size();
     
+  //resize matrices using reserved memory on the stack
+  _pulsemat.Use(nsample,npulse,_pulsematstorage.data());
+  _ampvec.Use(npulse,_ampvecstorage.data());
+  _workmat.Use(npulse,nsample,_workmatstorage.data());
+  _aTamat.Use(npulse,npulse,_aTamatstorage.data());
+  _wvec.Use(npulse,_wvecstorage.data());
+  _aTbvec.Use(npulse,_aTbvecstorage.data());
+                
+  //initialize parameters and index index set
+  _sampvec.SetElements(samples.data());
+  _ampvec.Zero();
+  _idxsP.clear();
+  _chisq = 0.;
+  
+  //initialize pulse template matrix
   for (std::set<int>::const_iterator bxit = bxs.begin(); bxit!=bxs.end(); ++bxit) {
     int ipulse = std::distance(bxs.begin(),bxit);
     int bx = *bxit;
@@ -29,28 +45,50 @@ PulseChiSqSNNLS::PulseChiSqSNNLS(const std::vector<double> &samples, const TMatr
       _pulsemat(isample,ipulse) = fullpulse(isample+offset);
     }
   }
+  
+  const int maxiter = 50;
+  int iter = 0;
+  bool status = false;
+  while (true) {
+    status = updateCov(samplecor,pederr,bxs,fullpulsecov);    
+    if (!status) break;    
+    status = NNLS();
+    if (!status) break;
     
-}  
-
-PulseChiSqSNNLS::~PulseChiSqSNNLS() {
+    if (iter>=maxiter) {
+      printf("max iters reached (nnlsiter = %i)\n",iter);
+      break;
+    }
+    
+    double chisqnow = ComputeChiSq();
+    double deltachisq = chisqnow-_chisq;
+    _chisq = chisqnow;
+    if (std::abs(deltachisq)<1e-3) {
+      break;
+    }
+    ++iter;
+  }  
+  
+  return status;
+  
   
 }
 
-
-bool PulseChiSqSNNLS::updateCov(const double *invals, const TMatrixDSym &samplecov, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov) {
+bool PulseChiSqSNNLS::updateCov(const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov) {
  
   const unsigned int nsample = _sampvec.GetNrows();
   
-  
-  _invcov = samplecov;
+  _invcov = samplecor;
+  _invcov *= pederr*pederr;
   
   for (std::set<int>::const_iterator bxit = bxs.begin(); bxit!=bxs.end(); ++bxit) {
     int ipulse = std::distance(bxs.begin(),bxit);
+    if (_ampvec[ipulse]==0.) continue;
     int bx = *bxit;
     int firstsamplet = std::max(0,bx + 3);
     int offset = -3-bx;
         
-    double ampsq = invals[ipulse]*invals[ipulse];
+    double ampsq = _ampvec[ipulse]*_ampvec[ipulse];
     for (unsigned int isample = firstsamplet; isample<nsample; ++isample) {
       for (unsigned int jsample = firstsamplet; jsample<nsample; ++jsample) {
         _invcov(isample,jsample) += ampsq*fullpulsecov(isample+offset,jsample+offset);
@@ -65,15 +103,18 @@ bool PulseChiSqSNNLS::updateCov(const double *invals, const TMatrixDSym &samplec
     
 }
 
-
-double PulseChiSqSNNLS::ChiSq() {
-  
-  _workvec = _sampvec - _pulsemat*_ampvec;
-  return _invcov.Similarity(_workvec);
+double PulseChiSqSNNLS::ComputeChiSq() {
+ 
+  //compute chi square after fit
+  _workvec = _ampvec;
+  _workvec *= _pulsemat;
+  _workvec -= _sampvec;
+  _workvec *= -1.;
+  return _invcov.Similarity(_workvec);   
   
 }
 
-bool PulseChiSqSNNLS::Minimize() {
+bool PulseChiSqSNNLS::NNLS() {
   
   //Fast NNLS (fnnls) algorithm as per http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.157.9203&rep=rep1&type=pdf
   
@@ -183,7 +224,7 @@ bool PulseChiSqSNNLS::Minimize() {
       
     }
     ++iter;
-  }
+  } 
   
   return true;
   
