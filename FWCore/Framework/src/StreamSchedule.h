@@ -242,6 +242,28 @@ namespace edm {
     }
     
   private:
+    //Sentry class to only send a signal if an
+    // exception occurs. An exception is identified
+    // by the destructor being called without first
+    // calling completedSuccessfully().
+    class SendTerminationSignalIfException {
+    public:
+      SendTerminationSignalIfException(edm::ActivityRegistry* iReg, edm::StreamContext const* iContext):
+      reg_(iReg),
+      context_(iContext){}
+      ~SendTerminationSignalIfException() {
+        if(reg_) {
+          reg_->preStreamEarlyTerminationSignal_(*context_,TerminationOrigin::ExceptionFromThisContext);
+        }
+      }
+      void completedSuccessfully() {
+        reg_ = nullptr;
+      }
+    private:
+      edm::ActivityRegistry* reg_;
+      StreamContext const* context_;
+    };
+
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
       return workerManager_.actionTable();
@@ -341,6 +363,7 @@ namespace edm {
     T::setStreamContext(streamContext_, ep);
     StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
 
+    SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
 
@@ -389,6 +412,8 @@ namespace edm {
       }
       throw;
     }
+    terminationSentry.completedSuccessfully();
+    
     //If we got here no other exception has happened so we can propogate any Service related exceptions
     sentry.allowThrow();
   }
@@ -401,6 +426,8 @@ namespace edm {
 
     T::setStreamContext(streamContext_, ep);
     StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
+
+    SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
 
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
@@ -420,6 +447,8 @@ namespace edm {
       }
       throw;
     }
+    terminationSentry.completedSuccessfully();
+
     //If we got here no other exception has happened so we can propogate any Service related exceptions
     sentry.allowThrow();
   }
