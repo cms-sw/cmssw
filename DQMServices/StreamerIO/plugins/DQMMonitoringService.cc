@@ -60,6 +60,7 @@ void DQMMonitoringService::reportEvents(int nevts) {
 void DQMMonitoringService::reportLumiSectionUnsafe(int run, int lumi) {
   using std::chrono::duration_cast;
   using std::chrono::milliseconds;
+  using std::chrono::seconds;
 
   int pid = getpid();
   ++fseq_;
@@ -89,8 +90,7 @@ void DQMMonitoringService::reportLumiSectionUnsafe(int run, int lumi) {
   std::string final_path = (json_path_ / path_id).string();
 
   float rate = (nevents_ - last_report_nevents_);
-  rate = rate / duration_cast<milliseconds>(now - last_report_time_).count();
-  rate = rate / 100;
+  rate = rate / duration_cast<seconds>(now - last_report_time_).count();
 
   ptree pt;
   pt.put("_id", id);
@@ -104,6 +104,8 @@ void DQMMonitoringService::reportLumiSectionUnsafe(int run, int lumi) {
 
   pt.put("events_total", nevents_);
   pt.put("events_rate", rate);
+  
+  pt.put("report_timestamp", std::time(NULL));
 
   // add some additional per-lumi information
   std::string log = hackoutTheStdErr();
