@@ -22,7 +22,7 @@ class HLTProcess(object):
   # paths not supported by FastSim
   fastsimUnsupportedPaths = (
 
-  # paths for which a recovery is not foreseen/possible
+    # paths for which a recovery is not foreseen/possible
     "AlCa_*_v*",
     "DQM_*_v*",
     "HLT_*Calibration_v*",
@@ -40,14 +40,14 @@ class HLTProcess(object):
     "HLT_PixelTracks_Multiplicity80_v*",
     "HLT_PixelTracks_Multiplicity90_v*",
     "HLT_Beam*_v*",
-#    "HLT_L1Tech_*_v*",
+   #"HLT_L1Tech_*_v*",
     "HLT_GlobalRunHPDNoise_v*",
     "HLT_L1TrackerCosmics_v*",
     "HLT_HcalUTCA_v*",
     
-# TODO: paths not supported by FastSim, but for which a recovery should be attempted
+    # TODO: paths not supported by FastSim, but for which a recovery should be attempted
   
-    )
+  )
 
   def __init__(self, configuration):
     self.config = configuration
@@ -272,6 +272,9 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
+
+      # replace DQMStore and DQMRootOutputModule with a configuration suitable for running offline
+      self.instrumentDQM()
 
       # load 5.2.x JECs, until they are in the GlobalTag
 #      self.loadAdditionalConditions('load 5.2.x JECs',
@@ -676,12 +679,15 @@ if 'GlobalTag' in %%(dict)s:
 """ % condition
 
 
-  def loadCff(self, module):
+  def loadCffCommand(self, module):
     # load a cfi or cff module
     if self.config.fragment:
-      self.data += 'from %s import *\n' % module
+      return 'from %s import *\n' % module
     else:
-      self.data += 'process.load( "%s" )\n' % module
+      return 'process.load( "%s" )\n' % module
+
+  def loadCff(self, module):
+    self.data += self.loadCffCommand(module)
 
 
   def overrideParameters(self, module, parameters):
@@ -783,6 +789,37 @@ if 'GlobalTag' in %%(dict)s:
 """
 
 
+  def instrumentDQM(self):
+    # remove any reference to the hltDQMFileSaver
+    if 'hltDQMFileSaver' in self.data:
+      self.data = re.sub(r'\b(process\.)?hltDQMFileSaver \+ ', '', self.data)
+      self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaver', '', self.data)
+      self.data = re.sub(r'\b(process\.)?hltDQMFileSaver',     '', self.data)
+
+    # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
+    dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
+    dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
+    dqmstore += "%(process)sDQMStore.enableMultiThread = True\n"
+    dqmstore += """
+%(process)sdqmOutput = cms.OutputModule("DQMRootOutputModule",
+    fileName = cms.untracked.string("DQMIO.root")
+)
+"""
+
+    empty_path = re.compile(r'.*\b(process\.)?DQMOutput = cms\.EndPath\( *\).*')
+    other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
+    if empty_path.search(self.data):
+      # replace an empty DQMOutput path
+      self.data = empty_path.sub(dqmstore + '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n', self.data)
+    elif other_path.search(self.data):
+      # prepend the dqmOutput to the DQMOutput path
+      self.data = other_path.sub(dqmstore + r'\g<1> %(process)sdqmOutput +\g<3>', self.data)
+    else:
+      # ceate a new DQMOutput path with the dqmOutput module
+      self.data += dqmstore
+      self.data += '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n'
+
+
   @staticmethod
   def dumppaths(paths):
     sys.stderr.write('Path selection:\n')
@@ -849,8 +886,17 @@ if 'GlobalTag' in %%(dict)s:
 
   def buildOptions(self):
     # common configuration for all scenarios
-    self.options['services'].append( "-FUShmDQMOutputService" )
     self.options['services'].append( "-DQM" )
+    self.options['services'].append( "-EvFDaqDirector" )
+    self.options['services'].append( "-FastMonitoringService" )
+    self.options['services'].append( "-FUShmDQMOutputService" )
+    self.options['services'].append( "-MicroStateService" )
+    self.options['services'].append( "-ModuleWebRegistry" )
+    self.options['services'].append( "-TimeProfilerService" )
+
+    # drop the online definition of the DQMStore and DQMFileSaver
+    self.options['services'].append( "-DQMStore" )
+    self.options['modules'].append( "-hltDQMFileSaver" )
 
     if self.config.fragment:
       # extract a configuration file fragment
@@ -916,12 +962,6 @@ if 'GlobalTag' in %%(dict)s:
         self.options['esmodules'].append( "-sistripconn" )
 
       self.options['services'].append( "-MessageLogger" )
-      self.options['services'].append( "-DQMStore" )
-      self.options['services'].append( "-EvFDaqDirector" )
-      self.options['services'].append( "-FastMonitoringService" )
-      self.options['services'].append( "-MicroStateService" )
-      self.options['services'].append( "-ModuleWebRegistry" )
-      self.options['services'].append( "-TimeProfilerService" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
