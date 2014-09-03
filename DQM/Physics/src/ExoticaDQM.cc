@@ -108,8 +108,8 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   PFMuonTokenEI_      = consumes<reco::PFCandidateCollection>(
       ps.getParameter<InputTag>("pfmuonCollectionEI"));
   //
-  TauToken_           = consumes<reco::CaloTauCollection>(
-      ps.getParameter<InputTag>("tauCollection"));
+  // TauToken_           = consumes<reco::CaloTauCollection>(
+  //     ps.getParameter<InputTag>("tauCollection"));
   //PFTauLabel_       = ps.getParameter<InputTag>("pftauCollection");
   //
   PhotonToken_        = consumes<reco::PhotonCollection>(
@@ -258,8 +258,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   bool ValidCaloMuon = iEvent.getByToken(MuonToken_, MuonCollection_);
   if(!ValidCaloMuon) return;
   // Taus
-  bool ValidCaloTau = iEvent.getByToken(TauToken_, TauCollection_);
-  if(!ValidCaloTau) return;
+  // bool ValidCaloTau = iEvent.getByToken(TauToken_, TauCollection_);
+  // if(!ValidCaloTau) return;
   // Photons
   bool ValidCaloPhoton = iEvent.getByToken(PhotonToken_, PhotonCollection_);
   if(!ValidCaloPhoton) return;
