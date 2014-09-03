@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Test suite for various ConfigDP scenarios
-# run using: scram build runtest 
+# run using: scram build runtests
 # feel free to contribute with your favourite configuration
 
 
@@ -67,3 +67,11 @@ runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --run 12345 --dat
 runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 #runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 #runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+
+INPUT=${LOCAL_TEST_DIR}/RunVisualizationProcessing.py
+
+runTest "${INPUT} --scenario pp --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario ppRun2 --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario HeavyIons --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"

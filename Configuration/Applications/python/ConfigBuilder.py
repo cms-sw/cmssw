@@ -73,6 +73,7 @@ defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
+defaultOptions.timeoutOutput = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -389,6 +390,11 @@ class ConfigBuilder(object):
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
 		   filesFromOption(self)
+
+	   elif self._options.filetype == "DQMDAQ":
+		   # FIXME: how to configure it if there are no input files specified?
+		   self.process.source=cms.Source("DQMStreamerReader")
+		   
 			   
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
@@ -508,6 +514,8 @@ class ConfigBuilder(object):
 				theFilterName='StreamALCACombined'
 
 			CppType='PoolOutputModule'
+			if self._options.timeoutOutput:
+				CppType='TimeoutPoolOutputModule'
 			if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
 			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
@@ -569,6 +577,8 @@ class ConfigBuilder(object):
                         theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
+		if self._options.timeoutOutput:
+			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
