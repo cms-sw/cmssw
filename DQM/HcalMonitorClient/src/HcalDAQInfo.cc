@@ -89,6 +89,9 @@ HcalDAQInfo::HcalDAQInfo(const edm::ParameterSet& iConfig)
   // now do what ever initialization is needed
   debug_=iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
+
+  HcalDaqFraction = NULL;
+
 }
 
 HcalDAQInfo::~HcalDAQInfo()
