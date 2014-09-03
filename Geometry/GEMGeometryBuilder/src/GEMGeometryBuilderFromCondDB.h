@@ -22,17 +22,14 @@ class GEMGeometryBuilderFromCondDB
 { 
  public:
 
-  GEMGeometryBuilderFromCondDB(bool comp11);
+  GEMGeometryBuilderFromCondDB();
 
   ~GEMGeometryBuilderFromCondDB();
 
   GEMGeometry* build(const RecoIdealGeometry& rgeo);
 
-
  private:
   //  std::map<GEMDetId,std::list<GEMEtaPartition *> > chids;
-  bool theComp11Flag;
-
 };
 
 #endif

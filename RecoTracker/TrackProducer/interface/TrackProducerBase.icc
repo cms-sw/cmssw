@@ -125,7 +125,10 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidate
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
-  bs = *recoBeamSpotHandle;
+  if ( recoBeamSpotHandle.isValid() )
+    bs = *recoBeamSpotHandle;
+  else 
+    edm::LogWarning("TrackProducerBase") << " BeamSpot is not valid";
 }
 
 template <class T> void
@@ -141,7 +144,10 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
-  bs = *recoBeamSpotHandle;
+  if ( recoBeamSpotHandle.isValid() )
+    bs = *recoBeamSpotHandle;
+  else 
+    edm::LogWarning("TrackProducerBase") << " BeamSpot is not valid";
 }
 
 #include <TrackingTools/DetLayers/interface/DetLayer.h>

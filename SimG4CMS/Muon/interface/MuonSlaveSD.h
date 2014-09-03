@@ -65,4 +65,16 @@ class FormatRpcHits {
   int sortId (const PSimHit & a)  const;
 };
 
+class FormatGemHits {
+ public:
+  bool operator() (const PSimHit & a, const PSimHit & b);
+  int sortId (const PSimHit & a)  const;
+};
+
+class FormatMe0Hits {
+ public:
+  bool operator() (const PSimHit & a, const PSimHit & b);
+  int sortId (const PSimHit & a)  const;
+};
+
 #endif // MuonSlaveSD_h
