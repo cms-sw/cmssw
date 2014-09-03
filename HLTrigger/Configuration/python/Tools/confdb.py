@@ -782,28 +782,6 @@ if 'GlobalTag' in %%(dict)s:
 %(process)sFastTimerService.enableDQMbyProcesses      = True
 """
 
-      self.data += """
-# FastTimerServiceClient
-%(process)sfastTimerServiceClient = cms.EDAnalyzer( "FastTimerServiceClient",
-    dqmPath = cms.untracked.string( "HLT/TimerService" )
-)
-
-# DQM file saver
-%(process)sdqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
-    convention        = cms.untracked.string( "Offline" ),
-    workflow          = cms.untracked.string( "/HLT/FastTimerService/All" ),
-    dirName           = cms.untracked.string( "." ),
-    saveByRun         = cms.untracked.int32(1),
-    saveByLumiSection = cms.untracked.int32(-1),
-    saveByEvent       = cms.untracked.int32(-1),
-    saveByTime        = cms.untracked.int32(-1),
-    saveByMinute      = cms.untracked.int32(-1),
-    saveAtJobEnd      = cms.untracked.bool(False),
-    forceRunNumber    = cms.untracked.int32(-1),
-)
-
-%(process)sTimingOutput = cms.EndPath( %(process)sfastTimerServiceClient + %(process)sdqmFileSaver )
-"""
 
   @staticmethod
   def dumppaths(paths):
