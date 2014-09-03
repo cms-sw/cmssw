@@ -1255,17 +1255,6 @@ hltESPStraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProducer
   PropagationDirection = cms.string( "alongMomentum" )
 )
 hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
-  LC_P0         = cms.double(-.326), 
-  LC_P1         = cms.double( .618), 
-  LC_P2         = cms.double( .300), 
-  TIB_P0        = cms.double(-.742), 
-  TIB_P1        = cms.double( .202), 
-  TOB_P0        = cms.double(-1.026),
-  TOB_P1        = cms.double( .253), 
-  TID_P0        = cms.double(-1.427),
-  TID_P1        = cms.double( .433), 
-  TEC_P0        = cms.double(-1.885),
-  TEC_P1        = cms.double( .471), 
   TanDiffusionAngle = cms.double( 0.01 ),
   UncertaintyScaling = cms.double( 1.42 ),
   ThicknessRelativeUncertainty = cms.double( 0.02 ),
