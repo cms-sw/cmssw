@@ -9,6 +9,8 @@ from RecoBTag.SecondaryVertex.simpleSecondaryVertex2TrkES_cfi import *
 ## list of all available btagInfos
 supportedBtagInfos = [
     'None'
+  , 'pfImpactParameterTagInfos'
+  , 'pfSecondaryVertexTagInfos'
   , 'impactParameterTagInfos'
   , 'secondaryVertexTagInfos'
   , 'secondaryVertexNegativeTagInfos'
@@ -17,6 +19,7 @@ supportedBtagInfos = [
   , 'softPFElectronsTagInfos'
   , 'inclusiveSecondaryVertexFinderTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredTagInfos'
+  , 'caTopTagInfos'
   ]
 
 ## dictionary with all available btag discriminators and the btagInfos that they require
@@ -36,6 +39,7 @@ supportedBtagDiscr = {
   , 'simpleSecondaryVertexHighPurBJetTags'                  : ['secondaryVertexTagInfos']
   , 'simpleSecondaryVertexNegativeHighEffBJetTags'          : ['secondaryVertexNegativeTagInfos']
   , 'simpleSecondaryVertexNegativeHighPurBJetTags'          : ['secondaryVertexNegativeTagInfos']
+  , 'pfCombinedSecondaryVertexBJetTags'                     : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos']
   , 'combinedSecondaryVertexBJetTags'                       : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   , 'combinedSecondaryVertexPositiveBJetTags'               : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   #, 'combinedSecondaryVertexV1BJetTags'                     : ['impactParameterTagInfos', 'secondaryVertexTagInfos']

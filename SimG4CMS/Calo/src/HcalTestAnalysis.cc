@@ -23,7 +23,7 @@
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Random/Random.h"
+#include "Randomize.hh"
 
 #include <cmath>
 #include <iostream>
@@ -321,7 +321,7 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after Fill";
 
   // Qie analysis
-  CLHEP::HepRandomEngine* engine = CLHEP::HepRandom::getTheEngine();
+  CLHEP::HepRandomEngine* engine = G4Random::getTheEngine();
   qieAnalysis(engine);
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after QieAnalysis";
 

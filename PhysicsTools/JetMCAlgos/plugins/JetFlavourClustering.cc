@@ -193,6 +193,7 @@ class JetFlavourClustering : public edm::EDProducer {
       const double        rParam_;
       const double        jetPtMin_;
       const double        ghostRescaling_;
+      const double        relPtTolerance_;
       const bool          hadronFlavourHasPriority_;
       const bool          useSubjets_;
       const bool          useLeptons_;
@@ -221,6 +222,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
    ghostRescaling_(iConfig.exists("ghostRescaling") ? iConfig.getParameter<double>("ghostRescaling") : 1e-18),
+   relPtTolerance_(iConfig.exists("relPtTolerance") ? iConfig.getParameter<double>("relPtTolerance") : 1e-03), // 0.1% relative difference in Pt should be sufficient to detect possible misconfigurations
    hadronFlavourHasPriority_(iConfig.getParameter<bool>("hadronFlavourHasPriority")),
    useSubjets_(iConfig.exists("groomedJets") && iConfig.exists("subjets")),
    useLeptons_(iConfig.exists("leptons"))
@@ -349,59 +351,68 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // determine jet flavour
    for(size_t i=0; i<jets->size(); ++i)
    {
-     // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
-     if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > 1e-3 ) // 0.1% difference in Pt should be sufficient to detect possible misconfigurations
-     {
-       if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
-         edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
-                                                 << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
-                                                 << "Since the mismatch is at low Pt, it is ignored and only a warning is issued.\n"
-                                                 << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
-       else
-         edm::LogError("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
-                                        << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
-                                        << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
-     }
-
      reco::GenParticleRefVector clusteredbHadrons;
      reco::GenParticleRefVector clusteredcHadrons;
      reco::GenParticleRefVector clusteredPartons;
      reco::GenParticleRefVector clusteredLeptons;
 
-     // get jet constituents (sorted by Pt)
-     std::vector<fastjet::PseudoJet> constituents = fastjet::sorted_by_pt( inclusiveJets.at(reclusteredIndices.at(i)).constituents() );
-
-     // loop over jet constituents and try to find "ghosts"
-     for(std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end(); ++it)
+     // if matching reclustered to original jets failed
+     if( reclusteredIndices.at(i) < 0 )
      {
-       if( !it->has_user_info() ) continue; // skip if not a "ghost"
-
-       // "ghost" hadron
-       if( it->user_info<GhostInfo>().isHadron() )
-       {
-         // "ghost" b hadron
-         if( it->user_info<GhostInfo>().isbHadron() )
-           clusteredbHadrons.push_back(it->user_info<GhostInfo>().particleRef());
-         // "ghost" c hadron
-         else
-           clusteredcHadrons.push_back(it->user_info<GhostInfo>().particleRef());
-       }
-       // "ghost" parton
-       else if( it->user_info<GhostInfo>().isParton() )
-         clusteredPartons.push_back(it->user_info<GhostInfo>().particleRef());
-       // "ghost" lepton
-       else if( it->user_info<GhostInfo>().isLepton() )
-         clusteredLeptons.push_back(it->user_info<GhostInfo>().particleRef());
+       // set an empty JetFlavourInfo for this jet
+       (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
      }
+     else
+     {
+       // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
+       if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > relPtTolerance_ )
+       {
+         if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
+           edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
+                                                   << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
+                                                   << "Since the mismatch is at low Pt (Pt<10 GeV), it is ignored and only a warning is issued.\n"
+                                                   << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
+         else
+           edm::LogError("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
+                                          << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
+                                          << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
+       }
 
-     int hadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
-     int partonFlavour = 0; // default parton flavour set to 0 (= undefined)
+       // get jet constituents (sorted by Pt)
+       std::vector<fastjet::PseudoJet> constituents = fastjet::sorted_by_pt( inclusiveJets.at(reclusteredIndices.at(i)).constituents() );
 
-     // set hadron- and parton-based flavours
-     setFlavours(clusteredbHadrons, clusteredcHadrons, clusteredPartons, hadronFlavour, partonFlavour);
+       // loop over jet constituents and try to find "ghosts"
+       for(std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end(); ++it)
+       {
+         if( !it->has_user_info() ) continue; // skip if not a "ghost"
 
-     // set the JetFlavourInfo for this jet
-     (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, hadronFlavour, partonFlavour);
+         // "ghost" hadron
+         if( it->user_info<GhostInfo>().isHadron() )
+         {
+           // "ghost" b hadron
+           if( it->user_info<GhostInfo>().isbHadron() )
+             clusteredbHadrons.push_back(it->user_info<GhostInfo>().particleRef());
+           // "ghost" c hadron
+           else
+             clusteredcHadrons.push_back(it->user_info<GhostInfo>().particleRef());
+         }
+         // "ghost" parton
+         else if( it->user_info<GhostInfo>().isParton() )
+           clusteredPartons.push_back(it->user_info<GhostInfo>().particleRef());
+         // "ghost" lepton
+         else if( it->user_info<GhostInfo>().isLepton() )
+           clusteredLeptons.push_back(it->user_info<GhostInfo>().particleRef());
+       }
+
+       int hadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
+       int partonFlavour = 0; // default parton flavour set to 0 (= undefined)
+
+       // set hadron- and parton-based flavours
+       setFlavours(clusteredbHadrons, clusteredcHadrons, clusteredPartons, hadronFlavour, partonFlavour);
+
+       // set the JetFlavourInfo for this jet
+       (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, hadronFlavour, partonFlavour);
+     }
 
      // if subjets are used, determine their flavour
      if( useSubjets_ )
@@ -473,27 +484,36 @@ JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet
 
    for(size_t j=0; j<jets->size(); ++j)
    {
-     double matchedDR = 1e9;
+     double matchedDR2 = 1e9;
      int matchedIdx = -1;
 
      for(size_t rj=0; rj<reclusteredJets.size(); ++rj)
      {
        if( matchedLocks.at(rj) ) continue; // skip jets that have already been matched
 
-       double tempDR = reco::deltaR( jets->at(j).rapidity(), jets->at(j).phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
-       if( tempDR < matchedDR )
+       double tempDR2 = reco::deltaR2( jets->at(j).rapidity(), jets->at(j).phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
+       if( tempDR2 < matchedDR2 )
        {
-         matchedDR = tempDR;
+         matchedDR2 = tempDR2;
          matchedIdx = rj;
        }
      }
 
-     if( matchedIdx>=0 ) matchedLocks.at(matchedIdx) = true;
+     if( matchedIdx>=0 )
+     {
+       if ( matchedDR2 > rParam_*rParam_ )
+       {
+         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ".\n"
+                                            << "This is not expected so please check that the jet algorithm and jet size match those used for the original jet collection.";
+       }
+       else
+         matchedLocks.at(matchedIdx) = true;
+     }
+     else
+       edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+
      matchedIndices.push_back(matchedIdx);
    }
-
-   if( std::find( matchedIndices.begin(), matchedIndices.end(), -1 ) != matchedIndices.end() )
-     edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
 }
 
 // ------------ method that matches groomed and original jets based on minimum dR ------------
@@ -507,27 +527,37 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
 
    for(size_t gj=0; gj<groomedJets->size(); ++gj)
    {
-     double matchedDR = 1e9;
+     double matchedDR2 = 1e9;
      int matchedIdx = -1;
 
-     for(size_t j=0; j<jets->size(); ++j)
+     if( groomedJets->at(gj).pt()>0. ) // skip pathological cases of groomed jets with Pt=0
      {
-       if( jetLocks.at(j) ) continue; // skip jets that have already been matched
-
-       double tempDR = reco::deltaR( jets->at(j).rapidity(), jets->at(j).phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
-       if( tempDR < matchedDR )
+       for(size_t j=0; j<jets->size(); ++j)
        {
-         matchedDR = tempDR;
-         matchedIdx = j;
+         if( jetLocks.at(j) ) continue; // skip jets that have already been matched
+
+         double tempDR2 = reco::deltaR2( jets->at(j).rapidity(), jets->at(j).phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
+         if( tempDR2 < matchedDR2 )
+         {
+           matchedDR2 = tempDR2;
+           matchedIdx = j;
+         }
        }
      }
 
-     if( matchedIdx>=0 ) jetLocks.at(matchedIdx) = true;
+     if( matchedIdx>=0 )
+     {
+       if ( matchedDR2 > rParam_*rParam_ )
+       {
+         edm::LogWarning("MatchedJetsFarApart") << "Matched groomed jet " << gj << " and original jet " << matchedIdx <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ".\n"
+                                                << "This is not expected so the matching of these two jets has been discarded. Please check that the two jet collections belong to each other.";
+         matchedIdx = -1;
+       }
+       else
+         jetLocks.at(matchedIdx) = true;
+     }
      jetIndices.push_back(matchedIdx);
    }
-
-   if( std::find( jetIndices.begin(), jetIndices.end(), -1 ) != jetIndices.end() )
-     edm::LogError("JetMatchingFailed") << "Matching groomed to original jets failed. Please check that the two jet collections belong to each other.";
 
    for(size_t j=0; j<jets->size(); ++j)
    {

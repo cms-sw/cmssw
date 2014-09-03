@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 #include <iostream>
 
@@ -69,7 +69,7 @@ testClosestCells( HcalTopology& topology )
 {
   edm::FileInPath fp("Geometry/HcalTowerAlgo/test/runHcalGeometryAnalyzer_cfg.py");
   std::string fname  = fp.fullPath();
-  boost::shared_ptr<edm::ParameterSet> pS = edm::readConfig(fname);
+  std::shared_ptr<edm::ParameterSet> pS = edm::readConfig(fname);
   //  std::cout << pS->dump() << std::endl;
 
   edm::ParameterSet const& pModule =
@@ -124,7 +124,7 @@ testFlexiValidDetIds( HcalTopology& topology, DetId::Detector det, int subdet, c
 
   edm::FileInPath fp("Geometry/HcalTowerAlgo/test/runHcalGeometryAnalyzer_cfg.py");
   std::string fname  = fp.fullPath();
-  boost::shared_ptr<edm::ParameterSet> pS = edm::readConfig(fname);
+  std::shared_ptr<edm::ParameterSet> pS = edm::readConfig(fname);
   //  std::cout << pS->dump() << std::endl;
 
   edm::ParameterSet const& pModule =

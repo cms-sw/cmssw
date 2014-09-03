@@ -37,8 +37,6 @@ Test of the EventPrincipal class.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -64,22 +62,22 @@ public:
 
 private:
 
-  boost::shared_ptr<edm::ProcessConfiguration>
+  std::shared_ptr<edm::ProcessConfiguration>
   fake_single_module_process(std::string const& tag,
                              std::string const& processName,
                              edm::ParameterSet const& moduleParams,
                              std::string const& release = edm::getReleaseVersion(),
                              std::string const& pass = edm::getPassID());
-  boost::shared_ptr<edm::BranchDescription>
+  std::shared_ptr<edm::BranchDescription>
   fake_single_process_branch(std::string const& tag,
                              std::string const& processName,
                              std::string const& productInstanceName = std::string());
 
-  std::map<std::string, boost::shared_ptr<edm::BranchDescription> >    branchDescriptions_;
-  std::map<std::string, boost::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
+  std::map<std::string, std::shared_ptr<edm::BranchDescription> >    branchDescriptions_;
+  std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
 
-  boost::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
-  boost::shared_ptr<edm::EventPrincipal>    pEvent_;
+  std::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
+  std::shared_ptr<edm::EventPrincipal>    pEvent_;
 
   edm::EventID               eventID_;
 
@@ -93,7 +91,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 
 //----------------------------------------------------------------------
 
-boost::shared_ptr<edm::ProcessConfiguration>
+std::shared_ptr<edm::ProcessConfiguration>
 test_ep::fake_single_module_process(std::string const& tag,
                                     std::string const& processName,
                                     edm::ParameterSet const& moduleParams,
@@ -105,13 +103,12 @@ test_ep::fake_single_module_process(std::string const& tag,
                                           processName);
 
   processParams.registerIt();
-  boost::shared_ptr<edm::ProcessConfiguration> result(
-    new edm::ProcessConfiguration(processName, processParams.id(), release, pass));
+  auto result = std::make_shared<edm::ProcessConfiguration>(processName, processParams.id(), release, pass);
   processConfigurations_[tag] = result;
   return result;
 }
 
-boost::shared_ptr<edm::BranchDescription>
+std::shared_ptr<edm::BranchDescription>
 test_ep::fake_single_process_branch(std::string const& tag,
                                     std::string const& processName,
                                     std::string const& productInstanceName) {
@@ -124,10 +121,10 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   modParams.registerIt();
-  boost::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
+  std::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
 
-  boost::shared_ptr<edm::BranchDescription> result(
-    new edm::BranchDescription(edm::InEvent,
+  auto result = std::make_shared<edm::BranchDescription>(
+                               edm::InEvent,
                                moduleLabel,
                                processName,
                                productClassName,
@@ -135,7 +132,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
                                productInstanceName,
                                moduleClass,
                                modParams.id(),
-                               dummyType));
+                               dummyType);
   branchDescriptions_[tag] = result;
   return result;
 }
@@ -156,7 +153,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
+  auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*pProductRegistry_);
 
   // Put products we'll look for into the EventPrincipal.
@@ -165,7 +162,7 @@ void test_ep::setUp() {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
 
-    edm::WrapperOwningHolder product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), WDP::getInterface());
+    std::unique_ptr<edm::WrapperBase> product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
@@ -179,24 +176,24 @@ void test_ep::setUp() {
 
     edm::BranchDescription const branchFromRegistry(it->second);
 
-    boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
+    auto entryDescriptionPtr = std::make_shared<edm::Parentage>();
     edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
 
-    boost::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);
+    std::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID_.run(), now, now));
-    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process, &historyAppender_,0));
-    boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, now, now));
-    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process, &historyAppender_,0));
+    auto runAux = std::make_shared<edm::RunAuxiliary>(eventID_.run(), now, now);
+    auto rp = std::make_shared<edm::RunPrincipal>(runAux, pProductRegistry_, *process, &historyAppender_,0);
+    auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, now, now);
+    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pProductRegistry_, *process, &historyAppender_,0);
     lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, *process, &historyAppender_,edm::StreamID::invalidStreamID()));
     edm::ProcessHistoryRegistry phr;
     pEvent_->fillEventPrincipal(eventAux, phr);
     pEvent_->setLuminosityBlockPrincipal(lbp);
-    pEvent_->put(branchFromRegistry, product, prov);
+    pEvent_->put(branchFromRegistry, std::move(product), prov);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
 }

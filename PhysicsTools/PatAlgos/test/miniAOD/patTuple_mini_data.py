@@ -26,6 +26,7 @@ process.maxEvents.input = 10000
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
+process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
 
 process.GlobalTag.globaltag = "GR_R_70_V1::All"
 

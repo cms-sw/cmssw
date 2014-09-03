@@ -34,12 +34,30 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
 //    packedCovarianceDxyDxy_ = pack8log(dxydxy_,-15,-1); // MiniFloatConverter::float32to16(dxydxy_*10000.);
 //    packedCovarianceDxyDz_ = pack8log(dxydz_,-20,-1); //MiniFloatConverter::float32to16(dxydz_*10000.);
 //  packedCovarianceDzDz_ = pack8log(dzdz_,-13,-1); //MiniFloatConverter::float32to16(dzdz_*10000.);
+
+    packedCovarianceDptDpt_ = pack8logCeil(dptdpt_,-15,0);
+    packedCovarianceDetaDeta_ = pack8logCeil(detadeta_,-20,-5);
+    packedCovarianceDphiDphi_ = pack8logCeil(dphidphi_,-15,0);
     packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
     packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
-    packedCovarianceDptDpt_ = pack8log(dptdpt_,-15,5,32);
-    packedCovarianceDetaDeta_ = pack8log(detadeta_,-20,0,32);
-    packedCovarianceDphiDphi_ = pack8log(dphidphi_,-15,5,32);
-    if (unpackAfterwards) unpackVtx();
+
+  /*packedCovarianceDptDpt_ = pack8logCeil(dptdpt_,-15,5,32);
+    packedCovarianceDetaDeta_ = pack8logCeil(detadeta_,-20,0,32);
+    packedCovarianceDphiDphi_ = pack8logCeil(dphidphi_,-15,5,32);
+    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
+    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
+
+*/
+/*  packedCovarianceDphiDxy_ =  MiniFloatConverter::float32to16(dphidxy_*10000.);
+    packedCovarianceDlambdaDz_ =  MiniFloatConverter::float32to16(dlambdadz_*10000.);
+    packedCovarianceDetaDeta_ =  MiniFloatConverter::float32to16(detadeta_*10000.);
+    packedCovarianceDphiDphi_ =  MiniFloatConverter::float32to16(dphidphi_*10000.);
+    packedCovarianceDptDpt_ =  MiniFloatConverter::float32to16(dptdpt_*10000.);
+*/
+//    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
+//    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
+ 
+   if (unpackAfterwards) unpackVtx();
 }
 
 void pat::PackedCandidate::unpack() const {
@@ -62,12 +80,25 @@ void pat::PackedCandidate::unpackVtx() const {
 //  dxydxy_ = unpack8log(packedCovarianceDxyDxy_,-15,-1);
 //  dxydz_ = unpack8log(packedCovarianceDxyDz_,-20,-1);
 //  dzdz_ = unpack8log(packedCovarianceDzDz_,-13,-1);
-    dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
+  dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
+    dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
+    dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,0);
+    detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,-5);
+    dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,0);
+/*
+  dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
     dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
     dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,5,32);
     detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,0,32);
     dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,5,32);
+*/
 
+/* dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
+ dlambdadz_ = MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
+ dptdpt_ = MiniFloatConverter::float16to32(packedCovarianceDptDpt_)/10000.;
+ detadeta_ = MiniFloatConverter::float16to32(packedCovarianceDetaDeta_)/10000.;
+ dphidphi_ = MiniFloatConverter::float16to32(packedCovarianceDphiDphi_)/10000.;
+*/
   dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
     dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
     dzdz_ =MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
@@ -89,7 +120,7 @@ float pat::PackedCandidate::dz(const Point &p) const {
     return (vertex_.Z()-p.Z())  - ((vertex_.X()-p.X()) * std::cos(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::sin(float(p4_.Phi()))) * p4_.Pz()/p4_.Pt();
 }
 
-reco::Track pat::PackedCandidate::pseudoTrack() const {
+void pat::PackedCandidate::unpackTrk() const {
     maybeUnpackBoth();
     reco::TrackBase::CovarianceMatrix m;
 //    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
@@ -114,32 +145,38 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     reco::HitPattern hp, hpExpIn;
     int i=0;
     LostInnerHits innerLost = lostInnerHits();
+    
+    track_ = reco::Track(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
+    
+    if(innerLost == validHitInFirstPixelBarrelLayer){
+        track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::valid); 
+        i++; 
+    }
+    for(;i<numberOfPixelHits_; i++) {
+       track_.appendHitPattern(PXBDetId(i > 1 ? 3 : 2, 0, 0), TrackingRecHit::valid); 
+    }
+    
+    for(;i<numberOfHits_;i++) {
+	   track_.appendHitPattern(TIBDetId(1, 0, 0, 1, 1, 0), TrackingRecHit::valid); 
+    }
+
     switch (innerLost) {
         case validHitInFirstPixelBarrelLayer:
-            hp.set(PXBDetId(1,0,0), TrackingRecHit::valid, i); 
-            i++; 
             break;
         case noLostInnerHits:
             break;
         case oneLostInnerHit:
-            hpExpIn.set(PXBDetId(1,0,0), TrackingRecHit::missing, 0);
+            track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
             break;
         case moreLostInnerHits:
-            hpExpIn.set(PXBDetId(1,0,0), TrackingRecHit::missing, 0);
-            hpExpIn.set(PXBDetId(2,0,0), TrackingRecHit::missing, 1);
+            track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
+            track_.appendHitPattern(PXBDetId(2, 0, 0), TrackingRecHit::missing_inner);
             break;
     };
-    for(;i<numberOfPixelHits_; i++) {
-       hp.set( PXBDetId(i>1?3:2,0,0), TrackingRecHit::valid, i); 
-    }
-    for(;i<numberOfHits_;i++) {
-	   hp.set( TIBDetId(1,0,0,1,1,0), TrackingRecHit::valid, i); 
-     }
-    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
-    tk.setHitPattern(hp);
-    tk.setTrackerExpectedHitsInner(hpExpIn);
-    if (trackHighPurity()) tk.setQuality(reco::TrackBase::highPurity);
-    return tk;
+
+    if (trackHighPurity()) track_.setQuality(reco::TrackBase::highPurity);
+
+    unpackedTrk_ = true;
 }
 
 //// Everything below is just trivial implementations of reco::Candidate methods

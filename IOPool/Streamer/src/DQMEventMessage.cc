@@ -111,7 +111,7 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
 /**
  * Returns a shared pointer to the list of subfolder names.
  */
-boost::shared_ptr< std::vector<std::string> >
+std::shared_ptr< std::vector<std::string> >
     DQMEventMsgView::subFolderNames() const
 {
   return nameListPtr_;

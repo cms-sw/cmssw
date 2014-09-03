@@ -3,6 +3,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <mutex>
+
+static std::mutex s_fillLock;
 
 HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo)
   : topo_(topo),
@@ -10,7 +13,8 @@ HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo)
     m_hbCellVec ( topo.getHBSize() ) ,
     m_heCellVec ( topo.getHESize() ) ,
     m_hoCellVec ( topo.getHOSize() ) ,
-    m_hfCellVec ( topo.getHFSize() ) 
+    m_hfCellVec ( topo.getHFSize() ) ,
+    m_filledDetIds(false)
 {
 }
 
@@ -21,6 +25,11 @@ HcalDDDGeometry::~HcalDDDGeometry()
 void
 HcalDDDGeometry::fillDetIds() const
 {
+   std::lock_guard<std::mutex> guard(s_fillLock);
+   if (m_filledDetIds) {
+     //another thread already did the work
+     return;
+   }
    const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
    for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
    {
@@ -57,6 +66,7 @@ HcalDDDGeometry::fillDetIds() const
    std::sort( m_hfIds.begin(), m_hfIds.end() ) ;
        
    m_emptyIds.resize( 0 ) ;
+   m_filledDetIds = true;
 }
 
 std::vector<DetId> const &
@@ -64,7 +74,7 @@ HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 				int subdet) const
 {
   if( 0 != subdet &&
-      0 == m_hbIds.size() ) fillDetIds() ;
+      not m_filledDetIds ) fillDetIds() ;
   return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
 	   ( HcalBarrel == subdet ? m_hbIds :
 	     ( HcalEndcap == subdet ? m_heIds :

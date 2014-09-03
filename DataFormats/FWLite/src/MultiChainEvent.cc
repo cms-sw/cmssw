@@ -29,7 +29,7 @@ namespace fwlite {
 public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
 
-      virtual edm::WrapperHolder
+      virtual edm::WrapperBase const*
       getIt(edm::ProductID const& iID) const override {
         return event_->getByProductID(iID);
       }
@@ -59,10 +59,10 @@ private:
 				   std::vector<std::string> const& iFileNames2,
 				   bool useSecFileMapSorted)
 {
-  event1_ = boost::shared_ptr<ChainEvent> (new ChainEvent(iFileNames1));
-  event2_ = boost::shared_ptr<ChainEvent> (new ChainEvent(iFileNames2));
+  event1_ = std::shared_ptr<ChainEvent> (new ChainEvent(iFileNames1));
+  event2_ = std::shared_ptr<ChainEvent> (new ChainEvent(iFileNames2));
 
-  getter_ = boost::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
+  getter_ = std::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
 
   event1_->setGetter(getter_);
   event2_->setGetter(getter_);
@@ -359,31 +359,15 @@ MultiChainEvent::getByLabel(
   return true;
 }
 
-bool
-MultiChainEvent::getByLabel(
-                       std::type_info const& iType,
-                       char const* iModule,
-                       char const* iInstance,
-                       char const* iProcess,
-                       edm::WrapperHolder& holder) const {
-  bool ret1 = event1_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-  if(!ret1) {
-    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
-    bool ret2 = event2_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-    if(!ret2) return false;
-  }
-  return true;
-}
-
-edm::WrapperHolder MultiChainEvent::getByProductID(edm::ProductID const&iID) const
+edm::WrapperBase const* MultiChainEvent::getByProductID(edm::ProductID const&iID) const
 {
   // First try the first file
-  edm::WrapperHolder edp = event1_->getByProductID(iID);
+  edm::WrapperBase const* edp = event1_->getByProductID(iID);
   // Did not find the product, try secondary file
-  if (!edp.isValid()) {
+  if (edp == nullptr) {
     (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
     edp = event2_->getByProductID(iID);
-    if (!edp.isValid()) {
+    if (edp == nullptr) {
       throw cms::Exception("ProductNotFound") << "Cannot find product " << iID;
     }
   }

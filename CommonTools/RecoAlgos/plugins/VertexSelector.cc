@@ -26,9 +26,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
- typedef SingleObjectSelector<
+ using VertexSelector = SingleObjectSelectorStream<
            reco::VertexCollection, 
            StringCutObjectSelector<reco::Vertex> 
-         > VertexSelector;
+         >;
 
 DEFINE_FWK_MODULE(VertexSelector);

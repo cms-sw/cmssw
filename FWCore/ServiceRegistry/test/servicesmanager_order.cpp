@@ -12,8 +12,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #undef private
 
-#include "boost/shared_ptr.hpp"
-
 #include <cstdlib>
 #include <vector>
 #include <memory>
@@ -41,13 +39,12 @@ int main() try {
   // demand is also tested.
 
   std::vector<edm::ParameterSet> vps;
-  boost::shared_ptr<ServicesManager> legacy(new ServicesManager(vps));
+  auto legacy = std::make_shared<ServicesManager>(vps);
 
   edm::ActivityRegistry ar;
   edm::ParameterSet pset;
   std::auto_ptr<Service0> s0(new Service0(pset, ar));  
-  boost::shared_ptr<ServiceWrapper<Service0> > 
-      wrapper (new ServiceWrapper<Service0>(s0));
+  auto wrapper = std::make_shared<ServiceWrapper<Service0> >(s0);
   legacy->put(wrapper);
   legacy->copySlotsFrom(ar);
   edm::ServiceToken legacyToken(legacy);
@@ -74,9 +71,7 @@ int main() try {
   ps2.addParameter("@service_type", typeName2);
   vps1.push_back(ps2);
 
-  boost::shared_ptr<ServicesManager> legacy2(new ServicesManager(legacyToken,
-                                                                 kTokenOverrides,
-                                                                 vps1));
+  auto legacy2 = std::make_shared<ServicesManager>(legacyToken, kTokenOverrides, vps1);
   edm::ServiceToken legacyToken2(legacy2);
 
 
@@ -85,8 +80,7 @@ int main() try {
   edm::ActivityRegistry ar4;
   edm::ParameterSet pset4;
   std::auto_ptr<Service4> s4(new Service4(pset4, ar4));  
-  boost::shared_ptr<ServiceWrapper<Service4> > 
-      wrapper4 (new ServiceWrapper<Service4>(s4));
+  auto wrapper4 = std::make_shared<ServiceWrapper<Service4> >(s4);
   sm.put(wrapper4);
   sm.copySlotsFrom(ar4);
 

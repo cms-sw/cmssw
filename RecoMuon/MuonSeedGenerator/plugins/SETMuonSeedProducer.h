@@ -14,7 +14,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
-#include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "RecoMuon/MuonSeedGenerator/src/SETFilter.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h" 

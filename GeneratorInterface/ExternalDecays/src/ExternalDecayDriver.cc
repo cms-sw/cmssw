@@ -32,14 +32,17 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
-    else if ( curSet == "Tauola" || curSet == "Tauolapp113a" ){
-      // this is for old tauola27 (+pretauola)
-      //
-      // --> fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-      //
-      // for tauola++, here it should be something like:
-      //
-      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp113a", pset.getUntrackedParameter< ParameterSet >(curSet)));
+    else if( curSet == "EvtGen130"){
+      std::cout << "EvtGen130" << std::endl;
+      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGen130", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPythia8);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+      exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
+    }
+    else if ( curSet == "Tauola" || curSet == "Tauolapp114" ){
+      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface->configureOnlyFor( 15 );
       fPhotosInterface->avoidTauLeptonicDecays();
@@ -50,6 +53,12 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       if ( !fPhotosInterface ){
 	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
 	exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+      }
+    }
+    else if (curSet == "Photospp355" ){
+      if ( !fPhotosInterface ){
+        fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photospp355", pset.getUntrackedParameter< ParameterSet>(curSet)));
+        exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
   }
@@ -67,20 +76,17 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
    
    if ( !fIsInitialized ) return evt;
    
-   if ( fEvtGenInterface )
-   {  
-      evt = fEvtGenInterface->decay( evt ); 
-      if ( !evt ) return 0;
+   if ( fEvtGenInterface ){  
+     evt = fEvtGenInterface->decay( evt ); 
+     if ( !evt ) return 0;
    }
 
-   if ( fTauolaInterface ) 
-   {
+   if ( fTauolaInterface ){
       evt = fTauolaInterface->decay( evt ); 
       if ( !evt ) return 0;
    }
    
-   if ( fPhotosInterface )
-   {
+   if ( fPhotosInterface ){
       evt = fPhotosInterface->apply( evt );
       if ( !evt ) return 0;
    }
@@ -93,45 +99,30 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
 
    if ( fIsInitialized ) return;
    
-   if ( fTauolaInterface ) 
-   {
+   if ( fTauolaInterface ){
       fTauolaInterface->init( es );
       for ( std::vector<int>::const_iterator i=fTauolaInterface->operatesOnParticles().begin();
             i!=fTauolaInterface->operatesOnParticles().end(); i++ ) 
                fPDGs.push_back( *i );
    }
    
-   if ( fEvtGenInterface ) 
-   {
-      fEvtGenInterface->init();
-      for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
-            i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
-               fPDGs.push_back( *i );
+   if ( fEvtGenInterface ){
+     fEvtGenInterface->init();
+     for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
+	   i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
+       fPDGs.push_back( *i );
    }
    
-
-   if ( fPhotosInterface )
-   {
-      fPhotosInterface->init();
-//   for tauola++ 
-      if ( fPhotosInterface )
-      {
-         for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
-         {
-            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss] );
-         }
-      }
-   }
    
-// this is specific to old tauola27 only, because it calls up photos automatically
-//
-//
-//   if ( fTauolaInterface )
-//   {
-//      // override !
-//      fSpecialSettings.clear();
-//      fSpecialSettings.push_back( "QED-brem-off:15" );
-//   }
+   if ( fPhotosInterface ){
+     fPhotosInterface->init();
+     //   for tauola++ 
+     if ( fPhotosInterface ){
+       for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ ){
+	 fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss] );
+       }
+     }
+   }
    
    fIsInitialized = true;
    
@@ -141,7 +132,8 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
 void ExternalDecayDriver::statistics() const
 {
    if ( fTauolaInterface ) fTauolaInterface->statistics();
-   // similar for EvtGen and/or Photos, if needs be
+   if ( fPhotosInterface ) fPhotosInterface->statistics();
+   // similar for EvtGen if needed
    return;
 }
 

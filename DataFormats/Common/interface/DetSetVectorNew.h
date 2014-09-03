@@ -10,8 +10,9 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 
 #include<vector>
@@ -152,7 +153,8 @@ namespace edmNew {
       void reserve(size_type s) {
 	v.m_data.reserve(item.offset+s);
       }
-
+      
+      
       void resize(size_type s) {
 	v.m_data.resize(item.offset+s);
 	item.size=s;
@@ -200,7 +202,7 @@ namespace edmNew {
     explicit DetSetVector(int isubdet=0) :
       m_subdetId(isubdet) {}
 
-    DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
+    DetSetVector(std::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
 		 int isubdet=0);
 
 
@@ -228,6 +230,13 @@ namespace edmNew {
       m_data.reserve(dsize);
     }
     
+    void shrink_to_fit() {
+#ifndef CMS_NOCXX11
+      m_ids.shrink_to_fit();
+      m_data.shrink_to_fit();
+#endif
+    }
+
     void resize(size_t isize, size_t dsize) {
       m_ids.resize(isize);
       m_data.resize(dsize);
@@ -413,7 +422,7 @@ namespace edmNew {
     
 
   template<typename T>
-  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<Getter> iGetter, 
+  inline DetSetVector<T>::DetSetVector(std::shared_ptr<Getter> iGetter, 
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
@@ -437,7 +446,7 @@ namespace edmNew {
     if (item.offset!=-1 || getter.empty() ) return;
     item.offset = int(m_data.size());
     FastFiller ff(*this,item,true);
-    (*boost::any_cast<boost::shared_ptr<Getter> >(&getter))->fill(ff);
+    (*boost::any_cast<std::shared_ptr<Getter> >(&getter))->fill(ff);
   }
 
 

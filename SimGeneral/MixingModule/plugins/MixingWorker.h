@@ -27,6 +27,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "FWCore/Utilities/interface/InputTag.h" 
 
+#include <memory>
 #include <vector>
 #include <string>
 #include <typeinfo>
@@ -152,7 +153,7 @@ namespace edm
 
   template <typename T>
   void  MixingWorker<T>::addPileups(const EventPrincipal &ep, ModuleCallingContext const* mcc, unsigned int eventNr) {
-    boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
+    std::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
     if (shPtr) {
       LogDebug("MixingModule") << shPtr->product()->size() << "  pileup objects  added, eventNr " << eventNr;
       crFrame_->setPileupPtr(shPtr);

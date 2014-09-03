@@ -45,7 +45,9 @@ class RawEventFileWriterForBU
 
  private:
 
-  void closefd(){if(outfd_>=0){close(outfd_); outfd_=-1;}}
+  bool closefd(){if(outfd_>=0){close(outfd_); outfd_=-1; return true;} else return false;}
+  void finishFileWrite(int ls);
+  void writeJsds(); 
   int outfd_ = -1;
 
   int run_ = -1;

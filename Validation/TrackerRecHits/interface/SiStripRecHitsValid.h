@@ -61,8 +61,14 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
  
   struct SubDetMEs{ // MEs for Subdetector Level
     MonitorElement*  meNumrphi;
+    MonitorElement*  meBunchrphi;
+    MonitorElement*  meEventrphi;
     MonitorElement*  meNumStereo;
+    MonitorElement*  meBunchStereo;
+    MonitorElement*  meEventStereo;
     MonitorElement*  meNumMatched;
+    MonitorElement*  meBunchMatched;
+    MonitorElement*  meEventMatched;
   };
 
   struct LayerMEs{ // MEs for Layer Level
@@ -74,6 +80,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
     MonitorElement* mePullLFrphi;
     MonitorElement* mePullMFrphi;
     MonitorElement* meChi2rphi;
+    MonitorElement* meNsimHitrphi;
     
   };
 
@@ -86,6 +93,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
     MonitorElement* mePullLFStereo;
     MonitorElement* mePullMFStereo;
     MonitorElement* meChi2Stereo;
+    MonitorElement* meNsimHitStereo;
     MonitorElement* mePosxMatched;
     MonitorElement* mePosyMatched;
     MonitorElement* meResolxMatched;
@@ -93,6 +101,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
     MonitorElement* meResxMatched;
     MonitorElement* meResyMatched;
     MonitorElement* meChi2Matched;
+    MonitorElement* meNsimHitMatched;
 
   };
 
@@ -109,6 +118,9 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
     int clusiz;
     float cluchg;
     float chi2;
+    int NsimHit;
+    int bunch;
+    int event;
   };
 
 
@@ -117,14 +129,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   void beginJob(const edm::EventSetup& es);
-  void endJob();
 
  private: 
-  //Back-End Interface
-  DQMStore* dbe_;
-  bool outputMEsInRootFile;
-  bool runStandalone;
-  std::string outputFileName;
 
   TotalMEs totalMEs;
 
@@ -134,8 +140,14 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
 
 
   bool switchNumrphi;
+  bool switchBunchrphi;
+  bool switchEventrphi;
   bool switchNumStereo;
+  bool switchBunchStereo;
+  bool switchEventStereo;
   bool switchNumMatched;
+  bool switchBunchMatched;
+  bool switchEventMatched;
 
 
   bool switchWclusrphi;
@@ -146,6 +158,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   bool switchPullLFrphi;
   bool switchPullMFrphi;
   bool switchChi2rphi;
+  bool switchNsimHitrphi;
   bool switchWclusStereo;
   bool switchAdcStereo;
   bool switchPosxStereo;
@@ -154,6 +167,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   bool switchPullLFStereo;
   bool switchPullMFStereo;
   bool switchChi2Stereo;
+  bool switchNsimHitStereo;
   bool switchPosxMatched;
   bool switchPosyMatched;
   bool switchResolxMatched;
@@ -161,6 +175,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   bool switchResxMatched;
   bool switchResyMatched;
   bool switchChi2Matched;
+  bool switchNsimHitMatched;
   
   std::string topFolderName_;
   std::vector<std::string> SubDetList_;

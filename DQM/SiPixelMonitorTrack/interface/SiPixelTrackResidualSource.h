@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
 
@@ -43,14 +44,13 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 
-class SiPixelTrackResidualSource : public edm::EDAnalyzer {
+class SiPixelTrackResidualSource : public thread_unsafe::DQMEDAnalyzer {
   public:
     explicit SiPixelTrackResidualSource(const edm::ParameterSet&);
             ~SiPixelTrackResidualSource();
 
-    virtual void beginJob();
-    virtual void endJob(void);
-    virtual void beginRun(const edm::Run& r, edm::EventSetup const& iSetup);
+    virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup);
+    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     void triplets(double x1,double y1,double z1,double x2,double y2,double z2,double x3,double y3,double z3,
                   double ptsig, double & dc,double & dz, double kap); 
@@ -60,7 +60,6 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     edm::InputTag clustersrc_; 
     edm::InputTag tracksrc_; 
     std::string ttrhbuilder_; 
-    DQMStore* dbe_; 
     edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
     edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;

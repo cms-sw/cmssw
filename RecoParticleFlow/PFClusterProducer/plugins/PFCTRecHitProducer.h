@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +32,7 @@ class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
 
-class PFCTRecHitProducer : public edm::EDProducer {
+class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
  public:
   explicit PFCTRecHitProducer(const edm::ParameterSet&);
   ~PFCTRecHitProducer();
@@ -66,6 +66,7 @@ class PFCTRecHitProducer : public edm::EDProducer {
   
   /// threshold for HF
   double           thresh_HF_;
+
   // Navigation in HF:  False = no real clustering in HF; True  = do clustering 
   bool   navigation_HF_;
   double weight_HFem_;

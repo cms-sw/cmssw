@@ -154,7 +154,7 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 {
   edm::Handle<SiPixelRecHitCollection> rechitspixel;
   iEvent.getByToken(pixelHitCollection, rechitspixel);
-
+  
   unsigned int counter = 0;
   
   for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
@@ -164,12 +164,14 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 }
 
 
-char* Vx3DHLTAnalyzer::formatTime (const time_t& t)
+std::string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
-  static char ts[25];
+  char ts[25];
   strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
+  
+  std::string ts_string(ts);
 
-  return ts;
+  return ts_string;
 }
 
 
@@ -994,47 +996,47 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       mXlumi->ShiftFillLast(vals[0], std::sqrt(vals[8]), nLumiReset);
       myLinFit->SetParameter(0, mXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      mXlumi->getTH1()->Fit("myLinFit","QR");
+      mXlumi->getTH1()->Fit(myLinFit,"QR");
 
       mYlumi->ShiftFillLast(vals[1], std::sqrt(vals[9]), nLumiReset);
       myLinFit->SetParameter(0, mYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      mYlumi->getTH1()->Fit("myLinFit","QR");
+      mYlumi->getTH1()->Fit(myLinFit,"QR");
 
       mZlumi->ShiftFillLast(vals[2], std::sqrt(vals[10]), nLumiReset);
       myLinFit->SetParameter(0, mZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      mZlumi->getTH1()->Fit("myLinFit","QR");
+      mZlumi->getTH1()->Fit(myLinFit,"QR");
 
       sXlumi->ShiftFillLast(vals[6], std::sqrt(vals[14]), nLumiReset);
       myLinFit->SetParameter(0, sXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      sXlumi->getTH1()->Fit("myLinFit","QR");
+      sXlumi->getTH1()->Fit(myLinFit,"QR");
 
       sYlumi->ShiftFillLast(vals[7], std::sqrt(vals[15]), nLumiReset);
       myLinFit->SetParameter(0, sYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      sYlumi->getTH1()->Fit("myLinFit","QR");
+      sYlumi->getTH1()->Fit(myLinFit,"QR");
 
       sZlumi->ShiftFillLast(vals[3], std::sqrt(vals[11]), nLumiReset);
       myLinFit->SetParameter(0, sZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      sZlumi->getTH1()->Fit("myLinFit","QR");
+      sZlumi->getTH1()->Fit(myLinFit,"QR");
 
       dxdzlumi->ShiftFillLast(vals[4], std::sqrt(vals[12]), nLumiReset);
       myLinFit->SetParameter(0, dxdzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      dxdzlumi->getTH1()->Fit("myLinFit","QR");
+      dxdzlumi->getTH1()->Fit(myLinFit,"QR");
 
       dydzlumi->ShiftFillLast(vals[5], std::sqrt(vals[13]), nLumiReset);
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      dydzlumi->getTH1()->Fit("myLinFit","QR");
+      dydzlumi->getTH1()->Fit(myLinFit,"QR");
       
       goodVxCounter->ShiftFillLast((double)counterVx, std::sqrt((double)counterVx), nLumiReset);      
       myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      goodVxCounter->getTH1()->Fit("myLinFit","QR");
+      goodVxCounter->getTH1()->Fit(myLinFit,"QR");
 
       if (lastLumiOfFit % prescaleHistory == 0)
 	{

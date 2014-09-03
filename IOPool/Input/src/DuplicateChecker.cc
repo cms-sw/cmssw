@@ -47,8 +47,8 @@ namespace edm {
   void DuplicateChecker::inputFileOpened(
       bool realData,
       IndexIntoFile const& indexIntoFile,
-      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
-      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile) {
+      std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
+      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile) {
 
     dataType_ = realData ? isRealData : isSimulation;
     if (checkDisabled()) return;
@@ -60,7 +60,7 @@ namespace edm {
 
       // Compares the current IndexIntoFile to all the previous ones and saves any duplicates.
       // One unintended thing, it also saves the duplicate runs and lumis.
-      for(std::vector<boost::shared_ptr<IndexIntoFile> >::size_type i = 0; i < currentIndexIntoFile; ++i) {
+      for(std::vector<std::shared_ptr<IndexIntoFile> >::size_type i = 0; i < currentIndexIntoFile; ++i) {
         if (indexesIntoFiles[i].get() != 0) {
 
           indexIntoFile.set_intersection(*indexesIntoFiles[i], relevantPreviousEvents_);

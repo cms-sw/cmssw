@@ -13,7 +13,6 @@
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/DataRecord/interface/mySiStripNoisesRcd.h"
 #include "CondFormats/Calibration/interface/Efficiency.h"
-#include "CondFormats/Calibration/interface/EfficiencyPayloads.h"
 #include "CondFormats/DataRecord/interface/ExEfficiency.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include "CondCore/CondDB/interface/KeyListProxy.h"
@@ -21,15 +20,36 @@
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
-namespace cond {
 
-  template <> BaseKeyed* createPayload<BaseKeyed>( const std::string& payloadTypeName ){
-    if( payloadTypeName == "condex::ConfI" ) return new condex::ConfI;
-    if( payloadTypeName == "condex::ConfF" ) return new condex::ConfF;
-    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
-		   "createPayload" );
+namespace cond {
+  template <> boost::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
+                                                                                     const Binary& payloadData,
+                                                                                     const Binary& streamerInfoData,
+                                                                                     bool unpackingOnly ){
+    // DESERIALIZE_BASE_CASE( condex::Efficiency ); abstract 
+    DESERIALIZE_POLIMORPHIC_CASE( condex::Efficiency, condex::ParametricEfficiencyInPt );
+    DESERIALIZE_POLIMORPHIC_CASE( condex::Efficiency, condex::ParametricEfficiencyInEta );
+
+    // here we come if none of the deserializations above match the payload type:
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
   }
 }
+
+
+namespace cond {
+  template <> boost::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
+						 const Binary& payloadData,
+						 const Binary& streamerInfoData,
+						 bool unpackingOnly ){
+    DESERIALIZE_BASE_CASE( BaseKeyed );
+    DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, condex::ConfI );
+    DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, condex::ConfI );
+
+    // here we come if none of the deserializations above match the payload type:                                                                                                                                                                                             
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+  }
+}
+
 
 namespace {
   struct InitEfficiency {void operator()(condex::Efficiency& e){ e.initialize();}};

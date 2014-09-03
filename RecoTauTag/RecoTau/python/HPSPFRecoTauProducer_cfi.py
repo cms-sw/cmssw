@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
+from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import pfRecoTauProducer
 
-hpsPFRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
+hpsPFRecoTauProducer = pfRecoTauProducer.clone(
       #Standard Input
       PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"),
       JetPtMin             = cms.double(0.0),

@@ -27,7 +27,7 @@
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {       
 
@@ -110,7 +110,7 @@ protected:
 protected:
   // --- member data:
   //
-  boost::shared_ptr<std::ostream> os;
+  std::shared_ptr<std::ostream> os;
   int                             charsOnLine;
   edm::ELextendedID               xid;
 

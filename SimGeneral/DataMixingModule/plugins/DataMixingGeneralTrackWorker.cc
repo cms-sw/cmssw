@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -82,7 +83,7 @@ namespace edm
     LogDebug("DataMixingGeneralTrackWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
 
-    boost::shared_ptr<Wrapper<reco::TrackCollection >  const> inputPTR =
+    std::shared_ptr<Wrapper<reco::TrackCollection >  const> inputPTR =
       getProductByTag<reco::TrackCollection >(*ep, GeneralTrackPileInputTag_, mcc);
 
     if(inputPTR ) {

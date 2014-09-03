@@ -39,9 +39,6 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
   rpcRecHitLabel_  = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("RecHitLabel"));
   scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(pset.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
 
-  //  numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-  // numberOfInnerRings_ = pset.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
-
   noiseFolder_ = pset.getUntrackedParameter<std::string>("NoiseFolder", "AllHits");
   muonFolder_ = pset.getUntrackedParameter<std::string>("MuonFolder", "Muon");
 
@@ -49,7 +46,7 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
 
- 
+
 void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &r, edm::EventSetup const & iSetup){
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Begin Run " ;

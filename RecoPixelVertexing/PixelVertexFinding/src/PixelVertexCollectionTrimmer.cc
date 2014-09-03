@@ -48,7 +48,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-  size_t maxVtx_ ;
+  unsigned int maxVtx_ ;
   double fractionSumPt2_ ;
   double minSumPt2_ ;
 
@@ -126,7 +126,7 @@ PixelVertexCollectionTrimmer::fillDescriptions(edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>    ("src",           edm::InputTag(""))
     ->setComment("input (pixel) vertex collection");
-  desc.add<int>              ("maxVtx",        100)
+  desc.add<unsigned int>     ("maxVtx",        100)
     ->setComment("max output collection size (number of accepted vertices)");
   desc.add<double>           ("fractionSumPt2",  0.3)
     ->setComment("threshold on sumPt2 fraction of the leading vertex");

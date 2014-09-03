@@ -8,6 +8,7 @@
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
 #include "SimG4Core/MagneticField/interface/G4MonopoleEquation.hh"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 /*
@@ -34,7 +35,7 @@ FieldBuilder::FieldBuilder(const MagneticField * f,
 			   const edm::ParameterSet & p) 
   : theField(new Field(f, p.getParameter<double>("delta"))),
     theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
-    theTopVolume(0), fChordFinder(0), fChordFinderMonopole(0),
+    theTopVolume(0),
     fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),
     dIntersection(0.), dIntersectionAndOneStep(0.), 
     maxLoopCount(0), minEpsilonStep(0.), maxEpsilonStep(0.), 
@@ -44,7 +45,7 @@ FieldBuilder::FieldBuilder(const MagneticField * f,
   theField->fieldEquation(theFieldEquation);
 }
 
-void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP) 
+void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP, ChordFinderSetter *setter) 
 {    
   edm::ParameterSet thePSetForGMFM =
     thePSet.getParameter<edm::ParameterSet>("ConfGlobalMFM");
@@ -54,7 +55,7 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
   edm::ParameterSet volPSet =
     thePSetForGMFM.getParameter< edm::ParameterSet >( volName );
     
-  configureForVolume( volName, volPSet, fM, fP );
+  configureForVolume( volName, volPSet, fM, fP, setter );
     
   // configure( "MagneticFieldType", fM, fP ) ;
 
@@ -82,7 +83,7 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
     for (unsigned int i = 0; i < ListOfVolumes.size(); ++ i )   {
       volPSet = thePSetForLMFM.getParameter< edm::ParameterSet >(ListOfVolumes[i]);
       G4FieldManager* fAltM = new G4FieldManager() ;
-      configureForVolume( ListOfVolumes[i], volPSet, fAltM ) ;
+      configureForVolume( ListOfVolumes[i], volPSet, fAltM, nullptr, setter ) ;
       //configureLocalFM( ListOfVolumes[i], fAltM ) ;
       LocalFieldManager* fLM = new LocalFieldManager( theField.get(), fM, fAltM ) ;
       fLM->SetVerbosity(thePSet.getUntrackedParameter<bool>("Verbosity",false));
@@ -97,7 +98,8 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
 void FieldBuilder::configureForVolume( const std::string& volName,
                                        edm::ParameterSet& volPSet,
 				       G4FieldManager * fM,
-				       G4PropagatorInField * fP ) 
+				       G4PropagatorInField * fP,
+                                       ChordFinderSetter *setter) 
 {
   G4LogicalVolumeStore* theStore = G4LogicalVolumeStore::GetInstance();
   for (unsigned int i=0; i<(*theStore).size(); ++i ) {
@@ -124,7 +126,7 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   maxEpsilonStep = 
     stpPSet.getUntrackedParameter<double>("MaximumEpsilonStep",0.01);
    
-  if (fM!=0) configureFieldManager(fM);
+  if (fM!=0) configureFieldManager(fM, setter);
   if (fP!=0) configurePropagatorInField(fP);	
 
   edm::LogInfo("SimG4CoreApplication") 
@@ -134,19 +136,7 @@ void FieldBuilder::configureForVolume( const std::string& volName,
 
 G4LogicalVolume * FieldBuilder::fieldTopVolume() { return theTopVolume; }
 
-void FieldBuilder::setStepperAndChordFinder(G4FieldManager * fM, int val) {
-
-  if (fM != 0) {
-    if (val == 0) {
-      if (fChordFinder != 0) fM->SetChordFinder(fChordFinder);
-    } else {
-      fChordFinder = fM->GetChordFinder();
-      if (fChordFinderMonopole != 0) fM->SetChordFinder(fChordFinderMonopole);
-    }
-  }
-}
- 
-void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
+void FieldBuilder::configureFieldManager(G4FieldManager * fM, ChordFinderSetter *setter) {
 
   if (fM!=0) {
     fM->SetDetectorField(theField.get());
@@ -161,14 +151,15 @@ void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
     if (dIntersectionAndOneStep != -1.) 
       fM->SetAccuraciesWithDeltaOneStep(dIntersectionAndOneStep);
   }
-  if (fChordFinderMonopole == 0) {
+  if(setter && !setter->isMonopoleSet()) {
     G4MonopoleEquation* fMonopoleEquation = 
       new G4MonopoleEquation(theField.get());
     G4MagIntegratorStepper* theStepper = 
       new G4ClassicalRK4(fMonopoleEquation,8);
-    fChordFinderMonopole = 
+    G4ChordFinder *chordFinderMonopole = 
       new G4ChordFinder(theField.get(),minStep,theStepper);
-    fChordFinderMonopole->SetDeltaChord(dChord);
+    chordFinderMonopole->SetDeltaChord(dChord);
+    setter->setMonopole(chordFinderMonopole);
   }
 }
 

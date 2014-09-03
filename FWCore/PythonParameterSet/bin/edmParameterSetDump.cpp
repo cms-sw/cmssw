@@ -14,7 +14,7 @@
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <iostream>
 #include <string>
 
@@ -23,7 +23,7 @@ int main (int argc, char **argv) try {
     std::cout << "Usage: edmParameterSetDump <cfgfile>" << std::endl;
   }
   std::string fileName(argv[1]);
-  boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName);
+  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName);
   std::cout << "====Main Process====" << std::endl;
   std::cout << parameterSet->dump() << std::endl;
   return 0;

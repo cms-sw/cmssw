@@ -20,10 +20,12 @@ allows you to access data using an edm::Event.
 //
 
 // system include files
+#include <memory>
 #include "TSelector.h"
 
 // user include files
-#include "boost/shared_ptr.hpp"
+
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 class TFile;
@@ -96,7 +98,7 @@ class TFWLiteSelectorBasic : public TSelector
       
       void setupNewFile(TFile&);
       // ---------- member data --------------------------------
-      boost::shared_ptr<edm::root::TFWLiteSelectorMembers> m_;
+      std::shared_ptr<edm::root::TFWLiteSelectorMembers> m_;
       bool everythingOK_;
   
   ClassDef(TFWLiteSelectorBasic,2)

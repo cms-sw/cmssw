@@ -35,8 +35,14 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
        throw SimG4Exception( "SimG4CoreMagneticField: Corrupted Event - NaN detected (position)" ) ;
     }
     
-    static float oldx[3] = {1.0e12,1.0e12,1.0e12};
-    static double b[3];
+    // Which is worse, thread_local static here, or mutable members?
+    // Mutable members + synchronization would be the most correct. In
+    // practice I know there is (by construction via
+    // RunManagerMT/RunManagerMTWorker) one Field object per thread,
+    // managed via pointers in TLS, so thread_local here is also
+    // "correct", and fastest to write.
+    static thread_local float oldx[3] = {1.0e12,1.0e12,1.0e12};
+    static thread_local double b[3];
 
     if (theDelta>0. &&
 	fabs(oldx[0]-xyz[0])<theDelta &&

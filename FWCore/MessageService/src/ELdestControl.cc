@@ -41,7 +41,7 @@ namespace service {
 // ----------------------------------------------------------------------
 
 
-ELdestControl::ELdestControl( boost::shared_ptr<ELdestination> dest )
+ELdestControl::ELdestControl( std::shared_ptr<ELdestination> dest )
 : d ( dest )
 {
   #ifdef ELdestinationCONSTRUCTOR_TRACE

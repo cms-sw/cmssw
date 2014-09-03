@@ -113,7 +113,7 @@ struct UnsafeCache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
     }
@@ -188,7 +188,7 @@ struct UnsafeCache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -271,7 +271,7 @@ struct UnsafeCache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
  
@@ -287,7 +287,7 @@ struct UnsafeCache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<UnsafeCache>{ new UnsafeCache };
+      return std::make_shared<UnsafeCache>();
     }
     
     void endRunSummary(edm::Run const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
@@ -375,7 +375,7 @@ struct UnsafeCache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -391,7 +391,7 @@ struct UnsafeCache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<UnsafeCache>{ new UnsafeCache };
+      return std::make_shared<UnsafeCache>();
     }
     
 

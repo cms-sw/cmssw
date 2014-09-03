@@ -48,7 +48,7 @@ namespace fwlite {
     pOldAux_(0),
     fileVersion_(-1),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
-                boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
+                std::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
                 branchMap_)
   {
     if(0==iFile) {
@@ -85,16 +85,16 @@ namespace fwlite {
 //       auxBranch_->SetAddress(&pOldAux_);
     }
     branchMap_->updateLuminosityBlock(0);
-    runFactory_ =  boost::shared_ptr<RunFactory>(new RunFactory());
+    runFactory_ =  std::shared_ptr<RunFactory>(new RunFactory());
 }
 
-  LuminosityBlock::LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap, boost::shared_ptr<RunFactory> runFactory):
+  LuminosityBlock::LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap, std::shared_ptr<RunFactory> runFactory):
     branchMap_(branchMap),
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
-                boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
+                std::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
                 branchMap_),
     runFactory_(runFactory)
   {
@@ -232,19 +232,6 @@ LuminosityBlock::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, lumiIndex);
 }
 
-bool
-LuminosityBlock::getByLabel(std::type_info const& iInfo,
-                            char const* iModuleLabel,
-                            char const* iProductInstanceLabel,
-                            char const* iProcessLabel,
-                            edm::WrapperHolder& holder) const {
-    if(atEnd()) {
-        throw cms::Exception("OffEnd") << "You have requested data past the last lumi";
-    }
-    Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
-    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, lumiIndex);
-}
-
 edm::LuminosityBlockAuxiliary const&
 LuminosityBlock::luminosityBlockAuxiliary() const
 {
@@ -329,7 +316,7 @@ LuminosityBlock::history() const
 }
 
 
-edm::WrapperHolder
+edm::WrapperBase const*
 LuminosityBlock::getByProductID(edm::ProductID const& iID) const {
   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
   return dataHelper_.getByProductID(iID, luminosityBlockIndex);
@@ -356,7 +343,7 @@ namespace {
 }
 
 fwlite::Run const& LuminosityBlock::getRun() const {
-  run_ = runFactory_->makeRun(boost::shared_ptr<BranchMapReader>(&*branchMap_,NoDelete()));
+  run_ = runFactory_->makeRun(std::shared_ptr<BranchMapReader>(&*branchMap_,NoDelete()));
   edm::RunNumber_t run = luminosityBlockAuxiliary().run();
   run_->to(run);
   return *run_;

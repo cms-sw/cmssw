@@ -8,7 +8,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+#ifdef LOCAL_UNPACK
 bool CSCTMBScope::debug = false;
+#else
+std::atomic<bool> CSCTMBScope::debug{false};
+#endif
 
 CSCTMBScope::CSCTMBScope(unsigned short *buf,int b05Line,int e05Line) {
 

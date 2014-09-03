@@ -5,7 +5,7 @@
 #include <vector>
 #include "boost/concept_check.hpp"
 #include "boost/iterator/transform_iterator.hpp"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -322,7 +322,7 @@ namespace edm {
     LazyGetter();
 
     /// Constructor with unpacker.
-    LazyGetter(uint32_t, const boost::shared_ptr< LazyUnpacker<T> >&);
+    LazyGetter(uint32_t, const std::shared_ptr< LazyUnpacker<T> >&);
 
     /// Returns the size of LazyUnpacker::register_.
     uint32_t regions() const;
@@ -375,7 +375,7 @@ namespace edm {
 
   private:
 
-    boost::shared_ptr< LazyUnpacker<T> > unpacker_;
+    std::shared_ptr< LazyUnpacker<T> > unpacker_;
     std::vector<T> record_;
     std::vector< RegionIndex<T> > register_;
   };
@@ -387,7 +387,7 @@ namespace edm {
 
   template <class T>
     inline
-    LazyGetter<T>::LazyGetter(uint32_t nregions,const boost::shared_ptr< LazyUnpacker<T> > & unpacker) : unpacker_(unpacker), record_(), register_()
+    LazyGetter<T>::LazyGetter(uint32_t nregions,const std::shared_ptr< LazyUnpacker<T> > & unpacker) : unpacker_(unpacker), record_(), register_()
     {
       //Reserve 100,000 to absorb event-by-event fluctuations.
       record_.reserve(100000);

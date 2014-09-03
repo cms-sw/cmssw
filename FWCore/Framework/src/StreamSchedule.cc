@@ -24,9 +24,6 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 
-#include "boost/bind.hpp"
-#include "boost/ref.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -74,7 +71,7 @@ namespace edm {
 
     StreamSchedule::WorkerPtr
     makeInserter(ExceptionToActionTable const& actions,
-                 boost::shared_ptr<ActivityRegistry> areg,
+                 std::shared_ptr<ActivityRegistry> areg,
                  TriggerResultInserter* inserter) {
       StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
@@ -134,15 +131,15 @@ namespace edm {
   // -----------------------------
 
   StreamSchedule::StreamSchedule(TriggerResultInserter* inserter,
-                                 boost::shared_ptr<ModuleRegistry> modReg,
+                                 std::shared_ptr<ModuleRegistry> modReg,
                                  ParameterSet& proc_pset,
                                  service::TriggerNamesService& tns,
                                  PreallocationConfiguration const& prealloc,
                                  ProductRegistry& preg,
                                  BranchIDListHelper& branchIDListHelper,
                                  ExceptionToActionTable const& actions,
-                                 boost::shared_ptr<ActivityRegistry> areg,
-                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ActivityRegistry> areg,
+                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
                                  bool allowEarlyDelete,
                                  StreamID streamID,
                                  ProcessContext const* processContext) :
@@ -154,13 +151,11 @@ namespace edm {
     results_inserter_(),
     trig_paths_(),
     end_paths_(),
-    stopwatch_(tns.wantSummary() ? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
     total_events_(),
     total_passed_(),
     number_of_unscheduled_modules_(0),
     streamID_(streamID),
     streamContext_(streamID_, processContext),
-    wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
@@ -217,7 +212,7 @@ namespace edm {
           ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
           assert(isTracked);
           assert(modulePSet != nullptr);
-          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, wantSummary_, unscheduledLabels, shouldBeUsedLabels);
+          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
         } else {
           //everthing is marked are unused so no 'on demand' allowed
           shouldBeUsedLabels.push_back(label);
@@ -407,7 +402,7 @@ namespace edm {
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& name,
                                    bool ignoreFilters,
                                    PathWorkers& out,
@@ -466,9 +461,10 @@ namespace edm {
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
                                     ProductRegistry& preg,
                                     PreallocationConfiguration const* prealloc,
-                                    boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos, std::string const& name, TrigResPtr trptr,
                                     vstring* labelsOnTriggerPaths) {
+    using std::placeholders::_1;
     PathWorkers tmpworkers;
     Workers holder;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, labelsOnTriggerPaths);
@@ -481,21 +477,19 @@ namespace edm {
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
       trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, PathContext::PathType::kPath);
-      if (wantSummary_) {
-        trig_paths_.back().useStopwatch();
-      }
     } else {
       empty_trig_paths_.push_back(bitpos);
       empty_trig_path_names_.push_back(name);
     }
-    for_all(holder, boost::bind(&StreamSchedule::addToAllWorkers, this, _1));
+    for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos, std::string const& name) {
+    using std::placeholders::_1;
     PathWorkers tmpworkers;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, 0);
     Workers holder;
@@ -506,11 +500,8 @@ namespace edm {
 
     if (!tmpworkers.empty()) {
       end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, PathContext::PathType::kEndPath);
-      if (wantSummary_) {
-        end_paths_.back().useStopwatch();
-      }
     }
-    for_all(holder, boost::bind(&StreamSchedule::addToAllWorkers, this, _1));
+    for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }
 
   void StreamSchedule::beginStream() {
@@ -556,7 +547,7 @@ namespace edm {
     std::transform(trig_paths_.begin(),
                    trig_paths_.end(),
                    std::back_inserter(oLabelsToFill),
-                   boost::bind(&Path::name, _1));
+                   std::bind(&Path::name, std::placeholders::_1));
   }
 
   void
@@ -565,9 +556,9 @@ namespace edm {
     TrigPaths::const_iterator itFound =
     std::find_if (trig_paths_.begin(),
                  trig_paths_.end(),
-                 boost::bind(std::equal_to<std::string>(),
+                 std::bind(std::equal_to<std::string>(),
                              iPathLabel,
-                             boost::bind(&Path::name, _1)));
+                             std::bind(&Path::name, std::placeholders::_1)));
     if (itFound!=trig_paths_.end()) {
       oLabelsToFill.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
@@ -590,10 +581,10 @@ namespace edm {
   fillModuleInPathSummary(Path const& path,
                           size_t which,
                           ModuleInPathSummary& sum) {
-    sum.timesVisited = +path.timesVisited(which);
-    sum.timesPassed  = +path.timesPassed(which);
-    sum.timesFailed  = +path.timesFailed(which);
-    sum.timesExcept  = +path.timesExcept(which);
+    sum.timesVisited += path.timesVisited(which);
+    sum.timesPassed  += path.timesPassed(which);
+    sum.timesFailed  += path.timesFailed(which);
+    sum.timesExcept  += path.timesExcept(which);
     sum.moduleLabel  = path.getWorker(which)->description().moduleLabel();
   }
 
@@ -647,71 +638,13 @@ namespace edm {
     fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerSummary);
   }
 
-  static void
-  fillModuleInPathTimingSummary(Path const& path,
-                                size_t which,
-                                ModuleInPathTimingSummary& sum) {
-    sum.timesVisited = +path.timesVisited(which);
-    auto times = path.timeCpuReal(which);
-    sum.cpuTime  += times.first;
-    sum.realTime += path.timesFailed(which);
-    sum.moduleLabel  = path.getWorker(which)->description().moduleLabel();
-  }
-  
-  static void
-  fillPathTimingSummary(Path const& path, PathTimingSummary& sum) {
-    sum.name        = path.name();
-    sum.bitPosition = path.bitPosition();
-    sum.timesRun    += path.timesRun();
-    auto times = path.timeCpuReal();
-    sum.cpuTime  += times.first;
-    sum.realTime += times.second;
-    
-    Path::size_type sz = path.size();
-    if(sum.moduleInPathSummaries.size()==0) {
-      std::vector<ModuleInPathTimingSummary> temp(sz);
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathTimingSummary(path, i, temp[i]);
-      }
-      sum.moduleInPathSummaries.swap(temp);
-    } else {
-      assert(sz == sum.moduleInPathSummaries.size());
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathTimingSummary(path, i, sum.moduleInPathSummaries[i]);
-      }
-    }
-  }
-  
-  static void
-  fillWorkerTimingSummaryAux(Worker const& w, WorkerTimingSummary& sum) {
-    sum.timesVisited += w.timesVisited();
-    sum.timesRun     += w.timesRun();
-    auto times = w.timeCpuReal();
-    sum.cpuTime  += times.first;
-    sum.realTime += times.second;
-    sum.moduleLabel  = w.description().moduleLabel();
-  }
-  
-  static void
-  fillWorkerTimingSummary(Worker const* pw, WorkerTimingSummary& sum) {
-    fillWorkerTimingSummaryAux(*pw, sum);
-  }
-  
-  void
-  StreamSchedule::getTriggerTimingReport(TriggerTimingReport& rep) const {
-    rep.eventSummary.totalEvents += totalEvents();
-    
-    fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathTimingSummary);
-    fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathTimingSummary);
-    fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerTimingSummary);
-  }
-
   void
   StreamSchedule::clearCounters() {
+    using std::placeholders::_1;
     total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(allWorkers(), boost::bind(&Worker::clearCounters, _1));
+    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
+    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
+    for_all(allWorkers(), std::bind(&Worker::clearCounters, _1));
   }
 
   void
@@ -721,7 +654,7 @@ namespace edm {
 
   void
   StreamSchedule::addToAllWorkers(Worker* w) {
-    workerManager_.addToAllWorkers(w, wantSummary_);
+    workerManager_.addToAllWorkers(w);
   }
 
   void 

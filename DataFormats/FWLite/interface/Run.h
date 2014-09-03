@@ -24,7 +24,6 @@
 #include <vector>
 #include <memory>
 #include <cstring>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -37,10 +36,11 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -59,7 +59,7 @@ namespace fwlite {
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as Run
          Run(TFile* iFile);
-         Run(boost::shared_ptr<BranchMapReader> branchMap);
+         Run(std::shared_ptr<BranchMapReader> branchMap);
          virtual ~Run();
 
          const Run& operator++();
@@ -79,7 +79,6 @@ namespace fwlite {
          // This function should only be called by fwlite::Handle<>
          using fwlite::RunBase::getByLabel;
          virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          bool isValid() const;
@@ -96,7 +95,7 @@ namespace fwlite {
 
 //       void setGetter(//Copy from Event if needed
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
@@ -115,7 +114,7 @@ namespace fwlite {
          void updateAux(Long_t runIndex) const;
 
          // ---------- member data --------------------------------
-         mutable boost::shared_ptr<BranchMapReader> branchMap_;
+         mutable std::shared_ptr<BranchMapReader> branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<char const*> labels_;

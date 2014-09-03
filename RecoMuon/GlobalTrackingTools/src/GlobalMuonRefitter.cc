@@ -179,10 +179,12 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 
   reco::TransientTrack track(globalTrack,&*(theService->magneticField()),theService->trackingGeometry());
   
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
+
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if ((*hit)->isValid()) {
       if ((*hit)->geographicalId().det() == DetId::Tracker)
-	allRecHitsTemp.push_back(theTrackerRecHitBuilder->build(&**hit));
+	allRecHitsTemp.push_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) ) );
       else if ((*hit)->geographicalId().det() == DetId::Muon) {
 	if ((*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
 	  LogTrace(theCategory) << "RPC Rec Hit discarged"; 

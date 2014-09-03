@@ -7,7 +7,7 @@ HiggsDQM = cms.EDAnalyzer("HiggsDQM",
     muonCollection           = cms.InputTag("muons"),
     electronCollection       = cms.InputTag("gedGsfElectrons"),
     caloJetCollection        = cms.InputTag("ak4CaloJets"),
-    caloMETCollection        = cms.InputTag("corMetGlobalMuons"),
+    caloMETCollection        = cms.InputTag("caloMetM"),
     pfMETCollection          = cms.InputTag("pfMet"),
     genParticleCollection    = cms.InputTag("genParticles"),
 

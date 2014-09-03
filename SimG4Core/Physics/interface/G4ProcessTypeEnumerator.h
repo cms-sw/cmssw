@@ -25,6 +25,8 @@ public:
 
   std::string processG4Name(int);
 
+  int processId(const std::string& name);
+
 };
 #endif 
 

@@ -15,7 +15,6 @@
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -51,6 +50,7 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "Reflex/Type.h"
 
 namespace edm {
   namespace root {
@@ -59,10 +59,10 @@ namespace edm {
       FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr), reg_() {}
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
-      void set(boost::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
+      void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      WrapperOwningHolder getTheProduct(BranchKey const& k) const;
-      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
+      std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
+      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -70,15 +70,15 @@ namespace edm {
       virtual void reset_() override {}
       Long64_t entry_;
       TTree* eventTree_;
-      boost::shared_ptr<ProductRegistry const>(reg_);
+      std::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    WrapperOwningHolder
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
+    std::unique_ptr<WrapperBase>
+    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
       return getTheProduct(k);
     }
 
-    WrapperOwningHolder
+    std::unique_ptr<WrapperBase>
     FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -94,22 +94,32 @@ namespace edm {
       }
       //find the class type
       std::string const fullName = wrappedClassName(bDesc.className());
-      TypeWithDict classType = TypeWithDict::byName(fullName);
-      if(!bool(classType)) {
+      Reflex::Type classType = Reflex::Type::ByName(fullName);
+      if(classType == Reflex::Type()) {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
       }
 
       //create an instance of it
-      void const* address  = classType.construct().address();
-      if(nullptr == address) {
+      Reflex::Object wrapperObj = classType.Construct();
+      if(nullptr == wrapperObj.Address()) {
         throw cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
       }
+      void* address = wrapperObj.Address();
       branch->SetAddress(&address);
+      Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperBase"));
 
+      WrapperBase* prod = reinterpret_cast<WrapperBase*>(edProdObj.Address()); 	 
+	  	 
+      if(nullptr == prod) { 	 
+        throw cms::Exception("FailedConversion") 	 
+          << "failed to convert a '" << fullName 	 
+          << "' to a edm::WrapperBase." 	 
+          << "Please contact developers since something is very wrong."; 	 
+      }
       branch->GetEntry(entry_);
-      return WrapperOwningHolder(address, bDesc.getInterface());
+      return std::unique_ptr<WrapperBase>(prod);
     }
 
     struct TFWLiteSelectorMembers {
@@ -130,18 +140,18 @@ namespace edm {
         reader_->setTree(iTree);
       }
       TTree* tree_;
-      boost::shared_ptr<ProductRegistry> reg_;
-      boost::shared_ptr<ProcessHistoryRegistry> phreg_;
-      boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+      std::shared_ptr<ProductRegistry> reg_;
+      std::shared_ptr<ProcessHistoryRegistry> phreg_;
+      std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
       ProcessHistory processNames_;
-      boost::shared_ptr<FWLiteDelayedReader> reader_;
+      std::shared_ptr<FWLiteDelayedReader> reader_;
       std::vector<EventEntryDescription> prov_;
       std::vector<EventEntryDescription*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
 
-      boost::shared_ptr<edm::ProductProvenanceRetriever> provRetriever_;
+      std::shared_ptr<edm::ProductProvenanceRetriever> provRetriever_;
       edm::ProcessConfiguration pc_;
-      boost::shared_ptr<edm::EventPrincipal> ep_;
+      std::shared_ptr<edm::EventPrincipal> ep_;
       edm::ModuleDescription md_;
     };
   }
@@ -285,12 +295,10 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 
       try {
          m_->reader_->setEntry(iEntry);
-         boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(aux.run(), aux.time(), aux.time()));
-         boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, m_->reg_, m_->pc_, nullptr, 0));
-         boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(
-                new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
-         boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
-                new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr, 0));
+         auto runAux = std::make_shared<edm::RunAuxiliary>(aux.run(), aux.time(), aux.time());
+         auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg_, m_->pc_, nullptr, 0);
+         auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, aux.time(), aux.time());
+         auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, m_->reg_, m_->pc_, nullptr, 0);
         m_->ep_->fillEventPrincipal(*eaux,
                                     *m_->phreg_,
                                     std::move(eventSelectionIDs),
@@ -381,7 +389,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
      metaDataTree->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
   }
 
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListsHelper(new edm::BranchIDListHelper);
+  auto branchIDListsHelper = std::make_shared<edm::BranchIDListHelper>();
   edm::BranchIDLists const* branchIDListsPtr = &branchIDListsHelper->branchIDLists();
   if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != nullptr) {
     metaDataTree->SetBranchAddress(edm::poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);

@@ -29,10 +29,6 @@
 #include <unordered_map>
 #include <vector>
 
-class StrictWeakOrdering{
- public:
-  bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
-};
 
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
@@ -42,7 +38,7 @@ class SiStripRecHitMatcher;
 class GluedGeomDet;
 class SiPixelFedCabling;
 
-class MeasurementTrackerImpl final : public MeasurementTracker {
+class dso_hidden MeasurementTrackerImpl final : public MeasurementTracker {
 public:
    enum QualityFlags { BadModules=1, // for everybody
                        /* Strips: */ BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8, 

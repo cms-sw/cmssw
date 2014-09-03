@@ -39,6 +39,7 @@ namespace pat {
             edm::EDGetTokenT<reco::TrackCollection>         Tracks_;
             edm::EDGetTokenT<reco::VertexCollection>         Vertices_;
             edm::EDGetTokenT<reco::VertexCollection>         PV_;
+            edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
             double minPt_;
             double minHits_;
             double minPixelHits_;
@@ -51,6 +52,7 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   Tracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTracks"))),
   Vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("secondaryVertices"))),
   PV_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
+  PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   minPt_(iConfig.getParameter<double>("minPt")),
   minHits_(iConfig.getParameter<uint32_t>("minHits")),
   minPixelHits_(iConfig.getParameter<uint32_t>("minPixelHits"))
@@ -84,6 +86,9 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     if (!pvs->empty()) {
         PV = reco::VertexRef(pvs, 0);
     }
+    edm::Handle<reco::VertexCollection> PVOrigs;
+    iEvent.getByToken( PVOrigs_, PVOrigs );
+    const reco::Vertex & PVOrig = (*PVOrigs)[0];
 
     std::auto_ptr< std::vector<reco::Track> > outPtrP( new std::vector<reco::Track> );
     std::vector<int> used(tracks->size(),0);
@@ -121,8 +126,12 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		{
 			outPtrP->push_back(tr);
 			reco::Candidate::PolarLorentzVector p4(tr.pt(),tr.eta(),tr.phi(),0.13957018);
-			outPtrC->push_back(pat::PackedCandidate(p4,tr.vertex(),tr.phi(),0,PV));
+			outPtrC->push_back(pat::PackedCandidate(p4,tr.vertex(),tr.phi(),211*tr.charge(),PV));
 			outPtrC->back().setTrackProperties((*tracks)[i]);
+		        if(PVOrig.trackWeight(edm::Ref<reco::TrackCollection>(tracks,i)) > 0.5) {
+		                outPtrC->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
+			}
+
 			mapping[i]=j;
 			j++;
 		}

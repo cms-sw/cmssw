@@ -142,7 +142,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     for (unsigned int k = 0; k < hits.size(); k++) {
       TrackingRecHit *hit = (hits.at(k))->clone();
-      track->setHitPattern(*hit, k);
+      track->appendHitPattern(*hit);
       recHits->push_back(hit);
     }
 

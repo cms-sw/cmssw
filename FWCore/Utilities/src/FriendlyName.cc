@@ -8,7 +8,7 @@
 #include <string>
 #include <boost/regex.hpp>
 #include <iostream>
-#include <map>
+#include "tbb/concurrent_unordered_map.h"
 
 //NOTE:  This should probably be rewritten so that we break the class name into a tree where the template arguments are the node.  On the way down the tree
 // we look for '<' or ',' and on the way up (caused by finding a '>') we can apply the transformation to the output string based on the class name for the
@@ -133,8 +133,8 @@ namespace edm {
        return result;
     }
     std::string friendlyName(std::string const& iFullName) {
-       typedef std::map<std::string, std::string> Map;
-       static thread_local Map s_fillToFriendlyName;
+       typedef tbb::concurrent_unordered_map<std::string, std::string> Map;
+       static Map s_fillToFriendlyName;
        auto itFound = s_fillToFriendlyName.find(iFullName);
        if(s_fillToFriendlyName.end()==itFound) {
           itFound = s_fillToFriendlyName.insert(Map::value_type(iFullName, handleNamespaces(subFriendlyName(standardRenames(iFullName))))).first;

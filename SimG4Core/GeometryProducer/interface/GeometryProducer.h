@@ -17,7 +17,6 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 namespace sim { class FieldBuilder; }
 class SimWatcher;
@@ -29,13 +28,13 @@ class SimTrackManager;
 class GeometryProducer : public edm::EDProducer
 {
 public:
-    typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
+    typedef std::vector<std::shared_ptr<SimProducer> > Producers;
     explicit GeometryProducer(edm::ParameterSet const & p);
     virtual ~GeometryProducer();
     virtual void beginJob();
     virtual void endJob();
     virtual void produce(edm::Event & e, const edm::EventSetup & c);
-    std::vector<boost::shared_ptr<SimProducer> > producers() const
+    std::vector<std::shared_ptr<SimProducer> > producers() const
     { return m_producers; }
     std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
     std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
@@ -45,8 +44,8 @@ private:
     edm::ParameterSet m_pField;
     bool m_pUseSensitiveDetectors;
     SimActivityRegistry m_registry;
-    std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-    std::vector<boost::shared_ptr<SimProducer> > m_producers;    
+    std::vector<std::shared_ptr<SimWatcher> > m_watchers;
+    std::vector<std::shared_ptr<SimProducer> > m_producers;
     std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
     std::auto_ptr<SimTrackManager> m_trackManager;
     AttachSD * m_attach;

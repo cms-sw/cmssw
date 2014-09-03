@@ -21,19 +21,3 @@ towerSchemeBAnalyzer = cms.EDAnalyzer(
     )
     )
 
-towerOptAnalyzer = cms.EDAnalyzer(
-    "CaloTowerAnalyzer",
-    Debug = cms.bool(False),
-    CaloTowersLabel = cms.InputTag("calotoweroptmaker"),
-    FineBinning = cms.untracked.bool(False),
-    AllHist = cms.untracked.bool(True),
-    FolderName = cms.untracked.string("JetMET/CaloTowers/Optimized"),
-    HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
-    HLTSelection = cms.untracked.bool(False),
-    HLTResultsLabel = cms.InputTag("TriggerResults::HLT"),
-    HLTBitLabels = cms.VInputTag(
-    cms.InputTag("HLT_MET100"),
-    cms.InputTag("HLT_HT100U")
-    )
-)
-

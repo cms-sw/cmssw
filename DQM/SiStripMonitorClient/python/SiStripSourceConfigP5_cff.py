@@ -205,5 +205,5 @@ TrackEffMon_hi.AlgoName                            = 'HeavyIonTk'
 TrackEffMon_hi.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Services needed for TkHistoMap
-#TkDetMap = cms.Service("TkDetMap")
+TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")

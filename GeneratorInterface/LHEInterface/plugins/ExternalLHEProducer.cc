@@ -27,8 +27,9 @@ Implementation:
 #include <fcntl.h>
 #include <sys/wait.h>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/ptr_container/ptr_deque.hpp>
+#include "boost/bind.hpp"
+#include "boost/shared_ptr.hpp"
+#include "boost/ptr_container/ptr_deque.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -158,8 +159,16 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       new LHEEventProduct(*partonLevel->getHEPEUP(),
 				   partonLevel->originalXWGTUP())
 	       );
-  if (partonLevel->getPDF())
+  if (partonLevel->getPDF()) {
     product->setPDF(*partonLevel->getPDF());
+  }
+  std::for_each(partonLevel->weights().begin(),
+                partonLevel->weights().end(),
+                boost::bind(&LHEEventProduct::addWeight,
+                            product.get(), _1));
+  product->setScales(partonLevel->scales());
+  product->setNpLO(partonLevel->npLO());
+  product->setNpNLO(partonLevel->npNLO());
   std::for_each(partonLevel->getComments().begin(),
                 partonLevel->getComments().end(),
                 boost::bind(&LHEEventProduct::addComment,

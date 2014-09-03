@@ -59,18 +59,26 @@
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
-namespace cond {
-  template <> CSCReadoutMapping* createPayload<CSCReadoutMapping>( const std::string& payloadTypeName ){
-    if( payloadTypeName == "CSCReadoutMappingFromFile" ) return new CSCReadoutMappingFromFile;
-    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
-		   "createPayload" );
-  }
-  template <> CSCReadoutMappingForSliceTest* createPayload<CSCReadoutMappingForSliceTest>( const std::string& payloadTypeName ){
-    if( payloadTypeName == "CSCReadoutMappingFromFile" ) return new CSCReadoutMappingFromFile;
-    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
-		   "createPayload" );
-  }
 
+namespace cond {
+  template <> boost::shared_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>( const std::string& payloadType,
+                                                                                     const Binary& payloadData,
+                                                                                     const Binary& streamerInfoData,
+                                                                                     bool unpackingOnly ){
+    // DESERIALIZE_BASE_CASE( CSCReadoutMapping ); abstract
+    DESERIALIZE_POLIMORPHIC_CASE( CSCReadoutMapping, CSCReadoutMappingFromFile );
+    // here we come if none of the deserializations above match the payload type:
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+  }
+  template <> boost::shared_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>( const std::string& payloadType,
+                                                                                     const Binary& payloadData,
+                                                                                     const Binary& streamerInfoData,
+                                                                                     bool unpackingOnly ){
+    // DESERIALIZE_BASE_CASE( CSCReadoutMappingForSliceTest ); abstract
+    DESERIALIZE_POLIMORPHIC_CASE( CSCReadoutMappingForSliceTest, CSCReadoutMappingFromFile );
+    // here we come if none of the deserializations above match the payload type:
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+  }
 }
 
 

@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -52,7 +51,6 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector && iC
 }
 
 JetExtractor::~JetExtractor(){
-  if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
   if (theAssociatorParameters) delete theAssociatorParameters;
   if (theService) delete theService;
   if (theAssociator) delete theAssociator;

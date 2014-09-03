@@ -246,8 +246,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   ptThresholdUnc_=parameters_.getParameter<double>("ptThresholdUnc");
   asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
   balanceThirdJetCut_   = parameters_.getParameter<double>("balanceThirdJetCut");
-
-  dbe_= edm::Service<DQMStore>().operator->();
 }  
   
 
@@ -260,11 +258,6 @@ JetAnalyzer::~JetAnalyzer() {
   delete DCSFilterForDCSMonitoring_;
   delete DCSFilterForJetMonitoring_;
   LogTrace(metname)<<"[JetAnalyzer] Saving the histos";
-  //--- Jet
-  if(outputMEsInRootFile){
-      //dbe_->save(mOutputFile_);
-    dbe_->save(mOutputFile_);
-  }
 }
 
 // ***********************************************************
@@ -2318,10 +2311,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }//DPhi cut of 2.1
   }//dijet selection, check if both leading jets are IDed
   
-}
-
-// ***********************************************************
-void JetAnalyzer::endJob(void) {
 }
 
 

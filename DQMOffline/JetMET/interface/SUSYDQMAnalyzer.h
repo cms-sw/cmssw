@@ -27,10 +27,8 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  private:
   edm::ParameterSet iConfig;
 
-  virtual void beginJob();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
   edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollectionToken;
   edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionToken;
@@ -46,8 +44,6 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
 
   std::string SUSYFolder;
   static const char* messageLoggerCatregory;
-  
-  DQMStore* dqm;
 
   //Susy DQM storing elements
   //remove TCMET and JPT related variables

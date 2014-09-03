@@ -16,6 +16,7 @@
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
+
 // required for compiling ( the only available constructor in this class ). Can't be used in persistency without this...
 namespace cond {
   template <> HcalCalibrationQIEData* createPayload<HcalCalibrationQIEData>( const std::string& payloadTypeName ){

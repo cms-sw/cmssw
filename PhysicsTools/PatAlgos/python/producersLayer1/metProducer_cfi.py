@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patMETs = cms.EDProducer("PATMETProducer",
     # input
-    metSource  = cms.InputTag("pfType1CorrectedMet"),
+    metSource  = cms.InputTag("pfMetT1"), #pfType1CorrectedMet
 
     # add user data
     userData = cms.PSet(

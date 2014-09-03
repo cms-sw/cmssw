@@ -15,7 +15,7 @@
 #include <TFile.h>
 #include <TPluginManager.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <algorithm>
 #include <sstream>

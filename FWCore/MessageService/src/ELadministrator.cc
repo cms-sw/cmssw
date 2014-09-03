@@ -111,7 +111,7 @@ void ELadministrator::log(edm::ErrorObj & msg) {
     << std::endl;
     attach(ELoutput(std::cerr));
   }
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     if (  (*d)->log( msg )  )
       msg.setReactedTo ( true );
@@ -127,7 +127,7 @@ void ELadministrator::log(edm::ErrorObj & msg) {
 
 ELdestControl ELadministrator::attach( const ELdestination & sink )  {
 
-  boost::shared_ptr<ELdestination> dest(sink.clone());
+  std::shared_ptr<ELdestination> dest(sink.clone());
   sinks().push_back( dest );
   return ELdestControl( dest );
 
@@ -135,7 +135,7 @@ ELdestControl ELadministrator::attach( const ELdestination & sink )  {
 
 ELdestControl ELadministrator::attach(  const ELdestination & sink,
                                         const ELstring & name )     {
-  boost::shared_ptr<ELdestination> dest(sink.clone());
+  std::shared_ptr<ELdestination> dest(sink.clone());
   attachedDestinations_[name] = dest;
   sinks().push_back( dest );
   return ELdestControl( dest );
@@ -201,7 +201,7 @@ void ELadministrator::resetSeverityCount()  {
 // Accessors:
 // ----------------------------------------------------------------------
 
-std::list<boost::shared_ptr<ELdestination> > & ELadministrator::sinks()  { return sinks_; }
+std::list<std::shared_ptr<ELdestination> > & ELadministrator::sinks()  { return sinks_; }
 
 
 const ELseverityLevel & ELadministrator::highSeverity() const  {
@@ -225,7 +225,7 @@ int ELadministrator::severityCounts( const int lev ) const  {
 
 void ELadministrator::setThresholds( const ELseverityLevel & sev )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->threshold = sev;
 
@@ -234,7 +234,7 @@ void ELadministrator::setThresholds( const ELseverityLevel & sev )  {
 
 void ELadministrator::setLimits( const ELstring & id, int limit )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setLimit( id, limit );
 
@@ -244,7 +244,7 @@ void ELadministrator::setLimits( const ELstring & id, int limit )  {
 void ELadministrator::setIntervals
 			( const ELseverityLevel & sev, int interval )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setInterval( sev, interval );
 
@@ -252,7 +252,7 @@ void ELadministrator::setIntervals
 
 void ELadministrator::setIntervals( const ELstring & id, int interval )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setInterval( id, interval );
 
@@ -261,7 +261,7 @@ void ELadministrator::setIntervals( const ELstring & id, int interval )  {
 
 void ELadministrator::setLimits( const ELseverityLevel & sev, int limit )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setLimit( sev, limit );
 
@@ -270,7 +270,7 @@ void ELadministrator::setLimits( const ELseverityLevel & sev, int limit )  {
 
 void ELadministrator::setTimespans( const ELstring & id, int seconds )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setTimespan( id, seconds );
 
@@ -279,7 +279,7 @@ void ELadministrator::setTimespans( const ELstring & id, int seconds )  {
 
 void ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.setTimespan( sev, seconds );
 
@@ -288,7 +288,7 @@ void ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )  
 
 void ELadministrator::wipe()  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.wipe();
 
@@ -296,7 +296,7 @@ void ELadministrator::wipe()  {
 
 void ELadministrator::finish()  {
 
-  std::list<boost::shared_ptr<ELdestination> >::iterator d;
+  std::list<std::shared_ptr<ELdestination> >::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->finish();
 

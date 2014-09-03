@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="11">
+  <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="12">
+   <version ClassVersion="12" checksum="1712216203"/>
    <version ClassVersion="11" checksum="834943006"/>
    <version ClassVersion="10" checksum="2474445311"/>
   </class>
@@ -48,7 +49,8 @@
    <version ClassVersion="11" checksum="427184586"/>
    <version ClassVersion="10" checksum="1602539953"/>
   </class>
-  <class name="SiTrackerMultiRecHit" ClassVersion="11">
+  <class name="SiTrackerMultiRecHit" ClassVersion="12">
+   <version ClassVersion="12" checksum="561999321"/>
    <version ClassVersion="11" checksum="2489323248"/>
    <version ClassVersion="10" checksum="2607997209"/>
   </class>

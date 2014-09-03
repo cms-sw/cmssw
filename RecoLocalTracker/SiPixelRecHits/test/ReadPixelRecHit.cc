@@ -48,6 +48,8 @@ ReadPixelRecHit::ReadPixelRecHit(edm::ParameterSet const& conf) :
   conf_(conf),
   src_( conf.getParameter<edm::InputTag>( "src" ) ) { 
     print = conf.getUntrackedParameter<bool>("Verbosity",false);
+
+    cout<<" Verbosity "<<print<<endl;
 }
 //----------------------------------------------------------------------
 // Virtual destructor needed.
@@ -119,6 +121,37 @@ void ReadPixelRecHit::beginJob() {
   hsize1 = fs->make<TH1F>( "hsize1", "layer 1 clu size",100,-0.5,99.5);
   hsize2 = fs->make<TH1F>( "hsize2", "layer 2 clu size",100,-0.5,99.5);
   hsize3 = fs->make<TH1F>( "hsize3", "layer 3 clu size",100,-0.5,99.5);
+
+  hAlignErrorX1 = fs->make<TH1F>( "hAlignErrorX1", "Align error Layer 1 X", 100,0.0,100.);
+  hAlignErrorY1 = fs->make<TH1F>( "hAlignErrorY1", "Align error Layer 1 Y", 100,0.0,100.);
+  hAlignErrorX2 = fs->make<TH1F>( "hAlignErrorX2", "Align error Layer 2 X", 100,0.0,100.);
+  hAlignErrorY2 = fs->make<TH1F>( "hAlignErrorY2", "Align error Layer 2 Y", 100,0.0,100.);
+  hAlignErrorX3 = fs->make<TH1F>( "hAlignErrorX3", "Align error Layer 3 X", 100,0.0,100.);
+  hAlignErrorY3 = fs->make<TH1F>( "hAlignErrorY3", "Align error Layer 3 Y", 100,0.0,100.);
+  hAlignErrorX4 = fs->make<TH1F>( "hAlignErrorX4", "Align error Disk -1 X", 100,0.0,100.);
+  hAlignErrorY4 = fs->make<TH1F>( "hAlignErrorY4", "Align error Disk -1 Y", 100,0.0,100.);
+  hAlignErrorX5 = fs->make<TH1F>( "hAlignErrorX5", "Align error Disk -2 X", 100,0.0,100.);
+  hAlignErrorY5 = fs->make<TH1F>( "hAlignErrorY5", "Align error Disk -2 Y", 100,0.0,100.);
+  hAlignErrorX6 = fs->make<TH1F>( "hAlignErrorX6", "Align error Disk +1 X", 100,0.0,100.);
+  hAlignErrorY6 = fs->make<TH1F>( "hAlignErrorY6", "Align error Disk +1 Y", 100,0.0,100.);
+  hAlignErrorX7 = fs->make<TH1F>( "hAlignErrorX7", "Align error Disk +2 X", 100,0.0,100.);
+  hAlignErrorY7 = fs->make<TH1F>( "hAlignErrorY7", "Align error Disk +2 Y", 100,0.0,100.);
+
+  hErrorX1 = fs->make<TH1F>( "hErrorX1", "Error Layer 1 X", 100,0.0,100.);
+  hErrorY1 = fs->make<TH1F>( "hErrorY1", "Error Layer 1 Y", 100,0.0,100.);
+  hErrorX2 = fs->make<TH1F>( "hErrorX2", "Error Layer 2 X", 100,0.0,100.);
+  hErrorY2 = fs->make<TH1F>( "hErrorY2", "Error Layer 2 Y", 100,0.0,100.);
+  hErrorX3 = fs->make<TH1F>( "hErrorX3", "Error Layer 3 X", 100,0.0,100.);
+  hErrorY3 = fs->make<TH1F>( "hErrorY3", "Error Layer 3 Y", 100,0.0,100.);
+  hErrorX4 = fs->make<TH1F>( "hErrorX4", "Error Disk -1 X", 100,0.0,100.);
+  hErrorY4 = fs->make<TH1F>( "hErrorY4", "Error Disk -1 Y", 100,0.0,100.);
+  hErrorX5 = fs->make<TH1F>( "hErrorX5", "Error Disk -2 X", 100,0.0,100.);
+  hErrorY5 = fs->make<TH1F>( "hErrorY5", "Error Disk -2 Y", 100,0.0,100.);
+  hErrorX6 = fs->make<TH1F>( "hErrorX6", "Error Disk +1 X", 100,0.0,100.);
+  hErrorY6 = fs->make<TH1F>( "hErrorY6", "Error Disk +1 Y", 100,0.0,100.);
+  hErrorX7 = fs->make<TH1F>( "hErrorX7", "Error Disk +2 X", 100,0.0,100.);
+  hErrorY7 = fs->make<TH1F>( "hErrorY7", "Error Disk +2 Y", 100,0.0,100.);
+
   hsizex1 = fs->make<TH1F>( "hsizex1", "lay1 clu size in x",
                       10,-0.5,9.5);
   hsizex2 = fs->make<TH1F>( "hsizex2", "lay2 clu size in x",
@@ -177,6 +210,17 @@ void ReadPixelRecHit::beginJob() {
   hdetsPerLay2F = fs->make<TH1F>( "hdetsPerLay2F", "Full dets per layer l2",
                            257, -0.5, 256.5);
 
+  hErrorXB = fs->make<TProfile>("hErrorXB","bpix x errors per ladder",220,0.,220.,0.0,1000.);
+  hErrorXF = fs->make<TProfile>("hErrorXF","fpix x errors per ladder",100,0.,100.,0.0,1000.);
+  hErrorYB = fs->make<TProfile>("hErrorYB","bpix y errors per ladder",220,0.,220.,0.0,1000.);
+  hErrorYF = fs->make<TProfile>("hErrorYF","fpix y errors per ladder",100,0.,100.,0.0,1000.);
+
+  hAErrorXB = fs->make<TProfile>("hAErrorXB","bpix x errors per ladder",220,0.,220.,0.0,1000.);
+  hAErrorXF = fs->make<TProfile>("hAErrorXF","fpix x errors per ladder",100,0.,100.,0.0,1000.);
+  hAErrorYB = fs->make<TProfile>("hAErrorYB","bpix y errors per ladder",220,0.,220.,0.0,1000.);
+  hAErrorYF = fs->make<TProfile>("hAErrorYF","fpix y errors per ladder",100,0.,100.,0.0,1000.);
+
+
   cout<<" book histos "<<endl;
 
 #endif
@@ -190,8 +234,8 @@ void ReadPixelRecHit::endJob(){
 void ReadPixelRecHit::analyze(const edm::Event& e, 
 			      const edm::EventSetup& es) {
   using namespace edm;
-  //const bool localPrint = false;
-  const bool localPrint = true;
+  const bool localPrint = false;
+  //const bool localPrint = true;
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -264,7 +308,18 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
     //int cols = theGeomDet->specificTopology().ncolumns(); UNUSED
     //int rows = theGeomDet->specificTopology().nrows();
 
-    unsigned int layer=0, disk=0, ladder=0, zindex=0, blade=0, panel=0;
+    float alignErrorX= 0., alignErrorY=0.;
+    LocalError lape = theGeomDet->localAlignmentError();
+    //cout<<lape.valid()<<endl;
+    if (lape.valid()) {
+      if(lape.xx()>0.) alignErrorX = sqrt(lape.xx())*1E4;
+      //float tmp12= sqrt(lape.xy())*1E4;
+      if(lape.yy()>0.) alignErrorY = sqrt(lape.yy())*1E4;
+      if(print) cout<<" Alignment errors "<<alignErrorX<<" "<<alignErrorY<<endl;
+      //cout<<" Alignment errors "<<alignErrorX<<" "<<alignErrorY<<endl;
+    }
+
+    unsigned int layer=0, disk=0, ladder=0, zindex=0, blade=0, panel=0, side=0;
     if(subid==1) {  // Subdet it, pix barrel=1 
       ++numberOfDetUnits;
       
@@ -277,6 +332,8 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
       ladder=pdetId.ladder();
       // Barrel Z-index=1,8
       zindex=pdetId.module();
+      if(zindex<5) side=1; else side=2;
+
       if(localPrint)
 	cout<<" Layer "<<layer<<" ladder "<<ladder<<" z "<<zindex<<endl;
       //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" "<<endl;
@@ -298,7 +355,7 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
       PXFDetId pdetId = PXFDetId(detId.rawId());
       disk=pdetId.disk(); //1,2,3
       blade=pdetId.blade(); //1-24
-      unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
+      side=pdetId.side(); //size=1 for -z, 2 for +z
       panel=pdetId.panel(); //panel=1,2
       unsigned int module=pdetId.module(); // plaquette
 
@@ -321,24 +378,62 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
     if(layer==1) {
       hladder1id->Fill(float(ladder));
       hz1id->Fill(float(zindex));
+      hAlignErrorX1->Fill(alignErrorX);
+      hAlignErrorY1->Fill(alignErrorY);
+      hAErrorXB->Fill(float(ladder+(110*(side-1))),alignErrorX);
+      hAErrorYB->Fill(float(ladder+(110*(side-1))),alignErrorY);
       ++numberOfDetUnits1;
       numOfRecHitsPerDet1=0; 
+
     } else if(layer==2) {
       hladder2id->Fill(float(ladder));
       hz2id->Fill(float(zindex));
+      hAlignErrorX2->Fill(alignErrorX);
+      hAlignErrorY2->Fill(alignErrorY);
+      hAErrorXB->Fill(float(ladder+25+(110*(side-1))),alignErrorX);
+      hAErrorYB->Fill(float(ladder+25+(110*(side-1))),alignErrorY);
       ++numberOfDetUnits2;
       numOfRecHitsPerDet2=0;
+
     } else if(layer==3) {
       hladder3id->Fill(float(ladder));
       hz3id->Fill(float(zindex));
+      hAlignErrorX3->Fill(alignErrorX);
+      hAlignErrorY3->Fill(alignErrorY);
+      hAErrorXB->Fill(float(ladder+60+(110*(side-1))),alignErrorX);
+      hAErrorYB->Fill(float(ladder+60+(110*(side-1))),alignErrorY);
       ++numberOfDetUnits3;
       numOfRecHitsPerDet3=0;
+
     } else if(disk==1) {
       ++numberOfDetUnits1F;
       numOfRecHitsPerDet1F=0;
+      if(side==1) {
+	hAlignErrorX4->Fill(alignErrorX);
+	hAlignErrorY4->Fill(alignErrorY);
+	hAErrorXF->Fill(float(blade+25),alignErrorX);
+	hAErrorYF->Fill(float(blade+25),alignErrorY);
+      } else {
+	hAlignErrorX6->Fill(alignErrorX);
+	hAlignErrorY6->Fill(alignErrorY);
+	hAErrorXF->Fill(float(blade+50),alignErrorX);
+	hAErrorYF->Fill(float(blade+50),alignErrorY);
+      }
+
     } else if(disk==2) {
       ++numberOfDetUnits2F;
       numOfRecHitsPerDet2F=0;
+      if(side==1) {
+	hAlignErrorX5->Fill(alignErrorX);
+	hAlignErrorY5->Fill(alignErrorY);
+	hAErrorXF->Fill(float(blade),alignErrorX);
+	hAErrorYF->Fill(float(blade),alignErrorY);
+      } else {
+	hAlignErrorX7->Fill(alignErrorX);
+	hAlignErrorY7->Fill(alignErrorY);
+	hAErrorXF->Fill(float(blade+75),alignErrorX);
+	hAErrorYF->Fill(float(blade+75),alignErrorY);
+      }
     }
 #endif  
    
@@ -347,18 +442,17 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
     SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
     for(;pixeliter!=rechitRangeIteratorEnd;++pixeliter) { //loop on the rechit
 
-      if(print) cout <<" No Position " << endl;
-
       numOfRecHits++;
 
       // RecHit local position is now transient, 
-      // one needs to run tracking to get position 
-      //LocalPoint lp = pixeliter->localPosition();
-      //LocalError le = pixeliter->localPositionError(); UNUSED
-      //float xRecHit = lp.x();
-      //float yRecHit = lp.y();
-      //if(localPrint) cout<<" RecHit: "<<numOfRecHits<<" "<<xRecHit<<" "
-      //		 <<yRecHit<<endl;
+      // one needs to run tracking to get position OR rerun localreco 
+      LocalPoint lp = pixeliter->localPosition();
+      LocalError le = pixeliter->localPositionError();
+      float xRecHit = lp.x();
+      float yRecHit = lp.y();
+      float xerror = sqrt(le.xx())*1E4;
+      float yerror = sqrt(le.yy())*1E4;
+      if(print) cout<<" RecHit: "<<numOfRecHits<<" x/y "<<xRecHit<<" "<<yRecHit<<" errors x/y "<<xerror<<" "<<yerror<<endl;
       
       //MeasurementPoint mp = topol->measurementPosition(xRecHit,yRecHit);
       //GlobalPoint GP = PixGeom->surface().toGlobal(Local3DPoint(lp));
@@ -386,10 +480,12 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
       bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) ||
         (topol->isItEdgePixelInY(maxPixelCol));
 
-      if(localPrint) 
+      if(print) 
 	cout<<"Clu: charge "<<ch<<" size "<<size<<" size x/y "<<sizeX<<" "
 	    <<sizeY<<" meas. "<<xClu<<" "<<yClu<<" edge "<<edgeHitX<<" "<<edgeHitY<<endl;
       
+      if(print) cout<<" pixels:"<<endl;
+
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel>& pixelsVec = clust->pixels();
       //if(localPrint) cout<<" Pixels in this cluster "<<endl;
@@ -402,18 +498,15 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
 
 	// OLD way
 	//int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
-	//if(RectangularPixelTopology::isItBigPixelInX(int(pixx))) bigInX=true;
-	//if(RectangularPixelTopology::isItBigPixelInY(int(pixy))) bigInY=true; 
-	
-	//bool bigInX = (PixelTopology::isItBigPixelInX(int(pixx)));
-	//bool bigInY = (PixelTopology::isItBigPixelInY(int(pixy)));
+	bool bigInX = topol->isItBigPixelInX(int(pixx));
+	bool bigInY = topol->isItBigPixelInY(int(pixy));
 	
 	bool edgeInX = topol->isItEdgePixelInX(int(pixx));
 	bool edgeInY = topol->isItEdgePixelInY(int(pixy));
 	  
-	if(localPrint)
-	  cout<<i<<" "<<pixx<<" "<<pixy<<" "<<adc<<" "
-	      <<edgeInX<<" "<<edgeInY<<endl;
+	if(print)
+	  cout<<i<<" index "<<pixx<<" "<<pixy<<" adc "<<adc<<" edge "
+	      <<edgeInX<<" "<<edgeInY<<" big "<<bigInX<<" "<<bigInY<<endl;
 	
 
 	//if(print && sizeX==1 && bigInX) 
@@ -439,54 +532,90 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
 #ifdef DO_HISTO
       if(layer==1) {
 	hcharge1->Fill(ch);
-	//hxpos1->Fill(yRecHit);
-	//hypos1->Fill(xRecHit);
+	hxpos1->Fill(yRecHit);
+	hypos1->Fill(xRecHit);
 	hsize1->Fill(float(size));
 	hsizex1->Fill(float(sizeX));
 	hsizey1->Fill(float(sizeY));
 	numOfRecHitsPerDet1++;
 	numOfRecHitsPerLay1++;
+	hErrorX1->Fill(xerror);
+	hErrorY1->Fill(yerror);
+	hErrorXB->Fill(float(ladder+(110*(side-1))),xerror);
+	hErrorYB->Fill(float(ladder+(110*(side-1))),yerror);
+
       } else if(layer==2) {  // layer 2
 	
 	hcharge2->Fill(ch);
-	//hxpos2->Fill(yRecHit);
-	//hypos2->Fill(xRecHit);
+	hxpos2->Fill(yRecHit);
+	hypos2->Fill(xRecHit);
 	hsize2->Fill(float(size));
 	hsizex2->Fill(float(sizeX));
 	hsizey2->Fill(float(sizeY));
 	numOfRecHitsPerDet2++;
 	numOfRecHitsPerLay2++;
+	hErrorX2->Fill(xerror);
+	hErrorY2->Fill(yerror);
+	hErrorXB->Fill(float(ladder+25+(110*(side-1))),xerror);
+	hErrorYB->Fill(float(ladder+25+(110*(side-1))),yerror);
+
       } else if(layer==3) {  // Layer 3
 	
 	hcharge3->Fill(ch);
-	//hxpos3->Fill(yRecHit);
-	//hypos3->Fill(xRecHit);
+	hxpos3->Fill(yRecHit);
+	hypos3->Fill(xRecHit);
 	hsize3->Fill(float(size));
 	hsizex3->Fill(float(sizeX));
 	hsizey3->Fill(float(sizeY));
 	numOfRecHitsPerDet3++;
 	numOfRecHitsPerLay3++;
+	hErrorX3->Fill(xerror);
+	hErrorY3->Fill(yerror);
+	hErrorXB->Fill(float(ladder+60+(110*(side-1))),xerror);
+	hErrorYB->Fill(float(ladder+60+(110*(side-1))),yerror);
+
       } else if(disk==1) {
 	
 	hcharge1F->Fill(ch);
-	//hxpos1F->Fill(yRecHit);
-	//hypos1F->Fill(xRecHit);
+	hxpos1F->Fill(yRecHit);
+	hypos1F->Fill(xRecHit);
 	hsize1F->Fill(float(size));
 	hsizex1F->Fill(float(sizeX));
 	hsizey1F->Fill(float(sizeY));
-	
+	if(side==1) { // -z
+	  hErrorX4->Fill(xerror);
+	  hErrorY4->Fill(yerror);
+	  hErrorXF->Fill(float(blade+25),xerror);
+	  hErrorYF->Fill(float(blade+25),yerror);
+	} else { // +z
+	  hErrorX6->Fill(xerror);
+	  hErrorY6->Fill(yerror);
+	  hErrorXF->Fill(float(blade+50),xerror);
+	  hErrorYF->Fill(float(blade+50),yerror);
+	}
 	numOfRecHitsPerDet1F++;
 	numOfRecHitsPerLay1F++;
       } else if(disk==2) {  // disk 2
 	
 	hcharge2F->Fill(ch);
-	//hxpos2F->Fill(yRecHit);
-	//hypos2F->Fill(xRecHit);
+	hxpos2F->Fill(yRecHit);
+	hypos2F->Fill(xRecHit);
 	hsize2F->Fill(float(size));
 	hsizex2F->Fill(float(sizeX));
 	hsizey2F->Fill(float(sizeY));
 	numOfRecHitsPerDet2F++;
 	numOfRecHitsPerLay2F++;
+	if(side==1) { // -z
+	  hErrorX5->Fill(xerror);
+	  hErrorY5->Fill(yerror);
+	  hErrorXF->Fill(float(blade),xerror);
+	  hErrorYF->Fill(float(blade),yerror);
+	} else { // +z
+	  hErrorX7->Fill(xerror);
+	  hErrorY7->Fill(yerror);
+	  hErrorXF->Fill(float(blade+75),xerror);
+	  hErrorYF->Fill(float(blade+75),yerror);
+	}
       }
 #endif  
       

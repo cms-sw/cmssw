@@ -14,13 +14,8 @@ class CustomUIsession : public G4UIsession
   CustomUIsession();
   ~CustomUIsession();
 
-  G4int ReceiveG4cout(G4String coutString);
-  G4int ReceiveG4cerr(G4String cerrString);
-
- protected:
-
-  G4UImanager* UI;
-
+  G4int ReceiveG4cout(const G4String& coutString) override;
+  G4int ReceiveG4cerr(const G4String& cerrString) override;
 };
 
 #endif

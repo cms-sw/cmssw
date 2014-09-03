@@ -7,8 +7,6 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
- *
  */
 #include <boost/shared_ptr.hpp>
 #include <vector>

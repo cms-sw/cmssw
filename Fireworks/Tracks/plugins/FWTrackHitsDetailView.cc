@@ -448,6 +448,8 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 		  shape->SetMainColor( iItem->defaultDisplayProperties().color());
 		  break;
 	       case TrackingRecHit::missing:
+	       case TrackingRecHit::missing_inner:
+	       case TrackingRecHit::missing_outer:
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;

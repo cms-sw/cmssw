@@ -133,9 +133,8 @@ protected:
   DDGeoHistory history_; //!< std::vector of DDExpandedNode
   DDGeoHistory scope_; //!< scope of the expanded view
   unsigned int depth_; //!< depth of the scope, 0==unrestricted depth
-  DDPosData * worldpos_ ; //!< ???
+  const DDPosData * worldpos_ ; //!< ???
   std::vector<nav_type> nextBStack_;
-  //std::map<std::string,std::string> dummySpecifics_;    
 };
 
 std::ostream & printNavType(std::ostream &, int const * n, size_t sz);

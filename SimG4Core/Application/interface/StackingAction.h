@@ -12,11 +12,12 @@
 #include <vector>
 
 class NewTrackAction;
+class TrackingAction;
 
 class StackingAction : public G4UserStackingAction {
 
 public:
-  StackingAction(const edm::ParameterSet & ps);
+  StackingAction(const TrackingAction*, const edm::ParameterSet & ps);
   virtual ~StackingAction();
 
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack);
@@ -48,8 +49,10 @@ private:
   bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
+  bool                          killGamma;
   double                        limitEnergyForVacuum;
   double                        kmaxIon, kmaxNeutron, kmaxProton;
+  double                        kmaxGamma;
   double                        maxTrackTime;
   unsigned int                  numberTimes;
   std::vector<double>           maxTrackTimes;
@@ -63,6 +66,7 @@ private:
   std::vector<const G4Region*>  lowdensRegions;
   std::vector<const G4Region*>  deadRegions;
 
+  const TrackingAction*         trackAction;
   NewTrackAction*               newTA;
 
   // Russian roulette regions

@@ -1,5 +1,5 @@
 #include "FTFPCMS_BERT_HP_EML.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -16,8 +16,8 @@
 
 FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
-			   sim::FieldBuilder *fieldBuilder_, 
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+			   sim::ChordFinderSetter *chordFinderSetter_, 
+			   const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -33,7 +33,7 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+    RegisterPhysics( new CMSEmStandardPhysicsXS(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
@@ -66,6 +66,6 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
+  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

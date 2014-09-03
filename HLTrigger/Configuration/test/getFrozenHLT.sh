@@ -1,9 +1,10 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="2013 2013"
+TABLES="2014 2014"
 # HLT_8E33v2="/online/collisions/2012/8e33/v2.4/HLT"
-HLT_2013="/online/collisions/2012/8e33/v3.2/HLT"
+# HLT_2013="/online/collisions/2012/8e33/v3.2/HLT"
+HLT_2014="/dev/CMSSW_7_1_0/GRun"
 
 # print extra messages ?
 VERBOSE=false

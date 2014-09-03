@@ -111,7 +111,6 @@ namespace cms
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
       rn0 = 7;
     //rn0 = 3;
-      theFP420NumberingScheme = new FP420NumberingScheme();
     
     //  produces<DigiCollectionFP420>();
     
@@ -228,7 +227,7 @@ namespace cms
 	FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
 	// below, the continues plane index should be (for even different sensor index zside)
 	//	unsigned int intindex = packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-	unsigned int intindex = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	unsigned int intindex = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	//	int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
 	//	unsigned int intindex = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 
@@ -257,7 +256,7 @@ namespace cms
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
 	    for (int zside=1; zside<rn0; zside++) {
 	      // intindex is a continues numbering of FP420
-	      unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	      unsigned int detID = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	      // int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
 	      // unsigned int detID = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 	      std::vector<HDigiFP420> collector;
@@ -327,13 +326,13 @@ namespace cms
 	  
 	  
 	  
-	  unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	  unsigned int iu = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	  if(verbosity>0 || verbosity==-50) std::cout <<"for Hits iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
 	  //   int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
 	  //  unsigned int iu = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 
 	  if(verbosity>0) {
-	    unsigned int index = theFP420NumberingScheme->FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
+	    unsigned int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	    std::cout << " DigitizerFP420:       index = " <<  index <<  " iu = " << iu  << std::endl;
 	  }
 	  
@@ -431,14 +430,14 @@ namespace cms
 	  for (int sector=1; sector<sn0; sector++) {
 	    for (int zmodule=1; zmodule<pn0; zmodule++) {
 	      for (int zside=1; zside<rn0; zside++) {
-		unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-		int layer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn0,zside);
-		int orient = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn0,zside);
+		unsigned int iu = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+		int layer = FP420NumberingScheme::unpackLayerIndex(rn0,zside);
+		int orient = FP420NumberingScheme::unpackOrientation(rn0,zside);
 		std::cout << "****DigitizerFP420:check2" << std::endl;
 		//	std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
 		//	std::cout <<" layer = " << layer <<" orient = " << orient << std::endl;
 		int newdet, newzside, newsector, newzmodule;
-		theFP420NumberingScheme->FP420NumberingScheme::unpackMYIndex(iu, rn0, pn0, sn0, newdet, newzside, newsector, newzmodule);
+		FP420NumberingScheme::unpackMYIndex(iu, rn0, pn0, sn0, newdet, newzside, newsector, newzmodule);
 		std::cout <<" newdet = " << newdet <<" newsector = " << newsector <<" newzmodule = " << newzmodule <<" newzside = " << newzside << std::endl;
 		
 		collector.clear();

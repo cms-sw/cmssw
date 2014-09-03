@@ -955,8 +955,8 @@ ReferenceTrajectory::getHitProjectionMatrixT
 {
   // define variables that will be used to setup the KfComponentsHolder
   // (their allocated memory is needed by 'hitPtr->getKfComponents(..)'
-  // ProjectMatrix<double,5,N>  pf; // not needed
-  typename AlgebraicROOTObject<N,5>::Matrix H; 
+
+  ProjectMatrix<double,5,N>  pf; 
   typename AlgebraicROOTObject<N>::Vector r, rMeas; 
   typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas;
   // input for the holder - but dummy is OK here to just get the projection matrix:
@@ -965,7 +965,7 @@ ReferenceTrajectory::getHitProjectionMatrixT
 
   // setup the holder with the correct dimensions and get the values
   KfComponentsHolder holder;
-  holder.setup<N>(&r, &V, &H, /*&pf,*/ &rMeas, &VMeas, dummyPars, dummyErr);
+  holder.setup<N>(&r, &V, &pf, &rMeas, &VMeas, dummyPars, dummyErr);
   hitPtr->getKfComponents(holder);
 
   return asHepMatrix<N,5>(holder.projection<N>());

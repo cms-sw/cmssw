@@ -108,11 +108,13 @@ TransientTrackingRecHit::ConstRecHitContainer
 TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 
   TransientTrackingRecHit::ConstRecHitContainer result;
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
+
   
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       if ( (*hit)->geographicalId().det() == DetId::Tracker ) {
-	result.emplace_back((**hit).cloneSH());
+	result.emplace_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) ) );
       } else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
 	  LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 

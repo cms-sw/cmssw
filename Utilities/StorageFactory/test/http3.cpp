@@ -6,7 +6,7 @@ int main (int, char **/*argv*/) try
   initTest();
 
   bool exists = StorageFactory::get ()->check
-    ("https://cmssdt.cern.ch/SDT/index.html");
+    ("http://home.web.cern.ch");
 
   std::cout << "exists = " << exists << "\n";
   std::cout << "stats:\n" << StorageAccount::summaryText () << std::endl;

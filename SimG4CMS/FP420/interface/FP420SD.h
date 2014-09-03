@@ -59,7 +59,7 @@ class FP420SD : public SensitiveTkDetector,
 
 public:
   
-  FP420SD(std::string, const DDCompactView &, SensitiveDetectorCatalog &, 
+  FP420SD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
   	  edm::ParameterSet const &, const SimTrackManager* );
 
 //-------------------------------------------------------------------

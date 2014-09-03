@@ -30,7 +30,7 @@ public:
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     bool along = traj.direction() == alongMomentum;
     auto const & meas = traj.measurements();
-    hits.reserve(meas.size());
+    hits.reserve(splitting ? 2*meas.size() : meas.size());
     if(!splitting){
       if (keepOrder | along) copy(meas.begin(),meas.end(),hits);
       else copy(meas.rbegin(),meas.rend(),hits);
@@ -38,6 +38,7 @@ public:
     }
     if (keepOrder | along) split(meas.begin(),meas.end(),hits, along);
     else split(meas.rbegin(),meas.rend(),hits,along);
+    hits.shrink_to_fit();
   }
 
 private:

@@ -8,9 +8,9 @@ process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-addMETCollection(process, labelName='patMETCalo', metSource='met')
-addMETCollection(process, labelName='patMETPF', metSource='pfType1CorrectedMet')
-addMETCollection(process, labelName='patMETTC', metSource='tcMet')
+#addMETCollection(process, labelName='patMETCalo', metSource='met')
+addMETCollection(process, labelName='patMETPF', metSource='pfMetT1')
+#addMETCollection(process, labelName='patMETTC', metSource='tcMet') # FIXME: removed from RECO/AOD; needs functionality to add to processing
 
 ## uncomment the following line to add different jet collections
 ## to the event content
@@ -53,10 +53,11 @@ labelCA8PFCHSPruned = 'CA8PFCHSPruned'
 addJetCollection(
    process,
    labelName = labelCA8PFCHSPruned,
-   jetSource = cms.InputTag('ca8PFJetsCHSPruned'),
+   jetSource = cms.InputTag('ca8PFJetsCHSPruned',''),
    algo = 'CA8',
    rParam = 0.8,
-   genJetCollection = cms.InputTag('ak8GenJets'),
+   #genJetCollection = cms.InputTag('ak8GenJets'), # not in used SIM yet
+   genJetCollection = cms.InputTag('ak5GenJets'),
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'combinedSecondaryVertexBJetTags'

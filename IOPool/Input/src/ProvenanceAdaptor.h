@@ -10,8 +10,6 @@ ProvenanceAdaptor.h
 #include <memory>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
@@ -41,7 +39,7 @@ namespace edm {
     ProvenanceAdaptor(ProvenanceAdaptor const&) = delete; // Disallow copying and moving
     ProvenanceAdaptor& operator=(ProvenanceAdaptor const&) = delete; // Disallow copying and moving
 
-    boost::shared_ptr<BranchIDLists const> branchIDLists() const;
+    std::shared_ptr<BranchIDLists const> branchIDLists() const;
 
     void branchListIndexes(BranchListIndexes & indexes) const;
 
@@ -57,7 +55,7 @@ namespace edm {
 
     ParameterSetIdConverter parameterSetIdConverter_;
     ProcessHistoryIdConverter processHistoryIdConverter_;
-    boost::shared_ptr<BranchIDLists const> branchIDLists_;
+    std::shared_ptr<BranchIDLists const> branchIDLists_;
     std::vector<BranchListIndex> branchListIndexes_;
   }; // class ProvenanceAdaptor
 }

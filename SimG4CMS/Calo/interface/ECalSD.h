@@ -27,7 +27,7 @@ class ECalSD : public CaloSD {
 
 public:    
 
-  ECalSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+  ECalSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~ECalSD();
   virtual double                    getEnergyDeposit(G4Step*);

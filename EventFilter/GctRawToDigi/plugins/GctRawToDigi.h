@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -41,7 +41,7 @@
 // ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
 // *******************************************************************
 
-class GctRawToDigi : public edm::one::EDProducer<edm::one::SharedResources>
+class GctRawToDigi : public edm::stream::EDProducer<>
 {
 public:
 
@@ -51,8 +51,7 @@ public:
   
 private: // methods
 
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */

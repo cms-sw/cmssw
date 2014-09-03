@@ -17,7 +17,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -30,6 +29,7 @@ namespace CLHEP {
 
 namespace sim {
   class FieldBuilder;
+  class ChordFinderSetter;
 }
 
 class PrimaryTransformer;
@@ -55,7 +55,7 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-class ExceptionHandler;
+//class ExceptionHandler;
 
 class RunManager
 {
@@ -84,7 +84,7 @@ public:
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { 
     return m_sensCaloDets; 
   }
-  std::vector<boost::shared_ptr<SimProducer> > producers() const {
+  std::vector<std::shared_ptr<SimProducer> > producers() const {
     return m_producers;
   }
 
@@ -141,18 +141,19 @@ private:
   edm::ParameterSet m_pSteppingAction;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  ExceptionHandler* m_CustomExceptionHandler ;
+  //ExceptionHandler* m_CustomExceptionHandler ;
 
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
   SimActivityRegistry m_registry;
-  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-  std::vector<boost::shared_ptr<SimProducer> > m_producers;
+  std::vector<std::shared_ptr<SimWatcher> > m_watchers;
+  std::vector<std::shared_ptr<SimProducer> > m_producers;
     
   std::auto_ptr<SimTrackManager> m_trackManager;
   sim::FieldBuilder             *m_fieldBuilder;
+  sim::ChordFinderSetter        *m_chordFinderSetter;
     
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;

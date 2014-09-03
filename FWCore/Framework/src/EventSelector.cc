@@ -768,7 +768,7 @@ namespace edm
    *         if the trigger selection is invalid in the context of the
    *         full trigger list.
    */
-  boost::shared_ptr<TriggerResults>
+  std::shared_ptr<TriggerResults>
   EventSelector::maskTriggerResults(TriggerResults const& inputResults)
   {
     // fetch and validate the total number of paths
@@ -853,8 +853,7 @@ namespace edm
  
     // Based on the global status for the mask, create and return a 
     // TriggerResults
-    boost::shared_ptr<TriggerResults>
-      maskedResults(new TriggerResults(mask, inputResults.parameterSetID()));
+    auto maskedResults = std::make_shared<TriggerResults>(mask, inputResults.parameterSetID());
     return maskedResults;
   }  // maskTriggerResults
 
@@ -881,7 +880,7 @@ namespace edm
    *         if the trigger selection is invalid in the context of the
    *         full trigger list.
    */
-  boost::shared_ptr<TriggerResults>
+  std::shared_ptr<TriggerResults>
   EventSelector::maskTriggerResults(Strings const& pathspecs,
                                     TriggerResults const& inputResults,
                                     Strings const& fullTriggerList)
@@ -899,8 +898,7 @@ namespace edm
 
     // create a working copy of the TriggerResults object
     HLTGlobalStatus hltGS(fullTriggerCount);
-    boost::shared_ptr<TriggerResults>
-      maskedResults(new TriggerResults(hltGS, inputResults.parameterSetID()));
+    auto maskedResults = std::make_shared<TriggerResults>(hltGS, inputResults.parameterSetID());
     for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++)
     {
       (*maskedResults)[iPath] = inputResults[iPath];

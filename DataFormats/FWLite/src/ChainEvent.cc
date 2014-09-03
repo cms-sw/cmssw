@@ -47,7 +47,7 @@ ChainEvent::ChainEvent(std::vector<std::string> const& iFileNames):
       it!=itEnd;
       ++it) {
     TFile *tfilePtr = TFile::Open(it->c_str());
-    file_ = boost::shared_ptr<TFile>(tfilePtr);
+    file_ = std::shared_ptr<TFile>(tfilePtr);
     gROOT->GetListOfFiles()->Remove(tfilePtr);
     TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
     if (0 == tree) {
@@ -212,9 +212,9 @@ ChainEvent::switchToFile(Long64_t iIndex)
 {
   eventIndex_= iIndex;
   TFile *tfilePtr = TFile::Open(fileNames_[iIndex].c_str());
-  file_ = boost::shared_ptr<TFile>(tfilePtr);
+  file_ = std::shared_ptr<TFile>(tfilePtr);
   gROOT->GetListOfFiles()->Remove(tfilePtr);
-  event_ = boost::shared_ptr<Event>(new Event(file_.get()));
+  event_ = std::shared_ptr<Event>(new Event(file_.get()));
 }
 
 //
@@ -273,17 +273,7 @@ ChainEvent::getByLabel(std::type_info const& iType,
   return event_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
 }
 
-bool
-ChainEvent::getByLabel(std::type_info const& iType,
-                       char const* iModule,
-                       char const* iInstance,
-                       char const* iProcess,
-                       edm::WrapperHolder& holder) const
-{
-  return event_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-}
-
-edm::WrapperHolder ChainEvent::getByProductID(edm::ProductID const& iID) const
+edm::WrapperBase const* ChainEvent::getByProductID(edm::ProductID const& iID) const
 {
   return event_->getByProductID(iID);
 }

@@ -26,14 +26,14 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
-#include "CondFormats/L1TObjects/interface/GlobalTriggerMenu.h"
+#include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
-#include "CondFormats/L1TObjects/interface/GlobalMuonTemplate.h"
-#include "CondFormats/L1TObjects/interface/GlobalCaloTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
@@ -53,7 +53,7 @@
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
 
-//#include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
+//#include "L1Trigger/GlobalTrigger/interface/L1CaloCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfBitCountsCondition.h"
@@ -65,8 +65,8 @@
 
 
 // Conditions for uGt
-#include "L1Trigger/L1TGlobal/interface/GtMuonCondition.h"
-#include "L1Trigger/L1TGlobal/interface/GtCaloCondition.h"
+#include "L1Trigger/L1TGlobal/interface/MuCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
 
 //   *** Comment out what do we do with this.
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -405,10 +405,10 @@ void l1t::GtBoard::runGTL(
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
-        edm::ESHandle< GlobalTriggerMenu> l1GtMenu;
+        edm::ESHandle< TriggerMenu> l1GtMenu;
         evSetup.get< L1TGlobalTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
-       (const_cast<GlobalTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
@@ -535,7 +535,7 @@ void l1t::GtBoard::runGTL(
                     // BLW Not sure what to do with this for now
 		    const int ifMuEtaNumberBits = 0;
 		    
-                    GtMuonCondition* muCondition = new GtMuonCondition(itCond->second, this,
+                    MuCondition* muCondition = new MuCondition(itCond->second, this,
                             nrL1Mu, ifMuEtaNumberBits);
 
                     muCondition->setVerbosity(m_verbosity);
@@ -564,7 +564,7 @@ void l1t::GtBoard::runGTL(
                     // BLW Not sure w hat to do with this for now
 		    const int ifCaloEtaNumberBits = 0;
 
-                    GtCaloCondition* caloCondition = new GtCaloCondition(
+                    CaloCondition* caloCondition = new CaloCondition(
                             itCond->second, this,
                             nrL1EG,
                             nrL1Jet,

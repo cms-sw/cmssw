@@ -5,13 +5,11 @@
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
-<use   name="SimG4CMS/FP420"/>
 <use   name="Mixing/Base"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="hector"/>
 <use   name="boost"/>
-<use   name="geant4"/>
 <use   name="root"/>
 <use   name="clhep"/>
 <use   name="hepmc"/>

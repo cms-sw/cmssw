@@ -19,6 +19,8 @@
 #include <TMath.h>
 #include <iostream>
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"

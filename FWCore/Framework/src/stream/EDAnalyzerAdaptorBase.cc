@@ -204,6 +204,16 @@ EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const& fb){}
 void
 EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const& fb){}
 void
-EDAnalyzerAdaptorBase::doPreForkReleaseResources(){}
+EDAnalyzerAdaptorBase::doPreForkReleaseResources()
+{
+  for(auto mod: m_streamModules) {
+    mod->preForkReleaseResources();
+  }
+}
 void
-EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){}
+EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren)
+{
+  for(auto mod: m_streamModules) {
+    mod->postForkReacquireResources(iChildIndex,iNumberOfChildren);
+  }
+}

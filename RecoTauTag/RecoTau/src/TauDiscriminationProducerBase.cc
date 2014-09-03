@@ -69,6 +69,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
 template<class TauType, class TauDiscriminator>
 void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+   tauIndex_=0;
    // setup function - does nothing in base, but can be overridden to retrieve PV or other stuff
    beginEvent(event, eventSetup);
 
@@ -109,7 +110,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
       // get reference to tau
       TauRef tauRef(taus, iTau);
 
-      bool passesPrediscriminants = true;
+      bool passesPrediscriminants = ( andPrediscriminants_ ? 1 : 0 );
       // check tau passes prediscriminants
       for( size_t iDisc = 0; iDisc < nPrediscriminants; ++iDisc )
       {
@@ -143,7 +144,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
       if( passesPrediscriminants )
       {
          // this tau passes the prereqs, call our implemented discrimination function
-         result = discriminate(tauRef);
+         result = discriminate(tauRef); ++tauIndex_;
       }
 
       // store the result of this tau into our new discriminator

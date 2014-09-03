@@ -29,9 +29,8 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
-      for (unsigned int i=0;i<qualityTests_.size();++i) {
-	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
-      }
+
+      beginEvent(iEvent,iSetup);
 
       edm::Handle<edm::SortedCollection<Digi> > recHitHandle;
 
@@ -56,8 +55,8 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
 	double energy = erh.energy();
 	double time = erh.time();
-
-
+	int depth =detid.depth();
+	  
 	math::XYZVector position;
 	math::XYZVector axis;
 	
@@ -71,10 +70,11 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
-  
-	position.SetCoordinates ( thisCell->getPosition().x(),
-				  thisCell->getPosition().y(),
-				  thisCell->getPosition().z() );
+
+	auto const point  = thisCell->getPosition();
+	position.SetCoordinates ( point.x(),
+				  point.y(),
+				  point.z() );
   
 
 
@@ -84,6 +84,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 			   position.x(), position.y(), position.z(), 
 			   0,0,0);
 	rh.setTime(time); //Mike: This we will use later
+	rh.setDepth(depth);
 
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );
@@ -117,7 +118,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
  protected:
     edm::EDGetTokenT<edm::SortedCollection<Digi> > recHitToken_;
-
+    int hoDepth_;
 
 };
 

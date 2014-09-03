@@ -31,7 +31,7 @@ class CastorSD : public CaloSD {
 
 public:    
 
-  CastorSD(G4String, const DDCompactView &, SensitiveDetectorCatalog & clg, 
+  CastorSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog & clg,
 	   edm::ParameterSet const &, const SimTrackManager*);
   virtual ~CastorSD();
   virtual double   getEnergyDeposit(G4Step* );

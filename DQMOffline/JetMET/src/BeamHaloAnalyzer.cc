@@ -76,9 +76,6 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
 
 }
 
-
-void BeamHaloAnalyzer::beginJob(void){}
-
   
 void BeamHaloAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 					edm::Run const & iRun,
@@ -873,11 +870,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
     }
   
-}
-
-void BeamHaloAnalyzer::endJob()
-{
-
 }
 
 BeamHaloAnalyzer::~BeamHaloAnalyzer(){

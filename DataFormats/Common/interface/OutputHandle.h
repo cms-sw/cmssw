@@ -6,7 +6,8 @@
 Handle: Non-owning "smart pointer" for reference to EDProducts and
 their Provenances.
 
-This is a very preliminary version, and lacks safety features and elegance.
+This is a very preliminary version, and lacks safety features and
+elegance.
 
 If the pointed-to object or provenance destroyed, use of the
 Handle becomes undefined. There is no way to query the Handle to
@@ -24,10 +25,9 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace cms {
   class Exception;
@@ -35,12 +35,12 @@ namespace cms {
 
 namespace edm {
   class BranchDescription;
-  class WrapperInterfaceBase;
+  class WrapperBase;
   class OutputHandle {
   public:
     OutputHandle() :
-      product_(),
-      desc_(0),
+      product_(nullptr),
+      desc_(nullptr),
       productProvenance_(0) {}
 
     OutputHandle(OutputHandle const& h) :
@@ -49,16 +49,16 @@ namespace edm {
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(WrapperHolder const& product, BranchDescription const* desc, ProductProvenance* productProvenance) :
+    OutputHandle(WrapperBase const* product, BranchDescription const* desc, ProductProvenance* productProvenance) :
       product_(product),
       desc_(desc),
       productProvenance_(productProvenance) {}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
-      product_(),
-      desc_(0),
-      productProvenance_(0),
+    OutputHandle(std::shared_ptr<cms::Exception> const& iWhyFailed):
+      product_(nullptr),
+      desc_(nullptr),
+      productProvenance_(nullptr),
       whyFailed_(iWhyFailed) {}
     
     ~OutputHandle() {}
@@ -79,22 +79,18 @@ namespace edm {
     }
 
     bool isValid() const {
-      return product_.isValid() && desc_ &&productProvenance_;
+      return product_ && desc_ &&productProvenance_;
     }
 
     bool failedToGet() const {
       return 0 != whyFailed_.get();
     }
     
-    void const* wrapper() const {
-      return product_.wrapper();
-    }
-
-    WrapperHolder product() const {
+    WrapperBase const* wrapper() const {
       return product_;
     }
 
-    boost::shared_ptr<cms::Exception> whyFailed() const {
+    std::shared_ptr<cms::Exception> whyFailed() const {
       return whyFailed_;
     }
 
@@ -107,10 +103,10 @@ namespace edm {
     }
 
   private:
-    WrapperHolder product_;
+    WrapperBase const* product_;
     BranchDescription const* desc_;
     ProductProvenance* productProvenance_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    std::shared_ptr<cms::Exception> whyFailed_;
   };
 
   // Free swap function

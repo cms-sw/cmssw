@@ -27,13 +27,13 @@
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // system include files
-#include "boost/shared_ptr.hpp"
-
 #include <cstring>
 #include <map>
 #include <memory>
 #include <typeinfo>
 #include <vector>
+
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 class TTreeCache;
@@ -45,9 +45,9 @@ namespace fwlite {
         public:
 //            DataGetterHelper() {};
             DataGetterHelper(TTree* tree,
-                             boost::shared_ptr<HistoryGetterBase> historyGetter,
-                             boost::shared_ptr<BranchMapReader> branchMap = boost::shared_ptr<BranchMapReader>(),
-                             boost::shared_ptr<edm::EDProductGetter> getter = boost::shared_ptr<edm::EDProductGetter>(),
+                             std::shared_ptr<HistoryGetterBase> historyGetter,
+                             std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
+                             std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
                              bool useCache = false);
             virtual ~DataGetterHelper();
 
@@ -59,15 +59,14 @@ namespace fwlite {
 
             // This function should only be called by fwlite::Handle<>
             virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
-            virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&, Long_t) const;
-            edm::WrapperHolder getByProductID(edm::ProductID const&, Long_t) const;
+            edm::WrapperBase const* getByProductID(edm::ProductID const&, Long_t) const;
 
             // ---------- static member functions --------------------
             static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
             // ---------- member functions ---------------------------
 
-            void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) {
+            void setGetter(std::shared_ptr<edm::EDProductGetter> getter) {
                 getter_ = getter;
             }
 
@@ -84,15 +83,15 @@ namespace fwlite {
 
             // ---------- member data --------------------------------
             TTree* tree_;
-            mutable boost::shared_ptr<BranchMapReader> branchMap_;
-            typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
+            mutable std::shared_ptr<BranchMapReader> branchMap_;
+            typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > KeyToDataMap;
             mutable KeyToDataMap data_;
             mutable std::vector<char const*> labels_;
             const edm::ProcessHistory& history() const;
 
-            mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>,boost::shared_ptr<internal::Data> > idToData_;
-            boost::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
-            boost::shared_ptr<edm::EDProductGetter> getter_;
+            mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>,std::shared_ptr<internal::Data> > idToData_;
+            std::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
+            std::shared_ptr<edm::EDProductGetter> getter_;
             mutable bool tcTrained_;
     };
 

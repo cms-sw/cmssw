@@ -50,12 +50,13 @@
 
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/utility.hpp>
 #include <boost/range.hpp>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   namespace helper {
@@ -225,7 +226,7 @@ namespace edm {
         private:
             MultiAssociation &  assoc_;
             typedef edm::helper::IndexRangeAssociation::FastFiller IndexFiller;
-            boost::shared_ptr<IndexFiller> indexFiller_;
+            std::shared_ptr<IndexFiller> indexFiller_;
 
     }; // FastFiller
     friend class FastFiller;
@@ -269,7 +270,7 @@ namespace edm {
             MultiAssociation & assoc_;
             ProductID id_; 
             unsigned int size_;
-            boost::shared_ptr<TempValues> tempValues_;
+            std::shared_ptr<TempValues> tempValues_;
             bool fillOnExit_;
     }; // LazyFiller
     friend class LazyFiller;

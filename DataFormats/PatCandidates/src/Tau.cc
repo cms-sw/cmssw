@@ -3,7 +3,8 @@
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-
+#include <algorithm>
+#include <boost/bind.hpp>
 
 using namespace pat;
 
@@ -47,7 +48,10 @@ Tau::Tau(const reco::BaseTau & aTau) :
     ,embeddedIsolationPFGammaCands_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
-    if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+    if (pfTau != 0){
+      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+    }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(&aTau);
     if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
@@ -71,7 +75,10 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
     ,embeddedIsolationPFGammaCands_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
-    if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+    if (pfTau != 0){
+      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+    }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
     if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
@@ -95,7 +102,10 @@ Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
     ,embeddedIsolationPFGammaCands_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
-    if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+    if (pfTau != 0){
+      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+    }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
     if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
@@ -239,6 +249,12 @@ const pat::tau::TauPFSpecific & Tau::pfSpecific() const {
   return pfSpecific_[0]; 
 }
 
+const pat::tau::TauPFEssential & Tau::pfEssential() const {
+  if (pfEssential_.empty()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
+  return pfEssential_[0]; 
+}
+
+
 const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
   if (!isCaloTau()) throw cms::Exception("Type Error") << "Requesting a CaloTau-specific information from a pat::Tau which wasn't made from a CaloTau.\n";
   return caloSpecific_[0]; 
@@ -247,13 +263,13 @@ const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
 const reco::Candidate::LorentzVector& Tau::p4Jet() const
 {
   if ( isCaloTau() ) return caloSpecific().p4Jet_;
-  if ( isPFTau()   ) return pfSpecific().p4Jet_;
+  if ( isPFTau()   ) return pfEssential().p4Jet_;
   throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
 }
 
 double Tau::dxy_Sig() const
 {
-  if ( pfSpecific().dxy_error_ != 0 ) return (pfSpecific().dxy_/pfSpecific().dxy_error_);
+  if ( pfEssential().dxy_error_ != 0 ) return (pfEssential().dxy_/pfEssential().dxy_error_);
   else return 0.;
 }
 
@@ -294,7 +310,7 @@ float Tau::etaphiMoment() const
 void Tau::setDecayMode(int decayMode)
 {
   if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
-  pfSpecific_[0].decayMode_ = decayMode;
+  pfEssential_[0].decayMode_ = decayMode;
 } 
 
 /// method to store the leading candidate internally
@@ -415,6 +431,7 @@ void Tau::embedIsolationPFGammaCands() {
 }
 
 reco::PFRecoTauChargedHadronRef Tau::leadTauChargedHadronCandidate() const {
+  if(!isPFTau() ) throw cms::Exception("Type Error") << "Requesting content that is not stored in miniAOD.\n";
   if ( pfSpecific().signalTauChargedHadronCandidates_.size() > 0 ) {
     return reco::PFRecoTauChargedHadronRef(&pfSpecific().signalTauChargedHadronCandidates_,0);
   } else {
@@ -423,23 +440,26 @@ reco::PFRecoTauChargedHadronRef Tau::leadTauChargedHadronCandidate() const {
 }
 
 const reco::PFCandidatePtr Tau::leadPFChargedHadrCand() const { 
-  if(!embeddedLeadPFChargedHadrCand_)
-    return pfSpecific().leadPFChargedHadrCand_; 
-  else
+  if(!embeddedLeadPFChargedHadrCand_){
+    if(pfSpecific_.empty()) return reco::PFCandidatePtr(); 
+    else return pfSpecific().leadPFChargedHadrCand_; 
+  }else
     return reco::PFCandidatePtr(&leadPFChargedHadrCand_,0);
 }
 
 const reco::PFCandidatePtr Tau::leadPFNeutralCand() const { 
-  if(!embeddedLeadPFNeutralCand_)
-    return pfSpecific().leadPFNeutralCand_;
-  else
+  if(!embeddedLeadPFNeutralCand_){
+    if(pfSpecific_.empty()) return reco::PFCandidatePtr();
+    else return pfSpecific().leadPFNeutralCand_;
+  }else
     return reco::PFCandidatePtr(&leadPFNeutralCand_,0);
 }
 
 const reco::PFCandidatePtr Tau::leadPFCand() const { 
-  if(!embeddedLeadPFCand_)
+  if(!embeddedLeadPFCand_){
+    if(pfSpecific_.empty()) return reco::PFCandidatePtr();
     return pfSpecific().leadPFCand_;
-  else
+  }else
     return reco::PFCandidatePtr(&leadPFCand_,0);
 }
 
@@ -454,8 +474,15 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFCands() const {
       signalPFCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *signalPFCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedSignalPFCands_; 
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedSignalPFCands_.empty() || !pfSpecific().selectedSignalPFCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      signalPFCandsTransientPtrs_.set(std::move(aPtrs));
+      return *signalPFCandsTransientPtrs_;
+    } else return pfSpecific().selectedSignalPFCands_;
+  }
 }
 
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
@@ -466,11 +493,18 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
       for (unsigned int i = 0; i < signalPFChargedHadrCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&signalPFChargedHadrCands_, i) );
       }
-      signalPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
+      signalPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *signalPFChargedHadrCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedSignalPFChargedHadrCands_;
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedSignalPFChargedHadrCands_.empty() || !pfSpecific().selectedSignalPFChargedHadrCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      signalPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
+      return *signalPFChargedHadrCandsTransientPtrs_;
+    } else return pfSpecific().selectedSignalPFChargedHadrCands_;
+  }
 } 
 
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
@@ -484,8 +518,15 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
       signalPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *signalPFNeutralHadrCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedSignalPFNeutrHadrCands_;
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedSignalPFNeutrHadrCands_.empty() || !pfSpecific().selectedSignalPFNeutrHadrCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      signalPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
+      return *signalPFNeutralHadrCandsTransientPtrs_;
+    } else return pfSpecific().selectedSignalPFNeutrHadrCands_;
+  }
 } 
 
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFGammaCands() const {
@@ -499,15 +540,24 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFGammaCands() const {
       signalPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *signalPFGammaCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedSignalPFGammaCands_;
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedSignalPFGammaCands_.empty() || !pfSpecific().selectedSignalPFGammaCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      signalPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
+      return *signalPFGammaCandsTransientPtrs_;
+    } else return pfSpecific().selectedSignalPFGammaCands_;
+  }
 }
 
 const std::vector<reco::PFRecoTauChargedHadron> & Tau::signalTauChargedHadronCandidates() const {
+  if(pfSpecific_.empty()) throw cms::Exception("Type Error") << "Requesting content that is not stored in miniAOD.\n";
   return pfSpecific().signalTauChargedHadronCandidates_;
 }
 
 const std::vector<reco::RecoTauPiZero> & Tau::signalPiZeroCandidates() const {
+  if(pfSpecific_.empty()) throw cms::Exception("Type Error") << "Requesting content that is not stored in miniAOD.\n";
   return pfSpecific().signalPiZeroCandidates_;
 }
 
@@ -519,11 +569,18 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFCands() const {
       for (unsigned int i = 0; i < isolationPFCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&isolationPFCands_, i) );
       }
-      isolationPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
+      isolationPFCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *isolationPFCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedIsolationPFCands_;
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedIsolationPFCands_.empty() || !pfSpecific().selectedIsolationPFCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      isolationPFCandsTransientPtrs_.set(std::move(aPtrs));
+      return *isolationPFCandsTransientPtrs_;
+    } else return pfSpecific().selectedIsolationPFCands_;
+  }
 } 
 
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() const {
@@ -537,9 +594,16 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() cons
       isolationPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *isolationPFChargedHadrCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedIsolationPFChargedHadrCands_;
-} 
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedIsolationPFChargedHadrCands_.empty() || !pfSpecific().selectedIsolationPFChargedHadrCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      isolationPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
+      return *isolationPFChargedHadrCandsTransientPtrs_;
+    } else return pfSpecific().selectedIsolationPFChargedHadrCands_;
+  }
+}
 
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const {
   if (embeddedIsolationPFNeutralHadrCands_) {
@@ -549,11 +613,18 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const 
       for (unsigned int i = 0; i < isolationPFNeutralHadrCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&isolationPFNeutralHadrCands_, i) );
       }
-      isolationPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
+      isolationPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *isolationPFNeutralHadrCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedIsolationPFNeutrHadrCands_;
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedIsolationPFNeutrHadrCands_.empty() || !pfSpecific().selectedIsolationPFNeutrHadrCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      isolationPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
+      return *isolationPFNeutralHadrCandsTransientPtrs_;
+    } else return pfSpecific().selectedIsolationPFNeutrHadrCands_;
+  }
 } 
 
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFGammaCands() const {
@@ -567,15 +638,24 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFGammaCands() const {
       isolationPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *isolationPFGammaCandsTransientPtrs_;
-  } else
-    return pfSpecific().selectedIsolationPFGammaCands_;
+  } else {
+    if(pfSpecific_.empty() || pfSpecific().selectedIsolationPFGammaCands_.empty() || !pfSpecific().selectedIsolationPFGammaCands_.front().isAvailable()){
+      // this part of code is called when reading from patTuple or miniAOD
+      // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      isolationPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
+      return *isolationPFGammaCandsTransientPtrs_;
+    } else return pfSpecific().selectedIsolationPFGammaCands_;
+  }
 }
 
 const std::vector<reco::PFRecoTauChargedHadron> & Tau::isolationTauChargedHadronCandidates() const {
+  if(pfSpecific_.empty()) throw cms::Exception("Type Error") << "Requesting content that is not stored in miniAOD.\n";
   return pfSpecific().isolationTauChargedHadronCandidates_;
 }
 
 const std::vector<reco::RecoTauPiZero> & Tau::isolationPiZeroCandidates() const {
+  if(pfSpecific_.empty()) throw cms::Exception("Type Error") << "Requesting content that is not stored in miniAOD.\n";
   return pfSpecific().isolationPiZeroCandidates_;
 }
 
@@ -679,4 +759,201 @@ Tau Tau::correctedTauJet(const unsigned int& level, const unsigned int& set) con
   correctedTauJet.currentJECLevel(level); 
   return correctedTauJet;
 }
+
+
+
+/// ----- Methods returning associated PFCandidates that work on PAT+AOD, PAT+embedding and miniAOD -----
+/// return the PFCandidate if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+// return the leading candidate from signal(PF)ChargedHadrCandPtrs_ collection
+const reco::CandidatePtr Tau::leadChargedHadrCand() const {
+    const reco::PFCandidatePtr leadPF = leadPFChargedHadrCand();
+    if (leadPF.isAvailable() || signalChargedHadrCandPtrs_.isNull()) return leadPF;
+    reco::CandidatePtr ret;
+    for (const reco::CandidatePtr & p : signalChargedHadrCandPtrs_) {
+        if (ret.isNull() || (p->pt() > ret->pt())) ret = p;
+    }
+    return ret;
+
+}
+
+/// return the PFCandidate if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+const reco::CandidatePtr Tau::leadNeutralCand() const {
+    const reco::PFCandidatePtr leadPF = leadPFNeutralCand();
+    if (leadPF.isAvailable() || signalNeutralHadrCandPtrs_.isNull()) return leadPF;
+    reco::CandidatePtr ret;
+    for (const reco::CandidatePtr & p : signalNeutralHadrCandPtrs_) {
+        if (ret.isNull() || (p->pt() > ret->pt())) ret = p;
+    }
+    return ret;
+
+}
+
+/// return the PFCandidate if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+const reco::CandidatePtr Tau::leadCand() const {
+    const reco::PFCandidatePtr leadPF = leadPFCand();
+    if (leadPF.isAvailable() || !Tau::ExistSignalCands()) return leadPF;
+    else return Tau::signalCands()[0];
+}
+
+/// check that there is at least one non-zero collection of candidate ptrs
+
+bool Tau::ExistSignalCands() const {
+  return !(signalChargedHadrCandPtrs_.isNull() && signalNeutralHadrCandPtrs_.isNull() && signalGammaCandPtrs_.isNull());
+}
+
+bool Tau::ExistIsolationCands() const {
+  return !(isolationChargedHadrCandPtrs_.isNull() && isolationNeutralHadrCandPtrs_.isNull() && isolationGammaCandPtrs_.isNull());
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD
+/// note that the vector is returned by value. 
+
+reco::CandidatePtrVector Tau::signalCands() const {
+    std::vector<reco::PFCandidatePtr> r0 = signalPFCands();
+    reco::CandidatePtrVector ret;
+    if(!Tau::ExistSignalCands() || (!r0.empty() && r0.front().isAvailable())) {
+      for (const auto & p : r0) ret.push_back(p);
+      return ret;
+    } else {
+      /// the isolationCands pointers are not saved in miniAOD, so the collection is created dynamically by glueing together 3 sub-collection and re-ordering 
+      reco::CandidatePtrVector ret2;
+      std::vector<std::pair<float,size_t> > pt_index;
+      size_t index=0;
+      for (const auto & p : signalChargedHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+      for (const auto & p : signalNeutralHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+      for (const auto & p : signalGammaCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+      std::sort(pt_index.begin(),pt_index.end(),
+	        boost::bind(&std::pair<float,size_t>::first,_1) >
+		boost::bind(&std::pair<float,size_t>::first,_2));
+      for( const auto & p : pt_index){
+	ret.push_back(ret2[p.second]);
+      }
+      return ret;
+    }
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+/// note that the vector is returned by value.
+reco::CandidatePtrVector Tau::signalChargedHadrCands() const {
+   std::vector<reco::PFCandidatePtr> r0 = signalPFChargedHadrCands();
+   if(signalChargedHadrCandPtrs_.isNull() || (!r0.empty() && r0.front().isAvailable())) {
+        reco::CandidatePtrVector ret;
+        for (const auto & p : r0) ret.push_back(p);
+	return ret;
+   } else {
+        return signalChargedHadrCandPtrs_;
+   }
+}
+
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+/// note that the vector is returned by value.
+reco::CandidatePtrVector Tau::signalNeutrHadrCands() const {
+   std::vector<reco::PFCandidatePtr> r0 = signalPFNeutrHadrCands();
+   if(signalNeutralHadrCandPtrs_.isNull() || (!r0.empty() && r0.front().isAvailable())) {
+        reco::CandidatePtrVector ret;
+        for (const auto & p : r0) ret.push_back(p);
+	return ret;
+   } else {
+        return signalNeutralHadrCandPtrs_;
+   }
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+/// note that the vector is returned by value.
+reco::CandidatePtrVector Tau::signalGammaCands() const {
+   std::vector<reco::PFCandidatePtr> r0 = signalPFGammaCands();
+   if(signalGammaCandPtrs_.isNull() || (!r0.empty() && r0.front().isAvailable())) {
+        reco::CandidatePtrVector ret;
+        for (const auto & p : r0) ret.push_back(p);
+	return ret;
+   } else {
+        return signalGammaCandPtrs_;
+   }
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD
+/// note that the vector is returned by value. 
+reco::CandidatePtrVector Tau::isolationCands() const {
+  std::vector<reco::PFCandidatePtr> r0 = isolationPFCands();
+  reco::CandidatePtrVector ret;
+  if(!Tau::ExistIsolationCands() || (!r0.empty() && r0.front().isAvailable())) {
+    for (const auto & p : r0) ret.push_back(p);
+    return ret;
+  } else {
+    /// the isolationCands pointers are not saved in miniAOD, so the collection is created dynamically by glueing together 3 sub-collection and re-ordering
+    reco::CandidatePtrVector ret2;
+    std::vector<std::pair<float,size_t> > pt_index;
+    size_t index=0;
+    for (const auto & p : isolationChargedHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+    for (const auto & p : isolationNeutralHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+    for (const auto & p : isolationGammaCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+    std::sort(pt_index.begin(),pt_index.end(),
+	      boost::bind(&std::pair<float,size_t>::first,_1) >
+	      boost::bind(&std::pair<float,size_t>::first,_2));
+    for( const auto & p : pt_index){
+      ret.push_back(ret2[p.second]);
+    }
+    return ret;
+  }
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+/// note that the vector is returned by value.
+reco::CandidatePtrVector Tau::isolationChargedHadrCands() const {
+   std::vector<reco::PFCandidatePtr> r0 = isolationPFChargedHadrCands();
+   if(isolationChargedHadrCandPtrs_.isNull() || (!r0.empty() && r0.front().isAvailable())) {
+        reco::CandidatePtrVector ret;
+        for (const auto & p : r0) ret.push_back(p);
+	return ret;
+   } else {
+        return isolationChargedHadrCandPtrs_;
+   }
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+/// note that the vector is returned by value.
+reco::CandidatePtrVector Tau::isolationNeutrHadrCands() const {
+   reco::CandidatePtrVector ret;
+   std::vector<reco::PFCandidatePtr> r0 = isolationPFNeutrHadrCands();
+   if(isolationNeutralHadrCandPtrs_.isNull() || (!r0.empty() && r0.front().isAvailable())) {
+        reco::CandidatePtrVector ret;
+        for (const auto & p : r0) ret.push_back(p);
+	return ret;
+   } else {
+        return isolationNeutralHadrCandPtrs_;
+   }
+}
+
+/// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
+/// note that the vector is returned by value.
+reco::CandidatePtrVector Tau::isolationGammaCands() const {
+   std::vector<reco::PFCandidatePtr> r0 = isolationPFGammaCands();
+   if(isolationGammaCandPtrs_.isNull() || (!r0.empty() && r0.front().isAvailable())) {
+        reco::CandidatePtrVector ret;
+        for (const auto & p : r0) ret.push_back(p);
+	return ret;
+   } else {
+        return isolationGammaCandPtrs_;
+   }
+}
+
+
+
+/// ----- Top Projection business ------- 
+/// get the number of non-null PFCandidates
+size_t Tau::numberOfSourceCandidatePtrs() const {
+  if (Tau::ExistSignalCands()) return Tau::signalCands().size();
+  else if(pfSpecific_.empty()) return 0; 
+  else return pfSpecific().selectedSignalPFCands_.size();
+}
+/// get the source candidate pointer with index i
+reco::CandidatePtr Tau::sourceCandidatePtr( size_type i ) const {
+  if (Tau::ExistSignalCands()) return Tau::signalCands()[i];
+  else if(pfSpecific_.empty()) return reco::CandidatePtr();
+  else return pfSpecific().selectedSignalPFCands_[i];
+}
+
+
+
 

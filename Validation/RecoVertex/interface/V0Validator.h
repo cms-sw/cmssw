@@ -56,7 +56,6 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/V0Candidate/interface/V0Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "RecoVertex/V0Producer/interface/V0Producer.h"
 
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"

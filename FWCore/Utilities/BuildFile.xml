@@ -4,6 +4,7 @@
 <use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="rootrflx"/>
+<use   name="tbb"/>
 <use   name="libuuid"/>
 <export>
   <lib   name="1"/>

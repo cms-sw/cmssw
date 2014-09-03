@@ -4,7 +4,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 
 
@@ -45,7 +45,7 @@ public:
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
 		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
     TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e){
-    LocalError lape = det()->localAlignmentError();
+    LocalError lape = static_cast<TrackerGeomDet const *>(det())->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
 			err_.xy()+lape.xy(),
@@ -139,7 +139,7 @@ private:
   static void check(){}
 #endif
 
-private:
+protected:
 
   LocalPoint pos_;
   LocalError err_;

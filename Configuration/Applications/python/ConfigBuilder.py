@@ -23,6 +23,7 @@ defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
 defaultOptions.conditions = None
+defaultOptions.useCondDBv1 = False
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
@@ -36,6 +37,7 @@ defaultOptions.filein = ""
 defaultOptions.dasquery=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = []
+defaultOptions.customisation_file_unsch = []
 defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
@@ -72,6 +74,7 @@ defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
+defaultOptions.runUnscheduled = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -208,6 +211,7 @@ class ConfigBuilder(object):
         else:
             self.process = process
         self.imports = []
+        self.importsUnsch = []
         self.define_Configs()
         self.schedule = list()
 
@@ -224,6 +228,7 @@ class ConfigBuilder(object):
         self.productionFilterSequence = None
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
+	self.excludedPaths=[]
 
     def profileOptions(self):
 	    """
@@ -273,14 +278,18 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile):
+    def loadAndRemember(self, includeFile,unsch=0):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-        self.imports.append(includeFile)
-        self.process.load(includeFile)
-        return sys.modules[includeFile]
+	if unsch==0:
+		self.imports.append(includeFile)
+		self.process.load(includeFile)
+		return sys.modules[includeFile]
+	else:
+		self.importsUnsch.append(includeFile)
+		return 0#sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -514,7 +523,7 @@ class ConfigBuilder(object):
 				                     dataTier = cms.untracked.string(theTier),
 						     filterName = cms.untracked.string(theFilterName))
 						  )
-			if not theSelectEvent and hasattr(self.process,'generation_step'):
+			if not theSelectEvent and hasattr(self.process,'generation_step') and theStreamType!='LHE':
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 			if not theSelectEvent and hasattr(self.process,'filtering_step'):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
@@ -575,13 +584,18 @@ class ConfigBuilder(object):
                                                                        filterName = cms.untracked.string(theFilterName)
                                                                        )
                                           )
-                if hasattr(self.process,"generation_step"):
+                if hasattr(self.process,"generation_step") and streamType!='LHE':
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 		if hasattr(self.process,"filtering_step"):
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
 
                 if streamType=='ALCARECO':
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
+
+                if "MINIAOD" in streamType:
+                    output.dropMetaData = cms.untracked.string('ALL')
+                    output.fastCloning= cms.untracked.bool(False)
+                    output.overrideInputFileSplitLevels = cms.untracked.bool(True)                      
 
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)
@@ -734,21 +748,35 @@ class ConfigBuilder(object):
 						
         self.loadAndRemember(self.ConditionsDefaultCFF)
 
-        from Configuration.AlCa.GlobalTag import GlobalTag
+	if self._options.useCondDBv1:
+		from Configuration.AlCa.GlobalTag import GlobalTag
+	else:
+		from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+
         self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
-        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+
+	if self._options.useCondDBv1:
+	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+	else:
+	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag')
+
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
 	if self._options.slhc:
 		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
 		
 
-    def addCustomise(self):
+    def addCustomise(self,unsch=0):
         """Include the customise code """
 
 	custOpt=[]
-	for c in self._options.customisation_file:
-		custOpt.extend(c.split(","))
+	if unsch==0:
+		for c in self._options.customisation_file:
+			custOpt.extend(c.split(","))
+	else:
+		for c in self._options.customisation_file_unsch:
+			custOpt.extend(c.split(","))
+
 	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
@@ -858,7 +886,10 @@ class ConfigBuilder(object):
         self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
         self.ALCAHARVESTDefaultCFF="Configuration/StandardSequences/AlCaHarvesting_cff"
         self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
-        self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+        if self._options.useCondDBv1:
+	    self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	else:
+            self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
@@ -903,7 +934,6 @@ class ConfigBuilder(object):
         self.DQMDefaultSeq='DQMOffline'
         self.FASTSIMDefaultSeq='all'
         self.VALIDATIONDefaultSeq=''
-        self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
@@ -1132,11 +1162,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF)
+                    l=self.loadAndRemember(defaultCFF,unsch)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0])
+                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
                     sequence=sequence.split('.')[1]
             else:
                     print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
@@ -1249,6 +1279,7 @@ class ConfigBuilder(object):
 	    
 	    #schedule it
 	    self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+	    self.excludedPaths.append("lhe_step")
 	    self.schedule.append( self.process.lhe_step )
 
     def prepare_GEN(self, sequence = None):
@@ -1275,6 +1306,11 @@ class ConfigBuilder(object):
 	if not loadFailure:
 		generatorModule=sys.modules[loadFragment]
 		genModules=generatorModule.__dict__
+		#remove lhe producer module since this should have been
+		#imported instead in the LHE step
+		if self.LHEDefaultSeq in genModules:
+                        del genModules[self.LHEDefaultSeq]
+
 		if self._options.hideGen:
 			self.loadAndRemember(loadFragment)
 		else:
@@ -1603,8 +1639,15 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
-	self.scheduleSequence(sequence.split('.')[-1],'pat_step')
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
+	if not self._options.runUnscheduled:	
+		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        if self._options.isData:
+            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+        else:
+            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            if self._options.fast:
+                self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
         return
 
     def prepare_EI(self, sequence = None):
@@ -2151,15 +2194,34 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='for path in process.paths:\n'
 		if len(self.conditionalPaths):
 			self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
+                if len(self.excludedPaths):
+                        self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 		pfs = getattr(self.process,self.productionFilterSequence)
 		for path in self.process.paths:
 			if not path in self.conditionalPaths: continue
+                        if path in self.excludedPaths: continue
 			getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
 			
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
+
+	if self._options.runUnscheduled:	
+		# prune and delete paths
+		#this is not supporting the blacklist at this point since I do not understand it
+		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import convertToUnscheduled\n"
+
+		self.pythonCfgCode+="process=convertToUnscheduled(process)\n"
+
+		#now add the unscheduled stuff
+		for module in self.importsUnsch:
+			self.process.load(module)
+			self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+	self.pythonCfgCode += self.addCustomise(1)
+
 
 	# make the .io file
 

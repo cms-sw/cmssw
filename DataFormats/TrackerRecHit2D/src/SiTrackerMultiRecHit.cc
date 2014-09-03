@@ -5,13 +5,14 @@ using namespace std;
 using namespace edm;
 
 SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, GeomDet const & idet,
-					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap):
+					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap, double annealing):
   BaseTrackerRecHit(pos,err, idet,trackerHitRTTI::multi)	
 {
   for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
     theHits.push_back(ihit->first->clone());
     theWeights.push_back(ihit->second);
   }
+  annealing_ = annealing;
 }
 
 
@@ -68,3 +69,13 @@ vector<TrackingRecHit*> SiTrackerMultiRecHit::recHits() {
   //         }
   return theHits.data();
 }
+
+/*
+void TrackingRecHit::recHitsV(std::vector<const TrackingRecHit*> & v) const {
+  v = recHits();
+}
+
+void TrackingRecHit::recHitsV(std::vector<TrackingRecHit*> & v) {
+  v = recHits();
+}
+*/

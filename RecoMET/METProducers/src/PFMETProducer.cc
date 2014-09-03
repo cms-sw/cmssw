@@ -41,10 +41,10 @@ namespace cms
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
       }
 
-    std::string alias(iConfig.getParameter<std::string>("alias"));
-    produces<reco::PFMETCollection>().setBranchAlias(alias.c_str());
-  }
+    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
 
+    produces<reco::PFMETCollection>().setBranchAlias(alias);
+  }
 
 //____________________________________________________________________________||
   void PFMETProducer::produce(edm::Event& event, const edm::EventSetup& setup)

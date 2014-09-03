@@ -36,20 +36,17 @@ RPCFEDIntegrity::~RPCFEDIntegrity(){
   //  dbe_=0;
 }
 
-void RPCFEDIntegrity::beginJob(){
-  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin job ";
-  dbe_ = edm::Service<DQMStore>().operator->();
+
+void RPCFEDIntegrity::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const &  iRun ,
+				     edm::EventSetup const & iSetup ) {
+  
+  
+  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin booking histograms ";
+  
+  this->bookFEDMe(ibooker);
 }
 
-void RPCFEDIntegrity::beginRun(const edm::Run& r, const edm::EventSetup& c){
-  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin run ";
-
- if (!init_) this->bookFEDMe();
- else if (!merge_) this->reset();
-
-}
-
-void RPCFEDIntegrity::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
 void RPCFEDIntegrity::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   
@@ -68,28 +65,21 @@ void RPCFEDIntegrity::analyze(const edm::Event& iEvent, const edm::EventSetup& c
   }
 }
 
-void RPCFEDIntegrity::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
-
-void RPCFEDIntegrity::endRun(const edm::Run& r, const edm::EventSetup& c){}
-
-void RPCFEDIntegrity::endJob(){
-  dbe_=0;
-}
 
 //Fill report summary
-void  RPCFEDIntegrity::bookFEDMe(void){
+void  RPCFEDIntegrity::bookFEDMe(DQMStore::IBooker & ibooker){
 
-  if(dbe_){
-    dbe_->setCurrentFolder(prefixDir_);
-
-    fedMe_[Entries] =  dbe_->book1D("FEDEntries","FED Entries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-    this->labelBins(fedMe_[Entries]);
-    fedMe_[Fatal] =  dbe_->book1D("FEDFatal","FED Fatal Errors",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-    this->labelBins(fedMe_[Fatal]);
-    fedMe_[NonFatal] =  dbe_->book1D("FEDNonFatal","FED NON Fatal Errors",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-   this->labelBins(fedMe_[NonFatal]);
-  }
-
+  
+  ibooker.cd();
+  ibooker.setCurrentFolder(prefixDir_);
+  
+  fedMe_[Entries] =  ibooker.book1D("FEDEntries","FED Entries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
+  this->labelBins(fedMe_[Entries]);
+  fedMe_[Fatal] =  ibooker.book1D("FEDFatal","FED Fatal Errors",numOfFED_, minFEDNum_, maxFEDNum_ +1);
+  this->labelBins(fedMe_[Fatal]);
+  fedMe_[NonFatal] =  ibooker.book1D("FEDNonFatal","FED NON Fatal Errors",numOfFED_, minFEDNum_, maxFEDNum_ +1);
+  this->labelBins(fedMe_[NonFatal]);
+  
   init_ = true;
 }
 
@@ -109,15 +99,4 @@ void RPCFEDIntegrity::labelBins( MonitorElement * myMe){
 }
 
 
-void  RPCFEDIntegrity::reset(void){
 
-  MonitorElement * me;  
-
-  if(dbe_){
-    for(unsigned int i = 0; i<histoName_.size(); i++){
-      me = 0;
-      me = dbe_->get(prefixDir_ + histoName_[i]);
-      if(0!=me ) me->Reset();
-    }
-  }
-}

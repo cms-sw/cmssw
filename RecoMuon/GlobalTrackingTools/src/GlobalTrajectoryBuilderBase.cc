@@ -526,7 +526,8 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
-  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner(); 
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
+  auto hitCloner = tkbuilder->cloner(); 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
@@ -540,7 +541,8 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 	    continue; 
 	  }
 	  currTsos = predTsos;
-	  result.emplace_back(hitCloner(**hit,predTsos));
+          auto h = (**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) );
+	  result.emplace_back(hitCloner.makeShared(h,predTsos));
 	}else{
 	  result.push_back((*hit)->cloneSH());
 	}

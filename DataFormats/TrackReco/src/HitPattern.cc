@@ -9,715 +9,932 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
 using namespace reco;
 
-
-uint32_t HitPattern::encode(DetId id, uint32_t hitType, unsigned int i){
-  
-  // ignore the rec hit if the number of hit is larger than the max
-  if (i >= 32 * PatternSize / HitSize) return 0;
-
-  // get rec hit det id and rec hit type
-  uint32_t detid = id.det();
-
-  // init pattern of this hit to 0
-  uint32_t pattern = 0;
-
-  // adding tracker/muon detector bit
-  pattern += ((detid)&SubDetectorMask)<<SubDetectorOffset;
-  
-  // adding substructure (PXB,PXF,TIB,TID,TOB,TEC, or DT,CSC,RPC) bits 
-  uint32_t subdet = id.subdetId();
-  pattern += ((subdet)&SubstrMask)<<SubstrOffset;
-  
-  // adding layer/disk/wheel bits
-  uint32_t layer = 0;
-  if (detid == DetId::Tracker) {
-    if (subdet == PixelSubdetector::PixelBarrel) 
-      layer = PXBDetId(id).layer();
-    else if (subdet == PixelSubdetector::PixelEndcap)
-      layer = PXFDetId(id).disk();
-    else if (subdet == StripSubdetector::TIB)
-      layer = TIBDetId(id).layer();
-    else if (subdet == StripSubdetector::TID)
-      layer = TIDDetId(id).wheel();
-    else if (subdet == StripSubdetector::TOB)
-      layer = TOBDetId(id).layer();
-    else if (subdet == StripSubdetector::TEC)
-      layer = TECDetId(id).wheel();
-  } else if (detid == DetId::Muon) {
-    if (subdet == (uint32_t) MuonSubdetId::DT) 
-      layer = ((DTLayerId(id.rawId()).station()-1)<<2) + DTLayerId(id.rawId()).superLayer();
-    else if (subdet == (uint32_t) MuonSubdetId::CSC)
-      layer = ((CSCDetId(id.rawId()).station()-1)<<2) +  (CSCDetId(id.rawId()).ring()-1);
-    else if (subdet == (uint32_t) MuonSubdetId::RPC) {
-      RPCDetId rpcid(id.rawId());
-      layer = ((rpcid.station()-1)<<2) + abs(rpcid.region());
-      if (rpcid.station() <= 2) layer += 2*(rpcid.layer()-1);
-    }
-  }
-  pattern += (layer&LayerMask)<<LayerOffset;
-
-  // adding mono/stereo bit
-  uint32_t side = 0;
-  if (detid == DetId::Tracker) {
-       side = isStereo(id);
-  } else if (detid == DetId::Muon) {
-       side = 0;
-  }
-  pattern += (side&SideMask)<<SideOffset;
-
-  // adding hit type bits
-  pattern += (hitType&HitTypeMask)<<HitTypeOffset;
-
-  return pattern;
+HitPattern::HitPattern() :
+    hitCount(0),
+    beginTrackHits(0),
+    endTrackHits(0),
+    beginInner(0),
+    endInner(0),
+    beginOuter(0),
+    endOuter(0)
+{
+    memset(hitPattern, HitPattern::EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
-
-void HitPattern::setHitPattern(int position, uint32_t pattern) {
-  int offset = position * HitSize;
-  for (int i=0; i<HitSize; i++) {
-    int pos = offset + i;
-    uint32_t bit = (pattern >> i) & 0x1;
-    hitPattern_[pos / 32] += bit << ((offset + i) % 32); 
-  }
+HitPattern::HitPattern(const HitPattern &other) :
+    hitCount(other.hitCount),
+    beginTrackHits(other.beginTrackHits),
+    endTrackHits(other.endTrackHits),
+    beginInner(other.beginInner),
+    endInner(other.endInner),
+    beginOuter(other.beginOuter),
+    endOuter(other.endOuter)
+{
+    memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
-void HitPattern::appendHit(const TrackingRecHit & hit){
-
-  // get rec hit det id and rec hit type
-  DetId id = hit.geographicalId();
-  uint32_t detid = id.det();
-  uint32_t subdet = id.subdetId();
-
-  std::vector<const TrackingRecHit*> hits;
-
-
-  if (detid == DetId::Tracker)
-    hits.push_back(&hit);
-   
-  if (detid == DetId::Muon) {
-
-    if (subdet == (uint32_t) MuonSubdetId::DT){
-
-      // DT rechit (granularity 2)
-      if(hit.dimension() == 1)
-	hits.push_back(&hit);
-      
-      // 4D segment (granularity 0) 
-      else if(hit.dimension() > 1){ // Both 2 and 4 dim cases. MB4s have 2D, but formatted in 4D segments 
-	std::vector<const TrackingRecHit*> seg2D = hit.recHits(); // 4D --> 2D
-	// load 1D hits (2D --> 1D)
-	for(std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it){
-	  std::vector<const TrackingRecHit*> hits1D =  (*it)->recHits();
-	  copy(hits1D.begin(),hits1D.end(),back_inserter(hits));
-	}
-      }
-    }
-
-    else if (subdet == (uint32_t) MuonSubdetId::CSC){
-      
-      // CSC rechit (granularity 2)
-      if(hit.dimension() == 2)
-	hits.push_back(&hit);
-
-      // 4D segment (granularity 0) 
-      if(hit.dimension() == 4)
-	hits = hit.recHits(); // load 2D hits (4D --> 1D)
-    }
-   
-    else if (subdet == (uint32_t) MuonSubdetId::RPC) {
-      hits.push_back(&hit);
-    }
-  }
-
-  unsigned int i =  numberOfHits();
-  for(std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it)
-    set(**it,i++);
-
-
+HitPattern::~HitPattern()
+{
+    ;
 }
 
+HitPattern & HitPattern::operator=(const HitPattern &other)
+{
+    if (this == &other) {
+        return *this;
+    }
 
-uint32_t HitPattern::getHitPattern(int position) const {
-/* Note: you are not taking a consecutive sequence of HitSize bits starting from position*HitSize
-         as the bit order in the words are reversed. 
-         e.g. if position = 0 you take the lowest 10 bits of the first word.
-    
-         I hope this can clarify what is the memory layout of such thing
+    this->hitCount = other.hitCount;
 
- straight 01234567890123456789012345678901 | 23456789012345678901234567890123 | 4567
- (global) 0         1         2         3  | 3       4         5         6    | 6  
- words    [--------------0---------------] | [--------------1---------------] | [---   
- word     01234567890123456789012345678901 | 01234567890123456789012345678901 | 0123
-  (str)   0         1         2         3  | 0         1         2         3  | 0
+    this->beginTrackHits = other.beginTrackHits;
+    this->endTrackHits = other.endTrackHits;
+
+    this->beginInner = other.beginInner;
+    this->endInner = other.endInner;
+
+    this->beginOuter = other.beginOuter;
+    this->endOuter = other.endOuter;
+
+    memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
+
+    return *this;
+}
+
+void HitPattern::clear(void)
+{
+    this->hitCount = 0;
+    this->beginTrackHits = 0;
+    this->endTrackHits = 0;
+    this->beginInner = 0;
+    this->endInner = 0;
+    this->beginOuter = 0;
+    this->endOuter = 0;
+
+    memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
+}
+
+bool HitPattern::appendHit(const TrackingRecHitRef &ref)
+{
+    return appendHit(*ref);
+}
+
+uint16_t HitPattern::encode(const TrackingRecHit &hit)
+{
+    return encode(hit.geographicalId(), hit.getType());
+}
+
+uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
+{
+    uint16_t pattern = HitPattern::EMPTY_PATTERN;
+
+    uint16_t detid = id.det();
+
+    // adding tracker/muon detector bit
+    pattern |= (detid & SubDetectorMask) << SubDetectorOffset;
+
+    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC) bits
+    uint16_t subdet = id.subdetId();
+    pattern |= (subdet & SubstrMask) << SubstrOffset;
+
+    // adding layer/disk/wheel bits
+    uint16_t layer = 0x0;
+    if (detid == DetId::Tracker) {
+        switch (subdet) {
+        case PixelSubdetector::PixelBarrel:
+            layer = PXBDetId(id).layer();
+            break;
+        case PixelSubdetector::PixelEndcap:
+            layer = PXFDetId(id).disk();
+            break;
+        case StripSubdetector::TIB:
+            layer = TIBDetId(id).layer();
+            break;
+        case StripSubdetector::TID:
+            layer = TIDDetId(id).wheel();
+            break;
+        case StripSubdetector::TOB:
+            layer = TOBDetId(id).layer();
+            break;
+        case StripSubdetector::TEC:
+            layer = TECDetId(id).wheel();
+            break;
+        }
+    } else if (detid == DetId::Muon) {
+        switch (subdet) {
+        case MuonSubdetId::DT:
+            layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
+            layer |= DTLayerId(id.rawId()).superLayer();
+            break;
+        case MuonSubdetId::CSC:
+            layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
+            layer |= (CSCDetId(id.rawId()).ring() - 1);
+            break;
+        case MuonSubdetId::RPC: 
+            {
+                RPCDetId rpcid(id.rawId());
+                layer = ((rpcid.station() - 1) << 2);
+                layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+                layer |= abs(rpcid.region());
+            }
+            break;
+        }
+    }
+
+    pattern |= (layer & LayerMask) << LayerOffset;
+
+    // adding mono/stereo bit
+    uint16_t side = 0x0;
+    if (detid == DetId::Tracker) {
+        side = isStereo(id);
+    } else if (detid == DetId::Muon) {
+        side = 0x0;
+    }
+
+    pattern |= (side & SideMask) << SideOffset;
+
+    TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
+                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing : hitType;
+
+    pattern |= (patternHitType & HitTypeMask) << HitTypeOffset;
+
+    return pattern;
+}
+
+bool HitPattern::appendHit(const TrackingRecHit &hit)
+{
+    return appendHit(hit.geographicalId(), hit.getType());
+}
+
+bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
+{
+    //if HitPattern is full, journey ends no matter what.
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
+
+    uint16_t pattern = HitPattern::encode(id, hitType);
+
+    switch (hitType) {
+    case TrackingRecHit::valid:
+    case TrackingRecHit::missing:
+    case TrackingRecHit::inactive:
+    case TrackingRecHit::bad:
+        // hitCount != endT => we are not inserting T type of hits but of T'
+        // 0 != beginT || 0 != endT => we already have hits of T type
+        // so we already have hits of T in the vector and we don't want to
+        // mess them with T' hits.
+        if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
+            cms::Exception("HitPattern")
+                    << "TRACK_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "TRACK_HITS"
+                    << " in a row.";
+            return false;
+        }
+        return insertTrackHit(pattern);
+        break;
+    case TrackingRecHit::missing_inner:
+        if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
+            cms::Exception("HitPattern")
+                    << "MISSING_INNER_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "MISSING_INNER_HITS"
+                    << " in a row.";
+            return false;
+        }
+        return insertExpectedInnerHit(pattern);
+        break;
+    case TrackingRecHit::missing_outer:
+        if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
+            cms::Exception("HitPattern")
+                    << "MISSING_OUTER_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "MISSING_OUTER_HITS"
+                    << " in a row.";
+            return false;
+        }
+        return insertExpectedOuterHit(pattern);
+        break;
+    }
+
+    return false;
+}
+
+uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
+{
+    if unlikely((position < 0 || position >= hitCount)) {
+        return HitPattern::EMPTY_PATTERN;
+    }
+    /*
+    Note: you are not taking a consecutive sequence of HIT_LENGTH bits starting from position * HIT_LENGTH
+     as the bit order in the words are reversed. 
+     e.g. if position = 0 you take the lowest 10 bits of the first word.
+
+     I hope this can clarify what is the memory layout of such thing
+
+    straight 01234567890123456789012345678901 | 23456789012345678901234567890123 | 4567
+    (global) 0         1         2         3  | 3       4         5         6    | 6  
+    words    [--------------0---------------] | [--------------1---------------] | [---   
+    word     01234567890123456789012345678901 | 01234567890123456789012345678901 | 0123
+    (str)   0         1         2         3  | 0         1         2         3  | 0
           [--------------0---------------] | [--------------1---------------] | [---   
- word     10987654321098765432109876543210 | 10987654321098765432109876543210 | 1098
-  (rev)   32         21        10        0 | 32         21        10        0 | 32  
- reverse  10987654321098765432109876543210 | 32109876543210987654321098765432 | 5432
-          32         21        10        0 | 6  65        54        43      3   9
+    word     10987654321098765432109876543210 | 10987654321098765432109876543210 | 1098
+    (rev)   32         21        10        0 | 32         21        10        0 | 32  
+    reverse  10987654321098765432109876543210 | 32109876543210987654321098765432 | 5432
+             32         21        10        0 | 6  65        54        43      3   9
 
-         ugly enough, but it's not my fault, I was not even in CMS at that time   [gpetrucc] */
-  uint16_t bitEndOffset = (position+1) * HitSize;
-  uint8_t secondWord   = (bitEndOffset >> 5);
-  uint8_t secondWordBits = bitEndOffset & (32-1); // that is, bitEndOffset % 32
-  if (secondWordBits >= HitSize) { // full block is in this word
-      uint8_t lowBitsToTrash = secondWordBits - HitSize;
-      uint32_t myResult = (hitPattern_[secondWord] >> lowBitsToTrash) & ((1 << HitSize)-1);
-      return myResult;
-  } else {
-      uint8_t  firstWordBits   = HitSize - secondWordBits;
-      uint32_t firstWordBlock  = hitPattern_[secondWord-1] >> (32-firstWordBits);
-      uint32_t secondWordBlock = hitPattern_[secondWord] & ((1<<secondWordBits)-1);
-      uint32_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
-      return myResult;
-  }
-}
-
-
-
-
-
-bool HitPattern::hasValidHitInFirstPixelBarrel() const {
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (pixelBarrelHitFilter(pattern)) {
-      if (getLayer(pattern) == 1) {
-        if (validHitFilter(pattern)) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-bool HitPattern::hasValidHitInFirstPixelEndcap() const {
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (pixelEndcapHitFilter(pattern)) {
-      if (getLayer(pattern) == 1) {
-        if (validHitFilter(pattern)) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-int HitPattern::numberOfHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    ++count;
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidStripLayersWithMonoAndStereo (uint32_t stripdet, uint32_t layer) const {
-  static const int nHits = (PatternSize * 32) / HitSize;
-  bool hasMono[SubstrMask + 1][LayerMask + 1];
-  //     printf("sizeof(hasMono) = %d\n", sizeof(hasMono));
-  memset(hasMono, 0, sizeof(hasMono));
-  bool hasStereo[SubstrMask + 1][LayerMask + 1];
-  memset(hasStereo, 0, sizeof(hasStereo));
-  // mark which layers have mono/stereo hits
-  for (int i = 0; i < nHits; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (validHitFilter(pattern) && stripHitFilter(pattern)) {
-      if (stripdet!=0 && getSubStructure(pattern)!=stripdet) continue; 
-      if (layer!=0    && getSubSubStructure(pattern)!=layer) continue;
-      switch (getSide(pattern)) {
-      case 0: // mono
-      hasMono[getSubStructure(pattern)][getLayer(pattern)] 
-        = true;
-      break;
-      case 1: // stereo
-      hasStereo[getSubStructure(pattern)][getLayer(pattern)]
-        = true;
-      break;
-      default:
-      break;
-      }
-    }
-    
-  }
-  // count how many layers have mono and stereo hits
-  int count = 0;
-  for (int i = 0; i < SubstrMask + 1; ++i) 
-    for (int j = 0; j < LayerMask + 1; ++j)
-      if (hasMono[i][j] && hasStereo[i][j])
-      count++;
-  return count;
-}
-
-uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const {
-  uint32_t tk_substr_layer = 
-    (1 << SubDetectorOffset) +
-    ((substr & SubstrMask) << SubstrOffset) +
-    ((layer & LayerMask) << LayerOffset);
+     ugly enough, but it's not my fault, I was not even in CMS at that time   [gpetrucc] 
+    */
   
-  uint32_t mask =
-    (SubDetectorMask << SubDetectorOffset) +
-    (SubstrMask << SubstrOffset) +
-    (LayerMask << LayerOffset);
-  
-  // crossed
-  //   layer case 0: valid + (missing, off, bad) ==> with measurement
-  //   layer case 1: missing + (off, bad) ==> without measurement
-  //   layer case 2: off, bad ==> totally off or bad, cannot say much
-  // not crossed
-  //   layer case 999999: track outside acceptance or in gap ==> null
-
-  uint32_t layerCase = 999999;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++)
-  {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if ((pattern & mask) == tk_substr_layer) {
-      uint32_t hitType = (pattern >> HitTypeOffset) & HitTypeMask; // 0,1,2,3
-      if (hitType < layerCase) {
-        layerCase = hitType;
-        if (hitType == 3) layerCase = 2;
-      }
+    uint16_t bitEndOffset = (position + 1) * HIT_LENGTH;
+    uint8_t secondWord   = (bitEndOffset >> 4);
+    uint8_t secondWordBits = bitEndOffset & (16 - 1); // that is, bitEndOffset % 16
+    if (secondWordBits >= HIT_LENGTH) { // full block is in this word
+      uint8_t lowBitsToTrash = secondWordBits - HIT_LENGTH;
+      uint16_t myResult = (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HIT_LENGTH) - 1);
+      return myResult;
+    } else {
+      uint8_t  firstWordBits   = HIT_LENGTH - secondWordBits;
+      uint16_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
+      uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+      uint16_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
+      return myResult;
     }
-  }
-  return layerCase;
 }
 
-uint32_t HitPattern::getTrackerMonoStereo (uint32_t substr, uint32_t layer) const
+bool HitPattern::hasValidHitInFirstPixelBarrel() const
 {
-  uint32_t tk_substr_layer = 
-    (1 << SubDetectorOffset) +
-    ((substr & SubstrMask) << SubstrOffset) +
-    ((layer & LayerMask) << LayerOffset);
-
-  uint32_t mask =
-    (SubDetectorMask << SubDetectorOffset) +
-    (SubstrMask << SubstrOffset) +
-    (LayerMask << LayerOffset);
-
-  //	0:		neither a valid mono nor a valid stereo hit
-  //    MONO:		valid mono hit
-  //	STEREO:		valid stereo hit
-  //	MONO | STEREO:	both
-  uint32_t monoStereo = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++)
-  {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if ((pattern & mask) == tk_substr_layer)
-    {
-      uint32_t hitType = (pattern >> HitTypeOffset) & HitTypeMask; // 0,1,2,3
-      if (hitType == 0) { // valid hit
-	   switch (getSide(pattern)) {
-	   case 0: // mono
-		monoStereo |= MONO;
-		break;
-	   case 1: // stereo
-		monoStereo |= STEREO;
-		break;
-	   default:
-		break;
-	   }
-      }
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 1)
+                && validHitFilter(pattern)) {
+            return true;
+        }
     }
-  }
-  return monoStereo;
+    return false;
 }
 
-
-
-int HitPattern::pixelBarrelLayersWithMeasurement() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelBarrel;
-  uint32_t NPixBarrel = 4;
-  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 0) count++;
-  }
-  return count;
-}
-
-int HitPattern::pixelEndcapLayersWithMeasurement() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelEndcap;
-  uint32_t NPixForward = 3;
-  for (uint32_t layer=1; layer<=NPixForward; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 0) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIBLayersWithMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TIB;
-  for (uint32_t layer=1; layer<=4; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 0) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIDLayersWithMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TID;
-  for (uint32_t layer=1; layer<=3; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 0) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTOBLayersWithMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TOB;
-  for (uint32_t layer=1; layer<=6; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 0) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTECLayersWithMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TEC;
-  for (uint32_t layer=1; layer<=9; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 0) count++;
-  }
-  return count;
-}
-
-
-int HitPattern::pixelBarrelLayersWithoutMeasurement() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelBarrel;
-  uint32_t NPixBarrel = 4;
-  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 1) count++;
-  }
-  return count;
-}
-
-int HitPattern::pixelEndcapLayersWithoutMeasurement() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelEndcap;
-  uint32_t NPixForward = 3;
-  for (uint32_t layer=1; layer<=NPixForward; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 1) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIBLayersWithoutMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TIB;
-  for (uint32_t layer=1; layer<=4; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 1) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIDLayersWithoutMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TID;
-  for (uint32_t layer=1; layer<=3; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 1) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTOBLayersWithoutMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TOB;
-  for (uint32_t layer=1; layer<=6; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 1) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTECLayersWithoutMeasurement() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TEC;
-  for (uint32_t layer=1; layer<=9; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 1) count++;
-  }
-  return count;
-}
-
-
-int HitPattern::pixelBarrelLayersTotallyOffOrBad() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelBarrel;
-  uint32_t NPixBarrel = 4;
-  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 2) count++;
-  }
-  return count;
-}
-
-int HitPattern::pixelEndcapLayersTotallyOffOrBad() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelEndcap;
-  uint32_t NPixForward = 3;
-  for (uint32_t layer=1; layer<=NPixForward; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 2) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIBLayersTotallyOffOrBad() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TIB;
-  for (uint32_t layer=1; layer<=4; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 2) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIDLayersTotallyOffOrBad() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TID;
-  for (uint32_t layer=1; layer<=3; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 2) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTOBLayersTotallyOffOrBad() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TOB;
-  for (uint32_t layer=1; layer<=6; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 2) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTECLayersTotallyOffOrBad() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TEC;
-  for (uint32_t layer=1; layer<=9; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 2) count++;
-  }
-  return count;
-}
-
-
-int HitPattern::pixelBarrelLayersNull() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelBarrel;
-  uint32_t NPixBarrel = 4;
-  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 999999) count++;
-  }
-  return count;
-}
-
-int HitPattern::pixelEndcapLayersNull() const {
-  int count = 0;
-  uint32_t substr = PixelSubdetector::PixelEndcap;
-  uint32_t NPixForward = 3;
-  for (uint32_t layer=1; layer<=NPixForward; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 999999) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIBLayersNull() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TIB;
-  for (uint32_t layer=1; layer<=4; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 999999) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTIDLayersNull() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TID;
-  for (uint32_t layer=1; layer<=3; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 999999) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTOBLayersNull() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TOB;
-  for (uint32_t layer=1; layer<=6; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 999999) count++;
-  }
-  return count;
-}
-
-int HitPattern::stripTECLayersNull() const {
-  int count = 0;
-  uint32_t substr = StripSubdetector::TEC;
-  for (uint32_t layer=1; layer<=9; layer++) {
-    if (getTrackerLayerCase(substr, layer) == 999999) count++;
-  }
-  return count;
-}
-
-void HitPattern::printHitPattern (int position, std::ostream &stream) const
+bool HitPattern::hasValidHitInFirstPixelEndcap() const
 {
-     uint32_t pattern = getHitPattern(position);
-     stream << "\t";
-     if (muonHitFilter(pattern))
-	  stream << "muon";
-     if (trackerHitFilter(pattern))
-	  stream << "tracker";
-     stream << "\tsubstructure " << getSubStructure(pattern);
-     if (muonHitFilter(pattern)) {
-         stream << "\tstation " << getMuonStation(pattern);
-         if (muonDTHitFilter(pattern)) { 
-            stream << "\tdt superlayer " << getDTSuperLayer(pattern); 
-         } else if (muonCSCHitFilter(pattern)) { 
-            stream << "\tcsc ring " << getCSCRing(pattern); 
-         } else if (muonRPCHitFilter(pattern)) {
-            stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel") << ", layer " << getRPCLayer(pattern); 
-         } else {
-            stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure " << getSubStructure(pattern);
-         }
-     } else {
-         stream << "\tlayer " << getLayer(pattern);
-     }
-     stream << "\thit type " << getHitType(pattern);
-     stream << std::endl;
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 1)
+                && validHitFilter(pattern)) {
+            return true;
+        }
+    }
+    return false;
 }
 
-void HitPattern::print (std::ostream &stream) const
+int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
 {
-     stream << "HitPattern" << std::endl;
-     for (int i = 0; i < numberOfHits(); i++) 
-	  printHitPattern(i, stream);
-     std::ios_base::fmtflags flags = stream.flags();
-     stream.setf ( std::ios_base::hex, std::ios_base::basefield );  
-     stream.setf ( std::ios_base::showbase );               
-     for (int i = 0; i < numberOfHits(); i++) {
-	  uint32_t pattern = getHitPattern(i);
-	  stream << pattern << std::endl;
-     }
-     stream.flags(flags);
+    bool hasMono[SubstrMask + 1][LayerMask + 1];
+    bool hasStereo[SubstrMask + 1][LayerMask + 1];
+    memset(hasMono, 0, sizeof(hasMono));
+    memset(hasStereo, 0, sizeof(hasStereo));
+
+    // mark which layers have mono/stereo hits
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        uint16_t subStructure = getSubStructure(pattern);
+
+        if (validHitFilter(pattern) && stripHitFilter(pattern)) {
+            if (stripdet != 0 && subStructure != stripdet) {
+                continue;
+            }
+
+            if (layer != 0 && getSubSubStructure(pattern) != layer) {
+                continue;
+            }
+
+            switch (getSide(pattern)) {
+            case 0: // mono
+                hasMono[subStructure][getLayer(pattern)] = true;
+                break;
+            case 1: // stereo
+                hasStereo[subStructure][getLayer(pattern)] = true;
+                break;
+            default:
+                ;
+                break;
+            }
+        }
+    }
+
+    // count how many layers have mono and stereo hits
+    int count = 0;
+    for (int i = 0; i < SubstrMask + 1; ++i) {
+        for (int j = 0; j < LayerMask + 1; ++j) {
+            if (hasMono[i][j] && hasStereo[i][j]) {
+                count++;
+            }
+        }
+    }
+    return count;
 }
 
-uint32_t HitPattern::isStereo (DetId i) 
+int HitPattern::numberOfValidStripLayersWithMonoAndStereo() const
 {
-     switch (i.det()) {
-     case DetId::Tracker:
-	  switch (i.subdetId()) {
-	  case PixelSubdetector::PixelBarrel:
-	  case PixelSubdetector::PixelEndcap:
-	       return 0;
-	  case StripSubdetector::TIB:
-	  {
-	       TIBDetId id = i;
-	       return id.isStereo();
-	  }
-	  case StripSubdetector::TID:
-	  {
-	       TIDDetId id = i;
-	       return id.isStereo();
-	  }
-	  case StripSubdetector::TOB:
-	  {
-	       TOBDetId id = i;
-	       return id.isStereo();
-	  }
-	  case StripSubdetector::TEC:
-	  {
-	       TECDetId id = i;
-	       return id.isStereo();
-	  }
-	  default:
-	       return 0;
-	  }
-	  break;
-     default:
-	  return 0;
-     }
+    return numberOfValidStripLayersWithMonoAndStereo(0, 0);
 }
 
-int  HitPattern::muonStations(int subdet, int hitType) const {
-  int stations[4] = { 0,0,0,0 };
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (muonHitFilter(pattern) &&
-        (subdet  == 0  || int(getSubStructure(pattern)) == subdet) &&
-        (hitType == -1 || int(getHitType(pattern))      == hitType)) {
-        stations[getMuonStation(pattern)-1] = 1;
+int HitPattern::numberOfValidTOBLayersWithMonoAndStereo(uint32_t layer) const
+{
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TOB, layer);
+}
+
+int HitPattern::numberOfValidTIBLayersWithMonoAndStereo(uint32_t layer) const
+{
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TIB, layer);
+}
+
+int HitPattern::numberOfValidTIDLayersWithMonoAndStereo(uint32_t layer) const
+{
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TID, layer);
+}
+
+int HitPattern::numberOfValidTECLayersWithMonoAndStereo(uint32_t layer) const
+{
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TEC, layer);
+}
+
+uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, uint16_t layer) const
+{
+    uint16_t tk_substr_layer = (0x1 << SubDetectorOffset)
+                               + ((substr & SubstrMask) << SubstrOffset)
+                               + ((layer & LayerMask) << LayerOffset);
+
+    uint16_t mask = (SubDetectorMask << SubDetectorOffset)
+                    + (SubstrMask << SubstrOffset)
+                    + (LayerMask << LayerOffset);
+
+    // layer case 0: valid + (missing, off, bad) ==> with measurement
+    // layer case 1: missing + (off, bad) ==> without measurement
+    // layer case 2: off, bad ==> totally off or bad, cannot say much
+    // layer case NULL_RETURN: track outside acceptance or in gap ==> null
+    uint32_t layerCase = NULL_RETURN;
+    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+    for (int i = range.first; i < range.second; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if ((pattern & mask) == tk_substr_layer) {
+            uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+            if (hitType < layerCase) {
+                // BAD and INACTIVE as the same type (as INACTIVE)
+                layerCase = (hitType == HIT_TYPE::BAD ? HIT_TYPE::INACTIVE : hitType);
+                if (layerCase == HIT_TYPE::VALID) {
+                    break;
+                }
+            }
+        }
     }
-  }
-  return stations[0]+stations[1]+stations[2]+stations[3];
+    return layerCase;
 }
 
+uint16_t HitPattern::getTrackerMonoStereo(HitCategory category, uint16_t substr, uint16_t layer) const
+{
+    uint16_t tk_substr_layer = (0x1 << SubDetectorOffset)
+                               + ((substr & SubstrMask) << SubstrOffset)
+                               + ((layer & LayerMask) << LayerOffset);
+    uint16_t mask = (SubDetectorMask << SubDetectorOffset)
+                    + (SubstrMask << SubstrOffset)
+                    + (LayerMask << LayerOffset);
 
-int HitPattern::innermostMuonStationWithHits(int hitType) const {
-  int ret = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (muonHitFilter(pattern) &&
-        (hitType == -1 || int(getHitType(pattern)) == hitType)) {
-        int stat = getMuonStation(pattern);
-        if (ret == 0 || stat < ret) ret = stat;
+    //             0: neither a valid mono nor a valid stereo hit
+    //          MONO: valid mono hit
+    //        STEREO: valid stereo hit
+    // MONO | STEREO: both
+    uint16_t monoStereo = 0x0;
+    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+    for (int i = range.first; i < range.second; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if ((pattern & mask) == tk_substr_layer) {
+            uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+            if (hitType == HIT_TYPE::VALID) {
+                switch (getSide(pattern)) {
+                case 0: // mono
+                    monoStereo |= MONO;
+                    break;
+                case 1: // stereo
+                    monoStereo |= STEREO;
+                    break;
+                }
+            }
+
+            if (monoStereo == (MONO | STEREO)) {
+                break;
+            }
+        }
     }
-  }
-  return ret;
+    return monoStereo;
 }
 
-int HitPattern::outermostMuonStationWithHits(int hitType) const {
-  int ret = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (muonHitFilter(pattern) &&
-        (hitType == -1 || int(getHitType(pattern)) == hitType)) {
-        int stat = getMuonStation(pattern);
-        if (ret == 0 || stat > ret) ret = stat;
+int HitPattern::pixelBarrelLayersWithMeasurement() const
+{
+    int count = 0;
+    uint16_t NPixBarrel = 4;
+    for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
+            count++;
+        }
     }
-  }
-  return ret;
+    return count;
 }
 
-
-int HitPattern::numberOfDTStationsWithRPhiView() const {
-  int stations[4] = { 0,0,0,0 };
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (muonDTHitFilter(pattern) && validHitFilter(pattern) && getDTSuperLayer(pattern) != 2) {
-        stations[getMuonStation(pattern)-1] = 1;
+int HitPattern::pixelEndcapLayersWithMeasurement() const
+{
+    int count = 0;
+    uint16_t NPixForward = 3;
+    for (uint16_t layer = 1; layer <= NPixForward; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::VALID) {
+            count++;
+        }
     }
-  }
-  return stations[0]+stations[1]+stations[2]+stations[3];
+    return count;
 }
 
-int HitPattern::numberOfDTStationsWithRZView() const {
-  int stations[4] = { 0,0,0,0 };
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (muonDTHitFilter(pattern) && validHitFilter(pattern) && getDTSuperLayer(pattern) == 2) {
-        stations[getMuonStation(pattern)-1] = 1;
+int HitPattern::stripTIBLayersWithMeasurement() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 4; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::VALID) {
+            count++;
+        }
     }
-  }
-  return stations[0]+stations[1]+stations[2]+stations[3];
+    return count;
 }
 
-int HitPattern::numberOfDTStationsWithBothViews() const {
-  int stations[4][2] = { {0,0}, {0,0}, {0,0}, {0,0} };
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    if (muonDTHitFilter(pattern) && validHitFilter(pattern)) {
-        stations[getMuonStation(pattern)-1][getDTSuperLayer(pattern) == 2] = 1;
+int HitPattern::stripTIDLayersWithMeasurement() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 3; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::VALID) {
+            count++;
+        }
     }
-  }
-  return stations[0][0]*stations[0][1] + stations[1][0]*stations[1][1] + stations[2][0]*stations[2][1] + stations[3][0]*stations[3][1];
+    return count;
+}
+
+int HitPattern::stripTOBLayersWithMeasurement() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 6; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::VALID) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTECLayersWithMeasurement() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 9; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::VALID) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::pixelBarrelLayersWithoutMeasurement(HitCategory category) const
+{
+    int count = 0;
+    uint16_t NPixBarrel = 4;
+    for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::MISSING) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::pixelEndcapLayersWithoutMeasurement(HitCategory category) const
+{
+    int count = 0;
+    uint16_t NPixForward = 3;
+    for (uint16_t layer = 1; layer <= NPixForward; layer++) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::MISSING) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTIBLayersWithoutMeasurement(HitCategory category) const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 4; layer++) {
+        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == HIT_TYPE::MISSING) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTIDLayersWithoutMeasurement(HitCategory category) const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 3; layer++) {
+        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == HIT_TYPE::MISSING) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTOBLayersWithoutMeasurement(HitCategory category) const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 6; layer++) {
+        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::MISSING) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTECLayersWithoutMeasurement(HitCategory category) const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 9; layer++) {
+        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == HIT_TYPE::MISSING) {
+            count++;
+        }
+    }
+    return count;
 }
 
 
+int HitPattern::pixelBarrelLayersTotallyOffOrBad() const
+{
+    int count = 0;
+    uint16_t NPixBarrel = 4;
+    for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::pixelEndcapLayersTotallyOffOrBad() const
+{
+    int count = 0;
+    uint16_t NPixForward = 3;
+    for (uint16_t layer = 1; layer <= NPixForward; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTIBLayersTotallyOffOrBad() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 4; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTIDLayersTotallyOffOrBad() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 3; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTOBLayersTotallyOffOrBad() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 6; layer++) {
+
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTECLayersTotallyOffOrBad() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 9; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::pixelBarrelLayersNull() const
+{
+    int count = 0;
+    uint16_t NPixBarrel = 4;
+    for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == NULL_RETURN) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::pixelEndcapLayersNull() const
+{
+    int count = 0;
+    uint16_t NPixForward = 3;
+    for (uint16_t layer = 1; layer <= NPixForward; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == NULL_RETURN) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTIBLayersNull() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 4; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == NULL_RETURN) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTIDLayersNull() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 3; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == NULL_RETURN) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTOBLayersNull() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 6; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == NULL_RETURN) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int HitPattern::stripTECLayersNull() const
+{
+    int count = 0;
+    for (uint16_t layer = 1; layer <= 9; layer++) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == NULL_RETURN) {
+            count++;
+        }
+    }
+    return count;
+}
+
+void HitPattern::printHitPattern(HitCategory category, int position, std::ostream &stream) const
+{
+    uint16_t pattern = getHitPattern(category, position);
+    stream << "\t";
+    if (muonHitFilter(pattern)) {
+        stream << "muon";
+    } else if (trackerHitFilter(pattern)) {
+        stream << "tracker";
+    }
+
+    stream << "\tsubstructure " << getSubStructure(pattern);
+    if (muonHitFilter(pattern)) {
+        stream << "\tstation " << getMuonStation(pattern);
+        if (muonDTHitFilter(pattern)) {
+            stream << "\tdt superlayer " << getDTSuperLayer(pattern);
+        } else if (muonCSCHitFilter(pattern)) {
+            stream << "\tcsc ring " << getCSCRing(pattern);
+        } else if (muonRPCHitFilter(pattern)) {
+            stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel")
+                   << ", layer " << getRPCLayer(pattern);
+        } else {
+            stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
+                   << getSubStructure(pattern);
+        }
+    } else {
+        stream << "\tlayer " << getLayer(pattern);
+    }
+    stream << "\thit type " << getHitType(pattern);
+    stream << std::endl;
+}
+
+void HitPattern::print(HitCategory category, std::ostream &stream) const
+{
+    stream << "HitPattern" << std::endl;
+    for (int i = 0; i < numberOfHits(category); ++i) {
+        printHitPattern(category, i, stream);
+    }
+    std::ios_base::fmtflags flags = stream.flags();
+    stream.setf(std::ios_base::hex, std::ios_base::basefield);
+    stream.setf(std::ios_base::showbase);
+
+    for (int i = 0; i < this->numberOfHits(category); ++i) {
+        stream << getHitPattern(category, i) << std::endl;
+    }
+
+    stream.flags(flags);
+}
+
+uint16_t HitPattern::isStereo(DetId i)
+{
+    if (i.det() != DetId::Tracker) {
+        return 0;
+    }
+
+    switch (i.subdetId()) {
+    case PixelSubdetector::PixelBarrel:
+    case PixelSubdetector::PixelEndcap:
+        return 0;
+    case StripSubdetector::TIB: {
+        TIBDetId id = i;
+        return id.isStereo();
+    }
+    case StripSubdetector::TID: {
+        TIDDetId id = i;
+        return id.isStereo();
+    }
+    case StripSubdetector::TOB: {
+        TOBDetId id = i;
+        return id.isStereo();
+    }
+    case StripSubdetector::TEC: {
+        TECDetId id = i;
+        return id.isStereo();
+    }
+    default:
+        return 0;
+    }
+}
+
+int HitPattern::muonStations(int subdet, int hitType) const
+{
+    int stations[4] = {0, 0, 0, 0};
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (muonHitFilter(pattern)
+                && (subdet == 0   || int(getSubStructure(pattern)) == subdet)
+                && (hitType == -1 || int(getHitType(pattern)) == hitType)) {
+            stations[getMuonStation(pattern) - 1] = 1;
+        }
+    }
+
+    return stations[0] + stations[1] + stations[2] + stations[3];
+}
+
+int HitPattern::innermostMuonStationWithHits(int hitType) const
+{
+    int ret = 0;
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (muonHitFilter(pattern)
+                && (hitType == -1 || int(getHitType(pattern)) == hitType)) {
+            int stat = getMuonStation(pattern);
+            if (ret == 0 || stat < ret) {
+                ret = stat;
+            }
+        }
+    }
+
+    return ret;
+}
+
+int HitPattern::outermostMuonStationWithHits(int hitType) const
+{
+    int ret = 0;
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (muonHitFilter(pattern) &&
+                (hitType == -1 || int(getHitType(pattern)) == hitType)) {
+            int stat = getMuonStation(pattern);
+            if (ret == 0 || stat > ret) {
+                ret = stat;
+            }
+        }
+    }
+    return ret;
+}
+
+int HitPattern::numberOfDTStationsWithRPhiView() const
+{
+    int stations[4] = {0, 0, 0, 0};
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+
+        if (muonDTHitFilter(pattern) && validHitFilter(pattern)
+                && getDTSuperLayer(pattern) != 2) {
+            stations[getMuonStation(pattern) - 1] = 1;
+        }
+    }
+    return stations[0] + stations[1] + stations[2] + stations[3];
+}
+
+int HitPattern::numberOfDTStationsWithRZView() const
+{
+    int stations[4] = {0, 0, 0, 0};
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (muonDTHitFilter(pattern) && validHitFilter(pattern)
+                && getDTSuperLayer(pattern) == 2) {
+            stations[getMuonStation(pattern) - 1] = 1;
+        }
+    }
+    return stations[0] + stations[1] + stations[2] + stations[3];
+}
+
+int HitPattern::numberOfDTStationsWithBothViews() const
+{
+    int stations[4][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (muonDTHitFilter(pattern) && validHitFilter(pattern)) {
+            stations[getMuonStation(pattern) - 1][getDTSuperLayer(pattern) == 2] = 1;
+        }
+    }
+
+    return stations[0][0] * stations[0][1]
+           + stations[1][0] * stations[1][1]
+           + stations[2][0] * stations[2][1]
+           + stations[3][0] * stations[3][1];
+}
+
+void HitPattern::insertHit(const uint16_t pattern)
+{
+    int offset = hitCount * HIT_LENGTH;
+    for (int i = 0; i < HIT_LENGTH; i++) {
+        int pos = offset + i;
+        uint16_t bit = (pattern >> i) & 0x1;
+        //equivalent to hitPattern[pos / 16] += bit << ((offset + i) % 16);
+        hitPattern[pos >> 4] += bit << ((offset + i) & (16 - 1));
+    }
+    hitCount++;
+}
+
+bool HitPattern::insertTrackHit(const uint16_t pattern)
+{
+    // if begin is 0, this is the first hit of this type being inserted, so
+    // we need to update begin so it points to the correct index, the first
+    // empty index.
+    // unlikely, because it will happen only when inserting
+    // the first hit of this type
+    if unlikely((0 == beginTrackHits && 0 == endTrackHits)) {
+        beginTrackHits = hitCount;
+        // before the first hit of this type is inserted, there are no hits
+        endTrackHits = beginTrackHits;
+    }
+
+    insertHit(pattern);
+    endTrackHits++;
+
+    return true;
+}
+
+bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
+{
+    if unlikely((0 == beginInner && 0 == endInner)) {
+        beginInner = hitCount;
+        endInner = beginInner;
+    }
+
+    insertHit(pattern);
+    endInner++;
+
+    return true;
+}
+
+bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
+{
+    if unlikely((0 == beginOuter && 0 == endOuter)) {
+        beginOuter = hitCount;
+        endOuter = beginOuter;
+    }
+
+    insertHit(pattern);
+    endOuter++;
+
+    return true;
+}
 

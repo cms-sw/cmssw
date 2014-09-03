@@ -26,6 +26,7 @@ Implementation:
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -63,7 +64,10 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
   virtual void setupHltMatrix(DQMStore::IBooker & iBooker, const std::string &, int);
   virtual void fillHltMatrix(const std::string &,
                              const std::string &,
-                             double, double, bool);
+                             bool,
+                             bool,
+			     edm::Handle<trigger::TriggerEventWithRefs>,
+			     edm::Handle<trigger::TriggerEvent>);
 
   // ----------member data ---------------------------
 
@@ -80,13 +84,13 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
   std::vector< std::vector<std::string> > PDsVectorPathsVector;
   std::vector<std::string> AddedDatasets;
   edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
-  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+  edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryTokenAOD;
 
   MonitorElement * cppath_;
   std::map<std::string, MonitorElement*> cppath_mini_;
-  std::map<std::string, MonitorElement*> me_etaphi_;
-  std::map<std::string, MonitorElement*> me_eta_;
-  std::map<std::string, MonitorElement*> me_phi_;
+  std::map<std::string, MonitorElement*> cpfilt_mini_;
+  std::map<std::string, TH1F*> hist_cpfilt_mini_;
 
 };
 
@@ -104,7 +108,8 @@ GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_
 
   hltTag = ps.getParameter<std::string> ("HltProcessName");
 
-  triggerSummaryToken = consumes <trigger::TriggerEvent> (edm::InputTag(std::string("hltTriggerSummaryAOD"), std::string(""), hltTag));
+  triggerSummaryTokenRAW = consumes <trigger::TriggerEventWithRefs> (edm::InputTag(std::string("hltTriggerSummaryRAW"), std::string(""), hltTag));
+  triggerSummaryTokenAOD = consumes <trigger::TriggerEvent> (edm::InputTag(std::string("hltTriggerSummaryAOD"), std::string(""), hltTag));
   triggerResultsToken = consumes <edm::TriggerResults>   (edm::InputTag(std::string("TriggerResults"), std::string(""), hltTag));
 
   if (debugPrint) {
@@ -126,7 +131,6 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
               << iEvent.id().run() << " , " << iEvent.id().luminosityBlock()
               << " , " << iEvent.id() << " , " << std::endl;
 
-
   // Access Trigger Results
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken, triggerResults);
@@ -140,23 +144,30 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
   if (debugPrint)
     std::cout << "Found triggerResults" << std::endl;
 
+  edm::Handle<trigger::TriggerEventWithRefs> rawTriggerEvent;
+  iEvent.getByToken(triggerSummaryTokenRAW, rawTriggerEvent);
+
   edm::Handle<trigger::TriggerEvent> aodTriggerEvent;
-  iEvent.getByToken(triggerSummaryToken, aodTriggerEvent);
+  iEvent.getByToken(triggerSummaryTokenAOD, aodTriggerEvent);
 
-  if (!aodTriggerEvent.isValid()) {
+  bool hasRawTriggerEvent = true;
+  if( !rawTriggerEvent.isValid() ){
+    hasRawTriggerEvent = false;
     if (debugPrint)
-      std::cout << "No AOD trigger summary found! Returning...";
-    return;
-  }
+      std::cout << "No RAW trigger summary found! Returning...";
 
-  const trigger::TriggerObjectCollection objects = aodTriggerEvent->getObjects();
+    if( !aodTriggerEvent.isValid() ){
+      if (debugPrint)
+	std::cout << "No AOD trigger summary found! Returning...";
+      return;
+    }
+  }
 
   if (streamA_found_) {
     const std::vector<std::string> &datasetNames =  hlt_config_.streamContent("A");
     // Loop over PDs
     for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) {
       // Loop over Paths in each PD
-      bool first_count = true;
       for (unsigned int iPath = 0;
            iPath < PDsVectorPathsVector[iPD].size(); iPath++) {
         std::string &pathName = PDsVectorPathsVector[iPD][iPath];
@@ -190,102 +201,15 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
           }
         }
 
-        if (index < triggerResults->size()) {
-          if (triggerResults->accept(index)) {
-            cppath_->Fill(index, 1);
-            if (debugPrint)
-              std::cout << "Check Event " <<  iEvent.id()
-                        << " Run " << iEvent.id().run()
-                        << " fired path " << pathName << std::endl;
+        if( index < triggerResults->size() ) {
+	  bool accept = triggerResults->accept(index);
+	  if( accept ) cppath_->Fill(index, 1);
 
-            // look up module labels for this path
-            const std::vector<std::string> &modulesThisPath =
-                hlt_config_.moduleLabels(pathName);
-
-            if (debugPrint)
-              std::cout << "Looping over module labels " << std::endl;
-
-            // Loop backward through module names
-            for (int iModule = (modulesThisPath.size() - 1);
-                 iModule >= 0; iModule--) {
-              if (debugPrint)
-                std::cout << "Module name is "
-                          << modulesThisPath[iModule] << std::endl;
-              // check to see if you have savetags information
-              if (hlt_config_.saveTags(modulesThisPath[iModule])) {
-                if (debugPrint)
-                  std::cout << "For path " << pathName
-                            << " this module " << modulesThisPath[iModule]
-                            <<" is a saveTags module of type "
-                            << hlt_config_.moduleType(modulesThisPath[iModule])
-                            << std::endl;
-                if (hlt_config_.moduleType(modulesThisPath[iModule])
-                    == "HLTLevel1GTSeed")
-                  break;
-                edm::InputTag moduleWhoseResultsWeWant(modulesThisPath[iModule],
-                                                       "",
-                                                       hltTag);
-                unsigned int idx_module_aod_trg =
-                    aodTriggerEvent->filterIndex(moduleWhoseResultsWeWant);
-                if (idx_module_aod_trg < aodTriggerEvent->sizeFilters()) {
-                  const trigger::Keys &keys =
-                      aodTriggerEvent->filterKeys(idx_module_aod_trg);
-                  if (debugPrint)
-                    std::cout << "Got Keys for index "
-                              << idx_module_aod_trg
-                              <<", size of keys is " << keys.size()
-                              << std::endl;
-                  if (keys.size() >= 1000)
-                    edm::LogWarning("GeneralHLTOffline")
-                        << "WARNING!! size of keys is " << keys.size()
-                        << " for path " << pathName << " and module "
-                        << modulesThisPath[iModule]<< std::endl;
-
-                  // There can be > 100 keys (3-vectors) for some
-                  // modules with no ID filled the first one has the
-                  // highest value for single-object triggers for
-                  // multi-object triggers, seems reasonable to use
-                  // the first one as well So loop here has been
-                  // commented out for ( size_t iKey = 0; iKey <
-                  // keys.size(); iKey++ ) {
-
-                  if (keys.size() > 0) {
-                    trigger::TriggerObject foundObject = objects[keys[0]];
-                    if (debugPrint || outputPrint)
-                      std::cout << "This object has id (pt, eta, phi) = "
-                                << " " << foundObject.id() << " "
-                                << std::setw(10) << foundObject.pt()
-                                << ", " << std::setw(10) << foundObject.eta()
-                                << ", " << std::setw(10) << foundObject.phi()
-                                << "   for path = " << std::setw(20) << pathName
-                                << " module " << std::setw(40)
-                                << modulesThisPath[iModule] << std::endl;
-                    if (debugPrint)
-                      std::cout << "CHECK RUN " << iEvent.id().run() << " "
-                                << iEvent.id() << " " << pathName << " "
-                                << modulesThisPath[iModule] << " "
-                                << datasetNames[iPD] << " "
-                                << hlt_config_.moduleType(modulesThisPath[iModule])
-                                << " " << keys.size() << " "
-                                << std::setprecision(4) << foundObject.pt() << " "
-                                << foundObject.eta() << " "
-                                << foundObject.phi() << std::endl;
-
-                    // first_count is to make sure that the top-level
-                    // histograms of each dataset don't get filled
-                    // more than once
-                    fillHltMatrix(datasetNames[iPD], pathName,
-                                  foundObject.eta(), foundObject.phi(),
-                                  first_count);
-                    first_count = false;
-                  }  // at least one key
-                }  // end if filter in aodTriggerEvent
-                // OK, we found the last module. No need to look at
-                // the others.  get out of the loop
-                break;
-              }  // end if saveTags
-            }  // end Loop backward through module names
-          }  // end if(triggerResults->accept(index))
+	  fillHltMatrix(datasetNames[iPD], pathName,
+			accept,
+			hasRawTriggerEvent,
+			rawTriggerEvent,
+			aodTriggerEvent);
         }  // end if (index < triggerResults->size())
       }  // end Loop over Paths in each PD
     }  // end Loop over PDs
@@ -332,7 +256,6 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
   for (unsigned int n = 0, e = hlt_menu_.length(); n != e; ++n)
     if (hlt_menu_[n] == '/' || hlt_menu_[n] == '.')
       hlt_menu_[n] = '_';
-
 
   //////////// Book a simple ME
 
@@ -454,24 +377,10 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
   }  // if stream A found
 }  // end of beginRun
 
-// // ------------ method called when ending the processing of a run  ------------
-// void GeneralHLTOffline::endRun(edm::Run const&, edm::EventSetup const&) {
-//   if (debugPrint)
-//     std::cout << " endRun called " << std::endl;
-// }
-
 
 void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::string & label, int iPD) {
   std::string h_name;
   std::string h_title;
-  std::string h_name_1dEta;
-  std::string h_name_1dPhi;
-  std::string h_title_1dEta;
-  std::string h_title_1dPhi;
-  std::string h_name_1dEtaPath;
-  std::string h_name_1dPhiPath;
-  std::string h_title_1dEtaPath;
-  std::string h_title_1dPhiPath;
   std::string pathName;
   std::string PD_Folder;
   std::string Path_Folder;
@@ -479,40 +388,6 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
   PD_Folder = TString("HLT/GeneralHLTOffline/"+label);
 
   iBooker.setCurrentFolder(PD_Folder.c_str());
-  h_name = "HLT_" +label + "_EtaVsPhi";
-  h_title = "HLT_" + label + "_EtaVsPhi";
-  h_name_1dEta = "HLT_" + label + "_1dEta";
-  h_name_1dPhi = "HLT_" + label + "_1dPhi";
-  h_title_1dEta = label + " Occupancy Vs Eta";
-  h_title_1dPhi = label + " Occupancy Vs Phi";
-
-  Int_t numBinsEta = 30;
-  Int_t numBinsPhi = 34;
-  Int_t numBinsEtaFine = 60;
-  Int_t numBinsPhiFine = 66;
-  Double_t EtaMax = 2.610;
-  Double_t PhiMax = 17.0*TMath::Pi()/16.0;
-  Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
-
-  me_etaphi_[h_name] = iBooker.book2D(h_name.c_str(),
-				      h_title.c_str(),
-				      numBinsEta, -EtaMax, EtaMax,
-				      numBinsPhi, -PhiMax, PhiMax);
-  if (TH1 * service_histo = me_etaphi_[h_name]->getTH2F())
-    service_histo->SetMinimum(0);
-
-  me_eta_[h_name_1dEta] = iBooker.book1D(h_name_1dEta.c_str(),
-					 h_title_1dEta.c_str(),
-					 numBinsEtaFine, -EtaMax, EtaMax);
-  if (TH1 * service_histo = me_eta_[h_name_1dEta]->getTH1F())
-    service_histo->SetMinimum(0);
-  
-  me_phi_[h_name_1dPhi] = iBooker.book1D(h_name_1dPhi.c_str(),
-					 h_title_1dPhi.c_str(),
-					 numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
-  if (TH1 * service_histo = me_phi_[h_name_1dPhi]->getTH1F())
-    service_histo->SetMinimum(0);
-
 
   // make it the top level directory, that is on the same dir level as
   // paths
@@ -542,6 +417,55 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
         axis->SetBinLabel(jPath, pathName.c_str());
     }
 
+    std::string pathNameVer = PDsVectorPathsVector[iPD][iPath];
+    const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(pathNameVer);
+    int NumModules = int( moduleLabels.size() );
+
+    if( !(pathNameVer.find("HLT_") != std::string::npos) ) continue;
+    if( (pathNameVer.find("HLT_Physics")!=std::string::npos) ||
+	(pathNameVer.find("HLT_Random")!=std::string::npos) ) continue;
+
+    std::string prefix("hltPre");
+
+    std::vector<std::string> good_module_names;
+    for( int iMod=0; iMod<NumModules; iMod++ ){
+      std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
+      std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
+      if( !(moduleEDMType == "EDFilter") ) continue;
+      if( moduleType.find("Selector")!= std::string::npos ) continue;
+      if( moduleType == "HLTTriggerTypeFilter" || 
+	  moduleType == "HLTBool" ||
+	  moduleType == "PrimaryVertexObjectFilter" ||
+	  moduleType == "JetVertexChecker" ||
+	  moduleType == "HLTRHemisphere" ||
+	  moduleType == "DetectorStateFilter" ) continue;
+
+      if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
+      good_module_names.push_back(moduleLabels[iMod]);
+    }
+
+    int NumGoodModules = int( good_module_names.size() );
+
+    if( NumGoodModules==0 ) continue;
+
+    std::string pathName_dataset = "cpfilt_" + label + "_" + pathName;
+
+    cpfilt_mini_[pathName_dataset] = iBooker.book1D(pathName_dataset.c_str(),
+							  pathName.c_str(),
+							  NumGoodModules,
+							  0,
+							  NumGoodModules);
+
+    if( cpfilt_mini_[pathName_dataset] )
+      hist_cpfilt_mini_[pathName_dataset] = cpfilt_mini_[pathName_dataset]->getTH1F();
+
+    for( int iMod=0; iMod<NumGoodModules; iMod++ ){
+      if( cpfilt_mini_[pathName_dataset] && hist_cpfilt_mini_[pathName_dataset] ){
+	TAxis * axis = hist_cpfilt_mini_[pathName_dataset]->GetXaxis();
+	if (axis)
+	  axis->SetBinLabel(iMod+1,good_module_names[iMod].c_str());
+      }
+    }
 
     if (debugPrint)
       std::cout << "book1D for " << pathName << std::endl;
@@ -549,90 +473,115 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
 
   if (debugPrint)
     std::cout << "Success setupHltMatrix( " << label << " , "
-              << iPD << " )" << std::cout;
+              << iPD << " )" << std::endl;
 }  // End setupHltMatrix
 
 
 void GeneralHLTOffline::fillHltMatrix(const std::string & label,
                                       const std::string & path,
-                                      double Eta,
-                                      double Phi,
-                                      bool first_count) {
+                                      bool accept,
+				      bool hasRawTriggerEvent,
+				      edm::Handle<trigger::TriggerEventWithRefs> triggerEventRAW,
+				      edm::Handle<trigger::TriggerEvent> triggerEventAOD) {
   if (debugPrint)
     std::cout << "Inside fillHltMatrix( " << label << " , "
               << path << " ) " << std::endl;
 
-  std::string fullPathToME;
-  std::string fullPathToME1dEta;
-  std::string fullPathToME1dPhi;
-  std::string fullPathToME1dEtaPath;
-  std::string fullPathToME1dPhiPath;
   std::string fullPathToCPP;
 
-  fullPathToME = "HLT/GeneralHLTOffline/HLT_" + label + "_EtaVsPhi";
-  fullPathToME1dEta = "HLT/GeneralHLTOffline/HLT_" + label + "_1dEta";
-  fullPathToME1dPhi = "HLT/GeneralHLTOffline/HLT_" + label + "_1dPhi";
-  fullPathToCPP = "HLT/GeneralHLTOffline/" + label
-      + "/cppath_" + label + "_" + hlt_menu_;
-
-  fullPathToME = "HLT/GeneralHLTOffline/"
-    + label + "/HLT_" + label + "_EtaVsPhi";
-  fullPathToME1dEta = "HLT/GeneralHLTOffline/"
-    + label + "/HLT_" + label + "_1dEta";
-  fullPathToME1dPhi = "HLT/GeneralHLTOffline/"
-    + label + "/HLT_" + label + "_1dPhi";
+  fullPathToCPP = "HLT/GeneralHLTOffline/" + label + "/cppath_" + label + "_" + hlt_menu_;
   
-
+  std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
 
   TH1F * hist_mini_cppath = NULL;
   MonitorElement * ME_mini_cppath = NULL;
-  if( cppath_mini_.find(fullPathToCPP)!=cppath_mini_.end() ){
-    ME_mini_cppath = cppath_mini_[fullPathToCPP];
+  if( cppath_mini_.find(dnamez)!=cppath_mini_.end() ){
+    ME_mini_cppath = cppath_mini_[dnamez];
     hist_mini_cppath = ME_mini_cppath->getTH1F();
   }
 
-  // fill top-level histograms
-  if (first_count) {
-    if (debugPrint)
-      std::cout << " label " << label << " fullPathToME1dPhi "
-                << fullPathToME1dPhi << " path "  << path
-                << " Phi " << Phi << " Eta " << Eta << std::endl;
-    
-    MonitorElement * ME_1dEta = NULL;
-    if( me_eta_.find(fullPathToME1dEta)!=me_eta_.end() ){
-      ME_1dEta = me_eta_[fullPathToME1dEta];
-      TH1F * hist_1dEta = ME_1dEta->getTH1F();
-      if (hist_1dEta)
-	hist_1dEta->Fill(Eta);
-    }
-    MonitorElement * ME_1dPhi = NULL;
-    if( me_phi_.find(fullPathToME1dPhi)!=me_phi_.end() ){
-      ME_1dPhi = me_phi_[fullPathToME1dPhi];
-      TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
-      if (hist_1dPhi)
-	hist_1dPhi->Fill(Phi);
-      if (debugPrint)
-	std::cout << "  **FILLED** label " << label << " fullPathToME1dPhi "
-		  << fullPathToME1dPhi << " path "  << path
-		  << " Phi " << Phi << " Eta " << Eta << std::endl;
-    }
-    MonitorElement * ME_2d = NULL;
-    if( me_etaphi_.find(fullPathToME)!=me_etaphi_.end() ){
-      ME_2d = me_etaphi_[fullPathToME];
-      TH2F * hist_2d = ME_2d->getTH2F();
-      if (hist_2d)
-	hist_2d->Fill(Eta, Phi);
-    }
-  }  // end fill top-level histograms
+  std::string pathNameNoVer = hlt_config_.removeVersion(path);
 
+  if( (path.find("HLT_") != std::string::npos) && 
+      !(path.find("HLT_Physics")!=std::string::npos) && 
+      !(path.find("HLT_Random")!=std::string::npos) ){
 
-  if (debugPrint)
-    if (label == "MET")
-      std::cout << " MET Eta is " << Eta << std::endl;
+    unsigned int triggerEventSize = 0;
+    if( hasRawTriggerEvent && triggerEventRAW.isValid() ) triggerEventSize = triggerEventRAW->size();
+    else if( triggerEventAOD.isValid() ) triggerEventSize = triggerEventAOD->sizeFilters();
 
-  if (hist_mini_cppath) {
+    const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(path);
+    int NumModules = int( moduleLabels.size() );
+
+    std::string pathName_dataset = "cpfilt_" + label + "_" + pathNameNoVer;
+
+    TH1F * hist_cpfilt_mini = NULL;
+    MonitorElement * ME_cpfilt_mini = NULL;
+    if( cpfilt_mini_.find(pathName_dataset)!=cpfilt_mini_.end() ){
+      ME_cpfilt_mini = cpfilt_mini_[pathName_dataset];
+      hist_cpfilt_mini = ME_cpfilt_mini->getTH1F();
+    }
+
+    std::string prefix("hltPre");
+
+    for( int iMod=0; iMod<NumModules; iMod++ ){
+      std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
+      std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
+      if( !(moduleEDMType == "EDFilter") ) continue;
+      if( moduleType.find("Selector")!= std::string::npos ) continue;
+      if( moduleType == "HLTTriggerTypeFilter" || 
+	  moduleType == "HLTBool" ||
+	  moduleType == "PrimaryVertexObjectFilter" ||
+	  moduleType == "JetVertexChecker" ||
+	  moduleType == "HLTRHemisphere" ||
+	  moduleType == "DetectorStateFilter" ) continue;
+
+      if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
+
+      edm::InputTag moduleWhoseResultsWeWant(moduleLabels[iMod],
+					     "",
+					     hltTag);
+
+      unsigned int idx_module_trg = 0;
+      if( hasRawTriggerEvent && triggerEventRAW.isValid() ) idx_module_trg = triggerEventRAW->filterIndex(moduleWhoseResultsWeWant);
+      else if( triggerEventAOD.isValid() ) idx_module_trg = triggerEventAOD->filterIndex(moduleWhoseResultsWeWant);
+  
+      if( !(idx_module_trg < triggerEventSize) ) continue;
+      if( hist_cpfilt_mini ){
+	TAxis * axis = hist_cpfilt_mini->GetXaxis();
+	int bin_num = axis->FindBin(moduleLabels[iMod].c_str());
+	int bn = bin_num - 1;
+
+	if( bin_num!=1 && hasRawTriggerEvent ){
+	  bool passPreviousFilters = true;
+	  for( int ibin = bin_num-1; ibin>0; ibin-- ){ 
+	    std::string previousFilter(axis->GetBinLabel(ibin));
+	    edm::InputTag previousModuleWhoseResultsWeWant(previousFilter,
+							   "",
+							   hltTag);
+	    unsigned int idx_previous_module_trg = 0;
+	    if( hasRawTriggerEvent && triggerEventRAW.isValid() ) idx_previous_module_trg = triggerEventRAW->filterIndex(previousModuleWhoseResultsWeWant);
+	    else if( triggerEventAOD.isValid() ) idx_previous_module_trg = triggerEventAOD->filterIndex(previousModuleWhoseResultsWeWant);
+
+	    if( !(idx_previous_module_trg < triggerEventSize) ){
+	      passPreviousFilters = false;
+	      break;
+	    }
+	  }
+	  // Only fill if previous filters have been passed
+	  if( passPreviousFilters ) hist_cpfilt_mini->Fill(bn, 1);
+	}
+	else hist_cpfilt_mini->Fill(bn, 1);
+
+      }
+    }
+  }
+  else{
+    if (debugPrint) std::cout << "No AOD trigger summary found! Returning..." << std::endl;
+  }
+
+  if( accept && hist_mini_cppath ){
     TAxis * axis = hist_mini_cppath->GetXaxis();
-    std::string pathNameNoVer = hlt_config_.removeVersion(path);
     int bin_num = axis->FindBin(pathNameNoVer.c_str());
     int bn = bin_num - 1;
     hist_mini_cppath->Fill(bn, 1);

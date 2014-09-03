@@ -45,7 +45,7 @@ class TotemSD : public SensitiveTkDetector,
 
 public:
 
-  TotemSD(std::string, const DDCompactView &, SensitiveDetectorCatalog &, 
+  TotemSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~TotemSD();
 

@@ -33,10 +33,9 @@ namespace edm {
         for(std::map<std::string, Worker*>::iterator it = labelToWorkers_.begin(), itEnd=labelToWorkers_.end();
             it != itEnd;
             ++it) {
-          CPUTimer timer;
           try {
             ParentContext parentContext(context);
-            it->second->doWork<T>(p, es, &timer,streamID, parentContext, topContext);
+            it->second->doWork<T>(p, es, streamID, parentContext, topContext);
           }
           catch (cms::Exception & ex) {
 	    std::ostringstream ost;
@@ -79,11 +78,10 @@ namespace edm {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-        CPUTimer timer;
         try {
           ParentContext parentContext(mcc);
           itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(event,
-              eventSetup, &timer,event.streamID(), parentContext, mcc->getStreamContext());
+              eventSetup, event.streamID(), parentContext, mcc->getStreamContext());
         }
         catch (cms::Exception & ex) {
 	  std::ostringstream ost;

@@ -18,7 +18,8 @@
 // PS matchning prototype
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
-
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/SetNumberOfPartonsDynamically.h"
 
 // Emission Veto Hooks
 //
@@ -98,7 +99,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // PS matching prototype
     //
     JetMatchingHook* fJetMatchingHook;
-	
+    JetMatchingMadgraph *fJetMatchingPy8InternalHook;
+    SetNumberOfPartonsDynamically *fSetNumberOfPartonsDynamicallyHook;
+    
     // Emission Veto Hooks
     //
     EmissionVetoHook* fEmissionVetoHook;
@@ -116,6 +119,10 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     static const std::vector<std::string> p8SharedResources;
     
     std::string slhafile_;
+
+    vector<float> DJR;
+    int nME;
+    int nMEFiltered;
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -126,8 +133,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
-  fJetMatchingHook(0),
-  fEmissionVetoHook(0),fEmissionVetoHook1(0)
+  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fSetNumberOfPartonsDynamicallyHook(0),
+  fEmissionVetoHook(0),fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1)
 {
 
   // J.Y.: the following 3 parameters are hacked "for a reason"
@@ -230,6 +237,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       {
          fJetMatchingHook = new JetMatchingHook( jmParams, &fMasterGen->info );
       }
+      else if (scheme == "MadgraphPy8Internal") {
+        fJetMatchingPy8InternalHook = new ::JetMatchingMadgraph;
+      }
+      else if (scheme == "CKKWPy8Internal") {
+        fSetNumberOfPartonsDynamicallyHook = new SetNumberOfPartonsDynamically;
+      }
   }
 
   // Emission vetos
@@ -270,6 +283,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightRapUserHook) NHooks++;
   if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
+  if(fJetMatchingPy8InternalHook) NHooks++;
+  if (fSetNumberOfPartonsDynamicallyHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
@@ -279,6 +294,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
+  if(fJetMatchingPy8InternalHook) fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
+  if (fSetNumberOfPartonsDynamicallyHook) fMasterGen->setUserHooksPtr(fSetNumberOfPartonsDynamicallyHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
     std::cout << "Turning on Emission Veto Hook";
     if(fEmissionVetoHook1) std::cout << " 1";
@@ -434,6 +451,9 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 
 bool Pythia8Hadronizer::hadronize()
 {
+  DJR.resize(0);
+  nME = -1;
+  nMEFiltered = -1;
   if(LHEInputFileName == string()) lhaUP->loadEvent(lheEvent());
 
   if ( fJetMatchingHook ) 
@@ -444,20 +464,46 @@ bool Pythia8Hadronizer::hadronize()
 
   bool py8next = fMasterGen->next();
 
-  if (!py8next)
+  double mergeweight = fMasterGen.get()->info.mergingWeight();
+  
+  //protect against 0-weight from ckkw or similar
+  if (!py8next || mergeweight<=0.)
   {
     lheEvent()->count( lhef::LHERunInfo::kSelected );
     event().reset();
     return false;
   }
-
+  
+  if (fJetMatchingPy8InternalHook) {
+    const std::vector<double> djrmatch = fJetMatchingPy8InternalHook->GetDJR();
+    //cap size of djr vector to save storage space (keep only up to first 6 elements)
+    unsigned int ndjr = std::min(djrmatch.size(), std::vector<double>::size_type(6));
+    for (unsigned int idjr=0; idjr<ndjr; ++idjr) {
+      DJR.push_back(djrmatch[idjr]);
+    }
+    
+    nME=fJetMatchingPy8InternalHook->nMEPartons()[0];
+    nMEFiltered=fJetMatchingPy8InternalHook->nMEPartons()[1];
+  }
+  
   // update LHE matching statistics
   //
   lheEvent()->count( lhef::LHERunInfo::kAccepted );
 
   event().reset(new HepMC::GenEvent);
-  return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
-
+  bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+  if (!py8hepmc) {
+    return false;
+  }
+  
+  //add ckkw merging weight
+  if (mergeweight!=1.) {
+    event()->weights().push_back(mergeweight);
+  }
+  
+  return true;
+  
+  
 }
 
 
@@ -549,6 +595,10 @@ void Pythia8Hadronizer::finalizeEvent()
   if (!lhe) {
     eventInfo()->setBinningValues(std::vector<double>(1, fMasterGen->info.pTHat()));
   }
+  
+  eventInfo()->setDJR(DJR);
+  eventInfo()->setNMEPartons(nME);
+  eventInfo()->setNMEPartonsFiltered(nMEFiltered);
 
   //******** Verbosity ********
 

@@ -49,7 +49,7 @@ public Observer<const EndOfEvent*>
 
  public:    
   MuonSensitiveDetector(std::string, const DDCompactView &,
-			SensitiveDetectorCatalog &, edm::ParameterSet const &,
+			const SensitiveDetectorCatalog &, edm::ParameterSet const &,
 			const SimTrackManager*);
   virtual ~MuonSensitiveDetector();
   virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);

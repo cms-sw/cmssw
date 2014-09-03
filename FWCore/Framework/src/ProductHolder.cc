@@ -61,7 +61,7 @@ namespace edm {
       if(productWasDeleted()) {
         throwProductDeletedException();
       }
-      if(product() && wrapper().isPresent()) {
+      if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &productData_;
       }
@@ -77,7 +77,7 @@ namespace edm {
       if(productWasDeleted()) {
         throwProductDeletedException();
       }
-      if(product() && wrapper().isPresent()) {
+      if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &productData_;
       }
@@ -94,12 +94,12 @@ namespace edm {
       if(productWasDeleted()) {
         throwProductDeletedException();
       }
-      if(product() && wrapper().isPresent()) {
+      if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &productData_;
       }
       principal_->unscheduledFill(moduleLabel(), mcc);
-      if(product() && wrapper().isPresent()) {
+      if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &productData_;
       }
@@ -110,34 +110,31 @@ namespace edm {
 
   void
   ProducedProductHolder::putProduct_(
-        WrapperOwningHolder const& edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
     assert(branchDescription().produced());
-    assert(edp.isValid());
+    assert(edp.get() != nullptr);
     assert(!provenance()->productProvenanceValid());
     assert(status() != Present);
     assert(status() != Uninitialized);
     setProductProvenance(productProvenance);
     assert(provenance()->productProvenanceValid());
-    if(productData().getInterface() != 0) {
-      assert(productData().getInterface()->sameType(*edp.interface()));
-    }
-    productData().wrapper_ = edp.product();
+    productData().wrapper_ = std::move(edp); // ProductHolder takes ownership
     status_() = Present;
   }
 
   void
   ProducedProductHolder::mergeProduct_(
-        WrapperOwningHolder const& edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance& productProvenance) {
     assert(provenance()->productProvenanceValid());
     assert(status() == Present);
     setProductProvenance(productProvenance);
-    mergeTheProduct(edp);
+    mergeTheProduct(std::move(edp));
   }
 
   bool
@@ -146,49 +143,46 @@ namespace edm {
   }
 
   void
-  ProducedProductHolder::mergeProduct_(WrapperOwningHolder const& edp) const {
+  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     assert(status() == Present);
-    mergeTheProduct(edp);
+    mergeTheProduct(std::move(edp));
   }
 
   void
-  ProducedProductHolder::putProduct_(WrapperOwningHolder const& edp) const {
+  ProducedProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
     assert(branchDescription().produced());
-    assert(edp.isValid());
+    assert(edp.get() != nullptr);
     assert(status() != Present);
     assert(status() != Uninitialized);
-    if(productData().getInterface() != 0) {
-      assert(productData().getInterface()->sameType(*edp.interface()));
-    }
-    productData().wrapper_ = edp.product();
+    productData().wrapper_ = std::move(edp);  // ProductHolder takes ownership
     status_() = Present;
   }
 
   void
   InputProductHolder::putProduct_(
-        WrapperOwningHolder const& edp,
+        std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
     assert(!product());
     assert(!provenance()->productProvenanceValid());
     setProductProvenance(productProvenance);
     assert(provenance()->productProvenanceValid());
-    setProduct(edp);
+    setProduct(std::move(edp));
   }
 
   void
   InputProductHolder::mergeProduct_(
-        WrapperOwningHolder const&,
+        std::unique_ptr<WrapperBase>,
         ProductProvenance&) {
     assert(nullptr);
   }
 
   void
-  InputProductHolder::mergeProduct_(WrapperOwningHolder const& edp) const {
-    mergeTheProduct(edp);
+  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+    mergeTheProduct(std::move(edp));
   }
 
   bool
@@ -197,17 +191,17 @@ namespace edm {
   }
 
   void
-  InputProductHolder::putProduct_(WrapperOwningHolder const& edp) const {
+  InputProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     assert(!product());
-    setProduct(edp);
+    setProduct(std::move(edp));
   }
 
   void
-  ProductHolderBase::mergeTheProduct(WrapperOwningHolder const& edp) const {
-    if(wrapper().isMergeable()) {
-      wrapper().mergeProduct(edp.wrapper());
-    } else if(wrapper().hasIsProductEqual()) {
-      if(!wrapper().isProductEqual(edp.wrapper())) {
+  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) const {
+    if(product()->isMergeable()) {
+      product()->mergeProduct(edp.get());
+    } else if(product()->hasIsProductEqual()) {
+      if(!product()->isProductEqual(edp.get())) {
         LogError("RunLumiMerging")
               << "ProductHolderBase::mergeTheProduct\n"
               << "Two run/lumi products for the same run/lumi which should be equal are not\n"
@@ -230,16 +224,15 @@ namespace edm {
   }
 
   void
-  InputProductHolder::setProduct(WrapperOwningHolder const& prod) const {
+  InputProductHolder::setProduct(std::unique_ptr<WrapperBase> prod) const {
     assert (!product());
-    if(!prod.isValid() || !prod.isPresent()) {
+    if(prod.get() == nullptr || !prod->isPresent()) {
       setProductUnavailable();
     }
-    assert(!prod.isValid() || productData().getInterface()->sameType(*prod.interface()));
-    productData().wrapper_ = prod.product();
+    productData().wrapper_ = std::move(prod);  // ProductHolder takes ownership
   }
 
-  void InputProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void InputProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(provRetriever);
     productData().prov_.setProcessHistory(ph);
@@ -281,7 +274,7 @@ namespace edm {
     }
     // If there is a product, we know if it is real or a dummy.
     if(product()) {
-      bool unavailable = !(wrapper().isPresent());
+      bool unavailable = !(product()->isPresent());
       if(unavailable) {
         setProductUnavailable();
       }
@@ -298,7 +291,7 @@ namespace edm {
     // If unscheduled production, the product is potentially available.
     if(onDemand()) return false;
     // The product is available if and only if a product has been put.
-    bool unavailable = !(product() && wrapper().isPresent());
+    bool unavailable = !(product() && product()->isPresent());
     return unavailable;
   }
 
@@ -313,7 +306,7 @@ namespace edm {
     status() = ProductDeleted;
   }
 
-  void ProducedProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void ProducedProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(provRetriever);
     productData().prov_.setProcessHistory(ph);
@@ -347,7 +340,7 @@ namespace edm {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
     if(branchDescription().produced()) {
-      return product() && wrapper().isPresent();
+      return product() && product()->isPresent();
     }
     // If this product is from a prior process, the provenance is available,
     // although the per event part may have been dropped.
@@ -356,11 +349,11 @@ namespace edm {
 
   TypeID
   ProductHolderBase::productType() const {
-    return TypeID(wrapper().interface()->wrappedTypeInfo());
+    return TypeID(product()->wrappedTypeInfo());
   }
 
   void
-  ProductHolderBase::reallyCheckType(WrapperOwningHolder const& prod) const {
+  ProductHolderBase::reallyCheckType(WrapperBase const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
     if(typeID != branchDescription().unwrappedTypeID()) {
@@ -428,7 +421,7 @@ namespace edm {
     return nullptr;
   }
 
-  void AliasProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void AliasProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(provRetriever);
     productData().prov_.setProcessHistory(ph);
@@ -464,7 +457,7 @@ namespace edm {
   void NoProcessProductHolder::resetStatus_() {
   }
 
-  void NoProcessProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void NoProcessProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
   }
 
   void NoProcessProductHolder::setProcessHistory_(ProcessHistory const& ph) {
@@ -505,25 +498,25 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(WrapperOwningHolder const& edp) const {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(WrapperOwningHolder const&  edp, ProductProvenance& productProvenance) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>  edp, ProductProvenance& productProvenance) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(WrapperOwningHolder const& edp) const {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -535,7 +528,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::checkType_(WrapperOwningHolder const& prod) const {
+  void NoProcessProductHolder::checkType_(WrapperBase const& prod) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::checkType_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -553,7 +546,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {
+  void NoProcessProductHolder::resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";

@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -291,7 +292,7 @@ namespace edm
     // HBHE first
 
 
-    boost::shared_ptr<Wrapper<HBHEDigiCollection>  const> HBHEDigisPTR = 
+    std::shared_ptr<Wrapper<HBHEDigiCollection>  const> HBHEDigisPTR = 
       getProductByTag<HBHEDigiCollection>(*ep, HBHEPileInputTag_, mcc);
  
     if(HBHEDigisPTR ) {
@@ -327,7 +328,7 @@ namespace edm
     //else {std::cout << "NO HBHE Digis!!!!" << std::endl;}
     // HO Next
 
-    boost::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 
+    std::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 
       getProductByTag<HODigiCollection>(*ep, HOPileInputTag_, mcc);
  
     if(HODigisPTR ) {
@@ -364,7 +365,7 @@ namespace edm
 
     // HF Next
 
-    boost::shared_ptr<Wrapper<HFDigiCollection>  const> HFDigisPTR = 
+    std::shared_ptr<Wrapper<HFDigiCollection>  const> HFDigisPTR = 
       getProductByTag<HFDigiCollection>(*ep, HFPileInputTag_, mcc);
  
     if(HFDigisPTR ) {
@@ -404,7 +405,7 @@ namespace edm
     if(DoZDC_) {
 
 
-      boost::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
+      std::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
 	getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_, mcc);
  
       if(ZDCDigisPTR ) {

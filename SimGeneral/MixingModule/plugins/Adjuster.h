@@ -10,8 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "boost/shared_ptr.hpp"
-
+#include <memory>
 #include <vector>
 
 namespace edm {
@@ -58,7 +57,7 @@ namespace edm {
 
   template<typename T>
   void  Adjuster<T>::doOffset(int bunchspace, int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc, unsigned int eventNr, int vertexOffset) {
-    boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
+    std::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
     if (shPtr) {
       std::vector<T>& product = const_cast<std::vector<T>&>(*shPtr->product());
       detail::doTheOffset(bunchspace, bcr, product, eventNr, vertexOffset);

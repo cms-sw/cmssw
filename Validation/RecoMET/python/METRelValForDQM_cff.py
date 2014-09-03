@@ -10,14 +10,14 @@ from Validation.RecoMET.METValidation_cfi import *
 # as requested by DQM group to reduce the load on server.
 # -Samantha Hewamanage (samantha@cern.ch) - 04-27-2012
 
-from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfJetMETcorr, pfchsMETcorr, pfType1CorrectedMet
+from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT0pc,pfMetT0pcT1,pfMetT1
+from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
+from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
+
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
-newAk5PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
-pfJetMETcorr.jetCorrLabel = cms.string('newAk5PFL1FastL2L3')
-
-pfType0CorrectedMet = pfType1CorrectedMet.clone(applyType0Corrections = cms.bool(True), applyType1Corrections = cms.bool(False))
-pfType01CorrectedMet = pfType1CorrectedMet.clone(applyType0Corrections = cms.bool(True), applyType1Corrections = cms.bool(True))
+newAK4PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
+corrPfMetType1.jetCorrLabel = cms.string('newAK4PFL1FastL2L3')
 
 METRelValSequence = cms.Sequence(
     metAnalyzer*
@@ -34,11 +34,12 @@ METRelValSequence = cms.Sequence(
     genMetTrueAnalyzer*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
-    pfJetMETcorr*
-    pfchsMETcorr*
-    pfType0CorrectedMet*
-    pfType1CorrectedMet*
-    pfType01CorrectedMet*
+    correctionTermsPfMetType0PFCandidate*
+    corrPfMetType1*
+    #pfchsMETcorr*
+    pfMetT0pc*
+    pfMetT1*
+    pfMetT0pcT1*
     pfType0CorrectedMetAnalyzer*
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
@@ -60,11 +61,12 @@ METValidation = cms.Sequence(
     genMetTrueAnalyzer*#*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
-    pfJetMETcorr*
-    pfchsMETcorr*
-    pfType0CorrectedMet*
-    pfType1CorrectedMet*
-    pfType01CorrectedMet*
+    correctionTermsPfMetType0PFCandidate*
+    corrPfMetType1*
+    #pfchsMETcorr*
+    pfMetT0pc*
+    pfMetT1*
+    pfMetT0pcT1*
     pfType0CorrectedMetAnalyzer*
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer

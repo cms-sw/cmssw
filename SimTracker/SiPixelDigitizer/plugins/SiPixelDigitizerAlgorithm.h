@@ -55,7 +55,9 @@ class SiPixelDigitizerAlgorithm  {
   //run the algorithm to digitize a single det
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
-                         const PixelGeomDetUnit *pixdet,
+			 const size_t inputBeginGlobalIndex,
+			 const unsigned int tofBin,
+			 const PixelGeomDetUnit *pixdet,
                          const GlobalVector& bfield,
                          CLHEP::HepRandomEngine*);
   void digitize(const PixelGeomDetUnit *pixdet,
@@ -93,8 +95,8 @@ class SiPixelDigitizerAlgorithm  {
       }
     }
 
-    Amplitude( float amp, const PSimHit* hitp, float frac) :
-      _amp(amp), _frac(1, frac), _hitInfo(new SimHitInfoForLinks(hitp)) {
+    Amplitude( float amp, const PSimHit* hitp, size_t hitIndex, unsigned int tofBin, float frac) :
+      _amp(amp), _frac(1, frac), _hitInfo(new SimHitInfoForLinks(hitp, hitIndex, tofBin) ) {
 
     //in case of digi from noisypixels
       //the MC information are removed 
@@ -132,6 +134,12 @@ class SiPixelDigitizerAlgorithm  {
    }
    const EncodedEventId& eventId() const {
      return _hitInfo->eventId_;
+   }
+   const unsigned int hitIndex() const {
+     return _hitInfo->hitIndex_;
+   }
+   const unsigned int tofBin() const {
+     return _hitInfo->tofBin_;
    }
     void operator+=( const float& amp) {
       _amp += amp;
@@ -363,6 +371,8 @@ class SiPixelDigitizerAlgorithm  {
                const std::vector<EnergyDepositUnit>& ionization_points,
                std::vector<SignalPoint>& collection_points) const;
     void induce_signal(const PSimHit& hit,
+		       const size_t hitIndex,
+		       const unsigned int tofBin,
                        const PixelGeomDetUnit *pixdet,
                        const std::vector<SignalPoint>& collection_points);
     void fluctuateEloss(int particleId, float momentum, float eloss, 

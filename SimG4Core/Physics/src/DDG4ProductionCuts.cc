@@ -7,9 +7,11 @@
 
 #include <algorithm>
 
-DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb) : map_(map), m_Verbosity(verb) {
-    m_KeywordRegion =  "CMSCutsRegion";
-    initialize();
+DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, const edm::ParameterSet & p) 
+  : map_(map), m_Verbosity(verb) {
+  m_KeywordRegion =  "CMSCutsRegion";
+  m_protonCut = p.getUntrackedParameter<bool>("CutsOnProton",true);  
+  initialize();
 }
 
 DDG4ProductionCuts::~DDG4ProductionCuts(){
@@ -108,11 +110,12 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart,
 
   //
   // search for production cuts
-  // you must have three of them: e+ e- gamma
+  // you must have four of them: e+ e- gamma proton
   //
   double gammacut;
   double electroncut;
   double positroncut;
+  double protoncut = 0.0;
   int temp =  map_.toDouble("ProdCutsForGamma",lpart,gammacut);
   if (temp != 1){
     throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags: no/more than one ProdCutsForGamma.");
@@ -133,7 +136,8 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart,
   prodCuts->SetProductionCut( electroncut, idxG4ElectronCut );
   prodCuts->SetProductionCut( positroncut, idxG4PositronCut );
   // For recoil use the same cut as for e-
-  prodCuts->SetProductionCut( electroncut, idxG4ProtonCut );
+  if(m_protonCut) { protoncut = electroncut; }
+  prodCuts->SetProductionCut( protoncut, idxG4ProtonCut );
   if ( m_Verbosity > 0 ) {
     LogDebug("Physics") << "DDG4ProductionCuts : Setting cuts for " 
 			<< regionName << "\n    Electrons: " << electroncut

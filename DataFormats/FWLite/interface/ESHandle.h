@@ -19,18 +19,19 @@
 //
 
 // system include files
+#include <memory>
 #include <typeinfo>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace fwlite {
    class Record;
    
-   boost::shared_ptr<cms::Exception> eshandle_not_set_exception();
+   std::shared_ptr<cms::Exception> eshandle_not_set_exception();
    
 template <class T>
 class ESHandle
@@ -77,7 +78,7 @@ class ESHandle
 
       // ---------- member data --------------------------------
       const T* m_data;
-      boost::shared_ptr<cms::Exception> m_exception;
+      std::shared_ptr<cms::Exception> m_exception;
 };
 
 }

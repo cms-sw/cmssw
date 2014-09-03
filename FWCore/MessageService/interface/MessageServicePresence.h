@@ -5,7 +5,7 @@
 
 #include "boost/thread/thread.hpp"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 
 namespace edm  {
@@ -26,7 +26,7 @@ private:
   void  operator = (MessageServicePresence const &);
 
   // --- data:
-  boost::shared_ptr<ThreadQueue> m_queue;
+  std::shared_ptr<ThreadQueue> m_queue;
   boost::thread  m_scribeThread;
 
 };  // MessageServicePresence

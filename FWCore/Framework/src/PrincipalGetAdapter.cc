@@ -29,13 +29,6 @@ namespace edm {
   PrincipalGetAdapter::~PrincipalGetAdapter() {
   }
 
-
-  void
-  principal_get_adapter_detail::deleter::operator()(std::pair<WrapperOwningHolder, BranchDescription const*> const p) const {
-    WrapperOwningHolder* edp = const_cast<WrapperOwningHolder*>(&p.first);
-    edp->reset();
-  }
-
   void
   principal_get_adapter_detail::throwOnPutOfNullProduct(
 	char const* principalType,

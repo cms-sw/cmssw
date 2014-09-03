@@ -12,7 +12,7 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <algorithm>
 #include <iostream>
@@ -93,7 +93,7 @@ void testmakepset::secsourceAux() {
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
@@ -147,7 +147,7 @@ void testmakepset::usingBlockAux() {
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
@@ -196,7 +196,7 @@ void testmakepset::fileinpathAux() {
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(0 != ps.get());
 
   edm::ParameterSet const& innerps = ps->getParameterSet("main");
@@ -254,7 +254,7 @@ void testmakepset::fileinpathAux() {
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder2(config2);
   unlink(tmpout.c_str());
-  boost::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
+  std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
 
   CPPUNIT_ASSERT(0 != ps2.get());
 
@@ -332,7 +332,7 @@ void testmakepset::typesTest() {
    std::string config2(kTest);
    // Create the ParameterSet object from this configuration string.
    PythonProcessDesc builder2(config2);
-   boost::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
+   std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
    edm::ParameterSet const& test = ps2->getParameterSet("p");
 
    CPPUNIT_ASSERT(1 == test.getParameter<int>("i"));

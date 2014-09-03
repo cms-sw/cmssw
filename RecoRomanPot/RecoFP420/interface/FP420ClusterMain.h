@@ -60,8 +60,6 @@ class FP420ClusterMain
   double BadElectrodeProbability_;
   bool UseNoiseBadElectrodeFlagFromDB_;
 
-  FP420NumberingScheme * theFP420NumberingScheme;
-  
   double ChannelThreshold;
   double SeedThreshold;
   double ClusterThreshold;

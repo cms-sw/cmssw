@@ -23,8 +23,6 @@ class ChargeDividerFP420 : public CDividerFP420{
   
  private:
   
-  FP420NumberingScheme * theFP420NumberingScheme;
-
   double pitchcur; // is really moduleThickness here !!!
   double z420;  // dist between centers of 1st and 2nd stations
   double zD2;  // dist between centers of 1st and 2nd stations

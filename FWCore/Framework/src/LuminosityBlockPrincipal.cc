@@ -9,8 +9,8 @@
 namespace edm {
 
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(
-      boost::shared_ptr<LuminosityBlockAuxiliary> aux,
-      boost::shared_ptr<ProductRegistry const> reg,
+      std::shared_ptr<LuminosityBlockAuxiliary> aux,
+      std::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
       HistoryAppender* historyAppender,
       unsigned int index) :
@@ -38,18 +38,18 @@ namespace edm {
   void
   LuminosityBlockPrincipal::put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp) {
+        std::unique_ptr<WrapperBase> edp) {
 
     assert(bd.produced());
-    if(!edp.isValid()) {
+    if(edp.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null."
+        << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductHolder assumes ownership
-    putOrMerge(edp, phb);
+    putOrMerge(std::move(edp), phb);
   }
 
   void
@@ -71,11 +71,11 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+    std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
 
     // Now fix up the ProductHolder
-    if(edp.isValid()) {
-      putOrMerge(edp, &phb);
+    if(edp.get() != nullptr) {
+      putOrMerge(std::move(edp), &phb);
     }
   }
 

@@ -11,6 +11,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include <TMath.h>
+
 namespace reco { namespace tau {
 
 // Get the highest pt track in a jet.
@@ -57,7 +59,9 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
   	  trackPt = track->pt() - 2.*track->ptError();
         } else if ( leadingTrkOrPFCandOption_ == kLeadPFCand ) {
 	  trackPt = (*pfCand)->pt();
-        } else assert(0);
+        } else if ( leadingTrkOrPFCandOption_ == kMinLeadTrackOrPFCand ) {
+	  trackPt = TMath::Min(track->pt(), (double)(*pfCand)->pt());
+	} else assert(0);
         if ( trackPt > leadTrackPt ) {
           leadPFCand = (*pfCand);
 	  leadTrackPt = trackPt;
@@ -192,6 +196,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(const edm::ParameterSet& pset, 
   std::string leadingTrkOrPFCandOption_string = pset.exists("leadingTrkOrPFCandOption") ? pset.getParameter<std::string>("leadingTrkOrPFCandOption") : "firstTrack" ;
   if      ( leadingTrkOrPFCandOption_string == "leadTrack"  ) leadingTrkOrPFCandOption_ = kLeadTrack;
   else if ( leadingTrkOrPFCandOption_string == "leadPFCand" ) leadingTrkOrPFCandOption_ = kLeadPFCand;
+  else if ( leadingTrkOrPFCandOption_string == "minLeadTrackOrPFCand" ) leadingTrkOrPFCandOption_ = kMinLeadTrackOrPFCand;
   else if ( leadingTrkOrPFCandOption_string == "firstTrack" ) leadingTrkOrPFCandOption_ = kFirstTrack;
   else throw cms::Exception("BadVertexAssociatorConfig")
     << "Invalid Configuration parameter 'leadingTrkOrPFCandOption' " << leadingTrkOrPFCandOption_string << "." 

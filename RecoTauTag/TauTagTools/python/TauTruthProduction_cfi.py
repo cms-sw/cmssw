@@ -14,8 +14,7 @@ trueHadronicTaus = cms.EDFilter(
     filter = cms.bool(False)
 )
 
-trueCommonHadronicTaus = cms.EDFilter(
-    "TauGenJetDecayModeSelector",
+trueCommonHadronicTaus = trueHadronicTaus.clone(
     src = cms.InputTag("tauGenJets"),
     select = cms.vstring(
         'oneProng0Pi0', 'oneProng1Pi0', 'oneProng2Pi0',
@@ -23,15 +22,13 @@ trueCommonHadronicTaus = cms.EDFilter(
     filter = cms.bool(False)
 )
 
-trueMuonicTaus = cms.EDFilter(
-    "TauGenJetDecayModeSelector",
+trueMuonicTaus = trueHadronicTaus.clone(
     src = cms.InputTag("tauGenJets"),
     select = cms.vstring('muon'),
     filter = cms.bool(False)
 )
 
-trueElecronicTaus = cms.EDFilter(
-    "TauGenJetDecayModeSelector",
+trueElecronicTaus = trueHadronicTaus.clone(
     src = cms.InputTag("tauGenJets"),
     select = cms.vstring('electron'),
     filter = cms.bool(False)

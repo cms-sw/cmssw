@@ -15,8 +15,6 @@
 
 #include <iostream>
 
-//DDCompactViewmpl * DDCompactView::global_ = 0;
-
 /** 
    Compact-views can be created only after an appropriate geometrical hierarchy
    has been defined using DDpos(). 
@@ -35,7 +33,8 @@
 */    
 // 
 DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
-  : rep_(new DDCompactViewImpl(rootnodedata))
+  : rep_( new DDCompactViewImpl( rootnodedata )),
+    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
 {
   // 2010-01-27 I am leaving this here so that we are sure the global stores
   // are open when a new DDCompactView is being made.  Eventually I want to
@@ -48,11 +47,7 @@ DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
 }
 
 DDCompactView::~DDCompactView() 
-{  
-  if (rep_ != 0) {
-    delete rep_;
-  }
-}
+{}
 
 /** 
    The compact-view is kept in an acyclic directed multigraph represented
@@ -70,10 +65,14 @@ DDCompactView::graph_type & DDCompactView::writeableGraph()
 }
 
 const DDLogicalPart & DDCompactView::root() const
-{ 
+{
   return rep_->root(); 
 } 
-
+  
+const DDPosData* DDCompactView::worldPosition() const
+{
+  return worldpos_.get();
+}
 
 DDCompactView::walker_type DDCompactView::walker() const
 {
@@ -166,7 +165,10 @@ void DDCompactView::swap( DDCompactView& repToSwap ) {
   rep_->swap ( *(repToSwap.rep_) );
 }
 
-DDCompactView::DDCompactView() : rep_(new DDCompactViewImpl) { }
+DDCompactView::DDCompactView()
+  : rep_(new DDCompactViewImpl),
+    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
+{ }
 
 void DDCompactView::lockdown() {
   // at this point we should have a valid store of DDObjects and we will move these

@@ -17,6 +17,11 @@
 #include "CondFormats/DataRecord/interface/SiStripDeDxKaon_3D_Rcd.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxElectron_3D_Rcd.h"
 
+#include "CondFormats/DataRecord/interface/PhysicsTFormulaPayloadRcd.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
+#include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
+
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 
@@ -30,4 +35,6 @@ REGISTER_PLUGIN(SiStripDeDxProton_3D_Rcd, PhysicsTools::Calibration::HistogramD3
 REGISTER_PLUGIN(SiStripDeDxPion_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 REGISTER_PLUGIN(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 REGISTER_PLUGIN(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+REGISTER_PLUGIN(PhysicsTFormulaPayloadRcd, PhysicsTFormulaPayload);
+REGISTER_PLUGIN(PhysicsTGraphPayloadRcd, PhysicsTGraphPayload);
 

@@ -9,7 +9,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -70,7 +69,6 @@ namespace cms
     //  HitDigitizerFP420* theHitDigitizerFP420;
     //    FP420DigiMain stripDigitizer_;
     FP420DigiMain* stripDigitizer_;
-    FP420NumberingScheme * theFP420NumberingScheme;
     //  FP420DigiMain * theFP420DigiMain;
     int numStrips;    // number of strips in the module
     

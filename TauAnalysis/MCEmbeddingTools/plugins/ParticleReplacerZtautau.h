@@ -78,7 +78,9 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   bool useTauolaPolarization_;
   double rfRotationAngle_; // angle of rotation around Z-direction of embedded leptons wrt. reconstructed muons
                            // (used to "place" simulated leptons in a detector region different from reconstructed muons,
-                           //  while preserving Z/W-boson momentum and spin effects)
+                           // Note this does not preserve the Z polarization!!!
+  bool rfMirror_; // mirror the muon momentum vectors at the plane defined by the Z axis and the proton axis
+                  // This preserves the Z polarization from what we have seen so far.
 
   gen::TauolaInterfaceBase* tauola_;
   // keep track if TAUOLA interface has already been initialized.

@@ -28,7 +28,7 @@ from SimGeneral.MixingModule.stripDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
 
 
-process.mix = cms.EDProducer("MixingModule",
+process.simSiPixelDigis = cms.EDProducer("MixingModule",
 #    digitizers = cms.PSet(theDigitizers),
 #    digitizers = cms.PSet(
 #      mergedtruth = cms.PSet(
@@ -132,7 +132,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 #        initialSeed = cms.untracked.uint32(1234567),
 #        engineName = cms.untracked.string('TRandom3')
 #    ),
-     mix = cms.PSet(
+     simSiPixelDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('TRandom3')
    )
@@ -144,19 +144,28 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       'file:/afs/cern.ch/work/d/dkotlins/public//MC/mu/pt100/simhits/simHits1.root'
+#       'file:/afs/cern.ch/work/d/dkotlins/public//MC/mu/pt100_71_pre5/simhits/simHits2.root'
+       'file:/afs/cern.ch/work/d/dkotlins/public//MC/mu/pt100_71_pre5/simhits/simHits1.root'
+#       'file:/afs/cern.ch/work/d/dkotlins/public//MC/mu/pt100_71_pre5/simhits/simHits3.root'
+#       'file:/afs/cern.ch/work/d/dkotlins/public//MC/mu/pt100_71_pre5/simhits/simHits4.root'
   )
 )
 
 # Choose the global tag here:
 # for v7.0
 #process.GlobalTag.globaltag = 'MC_70_V1::All'
-process.GlobalTag.globaltag = 'START70_V1::All'
+#process.GlobalTag.globaltag = 'START70_V1::All'
 #process.GlobalTag.globaltag = 'DESIGN70_V1::All'
+#process.GlobalTag.globaltag = "START71_V1::All"
+#process.GlobalTag.globaltag = 'MC_71_V1::All'
+#process.GlobalTag.globaltag = 'POSTLS171_V1::All'
+#process.GlobalTag.globaltag = "PRE_MC_71_V2::All"
+process.GlobalTag.globaltag = "PRE_STA71_V4::All"
+
 
 process.o1 = cms.OutputModule("PoolOutputModule",
       outputCommands = cms.untracked.vstring('drop *','keep *_*_*_Test'),
-      fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis_trk/digis1.root')
+      fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis_trk/digis1_presta71.root')
 #      fileName = cms.untracked.string('file:dummy.root')
 )
 
@@ -166,7 +175,7 @@ process.g4SimHits.Generator.HepMCProductLabel = 'source'
 #process.mix.digitizers.pixel.ThresholdInElectrons_BPix = 3500.0 
 
 #This process is to run the digitizer:
-process.p1 = cms.Path(process.mix)
+process.p1 = cms.Path(process.simSiPixelDigis)
 
 process.outpath = cms.EndPath(process.o1)
 

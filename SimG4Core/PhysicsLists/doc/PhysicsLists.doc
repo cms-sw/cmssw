@@ -23,48 +23,32 @@ components provided by Geant4.
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - CMSEmNoDeltaRay          - obsolete EM physics
-- CMSEmStandardPhysics     - standard EM physics equivalent to Option0
-- CMSEmStandardPhysics71   - obsolete standard EM physics equivalent to Option1
-- CMSEmStandardPhysics92   - standard EM physics equivalent to Option1
-- CMSEmStandardPhysics95   - standard EM physics equivalent to Option1 except 
-                             muon multiple scattering - G4UrbanMscModel90
-                             is used
-- CMSEmStandardPhysics95msc92 - CMSUrbanMscModel95 replaced 
-                             by CMSUrbanMscModel92 made for tests
-- CMSEmStandardPhysics95msc93 - CMSUrbanMscModel95 replaced 
-                             by CMSUrbanMscModel93 - keep calorimeter response unchanged
-                             for CMSSW_5_X_Y and CMSSW_6_X_Y very similar
-- CMSEmStandardPhysicsLPM  - CMSUrbanMscModel95 replaced 
-                             by CMSUrbanMscModel93 - keep calorimeter response unchanged
-                             for CMSSW_5_X_Y and CMSSW_6_X_Y very similar
-                             use ultra-relativistic gamma conversion model above 100 GeV
-                             use WentzelVI multiple scattering and CoulombScattring models
-                             for muons
-- CMSEmStandardPhysicsSync - standard EM physics equivalent to Option1 
-                             + Synkrotron radiation active
-- CMSGlauberGribovXS       - obsolete alternative x-section for protons, 
-                             neutrons, pions at high energy
-- CMSHadronElasticPhysicsXS- obsolete alternative hadron elastic constructor
+- CMSEmStandardPhysics     - Option1 with custom msc: e+e- msc below 100 MeV
+                             by UrbanMscModel93, muons, pions, kaons, protons, 
+                             anti_proton G4WentzelVIModel+G4eSingleScattering
+- CMSEmStandardPhysics95   - Option1 with custom msc: G4UrbanMscModel for all
+- CMSEmStandardPhysics95msc93 - Option1 with custom msc configuration: electron msc by 
+                             UrbanMscModel93, muon msc by G4UrbanMscModel
+- CMSEmStandardPhysicsLPM  - Option1 with custom msc configuration: electron msc by 
+                             UrbanMscModel93, muon msc by combined 
+                             G4WentzelVIModel+G4eSingleScattering
 - CMSMonopolePhysics       - extra constructor of magnetic monopole physics
-- CMSNeutronXS             - precise inelastic and capture neutron x-sections
 - DummyEMPhysics           - constructor where only electron and mu- ionisation
                              are defined
-- G4Version                
 - HadronPhysicsCMS         - constructor of hadron inelastic physics by name,
                              likely obsolete
 - HadronPhysicsQGSPCMS_FTFP_BERT - castom QGSP_FTFP_BERT hadron inelastic 
                              physics created on top of Geant4 9.4,
                              hyperons are simulated with LHEP
+- UrbanMscModel93          - copied from G4eant4 9.6p03 to be used with Geant4 10.X
 
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->
-QGSPCMS_FTFP_BERT_EML       - use CMSEmStandardPhysics95msc93 to keep HCAL response
-                              unchanged
-QGSPCMS_FTFP_BERT_EML95     - alternative  Physics List for 2012 providing better
-                              EM shower shape, also kaon and hyperon x-sections
-QGSPCMS_FTFP_BERT_EML95msc92- alternative  Physics List for 2012 tests
-QGSPCMS_FTFP_BERT_EML95msc93- use CMSEmStandardPhysics95msc93 
-QGSPCMS_FTFP_BERT_EML_New   - use use CMSEmStandardPhysicsLPM
+QGSPCMS_FTFP_BERT_EML       - use CMSEmStandardPhysics 
+QGSPCMS_FTFP_BERT_EML95     - use CMSEmStandardPhysics95
+QGSPCMS_FTFP_BERT_EML95msc93- use CMSEmStandardPhysics95msc93 and local 
+                              HadronPhysicsQGSPCMS_FTFP_BERT
+QGSPCMS_FTFP_BERT_EML_New   - G4EmStandardPhysics_option1
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->

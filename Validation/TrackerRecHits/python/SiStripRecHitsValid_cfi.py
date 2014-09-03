@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
-#    outputFile = cms.untracked.string('sistriprechitshisto.root'),
-    outputFile = cms.string('striptrackingrechitshisto.root'),
-    runStandalone = cms.bool(False),
-    OutputMEsInRootFile = cms.bool(False),
     TopFolderName = cms.string('SiStrip/RecHitsValidation/StiffTrackingRecHits'),
 
     TH1NumTotrphi = cms.PSet(
@@ -32,25 +28,67 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
   TH1Numrphi = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
+    ),
+
+  TH1Bunchrphi = cms.PSet( 
+        Nbinx          = cms.int32(20),
+        xmin           = cms.double(-10.),
+        xmax           = cms.double(10.),
+        switchon  = cms.bool(True)
+    ),
+
+  TH1Eventrphi = cms.PSet( 
+        Nbinx          = cms.int32(100),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(100.),
+        switchon  = cms.bool(True)
     ),
 
   TH1NumStereo = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
+    ),
+
+    TH1BunchStereo = cms.PSet( 
+        Nbinx          = cms.int32(20),
+        xmin           = cms.double(-10.),
+        xmax           = cms.double(10.),
+        switchon  = cms.bool(True)
+    ),
+
+    TH1EventStereo = cms.PSet( 
+        Nbinx          = cms.int32(100),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(100.),
+        switchon  = cms.bool(True)
     ),
 
   TH1NumMatched = cms.PSet(
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
-        xmax           = cms.double(1000.),
+        xmax           = cms.double(5000.),
         switchon  = cms.bool(True)
 
+    ),
+
+    TH1BunchMatched = cms.PSet( 
+        Nbinx          = cms.int32(20),
+        xmin           = cms.double(-10.),
+        xmax           = cms.double(10.),
+        switchon  = cms.bool(True)
+    ),
+
+    TH1EventMatched = cms.PSet( 
+        Nbinx          = cms.int32(100),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(100.),
+        switchon  = cms.bool(True)
     ),
 
     TH1Wclusrphi = cms.PSet(
@@ -106,6 +144,13 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
         xmax           = cms.double(50.),
+        switchon  = cms.bool(True)
+    ),
+
+    TH1NsimHitrphi = cms.PSet( 
+        Nbinx          = cms.int32(30),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(30.),
         switchon  = cms.bool(True)
     ),
 
@@ -165,6 +210,13 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         switchon  = cms.bool(True)
     ),
 
+    TH1NsimHitStereo = cms.PSet( 
+        Nbinx          = cms.int32(30),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(30.),
+        switchon  = cms.bool(True)
+    ),
+
    TH1PosxMatched = cms.PSet( 
         Nbinx          = cms.int32(100),
         xmin           = cms.double(-10.0),#-6.0
@@ -211,6 +263,13 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
         xmax           = cms.double(50.),
+        switchon  = cms.bool(True)
+    ),
+
+    TH1NsimHitMatched = cms.PSet( 
+        Nbinx          = cms.int32(30),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(30.),
         switchon  = cms.bool(True)
     ),
 

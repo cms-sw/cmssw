@@ -58,7 +58,7 @@ class BscSD : public SensitiveTkDetector,
 
 public:
   
-  BscSD(std::string, const DDCompactView &, SensitiveDetectorCatalog &, 
+  BscSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
   	  edm::ParameterSet const &, const SimTrackManager* );
 
 

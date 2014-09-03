@@ -273,59 +273,6 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   
 }
 
-// run showtag command line
-std::string 
-DQMProvInfo::getShowTags(void)
-{
-   TString out;
-   TString cwd;
-   TString showtagswd;
-   cwd=gSystem->pwd();
-   showtagswd=gSystem->ExpandPathName("$CMSSW_BASE/");
-   gSystem->ChangeDirectory(showtagswd);
-   FILE *pipe = gSystem->OpenPipe("showtags u -t", "r");
-
-   TString line;
-   while (line.Gets(pipe,true)) {
-     if (line.Contains("Test Release")) continue;
-     if (line.Contains("Base Release")) continue;
-     if (line.Contains("Test release")) continue;
-     if (line.Contains("--- Tag ---")) continue;
-     if (line.Contains(" ")) line.Replace(line.First(" "),1,":");
-     line.ReplaceAll(" ","");
-     out = out + line + ";";
-     if (line.Contains("-------------------")) break;
-     if (out.Length()>XBINS) break;
-   }
-   out.ReplaceAll("--","");
-   out.ReplaceAll(";-",";");
-   out.ReplaceAll(";;",";");
-   out.ReplaceAll("\n","");
-
-   Int_t r = gSystem->ClosePipe(pipe);
-   gSystem->ChangeDirectory(cwd);
-   if (r) {
-     gSystem->Error("ShowTags","problem running command showtags -u -t");
-   }
-
-   std::string str(out);
-   if (str.length()>2000) str.resize(2000);
-
-   std::string safestr =
-     "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-;:";
-   size_t found=str.find_first_not_of(safestr);
-   if (found!=std::string::npos)
-   {
-     edm::LogWarning("DQMProvInfo::ShowTags") << " Illegal character found: " 
-               << str[found] 
-               << " at position " 
-               << int(found) ;
-     return "notags";
-   }   
-   return str;
-}
-
-
 void 
 DQMProvInfo::makeProvInfo()
 {
@@ -342,7 +289,6 @@ DQMProvInfo::makeProvInfo()
     //versDataset_   = dbe_->bookString("Dataset",workflow_);
     versGlobaltag_ = dbe_->bookString("Globaltag",globalTag_);
     versRuntype_ = dbe_->bookString("Run Type",runType_);
-    versTaglist_   = dbe_->bookString("Taglist",getShowTags()); 
 
     isComplete_ = dbe_->bookInt("runIsComplete"); 
     //isComplete_->Fill((runIsComplete_?1:0));

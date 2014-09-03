@@ -25,7 +25,7 @@ process.load("GeneratorInterface.TauolaInterface.TauSpinner_cfi")
 process.load("GeneratorInterface.TauolaInterface.TauSpinnerFilter_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(40000)
+    input = cms.untracked.int32(10000)
 )
 
 # Input source
@@ -48,7 +48,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('H130GGgluonfusion_8TeV_tauola_cfi_py_GEN_VALIDATION.root'),
+    fileName = cms.untracked.string('file:step1.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN')
@@ -90,7 +90,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 				 pythiaPylistVerbosity = cms.untracked.int32(1),
 				 filterEfficiency = cms.untracked.double(1.0),
 				 pythiaHepMCVerbosity = cms.untracked.bool(False),
-				 comEnergy = cms.double(8000.0),
+				 comEnergy = cms.double(13000.0),
 				 crossSection = cms.untracked.double(0.05),
 				 UseExternalGenerators = cms.untracked.bool(True),
 				 PythiaParameters = cms.PSet(
@@ -151,7 +151,6 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen+process.TauSpinnerGen+process.TauSpinnerZHFilter)
-#process.genfiltersummary_step = cms.EndPath(process.TauSpinnerGen+process.TauSpinnerZHFilter+process.genFilterSummary)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.validation_step = cms.EndPath(process.genstepfilter+process.genvalid_all)
 process.endjob_step = cms.EndPath(process.endOfProcess)

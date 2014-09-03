@@ -106,41 +106,61 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   if (!iEvent.getByToken(tokTrigger_,triggerTable))
     edm::LogWarning("TopSingleLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerTable);
+  bool isInteresting = false;
   for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
 
     TString name = triggerNames.triggerNames()[i].c_str();
-    bool isInteresting = false;
     for (unsigned int j=0; j<vsPaths_.size(); j++) {
-      if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) isInteresting = true; 
+      if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
+        if (triggerTable->accept(j)){
+          isInteresting = true;   
+          break;
+        }
+      }
+    }
+    if (isInteresting) break;
+  }
+
+  if (isAll_ && isInteresting) isSel_ = true;
+  else isSel_ = false;
+
+  //Histos
+  if (isAll_) {
+    if (minElectrons_ > 0) {
+      hDenLeptonPt->Fill(elec_->pt());
+      hDenLeptonEta->Fill(elec_->eta());
+    }
+    if (minMuons_ > 0) {
+      hDenLeptonPt->Fill(mu_->pt());
+      hDenLeptonEta->Fill(mu_->eta());
+    }
+    hDenJetPt->Fill(jet_->pt());
+    hDenJetEta->Fill(jet_->eta());
+    for(unsigned int idx=0; idx<vsPaths_.size(); ++idx){
+      hDenTriggerMon->Fill(idx+0.5);
     }
 
-    if (isAll_ && isInteresting) isSel_ = true;
-    else isSel_ = false;
-
-    //Histos
-    if (isAll_) {
-      if (minElectrons_ > 0) {
-        hDenLeptonPt->Fill(elec_->pt());
-        hDenLeptonEta->Fill(elec_->eta());
-      }
-      if (minMuons_ > 0) {
-        hDenLeptonPt->Fill(mu_->pt());
-        hDenLeptonEta->Fill(mu_->eta());
-      }
-      hDenJetPt->Fill(jet_->pt());
-      hDenJetEta->Fill(jet_->eta());
+  }
+  if (isSel_) {
+    if (minElectrons_ > 0) {
+      hNumLeptonPt->Fill(elec_->pt());
+      hNumLeptonEta->Fill(elec_->eta());
     }
-    if (isSel_) {
-      if (minElectrons_ > 0) {
-        hNumLeptonPt->Fill(elec_->pt());
-        hNumLeptonEta->Fill(elec_->eta());
+    if (minMuons_ > 0) {
+      hNumLeptonPt->Fill(mu_->pt());
+      hNumLeptonEta->Fill(mu_->eta());
+    }
+    hNumJetPt->Fill(jet_->pt());
+    hNumJetEta->Fill(jet_->eta());
+    for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
+      TString name = triggerNames.triggerNames()[i].c_str();
+      for (unsigned int j=0; j<vsPaths_.size(); j++) {
+        if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
+          if (triggerTable->accept(j)){
+            hNumTriggerMon->Fill(j+0.5 );  
+          }
+        }
       }
-      if (minMuons_ > 0) {
-        hNumLeptonPt->Fill(mu_->pt());
-        hNumLeptonEta->Fill(mu_->eta());
-      }
-      hNumJetPt->Fill(jet_->pt());
-      hNumJetEta->Fill(jet_->eta());
     }
   }
 }
@@ -159,6 +179,13 @@ TopSingleLeptonHLTValidation::bookHistograms(DQMStore::IBooker & dbe, edm::Run c
   hNumLeptonEta = dbe.book1D("EtaLeptonSel", "EtaLeptonSel", 30, -3. , 3.);
   hNumJetPt     = dbe.book1D("PtLastJetSel", "PtLastJetSel", 60, 0., 300.);
   hNumJetEta    = dbe.book1D("EtaLastJetSel", "EtaLastJetSel", 30, -3., 3.);
+  // determine number of bins for trigger monitoring
+  unsigned int nPaths = vsPaths_.size();
+  // monitored trigger occupancy for single lepton triggers
+  hNumTriggerMon    = dbe.book1D("TriggerMonSel" , "TriggerMonSel", nPaths, 0.,  nPaths);
+  hDenTriggerMon    = dbe.book1D("TriggerMonAll" , "TriggerMonAll", nPaths, 0.,  nPaths);
+  // set bin labels for trigger monitoring
+  triggerBinLabels(vsPaths_);
 }
 
 

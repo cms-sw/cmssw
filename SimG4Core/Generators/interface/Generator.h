@@ -14,6 +14,7 @@
     
 class G4Event;
 class G4PrimaryParticle;
+class LumiMonitorFilter;
 
 class Generator
 {
@@ -53,6 +54,7 @@ private:
   double theEtaCutForHector; 
   double theDecLenCut;
   int verbose;
+  LumiMonitorFilter* fLumiFilter; 
   HepMC::GenEvent*  evt_;
   math::XYZTLorentzVector* vtx_;
   double weight_;    

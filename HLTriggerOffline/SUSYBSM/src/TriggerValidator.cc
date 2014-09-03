@@ -317,8 +317,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   //Calculate the overlap among HLT paths
-  for(unsigned int i=0; i< hlNames_.size(); i++) {
-    for(unsigned int j=0; j< hlNames_.size(); j++) {
+  for(unsigned int i=0; i< hltbits.size(); i++) {
+    for(unsigned int j=0; j< hltbits.size(); j++) {
       if(hltbits[i]*hltbits[j]) vCorrHlt[i][j]++;
     }
   }

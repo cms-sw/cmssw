@@ -28,6 +28,7 @@ public:
  
  std::vector<PhotonMCTruth> find( const std::vector<SimTrack>& simTracks, const std::vector<SimVertex>& simVertices);  
 
+ void clear() {geantToIndex_.clear();}
      
 
  private:

@@ -7,6 +7,8 @@
 
 
 class RunManager;
+class RunManagerMT;
+class RunManagerMTWorker;
 class SimTrackManager;
 class RunAction;
 class EventAction;
@@ -20,7 +22,15 @@ public:
 
   SimRunInterface(RunManager* run, bool master);
 
+  SimRunInterface(RunManagerMT* run, bool master);
+
+  SimRunInterface(RunManagerMTWorker* run, bool master);
+
   ~SimRunInterface();
+
+  // Needed because for workers SumRunInterface sits in TLS, while
+  // RunManagerMTWorkers are members of edm::stream OscarMTProducer
+  void setRunManagerMTWorker(RunManagerMTWorker *run);
 
   void Connect(RunAction*);
 
@@ -41,6 +51,8 @@ public:
 private:
 
   RunManager* m_runManager;
+  RunManagerMT* m_runManagerMT;
+  RunManagerMTWorker *m_runManagerMTWorker;
 
   SimTrackManager* m_SimTrackManager;
 

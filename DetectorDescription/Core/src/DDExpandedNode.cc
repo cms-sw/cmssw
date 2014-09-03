@@ -2,7 +2,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 
 DDExpandedNode::DDExpandedNode(const DDLogicalPart & lp, 
-                               DDPosData * pd, 
+                               const DDPosData * pd, 
 	                       const DDTranslation & t, 
 	                       const DDRotationMatrix & r,
 			       int siblingno)
@@ -22,7 +22,8 @@ bool DDExpandedNode::operator==(const DDExpandedNode & n) const {
 
      
 int DDExpandedNode::copyno() const 
-{ 
+{
+  assert( posd_ );
   return posd_->copyno_; 
 }
 

@@ -42,13 +42,15 @@ namespace edm {
     struct BranchInfo {
       BranchInfo(BranchDescription const& prod) :
         branchDescription_(prod),
-        productBranch_(0),
-        provenanceBranch_(0),
-        classCache_(0) {}
+        productBranch_(nullptr),
+        provenanceBranch_(nullptr),
+        classCache_(nullptr),
+        offsetToWrapperBase_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_; // For backward compatibility
       mutable TClass* classCache_;
+      mutable Int_t offsetToWrapperBase_;
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
@@ -60,7 +62,7 @@ namespace edm {
   public:
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
-    RootTree(boost::shared_ptr<InputFile> filePtr,
+    RootTree(std::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
              unsigned int nIndexes,
              unsigned int maxVirtualSize,
@@ -102,7 +104,7 @@ namespace edm {
     }
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, T*& pbuf) {
-      if (metaTree_ != 0) {
+      if (metaTree_ != nullptr) {
         // Metadata was in separate tree.  Not cached.
         branch->SetAddress(&pbuf);
         roottree::getEntry(branch, entryNumber_);
@@ -119,7 +121,7 @@ namespace edm {
 
     template <typename T>
     void fillBranchEntryMeta(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
-      if (metaTree_ != 0) {
+      if (metaTree_ != nullptr) {
         // Metadata was in separate tree.  Not cached.
         branch->SetAddress(&pbuf);
         roottree::getEntry(branch, entryNumber);
@@ -155,7 +157,7 @@ namespace edm {
     void startTraining();
     void stopTraining();
 
-    boost::shared_ptr<InputFile> filePtr_;
+    std::shared_ptr<InputFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
@@ -166,17 +168,17 @@ namespace edm {
 // We use a smart pointer to own the TTreeCache.
 // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
 // So, we make sure to it is detached before closing the TFile so there is no double delete.
-    boost::shared_ptr<TTreeCache> treeCache_;
-    boost::shared_ptr<TTreeCache> rawTreeCache_;
-    mutable boost::shared_ptr<TTreeCache> triggerTreeCache_;
-    mutable boost::shared_ptr<TTreeCache> rawTriggerTreeCache_;
+    std::shared_ptr<TTreeCache> treeCache_;
+    std::shared_ptr<TTreeCache> rawTreeCache_;
+    mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
+    mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
     mutable std::unordered_set<TBranch*> trainedSet_;
     mutable std::unordered_set<TBranch*> triggerSet_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
     std::vector<std::string> branchNames_;
-    boost::shared_ptr<BranchMap> branches_;
+    std::shared_ptr<BranchMap> branches_;
     bool trainNow_;
     EntryNumber switchOverEntry_;
     mutable EntryNumber rawTriggerSwitchOverEntry_;

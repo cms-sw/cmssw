@@ -7,10 +7,9 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
-process.load("RecoMET.Configuration.CaloTowersOptForMET_cff")
 process.load("RecoMET.METProducers.CaloMET_cfi")
 process.load("RecoMET.METProducers.METSigParams_cfi")
-process.load("RecoMET.METProducers.MetMuonCorrections_cff")
+process.load("RecoMET.METProducers.caloMetM_cfi")
 process.load("RecoJets.Configuration.CaloTowersRec_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -45,26 +44,20 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ##____________________________________________________________________________||
-process.metWithSignificance = process.met.clone(
+process.caloMetWithSignificance = process.caloMet.clone(
     process.METSignificance_params,
     calculateSignificance = cms.bool(True)
     )
 
 ##____________________________________________________________________________||
 process.p = cms.Path(
-    process.calotoweroptmaker *
-    process.calotoweroptmakerWithHO *
     process.towerMakerWithHO *
-    process.met *
-    process.metNoHF *
-    process.metHO *
-    process.metNoHFHO *
-    process.metOpt *
-    process.metOptNoHF *
-    process.metOptHO *
-    process.metOptNoHFHO *
-    process.corMetGlobalMuons *
-    process.metWithSignificance
+    process.caloMet *
+    process.caloMetBEFO *
+    process.caloMetBE *
+    process.caloMetBEO *
+    process.caloMetM *
+    process.caloMetWithSignificance
     )
 
 process.e1 = cms.EndPath(

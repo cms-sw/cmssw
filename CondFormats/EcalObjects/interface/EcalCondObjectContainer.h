@@ -109,30 +109,12 @@ class EcalCondObjectContainer {
 
                 inline
                 Item & operator[]( uint32_t rawId ) 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
                 {
                         DetId id(rawId);
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[rawId];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        thread_local static Item dummy;
-                                        return dummy;
-                        }
+                        return (id.subdetId()==EcalBarrel) ? eb_[rawId] : ee_[rawId];
+
                 }
-#else
-		{ }
-#endif
-                
+
                 inline
                 Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);

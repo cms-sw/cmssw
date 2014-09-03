@@ -1,17 +1,332 @@
 <lcgdict>
-  <class name="reco::HitPattern" ClassVersion="11">
-   <version ClassVersion="11" checksum="1621684703"/>
+  <class name="reco::HitPattern" ClassVersion="12">
+      <version ClassVersion="12" checksum="3922863495"/>
+      <version ClassVersion="11" checksum="1621684703"/>
   </class>
-  <class name="reco::TrackResiduals" ClassVersion="10">
-   <version ClassVersion="10" checksum="2022291691"/>
-  </class>
-  <class name="reco::TrackBase" ClassVersion="12">
+
+  <class name="reco::TrackBase" ClassVersion="13">
+   <version ClassVersion="13" checksum="1244921154"/>
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+   
    <version ClassVersion="12" checksum="2704717983"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+
    <version ClassVersion="10" checksum="3019978065"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+  </class>
+ <ioread
+      sourceClass="reco::HitPattern"
+      source="uint32_t hitPattern_[25]"
+      targetClass="reco::HitPattern"
+      target="hitPattern"
+      version="[-11]"
+      include="utility;
+        DataFormats/SiPixelDetId/interface/PXBDetId.h;
+        DataFormats/SiPixelDetId/interface/PXFDetId.h;
+        DataFormats/SiStripDetId/interface/TIBDetId.h;
+        DataFormats/SiStripDetId/interface/TIDDetId.h;
+        DataFormats/SiStripDetId/interface/TOBDetId.h;
+        DataFormats/SiStripDetId/interface/TECDetId.h;
+        DataFormats/MuonDetId/interface/DTLayerId.h;
+        DataFormats/MuonDetId/interface/CSCDetId.h;
+        DataFormats/MuonDetId/interface/RPCDetId.h"
+      >
+      <![CDATA[
+            using namespace reco;
+
+            const unsigned short HitSize = 11;
+            const unsigned short PatternSize = 25;
+            const int MaxHits = (PatternSize * sizeof(uint32_t) * 8) / HitSize;
+
+            auto getHitFromOldHitPattern = [HitSize](const uint32_t hitPattern[], const int position) {
+                uint16_t bitEndOffset = (position + 1) * HitSize;
+                uint8_t secondWord   = (bitEndOffset >> 5);
+                uint8_t secondWordBits = bitEndOffset & (32 - 1); // that is, bitEndOffset % 32
+                if (secondWordBits >= HitSize) {
+                    // full block is in this word
+                    uint8_t lowBitsToTrash = secondWordBits - HitSize;
+                    return (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HitSize) - 1);
+                } else {
+                    uint8_t  firstWordBits   = HitSize - secondWordBits;
+                    uint32_t firstWordBlock  = hitPattern[secondWord - 1] >> (32 - firstWordBits);
+                    uint32_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+                    return firstWordBlock + (secondWordBlock << firstWordBits);
+                }
+            };
+
+            auto oldHitPatternToTrackingRecHitPair = [&](const uint32_t pattern) {
+                // value used for those parameters needed by XXXDetId constructors
+                // but that we do not care about because they are not stored in the
+                // HitPattern.
+                const uint8_t DONT_CARE = 1;
+
+                const static unsigned short HitTypeMask = 0x3;
+                const static unsigned short HitTypeOffset = 0;
+                
+                const static unsigned short SideMask = 0x1;
+                const static unsigned short SideOffset = 2;
+                
+                const static unsigned short LayerMask = 0xF;
+                const static unsigned short LayerOffset = 3;
+
+                const static unsigned short SubstrMask = 0x7;
+                const static unsigned short SubstrOffset = 7;
+
+                const static unsigned short SubDetectorMask = 0x1;
+                const static unsigned short SubDetectorOffset = 10;
+
+                const uint32_t VALID_CONST = (uint32_t) TrackingRecHit::valid;
+                const uint32_t MISSING_CONST = (uint32_t) TrackingRecHit::missing;
+                const uint32_t INACTIVE_CONST = (uint32_t) TrackingRecHit::inactive;
+                const uint32_t BAD_CONST = (uint32_t) TrackingRecHit::bad;
+
+                uint32_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;
+                uint32_t layer = (pattern >> LayerOffset) & LayerMask;
+                uint32_t subdet = (pattern >> SubstrOffset) & SubstrMask;
+                uint32_t detector = (pattern >> SubDetectorOffset) & SubDetectorMask;
+                uint32_t stereo = (pattern >> SideOffset) & SideMask;
+
+                // DetId::Tracker = 1 and DetId::Muon = 2 but
+                // in HitPattern Tracker = 1 and Muon = 0 so a conversion is needed:
+                if (detector == 0) {
+                    detector = DetId::Muon;
+                }
+
+                TrackingRecHit::Type hitType = TrackingRecHit::valid;
+                switch (rawHitType) {
+                case VALID_CONST:
+                    hitType = TrackingRecHit::valid;
+                    break;
+                case MISSING_CONST:
+                    hitType = TrackingRecHit::missing;
+                    break;
+                case INACTIVE_CONST:
+                    hitType = TrackingRecHit::inactive;
+                    break;
+                case BAD_CONST:
+                    hitType = TrackingRecHit::bad;
+                    break;
+                }
+
+                DetId detId;
+                if (detector == DetId::Tracker) {
+                    switch (subdet) {
+                    case PixelSubdetector::PixelBarrel:
+                        detId = PXBDetId(layer, DONT_CARE, DONT_CARE);
+                        break;
+                    case PixelSubdetector::PixelEndcap:
+                        detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
+                        break;
+                    case StripSubdetector::TIB:
+                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    case StripSubdetector::TID:
+                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    case StripSubdetector::TOB:
+                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    case StripSubdetector::TEC:
+                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    }
+                } else if (detector == DetId::Muon) {
+                    switch (subdet) {
+                    case MuonSubdetId::DT: {
+                        uint32_t station = 1 + ((layer >> 2) & 0x3);
+                        uint32_t superLayer = (layer & 0x3);
+                        detId = DTLayerId(DONT_CARE, station, DONT_CARE, superLayer, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::CSC: {
+                        uint32_t station = 1 + ((layer >> 2) & 0x3);
+                        uint32_t ring = 1 + (layer & 0x3);
+                        detId = CSCDetId(DONT_CARE, station, ring, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::RPC: {
+                        uint32_t station =  1 + ((layer >> 2) & 0x3);
+                        uint32_t region  = layer & 0x1;
+                        uint32_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
+                        detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    }
+                }
+                return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
+            };
+
+            auto fillNewHitPatternWithOldHitPattern = [&](const uint32_t oldHitPattern[]) {
+                newObj->clear();
+                for (int i = 0; i < MaxHits; i++) {
+                    uint32_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
+                    if (pattern == 0) {
+                        break;
+                    }
+                    std::pair<DetId, TrackingRecHit::Type> hitInfo = oldHitPatternToTrackingRecHitPair(pattern);
+                    if (!newObj->appendHit(hitInfo.first, hitInfo.second)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            fillNewHitPatternWithOldHitPattern(onfile.hitPattern_);
+      ]]>
+ </ioread>
+
+<!-- TrackBase to TrackBase conversion rule. Reads and merges the tree into one. --> 
+<ioread
+      sourceClass="reco::TrackBase"
+      source="reco::HitPattern hitPattern_; reco::HitPattern trackerExpectedHitsInner_; reco::HitPattern trackerExpectedHitsOuter_"
+      targetClass="reco::TrackBase"
+      target="hitPattern_" 
+      version="[-12]"
+      include="DataFormats/TrackReco/interface/HitPattern.h">
+      <![CDATA[
+            using namespace reco;
+
+            auto newHitPatternToPair = [&](const uint16_t pattern, const HitPattern::HitCategory category) {
+                // value used for those parameters needed by XXXDetId constructors
+                // but that we do not care about.
+                const uint8_t DONT_CARE = 1;
+
+                const uint16_t VALID_CONST = (uint16_t) TrackingRecHit::valid;
+                const uint16_t MISSING_CONST = (uint16_t) TrackingRecHit::missing;
+                const uint16_t INACTIVE_CONST = (uint16_t) TrackingRecHit::inactive;
+                const uint16_t BAD_CONST = (uint16_t) TrackingRecHit::bad;
+
+                // 3 bits for hit type
+                const static unsigned short HitTypeMask = 0x3;
+                const static unsigned short HitTypeOffset = 0;
+
+                // 1 bit for mono/stereo
+                const static unsigned short SideMask = 0x1;
+                const static unsigned short SideOffset = 2;
+
+                // 4 bits to identify the layer/disk/wheel within the substructure
+                const static unsigned short LayerMask = 0xF;
+                const static unsigned short LayerOffset = 3;
+
+                // 3 bits to identify the tracker/muon detector substructure
+                const static unsigned short SubstrMask = 0x7;
+                const static unsigned short SubstrOffset = 7;
+
+                // 1 bit to distinguish tracker and muon subsystems
+                const static unsigned short SubDetectorMask = 0x1;
+                const static unsigned short SubDetectorOffset = 10;
+
+                uint16_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;
+                uint16_t layer = (pattern >> LayerOffset) & LayerMask;
+                uint16_t subdet = (pattern >> SubstrOffset) & SubstrMask;
+                uint16_t detector = ((pattern >> SubDetectorOffset) & SubDetectorMask);
+                uint16_t stereo = (pattern >> SideOffset) & SideMask;
+                
+                // DetId::Tracker = 1 and DetId::Muon = 2 but
+                // in HitPattern Tracker = 1 and Muon = 0 so a conversion is needed:
+                if (detector == 0) {
+                    detector = DetId::Muon;
+                }
+
+                TrackingRecHit::Type hitType = TrackingRecHit::valid;
+                switch (rawHitType) {
+                case VALID_CONST:
+                    hitType = TrackingRecHit::valid;
+                    break;
+                case MISSING_CONST:
+                    hitType = TrackingRecHit::missing;
+                    break;
+                case INACTIVE_CONST:
+                    hitType = TrackingRecHit::inactive;
+                    break;
+                case BAD_CONST:
+                    hitType = TrackingRecHit::bad;
+                    break;
+                }
+
+                DetId detId;
+                if (detector == DetId::Tracker) {
+                    switch (subdet) {
+                    case PixelSubdetector::PixelBarrel:
+                        detId = PXBDetId(layer, DONT_CARE, DONT_CARE);
+                        break;
+                    case PixelSubdetector::PixelEndcap:
+                        detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
+                        break;
+                    case StripSubdetector::TIB:
+                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    case StripSubdetector::TID:
+                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    case StripSubdetector::TOB:
+                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    case StripSubdetector::TEC:
+                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
+                        break;
+                    }
+                } else if (detector == DetId::Muon) {
+                    switch (subdet) {
+                    case MuonSubdetId::DT: {
+                        uint16_t station = 1 + (layer >> 2);
+                        uint16_t superLayer = (layer & 0x3);
+                        detId = DTLayerId(DONT_CARE, station, DONT_CARE, superLayer, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::CSC: {
+                        uint16_t station = 1 + (layer >> 2);
+                        uint16_t ring = 1 + (layer & 0x3);
+                        detId = CSCDetId(DONT_CARE, station, ring, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::RPC: {
+                        uint16_t station = 1 + ((layer >> 2) & 0x3);
+                        uint16_t region  = layer & 0x1;
+                        uint16_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
+                        detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    }
+                }
+
+                if (category == HitPattern::MISSING_INNER_HITS) {
+                    hitType = TrackingRecHit::missing_inner;
+                } else if (category == HitPattern::MISSING_OUTER_HITS) {
+                    hitType = TrackingRecHit::missing_outer;
+                }
+
+                return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
+            };
+
+            auto fillNewHitPatternFromNewHitPattern = [&](const HitPattern hitPattern, const HitPattern::HitCategory category) {
+                uint8_t hitCount = hitPattern.numberOfHits(HitPattern::TRACK_HITS);
+                for (int i = 0; i < hitCount; i++) {
+                    uint16_t pattern = hitPattern.getHitPattern(HitPattern::TRACK_HITS, i);
+                    std::pair<DetId, TrackingRecHit::Type> hitInfo = newHitPatternToPair(pattern, category);
+                    if (!newObj->appendHitPattern(hitInfo.first, hitInfo.second)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            auto mergeNewHitPatternsIntoOneNewHitPattern = [&](void) {
+                newObj->resetHitPattern();
+                fillNewHitPatternFromNewHitPattern(onfile.hitPattern_, HitPattern::TRACK_HITS);
+                fillNewHitPatternFromNewHitPattern(onfile.trackerExpectedHitsInner_, HitPattern::MISSING_INNER_HITS);
+                fillNewHitPatternFromNewHitPattern(onfile.trackerExpectedHitsOuter_, HitPattern::MISSING_OUTER_HITS);
+            };
+
+            mergeNewHitPatternsIntoOneNewHitPattern();
+      ]]>
+ </ioread>
+
+  <class name="reco::TrackResiduals" ClassVersion="10">
+   <version ClassVersion="10" checksum="2022291691"/>
   </class>
   <class name="reco::TrackExtraBase" ClassVersion="10">
    <version ClassVersion="10" checksum="3548207838"/>
@@ -30,7 +345,8 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="11">
+  <class name="reco::Track" ClassVersion="12">
+   <version ClassVersion="12" checksum="1190637787"/>
    <version ClassVersion="11" checksum="1190637787"/>
    <version ClassVersion="10" checksum="1190637787"/>
   </class>
@@ -78,8 +394,8 @@
   </class>
 
 
-      <class name="reco::DeDxHit"  ClassVersion="10">
-       <version ClassVersion="10" checksum="2553084991"/>
+      <class name="reco::DeDxHit"  ClassVersion="11">
+       <version ClassVersion="11" checksum="2617380234"/>
       </class>
       <class name="reco::DeDxHitCollection" />
 

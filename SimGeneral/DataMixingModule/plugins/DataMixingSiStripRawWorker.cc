@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -90,8 +91,8 @@ namespace edm
     LogDebug("DataMixingSiStripRawWorker") << "\n===============> adding pileups from event  "
 					   << ep->id() << " for bunchcrossing " << bcr;
 
-    boost::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> > const>    pSSD;
-    boost::shared_ptr<Wrapper<edm::DetSetVector<SiStripRawDigi> > const> pSSRD;
+    std::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> > const>    pSSD;
+    std::shared_ptr<Wrapper<edm::DetSetVector<SiStripRawDigi> > const> pSSRD;
     
     if (SiStripRawDigiSource_=="SIGNAL") {
       pSSD = getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_, mcc);

@@ -73,7 +73,7 @@ void ActionInitialization::Build() const
   SetUserAction(stepAction);
   interface->Connect(stepAction);
 
-  SetUserAction(new StackingAction(m_pStackingAction));
+  SetUserAction(new StackingAction(trackAction, m_pStackingAction));
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -7,7 +7,7 @@ int main (int, char **/*argv*/) try
 
   IOOffset	size = -1;
   bool		exists = StorageFactory::get ()->check
-    ("https://cmssdt.cern.ch/SDT/index.html", &size);
+    ("http://home.web.cern.ch", &size);
 
   std::cout << "exists = " << exists << ", size = " << size << "\n";
   std::cout << "stats:\n" << StorageAccount::summaryText () << std::endl;

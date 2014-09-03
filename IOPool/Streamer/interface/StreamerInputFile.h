@@ -7,7 +7,7 @@
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include<string>
 #include<vector>
@@ -19,11 +19,11 @@ namespace edm {
 
     /**Reads a Streamer file */
     explicit StreamerInputFile(std::string const& name,
-      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
+      std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
 
     /** Multiple Streamer files */
     explicit StreamerInputFile(std::vector<std::string> const& names,
-      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
+      std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
 
     ~StreamerInputFile();
 
@@ -56,8 +56,8 @@ namespace edm {
 
     void logFileAction(char const* msg);
 
-    boost::shared_ptr<InitMsgView> startMsg_;
-    boost::shared_ptr<EventMsgView> currentEvMsg_;
+    std::shared_ptr<InitMsgView> startMsg_;
+    std::shared_ptr<EventMsgView> currentEvMsg_;
 
     std::vector<char> headerBuf_; /** Buffer to store file Header */
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */
@@ -68,14 +68,14 @@ namespace edm {
     std::string currentFileName_;
     bool currentFileOpen_;
 
-    boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
 
     uint32 currRun_;
     uint32 currProto_;
 
     bool newHeader_;
 
-    boost::shared_ptr<Storage> storage_;
+    std::shared_ptr<Storage> storage_;
 
     bool endOfFile_;
   };

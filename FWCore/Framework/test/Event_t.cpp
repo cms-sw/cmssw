@@ -44,8 +44,6 @@ Test program for edm::Event.
 
 #include "Cintex/Cintex.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <algorithm>
 #include <fstream>
 #include <iterator>
@@ -150,17 +148,17 @@ class testEvent: public CppUnit::TestFixture {
                        std::string const& tag,
                        std::string const& productLabel = std::string());
 
-  boost::shared_ptr<ProductRegistry>   availableProducts_;
-  boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-  boost::shared_ptr<EventPrincipal>    principal_;
-  boost::shared_ptr<Event>             currentEvent_;
-  boost::shared_ptr<ModuleDescription> currentModuleDescription_;
+  std::shared_ptr<ProductRegistry>   availableProducts_;
+  std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+  std::shared_ptr<EventPrincipal>    principal_;
+  std::shared_ptr<Event>             currentEvent_;
+  std::shared_ptr<ModuleDescription> currentModuleDescription_;
   typedef std::map<std::string, ModuleDescription> modCache_t;
   typedef modCache_t::iterator iterator_t;
 
   modCache_t moduleDescriptions_;
   ProcessHistoryRegistry processHistoryRegistry_;
-  std::vector<boost::shared_ptr<ProcessConfiguration> > processConfigurations_;
+  std::vector<std::shared_ptr<ProcessConfiguration> > processConfigurations_;
   HistoryAppender historyAppender_;
 };
 
@@ -192,7 +190,7 @@ testEvent::registerProduct(std::string const& tag,
 
   ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
-  boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
+  auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
 
   TypeWithDict product_type(typeid(T));
@@ -275,7 +273,7 @@ testEvent::testEvent() :
 
   TypeWithDict product_type(typeid(prod_t));
 
-  boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
+  auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
     currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID()));
 
@@ -363,15 +361,15 @@ void testEvent::setUp() {
   // and that is used to create the product holder in the principal used to
   // look up the object.
 
-  boost::shared_ptr<ProductRegistry const> preg(availableProducts_);
+  std::shared_ptr<ProductRegistry const> preg(availableProducts_);
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  boost::shared_ptr<RunAuxiliary> runAux(new RunAuxiliary(id.run(), time, time));
-  boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc, &historyAppender_,0));
-  boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_,0));
+  auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
+  auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
+  auto lumiAux = std::make_shared<LuminosityBlockAuxiliary>(rp->run(), 1, time, time);
+  auto lbp = std::make_shared<LuminosityBlockPrincipal>(lumiAux, preg, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
@@ -584,7 +582,7 @@ void testEvent::getByLabel() {
   BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr, nullptr));
   CPPUNIT_ASSERT(!bh2.isValid());
 
-  boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag, nullptr);
+  std::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag, nullptr);
   CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
 

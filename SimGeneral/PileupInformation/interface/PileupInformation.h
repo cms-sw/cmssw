@@ -24,9 +24,6 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
-#include "Utilities/Timing/interface/TimerStack.h"
-
 class PileupInformation : public edm::EDProducer
 {
 

@@ -79,7 +79,7 @@ testDetSetLazyVector::checkConstruction()
   c.insert(d1);
   c.post_insert();
 
-  boost::shared_ptr<edm::dslv::LazyGetter<Value> > getter(new TestGetter(c));
+  std::shared_ptr<edm::dslv::LazyGetter<Value> > getter = std::make_shared<TestGetter>(c);
   {
     std::vector<edm::det_id_type> ids;
     ids.push_back(1);
@@ -137,8 +137,7 @@ testDetSetLazyVector::checkFind()
   c.insert(d1);
   c.post_insert();
 
-  boost::shared_ptr<edm::dslv::LazyGetter<Value> > getter(new TestGetter(c));
-
+  std::shared_ptr<edm::dslv::LazyGetter<Value> > getter = std::make_shared<TestGetter>(c);
   {
     std::vector<edm::det_id_type> ids;
     ids.push_back(1);

@@ -61,7 +61,7 @@ class TrackCountingComputer : public JetTagComputer
 
   std::multiset<float> orderedSignificances(const reco::TrackIPTagInfo & tkip)   const  {
     
-    const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip.impactParameterData()));
+    const std::vector<reco::btag::TrackIPData> & impactParameters((tkip.impactParameterData()));
     const edm::RefVector<reco::TrackCollection> & tracks(tkip.selectedTracks());
     std::multiset<float> significances;
     int i=0;
@@ -69,7 +69,7 @@ class TrackCountingComputer : public JetTagComputer
     
     GlobalPoint pv(tkip.primaryVertex()->position().x(),tkip.primaryVertex()->position().y(),tkip.primaryVertex()->position().z());
     
-    for(std::vector<reco::TrackIPTagInfo::TrackIPData>::const_iterator it = impactParameters.begin(); it!=impactParameters.end(); ++it, i++)  {
+    for(std::vector<reco::btag::TrackIPData>::const_iterator it = impactParameters.begin(); it!=impactParameters.end(); ++it, i++)  {
       if( fabs(impactParameters[i].distanceToJetAxis.value()) < m_cutMaxDistToAxis  &&        // distance to JetAxis
 	  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
 	  (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
@@ -88,7 +88,7 @@ class TrackCountingComputer : public JetTagComputer
   
   
   bool useVariableJTA_;
-  reco::TrackIPTagInfo::variableJTAParameters varJTApars;
+  reco::btag::variableJTAParameters varJTApars;
   
   int m_nthTrack;
   int m_ipType;

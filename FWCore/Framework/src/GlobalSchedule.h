@@ -20,8 +20,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 #include <memory>
 #include <set>
@@ -72,18 +70,18 @@ namespace edm {
   public:
     typedef std::vector<std::string> vstring;
     typedef std::vector<Worker*> AllWorkers;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
+    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> Workers;
 
     GlobalSchedule(TriggerResultInserter* inserter,
-                   boost::shared_ptr<ModuleRegistry> modReg,
+                   std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
                    ProductRegistry& pregistry,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
-                   boost::shared_ptr<ActivityRegistry> areg,
-                   boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                   std::shared_ptr<ActivityRegistry> areg,
+                   std::shared_ptr<ProcessConfiguration> processConfiguration,
                    ProcessContext const* processContext);
     GlobalSchedule(GlobalSchedule const&) = delete;
 
@@ -132,7 +130,7 @@ namespace edm {
     void addToAllWorkers(Worker* w);
     
     WorkerManager                         workerManager_;
-    boost::shared_ptr<ActivityRegistry>   actReg_;
+    std::shared_ptr<ActivityRegistry>   actReg_;
     WorkerPtr                             results_inserter_;
 
 
@@ -176,7 +174,7 @@ namespace edm {
     for(auto & worker: allWorkers()) {
       try {
         ParentContext parentContext(context);
-        worker->doWork<T>(p, es, nullptr,StreamID::invalidStreamID(), parentContext, context);
+        worker->doWork<T>(p, es,StreamID::invalidStreamID(), parentContext, context);
       }
       catch (cms::Exception & ex) {
         std::ostringstream ost;

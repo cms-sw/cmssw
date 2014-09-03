@@ -795,7 +795,7 @@ if [ "$PATCHES" = "TRUE" ]; then
     pfilelist=`tar -xzvf ${PDIR}/${shpatchfile}`
     for pfile in `echo ${pfilelist}`; do
       echo "  -> applying patch: "${pfile}
-      patch -p0 < ${pfile}
+      patch -p1 < ${pfile}
       echo " <I> (patches) removing file "${pfile}
       rm ${pfile}
     done

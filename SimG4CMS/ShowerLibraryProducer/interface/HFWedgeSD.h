@@ -24,7 +24,7 @@ class HFWedgeSD : public SensitiveCaloDetector {
 public:    
   
   HFWedgeSD(std::string name, const DDCompactView & cpv,
-	    SensitiveDetectorCatalog & clg, 
+	    const SensitiveDetectorCatalog & clg,
 	    edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~HFWedgeSD();
   

@@ -61,7 +61,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
     if(hasTaskToRun[iCol])
       dependencies.push_back(ecaldqm::Dependency(ecaldqm::Collections(iCol)));
   }
-  if(collectionTags.existsAs<edm::InputTag>("EcalRawData"))
+  if(collectionTags.existsAs<edm::InputTag>("EcalRawData", false))
     dependencies.push_back(ecaldqm::Dependency(ecaldqm::kEcalRawData));
 
   formSchedule(dependencies.formSequence(), collectionTags);

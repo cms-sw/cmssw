@@ -7,7 +7,7 @@
  *  \author Chang Liu - Purdue University 
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -19,11 +19,11 @@
 
 class MuonDetLayerGeometry;
 
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class CosmicMuonSeedGenerator: public edm::EDProducer {
+class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
  public:
 
   /// Constructor
@@ -114,8 +114,6 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   double theMaxCSCChi2;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
-
-  TrajectoryStateTransform* theTSTransform;
 
   std::map<std::string, float> theParameters;
 

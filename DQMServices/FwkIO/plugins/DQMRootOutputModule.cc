@@ -27,7 +27,7 @@
 #include "TProfile.h"
 
 // user include files
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -178,9 +178,10 @@ namespace edm {
   class ModuleCallingContext;
 }
 
-class DQMRootOutputModule : public edm::OutputModule {
+class DQMRootOutputModule : public edm::one::OutputModule<> {
 public:
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
+  virtual void beginJob() override;
   virtual ~DQMRootOutputModule();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -267,14 +268,15 @@ makeHelper(unsigned int iTypeIndex,
 // constructors and destructor
 //
 DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset):
-edm::OutputModule(pset),
+edm::one::OutputModuleBase::OutputModuleBase(pset),
+edm::one::OutputModule<>(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
 m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName","")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
 m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
-m_enableMultiThread(pset.getUntrackedParameter<bool>("enableMultiThread", false)),
+m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
@@ -284,6 +286,14 @@ m_indicesTree(0)
 // {
 //    // do actual copying here;
 // }
+
+void
+DQMRootOutputModule::beginJob()
+{
+  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
+  edm::Service<DQMStore> dstore;
+  m_enableMultiThread = dstore->enableMultiThread_;
+}
 
 DQMRootOutputModule::~DQMRootOutputModule()
 {

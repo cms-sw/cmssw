@@ -609,13 +609,6 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 }
 
 
-HcalRecHitsAnalyzer::~HcalRecHitsAnalyzer() { }
-
-void HcalRecHitsAnalyzer::endJob() { }
-
-
-void HcalRecHitsAnalyzer::beginJob(){ }
-
 void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
   using namespace edm;

@@ -40,8 +40,6 @@ public:
   TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
                                   const TrackingRecHit&) const;
 
-  template <unsigned int D> TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TrackingRecHit&) const;
 
   virtual KFUpdator * clone() const {
     return new KFUpdator(*this);

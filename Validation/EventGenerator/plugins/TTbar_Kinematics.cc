@@ -39,7 +39,7 @@ void TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get EVENT
-  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
   TLorentzVector tlv_Top, tlv_TopBar, tlv_Bottom, tlv_BottomBar ,tlv_Wplus ,tlv_Wmin , tlv_TTbar;
   bool top(false), antitop(false), antibottom(false), bottom(false), Wplus(false), Wmin(false);

@@ -12,6 +12,7 @@
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+#include "FWCore/Utilities/interface/RunningAverage.h"
 
 class TrackingRegion;
 namespace edm { class Event; class EventSetup; }
@@ -19,7 +20,8 @@ namespace edm { class Event; class EventSetup; }
 class HitPairGenerator : public OrderedHitsGenerator {
 public:
 
-  explicit HitPairGenerator(unsigned int size=7500);
+  explicit HitPairGenerator(unsigned int size=4000);
+  HitPairGenerator(HitPairGenerator const & other) : localRA(other.localRA.mean()){}
 
   virtual ~HitPairGenerator() { }
 
@@ -44,17 +46,22 @@ public:
 
   virtual HitPairGenerator* clone() const = 0;
 
-  virtual void clear() {
+  virtual void clear() final {
+       localRA.update(thePairs.size());
+       OrderedHitPairs tmp; tmp.swap(thePairs);
+   /*
      // back to initial allocation if too large
      if (thePairs.capacity()> 4*m_capacity) {
        OrderedHitPairs tmp; tmp.reserve(m_capacity); tmp.swap(thePairs);
      } 
      thePairs.clear(); 
+   */
   } 
 
 private:
+//  unsigned int m_capacity;
   OrderedHitPairs thePairs;
-  unsigned int m_capacity;
+  edm::RunningAverage localRA;
 
 };
 

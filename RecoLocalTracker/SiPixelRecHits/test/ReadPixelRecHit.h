@@ -28,6 +28,7 @@
 #include <TF1.h>
 #include <TH2F.h>
 #include <TH1F.h>
+#include <TProfile.h>
 #endif
 
 class ReadPixelRecHit : public edm::EDAnalyzer
@@ -80,6 +81,14 @@ class ReadPixelRecHit : public edm::EDAnalyzer
   TH1F *hrecHitsPerLay1F,*hrecHitsPerLay2F;
   TH1F *hdetsPerLay1F,*hdetsPerLay2F;
 
+  TH1F *hAlignErrorX1,*hAlignErrorX2,*hAlignErrorX3;
+  TH1F *hAlignErrorX4,*hAlignErrorX5,*hAlignErrorX6,*hAlignErrorX7;
+  TH1F *hAlignErrorY1,*hAlignErrorY2,*hAlignErrorY3;
+  TH1F *hAlignErrorY4,*hAlignErrorY5,*hAlignErrorY6,*hAlignErrorY7;
+  TH1F *hErrorX1,*hErrorX2,*hErrorX3,*hErrorX4,*hErrorX5,*hErrorX6,*hErrorX7;
+  TH1F *hErrorY1,*hErrorY2,*hErrorY3,*hErrorY4,*hErrorY5,*hErrorY6,*hErrorY7;
+  TProfile *hErrorXB, *hErrorXF, *hErrorYB, *hErrorYF;
+  TProfile *hAErrorXB, *hAErrorXF, *hAErrorYB, *hAErrorYF;
 
 #endif
 

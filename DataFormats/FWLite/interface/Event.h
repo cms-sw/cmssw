@@ -49,7 +49,6 @@
 #include <memory>
 #include <cstring>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -63,10 +62,11 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -119,7 +119,6 @@ namespace fwlite {
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
          virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
@@ -145,7 +144,7 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 
@@ -172,15 +171,15 @@ namespace fwlite {
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
+         void setGetter(std::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
 
          // ---------- member data --------------------------------
          TFile* file_;
          // TTree* eventTree_;
          TTree* eventHistoryTree_;
          // Long64_t eventIndex_;
-         mutable boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
-         mutable boost::shared_ptr<fwlite::Run>  run_;
+         mutable std::shared_ptr<fwlite::LuminosityBlock>  lumi_;
+         mutable std::shared_ptr<fwlite::Run>  run_;
          mutable fwlite::BranchMapReader branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
@@ -197,7 +196,7 @@ namespace fwlite {
          mutable bool parameterSetRegistryFilled_;
 
          fwlite::DataGetterHelper dataHelper_;
-         mutable boost::shared_ptr<RunFactory> runFactory_;
+         mutable std::shared_ptr<RunFactory> runFactory_;
    };
 
 }

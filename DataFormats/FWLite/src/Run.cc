@@ -47,7 +47,7 @@ namespace fwlite {
     pOldAux_(0),
     fileVersion_(-1),
     dataHelper_(branchMap_->getRunTree(),
-                boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
+                std::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
                 branchMap_)
   {
     if(0==iFile) {
@@ -84,16 +84,16 @@ namespace fwlite {
 //       auxBranch_->SetAddress(&pOldAux_);
     }
     branchMap_->updateRun(0);
-//     getter_ = boost::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
+//     getter_ = std::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
 }
 
-  Run::Run(boost::shared_ptr<BranchMapReader> branchMap):
+  Run::Run(std::shared_ptr<BranchMapReader> branchMap):
     branchMap_(branchMap),
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
     dataHelper_(branchMap_->getRunTree(),
-                boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
+                std::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
                 branchMap_)
   {
     if(0==branchMap_->getRunTree()) {
@@ -129,7 +129,7 @@ namespace fwlite {
 //       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
 //     }
 
-//     getter_ = boost::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
+//     getter_ = std::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
 }
 
 Run::~Run()
@@ -230,19 +230,6 @@ Run::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, runIndex);
 }
 
-bool
-Run::getByLabel(std::type_info const& iInfo,
-                char const* iModuleLabel,
-                char const* iProductInstanceLabel,
-                char const* iProcessLabel,
-                edm::WrapperHolder& holder) const {
-    if(atEnd()) {
-        throw cms::Exception("OffEnd") << "You have requested data past the last run";
-    }
-    Long_t runIndex = branchMap_->getRunEntry();
-    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, runIndex);
-}
-
 edm::RunAuxiliary const&
 Run::runAuxiliary() const
 {
@@ -326,7 +313,7 @@ Run::history() const
 }
 
 
-edm::WrapperHolder
+edm::WrapperBase const*
 Run::getByProductID(edm::ProductID const& iID) const
 {
   Long_t runIndex = branchMap_->getRunEntry();

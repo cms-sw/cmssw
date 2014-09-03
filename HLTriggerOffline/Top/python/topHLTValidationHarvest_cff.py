@@ -6,7 +6,8 @@ DiMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )
@@ -17,7 +18,8 @@ DiElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )
@@ -28,7 +30,8 @@ ElecMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )
@@ -39,7 +42,8 @@ topSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )
@@ -50,7 +54,8 @@ topSingleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )
@@ -61,7 +66,8 @@ SingleTopSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )
@@ -72,7 +78,8 @@ SingleTopSingleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
             "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
             "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
-            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll"
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
             ),
         resolution = cms.vstring(""),
         )

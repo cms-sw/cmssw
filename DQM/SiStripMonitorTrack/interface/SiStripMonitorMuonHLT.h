@@ -115,7 +115,6 @@ class SiStripMonitorMuonHLT : public thread_unsafe::DQMEDAnalyzer {
 
       edm::ParameterSet parameters_;
 
-      DQMStore* dbe_;   
       std::string monitorName_;
       std::string outputFile_;
       int counterEvt_;      ///counter
@@ -143,6 +142,9 @@ class SiStripMonitorMuonHLT : public thread_unsafe::DQMEDAnalyzer {
 
       int HistoNumber; //nof layers in Tracker = 34 
       TkDetMap* tkdetmap_;
+      uint32_t cached_detid;
+      int16_t cached_layer;
+      TkLayerMap::XYbin cached_XYbin;
       std::map<std::string, LayerMEs> LayerMEMap;
       //2D info from TkHistoMap 
       TkHistoMap* tkmapAllClusters;

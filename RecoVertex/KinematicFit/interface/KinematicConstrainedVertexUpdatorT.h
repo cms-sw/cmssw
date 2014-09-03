@@ -18,7 +18,7 @@ namespace KineDebug3 {
 
   };
   inline void count() {
-    static Count c;
+    [[cms::thread_safe]] static Count c;
     ++c.n;
   }
 

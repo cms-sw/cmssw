@@ -148,6 +148,8 @@ class PFTau : public BaseTau {
     /// Retrieve the identified hadronic decay mode according to the number of
     /// charged and piZero candidates in the signal cone
     hadronicDecayMode decayMode() const;
+    hadronicDecayMode calculateDecayMode() const;
+    void setDecayMode(const hadronicDecayMode&);
 
     //Electron rejection
     float emFraction() const; // Ecal/Hcal Cluster Energy
@@ -221,6 +223,8 @@ class PFTau : public BaseTau {
     // Muon rejection variables
     float caloComp_;
     float segComp_;
+
+    hadronicDecayMode decayMode_;
 
     reco::PFJetRef jetRef_;
     PFTauTagInfoRef PFTauTagInfoRef_;

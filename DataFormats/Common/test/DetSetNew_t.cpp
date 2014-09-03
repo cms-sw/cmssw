@@ -414,7 +414,7 @@ void TestDetSet::algorithm() {
 using namespace boost::assign;
 
 void TestDetSet::onDemand() {
-  boost::shared_ptr<Getter> pg(new Getter(this));
+  auto pg = std::make_shared<Getter>(this);
   Getter & g = *pg;
   std::vector<unsigned int> v; v+= 21,23,25,27;
   DSTV detsets(pg,v,2);

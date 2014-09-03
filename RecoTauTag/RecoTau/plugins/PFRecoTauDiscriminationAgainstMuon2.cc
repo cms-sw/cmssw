@@ -25,7 +25,9 @@
 #include <string>
 #include <iostream>
 
-class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBase 
+namespace {
+
+class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProducerBase
 {
   enum { kLoose, kMedium, kTight, kCustom };
  public:
@@ -66,7 +68,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const reco::PFTauRef&) override;
+  double discriminate(const reco::PFTauRef&) const override;
 
  private:  
   std::string moduleLabel_;
@@ -104,9 +106,9 @@ namespace
   void countHits(const reco::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
   {
     if ( muon.outerTrack().isNonnull() ) {
-      const reco::HitPattern& muonHitPattern = muon.outerTrack()->hitPattern();
-      for ( int iHit = 0; iHit < muonHitPattern.numberOfHits(); ++iHit ) {
-	uint32_t hit = muonHitPattern.getHitPattern(iHit);
+      const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
+      for (int iHit = 0; iHit < muonHitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); ++iHit) {
+          uint32_t hit = muonHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, iHit);
 	if ( hit == 0 ) break;	    
 	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
 	  int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
@@ -149,7 +151,7 @@ namespace
   }
 }
 
-double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau)
+double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau) const
 {
   if ( verbosity_ ) {
     edm::LogPrint("PFTauAgainstMuon2") << "<PFRecoTauDiscriminationAgainstMuon2::discriminate>:" ;
@@ -275,5 +277,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 
   return discriminatorValue;
 } 
+
+}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon2);

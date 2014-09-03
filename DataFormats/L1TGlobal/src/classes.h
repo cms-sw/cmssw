@@ -2,7 +2,7 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
-namespace DataFormats_L1Trigger {
+namespace DataFormats_L1TGlobal {
   struct dictionary {
 
     GlobalAlgBlkBxCollection    uGtAlgBxColl;

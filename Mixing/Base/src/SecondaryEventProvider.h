@@ -4,8 +4,6 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,7 +15,7 @@ namespace edm {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
              ProductRegistry& pregistry,
-             boost::shared_ptr<ProcessConfiguration> processConfiguration);
+             std::shared_ptr<ProcessConfiguration> processConfiguration);
 
     void beginRun(RunPrincipal& run, const edm::EventSetup& setup, ModuleCallingContext const*);
     void beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const edm::EventSetup& setup, ModuleCallingContext const*);

@@ -3,7 +3,7 @@
 
 #include "SeedFromConsecutiveHitsCreator.h"
 
-class SeedFromConsecutiveHitsTripletOnlyCreator GCC11_FINAL : public SeedFromConsecutiveHitsCreator {
+class dso_hidden SeedFromConsecutiveHitsTripletOnlyCreator GCC11_FINAL : public SeedFromConsecutiveHitsCreator {
 public:
 
   SeedFromConsecutiveHitsTripletOnlyCreator( const edm::ParameterSet & cfg):

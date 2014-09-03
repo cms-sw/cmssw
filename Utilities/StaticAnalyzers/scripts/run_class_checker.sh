@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 export LC_ALL=C 
-if [ $# -eq 0 ] 
- 	then
-	echo "Supply a number argument to pass to scram b -j#"
-	exit 10
-else
-	J=$1
-fi
+if [ $# -eq 0 ] ;then J=$(getconf _NPROCESSORS_ONLN); else J=$1; fi
 
 eval `scram runtime -sh`
 ulimit -m 2000000
@@ -25,7 +19,7 @@ cd ${LOCALRT}/src/Utilities/StaticAnalyzers
 scram b -j $J
 cd ${LOCALRT}/
 export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -enable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker -enable-checker cms.FunctionChecker"
+export USER_LLVM_CHECKERS="-enable-checker threadsafety -enable-checker optional.ClassChecker -enable-checker cms.FunctionChecker"
 scram b -k -j $J checker  SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 > ${LOCALRT}/tmp/class+function-checker.log
 cd ${LOCALRT}/tmp/
 touch check-end

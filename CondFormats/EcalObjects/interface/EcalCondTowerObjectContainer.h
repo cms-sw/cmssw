@@ -100,23 +100,13 @@ class EcalCondTowerObjectContainer {
 
                 inline
                 Item & operator[]( uint32_t rawId ) 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
                 {
                         DetId id(rawId);
-
-                        if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
-			  return eb_[rawId];
-			} else if(  id.subdetId() == EcalEndcap  ) { 
-			  return ee_[rawId];
-			} else {
-                          thread_local static Item dummy;
-			  return dummy;
-                        }
+                         return ( (id.subdetId() == EcalBarrel) | (id.subdetId() == EcalTriggerTower) ) ?  
+			  eb_[rawId] :
+			  ee_[rawId];
                 }
-#else
-  ;
-#endif
-                
+
                 inline
                 Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);

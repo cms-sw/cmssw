@@ -83,7 +83,7 @@ public:
                            ServicesManager& oSM) const {
             TMaker maker;
             std::auto_ptr<T> pService(maker.make(iPS, iAR));
-            boost::shared_ptr<ServiceWrapper<T> > ptr(new ServiceWrapper<T>(pService));
+            auto ptr = std::make_shared<ServiceWrapper<T> >(pService);
             return oSM.put(ptr);
          }
 

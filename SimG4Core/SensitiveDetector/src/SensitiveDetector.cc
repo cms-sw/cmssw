@@ -13,7 +13,7 @@ using std::string;
 
 SensitiveDetector::SensitiveDetector(std::string & iname, 
 				     const DDCompactView & cpv,
-				     SensitiveDetectorCatalog & clg, 
+				     const SensitiveDetectorCatalog & clg,
 				     edm::ParameterSet const & p) :
   G4VSensitiveDetector(iname), name(iname) {}
 
@@ -27,7 +27,7 @@ void SensitiveDetector::Register()
   SDman->AddNewDetector(this);
 }
 
-void SensitiveDetector::AssignSD(std::string & vname)
+void SensitiveDetector::AssignSD(const std::string & vname)
 {
   G4LogicalVolumeStore * theStore = G4LogicalVolumeStore::GetInstance();
   G4LogicalVolumeStore::const_iterator it;

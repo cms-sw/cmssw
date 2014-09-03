@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackingTools.KalmanUpdators.MRHChi2MeasurementEstimatorESProducer_cfi import *
+
 import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi
 MRHTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone(
     ComponentName = 'MRHFitter',

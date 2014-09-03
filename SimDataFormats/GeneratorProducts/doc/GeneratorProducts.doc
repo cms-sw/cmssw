@@ -22,6 +22,7 @@
 
 - GenEventInfoProduct
 - GenFilterInfo
+- GenLumiInfoProduct
 - GenRunInfoProduct
 - HepMCProduct
 - LHECommonBlocks

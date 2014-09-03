@@ -6,7 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 
 #include <sys/statvfs.h>
 

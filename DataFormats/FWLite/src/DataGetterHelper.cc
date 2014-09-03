@@ -19,7 +19,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCache.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
@@ -37,7 +37,7 @@ namespace fwlite {
     //
     // static data member definitions
     //
-    typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > DataMap;
+    typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > DataMap;
     // empty object used to signal that the branch requested was not found
     static internal::Data branchNotFound;
 
@@ -45,9 +45,9 @@ namespace fwlite {
     // constructors and destructor
     //
     DataGetterHelper::DataGetterHelper(TTree* tree,
-                                       boost::shared_ptr<HistoryGetterBase> historyGetter,
-                                       boost::shared_ptr<BranchMapReader> branchMap,
-                                       boost::shared_ptr<edm::EDProductGetter> getter,
+                                       std::shared_ptr<HistoryGetterBase> historyGetter,
+                                       std::shared_ptr<BranchMapReader> branchMap,
+                                       std::shared_ptr<edm::EDProductGetter> getter,
                                        bool useCache):
         branchMap_(branchMap),
         historyGetter_(historyGetter),
@@ -154,7 +154,7 @@ namespace fwlite {
         edm::TypeID type(iInfo);
         internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
-        boost::shared_ptr<internal::Data> theData;
+        std::shared_ptr<internal::Data> theData;
         DataMap::iterator itFind = data_.find(key);
         if(itFind == data_.end()) {
             //see if such a branch actually exists
@@ -239,18 +239,16 @@ namespace fwlite {
 
                 edm::ObjectWithDict obj = edm::ObjectWithDict::byType(type);
 
-                if(obj.address() == 0) {
+                if(obj.address() == nullptr) {
                     throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type.name();
                 }
-                boost::shared_ptr<internal::Data> newData(new internal::Data());
+                std::shared_ptr<internal::Data> newData(new internal::Data());
                 newData->branch_ = branch;
                 newData->obj_ = obj;
-                newData->lastProduct_=-1;
+                newData->lastProduct_ = -1;
                 newData->pObj_ = obj.address();
-                newData->pProd_ = 0;
+                newData->pProd_ = nullptr;
                 branch->SetAddress(&(newData->pObj_));
-                newData->interface_ = 0;
-                type.invokeByName(newData->interface_, std::string("getInterface"));
                 theData = newData;
             }
             itFind = data_.insert(std::make_pair(newKey, theData)).first;
@@ -292,7 +290,7 @@ namespace fwlite {
     {
         // Maintain atEnd() check in parent classes
         void** pOData = reinterpret_cast<void**>(oData);
-        *pOData = 0;
+        *pOData = nullptr;
 
         internal::Data& theData =
             DataGetterHelper::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
@@ -305,45 +303,22 @@ namespace fwlite {
             *pOData = theData.obj_.address();
         }
 
-        if (0 == *pOData) return false;
+        if (nullptr == *pOData) return false;
         else return true;
     }
 
-    bool
-    DataGetterHelper::getByLabel(std::type_info const& iInfo,
-                    char const* iModuleLabel,
-                    char const* iProductInstanceLabel,
-                    char const* iProcessLabel,
-                    edm::WrapperHolder& holder, Long_t index) const {
-
-        // Maintain atEnd() check in parent classes
-
-        internal::Data& theData =
-            DataGetterHelper::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
-
-        if(0 != theData.branch_) {
-            if(index != theData.lastProduct_) {
-                //haven't gotten the data for this event
-                getBranchData(getter_.get(), index, theData);
-            }
-        }
-
-        holder = edm::WrapperHolder(theData.obj_.address(), theData.interface_);
-        return holder.isValid();
-    }
-
-    edm::WrapperHolder
+    edm::WrapperBase const*
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
         typedef std::pair<edm::ProductID,edm::BranchListIndex> IDPair;
         IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes()[iID.processIndex()-1]);
-        std::map<IDPair,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
+        std::map<IDPair,std::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
 
         if(itFound == idToData_.end()) {
             edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
 
             if (!bDesc.branchID().isValid()) {
-                return edm::WrapperHolder();
+                return nullptr;
             }
 
             //Calculate the key from the branch description
@@ -365,18 +340,18 @@ namespace fwlite {
             KeyToDataMap::iterator itData = data_.find(k);
             if(data_.end() == itData) {
                 //ask for the data
-                edm::WrapperHolder holder;
+                edm::WrapperBase const* dummy = nullptr;
                 getByLabel(type.typeInfo(),
                             k.module(),
                             k.product(),
                             k.process(),
-                            holder, index);
-                if(!holder.isValid()) {
-                    return holder;
+                            &dummy, index);
+                if(nullptr == dummy) {
+                    return nullptr;
                 }
                 itData = data_.find(k);
                 assert(itData != data_.end());
-                assert(holder.wrapper() == itData->second->obj_.address());
+                assert(dummy == itData->second->obj_.address());
             }
             itFound = idToData_.insert(std::make_pair(theID,itData->second)).first;
         }
@@ -384,15 +359,14 @@ namespace fwlite {
             //haven't gotten the data for this event
             getBranchData(getter_.get(), index, *(itFound->second));
         }
-        if(0==itFound->second->pProd_) {
-            itFound->second->pProd_ = itFound->second->obj_.address();
+        if(nullptr == itFound->second->pProd_) {
+            itFound->second->pProd_ = static_cast<edm::WrapperBase*>(itFound->second->obj_.address());
 
-            if(0==itFound->second->pProd_) {
-              return edm::WrapperHolder();
+            if(nullptr == itFound->second->pProd_) {
+              return nullptr;
             }
         }
-        //return itFound->second->pProd_;
-        return edm::WrapperHolder(itFound->second->pProd_, itFound->second->interface_);
+        return itFound->second->pProd_;
     }
 
     const edm::ProcessHistory& DataGetterHelper::history() const {

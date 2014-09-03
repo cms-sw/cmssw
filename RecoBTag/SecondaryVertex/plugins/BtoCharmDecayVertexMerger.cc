@@ -125,17 +125,17 @@ void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetu
 //------------------------------------
 void BtoCharmDecayVertexMerger::resolveBtoDchain(std::vector<vertexProxy>& coll, unsigned int i, unsigned int k){
   using namespace reco;
-
+  typedef reco::TemplatedSecondaryVertex<reco::Vertex> SecondaryVertex;
   GlobalVector momentum1 = GlobalVector(coll[i].vert.p4().X(), coll[i].vert.p4().Y(), coll[i].vert.p4().Z());
   GlobalVector momentum2 = GlobalVector(coll[k].vert.p4().X(), coll[k].vert.p4().Y(), coll[k].vert.p4().Z());
 
-  reco::SecondaryVertex sv1(pv, coll[i].vert, momentum1 , true);
-  reco::SecondaryVertex sv2(pv, coll[k].vert, momentum2 , true);
+  SecondaryVertex sv1(pv, coll[i].vert, momentum1 , true);
+  SecondaryVertex sv2(pv, coll[k].vert, momentum2 , true);
 
 
   // find out which one is near and far
-  reco::SecondaryVertex svNear = sv1;
-  reco::SecondaryVertex svFar  = sv2;
+  SecondaryVertex svNear = sv1;
+  SecondaryVertex svFar  = sv2;
   GlobalVector momentumNear  = momentum1;
   GlobalVector momentumFar   = momentum2;
 

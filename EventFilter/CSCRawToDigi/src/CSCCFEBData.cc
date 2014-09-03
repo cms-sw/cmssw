@@ -8,8 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
-CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf) 
-  : theSize(0), boardNumber_(number), theNumberOfSamples(0) {
+CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_version, bool f_dcfeb) 
+  : theSize(0), boardNumber_(number), theNumberOfSamples(0), theFormatVersion(format_version), fDCFEB(f_dcfeb) {
   // I may be grabbing too many words, but that's OK
   // parse for time slices
   unsigned pos = 0;
@@ -55,8 +55,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
 }
 
 
-CSCCFEBData::CSCCFEBData(unsigned number, bool sixteenSamples) 
-: boardNumber_(number), theNumberOfSamples(sixteenSamples ? 16 : 8)
+CSCCFEBData::CSCCFEBData(unsigned number, bool sixteenSamples, uint16_t format_version, bool f_dcfeb) 
+: boardNumber_(number), theNumberOfSamples(sixteenSamples ? 16 : 8), theFormatVersion(format_version), fDCFEB(f_dcfeb)
 {
   theSliceStarts.reserve(theNumberOfSamples);
 
@@ -87,7 +87,7 @@ void CSCCFEBData::add(const CSCStripDigi & digi, int layer)
       // assume it's good, since we're working with simulation
       const CSCCFEBTimeSlice * slice = timeSlice(itime);
       assert(slice != 0);
-      slice->timeSample(layer, channel)->adcCounts = value;
+      slice->timeSample(layer, channel,fDCFEB)->adcCounts = value;
       /// =VB= Set CRC value for simulated data
       ((CSCCFEBTimeSlice *)slice)->setCRC();
     }
@@ -116,7 +116,7 @@ unsigned CSCCFEBData::adcCounts(unsigned layer, unsigned channel, unsigned timeB
   unsigned result = 0;
   const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
   // zero is returned for bad slices
-  if(slice) result = slice->timeSample(layer, channel)->adcCounts;
+  if(slice) result = slice->timeSample(layer, channel,fDCFEB)->adcCounts;
   return result;
 }
 unsigned CSCCFEBData::adcOverflow(unsigned layer, unsigned channel, unsigned timeBin) const 
@@ -124,7 +124,7 @@ unsigned CSCCFEBData::adcOverflow(unsigned layer, unsigned channel, unsigned tim
   unsigned result = 0;
   const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
   // zero is returned for bad slices
-  if(slice) result = slice->timeSample(layer, channel)->adcOverflow;
+  if(slice) result = slice->timeSample(layer, channel,fDCFEB)->adcOverflow;
   return result;
 }
 
@@ -149,7 +149,7 @@ unsigned CSCCFEBData::overlappedSampleFlag(unsigned layer, unsigned channel, uns
   unsigned result = 0;
   const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
   // zero is returned for bad slices
-  if(slice) result = slice->timeSample(layer, channel)->overlappedSampleFlag;
+  if(slice) result = slice->timeSample(layer, channel,fDCFEB)->overlappedSampleFlag;
   return result;
 }
 unsigned CSCCFEBData::errorstat(unsigned layer, unsigned channel, unsigned timeBin) const 
@@ -157,10 +157,26 @@ unsigned CSCCFEBData::errorstat(unsigned layer, unsigned channel, unsigned timeB
   unsigned result = 0;
   const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
   // zero is returned for bad slices
-  if(slice) result = slice->timeSample(layer, channel)->errorstat;
+  if(slice) result = slice->timeSample(layer, channel,fDCFEB)->errorstat;
   return result;
 }
 
+
+void CSCCFEBData::setL1A(unsigned l1a)
+{
+  for (unsigned i=0; i < theNumberOfSamples; i++) setL1A(i, l1a); 
+}
+
+void CSCCFEBData::setL1A(unsigned i, unsigned l1a)
+{
+  assert(i < theNumberOfSamples);
+  std::pair<int,bool> start = theSliceStarts[i];
+  // give a NULL pointer if this is a bad slice
+  if(start.second)
+    {
+      (reinterpret_cast<CSCCFEBTimeSlice *>(theData+start.first))->set_L1Anumber(l1a);
+    }
+}
 
 CSCCFEBStatusDigi CSCCFEBData::statusDigi() const 
 {
@@ -246,7 +262,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 	  if (slice)
 	    {
 	      CSCCFEBDataWord * word;
-	      word = slice->timeSample(layer, ichannel);
+	      word = slice->timeSample(layer, ichannel,fDCFEB);
 	      if (word)
 		{  ///for bad or missing data word will be zero
 		  sca[itime] = word->adcCounts;
@@ -267,10 +283,20 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 	  break;
 	}
       int strip = ichannel + 16*boardNumber_;
-      if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi
-      if ( me1a && zplus ) { strip = 17-strip; } // 1-16 -> 16-1 
-      if ( me1b && !zplus) { strip = 65 - strip;} // 1-64 -> 64-1 ...
-      result.emplace_back(strip, sca, overflow, overlap, errorfl);
+
+      if (theFormatVersion == 2013) { /// Handle 2013 Format 
+
+         if ( me1a ) strip = strip%64; // reset 65-112/ to 1-48 digi
+         if ( me1a && zplus ) { strip = 49 - strip; } // 1-48 -> 48-1 
+         if ( me1b && !zplus) { strip = 65 - strip;} // 1-64 -> 64-1 ...
+
+      } else { // Handle original 2005 format
+     
+         if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi
+         if ( me1a && zplus ) { strip = 17 - strip; } // 1-16 -> 16-1 
+         if ( me1b && !zplus) { strip = 65 - strip;} // 1-64 -> 64-1 ...
+      }
+      result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
     } 
 }
 

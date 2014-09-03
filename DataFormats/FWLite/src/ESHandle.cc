@@ -25,7 +25,7 @@ static cms::Exception s_exc("ESHandleUnset", "The ESHandle is being accessed wit
 static void doNotDelete(cms::Exception*) {}
 
 namespace fwlite {
-   boost::shared_ptr<cms::Exception> eshandle_not_set_exception() {
-      return boost::shared_ptr<cms::Exception>(&s_exc, doNotDelete);
+   std::shared_ptr<cms::Exception> eshandle_not_set_exception() {
+      return std::shared_ptr<cms::Exception>(&s_exc, doNotDelete);
    }   
 }

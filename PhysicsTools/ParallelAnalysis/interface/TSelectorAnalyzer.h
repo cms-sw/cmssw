@@ -9,10 +9,10 @@ public:
   TSelectorAnalyzer( const edm::ParameterSet & cfg ) :
     list_(), algo_( 0, list_ ) {
   }
-  void analyze( const edm::Event & evt, const edm::EventSetup & ) {
+  void analyze( const edm::Event & evt, const edm::EventSetup & ) override {
     algo_.process( evt );
   }  
-  void endJob( const edm::EventSetup & ) {
+  void endJob() override {
     algo_.postProcess( list_ );
     algo_.terminate( list_ );
   }

@@ -20,6 +20,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -69,13 +70,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Application/interface/ExceptionHandler.h"
+//#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 static
 void createWatchers(const edm::ParameterSet& iP,
 		    SimActivityRegistry& iReg,
-		    std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
-		    std::vector<boost::shared_ptr<SimProducer> >& oProds
+		    std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
+		    std::vector<std::shared_ptr<SimProducer> >& oProds
    )
 {
   using namespace std;
@@ -96,8 +97,8 @@ void createWatchers(const edm::ParameterSet& iP,
       throw SimG4Exception("Unable to find the requested Watcher");
     }
     
-    boost::shared_ptr<SimWatcher> watcherTemp;
-    boost::shared_ptr<SimProducer> producerTemp;
+    std::shared_ptr<SimWatcher> watcherTemp;
+    std::shared_ptr<SimProducer> producerTemp;
     maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
     oWatchers.push_back(watcherTemp);
     if(producerTemp) {
@@ -128,7 +129,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(0),
+      m_p(p), m_fieldBuilder(0), m_chordFinderSetter(nullptr),
       m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
   //m_HepMC = iC.consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
@@ -136,7 +137,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel==0) m_kernel = new G4RunManagerKernel();
 
-  m_CustomExceptionHandler = new ExceptionHandler(this) ;
+  //m_CustomExceptionHandler = new ExceptionHandler(this) ;
     
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -211,11 +212,13 @@ void RunManager::initG4(const edm::EventSetup & es)
       es.get<IdealMagneticFieldRecord>().get(pMF);
       const GlobalPoint g(0.,0.,0.);
 
+      m_chordFinderSetter = new sim::ChordFinderSetter();
       m_fieldBuilder = new sim::FieldBuilder(&(*pMF), m_pField);
       G4TransportationManager * tM = 
 	G4TransportationManager::GetTransportationManager();
       m_fieldBuilder->build( tM->GetFieldManager(),
-			     tM->GetPropagatorInField());
+			     tM->GetPropagatorInField(),
+                             m_chordFinderSetter);
       if("" != m_FieldFile) { 
 	DumpMagneticField(tM->GetFieldManager()->GetDetectorField()); 
       }
@@ -256,7 +259,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     throw SimG4Exception("Unable to find the Physics list requested");
   }
   m_physicsList = 
-    physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
+    physicsMaker->make(map_,fPDGTable,m_chordFinderSetter,m_pPhysics,m_registry);
 
   PhysicsList* phys = m_physicsList.get(); 
   if (phys==0) { 
@@ -438,7 +441,8 @@ void RunManager::initializeUserActions()
     Connect(userSteppingAction);
     eventManager->SetUserAction(userSteppingAction);
 
-    eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+    eventManager->SetUserAction(new StackingAction(userTrackingAction, 
+						   m_pStackingAction));
 
   } else {
     edm::LogWarning("SimG4CoreApplication") << " RunManager: WARNING : "

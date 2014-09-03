@@ -106,6 +106,12 @@ namespace cond {
 			   cond::TimeType timeType,
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
 
+      IOVEditor createIov( const std::string& payloadType, 
+			   const std::string& tag, 
+			   cond::TimeType timeType,
+			   cond::SynchronizationType synchronizationType,
+			   const boost::posix_time::ptime& creationTime );
+
       IOVEditor createIovForPayload( const Hash& payloadHash, 
 				     const std::string& tag, cond::TimeType timeType,
 				     cond::SynchronizationType synchronizationType=cond::OFFLINE );

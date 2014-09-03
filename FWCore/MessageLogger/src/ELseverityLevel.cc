@@ -61,57 +61,48 @@ namespace edm
   static
   ELmap const &  loadMap()  {
     
-    static ELmap  m;
-    
-    
-    m[ ELzeroSeverity.getSymbol()   ] = ELseverityLevel::ELsev_zeroSeverity
-    , m[ ELzeroSeverity.getName()     ] = ELseverityLevel::ELsev_zeroSeverity
-    , m[ ELzeroSeverity.getInputStr() ] = ELseverityLevel::ELsev_zeroSeverity
-    , m[ ELzeroSeverity.getVarName()  ] = ELseverityLevel::ELsev_zeroSeverity
-    ;
-    
-    m[ ELdebug.getSymbol()   ] = ELseverityLevel::ELsev_success
-    , m[ ELdebug.getName()     ] = ELseverityLevel::ELsev_success
-    , m[ ELdebug.getInputStr() ] = ELseverityLevel::ELsev_success
-    , m[ ELdebug.getVarName()  ] = ELseverityLevel::ELsev_success
-    ;
-    
-    m[ ELinfo.getSymbol()   ] = ELseverityLevel::ELsev_info
-    , m[ ELinfo.getName()     ] = ELseverityLevel::ELsev_info
-    , m[ ELinfo.getInputStr() ] = ELseverityLevel::ELsev_info
-    , m[ ELinfo.getVarName()  ] = ELseverityLevel::ELsev_info
-    ;
-    
-    m[ ELwarning.getSymbol()   ] = ELseverityLevel::ELsev_warning
-    , m[ ELwarning.getName()     ] = ELseverityLevel::ELsev_warning
-    , m[ ELwarning.getInputStr() ] = ELseverityLevel::ELsev_warning
-    , m[ ELwarning.getVarName()  ] = ELseverityLevel::ELsev_warning
-    ;
-    
-    m[ ELerror.getSymbol()   ] = ELseverityLevel::ELsev_error
-    , m[ ELerror.getName()     ] = ELseverityLevel::ELsev_error
-    , m[ ELerror.getInputStr() ] = ELseverityLevel::ELsev_error
-    , m[ ELerror.getVarName()  ] = ELseverityLevel::ELsev_error
-    ;
-    
-    m[ ELunspecified.getSymbol()   ] = ELseverityLevel::ELsev_unspecified
-    , m[ ELunspecified.getName()     ] = ELseverityLevel::ELsev_unspecified
-    , m[ ELunspecified.getInputStr() ] = ELseverityLevel::ELsev_unspecified
-    , m[ ELunspecified.getVarName()  ] = ELseverityLevel::ELsev_unspecified
-    ;
-    
-    m[ ELsevere.getSymbol()   ] = ELseverityLevel::ELsev_severe
-    , m[ ELsevere.getName()     ] = ELseverityLevel::ELsev_severe
-    , m[ ELsevere.getInputStr() ] = ELseverityLevel::ELsev_severe
-    , m[ ELsevere.getVarName()  ] = ELseverityLevel::ELsev_severe
-    ;
-    
-    m[ ELhighestSeverity.getSymbol()   ] = ELseverityLevel::ELsev_highestSeverity
-    , m[ ELhighestSeverity.getName()     ] = ELseverityLevel::ELsev_highestSeverity
-    , m[ ELhighestSeverity.getInputStr() ] = ELseverityLevel::ELsev_highestSeverity
-    , m[ ELhighestSeverity.getVarName()  ] = ELseverityLevel::ELsev_highestSeverity
-    ;
-    
+    static const ELmap  m = {
+      { ELzeroSeverity.getSymbol(), ELseverityLevel::ELsev_zeroSeverity }
+    , { ELzeroSeverity.getName()     , ELseverityLevel::ELsev_zeroSeverity }
+    , { ELzeroSeverity.getInputStr() , ELseverityLevel::ELsev_zeroSeverity }
+    , { ELzeroSeverity.getVarName()  , ELseverityLevel::ELsev_zeroSeverity }
+      ,
+      { ELdebug.getSymbol()   , ELseverityLevel::ELsev_success }
+    , { ELdebug.getName()     , ELseverityLevel::ELsev_success }
+    , { ELdebug.getInputStr() , ELseverityLevel::ELsev_success }
+    , { ELdebug.getVarName()  , ELseverityLevel::ELsev_success }
+      ,
+      { ELinfo.getSymbol()   , ELseverityLevel::ELsev_info }
+    , { ELinfo.getName()     , ELseverityLevel::ELsev_info }
+    , { ELinfo.getInputStr() , ELseverityLevel::ELsev_info }
+    , { ELinfo.getVarName()  , ELseverityLevel::ELsev_info }
+    ,
+      { ELwarning.getSymbol()   , ELseverityLevel::ELsev_warning }
+    , { ELwarning.getName()     , ELseverityLevel::ELsev_warning }
+    , { ELwarning.getInputStr() , ELseverityLevel::ELsev_warning }
+    , { ELwarning.getVarName()  , ELseverityLevel::ELsev_warning }
+    ,
+      { ELerror.getSymbol()   , ELseverityLevel::ELsev_error }
+    , { ELerror.getName()     , ELseverityLevel::ELsev_error }
+    , { ELerror.getInputStr() , ELseverityLevel::ELsev_error }
+    , { ELerror.getVarName()  , ELseverityLevel::ELsev_error }
+    ,
+      { ELunspecified.getSymbol()   , ELseverityLevel::ELsev_unspecified }
+    , { ELunspecified.getName()     , ELseverityLevel::ELsev_unspecified }
+    , { ELunspecified.getInputStr() , ELseverityLevel::ELsev_unspecified }
+    , { ELunspecified.getVarName()  , ELseverityLevel::ELsev_unspecified }
+    ,
+      { ELsevere.getSymbol()   , ELseverityLevel::ELsev_severe }
+    , { ELsevere.getName()     , ELseverityLevel::ELsev_severe }
+    , { ELsevere.getInputStr() , ELseverityLevel::ELsev_severe }
+    , { ELsevere.getVarName()  , ELseverityLevel::ELsev_severe }
+    ,
+      { ELhighestSeverity.getSymbol()   , ELseverityLevel::ELsev_highestSeverity }
+    , { ELhighestSeverity.getName()     , ELseverityLevel::ELsev_highestSeverity }
+    , { ELhighestSeverity.getInputStr() , ELseverityLevel::ELsev_highestSeverity }
+    , { ELhighestSeverity.getVarName()  , ELseverityLevel::ELsev_highestSeverity }
+    } ;
+
     return m;
     
   }

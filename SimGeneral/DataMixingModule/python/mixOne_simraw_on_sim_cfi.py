@@ -33,7 +33,7 @@ ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
 
 hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
-muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
+#muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
@@ -49,11 +49,12 @@ siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
-muonCSCDigis.InputObjects = 'rawDataCollector'
+#muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 #muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
 
+hcalDigis.FilterDataQuality = cms.bool(False)
 hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 
 mixData = cms.EDProducer("DataMixingModule",
@@ -73,7 +74,7 @@ mixData = cms.EDProducer("DataMixingModule",
                                              hcalDigis = hcalDigis,
                                              muonDTDigis = muonDTDigis,
                                              #muonRPCDigis = muonRPCDigis,
-                                             muonCSCDigis = muonCSCDigis,
+                                             #muonCSCDigis = muonCSCDigis,
                                              siStripDigis = siStripDigis,
                                              siPixelDigis = siPixelDigis,
                              )),
@@ -175,9 +176,13 @@ mixData = cms.EDProducer("DataMixingModule",
     DTPileInputTag        = cms.InputTag("muonDTDigis","","@MIXING"),
     RPCPileInputTag       = cms.InputTag("simMuonRPCDigis",""),
 #    RPCPileInputTag       = cms.InputTag("muonRPCDigis","","@MIXING"),  # use MC digis...
-    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
-    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
-    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
+    CSCWirePileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    CSCStripPileInputTag  = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    CSCCompPileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"), 
+#    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
+#    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
+#    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
+
                    #
     #
     #  Outputs

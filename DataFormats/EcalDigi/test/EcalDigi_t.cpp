@@ -151,7 +151,7 @@ namespace {
   }
   void verifyEndcapId(edm::DataFrame::id_type id) {
     try {
-      EEDetId detid(DetId(id)); // detid(id) does not throw
+      EEDetId detid{DetId(id)}; // detid(id) does not throw
     } catch(...) {
       bool NotEndcapID=false;
       CPPUNIT_ASSERT(NotEndcapID);

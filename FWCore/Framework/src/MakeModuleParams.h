@@ -9,7 +9,7 @@ This struct is used to communication parameters into the module factory.
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <string>
 
@@ -26,7 +26,7 @@ namespace edm {
     MakeModuleParams(ParameterSet* pset,
                      ProductRegistry& reg,
                      PreallocationConfiguration const* prealloc,
-                     boost::shared_ptr<ProcessConfiguration const> processConfiguration) :
+                     std::shared_ptr<ProcessConfiguration const> processConfiguration) :
       pset_(pset),
       reg_(&reg),
       preallocate_(prealloc),
@@ -35,7 +35,7 @@ namespace edm {
     ParameterSet* pset_;
     ProductRegistry* reg_;
     PreallocationConfiguration const* preallocate_;
-    boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    std::shared_ptr<ProcessConfiguration const> processConfiguration_;
   };
 }
 

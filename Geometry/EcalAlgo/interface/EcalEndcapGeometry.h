@@ -10,6 +10,7 @@
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/PEcalEndcapRcd.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <vector>
 #include <map>
 #include <atomic>
@@ -126,7 +127,7 @@ class EcalEndcapGeometry GCC11_FINAL: public CaloSubdetectorGeometry
 
       mutable std::atomic<VecOrdListEBDetIdPtr*> m_borderPtrVec ;
 
-      mutable CCGFloat m_avgZ ; // CMS-THREADING protected by m_check
+      CMS_THREAD_GUARD(m_check) mutable CCGFloat m_avgZ ;
       mutable std::atomic<bool> m_check;
 
       CellVec m_cellVec ;

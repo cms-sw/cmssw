@@ -28,7 +28,7 @@
 class OverlapChecker;
 
 namespace reco {
-  
+  class Track; 
   class Candidate {
   public:
     typedef size_t size_type;
@@ -259,6 +259,8 @@ namespace reco {
       typename daughter_iterator<S>::type endFilter( const S & s ) const {
       return boost::make_filter_iterator(s, end(), end());
     }
+
+    virtual const Track * bestTrack() const {return nullptr;}	
 
     virtual bool isElectron() const = 0;
     virtual bool isMuon() const = 0;

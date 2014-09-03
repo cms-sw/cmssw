@@ -53,13 +53,11 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 
-class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
+class HcalRecHitsAnalyzer : public thread_unsafe::DQMEDAnalyzer {
  public:
   HcalRecHitsAnalyzer(edm::ParameterSet const& conf);
-  ~HcalRecHitsAnalyzer();
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-  virtual void beginJob() ;
-  virtual void endJob() ;
+
+  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  private:
   

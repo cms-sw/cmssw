@@ -109,11 +109,10 @@ namespace cond {
 
   // generates an instance of T from the binary serialized data. With unpackingOnly = true the memory is already storing the object in the final 
   // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
-  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, 
-							  const Binary& payloadData, 
-							  const Binary& streamerInfoData, 
-							  bool unpackingOnly = false){
-    // for the moment we fail if types don't match... later we will check for base types...
+  template <typename T> boost::shared_ptr<T> default_deserialize( const std::string& payloadType, 
+								  const Binary& payloadData, 
+								  const Binary& streamerInfoData, 
+								  bool unpackingOnly ){
     boost::shared_ptr<T> payload;
     if( !unpackingOnly ){
       std::stringbuf sdataBuf;
@@ -133,5 +132,24 @@ namespace cond {
     return payload;
   }
 
+  // default specialization
+  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, 
+							  const Binary& payloadData, 
+							  const Binary& streamerInfoData, 
+							  bool unpackingOnly = false){
+    return default_deserialize<T>( payloadType, payloadData, streamerInfoData, unpackingOnly );
+ }
+
 }
+
+#define DESERIALIZE_BASE_CASE( BASETYPENAME )  \
+  if( payloadType == #BASETYPENAME ){ \
+    return default_deserialize<BASETYPENAME>( payloadType, payloadData, streamerInfoData, unpackingOnly ); \
+  } 
+
+#define DESERIALIZE_POLIMORPHIC_CASE( BASETYPENAME, DERIVEDTYPENAME )	\
+  if( payloadType == #DERIVEDTYPENAME ){ \
+    return boost::dynamic_pointer_cast<BASETYPENAME>( default_deserialize<DERIVEDTYPENAME>( payloadType, payloadData, streamerInfoData, unpackingOnly ) ); \
+  }
+ 
 #endif

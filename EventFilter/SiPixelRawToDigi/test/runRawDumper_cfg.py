@@ -41,7 +41,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 #        threshold = cms.untracked.string('DEBUG')
 #    )
 )
-
 #process.MessageLogger.cerr.FwkReport.reportEvery = 1
 #process.MessageLogger.cerr.threshold = 'Debug'
 
@@ -55,69 +54,6 @@ process.TFileService = cms.Service("TFileService",
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(                          
-# 186160 - cosmics
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Cosmics/RAW/v1/000/186/160/0224F8A5-6A61-E111-BCC5-BCAEC5329708.root"
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/186/160/04D2072A-8161-E111-9058-BCAEC518FF5A.root"
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/60406E4F-8A61-E111-9CF3-BCAEC53296F8.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/62193B74-6D61-E111-8044-BCAEC518FF7A.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/847DCF6E-8061-E111-9638-BCAEC5329708.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/9C639109-9E61-E111-BC15-E0CB4E55365C.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/A4420D9C-7661-E111-8763-5404A63886BD.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/EC5A04E5-9461-E111-8600-BCAEC53296F5.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/F2915E5C-A461-E111-8FBF-BCAEC532970D.root"
-# 186996
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/1A8BFCC6-BE68-E111-B0F5-0019B9F72F97.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/1E2C2DC4-B468-E111-B1C6-001D09F25267.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/1ECD78E8-D068-E111-9B5F-001D09F29321.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/2A2E8E83-A968-E111-97A0-001D09F24399.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/523DC559-EC68-E111-9534-0019B9F4A1D7.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/5E323AB2-E668-E111-B4FA-001D09F295FB.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/62F17EC4-C768-E111-A53F-001D09F23D1D.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/7A1B5B90-DD68-E111-AB69-001D09F2983F.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/A045EE58-A068-E111-8DCF-001D09F27003.root",
-
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Cosmics/RAW/v1/000/186/996/007B8341-C468-E111-9909-001D09F2906A.root",
-
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/186/996/006860ED-D068-E111-8327-001D09F24303.root",
-
-# 187446
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/02CC6857-376B-E111-ADC2-001D09F28E80.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/0438B1B9-826B-E111-919B-001D09F24D8A.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/065A1CA7-3D6B-E111-81A4-001D09F24FEC.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/088CEEC5-2C6B-E111-9C1D-001D09F24D67.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/12549E7F-916B-E111-8972-001D09F2B30B.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/146B7135-546B-E111-8E3E-0019B9F72F97.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/1630241C-A36B-E111-ADC0-003048D374F2.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/16B7554B-436B-E111-BAEC-001D09F251FE.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/1883852F-4D6B-E111-ACF5-001D09F241F0.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/24FCE29B-1C6B-E111-928D-001D09F2910A.root",
-
-# "/store/data/Commissioning12/ZeroBias1/RAW/v1/000/190/411/0002E75F-F57E-E111-BB83-001D09F2447F.root",
-
-# "/store/data/Commissioning12/AlCaLumiPixels/RAW/v1/000/190/411/48147BFB-017F-E111-8B8B-0015C5FDE067.root",
-
-# 191271, fill 2516, 1092bx
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/02F00BC8-1587-E111-8712-BCAEC5364CFB.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/0C1B8DA5-1387-E111-9863-003048D2BA82.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/1808F52A-1487-E111-80A7-001D09F2A49C.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/38E460A5-1387-E111-A9B3-5404A63886C0.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/74542A54-0D87-E111-9414-003048CF9B28.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/8ADB56CB-0D87-E111-BC3D-00215AEDFCCC.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/8E1E30A5-1387-E111-9D57-5404A63886A2.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/B46133EF-1187-E111-B777-0015C5FDE067.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/BCFA4704-1087-E111-BD87-003048F11CF0.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/CE7A0CB8-1987-E111-AE46-003048D3C944.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/D2E5C62A-1487-E111-B079-001D09F290BF.root",
-##  "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/271/E09510CA-0D87-E111-B157-001D09F2A690.root",
-
-# 191718, fill 2534, 1380bc
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/18F61765-DF89-E111-941C-5404A63886EC.root",
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/2C57FC68-DC89-E111-B99C-5404A63886CF.root",
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/525E87E6-DD89-E111-AB92-0025901D631E.root",
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/66EB03A0-E389-E111-BA35-001D09F2B2CF.root",
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/A633C8FE-E289-E111-B56A-003048F11114.root",
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/D06E1F3B-E089-E111-B8A6-001D09F2910A.root",
-#   "/store/data/Run2012A/MinimumBias/RAW/v1/000/191/718/FA809C22-DB89-E111-809C-001D09F29619.root",
 
 ##  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/00016516-0587-E111-9884-003048D2BBF0.root",
 ##  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/022D9994-1087-E111-8772-001D09F28D4A.root",
@@ -301,7 +237,7 @@ process.source = cms.Source("PoolSource",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012C/MinimumBias/RAW/v1/000/201/657/96B51DAE-3EEE-E111-95ED-0019B9F72CE5.root",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012C/MinimumBias/RAW/v1/000/201/657/E2C43972-3AEE-E111-9D26-003048F024FE.root",
 
-  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/6825CA93-0017-E211-8B46-001D09F25267.root",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/6C8D4EB2-F116-E211-A7CD-0019B9F70468.root",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/96B95E6C-FE16-E211-823E-001D09F295FB.root",
@@ -317,41 +253,7 @@ process.source = cms.Source("PoolSource",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1285A278-E41B-E211-BD9A-0019B9F72F97.root",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1289B6A0-F91B-E211-BC25-001D09F24682.root",
 
-# does not work
-##"/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/FA450605-001C-E211-850C-003048D2BEA8.root",
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/F657AB55-F21B-E211-9386-003048F024C2.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/F29D0DA2-F71B-E211-8CA3-001D09F29169.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/EE5A3BA2-ED1B-E211-A298-003048CF99BA.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/E68CD0EB-F81B-E211-8BFA-0030486780B4.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/E25312CE-071C-E211-8D6C-5404A63886B1.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/DA50B038-F61B-E211-ACA4-0025B32034EA.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/C0E0D89B-FE1B-E211-8D00-001D09F34488.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/C014AF3A-EC1B-E211-A56F-001D09F2983F.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/B817D0D9-E51B-E211-BC08-5404A63886EC.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/9EC9D9E5-051C-E211-9870-003048D2C16E.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/9E38AA8A-031C-E211-90BB-0025901D5DEE.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/962974EB-F41B-E211-8CEA-001D09F29169.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/92DDE660-E91B-E211-AC1D-002481E0D524.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/8E378B22-F11B-E211-8B63-BCAEC518FF30.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/86F15B1A-EA1B-E211-8EBE-003048D3756A.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/86509EC6-FB1B-E211-8E64-E0CB4E5536AE.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/7E532F1D-FB1B-E211-A38F-003048D2BB58.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/7A5BCC57-F21B-E211-B943-5404A63886B1.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/76DA051D-FB1B-E211-82D6-003048678098.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/6487640E-ED1B-E211-A111-5404A640A643.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/5E976B97-F31B-E211-8E55-0025901D5D9A.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/48ED4539-F61B-E211-BE6B-00237DDBE0E2.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/429632A8-E81B-E211-83E3-002481E0D90C.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/3A43546E-011C-E211-B54D-003048D375AA.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/3425D3A3-021C-E211-B79E-003048D2C01A.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1AAD934A-E71B-E211-8C1E-0025901D624A.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1A00BEAD-F21B-E211-8B1C-001D09F24D8A.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1289B6A0-F91B-E211-BC25-001D09F24682.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1285A278-E41B-E211-BD9A-0019B9F72F97.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/08787828-EE1B-E211-B680-0025901D5D78.root
-## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/02285033-FD1B-E211-8F74-001D09F295FB.root
-
-#"/store/caf/user/venturia/logerrevent_HI2013_express_v1_210634_210635_v14.root"
+  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/208/686/A88F66A0-393F-E211-9287-002481E0D524.root",
 
   
     )
@@ -368,12 +270,8 @@ process.source = cms.Source("PoolSource",
 # 195774 OK from LS=0
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('198609:47-198609:112')
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('201657:77-201657:9999')
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205217:0-205217:323')
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205217:0-205217:323')
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205718:49-205718:734')
-
-#process.out = cms.OutputModule("PoolOutputModule",
-#    fileName =  cms.untracked.string('file:histos.root')
-#)
 
 process.d = cms.EDAnalyzer("SiPixelRawDumper", 
     Timing = cms.untracked.bool(False),

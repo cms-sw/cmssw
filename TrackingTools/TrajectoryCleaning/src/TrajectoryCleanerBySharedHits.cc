@@ -1,15 +1,14 @@
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/RecHitComparatorByPosition.h"
-#include <map>
-#include <vector>
-#include <boost/unordered_map.hpp>
 
 #include "TrackingTools/TrajectoryCleaning/src/OtherHashMaps.h"
 
 
 //#define DEBUG_PRINT(X) X
 #define DEBUG_PRINT(X) 
+
+namespace {
 
 // Define when two rechits are equals
 struct EqualsBySharesInput { 
@@ -25,19 +24,26 @@ struct HashByDetId : std::unary_function<const TransientTrackingRecHit *, std::s
     }
 };
 
+using RecHitMap = cmsutil::SimpleAllocHashMultiMap<const TransientTrackingRecHit*, Trajectory *, HashByDetId, EqualsBySharesInput>;
+using TrajMap = cmsutil::UnsortedDumbVectorMap<Trajectory*, int>;
+
+struct Maps {
+  Maps() : theRecHitMap(128,256,1024){} // allocate 128 buckets, one row for 256 keys and one row for 512 values
+  RecHitMap theRecHitMap;
+  TrajMap theTrajMap;
+};
+
+thread_local Maps theMaps;
+}
+
 using namespace std;
 
 void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) const
 {
   if (tc.size() <= 1) return; // nothing to clean
 
-  //typedef boost::unordered_map<const TransientTrackingRecHit*, TIs, HashByDetId, EqualsBySharesInput> RecHitMap;
-  typedef cmsutil::SimpleAllocHashMultiMap<const TransientTrackingRecHit*, Trajectory *, HashByDetId, EqualsBySharesInput> RecHitMap;
+  auto & theRecHitMap = theMaps.theRecHitMap;
 
-  //typedef boost::unordered_map<Trajectory*, int> TrajMap;  // for each Trajectory it stores the number of shared hits
-  typedef cmsutil::UnsortedDumbVectorMap<Trajectory*, int> TrajMap;
-
-  thread_local static RecHitMap theRecHitMap(128,256,1024);// allocate 128 buckets, one row for 256 keys and one row for 512 values
   theRecHitMap.clear(10*tc.size());           // set 10*tc.size() active buckets
                                               // numbers are not optimized
 
@@ -59,7 +65,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
 
   DEBUG_PRINT(std::cout << "Using RecHit map" << std::endl);
   // for each trajectory fill theTrajMap
-  thread_local static TrajMap theTrajMap; 
+  auto & theTrajMap = theMaps.theTrajMap; 
   for (TrajectoryCleaner::TrajectoryPointerIterator
 	 itt = tc.begin(); itt != tc.end(); ++itt) {
     if((*itt)->isValid()){  

@@ -9,6 +9,7 @@
 //
 
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include <atomic>
 
 namespace edm {
@@ -21,12 +22,14 @@ namespace edm {
   class ModuleCallingContext;
 
   namespace service {
-    class Timing {
+    class Timing : public TimingServiceBase {
     public:
       Timing(ParameterSet const&,ActivityRegistry&);
       ~Timing();
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
+      virtual void addToCPUTime(StreamID id, double iTime) override;
 
     private:
       

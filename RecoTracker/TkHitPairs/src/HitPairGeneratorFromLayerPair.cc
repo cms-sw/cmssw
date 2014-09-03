@@ -55,7 +55,7 @@ namespace {
     }
     
     void operator()(int b, int e, const RecHitsSortedInPhi & innerHitsMap, bool * ok) const {
-      constexpr float nSigmaRZ = std::sqrt(12.f);
+      constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f);
       for (int i=b; i!=e; ++i) {
 	Range allowed = checkRZ->range(innerHitsMap.u[i]);
 	float vErr = nSigmaRZ * innerHitsMap.dv[i];
@@ -167,5 +167,6 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
     delete checkRZ;
   }
   LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
+  result.shrink_to_fit();
   return result;
 }

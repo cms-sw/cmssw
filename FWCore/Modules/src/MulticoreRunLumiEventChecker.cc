@@ -29,8 +29,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 // system include files
-#include <boost/shared_ptr.hpp>
-
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -80,7 +78,7 @@ private:
    unsigned int numberOfEventsLeftBeforeSearch_;
    bool mustSearch_;
    
-   boost::shared_ptr<boost::thread> listenerThread_;
+   std::shared_ptr<boost::thread> listenerThread_;
    int messageQueue_;
 };
 
@@ -306,7 +304,7 @@ MulticoreRunLumiEventChecker::postForkReacquireResources(unsigned int iChildInde
       edm::disableAllSigs(&oldset);
       
       Listener listener(&seenIDs_, messageQueue_, iNumberOfChildren);
-      listenerThread_ = boost::shared_ptr<boost::thread>(new boost::thread(listener)) ;
+      listenerThread_ = std::make_shared<boost::thread>(listener) ;
       edm::reenableSigs(&oldset);
    }
 }

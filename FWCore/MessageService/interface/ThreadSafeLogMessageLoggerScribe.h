@@ -10,7 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iosfwd>
 #include <vector>
@@ -94,10 +94,10 @@ private:
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
   
   // --- data:
-  boost::shared_ptr<ELadministrator>  admin_p;
+  std::shared_ptr<ELadministrator>  admin_p;
   ELdestControl                       early_dest;
-  std::vector<boost::shared_ptr<std::ofstream> > file_ps;
-  boost::shared_ptr<PSet>             job_pset_p;
+  std::vector<std::shared_ptr<std::ofstream> > file_ps;
+  std::shared_ptr<PSet>             job_pset_p;
   std::vector<NamedDestination     *> extern_dests;
   std::map<String,std::ostream     *> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;

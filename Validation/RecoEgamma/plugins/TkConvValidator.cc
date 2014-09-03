@@ -809,7 +809,7 @@ void  TkConvValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetu
 
 
 void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup ) {
-
+  thePhotonMCTruthFinder_->clear();
   using namespace edm;
   //  const float etaPhiDistance=0.01;
   // Fiducial region
@@ -1258,8 +1258,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     RefToBase<reco::Track> tklead = aConv.tracks().at(ilead);
     RefToBase<reco::Track> tktrail = aConv.tracks().at(itrail);
 
-    int deltaExpectedHitsInner = tklead->trackerExpectedHitsInner().numberOfHits() - tktrail->trackerExpectedHitsInner().numberOfHits();
-    int leadExpectedHitsInner = tklead->trackerExpectedHitsInner().numberOfHits();
+    int deltaExpectedHitsInner = tklead->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+       - tktrail->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+    int leadExpectedHitsInner = tklead->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
     uint leadNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(ilead) : 0;
     uint trailNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(itrail) : 0;
 

@@ -15,13 +15,13 @@
 #include<memory>
 
 class TrackingRegion;
-class SeedingLayerSetsHits;
+class dso_hidden SeedingLayerSetsHits;
 // class MultiHitGeneratorFromPairAndLayers;
 
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class CombinedMultiHitGenerator final : public MultiHitGenerator {
+class dso_hidden CombinedMultiHitGenerator final : public MultiHitGenerator {
 public:
   typedef LayerHitMapCache  LayerCacheType;
 

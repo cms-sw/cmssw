@@ -39,8 +39,8 @@ namespace edm {
     void inputFileOpened(
       bool realData,
       IndexIntoFile const& indexIntoFile,
-      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
-      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
+      std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
+      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
     void inputFileClosed();
 

@@ -218,6 +218,8 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
+                                if 'lhe' in s[2][index] in s[2][index]:
+                                    chainDict['nowmTasklist'][-1]['LheInputFiles'] =True
 
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
@@ -266,12 +268,17 @@ class MatrixInjector(object):
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
-                            if '--pileup ' in s[2][index]: # catch --pileup and not --pileup_ => works also w/ PRE-MIXed dataset in input
-                                processStrPrefix='PU_'     # FIXME GF: need to take care that dataset names properly includes PU string
-                                if   (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('50ns')  > 0 :
-                                    processStrPrefix='PU50ns_'
-                                elif (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('25ns')  > 0 :
+                            if '--pileup ' in s[2][index]:      # catch --pileup (scenarion) and not --pileup_ (dataset to be mixed) => works also making PRE-MIXed dataset
+                                processStrPrefix='PU_'          # take care of pu overlay done with GEN-SIM mixing
+                                if (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('25ns')  > 0 :
                                     processStrPrefix='PU25ns_'
+                                elif   (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('50ns')  > 0 :
+                                    processStrPrefix='PU50ns_'
+                            if 'DIGIPREMIX_S2' in s[2][index] : # take care of pu overlay done with DIGI mixing of premixed events
+                                if s[2][index].split()[ s[2][index].split().index('--pileup_input')+1  ].find('25ns')  > 0 :
+                                    processStrPrefix='PUpmx25ns_'
+                                elif s[2][index].split()[ s[2][index].split().index('--pileup_input')+1  ].find('50ns')  > 0 :
+                                    processStrPrefix='PUpmx50ns_'
 
                             if acqEra:
                                 #chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel

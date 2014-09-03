@@ -776,9 +776,9 @@ float PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref,
   //use this to store linkdata in the associatedElements function below  
   PFBlock::LinkData linkData =  block.linkData();  
   //calculate MVA Variables  
-  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();  
-  nlost=elements[track_index].trackRef()->trackerExpectedHitsInner().numberOfLostHits();  
-  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement();  
+  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof(); 
+  nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS); 
+  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(); 
   track_pt=elements[track_index].trackRef()->pt();  
   STIP=elements[track_index].trackRefPF()->STIP();  
    
@@ -1097,7 +1097,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 // link tests in the gap region can current split a gap electron
 	 // HEY THIS IS A WORK AROUND FOR A KNOWN BUG IN PFBLOCKALGO
 	 // MAYBE WE SHOULD FIX IT??????????????????????????????????
-	 LOGERR("PFEGammaAlgo")
+	 LOGDRESSED("PFEGammaAlgo")
 	   << "Encountered the known GSF-SC splitting bug "
 	   << " in PFBlockAlgo! We should really fix this!" << std::endl; 
        } else { // SC was not in a earlier proto-object	
@@ -1414,7 +1414,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   const reco::TrackRef trackref = kfEle->trackRef();
 	   const unsigned Algo = trackref->algo();
 	   const int nexhits = 
-	     trackref->trackerExpectedHitsInner().numberOfLostHits();
+	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	   bool fromprimaryvertex = false;
 	   for( auto vtxtks = cfg_.primaryVtx->tracks_begin();
 		vtxtks != cfg_.primaryVtx->tracks_end(); ++ vtxtks ) {
@@ -2519,6 +2519,9 @@ unsigned int PFEGammaAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::iter0:
   case TrackBase::iter1:
   case TrackBase::iter2:
+  case TrackBase::iter7:
+  case TrackBase::iter9:
+  case TrackBase::iter10:
     Algo = 0;
     break;
   case TrackBase::iter3:

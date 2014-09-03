@@ -12,9 +12,13 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <boost/shared_ptr.hpp>
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 class CSCDMBHeader;
 class CSCTMBHeader2006;
 class CSCTMBHeader2007;
+class CSCTMBHeader2013;
 
 
 class CSCTMBHeader {
@@ -31,6 +35,7 @@ class CSCTMBHeader {
   }
 
   int FirmwareVersion() const {return theFirmwareVersion;}
+  int FirmwareRevision() const {return theHeaderFormat->firmwareRevision();}
   
 
   uint16_t BXNCount() const {
@@ -67,12 +72,17 @@ class CSCTMBHeader {
   /// will throw if the cast fails
   CSCTMBHeader2007 tmbHeader2007()   const;
   CSCTMBHeader2006 tmbHeader2006()   const;
+  CSCTMBHeader2013 tmbHeader2013()   const;
 
   uint16_t NTBins() const {
     return theHeaderFormat->NTBins();
   }
   uint16_t NCFEBs() const {
     return theHeaderFormat->NCFEBs();
+  }
+
+  void setNCFEBs(uint16_t ncfebs) {
+	theHeaderFormat->setNCFEBs(ncfebs);
   }
 
 
@@ -136,7 +146,11 @@ private:
 
   //void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
 
   boost::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
   int theFirmwareVersion;

@@ -13,7 +13,6 @@
 #include <array>
 #include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -71,7 +70,7 @@ namespace edm {
         explicit Sorter(TTree* tree);
         bool operator() (OutputItem const& lh, OutputItem const& rh) const;
       private:
-        boost::shared_ptr<std::map<std::string, int> > treeMap_;
+        std::shared_ptr<std::map<std::string, int> > treeMap_;
       };
 
       OutputItem();

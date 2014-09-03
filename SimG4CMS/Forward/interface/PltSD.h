@@ -35,7 +35,7 @@ class PltSD : public SensitiveTkDetector,
 public:
 
   PltSD(std::string, const DDCompactView &, 
-		       SensitiveDetectorCatalog &, 
+		       const SensitiveDetectorCatalog &,
 		       edm::ParameterSet const &, const SimTrackManager*);
   virtual ~PltSD();
 

@@ -1,27 +1,9 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include<iostream>
-namespace {
-
-  struct Counter {
-    int empty;
-    int begin;
-    int end;
-    int middle;
-    int mixed;
-    ~Counter() {
-    }
-
-  };
-
-
-}
-
 
 void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =true */) {
-  static Counter counter = {0,0,0,0,0};
   if (target.empty()) {
-    ++counter.empty;
     target = sv; 
     return;
   }
@@ -29,25 +11,21 @@ void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =t
   DDsvalues_type::const_iterator sed = sv.end();
   // fast merge
   if (target.back()<sv.front()) {
-    ++counter.end;
     target.insert(target.end(),sit,sed);
     return;
   }
   if (sv.back()<target.front()) {
-    ++counter.begin;
     target.insert(target.begin(),sit,sed);
     return;
   }
   {
     DDsvalues_type::iterator it = std::lower_bound(target.begin(),target.end(),sv.front()); 
     if (it == std::lower_bound(target.begin(),target.end(),sv.back())) {
-      ++counter.middle; 
       target.insert(it,sit,sed);
       return;
     }
   }
   // it nevers arrives here...
-  ++counter.mixed;
   target.reserve(target.size()+sv.size());
   DDsvalues_type::const_iterator ted = target.end();
   for (; sit != sed; ++sit) {

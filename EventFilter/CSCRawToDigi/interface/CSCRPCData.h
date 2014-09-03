@@ -2,6 +2,9 @@
 #define CSCRPCData_h
 
 #include <vector>
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 
 class CSCRPCDigi;
 
@@ -24,7 +27,11 @@ public:
   static void setDebug(bool debugValue) {debug = debugValue;}
   
 private:
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
   int ntbins_;
   int size_;
   unsigned short theData[2*4*32+2];

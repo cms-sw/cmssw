@@ -104,7 +104,7 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << pv << " vs " << it->primaryVertex()->position()   << endl;
    for(int j=0;j< n;j++)
       {
-        TrackIPTagInfo::TrackIPData data = it->impactParameterData()[j];  
+        btag::TrackIPData data = it->impactParameterData()[j];  
         cout << selTracks[j]->pt() << "\t";
         cout << it->probabilities(0)[j] << "\t";
         cout << it->probabilities(1)[j] << "\t";

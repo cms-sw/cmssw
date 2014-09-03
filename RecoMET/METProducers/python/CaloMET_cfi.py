@@ -1,64 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-met = cms.EDProducer(
+caloMet = cms.EDProducer(
     "CaloMETProducer",
     src = cms.InputTag("towerMaker"),
-    alias = cms.string('RawCaloMET'),
+    alias = cms.string('caloMet'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(0.3),
     calculateSignificance = cms.bool(False)
     )
 
 ##____________________________________________________________________________||
-metHO = met.clone()
-metHO.src = "towerMakerWithHO"
-metHO.alias = 'RawCaloMETHO'
+caloMetBEFO = caloMet.clone()
+caloMetBEFO.src = "towerMakerWithHO"
+caloMetBEFO.alias = 'caloMetBEFO'
 
 ##____________________________________________________________________________||
-metOpt = cms.EDProducer(
-    "CaloMETProducer",
-    src = cms.InputTag("calotoweroptmaker"),
-    alias = cms.string('RawCaloMETOpt'),
-    noHF = cms.bool(False),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False)
-    )
-
-##____________________________________________________________________________||
-metOptHO = metOpt.clone()
-metOptHO.src = "calotoweroptmakerWithHO"
-metOptHO.alias = 'RawCaloMETOptHO'
-
-##____________________________________________________________________________||
-metNoHF = cms.EDProducer(
+caloMetBE = cms.EDProducer(
     "CaloMETProducer",
     src = cms.InputTag("towerMaker"),
-    alias = cms.string('RawCaloMETNoHF'),
+    alias = cms.string('caloMetBE'),
     noHF = cms.bool(True),
     globalThreshold = cms.double(0.3),
     calculateSignificance = cms.bool(False)
 )
 
 ##____________________________________________________________________________||
-metNoHFHO = metNoHF.clone()
-metNoHFHO.src = "towerMakerWithHO"
-metNoHFHO.alias = 'RawCaloMETNoHFHO'
+caloMetBEO = caloMetBE.clone()
+caloMetBEO.src = "towerMakerWithHO"
+caloMetBEO.alias = 'caloMetBEO'
 
 ##____________________________________________________________________________||
-metOptNoHF = cms.EDProducer(
-    "CaloMETProducer",
-    src = cms.InputTag("calotoweroptmaker"),
-    alias = cms.string('RawCaloMETOptNoHF'),
-    noHF = cms.bool(True),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False)
-    )
-
-##____________________________________________________________________________||
-metOptNoHFHO = metOptNoHF.clone()
-metOptNoHFHO.src = "calotoweroptmakerWithHO"
-metOptNoHFHO.alias = 'RawCaloMETOptNoHFHO'
-
-##____________________________________________________________________________||
-

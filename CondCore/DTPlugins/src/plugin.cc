@@ -45,15 +45,20 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 #include "CondFormats/External/interface/DetID.h"
 
+
 namespace cond {
+  template <> boost::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
+						 const Binary& payloadData,
+						 const Binary& streamerInfoData,
+						 bool unpackingOnly ){
+    DESERIALIZE_BASE_CASE( BaseKeyed );                                                                                                                                                                                                             
+    DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, DTKeyedConfig );
 
-  template <> BaseKeyed* createPayload<BaseKeyed>( const std::string& payloadTypeName ){
-    if( payloadTypeName == "DTKeyedConfig" ) return new DTKeyedConfig;
-    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
-		   "createPayload" );
+    // here we come if none of the deserializations above match the payload type:                                                                                                                                                                                             
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
   }
-
 }
+
 
 namespace {
   struct InitDTCCBConfig {void operator()(DTCCBConfig& e){ e.initialize();}};

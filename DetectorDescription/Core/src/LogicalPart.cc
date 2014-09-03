@@ -27,7 +27,7 @@ void LogicalPart::stream(std::ostream & os)
 
 double & LogicalPart::weight()  { return weight_; }
 
-void LogicalPart::addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
+void LogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
   if ( ! (s.first && s.second) ) {
     // FIXME
@@ -64,9 +64,9 @@ bool LogicalPart::hasDDValue(const DDValue & v) const
    return result; 
 }
 
-void LogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
+void LogicalPart::removeSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
-   std::vector<std::pair<DDPartSelection*,DDsvalues_type* > >::iterator it = 
+   std::vector<std::pair<const DDPartSelection*, const DDsvalues_type* > >::iterator it = 
      std::find(specifics_.begin(),specifics_.end(),s);
    specifics_.erase(it);
 }
@@ -82,11 +82,11 @@ std::vector<const DDsvalues_type*> LogicalPart::specifics() const
 
 void LogicalPart::specificsV(std::vector<const DDsvalues_type*> & result) const
 {
-  typedef std::vector<std::pair<DDPartSelection*,DDsvalues_type* > > sp_type;
+  typedef std::vector<std::pair<const DDPartSelection*, const DDsvalues_type* > > sp_type;
   sp_type::const_iterator it = specifics_.begin();
   sp_type::const_iterator ed = specifics_.end();
   for (; it != ed; ++it) {
-    DDPartSelection & ps = *(it->first);
+    const DDPartSelection & ps = *(it->first);
     if (ps.size()==1 && ps[0].selectionType_==ddanylogp) {
       result.push_back(it->second);
     }

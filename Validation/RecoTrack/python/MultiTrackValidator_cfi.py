@@ -57,4 +57,7 @@ multiTrackValidator = cms.EDAnalyzer(
     ### output configuration
     dirName = cms.string('Tracking/Track/'),
     outputFile = cms.string(''),
+
+    ### for fake rate vs dR ###
+    trackCollectionForDrCalculation = cms.InputTag("generalTracks")
 )

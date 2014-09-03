@@ -72,7 +72,7 @@ namespace edm {
   }
  
   void
-  ProductProvenanceRetriever::mergeProvenanceRetrievers(boost::shared_ptr<ProductProvenanceRetriever> other) {
+  ProductProvenanceRetriever::mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other) {
     nextRetriever_ = other;
   }
 

@@ -8,7 +8,6 @@
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
-#include <boost/bind.hpp>
 #include <numeric>
 #include <cstring>
 
@@ -42,9 +41,10 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(TestDataFrame);
 
 TestDataFrame::TestDataFrame() : sv1(10),sv2(10){ 
+  using std::placeholders::_1;
   edm::DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
   std::copy(v,v+10,sv1.begin());
-  std::transform(sv1.begin(),sv1.end(),sv2.begin(),boost::bind(std::plus<edm::DataFrame::data_type>(),10,_1));
+  std::transform(sv1.begin(),sv1.end(),sv2.begin(),std::bind(std::plus<edm::DataFrame::data_type>(),10,_1));
 } 
 
 

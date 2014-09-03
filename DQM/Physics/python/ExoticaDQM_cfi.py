@@ -59,7 +59,7 @@ ExoticaDQM = cms.EDAnalyzer(
     pfJetCollection          = cms.InputTag("ak4PFJets"),
     pfJetCollectionEI        = cms.InputTag("pfJets"),
 
-    caloMETCollection        = cms.InputTag("corMetGlobalMuons","","RECO"),
+    caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
     pfMETCollection          = cms.InputTag("pfMet","","RECO"),
     pfMETCollectionEI        = cms.InputTag("pfMetEI","","RECO"),
 

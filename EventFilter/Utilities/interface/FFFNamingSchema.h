@@ -97,6 +97,42 @@ namespace fffnaming {
     return ss.str();
   }
 
+  inline std::string protocolBufferHistogramFileNameWithPid(const unsigned int run, const unsigned int ls, std::string const& stream) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss,run,ls);
+    ss << "_" << stream
+       << "_pid" << std::setfill('0') << std::setw(5) << getpid()
+       << ".pb";
+    return ss.str();
+  }
+
+  inline std::string protocolBufferHistogramFileNameWithInstance(const unsigned int run, const unsigned int ls, std::string const& stream, std::string const& instance) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss,run,ls);
+    ss << "_" << stream
+       << "_" << instance
+       << ".pb";
+    return ss.str();
+  }
+
+  inline std::string rootHistogramFileNameWithPid(const unsigned int run, const unsigned int ls, std::string const& stream) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss,run,ls);
+    ss << "_" << stream
+       << "_pid" << std::setfill('0') << std::setw(5) << getpid()
+       << ".root";
+    return ss.str();
+  }
+
+  inline std::string rootHistogramFileNameWithInstance(const unsigned int run, const unsigned int ls, std::string const& stream, std::string const& instance) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss,run,ls);
+    ss << "_" << stream
+       << "_" << instance
+       << ".root";
+    return ss.str();
+  }
+
   inline std::string genericFileName(const unsigned int run, const unsigned int ls,
                               std::string const& typePrefix, std::string const& typeSuffix, unsigned int typeWidth,
                               std::string const& instancePrefix, std::string const& instanceSuffix, unsigned int instanceWidth,

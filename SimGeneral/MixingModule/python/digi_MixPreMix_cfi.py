@@ -40,4 +40,5 @@ theDigitizersMixPreMixValid = cms.PSet(
 #theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
 #theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
 theDigitizersMixPreMix.strip.Noise = cms.bool(False) # will be added in DataMixer
+theDigitizersMixPreMixValid.strip.Noise = cms.bool(False) # will be added in DataMixer
 

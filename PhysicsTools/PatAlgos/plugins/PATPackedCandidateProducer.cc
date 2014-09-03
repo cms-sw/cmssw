@@ -20,6 +20,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+/*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+*/
 //#define CRAZYSORT 
 
 namespace pat {
@@ -71,7 +78,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     iEvent.getByLabel("selectedPatJets", jets);
 #endif
 
-
+/*    edm::ESHandle<MagneticField> magneticField;
+    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+    AnalyticalImpactPointExtrapolator extrapolator(&*magneticField);
+*/
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
@@ -178,22 +188,29 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         if (ctrack) {
             math::XYZPoint vtx = cand.vertex();
             pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
+
+//          TrajectoryStateOnSurface tsos = extrapolator.extrapolate(trajectoryStateTransform::initialFreeState(*ctrack,&*magneticField), RecoVertex::convertPos(PV->position()));
+//   vtx = tsos.globalPosition();
+//          phiAtVtx = tsos.globalDirection().phi();
             vtx = ctrack->referencePoint();
             phiAtVtx = ctrack->phi();
-            int nlost = ctrack->trackerExpectedHitsInner().numberOfLostHits();
+            int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
             if (nlost == 0) { 
-                if ( ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
+                if (ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
                     lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
                 }
             } else {
                 lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
             }
+
+	    
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
           
             // properties of the best track 
             outPtrP->back().setLostInnerHits( lostHits );
 	    if(outPtrP->back().pt() > minPtForTrackProperties_) {
                 outPtrP->back().setTrackProperties(*ctrack);
+                //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
             }
 
             // these things are always for the CKF track

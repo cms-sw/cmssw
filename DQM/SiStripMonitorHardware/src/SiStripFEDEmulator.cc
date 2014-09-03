@@ -2,6 +2,8 @@
 #include "DQM/SiStripMonitorHardware/interface/SiStripFEDEmulator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "boost/bind.hpp"
+
 using edm::LogError;
 using edm::LogInfo;
 using edm::LogWarning;

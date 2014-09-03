@@ -22,8 +22,6 @@ Usage:
 #include <vector>
 #include <string>
 
-#include "boost/bind.hpp"
-
 // user include files
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/connect_but_block_self.h"
@@ -68,8 +66,9 @@ namespace edm {
     template< class T, class TMethod>
     void watchProductAdditions(T const& iObj, TMethod iMethod)
     {
+      using std::placeholders::_1;
       serviceregistry::connect_but_block_self(reg_->productAddedSignal_, 
-					      boost::bind(iMethod, iObj,_1));
+					      std::bind(iMethod, iObj,_1));
     }
      
   private:

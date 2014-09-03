@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
@@ -59,8 +58,6 @@ namespace cms
 
     ClusterCollectionFP420* soutput;
    
-    FP420NumberingScheme * theFP420NumberingScheme;
-    
     std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
     int sn0, pn0, dn0, rn0;

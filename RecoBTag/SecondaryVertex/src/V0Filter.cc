@@ -4,11 +4,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 
 using namespace reco; 
@@ -18,8 +18,8 @@ V0Filter::V0Filter(const edm::ParameterSet &params) :
 {
 }
 
-inline bool
-V0Filter::operator () (const reco::Track **tracks, unsigned int n) const
+bool
+V0Filter::operator () (const reco::Track *const *tracks, unsigned int n) const
 {
 	// only check for K0s for now
 
@@ -60,6 +60,22 @@ V0Filter::operator () (const reco::TrackRef *tracks, unsigned int n) const
 }
 
 bool
+V0Filter::operator () (const std::vector<reco::CandidatePtr> & tracks) const
+{
+	std::vector<const reco::Track*> trackPtrs(tracks.size());
+	for(unsigned int i = 0; i < tracks.size(); i++)
+		trackPtrs[i] = tracks[i]->bestTrack();
+
+	return (*this)(&trackPtrs[0], tracks.size());
+}
+bool
+V0Filter::operator () (const std::vector<const reco::Track *> & tracks) const
+{
+	return (*this)(&tracks[0], tracks.size());
+}
+
+
+bool
 V0Filter::operator () (const reco::Track *tracks, unsigned int n) const
 {
 	std::vector<const reco::Track*> trackPtrs(n);
@@ -68,3 +84,4 @@ V0Filter::operator () (const reco::Track *tracks, unsigned int n) const
 
 	return (*this)(&trackPtrs[0], n);
 }
+

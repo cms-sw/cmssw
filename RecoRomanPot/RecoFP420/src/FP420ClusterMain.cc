@@ -68,9 +68,6 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
   //  pn0 = 9;
 
 
-  theFP420NumberingScheme = new FP420NumberingScheme();
-
-
   if (verbosity > 1) {
     std::cout << "FP420ClusterMain constructor: sn0 = " << sn0 << " pn0=" << pn0 << " dn0=" << dn0 << " rn0=" << rn0 << std::endl;
     std::cout << "FP420ClusterMain constructor: ENC = " << ENC_ << std::endl;
@@ -150,7 +147,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	for (int zmodule=1; zmodule<pn0; zmodule++) {
 	  for (int zside=1; zside<rn0; zside++) {
 	    // intindex is a continues numbering of FP420
-	    unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	    unsigned int detID = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	    if (verbosity > 0) {
 	      std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID  << std::endl;
 	    }	  
@@ -311,7 +308,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
 	    for (int zside=1; zside<rn0; zside++) {
 	      // intindex is a continues numbering of FP420
-	      unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	      unsigned int iu = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 		std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
 	      std::vector<ClusterFP420> collector;
 	      collector.clear();

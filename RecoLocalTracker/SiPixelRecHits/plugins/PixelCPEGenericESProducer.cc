@@ -30,6 +30,8 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
   // Use Alignment LA-offset 
   useLAAlignmentOffsets_ = p.existsAs<bool>("useLAAlignmentOffsets")?
     p.getParameter<bool>("useLAAlignmentOffsets"):false;
+  magname_ = p.existsAs<edm::ESInputTag>("MagneticFieldRecord")?
+    p.getParameter<edm::ESInputTag>("MagneticFieldRecord"):edm::ESInputTag("");
 
   pset_ = p;
   setWhatProduced(this,myname);
@@ -44,7 +46,7 @@ boost::shared_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get( magfield );
+  iRecord.getRecord<IdealMagneticFieldRecord>().get( magname_, magfield );
 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );

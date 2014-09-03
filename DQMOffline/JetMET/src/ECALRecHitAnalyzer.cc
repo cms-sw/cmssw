@@ -19,11 +19,6 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   //  EERecHitsLabel_= consumes<EcalRecHitCollection>(edm::InputTag(EERecHitsLabel_));
 }
 
-void ECALRecHitAnalyzer::endJob() {
-
-} 
-
-//void ECALRecHitAnalyzer::beginJob(void){
 void ECALRecHitAnalyzer::dqmbeginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
   CurrentEvent = -1;
   // Fill the geometry histograms
@@ -35,7 +30,6 @@ void ECALRecHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 					edm::EventSetup const & )
 {
   // get ahold of back-end interface
-  //  dbe_ = edm::Service<DQMStore>().operator->();
      // Book Geometry Histograms
     ibooker.setCurrentFolder(FolderName_+"/geometry");
     

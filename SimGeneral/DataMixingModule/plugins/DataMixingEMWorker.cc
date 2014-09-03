@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -173,7 +174,7 @@ namespace edm
 
     // EB first
 
-    boost::shared_ptr<Wrapper<EBRecHitCollection>  const> EBRecHitsPTR =
+    std::shared_ptr<Wrapper<EBRecHitCollection>  const> EBRecHitsPTR =
       getProductByTag<EBRecHitCollection>(*ep, EBPileRecHitInputTag_, mcc);
 
     if(EBRecHitsPTR ) {
@@ -198,7 +199,7 @@ namespace edm
 
     // EE Next
 
-    boost::shared_ptr<Wrapper<EERecHitCollection>  const> EERecHitsPTR =
+    std::shared_ptr<Wrapper<EERecHitCollection>  const> EERecHitsPTR =
       getProductByTag<EERecHitCollection>(*ep, EEPileRecHitInputTag_, mcc);
 
     if(EERecHitsPTR ) {
@@ -223,7 +224,7 @@ namespace edm
 
     // ES Next
 
-    boost::shared_ptr<Wrapper<ESRecHitCollection>  const> ESRecHitsPTR =
+    std::shared_ptr<Wrapper<ESRecHitCollection>  const> ESRecHitsPTR =
       getProductByTag<ESRecHitCollection>(*ep, ESPileRecHitInputTag_, mcc);
 
     if(ESRecHitsPTR ) {

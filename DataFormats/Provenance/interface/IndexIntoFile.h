@@ -170,13 +170,15 @@ The interface is too complex for general use.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <cassert>
 #include <iosfwd>
 #include <map>
 #include <set>
 #include <vector>
+
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
 
@@ -920,7 +922,7 @@ namespace edm {
       /// This implies the client needs to define a class that inherits from
       /// EventFinder and then create one.  This function is used to pass in a
       /// pointer to its base class.
-      void setEventFinder(boost::shared_ptr<EventFinder> ptr) const {transient_.eventFinder_ = ptr;}
+      void setEventFinder(std::shared_ptr<EventFinder> ptr) const {transient_.eventFinder_ = ptr;}
 
       /// Fills a vector of 4 byte event numbers.
       /// Not filling it reduces the memory used by IndexIntoFile.
@@ -1009,7 +1011,7 @@ namespace edm {
         RunNumber_t currentRun_;
         LuminosityBlockNumber_t currentLumi_;
         EntryNumber_t numberOfEvents_;
-        boost::shared_ptr<EventFinder> eventFinder_;
+        std::shared_ptr<EventFinder> eventFinder_;
         std::vector<RunOrLumiIndexes> runOrLumiIndexes_;
         std::vector<EventNumber_t> eventNumbers_;
         std::vector<EventEntry> eventEntries_;

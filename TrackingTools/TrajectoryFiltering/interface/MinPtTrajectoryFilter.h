@@ -39,44 +39,7 @@ public:
 
  protected:
 
-  bool test( const TrajectoryMeasurement & tm, int foundHits) const 
-  {
-    //first check min number of hits 
-    if (foundHits < theMinHits ){ return true;}
-
-    // check for momentum below limit
-    //    const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
-
-    auto const & tsos = tm.updatedState();
-    GlobalVector gtp = tsos.globalMomentum();
-    
-    //avoid doing twice the check in TBC and QF
-    static thread_local bool answerMemory=false;
-    static thread_local GlobalVector ftsMemory;
-    
-
-    if ( gtp == ftsMemory) { return answerMemory;}
-    ftsMemory= gtp;
-
-    auto pT2 =  gtp.perp2();
-
-    //if p_T is way too small: stop
-    if (pT2<0.0010f) {answerMemory=false; return false;}
-
-    // if large enouth go
-    if (pT2> thePtMin2) { answerMemory=true; return true;}
-
-    //if error is way too big: stop
-    float invError = TrajectoryStateAccessor(*tsos.freeTrajectoryState()).inversePtError();
-    if (invError > 1.e10f) {answerMemory=false;return false;}
-
-    //calculate the actual pT cut: 
-    if ((1.f/std::sqrt(pT2) - theNSigma*invError) > theInvPtMin ) {answerMemory=false; return false;}
-    //    first term if the max value of pT (pT+N*sigma(pT))
-    //    second tern is the cut
-
-    answerMemory=true; return true;
-  }
+  bool test( const TrajectoryMeasurement & tm, int foundHits) const; 
 
   float thePtMin2; 
   float theInvPtMin;

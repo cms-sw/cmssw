@@ -88,7 +88,7 @@ void TIBRing::checkPeriodicity(vector<const GeomDet*>::const_iterator first,
   double step = stat_mean( adj_diff);
   double phi_step = 2.*Geom::pi()/(last-first);  
 
-  if ( fabs(step-phi_step)/phi_step > 0.01) {
+  if ( std::abs(step-phi_step)/phi_step > 0.01) {
     int ndets = last-first;
     edm::LogError("TkDetLayers") << "TIBRing Warning: not periodic. ndets=" << ndets ;
     for (int j=0; j<ndets; j++) {
@@ -257,7 +257,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   LocalPoint nextPos = Crossing::positionOnly( cylPoint, cylDir, rho, nextPlane);
   float nextDist = nextPos.x();
 
-  if (fabs(closestDist) < fabs(nextDist)) {
+  if (std::abs(closestDist) < std::abs(nextDist)) {
     return SubRingCrossings( closestIndex, nextIndex, nextDist);
   }
   else {

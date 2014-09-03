@@ -37,11 +37,11 @@ class SimWatcherMaker : public SimWatcherMakerBase
       // ---------- const member functions ---------------------
       virtual void make(const edm::ParameterSet& p,
 			SimActivityRegistry& reg,
-			boost::shared_ptr<SimWatcher>& oWatcher,
-			boost::shared_ptr<SimProducer>& oProd
+			std::shared_ptr<SimWatcher>& oWatcher,
+			std::shared_ptr<SimProducer>& oProd
 	 ) const
       {
-	boost::shared_ptr<T> returnValue(new T(p));
+	std::shared_ptr<T> returnValue(new T(p));
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 	oWatcher = returnValue;
 
@@ -50,13 +50,13 @@ class SimWatcherMaker : public SimWatcherMakerBase
       }
 
    private:
-      boost::shared_ptr<SimProducer>
-      getSimProducer(SimProducer*, boost::shared_ptr<T>& iProd) const{
-	 return boost::shared_ptr<SimProducer>(iProd);
+      std::shared_ptr<SimProducer>
+      getSimProducer(SimProducer*, std::shared_ptr<T>& iProd) const{
+	 return std::shared_ptr<SimProducer>(iProd);
       }
-      boost::shared_ptr<SimProducer>
-      getSimProducer(void*, boost::shared_ptr<T>& iProd) const{
-	 return boost::shared_ptr<SimProducer>();
+      std::shared_ptr<SimProducer>
+      getSimProducer(void*, std::shared_ptr<T>& iProd) const{
+	 return std::shared_ptr<SimProducer>();
       }
 
 };

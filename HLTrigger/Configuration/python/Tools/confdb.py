@@ -35,9 +35,7 @@ class HLTProcess(object):
     "HLT_IsoTrackHE_v*",
     "HLT_L1SingleMuOpen_AntiBPTX_v*",
     "HLT_JetE*_NoBPTX*_v*",
-    "HLT_L2Mu*_NoVertex_NoBPTX*_v*",
-    "HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*",
-    "HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*",
+    "HLT_L2Mu*_NoBPTX*_v*",
     "HLT_PixelTracks_Multiplicity70_v*",
     "HLT_PixelTracks_Multiplicity80_v*",
     "HLT_PixelTracks_Multiplicity90_v*",
@@ -80,6 +78,9 @@ class HLTProcess(object):
       self.labels['connect'] = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)'
     else:
       self.labels['connect'] = 'frontier://FrontierProd'
+
+    if self.config.prescale and (self.config.prescale.lower() != 'none'):
+      self.labels['prescale'] = self.config.prescale
 
     # get the configuration from ConfdB
     self.buildPathList()
@@ -198,18 +199,18 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
-    if self.config.type in ('GRun', ):
-      self.data += """
-# Enable HF Noise filters in GRun menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-"""
-    if self.config.type in ('HIon', ):
-      self.data += """
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-"""
+#    if self.config.type in ('HIon', ):
+#      self.data += """
+## Disable HF Noise filters in HIon menu
+#if 'hltHfreco' in %(dict)s:
+#    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
+#"""
+#    else:
+#      self.data += """
+## Enable HF Noise filters in non-HIon menu
+#if 'hltHfreco' in %(dict)s:
+#    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
+#"""
 
 #    self.data += """
 ## untracked parameters with NO default in the code
@@ -280,17 +281,17 @@ if 'hltHfreco' in %(dict)s:
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
 #          'label'   : 'AK5CaloHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS'
 #        }, {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
 #          'label'   : 'AK5PFHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS'
 #        }, {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
 #          'label'   : 'AK5PFchsHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS'
 #        }
 #      )
 
@@ -355,7 +356,7 @@ process = customizeHLTforMC(process)
       # fix the definition of module
       # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
-      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
+      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
       self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
@@ -394,13 +395,13 @@ process = customizeHLTforMC(process)
           if path not in self.options['paths']:
             self.data = re.sub(r'      cms.PSet\(  pathName = cms.string\( "%s" \),\n        prescales = cms.vuint32\( .* \)\n      \),?\n' % path, '', self.data)
 
-    if self.config.unprescale:
+    if self.config.prescale and (self.config.prescale.lower() != 'none'):
+      # TO DO: check that the requested prescale column is valid
       self.data += """
-# remove the HLT prescales
+# force the use of a specific HLT prescale column
 if 'PrescaleService' in %(dict)s:
-    %(process)sPrescaleService.lvl1DefaultLabel = cms.string( '0' )
-    %(process)sPrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    %(process)sPrescaleService.prescaleTable    = cms.VPSet( )
+    %(process)sPrescaleService.forceDefault     = True
+    %(process)sPrescaleService.lvl1DefaultLabel = '%(prescale)s'
 """
 
 
@@ -409,7 +410,7 @@ if 'PrescaleService' in %(dict)s:
       # find all EDfilters
       filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ]
       re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
-      # remove existing 'cms.ingore' and '~' modifiers
+      # remove existing 'cms.ignore' and '~' modifiers
       self.data = re_sequence.sub( lambda line: re.sub( r'cms\.ignore *\( *((process\.)?\b(\w+)) *\)', r'\1', line.group(0) ), self.data )
       self.data = re_sequence.sub( lambda line: re.sub( r'~', '', line.group(0) ), self.data )
       # wrap all EDfilters with "cms.ignore( ... )", 1000 at a time (python 2.6 complains for too-big regular expressions)
@@ -456,13 +457,13 @@ if 'GlobalTag' in %(dict)s:
       self.config.l1.label  = ''
       self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
-        self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
+        self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
       self.config.l1cond = '%(tag)s,%(record)s,%(connect)s' % self.config.l1.__dict__
     else:
       self.config.l1cond = None
 
     if self.config.globaltag or self.config.l1cond:
-      text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
+      text += "    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag\n"
       text += "    %(process)sGlobalTag = customiseGlobalTag(%(process)sGlobalTag"
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
@@ -470,14 +471,13 @@ if 'GlobalTag' in %(dict)s:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
 
-    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_COND_31X_GLOBALTAG'
+    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
     %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
     for pset in process.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
-#   Fix for multi-run processing:
+    # fix for multi-run processing
     %(process)sGlobalTag.RefreshEachRun = cms.untracked.bool( False )
     %(process)sGlobalTag.ReconnectEachRun = cms.untracked.bool( False )
-#
 """
     self.data += text
 
@@ -869,6 +869,7 @@ if 'GlobalTag' in %%(dict)s:
   def buildOptions(self):
     # common configuration for all scenarios
     self.options['services'].append( "-FUShmDQMOutputService" )
+    self.options['services'].append( "-DQM" )
 
     if self.config.fragment:
       # extract a configuration file fragment
@@ -933,17 +934,22 @@ if 'GlobalTag' in %%(dict)s:
         self.options['esmodules'].append( "-XMLFromDBSource" )
         self.options['esmodules'].append( "-sistripconn" )
 
-      self.options['services'].append( "-PrescaleService" )
       self.options['services'].append( "-MessageLogger" )
-      self.options['services'].append( "-DQM" )
       self.options['services'].append( "-DQMStore" )
+      self.options['services'].append( "-EvFDaqDirector" )
+      self.options['services'].append( "-FastMonitoringService" )
       self.options['services'].append( "-MicroStateService" )
       self.options['services'].append( "-ModuleWebRegistry" )
       self.options['services'].append( "-TimeProfilerService" )
-      self.options['services'].append( "-FastTimerService" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
+
+    if self.config.fragment or (self.config.prescale and (self.config.prescale.lower() == 'none')):
+      self.options['services'].append( "-PrescaleService" )
+
+    if self.config.fragment or self.config.timing:
+      self.options['services'].append( "-FastTimerService" )
 
     if self.config.fastsim:
       # remove components not supported or needed by fastsim
@@ -979,10 +985,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltMuTrackCkfTrackCandidatesOnia" )
       self.options['modules'].append( "-hltMuTrackCtfTracksOnia" )
       
-      self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
-      self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
-      self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
-      self.options['modules'].append( "-hltEcalRegionalEgammaFEDs" )
       self.options['modules'].append( "-hltFEDSelector" )
       self.options['modules'].append( "-hltL3TrajSeedOIHit" )
       self.options['modules'].append( "-hltL3TrajSeedIOHit" )
@@ -996,13 +998,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltHoreco" )
       self.options['modules'].append( "-hltHfreco" )
       self.options['modules'].append( "-hltHbhereco" )
-      self.options['modules'].append( "-hltEcalRegionalRestFEDs" )
-      self.options['modules'].append( "-hltEcalRegionalESRestFEDs" )
-      self.options['modules'].append( "-hltEcalRawToRecHitFacility" )
       self.options['modules'].append( "-hltESRawToRecHitFacility" )
-      self.options['modules'].append( "-hltEcalRegionalJetsRecHit" )
-      self.options['modules'].append( "-hltEcalRegionalMuonsRecHit" )
-      self.options['modules'].append( "-hltEcalRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRecHitAll" )
       self.options['modules'].append( "-hltESRecHitAll" )
       # === hltPF
@@ -1055,20 +1051,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
       self.options['modules'].append( "-hltRegionalPixelTracks" )
       self.options['modules'].append( "-hltPixelTracksReg" )
-      self.options['modules'].append( "-hltPixelTracksL3MuonReg" )
+      self.options['modules'].append( "-hltPixelTracksL3Muon" )
+      self.options['modules'].append( "-hltPixelTracksGlbTrkMuon" )
+      self.options['modules'].append( "-hltPixelTracksHighPtTkMuIso" )
       self.options['modules'].append( "-hltPixelTracksHybrid" )
-      self.options['modules'].append( "-hltPixelTracksL3MuonReg" )
       self.options['modules'].append( "-hltPixelTracksForPhotons" )
       self.options['modules'].append( "-hltPixelTracksForEgamma" )
-      self.options['modules'].append( "-hltPixelTracksGlbTrkMuonReg" )
-      self.options['modules'].append( "-hltIter4Merged" )
-      self.options['modules'].append( "-hltIter4Tau3MuMerged" )
-      self.options['modules'].append( "-hltIter4MergedReg" )
-      self.options['modules'].append( "-hltIter2MergedForElectrons" )
-      self.options['modules'].append( "-hltIter2MergedForPhotons" )
-      self.options['modules'].append( "-hltIter2L3MuonMergedReg" )
-      self.options['modules'].append( "-hltIter2GlbTrkMuonMergedReg" )
-      self.options['modules'].append( "-hltForBTagIter2Merged" )
+      self.options['modules'].append( "-hltPixelTracksElectrons" )
 
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
@@ -1093,7 +1082,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPVPixelTracks")
       self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
 
-      self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
       self.options['modules'].append( "-hltMuonCSCDigis" )
@@ -1126,14 +1114,23 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTBeginSequenceBPTX" )
       self.options['sequences'].append( "-HLTBeginSequenceAntiBPTX" )
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
+      self.options['sequences'].append( "-HLTIterativeTrackingIter04" )
+      self.options['sequences'].append( "-HLTIterativeTrackingIter02" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTIterativeTrackingReg" )
-      self.options['sequences'].append( "-HLTIterativeTrackingForEgamma" )
-      self.options['sequences'].append( "-HLTIterativeTrackingForPhotons" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForElectronIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForPhotonsIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingL3MuonIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingGlbTrkMuonIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingL3MuonRegIter02" )
-      self.options['sequences'].append( "-HLTIterativeTrackingGlbTrkMuonReg" )
-      self.options['sequences'].append( "-HLTForBTagIterativeTracking" )
+      self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMu" )
+      self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMuIsoIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForTauIter04" )
+      self.options['sequences'].append( "-HLTIterativeTrackingDisplacedJpsiIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingDisplacedPsiPrimeIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingDisplacedNRMuMuIter02" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 

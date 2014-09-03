@@ -26,7 +26,7 @@ static const bool useL1GtTriggerMenuLite(false);
 
 // an empty dummy config data used when we fail to initialize 
 static const HLTConfigData* s_dummyHLTConfigData()
-{ static HLTConfigData dummyHLTConfigData;
+{ static const HLTConfigData dummyHLTConfigData;
   return &dummyHLTConfigData;
 }
 
@@ -37,29 +37,6 @@ HLTConfigProvider::HLTConfigProvider():
   hltConfigData_(s_dummyHLTConfigData()),
   l1GtUtils_(new L1GtUtils())
 {
-  //  HLTConfigDataRegistry::instance()->extra().increment();
-}
-
-//HLTConfigProvider::~HLTConfigProvider() {
-//  if (HLTConfigDataRegistry::instance()->extra().decrement()==0) {
-//    HLTConfigDataRegistry::instance()->data().clear();
-//  }
-//}
-
-HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry() {
-  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
-}
-
-HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry const&) {
-  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
-}
-
-HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry &&) {
-  HLTConfigDataRegistry::instance()->extraForUpdate().increment();
-}
-
-HLTConfigProvider::HLTConfigCounterSentry::~HLTConfigCounterSentry() {
-  HLTConfigDataRegistry::instance()->extraForUpdate().decrement();
 }
 
 bool HLTConfigProvider::init(const edm::Run& iRun, 

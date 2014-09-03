@@ -13,7 +13,7 @@
  *   \author  R.Bellan - INFN TO
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -29,7 +29,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class GlobalMuonProducer : public edm::EDProducer {
+class GlobalMuonProducer : public edm::stream::EDProducer<> {
 
  public:
 

@@ -194,7 +194,6 @@ void PixelCPEBase::fillDetParams()
     //cout<<i<<" "<<p.detTemplateId<<" "<<i1<<" "<<i2<<" "<<i3<<endl;
     
     auto topol = &(p.theDet->specificTopology());
-    if unlikely(topol!=p.theTopol) { // there is ONE topology!)
        p.theTopol=topol;
        auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(p.theTopol);
        if (proxyT) p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
@@ -207,7 +206,6 @@ void PixelCPEBase::fillDetParams()
        std::pair<float,float> pitchxy = p.theRecTopol->pitch();
        p.thePitchX = pitchxy.first;	     // pitch along x
        p.thePitchY = pitchxy.second;	     // pitch along y
-      }
      
     //p.theSign = isFlipped(&p) ? -1 : 1; //Not used, AH
 

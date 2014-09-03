@@ -68,11 +68,24 @@ namespace cms {
     virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
 
   private:
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, CLHEP::HepRandomEngine*);
+    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,
+			     size_t globalSimHitIndex,
+			     const unsigned int tofBin,
+			     CLHEP::HepRandomEngine*);
     CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
     bool first;
     std::unique_ptr<SiPixelDigitizerAlgorithm>  _pixeldigialgo;
+    /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
+*
+* I need to know what each sim hit index will be when the hits from all crossing frames are merged into
+* one collection (assuming the MixingModule is configured to create the crossing frame for all sim hits).
+* To do this I'll record how many hits were in each crossing, and then add that on to the index for a given
+* hit in a given crossing. This assumes that the crossings are processed in the same order here as they are
+* put into the crossing frame, which I'm pretty sure is true.<br/>
+* The key is the name of the sim hit collection. */
+    std::map<std::string,size_t> crossingSimHitIndexOffset_;
+
     typedef std::vector<std::string> vstring;
     const std::string hitsProducer;
     const vstring trackerContainers;

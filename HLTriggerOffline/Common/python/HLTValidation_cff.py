@@ -1,4 +1,5 @@
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
+from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
 from HLTriggerOffline.Tau.Validation.HLTTauValidation_cff import *
 from HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff import *
@@ -9,6 +10,7 @@ from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 from HLTriggerOffline.Higgs.HiggsValidation_cff import *
 from HLTriggerOffline.Top.topHLTValidation_cff import *
+from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 
 # offline dqm:
@@ -28,6 +30,7 @@ hltassociation = cms.Sequence( egammaSelectors
 
 hltvalidation = cms.Sequence(
     hltMultiTrackValidation
+    +hltMultiPVValidation
     +HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
@@ -39,6 +42,7 @@ hltvalidation = cms.Sequence(
     +HLTSusyExoValSeq
     +HiggsValidationSequence
     +ExoticaValidationSequence
+    +b2gHLTriggerValidation
     )
 
 
@@ -62,6 +66,7 @@ hltvalidation_fastsim = cms.Sequence(
     #+HLTAlCaVal_FastSim
     +HLTSusyExoValSeq_FastSim
     +HiggsValidationSequence
+    +b2gHLTriggerValidation
     )
 
 hltvalidation_preprod = cms.Sequence(

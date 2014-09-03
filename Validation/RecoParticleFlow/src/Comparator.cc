@@ -152,7 +152,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   fitfcndgssrms3->SetLineWidth(3);
   fitfcndgssrms3->SetLineStyle(2);
   fitfcndgssrms3->SetLineColor(4);
-  hrms->Fit("fitfcndgssrms3","0R");
+  hrms->Fit(fitfcndgssrms3,"0R");
 
   TH1D* ha=TH2Ana.SigmaGauss();
   TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
@@ -160,7 +160,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   fitfcndgsse3->SetLineWidth(3);
   fitfcndgsse3->SetLineStyle(1);
   fitfcndgsse3->SetLineColor(4);
-  ha->Fit("fitfcndgsse3","0R");
+  ha->Fit(fitfcndgsse3,"0R");
 
   dir = dir0_;
   dir->cd();
@@ -172,7 +172,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   fitfcndgssrmsb3->SetLineWidth(3);
   fitfcndgssrmsb3->SetLineStyle(2);
   fitfcndgssrmsb3->SetLineColor(2);
-  hrmsb->Fit("fitfcndgssrmsb3","0R");
+  hrmsb->Fit(fitfcndgssrmsb3,"0R");
 
   TH1D* hb=TH2Anab.SigmaGauss();
   TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",fitFunction_f,hrms->GetXaxis()->GetBinLowEdge(1),hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),4);
@@ -180,7 +180,7 @@ void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, con
   fitfcndgsseb3->SetLineWidth(3);
   fitfcndgsseb3->SetLineStyle(1);
   fitfcndgsseb3->SetLineColor(2);
-  hb->Fit("fitfcndgsseb3","0R");
+  hb->Fit(fitfcndgsseb3,"0R");
 
   Draw(hb,ha,mode);
   //Draw(hrms,ha,mode);
@@ -216,7 +216,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   fitXfcndgssrms3->SetLineWidth(3);
   fitXfcndgssrms3->SetLineStyle(2);
   fitXfcndgssrms3->SetLineColor(4);
-  hrms->Fit("fitXfcndgssrms3","0R");
+  hrms->Fit(fitXfcndgssrms3,"0R");
 
   TH1D* ha=TH2Ana.SigmaGauss();
   ha->Divide(meanXslice);
@@ -225,7 +225,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   fitXfcndgsse3->SetLineWidth(3);
   fitXfcndgsse3->SetLineStyle(1);
   fitXfcndgsse3->SetLineColor(4);
-  ha->Fit("fitXfcndgsse3","0R");
+  ha->Fit(fitXfcndgsse3,"0R");
 
   dir = dir0_;
   dir->cd();
@@ -238,7 +238,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   fitXfcndgssrmsb3->SetLineWidth(3);
   fitXfcndgssrmsb3->SetLineStyle(2);
   fitXfcndgssrmsb3->SetLineColor(2);
-  hrmsb->Fit("fitXfcndgssrmsb3","0R");
+  hrmsb->Fit(fitXfcndgssrmsb3,"0R");
 
   TH1D* hb=TH2Anab.SigmaGauss();
   hb->Divide(meanXslice);
@@ -247,7 +247,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFa
   fitXfcndgsseb3->SetLineWidth(3);
   fitXfcndgsseb3->SetLineStyle(1);
   fitXfcndgsseb3->SetLineColor(2);
-  hb->Fit("fitXfcndgsseb3","0R");
+  hb->Fit(fitXfcndgsseb3,"0R");
 
   Draw(hb,ha,mode);
   //Draw(hrms,ha,mode);

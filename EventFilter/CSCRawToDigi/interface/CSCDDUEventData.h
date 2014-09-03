@@ -42,7 +42,7 @@ public:
 
 
   /// for making events.  Sets the bxnum and lvl1num inside the chamber event
-    void add(CSCEventData &, int dmbId, int dduInput);
+    void add(CSCEventData &, int dmbId, int dduInput, unsigned int format_version = 2005);
 
   /// trailer info
   long unsigned int errorstat;
@@ -59,9 +59,13 @@ public:
   /// returns packed event data
   boost::dynamic_bitset<> pack();
 
-  
-  static std::atomic<bool> debug;
+#ifdef LOCAL_UNPACK
+  static bool debug;
   static unsigned int errMask;
+#else
+  static std::atomic<bool> debug;
+  static std::atomic<unsigned int> errMask;
+#endif
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:
@@ -74,6 +78,7 @@ protected:
   CSCDCCTrailer theDCCTrailer;
   uint16_t theDDUTrailer0;
   int theSizeInWords;
+  uint16_t theFormatVersion;
 };
 
 #endif

@@ -60,7 +60,7 @@ namespace edm {
   std::shared_ptr<cms::Exception>
   makeNotFoundException(char const* where, KindOfType kindOfType,
                         TypeID const& productType, std::string const& label, std::string const& instance, std::string const& process) {
-    std::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+    std::shared_ptr<cms::Exception> exception = std::make_shared<Exception>(errors::ProductNotFound);
     if (kindOfType == PRODUCT_TYPE) {
       *exception << "Principal::" << where << ": Found zero products matching all criteria\nLooking for type: " << productType << "\n"
                  << "Looking for module label: " << label << "\n" << "Looking for productInstanceName: " << instance << "\n"
@@ -122,8 +122,8 @@ namespace edm {
     return s_nextIdentifier.fetch_add(1,std::memory_order_acq_rel);
   }
   
-  Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
-                       boost::shared_ptr<ProductHolderIndexHelper const> productLookup,
+  Principal::Principal(std::shared_ptr<ProductRegistry const> reg,
+                       std::shared_ptr<ProductHolderIndexHelper const> productLookup,
                        ProcessConfiguration const& pc,
                        BranchType bt,
                        HistoryAppender* historyAppender) :
@@ -155,7 +155,7 @@ namespace edm {
         if(bd.isAlias()) {
           hasAliases = true;
         } else {
-          boost::shared_ptr<BranchDescription const> cbd(new BranchDescription const(bd));
+          auto cbd = std::make_shared<BranchDescription const>(bd);
           if(bd.produced()) {
             if(bd.moduleLabel() == source) {
               addSourceProduct(cbd);
@@ -176,7 +176,7 @@ namespace edm {
       for(auto const& prod : prodsList) {
         BranchDescription const& bd = prod.second;
         if(bd.isAlias() && bd.branchType() == branchType_) {
-          boost::shared_ptr<BranchDescription const> cbd(new BranchDescription const(bd));
+          auto cbd = std::make_shared<BranchDescription const>(bd);
           addAliasedProduct(cbd);
         }
       }
@@ -202,7 +202,7 @@ namespace edm {
           ProductHolderIndexHelper::IndexAndNames const& product = indexAndNames.at(i);
           if (product.startInProcessNames() == 0) {
             if (productHolderIndex != ProductHolderIndexInvalid) {
-              boost::shared_ptr<ProductHolderBase> newHolder(new NoProcessProductHolder(matchingHolders, ambiguous, this));
+              std::shared_ptr<ProductHolderBase> newHolder = std::make_shared<NoProcessProductHolder>(matchingHolders, ambiguous, this);
               productHolders_.at(productHolderIndex) = newHolder;
               matchingHolders.assign(lookupProcessNames.size(), ProductHolderIndexInvalid);
               ambiguous.assign(lookupProcessNames.size(), false);
@@ -223,7 +223,7 @@ namespace edm {
           }
         }
       }
-      boost::shared_ptr<ProductHolderBase> newHolder(new NoProcessProductHolder(matchingHolders, ambiguous, this));
+      std::shared_ptr<ProductHolderBase> newHolder = std::make_shared<NoProcessProductHolder>(matchingHolders, ambiguous, this);
       productHolders_.at(productHolderIndex) = newHolder;
     }
   }
@@ -255,7 +255,7 @@ namespace edm {
     for(auto const& prod : prodsList) {
       BranchDescription const& bd = prod.second;
       if(!bd.produced() && (bd.branchType() == branchType_)) {
-        boost::shared_ptr<BranchDescription const> cbd(new BranchDescription const(bd));
+        auto cbd = std::make_shared<BranchDescription const>(bd);
         ProductHolderBase* phb = getExistingProduct(cbd->branchID());
         if(phb == nullptr || phb->branchDescription().branchName() != cbd->branchName()) {
             return false;
@@ -267,31 +267,31 @@ namespace edm {
   }
 
   void
-  Principal::addScheduledProduct(boost::shared_ptr<BranchDescription const> bd) {
+  Principal::addScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
     std::auto_ptr<ProductHolderBase> phb(new ScheduledProductHolder(bd));
     addProductOrThrow(phb);
   }
 
   void
-  Principal::addSourceProduct(boost::shared_ptr<BranchDescription const> bd) {
+  Principal::addSourceProduct(std::shared_ptr<BranchDescription const> bd) {
     std::auto_ptr<ProductHolderBase> phb(new SourceProductHolder(bd));
     addProductOrThrow(phb);
   }
 
   void
-  Principal::addInputProduct(boost::shared_ptr<BranchDescription const> bd) {
+  Principal::addInputProduct(std::shared_ptr<BranchDescription const> bd) {
     std::auto_ptr<ProductHolderBase> phb(new InputProductHolder(bd, this));
     addProductOrThrow(phb);
   }
 
   void
-  Principal::addUnscheduledProduct(boost::shared_ptr<BranchDescription const> bd) {
+  Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
     std::auto_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd, this));
     addProductOrThrow(phb);
   }
 
   void
-  Principal::addAliasedProduct(boost::shared_ptr<BranchDescription const> bd) {
+  Principal::addAliasedProduct(std::shared_ptr<BranchDescription const> bd) {
     ProductHolderIndex index = preg_->indexFrom(bd->originalBranchID());
     assert(index != ProductHolderIndexInvalid);
 
@@ -315,7 +315,7 @@ namespace edm {
   Principal::deleteProduct(BranchID const& id) {
     ProductHolderBase* phb = getExistingProduct(id);
     assert(nullptr != phb);
-    auto itFound = productPtrs_.find(phb->product().get());
+    auto itFound = productPtrs_.find(phb->product());
     if(itFound != productPtrs_.end()) {
       productPtrs_.erase(itFound);
     } 
@@ -341,12 +341,12 @@ namespace edm {
       processHistoryID_ = processHistoryPtr_->id();
     }
     else {
-      boost::shared_ptr<ProcessHistory const> inputProcessHistory;
+      std::shared_ptr<ProcessHistory const> inputProcessHistory;
       if (hist.isValid()) {
         //does not own the pointer
         auto noDel =[](void const*){};
         inputProcessHistory =
-        boost::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
+        std::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
         if (inputProcessHistory.get() == nullptr) {
           throw Exception(errors::LogicError)
             << "Principal::fillPrincipal\n"
@@ -355,7 +355,7 @@ namespace edm {
         }
       } else {
         //Since this is static we don't want it deleted
-        inputProcessHistory = boost::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
+        inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
       }
       processHistoryID_ = hist;
       processHistoryPtr_ = inputProcessHistory;        
@@ -401,7 +401,7 @@ namespace edm {
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
-    SharedProductPtr phb(productHolder);
+    SharedProductPtr phb(productHolder.release());
 
     ProductHolderIndex index = preg_->indexFrom(bd.branchID());
     assert(index != ProductHolderIndexInvalid);
@@ -483,7 +483,7 @@ namespace edm {
                         bool& ambiguous,
                         ModuleCallingContext const* mcc) const {
     assert(index !=ProductHolderIndexInvalid);
-    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
+    std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
     ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
@@ -501,7 +501,7 @@ namespace edm {
   Principal::prefetch(ProductHolderIndex index,
                       bool skipCurrentProcess,
                       ModuleCallingContext const* mcc) const {
-    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_.at(index);
+    std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_.at(index);
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
     productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
@@ -650,7 +650,7 @@ namespace edm {
     }
 
     
-    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
+    std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
     ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
@@ -691,7 +691,7 @@ namespace edm {
       failedToRegisterConsumes(kindOfType,typeID,label,instance,process);
     }
     
-    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
+    std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
     ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, mcc);
@@ -732,7 +732,7 @@ namespace edm {
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
     }
-    return OutputHandle(WrapperHolder(phb->product().get(), phb->productData().getInterface()), &phb->branchDescription(), phb->productProvenancePtr());
+    return OutputHandle(phb->product(), &phb->branchDescription(), phb->productProvenancePtr());
   }
 
   Provenance
@@ -782,48 +782,47 @@ namespace edm {
     reader_->mergeReaders(other.reader());
   }
 
-  WrapperHolder
+  WrapperBase const*
   Principal::getIt(ProductID const&) const {
     assert(nullptr);
-    return WrapperHolder();
+    return nullptr;
   }
 
   void
-  Principal::checkUniquenessAndType(WrapperOwningHolder const& prod, ProductHolderBase const* phb) const {
-    if(!prod.isValid()) return;
+  Principal::checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* phb) const {
+    if(prod == nullptr) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.
-    bool alreadyPresent = !productPtrs_.insert(prod.wrapper()).second;
+    bool alreadyPresent = !productPtrs_.insert(prod).second;
     if(alreadyPresent) {
-      phb->checkType(prod);
-      const_cast<WrapperOwningHolder&>(prod).reset();
+      phb->checkType(*prod);
       throwCorruptionException("checkUniquenessAndType", phb->branchDescription().branchName());
     }
     // Checks that the real type of the product matches the branch.
-    phb->checkType(prod);
+    phb->checkType(*prod);
   }
 
   void
-  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductHolderBase const* phb) const {
+  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod, phb);
-      phb->putProduct(prod);
+      checkUniquenessAndType(prod.get(), phb);
+      phb->putProduct(std::move(prod));
     } else {
-      phb->checkType(prod);
-      phb->mergeProduct(prod);
+      phb->checkType(*prod);
+      phb->mergeProduct(std::move(prod));
     }
   }
 
   void
-  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, ProductHolderBase* phb) {
+  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance& prov, ProductHolderBase* phb) {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod, phb);
-      phb->putProduct(prod, prov);
+      checkUniquenessAndType(prod.get(), phb);
+      phb->putProduct(std::move(prod), prov);
     } else {
-      phb->checkType(prod);
-      phb->mergeProduct(prod, prov);
+      phb->checkType(*prod);
+      phb->mergeProduct(std::move(prod), prov);
     }
   }
 
@@ -839,7 +838,7 @@ namespace edm {
           if(!productHolders_[index]) {
             // no product holder.  Must add one. The new entry must be an input product holder.
             assert(!bd.produced());
-            boost::shared_ptr<BranchDescription const> cbd(new BranchDescription const(bd));
+            auto cbd = std::make_shared<BranchDescription const>(bd);
             addInputProduct(cbd);
           }
         }

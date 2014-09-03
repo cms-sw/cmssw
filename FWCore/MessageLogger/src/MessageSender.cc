@@ -4,6 +4,7 @@
 
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 #include <limits>

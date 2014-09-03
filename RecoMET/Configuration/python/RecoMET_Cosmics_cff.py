@@ -10,32 +10,32 @@ CSCHaloData.CosmicMuonLabel = cms.InputTag("muons")
 
 ##____________________________________________________________________________||
 metrecoCosmics = cms.Sequence(
-      met+
-      metNoHF+
-      metHO+
+      caloMet+
+      caloMetBE+
+      caloMetBEFO+
       muonMETValueMapProducer+
-      corMetGlobalMuons+
+      caloMetM +
       hcalnoise+
       BeamHaloId
       )
 
 ##____________________________________________________________________________||
 metrecoCosmics_woBeamHaloId = cms.Sequence(
-    met+
-    metNoHF+
-    metHO+
+    caloMet+
+    caloMetBE+
+    caloMetBEFO+
     muonMETValueMapProducer+
-    corMetGlobalMuons+
+    caloMetM +
     hcalnoise
     )
 
 ##____________________________________________________________________________||
 metrecoCosmics_woHcalNoise = cms.Sequence(
-    met+
-    metNoHF+
-    metHO+
+    caloMet+
+    caloMetBE+
+    caloMetBEFO+
     muonMETValueMapProducer+
-    corMetGlobalMuons+
+    caloMetM +
     BeamHaloId
 )
 

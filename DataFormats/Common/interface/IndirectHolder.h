@@ -4,8 +4,8 @@
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
-#include "boost/shared_ptr.hpp"
 #include <memory>
 
 namespace edm {
@@ -28,7 +28,7 @@ namespace edm {
       // this constructor, so that the cloning can be avoided. I'm not
       // sure if use of auto_ptr here causes any troubles elsewhere.
       IndirectHolder() : BaseHolder<T>(), helper_( 0 ) { }
-      IndirectHolder(boost::shared_ptr<RefHolderBase> p);
+      IndirectHolder(std::shared_ptr<RefHolderBase> p);
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
       void swap(IndirectHolder& other);
@@ -64,10 +64,9 @@ namespace edm {
     //------------------------------------------------------------------
     // Implementation of IndirectHolder<T>
     //------------------------------------------------------------------
-
     template <typename T>
     inline
-    IndirectHolder<T>::IndirectHolder(boost::shared_ptr<RefHolderBase> p) :
+    IndirectHolder<T>::IndirectHolder(std::shared_ptr<RefHolderBase> p) :
       BaseHolder<T>(), helper_(p->clone()) 
     { }
 
@@ -188,7 +187,7 @@ namespace edm {
     template <typename T>
     std::auto_ptr<BaseVectorHolder<T> > IndirectHolder<T>::makeVectorHolder() const {
       std::auto_ptr<RefVectorHolderBase> p = helper_->makeVectorHolder();
-      boost::shared_ptr<RefVectorHolderBase> sp( p );
+      std::shared_ptr<RefVectorHolderBase> sp( p.release() );
       return std::auto_ptr<BaseVectorHolder<T> >( new IndirectVectorHolder<T>( sp ) );
     }
 

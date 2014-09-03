@@ -174,7 +174,7 @@ namespace sistrip {
     // as long as unscheduled execution of an EDProducer cannot occur
     // as a result of this function call (and with the current implementation
     // of SpyEventMatcher unscheduled execution never happens).
-    const boost::shared_ptr< const edm::Wrapper<T> > productWrapper = edm::getProductByTag<T>(event,tag,nullptr);
+    const std::shared_ptr< const edm::Wrapper<T> > productWrapper = edm::getProductByTag<T>(event,tag,nullptr);
     if (productWrapper) {
       return productWrapper->product();
     } else {

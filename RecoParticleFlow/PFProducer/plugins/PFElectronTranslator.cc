@@ -620,7 +620,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       // MVA output
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.status = pfCandidate.electronExtraRef()->electronStatus();
-      myMvaOutput.mva = pfCandidate.mva_e_pi();
+      myMvaOutput.mva_e_pi = pfCandidate.mva_e_pi();
       myElectron.setMvaOutput(myMvaOutput);
       
       // ambiguous tracks

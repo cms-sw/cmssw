@@ -4,4 +4,4 @@
 <export>
   <lib   name="1"/>
 </export>
-# <flags   CXXFLAGS="-O3 -ffast-math -funsafe-loop-optimizations -ftree-loop-if-convert-stores"/>
+# <flags   CXXFLAGS="-O3 -ffast-math -funsafe-loop-optimizations"/>

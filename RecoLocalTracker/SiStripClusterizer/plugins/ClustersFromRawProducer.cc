@@ -207,7 +207,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
     
     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > 
       output( onDemand ?
-	      new edmNew::DetSetVector<SiStripCluster>(boost::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(new ClusterFiller(*rawData, *clusterizer_, 
+	      new edmNew::DetSetVector<SiStripCluster>(std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(std::make_shared<ClusterFiller>(*rawData, *clusterizer_, 
 																	 *rawAlgos_, doAPVEmulatorCheck_)
 														       ), 
 						       clusterizer_->allDetIds())
@@ -221,12 +221,12 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
 
     if (!onDemand) {
       run(*rawData, *output);
-      
+      output->shrink_to_fit();   
       COUT << output->dataSize() << " clusters from " 
 	   << output->size()     << " modules" 
 	   << std::endl;
     }
-
+   
     ev.put(output);
 
   }

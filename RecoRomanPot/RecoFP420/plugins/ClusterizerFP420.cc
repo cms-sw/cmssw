@@ -190,7 +190,7 @@ namespace cms
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
 	    for (int zside=1; zside<rn0; zside++) {
 	      // intindex is a continues numbering of FP420
-	      unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	      unsigned int detID = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	      std::vector<ClusterFP420> collector;
 	      collector.clear();
 	      ClusterCollectionFP420::Range inputRange;

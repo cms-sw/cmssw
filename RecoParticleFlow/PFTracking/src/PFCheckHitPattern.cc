@@ -113,16 +113,15 @@ PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_,
   if (!geomInitDone_) this->init(tkerGeomHandle_);
 
   // Get hit patterns of this track
-  const reco::HitPattern& hp = track.get()->hitPattern(); 
-  const reco::HitPattern& ip = track.get()->trackerExpectedHitsInner(); 
+  const reco::HitPattern& hp = track.get()->hitPattern();
 
   // Count number of valid hits on track definately in front of the vertex,
   // taking into account finite depth of each layer.
   unsigned int nHitBefore = 0;
   unsigned int nHitAfter = 0;
 
-  for (int i = 0; i < hp.numberOfHits(); i++) {
-    uint32_t hit = hp.getHitPattern(i);
+  for (int i = 0; i < hp.numberOfHits(HitPattern::TRACK_HITS); i++) {
+    uint32_t hit = hp.getHitPattern(HitPattern::TRACK_HITS, i);
     if (hp.trackerHitFilter(hit) && hp.validHitFilter(hit)) {
       uint32_t subDet = hp.getSubStructure(hit);
       uint32_t layer = hp.getLayer(hit);
@@ -144,11 +143,11 @@ PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_,
   unsigned int nMissHitAfter = 0;
   unsigned int nMissHitBefore = 0;
 
-  for (int i = 0; i < ip.numberOfHits(); i++) {
-    uint32_t hit = ip.getHitPattern(i);
-    if (ip.trackerHitFilter(hit)) {
-      uint32_t subDet = ip.getSubStructure(hit);
-      uint32_t layer = ip.getLayer(hit);
+  for (int i = 0; i < hp.numberOfHits(HitPattern::MISSING_INNER_HITS); i++) {
+    uint32_t hit = hp.getHitPattern(HitPattern::MISSING_INNER_HITS, i);
+    if (reco::HitPattern::trackerHitFilter(hit)) {
+      uint32_t subDet = reco::HitPattern::getSubStructure(hit);
+      uint32_t layer = reco::HitPattern::getLayer(hit);
       DetInfo detInfo(subDet, layer);
       double minRZ = rangeRorZ_[detInfo].first;
 
@@ -174,18 +173,17 @@ PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_,
 
 void PFCheckHitPattern::print(const TrackBaseRef track) const {
   // Get hit patterns of this track
-  const reco::HitPattern& hp = track.get()->hitPattern(); 
-  const reco::HitPattern& ip = track.get()->trackerExpectedHitsInner(); 
+  const reco::HitPattern &hp = track.get()->hitPattern(); 
 
   cout<<"=== Hits on Track ==="<<endl;
-  this->print(hp);
+  this->print(reco::HitPattern::TRACK_HITS, hp);
   cout<<"=== Hits before track ==="<<endl;
-  this->print(ip);
+  this->print(reco::HitPattern::MISSING_INNER_HITS, hp);
 }
 
-void PFCheckHitPattern::print(const reco::HitPattern& hp) const {
-  for (int i = 0; i < hp.numberOfHits(); i++) {
-    uint32_t hit = hp.getHitPattern(i);
+void PFCheckHitPattern::print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const {
+  for (int i = 0; i < hp.numberOfHits(category); i++) {
+    uint32_t hit = hp.getHitPattern(category, i);
     if (hp.trackerHitFilter(hit)) {
       uint32_t subdet = hp.getSubStructure(hit);
       uint32_t layer = hp.getLayer(hit);

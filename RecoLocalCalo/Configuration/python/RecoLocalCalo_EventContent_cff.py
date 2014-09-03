@@ -23,7 +23,8 @@ RecoLocalCaloFEVT = cms.PSet(
 )
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*',
+					   'keep *_hbheprereco_*_*', 
                                            'keep *_hfreco_*_*', 
                                            'keep *_horeco_*_*',
                                            'keep HBHERecHitsSorted_hbherecoMB_*_*',

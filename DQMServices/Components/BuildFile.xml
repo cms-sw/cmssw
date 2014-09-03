@@ -3,6 +3,7 @@
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DQMServices/ClientConfig"/>
+<use   name="EventFilter/Utilities"/>
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Catalog"/>
 <use   name="FWCore/Framework"/>

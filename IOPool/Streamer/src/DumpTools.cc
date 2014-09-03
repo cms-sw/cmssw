@@ -231,7 +231,7 @@ void dumpDQMEventView(const DQMEventMsgView* dview)
   std::cout << "\n>>>>> DQMEvent Message Dump (begin) >>>>>" << std::endl;
   dumpDQMEventHeader(dview);
 
-  boost::shared_ptr< std::vector<std::string> > subFolders =
+  std::shared_ptr< std::vector<std::string> > subFolders =
     dview->subFolderNames();
   for (uint32 idx = 0; idx < subFolders->size(); idx++) {
     std::string name = subFolders->at(idx);

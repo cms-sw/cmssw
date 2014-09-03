@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm
 {
@@ -30,7 +30,7 @@ namespace edm
   {
   public:
 
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
     explicit TriggerResultInserter(edm::ParameterSet const& ps);

@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -34,6 +34,7 @@
 
 class TTree;
 class TFile;
+class TClass;
 
 namespace edm {
   class ModuleCallingContext;
@@ -102,7 +103,7 @@ namespace edm {
     PoolOutputModule const* om_;
     int whyNotFastClonable_;
     bool canFastCloneAux_;
-    boost::shared_ptr<TFile> filePtr_;
+    std::shared_ptr<TFile> filePtr_;
     FileID fid_;
     IndexIntoFile::EntryNumber_t eventEntryNumber_;
     IndexIntoFile::EntryNumber_t lumiEntryNumber_;
@@ -128,6 +129,7 @@ namespace edm {
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
+    TClass* wrapperBaseTClass_;
   };
 
 }

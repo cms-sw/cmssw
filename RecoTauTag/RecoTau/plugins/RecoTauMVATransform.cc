@@ -48,7 +48,7 @@ class RecoTauMVATransform : public PFTauDiscriminationProducerBase {
     ~RecoTauMVATransform() {}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-    double discriminate(const reco::PFTauRef&) override;
+    double discriminate(const reco::PFTauRef&) const override;
 
   private:
     // Map a decay mode to a transformation
@@ -95,7 +95,7 @@ RecoTauMVATransform::beginEvent(const edm::Event& evt, const edm::EventSetup&) {
   evt.getByLabel(input_, disc_);
 }
 
-double RecoTauMVATransform::discriminate(const reco::PFTauRef& tau) {
+double RecoTauMVATransform::discriminate(const reco::PFTauRef& tau) const {
   // Check if we support this decay mode:
   TransformMap::const_iterator transformIter =
       transforms_.find(tau->decayMode());

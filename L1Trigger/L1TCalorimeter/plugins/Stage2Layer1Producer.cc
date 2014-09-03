@@ -173,7 +173,7 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     // create input and output tower vectors for this BX
     std::auto_ptr< std::vector<l1t::CaloTower> > localInTowers (new std::vector<l1t::CaloTower>(l1t::CaloTools::caloTowerHashMax()));
-    std::auto_ptr< std::vector<l1t::CaloTower> > localOutTowers (new std::vector<l1t::CaloTower>(l1t::CaloTools::caloTowerHashMax()));
+    std::auto_ptr< std::vector<l1t::CaloTower> > localOutTowers (new std::vector<l1t::CaloTower>()); //this is later filled to the same size as localInTowers
     
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
@@ -261,7 +261,7 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Tower in)=" << localInTowers->size() << ", N(Tower out)=" << localOutTowers->size() << std::endl;
 
   }
-  
+ 
   iEvent.put(towersColl);
   
 }

@@ -53,9 +53,6 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
   ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
 {
-
-  ele_iso_mvaID_= new ElectronMVAEstimator(ele_iso_path_mvaWeightFile);
-
 }
 
 bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
@@ -101,18 +98,18 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
     double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
     double eleEta = fabs(electron.eta());
     if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
-      if( ele_iso_mvaID_->mva( electron, nVtx ) > ele_iso_mva_eb_ ) 
+      if( electron.mva_Isolated() > ele_iso_mva_eb_ ) 
 	passEleSelection = true;
     }
     else if (eleEta > 1.485  && isoDr03 < ele_iso_combIso_ee_) {
-      if( ele_iso_mvaID_->mva( electron, nVtx ) > ele_iso_mva_ee_ ) 
+      if( electron.mva_Isolated() > ele_iso_mva_ee_ ) 
 	passEleSelection = true;
     }
 
   }
 
   //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
-  if(electron.mva() > ele_noniso_mva_) {
+  if(electron.mva_e_pi() > ele_noniso_mva_) {
     passEleSelection = true; 
   }
   
@@ -121,7 +118,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
 bool PFEGammaFilters::isElectron(const reco::GsfElectron & electron) {
  
-  unsigned int nmisshits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int nmisshits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   if(nmisshits > ele_missinghits_)
     return false;
 
@@ -194,7 +191,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       unsigned int Algo = whichTrackAlgo(trackref);
       // iter0, iter1, iter2, iter3 = Algo < 3
       // algo 4,5,6,7
-      int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+      int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS); 
       
       bool trackIsFromPrimaryVertex = false;
       for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
@@ -371,6 +368,9 @@ unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::iter0:
   case TrackBase::iter1:
   case TrackBase::iter2:
+  case TrackBase::iter7:
+  case TrackBase::iter9:
+  case TrackBase::iter10:
     Algo = 0;
     break;
   case TrackBase::iter3:

@@ -34,8 +34,8 @@ namespace edm {
 
   SubProcess::SubProcess(ParameterSet& parameterSet,
                          ParameterSet const& topLevelParameterSet,
-                         boost::shared_ptr<ProductRegistry const> parentProductRegistry,
-                         boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+                         std::shared_ptr<ProductRegistry const> parentProductRegistry,
+                         std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
@@ -103,7 +103,7 @@ namespace edm {
 
     // If this process has a subprocess, pop the subprocess parameter set out of the process parameter set
 
-    boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
+    std::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
   
     ScheduleItems items(*parentProductRegistry, *this);
 
@@ -151,11 +151,7 @@ namespace edm {
 
     principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
     for(unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
-      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
-                                                              branchIDListHelper_,
-                                                              *processConfiguration_,
-                                                              &(historyAppenders_[index]),
-                                                              index));
+      auto ep = std::make_shared<EventPrincipal>(preg_, branchIDListHelper_, *processConfiguration_, &(historyAppenders_[index]), index);
       ep->preModuleDelayedGetSignal_.connect(std::cref(items.actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(items.actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
@@ -333,9 +329,9 @@ namespace edm {
 
   void
   SubProcess::beginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
-    boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
+    auto aux = std::make_shared<RunAuxiliary>(principal.aux());
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_+principal.index()]),principal.index()));
+    auto rpp = std::make_shared<RunPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_+principal.index()]),principal.index());
     auto & processHistoryRegistry = processHistoryRegistries_[historyRunOffset_+principal.index()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     rpp->fillRunPrincipal(processHistoryRegistry, principal.reader());
@@ -393,9 +389,9 @@ namespace edm {
 
   void
   SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
-    boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
+    auto aux = std::make_shared<LuminosityBlockAuxiliary>(principal.aux());
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+principal.index()]),principal.index()));
+    auto lbpp = std::make_shared<LuminosityBlockPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+principal.index()]),principal.index());
     auto & processHistoryRegistry = processHistoryRegistries_[historyLumiOffset_+principal.index()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry, principal.reader());

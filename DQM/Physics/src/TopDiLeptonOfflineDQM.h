@@ -11,9 +11,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -50,7 +50,7 @@ namespace TopDiLeptonOffline {
     
   public:
     /// default contructor
-//    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
+    /// MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector && iC );
     /// default destructor
     ~MonitorEnsemble(){};
@@ -68,7 +68,7 @@ namespace TopDiLeptonOffline {
     /// expected to be of type 'selectionPath:monitorPath' 
     std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };  
     /// determine dileptonic decay channel 
-    DecayChannel decayChannel(const std::vector<const reco::Muon*>& muons, const std::vector<const reco::GsfElectron*>& elecs) const;
+    DecayChannel decayChannel(const std::vector<const reco::PFCandidate*>& muons, const std::vector<const reco::PFCandidate*>& elecs) const;
 
     /// set labels for event logging histograms
     void loggerBinLabels(std::string hist);
@@ -92,17 +92,14 @@ namespace TopDiLeptonOffline {
     /// instance label 
     std::string label_;
     /// input sources for monitoring
-    //edm::InputTag elecs_, muons_, jets_; 
     edm::EDGetTokenT<edm::View<reco::Jet> >  jets_; 
-    edm::EDGetTokenT<edm::View<reco::Muon> > muons_;
-    edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_;
+    edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
+    edm::EDGetTokenT<edm::View<reco::PFCandidate> > elecs_;
 
     /// considers a vector of METs
-    //std::vector<edm::InputTag> mets_;
     std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
 
     /// trigger table
-    //edm::InputTag triggerTable_;
     edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
     /// trigger paths for monitoring, expected 
     /// to be of form signalPath:MonitorPath
@@ -111,7 +108,6 @@ namespace TopDiLeptonOffline {
     std::vector<std::string> diMuonPaths_;
 
     /// electronId label
-    //edm::InputTag electronId_;
     edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
     /// electronId pattern we expect the following pattern:
     ///  0: fails
@@ -123,21 +119,23 @@ namespace TopDiLeptonOffline {
     ///  6: passes conversion rejection and Isolation
     ///  7: passes the whole selection
     /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-    int eidPattern_;
+    //int eidPattern_;
+    //the cut for the MVA Id                                                                                                                                
+    double eidCutValue_;
     /// extra isolation criterion on electron
-    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
+    StringCutObjectSelector<reco::PFCandidate>* elecIso_;
     /// extra selection on electrons
-    StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
+    StringCutObjectSelector<reco::PFCandidate>* elecSelect_;
 
     /// extra isolation criterion on muon
-    StringCutObjectSelector<reco::Muon>* muonIso_;
+    StringCutObjectSelector<reco::PFCandidate, true>* muonIso_;
+    
     /// extra selection on muons
-    StringCutObjectSelector<reco::Muon>* muonSelect_;
+    StringCutObjectSelector<reco::PFCandidate, true>* muonSelect_;
 
     /// jetCorrector
     std::string jetCorrector_;
     /// jetID as an extra selection type 
-    //edm::InputTag jetIDLabel_;
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
     /// extra jetID selection on calo jets
     StringCutObjectSelector<reco::JetID>* jetIDSelect_;
@@ -206,7 +204,7 @@ namespace TopDiLeptonOffline {
   }
   
   inline MonitorEnsemble::DecayChannel
-  MonitorEnsemble::decayChannel(const std::vector<const reco::Muon*>& muons, const std::vector<const reco::GsfElectron*>& elecs) const 
+  MonitorEnsemble::decayChannel(const std::vector<const reco::PFCandidate*>&  muons, const std::vector<const reco::PFCandidate*>& elecs) const   
   {
     DecayChannel type=NONE;
     if( muons.size()>1 ){ type=DIMUON; } else if( elecs.size()>1 ){ type=DIELEC; } else if( !elecs.empty() && !muons.empty() ){ type=ELECMU; }
@@ -242,8 +240,8 @@ namespace TopDiLeptonOffline {
    MonitorEnsemble class. The following objects are supported for selection:
 
     - jets  : of type reco::Jet
-    - elecs : of type reco::GsfElectron
-    - muons : of type reco::Muon
+    - elecs : of type reco::PFCandidate
+    - muons : of type reco::PFCandidate
     - met   : of type reco::MET
 
    These types have to be present as prefix of the selection step paramter _label_ separated 
@@ -298,17 +296,14 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
 
  private:
   /// trigger table
-  //edm::InputTag triggerTable_;
   edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
   /// trigger paths
   std::vector<std::string> triggerPaths_;
   /// primary vertex 
-  //edm::InputTag vertex_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertex_;
   /// string cut selector
   StringCutObjectSelector<reco::Vertex>* vertexSelect_;
   /// beamspot 
-  //edm::InputTag beamspot_;
   edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   /// string cut selector
   StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
@@ -322,8 +317,8 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
   std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
-  SelectionStep<reco::Muon> * MuonStep;
-  SelectionStep<reco::GsfElectron> * ElectronStep;
+  SelectionStep<reco::PFCandidate> * MuonStep;
+  SelectionStep<reco::PFCandidate> * ElectronStep;
   SelectionStep<reco::Vertex> * PvStep;
   SelectionStep<reco::MET> * METStep;
   std::vector<SelectionStep<reco::Jet> * > JetSteps;

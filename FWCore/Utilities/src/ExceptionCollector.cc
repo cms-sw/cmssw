@@ -32,7 +32,7 @@ namespace edm {
   }
 
   void
-  ExceptionCollector::call(boost::function<void(void)> f) {
+  ExceptionCollector::call(std::function<void(void)> f) {
     try {
       convertException::wrap([&f]() {
         f();

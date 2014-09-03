@@ -13,7 +13,6 @@
 // system include files
 #include <algorithm>
 #include <iterator>
-#include <boost/bind.hpp>
 #include <functional>
 
 // user include files
@@ -70,26 +69,28 @@ ScheduleInfo::~ScheduleInfo()
 void 
 ScheduleInfo::availableModuleLabels(std::vector<std::string>& oLabelsToFill) const
 {
+   using std::placeholders::_1;
    std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
    
    oLabelsToFill.reserve(oLabelsToFill.size()+desc.size());
    std::transform(desc.begin(),desc.end(),
                   std::back_inserter(oLabelsToFill),
-                  boost::bind(&ModuleDescription::moduleLabel,_1));
+                  std::bind(&ModuleDescription::moduleLabel,_1));
 }
 
 const ParameterSet*
 ScheduleInfo::parametersForModule(const std::string& iLabel) const 
 {
+   using std::placeholders::_1;
    std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
    
    std::vector<ModuleDescription const*>::iterator itFound = std::find_if(desc.begin(),
                                                                           desc.end(),
-                                                                          boost::bind(std::equal_to<std::string>(),
+                                                                          std::bind(std::equal_to<std::string>(),
                                                                                       iLabel,
-                                                                                      boost::bind(&ModuleDescription::moduleLabel,_1)));
+                                                                                      std::bind(&ModuleDescription::moduleLabel,_1)));
    if (itFound == desc.end()) {
-      return 0;
+      return nullptr;
    }
    return pset::Registry::instance()->getMapped((*itFound)->parameterSetID());
 }

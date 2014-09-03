@@ -19,18 +19,19 @@
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
+#include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
-  class WrapperHolder;
+  class WrapperBase;
   class ProductRegistry;
   class ProcessHistory;
   class BranchDescription;
@@ -83,7 +84,6 @@ class MultiChainEvent: public EventBase
 
       /** This function should only be called by fwlite::Handle<>*/
       virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
@@ -133,7 +133,7 @@ class MultiChainEvent: public EventBase
 
       // ---------- member functions ---------------------------
 
-      edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+      edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
 
    private:
@@ -153,9 +153,9 @@ class MultiChainEvent: public EventBase
 
       // ---------- member data --------------------------------
 
-      boost::shared_ptr<ChainEvent> event1_;  // primary files
-      boost::shared_ptr<ChainEvent> event2_;  // secondary files
-      boost::shared_ptr<internal::MultiProductGetter> getter_;
+      std::shared_ptr<ChainEvent> event1_;  // primary files
+      std::shared_ptr<ChainEvent> event2_;  // secondary files
+      std::shared_ptr<internal::MultiProductGetter> getter_;
 
       // speed up secondary file access with a (run range)_1 ---> index_2 map,
       // when the files are sorted by run,event within the file.

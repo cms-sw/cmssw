@@ -77,7 +77,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_moduletime_range(        config.getUntrackedParameter<double>(   "dqmModuleTimeRange"       ) ),            // ms
   m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>(   "dqmModuleTimeResolution"  ) ),            // ms
   m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
-  m_is_first_event(true),
   // description of the process(es)
   m_process(),
   // description of the luminosity axes
@@ -593,6 +592,13 @@ void
 FastTimerService::postStreamEndLumi(edm::StreamContext const & sc) {
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
+
+  if (m_enable_dqm) {
+    DQMStore * store = edm::Service<DQMStore>().operator->();
+    assert(store);
+    store->mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, m_module_id);
+  }
+
   stream.timer_last_transition = FastTimer::Clock::now();
 }
 
@@ -787,21 +793,26 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   stream.timing_perprocess[pid].interpaths += interpaths;
   stream.timing_perprocess[pid].paths_interpaths.back() = interpaths;
 
-  // keep track of the total number of events and add this event's time to the per-run and per-job summary
-  m_run_summary_perprocess[rid][pid] += stream.timing_perprocess[pid];
-  m_job_summary_perprocess[pid]      += stream.timing_perprocess[pid];
+  {
+    // prevent different threads from updating the summary information at the same time
+    std::lock_guard<std::mutex> lock_summary(m_summary_mutex);
 
-  // account the whole event timing details
-  if (pid+1 == m_process.size()) {
-    stream.timing.count    = 1;
-    stream.timing.preevent = stream.timing_perprocess[0].preevent;
-    stream.timing.event    = stream.timing_perprocess[0].event;
-    for (unsigned int i = 1; i < m_process.size(); ++i) {
-      stream.timing.event += stream.timing_perprocess[i].preevent;
-      stream.timing.event += stream.timing_perprocess[i].event;
+    // keep track of the total number of events and add this event's time to the per-run and per-job summary
+    m_run_summary_perprocess[rid][pid] += stream.timing_perprocess[pid];
+    m_job_summary_perprocess[pid]      += stream.timing_perprocess[pid];
+
+    // account the whole event timing details
+    if (pid+1 == m_process.size()) {
+      stream.timing.count    = 1;
+      stream.timing.preevent = stream.timing_perprocess[0].preevent;
+      stream.timing.event    = stream.timing_perprocess[0].event;
+      for (unsigned int i = 1; i < m_process.size(); ++i) {
+        stream.timing.event += stream.timing_perprocess[i].preevent;
+        stream.timing.event += stream.timing_perprocess[i].event;
+      }
+      m_run_summary[rid] += stream.timing;
+      m_job_summary      += stream.timing;
     }
-    m_run_summary[rid] += stream.timing;
-    m_job_summary      += stream.timing;
   }
 
   // elaborate "exclusive" modules
@@ -834,9 +845,6 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
         moduletype.summary_active += active;
       }
   }
-
-  // done processing the first event
-  m_is_first_event = false;
 
   // fill the DQM plots from the internal buffers
   if (not m_enable_dqm)
@@ -1399,7 +1407,6 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
   desc.addUntracked<bool>(   "enableDQMbyModuleType",    false);
   desc.addUntracked<bool>(   "enableDQMSummary",         false);
-  desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false)->setComment("deprecated: this parameter is ignored");
   desc.addUntracked<bool>(   "enableDQMbyLumiSection",   false);
   desc.addUntracked<bool>(   "enableDQMbyProcesses",     false);
   desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
@@ -1408,12 +1415,8 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
   desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<double>( "dqmLuminosityRange",      1.e34  )->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<double>( "dqmLuminosityResolution", 1.e31  )->setComment("deprecated: this parameter is ignored");
   desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
-  desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"))->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", std::vector<unsigned int> { })->setComment("deprecated: this parameter is ignored");
   descriptions.add("FastTimerService", desc);
 }
 

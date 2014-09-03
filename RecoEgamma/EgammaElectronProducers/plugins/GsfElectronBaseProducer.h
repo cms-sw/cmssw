@@ -7,7 +7,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -25,7 +25,7 @@ namespace edm
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-class GsfElectronBaseProducer : public edm::EDProducer
+class GsfElectronBaseProducer : public edm::stream::EDProducer<>
  {
   public:
 
@@ -52,7 +52,8 @@ class GsfElectronBaseProducer : public edm::EDProducer
     GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
     ElectronHcalHelper::Configuration hcalCfg_ ;
     ElectronHcalHelper::Configuration hcalCfgPflow_ ;
-    SoftElectronMVAEstimator::Configuration mvaCfg_ ;
+    SoftElectronMVAEstimator::Configuration mva_NIso_Cfg_ ;
+    ElectronMVAEstimator::Configuration mva_Iso_Cfg_ ;
   private :
 
     // check expected configuration of previous modules

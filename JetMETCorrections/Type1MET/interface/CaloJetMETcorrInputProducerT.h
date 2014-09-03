@@ -14,7 +14,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,7 +37,6 @@ namespace CaloJetMETcorrInputProducer_namespace
   class InputTypeCheckerT
   {
     public:
-
      void operator()(const T&) const {} // no type-checking needed for reco::CaloJet input
   };
 
@@ -46,6 +45,7 @@ namespace CaloJetMETcorrInputProducer_namespace
                          // (because pat::Jet->p4() returns the JES corrected, not the raw, jet momentum)
   {
     public:
+     RawJetExtractorT() {}
 
      reco::Candidate::LorentzVector  operator()(const T& jet) const 
      { 
@@ -55,7 +55,7 @@ namespace CaloJetMETcorrInputProducer_namespace
 }
 
 template <typename T, typename Textractor>
-class CaloJetMETcorrInputProducerT : public edm::EDProducer  
+class CaloJetMETcorrInputProducerT final : public edm::global::EDProducer<>
 {
  public:
 
@@ -92,7 +92,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
     
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override
   {
     std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
     std::auto_ptr<CorrMETData> unclEnergySum(new CorrMETData());
@@ -127,10 +127,10 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& rawJet = jets->at(jetIndex);
 
-      static CaloJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType;
+      const CaloJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType{};
       checkInputType(rawJet);
 
-      static CaloJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+      const CaloJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
       
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_);

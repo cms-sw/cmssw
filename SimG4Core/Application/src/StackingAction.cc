@@ -1,5 +1,5 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
@@ -17,10 +17,13 @@
 
 //#define DebugLog
 
-StackingAction::StackingAction(const edm::ParameterSet & p) 
+StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet & p)
+  : trackAction(trka) 
 {
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
+  killGamma      = p.getParameter<bool>("KillGamma");
+  kmaxGamma      = p.getParameter<double>("GammaThreshold")*MeV;
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
   kmaxProton     = p.getParameter<double>("ProtonThreshold")*MeV;
   kmaxNeutron    = p.getParameter<double>("NeutronThreshold")*MeV;
@@ -106,6 +109,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
       << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
       << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume= "
       << killInCaloEfH;
+
   }
 
   initPointer();
@@ -125,6 +129,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
 				       << killDeltaRay
 				       << " Kill hadrons/ions flag: "
 				       << killHeavy;
+
 
   if(killHeavy) {
     edm::LogInfo("SimG4CoreApplication") << "StackingAction kill protons below " 
@@ -258,6 +263,15 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     }
     if (classification != fKill && isItLongLived(aTrack)) 
       { classification = fKill; }
+    
+    if (classification != fKill && killGamma && pdg == 22 && ke < kmaxGamma) 
+      { 
+	classification = fKill; 
+	//std::cout << "### next gamma killed E(MeV)= " << ke
+	//	  << "  " <<  aTrack->GetCreatorProcess()->GetProcessName()
+	//	  << std::endl;
+      }
+    
 
     if (killDeltaRay && classification != fKill 
 	&& aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation) {
@@ -279,7 +293,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 
     // Russian roulette && MC truth
     if(classification != fKill) {
-      const G4Track * mother = CurrentG4Track::track();
+      const G4Track * mother = trackAction->geant4Track();
       int flag = 0;
       if(savePDandCinAll) {
 	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);

@@ -27,7 +27,6 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
-#include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -41,7 +40,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   : config_(conf), 
     badPixelInfo_(0),
     regions_(0),
-    hCPU(0), hDigi(0), theTimer(0)
+    hCPU(0), hDigi(0)
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
@@ -77,7 +76,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   // Timing
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   if (timing) {
-    theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
+    theTimer.reset( new edm::CPUTimer );
     hCPU = new TH1D ("hCPU","hCPU",100,0.,0.050);
     hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
   }
@@ -94,7 +93,6 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
     TFile rootFile("analysis.root", "RECREATE", "my histograms");
     hCPU->Write();
     hDigi->Write();
-    delete theTimer;
   }
 
 }
@@ -219,12 +217,12 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   if (theTimer) {
     theTimer->stop();
-    LogDebug("SiPixelRawToDigi") << "TIMING IS: (real)" << theTimer->lastMeasurement().real() ;
+    LogDebug("SiPixelRawToDigi") << "TIMING IS: (real)" << theTimer->realTime() ;
     ndigis += formatter.nDigis();
     nwords += formatter.nWords();
     LogDebug("SiPixelRawToDigi") << " (Words/Digis) this ev: "
          <<formatter.nWords()<<"/"<<formatter.nDigis() << "--- all :"<<nwords<<"/"<<ndigis;
-    hCPU->Fill( theTimer->lastMeasurement().real() ); 
+    hCPU->Fill( theTimer->realTime() ); 
     hDigi->Fill(formatter.nDigis());
   }
 

@@ -95,9 +95,12 @@ addMixingScenario("E8TeV_2012_25nsRunning_TrainBackOOTPU",{'file': 'SimGeneral.M
 addMixingScenario("E8TeV_2012_25nsRunning_TrainFrontOOTPU",{'file': 'SimGeneral.MixingModule.mix_E8TeV_2012_25nsRunning_TrainFrontOOTPU_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime0",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime0_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime30",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime30_cfi'})
+addMixingScenario("E8TeV_2012_run198588_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_run198588_BX_50ns_cfi'})
+addMixingScenario("E8TeV_2012_run203002_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_run203002_BX_50ns_cfi'})
+addMixingScenario("E8TeV_2012_run209148_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_run209148_BX_25ns_cfi'})
+addMixingScenario("E8TeV_2012_ZmumugSkim",{'file': 'SimGeneral.MixingModule.mix_E8TeV_zmmg_skim_BX_50ns_cfi'})
 addMixingScenario("CSA14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_CSA14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("CSA14_inTimeOnly",{'file': 'SimGeneral.MixingModule.mix_CSA14_inTimeOnly_cfi'})
-addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section
@@ -110,9 +113,14 @@ addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpPr
 addMixingScenario("FS_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
+addMixingScenario("FS_mix_2012_Summer_50ns_PoissonOOTPU",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_50ns_PoissonOOTPU_cfi'}) # note: eventually we want absolute synchronization between FastSim and FullSim PU scenarios, and files like this one should be moved to SimGeneral/MixingModule ; to be done after full validation
 addMixingScenario("FS_CSA14_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_CSA14_inTimeOnly_cff'})
 addMixingScenario("FS_E13TeV_AVE_10_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_10_inTimeOnly_cff'})
 addMixingScenario("FS_E13TeV_AVE_20_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_20_inTimeOnly_cff'})
+addMixingScenario("FS_E8TeV_2012_run198588",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run198588_cff'})
+addMixingScenario("FS_E8TeV_2012_run203002",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run203002_cff'})
+addMixingScenario("FS_E8TeV_2012_run209148",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run209148_cff'})
+addMixingScenario("FS_E8TeV_2012_ZmumugSkim",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_zmmg_skim_cff'})
 
 #scenarios for L1 tdr work
 addMixingScenario("AVE_10_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 10})
@@ -147,7 +155,9 @@ addMixingScenario("AVE_200_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSO
 addMixingScenario("AVE_200_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 200})
 addMixingScenario("AVE_140_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 140})
 addMixingScenario("AVE_140_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 140})
-
+addMixingScenario("flatPU_0_10",{'file': 'SimGeneral.MixingModule.mix_flat_0_10_cfi'})
+addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_cfi'})
+addMixingScenario("Flat_20_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_50ns_cfi'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 MixingFSDefaultKey = '2012_Summer_inTimeOnly'

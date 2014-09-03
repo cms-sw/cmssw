@@ -14,14 +14,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,7 +38,7 @@
 // class decleration
 //
 
-class L1TFED : public edm::EDAnalyzer {
+class L1TFED : public DQMEDAnalyzer {
 
 public:
 
@@ -53,30 +52,19 @@ protected:
 // Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(void);
-
 // BeginRun
-void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-
-// EndJob
-void endJob(void);
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
-
-//  MonitorElement* fedtest;
   MonitorElement * hfedsize;
   MonitorElement * hfedprof;
-//  MonitorElement ** hindfed;
   
   MonitorElement* fedentries; 
   MonitorElement* fedfatal;
   MonitorElement* fednonfatal;  
 
   int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   std::vector<int> l1feds_;

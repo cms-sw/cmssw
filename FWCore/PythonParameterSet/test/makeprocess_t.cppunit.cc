@@ -11,7 +11,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iostream>
 #include <sstream>
@@ -40,7 +40,7 @@ public:
   //void windowsLineEndingTest();
 private:
 
-  typedef boost::shared_ptr<edm::ParameterSet> ParameterSetPtr;
+  typedef std::shared_ptr<edm::ParameterSet> ParameterSetPtr;
   ParameterSetPtr pSet(char const* c) {
 
     //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );

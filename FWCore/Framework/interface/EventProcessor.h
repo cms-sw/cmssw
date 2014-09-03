@@ -75,7 +75,7 @@ namespace edm {
                    std::vector<std::string> const& defaultServices,
                    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
-    EventProcessor(boost::shared_ptr<ProcessDesc>& processDesc,
+    EventProcessor(std::shared_ptr<ProcessDesc>& processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
@@ -217,7 +217,7 @@ namespace edm {
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(boost::shared_ptr<ProcessDesc>& processDesc,
+    void init(std::shared_ptr<ProcessDesc>& processDesc,
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
@@ -252,15 +252,15 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
-    boost::shared_ptr<ActivityRegistry>           actReg_;
-    boost::shared_ptr<ProductRegistry const>      preg_;
-    boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
+    std::shared_ptr<ActivityRegistry>           actReg_;
+    std::shared_ptr<ProductRegistry const>      preg_;
+    std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     ServiceToken                                  serviceToken_;
     std::unique_ptr<InputSource>                  input_;
     std::unique_ptr<eventsetup::EventSetupsController> espController_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
-    boost::shared_ptr<ProcessConfiguration const>       processConfiguration_;
+    std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<SubProcess>                     subProcess_;

@@ -249,7 +249,7 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
     // other modules using it also declare the same shared resource.
     // This also breaks replay.
     float d = (float) hprob->GetRandom();
-    PUevts = (int) d;
+    PUevts = (int) random.poissonShoot(d);
     truePUevts = d;
   }
   //  std::cout << "PUevts = " << PUevts << std::endl;

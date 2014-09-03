@@ -15,12 +15,13 @@
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 
 #include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class ProductHolderIndexHelper;
@@ -101,7 +102,7 @@ namespace edm {
        return transient_.constProductList_;
     }
 
-    boost::shared_ptr<ProductHolderIndexHelper> const& productLookup(BranchType branchType) const;
+    std::shared_ptr<ProductHolderIndexHelper> const& productLookup(BranchType branchType) const;
 
     // returns the appropriate ProductHolderIndex else ProductHolderIndexInvalid if no BranchID is available
     ProductHolderIndex indexFrom(BranchID const& iID) const;
@@ -132,9 +133,9 @@ namespace edm {
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      boost::shared_ptr<ProductHolderIndexHelper> eventProductLookup_;
-      boost::shared_ptr<ProductHolderIndexHelper> lumiProductLookup_;
-      boost::shared_ptr<ProductHolderIndexHelper> runProductLookup_;
+      std::shared_ptr<ProductHolderIndexHelper> eventProductLookup_;
+      std::shared_ptr<ProductHolderIndexHelper> lumiProductLookup_;
+      std::shared_ptr<ProductHolderIndexHelper> runProductLookup_;
 
       ProductHolderIndex eventNextIndexValue_;
       ProductHolderIndex lumiNextIndexValue_;

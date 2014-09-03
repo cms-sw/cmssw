@@ -1,6 +1,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <vector>
 #include <map>
@@ -19,7 +19,7 @@ class ParamSetWalker {
     
       ProcessDesc  pdesc(config.c_str()); 
       
-      boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
+      std::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
       std::cout<< "Process PSet:" << procPset->toString() << std::endl;           
       
       //std::cout << "Module Label: " << procPset->getParameter<std::string>("@module_label")

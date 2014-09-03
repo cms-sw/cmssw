@@ -16,7 +16,6 @@
   <use   name="TrackingTools/Records"/>
   <use   name="TrackingTools/TrackAssociator"/>
   <use   name="TrackingTools/TransientTrackingRecHit"/>
-  <use   name="Utilities/Timing"/>
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

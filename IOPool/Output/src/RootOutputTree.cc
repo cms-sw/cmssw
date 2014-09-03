@@ -3,7 +3,6 @@
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -19,13 +18,12 @@
 #include "Rtypes.h"
 #include "RVersion.h"
 
-#include "boost/bind.hpp"
 #include <limits>
 
 namespace edm {
 
     RootOutputTree::RootOutputTree(
-                   boost::shared_ptr<TFile> filePtr,
+                   std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    int splitLevel,
                    int treeMaxVirtualSize) :
@@ -66,17 +64,17 @@ namespace edm {
   bool
   RootOutputTree::checkSplitLevelsAndBasketSizes(TTree* inputTree) const {
 
-    assert (inputTree != 0);
+    assert(inputTree != nullptr);
 
     // Do the split level and basket size match in the input and output?
     for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
       it != itEnd; ++it) {
 
       TBranch* outputBranch = *it;
-      if(outputBranch != 0) {
+      if(outputBranch != nullptr) {
         TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
 
-        if(inputBranch != 0) {
+        if(inputBranch != nullptr) {
           if(inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel() ||
               inputBranch->GetBasketSize() != outputBranch->GetBasketSize()) {
             return false;
@@ -99,8 +97,8 @@ namespace edm {
         return false;
       }
       TIter iter(outputArray);
-      TObject* obj = 0;
-      while((obj = iter.Next()) != 0) {
+      TObject* obj = nullptr;
+      while((obj = iter.Next()) != nullptr) {
         TBranchElement* outBranch = dynamic_cast<TBranchElement*>(obj);
         if(outBranch) {
           TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputArray->FindObject(outBranch->GetName()));
@@ -118,14 +116,14 @@ namespace edm {
 
   bool RootOutputTree::checkIfFastClonable(TTree* inputTree) const {
 
-    if(inputTree == 0) return false;
+    if(inputTree == nullptr) return false;
 
     // Do the sub-branches match in the input and output. Extra sub-branches in the input are OK for fast cloning, but not in the output.
     for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
       TBranchElement* outputBranch = dynamic_cast<TBranchElement*>(*it);
-      if(outputBranch != 0) {
+      if(outputBranch != nullptr) {
         TBranchElement* inputBranch = dynamic_cast<TBranchElement*>(inputTree->GetBranch(outputBranch->GetName()));
-        if(inputBranch != 0) {
+        if(inputBranch != nullptr) {
           // We have a matching top level branch. Do the recursive check on subbranches.
           if(!checkMatchingBranches(inputBranch, outputBranch)) {
             LogInfo("FastCloning")
@@ -226,7 +224,7 @@ namespace edm {
 
   void
   RootOutputTree::fillTTree(std::vector<TBranch*> const& branches) {
-    for_all(branches, boost::bind(&TBranch::Fill, _1));
+    for_all(branches, std::bind(&TBranch::Fill, std::placeholders::_1));
   }
 
   void
@@ -270,7 +268,6 @@ namespace edm {
   void
   RootOutputTree::addBranch(std::string const& branchName,
                             std::string const& className,
-                            WrapperInterfaceBase const* interface,
                             void const*& pProd,
                             int splitLevel,
                             int basketSize,
@@ -282,11 +279,12 @@ namespace edm {
                  &pProd,
                  basketSize,
                  splitLevel);
-      assert(branch != 0);
-      if(pProd != 0) {
+      assert(branch != nullptr);
+      if(pProd != nullptr) {
         // Delete the product that ROOT has allocated.
-        interface->deleteProduct(pProd);
-        pProd = 0;
+        WrapperBase const* edp = static_cast<WrapperBase const *>(pProd);
+        delete edp;
+        pProd = nullptr;
       }
       if(produced) {
         producedBranches_.push_back(branch);
@@ -304,7 +302,7 @@ namespace edm {
     producedBranches_.clear();
     readBranches_.clear();
     unclonedReadBranches_.clear();
-    tree_ = 0;
+    tree_ = nullptr;
     filePtr_.reset();
   }
 }

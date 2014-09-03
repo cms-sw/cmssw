@@ -3,15 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MyRawToDigi")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 process.source = cms.Source("PoolSource",
 # fileNames =  cms.untracked.vstring('file:rawdata.root')
@@ -23,13 +21,11 @@ fileNames =  cms.untracked.vstring(
 
 # Cabling
 #  include "CalibTracker/Configuration/data/Tracker_FakeConditions.cff"
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("CalibTracker.Configuration.SiPixel_FakeConditions_cff")
+#process.load("CalibTracker.Configuration.SiPixelCabling.SiPixelCabling_SQLite_cff")
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 #process.GlobalTag.globaltag = "CRAFT_V3P::All"
 #process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
-#process.load("CalibTracker.Configuration.SiPixel_FakeConditions_cff")
-#process.load("CalibTracker.Configuration.SiPixelCabling.SiPixelCabling_SQLite_cff")
 #process.siPixelCabling.connect = 'sqlite_file:cabling.db'
 #process.siPixelCabling.toGet = cms.VPSet(cms.PSet(
 #    record = cms.string('SiPixelFedCablingMapRcd'),
@@ -38,7 +34,9 @@ fileNames =  cms.untracked.vstring(
 
 
 # Choose the global tag here:
-process.GlobalTag.globaltag = "GR_P_V40::All"
+#process.GlobalTag.globaltag = "GR_P_V40::All"
+# for data in V7
+process.GlobalTag.globaltag = "GR_R_71_V1::All"
 
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
@@ -49,7 +47,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siPixelDigis.IncludeErrors = True
 process.siPixelDigis.Timing = False 
-process.siPixelDigis.UseCablingTree = True 
+#process.siPixelDigis.UseCablingTree = True 
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis'),
@@ -58,8 +56,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-#    fileName =  cms.untracked.string('file:digis.root'),
-    fileName =  cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/data/digis/digis_1k.root'),
+    fileName =  cms.untracked.string('file:digis.root'),
+#    fileName =  cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/data/digis/digis_1k.root'),
     outputCommands = cms.untracked.vstring("drop *","keep *_siPixelDigis_*_*")
 )
 

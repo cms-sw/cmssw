@@ -55,7 +55,7 @@ using std::string;
 //#define debug
 //-------------------------------------------------------------------
 FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
-		 SensitiveDetectorCatalog & clg, 
+		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
   SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
   hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
@@ -96,11 +96,11 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     //
     // attach detectors (LogicalVolumes)
     //
-    std::vector<std::string> lvNames = clg.logicalNames(name);
+    const std::vector<std::string>& lvNames = clg.logicalNames(name);
 
     this->Register();
 
-    for (std::vector<std::string>::iterator it=lvNames.begin();  
+    for (std::vector<std::string>::const_iterator it=lvNames.begin();
 	 it !=lvNames.end(); it++) {
       this->AssignSD(*it);
       edm::LogInfo("FP420Sim") << "FP420SD : Assigns SD to LV " << (*it);

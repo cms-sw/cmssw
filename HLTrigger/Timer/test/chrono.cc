@@ -31,6 +31,7 @@
 #include "posix_getrusage.h"
 #include "mach_clock_get_time.h"
 #include "mach_absolute_time.h"
+#include "mach_thread_info.h"
 #include "x86_tsc_clock.h"
 #include "boost_timer.h"
 #include "tbb_tick_count.h"
@@ -61,10 +62,18 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   if (clock_gettime_realtime::is_available)
     timers.push_back(new Benchmark<clock_gettime_realtime>("clock_gettime(CLOCK_REALTIME)"));
 #endif // HAVE_POSIX_CLOCK_REALTIME
+#ifdef HAVE_POSIX_CLOCK_REALTIME_COARSE
+  if (clock_gettime_realtime_coarse::is_available)
+    timers.push_back(new Benchmark<clock_gettime_realtime_coarse>("clock_gettime(CLOCK_REALTIME_COARSE)"));
+#endif // HAVE_POSIX_CLOCK_REALTIME_COARSE
 #ifdef HAVE_POSIX_CLOCK_MONOTONIC
   if (clock_gettime_monotonic::is_available)
     timers.push_back(new Benchmark<clock_gettime_monotonic>("clock_gettime(CLOCK_MONOTONIC)"));
 #endif // HAVE_POSIX_CLOCK_MONOTONIC
+#ifdef HAVE_POSIX_CLOCK_MONOTONIC_COARSE
+  if (clock_gettime_monotonic_coarse::is_available)
+    timers.push_back(new Benchmark<clock_gettime_monotonic_coarse>("clock_gettime(CLOCK_MONOTONIC_COARSE)"));
+#endif // HAVE_POSIX_CLOCK_MONOTONIC_COARSE
 #ifdef HAVE_POSIX_CLOCK_MONOTONIC_RAW
   if (clock_gettime_monotonic_raw::is_available)
     timers.push_back(new Benchmark<clock_gettime_monotonic_raw>("clock_gettime(CLOCK_MONOTONIC_RAW)"));
@@ -120,6 +129,10 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
     timers.push_back(new Benchmark<mach_absolute_time_clock_native>("mach_absolute_time() (native)"));
   }
 #endif // HAVE_MACH_ABSOLUTE_TIME
+#ifdef HAVE_MACH_THREAD_INFO_CLOCK
+  if (mach_thread_info_clock::is_available)
+    timers.push_back(new Benchmark<mach_thread_info_clock>("thread_info(mach_thread_self(), THREAD_BASIC_INFO, ...)"));
+#endif // HAVE_MACH_THREAD_INFO_CLOCK
 
 #if defined __x86_64__ or defined __i386__
 // TSC is only available on x86

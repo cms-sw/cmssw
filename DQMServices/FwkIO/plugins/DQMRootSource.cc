@@ -20,7 +20,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
-#include "THashList.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -66,33 +65,6 @@
 #include "format.h"
 
 namespace {
-  //utility function to check the consistency of the axis labels
-  //taken from TH1::CheckBinLabels
-  bool CheckBinLabels(const TAxis* a1, const TAxis * a2)
-  {
-    // check that axis have same labels
-    THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
-    THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
-    
-    if (!l1 && !l2 )
-      return true;
-    if (!l1 ||  !l2 ) {
-      return false;
-    }
-    // check now labels sizes  are the same
-    if (l1->GetSize() != l2->GetSize() ) {
-      return false;
-    }
-    for (int i = 1; i <= a1->GetNbins(); ++i) {
-      TString label1 = a1->GetBinLabel(i);
-      TString label2 = a2->GetBinLabel(i);
-      if (label1 != label2) {
-	return false;
-      }
-    }
-    return true;
-  }
-      
   //adapter functions
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1F* iHist) {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
@@ -116,9 +88,9 @@ namespace {
           iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
           iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
           iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
-	  CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
-	  CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
-	  CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
+	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
 	iOriginal->Add(iToAdd);
       } else {
 	edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
@@ -190,13 +162,14 @@ namespace {
     const std::string& name = iElement->getFullname();
     if(name.find("EventInfo/processedEvents") != std::string::npos) {
       iElement->Fill(iValue+iElement->getIntValue());
-    } else {
-      if(name.find("EventInfo/iEvent") != std::string::npos ||
+    } else if(name.find("EventInfo/iEvent") != std::string::npos ||
          name.find("EventInfo/iLumiSection") != std::string::npos) {
         if(iValue > iElement->getIntValue()) {
           iElement->Fill(iValue);
         }
-      }
+    }
+    else {
+      iElement->Fill(iValue);
     }
   }
 
@@ -206,13 +179,15 @@ namespace {
     return e;
   }
   void mergeWithElement(MonitorElement* iElement, double& iValue) {
-    //no merging
+    //no merging, take the last one
+    iElement->Fill(iValue);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, std::string* iValue) {
     return iStore.bookString(iName,*iValue);
   }
-  void mergeWithElement(MonitorElement* , std::string* ) {
-    //no merging
+  void mergeWithElement(MonitorElement* iElement, std::string* iValue) {
+    //no merging, take the last one
+    iElement->Fill(*iValue);
   }
 
   void splitName(const std::string& iFullName, std::string& oPath,const char*& oName) {
@@ -289,7 +264,7 @@ namespace {
   template<class T>
     class TreeSimpleReader : public TreeReaderBase {
       public:
-        TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(),m_tag(0){
+        TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
         }
         virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) override {
           m_tree->GetEntry(iIndex);
@@ -383,8 +358,8 @@ class DQMRootSource : public edm::InputSource
 
       virtual edm::InputSource::ItemType getNextItemType() override;
       //NOTE: the following is really read next run auxiliary
-      virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
-      virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
+      virtual std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
+      virtual std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
       virtual void readRun_(edm::RunPrincipal& rpCache) override;
       virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) override;
       virtual void readEvent_(edm::EventPrincipal&) override ;
@@ -546,7 +521,7 @@ edm::InputSource::ItemType DQMRootSource::getNextItemType()
   return m_nextItemType;
 }
 
-boost::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
+std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
 {
   //std::cout <<"readRunAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
@@ -558,10 +533,10 @@ boost::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
   //std::cout <<"readRunAuxiliary_ "<<m_historyIDs[runLumiRange.m_historyIDIndex]<<std::endl;
   m_runAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
-  return boost::shared_ptr<edm::RunAuxiliary>( new edm::RunAuxiliary(m_runAux) );
+  return std::make_shared<edm::RunAuxiliary>(m_runAux);
 }
 
-boost::shared_ptr<edm::LuminosityBlockAuxiliary>
+std::shared_ptr<edm::LuminosityBlockAuxiliary>
 DQMRootSource::readLuminosityBlockAuxiliary_()
 {
   //std::cout <<"readLuminosityBlockAuxiliary_"<<std::endl;
@@ -574,7 +549,7 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   //std::cout <<"lumi "<<m_lumiAux.beginTime().value()<<" "<<runLumiRange.m_beginTime<<std::endl;
   m_lumiAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
 
-  return boost::shared_ptr<edm::LuminosityBlockAuxiliary>(new edm::LuminosityBlockAuxiliary(m_lumiAux));
+  return std::make_shared<edm::LuminosityBlockAuxiliary>(m_lumiAux);
 }
 
 void

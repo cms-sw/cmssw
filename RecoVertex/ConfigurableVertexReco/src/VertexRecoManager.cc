@@ -44,7 +44,9 @@ VertexRecoManager::VertexRecoManager ( const VertexRecoManager & o )
 
 VertexRecoManager & VertexRecoManager::Instance()
 {
-  static VertexRecoManager singleton;
+  //The singleton's internal structure only changes while
+  // this library is being loaded. All other methods are const.
+  [[cms::thread_safe]] static VertexRecoManager singleton;
   return singleton;
 }
 

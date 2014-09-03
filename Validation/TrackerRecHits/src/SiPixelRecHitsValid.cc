@@ -49,10 +49,7 @@
 #include <math.h>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
-  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixelrechitshisto.root" ) )
-  , runStandalone ( ps.getParameter<bool>("runStandalone")  ) 
-  , dbe_(0) 
-  , conf_(ps)
+  : conf_(ps)
   , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
 }
@@ -64,8 +61,6 @@ void SiPixelRecHitsValid::beginJob() {
 }
 
 void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
-  dbe_ = edm::Service<DQMStore>().operator->();
-  //dbe_->showDirStructure();
   ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
   Char_t histo[200];
@@ -134,6 +129,12 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
 
 
   ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitBPIX");
+  //RecHit Bunch crossing all barrel hits
+  recHitBunchB = ibooker.book1D("RecHit_Bunch_Barrel", "RecHit Bunch Crossing, Barrel", 20, -10., 10.);
+  
+  //RecHit Event, in-time bunch, all barrel hits
+  recHitEventB = ibooker.book1D("RecHit_Event_Barrel", "RecHit Event (in-time bunch), Barrel", 100, 0., 100.);
+  
   //RecHit X Resolution all barrel hits
   recHitXResAllB = ibooker.book1D("RecHit_xres_b_All","RecHit X Res All Modules in Barrel", 100, -200., 200.);
   
@@ -151,6 +152,10 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
   
   //RecHit X resolution for flipped and unflipped ladders by layer for barrel
   for (int i=0; i<3; i++) {
+    //RecHit no. of matched simHits all ladders by layer
+    sprintf(histo, "RecHit_NsimHit_Layer%d", i+1);
+    recHitNsimHitLayer[i] = ibooker.book1D(histo, "RecHit Number of simHits by Layer", 30, 0., 30.);
+
     //RecHit X resolution for flipped ladders by layer
     sprintf(histo, "RecHit_XRes_FlippedLadder_Layer%d", i+1);
     recHitXResFlippedLadderLayers[i] = ibooker.book1D(histo, "RecHit XRes Flipped Ladders by Layer", 100, -200., 200.);
@@ -176,6 +181,16 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
   } // end for
   
   ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitFPIX");
+  //RecHit Bunch crossing all plaquettes
+  recHitBunchF = ibooker.book1D("RecHit_Bunch_Forward", "RecHit Bunch Crossing, Forward", 20, -10., 10.);
+  
+  //RecHit Event, in-time bunch, all plaquettes
+  recHitEventF = ibooker.book1D("RecHit_Event_Forward", "RecHit Event (in-time bunch), Forward", 100, 0., 100.);
+
+  //RecHit No. of simHits, by disk
+  recHitNsimHitDisk1 = ibooker.book1D("RecHit_NsimHit_Disk1", "RecHit Number of simHits, Disk1", 30, 0., 30.);
+  recHitNsimHitDisk2 = ibooker.book1D("RecHit_NsimHit_Disk2", "RecHit Number of simHits, Disk2", 30, 0., 30.);
+  
   //RecHit X resolution all plaquettes
   recHitXResAllF = ibooker.book1D("RecHit_xres_f_All", "RecHit X Res All in Forward", 100, -200., 200.);
   
@@ -262,11 +277,6 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
       sprintf(histo, "RecHit_YPull_Disk2_Plaquette%d", i+1);
       recHitYPullDisk2Plaquettes[i] = ibooker.book1D(histo, "RecHit YPull Disk2 by plaquette", 100, -10.0, 10.0);
     }
-}
-
-void SiPixelRecHitsValid::endJob() {
-  //Save histos in local root file only in standalone mode
-  if (  runStandalone && outputFile_.size() != 0 && dbe_ ){ dbe_->save(outputFile_);}
 }
 
 void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) 
@@ -357,6 +367,21 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 		}
 	      
 	    } // end matched emtpy
+
+	  int NsimHit = matched.size();
+	  if (subid==1)
+	    { //<----------barrel
+	      for (unsigned int i=0; i<3; i++)
+		if (tTopo->pxbLayer(detId) == i+1)
+		  recHitNsimHitLayer[i]->Fill(NsimHit);
+	    } // end barrel
+	  if (subid==2)
+	    { // <-------forward
+	      if (tTopo->pxfDisk(detId) == 1)
+		recHitNsimHitDisk1->Fill(NsimHit);
+	      else 
+		recHitNsimHitDisk2->Fill(NsimHit);
+	    }
 	} // <-----end rechit loop 
     } // <------ end detunit loop
 }
@@ -366,6 +391,12 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
 				     const TrackerTopology *tTopo) 
 {
   const float cmtomicron = 10000.0; 
+
+  int bunch = simHit.eventId().bunchCrossing();
+  int event = simHit.eventId().event();
+
+  recHitBunchB->Fill(bunch);
+  if (bunch == 0) recHitEventB->Fill(event);
   
   LocalPoint lp = recHit.localPosition();
   float lp_y = lp.y();  
@@ -482,6 +513,12 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
   int cols = theGeomDet->specificTopology().ncolumns();
   
   const float cmtomicron = 10000.0;
+
+  int bunch = simHit.eventId().bunchCrossing();
+  int event = simHit.eventId().event();
+
+  recHitBunchF->Fill(bunch);
+  if (bunch == 0) recHitEventF->Fill(event);
   
   LocalPoint lp = recHit.localPosition();
   float lp_x = lp.x();

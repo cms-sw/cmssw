@@ -11,7 +11,7 @@ FileBlock: Properties of an input file.
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 class TTree;
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <array>
 #include <string>
 
@@ -76,7 +76,7 @@ namespace edm {
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              boost::shared_ptr<BranchChildren> branchChildren) :
+              std::shared_ptr<BranchChildren> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree*>(ev)),
       metaTree_(const_cast<TTree*>(meta)),
@@ -127,7 +127,7 @@ namespace edm {
     std::string fileName_;
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
-    boost::shared_ptr<BranchChildren> branchChildren_;
+    std::shared_ptr<BranchChildren> branchChildren_;
   };
 }
 #endif

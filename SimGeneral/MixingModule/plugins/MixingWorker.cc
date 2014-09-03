@@ -5,13 +5,13 @@
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "MixingWorker.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {
   template <>
   void MixingWorker<HepMCProduct>::addPileups(const EventPrincipal& ep, ModuleCallingContext const* mcc, unsigned int eventNr) {
     // HepMCProduct does not come as a vector....
-    boost::shared_ptr<Wrapper<HepMCProduct> const> shPtr = getProductByTag<HepMCProduct>(ep, tag_, mcc);
+    std::shared_ptr<Wrapper<HepMCProduct> const> shPtr = getProductByTag<HepMCProduct>(ep, tag_, mcc);
     if (shPtr) {
       LogDebug("MixingModule") <<"HepMC pileup objects  added, eventNr "<<eventNr << " Tag " << tag_ << std::endl;
       crFrame_->setPileupPtr(shPtr);

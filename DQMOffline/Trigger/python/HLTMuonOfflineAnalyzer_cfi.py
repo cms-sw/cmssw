@@ -23,23 +23,28 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_Mu17_v",
       "HLT_Mu24_eta2p1_v",
       "HLT_Mu30_eta2p1_v",
-      "HLT_Mu40_v",
       "HLT_Mu40_eta2p1_v",
       "HLT_Mu50_eta2p1_v",
       "HLT_Mu5_v",
-      "HLT_Mu8_v", 
+      "HLT_Mu8_v",
       "HLT_RelIso1p0Mu17_v",
       "HLT_RelIso1p0Mu5_v",
       "HLT_DoubleMu5_IsoMu5_v",
       "HLT_Mu13_Mu8_v",
-      "HLT_Mu17_Mu8_v",
-      "HLT_Mu17_TkMu8_v",
       "HLT_Mu22_TkMu22_v",
       "HLT_Mu22_TkMu8_v",
       "HLT_TripleMu5_v",
       "HLT_DoubleMu11_Acoplanarity03_v", #Added for forward physics
       "HLT_Mu40_eta2p1_Track50_dEdx3p6_v", #Exotica
       "HLT_Mu40_eta2p1_Track60_dEdx3p7_v"
+      "HLT_Mu17_NoFilters_v",
+      "HLT_Mu40_v",
+      "HLT_IsoMu24_IterTrk02_v",
+      "HLT_IsoTkMu24_IterTrk02_v",
+      "HLT_Mu17_Mu8_v",
+      "HLT_Mu17_TkMu8_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v

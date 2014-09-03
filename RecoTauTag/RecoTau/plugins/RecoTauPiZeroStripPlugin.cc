@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <memory>
 
+#include "boost/bind.hpp"
+
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

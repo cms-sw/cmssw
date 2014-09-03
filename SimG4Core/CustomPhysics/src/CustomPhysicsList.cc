@@ -1,6 +1,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -23,16 +24,16 @@
 using namespace CLHEP;
  
 
-CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet & p)  :  G4VPhysicsConstructor(name) {
-  
+CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet & p)  
+  :  G4VPhysicsConstructor(name) 
+{  
   myConfig = p;
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
   edm::LogInfo("CustomPhysics")<<"Path for custom particle definition file: "
 			       <<particleDefFilePath;
-  myHelper = 0;
-  
- }
+  myHelper = 0;  
+}
 
 CustomPhysicsList::~CustomPhysicsList() {
   delete myHelper;
@@ -47,38 +48,40 @@ void CustomPhysicsList::ConstructProcess() {
 }
  
 void CustomPhysicsList::addCustomPhysics(){
-  LogDebug("CustomPhysics") << " CustomPhysics: adding CustomPhysics processes";
+
+  edm::LogInfo("CustomPhysics") << " CustomPhysicsList: adding CustomPhysics processes "
+				<< "for the list of particles: \n";
   aParticleIterator->reset();
 
-  while((*aParticleIterator)())    {
-    int i = 0;
+  while((*aParticleIterator)()) {
     G4ParticleDefinition* particle = aParticleIterator->value();
-    CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if(CustomParticleFactory::isCustomParticle(particle)) {
-      LogDebug("CustomPhysics") << particle->GetParticleName()
-				<<", "<<particle->GetPDGEncoding()
-				<< " is Custom. Mass is "
-				<<particle->GetPDGMass()/GeV  <<" GeV.";
+      CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+      edm::LogInfo("CustomPhysics") << particle->GetParticleName()
+				    <<"  PDGcode= "<<particle->GetPDGEncoding()
+				    << "  Mass= "
+				    <<particle->GetPDGMass()/GeV  <<" GeV.";
       if(cp->GetCloud()!=0) {
-	LogDebug("CustomPhysics")<<"Cloud mass is "
-				 <<cp->GetCloud()->GetPDGMass()/GeV
-				 <<" GeV. Spectator mass is "
-				 <<static_cast<CustomParticle*>(particle)->GetSpectator()->GetPDGMass()/GeV
-				 <<" GeV.";
+	edm::LogInfo("CustomPhysics") << particle->GetParticleName()
+				      <<" CloudMass= "
+				      <<cp->GetCloud()->GetPDGMass()/GeV
+				      <<" GeV; SpectatorMass= "
+				      << cp->GetSpectator()->GetPDGMass()/GeV
+				      <<" GeV.";
       }
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if(pmanager) {
-	if(cp!=0) {
+	if(particle->GetPDGCharge() != 0.0) {
+	  pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
+	  pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
+	}
+	if(cp != 0) {
 	  if(particle->GetParticleType()=="rhadron" || 
 	     particle->GetParticleType()=="mesonino" || 
 	     particle->GetParticleType() == "sbaryon"){
 	    if(!myHelper) myHelper = new G4ProcessHelper(myConfig);
 	    pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
 	  }
-	}
-	if(particle->GetPDGCharge()/eplus != 0) {
-	  pmanager->AddProcess(new G4hMultipleScattering,-1, 1,i+1);
-	  pmanager->AddProcess(new G4hIonisation,        -1, 2,i+2);
 	}
       }
       else      LogDebug("CustomPhysics") << "   No pmanager";
@@ -87,42 +90,41 @@ void CustomPhysicsList::addCustomPhysics(){
 }
 
 
-void CustomPhysicsList::setupRHadronPhycis(G4ParticleDefinition* particle){
-
+void CustomPhysicsList::setupRHadronPhycis(G4ParticleDefinition* particle)
+{
   //    LogDebug("CustomPhysics")<<"Configuring rHadron: "
   //	<<cp->
 
   CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
-  if(cp->GetCloud()!=0) 
-    LogDebug("CustomPhysics")<<"Cloud mass is "
-			     <<cp->GetCloud()->GetPDGMass()/GeV
-			     <<" GeV. Spectator mass is "
-			     <<static_cast<CustomParticle*>(particle)->GetSpectator()->GetPDGMass()/GeV
-			     <<" GeV.";
-  
+  if(cp->GetCloud()!=0) {
+    LogDebug("CustomPhysics")
+      <<"Cloud mass is "
+      <<cp->GetCloud()->GetPDGMass()/GeV
+      <<" GeV. Spectator mass is "
+      <<static_cast<CustomParticle*>(particle)->GetSpectator()->GetPDGMass()/GeV
+      <<" GeV.";
+  }
   G4ProcessManager* pmanager = particle->GetProcessManager();
   if(pmanager){
     if(!myHelper) myHelper = new G4ProcessHelper(myConfig);
-    pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper)); //GHEISHA
     if(particle->GetPDGCharge()/eplus != 0){
-      pmanager->AddProcess(new G4hMultipleScattering,-1, 1,1);
-      pmanager->AddProcess(new G4hIonisation,        -1, 2,2);
+      pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
+      pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
     }
+    pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper)); //GHEISHA
   }
   else      LogDebug("CustomPhysics") << "   No pmanager";
 }
 					       
-
-void CustomPhysicsList::setupSUSYPhycis(G4ParticleDefinition* particle){
-
-//  CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+void CustomPhysicsList::setupSUSYPhycis(G4ParticleDefinition* particle)
+{
   G4ProcessManager* pmanager = particle->GetProcessManager();
   if(pmanager){
-    pmanager->AddProcess(new G4Decay,1, 1,1);
     if(particle->GetPDGCharge()/eplus != 0){
-      pmanager->AddProcess(new G4hMultipleScattering,-1, 2,2);
-      pmanager->AddProcess(new G4hIonisation,        -1, 3,3);
+      pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
+      pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
     }
+    pmanager->AddProcess(new G4Decay, 1, -1, 3);
   }
   else      LogDebug("CustomPhysics") << "   No pmanager";
 }

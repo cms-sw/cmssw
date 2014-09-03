@@ -35,7 +35,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
   fp = ps.getParameter<edm::FileInPath>("BOOKING_XML_FILE");
   config.setBOOKING_XML_FILE(fp.fullPath());
     
-  dbe = edm::Service<DQMStore>().operator->();
+  // dbe = edm::Service<DQMStore>().operator->();
 
 #ifdef DQMLOCAL
   dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCMonitorModule*>(this));
@@ -51,8 +51,8 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
   dispatcher->init();
 
   if (ps.exists("MASKEDHW")) {
-    std::vector<std::string> maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
-    dispatcher->maskHWElements(maskedHW);
+    maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
+    //dispatcher->maskHWElements(maskedHW);
   }
 
 }
@@ -69,6 +69,8 @@ CSCMonitorModule::~CSCMonitorModule() {
  * @param  r Run object
  * @param  c Event setup
  */
+
+/*
 void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if (prebookEffParams) {
@@ -76,6 +78,7 @@ void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   }
 
 }
+*/
 
 /**
  * @brief  Analyze Event.
@@ -114,6 +117,36 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
 }
 
 /**
+ * @brief  Book Histograms in the beginRun.
+ * @param  ib - DQMStore::IBooker interface access object
+ * @param  edm::Run const & - not used
+ * @param  edm::EventSetup const & - not used
+ */
+void CSCMonitorModule::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, edm::EventSetup const &)
+{
+  /** Store pointer to IBooker to use it in ::bookMonitorObject() callback function used by the Dispatcher::book() method **/
+  ibooker = &ib;
+  
+  /** 
+    * Call Dispatcher histogram booking method to pre-boook all available histograms before processing data. 
+    * New PREBOOK_ALL_HISTOS config option should be set to true (default).
+    * That should disable original CSC on-the-fly histo booking during data processing. 
+    * Changed for multi-threaded framework compatibility.
+    * (pre-booking of all histos is not most efficient way for CSCi DQM). 
+    *   
+    **/
+  dispatcher->book();
+
+  if (maskedHW.size() != 0)
+     dispatcher->maskHWElements(maskedHW);
+  if (prebookEffParams) {
+    dispatcher->updateFractionAndEfficiencyHistos();
+  }
+  
+}
+
+
+/**
  * @brief  Book Monitor Object on Request.
  * @param  req Request.
  * @return MonitorObject created.
@@ -130,10 +163,12 @@ cscdqm::MonitorObject* CSCMonitorModule::bookMonitorObject(const cscdqm::HistoBo
   
   //std::cout << "Moving to " << path << " for name = " << name << " with fullPath = " << req.hdef->getFullPath() << "\n";
 
-  dbe->setCurrentFolder(path);
+  //dbe->setCurrentFolder(path);
+  ibooker->cd();
+  ibooker->setCurrentFolder(path);
 
   if (req.htype == cscdqm::INT) {
-    me = new CSCMonitorObject(dbe->bookInt(name));
+    me = new CSCMonitorObject(ibooker->bookInt(name));
     me->Fill(req.default_int);
   } else 
   if (req.htype == cscdqm::FLOAT) {
@@ -141,38 +176,43 @@ cscdqm::MonitorObject* CSCMonitorModule::bookMonitorObject(const cscdqm::HistoBo
         req.hdef->getId() == cscdqm::h::PAR_CRT_SUMMARY ||
         req.hdef->getId() == cscdqm::h::PAR_DAQ_SUMMARY ||
         req.hdef->getId() == cscdqm::h::PAR_DCS_SUMMARY) {
-      dbe->setCurrentFolder(DIR_EVENTINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_EVENTINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_DCS_", cscdqm::h::keys[req.hdef->getId()])) {
-      dbe->setCurrentFolder(DIR_DCSINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_DCSINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_DAQ_", cscdqm::h::keys[req.hdef->getId()])) {
-      dbe->setCurrentFolder(DIR_DAQINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_DAQINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_CRT_", cscdqm::h::keys[req.hdef->getId()])) {
-      dbe->setCurrentFolder(DIR_CRTINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_CRTINFO);
     }
-    me = new CSCMonitorObject(dbe->bookFloat(name));
+    me = new CSCMonitorObject(ibooker->bookFloat(name));
     me->Fill(req.default_float);
   } else 
   if (req.htype == cscdqm::STRING) {
-    me = new CSCMonitorObject(dbe->bookString(name, req.default_string));
+    me = new CSCMonitorObject(ibooker->bookString(name, req.default_string));
   } else 
   if (req.htype == cscdqm::H1D) { 
-    me = new CSCMonitorObject(dbe->book1D(name, req.title, req.nchX, req.lowX, req.highX));
+    me = new CSCMonitorObject(ibooker->book1D(name, req.title, req.nchX, req.lowX, req.highX));
   } else 
   if (req.htype == cscdqm::H2D) {
     if (req.hdef->getId() == cscdqm::h::EMU_CSC_STATS_SUMMARY) {
-      dbe->setCurrentFolder(DIR_EVENTINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_EVENTINFO);
       name = "reportSummaryMap";
     }
-    me = new CSCMonitorObject(dbe->book2D(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY));
+    me = new CSCMonitorObject(ibooker->book2D(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY));
   } else 
   if (req.htype == cscdqm::H3D) {
-    me = new CSCMonitorObject(dbe->book3D(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ));
+    me = new CSCMonitorObject(ibooker->book3D(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ));
   } else 
   if (req.htype == cscdqm::PROFILE) {
-    me = new CSCMonitorObject(dbe->bookProfile(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.option.c_str()));
+    me = new CSCMonitorObject(ibooker->bookProfile(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.option.c_str()));
   } else 
   if (req.htype == cscdqm::PROFILE2D) {
-    me = new CSCMonitorObject(dbe->bookProfile2D(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ, req.option.c_str()));
+    me = new CSCMonitorObject(ibooker->bookProfile2D(name, req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ, req.option.c_str()));
   }
 
   return me;

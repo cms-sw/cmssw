@@ -7,7 +7,7 @@
 class DummyPhysics : public PhysicsList {
 
 public:
-  DummyPhysics(G4LogicalVolumeToDDLogicalPartMap&, const HepPDT::ParticleDataTable *, sim::FieldBuilder *, const edm::ParameterSet &);
+  DummyPhysics(G4LogicalVolumeToDDLogicalPartMap&, const HepPDT::ParticleDataTable *, sim::ChordFinderSetter *, const edm::ParameterSet &);
   virtual ~DummyPhysics();
 };
  

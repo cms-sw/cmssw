@@ -27,7 +27,7 @@
 #include "FWCore/Utilities/interface/TypeIDBase.h"
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <cassert>
 #include <vector>
@@ -42,17 +42,17 @@ namespace edm {
       class ServicesManager {
 public:
          struct MakerHolder {
-            MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
+            MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker,
                         ParameterSet& iPSet,
                         ActivityRegistry&) ;
             bool add(ServicesManager&) const;
 
-            boost::shared_ptr<ServiceMakerBase> maker_;
+            std::shared_ptr<ServiceMakerBase> maker_;
             ParameterSet* pset_;
             ActivityRegistry* registry_;
             mutable bool wasAdded_;
          };
-         typedef std::map<TypeIDBase, boost::shared_ptr<ServiceWrapperBase> > Type2Service;
+         typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase> > Type2Service;
          typedef std::map<TypeIDBase, MakerHolder> Type2Maker;
 
          ServicesManager(std::vector<ParameterSet>& iConfiguration);
@@ -89,7 +89,7 @@ public:
                }
             }
             //convert it to its actual type
-            boost::shared_ptr<ServiceWrapper<T> > ptr(boost::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
+            std::shared_ptr<ServiceWrapper<T> > ptr(std::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
             assert(0 != ptr.get());
             return ptr->get();
          }
@@ -121,7 +121,7 @@ public:
          // ---------- member functions ---------------------------
          ///returns false if put fails because a service of this type already exists
          template<typename T>
-         bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) {
+         bool put(std::shared_ptr<ServiceWrapper<T> > iPtr) {
             Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
             if(itFound != type2Service_.end()) {
                return false;
@@ -155,7 +155,7 @@ private:
          // the ActivityRegistry of that Manager does not go out of scope
          // This must be first to get the Service destructors called in
          // the correct order.
-         boost::shared_ptr<ServicesManager> associatedManager_;
+         std::shared_ptr<ServicesManager> associatedManager_;
 
          ActivityRegistry registry_;
          Type2Service type2Service_;

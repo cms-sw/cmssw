@@ -82,7 +82,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual unsigned int HitCounter(const edm::Event& iEvent);
-      virtual char* formatTime(const time_t& t);
+      virtual std::string formatTime(const time_t& t);
       virtual int MyFit(std::vector<double>* vals);
       virtual void reset(std::string ResetType);
       virtual void writeToFile(std::vector<double>* vals,

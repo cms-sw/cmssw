@@ -5,17 +5,16 @@ import FWCore.ParameterSet.Config as cms
 
 PFTauQualityCuts = cms.PSet(
     signalQualityCuts = cms.PSet(
-        minTrackPt                   = cms.double(0.5),  # filter PFChargedHadrons below given pt
-        maxTrackChi2                 = cms.double(100.), # require track Chi2
-        maxTransverseImpactParameter = cms.double(0.03), # w.r.t. PV
-        maxDeltaZ                    = cms.double(0.4),  # w.r.t. PV
+        minTrackPt                   = cms.double(0.5),    # filter PFChargedHadrons below given pt
+        maxTrackChi2                 = cms.double(100.),   # require track Chi2
+        maxTransverseImpactParameter = cms.double(0.1),    # wrt. PV
+        maxDeltaZ                    = cms.double(0.4),    # wrt. PV
         #minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
-        minTrackVertexWeight         = cms.double(-1.), # Tracks weight in vertex
-        minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off,
-        # the tracking cuts might be higher)
-        minTrackHits                 = cms.uint32(3),    # total track hits
-        minGammaEt                   = cms.double(0.5),  # filter PFgammas below given Pt
-        #useTracksInsteadOfPFHadrons  = cms.bool(False),  # if true, use generalTracks, instead of PFChargedHadrons
+        minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
+        minTrackPixelHits            = cms.uint32(0),      # pixel-only hits
+        minTrackHits                 = cms.uint32(3),      # total track hits
+        minGammaEt                   = cms.double(0.5),    # filter PFgammas below given Pt
+        #useTracksInsteadOfPFHadrons  = cms.bool(False),   # if true, use generalTracks, instead of PFChargedHadrons
         minNeutralHadronEt           = cms.double(30.)
     ),
     isolationQualityCuts = cms.PSet(
@@ -23,25 +22,22 @@ PFTauQualityCuts = cms.PSet(
         maxTrackChi2                 = cms.double(100.),
         maxTransverseImpactParameter = cms.double(0.03),
         maxDeltaZ                    = cms.double(0.2),
-        minTrackVertexWeight         = cms.double(-1.), # Tracks weight in vertex
+        minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),
         minTrackHits                 = cms.uint32(8),
         minGammaEt                   = cms.double(1.5),
         #useTracksInsteadOfPFHadrons  = cms.bool(False),
     ),
     vxAssocQualityCuts = cms.PSet(
-            minTrackPt                   = cms.double(0.5),  # filter PFChargedHadrons below given pt
-            maxTrackChi2                 = cms.double(100.), # require track Chi2
-            maxTransverseImpactParameter = cms.double(0.03), # w.r.t. PV
-            #maxDeltaZ                    = cms.double(0.2),  # w.r.t. PV
-            #minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
-            minTrackVertexWeight         = cms.double(-1.), # Tracks weight in vertex
-            minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off,
-            # the tracking cuts might be higher)
-            minTrackHits                 = cms.uint32(3),    # total track hits
-            minGammaEt                   = cms.double(0.5)  # filter PFgammas below given Pt
-            #useTracksInsteadOfPFHadrons  = cms.bool(False),  # if true, use generalTracks, instead of PFChargedHadrons
-            ),
+        minTrackPt                   = cms.double(0.5),    # filter PFChargedHadrons below given pt
+        maxTrackChi2                 = cms.double(100.),   # require track Chi2
+        maxTransverseImpactParameter = cms.double(0.1),    # wrt. PV
+        minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
+        minTrackPixelHits            = cms.uint32(0),      # pixel-only hits
+        minTrackHits                 = cms.uint32(3),      # total track hits
+        minGammaEt                   = cms.double(0.5)     # filter PFgammas below given Pt
+        #useTracksInsteadOfPFHadrons  = cms.bool(False),   # if true, use generalTracks, instead of PFChargedHadrons
+    ),
     # The central definition of primary vertex source.
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
     # Possible algorithms are: 'highestPtInEvent', 'closestInDeltaZ', 'highestWeightForLeadTrack' and 'combined'
@@ -52,5 +48,6 @@ PFTauQualityCuts = cms.PSet(
     # makeHisto = cms.bool(False)
     leadingTrkOrPFCandOption = cms.string("leadPFCand")
     ##leadingTrkOrPFCandOption = cms.string("leadTrack")
+    ##leadingTrkOrPFCandOption = cms.string("minLeadTrackOrPFCand")
     ##leadingTrkOrPFCandOption = cms.string("firstTrack") #default behaviour until 710 (first track in the collection)
 )

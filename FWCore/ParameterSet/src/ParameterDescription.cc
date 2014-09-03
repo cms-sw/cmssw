@@ -14,8 +14,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "boost/bind.hpp"
-
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
@@ -412,11 +410,11 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   writeCfi_(std::ostream& os, int indentation) const {
     bool nextOneStartsWithAComma = false;
-    for_all(vPset_, boost::bind(&writeOneElementToCfi,
-                                 _1,
-                                 boost::ref(os),
+    for_all(vPset_, std::bind(&writeOneElementToCfi,
+                                 std::placeholders::_1,
+                                 std::ref(os),
                                  indentation,
-                                 boost::ref(nextOneStartsWithAComma)));
+                                 std::ref(nextOneStartsWithAComma)));
     os << "\n";
     printSpaces(os, indentation);
   }
@@ -647,13 +645,13 @@ namespace edm {
         os.fill(' ');
         bool startWithComma = false;
         int i = 0;
-        for_all(value_, boost::bind(&writeValueInVectorWithSpace<T>,
-                                    _1,
-                                    boost::ref(os),
+        for_all(value_, std::bind(&writeValueInVectorWithSpace<T>,
+                                    std::placeholders::_1,
+                                    std::ref(os),
                                     indentation + 2,
-                                    boost::ref(startWithComma),
+                                    std::ref(startWithComma),
                                     format,
-                                    boost::ref(i)));
+                                    std::ref(i)));
         if(format == CFI) os << "\n" << std::setw(indentation) << "";
       }
       os.flags(ff);

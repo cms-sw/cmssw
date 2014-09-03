@@ -1,5 +1,6 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 #include "SimG4Core/Application/interface/RunManager.h"
+#include "SimG4Core/Application/interface/RunManagerMT.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
@@ -12,16 +13,19 @@ using std::endl;
 using std::string;
 
 ExceptionHandler::ExceptionHandler(RunManager* rm) 
-   : fRunManager(rm)
-{ 
-//    override = false; 
-//    verbose = 0; 
-}
+  : fRunManager(rm),fRunManagerMT(0)
+{}
+
+ExceptionHandler::ExceptionHandler(RunManagerMT* rm) 
+  : fRunManager(0),fRunManagerMT(rm)
+{}
 
 ExceptionHandler::~ExceptionHandler() {}
 
-bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionCode,
-				 G4ExceptionSeverity severity,const char* description)
+bool ExceptionHandler::Notify(const char* exceptionOrigin,
+			      const char* exceptionCode,
+			      G4ExceptionSeverity severity,
+			      const char* description)
 {
     cout << endl;
     cout << "*** G4Exception : " << exceptionCode << " issued by " << exceptionOrigin << endl;
@@ -54,8 +58,8 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 	if(aps==G4State_GeomClosed || aps==G4State_EventProc)
 	{
 	    cout << "*** Run must be aborted " << endl;
-	    fRunManager->abortRun(false);
-	    //RunManager::instance()->abortRun(false) ;
+	    if(fRunManager) { fRunManager->abortRun(false); }
+	    if(fRunManagerMT) { fRunManagerMT->abortRun(false); }
 	}
 	abortionForCoreDump = false;
 	break;

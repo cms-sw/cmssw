@@ -28,7 +28,7 @@ class TrackingRecHit;
 
 class TkStripMeasurementDet;
 
-struct TkStripRecHitIter {
+struct dso_hidden TkStripRecHitIter {
   using detset = edmNew::DetSet<SiStripCluster>;
   using new_const_iterator =  detset::const_iterator;
   
@@ -81,7 +81,7 @@ public:
 };
 
 
-class TkStripMeasurementDet GCC11_FINAL : public MeasurementDet {
+class dso_hidden TkStripMeasurementDet GCC11_FINAL : public MeasurementDet {
 public:
   
   typedef StripClusterParameterEstimator::LocalValues    LocalValues;

@@ -50,7 +50,7 @@ class CaloSD : public SensitiveCaloDetector,
 public:    
   
   CaloSD(G4String  aSDname, const DDCompactView & cpv,
-         SensitiveDetectorCatalog & clg, 
+         const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
 	 int tSlice=1, bool ignoreTkID=false);
   virtual ~CaloSD();

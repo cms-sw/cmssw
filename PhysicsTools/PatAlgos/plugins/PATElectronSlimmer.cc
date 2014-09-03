@@ -1,12 +1,6 @@
-//
-// $Id: PATElectronSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
-//
-
 /**
   \class    pat::PATElectronSlimmer PATElectronSlimmer.h "PhysicsTools/PatAlgos/interface/PATElectronSlimmer.h"
-  \brief    Matcher of reconstructed objects to L1 Muons 
-            
-  \author   Giovanni Petrucciani
+  \brief    Slimmer of PAT Electrons 
 */
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -74,6 +68,8 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
         pf2pc_   = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
         pc_   = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
     }
+    mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+    mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
 }
 
 void 
@@ -133,16 +129,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         }
         if (saveNonZSClusterShapes_(electron)) {
             std::vector<float> vCov = lazyToolsNoZS.localCovariances(*( electron.superCluster()->seed()));
-            float r9 = lazyToolsNoZS.e3x3( *( electron.superCluster()->seed())) / electron.superCluster()->rawEnergy() ;
-            float sigmaIetaIeta = ( !edm::isNotFinite(vCov[0]) ) ? sqrt(vCov[0]) : 0;
-            float sigmaIetaIphi = vCov[1];
-            float sigmaIphiIphi = ( !edm::isNotFinite(vCov[2]) ) ? sqrt(vCov[2]) : 0;
-            float e15o55 = lazyToolsNoZS.e1x5( *( electron.superCluster()->seed()) ) / lazyToolsNoZS.e5x5( *( electron.superCluster()->seed()) );
-            electron.addUserFloat("sigmaIetaIeta_NoZS", sigmaIetaIeta);
-            electron.addUserFloat("sigmaIetaIphi_NoZS", sigmaIetaIphi);
-            electron.addUserFloat("sigmaIphiIphi_NoZS", sigmaIphiIphi);
-            electron.addUserFloat("r9_NoZS", r9);
-            electron.addUserFloat("e1x5_over_e5x5_NoZS", e15o55);
+            electron.full5x5_setSigmaIetaIphi(vCov[1]);
         }
 
     }

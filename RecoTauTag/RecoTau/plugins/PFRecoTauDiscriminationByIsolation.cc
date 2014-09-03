@@ -45,6 +45,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       "applyRelativeSumPtCut");
     maximumRelativeSumPt_ = pset.getParameter<double>(
       "relativeSumPtCut");
+    offsetRelativeSumPt_ = pset.exists("relativeSumPtOffset") ?
+      pset.getParameter<double>("relativeSumPtOffset") : 0.0;
 
     storeRawOccupancy_ = pset.exists("storeRawOccupancy") ?
       pset.getParameter<bool>("storeRawOccupancy") : false;
@@ -146,7 +148,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   ~PFRecoTauDiscriminationByIsolation(){}
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
-  double discriminate(const PFTauRef& pfTau) override;
+  double discriminate(const PFTauRef& pfTau) const override;
 
  private:
   std::string moduleLabel_;
@@ -168,6 +170,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   double maximumSumPt_;
   bool applyRelativeSumPtCut_;
   double maximumRelativeSumPt_;
+  double offsetRelativeSumPt_;
   double customIsoCone_;
   
   // Options to store the raw value in the discriminator instead of boolean pass/fail flag
@@ -187,9 +190,6 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   edm::InputTag vertexSrc_;
   edm::EDGetTokenT<reco::VertexCollection> vertex_token;
   std::vector<reco::PFCandidatePtr> chargedPFCandidatesInEvent_;
-  std::vector<PFCandidatePtr> isoCharged_;
-  std::vector<PFCandidatePtr> isoNeutral_;
-  std::vector<PFCandidatePtr> isoPU_;
   // Size of cone used to collect PU tracks
   double deltaBetaCollectionCone_;
   std::auto_ptr<TFormula> deltaBetaFormula_;
@@ -248,7 +248,7 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event, con
 }
 
 double
-PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) 
+PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
 {
   if ( verbosity_ ) {
     std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
@@ -256,11 +256,11 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
   }
 
   // collect the objects we are working with (ie tracks, tracks+gammas, etc)
-  isoCharged_.clear();
+  std::vector<PFCandidatePtr> isoCharged_;
+  std::vector<PFCandidatePtr> isoNeutral_;
+  std::vector<PFCandidatePtr> isoPU_;
   isoCharged_.reserve(pfTau->isolationPFChargedHadrCands().size());
-  isoNeutral_.clear();
   isoNeutral_.reserve(pfTau->isolationPFGammaCands().size());
-  isoPU_.clear();
   isoPU_.reserve(chargedPFCandidatesInEvent_.size());
 
   // Get the primary vertex associated to this tau
@@ -424,7 +424,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
     failsSumPtCut = (totalPt > maximumSumPt_);
 
 //--- Relative Sum PT requirement
-    failsRelativeSumPtCut = (totalPt > (pfTau->pt()*maximumRelativeSumPt_));
+    failsRelativeSumPtCut = (totalPt > ((pfTau->pt() - offsetRelativeSumPt_)*maximumRelativeSumPt_));
   }
 
   bool fails = (applyOccupancyCut_ && failsOccupancyCut) ||

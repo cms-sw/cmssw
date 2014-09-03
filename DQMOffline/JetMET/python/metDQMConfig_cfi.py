@@ -20,7 +20,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     OutputFile = cms.string('jetMETMonitoring.root'),
 
     METType=cms.untracked.string('calo'),
-    METCollectionLabel     = cms.InputTag("met"),
+    METCollectionLabel     = cms.InputTag("caloMet"),
     JetCollectionLabel  = cms.InputTag("ak4CaloJets"),
     JetCorrections = cms.string("newAk4CaloL2L3"),
 

@@ -346,7 +346,7 @@ void TestIndexIntoFile2::testAddEntryAndFixAndSort() {
   ptr->push_back(4);
   ptr->push_back(8);
 
-  boost::shared_ptr<IndexIntoFile::EventFinder> shptr(ptr);
+  std::shared_ptr<IndexIntoFile::EventFinder> shptr(ptr);
   indexIntoFile.setEventFinder(shptr);
 
   indexIntoFile.fillEventNumbers();

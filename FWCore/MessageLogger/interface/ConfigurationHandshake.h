@@ -9,8 +9,8 @@
 namespace edm {
   class ParameterSet;
 
-  typedef boost::shared_ptr<edm::Exception> Pointer_to_new_exception_on_heap;
-  typedef boost::shared_ptr<Pointer_to_new_exception_on_heap> Place_for_passing_exception_ptr;
+  typedef std::shared_ptr<edm::Exception> Pointer_to_new_exception_on_heap;
+  typedef std::shared_ptr<Pointer_to_new_exception_on_heap> Place_for_passing_exception_ptr;
 
   struct ConfigurationHandshake {
     void* p;

@@ -1,0 +1,1 @@
+*/5 * * * * /nfshome0/dqmpro/filecollector/aliveCheck.sh >& /dev/null

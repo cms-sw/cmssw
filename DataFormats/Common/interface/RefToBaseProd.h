@@ -8,11 +8,11 @@
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ConstPtrCache.h"
+#include "DataFormats/Common/interface/FillView.h"
 
 namespace edm {
   template<typename T> class View;
@@ -178,12 +178,12 @@ namespace edm {
       ProductID tId = product_.id();
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
-      WrapperHolder it = product_.productGetter()->getIt(tId);
-      if(!it.isValid()) {
+      WrapperBase const* prod = product_.productGetter()->getIt(tId);
+      if(prod == nullptr) {
         Exception::throwThis(errors::InvalidReference,
                              "attempting to get view from an unavailable RefToBaseProd.");
       }
-      it.fillView(tId, pointers, helpers);
+      prod->fillView(tId, pointers, helpers);
       product_.setProductPtr((new View<T>(pointers, helpers)));
     }
     return viewPtr();
@@ -234,7 +234,9 @@ namespace edm {
     typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers(new holder_type);
+#ifndef __GCCXML__
     detail::reallyFillView(* ref.product(), ref.id(), pointers, * helpers);
+#endif
     product_.setProductPtr(new View<T>(pointers, helpers));
   }
 

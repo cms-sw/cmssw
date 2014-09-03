@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -18,7 +19,6 @@
 class SiPixelFedCablingTree;
 class SiPixelFrameReverter;
 class TH1D;
-class R2DTimerObserver;
 
 class SiPixelDigiToRaw final : public edm::EDProducer {
 public:
@@ -42,7 +42,7 @@ private:
   SiPixelFrameReverter* frameReverter_;
   edm::ParameterSet config_;
   TH1D *hCPU, *hDigi;
-  R2DTimerObserver * theTimer;
+  std::unique_ptr<edm::CPUTimer> theTimer;
   unsigned long eventCounter;
   edm::InputTag label;  //label of input digi data
   int allDigiCounter;

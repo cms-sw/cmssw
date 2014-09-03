@@ -24,7 +24,7 @@ namespace CLHEP {
 class HcalElectronicsSim {
 public:
   HcalElectronicsSim(HcalAmplifier * amplifier, 
-                     const HcalCoderFactory * coderFactory);
+                     const HcalCoderFactory * coderFactory, bool PreMix);
   ~HcalElectronicsSim();
 
   void setDbService(const HcalDbService * service);
@@ -48,5 +48,6 @@ private:
 
   int theStartingCapId;
   bool theStartingCapIdIsRandom;
+  bool PreMixDigis;
 };
 #endif

@@ -12,7 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 
 namespace edm {
@@ -23,9 +23,7 @@ SingleThreadMSPresence::SingleThreadMSPresence()
   : Presence()
 {
   //std::cout << "SingleThreadMSPresence ctor\n";
-  MessageLoggerQ::setMLscribe_ptr(
-     boost::shared_ptr<edm::service::AbstractMLscribe> 
-     (new ThreadSafeLogMessageLoggerScribe()));
+  MessageLoggerQ::setMLscribe_ptr(std::shared_ptr<edm::service::AbstractMLscribe>(std::make_shared<ThreadSafeLogMessageLoggerScribe>()));
   MessageDrop::instance()->messageLoggerScribeIsRunning = 
   				MLSCRIBE_RUNNING_INDICATOR;
 }
@@ -35,7 +33,7 @@ SingleThreadMSPresence::~SingleThreadMSPresence()
 {
   MessageLoggerQ::MLqEND();
   MessageLoggerQ::setMLscribe_ptr
-    (boost::shared_ptr<edm::service::AbstractMLscribe>());
+    (std::shared_ptr<edm::service::AbstractMLscribe>());
 }
 
 } // end of namespace service  

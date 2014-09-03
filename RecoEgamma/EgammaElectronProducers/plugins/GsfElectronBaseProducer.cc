@@ -365,7 +365,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
    }
 
 
-   mvaCfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
+   mva_NIso_Cfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
+   mva_Iso_Cfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
   // create algo
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
@@ -374,7 +375,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction,
-     mvaCfg_,
+     mva_NIso_Cfg_,
+     mva_Iso_Cfg_,
      regressionCfg
    ) ;
 

@@ -3,6 +3,7 @@
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
 class GeometricDet;
 
@@ -24,28 +25,33 @@ namespace trackerTrie {
  * A specific Tracker Builder which builds a Tracker from a list of DetUnits. 
  * Pattern recognition is used to discover layers, rings etc.
  */
-class TrackerGeometry : public TrackingGeometry {
-public:
-  typedef GeomDetEnumerators::SubDetector SubDetector;
+class TrackerGeometry final : public TrackingGeometry {
 
   explicit TrackerGeometry(GeometricDet const* gd=0);  
 
-  virtual ~TrackerGeometry() ;
-
-  virtual const DetTypeContainer&  detTypes()         const;
-  virtual const DetUnitContainer&  detUnits()         const;
-  virtual const DetContainer&      dets()             const;
-  virtual const DetIdContainer&    detUnitIds()       const;
-  virtual const DetIdContainer&    detIds()           const;
-  virtual const GeomDetUnit*       idToDetUnit(DetId) const;
-  virtual const GeomDet*           idToDet(DetId)     const;
-
+  friend class TrackerGeomBuilderFromGeometricDet;
 
   void addType(GeomDetType const * p);
   void addDetUnit(GeomDetUnit const * p);
   void addDetUnitId(DetId p);
   void addDet(GeomDet const * p);
   void addDetId(DetId p);
+  void finalize();
+
+public:
+  typedef GeomDetEnumerators::SubDetector SubDetector;
+
+  virtual ~TrackerGeometry() ;
+
+
+  virtual const DetTypeContainer&  detTypes()         const;
+  virtual const DetUnitContainer&  detUnits()         const;
+  virtual const DetContainer&      dets()             const;
+  virtual const DetIdContainer&    detUnitIds()       const;
+  virtual const DetIdContainer&    detIds()           const;
+  virtual const TrackerGeomDet*    idToDetUnit(DetId) const;
+  virtual const TrackerGeomDet*    idToDet(DetId)     const;
+
 
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
   unsigned int endsetDU(SubDetector sid) const { return theEndsetDU[sid];}
@@ -53,7 +59,7 @@ public:
   void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
   void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
 
-  GeometricDet const * trackerDet() const; 
+  GeometricDet const * trackerDet() const {return  theTrackerDet;}
 
   const DetContainer& detsPXB() const;
   const DetContainer& detsPXF() const;

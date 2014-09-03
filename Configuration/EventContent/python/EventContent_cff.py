@@ -348,7 +348,6 @@ DQMEventContent = cms.PSet(
 #Special Event Content for MixingModule and DataMixer
 DATAMIXEREventContent = cms.PSet(
         outputCommands = cms.untracked.vstring('drop *',
-                                               'keep CaloTowersSorted_calotoweroptmaker_*_*',
                                                'keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*',
                                                'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*',
                                                'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_MuonCSCComparatorDigi_*',

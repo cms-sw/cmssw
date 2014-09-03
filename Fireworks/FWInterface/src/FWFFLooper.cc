@@ -1,4 +1,5 @@
 #include <iostream>
+#include "boost/bind.hpp"
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
@@ -46,6 +47,12 @@
 #include "TEveBrowser.h"
 #include "TGeoManager.h"
 
+
+namespace edm
+{
+   class StreamContext;
+   class ModuleCallingContext;
+}
 
 namespace
 {
@@ -189,9 +196,8 @@ FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
    m_pathsGUI = new FWPathsPopup(this, guiManager());
 
-   ar.watchPostProcessEvent(m_pathsGUI, &FWPathsPopup::postProcessEvent);
-   ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
-   ar.watchPreModule(m_pathsGUI, &FWPathsPopup::preModule);
+   ar.watchPostModuleEvent(m_pathsGUI, &FWPathsPopup::postModuleEvent);
+   ar.watchPreModuleEvent(m_pathsGUI, &FWPathsPopup::preModuleEvent);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
 }
 
@@ -232,8 +238,8 @@ FWFFLooper::startingNewLoop(unsigned int count)
 void 
 FWFFLooper::postEndJob()
 {
-//   printf("FWFFLooper::postEndJob\n");
-//   TEveManager::Terminate();
+   printf("FWFFLooper::postEndJob\n");
+   TEveManager::Terminate();
 }
 
 void
@@ -386,6 +392,8 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_geomWatcher.check(es);
    } catch (...) {}
    
+
+   m_pathsGUI->postEvent(event);
 
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;

@@ -11,12 +11,12 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
 #include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include <iosfwd>
 #include <memory>
 #include <set>
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 /*
   ProductProvenanceRetriever
@@ -38,7 +38,7 @@ namespace edm {
 
     void insertIntoSet(ProductProvenance const& provenanceProduct) const;
 
-    void mergeProvenanceRetrievers(boost::shared_ptr<ProductProvenanceRetriever> other);
+    void mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other);
 
     void deepSwap(ProductProvenanceRetriever&);
     
@@ -52,8 +52,8 @@ namespace edm {
     typedef std::set<ProductProvenance> eiSet;
 
     mutable eiSet entryInfoSet_;
-    boost::shared_ptr<ProductProvenanceRetriever> nextRetriever_;
-    mutable boost::shared_ptr<ProvenanceReaderBase> provenanceReader_;
+    std::shared_ptr<ProductProvenanceRetriever> nextRetriever_;
+    mutable std::shared_ptr<ProvenanceReaderBase> provenanceReader_;
     unsigned int transitionIndex_;
     mutable bool delayedRead_;
   };

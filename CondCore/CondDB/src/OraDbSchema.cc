@@ -85,10 +85,11 @@ namespace cond {
     }
 
     bool OraTagTable::getMetadata( const std::string& name, std::string& description, 
-				   boost::posix_time::ptime&, boost::posix_time::ptime& ){
+				   boost::posix_time::ptime&, boost::posix_time::ptime& modificationTime){
       if(!m_cache.load( name )) return false;
       description = m_cache.iovSequence().comment();
-      // TO DO: get insertion / modification time from the Logger?      
+      modificationTime = cond::time::to_boost( m_cache.iovSequence().timestamp() );
+      // TO DO: get insertion time from the Logger?      
       return true;
     }
       

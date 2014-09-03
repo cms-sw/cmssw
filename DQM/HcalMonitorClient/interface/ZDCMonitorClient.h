@@ -10,6 +10,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/CPUTimer.h"
+
 class DQMStore;
 class TH2F;
 class TH1F;

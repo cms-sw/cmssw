@@ -87,24 +87,26 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
 }
 
 bool support::isSafeClassName(const std::string &name) {
-  std::string atomic = "std::atomic";
-  std::string uatomic = "std::__atomic_";
-  std::string mutex = "std::mutex";
-  std::string rmutex = "std::recursive_mutex";
-  std::string btsp = "boost::thread_specific_ptr";
-  std::string catomic = "class std::atomic";
-  std::string cuatomic = "class std::__atomic_";
-  std::string cmutex = "class std::mutex";
-  std::string crmutex = "class std::recursive_mutex";
-  std::string cbtsp = "class boost::thread_specific_ptr";
-  std::string tbb = "tbb::";
-  std::string ctbb = "class tbb::";
-  std::string eap = "edm::AtomicPtrCache";
-  std::string ceap = "class edm::AtomicPtrCache";
-  std::string once = "std::once_flag";
-  std::string conce = "struct std::once_flag";
+  static const std::string atomic = "std::atomic";
+  static const std::string satomic = "struct std::atomic";
+  static const std::string uatomic = "std::__atomic_";
+  static const std::string mutex = "std::mutex";
+  static const std::string rmutex = "std::recursive_mutex";
+  static const std::string btsp = "boost::thread_specific_ptr";
+  static const std::string catomic = "class std::atomic";
+  static const std::string cuatomic = "class std::__atomic_";
+  static const std::string cmutex = "class std::mutex";
+  static const std::string crmutex = "class std::recursive_mutex";
+  static const std::string cbtsp = "class boost::thread_specific_ptr";
+  static const std::string tbb = "tbb::";
+  static const std::string ctbb = "class tbb::";
+  static const std::string eap = "edm::AtomicPtrCache";
+  static const std::string ceap = "class edm::AtomicPtrCache";
+  static const std::string once = "std::once_flag";
+  static const std::string conce = "struct std::once_flag";
+  static const std::string boostext = "boost::<anonymous namespace>::extents";
   
-  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic
+  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic || name.substr(0,satomic.length()) == satomic
 	|| name.substr(0,uatomic.length()) == uatomic  || name.substr(0,cuatomic.length()) == cuatomic
 	|| name.substr(0,mutex.length()) == mutex || name.substr(0,cmutex.length()) == cmutex 
 	|| name.substr(0,rmutex.length()) == rmutex || name.substr(0,crmutex.length()) == rmutex 
@@ -112,6 +114,7 @@ bool support::isSafeClassName(const std::string &name) {
 	|| name.substr(0,ctbb.length()) == ctbb ||  name.substr(0,tbb.length()) == tbb
 	|| name.substr(0,eap.length()) == eap || name.substr(0,ceap.length()) == ceap
 	|| name.substr(0,once.length()) == once || name.substr(0,conce.length()) == conce
+	|| name.substr(0,boostext.length()) == boostext
 	) 
 	return true;	
   return false;

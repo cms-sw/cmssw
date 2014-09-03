@@ -12,7 +12,7 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <exception>
 #include <fstream>
@@ -59,7 +59,7 @@ class StreamerOutputFile
      void writeStart(const InitMsgView& inview);
 
   private:
-     boost::shared_ptr<OutputFile> streamerfile_;
+     std::shared_ptr<OutputFile> streamerfile_;
 };
 
 #endif

@@ -34,7 +34,7 @@ class HCalSD : public CaloSD {
 
 public:    
 
-  HCalSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,
+  HCalSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HCalSD();
   virtual bool                  ProcessHits(G4Step * , G4TouchableHistory * );

@@ -2,15 +2,15 @@
 #define FEDRawData_FEDNumbering_h
 
 /** \class FEDNumbering
- *  
- *  This class holds the fed numbering scheme for the CMS geometry. 
+ *
+ *  This class holds the fed numbering scheme for the CMS geometry.
  *  No two feds should have the same id. Each subdetector has a reserved range.
  *  Gaps between ranges give flexibility to the numbering.
  *
  *  $Log
  *
  *  \author G. Bruno - CERN, EP Division
- */   
+ */
 
 #include <vector>
 #include <string>
@@ -33,7 +33,7 @@ class FEDNumbering {
 
    enum {
      NOT_A_FEDID = -1,
-     MAXFEDID = 1023, // 10 bits
+     MAXFEDID = 1350, // must be larger than largest used FED id
      MINSiPixelFEDID = 0,
      MAXSiPixelFEDID = 39,
      MINSiStripFEDID = 50,
@@ -95,7 +95,13 @@ class FEDNumbering {
      MINDAQeFEDFEDID = 902,
      MAXDAQeFEDFEDID = 931,
      MINDAQmFEDFEDID = 1023,
-     MAXDAQmFEDFEDID = 1023
+     MAXDAQmFEDFEDID = 1023,
+     MINTCDSuTCAFEDID = 1024,
+     MAXTCDSuTCAFEDID = 1099,
+     MINHCALuTCAFEDID = 1100,
+     MAXHCALuTCAFEDID = 1199,
+     MINSiPixeluTCAFEDID = 1200,
+     MAXSiPixeluTCAFEDID = 1349
    };
  private:
   static std::vector<std::string> from_;

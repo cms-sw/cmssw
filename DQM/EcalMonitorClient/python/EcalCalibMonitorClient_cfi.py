@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.CalibCommonParams_cfi import ecalCommonParams
+from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 from DQM.EcalMonitorClient.RawDataClient_cfi import ecalRawDataClient
@@ -36,7 +36,7 @@ ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         CalibrationSummaryClient = ecalCalibrationSummaryClient
     ),
     commonParameters = ecalCommonParams,
-    PNMaskFile = cms.untracked.FileInPath("DQM/EcalMonitorClient/data/mask-PN.txt"),
+#    PNMaskFile = cms.untracked.FileInPath("DQM/EcalMonitorClient/data/mask-PN.txt"),
     verbosity = cms.untracked.int32(0)
 )
 

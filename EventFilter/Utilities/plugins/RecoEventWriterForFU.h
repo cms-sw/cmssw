@@ -10,6 +10,8 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <iostream>
 #include <vector>
 #include <memory>

@@ -1,5 +1,4 @@
 <use   name="Geometry/HcalTowerAlgo"/>
-<use   name="boost"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PythonParameterSet"/>

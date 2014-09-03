@@ -35,6 +35,12 @@ namespace edm {
          }
          iValue = temp;
       }
+     
+     template< class T>
+     inline void eventSetupTryToGetImplementation(EventSetup const& iEventSetup, T const*& iValue) {
+       iValue = heterocontainer::find<EventSetupRecordKey, T const>(iEventSetup);
+     }
+
    }
 }
 

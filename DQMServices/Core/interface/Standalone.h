@@ -18,8 +18,9 @@ namespace edm
   std::string getReleaseVersion(void)
   { return "CMSSW_STANDALONE"; }
 
-  struct ParameterSet
+  class ParameterSet
   {
+    public:
     template <class T> static const T &
     getUntrackedParameter(const char * /* key */, const T &value)
     { return value; }
@@ -30,8 +31,9 @@ namespace edm
     ServiceToken(int) {}
   };
 
-  struct ServiceRegistry
+  class ServiceRegistry
   {
+  public:
     struct Operate
     {
       Operate(const ServiceToken &) {}
@@ -41,8 +43,9 @@ namespace edm
   };
 
   template <class T>
-  struct Service
+  class  Service
   {
+  public:
     bool isAvailable(void) { return false; }
     T *operator->(void)
     {
@@ -62,17 +65,22 @@ namespace edm
     void connect( T&& ) {};
   };
 
-  struct ActivityRegistry
+  class ActivityRegistry
   {
+  public:
     template <typename T>
     void watchPostSourceRun(void*, T) {}
+
+    template <typename T>
+    void watchPostSourceLumi(void*, T) {}
 
     PreallocationSignal preallocateSignal_;
   };
   
   
-  struct JobReport
+  class JobReport
   {
+  public:
     JobReport(const edm::ParameterSet &) {}
     void reportAnalysisFile(const std::string &, const std::map<std::string, std::string> &) {}
   };

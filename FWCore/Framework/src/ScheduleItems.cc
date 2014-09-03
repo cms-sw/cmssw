@@ -91,8 +91,7 @@ namespace edm {
 
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    boost::shared_ptr<w_CPR>
-      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(*preg_))));
+    auto reg = std::make_shared<w_CPR>(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(*preg_)));
     ServiceToken tempToken(ServiceRegistry::createContaining(reg,
                                                              token,
                                                              serviceregistry::kOverlapIsError));
@@ -103,24 +102,25 @@ namespace edm {
     typedef service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-    boost::shared_ptr<w_TNS> tnsptr
-      (new w_TNS(std::auto_ptr<TNS>(new TNS(parameterSet))));
+    auto tnsptr = std::make_shared<w_TNS>(std::auto_ptr<TNS>(new TNS(parameterSet)));
 
     return ServiceRegistry::createContaining(tnsptr,
                                              tempToken,
                                              serviceregistry::kOverlapIsError);
   }
 
-  boost::shared_ptr<CommonParams>
+  std::shared_ptr<CommonParams>
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
     act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
-    boost::shared_ptr<CommonParams>
-        common(new CommonParams(parameterSet.getUntrackedParameterSet(
+    auto common = std::make_shared<CommonParams>(
+                                parameterSet.getUntrackedParameterSet(
                                    "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1)));
+                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                                parameterSet.getUntrackedParameterSet(
+                                   "maxSecondsUntilRampdown", ParameterSet()).getUntrackedParameter<int>("input", -1));
     return common;
   }
 
