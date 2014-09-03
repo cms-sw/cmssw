@@ -31,18 +31,18 @@ class StripCPEfromTrackAngle : public StripCPE
 			  const SiStripLatency& latency) 
   : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency )
   {
-    LC_P[0] = conf.getParameter<double>("LC_P0" );
-    LC_P[1] = conf.getParameter<double>("LC_P1" );
-    LC_P[2] = conf.getParameter<double>("LC_P2" );
+    LC_P[0] = conf.existsAs<double>("LC_P0") ? conf.getParameter<double>("LC_P0") : -.326;
+    LC_P[1] = conf.existsAs<double>("LC_P1") ? conf.getParameter<double>("LC_P1") :  .618;
+    LC_P[2] = conf.existsAs<double>("LC_P2") ? conf.getParameter<double>("LC_P2") :  .300;
 
-    HC_P[SiStripDetId::TIB - 3][0] = conf.getParameter<double>("TIB_P0");
-    HC_P[SiStripDetId::TIB - 3][1] = conf.getParameter<double>("TIB_P1");
-    HC_P[SiStripDetId::TID - 3][0] = conf.getParameter<double>("TID_P0");
-    HC_P[SiStripDetId::TID - 3][1] = conf.getParameter<double>("TID_P1");
-    HC_P[SiStripDetId::TOB - 3][0] = conf.getParameter<double>("TOB_P0");
-    HC_P[SiStripDetId::TOB - 3][1] = conf.getParameter<double>("TOB_P1");
-    HC_P[SiStripDetId::TEC - 3][0] = conf.getParameter<double>("TEC_P0");
-    HC_P[SiStripDetId::TEC - 3][1] = conf.getParameter<double>("TEC_P1");
+    HC_P[SiStripDetId::TIB - 3][0] = conf.existsAs<double>("TIB_P0") ? conf.getParameter<double>("TIB_P0") : -.742  ;
+    HC_P[SiStripDetId::TIB - 3][1] = conf.existsAs<double>("TIB_P1") ? conf.getParameter<double>("TIB_P1") :  .202  ;
+    HC_P[SiStripDetId::TID - 3][0] = conf.existsAs<double>("TID_P0") ? conf.getParameter<double>("TID_P0") : -1.026 ;
+    HC_P[SiStripDetId::TID - 3][1] = conf.existsAs<double>("TID_P1") ? conf.getParameter<double>("TID_P1") :  .253  ;
+    HC_P[SiStripDetId::TOB - 3][0] = conf.existsAs<double>("TOB_P0") ? conf.getParameter<double>("TOB_P0") : -1.427 ;
+    HC_P[SiStripDetId::TOB - 3][1] = conf.existsAs<double>("TOB_P1") ? conf.getParameter<double>("TOB_P1") :  .433  ;
+    HC_P[SiStripDetId::TEC - 3][0] = conf.existsAs<double>("TEC_P0") ? conf.getParameter<double>("TEC_P0") : -1.885 ;
+    HC_P[SiStripDetId::TEC - 3][1] = conf.existsAs<double>("TEC_P1") ? conf.getParameter<double>("TEC_P1") :  .471  ;  
   }
 };
 #endif
