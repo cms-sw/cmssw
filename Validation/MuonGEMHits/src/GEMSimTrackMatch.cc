@@ -135,22 +135,28 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			}
 			
 		}
-		track_eta[0]->Fill( fabs( track_.eta)) ;
-		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) track_phi[0]->Fill( track_.phi ) ;
+		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) { 
+			track_eta[0]->Fill( fabs( track_.eta)) ;
+			track_phi[0]->Fill( track_.phi ) ;
+		}
 
 		if ( nstation >1 ) { 
-			track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
-			track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
-			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) track_phi[1]->Fill( track_.phi ) ;
-			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) track_phi[2]->Fill( track_.phi ) ;
+			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) { 
+				track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
+				track_phi[1]->Fill( track_.phi ) ;
+			}
+			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) {
+				track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+				track_phi[2]->Fill( track_.phi ) ;
+			}
 		}
 		
 		for( unsigned int station =0 ; station<nstation; station++) {
 			if ( track_.station[station] ) {
-				if ( track_.layer[0] ) sh_eta[0][station]->Fill( track_.eta);
-				if ( track_.layer[1] ) sh_eta[1][station]->Fill( track_.eta);
-				if ( track_.layer[0] || track_.layer[1] ) sh_eta[2][station]->Fill( track_.eta);
-				if ( track_.layer[0] && track_.layer[1] ) sh_eta[3][station]->Fill( track_.eta);
+				if ( track_.layer[0] ) sh_eta[0][station]->Fill( fabs(track_.eta)  );
+				if ( track_.layer[1] ) sh_eta[1][station]->Fill( fabs(track_.eta)  );
+				if ( track_.layer[0] || track_.layer[1] ) sh_eta[2][station]->Fill( fabs(track_.eta) );
+				if ( track_.layer[0] && track_.layer[1] ) sh_eta[3][station]->Fill( fabs(track_.eta) );
 			}
 			if( track_.station[station] && fabs(track_.eta) > getEtaRangeForPhi(station).first && fabs(track_.eta)< getEtaRangeForPhi(station).second ) {
         if ( track_.layer[0] ) sh_phi[0][station]->Fill( track_.phi);

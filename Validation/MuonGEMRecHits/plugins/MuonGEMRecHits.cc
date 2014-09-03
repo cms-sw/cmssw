@@ -442,8 +442,8 @@ void MuonGEMRecHits::bookHistograms()
   meCollection_["bxDistribution"] = dbe_->book1D("bxDistribution","BunchCrossingDistribution",11,-5.5,5.5);
   meCollection_["recHitPullX"] = dbe_->book1D("recHitPullX","recHitPullX",100,-50,+50);
   meCollection_["recHitDPhi"] = dbe_->book1D("recHitDPhi","DeltaPhi RecHit",100,-0.001,+0.001);
-  meCollection_["localrh_zr_rm1_st1"] = dbe_->book2D("localrh_zr_rm1_st1","GEM RecHit occupancy: region-1",200,-573,-564,110,130,240);
-  meCollection_["localrh_zr_rp1_st1"] = dbe_->book2D("localrh_zr_rp1_st1","GEM RecHit occupancy: region1",200,564,573,110,130,240);
+  meCollection_["localrh_zr_rm1_st1"] = dbe_->book2D("localrh_zr_rm1_st1","GEM RecHit occupancy: region-1",200,-573,-564,110,110,260);
+  meCollection_["localrh_zr_rp1_st1"] = dbe_->book2D("localrh_zr_rp1_st1","GEM RecHit occupancy: region1",200,564,573,110,110,260);
   meCollection_["strip_rh_tot"] = dbe_->book1D("strip_rh_tot","GEM RecHit occupancy per strip number",384,0.5,384.5);
   meCollection_["roll_vs_strip_rh"] = dbe_->book2D("roll_vs_strip_rh","GEM RecHit occupancy per roll and strip number",768,0.5,768.5,12,0.5,12.5);
   

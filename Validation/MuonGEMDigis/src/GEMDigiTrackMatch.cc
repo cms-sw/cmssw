@@ -164,14 +164,20 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  
  
     // if this track enter thought station, 
-		track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1
-		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) track_phi[0]->Fill( track_.phi ) ;
+		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) { 
+			track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1
+			track_phi[0]->Fill( track_.phi ) ;
+		}
 
 		if ( nstation >1 ) { 
-			track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
-			track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
-			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) track_phi[1]->Fill( track_.phi ) ;
-			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) track_phi[2]->Fill( track_.phi ) ;
+			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) { 
+				track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
+				track_phi[1]->Fill( track_.phi ) ;
+			}
+			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) {
+				track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+				track_phi[2]->Fill( track_.phi ) ;
+			}
 		}
 		
 
