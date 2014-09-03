@@ -29,7 +29,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   // get the BX for the pulses to be activated
   std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
   for(unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) activeBX.insert(activeBXs[ibx]);
-  
+
   
   // ratio method parameters
   EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -93,10 +93,14 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 void
 EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 {
+
         // common setup
         es.get<EcalGainRatiosRcd>().get(gains);
         es.get<EcalPedestalsRcd>().get(peds);
 
+        // weights parameters for the time
+        es.get<EcalWeightXtalGroupsRcd>().get(grps);
+        es.get<EcalTBWeightsRcd>().get(wgts);
 
 	// which of the samples need be used
 	es.get<EcalSampleMaskRcd>().get(sampleMaskHand_);
@@ -107,8 +111,8 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalTimeOffsetConstantRcd>().get(offtime);
 
-		// for the time correction methods
-		es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+        // for the time correction methods
+        es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
 }
 
 /**
@@ -183,7 +187,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 {
         DetId detid(itdg->id());
 
-        const EcalSampleMask  *sampleMask_ = sampleMaskHand_.product();                
+        // const EcalSampleMask  *sampleMask_ = sampleMaskHand_.product();                
         
         // intelligence for recHit computation
         EcalUncalibratedRecHit uncalibRecHit;
@@ -191,15 +195,18 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         
         const EcalPedestals::Item * aped = 0;
         const EcalMGPAGainRatio * aGain = 0;
+        const EcalXtalGroupId * gid = 0;
 
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();
                 aped  = &peds->endcap(hashedIndex);
                 aGain = &gains->endcap(hashedIndex);
+                gid   = &grps->endcap(hashedIndex);
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
                 aped  = &peds->barrel(hashedIndex);
                 aGain = &gains->barrel(hashedIndex);
+                gid   = &grps->barrel(hashedIndex);
         }
 
         pedVec[0] = aped->mean_x12;
@@ -272,6 +279,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
                 // === time computation ===
+                /*
                 // ratio method
                 float const clockToNsConstant = 25.;
                 if (detid.subdetId()==EcalEndcap) {
@@ -299,7 +307,38 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 
                                 uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
 		}
-		
+		*/
+
+                std::vector<double> amplitudes;
+                for(unsigned int ibx=0; ibx<activeBX.size(); ++ibx) amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
+
+                EcalTBWeights::EcalTDCId tdcid(1);
+                EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
+                EcalTBWeights::EcalTBWeightMap::const_iterator wit;
+                wit = wgtsMap.find( std::make_pair(*gid,tdcid) );
+                if( wit == wgtsMap.end() ) {
+                  edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " 
+                                                          << gid->id() << " and  EcalTDCId: " << tdcid
+                                                          << "\n  skipping digi with id: " << detid.rawId();
+
+                  return false;
+                }
+                const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
+                
+                const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+                const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+
+                weights[0] = &mat1;
+                weights[1] = &mat2;
+
+                double timerh;
+                if (detid.subdetId()==EcalEndcap) { 
+                  timerh = weightsMethod_endcap_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
+                } else {
+                  timerh = weightsMethod_barrel_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
+                }
+                uncalibRecHit.setJitter( timerh );
+                uncalibRecHit.setJitterError( 0. ); // not computed with weights
         }
 
 	// set flags if gain switch has occurred
@@ -332,7 +371,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
           }
         }
         */
-        
 
         // put the recHit in the collection
         if (detid.subdetId()==EcalEndcap) {

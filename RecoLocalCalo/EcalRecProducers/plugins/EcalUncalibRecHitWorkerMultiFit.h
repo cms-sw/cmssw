@@ -11,6 +11,7 @@
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimeWeightsAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitLeadingEdgeAlgo.h"
@@ -24,8 +25,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+
 
 namespace edm {
         class Event;
@@ -77,6 +77,13 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 // determie which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
                 
+                // time weights method
+                edm::ESHandle<EcalWeightXtalGroups>  grps;
+                edm::ESHandle<EcalTBWeights> wgts;
+                const EcalWeightSet::EcalWeightMatrix* weights[2];
+                EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
+                EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 
                 std::vector<double> EEtimeFitParameters_; 

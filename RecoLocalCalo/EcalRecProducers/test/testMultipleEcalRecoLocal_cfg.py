@@ -18,6 +18,10 @@ process.GlobalTag.toGet = cms.VPSet(
              tag = cms.string("XMLFILE_Geometry_2015_72YV2_Extended2015ZeroMaterial_mc"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_GEOMETRY_000"),
              label = cms.untracked.string("Extended2015ZeroMaterial")
+             ),
+    cms.PSet(record = cms.string("EcalTBWeightsRcd"),
+             tag = cms.string("EcalTBWeights_3p5_time_mc"),
+             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
              )
     )
 
