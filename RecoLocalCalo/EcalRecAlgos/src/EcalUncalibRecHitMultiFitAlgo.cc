@@ -90,7 +90,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     if(*bxit==0) {
       rh.setOutOfTimeAmplitude(*bxit,0.);
     } else {
-      rh.setOutOfTimeAmplitude(*bxit, status ? _pulsefunc.X()[ipulse] : 0.);
+      rh.setOutOfTimeAmplitude(*bxit+5, status ? _pulsefunc.X()[ipulse] : 0.);
     }
   }
 
