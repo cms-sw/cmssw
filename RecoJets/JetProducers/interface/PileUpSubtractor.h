@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -26,7 +27,7 @@ class PileUpSubtractor{
   typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
   typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
   
-  PileUpSubtractor(const edm::ParameterSet& iConfig); 
+  PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
   virtual ~PileUpSubtractor(){;}
 
 virtual void setDefinition(JetDefPtr const & jetDef);
@@ -85,7 +86,7 @@ virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-namespace edm {class ParameterSet; class EventSetup; }
-typedef edmplugin::PluginFactory<PileUpSubtractor *(const edm::ParameterSet & )> PileUpSubtractorFactory;
+namespace edm {class ParameterSet; class EventSetup; class ConsumesCollector;}
+typedef edmplugin::PluginFactory<PileUpSubtractor *(const edm::ParameterSet &, edm::ConsumesCollector &&)> PileUpSubtractorFactory;
 
 #endif

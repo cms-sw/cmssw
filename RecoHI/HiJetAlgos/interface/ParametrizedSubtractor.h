@@ -12,7 +12,7 @@
 
 class ParametrizedSubtractor : public PileUpSubtractor {
  public:
-   ParametrizedSubtractor(const edm::ParameterSet& iConfig);
+  ParametrizedSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
    virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
    virtual void calculatePedestal( std::vector<fastjet::PseudoJet> const & coll );
    virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
