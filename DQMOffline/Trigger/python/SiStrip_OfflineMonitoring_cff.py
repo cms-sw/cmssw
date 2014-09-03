@@ -9,7 +9,6 @@ import FWCore.ParameterSet.Config as cms
 # SiStripCluster monitoring
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-#HLTSiStripMonitorCluster.ClusterProducerStrip = cms.InputTag("HLTsiStripClusters")
 HLTSiStripMonitorCluster.ClusterProducerStrip = cms.InputTag("hltSiStripRawToClustersFacility")
 HLTSiStripMonitorCluster.ClusterProducerPix   = cms.InputTag("hltSiPixelClusters")
 HLTSiStripMonitorCluster.TopFolderName        = cms.string("HLT/SiStrip")
