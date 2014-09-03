@@ -10,9 +10,9 @@ template <typename T>
 ShiftedJetProducerByMatchedObjectT<T>::ShiftedJetProducerByMatchedObjectT(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  srcJets_ = cfg.getParameter<edm::InputTag>("srcJets");
-  srcUnshiftedObjects_ = cfg.getParameter<edm::InputTag>("srcUnshiftedObjects");
-  srcShiftedObjects_ = cfg.getParameter<edm::InputTag>("srcShiftedObjects");
+  srcJets_ = consumes<JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
+  srcUnshiftedObjects_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcUnshiftedObjects"));
+  srcShiftedObjects_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcShiftedObjects"));
 
   dRmatch_Jet_ = cfg.getParameter<double>("dRmatch_Jet");
   dRmatch_Object_ = cfg.exists("dRmatch_Object") ?
@@ -31,15 +31,15 @@ template <typename T>
 void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   edm::Handle<JetCollection> originalJets;
-  evt.getByLabel(srcJets_, originalJets);
+  evt.getByToken(srcJets_, originalJets);
 
   typedef edm::View<reco::Candidate> CandidateView;
 
   edm::Handle<CandidateView> unshiftedObjects;
-  evt.getByLabel(srcUnshiftedObjects_, unshiftedObjects);
+  evt.getByToken(srcUnshiftedObjects_, unshiftedObjects);
 
   edm::Handle<CandidateView> shiftedObjects;
-  evt.getByLabel(srcShiftedObjects_, shiftedObjects);
+  evt.getByToken(srcShiftedObjects_, shiftedObjects);
 
   objects_.clear();
   

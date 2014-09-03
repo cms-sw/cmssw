@@ -62,8 +62,8 @@ class SmearedPFCandidateProducerForPFNoPUMEtT : public edm::EDProducer
 //--- configuration parameters
  
   // collection of pat::Jets (with L2L3/L2L3Residual corrections applied)
-  edm::InputTag srcPFCandidates_; 
-  edm::InputTag srcJets_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_; 
+  edm::EDGetTokenT<JetCollection> srcJets_;
 
   TFile* inputFile_;
   TH2* lut_;

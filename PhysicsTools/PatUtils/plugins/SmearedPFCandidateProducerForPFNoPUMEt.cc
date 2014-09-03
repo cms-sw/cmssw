@@ -24,8 +24,8 @@ SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProduc
   //std::cout << "<SmearedPFCandidateProducerForPFNoPUMEt::SmearedPFCandidateProducerForPFNoPUMEt>:" << std::endl;
   //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
 
-  srcPFCandidates_ = cfg.getParameter<edm::InputTag>("srcPFCandidates");
-  srcJets_ = cfg.getParameter<edm::InputTag>("srcJets");
+  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates") );
+  srcJets_ = consumes<JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
 
   edm::FileInPath inputFileName = cfg.getParameter<edm::FileInPath>("inputFileName");
   std::string lutName = cfg.getParameter<std::string>("lutName");
@@ -78,10 +78,10 @@ template <typename T, typename Textractor>
 void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   edm::Handle<reco::PFCandidateCollection> originalPFCandidates;
-  evt.getByLabel(srcPFCandidates_, originalPFCandidates);
+  evt.getByToken(srcPFCandidates_, originalPFCandidates);
 
   edm::Handle<JetCollection> jets;
-  evt.getByLabel(srcJets_, jets);
+  evt.getByToken(srcJets_, jets);
 
   std::auto_ptr<reco::PFCandidateCollection> smearedPFCandidates(new reco::PFCandidateCollection);
 

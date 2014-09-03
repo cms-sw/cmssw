@@ -37,9 +37,9 @@ class ShiftedJetProducerByMatchedObjectT : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag srcJets_; 
-  edm::InputTag srcUnshiftedObjects_; 
-  edm::InputTag srcShiftedObjects_; 
+  edm::EDGetTokenT<JetCollection> srcJets_; 
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_; 
 
   double dRmatch_Jet_;
   double dRmatch_Object_;
