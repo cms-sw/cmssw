@@ -1,7 +1,7 @@
-#ifndef MuonRpcFrameRotation_H
-#define MuonRpcFrameRotation_H
+#ifndef MuonRPCFrameRotation_H
+#define MuonRPCFrameRotation_H
 
-/** \class MuonRpcFrameRotation
+/** \class MuonRPCFrameRotation
  *
  * implementation of FrameRotation for the muon rpc
  * 
@@ -18,10 +18,10 @@
 class MuonG4Numbering;
 class DDCompactView;
 
-class MuonRpcFrameRotation : public MuonFrameRotation {
+class MuonRPCFrameRotation : public MuonFrameRotation {
  public:
-  MuonRpcFrameRotation( const DDCompactView& cpv );
-  virtual ~MuonRpcFrameRotation();
+  MuonRPCFrameRotation( const DDCompactView& cpv );
+  virtual ~MuonRPCFrameRotation();
   virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
  private:
   MuonG4Numbering* g4numbering;

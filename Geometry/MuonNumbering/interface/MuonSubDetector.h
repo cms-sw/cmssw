@@ -29,8 +29,8 @@ class MuonSubDetector {
 
   bool isBarrel();
   bool isEndcap();
-  bool isRpc();
-  bool isGem();
+  bool isRPC();
+  bool isGEM();
   bool isME0();
   std::string name();
   std::string suIdName();

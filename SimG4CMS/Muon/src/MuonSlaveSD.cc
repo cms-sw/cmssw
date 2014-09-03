@@ -31,9 +31,9 @@ bool MuonSlaveSD::format()
     sort(hits_.begin(),hits_.end(), FormatBarrelHits());
   } else if (detector->isEndcap()) {
     sort(hits_.begin(),hits_.end(), FormatEndcapHits());
-  } else if (detector->isRpc()) {
+  } else if (detector->isRPC()) {
     sort(hits_.begin(),hits_.end(), FormatRpcHits());
-  } else if (detector->isGem()) {
+  } else if (detector->isGEM()) {
     sort(hits_.begin(),hits_.end(), FormatGemHits());
   } else if (detector->isME0()) {
     sort(hits_.begin(),hits_.end(), FormatMe0Hits());

@@ -15,9 +15,9 @@ MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const D
     theNumbering=new DTNumberingScheme(cpv);
   } else if (theDetector->isEndcap()) {
     theNumbering=new CSCNumberingScheme(cpv);
-  } else if (theDetector->isRpc()) {
+  } else if (theDetector->isRPC()) {
     theNumbering=new RPCNumberingScheme(cpv);
-  } else if (theDetector->isGem()) {
+  } else if (theDetector->isGEM()) {
     theNumbering=new GEMNumberingScheme(cpv);
   } else if (theDetector->isME0()) {
     theNumbering=new ME0NumberingScheme(cpv);

@@ -29,11 +29,11 @@ bool MuonSubDetector::isEndcap(){
   return (detector==endcap);
 }
 
-bool MuonSubDetector::isRpc(){
+bool MuonSubDetector::isRPC(){
   return (detector==rpc);
 }
 
-bool MuonSubDetector::isGem(){
+bool MuonSubDetector::isGEM(){
   return (detector==gem);
 }
 

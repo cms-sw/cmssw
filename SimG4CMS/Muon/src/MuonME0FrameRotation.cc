@@ -1,4 +1,4 @@
-#include "SimG4CMS/Muon/interface/MuonGemFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
@@ -7,22 +7,22 @@
 
 //#define LOCAL_DEBUG
 
-MuonGemFrameRotation::MuonGemFrameRotation(const DDCompactView& cpv) : MuonFrameRotation::MuonFrameRotation(cpv) {
+MuonME0FrameRotation::MuonME0FrameRotation(const DDCompactView& cpv) : MuonFrameRotation::MuonFrameRotation(cpv) {
   g4numbering     = new MuonG4Numbering(cpv);
   MuonDDDConstants muonConstants(cpv);
   int theLevelPart= muonConstants.getValue("level");
   theSectorLevel  = muonConstants.getValue("mg_sector")/theLevelPart;
 #ifdef LOCAL_DEBUG
-  std::cout << "MuonGemFrameRotation: theSectorLevel " << theSectorLevel 
+  std::cout << "MuonME0FrameRotation: theSectorLevel " << theSectorLevel 
 	    << std::endl;
 #endif
 }
 
-MuonGemFrameRotation::~MuonGemFrameRotation() {
+MuonME0FrameRotation::~MuonME0FrameRotation() {
   delete g4numbering;
 }
 
-Local3DPoint MuonGemFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
+Local3DPoint MuonME0FrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
   if (!aStep) return Local3DPoint(0.,0.,0.);  
 
   //check if it is rotated
@@ -32,7 +32,7 @@ Local3DPoint MuonGemFrameRotation::transformPoint(const Local3DPoint & point,con
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
   bool rotated       = (num.getBaseNo(theSectorLevel)>=50);
 #ifdef LOCAL_DEBUG
-  std::cout << "MuonGemFrameRotation num " << num.getBaseNo(theSectorLevel)
+  std::cout << "MuonME0FrameRotation num " << num.getBaseNo(theSectorLevel)
 	    << " Rotation " << rotated << std::endl;
 #endif
   if (rotated) {
