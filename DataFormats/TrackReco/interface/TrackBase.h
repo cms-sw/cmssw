@@ -95,8 +95,18 @@ public:
 
     /// track algorithm
     enum TrackAlgorithm {
-        undefAlgorithm = 0, ctf = 1, rs = 2, cosmics = 3, iter0 = 4,
-        iter1 = 5, iter2 = 6, iter3 = 7, iter4 = 8, iter5 = 9, iter6 = 10, iter7 = 11, iter8 = 12, iter9 = 13, iter10 = 14,
+        undefAlgorithm = 0, ctf = 1, rs = 2, cosmics = 3,
+        initialStep = 4,
+        lowPtTripletStep = 5,
+        pixelPairStep = 6,
+        detachedTripletStep = 7,
+        mixedTripletStep = 8,
+        pixelLessStep = 9,
+        tobTecStep = 10,
+        jetCoreRegionalStep = 11,
+        iter8 = 12,
+        iter9 = 13,
+        iter10 = 14,
         outInEcalSeededConv = 15, inOutEcalSeededConv = 16,
         nuclInter = 17,
         standAloneMuon = 18, globalMuon = 19, cosmicStandAloneMuon = 20, cosmicGlobalMuon = 21,
@@ -422,21 +432,21 @@ inline std::string TrackBase::algoName() const
         return "cosmics";
     case beamhalo:
         return "beamhalo";
-    case iter0:
+    case initialStep:
         return "iter0";
-    case iter1:
+    case lowPtTripletStep:
         return "iter1";
-    case iter2:
+    case pixelPairStep:
         return "iter2";
-    case iter3:
+    case detachedTripletStep:
         return "iter3";
-    case iter4:
+    case mixedTripletStep:
         return "iter4";
-    case iter5:
+    case pixelLessStep:
         return "iter5";
-    case iter6:
+    case tobTecStep:
         return "iter6";
-    case iter7:
+    case jetCoreRegionalStep:
         return "iter7";
     case iter8:
         return "iter8";
