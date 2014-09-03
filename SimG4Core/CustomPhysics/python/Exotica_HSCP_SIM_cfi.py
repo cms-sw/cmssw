@@ -44,5 +44,5 @@ def customise(process):
             process.customPhysicsSetup,
         )	
 
-	return (process)
+	return process
 	
