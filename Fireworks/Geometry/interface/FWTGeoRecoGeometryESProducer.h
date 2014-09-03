@@ -49,9 +49,9 @@ private:
    TGeoVolume*       createVolume( const std::string& name, const GeomDet *det, ERecoDet = kDummy );
    // TGeoMaterial*     createMaterial( const std::string& name );
 
-   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, int id);
-   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix);
-   TGeoVolume*  GetTopHolder(const char* prefix);
+   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, ERecoDet cidx, int id);
+   TGeoVolume*  GetDaughter(TGeoVolume* mother, const char* prefix, ERecoDet cidx);
+   TGeoVolume*  GetTopHolder( const char* prefix, ERecoDet cidx);
 
    TGeoMedium* GetMedium(ERecoDet);
 
