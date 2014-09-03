@@ -88,7 +88,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
     int ipulse = std::distance(activeBX.begin(),bxit);
     if(*bxit==0) {
-      rh.setOutOfTimeAmplitude(*bxit,0.);
+      rh.setOutOfTimeAmplitude(*bxit+5,0.);
     } else {
       rh.setOutOfTimeAmplitude(*bxit+5, status ? _pulsefunc.X()[ipulse] : 0.);
     }
