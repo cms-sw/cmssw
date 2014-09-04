@@ -117,7 +117,7 @@ public:
         algoSize = 30
     };
 
-    static const std::string algoNames[];
+    static const std::string algorithmNames[];
 
     /// track quality
     enum TrackQuality {
@@ -415,76 +415,6 @@ inline TrackBase::TrackAlgorithm TrackBase::algo() const
     return (TrackAlgorithm) algorithm_;
 }
 
-inline std::string TrackBase::algoName() const
-{
-    // I'd like to do:
-    // return TrackBase::algoName(algorithm_);
-    // but I cannot define a const static function. Why???
-
-    switch (algorithm_) {
-    case undefAlgorithm:
-        return "undefAlgorithm";
-    case ctf:
-        return "ctf";
-    case rs:
-        return "rs";
-    case cosmics:
-        return "cosmics";
-    case beamhalo:
-        return "beamhalo";
-    case initialStep:
-        return "iter0";
-    case lowPtTripletStep:
-        return "iter1";
-    case pixelPairStep:
-        return "iter2";
-    case detachedTripletStep:
-        return "iter3";
-    case mixedTripletStep:
-        return "iter4";
-    case pixelLessStep:
-        return "iter5";
-    case tobTecStep:
-        return "iter6";
-    case jetCoreRegionalStep:
-        return "iter7";
-    case iter8:
-        return "iter8";
-    case iter9:
-        return "iter9";
-    case iter10:
-        return "iter10";
-    case outInEcalSeededConv:
-        return "outInEcalSeededConv";
-    case inOutEcalSeededConv:
-        return "inOutEcalSeededConv";
-    case nuclInter:
-        return "nuclInter";
-    case standAloneMuon:
-        return "standAloneMuon";
-    case globalMuon:
-        return "globalMuon";
-    case cosmicStandAloneMuon:
-        return "cosmicStandAloneMuon";
-    case cosmicGlobalMuon:
-        return "cosmicGlobalMuon";
-    case iter1LargeD0:
-        return "iter1LargeD0";
-    case iter2LargeD0:
-        return "iter2LargeD0";
-    case iter3LargeD0:
-        return "iter3LargeD0";
-    case iter4LargeD0:
-        return "iter4LargeD0";
-    case iter5LargeD0:
-        return "iter5LargeD0";
-    case bTagGhostTracks:
-        return "bTagGhostTracks";
-    case gsf:
-        return "gsf";
-    }
-    return "undefAlgorithm";
-}
 
 inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
 {
@@ -526,7 +456,7 @@ inline std::string TrackBase::qualityName(TrackQuality q)
 inline std::string TrackBase::algoName(TrackAlgorithm a)
 {
     if (int(a) < int(algoSize) && int(a) > 0) {
-        return algoNames[int(a)];
+        return algorithmNames[int(a)];
     }
     return "undefAlgorithm";
 }
