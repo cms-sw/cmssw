@@ -44,10 +44,8 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-//#include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/DBCommon/interface/DbConnection.h"
-//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 
 // forward declarations
 
@@ -165,7 +163,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 	   {
 	     m_dbSession.transaction().start() ; 
 	     pData = m_dbSession.fetchPayload<TData>( payloadToken ) ;
-	     tr.commit ();
+	     m_dbSession.transaction().commit ();
 	   }
        }
      else
