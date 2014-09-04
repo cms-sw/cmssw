@@ -12,6 +12,9 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EcalPulseShapeParameters = cms.PSet( ecal_pulse_shape_parameters ),
     activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4),
 
+    # decide which algorithm to be use to calculate the jitter
+    timealgo = cms.string("RatioMethod"),
+
     # for ratio method
     EBtimeFitParameters = cms.vdouble(-2.015452e+00, 3.130702e+00, -1.234730e+01, 4.188921e+01, -8.283944e+01, 9.101147e+01, -5.035761e+01, 1.105621e+01),
     EEtimeFitParameters = cms.vdouble(-2.390548e+00, 3.553628e+00, -1.762341e+01, 6.767538e+01, -1.332130e+02, 1.407432e+02, -7.541106e+01, 1.620277e+01),

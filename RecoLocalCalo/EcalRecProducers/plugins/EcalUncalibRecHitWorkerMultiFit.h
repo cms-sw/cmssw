@@ -74,9 +74,12 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
 
 
-                // determie which of the samples must actually be used by ECAL local reco
+                // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
                 
+                // time algorithm to be used to set the jitter and its uncertainty
+                std::string timealgo_;
+
                 // time weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
                 edm::ESHandle<EcalTBWeights> wgts;

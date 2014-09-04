@@ -30,6 +30,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
   for(unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) activeBX.insert(activeBXs[ibx]);
 
+  // algorithm to be used for timing
+  timealgo_ = ps.getParameter<std::string>("timealgo");
   
   // ratio method parameters
   EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -187,7 +189,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 {
         DetId detid(itdg->id());
 
-        // const EcalSampleMask  *sampleMask_ = sampleMaskHand_.product();                
+        const EcalSampleMask  *sampleMask_ = sampleMaskHand_.product();                
         
         // intelligence for recHit computation
         EcalUncalibratedRecHit uncalibRecHit;
@@ -279,66 +281,74 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
                 // === time computation ===
-                /*
-                // ratio method
-                float const clockToNsConstant = 25.;
-                if (detid.subdetId()==EcalEndcap) {
-    		                ratioMethod_endcap_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
-                                ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
-                                ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
-                                EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
-				double theTimeCorrectionEE = timeCorrection(uncalibRecHit.amplitude(),
-					timeCorrBias_->EETimeCorrAmplitudeBins, timeCorrBias_->EETimeCorrShiftBins);
-
-                                uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
-                                uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-				
-                } else {
- 		                ratioMethod_barrel_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
-				ratioMethod_barrel_.fixMGPAslew(*itdg);
-                                ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
-                                ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
-                                EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
-
-				double theTimeCorrectionEB = timeCorrection(uncalibRecHit.amplitude(),
-					timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
-
-				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
-
-                                uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-		}
-		*/
-
-                std::vector<double> amplitudes;
-                for(unsigned int ibx=0; ibx<activeBX.size(); ++ibx) amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
-
-                EcalTBWeights::EcalTDCId tdcid(1);
-                EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
-                EcalTBWeights::EcalTBWeightMap::const_iterator wit;
-                wit = wgtsMap.find( std::make_pair(*gid,tdcid) );
-                if( wit == wgtsMap.end() ) {
-                  edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " 
-                                                          << gid->id() << " and  EcalTDCId: " << tdcid
-                                                          << "\n  skipping digi with id: " << detid.rawId();
-
-                  return false;
+                if(timealgo_.compare("RatioMethod")==0) {
+                  // ratio method
+                  float const clockToNsConstant = 25.;
+                  if (detid.subdetId()==EcalEndcap) {
+                    ratioMethod_endcap_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
+                    ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
+                    ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
+                    EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
+                    double theTimeCorrectionEE = timeCorrection(uncalibRecHit.amplitude(),
+                                                                timeCorrBias_->EETimeCorrAmplitudeBins, timeCorrBias_->EETimeCorrShiftBins);
+                    
+                    uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
+                    uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
+                    
+                  } else {
+                    ratioMethod_barrel_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
+                    ratioMethod_barrel_.fixMGPAslew(*itdg);
+                    ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
+                    ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
+                    EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
+                    
+                    double theTimeCorrectionEB = timeCorrection(uncalibRecHit.amplitude(),
+                                                                timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
+                    
+                    uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
+                    
+                    uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
+                  }
+                } else if(timealgo_.compare("WeightsMethod")==0) {
+                  //  weights method on the PU subtracted pulse shape
+                  std::vector<double> amplitudes;
+                  for(unsigned int ibx=0; ibx<activeBX.size(); ++ibx) amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
+                  
+                  EcalTBWeights::EcalTDCId tdcid(1);
+                  EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
+                  EcalTBWeights::EcalTBWeightMap::const_iterator wit;
+                  wit = wgtsMap.find( std::make_pair(*gid,tdcid) );
+                  if( wit == wgtsMap.end() ) {
+                    edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " 
+                                                            << gid->id() << " and  EcalTDCId: " << tdcid
+                                                            << "\n  skipping digi with id: " << detid.rawId();
+                    
+                    return false;
+                  }
+                  const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
+                  
+                  const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+                  const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+                  
+                  weights[0] = &mat1;
+                  weights[1] = &mat2;
+                  
+                  double timerh;
+                  if (detid.subdetId()==EcalEndcap) { 
+                    timerh = weightsMethod_endcap_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
+                  } else {
+                    timerh = weightsMethod_barrel_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
+                  }
+                  uncalibRecHit.setJitter( timerh );
+                  uncalibRecHit.setJitterError( 0. ); // not computed with weights
+                }  else {
+                  edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm called " 
+                                                          << timealgo_
+                                                          << "\n  setting jitter to 0. and jitter uncertainty to 10000. ";
+                  
+                  uncalibRecHit.setJitter( 0. );
+                  uncalibRecHit.setJitterError( 10000. );
                 }
-                const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
-                
-                const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-                const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-
-                weights[0] = &mat1;
-                weights[1] = &mat2;
-
-                double timerh;
-                if (detid.subdetId()==EcalEndcap) { 
-                  timerh = weightsMethod_endcap_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
-                } else {
-                  timerh = weightsMethod_barrel_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
-                }
-                uncalibRecHit.setJitter( timerh );
-                uncalibRecHit.setJitterError( 0. ); // not computed with weights
         }
 
 	// set flags if gain switch has occurred
