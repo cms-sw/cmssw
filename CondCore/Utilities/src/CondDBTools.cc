@@ -82,7 +82,7 @@ namespace cond {
 	// make sure that we import the payload _IN_USE_
 	auto usedIov = p.getInterval( iov.since );
 	std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
-	cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), destSession );
+	cond::Hash ph = import( sourceSession, usedIov.payloadId, readBackPayload.first, readBackPayload.second.get(), destSession );
 	editor.insert( iov.since, ph );
 	pids.insert( ph );
 	niovs++;
@@ -234,7 +234,7 @@ namespace cond {
 	// make sure that we import the payload _IN_USE_
 	auto usedIov = p.getInterval( iov.since );
 	std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
-	cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), destSession );
+	cond::Hash ph = import( sourceSession, usedIov.payloadId, readBackPayload.first, readBackPayload.second.get(), destSession );
 	//std::cout <<"## inserting iov "<<iov.since<<" on time "<<insertionTime<<std::endl;
 	editor.insert( iov.since, ph, insertionTime );
 	pids.insert( ph );
@@ -310,7 +310,7 @@ namespace cond {
 	// make sure that we import the payload _IN_USE_
 	auto usedIov = p.getInterval( newSince );
 	std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
-	cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), destSession );
+	cond::Hash ph = import( sourceSession, usedIov.payloadId, readBackPayload.first, readBackPayload.second.get(), destSession );
 	editor.insert( newSince, ph );
 	pids.insert( ph );
 	niovs++;

@@ -75,6 +75,18 @@ namespace cond {
       virtual void updateValidationCode( const std::string& sourceAccount, const std::string& sourceTag, int statusCode ) = 0;
     };
     
+    class IPayloadMigrationTable {
+    public:
+      virtual ~IPayloadMigrationTable(){}
+      virtual bool exists() = 0;
+      virtual void create() = 0;
+      virtual bool select( const std::string& sourceAccount, const std::string& sourceToken, std::string& payloadId ) = 0;
+      virtual void insert( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
+			   const boost::posix_time::ptime& insertionTime ) = 0;
+      virtual void update( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
+			   const boost::posix_time::ptime& insertionTime ) = 0;
+    };
+
     class IIOVSchema {
     public: 
       virtual ~IIOVSchema(){}
@@ -84,6 +96,8 @@ namespace cond {
       virtual IIOVTable& iovTable() = 0;
       virtual IPayloadTable& payloadTable() = 0;
       virtual ITagMigrationTable& tagMigrationTable() = 0;
+      virtual IPayloadMigrationTable& payloadMigrationTable() = 0;
+      virtual std::string parsePoolToken( const std::string& poolToken ) = 0;
     };
 
     class IGTTable {
