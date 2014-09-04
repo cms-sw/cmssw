@@ -13,7 +13,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 typedef float HGCSimEn_t;
-typedef std::array<HGCSimEn_t,10> HGCSimHitData;
+typedef std::array<HGCSimEn_t,3> HGCSimHitData;
 typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
 
 template <class D>
