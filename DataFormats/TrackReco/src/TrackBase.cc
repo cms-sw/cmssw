@@ -40,10 +40,10 @@ std::string TrackBase::algoName() const
         return "jetCoreRegionalStep";
     case iter8://TODO jaldeaar REMOVE?
         return "iter8";
-    case muonSeedStepInOut:
-        return "muonSeedStepInOut";
-    case muonSeedStepOutInt:
-        return "muonSeedStepOutIn";
+    case muonSeededStepInOut:
+        return "muonSeededStepInOut";
+    case muonSeededStepOutInt:
+        return "muonSeededStepOutIn";
     case outInEcalSeededConv:
         return "outInEcalSeededConv";
     case inOutEcalSeededConv:
@@ -92,8 +92,8 @@ std::string const TrackBase::algorithmNames[] = {
     "tobTecStep",
     "jetCoreRegionalStep",
     "iter8",
-    "muonSeedStepInOut",
-    "muonSeedStepOutIn",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
     "outInEcalSeededConv",
     "inOutEcalSeededConv",
     "nuclInter",
