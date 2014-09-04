@@ -97,10 +97,10 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
   histo_index_invMass_     = iGetter.get("Egamma/"+analyzerName_+"/numberOfHistogramsInInvMassFolder")->getIntValue();
 
   iGetter.setCurrentFolder("Egamma/"+analyzerName_+"/");
-  //  dbe_->removeElement("numberOfHistogramsInPhotonsFolder");
-  // dbe_->removeElement("numberOfHistogramsInConversionsFolder");
-  //dbe_->removeElement("numberOfHistogramsInEfficiencyFolder");
-  //dbe_->removeElement("numberOfHistogramsInInvMassFolder");
+  iGetter.removeElement("numberOfHistogramsInPhotonsFolder");
+  iGetter.removeElement("numberOfHistogramsInConversionsFolder");
+  iGetter.removeElement("numberOfHistogramsInEfficiencyFolder");
+  iGetter.removeElement("numberOfHistogramsInInvMassFolder");
 
   string AllPath    = "Egamma/"+analyzerName_+"/AllPhotons/";
   string IsoPath    = "Egamma/"+analyzerName_+"/GoodCandidatePhotons/";
@@ -127,15 +127,15 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
 
   //booking conversion fraction histograms
   iGetter.setCurrentFolder(AllPath+"Et above 20 GeV/Conversions");
-  p_convFractionVsEt_  = book2DHistoVector(iBooker,"1D","convFractionVsEt", "Fraction of Converted Photons vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-  p_convFractionVsPhi_ = book3DHistoVector(iBooker,"1D","convFractionVsPhi","Fraction of Converted Photons vs #phi;#phi",phiBin,phiMin,phiMax);
-  p_convFractionVsEta_ = book2DHistoVector(iBooker,"1D","convFractionVsEta","Fraction of Converted Photons vs #eta;#eta",etaBin,etaMin,etaMax);
+  book2DHistoVector(iBooker, p_convFractionVsEt_, "1D","convFractionVsEt", "Fraction of Converted Photons vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  book3DHistoVector(iBooker, p_convFractionVsPhi_,"1D","convFractionVsPhi","Fraction of Converted Photons vs #phi;#phi",phiBin,phiMin,phiMax);
+  book2DHistoVector(iBooker, p_convFractionVsEta_, "1D","convFractionVsEta","Fraction of Converted Photons vs #eta;#eta",etaBin,etaMin,etaMax);
 
   //booking bad channel fraction histograms
   iGetter.setCurrentFolder(AllPath+"Et above 20 GeV/");
-  p_badChannelsFractionVsPhi_ = book2DHistoVector(iBooker,"1D","badChannelsFractionVsPhi","Fraction of Photons which have at least one bad channel vs #phi;#phi",phiBin,phiMin,phiMax);
-  p_badChannelsFractionVsEta_ = book2DHistoVector(iBooker,"1D","badChannelsFractionVsEta","Fraction of Photons which have at least one bad channel vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_badChannelsFractionVsEt_  = book2DHistoVector(iBooker,"1D","badChannelsFractionVsEt", "Fraction of Photons which have at least one bad channel vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  book2DHistoVector(iBooker, p_badChannelsFractionVsPhi_, "1D","badChannelsFractionVsPhi","Fraction of Photons which have at least one bad channel vs #phi;#phi",phiBin,phiMin,phiMax);
+  book2DHistoVector(iBooker, p_badChannelsFractionVsEta_, "1D","badChannelsFractionVsEta","Fraction of Photons which have at least one bad channel vs #eta;#eta",etaBin,etaMin, etaMax);
+  book2DHistoVector(iBooker, p_badChannelsFractionVsEt_, "1D","badChannelsFractionVsEt", "Fraction of Photons which have at least one bad channel vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
 
   //making efficiency plots
   MonitorElement * dividend;
@@ -146,81 +146,81 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
   currentFolder_ << AllPath << "Et above 20 GeV/";
 
   //HLT efficiency plots
-  dividend    = retrieveHisto(EffPath,"EfficiencyVsEtaHLT");
-  numerator   = retrieveHisto(EffPath,"phoEtaPostHLT");
-  denominator = retrieveHisto(EffPath,"phoEtaPreHLT");
+  dividend    = retrieveHisto(iGetter,EffPath,"EfficiencyVsEtaHLT");
+  numerator   = retrieveHisto(iGetter,EffPath,"phoEtaPostHLT");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtaPreHLT");
   dividePlots(dividend,numerator,denominator);
 
-  dividend    = retrieveHisto(EffPath,"EfficiencyVsEtHLT");
-  numerator   = retrieveHisto(EffPath,"phoEtPostHLT");
-  denominator = retrieveHisto(EffPath,"phoEtPreHLT");
+  dividend    = retrieveHisto(iGetter,EffPath,"EfficiencyVsEtHLT");
+  numerator   = retrieveHisto(iGetter,EffPath,"phoEtPostHLT");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtPreHLT");
   dividePlots(dividend,numerator,denominator);
 
   //efficiencies vs Eta
-  denominator = retrieveHisto(currentFolder_.str(),"phoEta");
+  denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoEta");
 
-  dividend    = retrieveHisto(EffPath,"EfficiencyVsEtaLoose");
-  numerator   = retrieveHisto(EffPath,"phoEtaLoose");
+  dividend    = retrieveHisto(iGetter,EffPath,"EfficiencyVsEtaLoose");
+  numerator   = retrieveHisto(iGetter,EffPath,"phoEtaLoose");
   dividePlots(dividend,numerator,denominator);
 
-  dividend    = retrieveHisto(EffPath,"EfficiencyVsEtaTight");
-  numerator   = retrieveHisto(EffPath,"phoEtaTight");
+  dividend    = retrieveHisto(iGetter,EffPath,"EfficiencyVsEtaTight");
+  numerator   = retrieveHisto(iGetter,EffPath,"phoEtaTight");
   dividePlots(dividend,numerator,denominator);
 
   //efficiencies vs Et
-  denominator = retrieveHisto(currentFolder_.str(),"phoEtAllEcal");
+  denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoEtAllEcal");
 
-  dividend    = retrieveHisto(EffPath,"EfficiencyVsEtLoose");
-  numerator   = retrieveHisto(EffPath,"phoEtLoose");
+  dividend    = retrieveHisto(iGetter,EffPath,"EfficiencyVsEtLoose");
+  numerator   = retrieveHisto(iGetter,EffPath,"phoEtLoose");
   dividePlots(dividend,numerator,denominator);
 
-  dividend    = retrieveHisto(EffPath,"EfficiencyVsEtTight");
-  numerator   = retrieveHisto(EffPath,"phoEtTight");
+  dividend    = retrieveHisto(iGetter,EffPath,"EfficiencyVsEtTight");
+  numerator   = retrieveHisto(iGetter,EffPath,"phoEtTight");
   dividePlots(dividend,numerator,denominator);
 
   //conversion fractions vs Eta
-  dividend    = retrieveHisto(EffPath,"ConvFractionVsEtaLoose");
-  numerator   = retrieveHisto(EffPath,"convEtaLoose");
-  denominator = retrieveHisto(EffPath,"phoEtaLoose");
+  dividend    = retrieveHisto(iGetter,EffPath,"ConvFractionVsEtaLoose");
+  numerator   = retrieveHisto(iGetter,EffPath,"convEtaLoose");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtaLoose");
   dividePlots(dividend,numerator,denominator);
 
-  dividend    = retrieveHisto(EffPath,"ConvFractionVsEtaTight");
-  numerator   = retrieveHisto(EffPath,"convEtaTight");
-  denominator = retrieveHisto(EffPath,"phoEtaTight");
+  dividend    = retrieveHisto(iGetter,EffPath,"ConvFractionVsEtaTight");
+  numerator   = retrieveHisto(iGetter,EffPath,"convEtaTight");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtaTight");
   dividePlots(dividend,numerator,denominator);
 
   //conversion fractions vs Et
-  dividend    = retrieveHisto(EffPath,"ConvFractionVsEtLoose");
-  numerator   = retrieveHisto(EffPath,"convEtLoose");
-  denominator = retrieveHisto(EffPath,"phoEtLoose");
+  dividend    = retrieveHisto(iGetter,EffPath,"ConvFractionVsEtLoose");
+  numerator   = retrieveHisto(iGetter,EffPath,"convEtLoose");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtLoose");
   dividePlots(dividend,numerator,denominator);
 
-  dividend    = retrieveHisto(EffPath,"ConvFractionVsEtTight");
-  numerator   = retrieveHisto(EffPath,"convEtTight");
-  denominator = retrieveHisto(EffPath,"phoEtTight");
+  dividend    = retrieveHisto(iGetter,EffPath,"ConvFractionVsEtTight");
+  numerator   = retrieveHisto(iGetter,EffPath,"convEtTight");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtTight");
   dividePlots(dividend,numerator,denominator);
 
   //conversion vertex recontruction efficiency
-  dividend    = retrieveHisto(EffPath,"VertexReconstructionEfficiencyVsEta");
-  numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvEta");
-  denominator = retrieveHisto(EffPath,"phoEtaVertex");
+  dividend    = retrieveHisto(iGetter,EffPath,"VertexReconstructionEfficiencyVsEta");
+  numerator   = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","phoConvEta");
+  denominator = retrieveHisto(iGetter,EffPath,"phoEtaVertex");
   dividePlots(dividend,numerator,denominator);
 
   iGetter.setCurrentFolder(EffPath);
 
-  dbe_->removeElement("phoEtaPreHLT");
-  dbe_->removeElement("phoEtPreHLT");
-  dbe_->removeElement("phoEtaPostHLT");
-  dbe_->removeElement("phoEtPostHLT");
-  dbe_->removeElement("phoEtaLoose");
-  dbe_->removeElement("phoEtaTight");
-  dbe_->removeElement("phoEtLoose");
-  dbe_->removeElement("phoEtTight");
-  dbe_->removeElement("phoEtaVertex");
-  dbe_->removeElement("convEtaLoose");
-  dbe_->removeElement("convEtaTight");
-  dbe_->removeElement("convEtLoose");
-  dbe_->removeElement("convEtTight");
+  iGetter.removeElement("phoEtaPreHLT");
+  iGetter.removeElement("phoEtPreHLT");
+  iGetter.removeElement("phoEtaPostHLT");
+  iGetter.removeElement("phoEtPostHLT");
+  iGetter.removeElement("phoEtaLoose");
+  iGetter.removeElement("phoEtaTight");
+  iGetter.removeElement("phoEtLoose");
+  iGetter.removeElement("phoEtTight");
+  iGetter.removeElement("phoEtaVertex");
+  iGetter.removeElement("convEtaLoose");
+  iGetter.removeElement("convEtaTight");
+  iGetter.removeElement("convEtLoose");
+  iGetter.removeElement("convEtTight");
 
   for(uint type=0;type!=types_.size();++type){
 
@@ -232,57 +232,57 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
       //making bad channel histograms
 
       //vs Et
-      dividend    = retrieveHisto(currentFolder_.str(),"badChannelsFractionVsEt");
-      numerator   = retrieveHisto(currentFolder_.str(),"phoEtBadChannels");
-      denominator = retrieveHisto(currentFolder_.str(),"phoEtAllEcal");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str(),"badChannelsFractionVsEt");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str(),"phoEtBadChannels");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoEtAllEcal");
       dividePlots(dividend,numerator,denominator);
 
       //vs eta
-      dividend    = retrieveHisto(currentFolder_.str(),"badChannelsFractionVsEta");
-      numerator   = retrieveHisto(currentFolder_.str(),"phoEtaBadChannels");
-      denominator = retrieveHisto(currentFolder_.str(),"phoEta");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str(),"badChannelsFractionVsEta");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str(),"phoEtaBadChannels");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoEta");
       dividePlots(dividend,numerator,denominator);
 
       //vs phi
-      dividend    = retrieveHisto(currentFolder_.str(),"badChannelsFractionVsPhi");
-      numerator   = retrieveHisto(currentFolder_.str(),"phoPhiBadChannels");
-      denominator = retrieveHisto(currentFolder_.str(),"phoPhiAllEcal");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str(),"badChannelsFractionVsPhi");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str(),"phoPhiBadChannels");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoPhiAllEcal");
       dividePlots(dividend,numerator,denominator);
 
       //making conversion fraction histograms
 
       //vs Et
-      dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsEt");
-      numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvEtAllEcal");
-      denominator = retrieveHisto(currentFolder_.str(),"phoEtAllEcal");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","convFractionVsEt");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","phoConvEtAllEcal");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoEtAllEcal");
       dividePlots(dividend,numerator,denominator);
 
       //vs eta
-      dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsEta");
-      numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvEtaForEfficiency");
-      denominator = retrieveHisto(currentFolder_.str(),"phoEta");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","convFractionVsEta");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","phoConvEtaForEfficiency");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoEta");
       dividePlots(dividend,numerator,denominator);
 
       //vs phi
-      dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsPhiAllEcal");
-      numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyAllEcal");
-      denominator = retrieveHisto(currentFolder_.str(),"phoPhiAllEcal");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","convFractionVsPhiAllEcal");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyAllEcal");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoPhiAllEcal");
       dividePlots(dividend,numerator,denominator);
-      dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsPhiBarrel");
-      numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyBarrel");
-      denominator = retrieveHisto(currentFolder_.str(),"phoPhiBarrel");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","convFractionVsPhiBarrel");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyBarrel");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoPhiBarrel");
       dividePlots(dividend,numerator,denominator);
-      dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsPhiEndcaps");
-      numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyEndcaps");
-      denominator = retrieveHisto(currentFolder_.str(),"phoPhiEndcaps");
+      dividend    = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","convFractionVsPhiEndcaps");
+      numerator   = retrieveHisto(iGetter,currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyEndcaps");
+      denominator = retrieveHisto(iGetter,currentFolder_.str(),"phoPhiEndcaps");
       dividePlots(dividend,numerator,denominator);
 
 
       iGetter.setCurrentFolder(currentFolder_.str()+"Conversions/");
-      dbe_->removeElement("phoConvEtaForEfficiency");
-      dbe_->removeElement("phoConvPhiForEfficiencyAllEcal");
-      dbe_->removeElement("phoConvPhiForEfficiencyBarrel");
-      dbe_->removeElement("phoConvPhiForEfficiencyEndcaps");
+      iGetter.removeElement("phoConvEtaForEfficiency");
+      iGetter.removeElement("phoConvPhiForEfficiencyAllEcal");
+      iGetter.removeElement("phoConvPhiForEfficiencyBarrel");
+      iGetter.removeElement("phoConvPhiForEfficiencyEndcaps");
     }
   }  
   
@@ -355,14 +355,16 @@ MonitorElement* PhotonOfflineClient::bookHisto(DQMStore::IBooker& iBooker, strin
 
 }
 
-vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(DQMStore::IBooker& iBooker, string histoType, string histoName, string title,
-									     int xbin, double xmin,double xmax,
-									     int ybin, double ymin, double ymax)
+
+
+void PhotonOfflineClient::book2DHistoVector(DQMStore::IBooker& iBooker, std::vector<vector<MonitorElement*> >& temp2DVector, 
+					    std::string histoType, std::string histoName, std::string title,
+					    int xbin, double xmin,double xmax,
+					    int ybin, double ymin, double ymax)
 {
   int histo_index = 0;
 
   vector<MonitorElement*> temp1DVector;
-  vector<vector<MonitorElement*> > temp2DVector;
 
   //determining which folder we're in
   bool conversionPlot = false;
@@ -409,22 +411,22 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(DQMStore
     temp1DVector.clear();
   }
 
-  return temp2DVector;
+
 
 }
 
 
 
-vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector(DQMStore::IBooker& iBooker, string histoType, string histoName, string title,
-									     int xbin, double xmin,double xmax,
-									     int ybin, double ymin, double ymax)
+
+void PhotonOfflineClient::book3DHistoVector(DQMStore::IBooker& iBooker, std::vector<vector<vector<MonitorElement*> > >& temp3DVector,
+					    std::string histoType, std::string histoName, std::string title,
+					    int xbin, double xmin,double xmax,
+					    int ybin, double ymin, double ymax)
 {
   int histo_index = 0;
 
   vector<MonitorElement*> temp1DVector;
   vector<vector<MonitorElement*> > temp2DVector;
-  vector<vector<vector<MonitorElement*> > > temp3DVector;
-
 
   //determining which folder we're in
   bool conversionPlot = false;
@@ -478,17 +480,17 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
     temp2DVector.clear();
   }
 
-  return temp3DVector;
+
 }
 
 
-MonitorElement* PhotonOfflineClient::retrieveHisto(string dir, string name){
+MonitorElement* PhotonOfflineClient::retrieveHisto(DQMStore::IGetter& iGetter,string dir, string name){
   //cout << "dir = " << dir << endl;
   //cout << "name = " << name << endl;
   vector<MonitorElement*> histoVector;
   uint indexOfRelevantHistogram=0;
   string fullMEName = "";
-  histoVector = dbe_->getContents(dir);
+  histoVector = iGetter.getContents(dir);
   for(uint index=0;index!=histoVector.size();index++){
     string MEName = histoVector[index]->getName();
     if(MEName.find( name ) != string::npos){
