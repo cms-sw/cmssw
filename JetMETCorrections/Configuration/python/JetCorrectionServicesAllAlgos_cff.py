@@ -165,10 +165,13 @@ ak7PFL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL2Relative','ak7PFL3Absolute')
     )
-
 ak7PFCHSL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFCHSL2Relative','ak7PFCHSL3Absolute')
+    )
+ak8PFL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors = cms.vstring('ak8PFL2Relative','ak8PFL3Absolute')
     )
 ak8PFCHSL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
