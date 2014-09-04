@@ -44,9 +44,10 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbConnection.h"
+//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+#include "CondCore/CondDB/interface/Session.h"
 
 // forward declarations
 
@@ -77,8 +78,7 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
                          std::string& objectKey ) ;
 
       // For reading object directly from a CondDB w/o PoolDBOutputService
-      cond::DbConnection m_dbConnection ;
-      cond::DbSession m_dbSession ;
+      cond::persistency::Session m_dbSession ;
       bool m_copyFromCondDB ;
 };
 
@@ -87,7 +87,6 @@ template< class TRcd, class TData >
 L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::ParameterSet& iConfig)
    : m_omdsReader(),
      m_forceGeneration( iConfig.getParameter< bool >( "forceGeneration" ) ),
-     m_dbConnection(),
      m_dbSession(),
      m_copyFromCondDB( false )
 {
@@ -103,14 +102,12 @@ L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::Parameter
 
       if( m_copyFromCondDB )
 	{
-	  // Connect DbSession
-	  m_dbConnection.configuration().setAuthenticationPath(
+	  cond::persistency::ConnectionPool connectionPool;
+	  // Connect DB Session
+	  connectionPool.setAuthenticationPath(
 	     iConfig.getParameter< std::string >( "onlineAuthentication" ) ) ;
-	  m_dbConnection.configure() ;
-	  m_dbSession = m_dbConnection.createSession() ;
-	  m_dbSession.open(
-			   iConfig.getParameter< std::string >( "onlineDB" ),
-			   true ); // read-only
+	  connectionPool.configure() ;
+	  m_dbSession = connectionPool.createSession( iConfig.getParameter< std::string >( "onlineDB" ) ) ;
 	}
     }
   else
@@ -166,9 +163,8 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 	 // Copied from l1t::DataWriter::readObject()
 	 if( !payloadToken.empty() )
 	   {
-	     cond::DbScopedTransaction tr( m_dbSession ) ;
-	     tr.start( true ) ; 
-	     pData = m_dbSession.getTypedObject<TData>( payloadToken ) ;
+	     m_dbSession.transaction().start() ; 
+	     pData = m_dbSession.fetchPayload<TData>( payloadToken ) ;
 	     tr.commit ();
 	   }
        }
