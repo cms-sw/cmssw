@@ -459,8 +459,8 @@ void EcalUncalibRecHitWorkerMultiFit::fillInputs(const edm::ParameterSet& params
   for(int k=0; k<std::pow(nShapeSamples,2); ++k) {
     int i = k/nShapeSamples;
     int j = k%nShapeSamples;
-    fullpulsecovEB(i,j) = 1.0e-6 * ebPulseCov[k];
-    fullpulsecovEE(i,j) = 1.0e-6 * eePulseCov[k];
+    fullpulsecovEB(i,j) = ebPulseCov[k];
+    fullpulsecovEE(i,j) = eePulseCov[k];
   }
 
 }
