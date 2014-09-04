@@ -49,7 +49,7 @@ ak8L1JPTOffset = ak4L1JPTOffset.clone()
 
 # L2 (relative eta-conformity) Correction Services
 ak7CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK7Calo' )
-ak8CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK8Calo' )
+ak8CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK7Calo' )
 kt4CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'KT4Calo' )
 kt6CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'KT6Calo' )
 ic5CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'IC5Calo' )
@@ -64,7 +64,7 @@ ic5PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'IC5PF' )
 
 # L3 (absolute) Correction Services
 ak7CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK7Calo' )
-ak8CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK8Calo' )
+ak8CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK7Calo' )
 kt4CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'KT4Calo' )
 kt6CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'KT6Calo' )
 ic5CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'IC5Calo' )
