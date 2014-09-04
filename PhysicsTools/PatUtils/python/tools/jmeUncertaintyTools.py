@@ -140,7 +140,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # store collection of jets shifted up/down in energy resolution    
         #--------------------------------------------------------------------------------------------  
         if not isValidInputTag(jetCollection) or jetCollection=="":
-            print "Warning, jet collection %s does not exists, no energy resolution shifting performed in PAT" % jetCollection
+            print "INFO : jet collection %s does not exists, no energy resolution shifting will be performed in MET uncertainty tools" % jetCollection
         else:
             if addShiftedResJetCollections:
                 variations = { "ResUp":-1., "ResDown":1.  }
@@ -159,7 +159,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # produce collection of jets shifted up/down in energy    
         #--------------------------------------------------------------------------------------------     
         if not isValidInputTag(jetCollection) or jetCollection=="":
-            print "Warning, jet collection %s does not exists, no energy shifting performed in PAT" % jetCollection
+            print "INFO : jet collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % jetCollection
         else:
             shiftedJetsCollections, jetsCollectionsToKeep = addShiftedJetCollections(
                 process,jetCollection,lastJetCollection,
@@ -174,7 +174,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # produce collection of electrons shifted up/down in energy
         #--------------------------------------------------------------------------------------------
         if not isValidInputTag(electronCollection) or electronCollection=="":
-            print "Warning, electron collection %s does not exists, no energy shifting performed in PAT" % electronCollection
+            print "INFO : electron collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % electronCollection
         else:
             shiftedElectronsCollections, electronsCollectionsToKeep = addShiftedSingleParticleCollection(
                 process, "electron", electronCollection,
@@ -188,7 +188,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # produce collection of (high Pt) photon candidates shifted up/down in energy
         #--------------------------------------------------------------------------------------------  
         if not isValidInputTag(photonCollection) or photonCollection=="":
-            print "Warning, photon collection %s does not exists, no energy shifting performed in PAT" % photonCollection
+            print "Warning, photon collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % photonCollection
         else:
             shiftedPhotonsCollections, photonsCollectionsToKeep = addShiftedSingleParticleCollection(
                 process, "photon", photonCollection,
@@ -201,7 +201,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # produce collection of muons shifted up/down in energy/momentum  
         #--------------------------------------------------------------------------------------------
         if not isValidInputTag(muonCollection) or muonCollection=="":
-            print "Warning, muon collection %s does not exists, no energy shifting performed in PAT" % muonCollection
+            print "INFO : muon collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % muonCollection
         else:
             shiftedMuonsCollections, muonsCollectionsToKeep = addShiftedSingleParticleCollection(process, "muon", muonCollection,
                                                varyByNsigmas,shiftedParticleSequence,
@@ -213,7 +213,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # produce collection of tau-jets shifted up/down in energy
         #-------------------------------------------------------------------------------------------- 
         if not isValidInputTag(tauCollection) or tauCollection=="":
-            print "Warning, tau collection %s does not exists, no energy shifting performed in PAT" % tauCollection
+            print "INFO : tau collection %s does not exists, no energy shifting  will be performed in MET uncertainty tools" % tauCollection
         else:
             shiftedTausCollections, tausCollectionsToKeep = addShiftedSingleParticleCollection(process, "tau", tauCollection,
                                                varyByNsigmas,shiftedParticleSequence,

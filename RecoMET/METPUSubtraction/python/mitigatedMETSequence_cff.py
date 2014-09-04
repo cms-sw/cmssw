@@ -10,6 +10,9 @@ from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from RecoJets.JetProducers.PileupJetIDParams_cfi import JetIdParams
 
+from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+kt6PFJets = kt4PFJets.clone(rParam = cms.double(0.6), doRhoFastjet = True )
+
 calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('PFJetCorrectionProducer',
     src = cms.InputTag('ak4PFJets'),
     correctors = cms.vstring("ak4PFL1FastL2L3") # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
@@ -70,6 +73,7 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
 )
 
 pfMVAMEtSequence  = cms.Sequence(
+    kt6PFJets*
     calibratedAK4PFJetsForPFMVAMEt*
     pfMVAMEt
 )

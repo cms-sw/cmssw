@@ -11,6 +11,9 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 ##from RecoJets.JetProducers.PileupJetIDCutParams_cfi import full_53x_wp
 from RecoJets.JetProducers.PileupJetIDParams_cfi import JetIdParams
 
+from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+kt6PFJets = kt4PFJets.clone(rParam = cms.double(0.6), doRhoFastjet = True )
+
 ##from RecoMET.METPUSubtraction.mvaPFMET_db_cfi import mvaPFMEtGBRForestsFromDB
 
 calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('PFJetCorrectionProducer',
@@ -77,8 +80,11 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     verbosity = cms.int32(0)
 )
 
+
+
 pfMVAMEtSequence  = cms.Sequence(
     #(isomuonseq+isotauseq+isoelectronseq)*
+    kt6PFJets*
     calibratedAK4PFJetsForPFMVAMEt*
     pfMVAMEt
 )
