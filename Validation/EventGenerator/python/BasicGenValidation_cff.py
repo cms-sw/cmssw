@@ -29,7 +29,6 @@ from Validation.EventGenerator.HiggsValidation_cfi  import *
 
 # define sequences...
 basicGenTest_seq = cms.Sequence(basicHepMCValidation+basicGenParticleValidation)
-basicHiGenTest_seq = cms.Sequence(basicHepMCValidation+basicHepMCHeavyIonValidation+basicHiGenParticleValidation)
 duplicationChecker_seq = cms.Sequence(duplicationChecker)
 mbueAndqcdValidation_seq = cms.Sequence(mbueAndqcd_seq)
 drellYanValidation_seq = cms.Sequence(drellYanEleValidation+drellYanMuoValidation)

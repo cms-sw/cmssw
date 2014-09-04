@@ -7,7 +7,7 @@ from Validation.RecoHI.HLTValidationHeavyIons_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 
 validationHI = cms.Sequence(hiBasicGenTest
-                            *basicHiGenTest_seq
+                            *basicHepMCHeavyIonValidation
                             *globaldigisanalyze
                             *globalhitsanalyze
                             *globalrechitsanalyze
