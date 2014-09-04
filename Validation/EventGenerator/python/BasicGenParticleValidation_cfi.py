@@ -8,3 +8,4 @@ basicGenParticleValidation = cms.EDAnalyzer("BasicGenParticleValidation",
     verbosity = cms.untracked.uint32(0),
     UseWeightFromHepMC = cms.bool(True)
 )
+basicHiGenParticleValidation = basicGenParticleValidation.clone(genparticleCollection = cms.InputTag("hiGenParticles",""), genjetsCollection = cms.InputTag("ak4HiGenJets",""))
