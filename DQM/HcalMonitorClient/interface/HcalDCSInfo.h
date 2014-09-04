@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -36,10 +36,9 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class MonitorElement;
 
-class HcalDCSInfo: public edm::EDAnalyzer {
+class HcalDCSInfo: public DQMEDAnalyzer {
 
  public:
 
@@ -48,32 +47,23 @@ class HcalDCSInfo: public edm::EDAnalyzer {
   
   /// Destructor
   virtual ~HcalDCSInfo();
+  
+  /// BeginJob
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
 
  private:
 
-  /// BeginJob
-  void beginJob();
-
-  /// Begin Run
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  /// Begin Of Luminosity
-                                                                               
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
-
   /// End Luminosity Block
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
-
+  //virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
 
   /// Analyze
-
   void analyze(edm::Event const&, edm::EventSetup const&);
 
   int debug_;
 
 private:
 
-  DQMStore* dqmStore_;
   MonitorElement * DCSSummaryMap_;
   MonitorElement * DCSFraction_;
   MonitorElement * DCSFractionHB_;

@@ -29,9 +29,10 @@
 #include <algorithm>
 #include <cmath>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-class CaloTowersValidation : public edm::EDAnalyzer {
+class CaloTowersValidation : public DQMEDAnalyzer {
  public:
    CaloTowersValidation(edm::ParameterSet const& conf);
   ~CaloTowersValidation();
@@ -40,6 +41,7 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   virtual void endJob() ;
   virtual void beginRun() ;
   virtual void endRun() ;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   double dR(double eta1, double phi1, double eta2, double phi2);
