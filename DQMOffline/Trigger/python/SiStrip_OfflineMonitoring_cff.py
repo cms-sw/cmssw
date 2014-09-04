@@ -49,11 +49,10 @@ from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone()
 hltTrackRefitterForSiStripMonitorTrack.beamSpot                = cms.InputTag("hltOnlineBeamSpot")
 hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent')
-#MeasurementTrackerEvent = cms.InputTag("hltSiStripClusters")
 hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(True)
 hltTrackRefitterForSiStripMonitorTrack.useHitsSplitting        = cms.bool(False)
-hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag("hltIter4Merged") # scenario 0
-#hltTrackRefitterForSiStripMonitorTrack.src = cms.InputTag("hltIter2Merged") # scenario 1
+#hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter4Merged") # scenario 0
+hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter2Merged") # scenario 1
 
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
@@ -66,12 +65,8 @@ HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
 HLTSiStripMonitorTrack.Mod_On            = cms.bool(False)
 
 sistripMonitorHLTsequence = cms.Sequence(
-#    HLTsiStripClusters
-#    * HLTSiStripMonitorCluster
     HLTSiStripMonitorCluster
-### commented as book keeping, because there is not the possibility of having the trajectory for S/N !!!
-#    * hltTrackRefitterForSiStripMonitorTrack
-#    * HLTSiStripMonitorTrack
     * hltTrackRefitterForSiStripMonitorTrack
     * HLTSiStripMonitorTrack
 )    
+
