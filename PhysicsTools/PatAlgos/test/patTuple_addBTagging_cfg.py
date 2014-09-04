@@ -34,11 +34,11 @@ addJetCollection(
       ,'simpleSecondaryVertexNegativeHighPurBJetTags'
       ,'combinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexPositiveBJetTags'
-      #,'combinedSecondaryVertexV1BJetTags'
-      #,'combinedSecondaryVertexV1PositiveBJetTags'
+			,'combinedInclusiveSecondaryVertexV2BJetTags'
+			,'combinedInclusiveSecondaryVertexV2PositiveBJetTags'
+			,'combinedInclusiveSecondaryVertexV2NegativeBJetTags'
       ,'combinedSecondaryVertexMVABJetTags'
       ,'combinedSecondaryVertexNegativeBJetTags'
-      #,'combinedSecondaryVertexV1NegativeBJetTags'
       ,'softPFMuonBJetTags'
       ,'softPFMuonByPtBJetTags'
       ,'softPFMuonByIP3dBJetTags'
@@ -71,9 +71,6 @@ addJetCollection(
       #,'combinedMVABJetTags'
       ,'positiveCombinedMVABJetTags'
       ,'negativeCombinedMVABJetTags'
-      #,'combinedSecondaryVertexSoftPFLeptonV1BJetTags'
-      #,'positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
-      #,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
     ],
   )
 process.patJetsAK4PF.addTagInfos = True
