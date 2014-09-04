@@ -82,6 +82,8 @@ namespace CondFormats_HcalObjects {
 
     HcalTimingParams myTimingParams;
     std::vector<HcalTimingParam> myTimingParamVec;
+
+    OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
   };
 }
 

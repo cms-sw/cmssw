@@ -376,4 +376,8 @@
  </class> 
  <class name="HcalFlagHFDigiTimeParams" class_version="0"/>
 
+ <class name="OOTPileupCorrectionBuffer">
+  <field name="m_buffer" mapping="blob" />
+ </class>
+
 </lcgdict>   
