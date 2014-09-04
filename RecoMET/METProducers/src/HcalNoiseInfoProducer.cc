@@ -49,7 +49,8 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
-  minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
+  if(iConfig.existsAs<double>("minR45HitE"))
+     minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
   if (iConfig.exists("HcalRecHitFlagsToBeExcluded"))

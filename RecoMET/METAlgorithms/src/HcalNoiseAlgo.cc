@@ -120,9 +120,19 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
   pMaxHighEHitTime_ = iConfig.getParameter<double>("pMaxHighEHitTime");
   pMaxHPDEMF_ = iConfig.getParameter<double>("pMaxHPDEMF");
   pMaxRBXEMF_ = iConfig.getParameter<double>("pMaxRBXEMF");
-  pMinRBXRechitR45Count_ = iConfig.getParameter<int>("pMinRBXRechitR45Count");
-  pMinRBXRechitR45Fraction_ = iConfig.getParameter<double>("pMinRBXRechitR45Fraction");
-  pMinRBXRechitR45EnergyFraction_ = iConfig.getParameter<double>("pMinRBXRechitR45EnergyFraction");
+
+  if(iConfig.existsAs<int>("pMinRBXRechitR45Count"))
+     pMinRBXRechitR45Count_ = iConfig.getParameter<int>("pMinRBXRechitR45Count");
+  else
+     pMinRBXRechitR45Count_ = 0;
+  if(iConfig.existsAs<double>("pMinRBXRechitR45Fraction"))
+     pMinRBXRechitR45Fraction_ = iConfig.getParameter<double>("pMinRBXRechitR45Fraction");
+  else
+     pMinRBXRechitR45Fraction_ = 0;
+  if(iConfig.existsAs<double>("pMinRechitR45EnergyFraction"))
+     pMinRBXRechitR45EnergyFraction_ = iConfig.getParameter<double>("pMinRBXRechitR45EnergyFraction");
+  else
+     pMinRBXRechitR45EnergyFraction_ = 0;
 
   lMinRatio_ = iConfig.getParameter<double>("lMinRatio");
   lMaxRatio_ = iConfig.getParameter<double>("lMaxRatio");
@@ -134,7 +144,14 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
   lMaxLowEHitTime_ = iConfig.getParameter<double>("lMaxLowEHitTime");
   lMinHighEHitTime_ = iConfig.getParameter<double>("lMinHighEHitTime");
   lMaxHighEHitTime_ = iConfig.getParameter<double>("lMaxHighEHitTime");
-  lMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("lRBXRecHitR45Cuts");
+
+  if(iConfig.existsAs<std::vector<double> >("lRBXRecHitR45Cuts"))
+     lMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("lRBXRecHitR45Cuts");
+  else
+  {
+     double defaultCut[4] = {-999, -999, -999, -999};
+     lMinRBXRechitR45Cuts_ = std::vector<double>(defaultCut, defaultCut + 4);
+  }
 
   tMinRatio_ = iConfig.getParameter<double>("tMinRatio");
   tMaxRatio_ = iConfig.getParameter<double>("tMaxRatio");
@@ -146,7 +163,14 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
   tMaxLowEHitTime_ = iConfig.getParameter<double>("tMaxLowEHitTime");
   tMinHighEHitTime_ = iConfig.getParameter<double>("tMinHighEHitTime");
   tMaxHighEHitTime_ = iConfig.getParameter<double>("tMaxHighEHitTime");
-  tMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("tRBXRecHitR45Cuts");
+
+  if(iConfig.existsAs<std::vector<double> >("tRBXRecHitR45Cuts"))
+     tMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("tRBXRecHitR45Cuts");
+  else
+  {
+     double defaultCut[4] = {-999, -999, -999, -999};
+     tMinRBXRechitR45Cuts_ = std::vector<double>(defaultCut, defaultCut + 4);
+  }
 
   hlMaxHPDEMF_ = iConfig.getParameter<double>("hlMaxHPDEMF");
   hlMaxRBXEMF_ = iConfig.getParameter<double>("hlMaxRBXEMF");
