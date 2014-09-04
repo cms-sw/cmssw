@@ -232,6 +232,8 @@ GsfElectronAlgo::EventData::EventData()
    tkIsolation03(0), tkIsolation04(0),
    hadDepth1Isolation03(0), hadDepth1Isolation04(0),
    hadDepth2Isolation03(0), hadDepth2Isolation04(0),
+   hadDepth1Isolation03Bc(0), hadDepth1Isolation04Bc(0),
+   hadDepth2Isolation03Bc(0), hadDepth2Isolation04Bc(0),
    ecalBarrelIsol03(0), ecalBarrelIsol04(0),
    ecalEndcapIsol03(0), ecalEndcapIsol04(0)
  {
@@ -245,7 +247,11 @@ GsfElectronAlgo::EventData::~EventData()
   delete hadDepth1Isolation03 ;
   delete hadDepth1Isolation04 ;
   delete hadDepth2Isolation03 ;
-  delete hadDepth2Isolation04 ;
+  delete hadDepth2Isolation04 ; 
+  delete hadDepth1Isolation03Bc ;
+  delete hadDepth1Isolation04Bc ;
+  delete hadDepth2Isolation03Bc ;
+  delete hadDepth2Isolation04Bc ;
   delete ecalBarrelIsol03 ;
   delete ecalBarrelIsol04 ;
   delete ecalEndcapIsol03 ;

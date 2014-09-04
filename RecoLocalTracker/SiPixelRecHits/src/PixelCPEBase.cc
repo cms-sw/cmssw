@@ -20,9 +20,6 @@
 // Magnetic field
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include <iostream>
 
