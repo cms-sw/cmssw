@@ -69,8 +69,8 @@ hltMultiTrackValidation = cms.Sequence(
     + hltIter1MergedV
     + hltIter2V
     + hltIter2MergedV
-    + hltIter3V
-    + hltIter3MergedV
-    + hltIter4V
-    + hltIter4MergedV
+#    + hltIter3V
+#    + hltIter3MergedV
+#    + hltIter4V
+#    + hltIter4MergedV
 )    
