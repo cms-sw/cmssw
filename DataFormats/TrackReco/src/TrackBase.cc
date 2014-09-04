@@ -4,6 +4,7 @@
 #include <algorithm>
 
 using namespace reco;
+//TODO jaldeaar MOVE BACK TO INLINE ON .h
 std::string TrackBase::algoName() const
 {
     // I'd like to do:
@@ -74,7 +75,9 @@ std::string TrackBase::algoName() const
     }
     return "undefAlgorithm";
 }
+
 // To be kept in synch with the enumerator definitions in TrackBase.h file
+//TODO jaldeaar rename back to algoName
 std::string const TrackBase::algorithmNames[] = {
     "undefAlgorithm",
     "ctf",
