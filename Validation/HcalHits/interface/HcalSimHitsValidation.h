@@ -2,7 +2,7 @@
 #define HcalSimHitsValidation_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,13 +39,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class HcalSimHitsValidation : public edm::EDAnalyzer {
+class HcalSimHitsValidation : public DQMEDAnalyzer {
 
 public:
   HcalSimHitsValidation(edm::ParameterSet const& conf);
   ~HcalSimHitsValidation();
+
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & );
+
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-  virtual void beginJob() ;
   virtual void endJob() ;
 
 private:
@@ -54,8 +56,6 @@ private:
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
 
-  DQMStore* dbe_;
-  
   std::string outputFile_;
 
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;

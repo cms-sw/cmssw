@@ -23,7 +23,7 @@
 #define SimG4CMS_ZDCDigiStudy_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,16 +46,16 @@
 #include <string>
 #include <memory>
 
-class ZDCDigiStudy: public edm::EDAnalyzer{
+class ZDCDigiStudy: public DQMEDAnalyzer {
 public:
 
   ZDCDigiStudy(const edm::ParameterSet& ps);
   ~ZDCDigiStudy();
 
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
 protected:
 
-  void beginJob ();
-  void endJob   ();
   void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
@@ -73,7 +73,6 @@ private:
 
   std::string    zdcHits, outFile_;
   bool           verbose_, checkHit_;
-  DQMStore       *dbe_;
 
   edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
 

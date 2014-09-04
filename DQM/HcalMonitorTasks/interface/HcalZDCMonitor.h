@@ -19,7 +19,7 @@ class HcalZDCMonitor: public HcalBaseMonitor
  public:
   HcalZDCMonitor();
   ~HcalZDCMonitor();
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
   void processEvent(const ZDCDigiCollection& digi,
                     const ZDCRecHitCollection& rechit);
   //void done();

@@ -58,9 +58,8 @@ public:
 
 protected:
 
-  void beginJob ();
-  void endJob   ();
   void endRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
   void analyzeHits  (std::vector<PCaloHit> &);
@@ -83,7 +82,6 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection> tok_gen_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_; 
   bool           verbose_, checkHit_;
-  DQMStore       *dbe_;
 
   MonitorElement *meAllZdcNHit_, *meBadZdcDetHit_, *meBadZdcSecHit_, *meBadZdcIdHit_;
   MonitorElement *meZdcNHit_,*meZdcDetectHit_,*meZdcSideHit_,*meZdcETime_;

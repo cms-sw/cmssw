@@ -25,7 +25,7 @@
 #include <exception>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,22 +48,17 @@
 // class declaration
 //
 
-class HcalDAQInfo : public edm::EDAnalyzer {
+class HcalDAQInfo : public DQMEDHarvester {
    public:
       explicit HcalDAQInfo(const edm::ParameterSet&);
       ~HcalDAQInfo();
 
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
+      virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ib, DQMStore::IGetter &ig, edm::LuminosityBlock const &, edm::EventSetup const &);
+      virtual void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { }
 
    // ----------member data ---------------------------
 
    edm::ParameterSet conf_;
-   DQMStore * dbe_;
    MonitorElement* HcalDaqFraction;
    MonitorElement* DAQSummaryMap;
    MonitorElement* HBDaqFraction;
@@ -94,7 +89,9 @@ HcalDAQInfo::HcalDAQInfo(const edm::ParameterSet& iConfig)
   // now do what ever initialization is needed
   debug_=iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
-  dbe_ = edm::Service<DQMStore>().operator->();  
+
+  HcalDaqFraction = NULL;
+
 }
 
 HcalDAQInfo::~HcalDAQInfo()
@@ -107,73 +104,45 @@ HcalDAQInfo::~HcalDAQInfo()
 // member functions
 //
 
-// ------------ method called to for each event  ------------
-void
-HcalDAQInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
-// ------------ method called once each job just before starting event loop  ------------
+// ------------ method called right after a luminosity block ends ------------
 void 
-HcalDAQInfo::beginJob()
-{
-  if (debug_>0) std::cout<<"<HcalDAQInfo::beginJob>"<< std::endl;
-
-  dbe_->setCurrentFolder(rootFolder_);
-  std::string currDir = dbe_->pwd();
-  if (debug_>0) std::cout << "--- Current Directory " << currDir << std::endl;
-  std::vector<MonitorElement*> mes = dbe_->getAllContents("");
-  if (debug_>0) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
-
-  dbe_->setCurrentFolder(rootFolder_+"/EventInfo/");
-
-  HcalDaqFraction = dbe_->bookFloat("DAQSummary");
-
-  DAQSummaryMap = dbe_->book2D("DAQSummaryMap","HcalDAQSummaryMap",7,0.,7.,1,0.,1.);
-  DAQSummaryMap->setAxisRange(-1,1,3);
-  DAQSummaryMap->setBinLabel(1,"HB");
-  DAQSummaryMap->setBinLabel(2,"HE");
-  DAQSummaryMap->setBinLabel(3,"HO");
-  DAQSummaryMap->setBinLabel(4,"HF");
-  DAQSummaryMap->setBinLabel(5,"H00");
-  DAQSummaryMap->setBinLabel(6,"H012");
-  DAQSummaryMap->setBinLabel(7,"HFlumi");
-  DAQSummaryMap->setBinLabel(1,"Status",2);
-
-  dbe_->setCurrentFolder(rootFolder_+"/EventInfo/DAQContents/");
-  HBDaqFraction  = dbe_->bookFloat("Hcal_HB");
-  HEDaqFraction  = dbe_->bookFloat("Hcal_HE");
-  HODaqFraction  = dbe_->bookFloat("Hcal_HO");
-  HFDaqFraction  = dbe_->bookFloat("Hcal_HF");
-  HO0DaqFraction = dbe_->bookFloat("Hcal_HO0");
-  HO12DaqFraction   = dbe_->bookFloat("Hcal_HO12");
-  HFlumiDaqFraction = dbe_->bookFloat("Hcal_HFlumi");
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HcalDAQInfo::endJob() 
-{
-  if (debug_>0) std::cout << "<HcalDAQInfo::endJob> " << std::endl;
-}
-
-// ------------ method called just before starting a new run  ------------
-void 
-HcalDAQInfo::beginLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
-{
-  if (debug_>0) std::cout<<"<HcalDAQInfo::beginLuminosityBlock>"<<std::endl;
-}
-
-// ------------ method called right after a run ends ------------
-void 
-HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& iSetup)
+HcalDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker &ib, DQMStore::IGetter &ig, const edm::LuminosityBlock& run, const edm::EventSetup& iSetup)
 {
   if (debug_>0) {
     std::cout <<"<HcalDAQInfo::endLuminosityBlock> "<<std::endl;
-    dbe_->setCurrentFolder(rootFolder_);
-    std::string currDir = dbe_->pwd();
-    std::cout << "--- Current Directory " << currDir << std::endl;
-    std::vector<MonitorElement*> mes = dbe_->getAllContents("");
-    std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
+  }
+
+  // check that MonitorElements exist
+  // if not, book the histograms
+  if ( !HcalDaqFraction ) {
+    ib.setCurrentFolder(rootFolder_);
+    std::string currDir = ib.pwd();
+    if (debug_>0) std::cout << "--- Current Directory " << currDir << std::endl;
+  
+    ib.setCurrentFolder(rootFolder_+"/EventInfo/");
+  
+    HcalDaqFraction = ib.bookFloat("DAQSummary");
+  
+    DAQSummaryMap = ib.book2D("DAQSummaryMap","HcalDAQSummaryMap",7,0.,7.,1,0.,1.);
+    DAQSummaryMap->setAxisRange(-1,1,3);
+    DAQSummaryMap->setBinLabel(1,"HB");
+    DAQSummaryMap->setBinLabel(2,"HE");
+    DAQSummaryMap->setBinLabel(3,"HO");
+    DAQSummaryMap->setBinLabel(4,"HF");
+    DAQSummaryMap->setBinLabel(5,"H00");
+    DAQSummaryMap->setBinLabel(6,"H012");
+    DAQSummaryMap->setBinLabel(7,"HFlumi");
+    DAQSummaryMap->setBinLabel(1,"Status",2);
+  
+    ib.setCurrentFolder(rootFolder_+"/EventInfo/DAQContents/");
+    HBDaqFraction  = ib.bookFloat("Hcal_HB");
+    HEDaqFraction  = ib.bookFloat("Hcal_HE");
+    HODaqFraction  = ib.bookFloat("Hcal_HO");
+    HFDaqFraction  = ib.bookFloat("Hcal_HF");
+    HO0DaqFraction = ib.bookFloat("Hcal_HO0");
+    HO12DaqFraction   = ib.bookFloat("Hcal_HO12");
+    HFlumiDaqFraction = ib.bookFloat("Hcal_HFlumi");
   }
 
   HcalDaqFraction->Fill(-1);
