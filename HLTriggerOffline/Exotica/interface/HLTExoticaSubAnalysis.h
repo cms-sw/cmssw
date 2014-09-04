@@ -144,6 +144,9 @@ private:
     /// gen/rec objects cuts
     std::map<unsigned int, std::string> _genCut;
     std::map<unsigned int, std::string> _recCut;
+    /// gen/rec pt-leading objects cuts
+    std::map<unsigned int, std::string> _genCut_leading;
+    std::map<unsigned int, std::string> _recCut_leading;
 
     /// The concrete String selectors (use the string cuts introduced
     /// via the config python)

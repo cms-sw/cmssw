@@ -50,7 +50,6 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::constructor()";
 
     // Specific parameters for this analysis
-    //std::cerr << "analysis name = " << analysisname << std::endl;
     edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
 
     // If this analysis has a particular set of binnings, use it.
@@ -84,6 +83,12 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
 	const std::string objStr = EVTColContainer::getTypeString(it->first);
         _genCut[it->first] = pset.getParameter<std::string>(std::string(objStr + "_genCut").c_str());
         _recCut[it->first] = pset.getParameter<std::string>(std::string(objStr + "_recCut").c_str());
+        if (pset.exists(std::string(objStr + "_genCut_leading"))) {
+          _genCut_leading[it->first] = pset.getParameter<std::string>(std::string(objStr + "_genCut_leading").c_str());
+        }
+        if (pset.exists(std::string(objStr + "_recCut_leading"))) {
+          _recCut_leading[it->first] = pset.getParameter<std::string>(std::string(objStr + "_recCut_leading").c_str());
+        }
     }
 
     //--- Updating parameters if has to be modified for this particular specific analysis
@@ -156,12 +161,10 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
     std::string baseDir = "HLT/Exotica/" + _analysisname + "/";
     iBooker.setCurrentFolder(baseDir);
 
-    //std::cerr << "### TEST : "  << baseDir << std::endl;
     // Book the gen/reco analysis-dependent histograms (denominators)
     for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
 	const std::string objStr = EVTColContainer::getTypeString(it->first);
-        //std::cerr << "### TEST : "  << objStr << std::endl;
         std::vector<std::string> sources(2);
         sources[0] = "gen";
         sources[1] = "rec";
@@ -205,7 +208,6 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
     for (size_t i = 0; i < _hltPathsToCheck.size(); ++i) {
         bool found = false;
         TPRegexp pattern(_hltPathsToCheck[i]);
-        //std::cerr << "_hltPathsToCheck[" << i << "] = " << _hltPathsToCheck[i] << std::endl;
 	
 	// Loop over triggerNames from _hltConfig
 	for (size_t j = 0 ; j < _hltConfig.triggerNames().size(); ++j) {
@@ -241,7 +243,6 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
          iPath != _hltPaths.end(); ++iPath) {
         // Avoiding the dependence of the version number for the trigger paths
         std::string path = * iPath;
-        //std::cerr << "path = " << path << std::endl;
         std::string shortpath = path;
         if (path.rfind("_v") < path.length()) {
             shortpath = path.substr(0, path.rfind("_v"));
@@ -347,9 +348,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
         // Fancy syntax: for objects X and Y, X.operator()(Y) is the same as X(Y).
         for (size_t i = 0; i < cols->genParticles->size(); ++i) {
 	    //std::cout << "Now matchesGen.size() is " << matchesGen.size() << std::endl;
-            //std::cerr << "OK1 " << it->first << " " << cols->genParticles->at(i) << std::endl;
             if (_genSelectorMap[it->first]->operator()(cols->genParticles->at(i))) {
-                //std::cerr << "OK2" << std::endl;
                 const reco::Candidate* cand = &(cols->genParticles->at(i));
 		//std::cout << "Found good cand: cand->pt() = " << cand->pt() << std::endl;
 		//matchesGen.push_back(MatchStruct(cand, it->first));
@@ -357,7 +356,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 		/// This is an alternative to the older implementation with MatchStruct.
 		reco::LeafCandidate v(0,cand->p4(),cand->vertex(),it->first,0,true);
 		matchesGen.push_back(v);
-                //std::cerr << "matchesGen.push_back()" << std::endl;
             }
         }
     }
@@ -392,6 +390,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     std::sort(matchesReco.begin(), 
 	      matchesReco.end(), 
 	      comparator);
+
 
     // --- All the objects are in place
     //std::cout << "DEBUG(0)" << std::endl;
@@ -439,15 +438,13 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    const std::string objTypeStr = EVTColContainer::getTypeString(objType);
 	
 	    float pt  = matchesGen[j].pt();
-	    float eta = matchesGen[j].eta();
-	    float phi = matchesGen[j].phi();
-	    float sumEt = 0;//matchesGen[j].sumEt;
-	
-	    this->fillHist("gen", objTypeStr, "Eta", eta);
-	    this->fillHist("gen", objTypeStr, "Phi", phi);
-	    this->fillHist("gen", objTypeStr, "SumEt", sumEt);
 
 	    if ((*countobjects)[objType] == 0) {
+
+                // Cut for the pt-leading object 
+                StringCutObjectSelector<reco::LeafCandidate> select( _genCut_leading[objType] );
+                if ( !select( matchesGen[j] ) ) break;
+
 		this->fillHist("gen", objTypeStr, "MaxPt1", pt);
 		// Filled the high pt ...
 		++((*countobjects)[objType]);
@@ -463,6 +460,15 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 		    break;
 		}
 	    }
+
+	    float eta = matchesGen[j].eta();
+	    float phi = matchesGen[j].phi();
+	    float sumEt = 0;//matchesGen[j].sumEt;
+	
+	    this->fillHist("gen", objTypeStr, "Eta", eta);
+	    this->fillHist("gen", objTypeStr, "Phi", phi);
+	    this->fillHist("gen", objTypeStr, "SumEt", sumEt);
+
 	} // Closes loop in gen
 
 	LogDebug("ExoticaValidation") << "                        deleting countobjects";
@@ -473,7 +479,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
 	    const std::string hltPath = _shortpath2long[an->gethltpath()];
 	    const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
-            //if(ispassTrigger) std::cerr << "SubAnalysis (GEN) : " << trigNames.triggerIndex(hltPath) << " " << an->gethltpath() << " " << hltPath<< std::endl;
 	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
 	    an->analyze(ispassTrigger, "gen", matchesGen);
 	    LogDebug("ExoticaValidation") << "                        called the plotter";
@@ -515,15 +520,13 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    const std::string objTypeStr = EVTColContainer::getTypeString(objType);
 	    
 	    float pt  = matchesReco[j].pt();
-	    float eta = matchesReco[j].eta();
-	    float phi = matchesReco[j].phi();
-	    float sumEt = 0;//matchesReco[j].sumEt;
-	
-	    this->fillHist("rec", objTypeStr, "Eta", eta);
-	    this->fillHist("rec", objTypeStr, "Phi", phi);
-	    this->fillHist("rec", objTypeStr, "SumEt", sumEt);
 
 	    if ((*countobjects)[objType] == 0) {
+
+                // Cut for the pt-leading object 
+                StringCutObjectSelector<reco::LeafCandidate> select( _recCut_leading[objType] );
+                if ( !select( matchesReco[j] ) ) break;
+
 		this->fillHist("rec", objTypeStr, "MaxPt1", pt);
 		// Filled the high pt ...
 		++((*countobjects)[objType]);
@@ -539,6 +542,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 		    break;
 		}
 	    }
+
+	    float eta = matchesReco[j].eta();
+	    float phi = matchesReco[j].phi();
+	    float sumEt = 0;//matchesReco[j].sumEt;
+	
+	    this->fillHist("rec", objTypeStr, "Eta", eta);
+	    this->fillHist("rec", objTypeStr, "Phi", phi);
+	    this->fillHist("rec", objTypeStr, "SumEt", sumEt);
 	} // Closes loop in reco
 
 	LogDebug("ExoticaValidation") << "                        deleting countobjects";
@@ -549,7 +560,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
 	    const std::string hltPath = _shortpath2long[an->gethltpath()];
 	    const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
-            //if(ispassTrigger) std::cerr << "SubAnalysis (RECO) : " << trigNames.triggerIndex(hltPath) << " " << an->gethltpath() << " " << hltPath<< std::endl;
 	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
 	    an->analyze(ispassTrigger, "rec", matchesReco);
 	    LogDebug("ExoticaValidation") << "                        called the plotter";
@@ -666,7 +676,6 @@ void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector & iC)
         }
 	else if (it->first == EVTColContainer::ELEC) {
             edm::EDGetTokenT<reco::GsfElectronCollection> particularToken = iC.consumes<reco::GsfElectronCollection>(it->second);
-            std::cerr << it->second << std::endl;
 	    edm::EDGetToken token(particularToken);
 	    _tokens[it->first] = token;
 	} 
