@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 DiPhotonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_DoublePho80_v",    # Run2 proposal
+        "HLT_DoublePho85_v",    # Run2 proposal
         "HLT_DoublePhoton70_v"  # Run1 (frozenHLT)
         ),
     recPhotonLabel  = cms.InputTag("gedPhotons"),
