@@ -32,7 +32,6 @@ class HGCDigitizerBase {
       lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
       mip2noise_     = myCfg_.getParameter<double>("mip2noise");
       adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
-      doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
     }
 
   /**
@@ -62,32 +61,31 @@ class HGCDigitizerBase {
 	it!=simData.end();
 	it++)
       {
-	//convert total energy GeV->keV->ADC counts
-	double totalEn(0);
-	size_t maxSampleToInteg(doTimeSamples_ ? 1 : it->second.size());
-	for(size_t i=0; i<maxSampleToInteg; i++) {
-	  totalEn+= (it->second)[i];
-	}
-	totalEn*=1e6;
-
-	//add noise (in keV)
-	double noiseEn=simpleNoiseGen_->fire();
-	totalEn += noiseEn;
-	if(totalEn<0) totalEn=0;
 	
-	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor( (totalEn/mipInKeV_) / lsbInMIP_ );
-
-	//0 gain for the moment
-	HGCSample singleSample;
-	singleSample.set(0, totalEnInt );
-
-	if(singleSample.adc()<adcThreshold_) continue;
-	
-	//no time information
+	//create a new data frame
 	D newDataFrame( it->first );
-	newDataFrame.setSample(0, singleSample);
 
+	for(size_t i=0; i<it->second.size(); i++) 
+	  {
+
+	    //convert total energy GeV->keV->ADC counts
+	    double totalEn=(it->second)[i]*1e6;
+
+	    //add noise (in keV)
+	    double noiseEn=simpleNoiseGen_->fire();
+	    totalEn += noiseEn;
+	    if(totalEn<0) totalEn=0;
+	
+	    //round to integer (sample will saturate the value according to available bits)
+	    uint16_t totalEnInt = floor( (totalEn/mipInKeV_) / lsbInMIP_ );
+
+	    //0 gain for the moment
+	    HGCSample singleSample;
+	    singleSample.set(0, totalEnInt);
+	    
+	    newDataFrame.setSample(i, singleSample);
+	  }
+	
 	//add to collection to produce
 	coll->push_back(newDataFrame);
       }
@@ -114,9 +112,6 @@ class HGCDigitizerBase {
 
   //minimum ADC counts to produce DIGIs
   uint32_t adcThreshold_;
-
-  //flag to apply or not time sampling (if false digitize the full energy from SimHit)
-  bool doTimeSamples_;
 
   //a simple noise generator
   mutable CLHEP::RandGauss *simpleNoiseGen_;

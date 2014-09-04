@@ -130,35 +130,36 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
 //
 void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom)
 {
+
+  if(!geom.isValid()) return;
+  const HGCalTopology &topo=geom->topology();
+  const HGCalDDDConstants &dddConst=topo.dddConstants();
+
   for(edm::PCaloHitContainer::const_iterator hit_it = hits->begin(); hit_it != hits->end(); ++hit_it)
     {
       HGCalDetId simId( hit_it->id() );
 
-      //gang SIM->RECO cells
+      //skip this hit if after ganging it is not valid
       int layer(simId.layer()), cell(simId.cell());
-      float zPos(0.);
-      if(geom.isValid())
-	{
-	  const HGCalTopology &topo=geom->topology();
-	  const HGCalDDDConstants &dddConst=topo.dddConstants();
-	  zPos=dddConst.getFirstTrForm()->h3v.z();
-	  std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
-	  cell  = recoLayerCell.first;
-	  layer = recoLayerCell.second;
-	  if(layer<0) continue;
-	}
-
+      std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
+      cell  = recoLayerCell.first;
+      layer = recoLayerCell.second;
+      if(layer<0 || cell<0) continue;
+     
       //assign the RECO DetId
       DetId id( producesEEDigis() ?
 		(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell):
 		(uint32_t)HGCHEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell) );
 
-      //hit time: [time()]=ns  [zPos]=cm [CLHEP::c_light]=mm/ns
-      //for now accumulate in buckets of bxTime_
-      int itime=floor( (hit_it->time()-zPos/(0.1*CLHEP::c_light))/bxTime_);
-      itime += bxCrossing;
-      if(itime<0) continue;
-      
+      //distance to the center of the detector
+      float dist2center( geom->getPosition(id).mag() );
+
+      //hit time: [time()]=ns  [centerDist]=cm [CLHEP::c_light]=mm/ns
+      //for now accumulate in buckets of 5ns and save 3 pre-samples+5 in-time samples+1 post-sample
+      int itime=floor( (hit_it->time()-dist2center/(0.1*CLHEP::c_light))/5 ) + 1;
+      itime += bxCrossing*bxTime_;
+      if(itime<-3 || itime>6) continue; 
+
       //energy deposited 
       HGCSimEn_t ien( hit_it->energy() );
       
@@ -172,10 +173,10 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 	  simHitIt=simHitAccumulator_->find(id);
 	}
       
-      //check if time is ok
-      if( itime >= (int)(simHitIt->second.size()) ) continue;
-      
-      (simHitIt->second)[itime] += ien;
+      //check if time index is ok and store energy
+      int itimeIdx(itime+3);
+      if( itimeIdx<0 || itimeIdx >= (int)simHitIt->second.size() ) continue;
+      (simHitIt->second)[itimeIdx] += ien;
     }
   
   //add base data for noise simulation
