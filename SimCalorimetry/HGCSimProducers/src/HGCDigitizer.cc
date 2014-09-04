@@ -164,11 +164,11 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       float dist2center( geom->getPosition(id).mag() );
 
       //hit time: [time()]=ns  [centerDist]=cm [CLHEP::c_light]=mm/ns
-      //for now accumulate in buckets of 5ns and save 3 pre-samples+5 in-time samples+1 post-sample
-      int itime=floor( (hit_it->time()-dist2center/(0.1*CLHEP::c_light))/5 ) + 1;
+      //for now accumulate in 3 buckets of 25ns 
+      int itime=floor( (hit_it->time()-dist2center/(0.1*CLHEP::c_light))/bxTime_ ) + 1;
       itime += bxCrossing*bxTime_;
-      if(itime<-3 || itime>6) continue; 
-
+      if(itime<0) continue; 
+      
       //energy deposited 
       HGCSimEn_t ien( hit_it->energy() );
       
@@ -183,9 +183,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 	}
       
       //check if time index is ok and store energy
-      int itimeIdx(itime+3);
-      if( itimeIdx<0 || itimeIdx >= (int)simHitIt->second.size() ) continue;
-      (simHitIt->second)[itimeIdx] += ien;
+      if(itime >= (int)simHitIt->second.size() ) continue;
+      (simHitIt->second)[itime] += ien;
     }
   
   //add base data for noise simulation
