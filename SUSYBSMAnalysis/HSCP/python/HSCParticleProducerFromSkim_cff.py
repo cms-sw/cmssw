@@ -6,6 +6,7 @@ TrackRefitter.src                      = "generalTracksSkim"
 muontiming.MuonCollection              = cms.InputTag("muonsSkim")
 HSCParticleProducer.tracksIsolation    = cms.InputTag("generalTracksSkim")
 HSCParticleProducer.muons              = cms.InputTag("muonsSkim")
+HSCParticleProducer.MTmuons            = cms.InputTag("muonsSkim")
 HSCParticleProducer.EBRecHitCollection = cms.InputTag("reducedHSCPEcalRecHitsEB")
 HSCParticleProducer.EERecHitCollection = cms.InputTag("reducedHSCPEcalRecHitsEE")
 
