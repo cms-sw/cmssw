@@ -20,6 +20,7 @@ const std::string DataPointDefinition::HISTO = "histo";
 const std::string DataPointDefinition::CAT = "cat";
 const std::string DataPointDefinition::BINARYOR = "binaryOr";
 const std::string DataPointDefinition::MERGE = "merge";
+const std::string DataPointDefinition::ADLER32 = "adler32";
 
 const std::string DataPointDefinition::LEGEND = "legend";
 const std::string DataPointDefinition::DATA = "data";
