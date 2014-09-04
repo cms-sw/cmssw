@@ -67,7 +67,6 @@ class HSCPValidator : public edm::EDAnalyzer {
       bool doRecoPlots_;
 
       // GEN section
-//       edm::InputTag label_;
       edm::EDGetTokenT<edm::HepMCProduct> token_;
       edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
       edm::EDGetTokenT<trigger::TriggerEvent> trEvToken_;
