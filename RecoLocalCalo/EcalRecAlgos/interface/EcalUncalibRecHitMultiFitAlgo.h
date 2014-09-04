@@ -24,7 +24,7 @@ class EcalUncalibRecHitMultiFitAlgo
  public:
   
   ~EcalUncalibRecHitMultiFitAlgo() { };
-  EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TMatrixDSym &noisecor, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov, std::set<int> activeBX);
+  EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TMatrixDSym &noisecor, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov, const std::set<int> &activeBX);
   
  private:
    PulseChiSqSNNLS _pulsefunc;
