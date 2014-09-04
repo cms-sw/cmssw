@@ -25,25 +25,25 @@ std::string TrackBase::algoName() const
     case initialStep:
         return "initialStep";
     case lowPtTripletStep:
-        return "iter1";
+        return "lowPtTripletStep";
     case pixelPairStep:
-        return "iter2";
+        return "pixelPairStep";
     case detachedTripletStep:
-        return "iter3";
+        return "detachedTripletStep";
     case mixedTripletStep:
-        return "iter4";
+        return "mixedTripletStep";
     case pixelLessStep:
-        return "iter5";
+        return "pixelLessStep";
     case tobTecStep:
-        return "iter6";
+        return "tobTecStep";
     case jetCoreRegionalStep:
-        return "iter7";
-    case iter8:
+        return "jetCoreRegionalStep";
+    case iter8://TODO jaldeaar REMOVE?
         return "iter8";
-    case iter9:
-        return "iter9";
-    case iter10:
-        return "iter10";
+    case muonSeedStepInOut:
+        return "muonSeedStepInOut";
+    case muonSeedStepOutInt:
+        return "muonSeedStepOutIn";
     case outInEcalSeededConv:
         return "outInEcalSeededConv";
     case inOutEcalSeededConv:
@@ -84,16 +84,16 @@ std::string const TrackBase::algorithmNames[] = {
     "rs",
     "cosmics",
     "inialStep",
-    "iter1",
-    "iter2",
-    "iter3",
-    "iter4",
-    "iter5",
-    "iter6",
-    "iter7",
+    "lowPtTripletStep",
+    "pixelPairStep",
+    "detachedTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "jetCoreRegionalStep",
     "iter8",
-    "iter9",
-    "iter10",
+    "muonSeedStepInOut",
+    "muonSeedStepOutIn",
     "outInEcalSeededConv",
     "inOutEcalSeededConv",
     "nuclInter",
