@@ -117,6 +117,28 @@ namespace edm {
     }
 
   private:
+    //Sentry class to only send a signal if an
+    // exception occurs. An exception is identified
+    // by the destructor being called without first
+    // calling completedSuccessfully().
+    class SendTerminationSignalIfException {
+    public:
+      SendTerminationSignalIfException(edm::ActivityRegistry* iReg, edm::GlobalContext const* iContext):
+      reg_(iReg),
+      context_(iContext){}
+      ~SendTerminationSignalIfException() {
+        if(reg_) {
+          reg_->preGlobalEarlyTerminationSignal_(*context_,TerminationOrigin::ExceptionFromThisContext);
+        }
+      }
+      void completedSuccessfully() {
+        reg_ = nullptr;
+      }
+    private:
+      edm::ActivityRegistry* reg_;
+      GlobalContext const* context_;
+    };
+
     
     template<typename T>
     void runNow(typename T::MyPrincipal& p, EventSetup const& es,
@@ -146,6 +168,8 @@ namespace edm {
     GlobalContext globalContext = T::makeGlobalContext(ep, processContext_);
 
     GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &globalContext);
+    
+    SendTerminationSignalIfException terminationSentry(actReg_.get(), &globalContext);
 
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, StreamID::invalidStreamID(), &globalContext, &globalContext, cleaningUpAfterException);
@@ -163,6 +187,8 @@ namespace edm {
       }
       throw;
     }
+    terminationSentry.completedSuccessfully();
+    
     //If we got here no other exception has happened so we can propogate any Service related exceptions
     sentry.allowThrow();
   }

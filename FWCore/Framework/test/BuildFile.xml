@@ -301,3 +301,7 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_deleteEarly.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
+<bin   name="TestFWCoreFrameworkEarlyTerminationSignal" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_earlyTerminationSignal.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
