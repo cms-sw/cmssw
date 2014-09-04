@@ -174,9 +174,9 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) result=false;
   if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) result=false;
   if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) result=false;
-  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true && goodJetFoundInLowBVRegion==false) result = false;
-  if(useRBXRechitR45Loose_ == true && summary.HasBadRBXRechitR45Loose() == true && goodJetFoundInLowBVRegion==false) result = false;
-  if(useRBXRechitR45Tight_ == true && summary.HasBadRBXRechitR45Tight() == true && goodJetFoundInLowBVRegion==false) result = false;
+  if(useTS4TS5_ && summary.HasBadRBXTS4TS5() == true && !goodJetFoundInLowBVRegion) result = false;
+  if(useRBXRechitR45Loose_ && summary.HasBadRBXRechitR45Loose() == true && !goodJetFoundInLowBVRegion) result = false;
+  if(useRBXRechitR45Tight_ && summary.HasBadRBXRechitR45Tight() == true && !goodJetFoundInLowBVRegion) result = false;
 
   std::auto_ptr<bool> pOut(new bool);
   *pOut=result;

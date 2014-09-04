@@ -91,7 +91,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
     setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;
-    setPileupCorrectionForNegative_ = &HBHENegativeFlagSetter::SetHBHEPileupCorrection;
+    setPileupCorrectionForNegative_ = &HBHENegativeFlagSetter::setHBHEPileupCorrection;
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
     if (timingShapedCutsFlags)
       {
@@ -485,7 +485,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	if (setPulseShapeFlags_ == true)
 	  hbhePulseShapeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
 	if (setNegativeFlags_ == true)
-     hbheNegativeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
+     hbheNegativeFlagSetter_->setPulseShapeFlags(rec->back(), *i, coder, calibrations);
    if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (correctTiming_)

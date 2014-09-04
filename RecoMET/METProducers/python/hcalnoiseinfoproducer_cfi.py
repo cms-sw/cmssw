@@ -78,7 +78,7 @@ HcalNoiseParameterSet = cms.PSet(
 
     # rechit R45 population filter variables
     # this comes in groups of four: (a_Count, a_Fraction, a_EnergyFraction, const)
-    # flat as noise if (count * a_count + fraction * a_fraction + energyfraction * a_energyfraction + const) > 0
+    # flag as noise if (count * a_count + fraction * a_fraction + energyfraction * a_energyfraction + const) > 0
     lRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.5,   # equivalent to "fraction > 0.5"
                                     0.0, 0.0, 1.0, -0.5),  # equivalent to "energy fraction > 0.5"
     tRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.2,   # equivalent to "fraction > 0.2"

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
-#ifndef HBHE_NEGATIVE_FLAG_H_IKAJHGEWRHIGKHAWFIKGHAWIKGH
-#define HBHE_NEGATIVE_FLAG_H_IKAJHGEWRHIGKHAWFIKGHAWIKGH
+#ifndef HBHENegativeFlag_H
+#define HBHENegativeFlag_H
 //---------------------------------------------------------------------------
 // Negative filter algorithms for HBHE noise flagging
 // 
@@ -25,18 +25,16 @@ class HBHENegativeFlagSetter
 {
    public:
       HBHENegativeFlagSetter();
-      HBHENegativeFlagSetter(double MinimumChargeThreshold,
-            double TS4TS5ChargeThreshold,
-            int First, int Last,
+      HBHENegativeFlagSetter(double minimumChargeThreshold,
+            double tS4TS5ChargeThreshold,
+            int first, int last,
             std::vector<double> threshold,
             std::vector<double> cut);
       ~HBHENegativeFlagSetter();
-      void Clear();
-      void SetPulseShapeFlags(HBHERecHit& hbhe, const HBHEDataFrame &digi,
+      void setPulseShapeFlags(HBHERecHit& hbhe, const HBHEDataFrame &digi,
             const HcalCoder &coder, const HcalCalibrations &calib);
-      void Initialize();
-      void SetHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
-      void SetBXInfo(const BunchXParameter *info, unsigned length);
+      void setHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+      void setBXInfo(const BunchXParameter *info, unsigned length);
    private:
       double mMinimumChargeThreshold;
       double mTS4TS5ChargeThreshold;
@@ -47,8 +45,8 @@ class HBHENegativeFlagSetter
       unsigned mLengthBunchCrossingInfo;
       std::vector<std::pair<double, double> > mCut;
    private:
-      bool CheckPassFilter(double Charge, double Discriminant, std::vector<std::pair<double, double> > &Cuts,
-         int Side);
+      bool checkPassFilter(double charge, double discriminant, std::vector<std::pair<double, double> > &cuts,
+         int side);
 };
 //---------------------------------------------------------------------------
 #endif

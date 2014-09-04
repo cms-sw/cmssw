@@ -43,21 +43,20 @@ HBHENegativeFlagSetter::HBHENegativeFlagSetter()
    mLengthBunchCrossingInfo = 0;
 }
 //---------------------------------------------------------------------------
-HBHENegativeFlagSetter::HBHENegativeFlagSetter(double MinimumChargeThreshold,
-   double TS4TS5ChargeThreshold, int First, int Last,
+HBHENegativeFlagSetter::HBHENegativeFlagSetter(double minimumChargeThreshold,
+   double tS4TS5ChargeThreshold, int first, int last,
    std::vector<double> threshold, std::vector<double> cut)
 {
    //
    // The constructor that should be used
    //
    // Copies various thresholds and limits and parameters to the class for future use.
-   // Also calls the Initialize() function
    //
 
-   mMinimumChargeThreshold = MinimumChargeThreshold;
-   mTS4TS5ChargeThreshold = TS4TS5ChargeThreshold;
-   mFirst = First;
-   mLast = Last;
+   mMinimumChargeThreshold = minimumChargeThreshold;
+   mTS4TS5ChargeThreshold = tS4TS5ChargeThreshold;
+   mFirst = first;
+   mLast = last;
 
    if(mLast < mFirst)   // sanity protection
       std::swap(mFirst, mLast);
@@ -68,8 +67,6 @@ HBHENegativeFlagSetter::HBHENegativeFlagSetter(double MinimumChargeThreshold,
    for(int i = 0; i < (int)std::min(threshold.size(), cut.size()); i++)
       mCut.push_back(std::pair<double, double>(threshold[i], cut[i]));
    std::sort(mCut.begin(), mCut.end());
-
-   Initialize();
 }
 //---------------------------------------------------------------------------
 HBHENegativeFlagSetter::~HBHENegativeFlagSetter()
@@ -77,12 +74,7 @@ HBHENegativeFlagSetter::~HBHENegativeFlagSetter()
    // Dummy destructor - there's nothing to destruct by hand here
 }
 //---------------------------------------------------------------------------
-void HBHENegativeFlagSetter::Clear()
-{
-   // Dummy function in case something needs to be cleaned....but none right now
-}
-//---------------------------------------------------------------------------
-void HBHENegativeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe, 
+void HBHENegativeFlagSetter::setPulseShapeFlags(HBHERecHit &hbhe, 
    const HBHEDataFrame &digi,
    const HcalCoder &coder, 
    const HcalCalibrations &calib)
@@ -138,45 +130,28 @@ void HBHENegativeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
 
       for(int i = mFirst; i <= mLast; i++)
       {
-         bool Decision = CheckPassFilter(ChargeInWindow, CorrectedEnergy[i], mCut, -1);
-         if(Decision == false)
+         bool decision = checkPassFilter(ChargeInWindow, CorrectedEnergy[i], mCut, -1);
+         if(decision == false)
             hbhe.setFlagField(1, HcalCaloFlagLabels::HBHENegativeNoise);
       }
    }
 }
 //---------------------------------------------------------------------------
-void HBHENegativeFlagSetter::Initialize()
-{
-   // 
-   // Initialization: whatever preprocess is needed
-   //
-   // 1. Get the ideal pulse shape from CMSSW
-   //
-   //    Since the HcalPulseShapes class stores the ideal pulse shape in terms of 256 numbers,
-   //    each representing 1ns integral of the ideal pulse, here I'm taking out the vector
-   //    by calling at() function.
-   //
-   //    A cumulative distribution is formed and stored to save some time doing integration to TS later on
-   //
-   // 2. Reserve space for vector
-   //
-}
-//---------------------------------------------------------------------------
-void HBHENegativeFlagSetter::SetHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr)
+void HBHENegativeFlagSetter::setHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr)
 {
     hbhePileupCorr_ = corr;
 }
 //---------------------------------------------------------------------------
-void HBHENegativeFlagSetter::SetBXInfo(const BunchXParameter *info, unsigned length)
+void HBHENegativeFlagSetter::setBXInfo(const BunchXParameter *info, unsigned length)
 {
    mBunchCrossingInfo = info;
    mLengthBunchCrossingInfo = length;
 }
 //---------------------------------------------------------------------------
-bool HBHENegativeFlagSetter::CheckPassFilter(double Charge,
-					       double Discriminant,
-					       std::vector<std::pair<double, double> > &Cuts, 
-					       int Side)
+bool HBHENegativeFlagSetter::checkPassFilter(double charge,
+					       double discriminant,
+					       std::vector<std::pair<double, double> > &cuts, 
+					       int side)
 {
    //
    // Checks whether Discriminant value passes Cuts for the specified Charge.  True if pulse is good.
@@ -187,39 +162,39 @@ bool HBHENegativeFlagSetter::CheckPassFilter(double Charge,
    //    is greater or smaller than the cut value
    //
 
-   if(Cuts.size() == 0)   // safety check that there are some cuts defined
+   if(cuts.size() == 0)   // safety check that there are some cuts defined
       return true;
 
-   if(Charge <= Cuts[0].first)   // too small to cut on
+   if(charge <= cuts[0].first)   // too small to cut on
       return true;
 
-   int IndexLargerThanCharge = -1;   // find the range it is falling in
-   for(int i = 1; i < (int)Cuts.size(); i++)
+   int indexLargerThanCharge = -1;   // find the range it is falling in
+   for(int i = 1; i < (int)cuts.size(); i++)
    {
-      if(Cuts[i].first > Charge)
+      if(cuts[i].first > charge)
       {
-         IndexLargerThanCharge = i;
+         indexLargerThanCharge = i;
          break;
       }
    }
 
    double limit = 1000000;
 
-   if(IndexLargerThanCharge == -1)   // if charge is greater than the last entry, assume flat line
-      limit = Cuts[Cuts.size()-1].second;
+   if(indexLargerThanCharge == -1)   // if charge is greater than the last entry, assume flat line
+      limit = cuts[cuts.size()-1].second;
    else   // otherwise, do a linear interpolation to find the cut position
    {
-      double C1 = Cuts[IndexLargerThanCharge].first;
-      double C2 = Cuts[IndexLargerThanCharge-1].first;
-      double L1 = Cuts[IndexLargerThanCharge].second;
-      double L2 = Cuts[IndexLargerThanCharge-1].second;
+      double C1 = cuts[indexLargerThanCharge].first;
+      double C2 = cuts[indexLargerThanCharge-1].first;
+      double L1 = cuts[indexLargerThanCharge].second;
+      double L2 = cuts[indexLargerThanCharge-1].second;
 
-      limit = (Charge - C1) / (C2 - C1) * (L2 - L1) + L1;
+      limit = (charge - C1) / (C2 - C1) * (L2 - L1) + L1;
    }
 
-   if(Side > 0 && Discriminant > limit)
+   if(side > 0 && discriminant > limit)
       return false;
-   if(Side < 0 && Discriminant < limit)
+   if(side < 0 && discriminant < limit)
       return false;
 
    return true;
