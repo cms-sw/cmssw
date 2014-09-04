@@ -7,8 +7,8 @@ float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N, const float uP
   if( loc == SiStripDetId::UNKNOWN)
     throw cms::Exception("StripCPEfromTrackAngle::stripErrorSquared", "Incompatible sub-detector.");
 
-  auto fun = [&] (float x)  -> float { return LC_P[0]*x*vdt::fast_expf(-x*LC_P[1])+LC_P[2];};
-  auto uerr = (N <= 4) ?  fun(uProj) :  HC_P[loc-3][0]+float(N)*HC_P[loc-3][1];
+  auto fun = [&] (float x)  -> float { return mLC_P[0]*x*vdt::fast_expf(-x*mLC_P[1])+mLC_P[2];};
+  auto uerr = (N <= 4) ?  fun(uProj) :  mHC_P[loc-3][0]+float(N)*mHC_P[loc-3][1];
   return uerr*uerr;
 }
 

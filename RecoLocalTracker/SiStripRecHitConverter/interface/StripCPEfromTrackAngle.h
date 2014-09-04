@@ -6,17 +6,18 @@
 class StripCPEfromTrackAngle : public StripCPE 
 {
 
- public:
+private:
   using StripCPE::localParameters;
   
   //Error parameterization, low cluster width function
-  float LC_P[3];
-  float HC_P[4][2];
+  float mLC_P[3];
+  float mHC_P[4][2];
 
   //High cluster width is broken down by sub-det
-  std::map<SiStripDetId::SubDetector, float> HC_P0;
-  std::map<SiStripDetId::SubDetector, float> HC_P1;
-  
+  std::map<SiStripDetId::SubDetector, float> mHC_P0;
+  std::map<SiStripDetId::SubDetector, float> mHC_P1;
+
+public:  
   StripClusterParameterEstimator::LocalValues
   localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
   
@@ -31,18 +32,18 @@ class StripCPEfromTrackAngle : public StripCPE
 			  const SiStripLatency& latency) 
   : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency )
   {
-    LC_P[0] = conf.existsAs<double>("LC_P0") ? conf.getParameter<double>("LC_P0") : -.326;
-    LC_P[1] = conf.existsAs<double>("LC_P1") ? conf.getParameter<double>("LC_P1") :  .618;
-    LC_P[2] = conf.existsAs<double>("LC_P2") ? conf.getParameter<double>("LC_P2") :  .300;
+    mLC_P[0] = conf.existsAs<double>("mLC_P0") ? conf.getParameter<double>("mLC_P0") : -.326;
+    mLC_P[1] = conf.existsAs<double>("mLC_P1") ? conf.getParameter<double>("mLC_P1") :  .618;
+    mLC_P[2] = conf.existsAs<double>("mLC_P2") ? conf.getParameter<double>("mLC_P2") :  .300;
 
-    HC_P[SiStripDetId::TIB - 3][0] = conf.existsAs<double>("TIB_P0") ? conf.getParameter<double>("TIB_P0") : -.742  ;
-    HC_P[SiStripDetId::TIB - 3][1] = conf.existsAs<double>("TIB_P1") ? conf.getParameter<double>("TIB_P1") :  .202  ;
-    HC_P[SiStripDetId::TID - 3][0] = conf.existsAs<double>("TID_P0") ? conf.getParameter<double>("TID_P0") : -1.026 ;
-    HC_P[SiStripDetId::TID - 3][1] = conf.existsAs<double>("TID_P1") ? conf.getParameter<double>("TID_P1") :  .253  ;
-    HC_P[SiStripDetId::TOB - 3][0] = conf.existsAs<double>("TOB_P0") ? conf.getParameter<double>("TOB_P0") : -1.427 ;
-    HC_P[SiStripDetId::TOB - 3][1] = conf.existsAs<double>("TOB_P1") ? conf.getParameter<double>("TOB_P1") :  .433  ;
-    HC_P[SiStripDetId::TEC - 3][0] = conf.existsAs<double>("TEC_P0") ? conf.getParameter<double>("TEC_P0") : -1.885 ;
-    HC_P[SiStripDetId::TEC - 3][1] = conf.existsAs<double>("TEC_P1") ? conf.getParameter<double>("TEC_P1") :  .471  ;  
+    mHC_P[SiStripDetId::TIB - 3][0] = conf.existsAs<double>("mTIB_P0") ? conf.getParameter<double>("mTIB_P0") : -.742  ;
+    mHC_P[SiStripDetId::TIB - 3][1] = conf.existsAs<double>("mTIB_P1") ? conf.getParameter<double>("mTIB_P1") :  .202  ;
+    mHC_P[SiStripDetId::TID - 3][0] = conf.existsAs<double>("mTID_P0") ? conf.getParameter<double>("mTID_P0") : -1.026 ;
+    mHC_P[SiStripDetId::TID - 3][1] = conf.existsAs<double>("mTID_P1") ? conf.getParameter<double>("mTID_P1") :  .253  ;
+    mHC_P[SiStripDetId::TOB - 3][0] = conf.existsAs<double>("mTOB_P0") ? conf.getParameter<double>("mTOB_P0") : -1.427 ;
+    mHC_P[SiStripDetId::TOB - 3][1] = conf.existsAs<double>("mTOB_P1") ? conf.getParameter<double>("mTOB_P1") :  .433  ;
+    mHC_P[SiStripDetId::TEC - 3][0] = conf.existsAs<double>("mTEC_P0") ? conf.getParameter<double>("mTEC_P0") : -1.885 ;
+    mHC_P[SiStripDetId::TEC - 3][1] = conf.existsAs<double>("mTEC_P1") ? conf.getParameter<double>("mTEC_P1") :  .471  ;  
   }
 };
 #endif
