@@ -114,13 +114,11 @@ void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHi
 
 
 void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByToken(rpcRecHitsToken,rpcHits);
-
 
   // here we do basically as in RPCHSCPCANDIDATE.cc, but just for the hits on the muon of interest
   RPCBetaMeasurement result;
@@ -145,6 +143,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
     stop  = candidate.staTrack().recHitsEnd();
   } else return;
 */
+
   for(trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
     if ( (*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
     if ( (*recHit)->geographicalId().det() != DetId::Muon  ) continue;
@@ -157,6 +156,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
     RPCRecHitCollection::const_iterator recHitC;
     int size = 0;
     int clusterS=0;
+
     for(recHitC = recHitCollection.first; recHitC != recHitCollection.second ; recHitC++) {
       clusterS=(*recHitC).clusterSize();
 //      RPCDetId rollId = (RPCDetId)(*recHitC).geographicalId();
@@ -175,7 +175,6 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
     ThisHit.gp = RPCSurface.toGlobal(recHitPos);
     ThisHit.id = (RPCDetId)(*recHit)->geographicalId().rawId();
     hits.push_back(ThisHit);
-
   }
   // here we go on with the RPC procedure
   std::sort(hits.begin(), hits.end());
