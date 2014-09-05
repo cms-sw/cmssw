@@ -1,20 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from RecoParticleFlow.PFClusterProducer.towerMakerPF_cfi import *
+#from RecoParticleFlow.PFClusterProducer.towerMakerPF_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
 
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHCAL_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import *
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
+
+
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHEMaxSampleTimeSelected_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
+
 
 pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
                                 particleFlowClusterECALUncorrected *
@@ -22,7 +28,8 @@ pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
 
-pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
+#pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
+pfClusteringHBHEHF = cms.Sequence(particleFlowRecHitHBHE*particleFlowRecHitHF*particleFlowClusterHBHE*particleFlowClusterHBHETimeSelected*particleFlowClusterHF*particleFlowClusterHCAL)
 pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
 
 
