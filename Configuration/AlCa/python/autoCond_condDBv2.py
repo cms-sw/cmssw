@@ -2,23 +2,23 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'MC_72_V1',
+    'run1_design'       :   'MC_72_V2',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'START72_V1',
+    'run1_mc'           :   'START72_V2',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'STARTHI72_V1',
+    'run1_mc_hi'        :   'STARTHI72_V3',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'STARTHI72_V2',
+    'run1_mc_pa'        :   'STARTHI72_V4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESIGN72_V2',
+    'run2_design'       :   'DESIGN72_V4',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS172_V4',
+    'run2_mc_50ns'      :   'POSTLS172_V8',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS172_V3',
+    'run2_mc'           :   'POSTLS172_V7',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_72_V2',
+    'run1_data'         :   'GR_R_72_V3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_72_V2',
+    'run2_data'         :   'GR_R_72_V3',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
     'run1_hlt'          :   'GR_H_V37,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
