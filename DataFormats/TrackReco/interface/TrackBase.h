@@ -117,7 +117,7 @@ public:
         algoSize = 30
     };
 
-    static const std::string algorithmNames[];
+    static const std::string algoNames[];
 
     /// track quality
     enum TrackQuality {
@@ -415,6 +415,77 @@ inline TrackBase::TrackAlgorithm TrackBase::algo() const
     return (TrackAlgorithm) algorithm_;
 }
 
+inline std::string TrackBase::algoName() const
+{
+    // I'd like to do:
+    // return TrackBase::algoName(algorithm_);
+    // but I cannot define a const static function. Why???
+
+    switch (algorithm_) {
+    case undefAlgorithm:
+        return "undefAlgorithm";
+    case ctf:
+        return "ctf";
+    case rs:
+        return "rs";
+    case cosmics:
+        return "cosmics";
+    case beamhalo:
+        return "beamhalo";
+    case initialStep:
+        return "initialStep";
+    case lowPtTripletStep:
+        return "lowPtTripletStep";
+    case pixelPairStep:
+        return "pixelPairStep";
+    case detachedTripletStep:
+        return "detachedTripletStep";
+    case mixedTripletStep:
+        return "mixedTripletStep";
+    case pixelLessStep:
+        return "pixelLessStep";
+    case tobTecStep:
+        return "tobTecStep";
+    case jetCoreRegionalStep:
+        return "jetCoreRegionalStep";
+    case iter8://TODO jaldeaar REMOVE, return undefAlgorithm?
+        return "iter8";
+    case muonSeededStepInOut:
+        return "muonSeededStepInOut";
+    case muonSeededStepOutIn:
+        return "muonSeededStepOutIn";
+    case outInEcalSeededConv:
+        return "outInEcalSeededConv";
+    case inOutEcalSeededConv:
+        return "inOutEcalSeededConv";
+    case nuclInter:
+        return "nuclInter";
+    case standAloneMuon:
+        return "standAloneMuon";
+    case globalMuon:
+        return "globalMuon";
+    case cosmicStandAloneMuon:
+        return "cosmicStandAloneMuon";
+    case cosmicGlobalMuon:
+        return "cosmicGlobalMuon";
+    case iter1LargeD0:
+        return "iter1LargeD0";
+    case iter2LargeD0:
+        return "iter2LargeD0";
+    case iter3LargeD0:
+        return "iter3LargeD0";
+    case iter4LargeD0:
+        return "iter4LargeD0";
+    case iter5LargeD0:
+        return "iter5LargeD0";
+    case bTagGhostTracks:
+        return "bTagGhostTracks";
+    case gsf:
+        return "gsf";
+    }
+    return "undefAlgorithm";
+}
+
 
 inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
 {
@@ -456,7 +527,7 @@ inline std::string TrackBase::qualityName(TrackQuality q)
 inline std::string TrackBase::algoName(TrackAlgorithm a)
 {
     if (int(a) < int(algoSize) && int(a) > 0) {
-        return algorithmNames[int(a)];
+        return algoNames[int(a)];
     }
     return "undefAlgorithm";
 }
@@ -759,7 +830,6 @@ inline double TrackBase::validFraction() const
     return valid / (double)(valid + lost + lostIn + lostOut);
 }
 
-//Track algorithm
 inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
 {
     if (set) {
