@@ -88,6 +88,9 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
 
+    bool tauVeto = rgn->tauVeto();
+    int hwQual = (int) tauVeto;
+
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
 
 
@@ -99,7 +102,7 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
 			   (int) rgn->et(),
 			   (int) rgn->id().ieta(),
 			   (int) rgn->id().iphi(),
-			   0,
+			   hwQual,
 			   0,
 			   0);
 

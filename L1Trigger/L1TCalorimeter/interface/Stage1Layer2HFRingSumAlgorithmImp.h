@@ -31,12 +31,25 @@ namespace l1t {
     virtual ~Stage1Layer2FlowAlgorithm();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::Tau> * taus,
 			      std::vector<l1t::CaloSpare> * spares);
 
   private:
     CaloParamsStage1* const params_;
     std::vector<double> cosPhi;
     std::vector<double> sinPhi;
+  };
+
+  class Stage1Layer2DiTauAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
+  public:
+    Stage1Layer2DiTauAlgorithm(CaloParamsStage1* params);
+    virtual ~Stage1Layer2DiTauAlgorithm();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::Tau> * taus,
+			      std::vector<l1t::CaloSpare> * spares);
+  private:
+    CaloParamsStage1* const params_;
   };
 }
 

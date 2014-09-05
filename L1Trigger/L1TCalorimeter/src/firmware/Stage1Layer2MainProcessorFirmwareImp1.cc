@@ -34,7 +34,7 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(m_db); //fwv =2 => PP algo
     m_tauAlgo = new Stage1Layer2TauAlgorithmImpPP(m_db);
-    m_hfRingAlgo = NULL;
+    m_hfRingAlgo = new Stage1Layer2DiTauAlgorithm(m_db);
     m_hfBitAlgo = NULL;
   }
   else if ( m_fwv == 3 )
@@ -81,7 +81,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   if(m_sumAlgo)
     m_sumAlgo->processEvent(regions, emcands, etsums);
   if(m_hfRingAlgo)
-    m_hfRingAlgo->processEvent(regions, emcands, calospares);
+    m_hfRingAlgo->processEvent(regions, emcands, taus, calospares);
   if(m_hfBitAlgo)
     m_hfBitAlgo->processEvent(regions, emcands, calospares);
 

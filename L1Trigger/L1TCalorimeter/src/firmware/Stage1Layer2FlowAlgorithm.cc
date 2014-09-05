@@ -33,6 +33,7 @@ l1t::Stage1Layer2FlowAlgorithm::~Stage1Layer2FlowAlgorithm() {}
 
 void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						  const std::vector<l1t::CaloEmCand> & EMCands,
+						  const std::vector<l1t::Tau> * taus,
 						  std::vector<l1t::CaloSpare> * spares) {
   double q2x = 0;
   double q2y = 0;
@@ -44,7 +45,7 @@ void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloReg
     if (ieta > 3 && ieta < 18) {
       continue;
     }
-    
+
     int iphi=region->hwPhi();
     regionET=region->hwPt();
 
