@@ -70,12 +70,14 @@ process.TFileService.fileName = cms.string('l1t.root')
 # raw data from MP card
 import EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi
 process.stage2Layer2Raw = EventFilter.L1TRawToDigi.mp7BufferDumpToRaw_cfi.mp7BufferDumpToRaw.clone()
-process.stage2Layer2Raw.fedId     = cms.untracked.int32(2)
-process.stage2Layer2Raw.rxFile    = cms.untracked.string("rx_summary.txt")
-process.stage2Layer2Raw.txFile    = cms.untracked.string("tx_summary.txt")
+process.stage2Layer2Raw.fedId           = cms.untracked.int32(2)
+process.stage2Layer2Raw.rxFile          = cms.untracked.string("rx_summary.txt")
+process.stage2Layer2Raw.txFile          = cms.untracked.string("tx_summary.txt")
 process.stage2Layer2Raw.nFramesPerEvent = cms.untracked.int32(54)
-process.stage2Layer2Raw.txLatency = cms.untracked.int32(54)
-process.stage2Layer2Raw.rxBlockLength    = cms.untracked.vint32(
+process.stage2Layer2Raw.txLatency       = cms.untracked.int32(54)
+process.stage2Layer2Raw.nRxEventHeaders = cms.untracked.int32(1)
+process.stage2Layer2Raw.nTxEventHeaders = cms.untracked.int32(0)
+process.stage2Layer2Raw.rxBlockLength   = cms.untracked.vint32(
     40,0,40,0,40,0,40,0,40,
     0,40,0,40,0,40,0,40,0,
     40,0,40,0,40,0,40,0,40,
@@ -85,7 +87,7 @@ process.stage2Layer2Raw.rxBlockLength    = cms.untracked.vint32(
     40,0,40,0,40,0,40,0,40,
     0,40,0,40,0,40,0,40,0)
 
-process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
+process.stage2Layer2Raw.txBlockLength   = cms.untracked.vint32(
     39,39,39,39,39,39,0,0,0,
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
@@ -101,8 +103,10 @@ process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
 #process.stage2DemuxRaw.rxFile = cms.untracked.string("")
 #process.stage2DemuxRaw.txFile = cms.untracked.string("tx_summary.txt")
 #process.stage2DemuxRaw.txLatency = cms.untracked.int32(54)
+#process.stage2DemuxRaw.nRxEventHeaders = cms.untracked.int32(0)
+#process.stage2DemuxRaw.nTxEventHeaders = cms.untracked.int32(0)
 #process.stage2DemuxRaw.rxBlockLength    = cms.untracked.vint32(
-#    0,0,0,0,0,0,0,0,0,
+#    39,39,39,39,39,39,0,0,0,
 #    0,0,0,0,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0,
@@ -110,6 +114,17 @@ process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
 #    0,0,0,0,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0)
+# demux output as seen in data
+#process.stage2DemuxRaw.txBlockLength    = cms.untracked.vint32(
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,6,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,0,0,0,0,0,0,
+#    0,0,0,4,0,0,0,0,0)
+# demux output as specified in docs
 #process.stage2DemuxRaw.txBlockLength    = cms.untracked.vint32(
 #    12,4,12,8,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0,
@@ -119,6 +134,7 @@ process.stage2Layer2Raw.txBlockLength    = cms.untracked.vint32(
 #    0,0,0,0,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0,
 #    0,0,0,0,0,0,0,0,0)
+
 
 # merge raw data
 import EventFilter.RawDataCollector.rawDataCollector_cfi
