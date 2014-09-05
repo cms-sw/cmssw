@@ -49,7 +49,7 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_refittedStandAloneMuons_*_*', 
                                            'keep recoTrackExtras_refittedStandAloneMuons_*_*', 
                                            'keep TrackingRecHitsOwned_refittedStandAloneMuons_*_*',
-                                           'keep recoTracks_displacedStandAloneMuons_*_*',
+                                           'keep recoTracks_displacedStandAloneMuons__*',
                                            'keep recoTrackExtras_displacedStandAloneMuons_*_*',
                                            'keep TrackingRecHitsOwned_displacedStandAloneMuons_*_*'
                                            )

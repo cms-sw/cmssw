@@ -18,6 +18,7 @@ displacedMuonSeeds.ForcePointDown = False
 displacedStandAloneMuons = standAloneMuons.clone()
 displacedStandAloneMuons.InputObjects = cms.InputTag("displacedMuonSeeds")
 displacedStandAloneMuons.MuonTrajectoryBuilder = cms.string("StandAloneMuonTrajectoryBuilder")
+displacedStandAloneMuons.TrackLoaderParameters.VertexConstraint = cms.bool(False) 
 
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
