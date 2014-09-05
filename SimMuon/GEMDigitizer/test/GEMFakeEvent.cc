@@ -1,3 +1,6 @@
+#ifndef SimMuon_GEMDigitizer_GEMFakeEvent_h
+#define SimMuon_GEMDigitizer_GEMFakeEvent_h
+
 /** \class GEMFakeEvent
  *   Class for testing creation of fake digis in every GEM strip
  *
@@ -33,7 +36,6 @@ private:
 
   int nEtaPartitions_;
 };
-
 
 GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config) 
 {
@@ -83,5 +85,6 @@ GEMFakeEvent::produce(edm::Event & ev, const edm::EventSetup& es)
   cout<<"Done with event!"<<endl;
 }
 
+#endif
 DEFINE_FWK_MODULE(GEMFakeEvent);
 

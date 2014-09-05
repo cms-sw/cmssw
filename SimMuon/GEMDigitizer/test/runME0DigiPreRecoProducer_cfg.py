@@ -16,7 +16,7 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -37,12 +37,8 @@ process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 process.load('SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi')
 
 # customization of the process.pdigi sequence to add the GEM digitizer
-from SimMuon.GEMDigitizer.customizeME0Digi import *
-#process = customize_digi_addGEM(process)  # run all detectors digi
-process = customize_digi_addME0_muon_only(process) # only muon+ME0 digi
-
-
-
+from SimMuon.GEMDigitizer.customizeGEMDigi import *
+process = customize_digi_addGEM_addME0_muon_only(process) # only muon+GEM+ME0 digi
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(

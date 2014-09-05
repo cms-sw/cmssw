@@ -1,5 +1,5 @@
-#ifndef GEMDigitizer_ME0DigiPreRecoModel_h
-#define GEMDigitizer_ME0DigiPreRecoModel_h
+#ifndef SimMuon_GEMDigitizer_ME0DigiPreRecoModel_h
+#define SimMuon_GEMDigitizer_ME0DigiPreRecoModel_h
 
 /** 
  *  \class ME0DigiPreRecoModel

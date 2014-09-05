@@ -14,10 +14,8 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
     digitizeOnlyMuons = cms.bool(False),
     simulateIntrinsicNoise = cms.bool(False),
     simulateElectronBkg = cms.bool(False), #True - will simulate electron background
-
     averageNoiseRate = cms.double(0.001), #intrinsic noise
     bxwidth = cms.int32(25),
     minBunch = cms.int32(-5), ## in terms of 25 ns
     maxBunch = cms.int32(3)
-
 )

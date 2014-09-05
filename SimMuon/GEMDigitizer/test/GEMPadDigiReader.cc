@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMPadDigiReader_h
-#define SimMuon_GEMPadDigiReader_h
+#ifndef SimMuon_GEMDigitizer_GEMPadDigiReader_h
+#define SimMuon_GEMDigitizer_GEMPadDigiReader_h
 
 /** \class GEMDigiReader
  *  Dumps GEM-CSC trigger pad digis 

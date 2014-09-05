@@ -1,5 +1,5 @@
-#ifndef GEMDigitizer_GEMDigiProducer_h
-#define GEMDigitizer_GEMDigiProducer_h
+#ifndef SimMuon_GEMDigitizer_GEMDigiProducer_h
+#define SimMuon_GEMDigitizer_GEMDigiProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

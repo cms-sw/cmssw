@@ -158,7 +158,8 @@ def customize_digi_addGEM_gem_only(process):
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.simMuonGEMDigis*
-        process.simMuonGEMPadDigis )
+        process.simMuonGEMPadDigis 
+    )
     process = append_GEMDigi_event(process)
     return process
 
@@ -176,7 +177,7 @@ def customize_digi_addGEM_addME0(process):
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
         process.simMuonGEMDigis +
-        process.simMuonGEMCSCPadDigis +
+        process.simMuonGEMPadDigis +
         process.simMuonME0Digis
     )
     process.doAllDigi = cms.Sequence(
@@ -205,7 +206,7 @@ def customize_digi_addGEM_addME0_muon_only(process):
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
         process.simMuonGEMDigis +
-        process.simMuonGEMCSCPadDigis +
+        process.simMuonGEMPadDigis +
         process.simMuonME0Digis
     )
     process.pdigi = cms.Sequence(
@@ -228,20 +229,20 @@ def customize_digi_addGEM_addME0_gem_only(process):
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.simMuonGEMDigis*
-        process.simMuonGEMCSCPadDigis*
+        process.simMuonGEMPadDigis*
         process.simMuonME0Digis
     )
     process = append_GEMDigi_event(process)
     return process
 
 
-# insert the GEMDigi and GEMCSCPadDigi collection to the event
+# insert the GEMDigi and GEMPadDigi collection to the event
 def append_GEMDigi_event(process):
     alist=['AODSIM','RECOSIM','FEVTSIM','FEVTDEBUG','FEVTDEBUGHLT','RECODEBUG','RAWRECOSIMHLT','RAWRECODEBUGHLT']
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('keep *_simMuonGEMDigis_*_*')
-            getattr(process,b).outputCommands.append('keep *_simMuonGEMCSCPadDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simMuonGEMPadDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_simMuonME0Digis_*_*')
     return process

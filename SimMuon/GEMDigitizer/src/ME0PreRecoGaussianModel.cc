@@ -120,10 +120,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
                       + ME0ModElecBkgParam6 * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand;
 
   const double averageNoiseElec(averageNoiseElectronRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
-  //  CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoiseElec);
   const int n_elechits(CLHEP::RandPoissonQ::shoot(engine, averageNoiseElec));
-
-// randPoissonQ.fire());
 
   double xMax = semiTopEdge - (semiHeight - yy_rand) * myTanPhi;
   for (int i = 0; i < n_elechits; ++i)
@@ -162,8 +159,6 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
                       + ME0ModNeuBkgParam6 * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand;
 
   const double averageNoiseNeutral(aveNeutrRateBotRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
-  // CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoiseNeutral);
-  // const int n_hits(randPoissonQ.fire());
   const int n_hits(CLHEP::RandPoissonQ::shoot(engine, averageNoiseNeutral));
 
   for (int i = 0; i < n_hits; ++i)

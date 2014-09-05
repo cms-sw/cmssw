@@ -1,5 +1,5 @@
-#ifndef GEMDigitizer_ME0PreRecoNoSmearModel_h
-#define GEMDigitizer_ME0PreRecoNoSmearModel_h
+#ifndef SimMuon_GEMDigitizer_ME0PreRecoNoSmearModel_h
+#define SimMuon_GEMDigitizer_ME0PreRecoNoSmearModel_h
 
 /**
  * \class ME0PreRecoNoSmearModel

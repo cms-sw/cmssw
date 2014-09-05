@@ -1,5 +1,5 @@
-#ifndef GEMDigitizer_ME0PreRecoGaussianModel_h
-#define GEMDigitizer_ME0PreRecoGaussianModel_h
+#ifndef SimMuon_GEMDigitizer_ME0PreRecoGaussianModel_h
+#define SimMuon_GEMDigitizer_ME0PreRecoGaussianModel_h
 
 /**
  * \class ME0PreRecoGaussianModel
