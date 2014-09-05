@@ -86,11 +86,6 @@ process.validation_step = cms.EndPath(process.validation)
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
-# customisation of the process.
-#process.globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-#process.trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-#process.tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-#process.looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.prevalidation_step,process.validation_step,process.dqmoffline_step,process.RECOSIMoutput_step,process.DQMoutput_step)
