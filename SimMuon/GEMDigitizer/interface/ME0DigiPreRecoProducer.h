@@ -5,12 +5,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModel.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-#include "string"
+#include <string>
 
 class ME0Geometry;
+class ME0DigiPreRecoModel;
 
 class ME0DigiPreRecoProducer : public edm::EDProducer
 {
@@ -20,20 +22,17 @@ public:
 
   virtual ~ME0DigiPreRecoProducer();
 
-  virtual void beginRun( edm::Run&, const edm::EventSetup& ) {};
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
-  virtual void endRun( edm::Run&, const edm::EventSetup& ) {}
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 
   //Name of Collection used for create the XF 
-  std::string collectionXF_;
-  std::string digiPreRecoModelString_;
-  
-  ME0DigiPreRecoModel* me0DigiPreRecoModel_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
 
+  std::string digiPreRecoModelString_;
+  ME0DigiPreRecoModel* me0DigiPreRecoModel_;
 };
 
 #endif

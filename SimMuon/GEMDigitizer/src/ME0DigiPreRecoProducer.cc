@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -13,21 +12,22 @@
 
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoProducer.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModelFactory.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModel.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
-#include "CLHEP/Random/RandomEngine.h"
 
 #include <sstream>
 #include <string>
 #include <map>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
-  : collectionXF_(ps.getParameter<std::string>("inputCollection"))
-  , digiPreRecoModelString_(ps.getParameter<std::string>("digiPreRecoModelString"))
+  : digiPreRecoModelString_(ps.getParameter<std::string>("digiPreRecoModelString"))
 {
   produces<ME0DigiPreRecoCollection>();
 
@@ -37,10 +37,13 @@ ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
       << "ME0DigiPreRecoProducer::ME0PreRecoDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
   me0DigiPreRecoModel_ = ME0DigiPreRecoModelFactory::get()->create("ME0" + digiPreRecoModelString_ + "Model", ps);
   LogDebug("ME0DigiPreRecoProducer") << "Using ME0" + digiPreRecoModelString_ + "Model";
-  me0DigiPreRecoModel_->setRandomEngine(engine);
+
+  std::string mix_(ps.getParameter<std::string>("mixLabel"));
+  std::string collection_(ps.getParameter<std::string>("inputCollection"));
+
+  cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
 }
 
 
@@ -50,16 +53,23 @@ ME0DigiPreRecoProducer::~ME0DigiPreRecoProducer()
 }
 
 
-void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+void ME0DigiPreRecoProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
   // set geometry
   edm::ESHandle<ME0Geometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   me0DigiPreRecoModel_->setGeometry(&*hGeom);
   me0DigiPreRecoModel_->setup();
+}
+
+
+void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+{
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", collectionXF_, cf);
+  e.getByToken(cf_token, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > hits( new MixCollection<PSimHit>(cf.product()) );
 
@@ -83,8 +93,8 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
     LogDebug("ME0DigiPreRecoProducer") 
       << "ME0DigiPreRecoProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
     
-    me0DigiPreRecoModel_->simulateSignal(roll, simHits);
-    me0DigiPreRecoModel_->simulateNoise(roll);
+    me0DigiPreRecoModel_->simulateSignal(roll, simHits, engine);
+    me0DigiPreRecoModel_->simulateNoise(roll, engine);
     me0DigiPreRecoModel_->fillDigis(rawId, *digis);
   }
   

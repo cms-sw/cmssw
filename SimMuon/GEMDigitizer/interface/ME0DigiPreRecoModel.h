@@ -12,10 +12,14 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "CLHEP/Random/RandomEngine.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include <map>
 #include <set>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class ME0EtaPartition;
 class ME0Geometry;
@@ -31,14 +35,12 @@ public:
 
   const ME0Geometry* getGeometry() {return geometry_;}
 
-  virtual void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&) = 0;
+  virtual void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine) = 0;
 
-  virtual void simulateNoise(const ME0EtaPartition*) = 0;
+  virtual void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine* engine) = 0;
   
   //  virtual std::vector<std::pair<int,int> > 
   //   simulateClustering(const ME0EtaPartition*, const PSimHit*, const int) = 0;
-
-  virtual void setRandomEngine(CLHEP::HepRandomEngine&) = 0;
 
   void fillDigis(int rollDetId, ME0DigiPreRecoCollection&);
 

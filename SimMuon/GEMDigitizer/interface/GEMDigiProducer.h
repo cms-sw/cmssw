@@ -10,7 +10,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "string"
+
+#include <string>
 
 class GEMGeometry;
 class GEMDigiModel;

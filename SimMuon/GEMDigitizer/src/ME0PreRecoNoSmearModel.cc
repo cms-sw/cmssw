@@ -1,9 +1,4 @@
 #include "SimMuon/GEMDigitizer/interface/ME0PreRecoNoSmearModel.h"
-#include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-#include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <cmath>
 #include <utility>
@@ -17,7 +12,7 @@ ME0PreRecoNoSmearModel::ME0PreRecoNoSmearModel(const edm::ParameterSet& config)
 
 void 
 ME0PreRecoNoSmearModel::simulateSignal(const ME0EtaPartition* roll,
-				const edm::PSimHitContainer& simHits)
+				const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
 {
 
   for (const auto & hit: simHits)
@@ -38,7 +33,7 @@ ME0PreRecoNoSmearModel::simulateSignal(const ME0EtaPartition* roll,
 }
 
 void 
-ME0PreRecoNoSmearModel::simulateNoise(const ME0EtaPartition* roll)
+ME0PreRecoNoSmearModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandomEngine* engine)
 {
 }
 

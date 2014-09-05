@@ -19,11 +19,9 @@ public:
 
   ~ME0PreRecoNoSmearModel() {}
 
-  void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&);
+  void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
 
-  void setRandomEngine(CLHEP::HepRandomEngine&) {}
-
-  void simulateNoise(const ME0EtaPartition*);
+  void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine*) override;
 
   void setup() {}
 

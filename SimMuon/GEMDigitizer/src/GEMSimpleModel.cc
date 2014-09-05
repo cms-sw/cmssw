@@ -169,18 +169,10 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   trArea = trStripArea * nstrips;
   const int nBxing(maxBunch_ - minBunch_ + 1);
 
-  float rollRadius = 0;
-  if(fixedRollRadius_)
-  {
-    rollRadius = top_->radius();
-  }
-  else
-  {
-    double varRad = flat3_->fire(-1.*top_->stripLength()/2., top_->stripLength()/2.);
-    rollRadius = top_->radius() + varRad;
-  }
+  const float rollRadius(fixedRollRadius_ ? top_->radius() : 
+			 top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
 
-//calculate noise from model
+  //calculate noise from model
   double averageNeutralNoiseRatePerRoll = 0.;
   double averageNoiseElectronRatePerRoll = 0.;
   double averageNoiseRatePerRoll = 0.;
@@ -260,7 +252,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
       cluster_.push_back(std::pair<int, int>(centralStrip, time_hit));
 
       int clusterSize = 0;
-      double randForCls = flat4_->fire(1);
+      double randForCls = CLHEP::RandFlat::shoot(engine);
 
       if(randForCls <= clsParametrization_[0] && randForCls >= 0.)
         clusterSize = 1;
@@ -297,7 +289,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
       if (clusterSize % 2 == 0)
       {
         int clsR = (clusterSize - 2) / 2;
-        if(flat3_->fire(1) < 0.5)
+        if(CLHEP::RandFlat::shoot(engine) < 0.5)
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
             cluster_.push_back(std::pair<int, int>(centralStrip - 1, time_hit));
@@ -312,13 +304,13 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 
         else
         {
-        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-          cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
+	  if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
+	    cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
           for (int i = 1; i <= clsR; ++i)
           {
-            if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
+            if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
             cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, time_hit));
-            if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
+            if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - i < 0))
             cluster_.push_back(std::pair<int, int>(centralStrip - i, time_hit));
           }
         }
@@ -363,7 +355,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
 
   // get the cluster size
       int clusterSize = 0;
-      double randForCls = flat4_->fire(1);
+      double randForCls = CLHEP::RandFlat::shoot(engine);
 
       if(randForCls <= clsParametrization_[0] && randForCls >= 0.)
         clusterSize = 1;
