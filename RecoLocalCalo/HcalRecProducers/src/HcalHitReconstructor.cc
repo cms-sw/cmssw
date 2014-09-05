@@ -13,6 +13,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
+#include "CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 #include <iostream>
 #include <fstream>
@@ -322,7 +323,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       if (!corrName.empty())
       {
           edm::ESHandle<OOTPileupCorrectionColl> pileupCorrections;
-          eventSetup.get<HcalOOTPileupCorrectionRcd>().get(pileupCorrections);
+          if (eventSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<HcalOOTPileupCorrectionRcd>()))
+              eventSetup.get<HcalOOTPileupCorrectionRcd>().get(pileupCorrections);
+          else
+              eventSetup.get<HcalOOTPileupCompatibilityRcd>().get(pileupCorrections);
           const std::string& cat = isData ? dataOOTCorrectionCategory_ : mcOOTCorrectionCategory_;
           (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName, cat));
       }
