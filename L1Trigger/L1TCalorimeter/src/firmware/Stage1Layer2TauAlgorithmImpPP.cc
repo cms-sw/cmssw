@@ -6,6 +6,7 @@
 ///
 /// \author: Kalanand Mishra - Fermilab
 ///
+/// Tau definition: 4x8 towers.
 
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2TauAlgorithmImp.h"
@@ -22,7 +23,6 @@ using namespace l1t;
 
 Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
-  do2x1Algo=false;
 }
 
 Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
@@ -40,11 +40,12 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
+  int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
+  int switchOffTauVeto = floor( params_->switchOffTauVeto()/towerLsb + 0.5);
+  int switchOffTauIso = floor( params_->switchOffTauIso()/towerLsb + 0.5);
+  int tauRelativeJetIsolationLimit = params_->tauRelativeJetIsolationLimit();
   double tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
-
-  double dswitchOffTauIso(100.); // value at which to switch of Tau iso requirement (GeV)
-  int switchOffTauIso= floor( dswitchOffTauIso/towerLsb + 0.5);  // convert GeV to HW units
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
@@ -70,30 +71,103 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int regionEt = region->hwPt();
     if(regionEt < tauSeedThreshold) continue;
 
-    double isolation;
-    int associatedSecondRegionEt =
-      AssociatedSecondRegionEt(region->hwEta(), region->hwPhi(),
-			       *subRegions, isolation);
+    int regionEta = region->hwEta();
+    int regionPhi = region->hwPhi();
+
+    //int associatedSecondRegionEt =
+    //  AssociatedSecondRegionEt(region->hwEta(), region->hwPhi(),
+    //			       *subRegions);
 
     int tauEt=regionEt;
-    if(do2x1Algo && associatedSecondRegionEt>tauSeedThreshold) tauEt +=associatedSecondRegionEt;
+    int isoFlag=0;
 
+    int highestNeighborEt=0;
+    int highestNeighborTauVeto=1;
+    int isEast=0;
+    int isSouth=0;
+    int isWest=0;
+    int isNorth=0;
+    int EastEt=0;
+    int SouthEt=0;
+    int WestEt=0;
+    int NorthEt=0;
+    int NEEt=0;
+    int NWEt=0;
+    int SEEt=0;
+    int SWEt=0;
 
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
+    //Find neighbor with highest Et and find energies of all neighboring regions
+    for(CaloRegionBxCollection::const_iterator neighbor = regions.begin();
+	neighbor != regions.end(); neighbor++) {
+      
+      int neighborPhi = neighbor->hwPhi();
+      int neighborEta = neighbor->hwEta();
+      int deltaPhi = regionPhi - neighborPhi;
+      if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
+	deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
+      
+      int deltaEta = regionEta - neighborEta;
+      
+      if ((std::abs(deltaPhi) + std::abs(deltaEta)) > 0 && std::abs(deltaPhi) < 2 && std::abs(deltaEta) < 2) {
+	
+	int neighborEt = neighbor->hwPt();
 
-    l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi());
+	if (deltaEta==-1) {
+	  if (deltaPhi==-1) NEEt=neighborEt;
+	  else if (deltaPhi==0) {
+	    isEast=1;
+	    EastEt=neighborEt;
+	  }
+	  else SEEt=neighborEt;
+	}
+	else if (deltaEta==0) {
+	  if (deltaPhi==-1) {
+	    isNorth=1;
+	    NorthEt=neighborEt;
+	  }
+	  if (deltaPhi==1) {
+	    isSouth=1;
+	    SouthEt=neighborEt;
+	  }	
+	}
+	else {
+	  if (deltaPhi==-1) NWEt=neighborEt;
+	  else if (deltaPhi==0) {
+	    isWest=1;
+	    WestEt=neighborEt;
+	  }
+	  else SWEt=neighborEt;
+	}
+	
+	if (!(std::abs(deltaPhi)==1 && std::abs(deltaEta==1))) {
+	  
+	  if (neighborEt > highestNeighborEt) {
+	    highestNeighborEt = neighborEt;
+	    highestNeighborTauVeto = neighbor->tauVeto();
+	  }
+	}
+      }
+    }
+    
+    if((tauEt > highestNeighborEt && (isEast==0 || isNorth==0)) || (tauEt >= highestNeighborEt && (isSouth==0 || isWest==0))) {
 
+      if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
+      
+      if ((highestNeighborTauVeto == 0 && region->tauVeto() == 0) || tauEt > switchOffTauVeto) {
 
-    double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
-    // if (tauEt >200)
-    //   cout << "tauET: " << tauEt << " tauETA: " << region->hwEta() << " tauPHI: " << region->hwPhi()
-    // 	   << " jetIso: " << jetIsolation << " Cut: " << tauRelativeJetIsolationCut
-    // 	   << " Seed Threshold: " << tauSeedThreshold << endl;
+	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
 
-    if( tauEt >0 && (jetIsolation < tauRelativeJetIsolationCut || tauEt > switchOffTauIso || abs(jetIsolation-999.)<0.1 ))
-      preGtTaus->push_back(theTau);
+	if (jetIsolation < tauRelativeJetIsolationCut || (tauEt >= switchOffTauIso && jetIsolation < tauRelativeJetIsolationLimit)
+	    || (std::abs(jetIsolation - 999) < 0.1) ) isoFlag=1;
+	
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
+	
+	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), isoFlag);
+	
+	if( tauEt >0) preGtTaus->push_back(theTau);
+      }
+    }
   }
-
   TauToGtScales(params_, preGtTaus, taus);
 
   delete subRegions;
@@ -108,44 +182,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   std::sort(taus->begin(), taus->end(), comp);
   std::reverse(taus->begin(), taus->end());
-}
-
-
-
-
-
-
-
-// Given a region at iphi/ieta, find the highest region in the surrounding
-// regions. Also compute isolation.
-
-int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedSecondRegionEt(int ieta, int iphi,
-								 const std::vector<l1t::CaloRegion> & regions,
-								 double& isolation) const {
-  int highestNeighborEt = 0;
-  isolation = 0;
-
-  for(CaloRegionBxCollection::const_iterator region = regions.begin();
-      region != regions.end(); region++) {
-
-    int regionPhi = region->hwPhi();
-    int regionEta = region->hwEta();
-    unsigned int deltaPhi = iphi - regionPhi;
-    if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
-      deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
-
-    unsigned int deltaEta = std::abs(ieta - regionEta);
-
-    if ((deltaPhi + deltaEta) > 0 && deltaPhi < 2 && deltaEta < 2) {
-
-      int regionEt = region->hwPt();
-      isolation += regionEt;
-      if (regionEt > highestNeighborEt) highestNeighborEt = regionEt;
-    }
-  }
-
-  // set output
-  return highestNeighborEt;
 }
 
 
