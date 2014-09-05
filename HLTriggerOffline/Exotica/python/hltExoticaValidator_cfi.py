@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff      import HighPtDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff  import HighPtDielectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff       import LowPtDimuonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff   import LowPtDielectronPSet
+#from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff   import LowPtDielectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtElectron_cff    import HighPtElectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff     import LowPtElectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff      import HighPtPhotonPSet
@@ -43,7 +43,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     analysis       = cms.vstring("HighPtDimuon",
                                  "HighPtDielectron",
                                  "LowPtDimuon",
-                                 "LowPtDielectron",
+                                 #"LowPtDielectron",
                                  "HighPtElectron",
                                  "LowPtElectron",
                                  "HighPtPhoton",
@@ -147,7 +147,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     HighPtDimuon     = HighPtDimuonPSet,
     HighPtDielectron = HighPtDielectronPSet,
     LowPtDimuon      = LowPtDimuonPSet,
-    LowPtDielectron  = LowPtDielectronPSet,
+    #LowPtDielectron  = LowPtDielectronPSet,
     HighPtElectron   = HighPtElectronPSet,
     LowPtElectron    = LowPtElectronPSet,
     HighPtPhoton     = HighPtPhotonPSet,                                 
