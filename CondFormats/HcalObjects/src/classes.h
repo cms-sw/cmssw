@@ -92,6 +92,7 @@ namespace CondFormats_HcalObjects {
     OOTPileupCorrData myOOTPileupCorrData;
     DummyOOTPileupCorrection myDummyOOTPileupCorrection;
     OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
+    OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
   };
 }
 

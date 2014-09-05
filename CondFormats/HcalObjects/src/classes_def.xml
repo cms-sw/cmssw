@@ -388,5 +388,8 @@
  <class name="OOTPileupCorrectionMapColl">
   <field name="data_" mapping="blob" />
  </class>
+ <class name="OOTPileupCorrectionBuffer">
+  <field name="m_buffer" mapping="blob" />
+ </class>
 
 </lcgdict>   
