@@ -84,6 +84,7 @@ private:
 
   // Member Variables
 
+  MonitorElement*  nvertices_gen_;
   MonitorElement*  nvertices_;
   MonitorElement*  nphotons_;
   MonitorElement*  photonpt_;
@@ -143,6 +144,7 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
 					     edm::EventSetup const & iSetup)
 {
   iBooker.setCurrentFolder(dirname_);
+  nvertices_gen_ = iBooker.book1D("nvertices_gen", "Gen: Number of vertices", 100, 0, 100); 
   nvertices_ = iBooker.book1D("nvertices", "Number of vertices", 100, 0, 100); 
   nphotons_ = iBooker.book1D("nphotons", "Number of photons", 100, 0, 10); 
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 500); 
@@ -177,7 +179,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   const edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults); 
   bool triggered = isMonitoredTriggerAccepted(triggerNames, triggerResults); 
 
-  if (!triggered) return; 
+  // if (!triggered) return; 
 
   // Test scale 
   // if (evtsrun_ > 10) return;
@@ -199,23 +201,24 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     std::string triggername = triggerNames.triggerName(itrig);
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
-  	triggers_->Fill(i);
-  	trigvsnvtx_->Fill(vertices->size(), i);
+  	 if (triggered) triggers_->Fill(i);
+  	 if (triggered) trigvsnvtx_->Fill(vertices->size(), i);
       }
     }
   }
 
-  nvertices_->Fill(vertices->size());
+  nvertices_gen_->Fill(vertices->size());
+  if (triggered) nvertices_->Fill(vertices->size());
 
   // PF MET
   edm::Handle<reco::PFMETCollection> pfmets;
   iEvent.getByToken(pfMetToken_, pfmets);
   if (!pfmets.isValid()) return;
   const reco::PFMET pfmet = pfmets->front();
-  pfmet_->Fill(pfmet.et()); 
+  if (triggered) pfmet_->Fill(pfmet.et()); 
   if (verbose_)
     std::cout << "xshi:: number of pfmets: " << pfmets->size() << std::endl;
-  pfmetphi_->Fill(pfmet.phi()); 
+   if (triggered) pfmetphi_->Fill(pfmet.phi()); 
   
   // Photons
   edm::Handle<reco::PhotonCollection> photons;
@@ -226,12 +229,12 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       phoIter!=photons->end();++phoIter){
     if (phoIter->pt() < photonMinPt_ )  continue;
     nphotons++;
-    photonpt_->Fill(phoIter->pt()); 
-    photonrapidity_->Fill(phoIter->rapidity()); 
+    if (triggered) photonpt_->Fill(phoIter->pt()); 
+    if (triggered) photonrapidity_->Fill(phoIter->rapidity()); 
     double tmp_delphiphomet = fabs(deltaPhi(phoIter->phi(), pfmet.phi())); 
-    delphiphomet_->Fill(tmp_delphiphomet); 
+    if (triggered) delphiphomet_->Fill(tmp_delphiphomet); 
   }
-  nphotons_->Fill(nphotons);
+  if (triggered)  nphotons_->Fill(nphotons);
   
   // PF Jet
   edm::Handle<reco::PFJetCollection> pfjets;
@@ -263,16 +266,16 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       etajet2 = jetIter->eta(); 
     }
   }
-  npfjets_->Fill(njet);   
+  if (triggered) npfjets_->Fill(njet);   
   
-  delphijetmet_->Fill(min_delphijetmet); 
+  if (triggered) delphijetmet_->Fill(min_delphijetmet); 
   p4jj = p4jet1 + p4jet2; 
   double deletajj = etajet1 - etajet2 ; 
   if (verbose_) 
     std::cout << "xshi:: invmass jj " << p4jj.M() << std::endl;
   
-  invmassjj_->Fill(p4jj.M());
-  deletajj_->Fill(deletajj); 
+  if (triggered) invmassjj_->Fill(p4jj.M());
+  if (triggered) deletajj_->Fill(deletajj); 
 }
 
 
