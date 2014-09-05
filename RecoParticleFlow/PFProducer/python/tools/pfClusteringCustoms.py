@@ -71,7 +71,7 @@ def customizePFHCALClustering(process,scenario):
             p.name = cms.string('PFHBHERecHitCreator')
 
 
-        process.particleFlowClusterHCAL.clustersSource = cms.InputTag("particleFlowClusterHBHE"),
+        process.particleFlowClusterHCAL.clustersSource = cms.InputTag("particleFlowClusterHBHE")
         process.particleFlowRecHitHBHE.navigator = cms.PSet(
             name = cms.string("PFRecHitHCALNavigator")
         )
