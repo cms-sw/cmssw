@@ -2399,7 +2399,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	if (isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
 	
-    switch (trackref->algo()) {
+	switch (trackref->algo()) {
 	case TrackBase::ctf:
 	case TrackBase::initialStep:
 	case TrackBase::lowPtTripletStep:
