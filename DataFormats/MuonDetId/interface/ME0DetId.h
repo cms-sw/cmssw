@@ -1,5 +1,5 @@
-#ifndef MuonDetId_ME0DetId_h
-#define MuonDetId_ME0DetId_h
+#ifndef DataFormats_MuonDetId_ME0DetId_h
+#define DataFormats_MuonDetId_ME0DetId_h
 
 /** \class ME0DetId
  * 

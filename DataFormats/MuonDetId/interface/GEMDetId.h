@@ -1,5 +1,5 @@
-#ifndef MuonDetId_GEMDetId_h
-#define MuonDetId_GEMDetId_h
+#ifndef DataFormats_MuonDetId_GEMDetId_h
+#define DataFormats_MuonDetId_GEMDetId_h
 
 /** \class GEMDetId
  * 
