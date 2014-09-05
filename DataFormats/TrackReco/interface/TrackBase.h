@@ -486,7 +486,6 @@ inline std::string TrackBase::algoName() const
     return "undefAlgorithm";
 }
 
-
 inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
 {
     switch (q) {
