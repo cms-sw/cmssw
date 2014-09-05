@@ -71,8 +71,9 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 TMatrixDSym fullpulsecovEB;
                 TMatrixDSym fullpulsecovEE;
                 std::set<int> activeBX;
+                bool ampErrorCalculation_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
-
+                
 
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                

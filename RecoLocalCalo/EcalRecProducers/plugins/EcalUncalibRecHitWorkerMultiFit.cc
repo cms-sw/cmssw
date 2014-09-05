@@ -30,6 +30,9 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
   for(unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) activeBX.insert(activeBXs[ibx]);
 
+  // uncertainty calculation (CPU intensive)
+  ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
+
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
   
@@ -99,6 +102,9 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
         // common setup
         es.get<EcalGainRatiosRcd>().get(gains);
         es.get<EcalPedestalsRcd>().get(peds);
+
+        // for the multifit method
+        if(!ampErrorCalculation_) multiFitMethod_.disableErrorCalculation();
 
         // weights parameters for the time
         es.get<EcalWeightXtalGroupsRcd>().get(grps);
@@ -341,7 +347,10 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                   }
                   uncalibRecHit.setJitter( timerh );
                   uncalibRecHit.setJitterError( 0. ); // not computed with weights
-                }  else {
+                }  else if(timealgo_.compare("None")==0) {
+                  uncalibRecHit.setJitter( 0. );
+                  uncalibRecHit.setJitterError( 0. );                  
+                } else {
                   edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm called " 
                                                           << timealgo_
                                                           << "\n  setting jitter to 0. and jitter uncertainty to 10000. ";
