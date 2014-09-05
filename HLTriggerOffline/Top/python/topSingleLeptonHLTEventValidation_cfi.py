@@ -49,5 +49,5 @@ topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(4),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele27_WP80_Gsf_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v']),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele27_WP85_Gsf_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP85_Gsf_CentralPFJet30_BTagCSV_v']),
 )
