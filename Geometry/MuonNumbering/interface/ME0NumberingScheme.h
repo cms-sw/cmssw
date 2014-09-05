@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_ME0NumberingScheme_h
-#define MuonNumbering_ME0NumberingScheme_h
+#ifndef Geometry_MuonNumbering_ME0NumberingScheme_h
+#define Geometry_MuonNumbering_ME0NumberingScheme_h
 
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
