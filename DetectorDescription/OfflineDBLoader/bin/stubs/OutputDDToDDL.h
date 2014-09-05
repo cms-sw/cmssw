@@ -13,10 +13,12 @@
 
 class DDPartSelection;
 
+namespace {
 /// is sv1 < sv2 
 struct ddsvaluesCmp {
   bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
 };
+}
 
 class OutputDDToDDL : public edm::EDAnalyzer {
 
