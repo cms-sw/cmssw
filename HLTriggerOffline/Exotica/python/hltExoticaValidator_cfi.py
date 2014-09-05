@@ -13,22 +13,24 @@
 
 import FWCore.ParameterSet.Config as cms
 
-# The specific analyses to be loaded
-from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff     import HighPtDimuonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff import HighPtDielectronPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff      import LowPtDimuonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff  import LowPtDielectronPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtElectron_cff   import HighPtElectronPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff    import LowPtElectronPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff     import HighPtPhotonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff         import DiPhotonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff               import HTPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff        import JetNoBptxPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff       import MuonNoBptxPSet
-# not integrated yet
-from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff   import EleMuPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff import PureMETPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
+# Validation categories (sub-analyses)
+from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff      import HighPtDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff  import HighPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff       import LowPtDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff   import LowPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtElectron_cff    import HighPtElectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff     import LowPtElectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff      import HighPtPhotonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff          import DiPhotonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff                import HTPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff         import JetNoBptxPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff        import MuonNoBptxPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedEleMu_cff    import DisplacedEleMuPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuon_cff   import DisplacedDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedL2Dimuon_cff import DisplacedL2DimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff           import PureMETPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff           import MonojetPSet
+
 hltExoticaValidator = cms.EDAnalyzer(
 
     "HLTExoticaValidator",
@@ -49,9 +51,11 @@ hltExoticaValidator = cms.EDAnalyzer(
                                  "JetNoBptx",
                                  "MuonNoBptx",
                                  "HT",
-                                 #"EleMu",
-                                 #"PureMET",
-                                 #"Monojet"
+                                 "DisplacedEleMu",
+                                 "DisplacedDimuon",
+                                 "DisplacedL2Dimuon",
+                                 "PureMET",
+                                 "Monojet"
                                  ),
     
     # -- The instance name of the reco::GenParticles collection
@@ -147,8 +151,9 @@ hltExoticaValidator = cms.EDAnalyzer(
     DiPhoton         = DiPhotonPSet,                                 
     JetNoBptx        = JetNoBptxPSet,
     MuonNoBptx       = MuonNoBptxPSet,
-    #
-    EleMu            = EleMuPSet,
+    DisplacedEleMu   = DisplacedEleMuPSet,
+    DisplacedDimuon  = DisplacedDimuonPSet,
+    DisplacedL2Dimuon = DisplacedL2DimuonPSet,
     PureMET          = PureMETPSet,                                 
     Monojet          = MonojetPSet,
     HT               = HTPSet
