@@ -831,7 +831,6 @@ namespace edm {
   //
 
   TypeBases::TypeBases(TypeWithDict const& type) :
-    type_(type.type_),
     class_(type.class_) {
   }
 
@@ -861,7 +860,6 @@ namespace edm {
   //
 
   TypeDataMembers::TypeDataMembers(TypeWithDict const& type) :
-    type_(type.type_),
     class_(type.class_) {
   }
 
@@ -891,7 +889,6 @@ namespace edm {
   //
 
   TypeFunctionMembers::TypeFunctionMembers(TypeWithDict const& type) :
-    type_(type.type_),
     class_(type.class_) {
   }
 
