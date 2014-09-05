@@ -15,14 +15,10 @@
 
 // find the index of the object key of an association vector closest to a given jet, within a given distance
 template <typename T, typename V>
-//int closestJet(const reco::Jet & jet, const edm::AssociationVector<T, V> & association, double distance) {
 int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T, V> & association, double distance) {
 	int closest = -1;
-	//  std::cout<<" closestJet : distance"<<distance<<std::endl;
 	for (unsigned int i = 0; i < association.size(); ++i) {
 		double d = ROOT::Math::VectorUtil::DeltaR(jet->momentum(), association[i].first->momentum());
-		//  std::cout<<" 2 closestJet : distance"<<d<<std::endl;
-
 		if (d < distance) {
 			distance = d;
 			closest  = i;
@@ -31,41 +27,23 @@ int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T,
 	return closest;
 }
 
-
-/// 
-/// _END_
-
-
 //
 // constructors and destructor
 //
 HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
-	//now do what ever initialization is needed
 	hlTriggerResults_   = iConfig.getParameter<InputTag> ("TriggerResults");
 	hltPathNames_        = iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
-
-	// trigger   
 	JetTagCollection_           = iConfig.getParameter< std::vector<InputTag> >("JetTag");
-
-	// offline
-	minJetPT_                       = iConfig.getParameter<double>   ("MinJetPT");
-
-	//gen level partons
-
 	edm::ParameterSet mc = iConfig.getParameter<edm::ParameterSet>("mcFlavours");
 	m_mcPartons =  iConfig.getParameter<edm::InputTag>("mcPartons"); 
 	m_mcLabels = mc.getParameterNamesForType<std::vector<unsigned int> >();  
+
 	for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		m_mcFlavours.push_back( mc.getParameter<std::vector<unsigned int> >(m_mcLabels[i]) );
-
 	m_mcMatching = m_mcPartons.label() != "none" ;
-	m_mcRadius=0.5;
 
-	// various parameters
-	//   isData_                         = iConfig.getParameter<bool>   ("IsData");
-
-	// DQMStore services   
+	m_mcRadius=0.3;
 	dqm = edm::Service<DQMStore>().operator->();
 }
 
@@ -77,43 +55,26 @@ HLTBTagPerformanceAnalyzer::~HLTBTagPerformanceAnalyzer()
 	// (e.g. close files, deallocate resources etc.)
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
-
-
 void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 	bool trigRes=false;
 	bool MCOK=false;
-
 	using namespace edm;
-
 	Handle<TriggerResults> TriggerResulsHandler;
 	Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
 	Exception excp(errors::LogicError);
-
-
 	if ( hlTriggerResults_.label() == "" || hlTriggerResults_.label() == "NULL" ) 
 	{
 		excp << "TriggerResults ==> Empty";
 		excp.raise();
-
 	}
-
 	try {
 		iEvent.getByLabel(hlTriggerResults_, TriggerResulsHandler);
-
 		if (TriggerResulsHandler.isValid())   trigRes=true;
 	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
-
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
-	//   const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
-
+	   const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 	if (m_mcMatching &&  m_mcPartons.label()!= "" && m_mcPartons.label() != "NULL" ) {
 		iEvent.getByLabel(m_mcPartons, h_mcPartons);
 		try {
@@ -125,21 +86,15 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 				std::cout<<"mcMatching:" << m_mcMatching <<std::endl;
 			}
 		} catch(...) { std::cout<<"Partons collection is not valid "<<std::endl; }
-
-
+	if(h_mcPartons->size()==0) std::cout<<"Partons collection is empty "<<std::endl;
 	}
 	Handle<reco::JetTagCollection> JetTagHandler;
-
-
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-
-		// ONLINE BTAGGING
-
 		bool BtagOK=false;
 		JetTagMap JetTag;
-		//   	if ( !_isfoundHLTs[ind]) continue;
-		//      if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;
-
+		if ( !_isfoundHLTs[ind]) continue;
+		if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;
+		
 		if (JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" )
 		{
 			try {
@@ -147,10 +102,8 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 				if (JetTagHandler.isValid())   BtagOK=true;						
 			}  catch (...) { std::cout<<"Exception caught in JetTagHandler"<<std::endl;}			
 		}
-
 		if (BtagOK) for ( auto  iter = JetTagHandler->begin(); iter != JetTagHandler->end(); iter++ )
 		{
-
 			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
 		}
 		else {
@@ -161,7 +114,6 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 		for (auto & BtagJT: JetTag) {
 			H1_.at(ind)[JetTagCollection_[ind].label()] -> Fill(BtagJT.second);
-
 			if (MCOK) {
 				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
 				unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
@@ -192,11 +144,9 @@ HLTBTagPerformanceAnalyzer::beginJob()
 {
 	std::string title;
 	using namespace std;
-	// ---------------------------------------------   
 	assert(hltPathNames_.size()== JetTagCollection_.size());   
 	std::string dqmFolder;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-		// discriminant range default TC (track counting)
 		float btagL = -11.;
 		float btagU = 1.;
 		int   btagBins = 600;
@@ -204,17 +154,11 @@ HLTBTagPerformanceAnalyzer::beginJob()
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
 		dqm->setCurrentFolder(dqmFolder);
-
 		if ( JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" ) { 
 			H1_.back()[JetTagCollection_[ind].label()]       = dqm->book1D(JetTagCollection_[ind].label() + "_all",      (JetTagCollection_[ind].label()+ "_all").c_str(),  btagBins, btagL, btagU );
 			H1_.back()[JetTagCollection_[ind].label()]      -> setAxisTitle(JetTagCollection_[ind].label() +"discriminant",1);
 		} 
 		std::cout<<"Booking of flavour-independent plots's been finished."<<std::endl;
-
-		/// mc related plots
-
-		/// 2D for efficiency calculations
-		///Pt turn-on
 		int nBinsPt=60;
 		double pTmin=30;
 		double pTMax=330;
@@ -222,18 +166,13 @@ HLTBTagPerformanceAnalyzer::beginJob()
 
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		{
-
 			TString flavour= m_mcLabels[i].c_str();
 			TString label;
-			/// 1D for discriminator
-
 			if ( JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" ) {
 				label=JetTagCollection_[ind].label()+"__";
 				label+=flavour;
 				H1_.back()[label.Data()] = 		 dqm->book1D(label.Data(),   Form("%s %s",JetTagCollection_[ind].label().c_str(),flavour.Data()), btagBins, btagL, btagU );
 				H1_.back()[label.Data()]->setAxisTitle("disc",1);
-				/// 2D for efficiency calculations
-				///Pt turn-on
 				label=JetTagCollection_[ind].label()+"___";
 				label+=flavour+TString("_disc_pT");
 				H2_.back()[label.Data()] =  dqm->book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
@@ -261,7 +200,6 @@ HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const
 {
 	triggerConfChanged_ = true;
 	hltConfigProvider_.init(iRun, iSetup, hlTriggerResults_.process(), triggerConfChanged_);
-
 	const std::vector< std::string > & hltPathNames = hltConfigProvider_.triggerNames();
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
@@ -273,23 +211,16 @@ HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const
 			if ( found == 0 )
 			{
 				it_mem= (int) it;
+				hltPathIndexs_.push_back(it_mem);
 			}
-
 		}
-		//	if (it_mem>=0) hltPathIndexs_.push_back(it_mem);
-		//	else  hltPathIndexs_.push_back(99999);
-		hltPathIndexs_.push_back(it_mem);
 	}
-
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
-
-		//   if ( hltPathIndexs_[trgs] == 99999 ) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
 			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
 			_isfoundHLTs.push_back(false);
 		} 
 		else {
-			std::cout << "Path " << hltPathNames_[trgs] << "  exist" << std::endl;
 			_isfoundHLTs.push_back(true);
 		}
 	}

@@ -8,12 +8,6 @@ http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/HLTriggerOffline/BJet/python/hl
 
 import FWCore.ParameterSet.Config as cms
 
-# only run on events with L2 jets
-require_hltJets = cms.EDFilter("RequireModule",
-    requirement = cms.InputTag("hltCaloJetL1FastJetCorrected","","HLT")
-)
-
-
 # see "PhysicsTools/JetMCAlgos/data/SelectPartons.cff"
 hltPartons = cms.EDProducer("PartonSelector",
    src = cms.InputTag("genParticles","","HLT"),
@@ -72,7 +66,7 @@ hltJetsbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
 #)
 
 
-hltJetMCTools = cms.Sequence(require_hltJets*hltPartons*hltJetsbyRef*hltJetsbyValPhys*hltJetsbyValAlgo
+hltJetMCTools = cms.Sequence(hltPartons*hltJetsbyRef*hltJetsbyValPhys*hltJetsbyValAlgo
 #*require_hltJetsbyValPhys*require_hltJetsbyValAlgo
 )
 

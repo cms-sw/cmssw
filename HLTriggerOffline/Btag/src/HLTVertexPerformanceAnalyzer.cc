@@ -9,19 +9,9 @@
 //
 HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
-	//now do what ever initialization is needed
 	hlTriggerResults_   = iConfig.getParameter<InputTag> ("TriggerResults");
 	hltPathNames_        = iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
-
-	// trigger   
 	VertexCollection_           = iConfig.getParameter<std::vector<InputTag> >("Vertex");
-
-
-
-	// various parameters
-	//   isData_                         = iConfig.getParameter<bool>   ("IsData");
-
-	// DQMStore services   
 	dqm = edm::Service<DQMStore>().operator->();
 }
 
@@ -33,41 +23,23 @@ HLTVertexPerformanceAnalyzer::~HLTVertexPerformanceAnalyzer()
 	// (e.g. close files, deallocate resources etc.)
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
-
-
 void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
 	bool trigRes=false;
-
 	using namespace edm;
-
 	Handle<TriggerResults> TriggerResulsHandler;
 	Exception excp(errors::LogicError);
-
-
 	if ( hlTriggerResults_.label() == "" || hlTriggerResults_.label() == "NULL" ) 
 	{
 		excp << "TriggerResults ==> Empty";
 		excp.raise();
-
 	}
-
 	try {
 		iEvent.getByLabel(hlTriggerResults_, TriggerResulsHandler);
-
 		if (TriggerResulsHandler.isValid())   trigRes=true;
 	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
-
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
-	//   const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
-
+	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 	Handle<reco::VertexCollection> VertexHandler;
 	float simPV=0;
 	Handle<std::vector<SimVertex> > simVertexCollection;
@@ -76,19 +48,13 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 		const SimVertex simPVh = *(simVertexCollection->begin());
 		simPV=simPVh.position().z();
 	}
-	catch (...) { std::cout<<"Exception caught in simVertexCollection"<<std::endl;}			
-
+	catch (...) { std::cout<<"Exception caught in simVertexCollection"<<std::endl;}
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
 		for (unsigned int coll=0; coll<VertexCollection_.size();coll++) {
 			if(VertexCollection_.at(coll).label()=="hltVerticesL3") VertexCollection_.at(coll)=edm::InputTag("hltVerticesL3","WithBS");
-
-			// ONLINE BTAGGING
-
 			bool VertexOK=false;
-			//        VertexMap Vertex;
-			//   	if ( !_isfoundHLTs[ind]) continue;
-			//      if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;
-
+			if ( !_isfoundHLTs[ind]) continue;
+			if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;
 			if (VertexCollection_.at(coll).label() != "" && VertexCollection_.at(coll).label() != "NULL" )
 			{
 				try {
@@ -97,13 +63,12 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 					else std::cout<<"Check:"<< VertexHandler <<std::endl;
 				}  catch (...) { std::cout<<"Exception caught in VertexHandler"<<std::endl;}			
 			}
-
 			float value=VertexHandler->begin()->z()-simPV;
 			float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_.at(coll).label()]->getTH1F()->GetXaxis()->GetXmax();
 			if(fabs(value)>maxValue) value=-maxValue+0.0001; 
 			if (VertexOK) H1_.at(ind)["Vertex_"+VertexCollection_.at(coll).label()] -> Fill(value);
 		} 
-	} // for triggers
+	}
 }
 
 
@@ -115,10 +80,8 @@ HLTVertexPerformanceAnalyzer::beginJob()
 {
 	std::string title;
 	using namespace std;
-	// ---------------------------------------------   
 	std::string dqmFolder;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-		// discriminant range default TC (track counting)
 		dqmFolder = Form("HLT/Vertex/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
@@ -135,40 +98,6 @@ HLTVertexPerformanceAnalyzer::beginJob()
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]      -> setAxisTitle("vertex error (cm)",1);
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]->getTH1F()->GetXaxis()->GetXmax();
 			}
-			std::cout<<"Booking of flavour-independent plots's been finished."<<std::endl;
-
-			/// mc related plots
-
-//			/// 2D for efficiency calculations
-//			///Pt turn-on
-//			int nBinsPt=30;
-//			double pTmin=0;
-//			double pTMax=300;
-
-
-//			for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
-//			{
-
-//				TString flavour= m_mcLabels[i].c_str();
-//				TString label;
-//				/// 1D for discriminator
-
-//				if ( VertexCollection_.at(coll).label() != "" && VertexCollection_.at(coll).label() != "NULL" ) {
-//					label="Vertex_"+VertexCollection_.at(coll).label()+"_";
-//					label+=flavour;
-//					H1_.back()[label.Data()] = 		 dqm->book1D(label.Data(),   Form("%s_%s",flavour.Data(),VertexCollection_.at(coll).label().c_str()), vertexBins, vertexL, vertexU );
-//					H1_.back()[label.Data()]->setAxisTitle("disc",1);
-//					/// 2D for efficiency calculations
-//					///Pt turn-on
-//					label="Vertex_"+VertexCollection_.at(coll).label()+"_";
-//					label+=flavour+TString("_disc_pT");
-//					H2_.back()[label.Data()] =  dqm->book2D( label.Data(), label.Data(), vertexBins, vertexL, vertexU, nBinsPt, pTmin, pTMax );
-//					H2_.back()[label.Data()]->setAxisTitle("pT",2);
-//					H2_.back()[label.Data()]->setAxisTitle("disc",1);
-//				}
-//			} /// for mc.size()
-		} /// for hltPathNames_.size()
-		std::cout<<"Booking of flavour-dependent plots's been finished."<<std::endl;   
 		triggerConfChanged_ = false;  
 	}
 }
@@ -188,7 +117,6 @@ HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup con
 {
 	triggerConfChanged_ = true;
 	hltConfigProvider_.init(iRun, iSetup, hlTriggerResults_.process(), triggerConfChanged_);
-
 	const std::vector< std::string > & hltPathNames = hltConfigProvider_.triggerNames();
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
@@ -200,23 +128,17 @@ HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup con
 			if ( found == 0 )
 			{
 				it_mem= (int) it;
+				hltPathIndexs_.push_back(it_mem);
 			}
-
 		}
-		//	if (it_mem>=0) hltPathIndexs_.push_back(it_mem);
-		//	else  hltPathIndexs_.push_back(99999);
-		hltPathIndexs_.push_back(it_mem);
 	}
 
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
-
-		//   if ( hltPathIndexs_[trgs] == 99999 ) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
 			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
 			_isfoundHLTs.push_back(false);
 		} 
 		else {
-			std::cout << "Path " << hltPathNames_[trgs] << "  exist" << std::endl;
 			_isfoundHLTs.push_back(true);
 		}
 	}

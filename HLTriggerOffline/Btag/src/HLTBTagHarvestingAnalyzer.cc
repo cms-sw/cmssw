@@ -157,8 +157,6 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * &
 			ptrnum->SetBinContent(j,numH1->Integral()-numH1->Integral(1,j-1));
 			ptrden->SetBinContent(j,numH1->Integral());
 		}
-
-
 	}
 	return true;
 }
