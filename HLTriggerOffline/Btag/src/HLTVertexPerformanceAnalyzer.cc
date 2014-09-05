@@ -75,8 +75,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 
 
 // ------------ method called once each job just before starting event loop  ------------
-	void 
-HLTVertexPerformanceAnalyzer::beginJob()
+void HLTVertexPerformanceAnalyzer::beginJob()
 {
 	std::string title;
 	using namespace std;
@@ -106,13 +105,12 @@ HLTVertexPerformanceAnalyzer::beginJob()
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-	void HLTVertexPerformanceAnalyzer::endJob() 
+void HLTVertexPerformanceAnalyzer::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-	void 
-HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+void HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 	triggerConfChanged_ = true;
 	hltConfigProvider_.init(iRun, iSetup, hlTriggerResults_.process(), triggerConfChanged_);
