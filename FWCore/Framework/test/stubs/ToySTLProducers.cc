@@ -46,8 +46,8 @@ namespace edmtest {
   void
   IntVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
-    e.put(p);
+    std::unique_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -68,11 +68,11 @@ namespace edmtest {
   void
   IntVectorSetProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::vector<int> > p(new std::vector<int>(1,11));
-    e.put(p);
+    std::unique_ptr<std::vector<int> > p(new std::vector<int>(1,11));
+    e.put(std::move(p));
 
-    std::auto_ptr<std::set<int> > apset(new std::set<int>);
-    e.put(apset);
+    std::unique_ptr<std::set<int> > apset(new std::set<int>);
+    e.put(std::move(apset));
   }
 
   //--------------------------------------------------------------------
@@ -96,8 +96,8 @@ namespace edmtest {
   void
   IntListProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::list<int> > p(new std::list<int>(count_, value_));
-    e.put(p);
+    std::unique_ptr<std::list<int> > p(new std::list<int>(count_, value_));
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -121,8 +121,8 @@ namespace edmtest {
   void
   IntDequeProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
-    e.put(p);
+    std::unique_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -146,9 +146,9 @@ namespace edmtest {
   void
   IntSetProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::set<int> > p(new std::set<int>());
+    std::unique_ptr<std::set<int> > p(new std::set<int>());
     for(int i = start_; i < stop_; ++i) p->insert(i);
-    e.put(p);
+    e.put(std::move(p));
   }
 
 }

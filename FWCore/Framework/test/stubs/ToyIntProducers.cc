@@ -90,8 +90,8 @@ namespace edmtest {
   void
   IntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<IntProduct> p(new IntProduct(value_));
-    e.put(p);
+    std::unique_ptr<IntProduct> p(new IntProduct(value_));
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -116,8 +116,8 @@ namespace edmtest {
   void
   EventNumberIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<IntProduct> p(new IntProduct(e.id().event()));
-    e.put(p);
+    std::unique_ptr<IntProduct> p(new IntProduct(e.id().event()));
+    e.put(std::move(p));
   }
 
 
@@ -144,8 +144,8 @@ namespace edmtest {
   void
   TransientIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<TransientIntProduct> p(new TransientIntProduct(value_));
-    e.put(p);
+    std::unique_ptr<TransientIntProduct> p(new TransientIntProduct(value_));
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -173,8 +173,8 @@ namespace edmtest {
     edm::Handle<TransientIntProduct> result;
     bool ok = e.getByLabel("TransientThing", result);
     assert(ok);
-    std::auto_ptr<IntProduct> p(new IntProduct(result.product()->value));
-    e.put(p);
+    std::unique_ptr<IntProduct> p(new IntProduct(result.product()->value));
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -200,8 +200,8 @@ namespace edmtest {
   void
   Int16_tProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
-    e.put(p);
+    std::unique_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
+    e.put(std::move(p));
   }
 
   //
@@ -233,8 +233,8 @@ namespace edmtest {
       e.getByLabel(*itLabel, anInt);
       value += anInt->value;
     }
-    std::auto_ptr<IntProduct> p(new IntProduct(value));
-    e.put(p);
+    std::unique_ptr<IntProduct> p(new IntProduct(value));
+    e.put(std::move(p));
   }
 
 }
