@@ -40,16 +40,11 @@ namespace l1t {
     CaloParamsStage1* const params_;
 
     int AssociatedSecondRegionEt(int ieta, int iphi,
-				 const std::vector<l1t::CaloRegion> & regions,
-				 double& isolation) const;
+				 const std::vector<l1t::CaloRegion> & regions) const;
 
     double JetIsolation(int et, int ieta, int iphi,
 			const std::vector<l1t::Jet> & jets) const;
 
-    //int tauSeed;
-    //double relativeIsolationCut;
-    //double relativeJetIsolationCut;
-    bool do2x1Algo;
   };
 }
 #endif
