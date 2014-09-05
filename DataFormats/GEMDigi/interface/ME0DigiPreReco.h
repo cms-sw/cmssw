@@ -1,5 +1,5 @@
-#ifndef GEMDigi_ME0DigiPreReco_h
-#define GEMDigi_ME0DigiPreReco_h
+#ifndef DataFormats_GEMDigi_ME0DigiPreReco_h
+#define DataFormats_GEMDigi_ME0DigiPreReco_h
 
 /** \class ME0DigiPreReco
  *

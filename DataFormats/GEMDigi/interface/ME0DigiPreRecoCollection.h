@@ -1,5 +1,6 @@
-#ifndef GEMDigi_ME0DigiPreRecoCollection_h
-#define GEMDigi_ME0DigiPreRecoCollection_h
+#ifndef DataFormats_GEMDigi_ME0DigiPreRecoCollection_h
+#define DataFormats_GEMDigi_ME0DigiPreRecoCollection_h
+
 /** \class ME0DigiPreRecoCollection
  *  
  *  \author Marcello Maggi

@@ -1,7 +1,5 @@
 #include <DataFormats/GEMDigi/interface/GEMDigi.h>
 #include <DataFormats/GEMDigi/interface/GEMDigiCollection.h>
-#include <DataFormats/GEMDigi/interface/ME0DigiPreReco.h>
-#include <DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h>
 
 #include <DataFormats/GEMDigi/interface/GEMPadDigi.h>
 #include <DataFormats/GEMDigi/interface/GEMPadDigiCollection.h>
