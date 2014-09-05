@@ -1,5 +1,5 @@
-#ifndef MuonSlaveSD_h
-#define MuonSlaveSD_h
+#ifndef SimG4CMS_Muon_MuonSlaveSD_h
+#define SimG4CMS_Muon_MuonSlaveSD_h
 
 /** \class MuonSlaveSD
  *

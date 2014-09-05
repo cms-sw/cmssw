@@ -1,5 +1,5 @@
-#ifndef MuonRPCFrameRotation_H
-#define MuonRPCFrameRotation_H
+#ifndef SimG4CMS_Muon_MuonRPCFrameRotation_H
+#define SimG4CMS_Muon_MuonRPCFrameRotation_H
 
 /** \class MuonRPCFrameRotation
  *

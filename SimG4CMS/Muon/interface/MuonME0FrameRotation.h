@@ -1,5 +1,5 @@
-#ifndef MuonME0FrameRotation_H
-#define MuonME0FrameRotation_H
+#ifndef SimG4CMS_Muon_MuonME0FrameRotation_H
+#define SimG4CMS_Muon_MuonME0FrameRotation_H
 
 /** \class MuonME0FrameRotation
  *
