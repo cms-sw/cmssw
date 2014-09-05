@@ -48,24 +48,24 @@ void CustomPhysicsListSS::ConstructProcess() {
 }
  
 void CustomPhysicsListSS::addCustomPhysics(){
-  LogDebug("CustomPhysics") << " CustomPhysicsListSS: adding CustomPhysics processes";
+  edm::LogInfo("CustomPhysics") << " CustomPhysicsListSS: adding CustomPhysics processes";
   aParticleIterator->reset();
 
   while((*aParticleIterator)()) {
     G4ParticleDefinition* particle = aParticleIterator->value();
-    CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if(CustomParticleFactory::isCustomParticle(particle)) {
-      LogDebug("CustomPhysics") << particle->GetParticleName()
-				<<", "<<particle->GetPDGEncoding()
-				<< " is Custom. Mass is "
-				<<particle->GetPDGMass()/GeV  <<" GeV.";
+      CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+      edm::LogInfo("CustomPhysics") << particle->GetParticleName()
+				    <<" PDGcode= "<<particle->GetPDGEncoding()
+				    << " Mass= "
+				    <<particle->GetPDGMass()/GeV  <<" GeV.";
       if(cp->GetCloud()!=0) {
-	LogDebug("CustomPhysics")
-	  <<"Cloud mass is "
-	  <<cp->GetCloud()->GetPDGMass()/GeV
-	  <<" GeV. Spectator mass is "
-	  <<static_cast<CustomParticle*>(particle)->GetSpectator()->GetPDGMass()/GeV
-	  <<" GeV.";
+	edm::LogInfo("CustomPhysics") <<  particle->GetParticleName()
+				      << " CloudMass= "
+				      <<cp->GetCloud()->GetPDGMass()/GeV
+				      <<" GeV; SpectatorMass= "
+				      <<cp->GetSpectator()->GetPDGMass()/GeV
+				      <<" GeV.";
       }
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if(pmanager) {
