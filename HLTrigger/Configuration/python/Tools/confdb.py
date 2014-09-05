@@ -22,7 +22,7 @@ class HLTProcess(object):
   # paths not supported by FastSim
   fastsimUnsupportedPaths = (
 
-  # paths for which a recovery is not foreseen/possible
+    # paths for which a recovery is not foreseen/possible
     "AlCa_*_v*",
     "DQM_*_v*",
     "HLT_*Calibration_v*",
@@ -40,14 +40,14 @@ class HLTProcess(object):
     "HLT_PixelTracks_Multiplicity80_v*",
     "HLT_PixelTracks_Multiplicity90_v*",
     "HLT_Beam*_v*",
-#    "HLT_L1Tech_*_v*",
+   #"HLT_L1Tech_*_v*",
     "HLT_GlobalRunHPDNoise_v*",
     "HLT_L1TrackerCosmics_v*",
     "HLT_HcalUTCA_v*",
     
-# TODO: paths not supported by FastSim, but for which a recovery should be attempted
+    # TODO: paths not supported by FastSim, but for which a recovery should be attempted
   
-    )
+  )
 
   def __init__(self, configuration):
     self.config = configuration
@@ -185,8 +185,6 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# customization for 6_2_X
-
 # none for now
 
 """
@@ -274,6 +272,9 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
+
+      # replace DQMStore and DQMRootOutputModule with a configuration suitable for running offline
+      self.instrumentDQM()
 
       # load 5.2.x JECs, until they are in the GlobalTag
 #      self.loadAdditionalConditions('load 5.2.x JECs',
@@ -678,12 +679,15 @@ if 'GlobalTag' in %%(dict)s:
 """ % condition
 
 
-  def loadCff(self, module):
+  def loadCffCommand(self, module):
     # load a cfi or cff module
     if self.config.fragment:
-      self.data += 'from %s import *\n' % module
+      return 'from %s import *\n' % module
     else:
-      self.data += 'process.load( "%s" )\n' % module
+      return 'process.load( "%s" )\n' % module
+
+  def loadCff(self, module):
+    self.data += self.loadCffCommand(module)
 
 
   def overrideParameters(self, module, parameters):
@@ -739,68 +743,82 @@ if 'GlobalTag' in %%(dict)s:
 # instrument the menu with the modules and EndPath needed for timing studies
 """
 
-      hasFST = False
-      if 'FastTimerService' in self.data:
-        hasFST = True
-
-      self.data += '\n# configure the FastTimerService\n'
-      if not hasFST:
+      if not 'FastTimerService' in self.data:
+        self.data += '\n# configure the FastTimerService\n'
         self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
-      self.data += """%(process)sFastTimerService.useRealTimeClock          = False
+      else:
+        self.data += '\n# configure the FastTimerService\n'
+
+      self.data += """# this is currently ignored in CMSSW 7.x, always using the real time clock
+%(process)sFastTimerService.useRealTimeClock          = True
+# enable specific features
 %(process)sFastTimerService.enableTimingPaths         = True
 %(process)sFastTimerService.enableTimingModules       = True
 %(process)sFastTimerService.enableTimingExclusive     = True
+# print a text summary at the end of the job
 %(process)sFastTimerService.enableTimingSummary       = True
+# skip the first path (disregard the time spent loading event and conditions data)
 %(process)sFastTimerService.skipFirstPath             = True
+# enable DQM plots
 %(process)sFastTimerService.enableDQM                 = True
+# enable most per-path DQM plots
 %(process)sFastTimerService.enableDQMbyPathActive     = True
 %(process)sFastTimerService.enableDQMbyPathTotal      = True
-%(process)sFastTimerService.enableDQMbyPathOverhead   = True
+%(process)sFastTimerService.enableDQMbyPathOverhead   = False
 %(process)sFastTimerService.enableDQMbyPathDetails    = True
 %(process)sFastTimerService.enableDQMbyPathCounters   = True
 %(process)sFastTimerService.enableDQMbyPathExclusive  = True
-%(process)sFastTimerService.enableDQMbyModule         = True
-%(process)sFastTimerService.enableDQMbyModuleType     = True
+# disable per-module DQM plots
+%(process)sFastTimerService.enableDQMbyModule         = False
+%(process)sFastTimerService.enableDQMbyModuleType     = False
+# enable per-event DQM sumary plots
 %(process)sFastTimerService.enableDQMSummary          = True
-%(process)sFastTimerService.enableDQMbyLuminosity     = True
+# enable per-event DQM plots by lumisection
 %(process)sFastTimerService.enableDQMbyLumiSection    = True
-%(process)sFastTimerService.enableDQMbyProcesses      = False
-%(process)sFastTimerService.dqmTimeRange              =  1000. 
-%(process)sFastTimerService.dqmTimeResolution         =     5. 
-%(process)sFastTimerService.dqmPathTimeRange          =   100. 
-%(process)sFastTimerService.dqmPathTimeResolution     =     0.5
-%(process)sFastTimerService.dqmModuleTimeRange        =    40. 
-%(process)sFastTimerService.dqmModuleTimeResolution   =     0.2
-%(process)sFastTimerService.dqmLuminosityRange        = 1e+34
-%(process)sFastTimerService.dqmLuminosityResolution   = 1e+31
-%(process)sFastTimerService.dqmLumiSectionsRange      =  2500
+%(process)sFastTimerService.dqmLumiSectionsRange      = 2500
+# set the time resolution of the DQM plots
+%(process)sFastTimerService.dqmTimeRange              = 1000.
+%(process)sFastTimerService.dqmTimeResolution         =    5.
+%(process)sFastTimerService.dqmPathTimeRange          =  100.
+%(process)sFastTimerService.dqmPathTimeResolution     =    0.5
+%(process)sFastTimerService.dqmModuleTimeRange        =   40.
+%(process)sFastTimerService.dqmModuleTimeResolution   =    0.2
+# set the base DQM folder for the plots
 %(process)sFastTimerService.dqmPath                   = 'HLT/TimerService'
-%(process)sFastTimerService.luminosityProduct         = cms.untracked.InputTag( 'hltScalersRawToDigi' )
-%(process)sFastTimerService.supportedProcesses        = cms.untracked.vuint32( )
+%(process)sFastTimerService.enableDQMbyProcesses      = True
 """
 
-      self.data += """
-# FastTimerServiceClient
-%(process)sfastTimerServiceClient = cms.EDAnalyzer( "FastTimerServiceClient",
-    dqmPath = cms.untracked.string( "HLT/TimerService" )
-)
 
-# DQM file saver
-%(process)sdqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
-    convention        = cms.untracked.string( "Offline" ),
-    workflow          = cms.untracked.string( "/HLT/FastTimerService/All" ),
-    dirName           = cms.untracked.string( "." ),
-    saveByRun         = cms.untracked.int32(1),
-    saveByLumiSection = cms.untracked.int32(-1),
-    saveByEvent       = cms.untracked.int32(-1),
-    saveByTime        = cms.untracked.int32(-1),
-    saveByMinute      = cms.untracked.int32(-1),
-    saveAtJobEnd      = cms.untracked.bool(False),
-    forceRunNumber    = cms.untracked.int32(-1),
-)
+  def instrumentDQM(self):
+    # remove any reference to the hltDQMFileSaver
+    if 'hltDQMFileSaver' in self.data:
+      self.data = re.sub(r'\b(process\.)?hltDQMFileSaver \+ ', '', self.data)
+      self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaver', '', self.data)
+      self.data = re.sub(r'\b(process\.)?hltDQMFileSaver',     '', self.data)
 
-%(process)sTimingOutput = cms.EndPath( %(process)sfastTimerServiceClient + %(process)sdqmFileSaver )
+    # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
+    dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
+    dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
+    dqmstore += "%(process)sDQMStore.enableMultiThread = True\n"
+    dqmstore += """
+%(process)sdqmOutput = cms.OutputModule("DQMRootOutputModule",
+    fileName = cms.untracked.string("DQMIO.root")
+)
 """
+
+    empty_path = re.compile(r'.*\b(process\.)?DQMOutput = cms\.EndPath\( *\).*')
+    other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
+    if empty_path.search(self.data):
+      # replace an empty DQMOutput path
+      self.data = empty_path.sub(dqmstore + '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n', self.data)
+    elif other_path.search(self.data):
+      # prepend the dqmOutput to the DQMOutput path
+      self.data = other_path.sub(dqmstore + r'\g<1> %(process)sdqmOutput +\g<3>', self.data)
+    else:
+      # ceate a new DQMOutput path with the dqmOutput module
+      self.data += dqmstore
+      self.data += '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n'
+
 
   @staticmethod
   def dumppaths(paths):
@@ -868,8 +886,17 @@ if 'GlobalTag' in %%(dict)s:
 
   def buildOptions(self):
     # common configuration for all scenarios
-    self.options['services'].append( "-FUShmDQMOutputService" )
     self.options['services'].append( "-DQM" )
+    self.options['services'].append( "-EvFDaqDirector" )
+    self.options['services'].append( "-FastMonitoringService" )
+    self.options['services'].append( "-FUShmDQMOutputService" )
+    self.options['services'].append( "-MicroStateService" )
+    self.options['services'].append( "-ModuleWebRegistry" )
+    self.options['services'].append( "-TimeProfilerService" )
+
+    # drop the online definition of the DQMStore and DQMFileSaver
+    self.options['services'].append( "-DQMStore" )
+    self.options['modules'].append( "-hltDQMFileSaver" )
 
     if self.config.fragment:
       # extract a configuration file fragment
@@ -935,12 +962,6 @@ if 'GlobalTag' in %%(dict)s:
         self.options['esmodules'].append( "-sistripconn" )
 
       self.options['services'].append( "-MessageLogger" )
-      self.options['services'].append( "-DQMStore" )
-      self.options['services'].append( "-EvFDaqDirector" )
-      self.options['services'].append( "-FastMonitoringService" )
-      self.options['services'].append( "-MicroStateService" )
-      self.options['services'].append( "-ModuleWebRegistry" )
-      self.options['services'].append( "-TimeProfilerService" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
@@ -1128,6 +1149,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMuIsoIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter04" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForTauIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedJpsiIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedPsiPrimeIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedNRMuMuIter02" )
