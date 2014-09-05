@@ -12,6 +12,7 @@ from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
+from RecoParticleFlow.PFClusterProducer.towerMakerPF_cfi import *
 # The following is replaced by the MVA-based 
 #from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
 from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
@@ -25,7 +26,7 @@ particleFlowSimParticle.sim = 'famosSimHits'
 #Deactivate the recovery of dead towers since dead towers are not simulated
 
 #Similarly, deactivate HF cleaning for spikes
-particleFlowClusterHF.recHitCleaners = cvs.VPSet()
+particleFlowClusterHF.recHitCleaners = cms.VPSet()
 particleFlowRecHitHF.producers[0].qualityTests =cms.VPSet(
     cms.PSet(
         name = cms.string("PFRecHitQTestHCALThresholdVsDepth"),
