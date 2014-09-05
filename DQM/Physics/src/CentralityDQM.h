@@ -1,10 +1,9 @@
 #ifndef CentralityDQM_H
 #define CentralityDQM_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h" 
@@ -13,34 +12,33 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class DQMStore;
  
-class CentralityDQM: public edm::EDAnalyzer{
+class CentralityDQM: public DQMEDAnalyzer{
 
 public:
 
-  CentralityDQM(const edm::ParameterSet& ps);
+  explicit CentralityDQM(const edm::ParameterSet& ps);
   virtual ~CentralityDQM();
   
 protected:
 
-  virtual void beginJob();
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  virtual void endJob();
+
   
 private:
 
-  void bookHistos(DQMStore * bei );
-  
-  int nLumiSecs_;
-  
-  DQMStore* bei_;  
+  virtual void bookHistograms(DQMStore::IBooker &bei, edm::Run const &, edm::EventSetup const &) override;
+
+  //void bookHistos(DQMStore * bei );  
+  //  DQMStore* bei_;  
 
   //  edm::InputTag centrality_; //CMSS_5_3x
   //  edm::InputTag vertex_;  //CMSS_5_3x
