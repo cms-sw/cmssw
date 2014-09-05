@@ -220,6 +220,13 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 									  itBX,
 									  itCaloSpare->hwPt() & 0xfff);
 	hfBitCountResult->push_back(bitcount);
+      } else if (CaloSpare::CaloSpareType::Tau == itCaloSpare->getType())
+      {
+	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(0,
+								    0,
+								    itBX,
+								    itCaloSpare->hwPt() & 0xfff);
+	hfRingEtSumResult->push_back(sum);
       }
     }
   }
