@@ -9,7 +9,7 @@ def efficiency_string(objtype,plot_type,triggerpath):
     if objtype == "Mu" :
 	objtypeLatex="#mu"
     elif objtype == "refittedStandAloneMuons": 
-	objtypeLatex="refittedStandAloneMuons"
+	objtypeLatex="refittedStandAlone #mu"
     elif objtype == "Ele": 
 	objtypeLatex="e"
     elif objtype == "Photon": 
@@ -142,11 +142,19 @@ hltExoticaPostMuonNoBptx = hltExoticaPostProcessor.clone()
 hltExoticaPostMuonNoBptx.subDirs = ['HLT/Exotica/MuonNoBptx']
 hltExoticaPostMuonNoBptx.efficiencyProfile = efficiency_strings
 
-# Not integrated yet
-hltExoticaPostEleMu = hltExoticaPostProcessor.clone()
-hltExoticaPostEleMu.subDirs = ['HLT/Exotica/EleMu']
-hltExoticaPostEleMu.efficiencyProfile = efficiency_strings
+hltExoticaPostDisplacedEleMu = hltExoticaPostProcessor.clone()
+hltExoticaPostDisplacedEleMu.subDirs = ['HLT/Exotica/DisplacedEleMu']
+hltExoticaPostDisplacedEleMu.efficiencyProfile = efficiency_strings
 
+hltExoticaPostDisplacedDimuon = hltExoticaPostProcessor.clone()
+hltExoticaPostDisplacedDimuon.subDirs = ['HLT/Exotica/DisplacedDimuon']
+hltExoticaPostDisplacedDimuon.efficiencyProfile = efficiency_strings
+
+hltExoticaPostDisplacedL2Dimuon = hltExoticaPostProcessor.clone()
+hltExoticaPostDisplacedL2Dimuon.subDirs = ['HLT/Exotica/DisplacedL2Dimuon']
+hltExoticaPostDisplacedL2Dimuon.efficiencyProfile = efficiency_strings
+
+# Not integrated yet
 hltExoticaPostMonojet = hltExoticaPostProcessor.clone()
 hltExoticaPostMonojet.subDirs = ['HLT/Exotica/Monojet']
 hltExoticaPostMonojet.efficiencyProfile = efficiency_strings
@@ -172,8 +180,11 @@ hltExoticaPostProcessors = cms.Sequence(
     # NoBptx paths
     hltExoticaPostJetNoBptx +
     hltExoticaPostMuonNoBptx +
+    # Displaced paths
+    hltExoticaPostDisplacedEleMu +
+    hltExoticaPostDisplacedDimuon +
+    hltExoticaPostDisplacedL2Dimuon +
     # Others (to be properly integrated)
-    hltExoticaPostEleMu +
     hltExoticaPostMonojet +
     hltExoticaPostPureMET
     )
