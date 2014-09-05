@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_MuonSubDetector_h
-#define MuonNumbering_MuonSubDetector_h
+#ifndef Geometry_MuonNumbering_MuonSubDetector_h
+#define Geometry_MuonNumbering_MuonSubDetector_h
 
 /** \class MuonSubDetector
  *
