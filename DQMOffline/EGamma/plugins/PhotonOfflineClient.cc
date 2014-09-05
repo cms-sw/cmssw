@@ -25,8 +25,8 @@ using std::cout;
 PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 {
   
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
+  //dbe_ = 0;
+  //dbe_ = edm::Service<DQMStore>().operator->();
   // dbe_->setVerbose(0);
   parameters_ = pset;
 
@@ -82,7 +82,7 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
 {
   //  if(!dbe_) return;
 
-  if(batch_)  dbe_->open(inputFileName_);
+  //if(batch_)  dbe_->open(inputFileName_);
 
   //std::cout << " PostProcessing analyzer name " << analyzerName_ << std::endl;
   if(!iGetter.dirExists("Egamma/"+analyzerName_)){
@@ -286,8 +286,8 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
     }
   }  
   
-  if(standAlone_) dbe_->save(outputFileName_);
-  else if(batch_) dbe_->save(inputFileName_);
+  // if(standAlone_) dbe_->save(outputFileName_);
+  //else if(batch_) dbe_->save(inputFileName_);
 
 }
 
