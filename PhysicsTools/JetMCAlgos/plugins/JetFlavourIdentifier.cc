@@ -118,7 +118,7 @@ JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
     produces<JetFlavourMatchingCollection>();
     sourceByReferToken_ = consumes<JetMatchedPartonsCollection>(iConfig.getParameter<InputTag>("srcByReference"));
     physDefinition = iConfig.getParameter<bool>("physicsDefinition");
-    leptonInfo_ = iConfig.exists("leptonInfo") ? iConfig.getParameter<bool>("leptonInfo") : true;
+    leptonInfo_ = iConfig.exists("leptonInfo") ? iConfig.getParameter<bool>("leptonInfo") : false;
     // If we have a definition of which parton to identify, use it,
     // otherwise we default to the "old" behavior of either "physics" or "algorithmic".
     // Furthermore, if the specified definition is not sensible for the given jet,
