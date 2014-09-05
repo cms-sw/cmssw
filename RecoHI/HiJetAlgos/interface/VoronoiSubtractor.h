@@ -21,7 +21,7 @@ class VoronoiSubtractor : public PileUpSubtractor {
  private:
     edm::Handle<reco::CandidateView> candidates_;
     edm::Handle<reco::VoronoiMap> backgrounds_;
-    edm::EDGetTokenT<reco::Candidate> srcCand_;
+    edm::EDGetTokenT<reco::CandidateView> srcCand_;
     edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground> > srcVor_;
     std::vector<int> droppedCandidates_;
     bool dropZeroTowers_;

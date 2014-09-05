@@ -94,9 +94,9 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-  edm::InputTag vtxCollection_;
-  edm::InputTag inputPlanes_;
-  edm::InputTag centrality_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxCollection_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> inputPlanes_;
+  edm::EDGetTokenT<int> centrality_;
 
   int vs_sell;   // vertex collection size
   float vzr_sell;
@@ -127,9 +127,9 @@ typedef TrackingParticleRefVector::iterator               tp_iterator;
 HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
 {
 
-  vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
-  inputPlanes_ = iConfig.getParameter<edm::InputTag>("inputPlanes_");
-  centrality_ = iConfig.getParameter<edm::InputTag>("centrality_");
+  vtxCollection_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxCollection_"));
+  inputPlanes_ = consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("inputPlanes_"));
+  centrality_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centrality_"));
   storeNames_ = 1;
    //register your products
   produces<reco::EvtPlaneCollection>();
@@ -169,7 +169,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
 
   edm::Handle<int> ch;
-  iEvent.getByLabel(centrality_,ch);
+  iEvent.getByToken(centrality_,ch);
   int bin = *(ch.product());
 
   //  double centval = 2.5*bin+1.25;
@@ -177,7 +177,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //Get Vertex
   //
   edm::Handle<reco::VertexCollection> vertexCollection3;
-  iEvent.getByLabel(vtxCollection_,vertexCollection3);
+  iEvent.getByToken(vtxCollection_,vertexCollection3);
   const reco::VertexCollection * vertices3 = vertexCollection3.product();
   vs_sell = vertices3->size();
   if(vs_sell>0) {
@@ -207,7 +207,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   
   Handle<reco::EvtPlaneCollection> evtPlanes;
-  iEvent.getByLabel(inputPlanes_,evtPlanes);
+  iEvent.getByToken(inputPlanes_,evtPlanes);
   
   if(!evtPlanes.isValid()){
     //    cout << "Error! Can't get hiEvtPlane product!" << endl;

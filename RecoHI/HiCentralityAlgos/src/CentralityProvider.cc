@@ -1,13 +1,15 @@
 #include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
-CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
+CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup){}
+
+CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup, edm::ConsumesCollector && iC) :
    prevRun_(0),
    varType_(Missing)
 {
    const edm::ParameterSet &thepset = edm::getProcessParameterSet();
    if(thepset.exists("HeavyIonGlobalParameters")){
       edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
-      tag_ = hiPset.getParameter<edm::InputTag>("centralitySrc");
+      tag_ = iC.consumes<reco::Centrality>(hiPset.getParameter<edm::InputTag>("centralitySrc"));
       centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
       pPbRunFlip_ = hiPset.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
       if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
@@ -38,7 +40,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
 }
 
 void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iSetup){
-   ev.getByLabel(tag_,chandle_);
+   ev.getByToken(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
    if(prevRun_ < pPbRunFlip_ && ev.id().run() >= pPbRunFlip_){
      std::cout<<"Attention, the sides are flipped from this run on!"<<std::endl;

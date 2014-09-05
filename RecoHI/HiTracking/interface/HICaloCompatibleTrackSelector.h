@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,11 +24,21 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 // ROOT includes
 #include "TF1.h"
@@ -60,10 +69,12 @@ namespace reco { namespace modules {
       bool selectByTowers(TI ti, const edm::Handle<TrackCollection> hSrcTrack, const edm::Handle<CaloTowerCollection> towers, bool isTowerThere);
       
       /// source collection label
-      edm::InputTag srcTracks_;
-      edm::InputTag srcPFCands_;
-      edm::InputTag srcTower_;
-      
+      edm::EDGetTokenT<reco::TrackCollection> srcTracks_;
+      edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCands_;
+      edm::EDGetTokenT<CaloTowerCollection> srcTower_;
+      edm::EDGetTokenT<std::vector<Trajectory> > srcTrackTrajs_;
+      edm::EDGetTokenT<TrajTrackAssociationCollection> srcTrackTrajAssoc_;
+
       //
       bool applyPtDepCut_;
       bool usePFCandMatching_;

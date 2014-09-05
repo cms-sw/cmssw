@@ -5,7 +5,6 @@
 
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "TH1D.h"
 
 #include "TF1.h"
@@ -34,7 +33,7 @@ class ParametrizedSubtractor : public PileUpSubtractor {
     int bin_;
     double centrality_;
     const CentralityBins * cbins_;
-    edm::InputTag centTag_;
+    edm::EDGetTokenT<reco::Centrality> centTag_;
     std::vector<TH1D*> hEta;
     std::vector<TH1D*> hEtaMean;
     std::vector<TH1D*> hEtaRMS;

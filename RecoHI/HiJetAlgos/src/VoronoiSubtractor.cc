@@ -12,7 +12,7 @@ bool VoronoiSubtractor::match(const fastjet::PseudoJet cand1, const fastjet::Pse
 
 VoronoiSubtractor::VoronoiSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
   PileUpSubtractor(iConfig, std::move(iC)),
-  srcCand_(iC.consumes<reco::Candidate>(iConfig.getParameter<edm::InputTag>("src"))),
+  srcCand_(iC.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"))),
   srcVor_(iC.consumes<edm::ValueMap<reco::VoronoiBackground> >(iConfig.getParameter<edm::InputTag>("bkg"))), 
   dropZeroTowers_(iConfig.getParameter<bool>("dropZeros")),
   addNegativesFromCone_(iConfig.getParameter<bool>("addNegativesFromCone")),

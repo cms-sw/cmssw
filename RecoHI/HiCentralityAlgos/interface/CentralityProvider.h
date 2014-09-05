@@ -8,11 +8,13 @@
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class CentralityProvider : public CentralityBins {
 
  public:
   CentralityProvider(const edm::EventSetup& iSetup);
+  CentralityProvider(const edm::EventSetup& iSetup, edm::ConsumesCollector && iC);
   ~CentralityProvider(){;}
 
   enum VariableType {HFtowers, HFtowersPlus, HFtowersMinus, HFtowersTrunc, HFtowersPlusTrunc, HFtowersMinusTrunc, HFhits, PixelHits, PixelTracks, Tracks, EB, EE, Missing};
@@ -36,7 +38,7 @@ class CentralityProvider : public CentralityBins {
   const reco::Centrality* raw() const {return chandle_.product();}
 
  private:
-  edm::InputTag tag_;
+  edm::EDGetTokenT<reco::Centrality> tag_;
   std::string centralityVariable_;
   std::string centralityLabel_;
   std::string centralityMC_;
