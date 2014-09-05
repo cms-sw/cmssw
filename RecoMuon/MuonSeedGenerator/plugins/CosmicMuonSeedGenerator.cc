@@ -360,8 +360,11 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
   LogTrace(category) << "The RecSegment relies on: ";
   LogTrace(category) << dumper.dumpMuonId(hit->geographicalId());
 
-  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId()) ); 
-  result.push_back( tsosToSeed(tsos2, hit->geographicalId().rawId()) );
+  edm::OwnVector<TrackingRecHit> container; 
+  container.push_back(hit->hit()->clone());
+
+  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId(), container) );
+  result.push_back( tsosToSeed(tsos2, hit->geographicalId().rawId(), container) );
 
   return result;
 }
@@ -513,18 +516,25 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
   LogTrace(category)<<"pos: " << tsos.globalPosition(); 
   LogTrace(category) << "The RecSegment relies on: ";
   LogTrace(category) << dumper.dumpMuonId(hit->geographicalId());
-
-  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId()) );
-
-   return result;
+  
+  edm::OwnVector<TrackingRecHit> container; 
+  container.push_back(hitpair.first->hit()->clone()); 
+  container.push_back(hitpair.second->hit()->clone());
+  
+  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId(), container) );
+  
+  return result;
 }
 
 TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id) const {
 
-  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
-
   edm::OwnVector<TrackingRecHit> container;
+  return tsosToSeed(tsos, id, container); 
+}
+
+TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id, edm::OwnVector<TrackingRecHit>& container) const {
+ 
+  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
   TrajectorySeed seed(seedTSOS,container,alongMomentum);
   return seed;
 }
-

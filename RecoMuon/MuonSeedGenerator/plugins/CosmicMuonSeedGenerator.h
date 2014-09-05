@@ -77,6 +77,7 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
                                          const edm::EventSetup&) const;
 
   TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t) const;
+  TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t, edm::OwnVector<TrackingRecHit>&) const;
 
   /// check if two rechits are correlated
   bool areCorrelated(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
