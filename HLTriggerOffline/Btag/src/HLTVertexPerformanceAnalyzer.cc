@@ -91,13 +91,13 @@ void HLTVertexPerformanceAnalyzer::beginJob()
 			float vertexU = maxValue;
 			float vertexL = -maxValue;
 			int   vertexBins = 400;
-
 			if ( VertexCollection_.at(coll).label() != "" && VertexCollection_.at(coll).label() != "NULL" ) { 
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]       = dqm->book1D("Vertex_"+VertexCollection_.at(coll).label(),      VertexCollection_.at(coll).label().c_str(),  vertexBins, vertexL, vertexU );
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]      -> setAxisTitle("vertex error (cm)",1);
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]->getTH1F()->GetXaxis()->GetXmax();
 			}
 		triggerConfChanged_ = false;  
+		}
 	}
 }
 
@@ -139,38 +139,29 @@ void HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetu
 			_isfoundHLTs.push_back(true);
 		}
 	}
+}
 
-
+// ------------ method called when ending the processing of a run  ------------
+void HLTVertexPerformanceAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+	{
 	}
 
-	// ------------ method called when ending the processing of a run  ------------
-	void 
-		HLTVertexPerformanceAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-		{
-		}
-
-	// ------------ method called when starting to processes a luminosity block  ------------
-	void 
-		HLTVertexPerformanceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
-		{
-		}
-
+// ------------ method called when starting to processes a luminosity block  ------------
+void HLTVertexPerformanceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
+	{
+	}
 	// ------------ method called when ending the processing of a luminosity block  ------------
-	void 
-		HLTVertexPerformanceAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-		{
-		}
-
+void HLTVertexPerformanceAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+	{
+	}
 	// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-	void
-		HLTVertexPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-			//The following says we do not know what parameters are allowed so do no validation
-			// Please change this to state exactly what you do use, even if it is no parameters
-			edm::ParameterSetDescription desc;
-			desc.setUnknown();
-			descriptions.addDefault(desc);
-		}
-
+void HLTVertexPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+		//The following says we do not know what parameters are allowed so do no validation
+		// Please change this to state exactly what you do use, even if it is no parameters
+		edm::ParameterSetDescription desc;
+		desc.setUnknown();
+		descriptions.addDefault(desc);
+	}
 	//define this as a plug-in
-	DEFINE_FWK_MODULE(HLTVertexPerformanceAnalyzer);
+DEFINE_FWK_MODULE(HLTVertexPerformanceAnalyzer);
 
