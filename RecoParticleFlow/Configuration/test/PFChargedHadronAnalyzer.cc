@@ -245,8 +245,8 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     case TrackBase::pixelLessStep:
     case TrackBase::tobTecStep:
     case TrackBase::jetCoreRegionalStep:
-    case TrackBase::iter9:
-    case TrackBase::iter10:
+    case TrackBase::muonSeededStepInOut:
+    case TrackBase::muonSeededStepOutIn:
     default:
       break;
     }

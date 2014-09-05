@@ -157,8 +157,8 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::lowPtTripletStep:
   case reco::TrackBase::pixelPairStep:
   case reco::TrackBase::jetCoreRegionalStep:
-  case reco::TrackBase::iter9:
-  case reco::TrackBase::iter10:
+  case reco::TrackBase::muonSeededStepInOut:
+  case reco::TrackBase::muonSeededStepOutIn:
     Algo = 0;
     break;
   case reco::TrackBase::detachedTripletStep:

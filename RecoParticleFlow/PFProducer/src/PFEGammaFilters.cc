@@ -369,8 +369,8 @@ unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
   case TrackBase::lowPtTripletStep:
   case TrackBase::pixelPairStep:
   case TrackBase::jetCoreRegionalStep:
-  case TrackBase::iter9:
-  case TrackBase::iter10:
+  case TrackBase::muonSeededStepInOut:
+  case TrackBase::muonSeededStepOutIn:
     Algo = 0;
     break;
   case TrackBase::detachedTripletStep:

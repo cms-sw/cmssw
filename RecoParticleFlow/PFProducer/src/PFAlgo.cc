@@ -1943,8 +1943,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case TrackBase::detachedTripletStep:
       case TrackBase::mixedTripletStep:
       case TrackBase::jetCoreRegionalStep:
-      case TrackBase::iter9:
-      case TrackBase::iter10:
+      case TrackBase::muonSeededStepInOut:
+      case TrackBase::muonSeededStepOutIn:
 	blowError = 1.;
 	break;
       case TrackBase::pixelLessStep:
@@ -2408,8 +2408,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	case TrackBase::detachedTripletStep:
 	case TrackBase::mixedTripletStep:
 	case TrackBase::jetCoreRegionalStep:
-	case TrackBase::iter9:
-	case TrackBase::iter10:
+	case TrackBase::muonSeededStepInOut:
+	case TrackBase::muonSeededStepOutIn:
 	  break;
 	case TrackBase::pixelLessStep:
 	case TrackBase::tobTecStep:
