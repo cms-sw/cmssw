@@ -11,7 +11,6 @@ class HistoProviderDQM  {
  public:
   HistoProviderDQM(const std::string& prefix, const std::string& label, DQMStore::IBooker & ibook);
   virtual ~HistoProviderDQM(){}
-  void show();
 
   virtual MonitorElement* book1D       (const std::string &name,
                       const std::string &title,
@@ -38,11 +37,8 @@ class HistoProviderDQM  {
 
   void setDir(const std::string&);
 
-  virtual MonitorElement * access(const std::string &name);
-
  private:
   std::string label_;
-  //DQMStore * dqmStore_;
   DQMStore::IBooker & ibook_;
 };                                                                                                                                                                           
 #endif

@@ -2,23 +2,23 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'MC_72_V1',
+    'run1_design'       :   'MC_72_V2',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'START72_V1',
+    'run1_mc'           :   'START72_V2',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'STARTHI72_V1',
+    'run1_mc_hi'        :   'STARTHI72_V3',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'STARTHI72_V2',
+    'run1_mc_pa'        :   'STARTHI72_V4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESIGN72_V2',
+    'run2_design'       :   'DESIGN72_V4',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS172_V4',
+    'run2_mc_50ns'      :   'POSTLS172_V8',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS172_V3',
+    'run2_mc'           :   'POSTLS172_V7',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_72_V2',
+    'run1_data'         :   'GR_R_72_V3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_72_V2',
+    'run2_data'         :   'GR_R_72_V3',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
     'run1_hlt'          :   'GR_H_V37,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
@@ -57,9 +57,9 @@ conditions_HLT_JECs = (
     'JetCorrectorParametersCollection_Jec11_V12_AK5CaloHLT,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5CaloHLT',
     'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFHLT',
     'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFchsHLT',
-    # HLT 2014 jet energy corrections - tk0 scenario
+    # HLT 2014 jet energy corrections - tk1B scenario
     'JetCorrectorParametersCollection_HLT_V1_AK4Calo,JetCorrectionsRecord,frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS,AK4CaloHLT',
-    'JetCorrectorParametersCollection_HLT_trk0_V1_AK4PF,JetCorrectionsRecord,frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS,AK4PFHLT',
+    'JetCorrectorParametersCollection_HLT_trk1B_V1_AK4PF,JetCorrectionsRecord,frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS,AK4PFHLT',
 )
 
 autoCond['run1_mc']          = ( autoCond['run1_mc'], ) \
