@@ -1,5 +1,5 @@
-#ifndef ME0Geometry_ME0GeometryBuilderFromDDD_H
-#define ME0Geometry_ME0GeometryBuilderFromDDD_H
+#ifndef Geometry_GEMGeometry_ME0GeometryBuilderFromDDD_H
+#define Geometry_GEMGeometry_ME0GeometryBuilderFromDDD_H
 
 /** \class  ME0GeometryBuilderFromDDD
  *  Build the ME0Geometry ftom the DDD description

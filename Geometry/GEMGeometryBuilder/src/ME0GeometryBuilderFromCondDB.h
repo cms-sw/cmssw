@@ -1,5 +1,5 @@
-#ifndef ME0Geometry_ME0GeometryBuilderFromCondDB_H
-#define ME0Geometry_ME0GeometryBuilderFromCondDB_H
+#ifndef Geometry_GEMGeometry_ME0GeometryBuilderFromCondDB_H
+#define Geometry_GEMGeometry_ME0GeometryBuilderFromCondDB_H
 
 /** \class  ME0GeometryBuilderFromCondDB
  *  Build the ME0Geometry from the DDD description stored in Condition DB 

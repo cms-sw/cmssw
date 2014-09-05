@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMGeometryBuilderFromCondDB_H
-#define GEMGeometry_GEMGeometryBuilderFromCondDB_H
+#ifndef Geometry_GEMGeometry_GEMGeometryBuilderFromCondDB_H
+#define Geometry_GEMGeometry_GEMGeometryBuilderFromCondDB_H
 
 /** \class  GEMGeometryBuilderFromCondDB
  *  Build the GEMGeometry from the DDD description stored in Condition DB 
