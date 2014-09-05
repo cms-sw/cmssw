@@ -59,6 +59,8 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
   theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
+  theForcePointDownFlag = pset.getUntrackedParameter<bool>("ForcePointDown",true);
+
   // pre-determined parameters for seed pt calculation ( pt * dphi )
   theParameters["topmb41"] = 0.87;
   theParameters["bottommb41"] = 1.2;
@@ -323,11 +325,12 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
                                              hit->globalDirection().phi(),
                                              1.));
   // Force all track downward for cosmic, not beam-halo
-  if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
-    polar = - polar;
+  if(theForcePointDownFlag){
+    if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
+      polar = - polar;
 
-  if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) {
-    polar = - polar;
+    if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) 
+      polar = - polar;
   }
 
   polar *=fabs(pt)/polar.perp();
@@ -480,11 +483,12 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
                                              hit->globalDirection().phi(),
                                              1.));
   // Force all track downward for cosmic, not beam-halo
-  if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
-    polar = - polar;
+  if(theForcePointDownFlag){
+    if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
+      polar = - polar;
 
-  if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) {
-    polar = - polar;
+    if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 )
+      polar = - polar;
   }
 
   polar *=fabs(pt)/polar.perp();

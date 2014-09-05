@@ -10,6 +10,15 @@ from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 refittedStandAloneMuons = standAloneMuons.clone()
 refittedStandAloneMuons.STATrajBuilderParameters.DoRefit = True
 
+# Delayed SA muons
+from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
+delayedMuonSeeds = CosmicMuonSeed.clone()
+delayedMuonSeeds.ForcePointDown = False
+
+delayedStandAloneMuons = standAloneMuons.clone()
+delayedStandAloneMuons.InputObjects = cms.InputTag("delayedMuonSeeds")
+delayedStandAloneMuons.MuonTrajectoryBuilder = cms.string("StandAloneMuonTrajectoryBuilder")
+
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
 
@@ -34,7 +43,7 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # ---------------------------------------------------- #
 
 # Muon Tracking sequence
-standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons)
+standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*delayedMuonSeeds*delayedStandAloneMuons)
 globalmuontracking = cms.Sequence(globalMuons*tevMuons)
 muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)
 

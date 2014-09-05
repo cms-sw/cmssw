@@ -112,6 +112,7 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
   /// the maximum chi2 required for dt and csc rechits
   double theMaxDTChi2;
   double theMaxCSCChi2;
+  bool theForcePointDownFlag;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
 
