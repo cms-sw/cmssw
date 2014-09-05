@@ -273,6 +273,9 @@ namespace l1t {
 		       case l1t::EtSum::EtSumType::kTotalHt:
 			 cout << " HTT: ";
 			 break; 		     
+		       default:
+		         cout << " Unknown: ";
+		         break;
 		    }
 	            cout << " Et "  << std::dec << std::setw(3) << etsum->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << etsum->hwPt()  << ")";
 		    if(etsum->getType() == l1t::EtSum::EtSumType::kMissingEt || etsum->getType() == l1t::EtSum::EtSumType::kMissingHt)
@@ -286,6 +289,7 @@ namespace l1t {
 	    cout << "No EtSum Data in this event " << endl;
 	 }  
 	               
+
 
      // Dump the output record
  	  cout << " ------ uGtAlg ----------" << endl;
@@ -424,6 +428,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    unsigned int HTTpackWd = 0;
    unsigned int ETMpackWd = 0;
    unsigned int HTMpackWd = 0;
+
    if(etsums.isValid()){
      for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
 
@@ -440,9 +445,13 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	   case l1t::EtSum::EtSumType::kTotalHt:
 	     HTTpackWd = formatTotalET(etsum);
 	     break; 		     
+           default:
+	     break;
 	} //end switch statement
      } //end loop over etsums
    }
+
+
    // Fill in the words in appropriate order
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << HTTpackWd;

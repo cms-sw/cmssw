@@ -217,6 +217,9 @@ namespace l1t {
 		       case l1t::EtSum::EtSumType::kTotalHt:
 			 cout << " HTT: ";
 			 break; 		     
+		       default:
+			 cout << " Unknown: ";
+			 break; 		     
 		    }
 	            cout << " Et "  << std::dec << std::setw(3) << etsum->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << etsum->hwPt()  << ")";
 		    if(etsum->getType() == l1t::EtSum::EtSumType::kMissingEt || etsum->getType() == l1t::EtSum::EtSumType::kMissingHt)
