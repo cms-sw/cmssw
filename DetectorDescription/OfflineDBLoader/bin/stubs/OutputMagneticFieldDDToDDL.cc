@@ -73,7 +73,7 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
   std::set<DDMaterial> matStore;
   std::set<DDSolid> solStore;
   
-  std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > specStore;
+  std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > specStore;
   std::set<DDRotation> rotStore;
 
   DDCoreToDDXMLOutput out;
@@ -191,7 +191,7 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
   ( *m_xos ) << "</LogicalPartSection>\n";
 
   ( *m_xos ) << std::fixed << std::setprecision( 18 );
-  std::map<DDsvalues_type, std::set<DDPartSelection*> >::const_iterator mit( specStore.begin()), mend( specStore.end());
+  std::map<DDsvalues_type, std::set<const DDPartSelection*> >::const_iterator mit( specStore.begin()), mend( specStore.end());
   ( *m_xos ) << "<SpecParSection label=\"" << ns_ << "\">\n";
   for( ; mit != mend; ++mit )
   {
@@ -239,9 +239,9 @@ OutputMagneticFieldDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid>
 }
 
 void
-OutputMagneticFieldDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > & specStore )
+OutputMagneticFieldDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > & specStore )
 {
-  std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator spit( lp.attachedSpecifics().begin()), spend( lp.attachedSpecifics().end());
+  std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> >::const_iterator spit( lp.attachedSpecifics().begin()), spend( lp.attachedSpecifics().end());
   for( ; spit != spend; ++spit )
   {
     specStore[ *spit->second ].insert( spit->first );

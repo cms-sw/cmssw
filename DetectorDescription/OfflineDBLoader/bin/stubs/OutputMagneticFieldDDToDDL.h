@@ -13,11 +13,12 @@
 
 class DDPartSelection;
 
+namespace {
 /// is sv1 < sv2 
-struct ddsvaluesCmp
-{
+struct ddsvaluesCmp {
   bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
 };
+}
 
 class OutputMagneticFieldDDToDDL : public edm::EDAnalyzer
 {
@@ -32,11 +33,11 @@ public:
 private:
   void addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore );
   void addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore );
-  void addToSpecStore( const DDLogicalPart& lp, std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > & specStore );
+  void addToSpecStore( const DDLogicalPart& lp, std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > & specStore );
 
+  int m_rotNumSeed;
   std::string m_fname;
   std::ostream* m_xos;
-  int m_rotNumSeed;
   int m_specNameCount;
 };
 
