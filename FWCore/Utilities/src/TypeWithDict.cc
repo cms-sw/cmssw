@@ -75,28 +75,6 @@ namespace edm {
     return TypeWithDict(type, property);
   }
 
-  void
-  TypeWithDict::setProperty() {
-    // Note: typeid() ignores const and volatile qualifiers, and
-    //       cannot see references.
-    //       So:
-    //            typeid(int) == typeid(int const)
-    //                        == typeid(int&)
-    //                        == typeid(int const&)
-    //
-    if (type_ == nullptr) {
-      return;
-    }
-    if (gInterpreter->Type_IsConst(type_)) {
-      // Note: This is not possible if created by typeid.
-      property_ |= (long) kIsConstant;
-    }
-    if (gInterpreter->Type_IsReference(type_)) {
-      // Note: This is not possible if created by typeid.
-      property_ |= (long) kIsReference;
-    }
-  }
-
   TypeWithDict::TypeWithDict() :
     ti_(&typeid(void)),
     type_(nullptr),

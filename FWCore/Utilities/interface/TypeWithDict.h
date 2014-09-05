@@ -48,7 +48,6 @@ private:
   TDataType* dataType_;
   long property_;
 private:
-  void setProperty();
   void processEnumeration();
 public:
   static TypeWithDict byName(std::string const& name, long property = 0L);
