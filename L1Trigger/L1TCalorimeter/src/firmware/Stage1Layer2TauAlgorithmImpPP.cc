@@ -44,7 +44,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int switchOffTauVeto = floor( params_->switchOffTauVeto()/towerLsb + 0.5);
   int switchOffTauIso = floor( params_->switchOffTauIso()/towerLsb + 0.5);
-  int tauRelativeJetIsolationLimit = params_->tauRelativeJetIsolationLimit();
+  double tauRelativeJetIsolationLimit = params_->tauRelativeJetIsolationLimit();
   double tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
@@ -79,7 +79,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     //			       *subRegions);
 
     int tauEt=regionEt;
-    int isoFlag=0;
+    int isoFlag=0;  // is 1 if it passes the relative jet iso requirement
+    int quality = 1;  //doesn't really mean anything and isn't used
 
     int highestNeighborEt=0;
     int highestNeighborTauVeto=1;
@@ -87,16 +88,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int isSouth=0;
     int isWest=0;
     int isNorth=0;
-    int EastEt=0;
-    int SouthEt=0;
-    int WestEt=0;
-    int NorthEt=0;
-    int NEEt=0;
-    int NWEt=0;
-    int SEEt=0;
-    int SWEt=0;
 
-    //Find neighbor with highest Et and find energies of all neighboring regions
+    //Find neighbor with highest Et
     for(CaloRegionBxCollection::const_iterator neighbor = regions.begin();
 	neighbor != regions.end(); neighbor++) {
       
@@ -112,38 +105,25 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 	
 	int neighborEt = neighbor->hwPt();
 
-	if (deltaEta==-1) {
-	  if (deltaPhi==-1) NEEt=neighborEt;
-	  else if (deltaPhi==0) {
-	    isEast=1;
-	    EastEt=neighborEt;
-	  }
-	  else SEEt=neighborEt;
+	if (deltaEta==-1 && deltaPhi==0) {
+	  isEast=1;
 	}
-	else if (deltaEta==0) {
-	  if (deltaPhi==-1) {
-	    isNorth=1;
-	    NorthEt=neighborEt;
-	  }
-	  if (deltaPhi==1) {
-	    isSouth=1;
-	    SouthEt=neighborEt;
-	  }	
+	if (deltaEta==0 && deltaPhi==-1) {
+	  isNorth=1;
 	}
-	else {
-	  if (deltaPhi==-1) NWEt=neighborEt;
-	  else if (deltaPhi==0) {
-	    isWest=1;
-	    WestEt=neighborEt;
-	  }
-	  else SWEt=neighborEt;
+	if (deltaEta==0 && deltaPhi==1) {
+	  isSouth=1;
+	}     
+        if (deltaEta==1 && deltaPhi==0) {
+	  isWest=1;
 	}
 	
 	if (!(std::abs(deltaPhi)==1 && std::abs(deltaEta==1))) {
 	  
 	  if (neighborEt > highestNeighborEt) {
 	    highestNeighborEt = neighborEt;
-	    highestNeighborTauVeto = neighbor->tauVeto();
+	    int neighborTauVeto = neighbor->hwQual() & 0x1; // tauVeto is first bit of quality integer
+	    highestNeighborTauVeto = neighborTauVeto;
 	  }
 	}
       }
@@ -153,7 +133,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
       
-      if ((highestNeighborTauVeto == 0 && region->tauVeto() == 0) || tauEt > switchOffTauVeto) {
+      int regionTauVeto = region->hwQual() & 0x1;  // tauVeto is first bit of quality integer
+
+      if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > switchOffTauVeto) {
 
 	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
 
@@ -162,9 +144,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 	
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 	
-	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), isoFlag);
+	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
 	
-	if( tauEt >0) preGtTaus->push_back(theTau);
+	preGtTaus->push_back(theTau);
       }
     }
   }
@@ -196,9 +178,6 @@ double l1t::Stage1Layer2TauAlgorithmImpPP::JetIsolation(int et, int ieta, int ip
       jet != jets.end(); jet++) {
 
     if (ieta==jet->hwEta() && iphi==jet->hwPhi()){
-
-      //if (et >200)
-      //  cout << "ISOL:  tauET: " << et << " jetET: " << jet->hwPt() << endl;
 
       double isolation = (double) (jet->hwPt() - et);
       return isolation/et;
