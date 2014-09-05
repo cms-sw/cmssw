@@ -1128,6 +1128,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMuIsoIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter04" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForTauIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedJpsiIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedPsiPrimeIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedNRMuMuIter02" )
