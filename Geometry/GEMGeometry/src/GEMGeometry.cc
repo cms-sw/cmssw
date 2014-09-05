@@ -37,7 +37,7 @@ const GeomDetUnit* GEMGeometry::idToDetUnit(DetId id) const{
 
 const GeomDet* GEMGeometry::idToDet(DetId id) const{
   mapIdToDet::const_iterator i = theMap.find(id);
-  return (i != theMap.end()) ? i->second : 0 ;
+  return (i != theMap.end()) ? i->second : 0;
 }
 
 const std::vector<const GEMRegion*>& GEMGeometry::regions() const {
