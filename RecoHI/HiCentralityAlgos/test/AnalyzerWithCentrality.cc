@@ -27,6 +27,7 @@ using namespace std;
 class AnalyzerWithCentrality : public edm::EDAnalyzer {
    public:
       explicit AnalyzerWithCentrality(const edm::ParameterSet&);
+      explicit AnalyzerWithCentrality(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       ~AnalyzerWithCentrality();
 
 
@@ -60,6 +61,18 @@ centrality_(0)
    //now do what ever initialization is needed
    h1 = fs->make<TH1D>("h1","histogram",100,0,100);
    nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin:trig");
+
+}
+
+AnalyzerWithCentrality::AnalyzerWithCentrality(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector && iC) : 
+centrality_(0)
+{
+   //now do what ever initialization is needed
+   h1 = fs->make<TH1D>("h1","histogram",100,0,100);
+   nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin:trig");
+
+   if(!centrality_) centrality_ = new CentralityProvider(iSetup, std::move(iC));
+
 }
 
 AnalyzerWithCentrality::~AnalyzerWithCentrality()
@@ -80,7 +93,6 @@ void
 AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
    centrality_->newEvent(iEvent,iSetup);
 
    double hf = centrality_->raw()->EtHFhitSum();

@@ -18,21 +18,9 @@
 // Basic inclusion
 #include "RecoHI/HiTracking/interface/HICaloCompatibleTrackSelector.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -45,9 +33,9 @@
 using reco::modules::HICaloCompatibleTrackSelector;
 
 HICaloCompatibleTrackSelector::HICaloCompatibleTrackSelector( const edm::ParameterSet & cfg ) :
-  srcTracks_(cfg.getParameter<edm::InputTag>("srcTracks")),
-  srcPFCands_(cfg.getParameter<edm::InputTag>("srcPFCands")),
-  srcTower_(cfg.getParameter<edm::InputTag>("srcTower")),
+  srcTracks_(consumes<TrackCollection>(cfg.getParameter<edm::InputTag>("srcTracks"))),
+  srcPFCands_(consumes<PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCands"))),
+  srcTower_(consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("srcTower"))),
   usePFCandMatching_(cfg.getUntrackedParameter<bool>("usePFCandMatching", true)),
   trkMatchPtMin_(cfg.getUntrackedParameter<double>("trkMatchPtMin",10.0)),
   trkCompPtMin_(cfg.getUntrackedParameter<double>("trkCompPtMin",35.0)),
@@ -76,6 +64,8 @@ HICaloCompatibleTrackSelector::HICaloCompatibleTrackSelector( const edm::Paramet
   if (copyTrajectories_) {
     produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories");
     produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations");
+    srcTrackTrajs_ = (consumes<std::vector<Trajectory> >(cfg.getParameter<edm::InputTag>("srcTracks")));
+    srcTrackTrajAssoc_ = (consumes<TrajTrackAssociationCollection>(cfg.getParameter<edm::InputTag>("srcTracks")));
   }
 
   // pt dependence of delta R matching requirement
@@ -104,7 +94,7 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
   Handle< vector<Trajectory> > hTrajP;
   Handle< TrajTrackAssociationCollection > hTTAss;
 
-  evt.getByLabel(srcTracks_,hSrcTrack);
+  evt.getByToken(srcTracks_,hSrcTrack);
   
   selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
   rTracks_ = evt.getRefBeforePut<TrackCollection>();      
@@ -125,8 +115,8 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
   bool isPFThere = false;
   bool isTowerThere = false;
   
-  if(usePFCandMatching_) isPFThere = evt.getByLabel(srcPFCands_, pfCandidates);  
-  else isTowerThere = evt.getByLabel(srcTower_, towers);
+  if(usePFCandMatching_) isPFThere = evt.getByToken(srcPFCands_, pfCandidates);  
+  else isTowerThere = evt.getByToken(srcTower_, towers);
   
   size_t current = 0;
   for (TI ti = hSrcTrack->begin(), ed = hSrcTrack->end(); ti != ed; ++ti, ++current) {
@@ -173,8 +163,8 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
   if ( copyTrajectories_ ) {
     Handle< vector<Trajectory> > hTraj;
     Handle< TrajTrackAssociationCollection > hTTAss;
-    evt.getByLabel(srcTracks_, hTTAss);
-    evt.getByLabel(srcTracks_, hTraj);
+    evt.getByToken(srcTrackTrajs_, hTTAss);
+    evt.getByToken(srcTrackTrajAssoc_, hTraj);
     selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
     rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
     selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());

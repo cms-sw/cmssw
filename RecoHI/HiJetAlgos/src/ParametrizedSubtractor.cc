@@ -24,7 +24,8 @@ ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig,
    dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true)),
    cbins_(0)
 {
-   centTag_ = iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO"));
+
+    centTag_ = iC.consumes<reco::Centrality>(iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO")));
 
    interpolate_ = iConfig.getParameter<bool>("interpolate");
    sumRecHits_ = iConfig.getParameter<bool>("sumRecHits");
@@ -51,7 +52,7 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::Even
    //   if(!cbins_) getCentralityBinsFromDB(iSetup);
 
    edm::Handle<reco::Centrality> cent;
-   iEvent.getByLabel(centTag_,cent);
+   iEvent.getByToken(centTag_,cent);
    
    centrality_ = cent->EtHFhitSum();
    bin_ = 40-hC->FindBin(centrality_);

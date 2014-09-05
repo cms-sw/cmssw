@@ -11,6 +11,9 @@ gedGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.vtxTag = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
+gedPhotonsTmp.regressionConfig.vertexCollection = cms.InputTag("hiSelectedVertex")
+gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
+
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
 gedGsfElectronsTmp.maxHOverEBarrel = cms.double(0.25)

@@ -25,6 +25,7 @@
 
 class CentralityFilter : public edm::EDFilter {
    public:
+      explicit CentralityFilter(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       explicit CentralityFilter(const edm::ParameterSet&);
       ~CentralityFilter();
 
@@ -49,11 +50,15 @@ class CentralityFilter : public edm::EDFilter {
 //
 // constructors and destructor
 //
-CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig) :
+CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig){}
+
+CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector && iC):
   centrality_(0),
   selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins"))
 {
    //now do what ever initialization is needed
+  using namespace edm;
+  if(!centrality_) centrality_ = new CentralityProvider(iSetup, std::move(iC));
 
 }
 
@@ -78,7 +83,6 @@ CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool result = false;
 
    using namespace edm;
-   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
    centrality_->newEvent(iEvent,iSetup);
    int bin = centrality_->getBin();
 

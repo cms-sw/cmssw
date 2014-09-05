@@ -66,7 +66,7 @@ ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig):
    geo_(0)
 {
    //register your products  
-  src_ = iConfig.getParameter<edm::InputTag>("src");
+  src_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"));
   useHF_ = iConfig.getUntrackedParameter<bool>("useHF");
   
   produces<CaloTowerCollection>();
@@ -110,7 +110,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
    edm::Handle<reco::PFCandidateCollection> inputsHandle;
-   iEvent.getByLabel(src_, inputsHandle);
+   iEvent.getByToken(src_, inputsHandle);
    
    for(reco::PFCandidateCollection::const_iterator ci  = inputsHandle->begin(); ci!=inputsHandle->end(); ++ci)  {
 

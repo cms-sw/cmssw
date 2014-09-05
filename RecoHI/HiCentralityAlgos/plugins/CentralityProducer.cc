@@ -84,18 +84,17 @@ class CentralityProducer : public edm::EDProducer {
 
   bool lowGainZDC_;
 
-   edm::InputTag  srcHFhits_;	
-   edm::InputTag  srcTowers_;
-   edm::InputTag srcEEhits_;
-   edm::InputTag srcEBhits_;
-   edm::InputTag srcZDChits_;
-   edm::InputTag srcPixelhits_;
-   edm::InputTag srcTracks_;
-   edm::InputTag srcPixelTracks_;
-   edm::InputTag srcVertex_;
-
-   edm::InputTag reuseTag_;
-
+  edm::EDGetTokenT<HFRecHitCollection>  srcHFhits_;	
+  edm::EDGetTokenT<CaloTowerCollection>  srcTowers_;
+  edm::EDGetTokenT<EcalRecHitCollection> srcEEhits_;
+  edm::EDGetTokenT<EcalRecHitCollection> srcEBhits_;
+  edm::EDGetTokenT<ZDCRecHitCollection> srcZDChits_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixelhits_;
+  edm::EDGetTokenT<TrackCollection> srcTracks_;
+  edm::EDGetTokenT<TrackCollection> srcPixelTracks_;
+  edm::EDGetTokenT<VertexCollection> srcVertex_;
+  edm::EDGetTokenT<Centrality> reuseTag_;
+  
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
 
@@ -133,35 +132,35 @@ class CentralityProducer : public edm::EDProducer {
 
    hfEtaCut_ = iConfig.getParameter<double>("hfEtaCut");
 
-   if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
-   if(produceHFtowers_ || produceETmidRap_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
+   if(produceHFhits_)  srcHFhits_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcHFhits"));
+   if(produceHFtowers_ || produceETmidRap_) srcTowers_ = consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("srcTowers"));
 
    if(produceEcalhits_){
-      srcEBhits_ = iConfig.getParameter<edm::InputTag>("srcEBhits");
-      srcEEhits_ = iConfig.getParameter<edm::InputTag>("srcEEhits");
+     srcEBhits_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEBhits"));
+     srcEEhits_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEEhits"));
    }
    if(produceZDChits_){
-     srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
+     srcZDChits_ = consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcZDChits"));
      lowGainZDC_ = iConfig.getUntrackedParameter<bool>("lowGainZDC",0);
    }
    if(producePixelhits_){
-     srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
+     srcPixelhits_ = consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcPixelhits"));
      doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
-     srcVertex_ = iConfig.getParameter<edm::InputTag>("srcVertex");
+     srcVertex_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"));
    }
    if(produceTracks_) {
-     srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
-     srcVertex_ = iConfig.getParameter<edm::InputTag>("srcVertex");
+     srcTracks_ = consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"));
+     srcVertex_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"));
    }
-   if(producePixelTracks_) srcPixelTracks_ = iConfig.getParameter<edm::InputTag>("srcPixelTracks");
+   if(producePixelTracks_) srcPixelTracks_ = consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcPixelTracks"));
    
    reuseAny_ = iConfig.getParameter<bool>("reUseCentrality");
-   if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
+   if(reuseAny_) reuseTag_ = consumes<Centrality>(iConfig.getParameter<edm::InputTag>("srcReUse"));
 
    useQuality_   = iConfig.getParameter<bool>("UseQuality");
    trackQuality_ = TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 
-   produces<reco::Centrality>();
+   produces<Centrality>();
    
 }
 
@@ -190,14 +189,14 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<Centrality> creco(new Centrality());
   Handle<Centrality> inputCentrality;
 
-  if(reuseAny_) iEvent.getByLabel(reuseTag_,inputCentrality);
+  if(reuseAny_) iEvent.getByToken(reuseTag_,inputCentrality);
   
   if(produceHFhits_){
      creco->etHFhitSumPlus_ = 0;
      creco->etHFhitSumMinus_ = 0;
 
      Handle<HFRecHitCollection> hits;
-     iEvent.getByLabel(srcHFhits_,hits);
+     iEvent.getByToken(srcHFhits_,hits);
      for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
 	const HFRecHit & rechit = (*hits)[ ihit ];
         if(rechit.id().ieta() > 0 )
@@ -219,7 +218,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      Handle<CaloTowerCollection> towers;
 
-     iEvent.getByLabel(srcTowers_,towers);
+     iEvent.getByToken(srcTowers_,towers);
 
 	for( size_t i = 0; i<towers->size(); ++ i){
 	   const CaloTower & tower = (*towers)[ i ];
@@ -262,8 +261,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      Handle<EcalRecHitCollection> ebHits;
      Handle<EcalRecHitCollection> eeHits;
 
-     iEvent.getByLabel(srcEBhits_,ebHits);
-     iEvent.getByLabel(srcEEhits_,eeHits);
+     iEvent.getByToken(srcEBhits_,ebHits);
+     iEvent.getByToken(srcEEhits_,eeHits);
 
      for(unsigned int i = 0; i < ebHits->size(); ++i){
         const EcalRecHit & hit= (*ebHits)[i];
@@ -295,7 +294,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->pixelMultiplicity_ = 0;
      const SiPixelRecHitCollection* rechits;
      Handle<SiPixelRecHitCollection> rchts;
-     iEvent.getByLabel(srcPixelhits_,rchts);
+     iEvent.getByToken(srcPixelhits_,rchts);
      rechits = rchts.product();
      int nPixel =0 ;
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
@@ -341,8 +340,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      double vzError=-999.;
      math::XYZVector vtxPos(0,0,0);
 
-     edm::Handle<reco::VertexCollection> recoVertices;
-     iEvent.getByLabel(srcVertex_,recoVertices);
+     Handle<VertexCollection> recoVertices;
+     iEvent.getByToken(srcVertex_,recoVertices);
      unsigned int daughter = 0;
      int greatestvtx = 0;
     
@@ -362,8 +361,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
      vtxPos = math::XYZVector(vx,vy,vz);
 
-     edm::Handle<reco::TrackCollection> tracks;
-     iEvent.getByLabel(srcTracks_,tracks);
+     Handle<TrackCollection> tracks;
+     iEvent.getByToken(srcTracks_,tracks);
      int nTracks = 0;
 
      double trackCounter = 0;
@@ -408,8 +407,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if(producePixelTracks_){
-    edm::Handle<reco::TrackCollection> pixeltracks;
-    iEvent.getByLabel(srcPixelTracks_,pixeltracks);
+    Handle<TrackCollection> pixeltracks;
+    iEvent.getByToken(srcPixelTracks_,pixeltracks);
     int nPixelTracks = pixeltracks->size();
     creco->nPixelTracks_ = nPixelTracks;
   }
@@ -424,7 +423,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->zdcSumMinus_ = 0;
      
      Handle<ZDCRecHitCollection> hits;
-     bool zdcAvailable = iEvent.getByLabel(srcZDChits_,hits);
+     bool zdcAvailable = iEvent.getByToken(srcZDChits_,hits);
      if(zdcAvailable){
 	for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
 	   const ZDCRecHit & rechit = (*hits)[ ihit ];
