@@ -1,5 +1,5 @@
-#ifndef HLTBTagPerformanceAnalyzer_H
-#define HLTBTagPerformanceAnalyzer_H
+#ifndef HLTVertexPerformanceAnalyzer_H
+#define HLTVertexPerformanceAnalyzer_H
 
 // system include files
 #include <memory>
@@ -27,6 +27,7 @@
 //Vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include <SimDataFormats/Vertex/interface/SimVertex.h>
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -39,7 +40,9 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-/** \class HLTBTagPerformanceAnalyzer
+
+
+/** \class HLTVertexPerformanceAnalyzer
  *
  *  Top level steering routine for HLT b tag performance analysis.
  *
@@ -50,10 +53,10 @@ using namespace reco;
 using namespace edm;
 
 
-class HLTBTagPerformanceAnalyzer : public edm::EDAnalyzer {
+class HLTVertexPerformanceAnalyzer : public edm::EDAnalyzer {
 	public:
-		explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
-		~HLTBTagPerformanceAnalyzer();
+		explicit HLTVertexPerformanceAnalyzer(const edm::ParameterSet&);
+		~HLTVertexPerformanceAnalyzer();
 
 		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -84,7 +87,7 @@ class HLTBTagPerformanceAnalyzer : public edm::EDAnalyzer {
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
 
-		std::vector<InputTag> JetTagCollection_;
+		std::vector<InputTag> VertexCollection_;
 
 		// gen level tag-handlers
 

@@ -18,42 +18,39 @@ process.load("HLTriggerOffline.Btag.hltJetMCTools_cff")
 from HLTriggerOffline.Btag.readConfig import *
 #ReadFile("my.ini")
 
-filexml = fileXML("my.ini")
-filexml.read()
+fileini = fileINI("config.ini")
+fileini.read()
 
 #def readConfig(fileName)
 print
-print  "Reading ", filexml.fileName
+print  "Reading ", fileini.fileName
 print
-print  "l3TagInfos		=	",  filexml.l3TagInfos
-print  "l25JetTags		=	", filexml.l25JetTags
-print  "l3JetTags		=	", filexml.l3JetTags
-print  "minTags			=	",filexml.mintags
-print  "maxEvents		=	",filexml.maxEvents
-print  "CMSSWVER		=	",filexml.CMSSWVER
-print  "processname		=	",filexml.processname
-print  "jets (for matching)	=	",filexml.jets
-print "genParticlesProcess	=	", filexml.genParticlesProcess
-print  "HLTPathNames		=	",filexml.HLTPathNames
-print  "BTagAlgorithms		=	",filexml.BTagAlgorithms
-print  "files			=	",filexml.files
-print
+#print  "FastPrimaryVertex	", fileini.TagInfos
+print  "maxEvents		=	",fileini.maxEvents
+print  "CMSSWVER		=	",fileini.CMSSWVER
+print  "processname		=	",fileini.processname
+print  "jets (for matching)	=	",fileini.jets
+print  "files			=	",fileini.files
+print  "btag_modules		",fileini.btag_modules
+print  "btag_pathes		",fileini.btag_pathes
+print  "vertex_modules		",fileini.vertex_modules
+print  "vertex_pathes		",fileini.vertex_pathes
 print
 
-process.hltJetsbyRef.jets = cms.InputTag(filexml.jets,"",filexml.processname)
-process.hltPartons.src = cms.InputTag("genParticles","",filexml.genParticlesProcess)
+process.hltJetsbyRef.jets = cms.InputTag(fileini.jets)
+process.hltPartons.src = cms.InputTag("genParticles")
+
+process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
+   TriggerResults  = cms.InputTag('TriggerResults','',fileini.processname),
+   HLTPathNames     = cms.vstring(fileini.vertex_pathes),
+   Vertex        = fileini.vertex_modules,
+)
 
 process.bTagValidation     = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
-   TriggerResults  = cms.InputTag('TriggerResults','',filexml.processname),
-   HLTPathNames     = cms.vstring(filexml.HLTPathNames),
-   L25IPTagInfo    = cms.VInputTag(cms.InputTag('hltBLifetimeL25TagInfosbbPhiL1FastJetFastPV')),
-   L25JetTag       = filexml.l25JetTags,
-   L3IPTagInfo     = filexml.l3TagInfos,
-   L3JetTag        = filexml.l3JetTags,
-   TrackIPTagInfo  = cms.InputTag('NULL'),
-   OfflineJetTag   = cms.InputTag('NULL'),
+   TriggerResults  = cms.InputTag('TriggerResults','',fileini.processname),
+   HLTPathNames     = cms.vstring(fileini.btag_pathes),
+   JetTag        = fileini.btag_modules,
    MinJetPT        = cms.double(20),
-   BTagAlgorithms   = cms.vstring(filexml.BTagAlgorithms),
    mcFlavours = cms.PSet(
       light = cms.vuint32(1, 2, 3, 21),   # udsg
       c = cms.vuint32(4),
@@ -65,9 +62,9 @@ process.bTagValidation     = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 )
 
 process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
-   HLTPathNames     = cms.vstring(filexml.HLTPathNames),
-   minTags=cms.vdouble(filexml.mintags), # TCHP , 6 -- TCH6
-   maxTag=cms.double(100.),
+   HLTPathNames     = fileini.btag_pathes,
+   histoName		= fileini.btag_modules_string,
+   minTag			= cms.double(0.6),
   # MC stuff
    mcFlavours = cms.PSet(
       light = cms.vuint32(1, 2, 3, 21),   # udsg
@@ -76,19 +73,15 @@ process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
       g = cms.vuint32(21),
       uds = cms.vuint32(1, 2, 3)
     )
-
 )
 
-
-
-
-
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(filexml.files)
+    fileNames = cms.untracked.vstring(fileini.files)
 )
 
 process.DQM_BTag = cms.Path(
 	process.hltJetMCTools
++	process.VertexValidationVertices
 +	process.bTagValidation
 +	process.bTagPostValidation
 +	process.EDMtoMEConverter
@@ -100,7 +93,7 @@ process.dqmSaver.convention = 'Offline'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
-process.dqmSaver.workflow = "/" + filexml.CMSSWVER + "/RelVal/TrigVal"
+process.dqmSaver.workflow = "/" + fileini.CMSSWVER + "/RelVal/TrigVal"
 
 process.DQMStore.collateHistograms = False
 process.DQMStore.verbose=0
@@ -111,5 +104,5 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(int(filexml.maxEvents))
+    input = cms.untracked.int32(int(fileini.maxEvents))
 )

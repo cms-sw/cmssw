@@ -1,0 +1,7 @@
+----- Begin Fatal Exception 23-Aug-2014 11:08:19 CEST-----------------------
+An exception of category 'ConfigFileReadError' occurred while
+   [0] Processing the python configuration file named hltHarvesting_cfg.py
+Exception Message:
+python encountered the error: <type 'exceptions.IOError'>
+[Errno 2] No such file or directory: 'hltHarvesting_cfg.py'
+----- End Fatal Exception -------------------------------------------------

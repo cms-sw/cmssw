@@ -3,59 +3,81 @@
 import FWCore.ParameterSet.Config as cms
 from HLTriggerOffline.Btag.helper import *
 
-class fileXML:
+class fileINI:
 	def __init__(self, fileName):
 		self.fileName=fileName
 
 	def read(self):
-		try:
-		 Config.read("my.ini")
-		 l3TagInfo=ConfigSectionMap("l3")["taginfo"]
-		 l3JetTag=ConfigSectionMap("l3")["jettag"]
-		 l25JetTag=ConfigSectionMap("l25")["jettag"]
-		 HLTPathNames=ConfigSectionMap("l25")["hltpathnames"]
-		 self.processname=ConfigSectionMap("l25")["processname"]
-		 self.CMSSWVER=ConfigSectionMap("l25")["cmsswver"]
-		 self.jets=ConfigSectionMap("l25")["hltjets"]
-		 files=ConfigSectionMap("l25")["files"]
-		 self.genParticlesProcess=ConfigSectionMap("additional")["genparticles"]
-		 BTagAlgorithms=ConfigSectionMap("l25")["btagalgorithms"]
-		 self.maxEvents=ConfigSectionMap("l25")["maxevents"]
-		 wops=ConfigSectionMap("l25")["wops"]
-		except:
-		 print "Something wrong with ini"
+		 Config.optionxform = str
+		 Config.read(self.fileName)
+		 self.processname=ConfigSectionMap("config")["processname"]
+		 self.CMSSWVER=ConfigSectionMap("config")["cmsswver"]
+		 self.jets=ConfigSectionMap("config")["hltjets"]
+		 files=ConfigSectionMap("config")["files"]
+		 self.maxEvents=ConfigSectionMap("config")["maxevents"]
 
-		files=files.splitlines()
-		self.files=filter(lambda x: len(x)>0,files)
+		 files=files.splitlines()
+		 self.files=filter(lambda x: len(x)>0,files)
 
-		HLTPathNames=HLTPathNames.splitlines()
-		self.HLTPathNames=filter(lambda x: len(x)>0,HLTPathNames)
+		 self.btag_modules=cms.VInputTag()
+		 self.btag_pathes=cms.vstring()
+		 self.btag_modules_string=cms.vstring()
+		 for path in Config.options("btag"):
+		 	print path
+		 	modules=Config.get("btag",path)
+		 	modules=modules.splitlines()
+		 	for module in modules:
+		 		if(module!="" and path!=""):
+				 	self.btag_modules.extend([cms.InputTag(module)])
+				 	self.btag_modules_string.extend([module])
+				 	self.btag_pathes.extend([path])
 
-		BTagAlgorithms=BTagAlgorithms.splitlines()
-		self.BTagAlgorithms=filter(lambda x: len(x)>0,BTagAlgorithms)
-
-		self.mintags=cms.vdouble()
-		wops=wops.splitlines()
-		wops=filter(lambda x: len(x)>0,wops)
-		wops=[ float(i) for i in wops]
-		self.mintags.extend(wops)
-
-		# fix all InputTags of L25 and L3 collections:
-		l25JetTag=l25JetTag.splitlines()
-		l25JetTag=filter(lambda x: len(x)>0,l25JetTag)
-		l25JetTag=[cms.InputTag(i,'',self.processname) for i in l25JetTag]
-		self.l25JetTags=cms.VInputTag()
-		self.l25JetTags.extend(l25JetTag)
-
-		l3TagInfo=l3TagInfo.splitlines()
-		l3TagInfo=filter(lambda x: len(x)>0,l3TagInfo)
-		l3TagInfo=[cms.InputTag(i,'',self.processname) for i in l3TagInfo]
-		self.l3TagInfos=cms.VInputTag()
-		self.l3TagInfos.extend(l3TagInfo)
+		 self.vertex_modules=cms.VInputTag()
+		 self.vertex_pathes=cms.vstring()
+		 for path in Config.options("vertex"):
+		 	print path
+		 	modules=Config.get("vertex",path)
+		 	modules=modules.splitlines()
+		 	for module in modules:
+		 		if(module!="" and path!=""):
+				 	self.vertex_modules.extend([cms.InputTag(module)])
+				 	self.vertex_pathes.extend([path])
 
 
-		l3JetTag=l3JetTag.splitlines()
-		l3JetTag=filter(lambda x: len(x)>0,l3JetTag)
-		l3JetTag=[cms.InputTag(i,'',self.processname) for i in l3JetTag]
-		self.l3JetTags=cms.VInputTag()
-		self.l3JetTags.extend(l3JetTag)
+#>> 
+#>>> 
+#>>> 
+#>>>  Config.read("my.ini")
+#  File "<stdin>", line 1
+#    Config.read("my.ini")
+#    ^
+#IndentationError: unexpected indent
+#>>> 
+#>>> 
+#>>> 
+#>>> 
+#>>> 
+#>>> Config = ConfigParser.ConfigParser()
+#>>> import ConfigParser
+#>>> Config = ConfigParser.ConfigParser()
+#>>>  Config.read("my.ini")
+#  File "<stdin>", line 1
+#    Config.read("my.ini")
+#    ^
+#IndentationError: unexpected indent
+#>>> 
+#>>> Config.read("my.ini")
+#['my.ini']
+#>>> Config.sections()
+#['config']
+#>>> ConfigSectionMap
+#Traceback (most recent call last):
+#  File "<stdin>", line 1, in <module>
+#NameError: name 'ConfigSectionMap' is not defined
+#>>> Config.sections()
+#['config']
+#>>> Config.options("config")
+#['maxevents', 'hltpathnames', 'processname', 'hltjets', 'cmsswver', 'files', 'taginfo']
+#>>> Config.get("config","maxevents")
+
+

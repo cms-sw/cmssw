@@ -1,0 +1,23 @@
+
+File file:///scratch/sdonato/ValidationHLTBtag/Clean/CMSSW_7_2_0_pre4/src/test/savep3.root Events 539
+Branch Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) 
+recoGenParticles_genParticles__DIGI2RAW. 118717 19312.4
+SimVertexs_g4SimHits__DIGI2RAW. 36037.3 16875.1
+recoCaloJets_hltCaloJetL1FastJetCorrected__HLTX. 42013.5 12567.8
+ints_genParticles__DIGI2RAW. 3842.11 1637.95
+recoTracksRefsrecoJTATagInforecoIPTagInfos_hltFastPixelBLifetimeL3TagInfos__HLTX. 3006.38 1049.89
+EventProductProvenance 1004.22 774.972
+recoCaloJets_hltSelector4CentralJetsL1FastJet__HLTX. 2365.09 617.859
+recoTracksRefsrecoJTATagInforecoIPTagInforecoVertexrecoTemplatedSecondaryVertexTagInfos_hltL3SecondaryVertexTagInfos__HLTX. 983.768 268.15
+recoVertexs_hltVerticesL3_WithBS_HLTX. 1488.75 217.618
+recoVertexs_hltVerticesL3__HLTX. 1486.91 216.814
+recoVertexs_hltFastPVPixelVertices__HLTX. 1184.28 188.052
+edmTriggerResults_TriggerResults__DIGI2RAW. 188.818 138.237
+recoVertexs_hltFastPrimaryVertex__HLTX. 160.839 60.0668
+recoJetedmRefToBaseProdTofloatsAssociationVector_hltL3CombinedSecondaryVertexBJetTags__HLTX. 57.6122 33.2319
+EventAuxiliary 140.74 32.2727
+EventSelections 61.4063 10.1224
+edmTriggerResults_TriggerResults__HLTX. 86.7737 7.93878
+float_hltFastPrimaryVertex__HLTX. 9.05751 7.74397
+BranchListIndexes 20.5455 4.43228
+

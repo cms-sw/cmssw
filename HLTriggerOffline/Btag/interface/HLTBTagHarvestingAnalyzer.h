@@ -27,7 +27,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
-#include "TProfile.h"
+#include "TH1F.h"
 #include "RVersion.h"
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
@@ -36,7 +36,7 @@
 #include "TGraphAsymmErrors.h"
 #endif
 
- 
+
 using namespace edm;
 
 using namespace std;
@@ -44,46 +44,46 @@ using namespace std;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer { 
 #else
-class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer , public TGraphAsymmErrors{
+	class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer , public TGraphAsymmErrors{
 #endif
- 
-
-   public:
-      explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet&);
-      ~HLTBTagHarvestingAnalyzer();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+		public:
+			explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet&);
+			~HLTBTagHarvestingAnalyzer();
 
-     TProfile * calculateEfficiency1D( TH1* num, TH1* den, string name );
-     bool GetNumDenumerators(string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type, double minTag, double maxTag);
-     void mistagrate( TProfile* num, TProfile* den, string effName );
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        
-      // ----------member data ---------------------------
-      std::vector<std::string>  hltPathNames_;
+			static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-typedef unsigned int            flavour_t;
-typedef std::vector<flavour_t>  flavours_t;
 
-      std::vector<std::string>  m_mcLabels;         // MC truth match - labels
-      std::vector<flavours_t>   m_mcFlavours;       // MC truth match - flavours selection
-      bool                      m_mcMatching;       // MC truth matching anabled/disabled
-		std::vector<double> minTags;
-		double maxTag;
-      DQMStore * dqm;
-      // Histogram handler
-      std::map<std::string, MonitorElement *> H1_;
+		private:
+			virtual void beginJob() ;
+			virtual void analyze(const edm::Event&, const edm::EventSetup&);
+			virtual void endJob() ;
 
-};
+			TH1F * calculateEfficiency1D( TH1* num, TH1* den, string name );
+			bool GetNumDenumerators(string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type);
+			void mistagrate( TH1F* num, TH1F* den, string effName );
+			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+			virtual void endRun(edm::Run const&, edm::EventSetup const&);
+			virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+			virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
+			// ----------member data ---------------------------
+			std::vector<std::string>  	hltPathNames_;
+			typedef unsigned int            	flavour_t;
+			typedef std::vector<flavour_t>  	flavours_t;
+			double 						 	m_minTag;
+			std::vector<std::string>  	m_mcLabels;         // MC truth match - labels
+			std::vector<flavours_t>   	m_mcFlavours;       // MC truth match - flavours selection
+			bool                      	m_mcMatching;       // MC truth matching anabled/disabled
+			std::vector< std::string>		m_histoName;
+			DQMStore * 			dqm;
+
+			// Histogram handler
+			std::map<std::string, MonitorElement *> H1_;
+
+	};
 
 
 #endif
+
