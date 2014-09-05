@@ -5,6 +5,10 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 
+EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() : 
+  _computeErrors(true) { 
+}
+
 /// compute rechits
 EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TMatrixDSym &noisecor, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov, const std::set<int> &activeBX) {
 
@@ -67,7 +71,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   std::vector<double> fitvals;
   std::vector<double> fiterrs;
   
-
+  if(!_computeErrors) _pulsefunc.disableErrorCalculation();
   bool status = _pulsefunc.DoFit(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
   double chisq = _pulsefunc.ChiSq();
   

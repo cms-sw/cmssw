@@ -16,6 +16,7 @@ class PulseChiSqSNNLS {
     PulseChiSqSNNLS();
     ~PulseChiSqSNNLS();
     
+    
     bool DoFit(const std::vector<double> &samples, const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov);
     
     const TMatrixD &pulsemat() const { return _pulsemat; }
@@ -25,7 +26,8 @@ class PulseChiSqSNNLS {
     const TVectorD &Errors() const { return _errvec; }
     
     double ChiSq() const { return _chisq; }
-        
+    void disableErrorCalculation() { _computeErrors = false; }
+
   protected:
     
     bool Minimize(const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov);
@@ -64,6 +66,7 @@ class PulseChiSqSNNLS {
     std::set<unsigned int> _idxsFixed;
     
     double _chisq;
+    bool _computeErrors;
 };
 
 #endif

@@ -6,7 +6,8 @@ PulseChiSqSNNLS::PulseChiSqSNNLS() :
   _sampvec(10),
   _invcov(10),
   _workvec(10),
-  _chisq(0.)
+  _chisq(0.),
+  _computeErrors(true)
 {
       
 }  
@@ -55,7 +56,8 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
   _errvec = _wvec;
   if (!status) return status;
   
-  
+  if(!_computeErrors) return status;
+ 
   //compute MINOS-like uncertainties for in-time amplitude
   if (bxs.count(0)) {
     int ipulseintime = std::distance(bxs.begin(), bxs.find(0));
