@@ -49,16 +49,16 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_refittedStandAloneMuons_*_*', 
                                            'keep recoTrackExtras_refittedStandAloneMuons_*_*', 
                                            'keep TrackingRecHitsOwned_refittedStandAloneMuons_*_*',
-                                           'keep recoTracks_delayedStandAloneMuons_*_*',
-                                           'keep recoTrackExtras_delayedStandAloneMuons_*_*',
-                                           'keep TrackingRecHitsOwned_delayedStandAloneMuons_*_*'
+                                           'keep recoTracks_displacedStandAloneMuons_*_*',
+                                           'keep recoTrackExtras_displacedStandAloneMuons_*_*',
+                                           'keep TrackingRecHitsOwned_displacedStandAloneMuons_*_*'
                                            )
 )
 # RECO content
 RecoMuonRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*',
                                            'keep *_ancientMuonSeed_*_*',
-                                           'keep *_delayedMuonSeed_*_*',
+                                           'keep *_displacedMuonSeeds_*_*',
                                            'keep *_mergedStandAloneMuonSeeds_*_*',
                                            'keep TrackingRecHitsOwned_globalMuons_*_*', 
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
