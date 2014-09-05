@@ -18,21 +18,21 @@ BXVector<T>::BXVector( int size,      // number of objects per BX
 }
 
 // copy ctor
-template < class T >
-BXVector<T>::BXVector ( const BXVector& vector )
-{
-  bxFirst_ =   vector.bxFirst_;
-  bxLast_  =   vector.bxLast_;
-  data_    =   vector.data_;
-  itrs_    =   vector.itrs_;      
-}
+//template < class T >
+//BXVector<T>::BXVector ( const BXVector& vector )
+//{
+//  bxFirst_ =   vector.bxFirst_;
+//  bxLast_  =   vector.bxLast_;
+//  data_    =   vector.data_;
+//  itrs_    =   vector.itrs_;      
+//}
 
 // dtor
-template < class T >
-BXVector<T>::~BXVector()
-{
-
-}
+//template < class T >
+//BXVector<T>::~BXVector()
+//{
+//
+//}
 
 // assignment operator (pass by value for exception safety)
 //template < class T >
@@ -141,7 +141,7 @@ template < class T >
 typename BXVector<T>::const_iterator
 BXVector<T>::end( int bx ) const
 {
-   return data_.begin()+itrs_[indexFromBX(bx)] + size(indexFromBX(bx));
+   return data_.begin()+itrs_[indexFromBX(bx)] + size(bx);
 }
 
 // get the first BX stored
