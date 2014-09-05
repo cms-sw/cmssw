@@ -24,10 +24,10 @@ using std::cout;
 
 PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 {
-
+  
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
+  // dbe_->setVerbose(0);
   parameters_ = pset;
 
   analyzerName_    = pset.getParameter<string>("analyzerName");
@@ -68,45 +68,39 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 
 PhotonOfflineClient::~PhotonOfflineClient()
 {}
-void PhotonOfflineClient::beginJob()
-{}
-void PhotonOfflineClient::analyze(const edm::Event& e, const edm::EventSetup& esup)
-{}
-void PhotonOfflineClient::endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& setup)
-{}
+//void PhotonOfflineClient::beginJob(){}
+//void PhotonOfflineClient::analyze(const edm::Event& e, const edm::EventSetup& esup){}
+//void PhotonOfflineClient::endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& setup){}
 
-void PhotonOfflineClient::endJob()
+void PhotonOfflineClient::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)
 {
-  if(standAlone_) runClient();
+  if(!standAlone_) runClient(iBooker, iGetter);
 }
-void PhotonOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& setup)
-{
-  if(!standAlone_) runClient();
-}
+//void PhotonOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& setup){  if(!standAlone_) runClient();}
 
-void PhotonOfflineClient::runClient()
+void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)
 {
-  if(!dbe_) return;
+  //  if(!dbe_) return;
 
   if(batch_)  dbe_->open(inputFileName_);
 
   //std::cout << " PostProcessing analyzer name " << analyzerName_ << std::endl;
-  if(!dbe_->dirExists("Egamma/"+analyzerName_)){
+  if(!iGetter.dirExists("Egamma/"+analyzerName_)){
     std::cout << "Folder Egamma/"+analyzerName_+" does not exist - Abort the efficiency calculation "  << std::endl;
     return;
   }
 
   //find out how many histograms are in the various folders
-  histo_index_photons_     = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInPhotonsFolder")->getIntValue();
-  histo_index_conversions_ = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInConversionsFolder")->getIntValue();
-  histo_index_efficiency_  = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInEfficiencyFolder")->getIntValue();
-  histo_index_invMass_     = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInInvMassFolder")->getIntValue();
+  histo_index_photons_     = iGetter.get("Egamma/"+analyzerName_+"/numberOfHistogramsInPhotonsFolder")->getIntValue();
+  histo_index_conversions_ = iGetter.get("Egamma/"+analyzerName_+"/numberOfHistogramsInConversionsFolder")->getIntValue();
+  histo_index_efficiency_  = iGetter.get("Egamma/"+analyzerName_+"/numberOfHistogramsInEfficiencyFolder")->getIntValue();
+  histo_index_invMass_     = iGetter.get("Egamma/"+analyzerName_+"/numberOfHistogramsInInvMassFolder")->getIntValue();
 
-  dbe_->setCurrentFolder("Egamma/"+analyzerName_+"/");
-  dbe_->removeElement("numberOfHistogramsInPhotonsFolder");
-  dbe_->removeElement("numberOfHistogramsInConversionsFolder");
-  dbe_->removeElement("numberOfHistogramsInEfficiencyFolder");
-  dbe_->removeElement("numberOfHistogramsInInvMassFolder");
+  iGetter.setCurrentFolder("Egamma/"+analyzerName_+"/");
+  //  dbe_->removeElement("numberOfHistogramsInPhotonsFolder");
+  // dbe_->removeElement("numberOfHistogramsInConversionsFolder");
+  //dbe_->removeElement("numberOfHistogramsInEfficiencyFolder");
+  //dbe_->removeElement("numberOfHistogramsInInvMassFolder");
 
   string AllPath    = "Egamma/"+analyzerName_+"/AllPhotons/";
   string IsoPath    = "Egamma/"+analyzerName_+"/GoodCandidatePhotons/";
@@ -114,34 +108,34 @@ void PhotonOfflineClient::runClient()
   string EffPath    = "Egamma/"+analyzerName_+"/Efficiencies/";
 
   //booking efficiency histograms
-  dbe_->setCurrentFolder(EffPath);
+  iGetter.setCurrentFolder(EffPath);
 
-  p_efficiencyVsEtaLoose_ = bookHisto("EfficiencyVsEtaLoose","Fraction of Photons passing Loose Isolation vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_efficiencyVsEtLoose_  = bookHisto("EfficiencyVsEtLoose", "Fraction of Photons passing Loose Isolation vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-  p_efficiencyVsEtaTight_ = bookHisto("EfficiencyVsEtaTight","Fraction of Photons passing Tight Isolation vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_efficiencyVsEtTight_  = bookHisto("EfficiencyVsEtTight", "Fraction of Photons passing Tight Isolation vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  p_efficiencyVsEtaLoose_ = bookHisto(iBooker,"EfficiencyVsEtaLoose","Fraction of Photons passing Loose Isolation vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_efficiencyVsEtLoose_  = bookHisto(iBooker,"EfficiencyVsEtLoose", "Fraction of Photons passing Loose Isolation vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  p_efficiencyVsEtaTight_ = bookHisto(iBooker,"EfficiencyVsEtaTight","Fraction of Photons passing Tight Isolation vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_efficiencyVsEtTight_  = bookHisto(iBooker,"EfficiencyVsEtTight", "Fraction of Photons passing Tight Isolation vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
 
-  p_efficiencyVsEtaHLT_ = bookHisto("EfficiencyVsEtaHLT","Fraction of Photons firing HLT vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_efficiencyVsEtHLT_  = bookHisto("EfficiencyVsEtHLT", "Fraction of Photons firing HLT vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  p_efficiencyVsEtaHLT_ = bookHisto(iBooker,"EfficiencyVsEtaHLT","Fraction of Photons firing HLT vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_efficiencyVsEtHLT_  = bookHisto(iBooker,"EfficiencyVsEtHLT", "Fraction of Photons firing HLT vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
 
-  p_convFractionVsEtaLoose_ = bookHisto("ConvFractionVsEtaLoose","Fraction of Loosely Isolated Photons which are matched to two tracks vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_convFractionVsEtLoose_  = bookHisto("ConvFractionVsEtLoose", "Fraction of Loosely Isolated Photons which are matched to two tracks vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-  p_convFractionVsEtaTight_ = bookHisto("ConvFractionVsEtaTight","Fraction of Tightly Isolated Photons which are matched to two tracks vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_convFractionVsEtTight_  = bookHisto("ConvFractionVsEtTight", "Fraction of Tightly Isolated Photons which are matched to two tracks vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  p_convFractionVsEtaLoose_ = bookHisto(iBooker,"ConvFractionVsEtaLoose","Fraction of Loosely Isolated Photons which are matched to two tracks vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_convFractionVsEtLoose_  = bookHisto(iBooker,"ConvFractionVsEtLoose", "Fraction of Loosely Isolated Photons which are matched to two tracks vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  p_convFractionVsEtaTight_ = bookHisto(iBooker,"ConvFractionVsEtaTight","Fraction of Tightly Isolated Photons which are matched to two tracks vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_convFractionVsEtTight_  = bookHisto(iBooker,"ConvFractionVsEtTight", "Fraction of Tightly Isolated Photons which are matched to two tracks vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
 
-  p_vertexReconstructionEfficiencyVsEta_ = bookHisto("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons which have a valid vertex vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_vertexReconstructionEfficiencyVsEta_ = bookHisto(iBooker,"VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons which have a valid vertex vs #eta;#eta",etaBin,etaMin, etaMax);
 
   //booking conversion fraction histograms
-  dbe_->setCurrentFolder(AllPath+"Et above 20 GeV/Conversions");
-  p_convFractionVsEt_  = book2DHistoVector("1D","convFractionVsEt", "Fraction of Converted Photons vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-  p_convFractionVsPhi_ = book3DHistoVector("1D","convFractionVsPhi","Fraction of Converted Photons vs #phi;#phi",phiBin,phiMin,phiMax);
-  p_convFractionVsEta_ = book2DHistoVector("1D","convFractionVsEta","Fraction of Converted Photons vs #eta;#eta",etaBin,etaMin,etaMax);
+  iGetter.setCurrentFolder(AllPath+"Et above 20 GeV/Conversions");
+  p_convFractionVsEt_  = book2DHistoVector(iBooker,"1D","convFractionVsEt", "Fraction of Converted Photons vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  p_convFractionVsPhi_ = book3DHistoVector(iBooker,"1D","convFractionVsPhi","Fraction of Converted Photons vs #phi;#phi",phiBin,phiMin,phiMax);
+  p_convFractionVsEta_ = book2DHistoVector(iBooker,"1D","convFractionVsEta","Fraction of Converted Photons vs #eta;#eta",etaBin,etaMin,etaMax);
 
   //booking bad channel fraction histograms
-  dbe_->setCurrentFolder(AllPath+"Et above 20 GeV/");
-  p_badChannelsFractionVsPhi_ = book2DHistoVector("1D","badChannelsFractionVsPhi","Fraction of Photons which have at least one bad channel vs #phi;#phi",phiBin,phiMin,phiMax);
-  p_badChannelsFractionVsEta_ = book2DHistoVector("1D","badChannelsFractionVsEta","Fraction of Photons which have at least one bad channel vs #eta;#eta",etaBin,etaMin, etaMax);
-  p_badChannelsFractionVsEt_  = book2DHistoVector("1D","badChannelsFractionVsEt", "Fraction of Photons which have at least one bad channel vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+  iGetter.setCurrentFolder(AllPath+"Et above 20 GeV/");
+  p_badChannelsFractionVsPhi_ = book2DHistoVector(iBooker,"1D","badChannelsFractionVsPhi","Fraction of Photons which have at least one bad channel vs #phi;#phi",phiBin,phiMin,phiMax);
+  p_badChannelsFractionVsEta_ = book2DHistoVector(iBooker,"1D","badChannelsFractionVsEta","Fraction of Photons which have at least one bad channel vs #eta;#eta",etaBin,etaMin, etaMax);
+  p_badChannelsFractionVsEt_  = book2DHistoVector(iBooker,"1D","badChannelsFractionVsEt", "Fraction of Photons which have at least one bad channel vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
 
   //making efficiency plots
   MonitorElement * dividend;
@@ -212,7 +206,7 @@ void PhotonOfflineClient::runClient()
   denominator = retrieveHisto(EffPath,"phoEtaVertex");
   dividePlots(dividend,numerator,denominator);
 
-  dbe_->setCurrentFolder(EffPath);
+  iGetter.setCurrentFolder(EffPath);
 
   dbe_->removeElement("phoEtaPreHLT");
   dbe_->removeElement("phoEtPreHLT");
@@ -284,7 +278,7 @@ void PhotonOfflineClient::runClient()
       dividePlots(dividend,numerator,denominator);
 
 
-      dbe_->setCurrentFolder(currentFolder_.str()+"Conversions/");
+      iGetter.setCurrentFolder(currentFolder_.str()+"Conversions/");
       dbe_->removeElement("phoConvEtaForEfficiency");
       dbe_->removeElement("phoConvPhiForEfficiencyAllEcal");
       dbe_->removeElement("phoConvPhiForEfficiencyBarrel");
@@ -337,7 +331,7 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
 
 }
 
-MonitorElement* PhotonOfflineClient::bookHisto(string histoName, string title, int bin, double min, double max)
+MonitorElement* PhotonOfflineClient::bookHisto(DQMStore::IBooker& iBooker, string histoName, string title, int bin, double min, double max)
 {
 
   int histo_index = 0;
@@ -345,11 +339,11 @@ MonitorElement* PhotonOfflineClient::bookHisto(string histoName, string title, i
 
 
   //determining which folder we're in
-  if(dbe_->pwd().find( "InvMass" ) != string::npos){
+  if(iBooker.pwd().find( "InvMass" ) != string::npos){
     histo_index_invMass_++;
     histo_index = histo_index_invMass_;
   }
-  if(dbe_->pwd().find( "Efficiencies" ) != string::npos){
+  if(iBooker.pwd().find( "Efficiencies" ) != string::npos){
     histo_index_efficiency_++;
     histo_index = histo_index_efficiency_;
   }
@@ -357,11 +351,11 @@ MonitorElement* PhotonOfflineClient::bookHisto(string histoName, string title, i
   if(histo_index<10)   histo_number_stream << "0";
   histo_number_stream << histo_index;
 
-  return dbe_->book1D(histo_number_stream.str()+"_"+histoName,title,bin,min,max);
+  return iBooker.book1D(histo_number_stream.str()+"_"+histoName,title,bin,min,max);
 
 }
 
-vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string histoType, string histoName, string title,
+vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(DQMStore::IBooker& iBooker, string histoType, string histoName, string title,
 									     int xbin, double xmin,double xmax,
 									     int ybin, double ymin, double ymax)
 {
@@ -372,7 +366,7 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
 
   //determining which folder we're in
   bool conversionPlot = false;
-  if(dbe_->pwd().find( "Conversions" ) != string::npos) conversionPlot = true;
+  if(iBooker.pwd().find( "Conversions" ) != string::npos) conversionPlot = true;
 
 
   if(conversionPlot){
@@ -399,15 +393,15 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
       currentFolder_ << "Egamma/"+analyzerName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
       if(conversionPlot) currentFolder_ << "/Conversions";
 
-      dbe_->setCurrentFolder(currentFolder_.str());
+      iBooker.setCurrentFolder(currentFolder_.str());
 
       string kind;
       if(conversionPlot) kind = " Conversions: ";
       else kind = " Photons: ";
 
-      if(histoType=="1D")           temp1DVector.push_back(dbe_->book1D(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax));
-      else if(histoType=="2D")      temp1DVector.push_back(dbe_->book2D(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax));
-      else if(histoType=="Profile") temp1DVector.push_back(dbe_->bookProfile(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
+      if(histoType=="1D")           temp1DVector.push_back(iBooker.book1D(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax));
+      else if(histoType=="2D")      temp1DVector.push_back(iBooker.book2D(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax));
+      else if(histoType=="Profile") temp1DVector.push_back(iBooker.bookProfile(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
       //else cout << "bad histoType\n";
     }
 
@@ -421,7 +415,7 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
 
 
 
-vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector(string histoType, string histoName, string title,
+vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector(DQMStore::IBooker& iBooker, string histoType, string histoName, string title,
 									     int xbin, double xmin,double xmax,
 									     int ybin, double ymin, double ymax)
 {
@@ -434,7 +428,7 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
 
   //determining which folder we're in
   bool conversionPlot = false;
-  if(dbe_->pwd().find( "Conversions" ) != string::npos) conversionPlot = true;
+  if(iBooker.pwd().find( "Conversions" ) != string::npos) conversionPlot = true;
 
 
   if(conversionPlot){
@@ -462,15 +456,15 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
 	currentFolder_ << "Egamma/"+analyzerName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
 	if(conversionPlot) currentFolder_ << "/Conversions";
 
-	dbe_->setCurrentFolder(currentFolder_.str());
+	iBooker.setCurrentFolder(currentFolder_.str());
 
 	string kind;
 	if(conversionPlot) kind = " Conversions: ";
 	else kind = " Photons: ";
 
-	if(histoType=="1D")           temp1DVector.push_back(dbe_->book1D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax));
-	else if(histoType=="2D")      temp1DVector.push_back(dbe_->book2D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax));
-	else if(histoType=="Profile") temp1DVector.push_back(dbe_->bookProfile( histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
+	if(histoType=="1D")           temp1DVector.push_back(iBooker.book1D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax));
+	else if(histoType=="2D")      temp1DVector.push_back(iBooker.book2D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax));
+	else if(histoType=="Profile") temp1DVector.push_back(iBooker.bookProfile( histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
 	//else cout << "bad histoType\n";
 
 
