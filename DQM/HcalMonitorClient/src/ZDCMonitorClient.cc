@@ -72,16 +72,20 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
       else std::cout << "-->enableMonitorDaemon switch is OFF" << std::endl;
     }
 
+  // get hold of back-end interface
+  dbe_ = edm::Service<DQMStore>().operator->();
+  if (debug_>1) dbe_->showDirStructure();   
+
   // DQM ROOT input
-  // following lines were commented out migrating to MT DQM.  
   inputFile_ = ps.getUntrackedParameter<std::string>("inputFile", "");
   if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << std::endl;
-  /*if( ! enableMonitorDaemon_ ) {  
+  
+  if( ! enableMonitorDaemon_ ) {  
     if( inputFile_.size() != 0 && dbe_!=NULL){
       dbe_->open(inputFile_);
       dbe_->showDirStructure();     
     }
-  }*/
+  }
 
   //histogram reset freqency, update frequency, timeout
   resetEvents_ = ps.getUntrackedParameter<int>("resetFreqEvents",-1);   //number of real events
@@ -122,6 +126,24 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 }
 
 //--------------------------------------------------------
+// remove all MonitorElements and directories
+void ZDCMonitorClient::removeAllME(){
+  if (debug_>0) std::cout <<"<ZDCMonitorClient>removeAllME()"<<std::endl;
+  if(dbe_==NULL) return;
+
+  // go to top directory
+  dbe_->cd();
+  // remove MEs at top directory
+  dbe_->removeContents(); 
+  // remove directory (including subdirectories recursively)
+  if(dbe_->dirExists("Collector"))
+    dbe_->rmdir("Collector");
+  if(dbe_->dirExists("Summary"))
+    dbe_->rmdir("Summary");
+  return;
+}
+
+//--------------------------------------------------------
 ///do a reset of all monitor elements...
 void ZDCMonitorClient::resetAllME() {
   if (debug_>0) std::cout <<"<ZDCMonitorClient> resetAllME()"<<std::endl;
@@ -129,10 +151,20 @@ void ZDCMonitorClient::resetAllME() {
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r, const edm::EventSetup& c) {
+void ZDCMonitorClient::beginJob(){
+
+  if( debug_>0 ) std::cout << "ZDCMonitorClient: beginJob" << std::endl;
+  
+  ievt_ = 0;
+ 
+  return;
+}
+
+//--------------------------------------------------------
+void ZDCMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if (debug_>0)
-    std::cout << std::endl<<"ZDCMonitorClient: Standard bookHistograms() for run " << r.id().run() << std::endl<<std::endl;
+    std::cout << std::endl<<"ZDCMonitorClient: Standard beginRun() for run " << r.id().run() << std::endl<<std::endl;
  
   // Get current channel quality 
   /*
@@ -141,22 +173,22 @@ void ZDCMonitorClient::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r, 
   chanquality_= new HcalChannelQuality(*p.product());
   */
 
-
   std::string eventinfo="EventInfo";
   if (rootFolder_!="ZDC")
     eventinfo+="DUMMY";
 
-  // book the error summary now
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str()+"/");
-  errorSummary_ = ib.bookFloat("errorSummary");
-
   // Setup histograms -- this is all we will do for ZDC Monitor at the moment!
-  MonitorElement *me;
-  me = ib.bookFloat("reportSummary");
-  mes_.push_back(me);
+  MonitorElement* me; //JEFF
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/reportSummary");
+  if (me)
+     dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("reportSummary");
   me->Fill(-1); // set status to unknown at startup
-  me = ib.book2D("reportSummaryMap","ZDC Report Summary Map",4,0,4,1,0,1);
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/reportSummaryMap");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->book2D("reportSummaryMap","ZDC Report Summary Map",4,0,4,1,0,1);
   TH2F* myhist=me->getTH2F();
   myhist->GetXaxis()->SetBinLabel(1,"HAD-");
   myhist->GetXaxis()->SetBinLabel(2,"EM-");
@@ -169,63 +201,92 @@ void ZDCMonitorClient::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r, 
   myhist->SetBinContent(4,1,-1);
   
 
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str()+"/reportSummaryContents/");
-  me = ib.bookFloat("ZDC_HADMinus");
-  mes_.push_back(me);
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/reportSummaryContents/");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/reportSummary/reportSummaryContents/ZDC_HADMinus");
+  if (me)
+     dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_HADMinus");
   me->Fill(-1); // set status to unknown at startup
-  me = ib.bookFloat("ZDC_EMMinus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/reportSummary/reportSummaryContents/ZDC_EMMinus");
+  if (me)
+     dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_EMMinus");
   me->Fill(-1); // set status to unknown at startup
-  me = ib.bookFloat("ZDC_EMPlus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/reportSummary/reportSummaryContents/ZDC_EMPlus");
+  if (me)
+     dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_EMPlus");
   me->Fill(-1); // set status to unknown at startup
-  me = ib.bookFloat("ZDC_HADPlus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/reportSummary/reportSummaryContents/ZDC_HADPlus");
+  if (me)
+     dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_HADPlus");
   me->Fill(-1); // set status to unknown at startup
 
   // Add dummy DAQ Summary, DCS Summary
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str());
-  me = ib.bookFloat("DAQSummary");
-  mes_.push_back(me);
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str());
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("DAQSummary");
   me->Fill(-1); // set status to unknown at startup
 
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DAQContents");
-  me = ib.bookFloat("ZDC_HADPlus");
-  mes_.push_back(me);
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DAQContents");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_HADPlus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_HADPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me = ib.bookFloat("ZDC_HADMinus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_HADMinus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_HADMinus");
   me->Fill(-1); // set status to unknown at startup
 
-  me = ib.bookFloat("ZDC_EMPlus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_EMPlus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_EMPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me = ib.bookFloat("ZDC_EMMinus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_EMMinus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_EMMinus");
   me->Fill(-1); // set status to unknown at startup
 
   // DCS Summary 
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str());
-  me = ib.bookFloat("DCSSummary");
-  mes_.push_back(me);
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str());
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("DCSSummary");
   me->Fill(-1); // set status to unknown at startup
 
-  ib.setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DCSContents");
-  me = ib.bookFloat("ZDC_HADPlus");
-  mes_.push_back(me);
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DCSContents");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_HADPlus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_HADPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me = ib.bookFloat("ZDC_HADMinus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_HADMinus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_HADMinus");
   me->Fill(-1); // set status to unknown at startup
 
-  me = ib.bookFloat("ZDC_EMPlus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_EMPlus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_EMPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me = ib.bookFloat("ZDC_EMMinus");
-  mes_.push_back(me);
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_EMMinus");
+  if (me)
+    dbe_->removeElement(me->getName());
+  me = dbe_->bookFloat("ZDC_EMMinus");
   me->Fill(-1); // set status to unknown at startup
 
 }
@@ -342,11 +403,7 @@ void ZDCMonitorClient::analyze(){
   
   createTests();  
   //mui_->doMonitoring();
-  //dbe_->runQTests();
-  // Since we don't have dbe_ anymore, each MonitorElement needs to run it's own qtest.
-  const unsigned nME = mes_.size();
-  for ( unsigned i=0; i != nME; i++ )
-    mes_[i]->runQTests();
+  dbe_->runQTests();
   errorSummary();
 
 
@@ -368,10 +425,7 @@ void ZDCMonitorClient::report(bool doUpdate) {
   
   if(doUpdate){
     createTests();  
-    //dbe_->runQTests();
-    const unsigned nME = mes_.size();
-    for ( unsigned i=0; i != nME; i++ )
-      mes_[i]->runQTests();
+    dbe_->runQTests();
   }
   errorSummary();
 
@@ -386,7 +440,10 @@ void ZDCMonitorClient::errorSummary(){
 
   float errorSummary = 1.0;
   
-  if(errorSummary_) errorSummary_->Fill(errorSummary);
+  char meTitle[256];
+  sprintf(meTitle,"%sEventInfo/errorSummary",rootFolder_.c_str() );
+  MonitorElement* me = dbe_->get(meTitle);
+  if(me) me->Fill(errorSummary);
   
   return;
 }
