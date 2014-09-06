@@ -72,25 +72,27 @@ void HiBasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
   const HepMC::GenEvent *evt = mc->GetEvent();
   const HepMC::HeavyIon *hi = evt->heavy_ion();
 
-  double ip = 0;
-  double phi0 = 0;
-  if ( hi ) {
-	ip = hi->impact_parameter();
-	phi0 = hi->event_plane_angle();
+  int cbin = 0;
+  double phi0 =0.;
+
+  if(hi){
+
+    double ip = hi->impact_parameter();
+    phi0 = hi->event_plane_angle();
+    
+    // fill reaction plane distribution
+    rp->Fill(phi0);
+    
+    // if the event is in one of the centrality bins of interest fill hists
+    int cbin=-1;
+    if(ip < 5.045) cbin=0;
+    else if (ip < 7.145 && ip > 5.045) cbin=1;
+    else if (ip < 15.202 && ip > 14.283) cbin=2;
+    if(cbin<0) return;
+    
+    // fill impact parameter distributions
+    b[cbin]->Fill(ip);
   }
-
-  // fill reaction plane distribution
-  rp->Fill(phi0);
-
-  // if the event is in one of the centrality bins of interest fill hists
-  int cbin=-1;
-  if(ip < 5.045) cbin=0;
-  else if (ip < 7.145 && ip > 5.045) cbin=1;
-  else if (ip < 15.202 && ip > 14.283) cbin=2;
-  if(cbin<0) return;
-
-  // fill impact parameter distributions
-  b[cbin]->Fill(ip);
 
   // loop over particles
   HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
