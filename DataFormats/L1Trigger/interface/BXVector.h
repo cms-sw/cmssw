@@ -23,10 +23,10 @@ class BXVector  {
 	    int bxLast=0 );  // last BX stored
 
   // copy ctor
-  BXVector ( const BXVector& vector );
+  // BXVector ( const BXVector& vector );
 
   // dtor
-  ~BXVector();
+  //~BXVector();
 
   // assignment operator (pass by value for exception safety)
   //BXVector operator=(BXVector vector );

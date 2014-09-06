@@ -11,6 +11,8 @@ mp7BufferDumpToRaw = cms.EDProducer(
     txLatency        = cms.untracked.int32(54),
     nRxLinks         = cms.untracked.int32(72),
     nTxLinks         = cms.untracked.int32(72),
+    nRxEventHeaders  = cms.untracked.int32(0),
+    nTxEventHeaders  = cms.untracked.int32(0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(2),
