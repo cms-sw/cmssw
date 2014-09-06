@@ -158,11 +158,11 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
-    std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
+    std::unique_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
     pr->value = 10;
 
     refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);
-    event.put(pr,productInstanceName);
+    event.put(std::move(pr),productInstanceName);
     event.commit_();
   }
   catch (cms::Exception& x) {

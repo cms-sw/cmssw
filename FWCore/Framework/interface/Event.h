@@ -112,10 +112,18 @@ namespace edm {
     OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product) {return put<PROD>(product, std::string());}
 
+    template<typename PROD>
+    OrphanHandle<PROD>
+    put(std::unique_ptr<PROD> product) {return put<PROD>(std::move(product), std::string());}
+
     ///Put a new product with a 'product instance name'
     template<typename PROD>
     OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+
+    template<typename PROD>
+    OrphanHandle<PROD>
+    put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
 
     ///Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
@@ -339,6 +347,11 @@ namespace edm {
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
+    return put(std::unique_ptr<PROD>(product.release()),productInstanceName);
+  }
+  template<typename PROD>
+  OrphanHandle<PROD>
+  Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
     if(product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
@@ -354,7 +367,7 @@ namespace edm {
     BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(product));
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
     PROD const* prod = wp->product(); 
      
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
