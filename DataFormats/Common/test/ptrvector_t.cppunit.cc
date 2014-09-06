@@ -143,14 +143,14 @@ void
 testPtrVector::get() {
   using namespace test_with_dictionaries;
   typedef std::vector<IntValue> IntCollection;
-  std::auto_ptr<IntCollection> ptr(new IntCollection);
+  std::unique_ptr<IntCollection> ptr(new IntCollection);
 
   ptr->push_back(0);
   ptr->push_back(1);
   ptr->push_back(2);
   ptr->push_back(3);
 
-  edm::Wrapper<IntCollection> wrapper(ptr);
+  edm::Wrapper<IntCollection> wrapper(std::move(ptr));
   TestGetter tester;
   tester.hold_ = &wrapper;
 

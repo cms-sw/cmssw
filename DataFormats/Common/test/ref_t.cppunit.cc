@@ -176,12 +176,12 @@ namespace {
 
 void testRef::getTest() {
    typedef std::vector<IntValue> IntCollection;
-   std::auto_ptr<IntCollection> ptr(new IntCollection);
+   std::unique_ptr<IntCollection> ptr(new IntCollection);
 
    ptr->push_back(0);
    ptr->push_back(1);
 
-   edm::Wrapper<IntCollection> wrapper(ptr);
+   edm::Wrapper<IntCollection> wrapper(std::move(ptr));
    TestGetter tester;
    tester.hold_ = &wrapper;
 
