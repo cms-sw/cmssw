@@ -86,17 +86,29 @@ private:
 
   MonitorElement*  nvertices_gen_;
   MonitorElement*  nvertices_;
+  MonitorElement*  nphotons_gen_;
   MonitorElement*  nphotons_;
+  MonitorElement*  photonpt_gen_;
   MonitorElement*  photonpt_;
+  MonitorElement*  photonrapidity_gen_;
   MonitorElement*  photonrapidity_;
+  MonitorElement*  pfmet_gen_;
   MonitorElement*  pfmet_;
+  MonitorElement*  pfmetphi_gen_;
   MonitorElement*  pfmetphi_;
+  MonitorElement*  npfjets_gen_;
   MonitorElement*  npfjets_;
+  MonitorElement*  delphiphomet_gen_;
   MonitorElement*  delphiphomet_;
+  MonitorElement*  delphijetmet_gen_;
   MonitorElement*  delphijetmet_;
+  MonitorElement*  invmassjj_gen_;
   MonitorElement*  invmassjj_;
+  MonitorElement*  deletajj_gen_;
   MonitorElement*  deletajj_;
+  MonitorElement*  triggers_gen_;
   MonitorElement*  triggers_;
+  MonitorElement*  trigvsnvtx_gen_;
   MonitorElement*  trigvsnvtx_;
   
   double evtsrun_; 
@@ -146,17 +158,29 @@ HigPhotonJetHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker,
   iBooker.setCurrentFolder(dirname_);
   nvertices_gen_ = iBooker.book1D("nvertices_gen", "Gen: Number of vertices", 100, 0, 100); 
   nvertices_ = iBooker.book1D("nvertices", "Number of vertices", 100, 0, 100); 
+  nphotons_gen_ = iBooker.book1D("nphotons_gen", "Gen: Number of photons", 100, 0, 10); 
   nphotons_ = iBooker.book1D("nphotons", "Number of photons", 100, 0, 10); 
+  photonpt_gen_ = iBooker.book1D("photonpt_gen", "Gen: Photons pT", 100, 0, 500); 
   photonpt_ = iBooker.book1D("photonpt", "Photons pT", 100, 0, 500); 
+  photonrapidity_gen_ = iBooker.book1D("photonrapidity_gen", "Gen: Photons rapidity;y_{#gamma}", 100, -2.5, 2.5); 
   photonrapidity_ = iBooker.book1D("photonrapidity", "Photons rapidity;y_{#gamma}", 100, -2.5, 2.5); 
+  pfmet_gen_ = iBooker.book1D("pfmet_gen", "Gen: PF MET", 100, 0, 250); 
   pfmet_ = iBooker.book1D("pfmet", "PF MET", 100, 0, 250); 
+  pfmetphi_gen_ = iBooker.book1D("pfmetphi_gen", "Gen: PF MET phi;#phi_{PFMET}", 100, -4, 4); 
   pfmetphi_ = iBooker.book1D("pfmetphi", "PF MET phi;#phi_{PFMET}", 100, -4, 4); 
+  delphiphomet_gen_ = iBooker.book1D("delphiphomet_gen", "Gen: #Delta#phi(photon, MET);#Delta#phi(#gamma,MET)", 100, 0, 4); 
   delphiphomet_ = iBooker.book1D("delphiphomet", "#Delta#phi(photon, MET);#Delta#phi(#gamma,MET)", 100, 0, 4); 
+  npfjets_gen_ = iBooker.book1D("npfjets_gen", "Gen: Number of PF Jets", 100, 0, 20); 
   npfjets_ = iBooker.book1D("npfjets", "Number of PF Jets", 100, 0, 20); 
+  delphijetmet_gen_ = iBooker.book1D("delphijetmet_gen", "Gen: #Delta#phi(PFJet, MET);#Delta#phi(Jet,MET)", 100, 0, 4); 
   delphijetmet_ = iBooker.book1D("delphijetmet", "#Delta#phi(PFJet, MET);#Delta#phi(Jet,MET)", 100, 0, 4); 
+  invmassjj_gen_ = iBooker.book1D("invmassjj_gen", "Gen: Inv mass two leading jets;M_{jj}[GeV]", 100, 0, 2000); 
   invmassjj_ = iBooker.book1D("invmassjj", "Inv mass two leading jets;M_{jj}[GeV]", 100, 0, 2000); 
+  deletajj_gen_ = iBooker.book1D("deletajj_gen", "Gen: #Delta#eta(jj);|#Delta#eta_{jj}|", 100, 0, 6); 
   deletajj_ = iBooker.book1D("deletajj", "#Delta#eta(jj);|#Delta#eta_{jj}|", 100, 0, 6); 
+  triggers_gen_ = iBooker.book1D("triggers_gen", "Gen: Triggers", hltPathsToCheck_.size(), 0, hltPathsToCheck_.size());
   triggers_ = iBooker.book1D("triggers", "Triggers", hltPathsToCheck_.size(), 0, hltPathsToCheck_.size());
+  trigvsnvtx_gen_ = iBooker.book2D("trigvsnvtx_gen", "Gen: Trigger vs. # vertices;N_{vertices};Trigger", 100, 0, 100, hltPathsToCheck_.size(), 0, hltPathsToCheck_.size()); 
   trigvsnvtx_ = iBooker.book2D("trigvsnvtx", "Trigger vs. # vertices;N_{vertices};Trigger", 100, 0, 100, hltPathsToCheck_.size(), 0, hltPathsToCheck_.size()); 
 }
 
@@ -201,6 +225,8 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
     std::string triggername = triggerNames.triggerName(itrig);
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
+  	 triggers_gen_->Fill(i);
+	 trigvsnvtx_gen_->Fill(vertices->size(), i); 
   	 if (triggered) triggers_->Fill(i);
   	 if (triggered) trigvsnvtx_->Fill(vertices->size(), i);
       }
@@ -215,10 +241,13 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   iEvent.getByToken(pfMetToken_, pfmets);
   if (!pfmets.isValid()) return;
   const reco::PFMET pfmet = pfmets->front();
+  pfmet_gen_->Fill(pfmet.et()); 
   if (triggered) pfmet_->Fill(pfmet.et()); 
   if (verbose_)
     std::cout << "xshi:: number of pfmets: " << pfmets->size() << std::endl;
-   if (triggered) pfmetphi_->Fill(pfmet.phi()); 
+
+  pfmetphi_gen_->Fill(pfmet.phi()); 
+  if (triggered) pfmetphi_->Fill(pfmet.phi()); 
   
   // Photons
   edm::Handle<reco::PhotonCollection> photons;
@@ -229,11 +258,15 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       phoIter!=photons->end();++phoIter){
     if (phoIter->pt() < photonMinPt_ )  continue;
     nphotons++;
+    photonpt_gen_->Fill(phoIter->pt());
+    photonrapidity_gen_->Fill(phoIter->rapidity()); 
     if (triggered) photonpt_->Fill(phoIter->pt()); 
     if (triggered) photonrapidity_->Fill(phoIter->rapidity()); 
     double tmp_delphiphomet = fabs(deltaPhi(phoIter->phi(), pfmet.phi())); 
+    delphiphomet_gen_->Fill(tmp_delphiphomet); 
     if (triggered) delphiphomet_->Fill(tmp_delphiphomet); 
   }
+  nphotons_gen_->Fill(nphotons);
   if (triggered)  nphotons_->Fill(nphotons);
   
   // PF Jet
@@ -266,14 +299,18 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
       etajet2 = jetIter->eta(); 
     }
   }
+  npfjets_gen_->Fill(njet);   
   if (triggered) npfjets_->Fill(njet);   
   
+  delphijetmet_gen_->Fill(min_delphijetmet); 
   if (triggered) delphijetmet_->Fill(min_delphijetmet); 
   p4jj = p4jet1 + p4jet2; 
   double deletajj = etajet1 - etajet2 ; 
   if (verbose_) 
     std::cout << "xshi:: invmass jj " << p4jj.M() << std::endl;
   
+  invmassjj_gen_->Fill(p4jj.M());
+  deletajj_gen_->Fill(deletajj); 
   if (triggered) invmassjj_->Fill(p4jj.M());
   if (triggered) deletajj_->Fill(deletajj); 
 }
