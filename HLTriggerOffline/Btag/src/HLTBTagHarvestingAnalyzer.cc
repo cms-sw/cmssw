@@ -1,43 +1,29 @@
 #include "HLTriggerOffline/Btag/interface/HLTBTagHarvestingAnalyzer.h"
-#include "TCutG.h"
-#include <cassert>
-
-
-//
-//
 
 HLTBTagHarvestingAnalyzer::HLTBTagHarvestingAnalyzer(const edm::ParameterSet& iConfig)
 {
-	//now do what ever initialization is needed
-	hltPathNames_        = iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
+	//getParameter
+	hltPathNames_			= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
+	edm::ParameterSet mc	= iConfig.getParameter<edm::ParameterSet>("mcFlavours");
+	m_mcLabels				= mc.getParameterNamesForType<std::vector<unsigned int> >();
+	m_histoName				= iConfig.getParameter<std::vector<std::string> >("histoName");
+	m_minTag				= iConfig.getParameter<double>("minTag");
 
-	// DQMStore services   
+	// DQMStore services
 	dqm = edm::Service<DQMStore>().operator->();
-	edm::ParameterSet mc = iConfig.getParameter<edm::ParameterSet>("mcFlavours");
-	m_mcLabels = mc.getParameterNamesForType<std::vector<unsigned int> >();
-	m_histoName=iConfig.getParameter<std::vector<std::string> >("histoName");
-	m_minTag=iConfig.getParameter<double>("minTag");
 }
-
 
 HLTBTagHarvestingAnalyzer::~HLTBTagHarvestingAnalyzer()
 {
-
 	// do anything here that needs to be done at desctruction time
 	// (e.g. close files, deallocate resources etc.)
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called for each event  ------------
 	void
 HLTBTagHarvestingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
 	void 
@@ -57,6 +43,8 @@ HLTBTagHarvestingAnalyzer::endJob()
 		excp.raise();
 	}
 	std::string dqmFolder_hist;
+
+	//for each hltPath and for each flavour, do the "b-tag efficiency vs jet pt" and "b-tag efficiency vs mistag rate" plots
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) 
 	{
 		dqmFolder_hist = Form("HLT/BTag/%s",hltPathNames_[ind].c_str());
@@ -74,6 +62,8 @@ HLTBTagHarvestingAnalyzer::endJob()
 			label+=flavour;
 			isOK=GetNumDenumerators((TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,0);
 			if (isOK){
+			
+				//do the 'b-tag efficiency vs discr' plot
 				effics[flavour]=calculateEfficiency1D(num,den,(label+"_efficiency_vs_disc").Data());
 				efficsOK[flavour]=isOK;
 			}
@@ -81,10 +71,13 @@ HLTBTagHarvestingAnalyzer::endJob()
 			label+=flavour+TString("_disc_pT");
 			isOK=GetNumDenumerators ((TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,1);
 			if (isOK) {
+			
+				//do the 'b-tag efficiency vs pT' plot
 				TH1F * eff=calculateEfficiency1D(num,den,(label+"_efficiency_vs_pT").Data());
 				delete eff;
 			}
 		} /// for mc labels
+		
 		///save mistagrate vs b-eff plots
 		if (efficsOK["b"] && efficsOK["c"])      mistagrate(effics["b"], effics["c"], m_histoName.at(ind)+"_b_c_mistagrate" );
 		if (efficsOK["b"] && efficsOK["light"])  mistagrate(effics["b"], effics["light"], m_histoName.at(ind)+"_b_light_mistagrate" );
@@ -92,28 +85,41 @@ HLTBTagHarvestingAnalyzer::endJob()
 	} /// for triggers
 }
 
+bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type)
+{
 /*
    possible types: 
-
    type =0 for eff_vs_discriminator
    type =1 for eff_vs_pT ot eff_vs_Eta
  */
-bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type)
-{
-
 	MonitorElement *denME = NULL;
 	MonitorElement *numME = NULL;
 	denME = dqm->get(den);
 	numME = dqm->get(num);
 	if(denME==0 || numME==0){
 		cout << "Could not find MEs: "<<den<<endl;
-		cout << "Could not find MEs: "<<num<<endl;
 		return false;
 	} else {
 		cout << "found MEs: "<<den<<endl;
 	}
 
-	if (type==1) //efficiency_vs_pT
+	if (type==0) //efficiency_vs_discr: fill "ptrnum" with the cumulative function of the DQM plots contained in "num" and "ptrden" with a flat function
+
+	{
+		TH1* numH1 = numME->getTH1();
+		TH1* denH1 = denME->getTH1();
+		ptrden=(TH1*)denH1->Clone("denominator");
+		ptrnum=(TH1*)numH1->Clone("numerator");
+
+		ptrnum->SetBinContent(1,numH1->Integral());
+		ptrden->SetBinContent(1,numH1->Integral());
+		for  (int j=2;j<=numH1->GetNbinsX();j++) {
+			ptrnum->SetBinContent(j,numH1->Integral()-numH1->Integral(1,j-1));
+			ptrden->SetBinContent(j,numH1->Integral());
+		}
+	}
+	
+	if (type==1) //efficiency_vs_pT: fill "ptrden" with projection of the plots contained in "den" and fill "ptrnum" with projection of the plots contained in "num", having btag>m_minTag
 	{
 		TH2F* numH2 = numME->getTH2F();
 		TH2F* denH2 = denME->getTH2F();
@@ -133,38 +139,17 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * &
 		cutg_den->SetPoint(2,1.1,9999);
 		cutg_den->SetPoint(3,1.1,0);
 		ptrden = denH2->ProjectionY("denumerator",0,-1,"[cutg_den]");
-
 		delete cutg_num;
 		delete cutg_den;
-
-	}
-
-
-	if (type==0) //efficiency_vs_discr
-	{
-		TH1* numH1 = numME->getTH1();
-		TH1* denH1 = denME->getTH1();
-
-		//cout<<"numH1="<<numH1<<endl;
-		ptrden=(TH1*)denH1->Clone("denominator");
-		ptrnum=(TH1*)numH1->Clone("numerator");
-
-		ptrnum->SetBinContent(1,numH1->Integral());
-		ptrden->SetBinContent(1,numH1->Integral());
-		for  (int j=2;j<=numH1->GetNbinsX();j++) {
-			//	std::cout<<"1Bin #"<<j<<" content "<<numH1->Integral()-numH1->Integral(1,j-1)<<std::endl;
-			//	std::cout<<"2Bin #"<<j<<" content "<<numH1->Integral()<<std::endl;
-			ptrnum->SetBinContent(j,numH1->Integral()-numH1->Integral(1,j-1));
-			ptrden->SetBinContent(j,numH1->Integral());
-		}
 	}
 	return true;
 }
 
 
 void HLTBTagHarvestingAnalyzer::mistagrate( TH1F* num, TH1F* den, string effName ){
+	//do the efficiency_vs_mistag_rate plot
 	TH1F* eff;
-	eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);
+	eff = new TH1F(effName.c_str(),effName.c_str(),1000,0,1);
 	eff->SetTitle(effName.c_str());
 	eff->SetXTitle("b-effficiency");
 	eff->SetYTitle("mistag rate");
@@ -176,17 +161,16 @@ void HLTBTagHarvestingAnalyzer::mistagrate( TH1F* num, TH1F* den, string effName
 	eff->GetYaxis()->SetRangeUser(0.001,1.001);
 	eff->GetXaxis()->SetRangeUser(-0.001,1.001);
 	eff->SetStats(kFALSE);
+	
+	//for each bin in the discr -> find efficiency and mistagrate -> put them in a plot
 	for(int i=1;i<=num->GetNbinsX();i++){
 		double beff=num->GetBinContent(i);
 		double miseff=den->GetBinContent(i);
 		double miseffErr= den->GetBinError(i);
 		int binX = eff->GetXaxis()->FindBin(beff);
-		if (eff->GetBinContent(binX)!=0) {
-			continue;
-		}
+		if (eff->GetBinContent(binX)!=0) continue;
 		eff->SetBinContent(binX,miseff);
 		eff->SetBinError(binX,miseffErr);
-		//	  eff->SetBinEntries( binX, 1 );
 	}
 	dqm->book1D(effName.c_str(),eff);
 	delete eff;
@@ -195,6 +179,7 @@ void HLTBTagHarvestingAnalyzer::mistagrate( TH1F* num, TH1F* den, string effName
 }
 
 TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D( TH1* num, TH1* den, string effName ){
+	//calculate the efficiency as num/den ratio
 	TH1F* eff;
 	std::cout<<"Efficiency name: "<<effName<<std::endl;
 	if(num->GetXaxis()->GetXbins()->GetSize()==0){
@@ -218,7 +203,7 @@ TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D( TH1* num, TH1* den, str
 		double e;
 		if(d!=0)	e=n/d;
 		else		e=0;
-		double err = sqrt(e*(1-e)/d);
+		double err = sqrt(e*(1-e)/d); //from binomial standard deviation
 		eff->SetBinContent( i, e );
 		eff->SetBinError( i, err );
 	}

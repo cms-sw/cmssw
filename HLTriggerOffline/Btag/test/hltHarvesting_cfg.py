@@ -1,31 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("HLTHARVEST")
+process = cms.Process("HLTBTAG")
 
 from PhysicsTools.PatAlgos.tools.coreTools import *	
-
-
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
-process.load("HLTriggerOffline.Btag.hltJetMCTools_cff")
 
-# read them from my.ini
+#load hltJetMCTools sequence for the jet/partons matching
+process.load("HLTriggerOffline.Btag.hltJetMCTools_cff") 
 
-#process.load("HLTriggerOffline.Btag.Validation.readConfig")
+#read  config.ini
 from HLTriggerOffline.Btag.readConfig import *
-#ReadFile("my.ini")
-
 fileini = fileINI("config.ini")
 fileini.read()
 
-#def readConfig(fileName)
+#print read variables
 print
 print  "Reading ", fileini.fileName
 print
-#print  "FastPrimaryVertex	", fileini.TagInfos
 print  "maxEvents		=	",fileini.maxEvents
 print  "CMSSWVER		=	",fileini.CMSSWVER
 print  "processname		=	",fileini.processname
@@ -37,15 +32,17 @@ print  "vertex_modules		",fileini.vertex_modules
 print  "vertex_pathes		",fileini.vertex_pathes
 print
 
+#correct the jet used for the matching
 process.hltJetsbyRef.jets = cms.InputTag(fileini.jets)
-process.hltPartons.src = cms.InputTag("genParticles")
 
+#define VertexValidationVertices for the vertex DQM validation
 process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
    TriggerResults  = cms.InputTag('TriggerResults','',fileini.processname),
    HLTPathNames     = cms.vstring(fileini.vertex_pathes),
    Vertex        = fileini.vertex_modules,
 )
 
+#define bTagValidation for the b-tag DQM validation (distribution plot)
 process.bTagValidation     = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
    TriggerResults  = cms.InputTag('TriggerResults','',fileini.processname),
    HLTPathNames     = cms.vstring(fileini.btag_pathes),
@@ -61,6 +58,7 @@ process.bTagValidation     = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
    mcPartons = cms.InputTag("hltJetsbyValAlgo")
 )
 
+#define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
    HLTPathNames     = fileini.btag_pathes,
    histoName		= fileini.btag_modules_string,
@@ -75,10 +73,12 @@ process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
     )
 )
 
+#read input file
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(fileini.files)
 )
 
+#put all in a path
 process.DQM_BTag = cms.Path(
 	process.hltJetMCTools
 +	process.VertexValidationVertices
@@ -88,21 +88,22 @@ process.DQM_BTag = cms.Path(
 +	process.dqmSaver
 )	
 
-process.dqmSaver.convention = 'Offline'
 #Settings equivalent to 'RelVal' convention:
+process.dqmSaver.convention = 'Offline'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.dqmSaver.workflow = "/" + fileini.CMSSWVER + "/RelVal/TrigVal"
-
 process.DQMStore.collateHistograms = False
 process.DQMStore.verbose=0
 
 process.options = cms.untracked.PSet(
-    fileMode = cms.untracked.string('FULLMERGE'),
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
+	wantSummary	= cms.untracked.bool( True ),
+	fileMode		= cms.untracked.string('FULLMERGE'),
+	SkipEvent		= cms.untracked.vstring('ProductNotFound')
 )
 
+#maxEvents
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(int(fileini.maxEvents))
+	input = cms.untracked.int32(int(fileini.maxEvents))
 )

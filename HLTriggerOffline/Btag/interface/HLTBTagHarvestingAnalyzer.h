@@ -1,11 +1,6 @@
 #ifndef HLTBTagHarvestingAnalyzer_H
 #define HLTBTagHarvestingAnalyzer_H
 
-// system include files
-#include <memory>
-#include <string>
-#include <vector>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -18,17 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-/** \class HLTBTagHarvestingAnalyzer
- *
- *  Top level steering routine for HLT b tag performance analysis.
- *
- */
-
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
-#include "TH1F.h"
-#include "RVersion.h"
+#include "TCutG.h"
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 #include "TEfficiency.h"
@@ -37,8 +22,14 @@
 #endif
 
 
-using namespace edm;
+/** \class HLTBTagHarvestingAnalyzer
+ *
+ *  Code used to produce DQM validation plots for b-tag at HLT.
+ *  This class read the plots producted by HLTBTagPerformanceAnalyzer and make plots of: b-tag efficiency vs discr, b-tag efficiency vs jet pt, b-tag efficiency vs mistag rate 
+ *
+ */
 
+using namespace edm;
 using namespace std;
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
@@ -46,14 +37,10 @@ class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer {
 #else
 	class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer , public TGraphAsymmErrors{
 #endif
-
-
 		public:
 			explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet&);
 			~HLTBTagHarvestingAnalyzer();
-
 			static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 
 		private:
 			virtual void beginJob() ;
@@ -69,15 +56,15 @@ class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer {
 			virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 			// ----------member data ---------------------------
-			std::vector<std::string>  	hltPathNames_;
-			typedef unsigned int            	flavour_t;
-			typedef std::vector<flavour_t>  	flavours_t;
-			double 						 	m_minTag;
-			std::vector<std::string>  	m_mcLabels;         // MC truth match - labels
-			std::vector<flavours_t>   	m_mcFlavours;       // MC truth match - flavours selection
-			bool                      	m_mcMatching;       // MC truth matching anabled/disabled
-			std::vector< std::string>		m_histoName;
-			DQMStore * 			dqm;
+			std::vector<std::string>			hltPathNames_;
+			typedef unsigned int				flavour_t;
+			typedef std::vector<flavour_t>		flavours_t;
+			double 								m_minTag;
+			std::vector<std::string>			m_mcLabels;
+			std::vector<flavours_t>				m_mcFlavours;
+			bool								m_mcMatching;
+			std::vector< std::string>			m_histoName;
+			DQMStore *							dqm;
 
 			// Histogram handler
 			std::map<std::string, MonitorElement *> H1_;

@@ -1,17 +1,4 @@
 #include "HLTriggerOffline/Btag/interface/HLTBTagPerformanceAnalyzer.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-
-/// for gen matching 
-/// _BEGIN_
-#include <Math/GenVector/VectorUtil.h>
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
-
-#include <algorithm>
-#include <cassert>
 
 // find the index of the object key of an association vector closest to a given jet, within a given distance
 template <typename T, typename V>
@@ -27,9 +14,7 @@ int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T,
 	return closest;
 }
 
-//
 // constructors and destructor
-//
 HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
 	hlTriggerResults_   = iConfig.getParameter<InputTag> ("TriggerResults");
@@ -61,6 +46,8 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	bool trigRes=false;
 	bool MCOK=false;
 	using namespace edm;
+
+	//get triggerResults
 	Handle<TriggerResults> TriggerResulsHandler;
 	Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
 	Exception excp(errors::LogicError);
@@ -74,8 +61,9 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		if (TriggerResulsHandler.isValid())   trigRes=true;
 	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
-	   const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
-	   std::cout<< !triggerResults.accept(0);
+	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
+
+	//get partons
 	if (m_mcMatching &&  m_mcPartons.label()!= "" && m_mcPartons.label() != "NULL" ) {
 		iEvent.getByLabel(m_mcPartons, h_mcPartons);
 		try {
@@ -89,13 +77,16 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		} catch(...) { std::cout<<"Partons collection is not valid "<<std::endl; }
 	if(h_mcPartons->size()==0) std::cout<<"Partons collection is empty "<<std::endl;
 	}
+
+	//fill the 1D and 2D DQM plot
 	Handle<reco::JetTagCollection> JetTagHandler;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
 		bool BtagOK=false;
 		JetTagMap JetTag;
-		if ( !_isfoundHLTs[ind]) continue;
-		if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;
+		if ( !_isfoundHLTs[ind]) continue;	//if the hltPath is not in the event, skip the event
+		if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;	//if the hltPath was not accepted skip the event
 		
+		//get JetTagCollection
 		if (JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" )
 		{
 			try {
@@ -103,6 +94,8 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 				if (JetTagHandler.isValid())   BtagOK=true;						
 			}  catch (...) { std::cout<<"Exception caught in JetTagHandler"<<std::endl;}			
 		}
+		
+		//fill JetTag map
 		if (BtagOK) for ( auto  iter = JetTagHandler->begin(); iter != JetTagHandler->end(); iter++ )
 		{
 			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
@@ -114,6 +107,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		}
 
 		for (auto & BtagJT: JetTag) {
+			//fill 1D btag plot for 'all'
 			H1_.at(ind)[JetTagCollection_[ind].label()] -> Fill(BtagJT.second);
 			if (MCOK) {
 				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
@@ -125,15 +119,15 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					if (it== flav_collection.end())   continue;
 					TString label=JetTagCollection_[ind].label() + "__";
 					label+=flavour_str;
-					H1_.at(ind)[label.Data()]->Fill(BtagJT.second);
+					H1_.at(ind)[label.Data()]->Fill(BtagJT.second);	//fill 1D btag plot for 'b,c,uds'
 					label=JetTagCollection_[ind].label() + "___";
 					label+=flavour_str;
 					label+=TString("_disc_pT");
-					H2_.at(ind)[label.Data()]->Fill(BtagJT.second,BtagJT.first->pt());
-				} /// for flavor
+					H2_.at(ind)[label.Data()]->Fill(BtagJT.second,BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
+				} /// for flavour
 			} /// if MCOK
-		} /// for  BtagJT
-	}  //for triggers
+		} /// for BtagJT
+	}//for triggers
 }
 
 
@@ -143,11 +137,11 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	void 
 HLTBTagPerformanceAnalyzer::beginJob()
 {
-	std::string title;
+	//book the DQM plots for each path and for each flavour
 	using namespace std;
-	assert(hltPathNames_.size()== JetTagCollection_.size());   
+	assert(hltPathNames_.size()== JetTagCollection_.size());
 	std::string dqmFolder;
-	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
+	for (unsigned int ind=0; ind<hltPathNames_.size();ind++){
 		float btagL = -11.;
 		float btagU = 1.;
 		int   btagBins = 600;
@@ -155,6 +149,8 @@ HLTBTagPerformanceAnalyzer::beginJob()
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
 		dqm->setCurrentFolder(dqmFolder);
+		
+		//book 1D btag plot for 'all'
 		if ( JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" ) { 
 			H1_.back()[JetTagCollection_[ind].label()]       = dqm->book1D(JetTagCollection_[ind].label() + "_all",      (JetTagCollection_[ind].label()+ "_all").c_str(),  btagBins, btagL, btagU );
 			H1_.back()[JetTagCollection_[ind].label()]      -> setAxisTitle(JetTagCollection_[ind].label() +"discriminant",1);
@@ -164,7 +160,6 @@ HLTBTagPerformanceAnalyzer::beginJob()
 		double pTmin=30;
 		double pTMax=330;
 
-
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		{
 			TString flavour= m_mcLabels[i].c_str();
@@ -172,10 +167,14 @@ HLTBTagPerformanceAnalyzer::beginJob()
 			if ( JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" ) {
 				label=JetTagCollection_[ind].label()+"__";
 				label+=flavour;
+
+				//book 1D btag plot for 'b,c,light,g'
 				H1_.back()[label.Data()] = 		 dqm->book1D(label.Data(),   Form("%s %s",JetTagCollection_[ind].label().c_str(),flavour.Data()), btagBins, btagL, btagU );
 				H1_.back()[label.Data()]->setAxisTitle("disc",1);
 				label=JetTagCollection_[ind].label()+"___";
 				label+=flavour+TString("_disc_pT");
+
+				//book 2D btag plot for 'b,c,light,g'
 				H2_.back()[label.Data()] =  dqm->book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
 				H2_.back()[label.Data()]->setAxisTitle("pT",2);
 				H2_.back()[label.Data()]->setAxisTitle("disc",1);
@@ -200,21 +199,25 @@ HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const
 {
 	triggerConfChanged_ = true;
 	hltConfigProvider_.init(iRun, iSetup, hlTriggerResults_.process(), triggerConfChanged_);
-	const std::vector< std::string > & hltPathNames = hltConfigProvider_.triggerNames();
+	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
+
+	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
 		int it_mem = -1;
-		for (size_t it=0 ; it < hltPathNames.size() ; ++it )
+		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
 		{
-			std::cout<<"The available path : "<< hltPathNames.at(it)<<std::endl;
-			found = hltPathNames.at(it).find(hltPathNames_[trgs]);
+			std::cout<<"The available path : "<< allHltPathNames.at(it)<<std::endl;
+			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
 			if ( found == 0 )
 			{
 				it_mem= (int) it;
 			}
-		}
+		}//for allallHltPathNames
 		hltPathIndexs_.push_back(it_mem);
-	}
+	}//for hltPathNames_
+	
+	//fill _isfoundHLTs for each hltPathNames_
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
 			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;

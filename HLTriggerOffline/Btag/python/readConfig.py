@@ -42,8 +42,21 @@ class fileINI:
 		 		if(module!="" and path!=""):
 				 	self.vertex_modules.extend([cms.InputTag(module)])
 				 	self.vertex_pathes.extend([path])
-
-
+				 	
+def printMe(self):
+	print
+	print  "Reading ", self.fileName
+	print
+	print  "maxEvents		=	",self.maxEvents
+	print  "CMSSWVER		=	",self.CMSSWVER
+	print  "processname		=	",self.processname
+	print  "jets (for matching)	=	",self.jets
+	print  "files			=	",self.files
+	print  "btag_modules		",self.btag_modules
+	print  "btag_pathes		",self.btag_pathes
+	print  "vertex_modules		",self.vertex_modules
+	print  "vertex_pathes		",self.vertex_pathes
+	print
 #>> 
 #>>> 
 #>>> 
