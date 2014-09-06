@@ -39,8 +39,8 @@ namespace l1t {
 
     CaloParamsStage1* const params_;
 
-    int AssociatedSecondRegionEt(int ieta, int iphi,
-				 const std::vector<l1t::CaloRegion> & regions) const;
+
+    string findNESW(int ieta, int iphi, int neta, int nphi) const;
 
     double JetIsolation(int et, int ieta, int iphi,
 			const std::vector<l1t::Jet> & jets) const;
