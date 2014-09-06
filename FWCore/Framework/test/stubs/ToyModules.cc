@@ -69,10 +69,10 @@ namespace edmtest {
         assert(guts[i-1].id() > guts[i].id());
     }
 
-    std::auto_ptr<SCSimpleProduct> p(new SCSimpleProduct(guts));
+    std::unique_ptr<SCSimpleProduct> p(new SCSimpleProduct(guts));
 
     // Put the product into the Event, thus sorting it.
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace edmtest {
   OVSimpleProducer::produce(edm::Event& e,
                             edm::EventSetup const& /* unused */) {
     // Fill up a collection
-    std::auto_ptr<OVSimpleProduct> p(new OVSimpleProduct());
+    std::unique_ptr<OVSimpleProduct> p(new OVSimpleProduct());
 
     for(int i = 0; i < size_; ++i) {
         std::auto_ptr<Simple> simple(new Simple());
@@ -115,10 +115,10 @@ namespace edmtest {
     }
 
     // Put the product into the Event
-    e.put(p);
+    e.put(std::move(p));
 
     // Fill up a collection of SimpleDerived objects
-    std::auto_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
+    std::unique_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
 
     for(int i = 0; i < size_; ++i) {
         std::auto_ptr<SimpleDerived> simpleDerived(new SimpleDerived());
@@ -129,7 +129,7 @@ namespace edmtest {
     }
 
     // Put the product into the Event
-    e.put(pd, "derived");
+    e.put(std::move(pd), "derived");
   }
 
   //--------------------------------------------------------------------
@@ -160,7 +160,7 @@ namespace edmtest {
   VSimpleProducer::produce(edm::Event& e,
                            edm::EventSetup const& /* unused */) {
     // Fill up a collection
-    std::auto_ptr<VSimpleProduct> p(new VSimpleProduct());
+    std::unique_ptr<VSimpleProduct> p(new VSimpleProduct());
 
     for(int i = 0; i < size_; ++i) {
         Simple simple;
@@ -170,7 +170,7 @@ namespace edmtest {
     }
 
     // Put the product into the Event
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -200,7 +200,7 @@ namespace edmtest {
     edm::Handle<std::vector<edmtest::Simple> > vs;
     e.getByLabel(src_, vs);
     // Fill up a collection
-    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
+    std::unique_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
 
     for(unsigned int i = 0; i < vs->size(); ++i) {
         edmtest::Simple simple;
@@ -209,7 +209,7 @@ namespace edmtest {
     }
 
     // Put the product into the Event
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -268,7 +268,7 @@ namespace edmtest {
       assert(guts[i-1].data > guts[i].data);
     }
 
-    std::auto_ptr<product_type> p(new product_type());
+    std::unique_ptr<product_type> p(new product_type());
     int n = 0;
     for(int id = 1; id<size_; ++id) {
       ++n;
@@ -279,7 +279,7 @@ namespace edmtest {
 
     // Put the product into the Event, thus sorting it ... or not,
     // depending upon the product type.
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -342,7 +342,7 @@ namespace edmtest {
     typedef typename detset::value_type       value_type;
     typedef typename detset::id_type       id_type;
 
-    std::auto_ptr<product_type> p(new product_type());
+    std::unique_ptr<product_type> p(new product_type());
     product_type& v = *p;
 
     unsigned int n = 0;
@@ -356,7 +356,7 @@ namespace edmtest {
 
     // Put the product into the Event, thus sorting is not done by magic,
     // up to one user-line
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -386,8 +386,8 @@ namespace edmtest {
     edm::Handle<IntProduct> parent;
     e.getByLabel(label_, parent);
 
-    std::auto_ptr<Prodigal> p(new Prodigal(parent->value));
-    e.put(p);
+    std::unique_ptr<Prodigal> p(new Prodigal(parent->value));
+    e.put(std::move(p));
   }
 
 }

@@ -123,8 +123,8 @@ __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //Use the ExampleData to create an ExampleData2 which 
    // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
+   std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+   iEvent.put(std::move(pOut));
 */
 
 /* this is an EventSetup example
@@ -140,7 +140,7 @@ __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_myparticle    iEvent.getByLabel( electronTags_, electrons );
 @example_myparticle    
 @example_myparticle    // create a new collection of Particle objects
-@example_myparticle    auto_ptr<MyParticleCollection> newParticles( new MyParticleCollection );      
+@example_myparticle    unique_ptr<MyParticleCollection> newParticles( new MyParticleCollection );
 @example_myparticle 
 @example_myparticle    // if the number of electrons or muons is 4 (or 2 and 2), costruct a new particle
 @example_myparticle    if( muons->size() == 4 || electrons->size() == 4 || ( muons->size() == 2 && electrons->size() == 2 ) ) {
@@ -170,7 +170,7 @@ __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_myparticle    }
 @example_myparticle    
 @example_myparticle    // save the vector
-@example_myparticle    iEvent.put( newParticles, "particles" );
+@example_myparticle    iEvent.put( move(newParticles), "particles" );
 }
 
 // ------------ method called once each job just before starting event loop  ------------

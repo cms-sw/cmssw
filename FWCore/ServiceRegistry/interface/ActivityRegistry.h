@@ -388,6 +388,7 @@ namespace edm {
       void watchPreStreamEarlyTermination(PreStreamEarlyTermination::slot_type const& iSlot) {
          preStreamEarlyTerminationSignal_.connect(iSlot);
       }
+      AR_WATCH_USING_METHOD_2(watchPreStreamEarlyTermination)
 
       /// signal is emitted if a began processing a global transition and
       ///  then we began terminating the application
@@ -396,6 +397,7 @@ namespace edm {
       void watchPreGlobalEarlyTermination(PreGlobalEarlyTermination::slot_type const& iSlot) {
          preGlobalEarlyTerminationSignal_.connect(iSlot);
       }
+      AR_WATCH_USING_METHOD_2(watchPreGlobalEarlyTermination)
 
       /// signal is emitted if while communicating with a source we began terminating
       ///  the application
@@ -404,6 +406,7 @@ namespace edm {
       void watchPreSourceEarlyTermination(PreSourceEarlyTermination::slot_type const& iSlot) {
          preSourceEarlyTerminationSignal_.connect(iSlot);
       }
+      AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
 
       // OLD DELETE THIS
       typedef signalslot::ObsoleteSignal<void(EventID const&, Timestamp const&)> PreProcessEvent;

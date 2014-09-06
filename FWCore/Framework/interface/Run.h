@@ -106,10 +106,18 @@ namespace edm {
     void
     put(std::auto_ptr<PROD> product) {put<PROD>(product, std::string());}
 
+    template <typename PROD>
+    void
+    put(std::unique_ptr<PROD> product) {put<PROD>(std::move(product), std::string());}
+
     ///Put a new product with a 'product instance name'
     template <typename PROD>
     void
     put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+
+    template <typename PROD>
+    void
+    put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
 
     Provenance
     getProvenance(BranchID const& theID) const;
@@ -173,6 +181,12 @@ namespace edm {
   template <typename PROD>
   void
   Run::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
+    put(std::unique_ptr<PROD>(product.release()),productInstanceName);
+  }
+  
+  template <typename PROD>
+  void
+  Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);
@@ -188,7 +202,7 @@ namespace edm {
     BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(product));
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
     putProducts().emplace_back(std::move(wp), &desc);
 
     // product.release(); // The object has been copied into the Wrapper.
