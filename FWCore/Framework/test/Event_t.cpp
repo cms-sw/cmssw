@@ -144,7 +144,7 @@ class testEvent: public CppUnit::TestFixture {
   }
 
   template <class T>
-  ProductID addProduct(std::auto_ptr<T> product,
+  ProductID addProduct(std::unique_ptr<T> product,
                        std::string const& tag,
                        std::string const& productLabel = std::string());
 
@@ -214,7 +214,7 @@ testEvent::registerProduct(std::string const& tag,
 // as if it came from the module specified by the given tag.
 template <class T>
 ProductID
-testEvent::addProduct(std::auto_ptr<T> product,
+testEvent::addProduct(std::unique_ptr<T> product,
                       std::string const& tag,
                       std::string const& productLabel) {
   iterator_t description = moduleDescriptions_.find(tag);
@@ -225,7 +225,7 @@ testEvent::addProduct(std::auto_ptr<T> product,
 
   ModuleCallingContext mcc(&description->second);
   Event temporaryEvent(*principal_, description->second, &mcc);
-  OrphanHandle<T> h = temporaryEvent.put(product, productLabel);
+  OrphanHandle<T> h = temporaryEvent.put(std::move(product), productLabel);
   ProductID id = h.id();
   ProducerBase::commitEvent(temporaryEvent);
   return id;
@@ -442,19 +442,19 @@ void testEvent::putAndGetAnIntProduct() {
 void testEvent::getByProductID() {
 
   typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
+  typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t>  handle_t;
 
   ProductID wanted;
 
   {
     ap_t one(new product_t(1));
-    ProductID id1 = addProduct(one, "int1_tag", "int1");
+    ProductID id1 = addProduct(std::move(one), "int1_tag", "int1");
     CPPUNIT_ASSERT(id1 != ProductID());
     wanted = id1;
 
     ap_t two(new product_t(2));
-    ProductID id2 = addProduct(two, "int2_tag", "int2");
+    ProductID id2 = addProduct(std::move(two), "int2_tag", "int2");
     CPPUNIT_ASSERT(id2 != ProductID());
     CPPUNIT_ASSERT(id2 != id1);
 
@@ -500,7 +500,7 @@ void testEvent::transaction() {
 
 void testEvent::getByLabel() {
   typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
+  typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
 
@@ -508,19 +508,19 @@ void testEvent::getByLabel() {
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
-  addProduct(ap_vthing, "thing", "");
+  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  addProduct(std::move(ap_vthing), "thing", "");
 
   ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
+  std::unique_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  currentEvent_->put(std::move(twoHundred), "int1");
   ProducerBase::commitEvent(*currentEvent_);
 
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
@@ -586,7 +586,7 @@ void testEvent::getByLabel() {
 
 void testEvent::getByToken() {
   typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
+  typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
   
@@ -594,19 +594,19 @@ void testEvent::getByToken() {
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
   
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
-  addProduct(ap_vthing, "thing", "");
+  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  addProduct(std::move(ap_vthing), "thing", "");
   
   ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
   
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
+  std::unique_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  currentEvent_->put(std::move(twoHundred), "int1");
   ProducerBase::commitEvent(*currentEvent_);
   
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
@@ -667,7 +667,7 @@ void testEvent::getByToken() {
 
 void testEvent::getManyByType() {
   typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
+  typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
 
@@ -675,19 +675,19 @@ void testEvent::getManyByType() {
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
-  addProduct(ap_vthing, "thing", "");
+  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  addProduct(std::move(ap_vthing), "thing", "");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing2(new std::vector<edmtest::Thing>);
-  addProduct(ap_vthing2, "thing2", "inst2");
+  std::unique_ptr<std::vector<edmtest::Thing> > ap_vthing2(new std::vector<edmtest::Thing>);
+  addProduct(std::move(ap_vthing2), "thing2", "inst2");
 
   ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
@@ -713,11 +713,11 @@ void testEvent::printHistory() {
 void testEvent::deleteProduct() {
   
   typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
+  typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   
   ap_t one(new product_t(1));
-  addProduct(one,   "int1_tag", "int1");
+  addProduct(std::move(one),   "int1_tag", "int1");
   
   BranchID id;
   

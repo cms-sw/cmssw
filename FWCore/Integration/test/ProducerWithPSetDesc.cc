@@ -429,8 +429,8 @@ namespace edmtest {
     // This serves no purpose, I just put it here so the module does something
     // Probably could just make this method do nothing and it would not
     // affect the test.
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
-    e.put(result);
+    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    e.put(std::move(result));
   }
 
   void

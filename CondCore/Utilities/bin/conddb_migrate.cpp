@@ -75,6 +75,10 @@ int cond::MigrateUtilities::execute(){
   cond::DbSession logdb = openDbSession("log", cond::Auth::COND_READER_ROLE, true ); 
 
   persistency::ConnectionPool connPool;
+  if( hasDebug() ) {
+    connPool.setMessageVerbosity( coral::Debug );
+    connPool.configure();
+  }
   persistency::Session sourceSession = connPool.createSession( sourceConnect );
 
   std::cout <<"# Opening session on destination database..."<<std::endl;

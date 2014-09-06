@@ -131,7 +131,15 @@ namespace cond {
 				  cond::Binary& payloadData, 
 				  cond::Binary& //streamerInfoData
 				){
-      ora::Object obj = m_session.getObject( payloadHash );
+      ora::Object obj;
+      try {
+	obj = m_session.getObject( payloadHash );
+      } catch( const ora::Exception& e ){
+	// hack to trap the non-existance of the object
+	if( e.explainSelf().find("has not been found in the database. from ReadBuffer::read") != std::string::npos ) {
+	  return false;
+	} else throw;
+      } 
       objectType = obj.typeName();
       payloadData.fromOraObject(obj );
       return true;
@@ -274,7 +282,17 @@ namespace cond {
       
     ITagMigrationTable& OraIOVSchema::tagMigrationTable(){
       throwException("Tag Migration interface is not available in this implementation.",
-		     "OraIOVSchema::tagMigrationTabl");
+		     "OraIOVSchema::tagMigrationTable");
+    }
+
+    IPayloadMigrationTable& OraIOVSchema::payloadMigrationTable(){
+      throwException("Payload Migration interface is not available in this implementation.",
+		     "OraIOVSchema::payloadMigrationTable");
+    }
+
+    std::string OraIOVSchema::parsePoolToken( const std::string& poolToken ){
+      cond::PoolTokenParser parser( m_cache.session().storage() );
+      return parser.parse( poolToken ).toString();
     }
 
     OraGTTable::OraGTTable( DbSession& session ):

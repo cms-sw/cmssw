@@ -50,7 +50,7 @@ namespace cond {
     writeEditor.setDescription("Validation");
     for( auto iov : p ){
       std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( iov.payloadId, session );
-      cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), writeSession );
+      cond::Hash ph = import( session, iov.payloadId, readBackPayload.first, readBackPayload.second.get(), writeSession );
       writeEditor.insert( iov.since, ph );
     }
     writeEditor.flush();

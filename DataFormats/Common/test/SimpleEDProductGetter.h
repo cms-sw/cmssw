@@ -14,9 +14,9 @@ public:
 
   template<typename T>
   void
-  addProduct(edm::ProductID const& id, std::auto_ptr<T> p) {
+  addProduct(edm::ProductID const& id, std::unique_ptr<T> p) {
     typedef edm::Wrapper<T> wrapper_t;
-    std::shared_ptr<wrapper_t> product = std::make_shared<wrapper_t>(p);
+    std::shared_ptr<wrapper_t> product = std::make_shared<wrapper_t>(std::move(p));
     database[id] = product;
   }
 
