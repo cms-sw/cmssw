@@ -72,8 +72,12 @@ void HiBasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
   const HepMC::GenEvent *evt = mc->GetEvent();
   const HepMC::HeavyIon *hi = evt->heavy_ion();
 
-  double ip = hi->impact_parameter();
-  double phi0 = hi->event_plane_angle();
+  double ip = 0;
+  double phi0 = 0;
+  if ( hi ) {
+	ip = hi->impact_parameter();
+	phi0 = hi->event_plane_angle();
+  }
 
   // fill reaction plane distribution
   rp->Fill(phi0);
