@@ -83,11 +83,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int quality = 1;  //doesn't really mean anything and isn't used
 
     int highestNeighborEt=0;
-    int highestNeighborTauVeto=1;
-    int isEast=0;
-    int isSouth=0;
-    int isWest=0;
-    int isNorth=0;
+    int highestNeighborEta=999;
+    int highestNeighborPhi=999;
+    int highestNeighborTauVeto=999;
 
     //Find neighbor with highest Et
     for(CaloRegionBxCollection::const_iterator neighbor = regions.begin();
@@ -99,48 +97,39 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
 	deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
       
-      int deltaEta = regionEta - neighborEta;
+      deltaPhi = std::abs(deltaPhi);
+      int deltaEta = std::abs(regionEta - neighborEta);
       
-      if ((std::abs(deltaPhi) + std::abs(deltaEta)) > 0 && std::abs(deltaPhi) < 2 && std::abs(deltaEta) < 2) {
-	
-	int neighborEt = neighbor->hwPt();
-
-	if (deltaEta==-1 && deltaPhi==0) {
-	  isEast=1;
-	}
-	if (deltaEta==0 && deltaPhi==-1) {
-	  isNorth=1;
-	}
-	if (deltaEta==0 && deltaPhi==1) {
-	  isSouth=1;
-	}     
-        if (deltaEta==1 && deltaPhi==0) {
-	  isWest=1;
-	}
-	
-	if (!(std::abs(deltaPhi)==1 && std::abs(deltaEta==1))) {
+      if (deltaPhi + deltaEta > 0 && deltaPhi + deltaEta < 2) {  //nondiagonal neighbors
 	  
-	  if (neighborEt > highestNeighborEt) {
-	    highestNeighborEt = neighborEt;
-	    int neighborTauVeto = neighbor->hwQual() & 0x1; // tauVeto is first bit of quality integer
-	    highestNeighborTauVeto = neighborTauVeto;
-	  }
+	if (neighbor->hwPt() > highestNeighborEt) {
+	  highestNeighborEt = neighbor->hwPt();
+	  highestNeighborEta = neighbor->hwEta();
+	  highestNeighborPhi = neighbor->hwPhi();
+	  int neighborTauVeto = neighbor->hwQual() & 0x1; // tauVeto should be the first bit of quality integer
+	  highestNeighborTauVeto = neighborTauVeto;
 	}
       }
     }
-    
-    if((tauEt > highestNeighborEt && (isEast==0 || isNorth==0)) || (tauEt >= highestNeighborEt && (isSouth==0 || isWest==0))) {
+
+
+    string NESW = findNESW(regionEta, regionPhi, highestNeighborEta, highestNeighborPhi);
+
+    //std::cout << "tau et, neighbor et " << tauEt << " " << highestNeighborEt << std::endl;
+    if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth")) 
+       || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))) {
 
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
       
-      int regionTauVeto = region->hwQual() & 0x1;  // tauVeto is first bit of quality integer
+      int regionTauVeto = region->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
+      //std::cout<< "regiontauveto, neighbor " << regionTauVeto << " " << highestNeighborTauVeto << std::endl;
 
       if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > switchOffTauVeto) {
 
 	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
 
 	if (jetIsolation < tauRelativeJetIsolationCut || (tauEt >= switchOffTauIso && jetIsolation < tauRelativeJetIsolationLimit)
-	    || (std::abs(jetIsolation - 999) < 0.1) ) isoFlag=1;
+	    || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
 	
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 	
@@ -186,4 +175,35 @@ double l1t::Stage1Layer2TauAlgorithmImpPP::JetIsolation(int et, int ieta, int ip
 
   // set output
   return 999.;
+}
+
+
+//  Find if the neighbor with the highest Et is N, E, S, or W
+string l1t::Stage1Layer2TauAlgorithmImpPP::findNESW(int ieta, int iphi, int neta, int nphi) const {
+
+  int deltaPhi = iphi - nphi;
+  if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
+    deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
+  
+  int deltaEta = ieta - neta;
+  
+  if ((std::abs(deltaPhi) +  std::abs(deltaEta)) < 2) {
+    if (deltaEta==-1) {
+      return "isEast";
+    }
+    else if (deltaEta==0) {
+      if (deltaPhi==-1) {
+	return "isNorth";
+      }
+      if (deltaPhi==1) {
+	return "isSouth";
+      }     
+    }
+    else {
+      return "isWest";
+    }
+  }
+
+  return "999";
+
 }
