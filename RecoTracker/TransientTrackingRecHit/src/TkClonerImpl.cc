@@ -21,27 +21,27 @@
 #include<iostream>
 #include <memory>
 
-SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<SiPixelRecHit>  TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiPixelCluster& clust = *hit.cluster();  
   auto && params = pixelCPE->getParameters( clust, *hit.detUnit(), tsos);
-  return new SiPixelRecHit(std::get<0>(params), std::get<1>(params), std::get<2>(params), *hit.det(), hit.cluster());
+  return std::unique_ptr<SiPixelRecHit>(new SiPixelRecHit(std::get<0>(params), std::get<1>(params), std::get<2>(params), *hit.det(), hit.cluster()));
 }
 
-SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<SiStripRecHit2D> TkClonerImpl::operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
     /// FIXME: this only uses the first cluster and ignores the others
     const SiStripCluster&  clust = hit.stripCluster();  
     StripClusterParameterEstimator::LocalValues lv = 
       stripCPE->localParameters( clust, *hit.detUnit(), tsos);
- return new SiStripRecHit2D(lv.first, lv.second, *hit.det(), hit.omniCluster());
+    return std::unique_ptr<SiStripRecHit2D>{new SiStripRecHit2D(lv.first, lv.second, *hit.det(), hit.omniCluster())};
 }
 
-SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<SiStripRecHit1D> TkClonerImpl::operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
   /// FIXME: this only uses the first cluster and ignores the others
   const SiStripCluster&  clust = hit.stripCluster();  
   StripClusterParameterEstimator::LocalValues lv = 
     stripCPE->localParameters( clust, *hit.detUnit(), tsos);
   LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-  return new SiStripRecHit1D(lv.first, le, *hit.det(), hit.omniCluster());
+  return std::unique_ptr<SiStripRecHit1D>{new SiStripRecHit1D(lv.first, le, *hit.det(), hit.omniCluster())};
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
@@ -100,7 +100,7 @@ namespace {
 #endif
 }
 
-SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<SiStripMatchedRecHit2D> TkClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
     const GeomDet * det = hit.det();
     const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
     LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
@@ -123,10 +123,10 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
     
     // return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
     std::unique_ptr<SiStripMatchedRecHit2D> temp = theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,false);
-    SiStripMatchedRecHit2D * better =  temp.release();
-
-    return better ? better : hit.clone();
-
+    if(temp.get() == nullptr) {
+      temp = std::unique_ptr<SiStripMatchedRecHit2D>(hit.clone());
+    }
+    return temp;
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
@@ -139,7 +139,7 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(ProjectedSiStripRecH
    return TrackingRecHit::ConstRecHitPointer((*this)(hit,tsos));
 }
 
-ProjectedSiStripRecHit2D * TkClonerImpl::operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<ProjectedSiStripRecHit2D> TkClonerImpl::operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiStripCluster& clust = hit.stripCluster();
   const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(hit.originalDet());
   //if (!gdu) std::cout<<"no luck dude"<<std::endl;
@@ -164,11 +164,11 @@ ProjectedSiStripRecHit2D * TkClonerImpl::operator()(ProjectedSiStripRecHit2D con
     hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
   }
   LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
-  return new ProjectedSiStripRecHit2D(projectedHitPos, rotatedError, *hit.det(), *hit.originalDet(), hit.omniCluster());
+  return std::unique_ptr<ProjectedSiStripRecHit2D>{new ProjectedSiStripRecHit2D(projectedHitPos, rotatedError, *hit.det(), *hit.originalDet(), hit.omniCluster())};
 }
 
 
-ProjectedSiStripRecHit2D * TkClonerImpl::project(SiStripMatchedRecHit2D const & hit, bool mono, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<ProjectedSiStripRecHit2D> TkClonerImpl::project(SiStripMatchedRecHit2D const & hit, bool mono, TrajectoryStateOnSurface const& tsos) const {
   const GeomDet & det = *hit.det();
   const GluedGeomDet & gdet = static_cast<const GluedGeomDet &> (det);
   const GeomDetUnit * odet = mono ? gdet.monoDet() : gdet.stereoDet();
@@ -203,6 +203,7 @@ ProjectedSiStripRecHit2D * TkClonerImpl::project(SiStripMatchedRecHit2D const & 
     hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
   }
   LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
-  return new ProjectedSiStripRecHit2D(projectedHitPos, rotatedError, det, *odet, 
-				      mono ? hit.monoClusterRef() : hit.stereoClusterRef() );
+  return std::unique_ptr<ProjectedSiStripRecHit2D>{
+    new ProjectedSiStripRecHit2D(projectedHitPos, rotatedError, det, *odet, 
+				 mono ? hit.monoClusterRef() : hit.stereoClusterRef() ) };
 }
