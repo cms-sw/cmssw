@@ -158,9 +158,7 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
     h_pfHT -> Fill(pfHT);
     h_caloHT -> Fill(caloHT);
 
-    h_pfMetTurnOn_eff -> Fill(pfMETCollection->begin()->et());
     h_pfMetTurnOn_num -> Fill(pfMETCollection->begin()->et());
-    h_pfHTTurnOn_eff -> Fill(pfHT);
     h_pfHTTurnOn_num -> Fill(pfHT);
   }
   //fill denominator histograms for all events, used for turn on curves
@@ -177,10 +175,6 @@ void SUSY_HLT_InclusiveHT::endLuminosityBlock(edm::LuminosityBlock const& lumiSe
 
 void SUSY_HLT_InclusiveHT::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
-
-  h_pfMetTurnOn_eff->getTH1F()->Divide(h_pfMetTurnOn_den->getTH1F());
-  h_pfHTTurnOn_eff->getTH1F()->Divide(h_pfHTTurnOn_den->getTH1F());
-
   edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::endRun" << std::endl;
 }
 
@@ -212,10 +206,8 @@ void SUSY_HLT_InclusiveHT::bookHistos(DQMStore::IBooker & ibooker_)
   h_triggerHT = ibooker_.book1D("triggerHT", "Trigger HT; GeV", 30, 0.0, 1500.0);
 
   //num and den hists to be divided in harvesting step to make turn on curves
-  h_pfMetTurnOn_eff = ibooker_.book1D("pfMetTurnOn_eff", "PF MET Turn On Efficiency", 20, 0.0, 500.0);
   h_pfMetTurnOn_num = ibooker_.book1D("pfMetTurnOn_num", "PF MET Turn On Numerator", 20, 0.0, 500.0 );
   h_pfMetTurnOn_den = ibooker_.book1D("pfMetTurnOn_den", "PF MET Turn OnDenominator", 20, 0.0, 500.0 );
-  h_pfHTTurnOn_eff = ibooker_.book1D("pfHTTurnOn_eff", "PF HT Turn On Efficiency", 30, 0.0, 1500.0);
   h_pfHTTurnOn_num = ibooker_.book1D("pfHTTurnOn_num", "PF HT Turn On Numerator", 30, 0.0, 1500.0 );
   h_pfHTTurnOn_den = ibooker_.book1D("pfHTTurnOn_den", "PF HT Turn On Denominator", 30, 0.0, 1500.0 );
 

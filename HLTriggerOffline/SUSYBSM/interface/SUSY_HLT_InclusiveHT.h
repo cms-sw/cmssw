@@ -77,10 +77,8 @@ class SUSY_HLT_InclusiveHT: public DQMEDAnalyzer{
   MonitorElement* h_triggerMetPt;
   MonitorElement* h_triggerMetPhi;
   MonitorElement* h_triggerHT;
-  MonitorElement* h_pfMetTurnOn_eff;
   MonitorElement* h_pfMetTurnOn_num;
   MonitorElement* h_pfMetTurnOn_den;
-  MonitorElement* h_pfHTTurnOn_eff;
   MonitorElement* h_pfHTTurnOn_num;
   MonitorElement* h_pfHTTurnOn_den;
 
