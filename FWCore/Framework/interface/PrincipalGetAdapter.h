@@ -41,19 +41,19 @@ event.getByLabel("market", "apple", fruits);
 Putting Data
 
 \code
-std::auto_ptr<AppleCollection> pApples(new AppleCollection);
+std::unique_ptr<AppleCollection> pApples(new AppleCollection);
   
 //fill the collection
 ...
-event.put(pApples);
+event.put(std::move(pApples));
 \endcode
 
 \code
-std::auto_ptr<FruitCollection> pFruits(new FruitCollection);
+std::unique_ptr<FruitCollection> pFruits(new FruitCollection);
 
 //fill the collection
 ...
-event.put("apple", pFruits);
+event.put("apple", std::move(pFruits));
 \endcode
 
 
@@ -63,7 +63,7 @@ NOTE: The edm::RefProd returned will not work until after the
 edm::PrincipalGetAdapter has been committed (which happens after the
 EDProducer::produce method has ended)
 \code
-std::auto_ptr<AppleCollection> pApples(new AppleCollection);
+std::unique_ptr<AppleCollection> pApples(new AppleCollection);
 
 edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
