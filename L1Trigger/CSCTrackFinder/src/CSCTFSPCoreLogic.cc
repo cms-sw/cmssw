@@ -1083,7 +1083,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       if(LUTAddressH.track_mode)
 	{
 	  trkH.setPtLUTAddress(LUTAddressH.toint());
-	  trkH.setChargePacked(~(io->signHp)&0x1);
+	  trkH.setChargePacked((io->signHp)&0x1);
 	  trkH.setLocalPhi(io->phiHp);
 	  trkH.setEtaPacked(io->etaPTHp);
 	  trkH.setBx((int)(bx)-shift);
@@ -1096,7 +1096,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       if(LUTAddressM.track_mode)
 	{
 	  trkM.setPtLUTAddress(LUTAddressM.toint());
-	  trkM.setChargePacked(~(io->signMp)&0x1);
+	  trkM.setChargePacked((io->signMp)&0x1);
 	  trkM.setLocalPhi(io->phiMp);
 	  trkM.setEtaPacked(io->etaPTMp);
 	  trkM.setBx((int)(bx)-shift);
@@ -1109,7 +1109,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       if(LUTAddressL.track_mode)
 	{
 	  trkL.setPtLUTAddress(LUTAddressL.toint());
-	  trkL.setChargePacked(~(io->signLp)&0x1);
+	  trkL.setChargePacked((io->signLp)&0x1);
 	  trkL.setLocalPhi(io->phiLp);
 	  trkL.setEtaPacked(io->etaPTLp);
 	  trkL.setBx((int)(bx)-shift);
