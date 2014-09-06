@@ -8,7 +8,7 @@ SUSY_HLT_MET_BTAG = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_BTagCSV07_v1'),
-  TriggerFilter = cms.InputTag('hltPFHT350', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltPFMET120Filter', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
