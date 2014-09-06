@@ -52,7 +52,7 @@ namespace l1t {
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Tau gtTau(*&ldummy, rankPt, newEta, itTau->hwPhi(), itTau->hwQual());
+      l1t::Tau gtTau(*&ldummy, rankPt, newEta, itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
       output->push_back(gtTau);
     }
   }
