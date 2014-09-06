@@ -94,9 +94,7 @@ void HLTVertexPerformanceAnalyzer::beginJob()
 			if ( VertexCollection_.at(coll).label() != "" && VertexCollection_.at(coll).label() != "NULL" ) { 
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]       = dqm->book1D("Vertex_"+VertexCollection_.at(coll).label(),      VertexCollection_.at(coll).label().c_str(),  vertexBins, vertexL, vertexU );
 				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]      -> setAxisTitle("vertex error (cm)",1);
-				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]->getTH1F()->GetXaxis()->GetXmax();
 			}
-		triggerConfChanged_ = false;  
 		}
 	}
 }
@@ -125,11 +123,10 @@ void HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetu
 			if ( found == 0 )
 			{
 				it_mem= (int) it;
-				hltPathIndexs_.push_back(it_mem);
 			}
 		}
+		hltPathIndexs_.push_back(it_mem);
 	}
-
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
 			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;

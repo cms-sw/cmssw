@@ -75,6 +75,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
 	   const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
+	   std::cout<< !triggerResults.accept(0);
 	if (m_mcMatching &&  m_mcPartons.label()!= "" && m_mcPartons.label() != "NULL" ) {
 		iEvent.getByLabel(m_mcPartons, h_mcPartons);
 		try {
@@ -132,13 +133,13 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 				} /// for flavor
 			} /// if MCOK
 		} /// for  BtagJT
-	} // for triggers
+	}  //for triggers
 }
 
 
 
 
-// ------------ method called once each job just before starting event loop  ------------
+//// ------------ method called once each job just before starting event loop  ------------
 	void 
 HLTBTagPerformanceAnalyzer::beginJob()
 {
@@ -182,13 +183,12 @@ HLTBTagPerformanceAnalyzer::beginJob()
 		} /// for mc.size()
 	} /// for hltPathNames_.size()
 	std::cout<<"Booking of flavour-dependent plots's been finished."<<std::endl;   
-	triggerConfChanged_ = false;  
 }
 
 
 
 
-// ------------ method called once each job just after ending the event loop  ------------
+//// ------------ method called once each job just after ending the event loop  ------------
 	void 
 HLTBTagPerformanceAnalyzer::endJob() 
 {
@@ -211,9 +211,9 @@ HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const
 			if ( found == 0 )
 			{
 				it_mem= (int) it;
-				hltPathIndexs_.push_back(it_mem);
 			}
 		}
+		hltPathIndexs_.push_back(it_mem);
 	}
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
@@ -224,9 +224,7 @@ HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const
 			_isfoundHLTs.push_back(true);
 		}
 	}
-
-
-	}
+}
 
 	// ------------ method called when ending the processing of a run  ------------
 	void 
