@@ -221,7 +221,7 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
         }
 	
 	// Oh dear, the path we wanted seems to not be available
-        if (! found) {
+        if (! found && verbose>2) {
             edm::LogWarning("ExoticaValidation") << "HLTExoticaSubAnalysis::constructor(): In "
                                                  << _analysisname << " subfolder NOT found the path: '"
                                                  << _hltPathsToCheck[i] << "*'" ;
