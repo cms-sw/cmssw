@@ -64,7 +64,7 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
 private:
   // double dispatch
   virtual SiStripMatchedRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
-    return cloner(*this,tsos);
+    return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {

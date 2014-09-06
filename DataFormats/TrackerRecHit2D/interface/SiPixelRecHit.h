@@ -58,7 +58,7 @@ public:
 private:
   // double dispatch
   virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
-    return cloner(*this,tsos);
+    return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
