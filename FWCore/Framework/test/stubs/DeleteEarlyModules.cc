@@ -33,8 +33,8 @@ namespace edmtest {
     }
     
     virtual void produce(edm::Event& e, edm::EventSetup const& ){
-      std::auto_ptr<DeleteEarly> p(new DeleteEarly);
-      e.put(p);
+      std::unique_ptr<DeleteEarly> p(new DeleteEarly);
+      e.put(std::move(p));
     }
 
   };

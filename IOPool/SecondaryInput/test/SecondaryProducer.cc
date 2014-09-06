@@ -146,10 +146,10 @@ namespace edm {
     WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
-    std::auto_ptr<TC> thing(new TC(*tp));
+    std::unique_ptr<TC> thing(new TC(*tp));
 
     // Put output into event
-    e.put(thing);
+    e.put(std::move(thing));
 
     if(!sequential_ && !specified_ && firstLoop_ && en == 1) {
       expectedEventNumber_ = 1;

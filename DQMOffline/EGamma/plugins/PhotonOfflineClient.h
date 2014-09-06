@@ -20,8 +20,7 @@
 #include "TProfile.h"
 //
 
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -62,7 +61,7 @@ class TProfile;
 class TTree;
 
 
-class PhotonOfflineClient : public edm::EDAnalyzer
+class PhotonOfflineClient : public  DQMEDHarvester
 {
 
  public:
@@ -72,25 +71,31 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   virtual ~PhotonOfflineClient();
                                    
       
-  virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
-  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-  virtual void runClient();
+  //  virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
+  // virtual void beginJob() ;
+  //virtual void endJob() ;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
+  //  virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
+  //virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
+  //virtual void runClient();
+  
+  virtual void runClient(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter );
+  MonitorElement* bookHisto(DQMStore::IBooker& iBooker,std::string histoName, std::string title, int bin, double min, double max);
 
-  std::vector<std::vector<MonitorElement*> > book2DHistoVector(std::string histoType, std::string histoName, std::string title, 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
-  std::vector<std::vector<std::vector<MonitorElement*> > > book3DHistoVector(std::string histoType, std::string histoName, std::string title, 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
+  void book2DHistoVector(DQMStore::IBooker& iBooker,std::vector<std::vector<MonitorElement*> >& vecOfHist, 
+			 std::string histoType, std::string histoName, std::string title, 
+			 int xbin, double xmin, double xmax,
+			 int ybin=1,double ymin=1, double ymax=2);
+  void book3DHistoVector(DQMStore::IBooker& iBooker, std::vector<std::vector<std::vector<MonitorElement*> > >& vecOfHist, 
+			 std::string histoType, std::string histoName, std::string title, 
+			 int xbin, double xmin, double xmax,
+			 int ybin=1,double ymin=1, double ymax=2);
 
 
 
-  MonitorElement* retrieveHisto(std::string dir, std::string name);
+
+  MonitorElement* retrieveHisto(DQMStore::IGetter& iGetter, std::string dir, std::string name);
 
  private:
 
