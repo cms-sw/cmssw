@@ -65,14 +65,10 @@ namespace l1t {
 
     // EG
     double egLsb() const { return egLsb_; }
-    //int egSeedThresholdHw() const { return floor(egSeedThreshold_/egLsb_); }
     double egSeedThreshold() const { return egSeedThreshold_; }
-    //int egNeighbourThresholdHw() const { return floor(egNeighbourThreshold_/egLsb_); }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     double egHcalThreshold() const { return egHcalThreshold_; }
-    //int egMaxHcalEtHw() const { return floor(egMaxHcalEt_/egLsb_); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
-    //int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
@@ -116,9 +112,7 @@ namespace l1t {
 
     // tau
     double tauLsb() const { return tauLsb_; }
-    //int tauSeedThresholdHw() const { return floor(tauSeedThreshold_/tauLsb_); }
     double tauSeedThreshold() const { return tauSeedThreshold_; }
-    //int tauNeighbourThresholdHw() const { return floor(tauNeighbourThreshold_/tauLsb_); }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
     double switchOffTauVeto() const { return switchOffTauVeto_;}
     double switchOffTauIso() const { return switchOffTauIso_;}
@@ -157,9 +151,7 @@ namespace l1t {
 
     // jets
     double jetLsb() const { return jetLsb_; }
-    //int jetSeedThresholdHw() const { return floor(jetSeedThreshold_/jetLsb_); }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
-    //xint jetNeighbourThresholdHw() const { return floor(jetNeighbourThreshold_/jetLsb_); }
     double jetNeighbourThreshold() const { return jetNeighbourThreshold_; }
     std::string jetPUSType() const { return jetPUSType_; }
     std::vector<double> jetPUSParams() { return jetPUSParams_; }
@@ -179,7 +171,6 @@ namespace l1t {
     double etSumLsb() const { return etSumLsb_; }
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
-    //int etSumEtThresholdHw(unsigned isum) const { return floor(etSumEtThreshold(isum)/etSumLsb_); }
     double etSumEtThreshold(unsigned isum) const;
 
     void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
