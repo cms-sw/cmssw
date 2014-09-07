@@ -24,14 +24,14 @@ if ( MagFieldValue==3.8 or MagFieldValue==38 ):
     file_path = "CondTools/SiPixel/data/template2D_IOV5/template_summary2D_"
     suffix = ".out"
     files_to_upload = cms.vstring(
-	file_path + "zp2840" + suffix,
-	file_path + "zp2940" + suffix,	
-	file_path + "zp3641" + suffix,
-	file_path + "zp3741" + suffix,
-	file_path + "zp3242" + suffix,
-	file_path + "zp3342" + suffix,
-	file_path + "zp0940" + suffix,
-	file_path + "zp0941" + suffix,
+#	file_path + "zp2840" + suffix,
+#	file_path + "zp2940" + suffix,	
+#	file_path + "zp3641" + suffix,
+#	file_path + "zp3741" + suffix,
+#	file_path + "zp3242" + suffix,
+#	file_path + "zp3342" + suffix,
+#	file_path + "zp0940" + suffix,
+#	file_path + "zp0941" + suffix,
 	file_path + "zp0942" + suffix
 )
 ### We must now ID each of these templates. Match each ID "zp####" in the appropriate array position below:
