@@ -54,33 +54,33 @@ To produce and to save them by your own:
 
 2. (optional) Replace the output modules in btag-pathes.py, in order to keep only the useful informations:
 
-		    process.outp1=cms.OutputModule("PoolOutputModule",
+	process.outp1=cms.OutputModule("PoolOutputModule",
 
-		    fileName = cms.untracked.string('outputFULL.root'),
+	fileName = cms.untracked.string('outputFULL.root'),
 
-		    outputCommands = cms.untracked.vstring(
+	 outputCommands = cms.untracked.vstring(
 
-		    'drop *',
+	 'drop *',
 
-		    'keep recoVertexs_*_*_*',
+	'keep recoVertexs_*_*_*',
 
-		    'keep recoCaloJets_*_*_*',
+	'keep recoCaloJets_*_*_*',
 
-		    'keep recoPFJets_*_*_*',
+	'keep recoPFJets_*_*_*',
 
-		    'keep recoTracksRefsrecoJTATagInforecoIPTagInforecoVertexrecoTemplatedSecondaryVertexTagInfos_*_*_*',
+	'keep recoTracksRefsrecoJTATagInforecoIPTagInforecoVertexrecoTemplatedSecondaryVertexTagInfos_*_*_*',
 
-		    'keep recoJetedmRefToBaseProdTofloatsAssociationVector_*_*_*',
+	'keep recoJetedmRefToBaseProdTofloatsAssociationVector_*_*_*',
 
-		    'keep *_TriggerResults_*_*',
+	'keep *_TriggerResults_*_*',
 
-		    'keep *_genParticles_*_*',        
+	'keep *_genParticles_*_*',        
 
-		    'keep SimVertexs_g4SimHits_*_*',
+	'keep SimVertexs_g4SimHits_*_*',
 
-		     )
+	)
 
-		     )  
+	)  
 
 		     process.out = cms.EndPath( process.outp1 )
 
