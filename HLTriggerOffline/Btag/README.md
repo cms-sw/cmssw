@@ -50,8 +50,7 @@ To produce and to save them by your own:
 
 1. Download the last btag-related HLT paths (choose a MC RAW input file, run the trigger in the open mode, choose the max-events ...):
 
-		    hltGetConfiguration /dev/CMSSW_7_1_2/HLT --globaltag auto:startup_GRun --input file:/afs/cern.ch/work/n/ntsirova/public/hlt_dev/ttbar-13tev-1file.root --output full --paths 
-HLT_PFMET120_NoiseCleaned_BTagCSV07_v1,HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1,HLT_BTagCSV07_v1 --open --max-events 100 > btag-pathes.py
+		    hltGetConfiguration /dev/CMSSW_7_1_2/HLT --globaltag auto:startup_GRun --input file:/afs/cern.ch/work/n/ntsirova/public/hlt_dev/ttbar-13tev-1file.root --output full --paths HLT_PFMET120_NoiseCleaned_BTagCSV07_v1,HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1,HLT_BTagCSV07_v1 --open --max-events 100 > btag-pathes.py
 
 2. (optional) Replace the output modules in btag-pathes.py, in order to keep only the useful informations:
 
