@@ -82,7 +82,7 @@ To produce and to save them by your own:
 
 		)  
 
-		     process.out = cms.EndPath( process.outp1 )
+		process.out = cms.EndPath( process.outp1 )
 
 You can check an example in: /afs/cern.ch/user/s/sdonato/AFSwork/public/btag-pathes.py
 
