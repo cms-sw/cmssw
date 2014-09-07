@@ -309,7 +309,20 @@ HLTDebugRAW   = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
-        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*',
+
+        'keep *_hltSelector4CentralJetsL1FastJet_*_*',
+        'keep *_hltLeadingCentralJets30SingleTopEle27_*_*',
+        'keep *_hltLeadingCentralJets30SingleTopIsoMu24_*_*',
+        'keep *_hltFastPrimaryVertex_*_*',
+        'keep *_hltVerticesL3_*_*',
+        'keep *_hltGoodOnlinePVs_*_*',
+        'keep *_hltOnlinePrimaryVertices_*_*',
+        'keep *_hltFastPixelBLifetimeL3TagInfos_*_*',
+        'keep *_hltL3SecondaryVertexTagInfos_*_*',
+        'keep *_hltL3CombinedSecondaryVertexBJetTags_*_*',
+        'keep *_hltCSVJetTagSingleTopEle27_*_*',
+        'keep *_hltCSVJetTagSingleTopIsoMu24_*_*',
     ) )
 )
 
@@ -584,7 +597,20 @@ HLTDebugFEVT  = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
-        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*',
+        
+        'keep *_hltSelector4CentralJetsL1FastJet_*_*',
+        'keep *_hltLeadingCentralJets30SingleTopEle27_*_*',
+        'keep *_hltLeadingCentralJets30SingleTopIsoMu24_*_*',
+        'keep *_hltFastPrimaryVertex_*_*',
+        'keep *_hltVerticesL3_*_*',
+        'keep *_hltGoodOnlinePVs_*_*',
+        'keep *_hltOnlinePrimaryVertices_*_*',
+        'keep *_hltFastPixelBLifetimeL3TagInfos_*_*',
+        'keep *_hltL3SecondaryVertexTagInfos_*_*',
+        'keep *_hltL3CombinedSecondaryVertexBJetTags_*_*',
+        'keep *_hltCSVJetTagSingleTopEle27_*_*',
+        'keep *_hltCSVJetTagSingleTopIsoMu24_*_*',
     ) )
 )
 
