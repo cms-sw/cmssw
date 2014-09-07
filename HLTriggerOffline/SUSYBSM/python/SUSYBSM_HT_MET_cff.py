@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 SUSY_HLT_HT_MET = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
-  caloMETCollection = cms.InputTag("met"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),

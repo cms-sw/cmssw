@@ -12,7 +12,6 @@ SUSY_HLT_InclusiveHT::SUSY_HLT_InclusiveHT(const edm::ParameterSet& ps)
   // Get parameters from configuration file
   theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
   thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
-  theCaloMETCollection_ = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMETCollection"));
   thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
   theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
@@ -57,12 +56,6 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
   if ( !pfMETCollection.isValid() ){
     edm::LogError ("SUSY_HLT_InclusiveHT") << "invalid collection: PFMET" << "\n";
    return;
-  }
-  edm::Handle<reco::CaloMETCollection> caloMETCollection;
-  e.getByToken(theCaloMETCollection_, caloMETCollection);
-  if ( !caloMETCollection.isValid() ){
-    edm::LogError ("SUSY_HLT_InclusiveHT") << "invalid collection: CaloMET" << "\n";
-    return;
   }
   //-------------------------------
   //--- Jets
@@ -153,8 +146,6 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
     }
     h_pfMet -> Fill(pfMETCollection->begin()->et());
     h_pfMetPhi -> Fill(pfMETCollection->begin()->phi());
-    h_caloMet -> Fill(caloMETCollection->begin()->et());
-    h_caloMetPhi -> Fill(caloMETCollection->begin()->phi());
     h_pfHT -> Fill(pfHT);
     h_caloHT -> Fill(caloHT);
 
@@ -186,8 +177,6 @@ void SUSY_HLT_InclusiveHT::bookHistos(DQMStore::IBooker & ibooker_)
   //offline quantities
   h_pfMet = ibooker_.book1D("pfMet", "PF Missing E_{T}; GeV", 20, 0.0, 500.0 );
   h_pfMetPhi = ibooker_.book1D("pfMetPhi", "PF MET Phi", 20, -3.5, 3.5 );
-  h_caloMet = ibooker_.book1D("caloMet", "Calo Missing E_{T}; GeV", 20, 0.0, 500.0 );
-  h_caloMetPhi = ibooker_.book1D("caloMetPhi", "Calo MET Phi", 20, -3.5, 3.5 );
   h_pfHT = ibooker_.book1D("pfHT", "PF H_{T}; GeV", 30, 0.0, 1500.0);
   h_caloHT = ibooker_.book1D("caloHT", "Calo H_{T}; GeV", 30, 0.0, 1500.0);
   h_pfJetPt = ibooker_.book1D("pfJetPt", "PFJet P_{T}; GeV", 20, 0.0, 500.0 );

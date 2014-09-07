@@ -13,8 +13,6 @@
 // MET
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 // Jets
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -47,7 +45,6 @@ class SUSY_HLT_InclusiveHT: public DQMEDAnalyzer{
   
   //variables from config file
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
-  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollection_;
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
@@ -61,8 +58,6 @@ class SUSY_HLT_InclusiveHT: public DQMEDAnalyzer{
   // Histograms
   MonitorElement* h_pfMet;
   MonitorElement* h_pfMetPhi;
-  MonitorElement* h_caloMet;
-  MonitorElement* h_caloMetPhi;
   MonitorElement* h_pfHT;
   MonitorElement* h_caloHT;
   MonitorElement* h_pfJetPt;
