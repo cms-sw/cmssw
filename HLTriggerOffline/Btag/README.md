@@ -28,7 +28,7 @@ To produce the DQM plots of a CMSSW release do:
 
 	3. Modify config.ini as you need (files, cmsswver, ...)
 
-	4. cmsRun hltHarvesting_cff.py >& logHarvesting &
+	4. cmsRun hltHarvesting_cfg.py
 
 	5. Now you have a DQM_V0001_R000000001__CMSSW_X_Y_Z__RelVal__TrigVal.root file containing the HLT btag DQM plots (/DQMData/Run 1/HLT/Run summary/Btag or Vertex).
 
