@@ -1,3 +1,5 @@
+HLTriggerOffline/Btag (avilable on https://github.com/silviodonato/cmssw/tree/hlt-validation-2/HLTriggerOffline/Btag)
+
 This package is used by HLT b-tag group for the CMSSW release validation.
 
 To produce the DQM plots of a CMSSW release do:
@@ -13,6 +15,7 @@ To compare two DQM file:
 	3. ./compareDQM.py
 	4. Now you have a 'plots' folders containing the comparison between the two CMSSW release
 	
+
 ----------------------------------------------------------------------------------------------------- 
 
 (*)
