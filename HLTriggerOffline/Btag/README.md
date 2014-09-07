@@ -6,6 +6,8 @@ This package is used by HLT b-tag group for the CMSSW release validation.
 
 ---------------------- INSTALLATION ------------------------------------------------- 
 
+	cmsrel CMSSW_7_2_0_pre4
+
 	cd CMSSW_7_2_0_pre4
 
 	cd src/
