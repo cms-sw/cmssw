@@ -1,8 +1,13 @@
 #!/usr/bin/env python
+#
+# Launch the script with the command: ./compareDQM.py
+# Set below the two DQM input files (DQMfileOld,DQMfileNew)
+#
+# This script compares the plots cointained in two DQM files and save the superimposed plots 
+#
 
-######################### file options ##################################
-DQMfileOld="../test/DQM_V0001_R000000001__CMSSW_test__RelVal__TrigVal.root"
-DQMfileNew="../test/DQM_V0001_R000000001__CMSSW_test__RelVal__TrigVal.root"
+DQMfileOld="/afs/cern.ch/user/s/sdonato/AFSwork/public/DQM_V0001_R000000001__CMSSW_X_Y_Z__RelVal__TrigVal.root"
+DQMfileNew="/afs/cern.ch/user/s/sdonato/AFSwork/public/DQM_V0001_R000000002__CMSSW_X_Y_Z__RelVal__TrigVal.root"
 labelNew = "New"
 labelOld = "Old"
 
@@ -25,19 +30,13 @@ folder="plots"
 try:
 	os.mkdir(folder)
 except:
-	print "folder " + folder + " already existing"
+	print "folder " + folder + " already exist"
 
 from ROOT import TFile
 from ROOT import TCanvas
 from ROOT import TLegend
-#from ROOT import SetOwnership
-#from ROOT import THStack
-#from ROOT import TLatex
-#from ROOT import TH1
 from ROOT import TH1F
 from ROOT import TGraphErrors
-#from ROOT import TVectorD
-#from ROOT
 
 ########################## define a function that return plots given a TFile #################################
 
@@ -58,17 +57,29 @@ def GetPlots(_file0):
 				if(plot.GetName()=="efficiency"): 
 					for plotEfficiencyKey in plotPointer.GetListOfKeys():
 						plot=plotPointer.Get(plotEfficiencyKey.GetName())
-						plots=plots+[plot.Clone(triggerKey.GetName() + plot.GetName())]
+						plots=plots+[plot.Clone(triggerKey.GetName() + "_" + plot.GetName())]
 				else:
-					plots=plots+[plot.Clone(triggerKey.GetName() + plot.GetName())]
+					plots=plots+[plot.Clone(triggerKey.GetName() + "_" + plot.GetName())]
 	
 	return plots
 
 ########################## read DQM plots #################################
 fileNew=TFile(DQMfileOld)
-plotsNew = GetPlots(fileNew)
+
+plotsNew=0
+plotsOld=0
+
+try:
+  plotsNew = GetPlots(fileNew)
+except:
+  print "Problem with ", fileNew
+
 fileOld=TFile(DQMfileNew)
-plotsOld = GetPlots(fileOld)
+
+try:
+  plotsOld = GetPlots(fileOld)
+except:
+  print "Problem with ", fileOld
 
 ##### for kind of plots save a .png superimposing the New with the Old #####
 
@@ -104,6 +115,7 @@ for plotNew in plotsNew:
 			else:
 				c1.SetLogy(0)
 			
+			plotOld.SetMaximum(1.05*max(plotOld.GetMaximum(),plotNew.GetMaximum(),1))
 			plotOld.Draw()
 			plotNew.Draw("same")
 			legend.Draw()
