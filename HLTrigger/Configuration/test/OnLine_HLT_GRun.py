@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_2/GRun/V8 (CMSSW_7_1_6_HLT1)
+# /dev/CMSSW_7_1_2/GRun/V9 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_2/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_7_1_2/GRun/V9')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -22580,15 +22580,20 @@ process.hltSusyPreBtagJetFilter = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
-process.hltSelectorCentralJets20L1FastJet = cms.EDFilter( "EtMinCaloJetSelector",
+process.hltSelectorJets20L1FastJet = cms.EDFilter( "EtMinCaloJetSelector",
     filter = cms.bool( False ),
     src = cms.InputTag( "hltAK4CaloJetsCorrected" ),
     etMin = cms.double( 20.0 )
 )
+process.hltSelectorCentralJets20L1FastJeta = cms.EDFilter( "EtaRangeCaloJetSelector",
+    src = cms.InputTag( "hltSelectorJets20L1FastJet" ),
+    etaMin = cms.double( -2.4 ),
+    etaMax = cms.double( 2.4 )
+)
 process.hltSelector4CentralJetsL1FastJet = cms.EDFilter( "LargestEtCaloJetSelector",
     maxNumber = cms.uint32( 4 ),
     filter = cms.bool( False ),
-    src = cms.InputTag( "hltSelectorCentralJets20L1FastJet" )
+    src = cms.InputTag( "hltSelectorJets20L1FastJet" )
 )
 process.hltSiPixelDigisRegForBTag = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
@@ -23936,7 +23941,7 @@ process.HLTDoublePho85Sequence = cms.Sequence( process.HLTDoFullUnpackingEgammaE
 process.HLTPhoton155Sequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalSequence + process.HLTPFClusteringForEgamma + process.hltEgammaCandidates + process.hltEGL1SingleEG22Filter + process.hltEG155EtFilter + process.HLTDoLocalHcalWithTowerSequence + process.HLTFastJetForEgamma + process.hltEgammaHoverE + process.hltEG155HEFilter )
 process.HLTDoLocalPixelSequenceRegForBTag = cms.Sequence( process.hltSiPixelDigisRegForBTag + process.hltSiPixelClustersRegForBTag + process.hltSiPixelClustersRegForBTagCache + process.hltSiPixelRecHitsRegForBTag + process.hltPixelLayerPairsRegForBTag + process.hltPixelLayerTripletsRegForBTag )
 process.HLTFastRecopixelvertexingSequence = cms.Sequence( process.hltFastPrimaryVertex + process.hltFastPVPixelVertexFilter + process.hltFastPVPixelTracks + process.hltFastPVJetTracksAssociator + process.hltFastPVJetVertexChecker + process.hltFastPVPixelTracksRecover + process.hltFastPVPixelTracksMerger + process.hltFastPVPixelVertices )
-process.HLTFastPrimaryVertexSequence = cms.Sequence( process.hltSelectorCentralJets20L1FastJet + process.hltSelector4CentralJetsL1FastJet + process.HLTDoLocalPixelSequenceRegForBTag + process.HLTFastRecopixelvertexingSequence )
+process.HLTFastPrimaryVertexSequence = cms.Sequence( process.hltSelectorJets20L1FastJet + process.hltSelectorCentralJets20L1FastJeta + process.hltSelector4CentralJetsL1FastJet + process.HLTDoLocalPixelSequenceRegForBTag + process.HLTFastRecopixelvertexingSequence )
 process.HLTDoLocalStripSequenceRegForBTag = cms.Sequence( process.hltSiStripExcludedFEDListProducer + process.hltSiStripRawToClustersFacility + process.hltSiStripClustersRegForBTag )
 process.HLTIterativeTrackingForBTagIteration0 = cms.Sequence( process.hltIter0PFlowPixelSeedsFromPixelTracksForBTag + process.hltIter0PFlowCkfTrackCandidatesForBTag + process.hltIter0PFlowCtfWithMaterialTracksForBTag + process.hltIter0PFlowTrackSelectionHighPurityForBTag )
 process.HLTIterativeTrackingForBTagIteration1 = cms.Sequence( process.hltIter1ClustersRefRemovalForBTag + process.hltIter1MaskedMeasurementTrackerEventForBTag + process.hltIter1PixelLayerTripletsForBTag + process.hltIter1PFlowPixelSeedsForBTag + process.hltIter1PFlowCkfTrackCandidatesForBTag + process.hltIter1PFlowCtfWithMaterialTracksForBTag + process.hltIter1PFlowTrackSelectionHighPurityLooseForBTag + process.hltIter1PFlowTrackSelectionHighPurityTightForBTag + process.hltIter1PFlowTrackSelectionHighPurityForBTag )

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_2/GRun/V8 (CMSSW_7_1_6_HLT1)
+# /dev/CMSSW_7_1_2/GRun/V9 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_2/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_7_1_2/GRun/V9')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -14062,15 +14062,20 @@ hltSusyPreBtagJetFilter = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
-hltSelectorCentralJets20L1FastJet = cms.EDFilter( "EtMinCaloJetSelector",
+hltSelectorJets20L1FastJet = cms.EDFilter( "EtMinCaloJetSelector",
     filter = cms.bool( False ),
     src = cms.InputTag( "hltAK4CaloJetsCorrected" ),
     etMin = cms.double( 20.0 )
 )
+hltSelectorCentralJets20L1FastJeta = cms.EDFilter( "EtaRangeCaloJetSelector",
+    src = cms.InputTag( "hltSelectorJets20L1FastJet" ),
+    etaMin = cms.double( -2.4 ),
+    etaMax = cms.double( 2.4 )
+)
 hltSelector4CentralJetsL1FastJet = cms.EDFilter( "LargestEtCaloJetSelector",
     maxNumber = cms.uint32( 4 ),
     filter = cms.bool( False ),
-    src = cms.InputTag( "hltSelectorCentralJets20L1FastJet" )
+    src = cms.InputTag( "hltSelectorJets20L1FastJet" )
 )
 hltFastPVJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
@@ -14477,7 +14482,7 @@ HLTEle95CaloIdVTGsfTrkIdTGsfSequence = cms.Sequence( HLTDoFullUnpackingEgammaEca
 HLTDoublePho85Sequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1SingleEG22Filter + hltEG85EtFilter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEG85HEFilter + HLTPFClusteringForEgammaUnseeded + hltEgammaCandidatesUnseeded + hltEgammaCandidatesWrapperUnseeded + hltDiEG85EtUnseededFilter + hltEgammaHoverEUnseeded + hltDiEG85HEUnseededFilter )
 HLTPhoton155Sequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1SingleEG22Filter + hltEG155EtFilter + HLTDoLocalHcalWithTowerSequence + HLTFastJetForEgamma + hltEgammaHoverE + hltEG155HEFilter )
 HLTFastRecopixelvertexingSequence = cms.Sequence( hltFastPrimaryVertex + hltFastPVPixelVertexFilter + hltFastPVPixelTracks + hltFastPVJetTracksAssociator + hltFastPVJetVertexChecker + hltFastPVPixelTracksRecover + hltFastPVPixelTracksMerger + hltFastPVPixelVertices )
-HLTFastPrimaryVertexSequence = cms.Sequence( hltSelectorCentralJets20L1FastJet + hltSelector4CentralJetsL1FastJet + HLTDoLocalPixelSequenceRegForBTag + HLTFastRecopixelvertexingSequence )
+HLTFastPrimaryVertexSequence = cms.Sequence( hltSelectorJets20L1FastJet + hltSelectorCentralJets20L1FastJeta + hltSelector4CentralJetsL1FastJet + HLTDoLocalPixelSequenceRegForBTag + HLTFastRecopixelvertexingSequence )
 HLTBtagCSVSequenceL3 = cms.Sequence( HLTDoLocalPixelSequenceRegForBTag + HLTDoLocalStripSequenceRegForBTag + HLTIterativeTrackingForBTagIter02 + hltVerticesL3 + hltFastPixelBLifetimeL3Associator + hltFastPixelBLifetimeL3TagInfos + hltL3SecondaryVertexTagInfos + hltL3CombinedSecondaryVertexBJetTags )
 
 HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
