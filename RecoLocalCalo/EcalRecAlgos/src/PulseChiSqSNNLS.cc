@@ -3,9 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 PulseChiSqSNNLS::PulseChiSqSNNLS() :
-  _sampvec(10),
-  _invcov(10),
-  _workvec(10),
   _chisq(0.),
   _computeErrors(true)
 {
@@ -16,25 +13,25 @@ PulseChiSqSNNLS::~PulseChiSqSNNLS() {
   
 }
 
-bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov) {
+bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const SampleMatrix &samplecor, double pederr, const std::set<int> &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov) {
  
-  const unsigned int nsample = samples.size();
+  const unsigned int nsample = SampleVector::RowsAtCompileTime;
   const unsigned int npulse = bxs.size();
     
-  //resize matrices using reserved memory on the stack
-  _pulsemat.Use(nsample,npulse,_pulsematstorage.data());
-  _ampvec.Use(npulse,_ampvecstorage.data());
-  _ampvecmin.Use(npulse,_ampvecminstorage.data());
-  _errvec.Use(npulse,_errvecstorage.data());
-  _workmat.Use(npulse,nsample,_workmatstorage.data());
-  _aTamat.Use(npulse,npulse,_aTamatstorage.data());
-  _wvec.Use(npulse,_wvecstorage.data());
-  _aTbvec.Use(npulse,_aTbvecstorage.data());
-  _aTbcorvec.Use(npulse,_aTbcorvecstorage.data());
-                
+  //_pulsemat.resize(NoChange_t, npulse);
+  //_ampvecmin.resize(npulse);
+  //_errvecmin.resize(npulse);
+    
+  for (unsigned int isample=0; isample<nsample; ++isample) {
+    _sampvec(isample) = samples[isample];
+  }
+  
+  _pulsemat = SamplePulseMatrix::Zero(nsample,npulse);
+  _ampvec = PulseVector::Zero(npulse);
+  _errvec = PulseVector::Zero(npulse);  
+  _ampvecmin = PulseVector::Zero(npulse);
+  
   //initialize parameters and index index set
-  _sampvec.SetElements(samples.data());
-  _ampvec.Zero();
   _idxsP.clear();
   _idxsFixed.clear();
   _chisq = 0.;
@@ -44,16 +41,18 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
     int ipulse = std::distance(bxs.begin(),bxit);
     int bx = *bxit;
     int firstsamplet = std::max(0,bx + 3);
-    int offset = -3-bx;
-        
-    for (unsigned int isample = firstsamplet; isample<nsample; ++isample) {
-      _pulsemat(isample,ipulse) = fullpulse(isample+offset);
-    }
+    int offset = 7-3-bx;
+    
+    const unsigned int nsamplepulse = nsample-firstsamplet;    
+    //_pulsemat.block(firstsamplet,ipulse,nsamplepulse,1) = fullpulse.segment(firstsamplet+offset,nsamplepulse).transpose();
+    //_pulsemat.col(ipulse).segment(firstsamplet,nsamplepulse) = fullpulse.segment(firstsamplet+offset,nsamplepulse).transpose();
+    _pulsemat.col(ipulse).segment(firstsamplet,nsamplepulse) = fullpulse.segment(firstsamplet+offset,nsamplepulse);
+    
   }
 
   bool status = Minimize(samplecor,pederr,bxs,fullpulsecov);
   _ampvecmin = _ampvec;
-  _errvec = _wvec;
+  
   if (!status) return status;
   
   if(!_computeErrors) return status;
@@ -61,6 +60,8 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
   //compute MINOS-like uncertainties for in-time amplitude
   if (bxs.count(0)) {
     int ipulseintime = std::distance(bxs.begin(), bxs.find(0));
+    double approxerr = ComputeApproxUncertainty(ipulseintime);
+    
     double chisq0 = _chisq;
     double x0 = _ampvecmin[ipulseintime];
 
@@ -72,7 +73,7 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
     }
     
     //two point interpolation for upper uncertainty when amplitude is away from boundary
-    double xplus100 = x0 + _errvec[ipulseintime];
+    double xplus100 = x0 + approxerr;
     _ampvec[ipulseintime] = xplus100;
     status &= Minimize(samplecor,pederr,bxs,fullpulsecov);
     if (!status) return status;
@@ -82,7 +83,7 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
     
     //if amplitude is sufficiently far from the boundary, compute also the lower uncertainty and average them
     if ( (x0/sigmaplus) > 0.5 ) {
-      double xminus100 = std::max(0.,x0-_errvec[ipulseintime]);
+      double xminus100 = std::max(0.,x0-approxerr);
       _ampvec[ipulseintime] = xminus100;
       status &= Minimize(samplecor,pederr,bxs,fullpulsecov);
       if (!status) return status;
@@ -103,7 +104,7 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const TMatrixDSy
   
 }
 
-bool PulseChiSqSNNLS::Minimize(const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov) {
+bool PulseChiSqSNNLS::Minimize(const SampleMatrix &samplecor, double pederr, const std::set<int> &bxs, const FullSampleMatrix &fullpulsecov) {
 
   
   const int maxiter = 50;
@@ -135,31 +136,32 @@ bool PulseChiSqSNNLS::Minimize(const TMatrixDSym &samplecor, double pederr, cons
   
 }
 
-bool PulseChiSqSNNLS::updateCov(const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov) {
+bool PulseChiSqSNNLS::updateCov(const SampleMatrix &samplecor, double pederr, const std::set<int> &bxs, const FullSampleMatrix &fullpulsecov) {
  
-  const unsigned int nsample = _sampvec.GetNrows();
+  const unsigned int nsample = SampleVector::RowsAtCompileTime;
   
-  _invcov = samplecor;
-  _invcov *= pederr*pederr;
+  _invcov = pederr*pederr*samplecor;
   
   for (std::set<int>::const_iterator bxit = bxs.begin(); bxit!=bxs.end(); ++bxit) {
     int ipulse = std::distance(bxs.begin(),bxit);
     if (_ampvec[ipulse]==0.) continue;
     int bx = *bxit;
     int firstsamplet = std::max(0,bx + 3);
-    int offset = -3-bx;
+    int offset = 7-3-bx;
         
     double ampsq = _ampvec[ipulse]*_ampvec[ipulse];
-    for (unsigned int isample = firstsamplet; isample<nsample; ++isample) {
-      for (unsigned int jsample = firstsamplet; jsample<nsample; ++jsample) {
-        _invcov(isample,jsample) += ampsq*fullpulsecov(isample+offset,jsample+offset);
-      }
-    }
+    
+    const unsigned int nsamplepulse = nsample-firstsamplet;    
+    _invcov.block(firstsamplet,firstsamplet,nsamplepulse,nsamplepulse) += ampsq*fullpulsecov.block(firstsamplet+offset,firstsamplet+offset,nsamplepulse,nsamplepulse);
+    
   }
     
-  _decompP.SetMatrixFast(_invcov,_decompPstorage.data());
-  bool status = _decompP.Invert(_invcov);
+  //_decompP.SetMatrixFast(_invcov,_decompPstorage.data());
+  //bool status = _decompP.Invert(_invcov);
   
+  _covdecomp.compute(_invcov);
+  
+  bool status = true;
   return status;
     
 }
@@ -167,10 +169,23 @@ bool PulseChiSqSNNLS::updateCov(const TMatrixDSym &samplecor, double pederr, con
 double PulseChiSqSNNLS::ComputeChiSq() {
  
   //compute chi square after fit
-  _workvec = _pulsemat*_ampvec;
-  _workvec -= _sampvec;
-  _workvec *= -1.;
-  return _invcov.Similarity(_workvec);   
+//   _workvec = _pulsemat*_ampvec;
+//   _workvec -= _sampvec;
+//   _workvec *= -1.;
+//   return _invcov.Similarity(_workvec);   
+  
+  SampleVector resvec = _pulsemat*_ampvec - _sampvec;
+  return resvec.transpose()*_covdecomp.solve(resvec);
+  
+}
+
+double PulseChiSqSNNLS::ComputeApproxUncertainty(unsigned int ipulse) {
+  //compute approximate uncertainties
+  //(using 1/second derivative since full Hessian is not meaningful in
+  //presence of positive amplitude boundaries.)
+    
+  const auto &pulsevec = _pulsemat.col(ipulse);
+  return 1./sqrt(pulsevec.transpose()*_covdecomp.solve(pulsevec));
   
 }
 
@@ -178,22 +193,20 @@ bool PulseChiSqSNNLS::NNLS() {
   
   //Fast NNLS (fnnls) algorithm as per http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.157.9203&rep=rep1&type=pdf
   
-  unsigned int nsample = _sampvec.GetNrows();
+  //const unsigned int nsample = SampleVector::RowsAtCompileTime;
   
-  _workmat.TMult(_pulsemat,_invcov);
-  _aTamat.Mult(_workmat,_pulsemat);
-  _aTbvec = _workmat*_sampvec;
+  SamplePulseMatrix invcovp = _covdecomp.solve(_pulsemat);  
+  PulseMatrix aTamat = _pulsemat.transpose()*invcovp;
+  PulseVector aTbvec = invcovp.transpose()*_sampvec;
   
   //correct for possible effect of non-zero fixed amplitudes
-  _workvec = _sampvec;
+  SampleVector sampcorvec = _sampvec;
   for (std::set<unsigned int>::const_iterator itidx=_idxsFixed.begin(); itidx!=_idxsFixed.end(); ++itidx) {
-    for (unsigned int isample=0; isample<nsample; ++isample) {
-      _workvec[isample] -= _ampvec[*itidx]*_pulsemat(isample,*itidx);
-    }
+    sampcorvec -= _ampvec[*itidx]*_pulsemat.col(*itidx);
   }
-  _aTbcorvec = _workmat*_workvec;
+  PulseVector aTbcorvec = invcovp.transpose()*sampcorvec;
   
-  const unsigned int npulse = _ampvec.GetNrows();
+  const unsigned int npulse = _ampvec.rows();
   int iter = 0;
   while (true) {
     //printf("iter out, idxsP = %i\n",int(_idxsP.size()));
@@ -203,18 +216,15 @@ bool PulseChiSqSNNLS::NNLS() {
       if ( (_idxsP.size()+_idxsFixed.size())==npulse ) break;
       
       //compute derivatives
-      _wvec = _ampvec;
-      _wvec *= _aTamat;
-      _wvec -= _aTbvec;
-      _wvec *= -1.0;
+      PulseVector wvec = aTbvec - aTamat*_ampvec;
       
       //find wmax in active set
       double wmax = -std::numeric_limits<double>::max();
       unsigned int idxwmax = 0;
       for (unsigned int idx=0; idx<npulse; ++idx) {
-        //printf("_ampvec[%i] = %5e, w[%i] = %5e\n",idx,_ampvec[idx],idx,_wvec[idx]);
-        if (!_idxsP.count(idx) && !_idxsFixed.count(idx) && _wvec[idx]>wmax) {
-          wmax = _wvec[idx];
+        //printf("_ampvec[%i] = %5e, w[%i] = %5e\n",idx,_ampvec[idx],idx,wvec[idx]);
+        if (!_idxsP.count(idx) && !_idxsFixed.count(idx) && wvec[idx]>wmax) {
+          wmax = wvec[idx];
           idxwmax = idx;
         }
       }
@@ -234,30 +244,27 @@ bool PulseChiSqSNNLS::NNLS() {
       
       //trick: resize matrices without reallocating memory
       const unsigned int npulseP = _idxsP.size();
-      _aPmat.Use(npulseP,_aPstorage.data());
-      _sPvec.Use(npulseP,_sPstorage.data()); 
+      PulseMatrix aPmat(npulseP,npulseP);
+      PulseVector sPvec(npulseP);
       
       //fill reduced matrix AP
       for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
         unsigned int iidx = std::distance(_idxsP.begin(),itidx);
-        _sPvec(iidx) = _aTbcorvec(*itidx);        
+        sPvec(iidx) = aTbcorvec(*itidx);        
         for (std::set<unsigned int>::const_iterator jtidx=_idxsP.begin(); jtidx!=_idxsP.end(); ++jtidx) {
           unsigned int jidx = std::distance(_idxsP.begin(),jtidx);
-          _aPmat(iidx,jidx) = _aTamat(*itidx,*jtidx);
+          aPmat(iidx,jidx) = aTamat(*itidx,*jtidx);
         }
       }
       
-      //solve for unconstrained parameters
-      _decompP.SetMatrixFast(_aPmat,_decompPstorage.data());
-      bool status = _decompP.Solve(_sPvec);
-      if (!status) return false;
+      //solve for unconstrained parameters      
+      sPvec = aPmat.ldlt().solve(sPvec);
       
       //check solution
-      if (_sPvec.Min()>0.) {
-        //_ampvec.Zero();
+      if (sPvec.minCoeff()>0.) {
         for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
           unsigned int iidx = std::distance(_idxsP.begin(),itidx);
-          _ampvec[*itidx] = _sPvec[iidx];
+          _ampvec[*itidx] = sPvec[iidx];
         }
               
         break;
@@ -268,8 +275,8 @@ bool PulseChiSqSNNLS::NNLS() {
       unsigned int minratioidx = 0;
       for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
         unsigned int iidx = std::distance(_idxsP.begin(),itidx);
-        double ratio = _ampvec[*itidx]/(_ampvec[*itidx]-_sPvec[iidx]);
-        if (_sPvec[iidx]<=0. && ratio<minratio) {
+        double ratio = _ampvec[*itidx]/(_ampvec[*itidx]-sPvec[iidx]);
+        if (sPvec[iidx]<=0. && ratio<minratio) {
           minratio = ratio;
           minratioidx = *itidx;
         }
@@ -278,7 +285,7 @@ bool PulseChiSqSNNLS::NNLS() {
       //re-constraint parameters at the boundary
       for (std::set<unsigned int>::const_iterator itidx=_idxsP.begin(); itidx!=_idxsP.end(); ++itidx) {
         unsigned int iidx = std::distance(_idxsP.begin(),itidx);
-        _ampvec[*itidx] += minratio*(_sPvec[iidx] - _ampvec[*itidx]);
+        _ampvec[*itidx] += minratio*(sPvec[iidx] - _ampvec[*itidx]);
       }
       
       
@@ -295,16 +302,6 @@ bool PulseChiSqSNNLS::NNLS() {
       
     }
     ++iter;
-  }
-  
-  //compute approximate uncertainties
-  //(using 1/second derivative since full Hessian is not meaningful in
-  //presence of positive amplitude boundaries.)
-  for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-    for (unsigned int isample=0; isample<nsample; ++isample) {
-      _workvec[isample] = _pulsemat(isample,ipulse);
-    }
-    _wvec[ipulse] = 1./sqrt(_invcov.Similarity(_workvec));
   }
 
   return true;

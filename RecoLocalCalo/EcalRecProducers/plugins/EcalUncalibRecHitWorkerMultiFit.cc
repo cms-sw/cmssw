@@ -17,10 +17,11 @@
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c),
-  noisecorEBg12(10), noisecorEEg12(10),
-  noisecorEBg6(10), noisecorEEg6(10),
-  noisecorEBg1(10), noisecorEEg1(10),
-  fullpulseEB(12),fullpulseEE(12),fullpulsecovEB(12),fullpulsecovEE(12) {
+  noisecorEBg12(SampleMatrix::Zero()), noisecorEEg12(SampleMatrix::Zero()),
+  noisecorEBg6(SampleMatrix::Zero()), noisecorEEg6(SampleMatrix::Zero()),
+  noisecorEBg1(SampleMatrix::Zero()), noisecorEEg1(SampleMatrix::Zero()),
+  fullpulseEB(FullSampleVector::Zero()),fullpulseEE(FullSampleVector::Zero()),
+  fullpulsecovEB(FullSampleMatrix::Zero()),fullpulsecovEE(FullSampleMatrix::Zero()) {
 
   // get the pulse shape, amplitude covariances and noise correlations
   EcalPulseShapeParameters_ = ps.getParameter<edm::ParameterSet>("EcalPulseShapeParameters");
@@ -280,9 +281,9 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 if (((EcalDataFrame)(*itdg)).hasSwitchToGain1()) {
                   gain = 1;
                 }
-                const TMatrixDSym &noisecormat = noisecor(barrel,gain);
-                const TVectorD &fullpulse = barrel ? fullpulseEB : fullpulseEE;
-                const TMatrixDSym &fullpulsecov = barrel ? fullpulsecovEB : fullpulsecovEE;
+                const SampleMatrix &noisecormat = noisecor(barrel,gain);
+                const FullSampleVector &fullpulse = barrel ? fullpulseEB : fullpulseEE;
+                const FullSampleMatrix &fullpulsecov = barrel ? fullpulsecovEB : fullpulsecovEE;
                                 
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
@@ -402,7 +403,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 }
 
 
-const TMatrixDSym &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int gain) const {
+const SampleMatrix &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int gain) const {
   if (barrel) {
     if (gain==6) {
       return noisecorEBg6;
@@ -459,8 +460,8 @@ void EcalUncalibRecHitWorkerMultiFit::fillInputs(const edm::ParameterSet& params
   const std::vector<double> eePulse = params.getParameter< std::vector<double> >("EEPulseShapeTemplate");
   int nShapeSamples = ebPulse.size();
   for (int i=0; i<nShapeSamples; ++i) {
-    fullpulseEB(i) = ebPulse[i];
-    fullpulseEE(i) = eePulse[i];
+    fullpulseEB(i+7) = ebPulse[i];
+    fullpulseEE(i+7) = eePulse[i];
   }
 
   const std::vector<double> ebPulseCov = params.getParameter< std::vector<double> >("EBPulseShapeCovariance");
@@ -468,8 +469,8 @@ void EcalUncalibRecHitWorkerMultiFit::fillInputs(const edm::ParameterSet& params
   for(int k=0; k<std::pow(nShapeSamples,2); ++k) {
     int i = k/nShapeSamples;
     int j = k%nShapeSamples;
-    fullpulsecovEB(i,j) = ebPulseCov[k];
-    fullpulsecovEE(i,j) = eePulseCov[k];
+    fullpulsecovEB(i+7,j+7) = ebPulseCov[k];
+    fullpulsecovEE(i+7,j+7) = eePulseCov[k];
   }
 
 }
