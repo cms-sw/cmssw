@@ -40,7 +40,7 @@ To compare two DQM file:
 
 	4. Now you have a 'plots' folders containing the comparison between the two CMSSW release
 
------------------------------(*) How to produce the RelVal sample with b-tag informations ------------------------------------------------------------------ 
+------(*) How to produce the RelVal sample with b-tag informations ------------------
 
 (*)
 
@@ -50,45 +50,45 @@ To produce and to save them by your own:
 
 1. Download the last btag-related HLT paths (choose a MC RAW input file, run the trigger in the open mode, choose the max-events ...):
 
-hltGetConfiguration /dev/CMSSW_7_1_2/HLT --globaltag auto:startup_GRun --input file:/afs/cern.ch/work/n/ntsirova/public/hlt_dev/ttbar-13tev-1file.root --output full --paths 
+	hltGetConfiguration /dev/CMSSW_7_1_2/HLT --globaltag auto:startup_GRun --input file:/afs/cern.ch/work/n/ntsirova/public/hlt_dev/ttbar-13tev-1file.root --output full --paths 
 HLT_PFMET120_NoiseCleaned_BTagCSV07_v1,HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1,HLT_BTagCSV07_v1 --open --max-events 100 > btag-pathes.py
 
 2. (optional) Replace the output modules in btag-pathes.py, in order to keep only the useful informations:
 
-process.outp1=cms.OutputModule("PoolOutputModule",
+	process.outp1=cms.OutputModule("PoolOutputModule",
 
-        fileName = cms.untracked.string('outputFULL.root'),
+		    fileName = cms.untracked.string('outputFULL.root'),
 
-        outputCommands = cms.untracked.vstring(
+		    outputCommands = cms.untracked.vstring(
 
-        'drop *',
+		    'drop *',
 
-        'keep recoVertexs_*_*_*',
+		    'keep recoVertexs_*_*_*',
 
-        'keep recoCaloJets_*_*_*',
+		    'keep recoCaloJets_*_*_*',
 
-        'keep recoPFJets_*_*_*',
+		    'keep recoPFJets_*_*_*',
 
-        'keep recoTracksRefsrecoJTATagInforecoIPTagInforecoVertexrecoTemplatedSecondaryVertexTagInfos_*_*_*',
+		    'keep recoTracksRefsrecoJTATagInforecoIPTagInforecoVertexrecoTemplatedSecondaryVertexTagInfos_*_*_*',
 
-        'keep recoJetedmRefToBaseProdTofloatsAssociationVector_*_*_*',
+		    'keep recoJetedmRefToBaseProdTofloatsAssociationVector_*_*_*',
 
-        'keep *_TriggerResults_*_*',
+		    'keep *_TriggerResults_*_*',
 
-        'keep *_genParticles_*_*',        
+		    'keep *_genParticles_*_*',        
 
-        'keep SimVertexs_g4SimHits_*_*',
+		    'keep SimVertexs_g4SimHits_*_*',
 
-         )
+		     )
 
-)  
+	)  
 
-process.out = cms.EndPath( process.outp1 )
+	process.out = cms.EndPath( process.outp1 )
 
 You can check an example in: /afs/cern.ch/user/s/sdonato/AFSwork/public/btag-pathes.py
 
 3. Launch the job:
 
-cmsRun btag-pathes.py >& logHLTbtag &
+	cmsRun btag-pathes.py >& logHLTbtag &
 
 
