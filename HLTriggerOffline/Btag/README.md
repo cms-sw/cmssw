@@ -6,15 +6,15 @@ This package is used by HLT b-tag group for the CMSSW release validation.
 
 ---------------------- INSTALLATION ------------------------------------------------- 
 
-cd CMSSW_7_2_0_pre4
+	cd CMSSW_7_2_0_pre4
 
-cd src/
+	cd src/
 
-cmsenv
+	cmsenv
 
-git cms-merge-topic silviodonato:hlt-validation-2
+	git cms-merge-topic silviodonato:hlt-validation-2
 
-scram b -j4
+	scram b -j4
 
 ---------------------- USE ------------------------------------------------- 
 
