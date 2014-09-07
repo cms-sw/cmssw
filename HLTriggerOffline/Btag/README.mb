@@ -1,6 +1,17 @@
-HLTriggerOffline/Btag (avilable on https://github.com/silviodonato/cmssw/tree/hlt-validation-2/HLTriggerOffline/Btag)
+---------------------- DESCRIPTION ------------------------------------------------- 
 
+HLTriggerOffline/Btag (avilable on https://github.com/silviodonato/cmssw/tree/hlt-validation-2/HLTriggerOffline/Btag)
 This package is used by HLT b-tag group for the CMSSW release validation.
+
+---------------------- INSTALLATION ------------------------------------------------- 
+
+cd CMSSW_7_2_0_pre4
+cd src/
+cmsenv
+git cms-merge-topic silviodonato:hlt-validation-2
+scram b -j4
+
+---------------------- USE ------------------------------------------------- 
 
 To produce the DQM plots of a CMSSW release do:
 	1. Take a file containing the HLT b-tag informations reconstructed with the CMSSW release that you want to validate  (*)
