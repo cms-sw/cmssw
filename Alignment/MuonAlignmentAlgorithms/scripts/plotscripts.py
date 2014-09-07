@@ -1463,7 +1463,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=10., abscissa=None, title
             print "bad id for ", name
             raise Exception
     
-    hdir = "AlignmentMonitorMuonSystemMap1D/iter1/"
+    hdir = "AlignmentMonitorMuonSystemMap1D/lowPtTripletStep/"
     hpref= "%s_%s" % (name, param)
     hhh  = hdir+hpref
     
@@ -1812,7 +1812,7 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
     if reset_palette: set_palette("blues")
     global hist, histCOPY, hist2d, tline1, tline2, tline3, tline4, tline5
 
-    hdir = "AlignmentMonitorMuonVsCurvature/iter1/"
+    hdir = "AlignmentMonitorMuonVsCurvature/lowPtTripletStep/"
 
     if name not in ("all", "top", "bottom"):
         hsuffix = "_%s_%s" % (name, param)
@@ -2958,7 +2958,7 @@ def segdiff(tfiles, component, pair, **args):
     else: window = 5.
 
     global tmpprof, tmppos, tmpneg
-    pdir = "AlignmentMonitorSegmentDifferences/iter1/"
+    pdir = "AlignmentMonitorSegmentDifferences/lowPtTripletStep/"
     tmpprof = tfiles[0].Get(pdir + profname).Clone()
     tmpprof.SetMarkerStyle(8)
     tmppos = tfiles[0].Get(pdir + posname).Clone()
@@ -3105,7 +3105,7 @@ def segdiff_xalign(tfiles, component, **args):
     else: window = 5.
 
     global tmppos, tmpneg, tmppos_2, tmpneg_2
-    pdir = "AlignmentMonitorSegmentDifferences/iter1/"
+    pdir = "AlignmentMonitorSegmentDifferences/lowPtTripletStep/"
     tmppos = tfiles[0].Get(pdir + posname_1).Clone()
     tmpneg = tfiles[0].Get(pdir + negname_1).Clone()
     if len(args["cscstations"]) > 1:

@@ -24,10 +24,10 @@ usage='%prog [options]\n'+\
   'Each of these directories should contain\ni#prefix+"_plotting.root"\ni#prefix+".root"\ni#prefix+"_report.py"\n'+\
   'files, where # = 1 or N.\n'+\
   'Output will be located in outputDir, which must exist. Plots from the first and last iterations '+\
-  'will be in outputDir+"iter1" and outputDir+"iterN" respectively, and plots relevant for all iterations will '+\
+  'will be in outputDir+"lowPtTripletStep" and outputDir+"iterN" respectively, and plots relevant for all iterations will '+\
   'reside in outputDir+"common/".\n'+\
   'For a first run a --createDirSructure option must be present. If this option is present for subsequent runs '+\
-  'with the same outputDir, all previous results in "iter1", "iterN" and and "common" would be deleted!\n'+\
+  'with the same outputDir, all previous results in "lowPtTripletStep", "iterN" and and "common" would be deleted!\n'+\
   'If neither --dt or --csc is present, plots for both systems will be created.\n'+\
   'Options must include either -a or any of the following: --map, --segdiff, --fit, --median'
 
@@ -1006,7 +1006,7 @@ if DO_MAP:
 os.chdir(options.outputDir)
 
 comdir = "common/"
-iteration1 = "iter1"
+iteration1 = "lowPtTripletStep"
 iterationN = "iterN"
 
 # create directory structure

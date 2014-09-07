@@ -527,7 +527,7 @@ cp -f %(directory)s%(director)s_%(validationLabel)s.tgz $ALIGNMENT_CAFDIR/tmp/
 cd $ALIGNMENT_CAFDIR/
 tar xzvf tmp/%(director1)s_%(validationLabel)s.tgz
 mv tmp/out/* out/
-mv out/iterN out/iter1
+mv out/iterN out/lowPtTripletStep
 mv out/tmp_test_results_map__%(validationLabel)s.pkl out/tmp_test_results_map__%(validationLabel)s_1.pkl
 tar xzvf tmp/%(director)s_%(validationLabel)s.tgz
 mv tmp/out/* out/

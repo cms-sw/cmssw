@@ -496,7 +496,7 @@ process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
 #process.AlignmentTrackSelector.trackQualities = ["highPurity"]
-#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["lowPtTripletStep","pixelPairStep"]
 
 ##### For Hits:
 process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them

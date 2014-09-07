@@ -82,7 +82,7 @@ process.load("Validation.RecoTrack.cuts_cff")
 process.cutsRecoTracks.quality = cms.vstring('highPurity')
 #process.cutsRecoTracks.min3DHit = cms.int32(3)
 #process.cutsRecoTracks.minPixHit = cms.int32(0)
-#process.cutsRecoTracks.algorithm = cms.vstring('iter6')
+#process.cutsRecoTracks.algorithm = cms.vstring('tobTecStep')
 #process.cutsRecoTracks.maxChi2 = 10
 #process.cutsRecoTracks.minHit   = cms.int32(10)
 #process.cutsRecoTracks.src = cms.InputTag("TrackRefitter")

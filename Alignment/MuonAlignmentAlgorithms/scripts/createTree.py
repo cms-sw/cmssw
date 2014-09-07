@@ -61,7 +61,7 @@ usage='%prog [options]\n'+\
 parser=optparse.OptionParser(usage)
 
 parser.add_option("-i", "--inputDir",
-  help="[REQUIRED] input directory: should contain 'iter1', 'iterN' and 'common' directories filled with alignment_validation_plots.py. The resulting tree_items.js is also dumped into this directory",
+  help="[REQUIRED] input directory: should contain 'lowPtTripletStep', 'iterN' and 'common' directories filled with alignment_validation_plots.py. The resulting tree_items.js is also dumped into this directory",
   type="string",
   default='',
   dest="inputDir")
@@ -98,7 +98,7 @@ os.chdir(options.inputDir)
 #iteration3 = "iteration_03"
 #iteration1 = "NOV4DT_PASS3noweight_TkHIP_01"
 #iteration3 = "NOV4DT_PASS3noweight_TkHIP_05"
-iteration1 = "iter1"
+iteration1 = "lowPtTripletStep"
 iterationN = "iterN"
 comdir = "common/"
 
