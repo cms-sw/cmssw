@@ -42,8 +42,6 @@ To compare two DQM file:
 
 ------(*) How to produce the RelVal sample with b-tag informations ------------------
 
-(*)
-
 These b-tag informations will be save in the standard HLTDEBUG format (e.g. '/RelValTTbar_13/CMSSW_7_***-POSTLS172_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
 
 To produce and to save them by your own:
@@ -55,7 +53,7 @@ HLT_PFMET120_NoiseCleaned_BTagCSV07_v1,HLT_PFMHT100_SingleCentralJet60_BTagCSV0p
 
 2. (optional) Replace the output modules in btag-pathes.py, in order to keep only the useful informations:
 
-	process.outp1=cms.OutputModule("PoolOutputModule",
+		    process.outp1=cms.OutputModule("PoolOutputModule",
 
 		    fileName = cms.untracked.string('outputFULL.root'),
 
@@ -81,9 +79,9 @@ HLT_PFMET120_NoiseCleaned_BTagCSV07_v1,HLT_PFMHT100_SingleCentralJet60_BTagCSV0p
 
 		     )
 
-	)  
+		     )  
 
-	process.out = cms.EndPath( process.outp1 )
+		     process.out = cms.EndPath( process.outp1 )
 
 You can check an example in: /afs/cern.ch/user/s/sdonato/AFSwork/public/btag-pathes.py
 
