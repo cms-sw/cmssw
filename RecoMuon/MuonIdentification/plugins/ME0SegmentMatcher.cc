@@ -66,7 +66,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
       //Initializing our plane
       float zSign  = thisTrack->pz()/fabs(thisTrack->pz());
       float zValue = 560. * zSign;
-      Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
+      Plane plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
       //Getting the initial variables for propagation
       int chargeReco = thisTrack->charge(); 
       GlobalVector p3reco, r3reco;
@@ -88,7 +88,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
       const SteppingHelixPropagator* ThisshProp = 
 	dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
 	
-      lastrecostate = ThisshProp->propagate(startrecostate, *plane);
+      lastrecostate = ThisshProp->propagate(startrecostate, plane);
 	
       FreeTrajectoryState finalrecostate;
       lastrecostate.getFreeState(finalrecostate);
