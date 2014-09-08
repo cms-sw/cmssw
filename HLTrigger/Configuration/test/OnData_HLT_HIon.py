@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_2/HIon/V9 (CMSSW_7_1_6_HLT1)
+# /dev/CMSSW_7_1_2/HIon/V11 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_2/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_7_1_2/HIon/V11')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -451,13 +451,16 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
-process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
-process.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1',
-  'HLT_Ele27_WP85_Gsf_v1',
-  'HLT_Mu40_v1',
-  'HLT_PFJet260_v1',
-  'HLT_Photon20_CaloIdVL_IsoL_v1',
-  'HLT_Physics_v1' ) )
+process.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
+  'Templates' ) )
+process.datasets = cms.PSet( 
+  InitialPD = cms.vstring( 'HLT_Ele27_WP85_Gsf_v1',
+    'HLT_Mu40_v1',
+    'HLT_Physics_v1' ),
+  Templates = cms.vstring( 'HLT_CaloJet260_v1',
+    'HLT_PFJet260_v1',
+    'HLT_Photon20_CaloIdVL_IsoL_v1' )
+)
 
 process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring( 'Geometry/CMSCommonData/data/normal/cmsextent.xml',
