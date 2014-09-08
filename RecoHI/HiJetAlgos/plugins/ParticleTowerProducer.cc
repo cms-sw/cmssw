@@ -67,7 +67,7 @@ ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig):
 {
    //register your products  
   src_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"));
-  useHF_ = iConfig.getUntrackedParameter<bool>("useHF");
+  useHF_ = iConfig.getParameter<bool>("useHF");
   
   produces<CaloTowerCollection>();
   

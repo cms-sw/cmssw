@@ -7,7 +7,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 #pseudo towers for noise suppression background subtraction
 PFTowers = cms.EDProducer("ParticleTowerProducer",
                           src = cms.InputTag("particleFlowTmp"),
-                          useHF = cms.untracked.bool(False)
+                          useHF = cms.bool(False)
                           )
 
 ## background for HF/Voronoi-style subtraction

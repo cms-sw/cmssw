@@ -68,6 +68,7 @@ particleFlowTmp.muons = cms.InputTag("muons")
 particleFlowTmp.usePFConversions = cms.bool(False)
 
 
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
 hiParticleFlowLocalReco = cms.Sequence(particleFlowCluster)
@@ -78,4 +79,5 @@ hiParticleFlowReco = cms.Sequence( pfGsfElectronMVASelectionSequence
                                    * particleFlowBlock
                                    * particleFlowEGammaFull
                                    * particleFlowTmp
+                                   * hiRecoPFJets
                                    )

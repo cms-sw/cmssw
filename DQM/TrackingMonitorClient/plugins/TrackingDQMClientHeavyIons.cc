@@ -10,7 +10,6 @@
 #include <TH1F.h>
 #include <TClass.h>
 #include <TString.h>
-#include <TPRegexp.h>
 #include <string>
 #include <cmath>
 #include <climits>
