@@ -48,7 +48,6 @@ private:
   TDataType* dataType_;
   long property_;
 private:
-  void setProperty();
   void processEnumeration();
 public:
   static TypeWithDict byName(std::string const& name, long property = 0L);
@@ -141,7 +140,6 @@ std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
 
 class TypeBases {
 private:
-  TType* type_;
   TClass* class_;
 public:
   explicit TypeBases(TypeWithDict const&);
@@ -152,7 +150,6 @@ public:
 
 class TypeDataMembers {
 private:
-  TType* type_;
   TClass* class_;
 public:
   explicit TypeDataMembers(TypeWithDict const&);
@@ -163,7 +160,6 @@ public:
 
 class TypeFunctionMembers {
 private:
-  TType* type_;
   TClass* class_;
 public:
   explicit TypeFunctionMembers(TypeWithDict const&);
