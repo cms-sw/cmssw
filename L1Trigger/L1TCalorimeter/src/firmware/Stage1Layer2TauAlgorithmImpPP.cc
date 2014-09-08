@@ -87,9 +87,11 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int highestNeighborPhi=999;
     int highestNeighborTauVeto=999;
 
+    // if (regionEt>0) std::cout << "CCLA Prod: TauVeto: " << region->hwQual() << "\tET: " << regionEt << "\tETA: " << regionEta  << "\tPhi: " << regionPhi  << std::endl;
+	  
     //Find neighbor with highest Et
-    for(CaloRegionBxCollection::const_iterator neighbor = regions.begin();
-	neighbor != regions.end(); neighbor++) {
+    for(CaloRegionBxCollection::const_iterator neighbor = subRegions->begin();
+	neighbor != subRegions->end(); neighbor++) {
       
       int neighborPhi = neighbor->hwPhi();
       int neighborEta = neighbor->hwEta();
@@ -101,7 +103,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       int deltaEta = std::abs(regionEta - neighborEta);
       
       if (deltaPhi + deltaEta > 0 && deltaPhi + deltaEta < 2) {  //nondiagonal neighbors
-	  
 	if (neighbor->hwPt() > highestNeighborEt) {
 	  highestNeighborEt = neighbor->hwPt();
 	  highestNeighborEta = neighbor->hwEta();
