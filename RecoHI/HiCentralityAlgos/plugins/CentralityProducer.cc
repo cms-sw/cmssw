@@ -141,7 +141,7 @@ class CentralityProducer : public edm::EDProducer {
    }
    if(produceZDChits_){
      srcZDChits_ = consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcZDChits"));
-     lowGainZDC_ = iConfig.getUntrackedParameter<bool>("lowGainZDC",0);
+     lowGainZDC_ = iConfig.getParameter<bool>("lowGainZDC");
    }
    if(producePixelhits_){
      srcPixelhits_ = consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcPixelhits"));

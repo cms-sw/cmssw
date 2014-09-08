@@ -185,13 +185,4 @@ void VoronoiSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphan
    LogDebug("VoronoiSubtractor")<<"do nothing...\n";
 }
 
-/*
-void VoronoiSubtractor::reset(std::vector<edm::Ptr<reco::Candidate> >& input,
-			     std::vector<fastjet::PseudoJet>& towers,
-			     std::vector<fastjet::PseudoJet>& output){
-  
-
-}
-
-*/
 
