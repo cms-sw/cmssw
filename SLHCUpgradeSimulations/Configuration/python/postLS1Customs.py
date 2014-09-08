@@ -68,9 +68,6 @@ def customise_Sim(process):
     process.g4SimHits.HCalSD.UsePMTHits         = False
     process.g4SimHits.HCalSD.UseFibreBundleHits = False
     process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_eta4_16en.root'
-    process.g4SimHits.HFShowerLibrary.BranchPost= ''
-    process.g4SimHits.HFShowerLibrary.BranchPre = ''
-    process.g4SimHits.HFShowerLibrary.BranchEvt = ''
     return process
 
 
