@@ -14,6 +14,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCDijetResonance.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessRangeFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCPdgIndexFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSmartSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCZll.h"
@@ -42,7 +43,7 @@
 #include "GeneratorInterface/GenFilters/interface/Zto2lFilter.h"
 #include "GeneratorInterface/GenFilters/interface/ZgMassFilter.h"
 #include "GeneratorInterface/GenFilters/interface/ZgammaMassFilter.h"
-
+#include "GeneratorInterface/GenFilters/interface/HeavyQuarkFromMPIFilter.h"
 
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
@@ -60,6 +61,7 @@
   DEFINE_FWK_MODULE(MCDijetResonance);
   DEFINE_FWK_MODULE(MCProcessFilter);
   DEFINE_FWK_MODULE(MCProcessRangeFilter);
+  DEFINE_FWK_MODULE(MCPdgIndexFilter);
   DEFINE_FWK_MODULE(MCSingleParticleFilter);
   DEFINE_FWK_MODULE(MCSmartSingleParticleFilter);
   DEFINE_FWK_MODULE(MCZll);
@@ -87,3 +89,4 @@
   DEFINE_FWK_MODULE(Zto2lFilter);
   DEFINE_FWK_MODULE(ZgMassFilter);
   DEFINE_FWK_MODULE(ZgammaMassFilter);
+  DEFINE_FWK_MODULE(HeavyQuarkFromMPIFilter);

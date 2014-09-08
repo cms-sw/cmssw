@@ -21,6 +21,8 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset):
   
   theFormatVersion =  pset.getParameter<unsigned int>("useFormatVersion"); 	// pre-LS1 - '2005'. post-LS1 - '2013'
   usePreTriggers = pset.getParameter<bool>("usePreTriggers"); 			// disable checking CLCT PreTriggers digis
+  packEverything_ = pset.getParameter<bool>("packEverything");                  // don't check for consistency with trig primitives
+                                                                                // overrides usePreTriggers
 
   wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
   sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
@@ -63,6 +65,8 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   setComment("Set to 2005 for pre-LS1 CSC data format, 2013 - new post-LS1 CSC data format");
   desc.add<bool>("usePreTriggers", true)->
   setComment("Set to false if CSCCLCTPreTrigger digis are not available");
+  desc.add<bool>("packEverything", false)->
+  setComment("Set to true to disable trigger-related constraints on readout data");
 
   desc.add<edm::InputTag>("wireDigiTag", edm::InputTag("simMuonCSCDigis","MuonCSCWireDigi"));
   desc.add<edm::InputTag>("stripDigiTag",edm::InputTag("simMuonCSCDigis","MuonCSCStripDigi"));
@@ -115,7 +119,8 @@ void CSCDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   // Create the packed data
   packer->createFedBuffers(*stripDigis, *wireDigis, *comparatorDigis, 
                            *alctDigis, *clctDigis, *preTriggers, *correlatedLCTDigis,
-                           *(fed_buffers.get()), theMapping, e, theFormatVersion, usePreTriggers);
+                           *(fed_buffers.get()), theMapping, e, theFormatVersion, usePreTriggers,
+			   packEverything_);
   
   // put the raw data to the event
   e.put(fed_buffers, "CSCRawData");

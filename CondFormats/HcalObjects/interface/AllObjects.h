@@ -30,4 +30,5 @@
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"
 #include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParams.h"
 #include "CondFormats/HcalObjects/interface/HcalTimingParams.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
 #endif

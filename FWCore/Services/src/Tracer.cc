@@ -157,6 +157,46 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 
   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
+  
+  iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_);
+    out << indention_ << indention_ << " early termination before processing transition";
+  });
+  iRegistry.preStreamEarlyTerminationSignal_.connect([this](edm::StreamContext const& iContext, edm::TerminationOrigin iOrigin) {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_);
+    if(iContext.eventID().luminosityBlock() ==0) {
+      out << indention_ << indention_ << " early termination of run: stream = " << iContext.streamID()
+      <<" run = " << iContext.eventID().run();
+    }else {
+      if(iContext.eventID().event() == 0) {
+        out << indention_ << indention_ << " early termination of stream lumi: stream = " << iContext.streamID()
+        <<" run = " << iContext.eventID().run()
+        << " lumi = " << iContext.eventID().luminosityBlock() ;
+      } else {
+        out << indention_ << indention_ << " early termination of event: stream = " << iContext.streamID()
+        <<" run = " << iContext.eventID().run()
+        << " lumi = " << iContext.eventID().luminosityBlock()
+        << " event = "<< iContext.eventID().event();
+        
+      }
+    }
+    out<< " : time = " << iContext.timestamp().value();
+    
+  });
+  iRegistry.preGlobalEarlyTerminationSignal_.connect([this](edm::GlobalContext const& iContext, edm::TerminationOrigin iOrigin) {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_);
+    if(iContext.luminosityBlockID().value() ==0) {
+      out << indention_ << indention_ << " early termination of global run " << iContext.luminosityBlockID().run();
+    }else {
+      out << indention_ << indention_ << " early termination of global lumi run = " << iContext.luminosityBlockID().run()
+          << " lumi = " << iContext.luminosityBlockID().luminosityBlock() ;
+      
+    }
+    out<< " : time = " << iContext.timestamp().value();
+  });
 }
 
 void

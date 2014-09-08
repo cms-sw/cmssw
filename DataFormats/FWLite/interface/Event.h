@@ -66,7 +66,7 @@
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -119,7 +119,6 @@ namespace fwlite {
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
          virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
@@ -145,7 +144,7 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 

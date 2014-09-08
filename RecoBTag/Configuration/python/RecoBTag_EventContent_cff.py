@@ -24,6 +24,9 @@ RecoBTagFEVT = cms.PSet(
         'keep *_softMuonBJetTags_*_*',
         'keep *_softMuonByIP3dBJetTags_*_*',
         'keep *_softMuonByPtBJetTags_*_*',
+	'keep *_pfImpactParameterTagInfos_*_*',
+	'keep *_pfSecondaryVertexTagInfos_*_*',
+	'keep *_pfCombinedSecondaryVertexBJetTags_*_*'
     )
 )
 #RECO content
@@ -50,6 +53,9 @@ RecoBTagRECO = cms.PSet(
         'keep *_softMuonBJetTags_*_*',
         'keep *_softMuonByIP3dBJetTags_*_*',
         'keep *_softMuonByPtBJetTags_*_*',
+	'keep *_pfImpactParameterTagInfos_*_*',
+	'keep *_pfSecondaryVertexTagInfos_*_*',
+	'keep *_pfCombinedSecondaryVertexBJetTags_*_*'
     )
 )
 #AOD content
@@ -78,5 +84,6 @@ RecoBTagAOD = cms.PSet(
         'keep *_softMuonBJetTags_*_*',
         'keep *_softMuonByIP3dBJetTags_*_*',
         'keep *_softMuonByPtBJetTags_*_*',
+	'keep *_pfCombinedSecondaryVertexBJetTags_*_*'
     )
 )

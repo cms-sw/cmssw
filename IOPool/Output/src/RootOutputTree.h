@@ -66,7 +66,6 @@ namespace edm {
 
     void addBranch(std::string const& branchName,
                    std::string const& className,
-                   WrapperInterfaceBase const* interface,
                    void const*& pProd,
                    int splitLevel,
                    int basketSize,

@@ -447,8 +447,8 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
         double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
         particleAssignDaughters(g4daught,*vpdec,dd);
       }
-
-    (*vpdec)->set_status(1000+(*vpdec)->status()); 
+    // this line is the source of the "tau-bug" in 7_2_0_pre5
+    //(*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
 
     if ( verbose > 1 ) g4daught->Print();

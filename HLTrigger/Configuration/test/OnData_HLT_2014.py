@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/GRun/V60 (CMSSW_7_1_6)
+# /dev/CMSSW_7_1_0/GRun/V61 (CMSSW_7_1_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT2014" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V60')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V61')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3872,34 +3872,29 @@ process.trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
 process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
-    luminosityProduct = cms.untracked.InputTag( "hltScalersRawToDigi" ),
-    enableTimingExclusive = cms.untracked.bool( False ),
+    useRealTimeClock = cms.untracked.bool( True ),
     enableTimingModules = cms.untracked.bool( True ),
-    enableDQMbyPathOverhead = cms.untracked.bool( False ),
-    dqmTimeResolution = cms.untracked.double( 5.0 ),
+    enableDQM = cms.untracked.bool( True ),
     enableDQMbyModule = cms.untracked.bool( False ),
-    dqmLuminosityResolution = cms.untracked.double( 1.0E31 ),
+    enableTimingExclusive = cms.untracked.bool( True ),
     skipFirstPath = cms.untracked.bool( False ),
-    enableTimingPaths = cms.untracked.bool( True ),
     enableDQMbyLumiSection = cms.untracked.bool( True ),
     dqmPathTimeResolution = cms.untracked.double( 0.5 ),
     dqmPathTimeRange = cms.untracked.double( 100.0 ),
     dqmTimeRange = cms.untracked.double( 1000.0 ),
     dqmLumiSectionsRange = cms.untracked.uint32( 2500 ),
-    enableDQMSummary = cms.untracked.bool( True ),
-    enableTimingSummary = cms.untracked.bool( False ),
-    enableDQMbyPathTotal = cms.untracked.bool( False ),
-    useRealTimeClock = cms.untracked.bool( True ),
-    enableDQMbyPathExclusive = cms.untracked.bool( False ),
-    enableDQMbyLuminosity = cms.untracked.bool( True ),
-    enableDQM = cms.untracked.bool( True ),
-    supportedProcesses = cms.untracked.vuint32( 8, 12, 16, 24, 32 ),
-    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
-    dqmLuminosityRange = cms.untracked.double( 1.0E34 ),
-    enableDQMbyPathActive = cms.untracked.bool( False ),
-    enableDQMbyPathDetails = cms.untracked.bool( False ),
     enableDQMbyProcesses = cms.untracked.bool( True ),
-    enableDQMbyPathCounters = cms.untracked.bool( False ),
+    enableDQMSummary = cms.untracked.bool( True ),
+    enableTimingSummary = cms.untracked.bool( True ),
+    enableDQMbyPathTotal = cms.untracked.bool( True ),
+    enableTimingPaths = cms.untracked.bool( True ),
+    enableDQMbyPathExclusive = cms.untracked.bool( True ),
+    dqmTimeResolution = cms.untracked.double( 5.0 ),
+    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
+    enableDQMbyPathActive = cms.untracked.bool( True ),
+    enableDQMbyPathDetails = cms.untracked.bool( True ),
+    enableDQMbyPathOverhead = cms.untracked.bool( False ),
+    enableDQMbyPathCounters = cms.untracked.bool( True ),
     enableDQMbyModuleType = cms.untracked.bool( False )
 )
 process.DQMStore = cms.Service( "DQMStore",
@@ -54920,10 +54915,6 @@ process.source = cms.Source( "PoolSource",
         'keep *'
     )
 )
-
-# Enable HF Noise filters in GRun menu
-if 'hltHfreco' in process.__dict__:
-    process.hltHfreco.setNoiseFlags = cms.bool( True )
 
 # CMSSW version specific customizations
 import os

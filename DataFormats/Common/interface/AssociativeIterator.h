@@ -42,13 +42,13 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
 namespace edm {
-    struct Event;
-    template <class T> struct View;
-    template <class T> struct Handle;
-    template <class T> struct Association;
-    template <class T> struct RefToBase;
-    template <class T> struct Ptr;
-    template <class C, class T, class F> struct Ref;
+    class Event;
+    template <class T> class View;
+    template <class T> class Handle;
+    template <class T> class Association;
+    template <class T> class RefToBase;
+    template <class T> class Ptr;
+    template <class C, class T, class F> class Ref;
 }
 
 namespace edm {

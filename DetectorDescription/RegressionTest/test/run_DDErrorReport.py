@@ -4,12 +4,6 @@ import FWCore.ParameterSet.Config as cms
 import sys
 import os
 
-if os.getenv('LOCAL_TOP_DIR') == None:
-    print "The environment variable LOCAL_TOP_DIR must be set to run this script"
-    print "Usually setting it equal to the value of CMSSW_BASE will do what you want"
-    print "In the context of a unit test this variable is always set automatically"
-    sys.exit(1)
-
 # get the list of XML files from the cfi file
 process = cms.Process("TEST")
 cfiFile = 'Geometry/CMSCommonData/cmsIdealGeometryXML_cfi'
@@ -30,7 +24,8 @@ configXMLFile.write('<Root fileName="cms.xml" logicalPartName="OCMS"/>\n')
 configXMLFile.write('</Configuration>\n')
 configXMLFile.close()
 
-command = os.getenv('LOCAL_TOP_DIR') + "/test/" + os.getenv('SCRAM_ARCH') + "/DDErrorReport dddreportconfig.xml -p"
+# DDErrorReport is in $PATH
+command = "DDErrorReport dddreportconfig.xml -p"
 status = os.system( command )
 if (status != 0):
     sys.exit(1)

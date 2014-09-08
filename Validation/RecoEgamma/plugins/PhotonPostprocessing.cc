@@ -214,12 +214,26 @@ void PhotonPostprocessing::runPostprocessing()
   bkgDeadChEt_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
 
   //
-  h_simConvEtaMTotal_->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksEta")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksEta")->getTH1F());
-  h_simConvPhiMTotal_->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksPhi")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksPhi")->getTH1F());
-  h_simConvRMTotal_  ->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksR")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksR")->getTH1F());
-  h_simConvZMTotal_  ->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksZ")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksZ")->getTH1F());
-  h_simConvEtMTotal_ ->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksEt")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksEt")->getTH1F());
-
+  if((dbe_->get(simInfoPathName+"h_SimConvOneMTracksEta")) != nullptr and 
+     (dbe_->get(convPathName+"h_RecoConvTwoMTracksEta") != nullptr) ) {
+    h_simConvEtaMTotal_->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksEta")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksEta")->getTH1F());
+  }
+  if((dbe_->get(simInfoPathName+"h_SimConvOneMTracksPhi") != nullptr) and
+     (dbe_->get(convPathName+"h_RecoConvTwoMTracksPhi") != nullptr) ) {
+    h_simConvPhiMTotal_->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksPhi")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksPhi")->getTH1F());
+  }
+  if((dbe_->get(simInfoPathName+"h_SimConvOneMTracksR")->getTH1F() != nullptr) and
+     (dbe_->get(convPathName+"h_RecoConvTwoMTracksR") != nullptr) ) {
+    h_simConvRMTotal_  ->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksR")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksR")->getTH1F());
+  }
+  if((dbe_->get(simInfoPathName+"h_SimConvOneMTracksZ") != nullptr) and
+     (dbe_->get(convPathName+"h_RecoConvTwoMTracksZ") != nullptr)) {
+    h_simConvZMTotal_  ->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksZ")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksZ")->getTH1F());
+  }
+  if((dbe_->get(simInfoPathName+"h_SimConvOneMTracksEt") != nullptr) and
+     (dbe_->get(convPathName+"h_RecoConvTwoMTracksEt") != nullptr)) {
+    h_simConvEtMTotal_ ->getTH1F()->Add(dbe_->get(simInfoPathName+"h_SimConvOneMTracksEt")->getTH1F(),dbe_->get(convPathName+"h_RecoConvTwoMTracksEt")->getTH1F());
+  }
 
   // efficiencies
   if ( ! isRunCentrally_ ) {
@@ -293,6 +307,9 @@ void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, 
 
 void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, std::string type ){
   double value,err;
+  if(nullptr == dividend or nullptr == denominator or nullptr == numerator) {
+    return;
+  }
   for (int j=1; j<=numerator->getNbinsX(); j++){
     dividend->setEfficiencyFlag();
 
@@ -320,6 +337,9 @@ void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement
 void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator){
   double value,err;
 
+  if(nullptr == dividend or nullptr == numerator) {
+    return;
+  }
   for (int j=1; j<=numerator->getNbinsX(); j++){
     if (denominator!=0){
       value = ((double) numerator->getBinContent(j))/denominator;

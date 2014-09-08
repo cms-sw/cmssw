@@ -464,6 +464,8 @@ void PhiSymmetryCalibration::getKfactors()
   std::vector<TGraph*>  k_barl_graph(kBarlRings);
   std::vector<TCanvas*> k_barl_plot(kBarlRings);
 
+  //Create our own TF1 to avoid threading problems
+  TF1 mypol1("mypol1","pol1");
   for (int ieta=0; ieta<kBarlRings; ieta++) {
     for (int imiscal=0; imiscal<kNMiscalBinsEB; imiscal++) {
       int middlebin =  int (kNMiscalBinsEB/2);
@@ -471,8 +473,7 @@ void PhiSymmetryCalibration::getKfactors()
       epsilon_M_eb[imiscal] = miscalEB_[imiscal] - 1.;
     }
     k_barl_graph[ieta] = new TGraph (kNMiscalBinsEB,epsilon_M_eb,epsilon_T_eb);
-    k_barl_graph[ieta]->Fit("pol1");
-
+    k_barl_graph[ieta]->Fit(&mypol1);
 
     ostringstream t;
     t<< "k_barl_" << ieta+1; 
@@ -504,7 +505,7 @@ void PhiSymmetryCalibration::getKfactors()
       epsilon_M_ee[imiscal] = miscalEE_[imiscal] - 1.;
     }
     k_endc_graph[ring] = new TGraph (kNMiscalBinsEE,epsilon_M_ee,epsilon_T_ee);
-    k_endc_graph[ring]->Fit("pol1");
+    k_endc_graph[ring]->Fit(&mypol1);
 
     ostringstream t;
     t<< "k_endc_"<< ring+1;

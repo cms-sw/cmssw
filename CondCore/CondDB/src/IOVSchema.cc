@@ -348,8 +348,8 @@ namespace cond {
     
     void TAG_MIGRATION::Table::create(){
       if( exists() ){
-	throwException( "TAG_MIGRATIONtable already exists in this schema.",
-			"TAG::create");
+	throwException( "TAG_MIGRATION table already exists in this schema.",
+			"TAG_MIGRATION::create");
       }
       TableDescription< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, STATUS_CODE, INSERTION_TIME > descr( tname );
       descr.setPrimaryKey<SOURCE_ACCOUNT, SOURCE_TAG>();
@@ -384,11 +384,58 @@ namespace cond {
       updateTable( m_schema, tname, buffer );  
     }
     
+    PAYLOAD_MIGRATION::Table::Table( coral::ISchema& schema ):
+      m_schema( schema ){
+    }
+
+    bool PAYLOAD_MIGRATION::Table::exists(){
+      return existsTable( m_schema, tname );  
+    }
+    
+    void PAYLOAD_MIGRATION::Table::create(){
+      if( exists() ){
+	throwException( "PAYLOAD_MIGRATION table already exists in this schema.",
+			"PAYLOAD_MIGRATION::create");
+      }
+      TableDescription< SOURCE_ACCOUNT, SOURCE_TOKEN, PAYLOAD_HASH, INSERTION_TIME > descr( tname );
+      descr.setPrimaryKey<SOURCE_ACCOUNT, SOURCE_TOKEN>();
+      descr.setForeignKey< PAYLOAD_HASH, PAYLOAD::HASH >( "PAYLOAD_HASH_FK" );
+      createTable( m_schema, descr.get() );
+    }
+    
+    bool PAYLOAD_MIGRATION::Table::select( const std::string& sourceAccount, const std::string& sourceToken, std::string& payloadId ){
+      Query< PAYLOAD_HASH > q( m_schema );
+      q.addCondition<SOURCE_ACCOUNT>( sourceAccount );
+      q.addCondition<SOURCE_TOKEN>( sourceToken );
+      for ( auto row : q ) {
+	std::tie( payloadId ) = row;
+      }
+      
+      return q.retrievedRows();
+    }
+    
+    void PAYLOAD_MIGRATION::Table::insert( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
+					   const boost::posix_time::ptime& insertionTime ){
+      RowBuffer< SOURCE_ACCOUNT, SOURCE_TOKEN, PAYLOAD_HASH, INSERTION_TIME > 
+	dataToInsert( std::tie( sourceAccount, sourceToken, payloadId, insertionTime ) );
+      insertInTable( m_schema, tname, dataToInsert.get() );
+    }
+
+    void PAYLOAD_MIGRATION::Table::update( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
+					   const boost::posix_time::ptime& insertionTime ){
+      UpdateBuffer buffer;
+      buffer.setColumnData< PAYLOAD_HASH, INSERTION_TIME >( std::tie( payloadId, insertionTime ) );
+      buffer.addWhereCondition<SOURCE_ACCOUNT>( sourceAccount ); 
+      buffer.addWhereCondition<SOURCE_TOKEN>( sourceToken ); 
+      updateTable( m_schema, tname, buffer );
+    }
+
     IOVSchema::IOVSchema( coral::ISchema& schema ):
       m_tagTable( schema ),
       m_iovTable( schema ),
       m_payloadTable( schema ),
-      m_tagMigrationTable( schema ){
+      m_tagMigrationTable( schema ),
+      m_payloadMigrationTable( schema ){
     }
       
     bool IOVSchema::exists(){
@@ -425,6 +472,13 @@ namespace cond {
       return m_tagMigrationTable;
     }
     
+    IPayloadMigrationTable& IOVSchema::payloadMigrationTable(){
+      return m_payloadMigrationTable;
+    }
+
+    std::string IOVSchema::parsePoolToken( const std::string& ){
+      throwException("CondDB V2 can't parse a pool token.","IOVSchema::parsePoolToken");
+    }
   }
 }
 

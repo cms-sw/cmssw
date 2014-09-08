@@ -251,7 +251,7 @@ PixelForwardLayerPhase1::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 int 
 PixelForwardLayerPhase1::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const
 {  
-  if( fabs(firstBlade->position().z()) < fabs(secondBlade->position().z()) ) return 0;
+  if( std::abs(firstBlade->position().z()) < std::abs(secondBlade->position().z()) ) return 0;
   return 1;
 }
 
@@ -326,7 +326,7 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
     nextDist = nextPos.x();
   }
 
-  if (fabs(closestDist) < fabs(nextDist)) {
+  if (std::abs(closestDist) < std::abs(nextDist)) {
     return SubTurbineCrossings( closestIndex, nextIndex, nextDist);
   }
   else {

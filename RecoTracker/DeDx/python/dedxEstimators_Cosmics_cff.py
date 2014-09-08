@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.DeDx.dedxTruncated40_cfi import *
-from RecoTracker.DeDx.dedxMedian_cfi import *
-from RecoTracker.DeDx.dedxHarmonic2_cfi import *
-from RecoTracker.DeDx.dedxDiscriminators_cff import *
+
+from RecoTracker.DeDx.dedxEstimators_cff import *
 
 dedxTruncated40CTF                                 = dedxTruncated40.clone()
 dedxTruncated40CTF.tracks                          = cms.InputTag("ctfWithMaterialTracksP5")

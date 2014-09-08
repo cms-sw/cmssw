@@ -156,7 +156,7 @@ void HIPixelMedianVtxProducer::produce
   f1.SetParLimits(2,0.001,0.05);
   f1.SetParLimits(3,0.0,0.005*tracks.size());
     
-  histo.Fit("f1","QN");
+  histo.Fit(&f1,"QN");
     
   LogTrace("MinBiasTracking")
     << "  [vertex position] fitted    = "

@@ -69,7 +69,7 @@ const DDLogicalPart & DDCompactView::root() const
   return rep_->root(); 
 } 
   
-DDPosData* DDCompactView::worldPosition() const
+const DDPosData* DDCompactView::worldPosition() const
 {
   return worldpos_.get();
 }

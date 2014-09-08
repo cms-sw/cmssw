@@ -47,7 +47,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
+    std::unique_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Get data for algorithm
     edm::Handle<ThingCollection> parentHandle;
@@ -62,7 +62,7 @@ namespace edmtest {
     alg_.run(parentHandle, *result, useRefs_, refsAreTransient_);
 
     // Step E: Put outputs into event
-    e.put(result, std::string("testUserTag"));
+    e.put(std::move(result), std::string("testUserTag"));
   }
   
   void OtherThingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

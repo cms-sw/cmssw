@@ -62,10 +62,18 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   if (clock_gettime_realtime::is_available)
     timers.push_back(new Benchmark<clock_gettime_realtime>("clock_gettime(CLOCK_REALTIME)"));
 #endif // HAVE_POSIX_CLOCK_REALTIME
+#ifdef HAVE_POSIX_CLOCK_REALTIME_COARSE
+  if (clock_gettime_realtime_coarse::is_available)
+    timers.push_back(new Benchmark<clock_gettime_realtime_coarse>("clock_gettime(CLOCK_REALTIME_COARSE)"));
+#endif // HAVE_POSIX_CLOCK_REALTIME_COARSE
 #ifdef HAVE_POSIX_CLOCK_MONOTONIC
   if (clock_gettime_monotonic::is_available)
     timers.push_back(new Benchmark<clock_gettime_monotonic>("clock_gettime(CLOCK_MONOTONIC)"));
 #endif // HAVE_POSIX_CLOCK_MONOTONIC
+#ifdef HAVE_POSIX_CLOCK_MONOTONIC_COARSE
+  if (clock_gettime_monotonic_coarse::is_available)
+    timers.push_back(new Benchmark<clock_gettime_monotonic_coarse>("clock_gettime(CLOCK_MONOTONIC_COARSE)"));
+#endif // HAVE_POSIX_CLOCK_MONOTONIC_COARSE
 #ifdef HAVE_POSIX_CLOCK_MONOTONIC_RAW
   if (clock_gettime_monotonic_raw::is_available)
     timers.push_back(new Benchmark<clock_gettime_monotonic_raw>("clock_gettime(CLOCK_MONOTONIC_RAW)"));

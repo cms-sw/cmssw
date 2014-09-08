@@ -11,11 +11,11 @@
 class TagCorrelationPlotter : public BaseBTagPlotter {
   public:
     TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2, const EtaPtBin& etaPtBin,
-                          const edm::ParameterSet& pSet, const unsigned int& mc , const bool& update, DQMStore::IBooker & ibook);
+                          const edm::ParameterSet& pSet, const unsigned int& mc , DQMStore::IBooker & ibook);
 
     virtual ~TagCorrelationPlotter();
 
-    void finalize() {}
+    void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) {}
     void epsPlot(const std::string& name) {}
     void psPlot (const std::string& name) {}
 

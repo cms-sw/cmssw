@@ -2,7 +2,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 
 DDExpandedNode::DDExpandedNode(const DDLogicalPart & lp, 
-                               DDPosData * pd, 
+                               const DDPosData * pd, 
 	                       const DDTranslation & t, 
 	                       const DDRotationMatrix & r,
 			       int siblingno)

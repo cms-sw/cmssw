@@ -31,3 +31,5 @@ golden_json_2012_pickEvents = cms.EDFilter(
     LuminositySectionsBlockRange = LumiList(findFileInPath("DPGAnalysis/Skims/data/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt")).getVLuminosityBlockRange()
     
     )
+
+golden_json_2012 = cms.Sequence( golden_json_2012_pickEvents )

@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_7_1_1/HLT"        # no explicit version, take te most recent
-TARGET="/dev/CMSSW_7_1_1/\$TABLE"    # no explicit version, take te most recent
+MASTER="/dev/CMSSW_7_1_2/HLT"        # no explicit version, take te most recent
+TARGET="/dev/CMSSW_7_1_2/\$TABLE"    # no explicit version, take te most recent
 TABLES="GRun HIon PIon"              # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
@@ -69,13 +69,15 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
+
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
   local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
-  local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
+# local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
+  local L1THI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
 # local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db"
-  local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc"
-
+# local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc"
+  local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
 
   log "  dumping full HLT for $NAME from $CONFIG"
   # override L1 menus
@@ -89,7 +91,7 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:hltonline_PIon    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:startup_PIon      > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline         > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline_GRun    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:startup_GRun      > OnLine_HLT_$NAME.py
   fi
 

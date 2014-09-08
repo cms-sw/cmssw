@@ -9,14 +9,6 @@
   <use   name="FWCore/Utilities" />
 </bin>
 
-<bin file="DDErrorReport.cpp">
-  <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/Parser"/>
-  <use name="boost_program_options"/>
-  <use name="DetectorDescription/RegressionTest"/>
-</bin>
-
 <bin file="DDCompareCPV.cpp">
   <use name="FWCore/PluginManager"/>
   <use name="DetectorDescription/Core"/>

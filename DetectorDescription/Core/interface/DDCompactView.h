@@ -113,7 +113,7 @@ public:
   const DDLogicalPart & root() const;
   
   //! The absolute position of the world
-  DDPosData * worldPosition() const;
+  const DDPosData * worldPosition() const;
 
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
