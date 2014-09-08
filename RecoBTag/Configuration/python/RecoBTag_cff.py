@@ -19,10 +19,13 @@ btagging = cms.Sequence(
         secondaryVertexTagInfos *
         ( simpleSecondaryVertexHighEffBJetTags +
           simpleSecondaryVertexHighPurBJetTags +
-          combinedSecondaryVertexBJetTags + 
-          combinedSecondaryVertexMVABJetTags
-        ) +
-       ghostTrackVertexTagInfos *
+          combinedSecondaryVertexBJetTags  
+          + combinedSecondaryVertexMVABJetTags
+        )
+	+ inclusiveSecondaryVertexFinderTagInfos *
+	combinedInclusiveSecondaryVertexV2BJetTags
+				
+	+ ghostTrackVertexTagInfos *
           ghostTrackBJetTags
       ) +
 
@@ -30,8 +33,7 @@ btagging = cms.Sequence(
 	softPFMuonsTagInfos*
 	softPFMuonBJetTags *
 	softPFElectronsTagInfos*
-	softPFElectronBJetTags
-        *
+	softPFElectronBJetTags *
 
 #new candidate model, with PF inputs	
 	pfImpactParameterTagInfos *
