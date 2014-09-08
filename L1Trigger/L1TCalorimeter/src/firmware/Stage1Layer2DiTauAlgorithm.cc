@@ -39,10 +39,10 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
     }
   }
 
-  if(overThreshold[0] > 1) outputBits |= 0x1;
-  if(overThreshold[1] > 1) outputBits |= 0x2;
-  if(overThreshold[2] > 1) outputBits |= 0x3;
-  if(overThreshold[3] > 1) outputBits |= 0x4;
+  if(overThreshold[0] > 1) outputBits = 0x1;
+  if(overThreshold[1] > 1) outputBits = 0x2;
+  if(overThreshold[2] > 1) outputBits = 0x3;
+  if(overThreshold[3] > 1) outputBits = 0x4;
 
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > dummy(0,0,0,0);
 
