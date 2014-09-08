@@ -133,10 +133,11 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
   int testCell(0);
   for (int iky=0; iky<kymax; ++iky) {
 
-    //check if adding all the cells in this row is above the required cell
-    //notice the bottom of the cell must be used
+    //notice the center of the cell must be used
+    //int cellsInRow( floor( ((iky+0.5)*cellSize+b)/(a*cellSize) ) );
     int cellsInRow( floor( (iky*cellSize+b)/(a*cellSize) ) );
-    if (testCell+cellsInRow > cell) break;
+    if (testCell+cellsInRow >= cell) break;
+
     testCell += cellsInRow;
     ky++;
     kx -= cellsInRow;
@@ -227,7 +228,6 @@ int HGCalDDDConstants::maxCells(float h, float bl, float tl, float alpha,
   float b     = 2*h*bl/(tl-bl);
  
   int   ncells(0);
-  //always use the bottom of the cell...
   int   kymax = floor((2*h)/cellSize);
   for (int iky=0; iky<kymax; ++iky)
     {
