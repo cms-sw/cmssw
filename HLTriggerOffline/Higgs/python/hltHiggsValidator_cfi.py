@@ -132,6 +132,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+                    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v"
 		    ),
 	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
 	    recCaloMETLabel = cms.string("caloMet"),
@@ -141,8 +142,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     H2tau  = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
+                    "HLT_Ele22_eta2p1_WP90Rho_Gsf_LooseIsoPFTau20_v",
 #		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
-		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v"
+		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v",
+                    "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"
 		    ),
 	    recPFTauLabel  = cms.string("hpsPFTauProducer"),
 	    recMuonLabel   = cms.string("muons"),
