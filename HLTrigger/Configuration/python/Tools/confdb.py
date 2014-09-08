@@ -46,7 +46,12 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
     
     # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-  
+ 
+    "HLT_DoubleMu33NoFiltersNoVtx_v*",
+    "HLT_DoubleMu38NoFiltersNoVtx_v*",
+    "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
+    "HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v*",
+ 
   )
 
   def __init__(self, configuration):
@@ -1079,6 +1084,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForPhotons" )
       self.options['modules'].append( "-hltPixelTracksForEgamma" )
       self.options['modules'].append( "-hltPixelTracksElectrons" )
+      self.options['modules'].append( "-hltPixelTracksForNoPU" )
 
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
@@ -1125,6 +1131,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTDoLocalPixelSequenceReg" )
       self.options['sequences'].append( "-HLTDoLocalStripSequenceRegForBTag" )
       self.options['sequences'].append( "-HLTDoLocalPixelSequenceRegForBTag" )
+      self.options['sequences'].append( "-HLTDoLocalPixelSequenceRegForNoPU" )
       self.options['sequences'].append( "-hltSiPixelDigis" )
       self.options['sequences'].append( "-hltSiPixelClusters" )
       self.options['sequences'].append( "-hltSiPixelRecHits" )
