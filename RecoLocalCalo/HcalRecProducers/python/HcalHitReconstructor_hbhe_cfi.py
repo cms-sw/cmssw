@@ -15,7 +15,7 @@ hbheprereco = cms.EDProducer(
     useLeakCorrection = cms.bool(False),
     dataOOTCorrectionName = cms.string(""),
     dataOOTCorrectionCategory = cms.string("Data"),
-    mcOOTCorrectionName = cms.string(""),
+    mcOOTCorrectionName = cms.string("HBHE"),
     mcOOTCorrectionCategory = cms.string("MC"),
 
     # Set time slice for first digi to be stored in aux word
