@@ -1,7 +1,7 @@
 #if defined(__APPLE__) || defined(__MACH__)
 
-#ifndef mach_absolute_time_h
-#define mach_absolute_time_h
+#ifndef mach_absolute_time_tick_h
+#define mach_absolute_time_tick_h
 
 // C++ standard headers
 #include <chrono>
@@ -10,9 +10,6 @@
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #define HAVE_MACH_ABSOLUTE_TIME
-
-// for native_duration, etc.
-#include "native.h"
 
 
 // mach_absolute_time ticks as clock period
@@ -97,50 +94,6 @@ struct mach_absolute_time_tick {
 };
 
 
-
-// mach_absolute_time-based clock
-struct mach_absolute_time_clock
-{
-  // std::chrono interface
-  typedef std::chrono::nanoseconds                                              duration;
-  typedef duration::rep                                                         rep;
-  typedef duration::period                                                      period;
-  typedef std::chrono::time_point<mach_absolute_time_clock, duration>           time_point;
-
-  static constexpr bool is_steady    = true;
-  static constexpr bool is_available = true;
-
-  static time_point now() noexcept
-  {
-    uint64_t   ticks  = mach_absolute_time();
-    rep        ns     = mach_absolute_time_tick::to_nanoseconds(ticks);
-    time_point time   = time_point(duration(ns));
-    return time;
-  }
-};
-
-
-// mach_absolute_time-based clock (native)
-struct mach_absolute_time_clock_native
-{
-  // native interface
-  typedef native_duration<uint64_t, mach_absolute_time_tick>                    duration;
-  typedef duration::rep                                                         rep;
-  typedef duration::period                                                      period;
-  typedef std::chrono::time_point<mach_absolute_time_clock_native, duration>    time_point;
-
-  static constexpr bool is_steady    = true;
-  static constexpr bool is_available = true;
-
-  static time_point now() noexcept
-  {
-    rep        ticks = mach_absolute_time();
-    time_point time  = time_point(duration(ticks));
-    return time;
-  }
-
-};
-
-#endif // mach_absolute_time_h
+#endif // mach_absolute_time_tick_h
 
 #endif // defined(__APPLE__) || defined(__MACH__)

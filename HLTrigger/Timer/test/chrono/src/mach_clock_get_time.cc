@@ -4,7 +4,7 @@
 #include <mach/mach.h>
 #include <mach/clock.h>
 
-#include "mach_clock_get_time.h"
+#include "interface/mach_clock_get_time.h"
 
 #ifdef HAVE_MACH_SYSTEM_CLOCK
 // based on host_get_clock_service(SYSTEM_CLOCK) and clock_get_time(...)

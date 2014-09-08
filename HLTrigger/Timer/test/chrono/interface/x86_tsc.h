@@ -25,6 +25,7 @@ extern inline uint64_t rdtscp(uint32_t *aux)
     *aux = rcx;
     return ((uint64_t) edx << 32) | (uint64_t) eax;
 }
+
 #elif defined __GNUC__
 // GCC and ICC provide intrinsics for rdtsc and rdtscp
 #include <x86intrin.h>
@@ -39,7 +40,9 @@ extern inline uint64_t rdtscp(uint32_t *aux)
     return __rdtscp(aux);
 }
 
-#endif // __GNUC__ / __clang__
+#else
+#  error "Unsupported compiler"
+#endif // __clang__ / __GNUC__
 
 bool has_tsc();
 bool has_rdtscp();
@@ -47,6 +50,14 @@ bool has_invariant_tsc();
 bool tsc_allowed();
 
 double calibrate_tsc_hz();
+
+
+#if defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
+// IFUNC support requires GLIBC >= 2.11.1
+// processor specific serialising access to the TSC
+extern uint64_t serialising_rdtsc(void);
+#endif // defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
+
 
 #endif // x86_tsc_h
 

@@ -17,7 +17,7 @@
 #include <sys/prctl.h>
 #endif // __linux__
 
-#include "x86_tsc.h"
+#include "interface/x86_tsc.h"
 
 
 // CPUID, EAX = 0x01, EDX values
@@ -62,7 +62,6 @@ bool has_invariant_tsc() {
   else
     return false;
 }
-
 
 // Check if the RDTSC and RDTSCP instructions are allowed in user space.
 // This is controlled by the x86 control register 4, bit 4 (CR4.TSD), but that is only readable by the kernel.
@@ -121,5 +120,75 @@ double calibrate_tsc_hz() {
   // ticks per second
   return sigma_xy / sigma_xx;
 }
+
+
+#if defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
+// IFUNC support requires GLIBC >= 2.11.1
+
+// new processors can use rdtscp;
+uint64_t serialising_rdtscp(void)
+{
+    unsigned int id;
+    return rdtscp(& id);
+}
+
+// older Intel processors can use lfence; rdtsc;
+uint64_t serialising_rdtsc_lfence(void)
+{
+    _mm_lfence();
+    return rdtsc();
+}
+
+// older AMD processors can use mfence; rdtsc;
+uint64_t serialising_rdtsc_mfence(void)
+{
+    _mm_mfence();
+    return rdtsc();
+}
+
+// very old processors do not have a TSC
+uint64_t serialising_rdtsc_unimplemented(void)
+{
+    return 0;
+}
+
+
+namespace {
+
+  static inline constexpr
+  unsigned int _(const char b[4]) {
+    return * reinterpret_cast<const unsigned int *>(b);
+  }
+
+} // namespace
+
+extern "C" {
+
+  static uint64_t (*serialising_rdtsc_resolver(void))(void)
+  {
+    if (has_rdtscp())
+      // if available, use the RDTSCP instruction
+      return serialising_rdtscp;
+    else if (has_tsc()) {
+      // if the TSC is available, chck the processor vendor
+      unsigned int eax, ebx, ecx, edx;
+      __get_cpuid(0x00, & eax, & ebx, & ecx, & edx);
+      if (ebx == _("Genu") and edx == _("ineI") and ecx == _("ntel"))
+        // for Intel processors, LFENCE can be used as a serialising instruction before RDTSC
+        return serialising_rdtsc_lfence;
+      else if (ebx == _("Auth") and edx == _("enti") and ecx == _("cAMD"))
+        // for AMD processors, MFENCE can be used as a serialising instruction before RDTSC
+        return serialising_rdtsc_mfence;
+      else
+        // for other processors, assume that MFENCE can be used as a serialising instruction before RDTSC
+        return serialising_rdtsc_mfence;
+    } else
+      return serialising_rdtsc_unimplemented;
+  }
+
+}
+
+extern uint64_t serialising_rdtsc(void) __attribute__((ifunc("serialising_rdtsc_resolver"))) __attribute__((externally_visible));
+#endif // defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
 
 #endif // defined __x86_64__ or defined __i386__

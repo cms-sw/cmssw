@@ -1,8 +1,8 @@
 #if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
-#include "x86_tsc.h"
-#include "x86_tsc_tick.h"
+#include "interface/x86_tsc.h"
+#include "interface/x86_tsc_tick.h"
 
 const double  tsc_tick::ticks_per_second = calibrate_tsc_hz();
 const double  tsc_tick::seconds_per_tick = 1. / tsc_tick::ticks_per_second;
