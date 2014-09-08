@@ -14,7 +14,7 @@ particleFlowClusterHBHE = cms.EDProducer(
                         seedingThresholdPt = cms.double(0.0)
                         ),
               cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-                        seedingThreshold = cms.double(0.8),
+                        seedingThreshold = cms.double(1.1),
                         seedingThresholdPt = cms.double(0.0)
                         )
               ),
