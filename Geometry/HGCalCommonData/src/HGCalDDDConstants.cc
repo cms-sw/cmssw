@@ -136,17 +136,17 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
   if(cell<0) return std::pair<int,int>(-1,-1);
 
   //parameterization of the boundary of the trapezoid
-  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
+  float a     = (alpha==0) ? (2*h/(tl-bl))   : (h/(tl-bl));
+  float b     = (alpha==0) ? -2*h*bl/(tl-bl) : -2*h*bl/(tl-bl);
 
   int kx(cell), ky(0);
   int kymax( floor((2*h)/cellSize) );
   int testCell(0);
   for (int iky=0; iky<kymax; ++iky) {
-
+    
     //check if adding all the cells in this row is above the required cell
     //notice the bottom of the cell must be used
-    int cellsInRow( floor( (iky*cellSize+b)/(a*cellSize) ) );
+    int cellsInRow( floor( (iky*cellSize-b)/(a*cellSize) ) );
     if (testCell+cellsInRow > cell) break;
     testCell += cellsInRow;
     ky++;
@@ -234,15 +234,15 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
 int HGCalDDDConstants::maxCells(float h, float bl, float tl, float alpha, 
 				float cellSize) const {
 
-  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
+  float a = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
+  float b = (alpha==0) ? -2*h*bl/(tl-bl) : -2*h*bl/(tl-bl);
  
   int   ncells(0);
   //always use the bottom of the cell...
   int   kymax = floor((2*h)/cellSize);
   for (int iky=0; iky<kymax; ++iky)
     {
-      int cellsInRow=floor((iky*cellSize+b)/(a*cellSize));
+      int cellsInRow=floor((iky*cellSize-b)/(a*cellSize));
       ncells += cellsInRow;
     }
 
@@ -306,11 +306,13 @@ int HGCalDDDConstants::newCell(int kx, int ky, int lay, int subSec) const {
   float a        = (alpha==0) ? 
     (2*moduler_[i].h/(moduler_[i].tl-moduler_[i].bl)) :
     (moduler_[i].h/(moduler_[i].tl-moduler_[i].bl));
-  float b        = 2*moduler_[i].h*moduler_[i].bl/
-    (moduler_[i].tl-moduler_[i].bl);
+  float b        = (alpha==0) ?
+    -2*moduler_[i].h*moduler_[i].bl/(moduler_[i].tl-moduler_[i].bl):
+    -2*moduler_[i].h*moduler_[i].bl/(moduler_[i].tl-moduler_[i].bl);
+
   int icell(kx);
   for (int iky=0; iky<ky; ++iky)
-    icell += floor((iky*cellSize+b)/(a*cellSize));
+    icell += floor((iky*cellSize-b)/(a*cellSize));
   return icell;
 }
 
@@ -343,11 +345,11 @@ std::vector<int> HGCalDDDConstants::numberCells(float h, float bl,
 						float cellSize) const {
 
   float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
+  float b     = (alpha==0) ? -2*h*bl/(tl-bl) : -2*h*bl/(tl-bl);
   int   kymax = floor((2*h)/cellSize);
   std::vector<int> ncell;
   for (int iky=0; iky<kymax; ++iky)
-    ncell.push_back(floor((iky*cellSize+b)/(a*cellSize)));
+    ncell.push_back(floor((iky*cellSize-b)/(a*cellSize)));
   return ncell;
 }
 
@@ -367,9 +369,9 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay,
   int kx      = kxy.first/cellFactor_[i];
   int ky      = kxy.second/cellFactor_[i];
   float a     = (half) ? (h/(tl-bl)) : (2*h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
+  float b     = (half) ? -2*h*bl/(tl-bl) : -2*h*bl/(tl-bl);
   for (int iky=0; iky<ky; ++iky)
-    kx += floor((iky*cellSize+b)/(a*cellSize));
+    kx += floor((iky*cellSize-b)/(a*cellSize));
 
 #ifdef DebugLog
   std::cout << "simToReco: input " << cell << ":" << lay << ":" << half
