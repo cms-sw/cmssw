@@ -147,6 +147,9 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 				 )
 
 
+process.TauSpinnerGen.parameterSets=cms.vstring("HTSpinCorr")
+process.TauSpinnerGen.HTSpinCorr = cms.vdouble(0.75)
+
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
