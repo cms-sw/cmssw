@@ -57,7 +57,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_Dimuon13_
     'HLT_PFHT900_v1', 
     'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1', 
     'HLT_PFMET170_NoiseCleaned_v1', 
-    'HLT_PFMET180_NoiseCleaned_v1', 
     'HLT_Photon135_PFMET40_v1', 
     'HLT_Photon135_VBF_v1', 
     'HLT_Photon150_PFMET40_v1', 
@@ -82,4 +81,10 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_Dimuon13_
     'HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_v1', 
     'HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_v1', 
     'HLT_Physics_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
+streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
+streamA_datasetTemplates_selector.throw      = cms.bool(False)
+streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_ReducedIterativeTracking_v1')
 
