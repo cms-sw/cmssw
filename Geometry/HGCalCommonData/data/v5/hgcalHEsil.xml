@@ -38,32 +38,32 @@
  </Algorithm>
  <Algorithm name="hgcal:DDHGCalEEAlgo">
   <rParent name="hgcalHEsil:HGCalHESilicon"/>
-  <Vector name="MaterialNames" type="string" nEntries="9">
+  <Vector name="MaterialNames" type="string" nEntries="10">
    materials:H_Brass, materials:Lead, materials:Copper, materials:Copper, 
    materials:Silicon, materials:M_NEMA FR4 plate, materials:Air, 
-   materials:StainlessSteel, materials:Copper</Vector>
-  <Vector name="VolumeNames" type="string" nEntries="9">
+   materials:StainlessSteel, materials:Foam,     materials:Aluminium</Vector>
+  <Vector name="VolumeNames" type="string" nEntries="10">
    HESiliconAbsorber1, HESiliconAbsorber2, HESiliconShield, HESiliconHeatShield,
    HESiliconSensitive, HESiliconPCB,       HESiliconAirGap, HESiliconSupport,
-   HEThermalScreen</Vector>
-  <Vector name="Thickness" type="numeric" nEntries="9">
-   40.0*mm, 1.0*mm, 0.5*mm, 3.0*mm, 0.1*mm, 1.2*mm, 2.0*mm, 15*mm, 30*mm</Vector>
+   HEThermalScreen, HEScreenCover</Vector>
+  <Vector name="Thickness" type="numeric" nEntries="10">
+   40.0*mm, 1.0*mm, 0.5*mm, 3.0*mm, 0.1*mm, 1.2*mm, 2.0*mm, 15*mm, 26.0*mm, 2.0*mm</Vector>
   <String name="Rotation" value="rotations:YXZ4"/>
-  <Vector name="LayerType" type="numeric" nEntries="110"> 7,
+  <Vector name="LayerType" type="numeric" nEntries="112"> 7,
    0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1,
    0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1,
    0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1,
    0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1,
    0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1,
-   0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1, 8 </Vector>
-  <Vector name="HeightType" type="numeric" nEntries="110"> 0,
+   0, 2, 6, 5, 4, 4, 4, 3, 1, 0, 2, 6, 5, 4, 4, 4, 3, 1, 9, 8, 9 </Vector>
+  <Vector name="HeightType" type="numeric" nEntries="112"> 0,
    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-   0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 </Vector>
-  <Vector name="LayerThick" type="numeric" nEntries="110"> 
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1 </Vector>
+  <Vector name="LayerThick" type="numeric" nEntries="112"> 
    15.0*mm,
    48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm,
    48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm,
@@ -77,7 +77,7 @@
    48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm,
    48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm,
    48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm, 48.0*mm,
-   30.0*mm </Vector>
+   30.0*mm, 30.0*mm, 30.0*mm </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinHE]"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
