@@ -69,7 +69,7 @@ namespace l1t {
     virtual void endRun(Run const& iR, EventSetup const& iE);
 
     int convertPhiToHW(double iphi, int steps);
-    unsigned int convertEtaToHW(double ieta, double minEta, double maxEta, int steps, unsigned int bitMask);
+    int convertEtaToHW(double ieta, double minEta, double maxEta, int steps);
     int convertPtToHW(double ipt, int maxPt, double step);
 
     // ----------member data ---------------------------
@@ -274,7 +274,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     const reco::Candidate & mcParticle = (*genParticles)[mu_cands_index[idxMu[iMu]]];
 
     int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), -MaxMuonEta_, MaxMuonEta_, EtaStepMuon_, 0x1ff );
+    int eta  = convertEtaToHW( mcParticle.eta(), -MaxMuonEta_, MaxMuonEta_, EtaStepMuon_);
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepMuon_ );
     int qual = 4;
     int iso  = 1;
@@ -307,7 +307,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     const reco::Candidate & mcParticle = (*genParticles)[eg_cands_index[idxEg[iEg]]];
 
     int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+    int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ );
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepCalo_ );
     int qual = 1;
     int iso  = 1;
@@ -337,7 +337,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     const reco::Candidate & mcParticle = (*genParticles)[tau_cands_index[idxTau[iTau]]];
 
     int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+    int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_);
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepCalo_ );
     int qual = 1;
     int iso  = 1;
@@ -382,7 +382,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
       int pt  = convertPtToHW( genJet->et(), MaxJetPt_, PtStep_ );
-      int eta = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+      int eta = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ );
       int phi = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
 
       // Eta outside of acceptance
@@ -400,7 +400,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	numExtraEGs++;
 
 	int EGpt   = convertPtToHW( genJet->et(), MaxLepPt_, PtStep_ );
-	int EGeta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+	int EGeta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ );
 	int EGphi  = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
 
 	int EGqual = 1;
@@ -414,7 +414,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	numExtraTaus++;
 
 	int Taupt   = convertPtToHW( genJet->et(), MaxLepPt_, PtStep_ );
-	int Taueta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ , 0xff);
+	int Taueta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ );
 	int Tauphi  = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
 	int Tauqual = 1;
 	int Tauiso  = 1;
@@ -651,7 +651,7 @@ int GenToInputProducer::convertPhiToHW(double iphi, int steps){
   return hwPhi;
 }
 
-unsigned int GenToInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps, unsigned int bitMask){
+int GenToInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps){
 
    double binWidth = (maxEta - minEta)/steps;
      
@@ -662,10 +662,10 @@ unsigned int GenToInputProducer::convertEtaToHW(double ieta, double minEta, doub
    int binNum = (int)(ieta/binWidth);
    if(ieta<0.) binNum--;
       
-   unsigned int hwEta = binNum & bitMask; 
+//   unsigned int hwEta = binNum & bitMask; 
+//   Remove masking for BXVectors...only assume in raw data
 
-
-  return hwEta;
+  return binNum;
 }
 
 int GenToInputProducer::convertPtToHW(double ipt, int maxPt, double step){
