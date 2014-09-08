@@ -16,7 +16,6 @@
 <use   name="clhep"/>
 <use   name="root"/>
 <use   name="rootflx"/>
-<use name="SimTracker/SiPixelDigitizer"/>
 <library   file="*.cc" name="SimTrackerSiPhase2DigitizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
