@@ -18,6 +18,8 @@
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
 <lib name="Geom"/>
+<lib name="Eve"/>
+<lib name="Physics"/>
 <export>
 <lib name="1"/>
 </export>

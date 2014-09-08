@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 PhaseIPixel 2023Muon 2023HGCal SLHC SLHCDB")
+varType = Enumerate ("Run1 2015 2017 2019 PhaseIPixel 2023Muon 2023HGCalV4 SLHC SLHCDB")
 
 def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
@@ -49,7 +49,7 @@ def recoGeoLoad(score):
       #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
      # process = cust_2023Muon(process)
 
-    elif score == "2023HGCal":
+    elif score == "2023HGCalV4":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
