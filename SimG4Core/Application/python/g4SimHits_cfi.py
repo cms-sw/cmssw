@@ -304,9 +304,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         TreeHadID       = cms.string('hadParticles'),
         Verbosity       = cms.untracked.bool(False),
         ApplyFiducialCut= cms.bool(True),
-        BranchPost      = cms.untracked.string('_R.obj'),
-        BranchEvt       = cms.untracked.string('HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'),
-        BranchPre       = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
+        BranchPost      = cms.untracked.string(''),
+        BranchEvt       = cms.untracked.string(''),
+        BranchPre       = cms.untracked.string('')
     ),
     HFShowerPMT = cms.PSet(
         common_UsePMT,
