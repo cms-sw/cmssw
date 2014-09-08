@@ -1,64 +1,147 @@
-
-#include "DataFormats/L1Trigger/interface/BXVector.h"
-
 #include <vector>
+#include <iostream>
+using namespace std;
 
 template < class T >
 BXVector<T>::BXVector( int size,      // number of objects per BX
-		    int bxFirst,   // first BX stored
-		    int bxLast )  // last BX stored
+		       int bxFirst,   // first BX stored
+		       int bxLast )  // last BX stored
   :
-    bxFirst_(bxFirst),
-    bxLast_(bxLast),
-    data_(bxLast-bxFirst+1, std::vector<T>(size))
+  bxFirst_(bxFirst),
+  bxLast_(bxLast),
+  data_(std::vector<T>(size * (bxLast-bxFirst+1)))
 {
-
+  itrs_.clear();
+  for (int i=0; i<=(bxLast - bxFirst); i++){ 
+    itrs_.push_back(i*size);
+  }
 }
 
 // copy ctor
-template < class T >
-BXVector<T>::BXVector ( const BXVector& vector )
-{
-
-}
+//template < class T >
+//BXVector<T>::BXVector ( const BXVector& vector )
+//{
+//  bxFirst_ =   vector.bxFirst_;
+//  bxLast_  =   vector.bxLast_;
+//  data_    =   vector.data_;
+//  itrs_    =   vector.itrs_;      
+//}
 
 // dtor
-template < class T >
-BXVector<T>::~BXVector()
-{
-
-}
+//template < class T >
+//BXVector<T>::~BXVector()
+//{
+//
+//}
 
 // assignment operator (pass by value for exception safety)
 //template < class T >
 //BXVector<T> BXVector<T>::operator=( BXVector vector )
 //{
-//
+  //data_.reset();
+  //iters_.reset();
+  //bxFirst_ =   vector.bxFirst_;
+  //bxLast_  =   vector.bxLast_;
+  //data_    =   vector.data_;
+  //itrs_    =   vector.itrs_;      
+  //return vector;
 //}
 
-// set BX range
+
+// set BX range, adds an empty bx so you must push_pack to see anything
 template < class T >
 void BXVector<T>::setBXRange( int bxFirst, int bxLast )
 {
+  int bxF = bxFirst_;
+  int bxL = bxLast_;
+  if(bxFirst<bxFirst_){
+     for(int i=0;i<bxF-bxFirst;i++){
+        itrs_.insert(itrs_.begin(),itrs_[0]);
+     }
+  }
+  if(bxFirst>bxFirst_){
+     for(int i=0;i<bxFirst-bxF;i++){
+        deleteBX(bxF+i);
+     }
+  }
+  if(bxLast>bxLast_){
+     for(int i=0;i<bxLast-bxL;i++){
+	addBX();
+     }
+  }
+  if(bxLast<bxLast_){
+     for(int i=0;i<bxL-bxLast;i++){
+	deleteBX(bxL-i);
+     }
+  }
   bxFirst_ = bxFirst;
   bxLast_ = bxLast;
-  data_.resize(bxLast-bxFirst+1);
 }
 
+// add a BX, empty bx
+template < class T >
+void BXVector<T>::addBX()
+{
+  itrs_.push_back(data_.size());
+  bxLast_ = bxLast_ + 1;
+ 
+}
+
+// delete a BX
+template < class T >
+void BXVector<T>::deleteBX(int bx)
+{
+  clearBX(bx);
+  itrs_.erase(itrs_.begin() + indexFromBX(bx));
+  if(bx==getFirstBX()){
+  bxFirst_ = bxFirst_ + 1;
+  }
+  if(bx==getLastBX()){
+  bxLast_ = bxLast_ - 1;
+  }
+}
 // set size for a given BX
 template < class T >
-void BXVector<T>::resize( int bx, int size )
+void BXVector<T>::resize( int bx, int max )
 {
-  data_.at(indexFromBX(bx)).resize(size);
+  T k;
+  int s = size(bx);
+  if(size(bx) < max){
+     for (int i = 0;i<max - s;i++){
+        push_back(bx,k);
+     }
+  }
+  else{
+     for(int i = 0;i<s - max;i++){
+	erase(bx,s-i-1);
+     }
+  }
 }
+
 
 // set size for all BXs
 template < class T >
 void BXVector<T>::resizeAll( int size )
 {
-  for (unsigned i=0; i<data_.size(); ++i) {
-    data_.at(i).resize(size);
+  for (unsigned i=0; i<itrs_.size(); ++i) {
+    resize(i,size);
   }
+}
+
+// iterator access by BX
+template < class T >
+typename BXVector<T>::const_iterator
+BXVector<T>::begin( int bx ) const
+{
+   return data_.begin()+itrs_[indexFromBX(bx)];
+}
+
+// iterator access by BX
+template < class T >
+typename BXVector<T>::const_iterator
+BXVector<T>::end( int bx ) const
+{
+   return data_.begin()+itrs_[indexFromBX(bx)] + size(bx);
 }
 
 // get the first BX stored
@@ -79,47 +162,132 @@ int BXVector<T>::getLastBX() const
 template < class T >
 unsigned BXVector<T>::size( int bx ) const
 {
-  return data_.at(indexFromBX(bx)).size();
+  if(isEmpty(bx)){return 0;}
+
+  if(indexFromBX(bx)==(itrs_.size() -1)){
+     return (data_.size() - itrs_[itrs_.size()-1]);
+  } 
+  else{
+     return (itrs_[indexFromBX(bx+1)] - itrs_[indexFromBX(bx)]);
+  }
 }
 
 // add element with given BX index
 template < class T >
 void BXVector<T>::push_back( int bx, T object )
 {
-  data_.at(indexFromBX(bx)).push_back(object);
+  data_.insert(data_.begin() +itrs_[indexFromBX(bx)] + size(bx),object);
+  for(int k=0; k<itrs_.size();k++){
+     if(k >indexFromBX(bx)){
+        itrs_[k]++;
+     }
+  }
+ 
 }
 
-// add clear member
+// clear entire BXVector
 template < class T >
 void BXVector<T>::clear()
 {
   data_.clear();
+  for(int k=0; k<itrs_.size();k++){
+    itrs_[k]=0;
+  }
 }
 
-// random access
+// insert data in location i of bx
+template < class T >
+void BXVector<T>::insert(int bx, int i,T object)
+{
+  if(i >= size(bx)){	
+     //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+  }
+  else{
+     data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + i,object);
+  
+     for(int k=0; k<itrs_.size();k++){
+      	if(k >indexFromBX(bx)){
+           itrs_[k]++;
+     	}
+     }
+  }
+}
+
+// erase data in location i of bx
+template < class T >
+void BXVector<T>::erase(int bx, int i)
+{
+  if(i >= size(bx)){	
+     //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+  }
+  else{
+     data_.erase(data_.begin() + itrs_[indexFromBX(bx)]+i);
+     for(int k=0; k<itrs_.size();k++){
+        if(k >indexFromBX(bx)){
+	   itrs_[k]--;
+	}
+     }
+  }
+}
+
+// clear information for given bx but keeps record of the empty BX
+template < class T >
+void BXVector<T>::clearBX(int bx)
+{
+  int si = size(bx);
+  for(int i=0;i<si;i++){
+     erase(bx,0);
+  }
+}
+
+// access data at a given location i in bunch crossing bx
 template < class T >
 const T& BXVector<T>::at( int bx, int i ) const
 {
-  return data_.at(indexFromBX(bx)).at(i);
+  return data_.at(itrs_[indexFromBX(bx)]+i);
 }
 
-// iterator access by BX
+// set data at a given location i in bunch crossing bx
 template < class T >
-typename BXVector<T>::const_iterator BXVector<T>::begin( int bx ) const
+void BXVector<T>::set( int bx, int i ,T object)
 {
-  return data_.at(indexFromBX(bx)).begin();
+  if(i >= size(bx)){
+     //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+  }
+  else{
+     data_.erase(data_.begin() + itrs_[indexFromBX(bx)]+i);
+     data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + i,object);
+  }
 }
 
-// iterator access by BX
-template < class T >
-typename BXVector<T>::const_iterator BXVector<T>::end( int bx ) const
-{
-  return data_.at(indexFromBX(bx)).end();
-}
-
-
+// redefine bunch crossing starting from 0
 template < class T >
 unsigned BXVector<T>::indexFromBX(int bx) const
 {
   return bx - bxFirst_;
 }
+
+// check to see if bx is empty
+template <class T>
+bool BXVector<T>::isEmpty(int bx) const
+{
+if (itrs_[indexFromBX(bx)]==data_.size())
+   {
+	return true;
+   }
+
+if(indexFromBX(bx+1) >= itrs_.size()){ 
+	return false;
+   }
+
+if (itrs_[indexFromBX(bx)]==itrs_[indexFromBX(bx+1)])
+        {
+         return true;
+        }
+
+return false;
+}
+
+// Local Variables:
+// mode: c++
+// End:
