@@ -1,5 +1,5 @@
-#ifndef CondTools_SiPixel_SiPixel2DTemplateDBObjectESProducerRcd_h
-#define CondTools_SiPixel_SiPixel2DTemplateDBObjectESProducerRcd_h
+#ifndef CalibTracker_Records_SiPixel2DTemplateDBObjectESProducerRcd_h
+#define CalibTracker_Records_SiPixel2DTemplateDBObjectESProducerRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

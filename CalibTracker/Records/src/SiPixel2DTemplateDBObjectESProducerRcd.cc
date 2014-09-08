@@ -1,4 +1,4 @@
-#include "CondTools/SiPixel/test/SiPixel2DTemplateDBObjectESProducerRcd.h"
+#include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 

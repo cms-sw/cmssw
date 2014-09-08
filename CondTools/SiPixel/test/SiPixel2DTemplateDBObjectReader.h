@@ -14,7 +14,7 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
-#include "CondTools/SiPixel/test/SiPixel2DTemplateDBObjectESProducerRcd.h"
+#include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
 
 class SiPixel2DTemplateDBObjectReader : public edm::EDAnalyzer {
