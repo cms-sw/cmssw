@@ -31,6 +31,7 @@
 
 #include "TRandom.h"
 #include "TMath.h"
+#include <iostream>
 
 
 using namespace edm;
@@ -139,13 +140,39 @@ void L1TrackDegrader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		float pz = trackIter->getMomentum().z();
 		float Phi = trackIter->getMomentum().phi();
 
-		float NewPt = Pt;	// the NewPt would be smeared
+		//float NewPt = Pt;	// the NewPt would be smeared
 			/* typically something like :
 			   depending on Pt and eta, pick up the resolution (sigma) from Louise's histogram
 			   float deltaPt = ran.Gaus(0., sigma);
 			   float NewPt = Pt + NsigmaPT * deltaPt :
 			*/
-		
+		float sigma = 0;
+
+		if(Pt >= 2 && Pt < 5)
+		{
+		    if(Eta < 1) sigma = 0.00227539 * Eta + 0.0070669;
+		    else if(Eta >= 1 && Eta < 1.75) sigma = 0.0111468 * Eta - 0.00141026;
+		    else if(Eta >= 1.75 && Eta < 2.2) sigma = 0.00932418 * Eta + 0.0034399;
+		    else if(Eta >= 2.2 && Eta < 2.5) sigma = 0.00817958 * Eta + 0.0127676;
+		}
+		else if(Pt >= 5 && Pt < 10)
+		{
+		    if(Eta < 1) sigma = 0.00397676 * Eta + 0.00574204;
+		    else if(Eta >= 1 && Eta < 1.6) sigma = 0.00503657 * Eta + 0.00507166;
+		    else if(Eta >= 1.6 && Eta < 2.1) sigma = 0.0133589 * Eta - 0.00680838;
+		    else if(Eta >= 2.1 && Eta < 2.4) sigma = 0.0352536 * Eta - 0.0480062;
+		    else if(Eta >= 2.4 && Eta < 2.5) sigma = 0.0332331;
+		}
+		else if(Pt >= 10 && Pt < 100)
+		{
+		    if(Eta < 1) sigma = 0.00376492 * Eta + 0.00920416;
+		    else if(Eta >= 1 && Eta < 1.5) sigma = 0.00566646 * Eta + 0.00861003;
+		    else if(Eta >= 1.65 && Eta < 2) sigma = 0.0406278 * Eta - 0.0509663;
+		    else if(Eta >= 2 && Eta < 2.5) sigma = 0.110813 * Eta - 0.194005;
+		}
+		float deltaPt = ran.Gaus(0., sigma);
+		float NewPt = Pt + NsigmaPT * deltaPt * Pt;
+		//std::cout << "deltaPt: " << deltaPt << std::endl << "NsigmaPT: " << NsigmaPT << std::endl << "Pt: " << Pt << std::endl << "sigma: " << sigma << std::endl  << NewPt << std::endl;
 		float NewPz = pz * NewPt / Pt;
 	  	GlobalVector smearedMomentum(GlobalVector::Cylindrical( NewPt,
 					Phi, NewPz ));

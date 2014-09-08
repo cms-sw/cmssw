@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("VTX")
+process = cms.Process("DEG")
 
 #
-# This runs over a file containing L1Tracks, and determines the
-# event primary vertex by running the L1TkFastVertexProducer.
+# Produces collections of L1Tracks with degraded resolutions
+#   - in z0  (to reproduce the z resolutions expected with the tilted tracer)
+#   - in PT  (to look at the impact of a worse PT resolution)
 #
 
 
@@ -13,7 +14,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 10 ) )
 
 from SLHCUpgradeSimulations.L1TrackTrigger.ttbarFiles_cfi import *
-
 
 
 process.source = cms.Source("PoolSource",
@@ -27,17 +27,50 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 
 
-process.L1TrackDegrader = cms.EDProducer("L1TrackDegrader",
-        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+# ---------------------------------------------------------------------------
+#
+# --- First, recreate the L1Tracks to benefit from the latest updates
+
+process.load('Configuration.Geometry.GeometryExtended2023TTIReco_cff')
+process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023TTI_cff')
+
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
+process.pTracking = cms.Path( process.DefaultTrackingSequence )
+
+
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+#
+# --- Now, produce two collections of degraded tracks 
+
+
+	# worse z0 as for the tilted tracker:
+process.L1TrackDegraderZ0 = cms.EDProducer("L1TrackDegrader",
+        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks","DEG"),
 	degradeZ0 = cms.bool( True ),
         degradeMomentum = cms.bool( False ),
-	NsigmaPT = cms.int32( 3 )
+	NsigmaPT = cms.int32( 3 )    # dummy here
 )
+process.pZ0 = cms.Path( process.L1TrackDegraderZ0 )
 
-process.p = cms.Path( process.L1TrackDegrader )
+
+	# degrade the PT resolustion by approx. a factor of 3
+process.L1TrackDegraderPT3 = cms.EDProducer("L1TrackDegrader",
+        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks","DEG"),
+        degradeZ0 = cms.bool( False ),
+        degradeMomentum = cms.bool( True ),
+        NsigmaPT = cms.int32( 3 )   
+)
+process.pPT3 = cms.Path( process.L1TrackDegraderPT3 )
+
 
 process.Out = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "example.root" ),
+    fileName = cms.untracked.string( "example_degrader.root" ),
     fastCloning = cms.untracked.bool( False ),
     outputCommands = cms.untracked.vstring( 'drop *')
 
@@ -45,7 +78,7 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 
 
 	# the degraded tracks
-process.Out.outputCommands.append('keep *_L1TrackDegrader_*_*')
+process.Out.outputCommands.append('keep *_L1TrackDegrader*_*_*')
 
         # the L1Tracks, clusters and stubs
 process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
