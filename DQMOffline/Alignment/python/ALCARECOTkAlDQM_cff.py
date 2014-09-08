@@ -206,6 +206,8 @@ ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    primaryVertex = "hiSelectedVertex",
+    allTrackProducer = "hiGeneralTracks",
 # margins and settings
     TkSizeBin = 71,
     TkSizeMin = -0.5,
@@ -216,7 +218,7 @@ ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
 ALCARECOTkAlMinBiasHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
-    ReferenceTrackProducer = 'hiSelectedTracks',
+    ReferenceTrackProducer = 'hiGeneralTracks',
     CaloJetCollection = 'iterativeConePu5CaloJets',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
@@ -234,7 +236,7 @@ ALCARECOTkAlMinBiasHIHLTDQM = hltMonBitSummary.clone(
     histLabel = __selectionName,
     HLTPaths = [],
     eventSetupPathsKey =  ALCARECOTkAlMinBiasHIHLT.eventSetupPathsKey.value()
-)
+    )
 
 ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCARECOTkAlMinBiasHITkAlDQM+ALCARECOTkAlMinBiasHIHLTDQM)
 
