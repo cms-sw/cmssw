@@ -170,11 +170,6 @@ def cust_2023SHCal(process):
         process.particleFlowBlock.elementImporters[2].source = cms.InputTag('mustachePhotons')
         process.gedPhotons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         
-
-        if( hasattr(process,'FEVTDEBUGHLToutput') ):
-            process.FEVTDEBUGHLToutput.outputCommands.append('keep *_mustachePhotonCore_*_*')
-            process.FEVTDEBUGHLToutput.outputCommands.append('keep *_mustachePhotons_*_*')
-        
         process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
         process.towerMakerPF.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
         process.towerMakerWithHO.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
