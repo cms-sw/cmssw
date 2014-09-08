@@ -17,7 +17,7 @@
 #include <sys/prctl.h>
 #endif // __linux__
 
-#include "x86_tsc.h"
+#include "interface/x86_tsc.h"
 
 
 // CPUID, EAX = 0x01, EDX values

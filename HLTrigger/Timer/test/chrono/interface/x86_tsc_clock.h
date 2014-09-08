@@ -11,8 +11,8 @@
 #include <x86intrin.h>
 
 // for tsc_tick, etc.
-#include "x86_tsc.h"
-#include "x86_tsc_tick.h"
+#include "interface/x86_tsc.h"
+#include "interface/x86_tsc_tick.h"
 
 // TSC-based clock, using rdtsc (non-serialising)
 struct clock_rdtsc

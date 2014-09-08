@@ -10,9 +10,9 @@
 // for rdtscp, rdtscp, lfence, mfence
 #include <x86intrin.h>
 
-#include "../x86_tsc.h"
-#include "../x86_tsc_tick.h"
-#include "../native/native.h"
+#include "interface/x86_tsc.h"
+#include "interface/x86_tsc_tick.h"
+#include "interface/native/native.h"
 
 namespace native {
 

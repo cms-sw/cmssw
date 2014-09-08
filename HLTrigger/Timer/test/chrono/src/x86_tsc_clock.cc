@@ -1,8 +1,8 @@
 #if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
-#include "x86_tsc.h"
-#include "x86_tsc_clock.h"
+#include "interface/x86_tsc.h"
+#include "interface/x86_tsc_clock.h"
 
 const bool clock_rdtsc::is_available                = has_tsc() and tsc_allowed();
 const bool clock_rdtsc::is_steady                   = has_invariant_tsc();

@@ -22,27 +22,27 @@
 #endif // __linux__
 
 // other clocks
-#include "posix_clock.h"
-#include "posix_clock_gettime.h"
-#include "posix_gettimeofday.h"
-#include "posix_times.h"
-#include "posix_times_f.h"
-#include "posix_times_d.h"
-#include "posix_getrusage.h"
-#include "mach_clock_get_time.h"
-#include "mach_absolute_time.h"
-#include "mach_thread_info.h"
-#include "x86_tsc_clock.h"
-#include "boost_timer.h"
-#include "tbb_tick_count.h"
+#include "interface/posix_clock.h"
+#include "interface/posix_clock_gettime.h"
+#include "interface/posix_gettimeofday.h"
+#include "interface/posix_times.h"
+#include "interface/posix_times_f.h"
+#include "interface/posix_times_d.h"
+#include "interface/posix_getrusage.h"
+#include "interface/mach_clock_get_time.h"
+#include "interface/mach_absolute_time.h"
+#include "interface/mach_thread_info.h"
+#include "interface/x86_tsc_clock.h"
+#include "interface/boost_timer.h"
+#include "interface/tbb_tick_count.h"
 
 #ifndef __clang__
 // CLANG does not support OpenMP
-#include "omp_get_wtime.h"
+#include "interface/omp_get_wtime.h"
 #endif // ! __clang__
 
-#include "native/mach_absolute_time.h"
-#include "native/x86_tsc_clock.h"
+#include "interface/native/mach_absolute_time.h"
+#include "interface/native/x86_tsc_clock.h"
 
 #include "benchmark.h"
 

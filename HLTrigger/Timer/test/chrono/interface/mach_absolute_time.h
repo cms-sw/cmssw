@@ -11,7 +11,7 @@
 #include <mach/mach_time.h>
 #define HAVE_MACH_ABSOLUTE_TIME
 
-#include "mach_absolute_time_tick.h"
+#include "interface/mach_absolute_time_tick.h"
 
 
 // mach_absolute_time-based clock
