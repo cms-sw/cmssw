@@ -23,7 +23,7 @@ caloStage1Params.tauNeighbourThreshold         = cms.double(0.)
 caloStage1Params.switchOffTauVeto              = cms.double(70.)
 caloStage1Params.switchOffTauIso               = cms.double(60.)
 caloStage1Params.tauRelativeJetIsolationLimit  = cms.double(100.)
-caloStage1Params.tauRelativeJetIsolationCut = cms.double(1.)
+caloStage1Params.tauRelativeJetIsolationCut = cms.double(0.15)
 
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
