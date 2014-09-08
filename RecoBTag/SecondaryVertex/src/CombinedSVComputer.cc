@@ -193,9 +193,8 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 		const Vertex &vertex = svInfo.secondaryVertex(i);
 		bool hasRefittedTracks = vertex.hasRefittedTracks();
-		TrackRefVector tracks = svInfo.vertexTracks(i);
-		for(TrackRefVector::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-			double w = svInfo.trackWeight(i, *track);
+		for(reco::Vertex::trackRef_iterator track = vertex.tracks_begin(); track != vertex.tracks_end(); track++) {
+			double w = vertex.trackWeight(*track);
 			if (w < minTrackWeight)
 				continue;
 			if (hasRefittedTracks) {
@@ -256,7 +255,8 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 
 		numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).numberOfSourceCandidatePtrs();
 
-		std::vector<CandidatePtr> tracks = svInfo.vertexTracks(i);
+		const reco::VertexCompositePtrCandidate &vertex = svInfo.secondaryVertex(i);
+		const std::vector<CandidatePtr> tracks = vertex.daughterPtrVector();
 		for(std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
 			vertexKinematics.add(*(*track)->bestTrack(), 1.0);
 			if( isUsed(btau::trackEtaRel) ) vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
