@@ -36,7 +36,7 @@ from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
-from DQM.TrackingMonitorClient.trackingdqmclientheavyions_cfi import *
+from DQM.TrackingMonitorClient.TrackingDQMClientHeavyIons_cfi import *
 
 DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( muonQualityTests 
                                                       * photonOfflineDQMClient

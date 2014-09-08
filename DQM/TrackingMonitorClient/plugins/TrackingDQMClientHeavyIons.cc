@@ -21,8 +21,6 @@ using namespace edm;
 
 typedef MonitorElement ME;
 
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-TPRegexp nonPerlWildcard("\\w\\*|^\\*");
 
 TrackingDQMClientHeavyIons::TrackingDQMClientHeavyIons(const edm::ParameterSet& pset){
 
