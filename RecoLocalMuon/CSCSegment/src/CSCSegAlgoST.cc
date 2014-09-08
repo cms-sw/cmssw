@@ -4,7 +4,7 @@
  *  \authors: S. Stoynev - NU
  *            I. Bloch    - FNAL
  *            E. James    - FNAL
- *            A. Sakharov - WSU (extensive revision to handle wierd segments)
+ *            A. Sakharov - WSU
  */
  
 #include "CSCSegAlgoST.h"
@@ -12,8 +12,6 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-// // For clhep Matrix::solve
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,10 +25,11 @@
 #include <string>
 
 
-/* Constructor
+/* constructor
  *
  */
-CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoST") {
+CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : 
+  CSCSegmentAlgorithm(ps), myName("CSCSegAlgoST"), showering_(0) {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
   //  minLayersApart         = ps.getParameter<int>("minLayersApart");
@@ -63,15 +62,15 @@ CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   curvePenalty                 = ps.getParameter<double>("curvePenalty");
 
   useShowering = ps.getParameter<bool>("useShowering");
-  showering_   = new CSCSegAlgoShowering( ps );
-  // std::cout<<"Constructor called..."<<std::endl;
+  if (useShowering) showering_   = new CSCSegAlgoShowering( ps );
+
   /// Correct the Error Matrix 
   correctCov_     = ps.getParameter<bool>("CorrectTheErrors");
   chi2Norm_2D_        = ps.getParameter<double>("NormChi2Cut2D");
   chi2Norm_3D_        = ps.getParameter<double>("NormChi2Cut3D");
   prePrun_        = ps.getParameter<bool>("prePrun");
   prePrunLimit_   = ps.getParameter<double>("prePrunLimit");
-  //
+
   condSeed1_  = ps.getParameter<double>("SeedSmall");
   condSeed2_  = ps.getParameter<double>("SeedBig");
   covToAnyNumber_ = ps.getParameter<bool>("ForceCovariance");
@@ -95,18 +94,18 @@ CSCSegAlgoST::~CSCSegAlgoST() {
 
 std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
 
-  // Store chamber in temp memory
+  // Set member variable
   theChamber = aChamber; 
 
-  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::run] build segments in chamber " << theChamber->id();
+  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::run] Start building segments in chamber " << theChamber->id();
 
   // pre-cluster rechits and loop over all sub clusters seperately
   std::vector<CSCSegment>          segments_temp;
   std::vector<CSCSegment>          segments;
-  std::vector<ChamberHitContainer> rechits_clusters; // this is a collection of groups of rechits
+  std::vector<ChamberHitContainer> rechits_clusters; // a collection of clusters of rechits
 
-  // Define yweight penalty depending on chamber. We fixed the relative ratios, but
-  // they can be scaled by parameters:
+  // Define yweight penalty depending on chamber. 
+  // We fixed the relative ratios, but they can be scaled by parameters:
   
   for(int a = 0; a<5; ++a) {
     for(int b = 0; b<5; ++b) {
@@ -123,9 +122,10 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const Cham
   a_yweightPenaltyThreshold[3][1] = yweightPenaltyThreshold *  7.60;
   a_yweightPenaltyThreshold[3][2] = yweightPenaltyThreshold * 20.40;
   a_yweightPenaltyThreshold[4][1] = yweightPenaltyThreshold *  6.75;
+  a_yweightPenaltyThreshold[4][2] = yweightPenaltyThreshold * 20.40; //@@ ADD ME4/2 WITH RING 2 VALUE
   
   if(preClustering) {
-    // run a pre-clusterer on the given rechits to split obviously separated segment seeds:
+    // run a pre-clusterer on the given rechits to split clearly-separated segment seeds:
     if(preClustering_useChaining){
       // it uses X,Y,Z information; there are no configurable parameters used;
       // the X, Y, Z "cuts" are just (much) wider than the LCT readout ones
@@ -147,7 +147,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const Cham
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
-    // this is the place to prune:
+    // Any pruning of hits?
     if( Pruning ) {
       segments_temp.clear(); // segments_temp needed?!?!
       segments_temp = prune_bad_hits( theChamber, segments );
@@ -182,7 +182,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const Cham
 }
 
 // ********************************************************************;
-// *** This method is meant to remove clear bad hits, using as      ***; 
+// *** This method is meant to remove clearly bad hits, using as    ***; 
 // *** much information from the chamber as possible (e.g. charge,  ***;
 // *** hit position, timing, etc.)                                  ***;
 // ********************************************************************;
@@ -361,12 +361,13 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       }
       fillLocalDirection();
       // calculate error matrix
-      AlgebraicSymMatrix protoErrors = calculateError();   
+      // AlgebraicSymMatrix protoErrors = calculateError();   
+      SMatrixSym4 protoErrors = calculateError();   
       // but reorder components to match what's required by TrackingRecHit interface 
       // i.e. slopes first, then positions 
-      flipErrors( protoErrors ); 
-      //
-      CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2);
+      AlgebraicSymMatrix temp2 = flipErrors( protoErrors ); //@@ TO SATISFY CSCSegment INTERFACE
+
+      CSCSegment temp(protoSegment, protoIntercept, protoDirection, temp2, protoChi2);
 
       // replace n hit segment with n-1 hit segment, if segment probability is BPMinImprovement better:
       if( ( ChiSquaredProbability((double)(*it).chi2(),(double)((2*(*it).nRecHits())-4)) 
@@ -455,7 +456,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 	
     for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
-	LogDebug("CSCSegment|CSC") << "CSCSegmentST::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!";
+	LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::clusterHits] ALARM! Skipping used seeds, this should not happen - inform CSC DPG";
 	//	std::cout<<"We should never see this line now!!!"<<std::endl;
 	continue; //skip seeds that have been used 
       }
@@ -824,10 +825,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
     return segmentInChamber;  
 
   } else{
-        LogDebug("CSCSegment|CSC") <<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
+        LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::buildSegments] No. of rechits in the cluster/chamber > " << UpperLimit <<
 	  " ... Segment finding in the cluster/chamber canceled!";
-	//     std::cout<<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
-	//     " ... Segment finding in the cluster/chamber canceled! "<<std::endl;
         return segmentInChamber;  
         }
   }
@@ -1481,8 +1480,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
     
   default : 
     // Fallback - should never occur.
-    LogDebug("CSCSegment|CSC") <<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers.";
-    //     std::cout<<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers."<<std::endl;
+    LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::buildSegments] Unexpected number of layers with hits - please inform CSC DPG.";
     hit_drop_limit = 0.1;
   }
 
@@ -1573,14 +1571,14 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
 	doSlopesAndChi2();
       }
       if(protoChiUCorrection<1.00005){
-        LogDebug("CSCSegment|segmWierd") << "Wierd segment, ErrXX scaled, refit " <<std::endl;
+        LogTrace("CSCWeirdSegment") << "[CSCSegAlgoST::buildSegments] Segment ErrXX scaled and refit " << std::endl;
         if(protoChi2/protoNDF>chi2Norm_3D_){
      // Call the fit with direct adjustment of condition number;
      // If the attempt to improve fit by scaling up X error fails
      // call the procedure to make the condition number of M compatible with
      // the precision of X and Y measurements;
      // Achieved by decreasing abs value of the Covariance
-          LogDebug("CSCSegment|segmWierd") << "Wierd segment, ErrXY changed to match cond. number, refit  " << std::endl;
+          LogTrace("CSCWeirdSegment") << "[CSCSegAlgoST::buildSegments] Segment ErrXY changed to match cond. number and refit " << std::endl;
 	  passCondNumber_2=true;
 	  doSlopesAndChi2();
         }
@@ -1592,7 +1590,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
       // and refit;
       if(prePrun_ && (sqrt(protoChiUCorrection)>prePrunLimit_) &&
 	 (protoSegment.size()>3)){   
-        LogDebug("CSCSegment|segmWierd") << "Scale factor protoChiUCorrection too big, pre-Prune, refit  " << std::endl;
+        LogTrace("CSCWeirdSegment") << "[CSCSegAlgoST::buildSegments] Scale factor protoChiUCorrection too big, pre-Prune and refit " << std::endl;
 	protoSegment.erase(protoSegment.begin()+(maxContrIndex),
 			   protoSegment.begin()+(maxContrIndex+1));                 
 	doSlopesAndChi2();
@@ -1601,14 +1599,15 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
 
     fillLocalDirection();
     // calculate error matrix
-    AlgebraicSymMatrix protoErrors = calculateError();   
+    //    AlgebraicSymMatrix protoErrors = calculateError();   
+    SMatrixSym4 protoErrors = calculateError();   
     // but reorder components to match what's required by TrackingRecHit interface 
     // i.e. slopes first, then positions 
-    flipErrors( protoErrors ); 
-    //
-    CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2);
+    AlgebraicSymMatrix temp2 = flipErrors( protoErrors ); //@@ TO SATISFY CSCSegment INTERFACE
 
-    LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::buildSegments] protosegment\n " << temp;
+    CSCSegment temp(protoSegment, protoIntercept, protoDirection, temp2, protoChi2);
+
+    dumpSegment( temp );
 
     segmentInChamber.push_back(temp); 
   }
@@ -1685,8 +1684,7 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
       // skip here too if segment was marked bad
       SumCommonHits =0;
       if( Psegments[iCand].size() != Psegments[iiCand].size() ) {
-	LogDebug("CSCSegment|CSC") <<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!";
-// 	std::cout<<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!"<<std::endl;
+	LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::ChooseSegments2] ALARM!! Should not happen - please inform CSC DPG";
       }
       else {
 	for( int ihits = 0; ihits < int(Psegments[iCand].size()); ++ihits ) { // iCand and iiCand NEED to have same nr of hits! (alsways have by construction)
@@ -1741,76 +1739,92 @@ void CSCSegAlgoST::fitSlopes() {
   if(passCondNumber && !passCondNumber_2){
     correctTheCovX();
     if(e_Cxx.size()!=protoSegment.size()){
-      LogDebug("CSCSegment|segmWierd") << "e_Cxx.size()!=protoSegment.size() IT IS A SERIOUS PROBLEM!!! " <<std::endl;
+      LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::fitSlopes] e_Cxx.size()!=protoSegment.size() ALARM! Please inform CSC DPG " << std::endl;
     }
   }
-  CLHEP::HepMatrix M(4,4,0);
-  CLHEP::HepVector B(4,0);
+
+  SMatrix4 M; // 4x4, init to 0
+  SVector4 B; // 4x1, init to 0;   //@@ 4x1 OR 1x4 ??
+
   ChamberHitContainer::const_iterator ih = protoSegment.begin();
   for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
     const CSCRecHit2D& hit = (**ih);
     const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
     GlobalPoint gp         = layer->toGlobal(hit.localPosition());
     LocalPoint  lp         = theChamber->toLocal(gp); 
-    // ptc: Local position of hit w.r.t. chamber
+    // Local position of hit w.r.t. chamber
     double u = lp.x();
     double v = lp.y();
     double z = lp.z();
-    // ptc: Covariance matrix of local errors 
-    CLHEP::HepMatrix IC(2,2);
+    // Covariance matrix of local errors 
+    SMatrixSym2 IC; // 2x2, init to 0
     if(passCondNumber&& !passCondNumber_2){
-      IC(1,1) = e_Cxx.at(ih-protoSegment.begin());
+      IC(0,0) = e_Cxx.at(ih-protoSegment.begin());
     }
     else{
-      IC(1,1) = hit.localPositionError().xx();
+      IC(0,0) = hit.localPositionError().xx();
     }
-    //    IC(1,1) = hit.localPositionError().xx();
-    IC(1,2) = hit.localPositionError().xy();
-    IC(2,2) = hit.localPositionError().yy();
-    IC(2,1) = IC(1,2); // since Cov is symmetric
+    //    IC(0,1) = hit.localPositionError().xy();
+    IC(1,0) = hit.localPositionError().xy();
+    IC(1,1) = hit.localPositionError().yy();
+    //    IC(1,0) = IC(0,1); // since Cov is symmetric
     /// Correct the cov matrix
     if(passCondNumber_2){
       correctTheCovMatrix(IC);
     }
-    // ptc: Invert covariance matrix (and trap if it fails!)
-    int ierr = 0;
-    IC.invert(ierr); // inverts in place
-    if (ierr != 0) {
-      LogDebug("CSCSegment|CSC") << "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC;      
-      //       std::cout<< "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n"<<std::endl;
+    // Invert covariance matrix (and trap if it fails!)
+    bool ok = IC.Invert();
+    if ( !ok ) {
+      LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::fitSlopes] Failed to invert covariance matrix: \n" << IC;      
+      //      return ok;
     }
+
+        M(0,0) += IC(0,0);
+        M(0,1) += IC(0,1);
+        M(0,2) += IC(0,0) * z;
+        M(0,3) += IC(0,1) * z;
+        B(0)   += u * IC(0,0) + v * IC(0,1);
     
-    M(1,1) += IC(1,1);
-    M(1,2) += IC(1,2);
-    M(1,3) += IC(1,1) * z;
-    M(1,4) += IC(1,2) * z;
-    B(1)   += u * IC(1,1) + v * IC(1,2);
+        M(1,0) += IC(1,0);
+        M(1,1) += IC(1,1);
+        M(1,2) += IC(1,0) * z;
+        M(1,3) += IC(1,1) * z;
+        B(1)   += u * IC(1,0) + v * IC(1,1);
     
-    M(2,1) += IC(2,1);
-    M(2,2) += IC(2,2);
-    M(2,3) += IC(2,1) * z;
-    M(2,4) += IC(2,2) * z;
-    B(2)   += u * IC(2,1) + v * IC(2,2);
+        M(2,0) += IC(0,0) * z;
+        M(2,1) += IC(0,1) * z;
+        M(2,2) += IC(0,0) * z * z;
+        M(2,3) += IC(0,1) * z * z;
+        B(2)   += ( u * IC(0,0) + v * IC(0,1) ) * z;
     
-    M(3,1) += IC(1,1) * z;
-    M(3,2) += IC(1,2) * z;
-    M(3,3) += IC(1,1) * z * z;
-    M(3,4) += IC(1,2) * z * z;
-    B(3)   += ( u * IC(1,1) + v * IC(1,2) ) * z;
-    
-    M(4,1) += IC(2,1) * z;
-    M(4,2) += IC(2,2) * z;
-    M(4,3) += IC(2,1) * z * z;
-    M(4,4) += IC(2,2) * z * z;
-    B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
+        M(3,0) += IC(1,0) * z;
+        M(3,1) += IC(1,1) * z;
+        M(3,2) += IC(1,0) * z * z;
+        M(3,3) += IC(1,1) * z * z;
+        B(3)   += ( u * IC(1,0) + v * IC(1,1) ) * z;
+
   }
-  CLHEP::HepVector p = solve(M, B);
-  
+
+  SVector4 p;
+  bool ok = M.Invert();
+  if (!ok ){
+    LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::fitSlopes[ Failed to invert matrix: \n" << M;
+    //    return ok;
+  }
+  else {
+    p = M * B;
+  }
+
   // Update member variables 
   // Note that origin has local z = 0
-  protoIntercept = LocalPoint(p(1), p(2), 0.);
-  protoSlope_u = p(3);
-  protoSlope_v = p(4);
+
+  protoIntercept = LocalPoint(p(0), p(1), 0.);
+  protoSlope_u = p(2);
+  protoSlope_v = p(3);
+
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::fillSlopes] p = " 
+  //        << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
+
 }
 /* Method fillChiSquared
  *
@@ -1820,7 +1834,7 @@ void CSCSegAlgoST::fitSlopes() {
 void CSCSegAlgoST::fillChiSquared() {
   
   double chsq = 0.;
-  
+
   ChamberHitContainer::const_iterator ih;
   for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
     
@@ -1836,37 +1850,44 @@ void CSCSegAlgoST::fillChiSquared() {
     double du = protoIntercept.x() + protoSlope_u * z - u;
     double dv = protoIntercept.y() + protoSlope_v * z - v;
     
-    CLHEP::HepMatrix IC(2,2);
+    //    LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::fillChiSquared] u, v, z = " << u << ", " << v << ", " << z;
+
+    SMatrixSym2 IC; // 2x2, init to 0
+
     if(passCondNumber&& !passCondNumber_2){
-      IC(1,1) = e_Cxx.at(ih-protoSegment.begin());
+      IC(0,0) = e_Cxx.at(ih-protoSegment.begin());
     }
     else{
-      IC(1,1) = hit.localPositionError().xx();
+      IC(0,0) = hit.localPositionError().xx();
     }
-    //    IC(1,1) = hit.localPositionError().xx();
-    IC(1,2) = hit.localPositionError().xy();
-    IC(2,2) = hit.localPositionError().yy();
-    IC(2,1) = IC(1,2);
+    //    IC(0,1) = hit.localPositionError().xy();
+    IC(1,0) = hit.localPositionError().xy();
+    IC(1,1) = hit.localPositionError().yy();
+    //    IC(1,0) = IC(0,1);
+
+    //    LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::fillChiSquared] IC before = \n" << IC;
+
     /// Correct the cov matrix
     if(passCondNumber_2){
       correctTheCovMatrix(IC);
     }
     
     // Invert covariance matrix
-    int ierr = 0;
-    IC.invert(ierr);
-    if (ierr != 0) {
-      LogDebug("CSCSegment|CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC;
-      //       std::cout << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";
-      
+    bool ok = IC.Invert();
+    if (!ok ){
+      LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::fillChiSquared] Failed to invert covariance matrix: \n" << IC;
+      //      return ok;
     }
-    
-    chsq += du*du*IC(1,1) + 2.*du*dv*IC(1,2) + dv*dv*IC(2,2);
+    //    LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::fillChiSquared] IC after = \n" << IC;
+    chsq += du*du*IC(0,0) + 2.*du*dv*IC(0,1) + dv*dv*IC(1,1);
   }
-
   protoChi2 = chsq;
   protoNDF = 2.*protoSegment.size() - 4;
+
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::fillChiSquared] chi2 = " << protoChi2 << "/" << protoNDF << " dof";
+
 }
+
 /* fillLocalDirection
  *
  */
@@ -1882,7 +1903,7 @@ void CSCSegAlgoST::fillLocalDirection() {
   LocalVector localDir(dx,dy,dz);
   
   // localDir may need sign flip to ensure it points outward from IP
-  // ptc: Examine its direction and origin in global z: to point outward
+  // Examine its direction and origin in global z: to point outward
   // the localDir should always have same sign as global z...
   
   double globalZpos    = ( theChamber->toGlobal( protoIntercept ) ).z();
@@ -1890,28 +1911,38 @@ void CSCSegAlgoST::fillLocalDirection() {
   double directionSign = globalZpos * globalZdir;
   protoDirection       = (directionSign * localDir).unit();
 }
+
 /* weightMatrix
  *   
  */
-AlgebraicSymMatrix CSCSegAlgoST::weightMatrix() const {
+// AlgebraicSymMatrix CSCSegAlgoST::weightMatrix() const {
+CSCSegAlgoST::SMatrixSym12 CSCSegAlgoST::weightMatrix() const {
   
   std::vector<const CSCRecHit2D*>::const_iterator it;
-  int nhits = protoSegment.size();
-  AlgebraicSymMatrix matrix(2*nhits, 0);
+
+  bool ok = true;
+
+  SMatrixSym12 matrix = ROOT::Math::SMatrixIdentity(); // 12x12, init to 1's on diag
+
   int row = 0;
   
   for (it = protoSegment.begin(); it != protoSegment.end(); ++it) {
     
     const CSCRecHit2D& hit = (**it);
-    ++row;
+
     matrix(row, row)   = protoChiUCorrection*hit.localPositionError().xx();
     matrix(row, row+1) = hit.localPositionError().xy();
     ++row;
     matrix(row, row-1) = hit.localPositionError().xy();
     matrix(row, row)   = hit.localPositionError().yy();
+    ++row;
   }
-  int ierr;
-  matrix.invert(ierr);
+
+  ok = matrix.Invert(); // invert in place
+  if ( !ok ) {
+    LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::weightMatrix] Failed to invert matrix: \n" << matrix;      
+    //    return ok;
+  }
   return matrix;
 }
 
@@ -1919,11 +1950,12 @@ AlgebraicSymMatrix CSCSegAlgoST::weightMatrix() const {
 /* derivativeMatrix
  *
  */
-CLHEP::HepMatrix CSCSegAlgoST::derivativeMatrix() const {
+// CLHEP::HepMatrix CSCSegAlgoST::derivativeMatrix() const {
+CSCSegAlgoST::SMatrix12by4 CSCSegAlgoST::derivativeMatrix() const {
   
   ChamberHitContainer::const_iterator it;
-  int nhits = protoSegment.size();
-  CLHEP::HepMatrix matrix(2*nhits, 4);
+
+  SMatrix12by4 matrix; // 12x4, init to 0
   int row = 0;
   
   for(it = protoSegment.begin(); it != protoSegment.end(); ++it) {
@@ -1933,12 +1965,13 @@ CLHEP::HepMatrix CSCSegAlgoST::derivativeMatrix() const {
     GlobalPoint gp = layer->toGlobal(hit.localPosition());      
     LocalPoint lp = theChamber->toLocal(gp); 
     float z = lp.z();
+
+    matrix(row, 0) = 1.;
+    matrix(row, 2) = z;
     ++row;
     matrix(row, 1) = 1.;
     matrix(row, 3) = z;
     ++row;
-    matrix(row, 2) = 1.;
-    matrix(row, 4) = z;
   }
   return matrix;
 }
@@ -1947,48 +1980,79 @@ CLHEP::HepMatrix CSCSegAlgoST::derivativeMatrix() const {
 /* calculateError
  *
  */
-AlgebraicSymMatrix CSCSegAlgoST::calculateError() const {
+
+CSCSegAlgoST::SMatrixSym4 CSCSegAlgoST::calculateError() const {
   
-  AlgebraicSymMatrix weights = weightMatrix();
-  AlgebraicMatrix A = derivativeMatrix();
-  
+  SMatrixSym12 weights = weightMatrix();
+  SMatrix12by4 A = derivativeMatrix();
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::calculateError] weights matrix W: \n" << weights;      
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::calculateError] derivatives matrix A: \n" << A;      
+
   // (AT W A)^-1
   // from http://www.phys.ufl.edu/~avery/fitting.html, part I
-  int ierr;
-  AlgebraicSymMatrix result = weights.similarityT(A);
-  result.invert(ierr);
-  
+
+  bool ok;
+  SMatrixSym4 result =  ROOT::Math::SimilarityT(A, weights);
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::calculateError] (AT W A): \n" << result;      
+  ok = result.Invert(); // inverts in place
+  if ( !ok ) {
+    LogTrace("CSCSegment|CSC") << "[CSCSegAlgoST::calculateError] Failed to invert matrix: \n" << result;      
+    //    return ok;
+  }
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::calculateError] (AT W A)^-1: \n" << result;      
   // blithely assuming the inverting never fails...
   return result;
 }
 
 
-void CSCSegAlgoST::flipErrors( AlgebraicSymMatrix& a ) const { 
+AlgebraicSymMatrix CSCSegAlgoST::flipErrors( const SMatrixSym4& a ) const { 
     
   // The CSCSegment needs the error matrix re-arranged to match
   //  parameters in order (uz, vz, u0, v0) where uz, vz = slopes, u0, v0 = intercepts
     
-  AlgebraicSymMatrix hold( a ); 
-    
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::flipErrors] input: \n" << a;      
+
+  AlgebraicSymMatrix hold(4, 0. ); 
+      
+  for ( short j=0; j!=4; ++j) {
+    for (short i=0; i!=4; ++i) {
+      hold(i+1,j+1) = a(i,j); // SMatrix counts from 0, AlgebraicMatrix from 1
+    }
+  }
+
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::flipErrors] after copy:";
+  //  LogTrace("CSCSegAlgoST") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  //  LogTrace("CSCSegAlgoST") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  //  LogTrace("CSCSegAlgoST") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  //  LogTrace("CSCSegAlgoST") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+
   // errors on slopes into upper left 
-  a(1,1) = hold(3,3); 
-  a(1,2) = hold(3,4); 
-  a(2,1) = hold(4,3); 
-  a(2,2) = hold(4,4); 
+  hold(1,1) = a(2,2); 
+  hold(1,2) = a(2,3); 
+  hold(2,1) = a(3,2); 
+  hold(2,2) = a(3,3); 
     
   // errors on positions into lower right 
-  a(3,3) = hold(1,1); 
-  a(3,4) = hold(1,2); 
-  a(4,3) = hold(2,1); 
-  a(4,4) = hold(2,2); 
+  hold(3,3) = a(0,0); 
+  hold(3,4) = a(0,1); 
+  hold(4,3) = a(1,0); 
+  hold(4,4) = a(1,1); 
     
   // must also interchange off-diagonal elements of off-diagonal 2x2 submatrices
-  a(4,1) = hold(2,3);
-  a(3,2) = hold(1,4);
-  a(2,3) = hold(4,1); // = hold(1,4)
-  a(1,4) = hold(3,2); // = hold(2,3)
+  hold(4,1) = a(1,2);
+  hold(3,2) = a(0,3);
+  hold(2,3) = a(3,0); // = a(0,3)
+  hold(1,4) = a(2,1); // = a(1,2)
+
+  //  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::flipErrors] after flip:";
+  //  LogTrace("CSCSegAlgoST") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  //  LogTrace("CSCSegAlgoST") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  //  LogTrace("CSCSegAlgoST") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  //  LogTrace("CSCSegAlgoST") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+
+  return hold;
 } 
-//
+
 void CSCSegAlgoST::correctTheCovX(void){
   std::vector<double> uu, vv, zz;  /// Vectors of coordinates
   //std::vector<double> e_Cxx;
@@ -2005,18 +2069,18 @@ void CSCSegAlgoST::correctTheCovX(void){
   for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
     const CSCRecHit2D& hit = (**ih);
     e_Cxx.push_back(hit.localPositionError().xx());
-    // 
+
     const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
     GlobalPoint gp         = layer->toGlobal(hit.localPosition());
     LocalPoint  lp         = theChamber->toLocal(gp); 
-    // ptc: Local position of hit w.r.t. chamber
+    // Local position of hit w.r.t. chamber
     double u = lp.x();
     double v = lp.y();
     double z = lp.z();
     uu.push_back(u); 
     vv.push_back(v); 
     zz.push_back(z);
-    /// Prepare the sums for the standard linear fit
+    // Prepare the sums for the standard linear fit
     sum_U_err += 1./e_Cxx.back();
     sum_Z_U_err += z/e_Cxx.back();
     sum_Z2_U_err += (z*z)/e_Cxx.back();
@@ -2024,7 +2088,7 @@ void CSCSegAlgoST::correctTheCovX(void){
     sum_UZ_U_err += (u*z)/e_Cxx.back();
   }
  
-  /// Make a primitive one dimentional fit in U-Z plane
+  /// Make a one dimensional fit in U-Z plane (i.e. chamber local x-z)
   /// U=U0+UZ*Z fit parameters
   
   double denom=sum_U_err*sum_Z2_U_err-pow(sum_Z_U_err,2);
@@ -2063,27 +2127,27 @@ void CSCSegAlgoST::correctTheCovX(void){
   //  
   //return e_Cxx;
 }
-//
-void CSCSegAlgoST::correctTheCovMatrix(CLHEP::HepMatrix &IC){
+
+void CSCSegAlgoST::correctTheCovMatrix(SMatrixSym2 &IC){
   //double condNumberCorr1=0.0;
   double condNumberCorr2=0.0; 
   double detCov=0.0;
   double diag1=0.0;
   double diag2=0.0;
-  double IC_12_corr=0.0;
-  double  IC_11_corr=0.0;
+  double IC_01_corr=0.0;
+  double  IC_00_corr=0.0;
   if(!covToAnyNumberAll_){
-    //condNumberCorr1=condSeed1_*IC(2,2);
-    condNumberCorr2=condSeed2_*IC(2,2);
-    diag1=IC(1,1)*IC(2,2);
-    diag2=IC(1,2)*IC(1,2);
+    //condNumberCorr1=condSeed1_*IC(1,1);
+    condNumberCorr2=condSeed2_*IC(1,1);
+    diag1=IC(0,0)*IC(1,1);
+    diag2=IC(0,1)*IC(0,1);
     detCov=fabs(diag1-diag2);
     if((diag1<condNumberCorr2)&&(diag2<condNumberCorr2)){
 	  if(covToAnyNumber_)
-	    IC(1,2)=covAnyNumber_;
+	    IC(0,1)=covAnyNumber_;
 	  else{	
-	    IC_11_corr=condSeed1_+fabs(IC(1,2))/IC(2,2);
-	    IC(1,1)=IC_11_corr;
+	    IC_00_corr=condSeed1_+fabs(IC(0,1))/IC(1,1);
+	    IC(0,0)=IC_00_corr;
 	  }
     }
     
@@ -2091,19 +2155,20 @@ void CSCSegAlgoST::correctTheCovMatrix(CLHEP::HepMatrix &IC){
        ((diag2>condNumberCorr2)&&(detCov<condNumberCorr2)
 	)){
       if(covToAnyNumber_)
-	IC(1,2)=covAnyNumber_;
+	IC(0,1)=covAnyNumber_;
       else{	
-	IC_12_corr=sqrt(fabs(diag1-condNumberCorr2));
-	if(IC(1,2)<0)
-	  IC(1,2)=(-1)*IC_12_corr;
+	IC_01_corr=sqrt(fabs(diag1-condNumberCorr2));
+	if(IC(0,1)<0)
+	  IC(0,1)=(-1)*IC_01_corr;
 	else
-	  IC(1,2)=IC_12_corr;
+	  IC(0,1)=IC_01_corr;
       }
     }
   }
   else{
-    IC(1,2)=covAnyNumber_;
+    IC(0,1)=covAnyNumber_;
   }
+  IC(1,0) = IC(0,1); //@@ ADDED TO MAINTAIN SYMMETRIC
 }
 //
 void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>  & segments ){
@@ -2132,5 +2197,17 @@ void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>  & segments ){
   }
 
 }
-//
+
+void CSCSegAlgoST::dumpSegment( const CSCSegment& seg ) const {
+  LogTrace("CSCSegment") << "CSCSegment in " << chamber()->id()
+                         << "\nlocal position = " << seg.localPosition()
+			 << "\nerror = " << seg.localPositionError() 
+			 << "\nlocal direction = " << seg.localDirection()
+			 << "\nerror =" << seg.localDirectionError()
+			 << "\ncovariance matrix" 
+			 << seg.parametersError()
+			 << "chi2/ndf = " << seg.chi2() << "/" << seg.degreesOfFreedom()
+			 << "\n#rechits = " << seg.specificRecHits().size();
+}
+
 
