@@ -41,6 +41,9 @@
 #include "omp_get_wtime.h"
 #endif // ! __clang__
 
+#include "native/mach_absolute_time.h"
+#include "native/x86_tsc_clock.h"
+
 #include "benchmark.h"
 
 
@@ -126,7 +129,7 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
 #ifdef HAVE_MACH_ABSOLUTE_TIME
   if (mach_absolute_time_clock::is_available) {
     timers.push_back(new Benchmark<mach_absolute_time_clock>("mach_absolute_time() (using nanoseconds)"));
-    timers.push_back(new Benchmark<mach_absolute_time_clock_native>("mach_absolute_time() (native)"));
+    timers.push_back(new Benchmark<native::mach_absolute_time_clock>("mach_absolute_time() (native)"));
   }
 #endif // HAVE_MACH_ABSOLUTE_TIME
 #ifdef HAVE_MACH_THREAD_INFO_CLOCK
@@ -151,15 +154,19 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
     timers.push_back(new Benchmark<clock_rdtsc_mfence>("MFENCE; RDTSC (" + tsc_freq + ") (using nanoseconds)"));
   if (clock_rdtscp::is_available)
     timers.push_back(new Benchmark<clock_rdtscp>("RDTSCP (" + tsc_freq + ") (using nanoseconds)"));
+#if defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
+  if (clock_serialising_rdtsc::is_available)
+    timers.push_back(new Benchmark<clock_serialising_rdtsc>("run-time selected serialising RDTSC (" + tsc_freq + ") (using nanoseconds)"));
+#endif // defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
   // x86 DST-based clock (native)
   if (clock_rdtsc::is_available)
-    timers.push_back(new Benchmark<clock_rdtsc_native>("RDTSC (" + tsc_freq + ") (native)"));
+    timers.push_back(new Benchmark<native::clock_rdtsc>("RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtsc_lfence::is_available)
-    timers.push_back(new Benchmark<clock_rdtsc_lfence_native>("LFENCE; RDTSC (" + tsc_freq + ") (native)"));
+    timers.push_back(new Benchmark<native::clock_rdtsc_lfence>("LFENCE; RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtsc_mfence::is_available)
-    timers.push_back(new Benchmark<clock_rdtsc_mfence_native>("MFENCE; RDTSC (" + tsc_freq + ") (native)"));
+    timers.push_back(new Benchmark<native::clock_rdtsc_mfence>("MFENCE; RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtscp::is_available)
-    timers.push_back(new Benchmark<clock_rdtscp_native>("RDTSCP (" + tsc_freq + ") (native)"));
+    timers.push_back(new Benchmark<native::clock_rdtscp>("RDTSCP (" + tsc_freq + ") (native)"));
 
 #endif // defined __x86_64__ or defined __i386__
 

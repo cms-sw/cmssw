@@ -3,15 +3,13 @@
 #ifndef mach_thread_info_h
 #define mach_thread_info_h
 
-#define HAVE_MACH_THREAD_INFO_CLOCK
+// C++ standard headers
+#include <chrono>
 
 // Darwin system headers
 #include <mach/kern_return.h>
-#include <mach/mach_init.h>
 #include <mach/thread_info.h>
-
-// C++ standard headers
-#include <chrono>
+#define HAVE_MACH_THREAD_INFO_CLOCK
 
 // based on thread_info(mach_thread_self(), THREAD_BASIC_INFO, ...)
 struct mach_thread_info_clock
@@ -31,7 +29,7 @@ struct mach_thread_info_clock
     thread_basic_info_data_t basic_info;
     mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
     if (KERN_SUCCESS == thread_info(thread_id, THREAD_BASIC_INFO, (thread_info_t) & basic_info, & count)) {
-      return time_point( std::chrono::seconds(basic_info.user_time.seconds + basic_info.system_time.seconds) + 
+      return time_point( std::chrono::seconds(basic_info.user_time.seconds + basic_info.system_time.seconds) +
                          std::chrono::microseconds(basic_info.user_time.microseconds + basic_info.system_time.microseconds) );
     } else {
       return time_point();

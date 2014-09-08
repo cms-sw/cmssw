@@ -26,7 +26,7 @@
 #endif // _POSIX_THREAD_CPUTIME
 
 #ifdef __linux__
-#include "linux/version.h"
+#include <linux/version.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
 #define HAVE_POSIX_CLOCK_MONOTONIC_RAW
 #endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
