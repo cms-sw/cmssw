@@ -66,6 +66,16 @@ public:
         unsigned long long etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
+
+      unsigned int etaWindowLower;
+      unsigned int etaWindowUpper;
+      unsigned int etaWindowVetoLower;
+      unsigned int etaWindowVetoUpper;
+
+      unsigned int phiWindowLower;
+      unsigned int phiWindowUpper;
+      unsigned int phiWindowVetoLower;
+      unsigned int phiWindowVetoUpper;
     };
 
     // typedef for correlation parameters
@@ -74,11 +84,23 @@ public:
     struct CorrelationParameter
     {
         unsigned int chargeCorrelation;
-        unsigned long long deltaEtaRange;
+      //unsigned long long deltaEtaRange;
 
         unsigned long long deltaPhiRange0Word;
         unsigned long long deltaPhiRange1Word;
+      //unsigned int deltaPhiMaxbits;
+
+        unsigned long long deltaEtaRange;
+
+        unsigned long long deltaPhiRange;
         unsigned int deltaPhiMaxbits;
+
+      unsigned int deltaEtaRangeLower;
+      unsigned int deltaEtaRangeUpper;
+
+      unsigned int deltaPhiRangeLower;
+      unsigned int deltaPhiRangeUpper;
+
     };
 
 public:

@@ -27,7 +27,18 @@ namespace l1t {
 			      std::vector<Tau> & taus);
     
   private:
+    void merging(const std::vector<l1t::CaloCluster>& clusters, std::vector<l1t::Tau>& taus);
+    void loadCalibrationLuts();
+    double calibratedPt(int hwPtEm, int hwPtHad, int ieta);
+    
+    // parameters
     CaloParams* params_;
+    std::vector<std::vector<float> >coefficients_;
+
+    float offsetBarrelEH_;
+    float offsetBarrelH_;
+    float offsetEndcapsEH_;
+    float offsetEndcapsH_;
   };
   
 }
