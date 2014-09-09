@@ -14,21 +14,21 @@ namespace edm {
     return obj;
   }
 
-  ObjectWithDict::ObjectWithDict() : type_(nullptr), address_(nullptr) {
+  ObjectWithDict::ObjectWithDict() : type_(), address_(nullptr) {
   }
 
   ObjectWithDict::ObjectWithDict(TypeWithDict const& type, void* address) :
-    type_(static_cast<TType*>(type.ttype())),
+    type_(type),
     address_(address) {
   }
 
   ObjectWithDict::ObjectWithDict(std::type_info const& ti, void* address) :
-    type_(static_cast<TType*>(TypeWithDict(ti).ttype())),
+    type_(TypeWithDict(ti)),
     address_(address) {
   }
 
   ObjectWithDict::operator bool() const {
-    return gInterpreter->Type_Bool(type_) && (address_ != nullptr);
+    return bool(type_) && (address_ != nullptr);
   }
 
   void*
@@ -38,7 +38,7 @@ namespace edm {
 
   TypeWithDict
   ObjectWithDict::typeOf() const {
-    return TypeWithDict(type_);
+    return type_;
   }
 
   class DummyVT {
@@ -51,8 +51,8 @@ namespace edm {
 
   TypeWithDict
   ObjectWithDict::dynamicType() const {
-    if (!gInterpreter->Type_IsVirtual(type_)) {
-      return TypeWithDict(type_);
+    if (!type_.isVirtual()) {
+      return type_;
     }
     // Use a dirty trick, force the typeid() operator
     // to consult the virtual table stored at address_.
@@ -61,7 +61,7 @@ namespace edm {
 
   ObjectWithDict
   ObjectWithDict::get(std::string const& memberName) const {
-    return TypeWithDict(type_).dataMemberByName(memberName).get(*this);
+    return type_.dataMemberByName(memberName).get(*this);
   }
 
   ObjectWithDict
@@ -101,8 +101,7 @@ namespace edm {
 
   void
   ObjectWithDict::destruct(bool dealloc) const {
-    TypeWithDict ty(type_);
-    TClass* cl = ty.getClass();
+    TClass* cl = type_.getClass();
     if (cl != nullptr) {
       cl->Destructor(address_, !dealloc);
       //if (dealloc) {
