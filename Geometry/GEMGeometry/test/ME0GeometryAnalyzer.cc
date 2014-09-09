@@ -190,5 +190,5 @@ ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 }
 
 //define this as a plug-in
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ME0GeometryAnalyzer);
