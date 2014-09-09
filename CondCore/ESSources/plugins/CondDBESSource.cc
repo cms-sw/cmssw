@@ -455,14 +455,6 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 
     //query the IOVSequence
     cond::ValidityInterval validity = (*pmIter).second->proxy()->setIntervalFor( abtime );
-    // temp logging for debug
-    if( (*pmIter).first == "BeamSpotObjectsRcd" ){
-      std::pair<int,int> ttarg = cond::time::unpack( abtime );
-      std::pair<int,int> tsin = cond::time::unpack( validity.first );
-      std::pair<int,int> ttil = cond::time::unpack( validity.second );
-      edm::LogWarning( "CondDBESSource" ) <<"Record "<<(*pmIter).first<<". Target time run:"<<ttarg.first<<" lumi:"<<ttarg.second<<" ("<<abtime<<") => IOV since run:"<<
-	tsin.first<<" lumi:"<<tsin.second<<" ("<<validity.first<<") IOV till run:"<<ttil.first<<" lumi:"<<ttil.second<<" ("<<validity.second<<")"<<std::endl;
-    }
     
     edm::LogInfo( "CondDBESSource" ) << "Validity coming from IOV sequence for record \"" << recordname
 				     << "\" and label \""<< pmIter->second->label()
