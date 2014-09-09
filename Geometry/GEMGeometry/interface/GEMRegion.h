@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMRegion_h
-#define GEMGeometry_GEMRegion_h
+#ifndef Geometry_GEMGeometry_GEMRegion_h
+#define Geometry_GEMGeometry_GEMRegion_h
 
 /** \class GEMRegion
  *

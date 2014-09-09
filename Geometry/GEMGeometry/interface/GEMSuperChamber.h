@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMSuperChamber_h
-#define GEMGeometry_GEMSuperChamber_h
+#ifndef Geometry_GEMGeometry_GEMSuperChamber_h
+#define Geometry_GEMGeometry_GEMSuperChamber_h
 
 /** \class GEMSuperChamber
  *

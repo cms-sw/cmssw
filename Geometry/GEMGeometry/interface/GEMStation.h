@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMStation_h
-#define GEMGeometry_GEMStation_h
+#ifndef Geometry_GEMGeometry_GEMStation_h
+#define Geometry_GEMGeometry_GEMStation_h
 
 /** \class GEMStation
  *

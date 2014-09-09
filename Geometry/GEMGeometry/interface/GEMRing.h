@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMRing_h
-#define GEMGeometry_GEMRing_h
+#ifndef Geometry_GEMGeometry_GEMRing_h
+#define Geometry_GEMGeometry_GEMRing_h
 
 /** \class GEMRing
  *
