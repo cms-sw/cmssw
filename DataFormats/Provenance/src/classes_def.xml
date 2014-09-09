@@ -102,7 +102,8 @@
  <class name="edm::FileFormatVersion" ClassVersion="10">
   <version ClassVersion="10" checksum="2078548510"/>
  </class>
- <class name="edm::FileIndex::Element" ClassVersion="10">
+ <class name="edm::FileIndex::Element" ClassVersion="11">
+  <version ClassVersion="11" checksum="436636819"/>
   <version ClassVersion="10" checksum="1310120368"/>
  </class>
  <class name="std::vector<edm::FileIndex::Element>"/>
@@ -112,7 +113,8 @@
   <version ClassVersion="10" checksum="1256606919"/>
  </class>
  <class name="edm::FileIndex::Transients" ClassVersion="0"/>
- <class name="edm::IndexIntoFile::RunOrLumiEntry" ClassVersion="10">
+ <class name="edm::IndexIntoFile::RunOrLumiEntry" ClassVersion="11">
+  <version ClassVersion="11" checksum="3032727456"/>
   <version ClassVersion="10" checksum="447201247"/>
  </class>
  <class name="std::vector<edm::IndexIntoFile::RunOrLumiEntry>"/>
