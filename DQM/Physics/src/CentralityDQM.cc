@@ -58,31 +58,31 @@ void CentralityDQM::bookHistograms(DQMStore::IBooker & bei, edm::Run const &, ed
   
   bei.setCurrentFolder("Physics/Centrality/");
   
-  h_hiNpix= bei.book1D("h_hiNpix", "h_hiNpix", 500,0,50000);
-  h_hiNpixelTracks= bei.book1D("h_hiNpixelTracks", "hiNpixelTracks", 300,0,3000);
-  h_hiNtracks= bei.book1D("h_hiNtracks", "h_hiNtracks",200,0,2000);
-  h_hiNtracksPtCut= bei.book1D("h_hiNtracksPtCut", "h_hiNtracksPtCut", 200,0,2000);
-  h_hiNtracksEtaCut= bei.book1D("h_hiNtracksEtaCut", "h_hiNtracksEtaCut",200,0,2000);
-  h_hiNtracksEtaPtCut= bei.book1D("h_hiNtracksEtaPtCut", "h_hiNtracksEtaPtCut",200,0,2000);
+  h_hiNpix= bei.book1D("h_hiNpix", "h_hiNpix", 750,0,75000);
+  h_hiNpixelTracks= bei.book1D("h_hiNpixelTracks", "hiNpixelTracks", 500,0,5000);
+  h_hiNtracks= bei.book1D("h_hiNtracks", "h_hiNtracks",500,0,5000);
+  h_hiNtracksPtCut= bei.book1D("h_hiNtracksPtCut", "h_hiNtracksPtCut", 500,0,5000);
+  h_hiNtracksEtaCut= bei.book1D("h_hiNtracksEtaCut", "h_hiNtracksEtaCut",500,0,5000);
+  h_hiNtracksEtaPtCut= bei.book1D("h_hiNtracksEtaPtCut", "h_hiNtracksEtaPtCut",500,0,5000);
 
-  h_hiHF= bei.book1D("h_hiHF", "h_hiHF", 600,0,6000 );
-  h_hiHFplus= bei.book1D("h_hiHFplus", "h_hiHFplus", 600,0,6000 );
-  h_hiHFminus= bei.book1D("h_hiHFminus", "h_hiHFminus", 600,0,6000 );
-  h_hiHFplusEta4= bei.book1D("h_hiHFplusEta4", "h_hiHFplusEta4", 600,0,6000 );
-  h_hiHFminusEta4= bei.book1D("h_hiHFminusEta4", "h_hiHFminusEta4", 600,0,6000 );
+  h_hiHF= bei.book1D("h_hiHF", "h_hiHF", 900,0,9000 );
+  h_hiHFplus= bei.book1D("h_hiHFplus", "h_hiHFplus", 900,0,9000 );
+  h_hiHFminus= bei.book1D("h_hiHFminus", "h_hiHFminus", 900,0,9000 );
+  h_hiHFplusEta4= bei.book1D("h_hiHFplusEta4", "h_hiHFplusEta4", 900,0,9000 );
+  h_hiHFminusEta4= bei.book1D("h_hiHFminusEta4", "h_hiHFminusEta4", 900,0,9000 );
 
-  h_hiHFhit= bei.book1D("h_hiHFhit", "h_hiHFhit",2000,0,200000);
-  h_hiHFhitPlus= bei.book1D("h_hiHFhitPlus", "h_hiHFhitPlus",2000,0,100000);
-  h_hiHFhitMinus= bei.book1D("h_hiHFhitMinus", "h_hiHFhitMinus",2000,0,100000 );
+  h_hiHFhit= bei.book1D("h_hiHFhit", "h_hiHFhit",3000,0,300000);
+  h_hiHFhitPlus= bei.book1D("h_hiHFhitPlus", "h_hiHFhitPlus",2000,0,200000);
+  h_hiHFhitMinus= bei.book1D("h_hiHFhitMinus", "h_hiHFhitMinus",2000,0,200000 );
 
-  h_hiEB= bei.book1D("h_hiEB", "h_hiEB",400,0,4000 );
-  h_hiET= bei.book1D("h_hiET", "h_hiET",400,0,4000 );
-  h_hiEE= bei.book1D("h_hiEE", "h_hiEE",400,0,4000); 
-  h_hiEEplus= bei.book1D("h_hiEEplus", "h_hiEEplus", 400,0,4000); 
-  h_hiEEminus= bei.book1D("h_hiEEminus", "h_hiEEminus",400,0,4000 );
-  h_hiZDC= bei.book1D("h_hiZDC", "h_hiZDC",400,0,4000 ); 
-  h_hiZDCplus= bei.book1D("h_hiZDCplus", "h_hiZDCplus",400,0,4000 ); 
-  h_hiZDCminus= bei.book1D("h_hiZDCminus", "h_hiZDCminus", 400,0,4000);
+  h_hiEB= bei.book1D("h_hiEB", "h_hiEB",600,0,6000 );
+  h_hiET= bei.book1D("h_hiET", "h_hiET",600,0,6000 );
+  h_hiEE= bei.book1D("h_hiEE", "h_hiEE",600,0,6000); 
+  h_hiEEplus= bei.book1D("h_hiEEplus", "h_hiEEplus",600,0,6000); 
+  h_hiEEminus= bei.book1D("h_hiEEminus", "h_hiEEminus",600,0,6000 );
+  h_hiZDC= bei.book1D("h_hiZDC", "h_hiZDC",600,0,6000 ); 
+  h_hiZDCplus= bei.book1D("h_hiZDCplus", "h_hiZDCplus",600,0,6000 ); 
+  h_hiZDCminus= bei.book1D("h_hiZDCminus", "h_hiZDCminus", 600,0,6000);
 
   h_vertex_x = bei.book1D("h_vertex_x", "h_vertex_x", 400,-4,4);
   h_vertex_y = bei.book1D("h_vertex_y", "h_vertex_y", 400,-4,4);
