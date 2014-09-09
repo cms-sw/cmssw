@@ -1,21 +1,26 @@
 <lcgdict>
-   <class name="HBHERecHit" ClassVersion="14">
+   <class name="HBHERecHit" ClassVersion="15">
+    <version ClassVersion="15" checksum="3086172316"/>
     <version ClassVersion="14" checksum="525320376"/>
     <version ClassVersion="13" checksum="1684878064"/>
     <version ClassVersion="12" checksum="3812633329"/>
     <version ClassVersion="10" checksum="3145355338"/>
    </class>
-   <class name="HORecHit" ClassVersion="10">
+   <class name="HORecHit" ClassVersion="11">
+    <version ClassVersion="11" checksum="1379911758"/>
     <version ClassVersion="10" checksum="1697427050"/>
    </class>
-   <class name="HFRecHit" ClassVersion="12">
+   <class name="HFRecHit" ClassVersion="13">
+    <version ClassVersion="13" checksum="1446699820"/>
     <version ClassVersion="12" checksum="1242817974"/>
     <version ClassVersion="10" checksum="1310006561"/>
    </class>
-   <class name="ZDCRecHit" ClassVersion="11">
+   <class name="ZDCRecHit" ClassVersion="12">
+    <version ClassVersion="12" checksum="4082648564"/>
     <version ClassVersion="11" checksum="2452340764"/>
    </class>
-   <class name="CastorRecHit" ClassVersion="10">
+   <class name="CastorRecHit" ClassVersion="11">
+    <version ClassVersion="11" checksum="1799969235"/>
     <version ClassVersion="10" checksum="1837446209"/>
    </class>
    <class name="HcalCalibRecHit" ClassVersion="10">
