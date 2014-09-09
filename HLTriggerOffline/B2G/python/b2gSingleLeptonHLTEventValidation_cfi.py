@@ -22,7 +22,7 @@ b2gSingleMuonHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(2),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Mu40_eta2p1_PFJet200_PFJet50_v1']),
+        vsPaths      = cms.untracked.vstring(['HLT_Mu40_eta2p1_PFJet200_PFJet50']),
 )
 
 # ttbar semi electronique
@@ -47,5 +47,5 @@ b2gSingleElectronHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(2),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v1']),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50']),
 )
