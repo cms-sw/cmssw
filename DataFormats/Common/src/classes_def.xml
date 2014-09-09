@@ -103,7 +103,8 @@
   <version ClassVersion="10" checksum="1354441856"/>
  </class>
  <class name="edm::Wrapper<edm::HLTGlobalStatus>" splitLevel="0"/>
- <class name="edm::TriggerResults" ClassVersion="10">
+ <class name="edm::TriggerResults" ClassVersion="11">
+  <version ClassVersion="11" checksum="4117941161"/>
   <version ClassVersion="10" checksum="547571379"/>
  </class>
  <class name="edm::Wrapper<edm::TriggerResults>" splitLevel="0"/>
@@ -150,7 +151,8 @@
  <class name="test_with_dictionaries::IntValue" ClassVersion="10">
   <version ClassVersion="10" checksum="894112631"/>
  </class>
- <class name="test_with_dictionaries::IntValue2" ClassVersion="10">
+ <class name="test_with_dictionaries::IntValue2" ClassVersion="11">
+  <version ClassVersion="11" checksum="2661728085"/>
   <version ClassVersion="10" checksum="3452516682"/>
  </class>
 </lcgdict>
