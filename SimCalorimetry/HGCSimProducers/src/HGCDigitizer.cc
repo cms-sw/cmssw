@@ -18,7 +18,8 @@
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   checkValidDetIds_(true),
   simHitAccumulator_( new HGCSimHitDataAccumulator ),
-  mySubDet_(ForwardSubdetector::ForwardEmpty)
+  mySubDet_(ForwardSubdetector::ForwardEmpty),
+  refSpeed_(0.1*0.99*CLHEP::c_light) //[CLHEP::c_light]=mm/ns convert to cm/ns + delay by 1%
 {
   //configure from cfg
   hitCollection_     = ps.getParameter< std::string >("hitCollection");
@@ -154,11 +155,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       //distance to the center of the detector
       float dist2center( geom->getPosition(id).mag() );
 
-      //hit time: [time()]=ns  [centerDist]=cm [CLHEP::c_light]=mm/ns
-      //for now accumulate in 3 buckets of 25ns 
-      int itime=floor( (hit_it->time()-dist2center/(0.1*CLHEP::c_light))/bxTime_ ) + 1;
-      itime += bxCrossing*bxTime_;
-      if(itime<0) continue; 
+      //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns
+      //accumulate in 6 buckets of 25ns (4 pre-samples, 1 in-time, 1 post-sample)
+      int itime=floor( (hit_it->time()-dist2center/refSpeed_)/bxTime_ ) ;
+      itime += bxCrossing;
+      itime += 4;
+      if(itime<0 || itime>5) continue; 
       
       //energy deposited 
       HGCSimEn_t ien( hit_it->energy() );

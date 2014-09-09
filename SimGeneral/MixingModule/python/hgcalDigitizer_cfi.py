@@ -14,7 +14,9 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                lsbInMIP      = cms.double(0.25),
                                                mip2noise     = cms.double(7.0),
                                                adcThreshold  = cms.uint32(2),
-                                               doTimeSamples = cms.bool(True)
+                                               doTimeSamples = cms.bool(True),
+                                               shaperN       = cms.double(1.),
+                                               shaperTau     = cms.double(20.)
                                                )
                            )
 
@@ -30,7 +32,10 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                     lsbInMIP      = cms.double(0.25),
                                                     mip2noise     = cms.double(7.0),
                                                     adcThreshold  = cms.uint32(2),
-                                                    doTimeSamples = cms.bool(True) )
+                                                    doTimeSamples = cms.bool(True),
+                                                    shaperN       = cms.double(1.),
+                                                    shaperTau     = cms.double(20.)
+                                                    )
                                 )
                                                     
 
@@ -47,6 +52,8 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                                    mip2noise = cms.double(5.0),
                                                    adcThreshold  = cms.uint32(4),
                                                    doTimeSamples = cms.bool(True),
+                                                   shaperN       = cms.double(1.),
+                                                   shaperTau     = cms.double(20.),
                                                    caliceSpecific = cms.PSet( nPEperMIP = cms.double(11.0),
                                                                               nTotalPE  = cms.double(1156),
                                                                               xTalk     = cms.double(0.25),

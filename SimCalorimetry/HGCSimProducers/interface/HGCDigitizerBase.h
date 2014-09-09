@@ -32,6 +32,9 @@ class HGCDigitizerBase {
       lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
       mip2noise_     = myCfg_.getParameter<double>("mip2noise");
       adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
+      shaperN_       = myCfg_.getParameter< double >("shaperN");
+      shaperTau_     = myCfg_.getParameter< double >("shaperTau");
+      bxTime_        = ps.getParameter<int32_t>("bxTime");
     }
 
   /**
@@ -86,10 +89,34 @@ class HGCDigitizerBase {
 	    newDataFrame.setSample(i, singleSample);
 	  }
 	
+	runShaper(newDataFrame);
+
 	//add to collection to produce
 	coll->push_back(newDataFrame);
       }
   }
+
+  /**
+     @short applies a shape to each time sample and propagates the tails to the subsequent time samples
+   */
+  void runShaper(D &dataFrame)
+  {
+    std::vector<uint16_t> adcToCarry(dataFrame.size());
+    for(int it=0; it<dataFrame.size(); it++)
+      {
+	HGCSample sample=dataFrame[it];
+
+	adcToCarry[it] += sample.adc();
+	uint16_t newADC=sample.adc();
+	for(int jt=0; jt<it; jt++)
+	  {
+	    float relTime(shaperN_*shaperTau_+bxTime_*(it-jt));	 
+	    newADC += uint16_t(adcToCarry[it]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp((relTime-shaperN_*shaperTau_)/shaperTau_));
+	  }
+	sample.set( sample.gain(), newADC );
+      }
+  }
+
 
   /**
      @short to be specialized by top class
@@ -119,6 +146,12 @@ class HGCDigitizerBase {
   //parameters for the trivial digitization scheme
   double mipInKeV_, lsbInMIP_, mip2noise_;
   
+  //parameters for trivial shaping
+  double shaperN_, shaperTau_;
+
+  //bunch time
+  int bxTime_;
+
  private:
 
 };

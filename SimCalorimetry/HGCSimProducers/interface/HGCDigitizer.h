@@ -79,6 +79,11 @@ private :
 
   //subdetector id
   ForwardSubdetector mySubDet_;
+
+  //reference speed to evaluate time of arrival 
+  //at the sensititive detector
+  //assuming the center of CMS
+  float refSpeed_;
 };
 
 #endif
