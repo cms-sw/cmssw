@@ -229,9 +229,6 @@ class ClusterSummary {
   int GetModuleLocation ( int mod, bool warn = true ) const;
   unsigned int GetNumberOfModules() const {return modules.size();}
   int GetModule(const int index) const { return modules[index];}
-    
-  // Return a vector of the modules that summary infomation was requested for. This should come from the provenance information. 
-  std::vector<std::string> DecodeProvInfo(std::string ProvInfo) const;
 
  private:
   std::vector<int>   modules;    // <Module1, Module2 ...>

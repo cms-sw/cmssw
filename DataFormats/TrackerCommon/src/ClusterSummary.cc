@@ -147,32 +147,4 @@ void ClusterSummary::PrepairGenericVariable() {
   nModules.erase(std::remove(nModules.begin(), nModules.end(), 0), nModules.end());
   clusSize.erase(std::remove(clusSize.begin(), clusSize.end(), 0), clusSize.end());
   clusCharge.erase(std::remove(clusCharge.begin(), clusCharge.end(), 0), clusCharge.end());
-} 
-
-
-std::vector<std::string> ClusterSummary::DecodeProvInfo(std::string ProvInfo) const {
-
-  std::vector<std::string> v_moduleTypes;
-
-  std::string mod = ProvInfo;
-  std::string::size_type i = 0;
-  std::string::size_type j = mod.find(',');
-
-  if ( j == std::string::npos ){
-    v_moduleTypes.push_back(mod);
-  }
-  else{
-
-    while (j != std::string::npos) {
-      v_moduleTypes.push_back(mod.substr(i, j-i));
-      i = ++j;
-      j = mod.find(',', j);
-      if (j == std::string::npos)
-	v_moduleTypes.push_back(mod.substr(i, mod.length( )));
-    }
-
-  }
-
-  return v_moduleTypes;
-
 }
