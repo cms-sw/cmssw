@@ -2,6 +2,8 @@
 #define L1EGammaCrystalsCluster_h
 
 #include <vector>
+#include <map>
+#include <string>
 #include <algorithm>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -25,6 +27,9 @@ namespace l1slhc
          std::reverse(info.begin(), info.end());
          crystalPt_ = info;
       };
+      void SetExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
+      const std::map<std::string, float> GetExperimentalParams() const { return experimentalParams_; };
+      inline float GetExperimentalParam(std::string name) const { return experimentalParams_.at(name); };
 
       // The index range depends on the algorithm eta,phi window, currently 3x5
       // The pt should always be ordered.
@@ -43,6 +48,8 @@ namespace l1slhc
       float bremStrength_;
       // Crystal pt (in order of strength) for all crystals in the cluster
       std::vector<float> crystalPt_;
+      // For investigating novel algorithm parameters
+      std::map<std::string, float> experimentalParams_;
   };
   
   
