@@ -69,6 +69,7 @@ DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset)
   nextLumiTimeoutMillis_ =
       pset.getUntrackedParameter<int32_t>("nextLumiTimeoutMillis");
 
+  forceFileCheckTimeoutMillis_ = 5015;
   reset();
 }
 
@@ -158,20 +159,20 @@ void DQMFileIterator::collect(bool ignoreTimers) {
   // don't refresh if it's too soon
   if ((!ignoreTimers) && (last_ms < 100)) {
     return;
-  } else {
-    runPathLastCollect_ = now;
   }
 
   // check if directory changed
   std::time_t t = boost::filesystem::last_write_time(runPath_);
 
-  if ((!ignoreTimers) && (t <= runPathMTime_)) {
+  if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) && (t == runPathMTime_)) {
     //logFileAction("Directory hasn't changed.");
     return;
   } else {
     //logFileAction("Directory changed, updating.");
-    runPathMTime_ = t;
   }
+
+  runPathMTime_ = t;
+  runPathLastCollect_ = now;
 
   using boost::filesystem::directory_iterator;
   using boost::filesystem::directory_entry;
