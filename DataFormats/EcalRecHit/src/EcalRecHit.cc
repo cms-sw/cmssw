@@ -37,7 +37,7 @@ float EcalRecHit::outOfTimeChi2() const
         return (float)rawChi2Prob / (float)((1<<7)-1) * 64.;
 }
 
-float EcalRecHit::outOfTimeEnergy() const
+float EcalRecHit::EnergyError() const
 {
         uint32_t rawEnergy = (0x1FFF & flags()>>11);
         uint16_t exponent = rawEnergy>>10;
@@ -59,7 +59,7 @@ void EcalRecHit::setChi2( float chi2 )
         setFlags( (~(0x7F<<4) & flags()) | ((rawChi2 & 0x7F)<<4) );
 }
 
-void EcalRecHit::setOutOfTimeEnergy( float energy )
+void EcalRecHit::setEnergyError( float energy )
 {
         if ( energy > 0.001 ) {
                 uint16_t exponent = lround(floor(log10(energy)))+3;
