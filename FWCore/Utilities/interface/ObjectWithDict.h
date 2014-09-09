@@ -7,18 +7,16 @@ ObjectWithDict:  A holder for an object and its type information.
 
 ----------------------------------------------------------------------*/
 
-#include "TInterpreter.h"
-
 #include <string>
 #include <typeinfo>
 
-namespace edm {
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
-class TypeWithDict;
+namespace edm {
 
 class ObjectWithDict {
 private:
-  TType* type_;
+  TypeWithDict type_;
   void* address_;
 public:
   static ObjectWithDict byType(TypeWithDict const&);
@@ -43,6 +41,5 @@ public:
 
 } // namespace edm
 
-#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #endif // FWCore_Utilities_ObjectWithDict_h

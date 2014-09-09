@@ -19,6 +19,7 @@
 #include "TROOT.h"
 #include "TError.h"
 #include "TFile.h"
+#include "TInterpreter.h"
 #include "TH1.h"
 #include "TSystem.h"
 #include "TUnixSystem.h"
