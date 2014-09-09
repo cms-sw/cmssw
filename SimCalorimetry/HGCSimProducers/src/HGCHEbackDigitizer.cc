@@ -86,7 +86,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	}	
       
       //run shaper
-      runShaper(dataFrame);
+      runShaper(newDataFrame);
       
       //check if 5th time sample is above threshold
       if( newDataFrame[4].adc() < adcThreshold_ ) continue;
