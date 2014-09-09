@@ -23,14 +23,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-/*#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
-#include "DataFormats/TrackReco/interface/Track.h" 
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-*/
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -57,7 +49,6 @@ class SiStripBaselineValidator : public DQMEDAnalyzer
 
   edm::InputTag srcProcessedRawDigi_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > moduleRawDigiToken_;
- // edm::InputTag hiSelectedTracks;
   std::string outputFile_;
   bool createOutputFile_;
 
