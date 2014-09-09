@@ -24,21 +24,6 @@ MuonME0FrameRotation::~MuonME0FrameRotation() {
 
 Local3DPoint MuonME0FrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
   if (!aStep) return Local3DPoint(0.,0.,0.);  
-
-  //check if it is rotated
-#ifdef LOCAL_DEBUG
-  std::cout << "Position " << aStep->GetPreStepPoint()->GetPosition() << std::endl;
-#endif
-  MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
-  bool rotated       = (num.getBaseNo(theSectorLevel)>=50);
-#ifdef LOCAL_DEBUG
-  std::cout << "MuonME0FrameRotation num " << num.getBaseNo(theSectorLevel)
-	    << " Rotation " << rotated << std::endl;
-#endif
-  if (rotated) {
-    //    return Local3DPoint(-point.x(),point.z(),point.y());
-    return Local3DPoint(point.x(),point.z(),-point.y());
-  } else {
-    return Local3DPoint(point.x(),point.z(),-point.y());
-  }
+  
+  return Local3DPoint(point.x(),point.z(),-point.y());
 }
