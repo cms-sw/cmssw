@@ -4,7 +4,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
    double minLowHitE, double minHighHitE, double TS4TS5EnergyThreshold,
    std::vector<std::pair<double, double> > &TS4TS5UpperCut,
    std::vector<std::pair<double, double> > &TS4TS5LowerCut,
-   double MinRBXRechitR45E)
+   double minRBXRechitR45E)
 {
   // energy
   energy_ = rbx.recHitEnergy(minRecHitE); 
@@ -32,11 +32,12 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
      TS4TS5Decision_ = true;
 
   // Rechit-wide R45
-  if(rbx.numRecHits(MinRBXRechitR45E) > 0)
+  int rbxHitCount = rbx.numRecHits(minRBXRechitR45E);
+  if(rbxHitCount > 0)
   {
-     r45Count_ = rbx.numRecHitsFailR45(MinRBXRechitR45E);
-     r45Fraction_ = r45Count_ / rbx.numRecHits(MinRBXRechitR45E);
-     r45EnergyFraction_ = rbx.recHitEnergyFailR45(MinRBXRechitR45E) / rbx.recHitEnergy(MinRBXRechitR45E);
+     r45Count_ = rbx.numRecHitsFailR45(minRBXRechitR45E);
+     r45Fraction_ = r45Count_ / rbxHitCount;
+     r45EnergyFraction_ = rbx.recHitEnergyFailR45(minRBXRechitR45E) / rbx.recHitEnergy(minRBXRechitR45E);
   }
 
   // # of hits
@@ -258,7 +259,7 @@ bool HcalNoiseAlgo::passLooseRBXRechitR45(const CommonHcalNoiseRBXData &data) co
    double Fraction = data.r45Fraction();
    double EnergyFraction = data.r45EnergyFraction();
 
-   for(int i = 0; i + 4 < (int)lMinRBXRechitR45Cuts_.size(); i++)
+   for(int i = 0; i + 3 < (int)lMinRBXRechitR45Cuts_.size(); i = i + 4)
    {
       double Value = Count * lMinRBXRechitR45Cuts_[i] + Fraction * lMinRBXRechitR45Cuts_[i+1] + EnergyFraction * lMinRBXRechitR45Cuts_[i+2] + lMinRBXRechitR45Cuts_[i+3];
       if(Value > 0)
@@ -308,7 +309,7 @@ bool HcalNoiseAlgo::passTightRBXRechitR45(const CommonHcalNoiseRBXData &data) co
    double Fraction = data.r45Fraction();
    double EnergyFraction = data.r45EnergyFraction();
 
-   for(int i = 0; i + 4 < (int)tMinRBXRechitR45Cuts_.size(); i++)
+   for(int i = 0; i + 3 < (int)tMinRBXRechitR45Cuts_.size(); i = i + 4)
    {
       double Value = Count * tMinRBXRechitR45Cuts_[i] + Fraction * tMinRBXRechitR45Cuts_[i+1] + EnergyFraction * tMinRBXRechitR45Cuts_[i+2] + tMinRBXRechitR45Cuts_[i+3];
       if(Value > 0)
