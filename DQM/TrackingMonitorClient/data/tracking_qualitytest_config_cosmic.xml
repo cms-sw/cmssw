@@ -25,14 +25,13 @@
      <PARAM name="xmax">25.0</PARAM> 
 </QTEST>
 
-
-<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_CKFTk">
+<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_CKFTk*">
   <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
 </LINK>
-<LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_CKFTk">
+<LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_CKFTk*">
   <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrk</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_CKFTk">
+<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_CKFTk*">
   <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
 </LINK>
 </TESTCONFIGURATION>

@@ -125,7 +125,8 @@ void TrackingAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //
 void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
-  if (nEvents_ == 1 && globalStatusFilling_ > 0) {
+  //  if (nEvents_ == 1 && globalStatusFilling_ > 0) {
+  if (globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
     if (!trackerFEDsFound_) {
       actionExecutor_->fillDummyGlobalStatus();
@@ -142,7 +143,7 @@ void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 //
 void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: End of LS transition, performing the DQM client operation";
-
+  std::cout << "[TrackingAnalyser::endLuminosityBlock]" << std::endl;
   nLumiSecs_++;
 
   if (!trackerFEDsFound_) {
@@ -157,6 +158,7 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
     actionExecutor_->fillStatusAtLumi(dqmStore_);
+    actionExecutor_->fillGlobalStatus(dqmStore_);
   }
   endLumiAnalysisOn_ = false;
 }
@@ -166,12 +168,20 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //
 void TrackingAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: End of Run";
+  std::cout << "[TrackingAnalyser::endRun]" << std::endl;
+  if (globalStatusFilling_ > 0) {
+    actionExecutor_->fillGlobalStatus(dqmStore_);
+  }
 }
 //
 // -- End Job
 //
 void TrackingAnalyser::endJob(){
   edm::LogInfo("TrackingAnalyser") <<"TrackingAnalyser:: endjob called!";
+  std::cout << "[TrackingAnalyser::endJob]" << std::endl;
+  if (globalStatusFilling_ > 0) {
+    actionExecutor_->fillGlobalStatus(dqmStore_);
+  }
 }
 //
 // Check Tracker FEDs

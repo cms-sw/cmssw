@@ -125,7 +125,11 @@ void QualityTester::performTests(void)
 	   itr != theAlarms.end(); ++itr)
       {
         const std::string &alarmType = itr->first;
+	std::cout << "alarmType: " << alarmType.c_str() << std::endl;
         const std::vector<std::string> &msgs = itr->second;
+	for (std::vector<std::string>::const_iterator msg = msgs.begin();
+	     msg != msgs.end(); ++msg)
+	  std::cout << *msg << std::endl;
         if ((reportThreshold == "black")
 	    || (reportThreshold == "orange" && (alarmType == "orange" || alarmType == "red"))
 	    || (reportThreshold == "red" && alarmType == "red"))
