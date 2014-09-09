@@ -3,9 +3,12 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <map>
 #include <memory>
+#include <vector>
+
+#include "tbb/concurrent_vector.h"
+#include "tbb/concurrent_unordered_map.h"
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 
@@ -99,9 +102,9 @@ public:
   
 private:  
   typedef std::pair<bool, std::pair<std::vector<std::string>, std::vector<double> > >vecpair_type;
-  static std::vector<std::string>& names();
-  static std::map<std::string,unsigned int>& indexer();
-  static std::vector<boost::shared_ptr<vecpair_type> >& mem(vecpair_type*);
+  static tbb::concurrent_vector<std::string>& names();
+  static tbb::concurrent_unordered_map<std::string,unsigned int>& indexer();
+  static tbb::concurrent_vector<boost::shared_ptr<vecpair_type> >& mem(vecpair_type*);
 
   unsigned int id_;
   
