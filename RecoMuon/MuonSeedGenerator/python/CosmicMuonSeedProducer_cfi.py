@@ -8,7 +8,7 @@ CosmicMuonSeed = cms.EDProducer("CosmicMuonSeedGenerator",
     MaxDTChi2 = cms.double(300.0),
     DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
     EnableCSCMeasurement = cms.bool(True),
-    ForcePointDown = cms.untracked.bool(True)
+    ForcePointDown = cms.bool(True)
 )
 
 

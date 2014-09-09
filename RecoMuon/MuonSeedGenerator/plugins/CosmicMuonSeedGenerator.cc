@@ -59,7 +59,7 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
   theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
-  theForcePointDownFlag = pset.getUntrackedParameter<bool>("ForcePointDown",true);
+  theForcePointDownFlag = pset.existsAs<bool>("ForcePointDown") ? pset.getParameter<bool>("ForcePointDown") : true;
 
   // pre-determined parameters for seed pt calculation ( pt * dphi )
   theParameters["topmb41"] = 0.87;
