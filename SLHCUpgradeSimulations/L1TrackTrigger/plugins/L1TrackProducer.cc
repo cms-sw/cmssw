@@ -485,7 +485,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     //Now do the 5 parameter fit
 
-    GlobalPoint bsPosition5par(track.d0()*cos(track.phi0()),-track.d0()*sin(track.phi0()),track.z0());
+    GlobalPoint bsPosition5par(-track.d0()*sin(track.phi0()),track.d0()*cos(track.phi0()),track.z0());
 
     aTrack.setPOCA(bsPosition5par,5);
  

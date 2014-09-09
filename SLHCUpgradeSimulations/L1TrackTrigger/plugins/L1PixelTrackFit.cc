@@ -236,7 +236,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           GlobalPoint gp = ( (geom.product())->idToDet(detId) )->surface().toGlobal(lp);
 	  if ( gp.perp() < 20.0 && fabs(gp.z()) < 55.0){ // reject outer tracker
             cl_pos.push_back(gp);
-	    std::cout << "r z : "<<gp.perp()<<" "<<gp.z()<<std::endl;
+	    //std::cout << "r z : "<<gp.perp()<<" "<<gp.z()<<std::endl;
 	    int type=4;
 	    if (gp.perp()<12.0) type=3;
 	    if (gp.perp()<8.0) type=2;
@@ -244,7 +244,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (fabs(gp.z())>28.0) type=-1;
 	    if (fabs(gp.z())>35.0) type=-2;
 	    if (fabs(gp.z())>45.0) type=-3;
-	    std::cout << "r z type : "<<gp.perp()<<" "<<gp.z()<<" "<<type<<std::endl;
+	    //std::cout << "r z type : "<<gp.perp()<<" "<<gp.z()<<" "<<type<<std::endl;
 	    cl_type.push_back(type);
           }
       } // close recHits loop
@@ -271,9 +271,22 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double phi0=iterL1Track->getMomentum(npar).phi();
     double z0=iterL1Track->getPOCA(npar).z();
     double eta=iterL1Track->getMomentum(npar).eta();
-    double d0=-iterL1Track->getPOCA(npar).perp();
-    if (cos(phi0)*iterL1Track->getPOCA(npar).x()<0.0) d0=-d0;
+    //if (fabs(eta)>1.0) continue;  
+    double d0=charge*iterL1Track->getPOCA(npar).perp();
+    if (cos(phi0)*iterL1Track->getPOCA(npar).y()<0.0) d0=-d0;
+    //double d0=0.1;
+    //static int count=0;
+    //count++;
+    //if (count%2==1) d0=-d0;
     double t=tan(2.0*atan(1.0)-2.0*atan(exp(-eta)));
+
+    //std::cout << "Track: "
+    //	      << " invr="<<invr
+    //      << " phi0="<<phi0
+    //      << " eta="<<eta
+    //      << " d0="<<d0
+    //      << " t="<<t
+    //      << std::endl;
 
     std::vector<GlobalPoint> hitL1;
     std::vector<GlobalPoint> hitL2;
@@ -290,15 +303,19 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//handle barrel hit here
 	double rhit=cl_pos[i].perp();
 	double tmp=asin(0.5*rhit*invr);
-	double phi_proj=phi0-tmp-charge*d0/rhit;
+	double phi_proj=phi0-tmp-d0/rhit;
 	double z_proj=z0+2.0*t*tmp/invr;
-	std::cout<<" rhit zhit z_proj : "<<rhit<<" "<<cl_pos[i].z()<<" "<<z_proj<<std::endl;
-	if (fabs(z_proj-cl_pos[i].z())>1.0) continue; // 1 cm cut in z!!!
+	//std::cout<<" rhit zhit z_proj : "<<rhit<<" "<<cl_pos[i].z()<<" "<<z_proj<<std::endl;
+	if (fabs(z_proj-cl_pos[i].z())>0.5) continue; // 1 cm cut in z!!!
         double dphi=phi_proj-cl_pos[i].phi();
 	if (dphi>m_pi) dphi-=2.0*m_pi;
 	if (dphi<-m_pi) dphi+=2.0*m_pi;
 	if (fabs(dphi*rhit)>0.3) continue; // 3 mm cut in phi!!!
 	//found matching hit
+	//std::cout << "Barrel Pixel hit: r="
+	//  << rhit
+	//  << " dz="<<(z_proj-cl_pos[i].z())*10000.0<<" um"
+	//  << " rdphi="<<dphi*rhit*10000 <<" um"<<std::endl;
 	if (cl_type[i]==1) hitL1.push_back(cl_pos[i]);
 	if (cl_type[i]==2) hitL2.push_back(cl_pos[i]);
 	if (cl_type[i]==3) hitL3.push_back(cl_pos[i]);
@@ -310,13 +327,16 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double rhit=cl_pos[i].perp();
 	double tmp=0.5*(zhit-z0)*invr/t;
 	double r_proj=2.0*sin(tmp)/invr;
-	double phi_proj=phi0-tmp-charge*d0/rhit;
+	double phi_proj=phi0-tmp-d0*rhit;
 	if (fabs(r_proj-rhit)>0.5) continue; // 5 mm cut in r!!!
         double dphi=phi_proj-cl_pos[i].phi();
 	if (dphi>m_pi) dphi-=2.0*m_pi;
 	if (dphi<-m_pi) dphi+=2.0*m_pi;
-	if (fabs(dphi*cl_pos[i].perp())>0.3) continue; // 3 mm cut in phi!!!
+	if (fabs(dphi*rhit)>0.3) continue; // 3 mm cut in phi!!!
 	//found matching hit
+	//std::cout << "Disk Pixel hit: zhit="<<zhit
+	//  << " dz="<<(r_proj-rhit)*10000<<" um"
+	//  << " rdphi="<<dphi*rhit*10000 <<" um"<<std::endl;
 	if (cl_type[i]==-1) hitD1.push_back(cl_pos[i]);
 	if (cl_type[i]==-2) hitD2.push_back(cl_pos[i]);
 	if (cl_type[i]==-3) hitD3.push_back(cl_pos[i]);
@@ -334,7 +354,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       const GlobalVector aMomentum;
 
-      GlobalPoint thePOCA(d0fit*cos(phi0fit),-d0fit*sin(phi0fit),z0fit);
+      GlobalPoint thePOCA(-d0fit*sin(phi0fit),d0fit*cos(phi0fit),z0fit);
  
       double pt=iterL1Track->getMomentum().perp();  //FIXME using old pt
 
@@ -476,8 +496,8 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double d0,
 	  if (i1!=hits[1].size()) npixel++;
 	  if (i2!=hits[2].size()) npixel++;
 	  if (i3!=hits[3].size()) npixel++;
-	  std::cout << "npixel i0 i1 i2 i3 : "<<npixel<<" "<<i0<<" "
-		    <<i1<<" "<<i2<<" "<<i3<<std::endl;
+	  //std::cout << "npixel i0 i1 i2 i3 : "<<npixel<<" "<<i0<<" "
+	  //	    <<i1<<" "<<i2<<" "<<i3<<std::endl;
 	  if (npixel<3) continue;
 	  std::vector<GlobalPoint> fithits;
 	  std::vector<bool> fitbarrel;
@@ -514,16 +534,17 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double d0,
 	    tbest=tfit;
 	    z0best=z0fit;
 	  }
-	  std::cout << "Original: rinv="<<rinv
-		    <<" phi0="<<phi0
-		    <<" d0="<<d0*10000.0
-		    <<" um t="<<t
-		    <<" z0="<<z0 << std::endl;
-	  std::cout << "PixelFit: chisq="<<chisqfit<<" rinv="<<rinvfit
-		    <<" phi0="<<phi0fit
-		    <<" d0="<<d0fit*10000.0
-		    <<" um t="<<tfit
-		    <<" z0="<<z0fit << std::endl;
+	  //std::cout << "Original: rinv="<<rinv
+	  //	    <<" phi0="<<phi0
+	  //    <<" d0="<<d0*10000.0
+	  //    <<" um t="<<t
+	  //    <<" z0="<<z0 << std::endl;
+	  //std::cout << "PixelFit: rinv="<<rinvfit
+	  //    <<" phi0="<<phi0fit
+	  //    <<" d0="<<d0fit*10000.0
+	  //    <<" um t="<<tfit
+	  //    <<" z0="<<z0fit 
+	  //    <<" chisq="<<chisqfit<<std::endl;
 	}
       }
     }
@@ -543,18 +564,18 @@ void L1PixelTrackFit::multifit(double rinv, double phi0, double d0,
     tfinal=tbest;
     z0final=z0best;
 
-    std::cout << "Found best fit:"<<std::endl;
-    std::cout << "Original: rinv="<<rinv
-	      <<" phi0="<<phi0
-	      <<" d0="<<d0*10000.0
-	      <<" um t="<<t
-	      <<" z0="<<z0 << std::endl;
-    std::cout << "PixelFit: chisqdof="<<bestChisqdof
-	      <<" rinv="<<rinvbest
-	      <<" phi0="<<phi0best
-	      <<" d0="<<d0best*10000.0
-	      <<" um t="<<tbest
-	      <<" z0="<<z0best << std::endl;
+    //std::cout << "Found best fit:"<<std::endl;
+    //std::cout << "Original: rinv="<<rinv
+    //      <<" phi0="<<phi0
+    //      <<" d0="<<d0*10000.0
+    //      <<" um t="<<t
+    //      <<" z0="<<z0 << std::endl;
+    //std::cout << "PixelFit: chisqdof="<<bestChisqdof
+    //      <<" rinv="<<rinvbest
+    //      <<" phi0="<<phi0best
+    //      <<" d0="<<d0best*10000.0
+    //      <<" um t="<<tbest
+    //      <<" z0="<<z0best << std::endl;
     
     
   }
@@ -633,7 +654,7 @@ void L1PixelTrackFit::calculateDerivatives(double rinv, double phi0, double t, d
       D[1][j]=ri/sigmax;
       D[2][j]=0.0;
       D[3][j]=0.0;
-      D[4][j]=1.0/sigmax;
+      D[4][j]=-1.0/sigmax;
       j++;
       //second the z position
       D[0][j]=0.0;
@@ -675,7 +696,7 @@ void L1PixelTrackFit::calculateDerivatives(double rinv, double phi0, double t, d
       D[1][j]=(phimultiplier*dphidphi0+rmultiplier*drdphi0)/sigmax;
       D[2][j]=(phimultiplier*dphidt+rmultiplier*drdt)/sigmax;
       D[3][j]=(phimultiplier*dphidz0+rmultiplier*drdz0)/sigmax;
-      D[4][j]=1.0/sigmax;
+      D[4][j]=-1.0/sigmax;
       j++;
     }
 
@@ -734,8 +755,8 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double d0,
   
   double chisq=0;
   
-  int charge=1;
-  if (rinv<0.0) charge=-1;
+  //int charge=1;
+  //if (rinv<0.0) charge=-1;
   
   unsigned int j=0;
   
@@ -743,8 +764,8 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double d0,
     double ri=fithits[i].perp();
     double zi=fithits[i].z();
     double phii=fithits[i].phi();
-    std::cout << "phii= "<<phii<<" x="<<fithits[i].x()
-	      <<" y="<<fithits[i].y()<<std::endl;
+    //std::cout << "phii= "<<phii<<" x="<<fithits[i].x()
+    //	      <<" y="<<fithits[i].y()<<std::endl;
     double sigmax=0.01/sqrt(12.0);
     double sigmaz=0.01/sqrt(12.0);
     
@@ -754,13 +775,13 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double d0,
 
       static const double two_pi=8.0*atan(1.0);
 
-      double deltaphi=phi0-asin(0.5*ri*rinv)-charge*d0/ri-phii;
+      double deltaphi=phi0-asin(0.5*ri*rinv)-d0/ri-phii;
       if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
       if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
-      std::cout << "phi0="<<phi0<<" phii="<<phii<<std::endl;
+      //std::cout << "phi0="<<phi0<<" phii="<<phii<<std::endl;
       assert(fabs(deltaphi)<0.1*two_pi);
       
-      delta[j++]=ri*deltaphi/sigmax;
+      delta[j++]=-ri*deltaphi/sigmax;
       delta[j++]=(z0+(2.0/rinv)*t*asin(0.5*ri*rinv)-zi)/sigmaz;
       
       
@@ -812,12 +833,12 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double d0,
       //we are dealing with a disk hit
       
       double r_track=2.0*sin(0.5*rinv*(zi-z0)/t)/rinv;
-      double phi_track=phi0-0.5*rinv*(zi-z0)/t-charge*d0/ri;
+      double phi_track=phi0-0.5*rinv*(zi-z0)/t-d0/ri;
       
       double Delta=r_track*sin(phi_track-phii);
       
       delta[j++]=(r_track-ri)/sigmaz;
-      delta[j++]=Delta/sigmax;
+      delta[j++]=-Delta/sigmax;
 
       //numerical derivative check
 
@@ -919,7 +940,7 @@ void L1PixelTrackFit::linearTrackFit(double rinv, double phi0, double d0,
   phi0fit=phi0+dphi0;
   tfit=t+dt;
   z0fit=z0+dz0;
-  d0fit=d0+dd0;
+  d0fit=d0-dd0;  //FIXME
     
   chisqfit=(chisq+deltaChisq);
     
