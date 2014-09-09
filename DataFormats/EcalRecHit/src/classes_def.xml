@@ -10,14 +10,10 @@
   <class name="edm::RefVector<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >"/>
 
-  <class name="EcalRecHit" ClassVersion="12">
+  <class name="EcalRecHit" ClassVersion="11">
    <version ClassVersion="10" checksum="283504841"/>
    <version ClassVersion="11" checksum="3356791847"/>
-   <version ClassVersion="12" checksum="3356791847"/>
   </class>
-  <ioread sourceClass = "EcalRecHit" source = "uint32_t extra_" version="[-11]" targetClass="EcalRecHit" target="extra_">
-    <![CDATA[extra_ = onfile.extra_; newObj->setEnergyError(0.);]]>
-  </ioread>   
   <class name="std::vector<EcalRecHit>"/>
   <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
   <class name="edm::Wrapper<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" />
