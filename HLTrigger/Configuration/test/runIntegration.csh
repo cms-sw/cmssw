@@ -14,6 +14,8 @@ else if ( $2 == DEV ) then
   set tables = ( GRun PIon HIon )
 else if ( $2 == FROZEN ) then
   set tables = ( 2014 )
+else if ( $2 == FULL ) then
+  set tables = ( FULL )
 else
   set tables = ( $2 )
 endif
