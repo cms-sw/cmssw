@@ -365,24 +365,24 @@ unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
   unsigned int Algo = 0; 
   switch (trackRef->algo()) {
   case TrackBase::ctf:
-  case TrackBase::iter0:
-  case TrackBase::iter1:
-  case TrackBase::iter2:
-  case TrackBase::iter7:
-  case TrackBase::iter9:
-  case TrackBase::iter10:
+  case TrackBase::initialStep:
+  case TrackBase::lowPtTripletStep:
+  case TrackBase::pixelPairStep:
+  case TrackBase::jetCoreRegionalStep:
+  case TrackBase::muonSeededStepInOut:
+  case TrackBase::muonSeededStepOutIn:
     Algo = 0;
     break;
-  case TrackBase::iter3:
+  case TrackBase::detachedTripletStep:
     Algo = 1;
     break;
-  case TrackBase::iter4:
+  case TrackBase::mixedTripletStep:
     Algo = 2;
     break;
-  case TrackBase::iter5:
+  case TrackBase::pixelLessStep:
     Algo = 3;
     break;
-  case TrackBase::iter6:
+  case TrackBase::tobTecStep:
     Algo = 4;
     break;
   default:
