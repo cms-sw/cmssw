@@ -59,8 +59,21 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+// For TPart_Eta_Pt10_PS
+#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
+//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+//#include "FWCore/Framework/interface/EventSetupRecord.h"
+//#include "Geometry/CommonTopologies/interface/Topology.h"
+//#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+
 
 
 #include "TMath.h"
@@ -97,6 +110,20 @@ void
 OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 	
+	/// Geometry handles etc
+  edm::ESHandle< TrackerGeometry >                GeometryHandle;
+  edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
+  const StackedTrackerGeometry*                   theStackedGeometry;
+  StackedTrackerGeometry::StackContainerIterator  StackedTrackerIterator;
+	
+	/// Geometry setup
+  /// Set pointers to Geometry
+  iSetup.get< TrackerDigiGeometryRecord >().get(GeometryHandle);
+  /// Set pointers to Stacked Modules
+  iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
+  theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
+	
+	
 	/// TrackingParticles
 	edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
 	iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
@@ -106,6 +133,8 @@ OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::Even
 	/// Track Trigger MC Truth
 	edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
 	iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
+	edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
+	iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",        MCTruthTTStubHandle );
 	
 	
 	/// Go on only if there are TrackingParticles
@@ -214,6 +243,58 @@ OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::Even
 					}
 				}
 			}
+			
+			/// Search the stub MC truth map
+			std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubRefs( tempTPPtr );
+
+			if ( tempTPPtr->p4().pt() <= 10 )
+			continue;
+
+			if ( theseStubs.size() > 0 )
+			{
+				bool normStub = false;
+
+				/// Loop over the Stubs
+				for ( unsigned int js = 0; js < theseStubs.size(); js++ )
+				{
+					/// Check if it is good
+					bool genuineStub = MCTruthTTStubHandle->isGenuine( theseStubs.at(js) );
+					if ( !genuineStub )
+						continue;
+
+					if ( normStub == false )
+					{
+						TPart_AbsEta_Pt10_Normalization->Fill( fabs( tempTPPtr->momentum().eta() ) );
+						TPart_Eta_Pt10_Normalization->Fill( tempTPPtr->momentum().eta() );
+						normStub = true;
+					}
+					/// Classify the stub
+					StackedTrackerDetId stDetId( theseStubs.at(js)->getDetId() );
+					/// Check if there are PS modules in seed or candidate
+					const GeomDetUnit* det0 = theStackedGeometry->idToDetUnit( stDetId, 0 );
+					const GeomDetUnit* det1 = theStackedGeometry->idToDetUnit( stDetId, 1 );
+					/// Find pixel pitch and topology related information
+					const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
+					const PixelGeomDetUnit* pix1 = dynamic_cast< const PixelGeomDetUnit* >( det1 );
+					const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
+					const PixelTopology* top1 = dynamic_cast< const PixelTopology* >( &(pix1->specificTopology()) );
+					int cols0 = top0->ncolumns();
+					int cols1 = top1->ncolumns();
+					int ratio = cols0/cols1; /// This assumes the ratio is integer!
+
+					if ( ratio == 1 ) /// 2S Modules
+					{
+						TPart_AbsEta_Pt10_Num2S->Fill( fabs( tempTPPtr->momentum().eta() ) );
+						TPart_Eta_Pt10_Num2S->Fill( tempTPPtr->momentum().eta() );
+					}
+					else /// PS
+					{
+						TPart_AbsEta_Pt10_NumPS->Fill( fabs( tempTPPtr->momentum().eta() ) );
+						TPart_Eta_Pt10_NumPS->Fill( tempTPPtr->momentum().eta() );
+					}
+				} /// End of loop over the Stubs generated by this TrackingParticle
+			}
+			
 		}	// end loop TrackingParticles
   } // end if there are TrackingParticles
 	
@@ -363,6 +444,7 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	SimVtx_RZ->setAxisTitle("SimVtx z", 2);
 	
 	
+	/// Eta distribution of Tracking Particles (Cluster width)
 	// Inner
 	edm::ParameterSet psTPart_Eta_CW =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Eta_CW");
 	HistoName = "TPart_Eta_ICW_1";
@@ -498,7 +580,60 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	TPart_AbsEta_ONormalization->setAxisTitle("Number of Events", 2);
 	
 	
-	// TTCluster stacks
+	/// Eta distribution of Tracking Particles (Stubs in PS/2S modules)
+	edm::ParameterSet psTPart_Eta_PS2S =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Eta_PS2S");
+	HistoName = "TPart_Eta_Pt10_Normalization";
+	TPart_Eta_Pt10_Normalization = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
+																			psTPart_Eta_PS2S.getParameter<double>("xmin"),
+																			psTPart_Eta_PS2S.getParameter<double>("xmax"));
+	TPart_Eta_Pt10_Normalization->setAxisTitle("TPart_Eta_Pt10_Normalization", 1);
+	TPart_Eta_Pt10_Normalization->setAxisTitle("Average nb. of Stubs", 2);
+	
+	HistoName = "TPart_Eta_Pt10_NumPS";
+	TPart_Eta_Pt10_NumPS = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
+																			psTPart_Eta_PS2S.getParameter<double>("xmin"),
+																			psTPart_Eta_PS2S.getParameter<double>("xmax"));
+	TPart_Eta_Pt10_NumPS->setAxisTitle("TPart_Eta_Pt10_NumPS", 1);
+	TPart_Eta_Pt10_NumPS->setAxisTitle("Average nb. of Stubs", 2);
+	
+	HistoName = "TPart_Eta_Pt10_Num2S";
+	TPart_Eta_Pt10_Num2S = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
+																			psTPart_Eta_PS2S.getParameter<double>("xmin"),
+																			psTPart_Eta_PS2S.getParameter<double>("xmax"));
+	TPart_Eta_Pt10_Num2S->setAxisTitle("TPart_Eta_Pt10_Num2S", 1);
+	TPart_Eta_Pt10_Num2S->setAxisTitle("Average nb. of Stubs", 2);
+	
+	edm::ParameterSet psTPart_AbsEta_PS2S =  conf_.getParameter<edm::ParameterSet>("TH1TPart_AbsEta_PS2S");
+	HistoName = "TPart_AbsEta_Pt10_Normalization";
+	TPart_AbsEta_Pt10_Normalization = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_AbsEta_PS2S.getParameter<int32_t>("Nbinsx"),
+																			psTPart_AbsEta_PS2S.getParameter<double>("xmin"),
+																			psTPart_AbsEta_PS2S.getParameter<double>("xmax"));
+	TPart_AbsEta_Pt10_Normalization->setAxisTitle("TPart_AbsEta_Pt10_Normalization", 1);
+	TPart_AbsEta_Pt10_Normalization->setAxisTitle("Average nb. of Stubs", 2);
+	
+	HistoName = "TPart_AbsEta_Pt10_NumPS";
+	TPart_AbsEta_Pt10_NumPS = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_AbsEta_PS2S.getParameter<int32_t>("Nbinsx"),
+																			psTPart_AbsEta_PS2S.getParameter<double>("xmin"),
+																			psTPart_AbsEta_PS2S.getParameter<double>("xmax"));
+	TPart_AbsEta_Pt10_NumPS->setAxisTitle("TPart_AbsEta_Pt10_NumPS", 1);
+	TPart_AbsEta_Pt10_NumPS->setAxisTitle("Average nb. of Stubs", 2);
+	
+	HistoName = "TPart_AbsEta_Pt10_Num2S";
+	TPart_AbsEta_Pt10_Num2S = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_AbsEta_PS2S.getParameter<int32_t>("Nbinsx"),
+																			psTPart_AbsEta_PS2S.getParameter<double>("xmin"),
+																			psTPart_AbsEta_PS2S.getParameter<double>("xmax"));
+	TPart_AbsEta_Pt10_Num2S->setAxisTitle("TPart_AbsEta_Pt10_Num2S", 1);
+	TPart_AbsEta_Pt10_Num2S->setAxisTitle("Average nb. of Stubs", 2);
+	
+	
+	
+	/// TTCluster stacks
 	edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
 	HistoName = "Cluster_IMem_Barrel";
 	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
@@ -524,7 +659,7 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	Cluster_OMem_Barrel->setAxisTitle("Outer TTCluster Stack", 1);
 	Cluster_OMem_Barrel->setAxisTitle("Number of Events", 2);
 	
-	HistoName = "Cluster_IMem_Endcap";
+	HistoName = "Cluster_OMem_Endcap";
 	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
 																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTClusterStacks.getParameter<double>("xmin"),

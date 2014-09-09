@@ -55,7 +55,14 @@ public:
 	MonitorElement* TPart_AbsEta_OCW_1 = 0;
 	MonitorElement* TPart_AbsEta_OCW_2 = 0;
 	MonitorElement* TPart_AbsEta_OCW_3 = 0;
-	// TTCluster stacks
+	// Stub in PS/2S module vs. TPart Eta
+	MonitorElement* TPart_Eta_Pt10_Normalization = 0;
+	MonitorElement* TPart_Eta_Pt10_NumPS = 0;
+	MonitorElement* TPart_Eta_Pt10_Num2S = 0;
+	MonitorElement* TPart_AbsEta_Pt10_Normalization = 0;
+	MonitorElement* TPart_AbsEta_Pt10_NumPS = 0;
+	MonitorElement* TPart_AbsEta_Pt10_Num2S = 0;
+	// TTCluster stacks (pure cluster!)
 	MonitorElement* Cluster_IMem_Barrel = 0;
 	MonitorElement* Cluster_IMem_Endcap = 0;
 	MonitorElement* Cluster_OMem_Barrel = 0;
