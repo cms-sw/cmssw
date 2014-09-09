@@ -66,6 +66,7 @@ hcalDigis.InputLabel = 'rawDataCollector'
 
 ##HcalRecHit
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
+hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import *
