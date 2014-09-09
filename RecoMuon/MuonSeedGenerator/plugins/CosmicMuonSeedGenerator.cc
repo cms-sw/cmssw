@@ -59,6 +59,8 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
   theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
+  theForcePointDownFlag = pset.existsAs<bool>("ForcePointDown") ? pset.getParameter<bool>("ForcePointDown") : true;
+
   // pre-determined parameters for seed pt calculation ( pt * dphi )
   theParameters["topmb41"] = 0.87;
   theParameters["bottommb41"] = 1.2;
@@ -323,11 +325,12 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
                                              hit->globalDirection().phi(),
                                              1.));
   // Force all track downward for cosmic, not beam-halo
-  if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
-    polar = - polar;
+  if(theForcePointDownFlag){
+    if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
+      polar = - polar;
 
-  if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) {
-    polar = - polar;
+    if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) 
+      polar = - polar;
   }
 
   polar *=fabs(pt)/polar.perp();
@@ -357,8 +360,11 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
   LogTrace(category) << "The RecSegment relies on: ";
   LogTrace(category) << dumper.dumpMuonId(hit->geographicalId());
 
-  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId()) ); 
-  result.push_back( tsosToSeed(tsos2, hit->geographicalId().rawId()) );
+  edm::OwnVector<TrackingRecHit> container; 
+  container.push_back(hit->hit()->clone());
+
+  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId(), container) );
+  result.push_back( tsosToSeed(tsos2, hit->geographicalId().rawId(), container) );
 
   return result;
 }
@@ -480,11 +486,12 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
                                              hit->globalDirection().phi(),
                                              1.));
   // Force all track downward for cosmic, not beam-halo
-  if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
-    polar = - polar;
+  if(theForcePointDownFlag){
+    if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
+      polar = - polar;
 
-  if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) {
-    polar = - polar;
+    if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 )
+      polar = - polar;
   }
 
   polar *=fabs(pt)/polar.perp();
@@ -509,18 +516,25 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
   LogTrace(category)<<"pos: " << tsos.globalPosition(); 
   LogTrace(category) << "The RecSegment relies on: ";
   LogTrace(category) << dumper.dumpMuonId(hit->geographicalId());
-
-  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId()) );
-
-   return result;
+  
+  edm::OwnVector<TrackingRecHit> container; 
+  container.push_back(hitpair.first->hit()->clone()); 
+  container.push_back(hitpair.second->hit()->clone());
+  
+  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId(), container) );
+  
+  return result;
 }
 
 TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id) const {
 
-  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
-
   edm::OwnVector<TrackingRecHit> container;
+  return tsosToSeed(tsos, id, container); 
+}
+
+TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id, edm::OwnVector<TrackingRecHit>& container) const {
+ 
+  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
   TrajectorySeed seed(seedTSOS,container,alongMomentum);
   return seed;
 }
-
