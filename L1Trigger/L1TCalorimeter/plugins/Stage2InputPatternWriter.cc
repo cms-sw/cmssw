@@ -75,14 +75,10 @@ private:
   unsigned nQuad_;
   unsigned nLink_;
   unsigned nFramePerEvent_;
-  unsigned nClearFrame_;
   unsigned nFrame_;
   
   // data arranged by link and frame
   std::vector< std::vector<int> > data_;
-
-  // data valid flags (just one per frame for now)
-  std::vector<int> dataValid_;
 
   // map of towers onto links/frames
   std::map< int, int > map_;
@@ -110,10 +106,10 @@ Stage2InputPatternWriter::Stage2InputPatternWriter(const edm::ParameterSet& iCon
   filename_ = iConfig.getUntrackedParameter<std::string>("filename", "pattern.txt");
 
   nChan_ = 4;
-  nQuad_ = 18;
+  nQuad_ = 36;
 
-  nFramePerEvent_ = 41;
-  nClearFrame_ = 4;
+  nFramePerEvent_ = 32;
+
   nFrame_ = 0;
 
   nLink_ = nChan_ * nQuad_;
@@ -158,50 +154,6 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
   // loop over frames
   for ( unsigned iFrame=0; iFrame<nFramePerEvent_; ++iFrame ) {
     
-    dataValid_.push_back( 1 );
-
-    // loop over links
-    for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
-      for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
-
-	int data=0;
-
-        // get tower ieta, iphi for link
-	int iLink = (iQuad*nChan_)+iChan;
-	int ietaSgn = (iLink % 2==0 ? +1 : -1);
-	int ieta = ietaSgn * (iFrame + 1);
-	int iphi = 1+(iLink % 2==0 ? iLink : iLink-1);
-
-	// get tower 1 data
-	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
-	data |= tower.hwPt() & 0xff;
-	data |= (tower.hwEtRatio() & 0x7)<<8;
-	data |= (tower.hwQual() & 0xf)<<12;
-
-	// get tower 2
-	iphi = iphi + 1;
-	tower = l1t::CaloTools::getTower(towers, ieta, iphi);
-	data |= (tower.hwPt() & 0xff)<<16;
-	data |= (tower.hwEtRatio() & 0x7)<<24;
-	data |= (tower.hwQual() & 0xf)<<28;
-	
-	// add data to output
-	data_.at(iLink).push_back( data );
-
-      }
-
-    }
-
-      nFrame_++;
-
-  }
-
-
-  // loop over clear frames
-  for ( unsigned iFrame=0; iFrame<nClearFrame_; ++iFrame ) {
-    
-    dataValid_.push_back( 0 );
-
     // loop over links
     for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
       for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
@@ -210,6 +162,23 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
         // get tower ieta, iphi for link
 	unsigned iLink = (iQuad*nChan_)+iChan;
+	int ietaSgn = (iLink % 2==0 ? +1 : -1);
+	int ieta = ietaSgn * iFrame;
+	int iphi = (int) iLink/2;
+
+	// get tower 1 data
+	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+	data |= tower.hwPt() & 0xff;
+	data |= (tower.hwEtRatio() & 0x7)<<8;
+	data |= (tower.hwQual() & 0xf)<<12;
+
+	// get tower 2
+	ieta = ietaSgn * iFrame;
+	iphi = ((int) iLink/2) + 1;
+	tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+	data |= (tower.hwPt() & 0xff)<<16;
+	data |= (tower.hwEtRatio() & 0x7)<<24;
+	data |= (tower.hwQual() & 0xf)<<28;
 	
 	// add data to output
 	data_.at(iLink).push_back( data );
@@ -247,32 +216,30 @@ Stage2InputPatternWriter::endJob()
   file << "Board MP7_TEST" << std::endl;
 
   // quad/chan numbers
-  file << " Quad/Chan : ";
+  file << "Quad/Chan :\t";
   for ( unsigned i=0; i<nQuad_; ++i ) {
     for ( unsigned j=0; j<nChan_; ++j ) {
-      file << "   q" << i << "c" << j << "   ";
+      file << "  q" << i << "c" << j << "\t";
     }
   }
   file << std::endl;
 
   // link numbers
-  file << "      Link : ";
+  file << "Link :\t";
   for ( unsigned i=0; i<nQuad_; ++i ) {
     for ( unsigned j=0; j<nChan_; ++j ) {
-      file << "    " << (i*nChan_)+j << "       ";
+      file << "  " << (i*nChan_)+j << "\t";
     }
   }
 
-  file << std::endl;
-
   // then the data
   for ( unsigned iFrame=0; iFrame<nFrame_; ++iFrame ) {
-    file << "Frame " << std::dec << std::setw(4) << std::setfill('0') << iFrame << " : ";
+    file << "Frame " << iFrame << "\t";
     for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
       for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
 	unsigned iLink = (iQuad*nChan_)+iChan;
 	if (iLink<data_.size() && iFrame<data_.at(iLink).size()) {
-	  file << std::hex << ::std::setw(1) << dataValid_.at(iFrame) << "v" << std::hex << std::setw(8) << std::setfill('0') << data_.at(iLink).at(iFrame) << " ";
+	  file << std::hex << data_.at(iLink).at(iFrame) << "\t";
 	}
 	else {
 	  std::cerr << "Out of range : " << iLink << ", " << iFrame << std::endl;
