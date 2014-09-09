@@ -29,7 +29,6 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 //
 // class declaration
@@ -60,7 +59,6 @@ namespace l1t {
       edm::EDGetToken TauToken_;
       edm::EDGetToken JetToken_;
       edm::EDGetToken EtSumToken_;
-      edm::EDGetToken CaloSpareToken_;
   };
 
 }

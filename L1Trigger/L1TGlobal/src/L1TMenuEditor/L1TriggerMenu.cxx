@@ -50,11 +50,11 @@ namespace l1t
   // 
 
 
-  // Name
+  // Label
   // 
 
 
-  // Comment
+  // Description
   // 
 
 
@@ -62,30 +62,30 @@ namespace l1t
   // 
 
 
-  // ScaleSet
+  // ScalesKey
   // 
 
 
-  // Version
+  // FirmwareVersion
   // 
 
 
-  // RevisionList
+  // History
   // 
 
-  const RevisionList::revision_sequence& RevisionList::
+  const History::revision_sequence& History::
   revision () const
   {
     return this->revision_;
   }
 
-  RevisionList::revision_sequence& RevisionList::
+  History::revision_sequence& History::
   revision ()
   {
     return this->revision_;
   }
 
-  void RevisionList::
+  void History::
   revision (const revision_sequence& s)
   {
     this->revision_ = s;
@@ -204,46 +204,46 @@ namespace l1t
   }
 
 
-  // ComparisonOperator
+  // EtComparison
   // 
 
-  ComparisonOperator::
-  ComparisonOperator (value v)
-  : ::xml_schema::string (_xsd_ComparisonOperator_literals_[v])
+  EtComparison::
+  EtComparison (value v)
+  : ::xml_schema::string (_xsd_EtComparison_literals_[v])
   {
   }
 
-  ComparisonOperator::
-  ComparisonOperator (const char* v)
+  EtComparison::
+  EtComparison (const char* v)
   : ::xml_schema::string (v)
   {
   }
 
-  ComparisonOperator::
-  ComparisonOperator (const ::std::string& v)
+  EtComparison::
+  EtComparison (const ::std::string& v)
   : ::xml_schema::string (v)
   {
   }
 
-  ComparisonOperator::
-  ComparisonOperator (const ::xml_schema::string& v)
+  EtComparison::
+  EtComparison (const ::xml_schema::string& v)
   : ::xml_schema::string (v)
   {
   }
 
-  ComparisonOperator::
-  ComparisonOperator (const ComparisonOperator& v,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const EtComparison& v,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (v, f, c)
   {
   }
 
-  ComparisonOperator& ComparisonOperator::
+  EtComparison& EtComparison::
   operator= (value v)
   {
     static_cast< ::xml_schema::string& > (*this) = 
-    ::xml_schema::string (_xsd_ComparisonOperator_literals_[v]);
+    ::xml_schema::string (_xsd_EtComparison_literals_[v]);
 
     return *this;
   }
@@ -347,101 +347,7 @@ namespace l1t
   }
 
 
-  // MuonRequstedCharge
-  // 
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (value v)
-  : ::xml_schema::string (_xsd_MuonRequstedCharge_literals_[v])
-  {
-  }
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const char* v)
-  : ::xml_schema::string (v)
-  {
-  }
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const ::std::string& v)
-  : ::xml_schema::string (v)
-  {
-  }
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const ::xml_schema::string& v)
-  : ::xml_schema::string (v)
-  {
-  }
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const MuonRequstedCharge& v,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
-  : ::xml_schema::string (v, f, c)
-  {
-  }
-
-  MuonRequstedCharge& MuonRequstedCharge::
-  operator= (value v)
-  {
-    static_cast< ::xml_schema::string& > (*this) = 
-    ::xml_schema::string (_xsd_MuonRequstedCharge_literals_[v]);
-
-    return *this;
-  }
-
-
-  // MuonRequstedChargeCorr
-  // 
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (value v)
-  : ::xml_schema::string (_xsd_MuonRequstedChargeCorr_literals_[v])
-  {
-  }
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const char* v)
-  : ::xml_schema::string (v)
-  {
-  }
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const ::std::string& v)
-  : ::xml_schema::string (v)
-  {
-  }
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const ::xml_schema::string& v)
-  : ::xml_schema::string (v)
-  {
-  }
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const MuonRequstedChargeCorr& v,
-                          ::xml_schema::flags f,
-                          ::xml_schema::container* c)
-  : ::xml_schema::string (v, f, c)
-  {
-  }
-
-  MuonRequstedChargeCorr& MuonRequstedChargeCorr::
-  operator= (value v)
-  {
-    static_cast< ::xml_schema::string& > (*this) = 
-    ::xml_schema::string (_xsd_MuonRequstedChargeCorr_literals_[v]);
-
-    return *this;
-  }
-
-
   // EtThreshold
-  // 
-
-
-  // PtThreshold
   // 
 
 
@@ -453,7 +359,7 @@ namespace l1t
   // 
 
 
-  // LogicalExpression
+  // AlgorithmEquation
   // 
 
 
@@ -467,6 +373,30 @@ namespace l1t
 
   // Meta
   // 
+
+  const Meta::uid_type& Meta::
+  uid () const
+  {
+    return this->uid_.get ();
+  }
+
+  Meta::uid_type& Meta::
+  uid ()
+  {
+    return this->uid_.get ();
+  }
+
+  void Meta::
+  uid (const uid_type& x)
+  {
+    this->uid_.set (x);
+  }
+
+  void Meta::
+  uid (::std::auto_ptr< uid_type > x)
+  {
+    this->uid_.set (x);
+  }
 
   const Meta::name_type& Meta::
   name () const
@@ -492,184 +422,76 @@ namespace l1t
     this->name_.set (x);
   }
 
-  const Meta::datetime_type& Meta::
-  datetime () const
+  const Meta::scalesKey_type& Meta::
+  scalesKey () const
   {
-    return this->datetime_.get ();
+    return this->scalesKey_.get ();
   }
 
-  Meta::datetime_type& Meta::
-  datetime ()
+  Meta::scalesKey_type& Meta::
+  scalesKey ()
   {
-    return this->datetime_.get ();
-  }
-
-  void Meta::
-  datetime (const datetime_type& x)
-  {
-    this->datetime_.set (x);
+    return this->scalesKey_.get ();
   }
 
   void Meta::
-  datetime (::std::auto_ptr< datetime_type > x)
+  scalesKey (const scalesKey_type& x)
   {
-    this->datetime_.set (x);
-  }
-
-  const Meta::uuid_menu_type& Meta::
-  uuid_menu () const
-  {
-    return this->uuid_menu_.get ();
-  }
-
-  Meta::uuid_menu_type& Meta::
-  uuid_menu ()
-  {
-    return this->uuid_menu_.get ();
+    this->scalesKey_.set (x);
   }
 
   void Meta::
-  uuid_menu (const uuid_menu_type& x)
+  scalesKey (::std::auto_ptr< scalesKey_type > x)
   {
-    this->uuid_menu_.set (x);
+    this->scalesKey_.set (x);
+  }
+
+  const Meta::description_type& Meta::
+  description () const
+  {
+    return this->description_.get ();
+  }
+
+  Meta::description_type& Meta::
+  description ()
+  {
+    return this->description_.get ();
   }
 
   void Meta::
-  uuid_menu (::std::auto_ptr< uuid_menu_type > x)
+  description (const description_type& x)
   {
-    this->uuid_menu_.set (x);
-  }
-
-  const Meta::uuid_firmware_optional& Meta::
-  uuid_firmware () const
-  {
-    return this->uuid_firmware_;
-  }
-
-  Meta::uuid_firmware_optional& Meta::
-  uuid_firmware ()
-  {
-    return this->uuid_firmware_;
+    this->description_.set (x);
   }
 
   void Meta::
-  uuid_firmware (const uuid_firmware_type& x)
+  description (::std::auto_ptr< description_type > x)
   {
-    this->uuid_firmware_.set (x);
+    this->description_.set (x);
+  }
+
+  const Meta::history_type& Meta::
+  history () const
+  {
+    return this->history_.get ();
+  }
+
+  Meta::history_type& Meta::
+  history ()
+  {
+    return this->history_.get ();
   }
 
   void Meta::
-  uuid_firmware (const uuid_firmware_optional& x)
+  history (const history_type& x)
   {
-    this->uuid_firmware_ = x;
+    this->history_.set (x);
   }
 
   void Meta::
-  uuid_firmware (::std::auto_ptr< uuid_firmware_type > x)
+  history (::std::auto_ptr< history_type > x)
   {
-    this->uuid_firmware_.set (x);
-  }
-
-  const Meta::comment_type& Meta::
-  comment () const
-  {
-    return this->comment_.get ();
-  }
-
-  Meta::comment_type& Meta::
-  comment ()
-  {
-    return this->comment_.get ();
-  }
-
-  void Meta::
-  comment (const comment_type& x)
-  {
-    this->comment_.set (x);
-  }
-
-  void Meta::
-  comment (::std::auto_ptr< comment_type > x)
-  {
-    this->comment_.set (x);
-  }
-
-  const Meta::scale_set_type& Meta::
-  scale_set () const
-  {
-    return this->scale_set_.get ();
-  }
-
-  Meta::scale_set_type& Meta::
-  scale_set ()
-  {
-    return this->scale_set_.get ();
-  }
-
-  void Meta::
-  scale_set (const scale_set_type& x)
-  {
-    this->scale_set_.set (x);
-  }
-
-  void Meta::
-  scale_set (::std::auto_ptr< scale_set_type > x)
-  {
-    this->scale_set_.set (x);
-  }
-
-  const Meta::editor_version_optional& Meta::
-  editor_version () const
-  {
-    return this->editor_version_;
-  }
-
-  Meta::editor_version_optional& Meta::
-  editor_version ()
-  {
-    return this->editor_version_;
-  }
-
-  void Meta::
-  editor_version (const editor_version_type& x)
-  {
-    this->editor_version_.set (x);
-  }
-
-  void Meta::
-  editor_version (const editor_version_optional& x)
-  {
-    this->editor_version_ = x;
-  }
-
-  void Meta::
-  editor_version (::std::auto_ptr< editor_version_type > x)
-  {
-    this->editor_version_.set (x);
-  }
-
-  const Meta::revisions_type& Meta::
-  revisions () const
-  {
-    return this->revisions_.get ();
-  }
-
-  Meta::revisions_type& Meta::
-  revisions ()
-  {
-    return this->revisions_.get ();
-  }
-
-  void Meta::
-  revisions (const revisions_type& x)
-  {
-    this->revisions_.set (x);
-  }
-
-  void Meta::
-  revisions (::std::auto_ptr< revisions_type > x)
-  {
-    this->revisions_.set (x);
+    this->history_.set (x);
   }
 
 
@@ -748,6 +570,42 @@ namespace l1t
     this->condCorrelation_ = s;
   }
 
+  const ConditionList::condInvariantMass_sequence& ConditionList::
+  condInvariantMass () const
+  {
+    return this->condInvariantMass_;
+  }
+
+  ConditionList::condInvariantMass_sequence& ConditionList::
+  condInvariantMass ()
+  {
+    return this->condInvariantMass_;
+  }
+
+  void ConditionList::
+  condInvariantMass (const condInvariantMass_sequence& s)
+  {
+    this->condInvariantMass_ = s;
+  }
+
+  const ConditionList::condDeltaR_sequence& ConditionList::
+  condDeltaR () const
+  {
+    return this->condDeltaR_;
+  }
+
+  ConditionList::condDeltaR_sequence& ConditionList::
+  condDeltaR ()
+  {
+    return this->condDeltaR_;
+  }
+
+  void ConditionList::
+  condDeltaR (const condDeltaR_sequence& s)
+  {
+    this->condDeltaR_ = s;
+  }
+
 
   // Condition
   // 
@@ -800,28 +658,28 @@ namespace l1t
     this->name_.set (x);
   }
 
-  const Condition::comment_type& Condition::
-  comment () const
+  const Condition::description_type& Condition::
+  description () const
   {
-    return this->comment_.get ();
+    return this->description_.get ();
   }
 
-  Condition::comment_type& Condition::
-  comment ()
+  Condition::description_type& Condition::
+  description ()
   {
-    return this->comment_.get ();
-  }
-
-  void Condition::
-  comment (const comment_type& x)
-  {
-    this->comment_.set (x);
+    return this->description_.get ();
   }
 
   void Condition::
-  comment (::std::auto_ptr< comment_type > x)
+  description (const description_type& x)
   {
-    this->comment_.set (x);
+    this->description_.set (x);
+  }
+
+  void Condition::
+  description (::std::auto_ptr< description_type > x)
+  {
+    this->description_.set (x);
   }
 
   const Condition::locked_type& Condition::
@@ -1048,28 +906,28 @@ namespace l1t
     this->type_.set (x);
   }
 
-  const CalorimeterCondition::comparison_operator_type& CalorimeterCondition::
-  comparison_operator () const
+  const CalorimeterCondition::etComparison_type& CalorimeterCondition::
+  etComparison () const
   {
-    return this->comparison_operator_.get ();
+    return this->etComparison_.get ();
   }
 
-  CalorimeterCondition::comparison_operator_type& CalorimeterCondition::
-  comparison_operator ()
+  CalorimeterCondition::etComparison_type& CalorimeterCondition::
+  etComparison ()
   {
-    return this->comparison_operator_.get ();
-  }
-
-  void CalorimeterCondition::
-  comparison_operator (const comparison_operator_type& x)
-  {
-    this->comparison_operator_.set (x);
+    return this->etComparison_.get ();
   }
 
   void CalorimeterCondition::
-  comparison_operator (::std::auto_ptr< comparison_operator_type > x)
+  etComparison (const etComparison_type& x)
   {
-    this->comparison_operator_.set (x);
+    this->etComparison_.set (x);
+  }
+
+  void CalorimeterCondition::
+  etComparison (::std::auto_ptr< etComparison_type > x)
+  {
+    this->etComparison_.set (x);
   }
 
   const CalorimeterCondition::objectType_type& CalorimeterCondition::
@@ -1175,208 +1033,6 @@ namespace l1t
   }
 
 
-  // MuonObjectRequirement
-  // 
-
-  const MuonObjectRequirement::ptThreshold_type& MuonObjectRequirement::
-  ptThreshold () const
-  {
-    return this->ptThreshold_.get ();
-  }
-
-  MuonObjectRequirement::ptThreshold_type& MuonObjectRequirement::
-  ptThreshold ()
-  {
-    return this->ptThreshold_.get ();
-  }
-
-  void MuonObjectRequirement::
-  ptThreshold (const ptThreshold_type& x)
-  {
-    this->ptThreshold_.set (x);
-  }
-
-  void MuonObjectRequirement::
-  ptThreshold (::std::auto_ptr< ptThreshold_type > x)
-  {
-    this->ptThreshold_.set (x);
-  }
-
-  const MuonObjectRequirement::phiWindow_sequence& MuonObjectRequirement::
-  phiWindow () const
-  {
-    return this->phiWindow_;
-  }
-
-  MuonObjectRequirement::phiWindow_sequence& MuonObjectRequirement::
-  phiWindow ()
-  {
-    return this->phiWindow_;
-  }
-
-  void MuonObjectRequirement::
-  phiWindow (const phiWindow_sequence& s)
-  {
-    this->phiWindow_ = s;
-  }
-
-  const MuonObjectRequirement::etaWindow_sequence& MuonObjectRequirement::
-  etaWindow () const
-  {
-    return this->etaWindow_;
-  }
-
-  MuonObjectRequirement::etaWindow_sequence& MuonObjectRequirement::
-  etaWindow ()
-  {
-    return this->etaWindow_;
-  }
-
-  void MuonObjectRequirement::
-  etaWindow (const etaWindow_sequence& s)
-  {
-    this->etaWindow_ = s;
-  }
-
-  const MuonObjectRequirement::requestedCharge_type& MuonObjectRequirement::
-  requestedCharge () const
-  {
-    return this->requestedCharge_.get ();
-  }
-
-  MuonObjectRequirement::requestedCharge_type& MuonObjectRequirement::
-  requestedCharge ()
-  {
-    return this->requestedCharge_.get ();
-  }
-
-  void MuonObjectRequirement::
-  requestedCharge (const requestedCharge_type& x)
-  {
-    this->requestedCharge_.set (x);
-  }
-
-  void MuonObjectRequirement::
-  requestedCharge (::std::auto_ptr< requestedCharge_type > x)
-  {
-    this->requestedCharge_.set (x);
-  }
-
-  const MuonObjectRequirement::qualityLut_type& MuonObjectRequirement::
-  qualityLut () const
-  {
-    return this->qualityLut_.get ();
-  }
-
-  MuonObjectRequirement::qualityLut_type& MuonObjectRequirement::
-  qualityLut ()
-  {
-    return this->qualityLut_.get ();
-  }
-
-  void MuonObjectRequirement::
-  qualityLut (const qualityLut_type& x)
-  {
-    this->qualityLut_.set (x);
-  }
-
-  void MuonObjectRequirement::
-  qualityLut (::std::auto_ptr< qualityLut_type > x)
-  {
-    this->qualityLut_.set (x);
-  }
-
-  const MuonObjectRequirement::isolationLut_type& MuonObjectRequirement::
-  isolationLut () const
-  {
-    return this->isolationLut_.get ();
-  }
-
-  MuonObjectRequirement::isolationLut_type& MuonObjectRequirement::
-  isolationLut ()
-  {
-    return this->isolationLut_.get ();
-  }
-
-  void MuonObjectRequirement::
-  isolationLut (const isolationLut_type& x)
-  {
-    this->isolationLut_.set (x);
-  }
-
-  void MuonObjectRequirement::
-  isolationLut (::std::auto_ptr< isolationLut_type > x)
-  {
-    this->isolationLut_.set (x);
-  }
-
-
-  // MuonObjectRequirementList
-  // 
-
-  const MuonObjectRequirementList::objectRequirement_sequence& MuonObjectRequirementList::
-  objectRequirement () const
-  {
-    return this->objectRequirement_;
-  }
-
-  MuonObjectRequirementList::objectRequirement_sequence& MuonObjectRequirementList::
-  objectRequirement ()
-  {
-    return this->objectRequirement_;
-  }
-
-  void MuonObjectRequirementList::
-  objectRequirement (const objectRequirement_sequence& s)
-  {
-    this->objectRequirement_ = s;
-  }
-
-
-  // MuonQualityLUT
-  // 
-
-  const MuonQualityLUT::quality_sequence& MuonQualityLUT::
-  quality () const
-  {
-    return this->quality_;
-  }
-
-  MuonQualityLUT::quality_sequence& MuonQualityLUT::
-  quality ()
-  {
-    return this->quality_;
-  }
-
-  void MuonQualityLUT::
-  quality (const quality_sequence& s)
-  {
-    this->quality_ = s;
-  }
-
-
-  // MuonIsolationLUT
-  // 
-
-  const MuonIsolationLUT::isolation_sequence& MuonIsolationLUT::
-  isolation () const
-  {
-    return this->isolation_;
-  }
-
-  MuonIsolationLUT::isolation_sequence& MuonIsolationLUT::
-  isolation ()
-  {
-    return this->isolation_;
-  }
-
-  void MuonIsolationLUT::
-  isolation (const isolation_sequence& s)
-  {
-    this->isolation_ = s;
-  }
-
-
   // MuonCondition
   // 
 
@@ -1404,106 +1060,28 @@ namespace l1t
     this->type_.set (x);
   }
 
-  const MuonCondition::comparison_operator_type& MuonCondition::
-  comparison_operator () const
+  const MuonCondition::etComparison_type& MuonCondition::
+  etComparison () const
   {
-    return this->comparison_operator_.get ();
+    return this->etComparison_.get ();
   }
 
-  MuonCondition::comparison_operator_type& MuonCondition::
-  comparison_operator ()
+  MuonCondition::etComparison_type& MuonCondition::
+  etComparison ()
   {
-    return this->comparison_operator_.get ();
-  }
-
-  void MuonCondition::
-  comparison_operator (const comparison_operator_type& x)
-  {
-    this->comparison_operator_.set (x);
+    return this->etComparison_.get ();
   }
 
   void MuonCondition::
-  comparison_operator (::std::auto_ptr< comparison_operator_type > x)
+  etComparison (const etComparison_type& x)
   {
-    this->comparison_operator_.set (x);
-  }
-
-  const MuonCondition::objectRequirements_type& MuonCondition::
-  objectRequirements () const
-  {
-    return this->objectRequirements_.get ();
-  }
-
-  MuonCondition::objectRequirements_type& MuonCondition::
-  objectRequirements ()
-  {
-    return this->objectRequirements_.get ();
+    this->etComparison_.set (x);
   }
 
   void MuonCondition::
-  objectRequirements (const objectRequirements_type& x)
+  etComparison (::std::auto_ptr< etComparison_type > x)
   {
-    this->objectRequirements_.set (x);
-  }
-
-  void MuonCondition::
-  objectRequirements (::std::auto_ptr< objectRequirements_type > x)
-  {
-    this->objectRequirements_.set (x);
-  }
-
-  const MuonCondition::requestedChargeCorr_type& MuonCondition::
-  requestedChargeCorr () const
-  {
-    return this->requestedChargeCorr_.get ();
-  }
-
-  MuonCondition::requestedChargeCorr_type& MuonCondition::
-  requestedChargeCorr ()
-  {
-    return this->requestedChargeCorr_.get ();
-  }
-
-  void MuonCondition::
-  requestedChargeCorr (const requestedChargeCorr_type& x)
-  {
-    this->requestedChargeCorr_.set (x);
-  }
-
-  void MuonCondition::
-  requestedChargeCorr (::std::auto_ptr< requestedChargeCorr_type > x)
-  {
-    this->requestedChargeCorr_.set (x);
-  }
-
-  const MuonCondition::deltaRequirement_optional& MuonCondition::
-  deltaRequirement () const
-  {
-    return this->deltaRequirement_;
-  }
-
-  MuonCondition::deltaRequirement_optional& MuonCondition::
-  deltaRequirement ()
-  {
-    return this->deltaRequirement_;
-  }
-
-  void MuonCondition::
-  deltaRequirement (const deltaRequirement_type& x)
-  {
-    this->deltaRequirement_.set (x);
-  }
-
-  void MuonCondition::
-  deltaRequirement (const deltaRequirement_optional& x)
-  {
-    this->deltaRequirement_ = x;
-  }
-
-  void MuonCondition::
-  deltaRequirement (::std::auto_ptr< deltaRequirement_type > x)
-  {
-    this->deltaRequirement_.set (x);
+    this->etComparison_.set (x);
   }
 
   const MuonCondition::relativeBx_type& MuonCondition::
@@ -1536,6 +1114,14 @@ namespace l1t
 
 
   // CorrelationCondition
+  // 
+
+
+  // InvariantMassCondition
+  // 
+
+
+  // DeltaRCondition
   // 
 
 
@@ -1614,52 +1200,52 @@ namespace l1t
     this->index_.set (x);
   }
 
-  const Algorithm::logical_expression_type& Algorithm::
-  logical_expression () const
+  const Algorithm::equation_type& Algorithm::
+  equation () const
   {
-    return this->logical_expression_.get ();
+    return this->equation_.get ();
   }
 
-  Algorithm::logical_expression_type& Algorithm::
-  logical_expression ()
+  Algorithm::equation_type& Algorithm::
+  equation ()
   {
-    return this->logical_expression_.get ();
-  }
-
-  void Algorithm::
-  logical_expression (const logical_expression_type& x)
-  {
-    this->logical_expression_.set (x);
+    return this->equation_.get ();
   }
 
   void Algorithm::
-  logical_expression (::std::auto_ptr< logical_expression_type > x)
+  equation (const equation_type& x)
   {
-    this->logical_expression_.set (x);
-  }
-
-  const Algorithm::comment_type& Algorithm::
-  comment () const
-  {
-    return this->comment_.get ();
-  }
-
-  Algorithm::comment_type& Algorithm::
-  comment ()
-  {
-    return this->comment_.get ();
+    this->equation_.set (x);
   }
 
   void Algorithm::
-  comment (const comment_type& x)
+  equation (::std::auto_ptr< equation_type > x)
   {
-    this->comment_.set (x);
+    this->equation_.set (x);
+  }
+
+  const Algorithm::description_type& Algorithm::
+  description () const
+  {
+    return this->description_.get ();
+  }
+
+  Algorithm::description_type& Algorithm::
+  description ()
+  {
+    return this->description_.get ();
   }
 
   void Algorithm::
-  comment (::std::auto_ptr< comment_type > x)
+  description (const description_type& x)
   {
-    this->comment_.set (x);
+    this->description_.set (x);
+  }
+
+  void Algorithm::
+  description (::std::auto_ptr< description_type > x)
+  {
+    this->description_.set (x);
   }
 
   const Algorithm::locked_type& Algorithm::
@@ -1985,147 +1571,147 @@ namespace l1t
   {
   }
 
-  // Name
+  // Label
   //
 
-  Name::
-  Name ()
+  Label::
+  Label ()
   : ::xml_schema::string ()
   {
   }
 
-  Name::
-  Name (const char* _xsd_string_base)
+  Label::
+  Label (const char* _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Name::
-  Name (const ::std::string& _xsd_string_base)
+  Label::
+  Label (const ::std::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Name::
-  Name (const ::xml_schema::string& _xsd_string_base)
+  Label::
+  Label (const ::xml_schema::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Name::
-  Name (const Name& x,
-        ::xml_schema::flags f,
-        ::xml_schema::container* c)
+  Label::
+  Label (const Label& x,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
   : ::xml_schema::string (x, f, c)
   {
   }
 
-  Name::
-  Name (const ::xercesc::DOMElement& e,
-        ::xml_schema::flags f,
-        ::xml_schema::container* c)
+  Label::
+  Label (const ::xercesc::DOMElement& e,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
   }
 
-  Name::
-  Name (const ::xercesc::DOMAttr& a,
-        ::xml_schema::flags f,
-        ::xml_schema::container* c)
+  Label::
+  Label (const ::xercesc::DOMAttr& a,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
   }
 
-  Name::
-  Name (const ::std::string& s,
-        const ::xercesc::DOMElement* e,
-        ::xml_schema::flags f,
-        ::xml_schema::container* c)
+  Label::
+  Label (const ::std::string& s,
+         const ::xercesc::DOMElement* e,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
   : ::xml_schema::string (s, e, f, c)
   {
   }
 
-  Name* Name::
+  Label* Label::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class Name (*this, f, c);
+    return new class Label (*this, f, c);
   }
 
-  Name::
-  ~Name ()
+  Label::
+  ~Label ()
   {
   }
 
-  // Comment
+  // Description
   //
 
-  Comment::
-  Comment ()
+  Description::
+  Description ()
   : ::xml_schema::string ()
   {
   }
 
-  Comment::
-  Comment (const char* _xsd_string_base)
+  Description::
+  Description (const char* _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Comment::
-  Comment (const ::std::string& _xsd_string_base)
+  Description::
+  Description (const ::std::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Comment::
-  Comment (const ::xml_schema::string& _xsd_string_base)
+  Description::
+  Description (const ::xml_schema::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Comment::
-  Comment (const Comment& x,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  Description::
+  Description (const Description& x,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xml_schema::string (x, f, c)
   {
   }
 
-  Comment::
-  Comment (const ::xercesc::DOMElement& e,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  Description::
+  Description (const ::xercesc::DOMElement& e,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
   }
 
-  Comment::
-  Comment (const ::xercesc::DOMAttr& a,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  Description::
+  Description (const ::xercesc::DOMAttr& a,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
   }
 
-  Comment::
-  Comment (const ::std::string& s,
-           const ::xercesc::DOMElement* e,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  Description::
+  Description (const ::std::string& s,
+               const ::xercesc::DOMElement* e,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xml_schema::string (s, e, f, c)
   {
   }
 
-  Comment* Comment::
+  Description* Description::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class Comment (*this, f, c);
+    return new class Description (*this, f, c);
   }
 
-  Comment::
-  ~Comment ()
+  Description::
+  ~Description ()
   {
   }
 
@@ -2134,25 +1720,25 @@ namespace l1t
 
   MenuName::
   MenuName ()
-  : ::l1t::Name ()
+  : ::xml_schema::string ()
   {
   }
 
   MenuName::
   MenuName (const char* _xsd_string_base)
-  : ::l1t::Name (_xsd_string_base)
+  : ::xml_schema::string (_xsd_string_base)
   {
   }
 
   MenuName::
   MenuName (const ::std::string& _xsd_string_base)
-  : ::l1t::Name (_xsd_string_base)
+  : ::xml_schema::string (_xsd_string_base)
   {
   }
 
   MenuName::
   MenuName (const ::xml_schema::string& _xsd_string_base)
-  : ::l1t::Name (_xsd_string_base)
+  : ::xml_schema::string (_xsd_string_base)
   {
   }
 
@@ -2160,7 +1746,7 @@ namespace l1t
   MenuName (const MenuName& x,
             ::xml_schema::flags f,
             ::xml_schema::container* c)
-  : ::l1t::Name (x, f, c)
+  : ::xml_schema::string (x, f, c)
   {
   }
 
@@ -2168,7 +1754,7 @@ namespace l1t
   MenuName (const ::xercesc::DOMElement& e,
             ::xml_schema::flags f,
             ::xml_schema::container* c)
-  : ::l1t::Name (e, f, c)
+  : ::xml_schema::string (e, f, c)
   {
   }
 
@@ -2176,7 +1762,7 @@ namespace l1t
   MenuName (const ::xercesc::DOMAttr& a,
             ::xml_schema::flags f,
             ::xml_schema::container* c)
-  : ::l1t::Name (a, f, c)
+  : ::xml_schema::string (a, f, c)
   {
   }
 
@@ -2185,7 +1771,7 @@ namespace l1t
             const ::xercesc::DOMElement* e,
             ::xml_schema::flags f,
             ::xml_schema::container* c)
-  : ::l1t::Name (s, e, f, c)
+  : ::xml_schema::string (s, e, f, c)
   {
   }
 
@@ -2201,173 +1787,155 @@ namespace l1t
   {
   }
 
-  // ScaleSet
+  // ScalesKey
   //
 
-  ScaleSet::
-  ScaleSet ()
-  : ::l1t::Name ()
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const char* _xsd_string_base)
-  : ::l1t::Name (_xsd_string_base)
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const ::std::string& _xsd_string_base)
-  : ::l1t::Name (_xsd_string_base)
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const ::xml_schema::string& _xsd_string_base)
-  : ::l1t::Name (_xsd_string_base)
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const ScaleSet& x,
-            ::xml_schema::flags f,
-            ::xml_schema::container* c)
-  : ::l1t::Name (x, f, c)
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const ::xercesc::DOMElement& e,
-            ::xml_schema::flags f,
-            ::xml_schema::container* c)
-  : ::l1t::Name (e, f, c)
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const ::xercesc::DOMAttr& a,
-            ::xml_schema::flags f,
-            ::xml_schema::container* c)
-  : ::l1t::Name (a, f, c)
-  {
-  }
-
-  ScaleSet::
-  ScaleSet (const ::std::string& s,
-            const ::xercesc::DOMElement* e,
-            ::xml_schema::flags f,
-            ::xml_schema::container* c)
-  : ::l1t::Name (s, e, f, c)
-  {
-  }
-
-  ScaleSet* ScaleSet::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class ScaleSet (*this, f, c);
-  }
-
-  ScaleSet::
-  ~ScaleSet ()
-  {
-  }
-
-  // Version
-  //
-
-  Version::
-  Version ()
+  ScalesKey::
+  ScalesKey ()
   : ::xml_schema::string ()
   {
   }
 
-  Version::
-  Version (const char* _xsd_string_base)
+  ScalesKey::
+  ScalesKey (const char* _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Version::
-  Version (const ::std::string& _xsd_string_base)
+  ScalesKey::
+  ScalesKey (const ::std::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Version::
-  Version (const ::xml_schema::string& _xsd_string_base)
+  ScalesKey::
+  ScalesKey (const ::xml_schema::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  Version::
-  Version (const Version& x,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  ScalesKey::
+  ScalesKey (const ScalesKey& x,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
   : ::xml_schema::string (x, f, c)
   {
   }
 
-  Version::
-  Version (const ::xercesc::DOMElement& e,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  ScalesKey::
+  ScalesKey (const ::xercesc::DOMElement& e,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
   }
 
-  Version::
-  Version (const ::xercesc::DOMAttr& a,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  ScalesKey::
+  ScalesKey (const ::xercesc::DOMAttr& a,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
   }
 
-  Version::
-  Version (const ::std::string& s,
-           const ::xercesc::DOMElement* e,
-           ::xml_schema::flags f,
-           ::xml_schema::container* c)
+  ScalesKey::
+  ScalesKey (const ::std::string& s,
+             const ::xercesc::DOMElement* e,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
   : ::xml_schema::string (s, e, f, c)
   {
   }
 
-  Version* Version::
+  ScalesKey* ScalesKey::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class Version (*this, f, c);
+    return new class ScalesKey (*this, f, c);
   }
 
-  Version::
-  ~Version ()
+  ScalesKey::
+  ~ScalesKey ()
   {
   }
 
-  // RevisionList
+  // FirmwareVersion
   //
 
-  RevisionList::
-  RevisionList ()
+  FirmwareVersion::
+  FirmwareVersion (const ::xml_schema::unsigned_int& _xsd_unsigned_int_base)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (_xsd_unsigned_int_base)
+  {
+  }
+
+  FirmwareVersion::
+  FirmwareVersion (const FirmwareVersion& x,
+                   ::xml_schema::flags f,
+                   ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (x, f, c)
+  {
+  }
+
+  FirmwareVersion::
+  FirmwareVersion (const ::xercesc::DOMElement& e,
+                   ::xml_schema::flags f,
+                   ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (e, f, c)
+  {
+  }
+
+  FirmwareVersion::
+  FirmwareVersion (const ::xercesc::DOMAttr& a,
+                   ::xml_schema::flags f,
+                   ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (a, f, c)
+  {
+  }
+
+  FirmwareVersion::
+  FirmwareVersion (const ::std::string& s,
+                   const ::xercesc::DOMElement* e,
+                   ::xml_schema::flags f,
+                   ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (s, e, f, c)
+  {
+  }
+
+  FirmwareVersion* FirmwareVersion::
+  _clone (::xml_schema::flags f,
+          ::xml_schema::container* c) const
+  {
+    return new class FirmwareVersion (*this, f, c);
+  }
+
+  FirmwareVersion::
+  ~FirmwareVersion ()
+  {
+  }
+
+  // History
+  //
+
+  History::
+  History ()
   : ::xml_schema::type (),
     revision_ (::xml_schema::flags (), this)
   {
   }
 
-  RevisionList::
-  RevisionList (const RevisionList& x,
-                ::xml_schema::flags f,
-                ::xml_schema::container* c)
+  History::
+  History (const History& x,
+           ::xml_schema::flags f,
+           ::xml_schema::container* c)
   : ::xml_schema::type (x, f, c),
     revision_ (x.revision_, f, this)
   {
   }
 
-  RevisionList::
-  RevisionList (const ::xercesc::DOMElement& e,
-                ::xml_schema::flags f,
-                ::xml_schema::container* c)
+  History::
+  History (const ::xercesc::DOMElement& e,
+           ::xml_schema::flags f,
+           ::xml_schema::container* c)
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
     revision_ (f, this)
   {
@@ -2378,7 +1946,7 @@ namespace l1t
     }
   }
 
-  void RevisionList::
+  void History::
   parse (::xsd::cxx::xml::dom::parser< char >& p,
          ::xml_schema::flags f)
   {
@@ -2390,7 +1958,7 @@ namespace l1t
 
       // revision
       //
-      if (n.name () == "revision" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "revision" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< revision_type > r (
           revision_traits::create (i, f, this));
@@ -2403,15 +1971,15 @@ namespace l1t
     }
   }
 
-  RevisionList* RevisionList::
+  History* History::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class RevisionList (*this, f, c);
+    return new class History (*this, f, c);
   }
 
-  RevisionList::
-  ~RevisionList ()
+  History::
+  ~History ()
   {
   }
 
@@ -2470,7 +2038,7 @@ namespace l1t
 
       // author
       //
-      if (n.name () == "author" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "author" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< author_type > r (
           author_traits::create (i, f, this));
@@ -2484,7 +2052,7 @@ namespace l1t
 
       // datetime
       //
-      if (n.name () == "datetime" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "datetime" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< datetime_type > r (
           datetime_traits::create (i, f, this));
@@ -2503,14 +2071,14 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "author",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!datetime_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "datetime",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     while (p.more_attributes ())
@@ -2551,55 +2119,55 @@ namespace l1t
   {
   }
 
-  // ComparisonOperator
+  // EtComparison
   //
 
-  ComparisonOperator::
-  ComparisonOperator (const ::xercesc::DOMElement& e,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const ::xercesc::DOMElement& e,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
-    _xsd_ComparisonOperator_convert ();
+    _xsd_EtComparison_convert ();
   }
 
-  ComparisonOperator::
-  ComparisonOperator (const ::xercesc::DOMAttr& a,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const ::xercesc::DOMAttr& a,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
-    _xsd_ComparisonOperator_convert ();
+    _xsd_EtComparison_convert ();
   }
 
-  ComparisonOperator::
-  ComparisonOperator (const ::std::string& s,
-                      const ::xercesc::DOMElement* e,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const ::std::string& s,
+                const ::xercesc::DOMElement* e,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (s, e, f, c)
   {
-    _xsd_ComparisonOperator_convert ();
+    _xsd_EtComparison_convert ();
   }
 
-  ComparisonOperator* ComparisonOperator::
+  EtComparison* EtComparison::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class ComparisonOperator (*this, f, c);
+    return new class EtComparison (*this, f, c);
   }
 
-  ComparisonOperator::value ComparisonOperator::
-  _xsd_ComparisonOperator_convert () const
+  EtComparison::value EtComparison::
+  _xsd_EtComparison_convert () const
   {
-    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ComparisonOperator_literals_);
+    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_EtComparison_literals_);
     const value* i (::std::lower_bound (
-                      _xsd_ComparisonOperator_indexes_,
-                      _xsd_ComparisonOperator_indexes_ + 2,
+                      _xsd_EtComparison_indexes_,
+                      _xsd_EtComparison_indexes_ + 2,
                       *this,
                       c));
 
-    if (i == _xsd_ComparisonOperator_indexes_ + 2 || _xsd_ComparisonOperator_literals_[*i] != *this)
+    if (i == _xsd_EtComparison_indexes_ + 2 || _xsd_EtComparison_literals_[*i] != *this)
     {
       throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
     }
@@ -2607,18 +2175,18 @@ namespace l1t
     return *i;
   }
 
-  const char* const ComparisonOperator::
-  _xsd_ComparisonOperator_literals_[2] =
+  const char* const EtComparison::
+  _xsd_EtComparison_literals_[2] =
   {
     "eq",
     "ge"
   };
 
-  const ComparisonOperator::value ComparisonOperator::
-  _xsd_ComparisonOperator_indexes_[2] =
+  const EtComparison::value EtComparison::
+  _xsd_EtComparison_indexes_[2] =
   {
-    ::l1t::ComparisonOperator::eq,
-    ::l1t::ComparisonOperator::ge
+    ::l1t::EtComparison::eq,
+    ::l1t::EtComparison::ge
   };
 
   // RelativeBx
@@ -2895,150 +2463,6 @@ namespace l1t
     ::l1t::CalorimeterObjectType::tau
   };
 
-  // MuonRequstedCharge
-  //
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const ::xercesc::DOMElement& e,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
-  : ::xml_schema::string (e, f, c)
-  {
-    _xsd_MuonRequstedCharge_convert ();
-  }
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const ::xercesc::DOMAttr& a,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
-  : ::xml_schema::string (a, f, c)
-  {
-    _xsd_MuonRequstedCharge_convert ();
-  }
-
-  MuonRequstedCharge::
-  MuonRequstedCharge (const ::std::string& s,
-                      const ::xercesc::DOMElement* e,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
-  : ::xml_schema::string (s, e, f, c)
-  {
-    _xsd_MuonRequstedCharge_convert ();
-  }
-
-  MuonRequstedCharge* MuonRequstedCharge::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class MuonRequstedCharge (*this, f, c);
-  }
-
-  MuonRequstedCharge::value MuonRequstedCharge::
-  _xsd_MuonRequstedCharge_convert () const
-  {
-    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_MuonRequstedCharge_literals_);
-    const value* i (::std::lower_bound (
-                      _xsd_MuonRequstedCharge_indexes_,
-                      _xsd_MuonRequstedCharge_indexes_ + 3,
-                      *this,
-                      c));
-
-    if (i == _xsd_MuonRequstedCharge_indexes_ + 3 || _xsd_MuonRequstedCharge_literals_[*i] != *this)
-    {
-      throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
-    }
-
-    return *i;
-  }
-
-  const char* const MuonRequstedCharge::
-  _xsd_MuonRequstedCharge_literals_[3] =
-  {
-    "pos",
-    "neg",
-    "ign"
-  };
-
-  const MuonRequstedCharge::value MuonRequstedCharge::
-  _xsd_MuonRequstedCharge_indexes_[3] =
-  {
-    ::l1t::MuonRequstedCharge::ign,
-    ::l1t::MuonRequstedCharge::neg,
-    ::l1t::MuonRequstedCharge::pos
-  };
-
-  // MuonRequstedChargeCorr
-  //
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const ::xercesc::DOMElement& e,
-                          ::xml_schema::flags f,
-                          ::xml_schema::container* c)
-  : ::xml_schema::string (e, f, c)
-  {
-    _xsd_MuonRequstedChargeCorr_convert ();
-  }
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const ::xercesc::DOMAttr& a,
-                          ::xml_schema::flags f,
-                          ::xml_schema::container* c)
-  : ::xml_schema::string (a, f, c)
-  {
-    _xsd_MuonRequstedChargeCorr_convert ();
-  }
-
-  MuonRequstedChargeCorr::
-  MuonRequstedChargeCorr (const ::std::string& s,
-                          const ::xercesc::DOMElement* e,
-                          ::xml_schema::flags f,
-                          ::xml_schema::container* c)
-  : ::xml_schema::string (s, e, f, c)
-  {
-    _xsd_MuonRequstedChargeCorr_convert ();
-  }
-
-  MuonRequstedChargeCorr* MuonRequstedChargeCorr::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class MuonRequstedChargeCorr (*this, f, c);
-  }
-
-  MuonRequstedChargeCorr::value MuonRequstedChargeCorr::
-  _xsd_MuonRequstedChargeCorr_convert () const
-  {
-    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_MuonRequstedChargeCorr_literals_);
-    const value* i (::std::lower_bound (
-                      _xsd_MuonRequstedChargeCorr_indexes_,
-                      _xsd_MuonRequstedChargeCorr_indexes_ + 3,
-                      *this,
-                      c));
-
-    if (i == _xsd_MuonRequstedChargeCorr_indexes_ + 3 || _xsd_MuonRequstedChargeCorr_literals_[*i] != *this)
-    {
-      throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
-    }
-
-    return *i;
-  }
-
-  const char* const MuonRequstedChargeCorr::
-  _xsd_MuonRequstedChargeCorr_literals_[3] =
-  {
-    "ls",
-    "os",
-    "ig"
-  };
-
-  const MuonRequstedChargeCorr::value MuonRequstedChargeCorr::
-  _xsd_MuonRequstedChargeCorr_indexes_[3] =
-  {
-    ::l1t::MuonRequstedChargeCorr::ig,
-    ::l1t::MuonRequstedChargeCorr::ls,
-    ::l1t::MuonRequstedChargeCorr::os
-  };
-
   // EtThreshold
   //
 
@@ -3090,60 +2514,6 @@ namespace l1t
 
   EtThreshold::
   ~EtThreshold ()
-  {
-  }
-
-  // PtThreshold
-  //
-
-  PtThreshold::
-  PtThreshold (const ::xml_schema::unsigned_int& _xsd_unsigned_int_base)
-  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (_xsd_unsigned_int_base)
-  {
-  }
-
-  PtThreshold::
-  PtThreshold (const PtThreshold& x,
-               ::xml_schema::flags f,
-               ::xml_schema::container* c)
-  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (x, f, c)
-  {
-  }
-
-  PtThreshold::
-  PtThreshold (const ::xercesc::DOMElement& e,
-               ::xml_schema::flags f,
-               ::xml_schema::container* c)
-  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (e, f, c)
-  {
-  }
-
-  PtThreshold::
-  PtThreshold (const ::xercesc::DOMAttr& a,
-               ::xml_schema::flags f,
-               ::xml_schema::container* c)
-  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (a, f, c)
-  {
-  }
-
-  PtThreshold::
-  PtThreshold (const ::std::string& s,
-               const ::xercesc::DOMElement* e,
-               ::xml_schema::flags f,
-               ::xml_schema::container* c)
-  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (s, e, f, c)
-  {
-  }
-
-  PtThreshold* PtThreshold::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class PtThreshold (*this, f, c);
-  }
-
-  PtThreshold::
-  ~PtThreshold ()
   {
   }
 
@@ -3273,59 +2643,59 @@ namespace l1t
   {
   }
 
-  // LogicalExpression
+  // AlgorithmEquation
   //
 
-  LogicalExpression::
-  LogicalExpression ()
+  AlgorithmEquation::
+  AlgorithmEquation ()
   : ::xml_schema::string ()
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const char* _xsd_string_base)
+  AlgorithmEquation::
+  AlgorithmEquation (const char* _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const ::std::string& _xsd_string_base)
+  AlgorithmEquation::
+  AlgorithmEquation (const ::std::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const ::xml_schema::string& _xsd_string_base)
+  AlgorithmEquation::
+  AlgorithmEquation (const ::xml_schema::string& _xsd_string_base)
   : ::xml_schema::string (_xsd_string_base)
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const LogicalExpression& x,
+  AlgorithmEquation::
+  AlgorithmEquation (const AlgorithmEquation& x,
                      ::xml_schema::flags f,
                      ::xml_schema::container* c)
   : ::xml_schema::string (x, f, c)
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const ::xercesc::DOMElement& e,
+  AlgorithmEquation::
+  AlgorithmEquation (const ::xercesc::DOMElement& e,
                      ::xml_schema::flags f,
                      ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const ::xercesc::DOMAttr& a,
+  AlgorithmEquation::
+  AlgorithmEquation (const ::xercesc::DOMAttr& a,
                      ::xml_schema::flags f,
                      ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
   }
 
-  LogicalExpression::
-  LogicalExpression (const ::std::string& s,
+  AlgorithmEquation::
+  AlgorithmEquation (const ::std::string& s,
                      const ::xercesc::DOMElement* e,
                      ::xml_schema::flags f,
                      ::xml_schema::container* c)
@@ -3333,15 +2703,15 @@ namespace l1t
   {
   }
 
-  LogicalExpression* LogicalExpression::
+  AlgorithmEquation* AlgorithmEquation::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class LogicalExpression (*this, f, c);
+    return new class AlgorithmEquation (*this, f, c);
   }
 
-  LogicalExpression::
-  ~LogicalExpression ()
+  AlgorithmEquation::
+  ~AlgorithmEquation ()
   {
   }
 
@@ -3457,40 +2827,32 @@ namespace l1t
   //
 
   Meta::
-  Meta (const name_type& name,
-        const datetime_type& datetime,
-        const uuid_menu_type& uuid_menu,
-        const comment_type& comment,
-        const scale_set_type& scale_set,
-        const revisions_type& revisions)
+  Meta (const uid_type& uid,
+        const name_type& name,
+        const scalesKey_type& scalesKey,
+        const description_type& description,
+        const history_type& history)
   : ::xml_schema::type (),
+    uid_ (uid, ::xml_schema::flags (), this),
     name_ (name, ::xml_schema::flags (), this),
-    datetime_ (datetime, ::xml_schema::flags (), this),
-    uuid_menu_ (uuid_menu, ::xml_schema::flags (), this),
-    uuid_firmware_ (::xml_schema::flags (), this),
-    comment_ (comment, ::xml_schema::flags (), this),
-    scale_set_ (scale_set, ::xml_schema::flags (), this),
-    editor_version_ (::xml_schema::flags (), this),
-    revisions_ (revisions, ::xml_schema::flags (), this)
+    scalesKey_ (scalesKey, ::xml_schema::flags (), this),
+    description_ (description, ::xml_schema::flags (), this),
+    history_ (history, ::xml_schema::flags (), this)
   {
   }
 
   Meta::
-  Meta (const name_type& name,
-        const datetime_type& datetime,
-        const uuid_menu_type& uuid_menu,
-        const comment_type& comment,
-        const scale_set_type& scale_set,
-        ::std::auto_ptr< revisions_type >& revisions)
+  Meta (const uid_type& uid,
+        const name_type& name,
+        const scalesKey_type& scalesKey,
+        const description_type& description,
+        ::std::auto_ptr< history_type >& history)
   : ::xml_schema::type (),
+    uid_ (uid, ::xml_schema::flags (), this),
     name_ (name, ::xml_schema::flags (), this),
-    datetime_ (datetime, ::xml_schema::flags (), this),
-    uuid_menu_ (uuid_menu, ::xml_schema::flags (), this),
-    uuid_firmware_ (::xml_schema::flags (), this),
-    comment_ (comment, ::xml_schema::flags (), this),
-    scale_set_ (scale_set, ::xml_schema::flags (), this),
-    editor_version_ (::xml_schema::flags (), this),
-    revisions_ (revisions, ::xml_schema::flags (), this)
+    scalesKey_ (scalesKey, ::xml_schema::flags (), this),
+    description_ (description, ::xml_schema::flags (), this),
+    history_ (history, ::xml_schema::flags (), this)
   {
   }
 
@@ -3499,14 +2861,11 @@ namespace l1t
         ::xml_schema::flags f,
         ::xml_schema::container* c)
   : ::xml_schema::type (x, f, c),
+    uid_ (x.uid_, f, this),
     name_ (x.name_, f, this),
-    datetime_ (x.datetime_, f, this),
-    uuid_menu_ (x.uuid_menu_, f, this),
-    uuid_firmware_ (x.uuid_firmware_, f, this),
-    comment_ (x.comment_, f, this),
-    scale_set_ (x.scale_set_, f, this),
-    editor_version_ (x.editor_version_, f, this),
-    revisions_ (x.revisions_, f, this)
+    scalesKey_ (x.scalesKey_, f, this),
+    description_ (x.description_, f, this),
+    history_ (x.history_, f, this)
   {
   }
 
@@ -3515,14 +2874,11 @@ namespace l1t
         ::xml_schema::flags f,
         ::xml_schema::container* c)
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
+    uid_ (f, this),
     name_ (f, this),
-    datetime_ (f, this),
-    uuid_menu_ (f, this),
-    uuid_firmware_ (f, this),
-    comment_ (f, this),
-    scale_set_ (f, this),
-    editor_version_ (f, this),
-    revisions_ (f, this)
+    scalesKey_ (f, this),
+    description_ (f, this),
+    history_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -3541,9 +2897,23 @@ namespace l1t
       const ::xsd::cxx::xml::qualified_name< char > n (
         ::xsd::cxx::xml::dom::name< char > (i));
 
+      // uid
+      //
+      if (n.name () == "uid" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
+      {
+        ::std::auto_ptr< uid_type > r (
+          uid_traits::create (i, f, this));
+
+        if (!uid_.present ())
+        {
+          this->uid_.set (r);
+          continue;
+        }
+      }
+
       // name
       //
-      if (n.name () == "name" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "name" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< name_type > r (
           name_traits::create (i, f, this));
@@ -3555,100 +2925,44 @@ namespace l1t
         }
       }
 
-      // datetime
+      // scalesKey
       //
-      if (n.name () == "datetime" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "scalesKey" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< datetime_type > r (
-          datetime_traits::create (i, f, this));
+        ::std::auto_ptr< scalesKey_type > r (
+          scalesKey_traits::create (i, f, this));
 
-        if (!datetime_.present ())
+        if (!scalesKey_.present ())
         {
-          this->datetime_.set (r);
+          this->scalesKey_.set (r);
           continue;
         }
       }
 
-      // uuid_menu
+      // description
       //
-      if (n.name () == "uuid_menu" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "description" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< uuid_menu_type > r (
-          uuid_menu_traits::create (i, f, this));
+        ::std::auto_ptr< description_type > r (
+          description_traits::create (i, f, this));
 
-        if (!uuid_menu_.present ())
+        if (!description_.present ())
         {
-          this->uuid_menu_.set (r);
+          this->description_.set (r);
           continue;
         }
       }
 
-      // uuid_firmware
+      // history
       //
-      if (n.name () == "uuid_firmware" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "history" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< uuid_firmware_type > r (
-          uuid_firmware_traits::create (i, f, this));
+        ::std::auto_ptr< history_type > r (
+          history_traits::create (i, f, this));
 
-        if (!this->uuid_firmware_)
+        if (!history_.present ())
         {
-          this->uuid_firmware_.set (r);
-          continue;
-        }
-      }
-
-      // comment
-      //
-      if (n.name () == "comment" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< comment_type > r (
-          comment_traits::create (i, f, this));
-
-        if (!comment_.present ())
-        {
-          this->comment_.set (r);
-          continue;
-        }
-      }
-
-      // scale_set
-      //
-      if (n.name () == "scale_set" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< scale_set_type > r (
-          scale_set_traits::create (i, f, this));
-
-        if (!scale_set_.present ())
-        {
-          this->scale_set_.set (r);
-          continue;
-        }
-      }
-
-      // editor_version
-      //
-      if (n.name () == "editor_version" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< editor_version_type > r (
-          editor_version_traits::create (i, f, this));
-
-        if (!this->editor_version_)
-        {
-          this->editor_version_.set (r);
-          continue;
-        }
-      }
-
-      // revisions
-      //
-      if (n.name () == "revisions" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< revisions_type > r (
-          revisions_traits::create (i, f, this));
-
-        if (!revisions_.present ())
-        {
-          this->revisions_.set (r);
+          this->history_.set (r);
           continue;
         }
       }
@@ -3656,46 +2970,39 @@ namespace l1t
       break;
     }
 
+    if (!uid_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "uid",
+        "http://www.cern.ch/l1t/0.5.2");
+    }
+
     if (!name_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "name",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!datetime_.present ())
+    if (!scalesKey_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "datetime",
-        "http://www.cern.ch/l1t/0.6.0");
+        "scalesKey",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!uuid_menu_.present ())
+    if (!description_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "uuid_menu",
-        "http://www.cern.ch/l1t/0.6.0");
+        "description",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!comment_.present ())
+    if (!history_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "comment",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!scale_set_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "scale_set",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!revisions_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "revisions",
-        "http://www.cern.ch/l1t/0.6.0");
+        "history",
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -3720,7 +3027,9 @@ namespace l1t
     condCalorimeter_ (::xml_schema::flags (), this),
     condMuon_ (::xml_schema::flags (), this),
     condEnergySums_ (::xml_schema::flags (), this),
-    condCorrelation_ (::xml_schema::flags (), this)
+    condCorrelation_ (::xml_schema::flags (), this),
+    condInvariantMass_ (::xml_schema::flags (), this),
+    condDeltaR_ (::xml_schema::flags (), this)
   {
   }
 
@@ -3732,7 +3041,9 @@ namespace l1t
     condCalorimeter_ (x.condCalorimeter_, f, this),
     condMuon_ (x.condMuon_, f, this),
     condEnergySums_ (x.condEnergySums_, f, this),
-    condCorrelation_ (x.condCorrelation_, f, this)
+    condCorrelation_ (x.condCorrelation_, f, this),
+    condInvariantMass_ (x.condInvariantMass_, f, this),
+    condDeltaR_ (x.condDeltaR_, f, this)
   {
   }
 
@@ -3744,7 +3055,9 @@ namespace l1t
     condCalorimeter_ (f, this),
     condMuon_ (f, this),
     condEnergySums_ (f, this),
-    condCorrelation_ (f, this)
+    condCorrelation_ (f, this),
+    condInvariantMass_ (f, this),
+    condDeltaR_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -3765,7 +3078,7 @@ namespace l1t
 
       // condCalorimeter
       //
-      if (n.name () == "condCalorimeter" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "condCalorimeter" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< condCalorimeter_type > r (
           condCalorimeter_traits::create (i, f, this));
@@ -3776,7 +3089,7 @@ namespace l1t
 
       // condMuon
       //
-      if (n.name () == "condMuon" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "condMuon" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< condMuon_type > r (
           condMuon_traits::create (i, f, this));
@@ -3787,7 +3100,7 @@ namespace l1t
 
       // condEnergySums
       //
-      if (n.name () == "condEnergySums" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "condEnergySums" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< condEnergySums_type > r (
           condEnergySums_traits::create (i, f, this));
@@ -3798,12 +3111,34 @@ namespace l1t
 
       // condCorrelation
       //
-      if (n.name () == "condCorrelation" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "condCorrelation" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< condCorrelation_type > r (
           condCorrelation_traits::create (i, f, this));
 
         this->condCorrelation_.push_back (r);
+        continue;
+      }
+
+      // condInvariantMass
+      //
+      if (n.name () == "condInvariantMass" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
+      {
+        ::std::auto_ptr< condInvariantMass_type > r (
+          condInvariantMass_traits::create (i, f, this));
+
+        this->condInvariantMass_.push_back (r);
+        continue;
+      }
+
+      // condDeltaR
+      //
+      if (n.name () == "condDeltaR" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
+      {
+        ::std::auto_ptr< condDeltaR_type > r (
+          condDeltaR_traits::create (i, f, this));
+
+        this->condDeltaR_.push_back (r);
         continue;
       }
 
@@ -3829,12 +3164,12 @@ namespace l1t
   Condition::
   Condition (const uid_type& uid,
              const name_type& name,
-             const comment_type& comment,
+             const description_type& description,
              const locked_type& locked)
   : ::xml_schema::type (),
     uid_ (uid, ::xml_schema::flags (), this),
     name_ (name, ::xml_schema::flags (), this),
-    comment_ (comment, ::xml_schema::flags (), this),
+    description_ (description, ::xml_schema::flags (), this),
     locked_ (locked, ::xml_schema::flags (), this)
   {
   }
@@ -3846,7 +3181,7 @@ namespace l1t
   : ::xml_schema::type (x, f, c),
     uid_ (x.uid_, f, this),
     name_ (x.name_, f, this),
-    comment_ (x.comment_, f, this),
+    description_ (x.description_, f, this),
     locked_ (x.locked_, f, this)
   {
   }
@@ -3858,7 +3193,7 @@ namespace l1t
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
     uid_ (f, this),
     name_ (f, this),
-    comment_ (f, this),
+    description_ (f, this),
     locked_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
@@ -3880,7 +3215,7 @@ namespace l1t
 
       // uid
       //
-      if (n.name () == "uid" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "uid" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< uid_type > r (
           uid_traits::create (i, f, this));
@@ -3894,7 +3229,7 @@ namespace l1t
 
       // name
       //
-      if (n.name () == "name" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "name" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< name_type > r (
           name_traits::create (i, f, this));
@@ -3906,23 +3241,23 @@ namespace l1t
         }
       }
 
-      // comment
+      // description
       //
-      if (n.name () == "comment" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "description" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< comment_type > r (
-          comment_traits::create (i, f, this));
+        ::std::auto_ptr< description_type > r (
+          description_traits::create (i, f, this));
 
-        if (!comment_.present ())
+        if (!description_.present ())
         {
-          this->comment_.set (r);
+          this->description_.set (r);
           continue;
         }
       }
 
       // locked
       //
-      if (n.name () == "locked" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "locked" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         if (!locked_.present ())
         {
@@ -3938,28 +3273,28 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "uid",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!name_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "name",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!comment_.present ())
+    if (!description_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "comment",
-        "http://www.cern.ch/l1t/0.6.0");
+        "description",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!locked_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "locked",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -4024,7 +3359,7 @@ namespace l1t
 
       // lower
       //
-      if (n.name () == "lower" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "lower" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         if (!lower_.present ())
         {
@@ -4035,7 +3370,7 @@ namespace l1t
 
       // upper
       //
-      if (n.name () == "upper" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "upper" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         if (!upper_.present ())
         {
@@ -4051,14 +3386,14 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "lower",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!upper_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "upper",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -4132,7 +3467,7 @@ namespace l1t
 
       // deltaPhiRange
       //
-      if (n.name () == "deltaPhiRange" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "deltaPhiRange" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< deltaPhiRange_type > r (
           deltaPhiRange_traits::create (i, f, this));
@@ -4146,7 +3481,7 @@ namespace l1t
 
       // deltaEtaRange
       //
-      if (n.name () == "deltaEtaRange" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "deltaEtaRange" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< deltaEtaRange_type > r (
           deltaEtaRange_traits::create (i, f, this));
@@ -4165,14 +3500,14 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "deltaPhiRange",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!deltaEtaRange_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "deltaEtaRange",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -4239,7 +3574,7 @@ namespace l1t
 
       // etThreshold
       //
-      if (n.name () == "etThreshold" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "etThreshold" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< etThreshold_type > r (
           etThreshold_traits::create (i, f, this));
@@ -4253,7 +3588,7 @@ namespace l1t
 
       // phiWindow
       //
-      if (n.name () == "phiWindow" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "phiWindow" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< phiWindow_type > r (
           phiWindow_traits::create (i, f, this));
@@ -4264,7 +3599,7 @@ namespace l1t
 
       // etaWindow
       //
-      if (n.name () == "etaWindow" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "etaWindow" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< etaWindow_type > r (
           etaWindow_traits::create (i, f, this));
@@ -4280,7 +3615,7 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "etThreshold",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -4341,7 +3676,7 @@ namespace l1t
 
       // objectRequirement
       //
-      if (n.name () == "objectRequirement" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "objectRequirement" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< objectRequirement_type > r (
           objectRequirement_traits::create (i, f, this));
@@ -4372,19 +3707,19 @@ namespace l1t
   CalorimeterCondition::
   CalorimeterCondition (const uid_type& uid,
                         const name_type& name,
-                        const comment_type& comment,
+                        const description_type& description,
                         const locked_type& locked,
                         const type_type& type,
-                        const comparison_operator_type& comparison_operator,
+                        const etComparison_type& etComparison,
                         const objectType_type& objectType,
                         const objectRequirements_type& objectRequirements,
                         const relativeBx_type& relativeBx)
   : ::l1t::Condition (uid,
                       name,
-                      comment,
+                      description,
                       locked),
     type_ (type, ::xml_schema::flags (), this),
-    comparison_operator_ (comparison_operator, ::xml_schema::flags (), this),
+    etComparison_ (etComparison, ::xml_schema::flags (), this),
     objectType_ (objectType, ::xml_schema::flags (), this),
     objectRequirements_ (objectRequirements, ::xml_schema::flags (), this),
     deltaRequirement_ (::xml_schema::flags (), this),
@@ -4395,19 +3730,19 @@ namespace l1t
   CalorimeterCondition::
   CalorimeterCondition (const uid_type& uid,
                         const name_type& name,
-                        const comment_type& comment,
+                        const description_type& description,
                         const locked_type& locked,
                         const type_type& type,
-                        const comparison_operator_type& comparison_operator,
+                        const etComparison_type& etComparison,
                         const objectType_type& objectType,
                         ::std::auto_ptr< objectRequirements_type >& objectRequirements,
                         const relativeBx_type& relativeBx)
   : ::l1t::Condition (uid,
                       name,
-                      comment,
+                      description,
                       locked),
     type_ (type, ::xml_schema::flags (), this),
-    comparison_operator_ (comparison_operator, ::xml_schema::flags (), this),
+    etComparison_ (etComparison, ::xml_schema::flags (), this),
     objectType_ (objectType, ::xml_schema::flags (), this),
     objectRequirements_ (objectRequirements, ::xml_schema::flags (), this),
     deltaRequirement_ (::xml_schema::flags (), this),
@@ -4421,7 +3756,7 @@ namespace l1t
                         ::xml_schema::container* c)
   : ::l1t::Condition (x, f, c),
     type_ (x.type_, f, this),
-    comparison_operator_ (x.comparison_operator_, f, this),
+    etComparison_ (x.etComparison_, f, this),
     objectType_ (x.objectType_, f, this),
     objectRequirements_ (x.objectRequirements_, f, this),
     deltaRequirement_ (x.deltaRequirement_, f, this),
@@ -4435,7 +3770,7 @@ namespace l1t
                         ::xml_schema::container* c)
   : ::l1t::Condition (e, f | ::xml_schema::flags::base, c),
     type_ (f, this),
-    comparison_operator_ (f, this),
+    etComparison_ (f, this),
     objectType_ (f, this),
     objectRequirements_ (f, this),
     deltaRequirement_ (f, this),
@@ -4462,7 +3797,7 @@ namespace l1t
 
       // type
       //
-      if (n.name () == "type" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "type" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< type_type > r (
           type_traits::create (i, f, this));
@@ -4474,23 +3809,23 @@ namespace l1t
         }
       }
 
-      // comparison_operator
+      // etComparison
       //
-      if (n.name () == "comparison_operator" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "etComparison" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< comparison_operator_type > r (
-          comparison_operator_traits::create (i, f, this));
+        ::std::auto_ptr< etComparison_type > r (
+          etComparison_traits::create (i, f, this));
 
-        if (!comparison_operator_.present ())
+        if (!etComparison_.present ())
         {
-          this->comparison_operator_.set (r);
+          this->etComparison_.set (r);
           continue;
         }
       }
 
       // objectType
       //
-      if (n.name () == "objectType" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "objectType" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< objectType_type > r (
           objectType_traits::create (i, f, this));
@@ -4504,7 +3839,7 @@ namespace l1t
 
       // objectRequirements
       //
-      if (n.name () == "objectRequirements" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "objectRequirements" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< objectRequirements_type > r (
           objectRequirements_traits::create (i, f, this));
@@ -4518,7 +3853,7 @@ namespace l1t
 
       // deltaRequirement
       //
-      if (n.name () == "deltaRequirement" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "deltaRequirement" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< deltaRequirement_type > r (
           deltaRequirement_traits::create (i, f, this));
@@ -4532,7 +3867,7 @@ namespace l1t
 
       // relativeBx
       //
-      if (n.name () == "relativeBx" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "relativeBx" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< relativeBx_type > r (
           relativeBx_traits::create (i, f, this));
@@ -4551,35 +3886,35 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "type",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!comparison_operator_.present ())
+    if (!etComparison_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "comparison_operator",
-        "http://www.cern.ch/l1t/0.6.0");
+        "etComparison",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!objectType_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "objectType",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!objectRequirements_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "objectRequirements",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!relativeBx_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "relativeBx",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -4595,453 +3930,23 @@ namespace l1t
   {
   }
 
-  // MuonObjectRequirement
-  //
-
-  MuonObjectRequirement::
-  MuonObjectRequirement (const ptThreshold_type& ptThreshold,
-                         const requestedCharge_type& requestedCharge,
-                         const qualityLut_type& qualityLut,
-                         const isolationLut_type& isolationLut)
-  : ::xml_schema::type (),
-    ptThreshold_ (ptThreshold, ::xml_schema::flags (), this),
-    phiWindow_ (::xml_schema::flags (), this),
-    etaWindow_ (::xml_schema::flags (), this),
-    requestedCharge_ (requestedCharge, ::xml_schema::flags (), this),
-    qualityLut_ (qualityLut, ::xml_schema::flags (), this),
-    isolationLut_ (isolationLut, ::xml_schema::flags (), this)
-  {
-  }
-
-  MuonObjectRequirement::
-  MuonObjectRequirement (const ptThreshold_type& ptThreshold,
-                         const requestedCharge_type& requestedCharge,
-                         ::std::auto_ptr< qualityLut_type >& qualityLut,
-                         ::std::auto_ptr< isolationLut_type >& isolationLut)
-  : ::xml_schema::type (),
-    ptThreshold_ (ptThreshold, ::xml_schema::flags (), this),
-    phiWindow_ (::xml_schema::flags (), this),
-    etaWindow_ (::xml_schema::flags (), this),
-    requestedCharge_ (requestedCharge, ::xml_schema::flags (), this),
-    qualityLut_ (qualityLut, ::xml_schema::flags (), this),
-    isolationLut_ (isolationLut, ::xml_schema::flags (), this)
-  {
-  }
-
-  MuonObjectRequirement::
-  MuonObjectRequirement (const MuonObjectRequirement& x,
-                         ::xml_schema::flags f,
-                         ::xml_schema::container* c)
-  : ::xml_schema::type (x, f, c),
-    ptThreshold_ (x.ptThreshold_, f, this),
-    phiWindow_ (x.phiWindow_, f, this),
-    etaWindow_ (x.etaWindow_, f, this),
-    requestedCharge_ (x.requestedCharge_, f, this),
-    qualityLut_ (x.qualityLut_, f, this),
-    isolationLut_ (x.isolationLut_, f, this)
-  {
-  }
-
-  MuonObjectRequirement::
-  MuonObjectRequirement (const ::xercesc::DOMElement& e,
-                         ::xml_schema::flags f,
-                         ::xml_schema::container* c)
-  : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    ptThreshold_ (f, this),
-    phiWindow_ (f, this),
-    etaWindow_ (f, this),
-    requestedCharge_ (f, this),
-    qualityLut_ (f, this),
-    isolationLut_ (f, this)
-  {
-    if ((f & ::xml_schema::flags::base) == 0)
-    {
-      ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
-      this->parse (p, f);
-    }
-  }
-
-  void MuonObjectRequirement::
-  parse (::xsd::cxx::xml::dom::parser< char >& p,
-         ::xml_schema::flags f)
-  {
-    for (; p.more_elements (); p.next_element ())
-    {
-      const ::xercesc::DOMElement& i (p.cur_element ());
-      const ::xsd::cxx::xml::qualified_name< char > n (
-        ::xsd::cxx::xml::dom::name< char > (i));
-
-      // ptThreshold
-      //
-      if (n.name () == "ptThreshold" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< ptThreshold_type > r (
-          ptThreshold_traits::create (i, f, this));
-
-        if (!ptThreshold_.present ())
-        {
-          this->ptThreshold_.set (r);
-          continue;
-        }
-      }
-
-      // phiWindow
-      //
-      if (n.name () == "phiWindow" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< phiWindow_type > r (
-          phiWindow_traits::create (i, f, this));
-
-        this->phiWindow_.push_back (r);
-        continue;
-      }
-
-      // etaWindow
-      //
-      if (n.name () == "etaWindow" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< etaWindow_type > r (
-          etaWindow_traits::create (i, f, this));
-
-        this->etaWindow_.push_back (r);
-        continue;
-      }
-
-      // requestedCharge
-      //
-      if (n.name () == "requestedCharge" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< requestedCharge_type > r (
-          requestedCharge_traits::create (i, f, this));
-
-        if (!requestedCharge_.present ())
-        {
-          this->requestedCharge_.set (r);
-          continue;
-        }
-      }
-
-      // qualityLut
-      //
-      if (n.name () == "qualityLut" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< qualityLut_type > r (
-          qualityLut_traits::create (i, f, this));
-
-        if (!qualityLut_.present ())
-        {
-          this->qualityLut_.set (r);
-          continue;
-        }
-      }
-
-      // isolationLut
-      //
-      if (n.name () == "isolationLut" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< isolationLut_type > r (
-          isolationLut_traits::create (i, f, this));
-
-        if (!isolationLut_.present ())
-        {
-          this->isolationLut_.set (r);
-          continue;
-        }
-      }
-
-      break;
-    }
-
-    if (!ptThreshold_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "ptThreshold",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!requestedCharge_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "requestedCharge",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!qualityLut_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "qualityLut",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!isolationLut_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "isolationLut",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-  }
-
-  MuonObjectRequirement* MuonObjectRequirement::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class MuonObjectRequirement (*this, f, c);
-  }
-
-  MuonObjectRequirement::
-  ~MuonObjectRequirement ()
-  {
-  }
-
-  // MuonObjectRequirementList
-  //
-
-  MuonObjectRequirementList::
-  MuonObjectRequirementList ()
-  : ::xml_schema::type (),
-    objectRequirement_ (::xml_schema::flags (), this)
-  {
-  }
-
-  MuonObjectRequirementList::
-  MuonObjectRequirementList (const MuonObjectRequirementList& x,
-                             ::xml_schema::flags f,
-                             ::xml_schema::container* c)
-  : ::xml_schema::type (x, f, c),
-    objectRequirement_ (x.objectRequirement_, f, this)
-  {
-  }
-
-  MuonObjectRequirementList::
-  MuonObjectRequirementList (const ::xercesc::DOMElement& e,
-                             ::xml_schema::flags f,
-                             ::xml_schema::container* c)
-  : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    objectRequirement_ (f, this)
-  {
-    if ((f & ::xml_schema::flags::base) == 0)
-    {
-      ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
-      this->parse (p, f);
-    }
-  }
-
-  void MuonObjectRequirementList::
-  parse (::xsd::cxx::xml::dom::parser< char >& p,
-         ::xml_schema::flags f)
-  {
-    for (; p.more_elements (); p.next_element ())
-    {
-      const ::xercesc::DOMElement& i (p.cur_element ());
-      const ::xsd::cxx::xml::qualified_name< char > n (
-        ::xsd::cxx::xml::dom::name< char > (i));
-
-      // objectRequirement
-      //
-      if (n.name () == "objectRequirement" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< objectRequirement_type > r (
-          objectRequirement_traits::create (i, f, this));
-
-        this->objectRequirement_.push_back (r);
-        continue;
-      }
-
-      break;
-    }
-  }
-
-  MuonObjectRequirementList* MuonObjectRequirementList::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class MuonObjectRequirementList (*this, f, c);
-  }
-
-  MuonObjectRequirementList::
-  ~MuonObjectRequirementList ()
-  {
-  }
-
-  // MuonQualityLUT
-  //
-
-  MuonQualityLUT::
-  MuonQualityLUT ()
-  : ::xml_schema::type (),
-    quality_ (::xml_schema::flags (), this)
-  {
-  }
-
-  MuonQualityLUT::
-  MuonQualityLUT (const MuonQualityLUT& x,
-                  ::xml_schema::flags f,
-                  ::xml_schema::container* c)
-  : ::xml_schema::type (x, f, c),
-    quality_ (x.quality_, f, this)
-  {
-  }
-
-  MuonQualityLUT::
-  MuonQualityLUT (const ::xercesc::DOMElement& e,
-                  ::xml_schema::flags f,
-                  ::xml_schema::container* c)
-  : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    quality_ (f, this)
-  {
-    if ((f & ::xml_schema::flags::base) == 0)
-    {
-      ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
-      this->parse (p, f);
-    }
-  }
-
-  void MuonQualityLUT::
-  parse (::xsd::cxx::xml::dom::parser< char >& p,
-         ::xml_schema::flags f)
-  {
-    for (; p.more_elements (); p.next_element ())
-    {
-      const ::xercesc::DOMElement& i (p.cur_element ());
-      const ::xsd::cxx::xml::qualified_name< char > n (
-        ::xsd::cxx::xml::dom::name< char > (i));
-
-      // quality
-      //
-      if (n.name () == "quality" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        this->quality_.push_back (quality_traits::create (i, f, this));
-        continue;
-      }
-
-      break;
-    }
-  }
-
-  MuonQualityLUT* MuonQualityLUT::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class MuonQualityLUT (*this, f, c);
-  }
-
-  MuonQualityLUT::
-  ~MuonQualityLUT ()
-  {
-  }
-
-  // MuonIsolationLUT
-  //
-
-  MuonIsolationLUT::
-  MuonIsolationLUT ()
-  : ::xml_schema::type (),
-    isolation_ (::xml_schema::flags (), this)
-  {
-  }
-
-  MuonIsolationLUT::
-  MuonIsolationLUT (const MuonIsolationLUT& x,
-                    ::xml_schema::flags f,
-                    ::xml_schema::container* c)
-  : ::xml_schema::type (x, f, c),
-    isolation_ (x.isolation_, f, this)
-  {
-  }
-
-  MuonIsolationLUT::
-  MuonIsolationLUT (const ::xercesc::DOMElement& e,
-                    ::xml_schema::flags f,
-                    ::xml_schema::container* c)
-  : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    isolation_ (f, this)
-  {
-    if ((f & ::xml_schema::flags::base) == 0)
-    {
-      ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
-      this->parse (p, f);
-    }
-  }
-
-  void MuonIsolationLUT::
-  parse (::xsd::cxx::xml::dom::parser< char >& p,
-         ::xml_schema::flags f)
-  {
-    for (; p.more_elements (); p.next_element ())
-    {
-      const ::xercesc::DOMElement& i (p.cur_element ());
-      const ::xsd::cxx::xml::qualified_name< char > n (
-        ::xsd::cxx::xml::dom::name< char > (i));
-
-      // isolation
-      //
-      if (n.name () == "isolation" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        this->isolation_.push_back (isolation_traits::create (i, f, this));
-        continue;
-      }
-
-      break;
-    }
-  }
-
-  MuonIsolationLUT* MuonIsolationLUT::
-  _clone (::xml_schema::flags f,
-          ::xml_schema::container* c) const
-  {
-    return new class MuonIsolationLUT (*this, f, c);
-  }
-
-  MuonIsolationLUT::
-  ~MuonIsolationLUT ()
-  {
-  }
-
   // MuonCondition
   //
 
   MuonCondition::
   MuonCondition (const uid_type& uid,
                  const name_type& name,
-                 const comment_type& comment,
+                 const description_type& description,
                  const locked_type& locked,
                  const type_type& type,
-                 const comparison_operator_type& comparison_operator,
-                 const objectRequirements_type& objectRequirements,
-                 const requestedChargeCorr_type& requestedChargeCorr,
+                 const etComparison_type& etComparison,
                  const relativeBx_type& relativeBx)
   : ::l1t::Condition (uid,
                       name,
-                      comment,
+                      description,
                       locked),
     type_ (type, ::xml_schema::flags (), this),
-    comparison_operator_ (comparison_operator, ::xml_schema::flags (), this),
-    objectRequirements_ (objectRequirements, ::xml_schema::flags (), this),
-    requestedChargeCorr_ (requestedChargeCorr, ::xml_schema::flags (), this),
-    deltaRequirement_ (::xml_schema::flags (), this),
-    relativeBx_ (relativeBx, ::xml_schema::flags (), this)
-  {
-  }
-
-  MuonCondition::
-  MuonCondition (const uid_type& uid,
-                 const name_type& name,
-                 const comment_type& comment,
-                 const locked_type& locked,
-                 const type_type& type,
-                 const comparison_operator_type& comparison_operator,
-                 ::std::auto_ptr< objectRequirements_type >& objectRequirements,
-                 const requestedChargeCorr_type& requestedChargeCorr,
-                 const relativeBx_type& relativeBx)
-  : ::l1t::Condition (uid,
-                      name,
-                      comment,
-                      locked),
-    type_ (type, ::xml_schema::flags (), this),
-    comparison_operator_ (comparison_operator, ::xml_schema::flags (), this),
-    objectRequirements_ (objectRequirements, ::xml_schema::flags (), this),
-    requestedChargeCorr_ (requestedChargeCorr, ::xml_schema::flags (), this),
-    deltaRequirement_ (::xml_schema::flags (), this),
+    etComparison_ (etComparison, ::xml_schema::flags (), this),
     relativeBx_ (relativeBx, ::xml_schema::flags (), this)
   {
   }
@@ -5052,10 +3957,7 @@ namespace l1t
                  ::xml_schema::container* c)
   : ::l1t::Condition (x, f, c),
     type_ (x.type_, f, this),
-    comparison_operator_ (x.comparison_operator_, f, this),
-    objectRequirements_ (x.objectRequirements_, f, this),
-    requestedChargeCorr_ (x.requestedChargeCorr_, f, this),
-    deltaRequirement_ (x.deltaRequirement_, f, this),
+    etComparison_ (x.etComparison_, f, this),
     relativeBx_ (x.relativeBx_, f, this)
   {
   }
@@ -5066,10 +3968,7 @@ namespace l1t
                  ::xml_schema::container* c)
   : ::l1t::Condition (e, f | ::xml_schema::flags::base, c),
     type_ (f, this),
-    comparison_operator_ (f, this),
-    objectRequirements_ (f, this),
-    requestedChargeCorr_ (f, this),
-    deltaRequirement_ (f, this),
+    etComparison_ (f, this),
     relativeBx_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
@@ -5093,7 +3992,7 @@ namespace l1t
 
       // type
       //
-      if (n.name () == "type" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "type" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< type_type > r (
           type_traits::create (i, f, this));
@@ -5105,65 +4004,23 @@ namespace l1t
         }
       }
 
-      // comparison_operator
+      // etComparison
       //
-      if (n.name () == "comparison_operator" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "etComparison" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< comparison_operator_type > r (
-          comparison_operator_traits::create (i, f, this));
+        ::std::auto_ptr< etComparison_type > r (
+          etComparison_traits::create (i, f, this));
 
-        if (!comparison_operator_.present ())
+        if (!etComparison_.present ())
         {
-          this->comparison_operator_.set (r);
-          continue;
-        }
-      }
-
-      // objectRequirements
-      //
-      if (n.name () == "objectRequirements" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< objectRequirements_type > r (
-          objectRequirements_traits::create (i, f, this));
-
-        if (!objectRequirements_.present ())
-        {
-          this->objectRequirements_.set (r);
-          continue;
-        }
-      }
-
-      // requestedChargeCorr
-      //
-      if (n.name () == "requestedChargeCorr" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< requestedChargeCorr_type > r (
-          requestedChargeCorr_traits::create (i, f, this));
-
-        if (!requestedChargeCorr_.present ())
-        {
-          this->requestedChargeCorr_.set (r);
-          continue;
-        }
-      }
-
-      // deltaRequirement
-      //
-      if (n.name () == "deltaRequirement" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
-      {
-        ::std::auto_ptr< deltaRequirement_type > r (
-          deltaRequirement_traits::create (i, f, this));
-
-        if (!this->deltaRequirement_)
-        {
-          this->deltaRequirement_.set (r);
+          this->etComparison_.set (r);
           continue;
         }
       }
 
       // relativeBx
       //
-      if (n.name () == "relativeBx" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "relativeBx" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< relativeBx_type > r (
           relativeBx_traits::create (i, f, this));
@@ -5182,35 +4039,21 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "type",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!comparison_operator_.present ())
+    if (!etComparison_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "comparison_operator",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!objectRequirements_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "objectRequirements",
-        "http://www.cern.ch/l1t/0.6.0");
-    }
-
-    if (!requestedChargeCorr_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "requestedChargeCorr",
-        "http://www.cern.ch/l1t/0.6.0");
+        "etComparison",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!relativeBx_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "relativeBx",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -5232,11 +4075,11 @@ namespace l1t
   EnergySumsCondition::
   EnergySumsCondition (const uid_type& uid,
                        const name_type& name,
-                       const comment_type& comment,
+                       const description_type& description,
                        const locked_type& locked)
   : ::l1t::Condition (uid,
                       name,
-                      comment,
+                      description,
                       locked)
   {
   }
@@ -5275,11 +4118,11 @@ namespace l1t
   CorrelationCondition::
   CorrelationCondition (const uid_type& uid,
                         const name_type& name,
-                        const comment_type& comment,
+                        const description_type& description,
                         const locked_type& locked)
   : ::l1t::Condition (uid,
                       name,
-                      comment,
+                      description,
                       locked)
   {
   }
@@ -5312,6 +4155,92 @@ namespace l1t
   {
   }
 
+  // InvariantMassCondition
+  //
+
+  InvariantMassCondition::
+  InvariantMassCondition (const uid_type& uid,
+                          const name_type& name,
+                          const description_type& description,
+                          const locked_type& locked)
+  : ::l1t::Condition (uid,
+                      name,
+                      description,
+                      locked)
+  {
+  }
+
+  InvariantMassCondition::
+  InvariantMassCondition (const InvariantMassCondition& x,
+                          ::xml_schema::flags f,
+                          ::xml_schema::container* c)
+  : ::l1t::Condition (x, f, c)
+  {
+  }
+
+  InvariantMassCondition::
+  InvariantMassCondition (const ::xercesc::DOMElement& e,
+                          ::xml_schema::flags f,
+                          ::xml_schema::container* c)
+  : ::l1t::Condition (e, f, c)
+  {
+  }
+
+  InvariantMassCondition* InvariantMassCondition::
+  _clone (::xml_schema::flags f,
+          ::xml_schema::container* c) const
+  {
+    return new class InvariantMassCondition (*this, f, c);
+  }
+
+  InvariantMassCondition::
+  ~InvariantMassCondition ()
+  {
+  }
+
+  // DeltaRCondition
+  //
+
+  DeltaRCondition::
+  DeltaRCondition (const uid_type& uid,
+                   const name_type& name,
+                   const description_type& description,
+                   const locked_type& locked)
+  : ::l1t::Condition (uid,
+                      name,
+                      description,
+                      locked)
+  {
+  }
+
+  DeltaRCondition::
+  DeltaRCondition (const DeltaRCondition& x,
+                   ::xml_schema::flags f,
+                   ::xml_schema::container* c)
+  : ::l1t::Condition (x, f, c)
+  {
+  }
+
+  DeltaRCondition::
+  DeltaRCondition (const ::xercesc::DOMElement& e,
+                   ::xml_schema::flags f,
+                   ::xml_schema::container* c)
+  : ::l1t::Condition (e, f, c)
+  {
+  }
+
+  DeltaRCondition* DeltaRCondition::
+  _clone (::xml_schema::flags f,
+          ::xml_schema::container* c) const
+  {
+    return new class DeltaRCondition (*this, f, c);
+  }
+
+  DeltaRCondition::
+  ~DeltaRCondition ()
+  {
+  }
+
   // Algorithm
   //
 
@@ -5319,16 +4248,16 @@ namespace l1t
   Algorithm (const uid_type& uid,
              const name_type& name,
              const index_type& index,
-             const logical_expression_type& logical_expression,
-             const comment_type& comment,
+             const equation_type& equation,
+             const description_type& description,
              const locked_type& locked,
              const mapping_type& mapping)
   : ::xml_schema::type (),
     uid_ (uid, ::xml_schema::flags (), this),
     name_ (name, ::xml_schema::flags (), this),
     index_ (index, ::xml_schema::flags (), this),
-    logical_expression_ (logical_expression, ::xml_schema::flags (), this),
-    comment_ (comment, ::xml_schema::flags (), this),
+    equation_ (equation, ::xml_schema::flags (), this),
+    description_ (description, ::xml_schema::flags (), this),
     locked_ (locked, ::xml_schema::flags (), this),
     mapping_ (mapping, ::xml_schema::flags (), this)
   {
@@ -5338,16 +4267,16 @@ namespace l1t
   Algorithm (const uid_type& uid,
              const name_type& name,
              const index_type& index,
-             const logical_expression_type& logical_expression,
-             const comment_type& comment,
+             const equation_type& equation,
+             const description_type& description,
              const locked_type& locked,
              ::std::auto_ptr< mapping_type >& mapping)
   : ::xml_schema::type (),
     uid_ (uid, ::xml_schema::flags (), this),
     name_ (name, ::xml_schema::flags (), this),
     index_ (index, ::xml_schema::flags (), this),
-    logical_expression_ (logical_expression, ::xml_schema::flags (), this),
-    comment_ (comment, ::xml_schema::flags (), this),
+    equation_ (equation, ::xml_schema::flags (), this),
+    description_ (description, ::xml_schema::flags (), this),
     locked_ (locked, ::xml_schema::flags (), this),
     mapping_ (mapping, ::xml_schema::flags (), this)
   {
@@ -5361,8 +4290,8 @@ namespace l1t
     uid_ (x.uid_, f, this),
     name_ (x.name_, f, this),
     index_ (x.index_, f, this),
-    logical_expression_ (x.logical_expression_, f, this),
-    comment_ (x.comment_, f, this),
+    equation_ (x.equation_, f, this),
+    description_ (x.description_, f, this),
     locked_ (x.locked_, f, this),
     mapping_ (x.mapping_, f, this)
   {
@@ -5376,8 +4305,8 @@ namespace l1t
     uid_ (f, this),
     name_ (f, this),
     index_ (f, this),
-    logical_expression_ (f, this),
-    comment_ (f, this),
+    equation_ (f, this),
+    description_ (f, this),
     locked_ (f, this),
     mapping_ (f, this)
   {
@@ -5400,7 +4329,7 @@ namespace l1t
 
       // uid
       //
-      if (n.name () == "uid" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "uid" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< uid_type > r (
           uid_traits::create (i, f, this));
@@ -5414,7 +4343,7 @@ namespace l1t
 
       // name
       //
-      if (n.name () == "name" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "name" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< name_type > r (
           name_traits::create (i, f, this));
@@ -5428,7 +4357,7 @@ namespace l1t
 
       // index
       //
-      if (n.name () == "index" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "index" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< index_type > r (
           index_traits::create (i, f, this));
@@ -5440,37 +4369,37 @@ namespace l1t
         }
       }
 
-      // logical_expression
+      // equation
       //
-      if (n.name () == "logical_expression" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "equation" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< logical_expression_type > r (
-          logical_expression_traits::create (i, f, this));
+        ::std::auto_ptr< equation_type > r (
+          equation_traits::create (i, f, this));
 
-        if (!logical_expression_.present ())
+        if (!equation_.present ())
         {
-          this->logical_expression_.set (r);
+          this->equation_.set (r);
           continue;
         }
       }
 
-      // comment
+      // description
       //
-      if (n.name () == "comment" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "description" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
-        ::std::auto_ptr< comment_type > r (
-          comment_traits::create (i, f, this));
+        ::std::auto_ptr< description_type > r (
+          description_traits::create (i, f, this));
 
-        if (!comment_.present ())
+        if (!description_.present ())
         {
-          this->comment_.set (r);
+          this->description_.set (r);
           continue;
         }
       }
 
       // locked
       //
-      if (n.name () == "locked" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "locked" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         if (!locked_.present ())
         {
@@ -5481,7 +4410,7 @@ namespace l1t
 
       // mapping
       //
-      if (n.name () == "mapping" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "mapping" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< mapping_type > r (
           mapping_traits::create (i, f, this));
@@ -5500,49 +4429,49 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "uid",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!name_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "name",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!index_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "index",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!logical_expression_.present ())
+    if (!equation_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "logical_expression",
-        "http://www.cern.ch/l1t/0.6.0");
+        "equation",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
-    if (!comment_.present ())
+    if (!description_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "comment",
-        "http://www.cern.ch/l1t/0.6.0");
+        "description",
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!locked_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "locked",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!mapping_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "mapping",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -5607,7 +4536,7 @@ namespace l1t
 
       // module
       //
-      if (n.name () == "module" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "module" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< module_type > r (
           module_traits::create (i, f, this));
@@ -5621,7 +4550,7 @@ namespace l1t
 
       // index
       //
-      if (n.name () == "index" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "index" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< index_type > r (
           index_traits::create (i, f, this));
@@ -5640,14 +4569,14 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "module",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!index_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "index",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -5708,7 +4637,7 @@ namespace l1t
 
       // algorithm
       //
-      if (n.name () == "algorithm" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "algorithm" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< algorithm_type > r (
           algorithm_traits::create (i, f, this));
@@ -5797,7 +4726,7 @@ namespace l1t
 
       // meta
       //
-      if (n.name () == "meta" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "meta" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< meta_type > r (
           meta_traits::create (i, f, this));
@@ -5811,7 +4740,7 @@ namespace l1t
 
       // conditions
       //
-      if (n.name () == "conditions" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "conditions" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< conditions_type > r (
           conditions_traits::create (i, f, this));
@@ -5825,7 +4754,7 @@ namespace l1t
 
       // algorithms
       //
-      if (n.name () == "algorithms" && n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+      if (n.name () == "algorithms" && n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
       {
         ::std::auto_ptr< algorithms_type > r (
           algorithms_traits::create (i, f, this));
@@ -5844,21 +4773,21 @@ namespace l1t
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "meta",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!conditions_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "conditions",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
 
     if (!algorithms_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
         "algorithms",
-        "http://www.cern.ch/l1t/0.6.0");
+        "http://www.cern.ch/l1t/0.5.2");
     }
   }
 
@@ -6108,7 +5037,7 @@ namespace l1t
       ::xsd::cxx::xml::dom::name< char > (e));
 
     if (n.name () == "l1TriggerMenu" &&
-        n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+        n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
     {
       ::std::auto_ptr< ::l1t::L1TriggerMenu > r (
         ::xsd::cxx::tree::traits< ::l1t::L1TriggerMenu, char >::create (
@@ -6120,7 +5049,7 @@ namespace l1t
       n.name (),
       n.namespace_ (),
       "l1TriggerMenu",
-      "http://www.cern.ch/l1t/0.6.0");
+      "http://www.cern.ch/l1t/0.5.2");
   }
 
   ::std::auto_ptr< ::l1t::L1TriggerMenu >
@@ -6146,7 +5075,7 @@ namespace l1t
                        0);
 
     if (n.name () == "l1TriggerMenu" &&
-        n.namespace_ () == "http://www.cern.ch/l1t/0.6.0")
+        n.namespace_ () == "http://www.cern.ch/l1t/0.5.2")
     {
       ::std::auto_ptr< ::l1t::L1TriggerMenu > r (
         ::xsd::cxx::tree::traits< ::l1t::L1TriggerMenu, char >::create (
@@ -6158,7 +5087,7 @@ namespace l1t
       n.name (),
       n.namespace_ (),
       "l1TriggerMenu",
-      "http://www.cern.ch/l1t/0.6.0");
+      "http://www.cern.ch/l1t/0.5.2");
   }
 }
 
