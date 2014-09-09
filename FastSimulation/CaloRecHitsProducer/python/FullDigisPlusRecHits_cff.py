@@ -30,7 +30,7 @@ simRctDigis.useEcal = cms.bool(True)
 simRctDigis.useHcal = cms.bool(True)
 
 #ECAL reconstruction
-from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
+from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *    
 
@@ -80,7 +80,7 @@ DigiSequence = cms.Sequence((simHcalTriggerPrimitiveDigis * simHcalDigis*simHcal
                             )
 
 # Reconstruction
-ecalRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalPreshowerRecHit)	   	
+ecalRecHitSequence = cms.Sequence(ecalMultiFitUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalPreshowerRecHit)	   	
 hcalRecHitSequence = cms.Sequence((hbheprereco+hfreco+horeco)*hbhereco)
 
 TotalDigisPlusRecHitsSequence = cms.Sequence(DigiSequence*ecalRecHitSequence*hcalRecHitSequence)
