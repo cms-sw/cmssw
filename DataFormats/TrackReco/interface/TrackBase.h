@@ -448,7 +448,7 @@ inline std::string TrackBase::algoName() const
         return "tobTecStep";
     case jetCoreRegionalStep:
         return "jetCoreRegionalStep";
-    case iter8://TODO jaldeaar REMOVE, return undefAlgorithm?
+    case iter8:
         return "iter8";
     case muonSeededStepInOut:
         return "muonSeededStepInOut";
@@ -829,6 +829,7 @@ inline double TrackBase::validFraction() const
     return valid / (double)(valid + lost + lostIn + lostOut);
 }
 
+//Track algorithm
 inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
 {
     if (set) {
