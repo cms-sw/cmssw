@@ -225,25 +225,22 @@ namespace l1t
 {
   class UUID;
   class DateTime;
-  class Name;
-  class Comment;
+  class Label;
+  class Description;
   class MenuName;
-  class ScaleSet;
-  class Version;
-  class RevisionList;
+  class ScalesKey;
+  class FirmwareVersion;
+  class History;
   class Revision;
-  class ComparisonOperator;
+  class EtComparison;
   class RelativeBx;
   class ConditionName;
   class ConditionType;
   class CalorimeterObjectType;
-  class MuonRequstedCharge;
-  class MuonRequstedChargeCorr;
   class EtThreshold;
-  class PtThreshold;
   class AlgorithmName;
   class AlgorithmIndex;
-  class LogicalExpression;
+  class AlgorithmEquation;
   class AlgorithmMappedModule;
   class AlgorithmMappedIndex;
   class Meta;
@@ -254,13 +251,11 @@ namespace l1t
   class CalorimeterObjectRequirement;
   class CalorimeterObjectRequirements;
   class CalorimeterCondition;
-  class MuonObjectRequirement;
-  class MuonObjectRequirementList;
-  class MuonQualityLUT;
-  class MuonIsolationLUT;
   class MuonCondition;
   class EnergySumsCondition;
   class CorrelationCondition;
+  class InvariantMassCondition;
+  class DeltaRCondition;
   class Algorithm;
   class AlgorithmMapping;
   class AlgorithmList;
@@ -353,83 +348,83 @@ namespace l1t
     ~DateTime ();
   };
 
-  class Name: public ::xml_schema::string
+  class Label: public ::xml_schema::string
   {
     public:
     // Constructors.
     //
-    Name ();
+    Label ();
 
-    Name (const char*);
+    Label (const char*);
 
-    Name (const ::std::string&);
+    Label (const ::std::string&);
 
-    Name (const ::xml_schema::string&);
+    Label (const ::xml_schema::string&);
 
-    Name (const ::xercesc::DOMElement& e,
-          ::xml_schema::flags f = 0,
-          ::xml_schema::container* c = 0);
+    Label (const ::xercesc::DOMElement& e,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
 
-    Name (const ::xercesc::DOMAttr& a,
-          ::xml_schema::flags f = 0,
-          ::xml_schema::container* c = 0);
+    Label (const ::xercesc::DOMAttr& a,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
 
-    Name (const ::std::string& s,
-          const ::xercesc::DOMElement* e,
-          ::xml_schema::flags f = 0,
-          ::xml_schema::container* c = 0);
+    Label (const ::std::string& s,
+           const ::xercesc::DOMElement* e,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
 
-    Name (const Name& x,
-          ::xml_schema::flags f = 0,
-          ::xml_schema::container* c = 0);
+    Label (const Label& x,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
 
-    virtual Name*
+    virtual Label*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~Name ();
+    ~Label ();
   };
 
-  class Comment: public ::xml_schema::string
+  class Description: public ::xml_schema::string
   {
     public:
     // Constructors.
     //
-    Comment ();
+    Description ();
 
-    Comment (const char*);
+    Description (const char*);
 
-    Comment (const ::std::string&);
+    Description (const ::std::string&);
 
-    Comment (const ::xml_schema::string&);
+    Description (const ::xml_schema::string&);
 
-    Comment (const ::xercesc::DOMElement& e,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
+    Description (const ::xercesc::DOMElement& e,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    Comment (const ::xercesc::DOMAttr& a,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
+    Description (const ::xercesc::DOMAttr& a,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    Comment (const ::std::string& s,
-             const ::xercesc::DOMElement* e,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
+    Description (const ::std::string& s,
+                 const ::xercesc::DOMElement* e,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    Comment (const Comment& x,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
+    Description (const Description& x,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    virtual Comment*
+    virtual Description*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~Comment ();
+    ~Description ();
   };
 
-  class MenuName: public ::l1t::Name
+  class MenuName: public ::xml_schema::string
   {
     public:
     // Constructors.
@@ -467,83 +462,77 @@ namespace l1t
     ~MenuName ();
   };
 
-  class ScaleSet: public ::l1t::Name
+  class ScalesKey: public ::xml_schema::string
   {
     public:
     // Constructors.
     //
-    ScaleSet ();
+    ScalesKey ();
 
-    ScaleSet (const char*);
+    ScalesKey (const char*);
 
-    ScaleSet (const ::std::string&);
+    ScalesKey (const ::std::string&);
 
-    ScaleSet (const ::xml_schema::string&);
+    ScalesKey (const ::xml_schema::string&);
 
-    ScaleSet (const ::xercesc::DOMElement& e,
-              ::xml_schema::flags f = 0,
-              ::xml_schema::container* c = 0);
+    ScalesKey (const ::xercesc::DOMElement& e,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
 
-    ScaleSet (const ::xercesc::DOMAttr& a,
-              ::xml_schema::flags f = 0,
-              ::xml_schema::container* c = 0);
+    ScalesKey (const ::xercesc::DOMAttr& a,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
 
-    ScaleSet (const ::std::string& s,
-              const ::xercesc::DOMElement* e,
-              ::xml_schema::flags f = 0,
-              ::xml_schema::container* c = 0);
+    ScalesKey (const ::std::string& s,
+               const ::xercesc::DOMElement* e,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
 
-    ScaleSet (const ScaleSet& x,
-              ::xml_schema::flags f = 0,
-              ::xml_schema::container* c = 0);
+    ScalesKey (const ScalesKey& x,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
 
-    virtual ScaleSet*
+    virtual ScalesKey*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~ScaleSet ();
+    ~ScalesKey ();
   };
 
-  class Version: public ::xml_schema::string
+  class FirmwareVersion: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
   {
     public:
     // Constructors.
     //
-    Version ();
+    FirmwareVersion (const ::xml_schema::unsigned_int&);
 
-    Version (const char*);
+    FirmwareVersion (const ::xercesc::DOMElement& e,
+                     ::xml_schema::flags f = 0,
+                     ::xml_schema::container* c = 0);
 
-    Version (const ::std::string&);
+    FirmwareVersion (const ::xercesc::DOMAttr& a,
+                     ::xml_schema::flags f = 0,
+                     ::xml_schema::container* c = 0);
 
-    Version (const ::xml_schema::string&);
+    FirmwareVersion (const ::std::string& s,
+                     const ::xercesc::DOMElement* e,
+                     ::xml_schema::flags f = 0,
+                     ::xml_schema::container* c = 0);
 
-    Version (const ::xercesc::DOMElement& e,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
+    FirmwareVersion (const FirmwareVersion& x,
+                     ::xml_schema::flags f = 0,
+                     ::xml_schema::container* c = 0);
 
-    Version (const ::xercesc::DOMAttr& a,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
-
-    Version (const ::std::string& s,
-             const ::xercesc::DOMElement* e,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
-
-    Version (const Version& x,
-             ::xml_schema::flags f = 0,
-             ::xml_schema::container* c = 0);
-
-    virtual Version*
+    virtual FirmwareVersion*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~Version ();
+    ~FirmwareVersion ();
   };
 
-  class RevisionList: public ::xml_schema::type
+  class History: public ::xml_schema::type
   {
     public:
     // revision
@@ -565,22 +554,22 @@ namespace l1t
 
     // Constructors.
     //
-    RevisionList ();
+    History ();
 
-    RevisionList (const ::xercesc::DOMElement& e,
-                  ::xml_schema::flags f = 0,
-                  ::xml_schema::container* c = 0);
+    History (const ::xercesc::DOMElement& e,
+             ::xml_schema::flags f = 0,
+             ::xml_schema::container* c = 0);
 
-    RevisionList (const RevisionList& x,
-                  ::xml_schema::flags f = 0,
-                  ::xml_schema::container* c = 0);
+    History (const History& x,
+             ::xml_schema::flags f = 0,
+             ::xml_schema::container* c = 0);
 
-    virtual RevisionList*
+    virtual History*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~RevisionList ();
+    ~History ();
 
     // Implementation.
     //
@@ -598,7 +587,7 @@ namespace l1t
     public:
     // author
     // 
-    typedef ::l1t::Name author_type;
+    typedef ::l1t::Label author_type;
     typedef ::xsd::cxx::tree::traits< author_type, char > author_traits;
 
     const author_type&
@@ -632,7 +621,7 @@ namespace l1t
 
     // username
     // 
-    typedef ::l1t::Name username_type;
+    typedef ::l1t::Label username_type;
     typedef ::xsd::cxx::tree::optional< username_type > username_optional;
     typedef ::xsd::cxx::tree::traits< username_type, char > username_traits;
 
@@ -653,7 +642,7 @@ namespace l1t
 
     // hostname
     // 
-    typedef ::l1t::Name hostname_type;
+    typedef ::l1t::Label hostname_type;
     typedef ::xsd::cxx::tree::optional< hostname_type > hostname_optional;
     typedef ::xsd::cxx::tree::traits< hostname_type, char > hostname_traits;
 
@@ -706,7 +695,7 @@ namespace l1t
     hostname_optional hostname_;
   };
 
-  class ComparisonOperator: public ::xml_schema::string
+  class EtComparison: public ::xml_schema::string
   {
     public:
     enum value
@@ -715,51 +704,51 @@ namespace l1t
       ge
     };
 
-    ComparisonOperator (value v);
+    EtComparison (value v);
 
-    ComparisonOperator (const char* v);
+    EtComparison (const char* v);
 
-    ComparisonOperator (const ::std::string& v);
+    EtComparison (const ::std::string& v);
 
-    ComparisonOperator (const ::xml_schema::string& v);
+    EtComparison (const ::xml_schema::string& v);
 
-    ComparisonOperator (const ::xercesc::DOMElement& e,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
+    EtComparison (const ::xercesc::DOMElement& e,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    ComparisonOperator (const ::xercesc::DOMAttr& a,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
+    EtComparison (const ::xercesc::DOMAttr& a,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    ComparisonOperator (const ::std::string& s,
-                        const ::xercesc::DOMElement* e,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
+    EtComparison (const ::std::string& s,
+                  const ::xercesc::DOMElement* e,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    ComparisonOperator (const ComparisonOperator& x,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
+    EtComparison (const EtComparison& x,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    virtual ComparisonOperator*
+    virtual EtComparison*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
-    ComparisonOperator&
+    EtComparison&
     operator= (value v);
 
     virtual
     operator value () const
     {
-      return _xsd_ComparisonOperator_convert ();
+      return _xsd_EtComparison_convert ();
     }
 
     protected:
     value
-    _xsd_ComparisonOperator_convert () const;
+    _xsd_EtComparison_convert () const;
 
     public:
-    static const char* const _xsd_ComparisonOperator_literals_[2];
-    static const value _xsd_ComparisonOperator_indexes_[2];
+    static const char* const _xsd_EtComparison_literals_[2];
+    static const value _xsd_EtComparison_indexes_[2];
   };
 
   class RelativeBx: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::integer, char, ::xml_schema::simple_type >
@@ -948,120 +937,6 @@ namespace l1t
     static const value _xsd_CalorimeterObjectType_indexes_[3];
   };
 
-  class MuonRequstedCharge: public ::xml_schema::string
-  {
-    public:
-    enum value
-    {
-      pos,
-      neg,
-      ign
-    };
-
-    MuonRequstedCharge (value v);
-
-    MuonRequstedCharge (const char* v);
-
-    MuonRequstedCharge (const ::std::string& v);
-
-    MuonRequstedCharge (const ::xml_schema::string& v);
-
-    MuonRequstedCharge (const ::xercesc::DOMElement& e,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
-
-    MuonRequstedCharge (const ::xercesc::DOMAttr& a,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
-
-    MuonRequstedCharge (const ::std::string& s,
-                        const ::xercesc::DOMElement* e,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
-
-    MuonRequstedCharge (const MuonRequstedCharge& x,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
-
-    virtual MuonRequstedCharge*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    MuonRequstedCharge&
-    operator= (value v);
-
-    virtual
-    operator value () const
-    {
-      return _xsd_MuonRequstedCharge_convert ();
-    }
-
-    protected:
-    value
-    _xsd_MuonRequstedCharge_convert () const;
-
-    public:
-    static const char* const _xsd_MuonRequstedCharge_literals_[3];
-    static const value _xsd_MuonRequstedCharge_indexes_[3];
-  };
-
-  class MuonRequstedChargeCorr: public ::xml_schema::string
-  {
-    public:
-    enum value
-    {
-      ls,
-      os,
-      ig
-    };
-
-    MuonRequstedChargeCorr (value v);
-
-    MuonRequstedChargeCorr (const char* v);
-
-    MuonRequstedChargeCorr (const ::std::string& v);
-
-    MuonRequstedChargeCorr (const ::xml_schema::string& v);
-
-    MuonRequstedChargeCorr (const ::xercesc::DOMElement& e,
-                            ::xml_schema::flags f = 0,
-                            ::xml_schema::container* c = 0);
-
-    MuonRequstedChargeCorr (const ::xercesc::DOMAttr& a,
-                            ::xml_schema::flags f = 0,
-                            ::xml_schema::container* c = 0);
-
-    MuonRequstedChargeCorr (const ::std::string& s,
-                            const ::xercesc::DOMElement* e,
-                            ::xml_schema::flags f = 0,
-                            ::xml_schema::container* c = 0);
-
-    MuonRequstedChargeCorr (const MuonRequstedChargeCorr& x,
-                            ::xml_schema::flags f = 0,
-                            ::xml_schema::container* c = 0);
-
-    virtual MuonRequstedChargeCorr*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    MuonRequstedChargeCorr&
-    operator= (value v);
-
-    virtual
-    operator value () const
-    {
-      return _xsd_MuonRequstedChargeCorr_convert ();
-    }
-
-    protected:
-    value
-    _xsd_MuonRequstedChargeCorr_convert () const;
-
-    public:
-    static const char* const _xsd_MuonRequstedChargeCorr_literals_[3];
-    static const value _xsd_MuonRequstedChargeCorr_indexes_[3];
-  };
-
   class EtThreshold: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
   {
     public:
@@ -1092,38 +967,6 @@ namespace l1t
 
     virtual 
     ~EtThreshold ();
-  };
-
-  class PtThreshold: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
-  {
-    public:
-    // Constructors.
-    //
-    PtThreshold (const ::xml_schema::unsigned_int&);
-
-    PtThreshold (const ::xercesc::DOMElement& e,
-                 ::xml_schema::flags f = 0,
-                 ::xml_schema::container* c = 0);
-
-    PtThreshold (const ::xercesc::DOMAttr& a,
-                 ::xml_schema::flags f = 0,
-                 ::xml_schema::container* c = 0);
-
-    PtThreshold (const ::std::string& s,
-                 const ::xercesc::DOMElement* e,
-                 ::xml_schema::flags f = 0,
-                 ::xml_schema::container* c = 0);
-
-    PtThreshold (const PtThreshold& x,
-                 ::xml_schema::flags f = 0,
-                 ::xml_schema::container* c = 0);
-
-    virtual PtThreshold*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    virtual 
-    ~PtThreshold ();
   };
 
   class AlgorithmName: public ::xml_schema::string
@@ -1196,42 +1039,42 @@ namespace l1t
     ~AlgorithmIndex ();
   };
 
-  class LogicalExpression: public ::xml_schema::string
+  class AlgorithmEquation: public ::xml_schema::string
   {
     public:
     // Constructors.
     //
-    LogicalExpression ();
+    AlgorithmEquation ();
 
-    LogicalExpression (const char*);
+    AlgorithmEquation (const char*);
 
-    LogicalExpression (const ::std::string&);
+    AlgorithmEquation (const ::std::string&);
 
-    LogicalExpression (const ::xml_schema::string&);
+    AlgorithmEquation (const ::xml_schema::string&);
 
-    LogicalExpression (const ::xercesc::DOMElement& e,
+    AlgorithmEquation (const ::xercesc::DOMElement& e,
                        ::xml_schema::flags f = 0,
                        ::xml_schema::container* c = 0);
 
-    LogicalExpression (const ::xercesc::DOMAttr& a,
+    AlgorithmEquation (const ::xercesc::DOMAttr& a,
                        ::xml_schema::flags f = 0,
                        ::xml_schema::container* c = 0);
 
-    LogicalExpression (const ::std::string& s,
+    AlgorithmEquation (const ::std::string& s,
                        const ::xercesc::DOMElement* e,
                        ::xml_schema::flags f = 0,
                        ::xml_schema::container* c = 0);
 
-    LogicalExpression (const LogicalExpression& x,
+    AlgorithmEquation (const AlgorithmEquation& x,
                        ::xml_schema::flags f = 0,
                        ::xml_schema::container* c = 0);
 
-    virtual LogicalExpression*
+    virtual AlgorithmEquation*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~LogicalExpression ();
+    ~AlgorithmEquation ();
   };
 
   class AlgorithmMappedModule: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
@@ -1301,6 +1144,23 @@ namespace l1t
   class Meta: public ::xml_schema::type
   {
     public:
+    // uid
+    // 
+    typedef ::l1t::UUID uid_type;
+    typedef ::xsd::cxx::tree::traits< uid_type, char > uid_traits;
+
+    const uid_type&
+    uid () const;
+
+    uid_type&
+    uid ();
+
+    void
+    uid (const uid_type& x);
+
+    void
+    uid (::std::auto_ptr< uid_type > p);
+
     // name
     // 
     typedef ::l1t::MenuName name_type;
@@ -1318,148 +1178,70 @@ namespace l1t
     void
     name (::std::auto_ptr< name_type > p);
 
-    // datetime
+    // scalesKey
     // 
-    typedef ::l1t::DateTime datetime_type;
-    typedef ::xsd::cxx::tree::traits< datetime_type, char > datetime_traits;
+    typedef ::l1t::ScalesKey scalesKey_type;
+    typedef ::xsd::cxx::tree::traits< scalesKey_type, char > scalesKey_traits;
 
-    const datetime_type&
-    datetime () const;
+    const scalesKey_type&
+    scalesKey () const;
 
-    datetime_type&
-    datetime ();
-
-    void
-    datetime (const datetime_type& x);
+    scalesKey_type&
+    scalesKey ();
 
     void
-    datetime (::std::auto_ptr< datetime_type > p);
+    scalesKey (const scalesKey_type& x);
 
-    // uuid_menu
+    void
+    scalesKey (::std::auto_ptr< scalesKey_type > p);
+
+    // description
     // 
-    typedef ::l1t::UUID uuid_menu_type;
-    typedef ::xsd::cxx::tree::traits< uuid_menu_type, char > uuid_menu_traits;
+    typedef ::l1t::Description description_type;
+    typedef ::xsd::cxx::tree::traits< description_type, char > description_traits;
 
-    const uuid_menu_type&
-    uuid_menu () const;
+    const description_type&
+    description () const;
 
-    uuid_menu_type&
-    uuid_menu ();
-
-    void
-    uuid_menu (const uuid_menu_type& x);
+    description_type&
+    description ();
 
     void
-    uuid_menu (::std::auto_ptr< uuid_menu_type > p);
+    description (const description_type& x);
 
-    // uuid_firmware
+    void
+    description (::std::auto_ptr< description_type > p);
+
+    // history
     // 
-    typedef ::l1t::UUID uuid_firmware_type;
-    typedef ::xsd::cxx::tree::optional< uuid_firmware_type > uuid_firmware_optional;
-    typedef ::xsd::cxx::tree::traits< uuid_firmware_type, char > uuid_firmware_traits;
+    typedef ::l1t::History history_type;
+    typedef ::xsd::cxx::tree::traits< history_type, char > history_traits;
 
-    const uuid_firmware_optional&
-    uuid_firmware () const;
+    const history_type&
+    history () const;
 
-    uuid_firmware_optional&
-    uuid_firmware ();
-
-    void
-    uuid_firmware (const uuid_firmware_type& x);
+    history_type&
+    history ();
 
     void
-    uuid_firmware (const uuid_firmware_optional& x);
+    history (const history_type& x);
 
     void
-    uuid_firmware (::std::auto_ptr< uuid_firmware_type > p);
-
-    // comment
-    // 
-    typedef ::l1t::Comment comment_type;
-    typedef ::xsd::cxx::tree::traits< comment_type, char > comment_traits;
-
-    const comment_type&
-    comment () const;
-
-    comment_type&
-    comment ();
-
-    void
-    comment (const comment_type& x);
-
-    void
-    comment (::std::auto_ptr< comment_type > p);
-
-    // scale_set
-    // 
-    typedef ::l1t::ScaleSet scale_set_type;
-    typedef ::xsd::cxx::tree::traits< scale_set_type, char > scale_set_traits;
-
-    const scale_set_type&
-    scale_set () const;
-
-    scale_set_type&
-    scale_set ();
-
-    void
-    scale_set (const scale_set_type& x);
-
-    void
-    scale_set (::std::auto_ptr< scale_set_type > p);
-
-    // editor_version
-    // 
-    typedef ::l1t::Version editor_version_type;
-    typedef ::xsd::cxx::tree::optional< editor_version_type > editor_version_optional;
-    typedef ::xsd::cxx::tree::traits< editor_version_type, char > editor_version_traits;
-
-    const editor_version_optional&
-    editor_version () const;
-
-    editor_version_optional&
-    editor_version ();
-
-    void
-    editor_version (const editor_version_type& x);
-
-    void
-    editor_version (const editor_version_optional& x);
-
-    void
-    editor_version (::std::auto_ptr< editor_version_type > p);
-
-    // revisions
-    // 
-    typedef ::l1t::RevisionList revisions_type;
-    typedef ::xsd::cxx::tree::traits< revisions_type, char > revisions_traits;
-
-    const revisions_type&
-    revisions () const;
-
-    revisions_type&
-    revisions ();
-
-    void
-    revisions (const revisions_type& x);
-
-    void
-    revisions (::std::auto_ptr< revisions_type > p);
+    history (::std::auto_ptr< history_type > p);
 
     // Constructors.
     //
-    Meta (const name_type&,
-          const datetime_type&,
-          const uuid_menu_type&,
-          const comment_type&,
-          const scale_set_type&,
-          const revisions_type&);
+    Meta (const uid_type&,
+          const name_type&,
+          const scalesKey_type&,
+          const description_type&,
+          const history_type&);
 
-    Meta (const name_type&,
-          const datetime_type&,
-          const uuid_menu_type&,
-          const comment_type&,
-          const scale_set_type&,
-          ::std::auto_ptr< revisions_type >&);
+    Meta (const uid_type&,
+          const name_type&,
+          const scalesKey_type&,
+          const description_type&,
+          ::std::auto_ptr< history_type >&);
 
     Meta (const ::xercesc::DOMElement& e,
           ::xml_schema::flags f = 0,
@@ -1484,14 +1266,11 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
+    ::xsd::cxx::tree::one< uid_type > uid_;
     ::xsd::cxx::tree::one< name_type > name_;
-    ::xsd::cxx::tree::one< datetime_type > datetime_;
-    ::xsd::cxx::tree::one< uuid_menu_type > uuid_menu_;
-    uuid_firmware_optional uuid_firmware_;
-    ::xsd::cxx::tree::one< comment_type > comment_;
-    ::xsd::cxx::tree::one< scale_set_type > scale_set_;
-    editor_version_optional editor_version_;
-    ::xsd::cxx::tree::one< revisions_type > revisions_;
+    ::xsd::cxx::tree::one< scalesKey_type > scalesKey_;
+    ::xsd::cxx::tree::one< description_type > description_;
+    ::xsd::cxx::tree::one< history_type > history_;
   };
 
   class ConditionList: public ::xml_schema::type
@@ -1565,6 +1344,40 @@ namespace l1t
     void
     condCorrelation (const condCorrelation_sequence& s);
 
+    // condInvariantMass
+    // 
+    typedef ::l1t::InvariantMassCondition condInvariantMass_type;
+    typedef ::xsd::cxx::tree::sequence< condInvariantMass_type > condInvariantMass_sequence;
+    typedef condInvariantMass_sequence::iterator condInvariantMass_iterator;
+    typedef condInvariantMass_sequence::const_iterator condInvariantMass_const_iterator;
+    typedef ::xsd::cxx::tree::traits< condInvariantMass_type, char > condInvariantMass_traits;
+
+    const condInvariantMass_sequence&
+    condInvariantMass () const;
+
+    condInvariantMass_sequence&
+    condInvariantMass ();
+
+    void
+    condInvariantMass (const condInvariantMass_sequence& s);
+
+    // condDeltaR
+    // 
+    typedef ::l1t::DeltaRCondition condDeltaR_type;
+    typedef ::xsd::cxx::tree::sequence< condDeltaR_type > condDeltaR_sequence;
+    typedef condDeltaR_sequence::iterator condDeltaR_iterator;
+    typedef condDeltaR_sequence::const_iterator condDeltaR_const_iterator;
+    typedef ::xsd::cxx::tree::traits< condDeltaR_type, char > condDeltaR_traits;
+
+    const condDeltaR_sequence&
+    condDeltaR () const;
+
+    condDeltaR_sequence&
+    condDeltaR ();
+
+    void
+    condDeltaR (const condDeltaR_sequence& s);
+
     // Constructors.
     //
     ConditionList ();
@@ -1596,6 +1409,8 @@ namespace l1t
     condMuon_sequence condMuon_;
     condEnergySums_sequence condEnergySums_;
     condCorrelation_sequence condCorrelation_;
+    condInvariantMass_sequence condInvariantMass_;
+    condDeltaR_sequence condDeltaR_;
   };
 
   class Condition: public ::xml_schema::type
@@ -1635,22 +1450,22 @@ namespace l1t
     void
     name (::std::auto_ptr< name_type > p);
 
-    // comment
+    // description
     // 
-    typedef ::l1t::Comment comment_type;
-    typedef ::xsd::cxx::tree::traits< comment_type, char > comment_traits;
+    typedef ::l1t::Description description_type;
+    typedef ::xsd::cxx::tree::traits< description_type, char > description_traits;
 
-    const comment_type&
-    comment () const;
+    const description_type&
+    description () const;
 
-    comment_type&
-    comment ();
-
-    void
-    comment (const comment_type& x);
+    description_type&
+    description ();
 
     void
-    comment (::std::auto_ptr< comment_type > p);
+    description (const description_type& x);
+
+    void
+    description (::std::auto_ptr< description_type > p);
 
     // locked
     // 
@@ -1670,7 +1485,7 @@ namespace l1t
     //
     Condition (const uid_type&,
                const name_type&,
-               const comment_type&,
+               const description_type&,
                const locked_type&);
 
     Condition (const ::xercesc::DOMElement& e,
@@ -1698,7 +1513,7 @@ namespace l1t
     protected:
     ::xsd::cxx::tree::one< uid_type > uid_;
     ::xsd::cxx::tree::one< name_type > name_;
-    ::xsd::cxx::tree::one< comment_type > comment_;
+    ::xsd::cxx::tree::one< description_type > description_;
     ::xsd::cxx::tree::one< locked_type > locked_;
   };
 
@@ -1993,22 +1808,22 @@ namespace l1t
     void
     type (::std::auto_ptr< type_type > p);
 
-    // comparison_operator
+    // etComparison
     // 
-    typedef ::l1t::ComparisonOperator comparison_operator_type;
-    typedef ::xsd::cxx::tree::traits< comparison_operator_type, char > comparison_operator_traits;
+    typedef ::l1t::EtComparison etComparison_type;
+    typedef ::xsd::cxx::tree::traits< etComparison_type, char > etComparison_traits;
 
-    const comparison_operator_type&
-    comparison_operator () const;
+    const etComparison_type&
+    etComparison () const;
 
-    comparison_operator_type&
-    comparison_operator ();
-
-    void
-    comparison_operator (const comparison_operator_type& x);
+    etComparison_type&
+    etComparison ();
 
     void
-    comparison_operator (::std::auto_ptr< comparison_operator_type > p);
+    etComparison (const etComparison_type& x);
+
+    void
+    etComparison (::std::auto_ptr< etComparison_type > p);
 
     // objectType
     // 
@@ -2086,20 +1901,20 @@ namespace l1t
     //
     CalorimeterCondition (const uid_type&,
                           const name_type&,
-                          const comment_type&,
+                          const description_type&,
                           const locked_type&,
                           const type_type&,
-                          const comparison_operator_type&,
+                          const etComparison_type&,
                           const objectType_type&,
                           const objectRequirements_type&,
                           const relativeBx_type&);
 
     CalorimeterCondition (const uid_type&,
                           const name_type&,
-                          const comment_type&,
+                          const description_type&,
                           const locked_type&,
                           const type_type&,
-                          const comparison_operator_type&,
+                          const etComparison_type&,
                           const objectType_type&,
                           ::std::auto_ptr< objectRequirements_type >&,
                           const relativeBx_type&);
@@ -2128,309 +1943,11 @@ namespace l1t
 
     protected:
     ::xsd::cxx::tree::one< type_type > type_;
-    ::xsd::cxx::tree::one< comparison_operator_type > comparison_operator_;
+    ::xsd::cxx::tree::one< etComparison_type > etComparison_;
     ::xsd::cxx::tree::one< objectType_type > objectType_;
     ::xsd::cxx::tree::one< objectRequirements_type > objectRequirements_;
     deltaRequirement_optional deltaRequirement_;
     ::xsd::cxx::tree::one< relativeBx_type > relativeBx_;
-  };
-
-  class MuonObjectRequirement: public ::xml_schema::type
-  {
-    public:
-    // ptThreshold
-    // 
-    typedef ::l1t::PtThreshold ptThreshold_type;
-    typedef ::xsd::cxx::tree::traits< ptThreshold_type, char > ptThreshold_traits;
-
-    const ptThreshold_type&
-    ptThreshold () const;
-
-    ptThreshold_type&
-    ptThreshold ();
-
-    void
-    ptThreshold (const ptThreshold_type& x);
-
-    void
-    ptThreshold (::std::auto_ptr< ptThreshold_type > p);
-
-    // phiWindow
-    // 
-    typedef ::l1t::Window phiWindow_type;
-    typedef ::xsd::cxx::tree::sequence< phiWindow_type > phiWindow_sequence;
-    typedef phiWindow_sequence::iterator phiWindow_iterator;
-    typedef phiWindow_sequence::const_iterator phiWindow_const_iterator;
-    typedef ::xsd::cxx::tree::traits< phiWindow_type, char > phiWindow_traits;
-
-    const phiWindow_sequence&
-    phiWindow () const;
-
-    phiWindow_sequence&
-    phiWindow ();
-
-    void
-    phiWindow (const phiWindow_sequence& s);
-
-    // etaWindow
-    // 
-    typedef ::l1t::Window etaWindow_type;
-    typedef ::xsd::cxx::tree::sequence< etaWindow_type > etaWindow_sequence;
-    typedef etaWindow_sequence::iterator etaWindow_iterator;
-    typedef etaWindow_sequence::const_iterator etaWindow_const_iterator;
-    typedef ::xsd::cxx::tree::traits< etaWindow_type, char > etaWindow_traits;
-
-    const etaWindow_sequence&
-    etaWindow () const;
-
-    etaWindow_sequence&
-    etaWindow ();
-
-    void
-    etaWindow (const etaWindow_sequence& s);
-
-    // requestedCharge
-    // 
-    typedef ::l1t::MuonRequstedCharge requestedCharge_type;
-    typedef ::xsd::cxx::tree::traits< requestedCharge_type, char > requestedCharge_traits;
-
-    const requestedCharge_type&
-    requestedCharge () const;
-
-    requestedCharge_type&
-    requestedCharge ();
-
-    void
-    requestedCharge (const requestedCharge_type& x);
-
-    void
-    requestedCharge (::std::auto_ptr< requestedCharge_type > p);
-
-    // qualityLut
-    // 
-    typedef ::l1t::MuonQualityLUT qualityLut_type;
-    typedef ::xsd::cxx::tree::traits< qualityLut_type, char > qualityLut_traits;
-
-    const qualityLut_type&
-    qualityLut () const;
-
-    qualityLut_type&
-    qualityLut ();
-
-    void
-    qualityLut (const qualityLut_type& x);
-
-    void
-    qualityLut (::std::auto_ptr< qualityLut_type > p);
-
-    // isolationLut
-    // 
-    typedef ::l1t::MuonIsolationLUT isolationLut_type;
-    typedef ::xsd::cxx::tree::traits< isolationLut_type, char > isolationLut_traits;
-
-    const isolationLut_type&
-    isolationLut () const;
-
-    isolationLut_type&
-    isolationLut ();
-
-    void
-    isolationLut (const isolationLut_type& x);
-
-    void
-    isolationLut (::std::auto_ptr< isolationLut_type > p);
-
-    // Constructors.
-    //
-    MuonObjectRequirement (const ptThreshold_type&,
-                           const requestedCharge_type&,
-                           const qualityLut_type&,
-                           const isolationLut_type&);
-
-    MuonObjectRequirement (const ptThreshold_type&,
-                           const requestedCharge_type&,
-                           ::std::auto_ptr< qualityLut_type >&,
-                           ::std::auto_ptr< isolationLut_type >&);
-
-    MuonObjectRequirement (const ::xercesc::DOMElement& e,
-                           ::xml_schema::flags f = 0,
-                           ::xml_schema::container* c = 0);
-
-    MuonObjectRequirement (const MuonObjectRequirement& x,
-                           ::xml_schema::flags f = 0,
-                           ::xml_schema::container* c = 0);
-
-    virtual MuonObjectRequirement*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    virtual 
-    ~MuonObjectRequirement ();
-
-    // Implementation.
-    //
-    protected:
-    void
-    parse (::xsd::cxx::xml::dom::parser< char >&,
-           ::xml_schema::flags);
-
-    protected:
-    ::xsd::cxx::tree::one< ptThreshold_type > ptThreshold_;
-    phiWindow_sequence phiWindow_;
-    etaWindow_sequence etaWindow_;
-    ::xsd::cxx::tree::one< requestedCharge_type > requestedCharge_;
-    ::xsd::cxx::tree::one< qualityLut_type > qualityLut_;
-    ::xsd::cxx::tree::one< isolationLut_type > isolationLut_;
-  };
-
-  class MuonObjectRequirementList: public ::xml_schema::type
-  {
-    public:
-    // objectRequirement
-    // 
-    typedef ::l1t::MuonObjectRequirement objectRequirement_type;
-    typedef ::xsd::cxx::tree::sequence< objectRequirement_type > objectRequirement_sequence;
-    typedef objectRequirement_sequence::iterator objectRequirement_iterator;
-    typedef objectRequirement_sequence::const_iterator objectRequirement_const_iterator;
-    typedef ::xsd::cxx::tree::traits< objectRequirement_type, char > objectRequirement_traits;
-
-    const objectRequirement_sequence&
-    objectRequirement () const;
-
-    objectRequirement_sequence&
-    objectRequirement ();
-
-    void
-    objectRequirement (const objectRequirement_sequence& s);
-
-    // Constructors.
-    //
-    MuonObjectRequirementList ();
-
-    MuonObjectRequirementList (const ::xercesc::DOMElement& e,
-                               ::xml_schema::flags f = 0,
-                               ::xml_schema::container* c = 0);
-
-    MuonObjectRequirementList (const MuonObjectRequirementList& x,
-                               ::xml_schema::flags f = 0,
-                               ::xml_schema::container* c = 0);
-
-    virtual MuonObjectRequirementList*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    virtual 
-    ~MuonObjectRequirementList ();
-
-    // Implementation.
-    //
-    protected:
-    void
-    parse (::xsd::cxx::xml::dom::parser< char >&,
-           ::xml_schema::flags);
-
-    protected:
-    objectRequirement_sequence objectRequirement_;
-  };
-
-  class MuonQualityLUT: public ::xml_schema::type
-  {
-    public:
-    // quality
-    // 
-    typedef ::xml_schema::boolean quality_type;
-    typedef ::xsd::cxx::tree::sequence< quality_type > quality_sequence;
-    typedef quality_sequence::iterator quality_iterator;
-    typedef quality_sequence::const_iterator quality_const_iterator;
-    typedef ::xsd::cxx::tree::traits< quality_type, char > quality_traits;
-
-    const quality_sequence&
-    quality () const;
-
-    quality_sequence&
-    quality ();
-
-    void
-    quality (const quality_sequence& s);
-
-    // Constructors.
-    //
-    MuonQualityLUT ();
-
-    MuonQualityLUT (const ::xercesc::DOMElement& e,
-                    ::xml_schema::flags f = 0,
-                    ::xml_schema::container* c = 0);
-
-    MuonQualityLUT (const MuonQualityLUT& x,
-                    ::xml_schema::flags f = 0,
-                    ::xml_schema::container* c = 0);
-
-    virtual MuonQualityLUT*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    virtual 
-    ~MuonQualityLUT ();
-
-    // Implementation.
-    //
-    protected:
-    void
-    parse (::xsd::cxx::xml::dom::parser< char >&,
-           ::xml_schema::flags);
-
-    protected:
-    quality_sequence quality_;
-  };
-
-  class MuonIsolationLUT: public ::xml_schema::type
-  {
-    public:
-    // isolation
-    // 
-    typedef ::xml_schema::boolean isolation_type;
-    typedef ::xsd::cxx::tree::sequence< isolation_type > isolation_sequence;
-    typedef isolation_sequence::iterator isolation_iterator;
-    typedef isolation_sequence::const_iterator isolation_const_iterator;
-    typedef ::xsd::cxx::tree::traits< isolation_type, char > isolation_traits;
-
-    const isolation_sequence&
-    isolation () const;
-
-    isolation_sequence&
-    isolation ();
-
-    void
-    isolation (const isolation_sequence& s);
-
-    // Constructors.
-    //
-    MuonIsolationLUT ();
-
-    MuonIsolationLUT (const ::xercesc::DOMElement& e,
-                      ::xml_schema::flags f = 0,
-                      ::xml_schema::container* c = 0);
-
-    MuonIsolationLUT (const MuonIsolationLUT& x,
-                      ::xml_schema::flags f = 0,
-                      ::xml_schema::container* c = 0);
-
-    virtual MuonIsolationLUT*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    virtual 
-    ~MuonIsolationLUT ();
-
-    // Implementation.
-    //
-    protected:
-    void
-    parse (::xsd::cxx::xml::dom::parser< char >&,
-           ::xml_schema::flags);
-
-    protected:
-    isolation_sequence isolation_;
   };
 
   class MuonCondition: public ::l1t::Condition
@@ -2453,77 +1970,22 @@ namespace l1t
     void
     type (::std::auto_ptr< type_type > p);
 
-    // comparison_operator
+    // etComparison
     // 
-    typedef ::l1t::ComparisonOperator comparison_operator_type;
-    typedef ::xsd::cxx::tree::traits< comparison_operator_type, char > comparison_operator_traits;
+    typedef ::l1t::EtComparison etComparison_type;
+    typedef ::xsd::cxx::tree::traits< etComparison_type, char > etComparison_traits;
 
-    const comparison_operator_type&
-    comparison_operator () const;
+    const etComparison_type&
+    etComparison () const;
 
-    comparison_operator_type&
-    comparison_operator ();
-
-    void
-    comparison_operator (const comparison_operator_type& x);
+    etComparison_type&
+    etComparison ();
 
     void
-    comparison_operator (::std::auto_ptr< comparison_operator_type > p);
-
-    // objectRequirements
-    // 
-    typedef ::l1t::MuonObjectRequirementList objectRequirements_type;
-    typedef ::xsd::cxx::tree::traits< objectRequirements_type, char > objectRequirements_traits;
-
-    const objectRequirements_type&
-    objectRequirements () const;
-
-    objectRequirements_type&
-    objectRequirements ();
+    etComparison (const etComparison_type& x);
 
     void
-    objectRequirements (const objectRequirements_type& x);
-
-    void
-    objectRequirements (::std::auto_ptr< objectRequirements_type > p);
-
-    // requestedChargeCorr
-    // 
-    typedef ::l1t::MuonRequstedChargeCorr requestedChargeCorr_type;
-    typedef ::xsd::cxx::tree::traits< requestedChargeCorr_type, char > requestedChargeCorr_traits;
-
-    const requestedChargeCorr_type&
-    requestedChargeCorr () const;
-
-    requestedChargeCorr_type&
-    requestedChargeCorr ();
-
-    void
-    requestedChargeCorr (const requestedChargeCorr_type& x);
-
-    void
-    requestedChargeCorr (::std::auto_ptr< requestedChargeCorr_type > p);
-
-    // deltaRequirement
-    // 
-    typedef ::l1t::DeltaRequirement deltaRequirement_type;
-    typedef ::xsd::cxx::tree::optional< deltaRequirement_type > deltaRequirement_optional;
-    typedef ::xsd::cxx::tree::traits< deltaRequirement_type, char > deltaRequirement_traits;
-
-    const deltaRequirement_optional&
-    deltaRequirement () const;
-
-    deltaRequirement_optional&
-    deltaRequirement ();
-
-    void
-    deltaRequirement (const deltaRequirement_type& x);
-
-    void
-    deltaRequirement (const deltaRequirement_optional& x);
-
-    void
-    deltaRequirement (::std::auto_ptr< deltaRequirement_type > p);
+    etComparison (::std::auto_ptr< etComparison_type > p);
 
     // relativeBx
     // 
@@ -2546,22 +2008,10 @@ namespace l1t
     //
     MuonCondition (const uid_type&,
                    const name_type&,
-                   const comment_type&,
+                   const description_type&,
                    const locked_type&,
                    const type_type&,
-                   const comparison_operator_type&,
-                   const objectRequirements_type&,
-                   const requestedChargeCorr_type&,
-                   const relativeBx_type&);
-
-    MuonCondition (const uid_type&,
-                   const name_type&,
-                   const comment_type&,
-                   const locked_type&,
-                   const type_type&,
-                   const comparison_operator_type&,
-                   ::std::auto_ptr< objectRequirements_type >&,
-                   const requestedChargeCorr_type&,
+                   const etComparison_type&,
                    const relativeBx_type&);
 
     MuonCondition (const ::xercesc::DOMElement& e,
@@ -2588,10 +2038,7 @@ namespace l1t
 
     protected:
     ::xsd::cxx::tree::one< type_type > type_;
-    ::xsd::cxx::tree::one< comparison_operator_type > comparison_operator_;
-    ::xsd::cxx::tree::one< objectRequirements_type > objectRequirements_;
-    ::xsd::cxx::tree::one< requestedChargeCorr_type > requestedChargeCorr_;
-    deltaRequirement_optional deltaRequirement_;
+    ::xsd::cxx::tree::one< etComparison_type > etComparison_;
     ::xsd::cxx::tree::one< relativeBx_type > relativeBx_;
   };
 
@@ -2602,7 +2049,7 @@ namespace l1t
     //
     EnergySumsCondition (const uid_type&,
                          const name_type&,
-                         const comment_type&,
+                         const description_type&,
                          const locked_type&);
 
     EnergySumsCondition (const ::xercesc::DOMElement& e,
@@ -2628,7 +2075,7 @@ namespace l1t
     //
     CorrelationCondition (const uid_type&,
                           const name_type&,
-                          const comment_type&,
+                          const description_type&,
                           const locked_type&);
 
     CorrelationCondition (const ::xercesc::DOMElement& e,
@@ -2645,6 +2092,58 @@ namespace l1t
 
     virtual 
     ~CorrelationCondition ();
+  };
+
+  class InvariantMassCondition: public ::l1t::Condition
+  {
+    public:
+    // Constructors.
+    //
+    InvariantMassCondition (const uid_type&,
+                            const name_type&,
+                            const description_type&,
+                            const locked_type&);
+
+    InvariantMassCondition (const ::xercesc::DOMElement& e,
+                            ::xml_schema::flags f = 0,
+                            ::xml_schema::container* c = 0);
+
+    InvariantMassCondition (const InvariantMassCondition& x,
+                            ::xml_schema::flags f = 0,
+                            ::xml_schema::container* c = 0);
+
+    virtual InvariantMassCondition*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~InvariantMassCondition ();
+  };
+
+  class DeltaRCondition: public ::l1t::Condition
+  {
+    public:
+    // Constructors.
+    //
+    DeltaRCondition (const uid_type&,
+                     const name_type&,
+                     const description_type&,
+                     const locked_type&);
+
+    DeltaRCondition (const ::xercesc::DOMElement& e,
+                     ::xml_schema::flags f = 0,
+                     ::xml_schema::container* c = 0);
+
+    DeltaRCondition (const DeltaRCondition& x,
+                     ::xml_schema::flags f = 0,
+                     ::xml_schema::container* c = 0);
+
+    virtual DeltaRCondition*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~DeltaRCondition ();
   };
 
   class Algorithm: public ::xml_schema::type
@@ -2701,39 +2200,39 @@ namespace l1t
     void
     index (::std::auto_ptr< index_type > p);
 
-    // logical_expression
+    // equation
     // 
-    typedef ::l1t::LogicalExpression logical_expression_type;
-    typedef ::xsd::cxx::tree::traits< logical_expression_type, char > logical_expression_traits;
+    typedef ::l1t::AlgorithmEquation equation_type;
+    typedef ::xsd::cxx::tree::traits< equation_type, char > equation_traits;
 
-    const logical_expression_type&
-    logical_expression () const;
+    const equation_type&
+    equation () const;
 
-    logical_expression_type&
-    logical_expression ();
-
-    void
-    logical_expression (const logical_expression_type& x);
+    equation_type&
+    equation ();
 
     void
-    logical_expression (::std::auto_ptr< logical_expression_type > p);
+    equation (const equation_type& x);
 
-    // comment
+    void
+    equation (::std::auto_ptr< equation_type > p);
+
+    // description
     // 
-    typedef ::l1t::Comment comment_type;
-    typedef ::xsd::cxx::tree::traits< comment_type, char > comment_traits;
+    typedef ::l1t::Description description_type;
+    typedef ::xsd::cxx::tree::traits< description_type, char > description_traits;
 
-    const comment_type&
-    comment () const;
+    const description_type&
+    description () const;
 
-    comment_type&
-    comment ();
-
-    void
-    comment (const comment_type& x);
+    description_type&
+    description ();
 
     void
-    comment (::std::auto_ptr< comment_type > p);
+    description (const description_type& x);
+
+    void
+    description (::std::auto_ptr< description_type > p);
 
     // locked
     // 
@@ -2771,16 +2270,16 @@ namespace l1t
     Algorithm (const uid_type&,
                const name_type&,
                const index_type&,
-               const logical_expression_type&,
-               const comment_type&,
+               const equation_type&,
+               const description_type&,
                const locked_type&,
                const mapping_type&);
 
     Algorithm (const uid_type&,
                const name_type&,
                const index_type&,
-               const logical_expression_type&,
-               const comment_type&,
+               const equation_type&,
+               const description_type&,
                const locked_type&,
                ::std::auto_ptr< mapping_type >&);
 
@@ -2810,8 +2309,8 @@ namespace l1t
     ::xsd::cxx::tree::one< uid_type > uid_;
     ::xsd::cxx::tree::one< name_type > name_;
     ::xsd::cxx::tree::one< index_type > index_;
-    ::xsd::cxx::tree::one< logical_expression_type > logical_expression_;
-    ::xsd::cxx::tree::one< comment_type > comment_;
+    ::xsd::cxx::tree::one< equation_type > equation_;
+    ::xsd::cxx::tree::one< description_type > description_;
     ::xsd::cxx::tree::one< locked_type > locked_;
     ::xsd::cxx::tree::one< mapping_type > mapping_;
   };
