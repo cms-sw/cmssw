@@ -17,8 +17,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -553,7 +551,18 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig):
 }
    
 
-HcalDigiTester::~HcalDigiTester() { }
+HcalDigiTester::~HcalDigiTester() 
+{
+  std::map<std::string, HcalSubdetDigiMonitor*>::iterator itr =  monitors_.begin();
+  std::map<std::string, HcalSubdetDigiMonitor*>::iterator itrEnd =  monitors_.end();
+
+  while ( itr != itrEnd ) {
+    delete (*itr).second;
+    itr++;
+  }
+
+
+}
 
 void HcalDigiTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &run, edm::EventSetup const &es )
 {
@@ -618,13 +627,6 @@ void HcalDigiTester::endRun() {
 }
 
 
-
-// leave this DQMStore::save ... let's see if this breaks anything
-/*void HcalDigiTester::endJob() {
-
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
-}*/
 
 
   //occupancies evaluation

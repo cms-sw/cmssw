@@ -31,24 +31,12 @@ void CaloTowersDQMClient::beginJob()
 
 }
 
-//void CaloTowersDQMClient::endJob() 
-//{
-//   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-//}
 
 void CaloTowersDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
  
 }
 
-
-void CaloTowersDQMClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-}
-
-//void CaloTowersDQMClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-//{ 
-//}
 
 // called after entering the CaloTowersV/CaloTowersTask directory
 // hcalMEs are within that directory

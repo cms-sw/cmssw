@@ -109,7 +109,7 @@ HcalDataCertification::~HcalDataCertification()
 void 
 HcalDataCertification::bookHistograms(DQMStore::IBooker &ib)
 {
-  if (debug_>0) std::cout<<"<HcalDataCertification> beginJob"<< std::endl;
+  if (debug_>0) std::cout<<"<HcalDataCertification> bookHistograms"<< std::endl;
 
   ib.setCurrentFolder(rootFolder_);
   std::string currDir = ib.pwd();

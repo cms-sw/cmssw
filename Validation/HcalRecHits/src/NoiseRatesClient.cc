@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 NoiseRatesClient::NoiseRatesClient(const edm::ParameterSet& iConfig):conf_(iConfig)
@@ -28,21 +27,6 @@ NoiseRatesClient::~NoiseRatesClient()
 }
 
 
-// let's see if this breaks anything
-/*void NoiseRatesClient::endJob() 
-{
-   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}*/
-
-void NoiseRatesClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
-
-
-void NoiseRatesClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-}
 
 void NoiseRatesClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {

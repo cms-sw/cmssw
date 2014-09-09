@@ -28,9 +28,6 @@ HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
 
 }
 
-/*void HcalDigisClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    using namespace edm;
-}*/
 
 void HcalDigisClient::booking(DQMStore::IBooker &ib, std::string subdetopt) {
 

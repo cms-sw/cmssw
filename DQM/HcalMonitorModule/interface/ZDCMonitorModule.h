@@ -32,7 +32,7 @@ class  HcalZDCMonitor;
 #include <iostream>
 #include <fstream>
 
-class ZDCMonitorModule : public DQMEDAnalyzer{
+class ZDCMonitorModule : public thread_unsafe::DQMEDAnalyzer {
 
 public:
   
@@ -57,11 +57,6 @@ public:
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c);
 
-  // EndJob
-  //  removed in the MT migration, but there is an update to the meStatus monitor element.
-  //  I mask it out for now to see what breaks.
-  //void endJob(void);
-  
   // EndRun
   void endRun(const edm::Run& run, const edm::EventSetup& c);
 

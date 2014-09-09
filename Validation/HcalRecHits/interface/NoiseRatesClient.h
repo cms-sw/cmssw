@@ -18,7 +18,6 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -50,8 +49,6 @@ class NoiseRatesClient : public DQMEDHarvester {
   explicit NoiseRatesClient(const edm::ParameterSet& );
   virtual ~NoiseRatesClient();
   
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
   virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
 

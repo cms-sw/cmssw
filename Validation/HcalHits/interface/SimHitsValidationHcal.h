@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -35,7 +34,6 @@ public:
 
 protected:
 
-  void beginJob ();
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 

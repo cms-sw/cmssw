@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet& iConfig):conf_(iConfig)
@@ -30,21 +29,6 @@ void HcalRecHitsDQMClient::beginJob()
 
 }
 
-//void HcalRecHitsDQMClient::endJob() 
-//{
-//   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-//}
-
-void HcalRecHitsDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
-
-
-void HcalRecHitsDQMClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-//  runClient_();
-}
 
 void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {

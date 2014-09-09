@@ -38,7 +38,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
 
-
+  nevent = 0;
 	// const char * sub = hcalselector_.c_str();
 
 }
@@ -52,76 +52,6 @@ CaloTowersValidation::~CaloTowersValidation() {
 
 }
 
-void CaloTowersValidation::endJob() {
-	/*
-	// mean number of towers per ieta
-	int nx = Ntowers_vs_ieta->getNbinsX();
-	float cont;
-	float fev = float(nevent);
-
-	for (int i = 1; i <= nx; i++) {
-	cont = Ntowers_vs_ieta -> getBinContent(i) / fev ;
-	Ntowers_vs_ieta -> setBinContent(i,cont);
-	}
-
-	// mean energies & occupancies evaluation
-
-	nx = mapEnergy_N->getNbinsX();    
-	int ny = mapEnergy_N->getNbinsY();
-	float cnorm;
-	float phi_factor;    
-
-	for (int i = 1; i <= nx; i++) {
-	float sumphi = 0.;
-
-	for (int j = 1; j <= ny; j++) {      
-
-	// Emean
-	cnorm   = mapEnergy_N -> getBinContent(i,j);
-	//Phi histos are not used in the macros
-	if(cnorm > 0.000001 && useAllHistos_) {
-
-	cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
-	mapEnergy_E -> setBinContent(i,j,cont);	      
-
-	cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
-	mapEnergy_H -> setBinContent(i,j,cont);	      
-
-	cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
-	mapEnergy_EH -> setBinContent(i,j,cont);	      
-	}
-
-	// Occupancy (needed for occupancy vs ieta)
-	cnorm   = occupancy_map -> getBinContent(i,j) / fev; 
-	if(cnorm > 1.e-30) occupancy_map -> setBinContent(i,j,cnorm);
-
-	sumphi += cnorm;
-
-	} // end of iphy cycle (j)
-
-	//Occupancy vs ieta histo is drawn
-	// phi-factor evaluation for occupancy_vs_ieta calculation
-	int ieta = i - 42;        // -41 -1, 0 40 
-	if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
-
-	if(ieta >= -20 && ieta <= 20 )
-	{phi_factor = 72.;}
-	else {
-	if(ieta >= 40 || ieta <= -40 ) {phi_factor = 18.;}
-	else 
-	phi_factor = 36.;
-	}  
-	if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num
-
-	cnorm = sumphi / phi_factor;
-	occupancy_vs_ieta->Fill(double(ieta), cnorm);
-
-
-	} // end of ieta cycle (i)
-
-	if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-	*/
-}
 
 void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup)
 {
@@ -478,7 +408,6 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 }
 
 
-void CaloTowersValidation::beginJob(){ nevent = 0; }
 
 void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
 

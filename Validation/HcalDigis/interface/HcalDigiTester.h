@@ -9,7 +9,6 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <map>
 #include "Validation/HcalDigis/src/HcalSubdetDigiMonitor.h"
 
@@ -19,7 +18,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class HcalDigiTester : public DQMEDAnalyzer {
+class HcalDigiTester : public thread_unsafe::DQMEDAnalyzer {
 public:
 
   explicit HcalDigiTester(const edm::ParameterSet&);
@@ -30,7 +29,6 @@ public:
 
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
-  //virtual void endJob() ; 
 
  private:
 

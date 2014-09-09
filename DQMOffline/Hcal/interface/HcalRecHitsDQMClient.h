@@ -18,7 +18,6 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,7 +32,6 @@
 #include <fstream>
 #include <vector>
 
-class DQMStore;
 class MonitorElement;
 
 class HcalRecHitsDQMClient : public DQMEDHarvester {
@@ -54,12 +52,7 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   virtual ~HcalRecHitsDQMClient();
   
   virtual void beginJob(void);
-//  virtual void endJob();
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-//  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-//  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 

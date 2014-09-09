@@ -36,6 +36,7 @@ public:
   // Destructor
   ~HcalMonitorModule();
 
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
  protected:
@@ -44,14 +45,11 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   // End LumiBlock
-  //void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-  //                       const edm::EventSetup& c);
-
- // EndJob
-  //void endJob(void);
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                         const edm::EventSetup& c);
 
   // EndRun
-  //void endRun(const edm::Run& run, const edm::EventSetup& c);
+  void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   // Reset
   void reset(void);

@@ -36,9 +36,6 @@ public:
 
 protected:
    
-  void beginJob();
-
-//  void beginRun(const edm::Run& r, const edm::EventSetup& c);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
@@ -49,9 +46,6 @@ protected:
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c);
 
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void endJob();
 
 private:
   

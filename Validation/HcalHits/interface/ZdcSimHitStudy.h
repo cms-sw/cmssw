@@ -23,7 +23,7 @@
 #define SimG4CMS_ZdcSimHitStudy_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,7 +32,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -50,7 +49,7 @@
 #include <string>
 #include <memory>
 
-class ZdcSimHitStudy: public edm::EDAnalyzer{
+class ZdcSimHitStudy: public DQMEDAnalyzer{
 public:
 
   ZdcSimHitStudy(const edm::ParameterSet& ps);

@@ -526,48 +526,5 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
   }
   }
 }
-//--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::endJob(){
-  if (saveToFile_) {
-
-  for(int k=0; k<=hiDistr_x_nbin_;k++)
-  {
-    for(int j=0; j<=hiDistr_y_nbin_;j++)
-    {
-// First moment
-       float cc1=hiDistrMBPl2D_->getBinContent(k,j);
-       cc1 = cc1 * 1./eventCounter_;
-       hiDistrMBPl2D_->setBinContent(k,j,cc1); 
-       float cc2=hiDistrNoisePl2D_->getBinContent(k,j);
-       cc2 = cc2 * 1./eventCounter_;
-       hiDistrNoisePl2D_->setBinContent(k,j,cc2);
-       float cc3=hiDistrMBMin2D_->getBinContent(k,j);
-       cc3 = cc3 * 1./eventCounter_;
-       hiDistrMBMin2D_->setBinContent(k,j,cc3);
-       float cc4=hiDistrNoiseMin2D_->getBinContent(k,j);
-       cc4 = cc4 * 1./eventCounter_;
-       hiDistrNoiseMin2D_->setBinContent(k,j,cc4);
-// Second moment
-       float cc11=hiDistrMB2Pl2D_->getBinContent(k,j);
-       cc11 = cc11 * 1./eventCounter_;
-       hiDistrMB2Pl2D_->setBinContent(k,j,cc11);
-       hiDistrVarMBPl2D_->setBinContent(k,j,cc11-cc1*cc1);
-       float cc22=hiDistrNoise2Pl2D_->getBinContent(k,j);
-       cc22 = cc22 * 1./eventCounter_;
-       hiDistrNoise2Pl2D_->setBinContent(k,j,cc22);
-       hiDistrVarNoisePl2D_->setBinContent(k,j,cc22-cc2*cc2);
-       float cc33=hiDistrMB2Min2D_->getBinContent(k,j);
-       cc33 = cc33 * 1./eventCounter_;
-       hiDistrMB2Min2D_->setBinContent(k,j,cc33);
-       hiDistrVarMBMin2D_->setBinContent(k,j,cc33-cc3*cc3);
-       float cc44=hiDistrNoise2Min2D_->getBinContent(k,j);
-       cc44 = cc44 * 1./eventCounter_;
-       hiDistrNoise2Min2D_->setBinContent(k,j,cc44);
-       hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
-    }
-  }
-//     dbe_->save(fileName_);
-  }
-}
 
 

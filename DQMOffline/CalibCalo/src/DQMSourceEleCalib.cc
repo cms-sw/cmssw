@@ -78,14 +78,6 @@ void DQMSourceEleCalib::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 }
 
 //--------------------------------------------------------
-void DQMSourceEleCalib::beginJob(){
-}
-//--------------------------------------------------------
-//void DQMSourceEleCalib::beginRun(const edm::Run& r, const EventSetup& context) {
-//
-//}
-
-//--------------------------------------------------------
 void DQMSourceEleCalib::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
      const EventSetup& context) {
   
@@ -169,18 +161,8 @@ void DQMSourceEleCalib::analyze(const Event& iEvent,
 void DQMSourceEleCalib::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
                                           const EventSetup& context) {
 }
-//--------------------------------------------------------
-void DQMSourceEleCalib::endRun(const Run& r, const EventSetup& context){
 
-}
-//--------------------------------------------------------
-void DQMSourceEleCalib::endJob(){
-  
-//  if (saveToFile_) {
-//     dbe_->save(fileName_);
-//  }
-  
-}
+//------------------------------------------------
 
 
 DetId

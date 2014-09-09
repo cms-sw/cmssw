@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 CaloTowersClient::CaloTowersClient(const edm::ParameterSet& iConfig):conf_(iConfig)
@@ -31,20 +30,6 @@ void CaloTowersClient::beginJob()
 
 }
 
-//void CaloTowersClient::endJob() 
-//{
-//   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-//}
-
-void CaloTowersClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
-
-
-void CaloTowersClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-}
 
 void CaloTowersClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {

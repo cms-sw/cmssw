@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -24,7 +23,6 @@ public:
 
   template<class Digi>  void compare(const edm::Event&, const edm::EventSetup&, const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok1, const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok2);  
 
-  //virtual void endJob() ;
 
  private:
 

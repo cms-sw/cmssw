@@ -15,9 +15,7 @@ class DQMHOAlCaRecoStream : public DQMEDAnalyzer {
    private:
 
 
-      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 

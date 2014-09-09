@@ -22,8 +22,6 @@ class DQMHcalIsoTrackPostProcessor : public DQMEDHarvester {
   ~DQMHcalIsoTrackPostProcessor() {};
 
 //  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
-//  void endJob() override;
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
  private:
@@ -42,15 +40,10 @@ DQMHcalIsoTrackPostProcessor::DQMHcalIsoTrackPostProcessor(const edm::ParameterS
   outputRootFileName_=pset.getParameter<std::string>("outputFile");
 }
 
-void DQMHcalIsoTrackPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
-{
-}
 
 void DQMHcalIsoTrackPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
 
-
-  std::cout<<"endjob"<<std::endl;
   if(igetter.dirExists(subDir_)) igetter.cd(subDir_);
   else {
    edm::LogWarning("DQMHcalIsoTrackPostProcessor") << "cannot find directory: " << subDir_ << " , skipping";

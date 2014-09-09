@@ -29,7 +29,6 @@
 // #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 // #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/CalibCalo/src/DQMHcalDiJetsAlCaReco.h"
 
 using namespace std;
@@ -43,7 +42,6 @@ using namespace reco;
 DQMHcalDiJetsAlCaReco::DQMHcalDiJetsAlCaReco( const edm::ParameterSet& iConfig ) :
 eventCounter_(0)
 {
-  dbe_ = Service<DQMStore>().operator->();
 //
 // Input from configurator file 
 //
@@ -64,8 +62,6 @@ eventCounter_(0)
 DQMHcalDiJetsAlCaReco::~DQMHcalDiJetsAlCaReco()
 {}
 
-void DQMHcalDiJetsAlCaReco::beginJob(){
-}
 //--------------------------------------------------------
 void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
 {  
@@ -122,10 +118,6 @@ void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 
 }
 
-//--------------------------------------------------------
-//void DQMHcalDiJetsAlCaReco::beginRun() {
-//
-//}
 
 //--------------------------------------------------------
 void DQMHcalDiJetsAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
@@ -251,24 +243,5 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 	
 } //analyze
 
-
-
-
-//--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
-//--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::endRun(const Run& r, const EventSetup& context){
-
-}
-//--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::endJob(){
-  
-  if (saveToFile_) {
-     dbe_->save(fileName_);
-  }
-  
-}
 
 

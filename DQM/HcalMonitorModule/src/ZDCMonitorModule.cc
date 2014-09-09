@@ -97,12 +97,6 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps):ps_(ps)
 ZDCMonitorModule::~ZDCMonitorModule()
 {
   if (!checkZDC_) return;
-  /*if (dbe_!=0)
-    {    
-      if (zdcMon_!=0)   zdcMon_->clearME();
-      dbe_->setCurrentFolder(rootFolder_);
-      dbe_->removeContents();
-    }*/
 
 if (zdcMon_!=0)
     {
@@ -220,23 +214,6 @@ void ZDCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
   return;
 }
 
-
-//--------------------------------------------------------
-/*void ZDCMonitorModule::endJob(void) 
-{
-  if (!checkZDC_) return;
-  if ( dbe_ != NULL ){
-    meStatus_  = dbe_->get(rootFolder_+"DQM Job Status/STATUS");
-  }
-  
-  if ( meStatus_ ) meStatus_->Fill(2);
-
-  return; // All of the rest of the endjob stuff (filling db, etc.) should be done in the client, right?
-
-  if (zdcMon_!=NULL)       zdcMon_->done();
-
-  return;
-}*/
 
 //--------------------------------------------------------
 void ZDCMonitorModule::reset(){

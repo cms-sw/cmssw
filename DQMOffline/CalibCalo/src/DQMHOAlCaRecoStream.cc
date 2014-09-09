@@ -156,10 +156,6 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 
-void 
-DQMHOAlCaRecoStream::beginJob()
-{
-}
 // ------------ method called once each job just before starting event loop  ------------
 void 
 DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup)
@@ -232,31 +228,4 @@ DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-DQMHOAlCaRecoStream::endJob() {
-  if (saveToFile_) {
-
-    //    double scale = 1./max(1,Nevents);
-    double scale = 1./max(1,Nmuons);
-    hMuonMom->getTH1F()->Scale(scale);
-    hMuonEta->getTH1F()->Scale(scale);
-    hMuonPhi->getTH1F()->Scale(scale);
-    hDirCosine->getTH1F()->Scale(scale);
-    hHOTime->getTH1F()->Scale(scale);
-    
-    //    scale = 1./max(1,Nmuons);
-    for (int k=0; k<5; k++) {
-      hSigRing[k]->getTH1F()->Scale(scale);
-      hPedRing[k]->getTH1F()->Scale(scale);
-    }
-    
-    for (int k=0; k<9; k++) {
-      hSignal3x3[k]->getTH1F()->Scale(scale);
-    }
-
-//    dbe_->save(theRootFileName); 
-  }
-
-}
 

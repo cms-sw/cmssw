@@ -262,11 +262,6 @@ void Digi2Raw2Digi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &r
 
 }
 
-// removed DQMStore::save ... we'll see if this breaks anything
-/*void Digi2Raw2Digi::endJob() {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}*/
-
 Digi2Raw2Digi::~Digi2Raw2Digi() {}
 
 

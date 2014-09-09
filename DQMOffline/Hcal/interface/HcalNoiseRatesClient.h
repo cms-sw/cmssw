@@ -56,12 +56,8 @@ class HcalNoiseRatesClient : public DQMEDHarvester {
   virtual ~HcalNoiseRatesClient();
   
   virtual void beginJob(void);
-//  virtual void endJob();
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-//  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-//  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
   int NoiseRatesEndjob(const std::vector<MonitorElement*> &hcalMEs);
 

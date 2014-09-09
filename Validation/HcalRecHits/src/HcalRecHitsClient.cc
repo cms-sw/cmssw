@@ -28,16 +28,6 @@ HcalRecHitsClient::~HcalRecHitsClient()
   
 }
 
-// let's see if this breaks anything
-/*void HcalRecHitsClient::endJob() 
-{
-   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}*/
-
-void HcalRecHitsClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
 
 void HcalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig )
 {
@@ -46,12 +36,6 @@ void HcalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig )
   runClient_(ib,ig);
 
 }
-
-
-void HcalRecHitsClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-}
-
 
 
 void HcalRecHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)

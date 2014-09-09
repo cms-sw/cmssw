@@ -31,21 +31,12 @@ void HcalNoiseRatesClient::beginJob()
 
 }
 
-//void HcalNoiseRatesClient::endJob() 
-//{
-//	if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-//}
 
 void HcalNoiseRatesClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
 
 }
 
-
-void HcalNoiseRatesClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-//	runClient_();
-}
 
 void HcalNoiseRatesClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {

@@ -33,27 +33,10 @@ public:
 
 private:
 
-    virtual void beginJob() {
-    };
-
-    // we can't inherit analyze from DQMEDHarvester
-    //virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-    // no longer called ... let's see if this breaks anything
-    /*virtual void endJob() {
-        if (outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
-
-    };*/
 
     virtual void beginRun(edm::Run const&, edm::EventSetup const&) {
     };
 
-    // moved to dqmEndJob
-    /*virtual void endRun(edm::Run const&, edm::EventSetup const&) {
-
-        if (dbe_) dbe_->setCurrentFolder(dirName_);
-        runClient();
-    };*/
 
     virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) {
       igetter.setCurrentFolder("HcalDigisV/HcalDigiTask"); // moved this line from constructor

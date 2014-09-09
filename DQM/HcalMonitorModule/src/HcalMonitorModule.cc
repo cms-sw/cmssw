@@ -103,30 +103,32 @@ HcalMonitorModule::~HcalMonitorModule()
 
 } //HcalMonitorModule::~HcalMonitorModule()
 
-
-
-void HcalMonitorModule::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r, const edm::EventSetup& c) 
+void HcalMonitorModule::dqmBeginRun(edm::Run const &run, edm::EventSetup const & es )
 {
-  if ( debug_>0 ) std::cout << "HcalMonitorModule: beginRun" << std::endl;
+
+  if ( debug_>0 ) std::cout << "HcalMonitorModule: dqmBeginRun" << std::endl;
   // reset histograms & counters on a new run, unless merging allowed
 
   if (eMap_==0) //eMap_ not created yet
     {
-      if (debug_>1) std::cout <<"\t<HcalMonitorModule::beginRun> Getting Emap!"<<std::endl;
+      if (debug_>1) std::cout <<"\t<HcalMonitorModule::bookHistograms> Getting Emap!"<<std::endl;
       edm::ESHandle<HcalDbService> pSetup;
-      c.get<HcalDbRecord>().get( pSetup );
+      es.get<HcalDbRecord>().get( pSetup );
       eMap_=pSetup->getHcalMapping(); 
     }
   if (mergeRuns_) return;
-  this->setup(ib);
   this->reset();
 
+}
+
+
+void HcalMonitorModule::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r, const edm::EventSetup& c) 
+{ 
+  this->setup(ib);
 } //HcalMonitorModule::beginRun(....)
 
 
-// I mask off this function so it will remain as a reminder.
-// The MT migration removes the execution of the endRun in step1
-/*void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
+void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( debug_>0 ) std::cout << "HcalMonitorModule: endRun" << std::endl;
 
@@ -135,7 +137,7 @@ void HcalMonitorModule::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r,
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-}*/
+}
 
 void HcalMonitorModule::reset(void)
 {
@@ -211,51 +213,7 @@ void HcalMonitorModule::cleanup(void)
 {
   if (debug_>0) std::cout <<"HcalMonitorModule::cleanup"<<std::endl;
   if (!enableCleanup_) return;
-  // why is this done?
-  /*if (dbe_)
-    {
-      dbe_->setCurrentFolder(prefixME_+"HcalInfo");
-      if ( meStatus_ ) 
-	dbe_->removeElement( meStatus_->getName() );
-      meStatus_ = 0;
-      if ( meRun_ ) 
-	dbe_->removeElement( meRun_->getName() );
-      meRun_ = 0;
-      if ( meEvt_ ) 
-	dbe_->removeElement( meEvt_->getName() );
-      meEvt_ = 0;
-      if (meIevt_) 
-	dbe_->removeElement(meIevt_->getName());
-      meIevt_=0;
-      if (meIevtHist_)
-	dbe_->removeElement(meIevtHist_->getName());
-      meIevtHist_=0;
-      if (meFEDS_) 
-	dbe_->removeElement(meFEDS_->getName());
-      meFEDS_ = 0;
-      if (meCalibType_) 
-	dbe_->removeElement(meCalibType_->getName());
-      meCalibType_ = 0;
-      if (meCurrentCalibType_) 
-	dbe_->removeElement(meCurrentCalibType_->getName());
-      meCurrentCalibType_=0;
-      if (meProcessedEndLumi_) 
-	dbe_->removeElement(meProcessedEndLumi_->getName());
-      meProcessedEndLumi_ = 0;
-      if (meHB_) 
-	dbe_->removeElement(meHB_->getName());
-      meHB_=0;  
-
-      if (meHE_) 
-	dbe_->removeElement(meHE_->getName());
-      meHE_=0;
-      if (meHO_) 
-	dbe_->removeElement(meHO_->getName());
-      meHO_=0;
-      if (meHF_) 
-	dbe_->removeElement(meHF_->getName());
-      meHF_=0;
-    } // if (dbe_)*/
+  // Removed calls to dbe_->RemoveElement
 
   fedsListed_=false;
   HBpresent_=0;
@@ -267,33 +225,13 @@ void HcalMonitorModule::cleanup(void)
 
 
 
-// This function is not called  for step1 analyzers after the MT migration
-// which client/harvester access the meProcessedEndLumi element?
-/*void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					      const edm::EventSetup& c) 
 {
   if (debug_>0) std::cout <<"HcalMonitorModule::endLuminosityBlock"<<std::endl;
   meProcessedEndLumi_->Fill(lumiSeg.luminosityBlock());
-}// void HcalMonitorModule::endLuminosityBlock(...)*/
+}// void HcalMonitorModule::endLuminosityBlock(...)
 
-
-
-// I mask off this function so it will remain as a reminder.
-// The MT migration removes the execution of the endRun in step1
-/*void HcalMonitorModule::endJob(void)
-{
-  if (debug_>0) std::cout <<"HcalMonitorModule::endJob()"<<std::endl;
-  if (dbe_)
-    {
-      meStatus_ = dbe_->get(prefixME_ + "/EventInfo/STATUS");
-      meRun_ = dbe_->get(prefixME_ + "/EventInfo/RUN");
-      meEvt_ = dbe_->get(prefixME_ + "/EventInfo/EVT");
-    }
-  if (meStatus_) meStatus_->Fill(2);
-  if (meRun_) meRun_->Fill(runNumber_);
-  if (meEvt_) meEvt_->Fill(evtNumber_);
-  this->cleanup();
-} // void HcalMonitorModule::endJob(void)*/
 
 
 
