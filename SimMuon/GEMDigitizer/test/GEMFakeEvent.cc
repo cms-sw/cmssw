@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 
@@ -81,6 +82,5 @@ GEMFakeEvent::produce(edm::Event & ev, const edm::EventSetup& es)
   cout<<"Done with event!"<<endl;
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMFakeEvent);
 
