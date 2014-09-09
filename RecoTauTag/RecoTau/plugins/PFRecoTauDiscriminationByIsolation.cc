@@ -217,6 +217,9 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 
 void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) 
 {
+  if ( verbosity_ ) {
+    std::cout << "<PFRecoTauDiscriminationByIsolation::beginEvent (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
+  }
   // NB: The use of the PV in this context is necessitated by its use in
   // applying quality cuts to the different objects in the isolation cone
   // The vertex associator contains the logic to select the appropriate vertex
@@ -314,13 +317,15 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   if ( includeTracks_ ) {
     BOOST_FOREACH( const reco::PFCandidatePtr& cand, pfTau->isolationPFChargedHadrCands() ) {
       if ( qcuts_->filterCandRef(cand) ) {
+	if(verbosity_) std::cout << "adding charged iso cand with pt " << cand->pt() << std::endl;
         isoCharged_.push_back(cand);
       }
     }
   }
-  if ( includeGammas_ ) {
+  if ( includeGammas_ || calculateWeights_ ) {
     BOOST_FOREACH( const reco::PFCandidatePtr& cand, pfTau->isolationPFGammaCands() ) {
       if ( qcuts_->filterCandRef(cand) ) {
+	if(verbosity_) std::cout << "adding neutral iso cand with pt " << cand->pt() << std::endl;
         isoNeutral_.push_back(cand);
       }
     }
@@ -331,9 +336,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   // If desired, get PU tracks.
   if ( applyDeltaBeta_ || calculateWeights_) {
     // First select by inverted the DZ/track weight cuts. True = invert
-    //if ( verbosity_ ) {
-    //  std::cout << "Initial PFCands: " << chargedPFCandidatesInEvent_.size() << std::endl;
-    //}
+    if ( verbosity_ ) {
+      std::cout << "Initial PFCands: " << chargedPFCandidatesInEvent_.size() << std::endl;
+    }
 
     std::vector<PFCandidatePtr> allPU =
       pileupQcutsPUTrackSelection_->filterCandRefs(
@@ -342,9 +347,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
     std::vector<PFCandidatePtr> allNPU =
       pileupQcutsPUTrackSelection_->filterCandRefs(
 	  chargedPFCandidatesInEvent_);
-    //if ( verbosity_ ) {
-    //  std::cout << "After track cuts: " << allPU.size() << std::endl;
-    //}
+    if ( verbosity_ ) {
+      std::cout << "After track cuts: " << allPU.size() << std::endl;
+    }
 
     // Now apply the rest of the cuts, like pt, and TIP, tracker hits, etc
     if(!useAllPFCands_){
@@ -369,9 +374,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
     BOOST_FOREACH(const reco::PFCandidatePtr& cand, cleanNPU) {
            if ( deltaBetaFilter(cand) ) chPV_.push_back(cand);
       }
-    //if ( verbosity_ ) {
-    //  std::cout << "After cone cuts: " << isoPU.size() << std::endl;
-    //}
+    if ( verbosity_ ) {
+      std::cout << "After cone cuts: " << isoPU_.size() << " " << chPV_.size() << std::endl;
+    }
     }else{
       isoPU_=allPU;
       chPV_= allNPU;
@@ -385,7 +390,6 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
 	BOOST_FOREACH( const PFCandidatePtr& isoObject, isoNeutral_ ) {
 	  if(isoObject->charge() !=0){
 	    // weight only neutral objects
-	    edm::LogWarning("TauIsolationWeights") << "Trying to reweight charged particle... saving it to output collection without any change";
 	    isoNeutralWeight_.push_back(*isoObject);
 	    continue;
 	  }
@@ -414,8 +418,8 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
 
   // Check if we want a custom iso cone
   if ( customIsoCone_ >= 0. ) {
-    //std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
-    //std::cout << " customIsoCone = " << customIsoCone_ << std::endl;
+    //    std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
+    //    std::cout << " customIsoCone = " << customIsoCone_ << std::endl;
     DRFilter filter(pfTau->p4(), 0, customIsoCone_);
     std::vector<PFCandidatePtr> isoCharged_filter;
     std::vector<PFCandidatePtr> isoNeutral_filter;
