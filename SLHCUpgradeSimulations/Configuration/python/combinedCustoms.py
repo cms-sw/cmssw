@@ -354,6 +354,7 @@ def cust_2023HGCalMuon(process):
 def cust_2023SHCalTime(process):
     process=cust_2023SHCal(process)
     process=cust_shashlikTime(process)
+    process=cust_ecalTime(process)    
     return process
 
 

@@ -29,8 +29,10 @@ class EcalRecalibRecHitProducer : public edm::EDProducer {
 
                 edm::InputTag EBRecHitCollection_; // secondary name given to collection of EB uncalib rechits
                 edm::InputTag EERecHitCollection_; // secondary name given to collection of EE uncalib rechits
+                edm::InputTag EKRecHitCollection_; // secondary name given to collection of EK uncalib rechits
                 std::string EBRecalibRecHitCollection_; // secondary name to be given to EB collection of hits
                 std::string EERecalibRecHitCollection_; // secondary name to be given to EE collection of hits
+                std::string EKRecalibRecHitCollection_; // secondary name to be given to EK collection of hits
 
                 bool doEnergyScale_;
                 bool doIntercalib_;
@@ -41,5 +43,6 @@ class EcalRecalibRecHitProducer : public edm::EDProducer {
 
                 EcalRecHitAbsAlgo* EBalgo_;
                 EcalRecHitAbsAlgo* EEalgo_;
+                EcalRecHitAbsAlgo* EKalgo_;
 };
 #endif

@@ -117,7 +117,7 @@ EcalTimeMapDigitizer::add(const std::vector<PCaloHit> & hits, int bunchCrossing)
        result.nhits[bunchCrossing-m_minBunch]++;
 
 #ifdef ecal_time_debug
-       std::cout << (*it).id()  << "\t" << (*it).depth() << "\t" << jitter << "\t" <<  (*it).energy() << "\t" << result.average_time[bunchCrossing-m_minBunch] << "\t" << result.nhits[bunchCrossing-m_minBunch] << "\t" <<  timeOfFlight( detId, m_timeLayerId ) << std::endl;
+       std::cout << (*it).id()  << "\t depth: " << (*it).depth() << "\t jitter: " << jitter << "\t E: " <<  (*it).energy() << "\t time: " << result.average_time[bunchCrossing-m_minBunch] << "\t" << result.nhits[bunchCrossing-m_minBunch] << "\t" <<  timeOfFlight( detId, m_timeLayerId ) << std::endl;
 #endif
     }
   }
@@ -176,7 +176,7 @@ EcalTimeMapDigitizer::finalizeHits()
       vSamAll( m_index[i] )->calculateAverage() ;
 #ifdef ecal_time_debug 
       for ( unsigned int j ( 0 ) ; j !=  vSamAll( m_index[i] )->time_average_capacity; ++j )
-	std::cout << j << "\t" <<  vSamAll( m_index[i] )->average_time[j] <<  "\t" <<  vSamAll( m_index[i] )->nhits[j] << "\t" <<  vSamAll( m_index[i] )->tot_energy[j] << std::endl;
+	std::cout << j << "\t time: " <<  vSamAll( m_index[i] )->average_time[j] <<  "\t nhits: " <<  vSamAll( m_index[i] )->nhits[j] << "\t E: " <<  vSamAll( m_index[i] )->tot_energy[j] << std::endl;
 #endif
    }
    
@@ -266,7 +266,8 @@ EcalTimeMapDigitizer::timeOfFlight( const DetId& detId , int layer) const
   //not using the layer yet
    const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
    assert( 0 != cellGeometry ) ;
-   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+//   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer+100)+0.5 ); //depth in mm in the middle of the layer position
    return layerPos.mag()*cm/c_light ;
 }
 

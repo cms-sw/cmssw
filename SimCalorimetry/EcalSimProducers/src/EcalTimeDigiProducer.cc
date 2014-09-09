@@ -151,7 +151,7 @@ EcalTimeDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& ev
 
     edm::LogInfo("TimeDigiInfo") << "EE Digis: " << endcapResult->size() ;
 
-   m_ShashlikDigitizer->run( *endcapResult ) ;
+   m_ShashlikDigitizer->run( *shashlikResult ) ;
 
 #ifdef ecal_time_debug
    std::cout << "[EcalTimeDigiProducer]::EK Digi size " <<  shashlikResult->size() << std::endl;
