@@ -36,7 +36,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    using namespace edm;
 
-   cCluster.ClearUserModules();
+   cCluster.prepareStorage();
    
    //===================++++++++++++========================
    //
@@ -63,7 +63,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              modLocation = cCluster.GetNumberOfModules();
              cCluster.SetUserModules( module ) ;
            }
-           cCluster.setNModulesByIndex  (modLocation, 1 );
+           cCluster.setNClusByIndex     (modLocation, 1 );
            cCluster.setClusSizeByIndex  (modLocation, Summaryinfo.clusterSize() );
            cCluster.setClusChargeByIndex(modLocation, Summaryinfo.charge() );
          }
@@ -96,7 +96,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              modLocation = cCluster.GetNumberOfModules();
              cCluster.SetUserModules( module ) ;
            }
-           cCluster.setNModulesByIndex  (modLocation, 1 );
+           cCluster.setNClusByIndex     (modLocation, 1 );
            cCluster.setClusSizeByIndex  (modLocation, cluster->size());
            cCluster.setClusChargeByIndex(modLocation, float(cluster->charge())/1000. );
          }
@@ -109,17 +109,15 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    //                   Fill Producer
    //
    //===================+++++++++++++========================
-   cCluster.PrepairGenericVariable( );
-   
    if(verbose){
      auto printMod =  [&] (std::vector<std::string>& modName, ModuleSelections& modSel){
        for(unsigned int iM = 0; iM < modName.size(); ++iM){
          int modLoc = cCluster.GetModuleLocation(modSel[iM].second,false);
          if( modLoc<0 ) continue;
          std::cout << "n" << modName[iM]   <<", avg size, avg charge = "
-             << cCluster.getNModulesByIndex  (modLoc ) << ", "
-             << cCluster.getClusSizeByIndex  (modLoc )/cCluster.getNModulesByIndex(modLoc ) << ", "
-             << cCluster.getClusChargeByIndex(modLoc )/cCluster.getNModulesByIndex(modLoc)
+             << cCluster.getNClusByIndex     (modLoc ) << ", "
+             << cCluster.getClusSizeByIndex  (modLoc )/cCluster.getNClusByIndex(modLoc ) << ", "
+             << cCluster.getClusChargeByIndex(modLoc )/cCluster.getNClusByIndex(modLoc)
              << std::endl;
        }
      };
@@ -131,9 +129,6 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    //Put the filled class into the producer
    std::auto_ptr<ClusterSummary> result(new ClusterSummary (cCluster) );
    iEvent.put( result );
-
-   cCluster.ClearGenericVariable();
-
 }
 
 

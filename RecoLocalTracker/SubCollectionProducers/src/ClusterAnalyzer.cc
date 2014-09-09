@@ -153,14 +153,14 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
      std::string tmpstr = iAllModules->second;
 
-     histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> getNModulesByIndex  (iM ));
-     histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> getClusSizeByIndex  (iM )/class_ -> getNModulesByIndex(iM ));
-     histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> getClusChargeByIndex(iM )/class_ -> getNModulesByIndex(iM ));
+     histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> getNClusByIndex     (iM ));
+     histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> getClusSizeByIndex  (iM )/class_ -> getNClusByIndex(iM ));
+     histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> getClusChargeByIndex(iM )/class_ -> getNClusByIndex(iM ));
 
      cout << "n"<<tmpstr <<", avg size, avg charge = "
-                 << class_ -> getNModulesByIndex  (iM );
-     cout << ", "<< class_ -> getClusSizeByIndex  (iM)  /class_ -> getNModulesByIndex(iM );
-     cout << ", "<< class_ -> getClusChargeByIndex(iM)  /class_ -> getNModulesByIndex(iM ) <<  endl;
+                 << class_ -> getNClusByIndex     (iM );
+     cout << ", "<< class_ -> getClusSizeByIndex  (iM)  /class_ -> getNClusByIndex(iM );
+     cout << ", "<< class_ -> getClusChargeByIndex(iM)  /class_ -> getNClusByIndex(iM ) <<  endl;
    }
    cout << "-------------------------------------------------------" << endl;
    

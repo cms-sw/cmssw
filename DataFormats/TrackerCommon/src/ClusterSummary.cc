@@ -1,36 +1,23 @@
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ClusterSummary::ClusterSummary() :
-  nModules_tmp  (100,0),
-  clusSize_tmp  (100,0),
-  clusCharge_tmp(100,0)
+ClusterSummary::ClusterSummary()
 {}
 
 ClusterSummary::~ClusterSummary()
 {}
 
 // copy ctor
-ClusterSummary::ClusterSummary(const ClusterSummary& src) :
-    modules       (src.modules       ),
-    nModules      (src.nModules      ),
-    clusSize      (src.clusSize      ),
-    clusCharge    (src.clusCharge    ),
-    nModules_tmp  (src.nModules_tmp  ),
-    clusSize_tmp  (src.clusSize_tmp  ),
-    clusCharge_tmp(src.clusCharge_tmp)
+ClusterSummary::ClusterSummary(const ClusterSummary& src)
 {}
 
 // copy assingment operator
 ClusterSummary& ClusterSummary::operator=(const ClusterSummary& rhs)
 {
   modules       = rhs.modules       ;
-  nModules      = rhs.nModules      ;
+  nClus         = rhs.nClus         ;
   clusSize      = rhs.clusSize      ;
   clusCharge    = rhs.clusCharge    ;
-  nModules_tmp  = rhs.nModules_tmp  ;
-  clusSize_tmp  = rhs.clusSize_tmp  ;
-  clusCharge_tmp= rhs.clusCharge_tmp;
   return *this;
 }
 
@@ -104,7 +91,7 @@ std::string ClusterSummary::getSubDetName(const CMSTracker subdet){
 
 std::string ClusterSummary::getVarName(const VariablePlacement var){
   switch (var){
-    case NMODULES     : return "NMODULES";
+    case NCLUSTERS    : return "NCLUSTERS";
     case CLUSTERSIZE  : return "CLUSTERSIZE";
     case CLUSTERCHARGE: return "CLUSTERCHARGE";
     default:
@@ -137,14 +124,4 @@ int ClusterSummary::GetModuleLocation ( int mod, bool warn ) const {
 
     edm::LogWarning("NoModule") << "No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
     return -1;
-}
-
-void ClusterSummary::PrepairGenericVariable() {
-  nModules   = nModules_tmp  ;
-  clusSize   = clusSize_tmp  ;
-  clusCharge = clusCharge_tmp;
-
-  nModules.erase(std::remove(nModules.begin(), nModules.end(), 0), nModules.end());
-  clusSize.erase(std::remove(clusSize.begin(), clusSize.end(), 0), clusSize.end());
-  clusCharge.erase(std::remove(clusCharge.begin(), clusCharge.end(), 0), clusCharge.end());
 }

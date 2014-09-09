@@ -72,7 +72,7 @@ private:
 //
 FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(const edm::ParameterSet& iConfig):
   m_collectionToken(consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection"))),
-  m_subdetenums(),m_subdetsel(),m_subdetvar(ClusterSummary::NMODULES)
+  m_subdetenums(),m_subdetsel(),m_subdetvar(ClusterSummary::NCLUSTERS)
 {
   produces<std::map<unsigned int,int> >();
 
@@ -119,7 +119,7 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
 
   for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS){
     switch(m_subdetvar){
-      case ClusterSummary::NMODULES      :(*mults)[m_subdetsel[iS]] = int(clustsumm->getNModules  (m_subdetenums[iS])); break;
+      case ClusterSummary::NCLUSTERS     :(*mults)[m_subdetsel[iS]] = int(clustsumm->getNClus     (m_subdetenums[iS])); break;
       case ClusterSummary::CLUSTERSIZE   :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusSize  (m_subdetenums[iS])); break;
       case ClusterSummary::CLUSTERCHARGE :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusCharge(m_subdetenums[iS])); break;
       default : (*mults)[m_subdetsel[iS]] = -1;

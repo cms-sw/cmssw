@@ -167,7 +167,7 @@ class ClusterSummary {
 
   // Enum which describes the ordering of the summary variables inside vector variables_
   enum VariablePlacement{
-        NMODULES = 0,
+        NCLUSTERS = 0,
 			  CLUSTERSIZE = 1,
 			  CLUSTERCHARGE = 2,
 			  NVARIABLES = 3
@@ -187,60 +187,53 @@ class ClusterSummary {
   
   //These functions are broken into two categories. The standard versions take the enums as input and find the locations in the vector.
   //The ones labeled "byIndex" take the vector location as input
-
- private:
-  void checkModule(const int moduleLocation,const unsigned int vSize) const {if(moduleLocation >= int(vSize)) throw cms::Exception( "Missing module") << moduleLocation;}
  public:
-  int   getNModulesByIndex  (const int mod) const {checkModule(mod,nModules  .size()); return nModules  [mod];}
-  int   getClusSizeByIndex  (const int mod) const {checkModule(mod,clusSize  .size()); return clusSize  [mod];}
-  float getClusChargeByIndex(const int mod) const {checkModule(mod,clusCharge.size()); return clusCharge[mod];}
+  int   getNClusByIndex     (const int mod) const {return nClus     .at(mod);}
+  int   getClusSizeByIndex  (const int mod) const {return clusSize  .at(mod);}
+  float getClusChargeByIndex(const int mod) const {return clusCharge.at(mod);}
 
-  int   getNModules  (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : nModules  [pos];}
+  int   getNClus     (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : nClus     [pos];}
   int   getClusSize  (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : clusSize  [pos];}
   float getClusCharge(const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : clusCharge[pos];}
 
-  std::vector<int>   getNModulesVector()   const {return nModules;}
-  std::vector<int>   getClusSizeVector()   const {return clusSize;}
-  std::vector<float> getClusChargeVector() const {return clusCharge;}
+  const std::vector<int>  & getNClusVector()      const {return nClus;}
+  const std::vector<int>  & getClusSizeVector()   const {return clusSize;}
+  const std::vector<float>& getClusChargeVector() const {return clusCharge;}
 
-  void setNModulesByIndex  (const int mod, const int   val) const {checkModule(mod,nModules_tmp  .size()); nModules_tmp  [mod]+=val;}
-  void setClusSizeByIndex  (const int mod, const int   val) const {checkModule(mod,clusSize_tmp  .size()); clusSize_tmp  [mod]+=val;}
-  void setClusChargeByIndex(const int mod, const float val) const {checkModule(mod,clusCharge_tmp.size()); clusCharge_tmp[mod]+=val;}
+  void setNClusByIndex     (const int mod, const int   val) {nClus     .at(mod)+=val;}
+  void setClusSizeByIndex  (const int mod, const int   val) {clusSize  .at(mod)+=val;}
+  void setClusChargeByIndex(const int mod, const float val) {clusCharge.at(mod)+=val;}
 
-  void setNModules  (const CMSTracker mod, const int   val) const {int pos = GetModuleLocation(mod); nModules_tmp  [pos]+=val;}
-  void setClusSize  (const CMSTracker mod, const int   val) const {int pos = GetModuleLocation(mod); clusSize_tmp  [pos]+=val;}
-  void setClusCharge(const CMSTracker mod, const float val) const {int pos = GetModuleLocation(mod); clusCharge_tmp[pos]+=val;}
+  void setNClus     (const CMSTracker mod, const int   val) {nClus     .at(GetModuleLocation(mod))+=val;}
+  void setClusSize  (const CMSTracker mod, const int   val) {clusSize  .at(GetModuleLocation(mod))+=val;}
+  void setClusCharge(const CMSTracker mod, const float val) {clusCharge.at(GetModuleLocation(mod))+=val;}
 
-  //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.
-  void PrepairGenericVariable();
-
-  //Clear genericVariablesTmp_. Must be done at the end of each event.
-  void ClearGenericVariable() { 
-    for(unsigned int i = 0; i < nModules_tmp.size(); ++i) nModules_tmp[i] = 0;
-    for(unsigned int i = 0; i < clusSize_tmp.size(); ++i) clusSize_tmp[i] = 0;
-    for(unsigned int i = 0; i < clusCharge_tmp.size(); ++i) clusCharge_tmp[i] = 0;
+  //Clears out storage of modules and variables
+  void prepareStorage() {
+    modules   .clear(); modules   .reserve(8);
+    nClus     .clear(); nClus     .reserve(8);
+    clusSize  .clear(); clusSize  .reserve(8);
+    clusCharge.clear(); clusCharge.reserve(8);
   } 
 
   //Set and Get modules_
-  void SetUserModules( const CMSTracker value ) { modules.push_back( value ); }
-  std::vector<int> GetUserModules() const { return modules;  }
-  void ClearUserModules( ) { modules.clear(); }
+  void SetUserModules( const CMSTracker value ) {
+    modules   .push_back( value );
+    nClus     .push_back(0);
+    clusSize  .push_back(0);
+    clusCharge.push_back(0);
+  }
+  const std::vector<int>& GetUserModules() const { return modules;  }
   // Return the location of desired module within modules_. If warn is set to true, a warnign will be outputed in case no module was found
   int GetModuleLocation ( int mod, bool warn = true ) const;
   unsigned int GetNumberOfModules() const {return modules.size();}
   int GetModule(const int index) const { return modules[index];}
 
  private:
-  std::vector<int>   modules;    // <Module1, Module2 ...>
-  std::vector<int>   nModules;
-  std::vector<int>   clusSize;
+  std::vector<int>   modules   ;    // <Module1, Module2 ...>
+  std::vector<int>   nClus     ;
+  std::vector<int>   clusSize  ;
   std::vector<float> clusCharge;
-
-  // CMS-THREADSAFE: this mutable member data used in non-const functions
-  mutable std::vector<int>   nModules_tmp;
-  mutable std::vector<int>   clusSize_tmp;
-  mutable std::vector<float> clusCharge_tmp;
-
 };
 
 
