@@ -18,7 +18,7 @@ from Configuration.StandardSequences.Validation_cff import *
 #cutsRecoTracksHpUpg.ptMin = cms.double(0.9)
 
 #cutsRecoTracksZeroHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-#cutsRecoTracksZeroHpUpg.algorithm=cms.vstring("iter0")
+#cutsRecoTracksZeroHpUpg.algorithm=cms.vstring("initialStep")
 #cutsRecoTracksZeroHpUpg.quality=cms.vstring("highPurity")
 #cutsRecoTracksZeroHpUpg.ptMin = cms.double(0.9)
 

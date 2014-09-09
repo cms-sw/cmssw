@@ -86,7 +86,7 @@ hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.M
 hiRegitMixedTripletStepTracks                 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(
     src                 = 'hiRegitMixedTripletStepTrackCandidates',
     #AlgorithmName = cms.string('iter8'),
-    AlgorithmName = cms.string('iter4'),
+    AlgorithmName = cms.string('mixedTripletStep'),
     )
 
 # Track selection

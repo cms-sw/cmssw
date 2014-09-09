@@ -235,7 +235,7 @@ conv2StepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff
 import RecoTracker.TrackProducer.TrackProducer_cfi
 conv2StepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'conv2TrackCandidates',
-    AlgorithmName = cms.string('iter9'),
+    AlgorithmName = cms.string('muonSeededStepInOut'),
     Fitter = 'conv2StepFitterSmoother',
     )
 

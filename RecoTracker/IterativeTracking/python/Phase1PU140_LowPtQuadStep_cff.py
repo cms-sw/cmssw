@@ -110,7 +110,7 @@ lowPtQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtQuadStepTrackCandidates',
-    AlgorithmName = cms.string('iter2'),
+    AlgorithmName = cms.string('lowPtQuadStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
     TTRHBuilder=cms.string('WithTrackAngle')
     )

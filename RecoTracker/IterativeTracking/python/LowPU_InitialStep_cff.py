@@ -62,7 +62,7 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 import RecoTracker.TrackProducer.TrackProducer_cfi
 initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'initialStepTrackCandidates',
-    AlgorithmName = cms.string('iter0'),
+    AlgorithmName = cms.string('initialStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
