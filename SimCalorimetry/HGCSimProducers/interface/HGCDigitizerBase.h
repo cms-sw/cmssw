@@ -13,7 +13,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 typedef float HGCSimEn_t;
-typedef std::array<HGCSimEn_t,3> HGCSimHitData;
+typedef std::array<HGCSimEn_t,6> HGCSimHitData;
 typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
 
 template <class D>
@@ -88,8 +88,12 @@ class HGCDigitizerBase {
 	    
 	    newDataFrame.setSample(i, singleSample);
 	  }
-	
+
+	//run the shaper
 	runShaper(newDataFrame);
+
+	//check if 5th time sample is above threshold
+	if( newDataFrame[4].adc() < adcThreshold_ ) continue;
 
 	//add to collection to produce
 	coll->push_back(newDataFrame);
@@ -106,14 +110,16 @@ class HGCDigitizerBase {
       {
 	HGCSample sample=dataFrame[it];
 
-	adcToCarry[it] += sample.adc();
 	uint16_t newADC=sample.adc();
-	for(int jt=0; jt<it; jt++)
-	  {
-	    float relTime(shaperN_*shaperTau_+bxTime_*(it-jt));	 
-	    newADC += uint16_t(adcToCarry[it]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp((relTime-shaperN_*shaperTau_)/shaperTau_));
-	  }
-	sample.set( sample.gain(), newADC );
+	if(shaperN_*shaperTau_>0){
+	  adcToCarry[it] = sample.adc();
+	  for(int jt=0; jt<it; jt++)
+	    {
+	      float relTime(shaperN_*shaperTau_+bxTime_*(jt-it));	 
+	      newADC += uint16_t(adcToCarry[it]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp((relTime-shaperN_*shaperTau_)/shaperTau_));	      
+	    }
+	}
+      	sample.set( sample.gain(), newADC );
       }
   }
 

@@ -85,6 +85,12 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 
 	}	
       
+      //run shaper
+      runShaper(dataFrame);
+      
+      //check if 5th time sample is above threshold
+      if( newDataFrame[4].adc() < adcThreshold_ ) continue;
+
       //add to collection to produce
       digiColl->push_back(newDataFrame);
     } 

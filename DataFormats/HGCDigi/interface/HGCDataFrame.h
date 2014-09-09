@@ -21,17 +21,16 @@ public:
   /**
      @short CTOR
   */
-  HGCDataFrame() : id_(0), maxSampleSize_(3)                      { data_.resize(maxSampleSize_); }
-  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(3) { data_.resize(maxSampleSize_); }
-    
+  HGCDataFrame() : id_(0), maxSampleSize_(6)                      { data_.resize(maxSampleSize_); }
+  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(6) { data_.resize(maxSampleSize_); }
 
   /**
-     @short det id
+    @short det id
   */
   const D& id() const { return id_; }
-  
+    
   /** 
-      @short total number of samples in the digi 
+    @short total number of samples in the digi 
   */
   int size() const { return data_.size() & 0xf; }
 
