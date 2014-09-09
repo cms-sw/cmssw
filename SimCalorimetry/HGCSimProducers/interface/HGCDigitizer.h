@@ -83,6 +83,11 @@ private :
   //misc switches
   bool useAllChannels_;
   int  verbosity_;
+
+  //reference speed to evaluate time of arrival 
+  //at the sensititive detector
+  //assuming the center of CMS
+  float refSpeed_;
 };
 
 #endif
