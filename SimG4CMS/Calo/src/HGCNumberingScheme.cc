@@ -35,7 +35,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, i
   if ((!HGCalDetId::isValid(subdet,iz,layer,sector,phiSector,icell)) ||
       (!hgcons->isValid(layer,sector,icell,false))) {
     index = 0;
-    if (check_) {
+    if (check_ && icell != -2) {
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
 			      << " Subdet= " << subdet << " Zside= " << iz
 			      << " Layer= " << layer << " Sector= " << sector
