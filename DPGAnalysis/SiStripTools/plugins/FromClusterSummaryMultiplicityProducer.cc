@@ -124,7 +124,7 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
       case ClusterSummary::CLUSTERCHARGE :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusCharge(m_subdetenums[iS])); break;
       default : (*mults)[m_subdetsel[iS]] = -1;
     }
-    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " " << clustsumm->GetModuleLocation(m_subdetenums[iS]);
+    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " " << clustsumm->getModuleLocation(m_subdetenums[iS]);
   }
 
   for(std::map<unsigned int,int>::const_iterator it=mults->begin();it!=mults->end();++it) {

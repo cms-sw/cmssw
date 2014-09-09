@@ -192,21 +192,21 @@ class ClusterSummary {
   int   getClusSizeByIndex  (const int mod) const {return clusSize  .at(mod);}
   float getClusChargeByIndex(const int mod) const {return clusCharge.at(mod);}
 
-  int   getNClus     (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : nClus     [pos];}
-  int   getClusSize  (const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : clusSize  [pos];}
-  float getClusCharge(const CMSTracker mod) const {int pos = GetModuleLocation(mod); return pos < 0 ? 0. : clusCharge[pos];}
+  int   getNClus     (const CMSTracker mod) const {int pos = getModuleLocation(mod); return pos < 0 ? 0. : nClus     [pos];}
+  int   getClusSize  (const CMSTracker mod) const {int pos = getModuleLocation(mod); return pos < 0 ? 0. : clusSize  [pos];}
+  float getClusCharge(const CMSTracker mod) const {int pos = getModuleLocation(mod); return pos < 0 ? 0. : clusCharge[pos];}
 
   const std::vector<int>  & getNClusVector()      const {return nClus;}
   const std::vector<int>  & getClusSizeVector()   const {return clusSize;}
   const std::vector<float>& getClusChargeVector() const {return clusCharge;}
 
-  void setNClusByIndex     (const int mod, const int   val) {nClus     .at(mod)+=val;}
-  void setClusSizeByIndex  (const int mod, const int   val) {clusSize  .at(mod)+=val;}
-  void setClusChargeByIndex(const int mod, const float val) {clusCharge.at(mod)+=val;}
+  void addNClusByIndex     (const int mod, const int   val) {nClus     .at(mod)+=val;}
+  void addClusSizeByIndex  (const int mod, const int   val) {clusSize  .at(mod)+=val;}
+  void addClusChargeByIndex(const int mod, const float val) {clusCharge.at(mod)+=val;}
 
-  void setNClus     (const CMSTracker mod, const int   val) {nClus     .at(GetModuleLocation(mod))+=val;}
-  void setClusSize  (const CMSTracker mod, const int   val) {clusSize  .at(GetModuleLocation(mod))+=val;}
-  void setClusCharge(const CMSTracker mod, const float val) {clusCharge.at(GetModuleLocation(mod))+=val;}
+  void addNClus     (const CMSTracker mod, const int   val) {nClus     .at(getModuleLocation(mod))+=val;}
+  void addClusSize  (const CMSTracker mod, const int   val) {clusSize  .at(getModuleLocation(mod))+=val;}
+  void addClusCharge(const CMSTracker mod, const float val) {clusCharge.at(getModuleLocation(mod))+=val;}
 
   //Clears out storage of modules and variables
   void prepareStorage() {
@@ -217,17 +217,17 @@ class ClusterSummary {
   } 
 
   //Set and Get modules_
-  void SetUserModules( const CMSTracker value ) {
+  void addModule( const CMSTracker value ) {
     modules   .push_back( value );
     nClus     .push_back(0);
     clusSize  .push_back(0);
     clusCharge.push_back(0);
   }
-  const std::vector<int>& GetUserModules() const { return modules;  }
+  const std::vector<int>& getModules() const { return modules;  }
   // Return the location of desired module within modules_. If warn is set to true, a warnign will be outputed in case no module was found
-  int GetModuleLocation ( int mod, bool warn = true ) const;
-  unsigned int GetNumberOfModules() const {return modules.size();}
-  int GetModule(const int index) const { return modules[index];}
+  int getModuleLocation ( int mod, bool warn = true ) const;
+  unsigned int getNumberOfModules() const {return modules.size();}
+  int getModule(const int index) const { return modules[index];}
 
  private:
   std::vector<int>   modules   ;    // <Module1, Module2 ...>

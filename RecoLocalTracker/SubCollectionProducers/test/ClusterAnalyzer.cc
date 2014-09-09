@@ -124,8 +124,8 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
      }
 
      cout << "From provenance infomation the selected modules are = ";
-     for( auto i = allModules_.begin(); i != allModules_.end(); ++i)
-      cout << i->second <<" ";
+     for (auto i : allModules_)
+      cout << i.second <<" ";
      cout << endl;
    }
 

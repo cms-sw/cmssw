@@ -100,24 +100,9 @@ std::string ClusterSummary::getVarName(const VariablePlacement var){
   return "UNKOWN";
 }
 
-int ClusterSummary::GetModuleLocation ( int mod, bool warn ) const {
-
-  int sortMod = mod;
-  while (sortMod > 9 ){
-    sortMod /= 10;
-  }
-
-  if(sortMod < 5){
-    for(unsigned int iM = 0; iM < modules.size(); ++iM){
-      if(mod == modules[iM])
-        return iM;
-    }
-  } else {
-    for(unsigned int iM =  modules.size(); iM-- > 0;){
-      if(mod == modules[iM])
-        return iM;
-    }
-  }
+int ClusterSummary::getModuleLocation ( int mod, bool warn ) const {
+  int iM = -1;
+  for (auto m : modules){++iM; if (m==mod) break;}
 
   if(!warn)
     return -1;

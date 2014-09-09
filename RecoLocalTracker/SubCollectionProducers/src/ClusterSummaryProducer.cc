@@ -46,26 +46,27 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    if (doStrips){
      edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
      iEvent.getByToken(stripClusters_, stripClusters);
-     // Loop over the strip clusters
+     std::vector<bool> selectedVector(stripSelector.size(),false);
+
      edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=stripClusters->begin();
      for(;itClusters!=stripClusters->end();++itClusters){
-       uint32_t id = itClusters->id();
-       SiStripDetId stripDetI(id);
+
+       for(unsigned int iS = 0; iS < stripSelector.size(); ++iS)
+         selectedVector[iS] = stripSelector[iS].first.isSelected(itClusters->id());
+
        for(edmNew::DetSet<SiStripCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
          const ClusterVariables Summaryinfo(*cluster);
          for(unsigned int iS = 0; iS < stripSelector.size(); ++iS){
-           const DetIdSelector& selector = stripSelector[iS].first;
+           if(!selectedVector[iS]) continue;
            const ClusterSummary::CMSTracker  module   = stripSelector[iS].second;
-
-           if(!selector.isSelected(id)) continue;
-           int modLocation = cCluster.GetModuleLocation((int)module,false);
+           int modLocation = cCluster.getModuleLocation((int)module,false);
            if(modLocation < 0) {
-             modLocation = cCluster.GetNumberOfModules();
-             cCluster.SetUserModules( module ) ;
+             modLocation = cCluster.getNumberOfModules();
+             cCluster.addModule( module ) ;
            }
-           cCluster.setNClusByIndex     (modLocation, 1 );
-           cCluster.setClusSizeByIndex  (modLocation, Summaryinfo.clusterSize() );
-           cCluster.setClusChargeByIndex(modLocation, Summaryinfo.charge() );
+           cCluster.addNClusByIndex     (modLocation, 1 );
+           cCluster.addClusSizeByIndex  (modLocation, Summaryinfo.clusterSize() );
+           cCluster.addClusChargeByIndex(modLocation, Summaryinfo.charge() );
          }
        }
      }
@@ -79,26 +80,26 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    if (doPixels){
      edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
      iEvent.getByToken(pixelClusters_, pixelClusters);
-     // Loop over the strip clusters
+     std::vector<bool> selectedVector(pixelSelector.size(),false);
+
      edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusters=pixelClusters->begin();
      for(;itClusters!=pixelClusters->end();++itClusters){
-       uint32_t detid = itClusters->detId();
-       DetId stripDetI(detid);
+
+       for(unsigned int iS = 0; iS < pixelSelector.size(); ++iS)
+         selectedVector[iS] = pixelSelector[iS].first.isSelected(itClusters->id());
+
        for(edmNew::DetSet<SiPixelCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
-
          for(unsigned int iS = 0; iS < pixelSelector.size(); ++iS){
-           const DetIdSelector& selector = pixelSelector[iS].first;
+           if(!selectedVector[iS]) continue;
            const ClusterSummary::CMSTracker  module   = pixelSelector[iS].second;
-
-           if(!selector.isSelected(detid)) continue;
-           int modLocation = cCluster.GetModuleLocation((int)module,false);
+           int modLocation = cCluster.getModuleLocation((int)module,false);
            if(modLocation < 0) {
-             modLocation = cCluster.GetNumberOfModules();
-             cCluster.SetUserModules( module ) ;
+             modLocation = cCluster.getNumberOfModules();
+             cCluster.addModule( module ) ;
            }
-           cCluster.setNClusByIndex     (modLocation, 1 );
-           cCluster.setClusSizeByIndex  (modLocation, cluster->size());
-           cCluster.setClusChargeByIndex(modLocation, float(cluster->charge())/1000. );
+           cCluster.addNClusByIndex     (modLocation, 1 );
+           cCluster.addClusSizeByIndex  (modLocation, cluster->size());
+           cCluster.addClusChargeByIndex(modLocation, float(cluster->charge())/1000. );
          }
        }
      }
@@ -112,7 +113,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    if(verbose){
      auto printMod =  [&] (std::vector<std::string>& modName, ModuleSelections& modSel){
        for(unsigned int iM = 0; iM < modName.size(); ++iM){
-         int modLoc = cCluster.GetModuleLocation(modSel[iM].second,false);
+         int modLoc = cCluster.getModuleLocation(modSel[iM].second,false);
          if( modLoc<0 ) continue;
          std::cout << "n" << modName[iM]   <<", avg size, avg charge = "
              << cCluster.getNClusByIndex     (modLoc ) << ", "
