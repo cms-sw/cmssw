@@ -18,7 +18,7 @@ class BXVector  {
  public:
 
   // default ctor
-  BXVector( int size=0,      // number of objects per BX
+  BXVector( unsigned size=0,      // number of objects per BX
 	    int bxFirst=0,   // first BX stored
 	    int bxLast=0 );  // last BX stored
 
@@ -38,10 +38,10 @@ class BXVector  {
   void setBXRange( int bxFirst, int bxLast );
 
   // set size for a given BX
-  void resize( int bx, int size );
+  void resize( int bx, unsigned size );
 
   // set size for all BXs
-  void resizeAll( int size );
+  void resizeAll( unsigned size );
   
   // add one BX to end of BXVector
   void addBX();
@@ -68,10 +68,10 @@ class BXVector  {
   void push_back( int bx, T object );
  
   // erase element with given location 
-  void erase( int bx, int i);
+  void erase( int bx, unsigned i);
   
   // insert element with given location
-  void insert( int bx, int i, T object );
+  void insert( int bx, unsigned i, T object );
 
   // clear entire BXVector
   void clear();
@@ -80,10 +80,10 @@ class BXVector  {
   void clearBX(int bx);
 
   // access element
-  const T& at( int bx, int i ) const;
+  const T& at( int bx, unsigned i ) const;
 
   // set element
-  void set( int bx, int i , T object);
+  void set( int bx, unsigned i , const T & object);
 
   // check if data has empty location
   bool isEmpty(int bx) const;
@@ -93,7 +93,7 @@ class BXVector  {
   // this method converts integer BX index into an unsigned index
   // used by the internal data representation
   unsigned indexFromBX(int bx) const;
-  
+  unsigned numBX() const {return (unsigned) bxLast_ - bxFirst_; }
 
  private:
 
@@ -107,7 +107,7 @@ class BXVector  {
   // but handling the start/end points for each BX is more complex
   // a second vector is needed to store pointers into the first one
   std::vector< T > data_;
-  std::vector<int> itrs_;
+  std::vector<unsigned> itrs_;
 };
 
 #include "BXVector.impl"

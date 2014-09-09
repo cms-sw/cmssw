@@ -3,50 +3,19 @@
 using namespace std;
 
 template < class T >
-BXVector<T>::BXVector( int size,      // number of objects per BX
+BXVector<T>::BXVector( unsigned size,      // number of objects per BX
 		       int bxFirst,   // first BX stored
 		       int bxLast )  // last BX stored
   :
   bxFirst_(bxFirst),
   bxLast_(bxLast),
-  data_(std::vector<T>(size * (bxLast-bxFirst+1)))
+  data_(std::vector<T>(size * (numBX()+1)))
 {
   itrs_.clear();
-  for (int i=0; i<=(bxLast - bxFirst); i++){ 
+  for (unsigned i=0; i<=numBX(); i++){ 
     itrs_.push_back(i*size);
   }
 }
-
-// copy ctor
-//template < class T >
-//BXVector<T>::BXVector ( const BXVector& vector )
-//{
-//  bxFirst_ =   vector.bxFirst_;
-//  bxLast_  =   vector.bxLast_;
-//  data_    =   vector.data_;
-//  itrs_    =   vector.itrs_;      
-//}
-
-// dtor
-//template < class T >
-//BXVector<T>::~BXVector()
-//{
-//
-//}
-
-// assignment operator (pass by value for exception safety)
-//template < class T >
-//BXVector<T> BXVector<T>::operator=( BXVector vector )
-//{
-  //data_.reset();
-  //iters_.reset();
-  //bxFirst_ =   vector.bxFirst_;
-  //bxLast_  =   vector.bxLast_;
-  //data_    =   vector.data_;
-  //itrs_    =   vector.itrs_;      
-  //return vector;
-//}
-
 
 // set BX range, adds an empty bx so you must push_pack to see anything
 template < class T >
@@ -102,17 +71,17 @@ void BXVector<T>::deleteBX(int bx)
 }
 // set size for a given BX
 template < class T >
-void BXVector<T>::resize( int bx, int max )
+void BXVector<T>::resize( int bx, unsigned max )
 {
   T k;
-  int s = size(bx);
+  unsigned s = size(bx);
   if(size(bx) < max){
-     for (int i = 0;i<max - s;i++){
+     for (unsigned i = 0;i<max - s;i++){
         push_back(bx,k);
      }
   }
   else{
-     for(int i = 0;i<s - max;i++){
+     for(unsigned i = 0;i<s - max;i++){
 	erase(bx,s-i-1);
      }
   }
@@ -121,7 +90,7 @@ void BXVector<T>::resize( int bx, int max )
 
 // set size for all BXs
 template < class T >
-void BXVector<T>::resizeAll( int size )
+void BXVector<T>::resizeAll( unsigned size )
 {
   for (unsigned i=0; i<itrs_.size(); ++i) {
     resize(i,size);
@@ -177,7 +146,7 @@ template < class T >
 void BXVector<T>::push_back( int bx, T object )
 {
   data_.insert(data_.begin() +itrs_[indexFromBX(bx)] + size(bx),object);
-  for(int k=0; k<itrs_.size();k++){
+  for(unsigned k=0; k< itrs_.size();k++){
      if(k >indexFromBX(bx)){
         itrs_[k]++;
      }
@@ -190,22 +159,22 @@ template < class T >
 void BXVector<T>::clear()
 {
   data_.clear();
-  for(int k=0; k<itrs_.size();k++){
+  for(unsigned k=0; k<itrs_.size();k++){
     itrs_[k]=0;
   }
 }
 
 // insert data in location i of bx
 template < class T >
-void BXVector<T>::insert(int bx, int i,T object)
+void BXVector<T>::insert(int bx, unsigned i,T object)
 {
   if(i >= size(bx)){	
-     cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+     //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
   }
   else{
      data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + i,object);
   
-     for(int k=0; k<itrs_.size();k++){
+     for(unsigned k=0; k<itrs_.size();k++){
       	if(k >indexFromBX(bx)){
            itrs_[k]++;
      	}
@@ -215,14 +184,14 @@ void BXVector<T>::insert(int bx, int i,T object)
 
 // erase data in location i of bx
 template < class T >
-void BXVector<T>::erase(int bx, int i)
+void BXVector<T>::erase(int bx, unsigned i)
 {
   if(i >= size(bx)){	
-     cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+     //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
   }
   else{
      data_.erase(data_.begin() + itrs_[indexFromBX(bx)]+i);
-     for(int k=0; k<itrs_.size();k++){
+     for(unsigned k=0; k<itrs_.size();k++){
         if(k >indexFromBX(bx)){
 	   itrs_[k]--;
 	}
@@ -234,25 +203,25 @@ void BXVector<T>::erase(int bx, int i)
 template < class T >
 void BXVector<T>::clearBX(int bx)
 {
-  int si = size(bx);
-  for(int i=0;i<si;i++){
+  unsigned si = size(bx);
+  for(unsigned i=0;i<si;i++){
      erase(bx,0);
   }
 }
 
 // access data at a given location i in bunch crossing bx
 template < class T >
-const T& BXVector<T>::at( int bx, int i ) const
+const T& BXVector<T>::at( int bx, unsigned i ) const
 {
   return data_.at(itrs_[indexFromBX(bx)]+i);
 }
 
 // set data at a given location i in bunch crossing bx
 template < class T >
-void BXVector<T>::set( int bx, int i ,T object)
+void BXVector<T>::set( int bx, unsigned i , const T & object)
 {
   if(i >= size(bx)){
-     cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+     //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
   }
   else{
      data_.erase(data_.begin() + itrs_[indexFromBX(bx)]+i);
@@ -271,12 +240,12 @@ unsigned BXVector<T>::indexFromBX(int bx) const
 template <class T>
 bool BXVector<T>::isEmpty(int bx) const
 {
-if (itrs_[indexFromBX(bx)]==data_.size())
+  if (itrs_[indexFromBX(bx)]== data_.size())
    {
 	return true;
    }
 
-if(indexFromBX(bx+1) >= itrs_.size()){ 
+  if(indexFromBX(bx+1) >=  itrs_.size()){ 
 	return false;
    }
 
