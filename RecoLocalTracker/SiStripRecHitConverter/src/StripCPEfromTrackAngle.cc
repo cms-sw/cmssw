@@ -12,6 +12,18 @@ float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N, const float uP
   return uerr*uerr;
 }
 
+float StripCPEfromTrackAngle::legacyStripErrorSquared(const unsigned N, const float uProj) const {
+  if( (float(N)-uProj) > 3.5f )
+    return float(N*N)/12.f;
+  else {
+    static constexpr float P1=-0.339;
+    static constexpr float P2=0.90;
+    static constexpr float P3=0.279;
+    const float uerr = P1*uProj*vdt::fast_expf(-uProj*P2)+P3;
+    return uerr*uerr;
+  }
+}
+
 StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::
 localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const LocalTrajectoryParameters& ltp) const {
   
@@ -26,7 +38,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
 
   const unsigned N = cluster.amplitudes().size();
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
-  const float uerr2 = stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+  const float uerr2 = useLegacyError ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
   const float strip = cluster.barycenter() -  0.5f*(1.f-p.backplanecorrection) * fullProjection
     + 0.5f*p.coveredStrips(track, ltp.position());
 

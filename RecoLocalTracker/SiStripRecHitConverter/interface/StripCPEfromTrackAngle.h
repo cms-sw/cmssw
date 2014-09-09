@@ -17,11 +17,15 @@ private:
   std::map<SiStripDetId::SubDetector, float> mHC_P0;
   std::map<SiStripDetId::SubDetector, float> mHC_P1;
 
+  //Set to true if we are using the old error parameterization
+  const bool useLegacyError;
+
 public:  
   StripClusterParameterEstimator::LocalValues
   localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
   
   float stripErrorSquared(const unsigned N, const float uProj, const SiStripDetId::SubDetector loc ) const ;
+  float legacyStripErrorSquared(const unsigned N, const float uProj) const;
 
   StripCPEfromTrackAngle( edm::ParameterSet & conf, 
 			  const MagneticField& mag, 
@@ -31,6 +35,7 @@ public:
 			  const SiStripConfObject& confObj,
 			  const SiStripLatency& latency) 
   : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency )
+  , useLegacyError(conf.existsAs<bool>("useLegacyError") ? conf.getParameter<bool>("useLegacyError") : false)
   {
     mLC_P[0] = conf.existsAs<double>("mLC_P0") ? conf.getParameter<double>("mLC_P0") : -.326;
     mLC_P[1] = conf.existsAs<double>("mLC_P1") ? conf.getParameter<double>("mLC_P1") :  .618;
