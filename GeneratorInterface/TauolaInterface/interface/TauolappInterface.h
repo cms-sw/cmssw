@@ -54,12 +54,11 @@ namespace gen {
       //TauolappInterface();
       
       // member function(s)
-      float flat();
       void decodeMDTAU( int );
       void selectDecayByMDTAU();
       int selectLeptonic();
       int selectHadronic();
-      
+      double flat();
       
       //
       CLHEP::HepRandomEngine*                  fRandomEngine;            

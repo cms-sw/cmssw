@@ -70,6 +70,9 @@ void TauSpinnerCMS::beginJob()
 }
 
 void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
+
+  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat); // rest tauola++ random number incase other modules use tauola++
+  Tauolapp::jaki_.ktom = 1; // rest for when you run after tauola
   double WT=1.0;
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]
@@ -84,35 +87,35 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
     e.getByLabel( "generator", EvtHandle ) ;
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     stat=readParticlesFromHepMC(Evt,X,tau,tau2,tau_daughters,tau_daughters2);
-  }  
+  }
   if(MotherPDGID_<0 || abs(X.pdgid())==MotherPDGID_){
     if(stat!=1){
-      // Determine the weight      
-      if( abs(X.pdgid())==24 ||  abs(X.pdgid())==37 ){
+      // Determine the weight
+      if( abs(X.pdgid())==24 || abs(X.pdgid())==37 ){
         TLorentzVector tau_1r(0,0,0,0);
         TLorentzVector tau_1(tau.px(),tau.py(),tau.pz(),tau.e());
         for(unsigned int i=0; i<tau_daughters.size();i++){
           tau_1r+=TLorentzVector(tau_daughters.at(i).px(),tau_daughters.at(i).py(),tau_daughters.at(i).pz(),tau_daughters.at(i).e());
         }
-	if(fabs(tau_1r.M()-tau_1.M())<roundOff_){
-	  WT = TauSpinner::calculateWeightFromParticlesWorHpn(X, tau, tau2, tau_daughters); // note that tau2 is tau neutrino
-	  polSM=getTauSpin();
-	  WTFlip=(2.0-WT)/WT;
-	}
+        if(fabs(tau_1r.M()-tau_1.M())<roundOff_){
+          WT = TauSpinner::calculateWeightFromParticlesWorHpn(X, tau, tau2, tau_daughters); // note that tau2 is tau neutrino
+          polSM=getTauSpin();
+          WTFlip=(2.0-WT)/WT;
+        }
       }
       else if( X.pdgid()==25 || X.pdgid()==36 || X.pdgid()==22 || X.pdgid()==23 ){
-	TLorentzVector tau_1r(0,0,0,0), tau_2r(0,0,0,0);
-	TLorentzVector tau_1(tau.px(),tau.py(),tau.pz(),tau.e()), tau_2(tau2.px(),tau2.py(),tau2.pz(),tau2.e());
-	for(unsigned int i=0; i<tau_daughters.size();i++){
-	  tau_1r+=TLorentzVector(tau_daughters.at(i).px(),tau_daughters.at(i).py(),tau_daughters.at(i).pz(),tau_daughters.at(i).e());
-	}
-	for(unsigned int i=0; i<tau_daughters2.size();i++){
-	  tau_2r+=TLorentzVector(tau_daughters2.at(i).px(),tau_daughters2.at(i).py(),tau_daughters2.at(i).pz(),tau_daughters2.at(i).e());
-	}
+        TLorentzVector tau_1r(0,0,0,0), tau_2r(0,0,0,0);
+        TLorentzVector tau_1(tau.px(),tau.py(),tau.pz(),tau.e()), tau_2(tau2.px(),tau2.py(),tau2.pz(),tau2.e());
+        for(unsigned int i=0; i<tau_daughters.size();i++){
+          tau_1r+=TLorentzVector(tau_daughters.at(i).px(),tau_daughters.at(i).py(),tau_daughters.at(i).pz(),tau_daughters.at(i).e());
+        }
+        for(unsigned int i=0; i<tau_daughters2.size();i++){
+          tau_2r+=TLorentzVector(tau_daughters2.at(i).px(),tau_daughters2.at(i).py(),tau_daughters2.at(i).pz(),tau_daughters2.at(i).e());
+        }
 
         if(fabs(tau_1r.M()-tau_1.M())<roundOff_ && fabs(tau_2r.M()-tau_2.M())<roundOff_){
           WT = TauSpinner::calculateWeightFromParticlesH(X, tau, tau2, tau_daughters,tau_daughters2);
-	  //std::cout << "WT " << WT << std::endl;
+          //std::cout << "WT " << WT << std::endl;
           polSM=getTauSpin();
           if(X.pdgid()==25 || X.pdgid()==22 || X.pdgid()==23 ){
             if(X.pdgid()==25) X.setPdgid(23);
@@ -124,7 +127,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
         }
       }
       else{
-	cout<<"TauSpinner: WARNING: Unexpected PDG for tau mother: "<<X.pdgid()<<endl;
+        cout<<"TauSpinner: WARNING: Unexpected PDG for tau mother: "<<X.pdgid()<<endl;
       }
     }
   }
@@ -136,17 +139,17 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
 
   // regular weight
   std::auto_ptr<double> TauSpinnerWeight(new double);
-  *TauSpinnerWeight =WT;    
-  e.put(TauSpinnerWeight,"TauSpinnerWT");  
-  
+  *TauSpinnerWeight =WT;
+  e.put(TauSpinnerWeight,"TauSpinnerWT");
+
   // flipped weight (ie Z->H or H->Z)
   std::auto_ptr<double> TauSpinnerWeightFlip(new double);
   *TauSpinnerWeightFlip =WTFlip;
   e.put(TauSpinnerWeightFlip,"TauSpinnerWTFlip");
-  
+
   // h+ polarization
   double WThplus=WT;
-  if(polSM<0.0 && polSM!=-999 && isValid) WThplus=0; 
+  if(polSM<0.0 && polSM!=-999 && isValid) WThplus=0;
   std::auto_ptr<double> TauSpinnerWeighthplus(new double);
   *TauSpinnerWeighthplus = WThplus;
   e.put(TauSpinnerWeighthplus,"TauSpinnerWThplus");
@@ -157,7 +160,6 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   std::auto_ptr<double> TauSpinnerWeighthminus(new double);
   *TauSpinnerWeighthminus = WThminus;
   e.put(TauSpinnerWeighthminus,"TauSpinnerWThminus");
-  
   return ;
 }  
 
