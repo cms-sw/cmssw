@@ -332,7 +332,8 @@
    <version ClassVersion="10" checksum="3548207838"/>
   </class>
 
-  <class name="reco::TrackExtra" ClassVersion="10">
+  <class name="reco::TrackExtra" ClassVersion="11">
+   <version ClassVersion="11" checksum="2586227274"/>
    <version ClassVersion="10" checksum="1613098482"/>
     <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -345,7 +346,8 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="12">
+  <class name="reco::Track" ClassVersion="13">
+   <version ClassVersion="13" checksum="36410295"/>
    <version ClassVersion="12" checksum="1190637787"/>
    <version ClassVersion="11" checksum="1190637787"/>
    <version ClassVersion="10" checksum="1190637787"/>
