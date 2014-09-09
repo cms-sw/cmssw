@@ -5,8 +5,8 @@ from RecoLocalCalo.EcalRecAlgos.ecalCleaningAlgo import cleaningAlgoConfig
 # rechit producer
 ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EErechitCollection = cms.string('EcalRecHitsEE'),
-    EEuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE"),
-    EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB"),
+    EEuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEE"),
+    EBuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
     # db statuses to be exluded from reconstruction (some will be recovered)
     ChannelStatusToBeExcluded = cms.vstring(   'kNoisy',

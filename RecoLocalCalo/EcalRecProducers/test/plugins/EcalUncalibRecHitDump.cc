@@ -44,14 +44,14 @@ void EcalUncalibRecHitDump::analyze(const edm::Event& ev,
 
   for (auto const& h : (*EBURecHits_))
     std::cout << "EB id: " << h.id() << " amplitude: " << h.amplitude() << " pedestal: " << h.pedestal()
-              << " jitter: " << h.jitter() << " chi2: " << h.chi2() << " outOfTimeEnergy: " << h.outOfTimeEnergy()
-              << " outOfTimeChi2: " << h.outOfTimeChi2() << " jitterErrorBits: " << int(h.jitterErrorBits())
+              << " jitter: " << h.jitter() << " chi2: " << h.chi2() << " amplitudeError: " << h.amplitudeError()
+              << " jitterErrorBits: " << int(h.jitterErrorBits())
               << std::endl;
 
   for (auto const& h : (*EEURecHits_))
     std::cout << "EE id: " << h.id() << " amplitude: " << h.amplitude() << " pedestal: " << h.pedestal()
-              << " jitter: " << h.jitter() << " chi2: " << h.chi2() << " outOfTimeEnergy: " << h.outOfTimeEnergy()
-              << " outOfTimeChi2: " << h.outOfTimeChi2() << " jitterErrorBits: " << int(h.jitterErrorBits())
+              << " jitter: " << h.jitter() << " chi2: " << h.chi2() << " amplitudeError: " << h.amplitudeError()
+              << " jitterErrorBits: " << int(h.jitterErrorBits())
               << std::endl;
 
 }

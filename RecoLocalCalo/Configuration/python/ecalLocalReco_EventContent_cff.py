@@ -11,7 +11,7 @@ import FWCore.ParameterSet.Config as cms
 #Full Event content 
 ecalLocalRecoFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_ecalGlobalUncalibRecHit_*_*', 
+        'keep *_ecalMultiFitUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*')
 )
