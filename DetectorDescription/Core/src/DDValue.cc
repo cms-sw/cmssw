@@ -104,7 +104,7 @@ DDValue::~DDValue( void )
 void
 DDValue::clear( void )
 {
-  tbb::concurrent_vector<boost::shared_ptr<vecpair_type> > & v = mem( 0 );
+  tbb::concurrent_vector<std::shared_ptr<vecpair_type> > & v = mem( 0 );
   v.clear();
 }
 
@@ -122,11 +122,11 @@ DDValue::names( void )
   return names_;
 } 
 
-tbb::concurrent_vector<boost::shared_ptr<DDValue::vecpair_type> >&
+tbb::concurrent_vector<std::shared_ptr<DDValue::vecpair_type> >&
 DDValue::mem( DDValue::vecpair_type * vp )
 {
-  static tbb::concurrent_vector<boost::shared_ptr<vecpair_type> > memory_;
-  memory_.push_back( boost::shared_ptr<vecpair_type>( vp ));
+  static tbb::concurrent_vector<std::shared_ptr<vecpair_type> > memory_;
+  memory_.push_back( std::shared_ptr<vecpair_type>( vp ));
   return memory_;
 }
 
