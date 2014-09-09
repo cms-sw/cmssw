@@ -1,6 +1,3 @@
-#ifndef SimMuon_GEMDigitizer_GEMFakeEvent_h
-#define SimMuon_GEMDigitizer_GEMFakeEvent_h
-
 /** \class GEMFakeEvent
  *   Class for testing creation of fake digis in every GEM strip
  *
@@ -17,7 +14,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 
@@ -85,6 +81,6 @@ GEMFakeEvent::produce(edm::Event & ev, const edm::EventSetup& es)
   cout<<"Done with event!"<<endl;
 }
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMFakeEvent);
 

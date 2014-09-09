@@ -1,6 +1,3 @@
-#ifndef SimMuon_GEMDigitizer_GEMDigiReader_h
-#define SimMuon_GEMDigitizer_GEMDigiReader_h
-
 /** \class GEMDigiReader
  *
  *  Dumps GEM digis 
@@ -125,9 +122,6 @@ void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
   cout<<"--------------"<<endl;
 }
 
-
-
-#endif
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE(GEMDigiReader);
 
