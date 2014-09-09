@@ -7,7 +7,7 @@ void
 DDValue::init( const std::string &name )
 {
   unsigned int temp = indexer().size()+1;
-  typedef std::map<std::string,unsigned int>::iterator itT;
+  typedef tbb::concurrent_unordered_map<std::string,unsigned int>::iterator itT;
   std::pair<itT,bool> result = indexer().insert( std::make_pair( name, temp ));
   
   if( result.second )
@@ -104,29 +104,29 @@ DDValue::~DDValue( void )
 void
 DDValue::clear( void )
 {
-  std::vector<boost::shared_ptr<vecpair_type> > & v = mem( 0 );
+  tbb::concurrent_vector<std::shared_ptr<vecpair_type> > & v = mem( 0 );
   v.clear();
 }
 
-std::map<std::string, unsigned int>&
+tbb::concurrent_unordered_map<std::string, unsigned int>&
 DDValue::indexer( void )
 { 
-  static std::map<std::string,unsigned int> indexer_;
+  static tbb::concurrent_unordered_map<std::string,unsigned int> indexer_;
   return indexer_;
 }  
   
-std::vector<std::string>&
+tbb::concurrent_vector<std::string>&
 DDValue::names( void )
 {
-  static std::vector<std::string> names_( 1 );
+  static tbb::concurrent_vector<std::string> names_( 1 );
   return names_;
 } 
 
-std::vector<boost::shared_ptr<DDValue::vecpair_type> >&
+tbb::concurrent_vector<std::shared_ptr<DDValue::vecpair_type> >&
 DDValue::mem( DDValue::vecpair_type * vp )
 {
-  static std::vector<boost::shared_ptr<vecpair_type> > memory_;
-  memory_.push_back( boost::shared_ptr<vecpair_type>( vp ));
+  static tbb::concurrent_vector<std::shared_ptr<vecpair_type> > memory_;
+  memory_.push_back( std::shared_ptr<vecpair_type>( vp ));
   return memory_;
 }
 
