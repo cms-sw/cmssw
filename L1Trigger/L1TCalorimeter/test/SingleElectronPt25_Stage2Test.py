@@ -84,10 +84,9 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 )
 
 # upgrade calo stage 2
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 process.esTest = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
    record = cms.string('L1TCaloParamsRcd'),
@@ -111,8 +110,8 @@ process.MessageLogger = cms.Service(
 	threshold  = cms.untracked.string('DEBUG') 
     ),
     debugModules = cms.untracked.vstring(
-	'caloStage2TowerDigis',
-	'caloStage2Digis'
+	'l1tCaloStage2TowerDigis',
+	'l1tCaloStage2Digis'
     )
 )
 
