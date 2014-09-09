@@ -14,12 +14,12 @@ trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
          cms.PSet(
              QT         = cms.string("Chi2"),
              dir        = cms.string("TrackParameters/GeneralProperties"),
-             name       = cms.string("TrackChi2oNDF_"),
+             name       = cms.string("Chi2oNDF_"),
          ),
          cms.PSet(
              QT         = cms.string("RecHits"),
              dir        = cms.string("TrackParameters/HitProperties"),
-             name       = cms.string("TrackNumberOfRecHitsPerTrack_"),
+             name       = cms.string("NumberOfRecHitsPerTrack_"),
          ),
     ),
     TrackingLSQualityPSets = cms.VPSet(
@@ -33,14 +33,14 @@ trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
          cms.PSet(
              QT         = cms.string("Chi2"),
              LSdir      = cms.string("TrackParameters/GeneralProperties/LSanalysis"),
-             LSname     = cms.string("TrackChi2oNDF_lumiFlag_"),
+             LSname     = cms.string("Chi2oNDF_lumiFlag_"),
              LSlowerCut = cms.double(  0.0 ),
              LSupperCut = cms.double( 25.0 )
          ),
          cms.PSet(
              QT         = cms.string("RecHits"),
              LSdir      = cms.string("TrackParameters/GeneralProperties/LSanalysis"),
-             LSname     = cms.string("TrackNumberOfRecHitsPerTrack_lumiFlag_"),
+             LSname     = cms.string("NumberOfRecHitsPerTrack_lumiFlag_"),
              LSlowerCut = cms.double(  3.0 ),
              LSupperCut = cms.double( 35.0 )
          ),
