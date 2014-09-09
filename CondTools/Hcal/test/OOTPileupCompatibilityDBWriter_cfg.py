@@ -1,6 +1,6 @@
 database = "sqlite_file:compatOOTPileupCorrection.db"
 tag = "test"
-inputfile = "../data/testOOTPileupCorrection.bbin"
+inputfile = "testOOTPileupCorrection.bbin"
 
 import FWCore.ParameterSet.Config as cms
 

@@ -17,7 +17,7 @@ public:
 
     inline void add(const std::string& name, const std::string& category,
                     std::auto_ptr<T> ptr)
-        {data_[category][name] = ptr.release();}
+        {delete data_[category][name]; data_[category][name] = ptr.release();}
 
     void clear();
 
