@@ -432,8 +432,20 @@ private:
             unsigned int num, std::vector<bool>& mipDst,
             std::vector<bool>& isoEnDst, std::vector<bool>& isoReqDst);
 
-    template <typename T> std::string l1t2string( T );
-    std::string l1tDateTime2string( l1t::DateTime );
+    std::string l1t2string( l1t::MenuName );
+    std::string l1t2string( l1t::ScalesKey );
+    std::string l1t2string( l1t::FirmwareVersion );
+    std::string l1t2string( l1t::DateTime );
+    std::string l1t2string( l1t::Label );
+    std::string l1t2string( l1t::Description );
+    std::string l1t2string( l1t::ConditionName );
+    std::string l1t2string( l1t::ConditionType );
+    std::string l1t2string( l1t::EtComparison );
+    std::string l1t2string( l1t::CalorimeterObjectType );
+    std::string l1t2string( l1t::AlgorithmName );
+    std::string l1t2string( l1t::AlgorithmIndex );
+    std::string l1t2string( l1t::AlgorithmEquation );
+    std::string l1t2string( l1t::EtThreshold );
     int l1t2int( l1t::RelativeBx );
 
     /// parse a muon condition
