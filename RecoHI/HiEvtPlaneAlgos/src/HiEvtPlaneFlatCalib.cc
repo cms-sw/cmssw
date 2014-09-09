@@ -1,20 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    HiEvtPlaneFlatCalib
-// Class:      HiEvtPlaneFlatCalib
-// 
-/**\class HiEvtPlaneFlatCalib HiEvtPlaneFlatCalib.cc HiEvtPlaneFlatten/HiEvtPlaneFlatCalib/src/HiEvtPlaneFlatCalib.cc
-
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.7 2012/02/15 11:04:09 eulisse Exp $
 //
 //
 
@@ -83,9 +69,9 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
       ~HiEvtPlaneFlatCalib();
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
   edm::EDGetTokenT <reco::VertexCollection> vtxCollection_;

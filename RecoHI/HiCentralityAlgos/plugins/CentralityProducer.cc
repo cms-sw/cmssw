@@ -57,9 +57,9 @@ class CentralityProducer : public edm::EDProducer {
       ~CentralityProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -275,8 +275,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const EcalRecHit & hit= (*eeHits)[i];
         const GlobalPoint& pos=cGeo->getPosition(hit.id());
         double et = hit.energy()*sin(pos.theta());
-        double eta = pos.eta();
-        if(eta > 0){
+        if(pos.z() > 0){
            creco->etEESumPlus_ += et;
         }else{
            creco->etEESumMinus_ += et;

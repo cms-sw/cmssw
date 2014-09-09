@@ -1,20 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    HiEvtPlaneFlatProducer
-// Class:      HiEvtPlaneFlatProducer
-// 
-/**\class HiEvtPlaneFlatProducer HiEvtPlaneFlatProducer.cc HiEvtPlaneFlatten/HiEvtPlaneFlatProducer/src/HiEvtPlaneFlatProducer.cc
-
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.14 2012/02/15 11:04:09 eulisse Exp $
 //
 //
 
@@ -88,9 +74,9 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
       ~HiEvtPlaneFlatProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 
