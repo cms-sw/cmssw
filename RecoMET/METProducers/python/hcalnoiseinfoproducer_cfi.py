@@ -101,7 +101,7 @@ hcalnoise = cms.EDProducer(
     # maximum number of RBXs to fill
     # if you want to record all RBXs above some energy threshold,
     # change maxProblemRBXs to 999 and pMinE (above) to the threshold you want
-    maxProblemRBXs  = cms.int32(20),
+    maxProblemRBXs  = cms.int32(72),
 
     # parameters for calculating summary variables
     maxCaloTowerIEta = cms.int32(20),
