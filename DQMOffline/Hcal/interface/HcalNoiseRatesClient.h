@@ -25,6 +25,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,10 +37,9 @@
 class DQMStore;
 class MonitorElement;
 
-class HcalNoiseRatesClient : public edm::EDAnalyzer {
+class HcalNoiseRatesClient : public DQMEDHarvester {
  
  private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string outputFile_;
 
   edm::ParameterSet conf_;
@@ -53,12 +56,8 @@ class HcalNoiseRatesClient : public edm::EDAnalyzer {
   virtual ~HcalNoiseRatesClient();
   
   virtual void beginJob(void);
-  virtual void endJob();
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  virtual void runClient_();   
 
   int NoiseRatesEndjob(const std::vector<MonitorElement*> &hcalMEs);
 

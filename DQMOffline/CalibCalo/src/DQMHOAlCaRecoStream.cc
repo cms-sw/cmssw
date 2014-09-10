@@ -158,68 +158,67 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DQMHOAlCaRecoStream::beginJob()
+DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup)
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder(folderName_);
+  ibooker.setCurrentFolder(folderName_);
 
   char title[200];
   char name[200];
 
-  hMuonMom = dbe_->book1D("hMuonMom", "Muon momentum (GeV)", 50, -100, 100);
+  hMuonMom = ibooker.book1D("hMuonMom", "Muon momentum (GeV)", 50, -100, 100);
   hMuonMom ->setAxisTitle("Muon momentum (GeV)",1);
   
-  hMuonEta = dbe_->book1D("hMuonEta", "Pseudo-rapidity of muon", 50, -1.5, 1.5);
+  hMuonEta = ibooker.book1D("hMuonEta", "Pseudo-rapidity of muon", 50, -1.5, 1.5);
   hMuonEta ->setAxisTitle("Pseudo-rapidity of muon",1);
   
-  hMuonPhi = dbe_->book1D("hMuonPhi", "Azimuthal angle of muon", 24, -acos(-1), acos(-1));
+  hMuonPhi = ibooker.book1D("hMuonPhi", "Azimuthal angle of muon", 24, -acos(-1), acos(-1));
   hMuonPhi ->setAxisTitle("Azimuthal angle of muon",1);
     
-  hMuonMultipl = dbe_->book1D("hMuonMultipl", "Muon Multiplicity", 10, 0.5, 10.5); 
+  hMuonMultipl = ibooker.book1D("hMuonMultipl", "Muon Multiplicity", 10, 0.5, 10.5); 
   hMuonMultipl ->setAxisTitle("Muon Multiplicity",1);
 
-  hDirCosine = dbe_->book1D("hDirCosine", "Direction Cosine of muon at HO tower", 50, -1., 1.);
+  hDirCosine = ibooker.book1D("hDirCosine", "Direction Cosine of muon at HO tower", 50, -1., 1.);
   hDirCosine ->setAxisTitle("Direction Cosine of muon at HO tower",1);
 
-  hHOTime = dbe_->book1D("hHOTime", "HO time distribution", 60, -20, 100.);  
+  hHOTime = ibooker.book1D("hHOTime", "HO time distribution", 60, -20, 100.);  
   hHOTime ->setAxisTitle("HO time distribution", 1);
 
   for (int i=0; i<5; i++) {
     sprintf(name, "hSigRing_%i", i-2);
     sprintf(title, "HO signal in Ring_%i", i-2);
-    hSigRing[i] = dbe_->book1D(name, title, m_nbins, m_lowEdge, m_highEdge);
+    hSigRing[i] = ibooker.book1D(name, title, m_nbins, m_lowEdge, m_highEdge);
     hSigRing[i]->setAxisTitle(title,1);
 
     sprintf(name, "hPedRing_%i", i-2);
     sprintf(title, "HO Pedestal in Ring_%i", i-2);
-    hPedRing[i] = dbe_->book1D(name, title, m_nbins, m_lowEdge, m_highEdge);
+    hPedRing[i] = ibooker.book1D(name, title, m_nbins, m_lowEdge, m_highEdge);
     hPedRing[i]->setAxisTitle(title,1);
   }
 
-  //  hSigRingm1 = dbe_->book1D("hSigRingm1", "HO signal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
+  //  hSigRingm1 = ibooker.book1D("hSigRingm1", "HO signal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
   //  hSigRingm1->setAxisTitle("HO signal in Ring-1",1);
 
-  //  hSigRing00 = dbe_->book1D("hSigRing00", "HO signal in Ring_0", m_nbins, m_lowEdge, m_highEdge);
+  //  hSigRing00 = ibooker.book1D("hSigRing00", "HO signal in Ring_0", m_nbins, m_lowEdge, m_highEdge);
   //  hSigRing00->setAxisTitle("HO signal in Ring_0",1);
 
-  //  hSigRingp1 = dbe_->book1D("hSigRingp1", "HO signal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
+  //  hSigRingp1 = ibooker.book1D("hSigRingp1", "HO signal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
   //  hSigRingp1->setAxisTitle("HO signal in Ring+1",1);
 
-  //  hSigRingp2 = dbe_->book1D("hSigRingp2", "HO signal in Ring-2", m_nbins, m_lowEdge, m_highEdge);
+  //  hSigRingp2 = ibooker.book1D("hSigRingp2", "HO signal in Ring-2", m_nbins, m_lowEdge, m_highEdge);
   //  hSigRingp2->setAxisTitle("HO signal in Ring+2",1);
   
-  //  hPedRingm2 = dbe_->book1D("hPedRingm2", "HO pedestal in Ring-2", m_nbins, m_lowEdge, m_highEdge);
-  //  hPedRingm1 = dbe_->book1D("hPedRingm1", "HO pedestal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
-  //  hPedRing00 = dbe_->book1D("hPedRing00", "HO pedestal in Ring_0", m_nbins, m_lowEdge, m_highEdge);
-  //  hPedRingp1 = dbe_->book1D("hPedRingp1", "HO pedestal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
-  //  hPedRingp2 = dbe_->book1D("hPedRingp2", "HO pedestal in Ring-2", m_nbins, m_lowEdge, m_highEdge);
+  //  hPedRingm2 = ibooker.book1D("hPedRingm2", "HO pedestal in Ring-2", m_nbins, m_lowEdge, m_highEdge);
+  //  hPedRingm1 = ibooker.book1D("hPedRingm1", "HO pedestal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
+  //  hPedRing00 = ibooker.book1D("hPedRing00", "HO pedestal in Ring_0", m_nbins, m_lowEdge, m_highEdge);
+  //  hPedRingp1 = ibooker.book1D("hPedRingp1", "HO pedestal in Ring-1", m_nbins, m_lowEdge, m_highEdge);
+  //  hPedRingp2 = ibooker.book1D("hPedRingp2", "HO pedestal in Ring-2", m_nbins, m_lowEdge, m_highEdge);
 
   for (int i=-1; i<=1; i++) {
     for (int j=-1; j<=1; j++) {
       int k = 3*(i+1)+j+1;
       
       sprintf(title, "hSignal3x3_deta%i_dphi%i", i, j);
-      hSignal3x3[k] = dbe_->book1D(title, title, m_nbins, m_lowEdge, m_highEdge);
+      hSignal3x3[k] = ibooker.book1D(title, title, m_nbins, m_lowEdge, m_highEdge);
       hSignal3x3[k]->setAxisTitle(title,1);
     }
   }
@@ -229,31 +228,4 @@ DQMHOAlCaRecoStream::beginJob()
 
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-DQMHOAlCaRecoStream::endJob() {
-  if (saveToFile_) {
-
-    //    double scale = 1./max(1,Nevents);
-    double scale = 1./max(1,Nmuons);
-    hMuonMom->getTH1F()->Scale(scale);
-    hMuonEta->getTH1F()->Scale(scale);
-    hMuonPhi->getTH1F()->Scale(scale);
-    hDirCosine->getTH1F()->Scale(scale);
-    hHOTime->getTH1F()->Scale(scale);
-    
-    //    scale = 1./max(1,Nmuons);
-    for (int k=0; k<5; k++) {
-      hSigRing[k]->getTH1F()->Scale(scale);
-      hPedRing[k]->getTH1F()->Scale(scale);
-    }
-    
-    for (int k=0; k<9; k++) {
-      hSignal3x3[k]->getTH1F()->Scale(scale);
-    }
-
-    dbe_->save(theRootFileName); 
-  }
-
-}
 
