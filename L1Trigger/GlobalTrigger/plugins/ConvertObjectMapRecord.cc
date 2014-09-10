@@ -13,7 +13,7 @@
  *
  */
 
-#include "L1Trigger/GlobalTrigger/interface/ConvertObjectMapRecord.h"
+#include "ConvertObjectMapRecord.h"
 
 #include <limits>
 #include <memory>
@@ -27,6 +27,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -205,3 +206,5 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   gtObjectMaps->consistencyCheck();
   event.put(gtObjectMaps);
 }
+
+DEFINE_FWK_MODULE(ConvertObjectMapRecord);

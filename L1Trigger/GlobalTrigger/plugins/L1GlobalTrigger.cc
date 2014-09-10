@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
+#include "L1GlobalTrigger.h"
 
 // system include files
 #include <memory>
@@ -45,6 +45,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
@@ -1183,3 +1184,4 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 // static data members
 
+DEFINE_FWK_MODULE(L1GlobalTrigger);
