@@ -19,12 +19,12 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-class DQMStore;
 class MonitorElement;
 
-class DQMHcalDiJetsAlCaReco : public edm::EDAnalyzer {
+class DQMHcalDiJetsAlCaReco : public DQMEDAnalyzer {
 
 public:
 
@@ -33,26 +33,16 @@ public:
 
 protected:
    
-  void beginJob();
 
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& context) ;
 
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
-
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void endJob();
-
 private:
  
 
-  DQMStore*   dbe_;  
   int eventCounter_;  
       
 //                        

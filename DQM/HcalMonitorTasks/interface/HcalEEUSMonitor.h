@@ -38,7 +38,7 @@ class HcalEEUSMonitor:  public HcalBaseMonitor {
   ~HcalEEUSMonitor();
 
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
   void reset();
   void clearME();
 
