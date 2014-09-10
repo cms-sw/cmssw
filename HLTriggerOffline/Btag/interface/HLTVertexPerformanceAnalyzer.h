@@ -3,7 +3,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,9 +17,11 @@
 #include <SimDataFormats/Vertex/interface/SimVertex.h>
 
 //DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
+#include "FWCore/Utilities/interface/transform.h"
 
 /** \class HLTVertexPerformanceAnalyzer
  *
@@ -31,29 +32,24 @@
 using namespace reco;
 using namespace edm;
 
-class HLTVertexPerformanceAnalyzer : public edm::EDAnalyzer {
+class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 	public:
 		explicit HLTVertexPerformanceAnalyzer(const edm::ParameterSet&);
 		~HLTVertexPerformanceAnalyzer();
-		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 	private:
-		virtual void beginJob() ;
 		virtual void analyze(const edm::Event&, const edm::EventSetup&);
-		virtual void endJob() ;
-
-		virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-		virtual void endRun(edm::Run const&, edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 		virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 		// variables from python configuration
-		InputTag hlTriggerResults_;
+		edm::EDGetTokenT<TriggerResults> hlTriggerResults_;
+		edm::EDGetTokenT<std::vector<SimVertex> > simVertexCollection_;
 		std::vector<std::string> hltPathNames_;
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
 
-		std::vector<InputTag> VertexCollection_;
+		std::vector<edm::EDGetTokenT<reco::VertexCollection> > VertexCollection_;
 		std::vector<int> hltPathIndexs_;
 		
 		// other class variables
@@ -61,6 +57,10 @@ class HLTVertexPerformanceAnalyzer : public edm::EDAnalyzer {
 		std::vector<bool> _isfoundHLTs;
 		std::vector<std::string> folders;
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
+
+		edm::EDConsumerBase::Labels label;
+		std::vector<std::string> VertexCollection_Label;
+		std::string hlTriggerResults_Label;
 };
 
 #endif

@@ -2,18 +2,23 @@
 
 HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
-	hlTriggerResults_   = iConfig.getParameter<InputTag> ("TriggerResults");
-	hltPathNames_        = iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
-	VertexCollection_           = iConfig.getParameter<std::vector<InputTag> >("Vertex");
-	dqm = edm::Service<DQMStore>().operator->();
+	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
+	VertexCollection_           = 	edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "Vertex" ), [this](edm::InputTag const & tag){return mayConsume< reco::VertexCollection>(tag);});
+	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
+	simVertexCollection_ = consumes<std::vector<SimVertex> >(edm::InputTag("g4SimHits"));
+
+	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
+	hlTriggerResults_Label = label.module;
+	
+	for(unsigned int i=0; i<VertexCollection_.size() ; i++){
+		EDConsumerBase::labelsForToken(VertexCollection_[i],label);
+		VertexCollection_Label.push_back(label.module);
+	}
 }
 
 
 HLTVertexPerformanceAnalyzer::~HLTVertexPerformanceAnalyzer()
 {
-
-	// do anything here that needs to be done at desctruction time
-	// (e.g. close files, deallocate resources etc.)
 }
 
 void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -24,29 +29,31 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 	//get triggerResults
 	Handle<TriggerResults> TriggerResulsHandler;
 	Exception excp(errors::LogicError);
-	if ( hlTriggerResults_.label() == "" || hlTriggerResults_.label() == "NULL" ) {
+	if ( hlTriggerResults_Label == "" || hlTriggerResults_Label == "NULL" ) {
 		excp << "TriggerResults ==> Empty";
 		excp.raise();
 	}
 	try {
-		iEvent.getByLabel(hlTriggerResults_, TriggerResulsHandler);
+		iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
 		if (TriggerResulsHandler.isValid())   trigRes=true;
 	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
 	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 
 	//get simVertex
-	Handle<reco::VertexCollection> VertexHandler;
 	float simPV=0;
+
 	Handle<std::vector<SimVertex> > simVertexCollection;
+	
 	try {
-		iEvent.getByLabel("g4SimHits", simVertexCollection);
+		iEvent.getByToken(simVertexCollection_, simVertexCollection);
 		const SimVertex simPVh = *(simVertexCollection->begin());
 		simPV=simPVh.position().z();
 	}
 	catch (...) { std::cout<<"Exception caught in simVertexCollection"<<std::endl;}
 	
 	//fill the DQM plot
+	Handle<VertexCollection> VertexHandler;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
 		for (unsigned int coll=0; coll<VertexCollection_.size();coll++) {
 			bool VertexOK=false;
@@ -54,10 +61,10 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 			if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;	//if the hltPath was not accepted skip the event
 			
 			//get the recoVertex
-			if (VertexCollection_.at(coll).label() != "" && VertexCollection_.at(coll).label() != "NULL" )
+			if (VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" )
 			{
 				try {
-					iEvent.getByLabel(VertexCollection_.at(coll), VertexHandler);
+					iEvent.getByToken(VertexCollection_.at(coll), VertexHandler);
 					if (VertexHandler.isValid())   VertexOK=true;						
 					else std::cout<<"Check:"<< VertexHandler <<std::endl;
 				}  catch (...) { std::cout<<"Exception caught in VertexHandler"<<std::endl;}			
@@ -67,21 +74,18 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 			float value=VertexHandler->begin()->z()-simPV;
 			
 			//if value is over/under flow, assign the extreme value
-			float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_.at(coll).label()]->getTH1F()->GetXaxis()->GetXmax();
+			float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)]->getTH1F()->GetXaxis()->GetXmax();
 			if(value>maxValue)	value=maxValue-0.0001; 
 			if(value<-maxValue)	value=-maxValue+0.0001; 
 			
 			//fill the histo
-			if (VertexOK) H1_.at(ind)["Vertex_"+VertexCollection_.at(coll).label()] -> Fill(value);
+			if (VertexOK) H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)] -> Fill(value);
 		}// for on VertexCollection_
 	}//for on hltPathNames_
 }
 
 
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void HLTVertexPerformanceAnalyzer::beginJob()
+void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup )
 {
 	//book the DQM plots
 	using namespace std;
@@ -89,43 +93,34 @@ void HLTVertexPerformanceAnalyzer::beginJob()
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
 		dqmFolder = Form("HLT/Vertex/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
-		dqm->setCurrentFolder(dqmFolder);
+		ibooker.setCurrentFolder(dqmFolder);
 		for (unsigned int coll=0; coll<VertexCollection_.size();coll++) {
 			float maxValue = 0.02;
-			if(VertexCollection_.at(coll).label()==("hltFastPrimaryVertex")) maxValue = 2.; //for the hltFastPrimaryVertex use a larger scale (res ~ 1 cm)
+			if(VertexCollection_Label.at(coll)==("hltFastPrimaryVertex")) maxValue = 2.; //for the hltFastPrimaryVertex use a larger scale (res ~ 1 cm)
 			float vertexU = maxValue;
 			float vertexL = -maxValue;
 			int   vertexBins = 400;
-			if ( VertexCollection_.at(coll).label() != "" && VertexCollection_.at(coll).label() != "NULL" ) { 
-				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]       = dqm->book1D("Vertex_"+VertexCollection_.at(coll).label(),      VertexCollection_.at(coll).label().c_str(),  vertexBins, vertexL, vertexU );
-				H1_.back()["Vertex_"+VertexCollection_.at(coll).label()]      -> setAxisTitle("vertex error (cm)",1);
+			if ( VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" ) { 
+				H1_.back()["Vertex_"+VertexCollection_Label.at(coll)]       = ibooker.book1D("Vertex_"+VertexCollection_Label.at(coll),      VertexCollection_Label.at(coll).c_str(),  vertexBins, vertexL, vertexU );
+				H1_.back()["Vertex_"+VertexCollection_Label.at(coll)]      -> setAxisTitle("vertex error (cm)",1);
 			}
 		}
 	}
-}
 
-
-
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTVertexPerformanceAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
-{
 	triggerConfChanged_ = true;
-	hltConfigProvider_.init(iRun, iSetup, hlTriggerResults_.process(), triggerConfChanged_);
+	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
+	
+	hltConfigProvider_.init(iRun, iSetup, label.process, triggerConfChanged_);
 	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
-
+	
 	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
 		int it_mem = -1;
+		std::cout<<"The available path : ";
 		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
 		{
-			std::cout<<"The available path : "<< allHltPathNames.at(it)<<std::endl;
+			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
 			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
 			if ( found == 0 )
 			{
@@ -147,27 +142,11 @@ void HLTVertexPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetu
 	}
 }
 
-// ------------ method called when ending the processing of a run  ------------
-void HLTVertexPerformanceAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-	{
-	}
-
 // ------------ method called when starting to processes a luminosity block  ------------
 void HLTVertexPerformanceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
 	{
 	}
-	// ------------ method called when ending the processing of a luminosity block  ------------
-void HLTVertexPerformanceAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-	{
-	}
-	// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void HLTVertexPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-		//The following says we do not know what parameters are allowed so do no validation
-		// Please change this to state exactly what you do use, even if it is no parameters
-		edm::ParameterSetDescription desc;
-		desc.setUnknown();
-		descriptions.addDefault(desc);
-	}
 	//define this as a plug-in
+	
 DEFINE_FWK_MODULE(HLTVertexPerformanceAnalyzer);
 

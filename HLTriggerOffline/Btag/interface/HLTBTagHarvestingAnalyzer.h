@@ -3,23 +3,18 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TCutG.h"
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 #include "TEfficiency.h"
-#else
-#include "TGraphAsymmErrors.h"
-#endif
+
 
 
 /** \class HLTBTagHarvestingAnalyzer
@@ -32,29 +27,17 @@
 using namespace edm;
 using namespace std;
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer { 
-#else
-	class HLTBTagHarvestingAnalyzer : public edm::EDAnalyzer , public TGraphAsymmErrors{
-#endif
+class HLTBTagHarvestingAnalyzer : public DQMEDHarvester { 
 		public:
 			explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet&);
 			~HLTBTagHarvestingAnalyzer();
-			static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+			virtual void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+			TH1F * calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1* num, TH1* den, string name );
+			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type);
+			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, string effName );
 
 		private:
-			virtual void beginJob() ;
-			virtual void analyze(const edm::Event&, const edm::EventSetup&);
-			virtual void endJob() ;
-
-			TH1F * calculateEfficiency1D( TH1* num, TH1* den, string name );
-			bool GetNumDenumerators(string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type);
-			void mistagrate( TH1F* num, TH1F* den, string effName );
-			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-			virtual void endRun(edm::Run const&, edm::EventSetup const&);
-			virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-			virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
 			// ----------member data ---------------------------
 			std::vector<std::string>			hltPathNames_;
 			typedef unsigned int				flavour_t;

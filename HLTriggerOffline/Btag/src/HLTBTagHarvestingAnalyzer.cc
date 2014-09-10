@@ -19,21 +19,9 @@ HLTBTagHarvestingAnalyzer::~HLTBTagHarvestingAnalyzer()
 	// (e.g. close files, deallocate resources etc.)
 }
 
-// ------------ method called for each event  ------------
-	void
-HLTBTagHarvestingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-	void 
-HLTBTagHarvestingAnalyzer::beginJob()
-{   
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 	void 
-HLTBTagHarvestingAnalyzer::endJob() 
+HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
 	using namespace edm;
 	std::cout<<"HLTBTagHarvestingAnalyzer::endJob"<<std::endl;
@@ -60,32 +48,32 @@ HLTBTagHarvestingAnalyzer::endJob()
 			TString label= m_histoName.at(ind) + string("__"); //"JetTag__";
 			TString flavour= m_mcLabels[i].c_str();
 			label+=flavour;
-			isOK=GetNumDenumerators((TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,0);
+			isOK=GetNumDenumerators(ibooker,igetter,(TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,0);
 			if (isOK){
 			
 				//do the 'b-tag efficiency vs discr' plot
-				effics[flavour]=calculateEfficiency1D(num,den,(label+"_efficiency_vs_disc").Data());
+				effics[flavour]=calculateEfficiency1D(ibooker,igetter,num,den,(label+"_efficiency_vs_disc").Data());
 				efficsOK[flavour]=isOK;
 			}
 			label= m_histoName.at(ind)+string("___");
 			label+=flavour+TString("_disc_pT");
-			isOK=GetNumDenumerators ((TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,1);
+			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,1);
 			if (isOK) {
 			
 				//do the 'b-tag efficiency vs pT' plot
-				TH1F * eff=calculateEfficiency1D(num,den,(label+"_efficiency_vs_pT").Data());
+				TH1F * eff=calculateEfficiency1D(ibooker,igetter,num,den,(label+"_efficiency_vs_pT").Data());
 				delete eff;
 			}
 		} /// for mc labels
 		
 		///save mistagrate vs b-eff plots
-		if (efficsOK["b"] && efficsOK["c"])      mistagrate(effics["b"], effics["c"], m_histoName.at(ind)+"_b_c_mistagrate" );
-		if (efficsOK["b"] && efficsOK["light"])  mistagrate(effics["b"], effics["light"], m_histoName.at(ind)+"_b_light_mistagrate" );
-		if (efficsOK["b"] && efficsOK["g"])      mistagrate(effics["b"], effics["g"], m_histoName.at(ind)+"_b_g_mistagrate" );
+		if (efficsOK["b"] && efficsOK["c"])      mistagrate(ibooker,igetter,effics["b"], effics["c"], m_histoName.at(ind)+"_b_c_mistagrate" );
+		if (efficsOK["b"] && efficsOK["light"])  mistagrate(ibooker,igetter,effics["b"], effics["light"], m_histoName.at(ind)+"_b_light_mistagrate" );
+		if (efficsOK["b"] && efficsOK["g"])      mistagrate(ibooker,igetter,effics["b"], effics["g"], m_histoName.at(ind)+"_b_g_mistagrate" );
 	} /// for triggers
 }
 
-bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type)
+bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type)
 {
 /*
    possible types: 
@@ -94,8 +82,8 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * &
  */
 	MonitorElement *denME = NULL;
 	MonitorElement *numME = NULL;
-	denME = dqm->get(den);
-	numME = dqm->get(num);
+	denME = igetter.get(den);
+	numME = igetter.get(num);
 	if(denME==0 || numME==0){
 		cout << "Could not find MEs: "<<den<<endl;
 		return false;
@@ -146,7 +134,7 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(string num,string den,TH1 * &
 }
 
 
-void HLTBTagHarvestingAnalyzer::mistagrate( TH1F* num, TH1F* den, string effName ){
+void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, string effName ){
 	//do the efficiency_vs_mistag_rate plot
 	TH1F* eff;
 	eff = new TH1F(effName.c_str(),effName.c_str(),1000,0,1);
@@ -172,13 +160,13 @@ void HLTBTagHarvestingAnalyzer::mistagrate( TH1F* num, TH1F* den, string effName
 		eff->SetBinContent(binX,miseff);
 		eff->SetBinError(binX,miseffErr);
 	}
-	dqm->book1D(effName.c_str(),eff);
+	ibooker.book1D(effName.c_str(),eff);
 	delete eff;
 
 	return;
 }
 
-TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D( TH1* num, TH1* den, string effName ){
+TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1* num, TH1* den, string effName ){
 	//calculate the efficiency as num/den ratio
 	TH1F* eff;
 	std::cout<<"Efficiency name: "<<effName<<std::endl;
@@ -207,47 +195,9 @@ TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D( TH1* num, TH1* den, str
 		eff->SetBinContent( i, e );
 		eff->SetBinError( i, err );
 	}
-	dqm->book1D(effName,eff);
+	ibooker.book1D(effName,eff);
 	return eff;
-}
-
-
-
-// ------------ method called when starting to processes a run  ------------
-	void 
-HLTBTagHarvestingAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-	void 
-HLTBTagHarvestingAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-	void 
-HLTBTagHarvestingAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-	void 
-HLTBTagHarvestingAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-HLTBTagHarvestingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-	//The following says we do not know what parameters are allowed so do no validation
-	// Please change this to state exactly what you do use, even if it is no parameters
-	edm::ParameterSetDescription desc;
-	desc.setUnknown();
-	descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HLTBTagHarvestingAnalyzer);
-
-

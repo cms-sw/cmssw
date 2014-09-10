@@ -14,22 +14,34 @@ int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T,
 	return closest;
 }
 
+
 // constructors and destructor
 HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
-	hlTriggerResults_   = iConfig.getParameter<InputTag> ("TriggerResults");
-	hltPathNames_        = iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
-	JetTagCollection_           = iConfig.getParameter< std::vector<InputTag> >("JetTag");
-	edm::ParameterSet mc = iConfig.getParameter<edm::ParameterSet>("mcFlavours");
-	m_mcPartons =  iConfig.getParameter<edm::InputTag>("mcPartons"); 
-	m_mcLabels = mc.getParameterNamesForType<std::vector<unsigned int> >();  
+	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
+	JetTagCollection_ 			= edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "JetTag" ), [this](edm::InputTag const & tag){return mayConsume< reco::JetTagCollection>(tag);});
+	m_mcPartons 				= consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("mcPartons") ); 
+	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
+	edm::ParameterSet mc 		= iConfig.getParameter<edm::ParameterSet>("mcFlavours");
+	m_mcLabels 					= mc.getParameterNamesForType<std::vector<unsigned int> >();  
+	
+	EDConsumerBase::labelsForToken(m_mcPartons,label);
+	m_mcPartons_Label = label.module;
+	
+	for(unsigned int i=0; i<JetTagCollection_.size() ; i++){
+		EDConsumerBase::labelsForToken(JetTagCollection_[i],label);
+		JetTagCollection_Label.push_back(label.module);
+	}
 
+	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
+	hlTriggerResults_Label = label.module;
+	
 	for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		m_mcFlavours.push_back( mc.getParameter<std::vector<unsigned int> >(m_mcLabels[i]) );
-	m_mcMatching = m_mcPartons.label() != "none" ;
+	m_mcMatching = m_mcPartons_Label != "none" ;
 
 	m_mcRadius=0.3;
-	dqm = edm::Service<DQMStore>().operator->();
+//	dqm = edm::Service<DQMStore>().operator->();
 }
 
 
@@ -51,26 +63,26 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	Handle<TriggerResults> TriggerResulsHandler;
 	Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
 	Exception excp(errors::LogicError);
-	if ( hlTriggerResults_.label() == "" || hlTriggerResults_.label() == "NULL" ) 
+	if ( hlTriggerResults_Label == "" || hlTriggerResults_Label == "NULL" ) 
 	{
 		excp << "TriggerResults ==> Empty";
 		excp.raise();
 	}
 	try {
-		iEvent.getByLabel(hlTriggerResults_, TriggerResulsHandler);
+		iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
 		if (TriggerResulsHandler.isValid())   trigRes=true;
 	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
 	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 
 	//get partons
-	if (m_mcMatching &&  m_mcPartons.label()!= "" && m_mcPartons.label() != "NULL" ) {
-		iEvent.getByLabel(m_mcPartons, h_mcPartons);
+	if (m_mcMatching &&  m_mcPartons_Label!= "" && m_mcPartons_Label != "NULL" ) {
+		iEvent.getByToken(m_mcPartons, h_mcPartons);
 		try {
 			if (h_mcPartons.isValid()) MCOK=true;
 			else {
 				std::cout<<"Something wrong with partons "<<std::endl;
-				std::cout<<"Partons:" << m_mcPartons.label()  <<std::endl;
+				std::cout<<"Partons:" << m_mcPartons_Label  <<std::endl;
 				std::cout<<"Partons valid:" << h_mcPartons.isValid()  <<std::endl;
 				std::cout<<"mcMatching:" << m_mcMatching <<std::endl;
 			}
@@ -87,10 +99,10 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;	//if the hltPath was not accepted skip the event
 		
 		//get JetTagCollection
-		if (JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" )
+		if (JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" )
 		{
 			try {
-				iEvent.getByLabel(JetTagCollection_[ind], JetTagHandler);
+				iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
 				if (JetTagHandler.isValid())   BtagOK=true;						
 			}  catch (...) { std::cout<<"Exception caught in JetTagHandler"<<std::endl;}			
 		}
@@ -101,14 +113,14 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
 		}
 		else {
-			std::cout << "JetTagCollection=" << JetTagCollection_[ind].label() << std::endl;
+			std::cout << "JetTagCollection=" << JetTagCollection_Label[ind] << std::endl;
 			excp << "Collections ==> not found";            
 			excp.raise(); 
 		}
 
 		for (auto & BtagJT: JetTag) {
 			//fill 1D btag plot for 'all'
-			H1_.at(ind)[JetTagCollection_[ind].label()] -> Fill(BtagJT.second);
+			H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(BtagJT.second);
 			if (MCOK) {
 				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
 				unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
@@ -117,10 +129,10 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					flavours_t flav_collection=  m_mcFlavours[i];
 					auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
 					if (it== flav_collection.end())   continue;
-					TString label=JetTagCollection_[ind].label() + "__";
+					TString label=JetTagCollection_Label[ind] + "__";
 					label+=flavour_str;
 					H1_.at(ind)[label.Data()]->Fill(BtagJT.second);	//fill 1D btag plot for 'b,c,uds'
-					label=JetTagCollection_[ind].label() + "___";
+					label=JetTagCollection_Label[ind] + "___";
 					label+=flavour_str;
 					label+=TString("_disc_pT");
 					H2_.at(ind)[label.Data()]->Fill(BtagJT.second,BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
@@ -134,8 +146,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 
 //// ------------ method called once each job just before starting event loop  ------------
-	void 
-HLTBTagPerformanceAnalyzer::beginJob()
+void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup )
 {
 	//book the DQM plots for each path and for each flavour
 	using namespace std;
@@ -148,12 +159,12 @@ HLTBTagPerformanceAnalyzer::beginJob()
 		dqmFolder = Form("HLT/BTag/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
-		dqm->setCurrentFolder(dqmFolder);
+		ibooker.setCurrentFolder(dqmFolder);
 		
 		//book 1D btag plot for 'all'
-		if ( JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" ) { 
-			H1_.back()[JetTagCollection_[ind].label()]       = dqm->book1D(JetTagCollection_[ind].label() + "_all",      (JetTagCollection_[ind].label()+ "_all").c_str(),  btagBins, btagL, btagU );
-			H1_.back()[JetTagCollection_[ind].label()]      -> setAxisTitle(JetTagCollection_[ind].label() +"discriminant",1);
+		if ( JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" ) { 
+			H1_.back()[JetTagCollection_Label[ind]]       = ibooker.book1D(JetTagCollection_Label[ind] + "_all",      (JetTagCollection_Label[ind]+ "_all").c_str(),  btagBins, btagL, btagU );
+			H1_.back()[JetTagCollection_Label[ind]]      -> setAxisTitle(JetTagCollection_Label[ind] +"discriminant",1);
 		} 
 		std::cout<<"Booking of flavour-independent plots's been finished."<<std::endl;
 		int nBinsPt=60;
@@ -164,50 +175,39 @@ HLTBTagPerformanceAnalyzer::beginJob()
 		{
 			TString flavour= m_mcLabels[i].c_str();
 			TString label;
-			if ( JetTagCollection_[ind].label() != "" && JetTagCollection_[ind].label() != "NULL" ) {
-				label=JetTagCollection_[ind].label()+"__";
+			if ( JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" ) {
+				label=JetTagCollection_Label[ind]+"__";
 				label+=flavour;
 
 				//book 1D btag plot for 'b,c,light,g'
-				H1_.back()[label.Data()] = 		 dqm->book1D(label.Data(),   Form("%s %s",JetTagCollection_[ind].label().c_str(),flavour.Data()), btagBins, btagL, btagU );
+				H1_.back()[label.Data()] = 		 ibooker.book1D(label.Data(),   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.Data()), btagBins, btagL, btagU );
 				H1_.back()[label.Data()]->setAxisTitle("disc",1);
-				label=JetTagCollection_[ind].label()+"___";
+				label=JetTagCollection_Label[ind]+"___";
 				label+=flavour+TString("_disc_pT");
 
 				//book 2D btag plot for 'b,c,light,g'
-				H2_.back()[label.Data()] =  dqm->book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
+				H2_.back()[label.Data()] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
 				H2_.back()[label.Data()]->setAxisTitle("pT",2);
 				H2_.back()[label.Data()]->setAxisTitle("disc",1);
 			}
 		} /// for mc.size()
 	} /// for hltPathNames_.size()
 	std::cout<<"Booking of flavour-dependent plots's been finished."<<std::endl;   
-}
 
-
-
-
-//// ------------ method called once each job just after ending the event loop  ------------
-	void 
-HLTBTagPerformanceAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-	void 
-HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
-{
 	triggerConfChanged_ = true;
-	hltConfigProvider_.init(iRun, iSetup, hlTriggerResults_.process(), triggerConfChanged_);
+	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
+	
+	hltConfigProvider_.init(iRun, iSetup, label.process, triggerConfChanged_);
 	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
 
 	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
 		int it_mem = -1;
+		std::cout<<"The available path : ";
 		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
 		{
-			std::cout<<"The available path : "<< allHltPathNames.at(it)<<std::endl;
+			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
 			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
 			if ( found == 0 )
 			{
@@ -229,32 +229,10 @@ HLTBTagPerformanceAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const
 	}
 }
 
-	// ------------ method called when ending the processing of a run  ------------
-	void 
-		HLTBTagPerformanceAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-		{
-		}
-
 	// ------------ method called when starting to processes a luminosity block  ------------
 	void 
 		HLTBTagPerformanceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
 		{
-		}
-
-	// ------------ method called when ending the processing of a luminosity block  ------------
-	void 
-		HLTBTagPerformanceAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-		{
-		}
-
-	// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-	void
-		HLTBTagPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-			//The following says we do not know what parameters are allowed so do no validation
-			// Please change this to state exactly what you do use, even if it is no parameters
-			edm::ParameterSetDescription desc;
-			desc.setUnknown();
-			descriptions.addDefault(desc);
 		}
 
 	//define this as a plug-in

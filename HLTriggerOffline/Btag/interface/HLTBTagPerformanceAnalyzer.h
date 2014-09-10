@@ -9,7 +9,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,15 +20,16 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //for gen matching 
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include <Math/GenVector/VectorUtil.h>
 
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 /** \class HLTBTagPerformanceAnalyzer
  *
@@ -40,21 +41,16 @@
 using namespace reco;
 using namespace edm;
 
-class HLTBTagPerformanceAnalyzer : public edm::EDAnalyzer {
-	public:
-		explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
-		~HLTBTagPerformanceAnalyzer();
-		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer { 
+		public:
+			explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
+			~HLTBTagPerformanceAnalyzer();
 
-	private:
-		virtual void beginJob() ;
-		virtual void analyze(const edm::Event&, const edm::EventSetup&);
-		virtual void endJob() ;
+		private:
+			virtual void analyze(const edm::Event&, const edm::EventSetup&);
+			void bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup ) override;
+			virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-		virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-		virtual void endRun(edm::Run const&, edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 		struct JetRefCompare :
 			public std::binary_function<edm::RefToBase<reco::Jet>, edm::RefToBase<reco::Jet>, bool> {
@@ -66,11 +62,11 @@ class HLTBTagPerformanceAnalyzer : public edm::EDAnalyzer {
 		typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
 		// variables from python configuration
-		InputTag hlTriggerResults_;
+		edm::EDGetTokenT<TriggerResults> hlTriggerResults_;
 		std::vector<std::string> hltPathNames_;
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
-		std::vector<InputTag> JetTagCollection_;
+		std::vector<edm::EDGetTokenT<reco::JetTagCollection> > JetTagCollection_;
 
 		/// other class variable
 		std::vector<bool> _isfoundHLTs;
@@ -80,11 +76,11 @@ class HLTBTagPerformanceAnalyzer : public edm::EDAnalyzer {
 		typedef unsigned int            flavour_t;
 		typedef std::vector<flavour_t>  flavours_t;
 
-		InputTag                  m_mcPartons;        // MC truth match - jet association to partons
-		std::vector<std::string>  m_mcLabels;         // MC truth match - labels
-		std::vector<flavours_t>   m_mcFlavours;       // MC truth match - flavours selection
-		double                    m_mcRadius;         // MC truth match - deltaR association radius
-		bool                      m_mcMatching;       // MC truth matching anabled/disabled
+		edm::EDGetTokenT<JetFlavourMatchingCollection>						m_mcPartons;        // MC truth match - jet association to partons
+		std::vector<std::string>  											m_mcLabels;         // MC truth match - labels
+		std::vector<flavours_t>   											m_mcFlavours;       // MC truth match - flavours selection
+		double                    											m_mcRadius;         // MC truth match - deltaR association radius
+		bool                      											m_mcMatching;       // MC truth matching anabled/disabled
 
 		/// DQM folder handle
 		std::vector<std::string> folders;
@@ -93,6 +89,14 @@ class HLTBTagPerformanceAnalyzer : public edm::EDAnalyzer {
 		// Histogram handler
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
 		std::vector< std::map<std::string, MonitorElement *> > H2_;
+
+		// Other variables
+		edm::EDConsumerBase::Labels label;
+		std::string m_mcPartons_Label;
+		std::vector<std::string> JetTagCollection_Label;
+		std::string hlTriggerResults_Label;
+		std::string hltConfigProvider_Label;
+
 };
 
 
