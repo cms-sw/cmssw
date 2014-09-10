@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -44,12 +44,14 @@
 #include <cmath>
 #include <iostream>
 
-class HcalDigisValidation : public edm::EDAnalyzer {
+class HcalDigisValidation : public thread_unsafe::DQMEDAnalyzer {
 public:
     explicit HcalDigisValidation(const edm::ParameterSet&);
 
     ~HcalDigisValidation() {
     };
+
+    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
 private:
 
@@ -65,34 +67,29 @@ private:
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    virtual void beginJob();
-
-    virtual void endJob();
-
     void beginRun();
 
     void endRun();
 
-    DQMStore* dbe_;
     std::map<std::string, MonitorElement*> *msm_;
 
-    void book1D(std::string name, int n, double min, double max);
+    void book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max);
 
-    void book1D(std::string name, const HistLim& limX);
+    void book1D(DQMStore::IBooker &ib, std::string name, const HistLim& limX);
 
     void fill1D(std::string name, double X, double weight = 1);
 
-    void book2D(std::string name, const HistLim& limX, const HistLim& limY);
+    void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
 
     void fill2D(std::string name, double X, double Y, double weight = 1);
 
-    void bookPf(std::string name, const HistLim& limX, const HistLim& limY);
+    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
 
     void fillPf(std::string name, double X, double Y);
 
     MonitorElement* monitor(std::string name);
 
-    void booking(std::string subdetopt, int bnoise, int bmc);
+    void booking(DQMStore::IBooker &ib, std::string subdetopt, int bnoise, int bmc);
 
     std::string str(int x);
 
