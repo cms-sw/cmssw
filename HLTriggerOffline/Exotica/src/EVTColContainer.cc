@@ -21,8 +21,6 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -37,12 +35,10 @@ struct EVTColContainer {
     enum {
         ELEC = 11,
         MUON = 13,
-        MUONTRACK = 130000, //RY
         PFTAU = 15,
         PHOTON = 22,
         PFMET = 39,
-        PFJET = 211,
-        CALOJET = 111, //ND
+        JET = 211,
         _nMAX
     };
 
@@ -50,26 +46,22 @@ struct EVTColContainer {
     int nInitialized;
     const reco::GenParticleCollection * genParticles;
     const std::vector<reco::Muon> * muons;
-    const std::vector<reco::Track> * muonTracks;
     const std::vector<reco::GsfElectron> * electrons;
     const std::vector<reco::Photon> * photons;
-    const std::vector<reco::PFMET>  * pfMETs;
-    const std::vector<reco::PFTau>  * pfTaus;
-    const std::vector<reco::PFJet>  * pfJets;
-    const std::vector<reco::CaloJet>* caloJets;
+    const std::vector<reco::PFMET> * pfMETs;
+    const std::vector<reco::PFTau> * pfTaus;
+    const std::vector<reco::PFJet> * jets;
     const edm::TriggerResults   * triggerResults ;
     EVTColContainer():
         nOfCollections(6),
         nInitialized(0),
         genParticles(0),
         muons(0),
-        muonTracks(0),
         electrons(0),
         photons(0),
         pfMETs(0),
         pfTaus(0),
-        pfJets(0),
-        caloJets(0),
+        jets(0),
         triggerResults(0)
     {
     }
@@ -90,13 +82,11 @@ struct EVTColContainer {
         nInitialized = 0;
         genParticles = 0;
         muons = 0;
-        muonTracks = 0;
         electrons = 0;
         photons = 0;
         pfMETs = 0;
         pfTaus = 0;
-        pfJets = 0;
-        caloJets = 0;
+        jets = 0;
         triggerResults = 0;
     }
 
@@ -104,11 +94,6 @@ struct EVTColContainer {
     void set(const reco::MuonCollection * v)
     {
 	muons = v;
-        ++nInitialized;
-    }
-    void set(const reco::TrackCollection * v)
-    {
-	muonTracks = v;
         ++nInitialized;
     }
     void set(const reco::GsfElectronCollection * v)
@@ -133,12 +118,7 @@ struct EVTColContainer {
     }
     void set(const reco::PFJetCollection * v)
     {
-        pfJets = v;
-        ++nInitialized;
-    }
-    void set(const reco::CaloJetCollection * v)
-    {
-        caloJets = v;
+        jets = v;
         ++nInitialized;
     }
 
@@ -148,8 +128,6 @@ struct EVTColContainer {
         unsigned int size = 0;
         if (objtype == EVTColContainer::MUON && muons != 0) {
             size = muons->size();
-        } else if (objtype == EVTColContainer::MUONTRACK && muonTracks != 0) {
-            size = muonTracks->size();
         } else if (objtype == EVTColContainer::ELEC && electrons != 0) {
             size = electrons->size();
         } else if (objtype == EVTColContainer::PHOTON && photons != 0) {
@@ -158,10 +136,8 @@ struct EVTColContainer {
             size = pfMETs->size();
         } else if (objtype == EVTColContainer::PFTAU && pfTaus != 0) {
             size = pfTaus->size();
-        } else if (objtype == EVTColContainer::PFJET && pfJets != 0) {
-            size = pfJets->size();
-        } else if (objtype == EVTColContainer::CALOJET && caloJets != 0) {
-            size = caloJets->size();
+        } else if (objtype == EVTColContainer::JET && jets != 0) {
+            size = jets->size();
         }
 
         return size;
@@ -174,20 +150,16 @@ struct EVTColContainer {
 
         if (objtype == EVTColContainer::MUON) {
             objTypestr = "Mu";
-        } else if (objtype == EVTColContainer::MUONTRACK) {
-            objTypestr = "refittedStandAloneMuons";
         } else if (objtype == EVTColContainer::ELEC) {
             objTypestr = "Ele";
         } else if (objtype == EVTColContainer::PHOTON) {
             objTypestr = "Photon";
         } else if (objtype == EVTColContainer::PFMET) {
-            objTypestr = "PFMET";
+            objTypestr = "MET";
         } else if (objtype == EVTColContainer::PFTAU) {
             objTypestr = "PFTau";
-        } else if (objtype == EVTColContainer::PFJET) {
-            objTypestr = "PFJet";
-        } else if (objtype == EVTColContainer::CALOJET) {
-            objTypestr = "CaloJet";
+        } else if (objtype == EVTColContainer::JET) {
+            objTypestr = "Jet";
         } else {
             edm::LogError("ExoticaValidations") << "EVTColContainer::getTypeString, "
                                                 << "NOT Implemented error (object type id='" << objtype << "')" << std::endl;;
