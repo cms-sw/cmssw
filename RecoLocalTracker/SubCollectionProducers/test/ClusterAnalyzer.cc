@@ -74,9 +74,6 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
       edm::Service<TFileService> fs;
 
       bool _verbose;
-
-      bool doStrips;
-      bool doPixels;
 };
 
 
@@ -107,20 +104,20 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
      const Provenance& prov = iEvent.getProvenance(class_.id());
      const edm::ParameterSet& pSet = parameterSet(prov);   
 
-     doStrips = pSet.getParameter<bool>("doStrips");
-     doPixels = pSet.getParameter<bool>("doPixels");
+     std::vector<std::string> wantedsubdets = iConfig.getParameter<std::vector<std::string> >("wantedSubDets");
+     for(auto iS : wantedsubdets){
+       ClusterSummary::CMSTracker subdet = ClusterSummary::getSubDetEnum(iS);
+       if(subdet == ClusterSummary::NDEFAULTENUMS) throw cms::Exception( "No standard selection: ") << iS;
+       allModules_[subdet] = ClusterSummary::getSubDetName(subdet);
+     }
 
-     std::vector<edm::ParameterSet> wantedsubdets_ps =  pSet.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets");
-     for(std::vector<edm::ParameterSet>::const_iterator wsdps = wantedsubdets_ps.begin();wsdps!=wantedsubdets_ps.end();++wsdps) {
-       unsigned int             detsel    = wsdps->getParameter<unsigned int>("detSelection");
-       std::string              detname   = wsdps->getParameter<std::string>("detLabel");
-
-       if(ClusterSummary::checkSubDet(detsel)){
-         if(doPixels)
-           allModules_[detsel] =detname;
-       } else{
-         if(doStrips)allModules_[detsel] =detname;
-       }
+     std::vector<edm::ParameterSet> wantedusersubdets_ps = iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedUserSubDets");
+     for(const auto& iS : wantedusersubdets_ps){
+       ClusterSummary::CMSTracker subdet    = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
+       std::string                detname   = iS.getParameter<std::string>("detLabel");
+       if(subdet <=  ClusterSummary::NDEFAULTENUMS) throw cms::Exception( "Already predefined selection: ") << subdet;
+       if(subdet >=  ClusterSummary::NTRACKERENUMS) throw cms::Exception( "Selection is out of range: ") << subdet;
+       allModules_[subdet] = detname;
      }
 
      cout << "From provenance infomation the selected modules are = ";

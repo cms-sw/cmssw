@@ -83,10 +83,8 @@ class ClusterSummaryProducer : public edm::stream::EDProducer<> {
       edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
       edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
 
-      ModuleSelections         stripSelector;
-      std::vector<std::string> stripModuleNames;
-      ModuleSelections         pixelSelector;
-      std::vector<std::string> pixelModuleNames;
+      ModuleSelections         selectors;
+      std::vector<std::string> moduleNames;
 
       ClusterSummary cCluster;
       std::map< std::string, int > EnumMap;

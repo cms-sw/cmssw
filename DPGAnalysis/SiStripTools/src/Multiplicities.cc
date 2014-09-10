@@ -1,7 +1,7 @@
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity():
-  m_collection(),m_subdetenum(ClusterSummary::TRACKER),m_varenum(ClusterSummary::NCLUSTERS),m_mult(0) { }
+  m_collection(),m_subdetenum(ClusterSummary::STRIP),m_varenum(ClusterSummary::NCLUSTERS),m_mult(0) { }
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
   m_collection(iC.consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection"))),
