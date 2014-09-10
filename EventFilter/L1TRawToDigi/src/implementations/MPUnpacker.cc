@@ -10,7 +10,7 @@
 namespace l1t {
    class MPUnpacker : public BaseUnpacker {
       public:
-         MPUnpacker(const edm::ParameterSet&, JetBxCollection* coll1, EtSumBxCollection* coll2);
+         MPUnpacker(JetBxCollection* coll1, EtSumBxCollection* coll2);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
          JetBxCollection* res1_;
@@ -37,7 +37,7 @@ namespace l1t {
 // Implementation
 
 namespace l1t {
-   MPUnpacker::MPUnpacker(const edm::ParameterSet& cfg, JetBxCollection* coll1, EtSumBxCollection* coll2) :
+   MPUnpacker::MPUnpacker(JetBxCollection* coll1, EtSumBxCollection* coll2) :
       res1_(coll1),
       res2_(coll2)
    {
@@ -148,7 +148,7 @@ namespace l1t {
 
        std::vector<UnpackerItem> linkMap;
     
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker(cfg_, res1_.get(), res2_.get()));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker(res1_.get(), res2_.get()));
 
        // Six links are used to output the data
        

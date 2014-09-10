@@ -9,7 +9,7 @@
 namespace l1t {
    class EtSumUnpacker : public BaseUnpacker {
       public:
-         EtSumUnpacker(const edm::ParameterSet&, EtSumBxCollection*);
+         EtSumUnpacker(EtSumBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
          EtSumBxCollection* res_;
@@ -33,7 +33,7 @@ namespace l1t {
 // Implementation
 
 namespace l1t {
-   EtSumUnpacker::EtSumUnpacker(const edm::ParameterSet& cfg, EtSumBxCollection* coll) :
+   EtSumUnpacker::EtSumUnpacker(EtSumBxCollection* coll) :
       res_(coll)
    {
    };
@@ -148,7 +148,7 @@ namespace l1t {
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
      if (fedid==1){
 
-       return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker(cfg_, res_.get())))};
+       return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker(res_.get())))};
 
      } else {
 

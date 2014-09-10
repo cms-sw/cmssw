@@ -9,7 +9,7 @@
 namespace l1t {
    class CaloTowerUnpacker : public BaseUnpacker {
       public:
-         CaloTowerUnpacker(const edm::ParameterSet&, CaloTowerBxCollection*);
+         CaloTowerUnpacker(CaloTowerBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
          CaloTowerBxCollection* res_;
@@ -33,7 +33,7 @@ namespace l1t {
 // Implementation
 
 namespace l1t {
-   CaloTowerUnpacker::CaloTowerUnpacker(const edm::ParameterSet& cfg, CaloTowerBxCollection* coll) :
+   CaloTowerUnpacker::CaloTowerUnpacker(CaloTowerBxCollection* coll) :
       res_(coll)
    {
    };
@@ -164,7 +164,7 @@ namespace l1t {
        // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
        // which receives the block_ID and can convert this to phi
 
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(cfg_, res_.get()));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(res_.get()));
 
        for (int link = 0; link < 144; link++){
          if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 

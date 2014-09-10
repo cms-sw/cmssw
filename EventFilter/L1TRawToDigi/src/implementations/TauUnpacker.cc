@@ -9,7 +9,7 @@
 namespace l1t {
    class TauUnpacker : public BaseUnpacker {
       public:
-         TauUnpacker(const edm::ParameterSet&, TauBxCollection*);
+         TauUnpacker(TauBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
          TauBxCollection* res_;
@@ -33,7 +33,7 @@ namespace l1t {
 // Implementation
 
 namespace l1t {
-   TauUnpacker::TauUnpacker(const edm::ParameterSet& cfg, TauBxCollection* coll) :
+   TauUnpacker::TauUnpacker(TauBxCollection* coll) :
       res_(coll)
    {
    };
@@ -121,7 +121,7 @@ namespace l1t {
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
      if (fedid==1){
 
-       return {std::make_pair(7, std::shared_ptr<BaseUnpacker>(new TauUnpacker(cfg_, res_.get())))};
+       return {std::make_pair(7, std::shared_ptr<BaseUnpacker>(new TauUnpacker(res_.get())))};
 
      } else {
 

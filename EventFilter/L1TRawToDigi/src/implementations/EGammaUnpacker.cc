@@ -9,7 +9,7 @@
 namespace l1t {
    class EGammaUnpacker : public BaseUnpacker {
       public:
-         EGammaUnpacker(const edm::ParameterSet&, EGammaBxCollection*);
+         EGammaUnpacker(EGammaBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
          EGammaBxCollection* res_;
@@ -33,7 +33,7 @@ namespace l1t {
 // Implementation
 
 namespace l1t {
-   EGammaUnpacker::EGammaUnpacker(const edm::ParameterSet& cfg, EGammaBxCollection* coll) :
+   EGammaUnpacker::EGammaUnpacker(EGammaBxCollection* coll) :
       res_(coll)
    {
    };
@@ -124,7 +124,7 @@ namespace l1t {
      
      if (fedid==1){
        
-       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(cfg_, res_.get())))};
+       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(res_.get())))};
        
      } else {
        

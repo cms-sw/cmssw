@@ -9,7 +9,7 @@
 namespace l1t {
    class JetUnpacker : public BaseUnpacker {
       public:
-         JetUnpacker(const edm::ParameterSet&, JetBxCollection*);
+         JetUnpacker(JetBxCollection*);
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
          JetBxCollection* res_;
@@ -33,7 +33,7 @@ namespace l1t {
 // Implementation
 
 namespace l1t {
-   JetUnpacker::JetUnpacker(const edm::ParameterSet& cfg, JetBxCollection* coll) :
+   JetUnpacker::JetUnpacker(JetBxCollection* coll) :
       res_(coll)
    {
    };
@@ -117,7 +117,7 @@ namespace l1t {
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
      if (fedid==1){
 
-       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, res_.get())))};
+       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(res_.get())))};
 
      } else {
 
