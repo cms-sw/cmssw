@@ -165,22 +165,22 @@ process.cutsRecoTracksHpUpg.quality=cms.vstring("highPurity")
 process.cutsRecoTracksHpUpg.ptMin = cms.double(0.9)
 
 process.cutsRecoTracksZeroHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksZeroHpUpg.algorithm=cms.vstring("initialStep")
+process.cutsRecoTracksZeroHpUpg.algorithm=cms.vstring("iter0")
 process.cutsRecoTracksZeroHpUpg.quality=cms.vstring("highPurity")
 process.cutsRecoTracksZeroHpUpg.ptMin = cms.double(0.9)
 
 process.cutsRecoTracksFirstHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksFirstHpUpg.algorithm=cms.vstring("lowPtTripletStep")
+process.cutsRecoTracksFirstHpUpg.algorithm=cms.vstring("iter1")
 process.cutsRecoTracksFirstHpUpg.quality=cms.vstring("highPurity")
 process.cutsRecoTracksFirstHpUpg.ptMin = cms.double(0.9)
 
 process.cutsRecoTracksSecondHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksSecondHpUpg.algorithm=cms.vstring("pixelPairStep")
+process.cutsRecoTracksSecondHpUpg.algorithm=cms.vstring("iter2")
 process.cutsRecoTracksSecondHpUpg.quality=cms.vstring("highPurity")
 process.cutsRecoTracksSecondHpUpg.ptMin = cms.double(0.9)
 
 process.cutsRecoTracksFourthHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksFourthHpUpg.algorithm=cms.vstring("mixedTripletStep")
+process.cutsRecoTracksFourthHpUpg.algorithm=cms.vstring("iter4")
 process.cutsRecoTracksFourthHpUpg.quality=cms.vstring("highPurity")
 process.cutsRecoTracksFourthHpUpg.ptMin = cms.double(0.9)
 
