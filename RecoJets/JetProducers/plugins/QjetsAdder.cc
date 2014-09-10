@@ -58,6 +58,9 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+    long eventNumber = iEvent.id().event();
+    int dummy = engine->getSeed();
+    engine->setSeed(eventNumber, dummy);   // set random seed to event number. Dummy is not used.
     qjetsAlgo_.SetRNEngine(engine);
     // create probabilistic recusterings
     for(unsigned int ii = 0 ; ii < (unsigned int) ntrial_ ; ii++){
