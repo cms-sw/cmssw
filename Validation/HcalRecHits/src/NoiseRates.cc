@@ -20,16 +20,6 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
   // DQM ROOT output
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile","myfile.root");
 
-  dbe_ = 0;
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-   
-  Char_t histo[100];
-
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("NoiseRatesV/NoiseRatesTask");
-  }
-
   // set parameters
   rbxCollName_   = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
   minRBXEnergy_  = iConfig.getUntrackedParameter<double>("minRBXEnergy");
@@ -38,29 +28,6 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
   tok_rbx_ = consumes<reco::HcalNoiseRBXCollection>(rbxCollName_);
 
   useAllHistos_  = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
-
-  // book histograms
-
-  //Lumi block is not drawn; the rest are
-  if (useAllHistos_){
-    sprintf  (histo, "hLumiBlockCount" );
-    hLumiBlockCount_ = dbe_->book1D(histo, histo, 1, -0.5, 0.5);
-  }
-  
-  sprintf  (histo, "hRBXEnergy" );
-  hRBXEnergy_ = dbe_->book1D(histo, histo, 300, 0, 3000);
-
-  sprintf  (histo, "hRBXEnergyType1" );
-  hRBXEnergyType1_ = dbe_->book1D(histo, histo, 300, 0, 3000);
-
-  sprintf  (histo, "hRBXEnergyType2" );
-  hRBXEnergyType2_ = dbe_->book1D(histo, histo, 300, 0, 3000);
-
-  sprintf  (histo, "hRBXEnergyType3" );
-  hRBXEnergyType3_ = dbe_->book1D(histo, histo, 300, 0, 3000);
-
-  sprintf  (histo, "hRBXNHits" );
-  hRBXNHits_ = dbe_->book1D(histo, histo, 73,-0.5,72.5);
 
 }
   
@@ -73,6 +40,37 @@ NoiseRates::~NoiseRates()
 //
 // member functions
 //
+
+void NoiseRates::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es)
+{
+
+  ib.setCurrentFolder("NoiseRatesV/NoiseRatesTask");
+
+  // book histograms
+  Char_t histo[100];
+
+  //Lumi block is not drawn; the rest are
+  if (useAllHistos_){
+    sprintf  (histo, "hLumiBlockCount" );
+    hLumiBlockCount_ = ib.book1D(histo, histo, 1, -0.5, 0.5);
+  }
+  
+  sprintf  (histo, "hRBXEnergy" );
+  hRBXEnergy_ = ib.book1D(histo, histo, 300, 0, 3000);
+
+  sprintf  (histo, "hRBXEnergyType1" );
+  hRBXEnergyType1_ = ib.book1D(histo, histo, 300, 0, 3000);
+
+  sprintf  (histo, "hRBXEnergyType2" );
+  hRBXEnergyType2_ = ib.book1D(histo, histo, 300, 0, 3000);
+
+  sprintf  (histo, "hRBXEnergyType3" );
+  hRBXEnergyType3_ = ib.book1D(histo, histo, 300, 0, 3000);
+
+  sprintf  (histo, "hRBXNHits" );
+  hRBXNHits_ = ib.book1D(histo, histo, 73,-0.5,72.5);
+
+}
   
 // ------------ method called to for each event  ------------
 void
@@ -112,21 +110,6 @@ NoiseRates::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
     
   }   // done looping over RBXs
 
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-NoiseRates::beginJob(){}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-NoiseRates::endJob() {
-/*  
-  if (useAllHistos_) hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
-  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-*/
 }
 
 

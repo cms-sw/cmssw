@@ -45,7 +45,7 @@ public:
   HcalBaseMonitor(); 
   virtual ~HcalBaseMonitor(); 
 
-  virtual void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  virtual void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
   virtual void beginRun();
   virtual void done();
   virtual void clearME();
@@ -63,26 +63,26 @@ public:
   
   // Set up vectors of Monitors for individual depths
   // 2-D histograms with eta-phi binning assumed
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
-  void setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
-  void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, std::string Name, std::string Units);
-  void SetupEtaPhiHists(EtaPhiHists &hh, std::string Name, std::string Units);
+  void setupDepthHists2D(DQMStore::IBooker &ib, MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
+  void setupDepthHists2D(DQMStore::IBooker &ib, std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
+  void SetupEtaPhiHists(DQMStore::IBooker &ib, MonitorElement* &h, EtaPhiHists& hh, std::string Name, std::string Units);
+  void SetupEtaPhiHists(DQMStore::IBooker &ib, EtaPhiHists &hh, std::string Name, std::string Units);
 
 
   // Generic 2-D histograms
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
+  void setupDepthHists2D(DQMStore::IBooker &ib, MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
 			 int nbinsx, int lowboundx, int highboundx,
 			 int nbinsy, int lowboundy, int highboundy);
   
-  void setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
+  void setupDepthHists2D(DQMStore::IBooker &ib, std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
 			 int nbinsx, int lowboundx, int highboundx,
 			 int nbinsy, int lowboundy, int highboundy);
 
   void setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max);
 
   // 1-D histograms
-  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
-  void setupDepthHists1D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
+  void setupDepthHists1D(DQMStore::IBooker &ib, MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
+  void setupDepthHists1D(DQMStore::IBooker &ib, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
 
   void processEvent();
@@ -109,7 +109,6 @@ protected:
     
   bool makeDiagnostics; // controls whether to make diagnostic plots
   
-  DQMStore* m_dbe;
   bool Online_; // tracks whether code is run online or offline 
   std::vector<std::string> badCells_; // keeps list of bad cells that should be ignored
   std::string rootFolder_;
