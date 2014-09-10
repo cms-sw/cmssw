@@ -8,19 +8,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EtSumAlgorithmFirmware.h"
 
-
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareImp1(CaloParams* params) :
    params_(params)
 {
-etSumEtThresholdHwEt_ = params_->etSumEtThresholdHw(1);
-etSumEtThresholdHwMet_ = params_->etSumEtThresholdHw(3);
-
-etSumEtaMinEt_ = params_->etSumEtaMin(1);
-etSumEtaMaxEt_ = params_->etSumEtaMax(1);
-
-etSumEtaMinMet_ = params_->etSumEtaMin(3);
-etSumEtaMaxMet_ = params_->etSumEtaMax(3);
+  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(1)/params_->towerLsbSum());
+  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(3)/params_->towerLsbSum());
+  
+  etSumEtaMinEt_ = params_->etSumEtaMin(1);
+  etSumEtaMaxEt_ = params_->etSumEtaMax(1);
+  
+  etSumEtaMinMet_ = params_->etSumEtaMin(3);
+  etSumEtaMaxMet_ = params_->etSumEtaMax(3);
 }
 
 
@@ -32,64 +32,70 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::~Stage2Layer2EtSumAlgorithmFirmware
 void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
       std::vector<l1t::EtSum> & etsums) {
 
-   math::XYZTLorentzVector p4;
-   int32_t totalEt(0);
-   float phiMissingEt;
-   int32_t missingEt;
-   int32_t coefficientX;
-   int32_t coefficientY;
-   int32_t ptTower;
-   double etXComponent(0.);
-   double etYComponent(0.);
-   int32_t intPhiMissingEt(0);
-   const float pi = acos(-1.); 
-   float towerPhi;
+  double pi = std::atan(1.d) * 4.0d;
 
-   for(size_t towerNr=0;towerNr<towers.size();towerNr++)
-   {
-	 ptTower = (towers[towerNr]).hwPt();
-      if ((towers[towerNr]).hwEta() > etSumEtaMinMet_ && (towers[towerNr]).hwEta() < etSumEtaMaxMet_ && (towers[towerNr]).hwPt() > etSumEtThresholdHwMet_ )
-      {
-	 towerPhi=((towers[towerNr]).hwPhi()*5.0-2.5)*pi/180.;
-	 coefficientX = int32_t(511.*cos(towerPhi));
-	 coefficientY = int32_t(511.*sin(towerPhi));
+  int ietaMax=28, ietaMin=-28, iphiMax=72, iphiMin=1;
+  
+  int32_t ex(0), ey(0), et(0);
 
-	 etXComponent += coefficientX*ptTower;  
-	 etYComponent += coefficientY*ptTower;  
-      }
-      if ((towers[towerNr]).hwEta() > etSumEtaMinEt_ && (towers[towerNr]).hwEta() < etSumEtaMaxEt_&& (towers[towerNr]).hwPt() > etSumEtThresholdHwEt_ )
-      {
-	 totalEt += ptTower;
-      } 
-   }
-   etYComponent /= 511.;
-   etXComponent /= 511.;  
+  for (int ieta=ietaMin; ieta<ietaMax; ieta++) {
 
-   phiMissingEt = atan2(etYComponent,etXComponent)+pi;
-   if (phiMissingEt > pi) phiMissingEt = phiMissingEt - 2*pi;
+    int32_t ringEx(0), ringEy(0), ringEt(0);
 
-   double phi_degrees = phiMissingEt *  180.0 /pi;
+    for (int iphi=iphiMin; iphi<iphiMax; iphi++) {
+      
+      l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+      //      double towPhi = l1t::CaloTools::towerPhi(ieta, iphi);
 
-   if(phi_degrees < 0) {
-      intPhiMissingEt= 72 - (int32_t)(fabs(phi_degrees) / 5.0);
-   } else {
-      intPhiMissingEt= 1 + (int32_t)(phi_degrees / 5.0);
-   } 
+      // SWITCHED SIN AND COS TEMPORARILY FOR AGREEMENT WITH FIRMWARE !!!
+      // SHOULD BE CHANGED BACK or MET-PHI WILL BE WRONG !!!
+      int32_t towEx = (int32_t) (tower.hwPt() * std::trunc(511.*std::sin(2*pi*(iphi-1)/72.))) >> 9;
+      int32_t towEy = (int32_t) (tower.hwPt() * std::trunc(511.*std::cos(2*pi*(72-(iphi-1))/72.))) >> 9;
+      int32_t towEt = tower.hwPt();
 
-   double doubmissingEt = etXComponent*etXComponent+etYComponent*etYComponent;
-   missingEt = int32_t(sqrt(doubmissingEt));
+      ringEx += towEx;
+      ringEy += towEy;
+      ringEt += towEt;
+      
+    }
 
-   missingEt = missingEt & 0xfff;
-   totalEt = totalEt & 0xfff;
+    ringEx >>= 2;
+    ringEy >>= 2;
+    ringEt >>= 1;
 
-   l1t::EtSum::EtSumType typeTotalEt = l1t::EtSum::EtSumType::kTotalEt;
-   l1t::EtSum::EtSumType typeMissingEt = l1t::EtSum::EtSumType::kMissingEt;
+    ex += ringEx;
+    ey += ringEy;
+    et += ringEt;
+    
+  }
+ 
+  // final MET calculation
+  int32_t met = (int32_t) std::sqrt(std::pow( (double) ex,2) + std::pow( (double) ey,2));
 
-   l1t::EtSum etSumTotalEt(p4,typeTotalEt,totalEt,0,0,0);
-   l1t::EtSum etSumMissingEt(p4,typeMissingEt,missingEt,0,intPhiMissingEt,0);
+  double metPhiRadians = std::atan2( (double) ey, (double) ex ) + pi;
 
-   etsums.push_back(etSumTotalEt);
-   etsums.push_back(etSumMissingEt);
+  int32_t metPhi = (int32_t) metPhiRadians / (2 * pi);
+
+ 
+  // apply output bitwidth constraints
+  ex     &= 0xfffff;
+  ey     &= 0xfffff;
+  met    &= 0xfff;
+  metPhi &= 0xfff;
+  et     &= 0xfff;
+ 
+  // push output
+  math::XYZTLorentzVector p4;
+
+  l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
+  l1t::EtSum etSumMissingEt(p4,l1t::EtSum::EtSumType::kMissingEt,met,0,metPhi,0);
+  l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEx,ex,0,0,0);
+  l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEy,ey,0,0,0);
+  
+  etsums.push_back(etSumTotalEt);
+  etsums.push_back(etSumMissingEt);
+  etsums.push_back(etSumEx);
+  etsums.push_back(etSumEy);
 
 }
 
