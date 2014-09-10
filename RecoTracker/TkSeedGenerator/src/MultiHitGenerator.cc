@@ -7,7 +7,7 @@ const OrderedMultiHits & MultiHitGenerator::run(
 {
   //  std::cout << "MultiHitGenerator cache b " << cache.size() << std::endl;
 
-  decltype(theHitSets) tmp; tmp.reserve(localRA.upper()); tmp.swap(theHitSets);
+  theHitSets.reserve(localRA.upper());
   hitSets(region, theHitSets, ev, es);
   //  std::cout << "MultiHitGenerator cache	a " << cache.size() << std::endl;
   theHitSets.shrink_to_fit();
@@ -17,7 +17,7 @@ const OrderedMultiHits & MultiHitGenerator::run(
 
 void MultiHitGenerator::clear() 
 {
-  decltype(theHitSets) tmp; tmp.swap(theHitSets);
+   theHitSets.clear(); theHitSets.shrink_to_fit();
   //std::cout << "MultiHitGenerator " << typeid(*this).name()
   //          <<" cache c " << cache.size() << ' ' << cache.capacity() << std::endl;
   cache.clear();
