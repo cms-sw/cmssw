@@ -7,8 +7,8 @@ HcalZDCMonitor::~HcalZDCMonitor() {
 void HcalZDCMonitor::reset() {
 }
 
-void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
-    HcalBaseMonitor::setup(ps, dbe);
+void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib) {
+    HcalBaseMonitor::setup(ps, ib);
 
     baseFolder_ = rootFolder_ + "ZDCMonitor_Hcal";
 
@@ -27,17 +27,16 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
     ievt_ = 0;
 
 //Histograms
-    if (m_dbe) {
         if (fVerbosity > 1)
             std::cout << "<HcalZDCMonitor::setup>  Setting up Histograms" << std::endl;
 
-        m_dbe->setCurrentFolder(baseFolder_);
-        meEVT_ = m_dbe->bookInt("ZDC Event Number");
+        ib.setCurrentFolder(baseFolder_);
+        meEVT_ = ib.bookInt("ZDC Event Number");
         meEVT_->Fill(ievt_);
         char name[128];
         char title[128];
 	
-        h_2D_charge = m_dbe->book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
+        h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
         h_2D_charge->setBinLabel(1,"ZDC+",1);
         h_2D_charge->setBinLabel(2,"ZDC-",1);
         h_2D_charge->setBinLabel(1,"EM1",2);
@@ -50,7 +49,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         h_2D_charge->setBinLabel(8,"HAD3",2);
         h_2D_charge->setBinLabel(9,"HAD4",2);
 
-        h_2D_TSMean = m_dbe->book2D("2D_DigiTiming", "Digi Timing", 2, 0, 2, 9, 0, 9);
+        h_2D_TSMean = ib.book2D("2D_DigiTiming", "Digi Timing", 2, 0, 2, 9, 0, 9);
         h_2D_TSMean->setBinLabel(1,"ZDC+",1);
         h_2D_TSMean->setBinLabel(2,"ZDC-",1);
         h_2D_TSMean->setBinLabel(1,"EM1",2);
@@ -63,7 +62,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         h_2D_TSMean->setBinLabel(8,"HAD3",2);
         h_2D_TSMean->setBinLabel(9,"HAD4",2);
 
-        h_2D_RecHitEnergy = m_dbe->book2D("2D_RecHitEnergy", "Rechit Energy", 2, 0, 2, 9, 0, 9);
+        h_2D_RecHitEnergy = ib.book2D("2D_RecHitEnergy", "Rechit Energy", 2, 0, 2, 9, 0, 9);
         h_2D_RecHitEnergy->setBinLabel(1,"ZDC+",1);
         h_2D_RecHitEnergy->setBinLabel(2,"ZDC-",1);
         h_2D_RecHitEnergy->setBinLabel(1,"EM1",2);
@@ -76,7 +75,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         h_2D_RecHitEnergy->setBinLabel(8,"HAD3",2);
         h_2D_RecHitEnergy->setBinLabel(9,"HAD4",2);
 
-        h_2D_RecHitTime = m_dbe->book2D("2D_RecHitTime", "Rechit Timing", 2, 0, 2, 9, 0, 9);
+        h_2D_RecHitTime = ib.book2D("2D_RecHitTime", "Rechit Timing", 2, 0, 2, 9, 0, 9);
         h_2D_RecHitTime->setBinLabel(1,"ZDC+",1);
         h_2D_RecHitTime->setBinLabel(2,"ZDC-",1);
         h_2D_RecHitTime->setBinLabel(1,"EM1",2);
@@ -89,7 +88,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         h_2D_RecHitTime->setBinLabel(8,"HAD3",2);
         h_2D_RecHitTime->setBinLabel(9,"HAD4",2);
 
-        h_2D_saturation = m_dbe->book2D("h_2D_QIE", "Saturation Check", 2, 0, 2, 9, 0, 9);
+        h_2D_saturation = ib.book2D("h_2D_QIE", "Saturation Check", 2, 0, 2, 9, 0, 9);
         h_2D_saturation->setBinLabel(1,"ZDC+",1);
         h_2D_saturation->setBinLabel(2,"ZDC-",1);
         h_2D_saturation->setBinLabel(1,"EM1",2);
@@ -102,43 +101,43 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         h_2D_saturation->setBinLabel(8,"HAD3",2);
         h_2D_saturation->setBinLabel(9,"HAD4",2);
 	
-        m_dbe->setCurrentFolder(baseFolder_ + "/Digis");
+        ib.setCurrentFolder(baseFolder_ + "/Digis");
 
         for (int i = 0; i < 5; ++i) {
             // pulse Plus Side 
             sprintf(title, "h_ZDCP_EMChan_%i_Pulse", i + 1);
             sprintf(name, "ZDC Plus EM Section Pulse for channel %i", i + 1);
-            h_ZDCP_EM_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
+            h_ZDCP_EM_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCP_EM_Pulse[i]->setAxisTitle("Time Slice id",1);
 	    h_ZDCP_EM_Pulse[i]->setAxisTitle("Pulse Height",2);
             // pulse Minus Side
             sprintf(title, "h_ZDCM_EMChan_%i_Pulse", i + 1);
             sprintf(name, "ZDC Minus EM Section Pulse for channel %i", i + 1);
-            h_ZDCM_EM_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
+            h_ZDCM_EM_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCM_EM_Pulse[i]->setAxisTitle("Time Slice id",1);
 	    h_ZDCM_EM_Pulse[i]->setAxisTitle("Pulse Height",2);
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCP_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus EM Section Charge for channel %i", i + 1);
-            h_ZDCP_EM_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
+            h_ZDCP_EM_Charge[i] = ib.book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCM_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus EM Section Charge for channel %i", i + 1);
-            h_ZDCM_EM_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
+            h_ZDCM_EM_Charge[i] = ib.book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice
             sprintf(title, "h_ZDCP_EMChan_%i_TSMean", i + 1);
             sprintf(name, "ZDC Plus EM Section TSMean for channel %i", i + 1);
-            h_ZDCP_EM_TSMean[i] = m_dbe->book1D(title, name, 100, -0.5, 9.5);
+            h_ZDCP_EM_TSMean[i] = ib.book1D(title, name, 100, -0.5, 9.5);
 	    h_ZDCP_EM_TSMean[i]->setAxisTitle("Timing",1);
 	    h_ZDCP_EM_TSMean[i]->setAxisTitle("Events",2);
             // charge weighted time slice
             sprintf(title, "h_ZDCM_EMChan_%i_TSMean", i + 1);
             sprintf(name, "ZDC Minus EM Section TSMean for channel %i", i + 1);
-            h_ZDCM_EM_TSMean[i] = m_dbe->book1D(title, name, 100, -0.5, 9.5);
+            h_ZDCM_EM_TSMean[i] = ib.book1D(title, name, 100, -0.5, 9.5);
 	    h_ZDCM_EM_TSMean[i]->setAxisTitle("Timing",1);
 	    h_ZDCM_EM_TSMean[i]->setAxisTitle("Events",2);
         }
@@ -147,66 +146,66 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             // pulse Plus Side 
             sprintf(title, "h_ZDCP_HADChan_%i_Pulse", i + 1);
             sprintf(name, "ZDC Plus HAD Section Pulse for channel %i", i + 1);
-            h_ZDCP_HAD_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
+            h_ZDCP_HAD_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
 	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
             // pulse Minus Side 
             sprintf(title, "h_ZDCM_HADChan_%i_Pulse", i + 1);
             sprintf(name, "ZDC Minus HAD Section Pulse for channel %i", i + 1);
-            h_ZDCM_HAD_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
+            h_ZDCM_HAD_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
 	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
-            h_ZDCP_HAD_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
+            h_ZDCP_HAD_Charge[i] = ib.book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCM_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus HAD Section Charge for channel %i", i + 1);
-            h_ZDCM_HAD_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
+            h_ZDCM_HAD_Charge[i] = ib.book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice 
             sprintf(title, "h_ZDCP_HADChan_%i_TSMean", i + 1);
             sprintf(name, "ZDC Plus HAD Section TSMean for channel %i", i + 1);
-            h_ZDCP_HAD_TSMean[i] = m_dbe->book1D(title, name, 100, -0.5, 9.5);
+            h_ZDCP_HAD_TSMean[i] = ib.book1D(title, name, 100, -0.5, 9.5);
 	    h_ZDCP_HAD_TSMean[i]->setAxisTitle("Timing",1);
 	    h_ZDCP_HAD_TSMean[i]->setAxisTitle("Events",2);
             // charge weighted time slice 
             sprintf(title, "h_ZDCM_HADChan_%i_TSMean", i + 1);
             sprintf(name, "ZDC Minus HAD Section TSMean for channel %i", i + 1);
-            h_ZDCM_HAD_TSMean[i] = m_dbe->book1D(title, name, 100, -0.5, 9.5);
+            h_ZDCM_HAD_TSMean[i] = ib.book1D(title, name, 100, -0.5, 9.5);
 	    h_ZDCM_HAD_TSMean[i]->setAxisTitle("Timing",1);
 	    h_ZDCM_HAD_TSMean[i]->setAxisTitle("Events",2);
         }
 
-        m_dbe->setCurrentFolder(baseFolder_ + "/RecHits");
+        ib.setCurrentFolder(baseFolder_ + "/RecHits");
 
         for (int i = 0; i < 5; ++i) {
 	    //RecHitEnergy Plus Side
             sprintf(title,"h_ZDCP_EMChan_%i_RecHit_Energy",i+1);
 	    sprintf(name,"ZDC EM Section Rechit Energy for channel %i",i+1);
-	    h_ZDCP_EM_RecHitEnergy[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+	    h_ZDCP_EM_RecHitEnergy[i] = ib.book1D(title, name, 1010, -100., 10000.);
 	    h_ZDCP_EM_RecHitEnergy[i]->setAxisTitle("Energy (GeV)",1);
 	    h_ZDCP_EM_RecHitEnergy[i]->setAxisTitle("Events",2);
 	    //RecHitEnergy Minus Side
 	    sprintf(title,"h_ZDCM_EMChan_%i_RecHit_Energy",i+1);
 	    sprintf(name,"ZDC EM Section Rechit Energy for channel %i",i+1);
-	    h_ZDCM_EM_RecHitEnergy[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+	    h_ZDCM_EM_RecHitEnergy[i] = ib.book1D(title, name, 1010, -100., 10000.);
 	    h_ZDCM_EM_RecHitEnergy[i]->setAxisTitle("Energy (GeV)",1);
 	    h_ZDCM_EM_RecHitEnergy[i]->setAxisTitle("Events",2);
 	    //RecHit Timing Plus Side 
 	    sprintf(title,"h_ZDCP_EMChan_%i_RecHit_Timing",i+1);
 	    sprintf(name,"ZDC EM Section Rechit Timing for channel %i",i+1);
-	    h_ZDCP_EM_RecHitTiming[i] = m_dbe->book1D(title, name, 100, -100., 100.);
+	    h_ZDCP_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 	    h_ZDCP_EM_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 	    h_ZDCP_EM_RecHitTiming[i]->setAxisTitle("Events",2);
 	    //RecHit Timing Minus Side 
 	    sprintf(title,"h_ZDCM_EMChan_%i_RecHit_Timing",i+1);
 	    sprintf(name,"ZDC EM Section Rechit Timing for channel %i",i+1);
-	    h_ZDCM_EM_RecHitTiming[i] = m_dbe->book1D(title, name, 100, -100., 100.);	
+	    h_ZDCM_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
 	    h_ZDCM_EM_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 	    h_ZDCM_EM_RecHitTiming[i]->setAxisTitle("Events",2);
 	}
@@ -215,30 +214,29 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
 	    //RecHitEnergy Plus Side
 	    sprintf(title,"h_ZDCP_HADChan_%i_RecHit_Energy",i+1);
 	    sprintf(name,"ZDC HAD Section Rechit Energy for channel %i",i+1);
-	    h_ZDCP_HAD_RecHitEnergy[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+	    h_ZDCP_HAD_RecHitEnergy[i] = ib.book1D(title, name, 1010, -100., 10000.);
 	    h_ZDCP_HAD_RecHitEnergy[i]->setAxisTitle("Energy (GeV)",1);
 	    h_ZDCP_HAD_RecHitEnergy[i]->setAxisTitle("Events",2);
 	    //RecHitEnergy Minus Side
 	    sprintf(title,"h_ZDCM_HADChan_%i_RecHit_Energy",i+1);
 	    sprintf(name,"ZDC HAD Section Rechit Energy for channel %i",i+1);
-	    h_ZDCM_HAD_RecHitEnergy[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+	    h_ZDCM_HAD_RecHitEnergy[i] = ib.book1D(title, name, 1010, -100., 10000.);
 	    h_ZDCM_HAD_RecHitEnergy[i]->setAxisTitle("Energy (GeV)",1);
 	    h_ZDCM_HAD_RecHitEnergy[i]->setAxisTitle("Events",2);
 	    //RecHit Timing Plus Side 
 	    sprintf(title,"h_ZDCP_HADChan_%i_RecHit_Timing",i+1);
 	    sprintf(name,"ZDC HAD Section Rechit Timing for channel %i",i+1);
-	    h_ZDCP_HAD_RecHitTiming[i] = m_dbe->book1D(title, name, 100, -100., 100.);	
+	    h_ZDCP_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
 	    h_ZDCP_HAD_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 	    h_ZDCP_HAD_RecHitTiming[i]->setAxisTitle("Events",2);
 	    //RecHit Timing Minus Side 
 	    sprintf(title,"h_ZDCM_HADChan_%i_RecHit_Timing",i+1);
 	    sprintf(name,"ZDC HAD Section Rechit Timing for channel %i",i+1);
-	    h_ZDCM_HAD_RecHitTiming[i] = m_dbe->book1D(title, name, 100, -100., 100.);	
+	    h_ZDCM_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
 	    h_ZDCM_HAD_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 	    h_ZDCM_HAD_RecHitTiming[i]->setAxisTitle("Events",2);
 	}
 
-    }
     return;
 }
 
