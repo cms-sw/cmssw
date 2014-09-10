@@ -7,5 +7,5 @@ ecal_time_digi_parameters = cms.PSet(
     EKtimeDigiCollection = cms.string('EKTimeDigi'),
     timeLayerBarrel = cms.int32(7),
     timeLayerEndcap = cms.int32(3),
-    timeLayerShashlik = cms.int32(-96)  # TODO!
+    timeLayerShashlik = cms.int32(7)  # TODO!
     )

@@ -31,7 +31,7 @@ ShashlikSD::ShashlikSD(G4String name, const DDCompactView & cpv,
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 
-	 p.getParameter<edm::ParameterSet>("ShashlikSD").getParameter<double>("TimeSliceUnit"),
+	 p.getParameter<edm::ParameterSet>("ShashlikSD").getParameter<double>("TimeSliceUnit")*ns,
 	 p.getParameter<edm::ParameterSet>("ShashlikSD").getParameter<bool>("IgnoreTrackID")) {
 
 #ifdef DebugLog
@@ -81,6 +81,9 @@ ShashlikSD::ShashlikSD(G4String name, const DDCompactView & cpv,
 			  << attL;
 
   sdc = new ShashlikDDDConstants(cpv);
+
+  //Changes for improved timing simulation
+  storeLayerTimeSim = m_EC.getUntrackedParameter<bool>("StoreLayerTimeSim", false);
 
   //Length of fiber for each layer
   std::string attribute = "ReadOutName";
@@ -200,6 +203,7 @@ uint16_t ShashlikSD::getDepth(G4Step *aStep) {
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint16_t ret = (uint16_t)(touch->GetReplicaNumber(0));
+  if (storeLayerTimeSim) ret+=100;
 #ifdef DebugLog
   std::cout << "ShashlikSD::Volume " << touch->GetVolume(0)->GetName() 
 	    << " Depth " << ret << std::endl;

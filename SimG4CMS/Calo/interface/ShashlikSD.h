@@ -47,6 +47,7 @@ private:
 
   ShashlikDDDConstants*             sdc;
   bool                              useWeight, useAtt,  useBirk;
+  bool 				    storeLayerTimeSim;
   double                            birk1, birk2, birk3, attL, moduleL;
   int                               roType;
   TH2D                             *hFibre[5];
