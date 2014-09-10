@@ -197,7 +197,6 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
 
     // End add
 
-
     l1t::TriggerMenuXmlParser gtXmlParser = l1t::TriggerMenuXmlParser();
 
     gtXmlParser.setGtNumberConditionChips(numberConditionChips);
@@ -227,7 +226,7 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
                         gtXmlParser.corCaloTemplate(),
                         gtXmlParser.corEnergySumTemplate()) );
 
-
+ 
     pL1uGtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
     pL1uGtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
     pL1uGtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
