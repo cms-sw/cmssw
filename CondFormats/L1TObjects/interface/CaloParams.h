@@ -114,6 +114,9 @@ namespace l1t {
     double tauLsb() const { return tauLsb_; }
     double tauSeedThreshold() const { return tauSeedThreshold_; }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
+    double switchOffTauVeto() const { return switchOffTauVeto_;}
+    double switchOffTauIso() const { return switchOffTauIso_;}
+    double tauRelativeJetIsolationLimit() const { return tauRelativeJetIsolationLimit_; }
     double tauRelativeJetIsolationCut() const { return tauRelativeJetIsolationCut_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
@@ -130,6 +133,9 @@ namespace l1t {
     void setTauLsb(double lsb) { tauLsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { tauNeighbourThreshold_ = thresh; }
+    void setSwitchOffTauVeto(double limit) { switchOffTauVeto_ = limit; }
+    void setSwitchOffTauIso(double limit) { switchOffTauIso_ = limit; }
+    void setTauRelativeJetIsolationLimit(double limit) { tauRelativeJetIsolationLimit_ = limit; }
     void setTauRelativeJetIsolationCut(double cutValue) { tauRelativeJetIsolationCut_ = cutValue; }
     void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
     void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
@@ -309,8 +315,18 @@ namespace l1t {
     // Et threshold on tau neighbour towers
     double tauNeighbourThreshold_;
 
+    // Et limit when to switch off tau veto requirement
+    double switchOffTauVeto_;
+
+    // Et limit when to switch off tau isolation requirement
+    double switchOffTauIso_;
+
+    // Et jet isolation limit for Taus (Stage1Layer2)
+    double tauRelativeJetIsolationLimit_;
+
     // Relative jet isolation cut for Taus (Stage1Layer2)
     double tauRelativeJetIsolationCut_;
+
     // Tau isolation PUS
     std::string tauIsoPUSType_;
 

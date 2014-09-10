@@ -132,7 +132,10 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
+  m_params.setSwitchOffTauVeto(conf.getParameter<double>("switchOffTauVeto"));
+  m_params.setSwitchOffTauIso(conf.getParameter<double>("switchOffTauIso"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
+  m_params.setTauRelativeJetIsolationLimit(conf.getParameter<double>("tauRelativeJetIsolationLimit"));
   m_params.setTauRelativeJetIsolationCut(conf.getParameter<double>("tauRelativeJetIsolationCut"));
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");

@@ -46,7 +46,7 @@ namespace l1t {
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
+      CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
       subRegions->push_back(newSubRegion);
     }
   }
@@ -68,7 +68,7 @@ namespace l1t {
       //std::cout << " post sub: " << subPt << std::endl;
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
+      CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
       subRegions->push_back(newSubRegion);
     }
   }
@@ -164,7 +164,7 @@ namespace l1t {
       }
       
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentz(0,0,0,0);
-      CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, 0, 0, 0);
+      CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
       subRegions->push_back(newSubRegion);
     }
   }
