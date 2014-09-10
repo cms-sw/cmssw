@@ -228,10 +228,10 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HE" ) ;
-    meEnergyHcal_HE    = dbe_->book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HE    = dbe_->book1D(histo, histo, 1240, -200, 6000);  
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HE" ) ;
-    meEnergyEcal_HE    = dbe_->book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HE    = dbe_->book1D(histo, histo, 1240, -200, 6000); 
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HE" ) ;
     meNumFiredTowers_HE = dbe_->book1D(histo, histo, 1000, 0, 2000); 
@@ -321,10 +321,10 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HF" ) ;
-    meEnergyHcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HF    = dbe_->book1D(histo, histo, 3040, -200, 15000);  
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HF" ) ;
-    meEnergyEcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HF    = dbe_->book1D(histo, histo, 2440, -200, 12000); 
 
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HF" ) ;
     meNumFiredTowers_HF = dbe_->book1D(histo, histo, 1000, 0, 2000); 
@@ -333,7 +333,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
     MET_HF = dbe_->book1D(histo, histo, 500, 0. , 500. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HF" ) ;
-    SET_HF = dbe_->book1D(histo, histo, 200, 0. , 200. ) ;
+    SET_HF = dbe_->book1D(histo, histo, 2000, 0. , 2000. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Timing histos and profiles -- all six are necessary

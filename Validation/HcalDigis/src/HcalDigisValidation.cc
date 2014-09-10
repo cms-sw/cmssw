@@ -65,7 +65,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
     // defaults are for HB
 
     HistLim Ndigis(2600, 0., 2600.);
-    HistLim ndigis(505, -10., 1000.);
+    HistLim ndigis(2005, -10., 4000.);
     HistLim sime(200, 0., 1.0);
 //    HistLim digiAmp(2050, -100., 4000.);
     HistLim digiAmp(205, -100., 4000.);

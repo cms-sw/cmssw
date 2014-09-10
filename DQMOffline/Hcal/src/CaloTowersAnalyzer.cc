@@ -421,6 +421,8 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   //double Hcone  = 0.;
   //double Ee1    = 0.;
   //double Eh1    = 0.;
+  double ieta_MC = 9999;
+  double iphi_MC = 9999;
 
   // HB   
   double sumEnergyHcal_HB = 0.;
@@ -666,6 +668,8 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   } // end of Towers cycle 
 
   //These are the six single pion histos; only the second set is used
+
+  mapEnergy_N  -> Fill(double(ieta_MC), double(iphi_MC), 1.);
 
   if(isub == 0 || isub == 1) {
     met    = sqrt(metx_HB*metx_HB + mety_HB*mety_HB);
