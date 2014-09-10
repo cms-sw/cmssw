@@ -12,25 +12,14 @@ SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet& ps) {
   edm::LogInfo("HitsValidationHcal") << "Module Label: " << g4Label << "   Hits: "
 				     << hcalHits;
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (dbe_) {
-    if (verbose_) {
-      dbe_->setVerbose(1);
-      sleep (3);
-      dbe_->showDirStructure();
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
 }
 
 SimHitsValidationHcal::~SimHitsValidationHcal() {}
 
-void SimHitsValidationHcal::beginJob() {
+void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   
-  if (dbe_) {
     edm::LogInfo("HitsValidationHcal") << "Histograms booked";
-    dbe_->setCurrentFolder("HcalHitsV/SimHitsValidationHcal");
+    ib.setCurrentFolder("HcalHitsV/SimHitsValidationHcal");
 
     //Histograms for Hits
     
@@ -55,59 +44,56 @@ void SimHitsValidationHcal::beginJob() {
     for (int i=0; i<nType; ++i) {
       sprintf (name, "HcalHitEta%s", divisions[i].c_str());
       sprintf (title, "Hit energy as a function of eta tower index in %s", divisions1[i].c_str());
-      meHcalHitEta_[i] = dbe_->book1D(name, title, etaBins[i], etaLow[i], etaHigh[i]);
+      meHcalHitEta_[i] = ib.book1D(name, title, etaBins[i], etaLow[i], etaHigh[i]);
       
       sprintf (name, "HcalHitTimeAEta%s", divisions[i].c_str());
       sprintf (title, "Hit time as a function of eta tower index in %s", divisions1[i].c_str());
-      meHcalHitTimeEta_[i] = dbe_->book1D(name, title, etaBins[i], etaLow[i], etaHigh[i]);
+      meHcalHitTimeEta_[i] = ib.book1D(name, title, etaBins[i], etaLow[i], etaHigh[i]);
       
       sprintf (name, "HcalHitE25%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 25 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl25_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl25_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
       
       sprintf (name, "HcalHitE50%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 50 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl50_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl50_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
       
       sprintf (name, "HalHitE100%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 100 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl100_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl100_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
       
       sprintf (name, "HcalHitE250%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 250 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl250_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl250_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
     }
 
     sprintf (name, "Energy_HB");
-    meEnergy_HB = dbe_->book1D(name, name, 100,0,1);
+    meEnergy_HB = ib.book1D(name, name, 100,0,1);
     sprintf (name, "Energy_HE");
-    meEnergy_HE = dbe_->book1D(name, name, 100,0,1);
+    meEnergy_HE = ib.book1D(name, name, 100,0,1);
     sprintf (name, "Energy_HO");
-    meEnergy_HO = dbe_->book1D(name, name, 100,0,1);
+    meEnergy_HO = ib.book1D(name, name, 100,0,1);
     sprintf (name, "Energy_HF");
-    meEnergy_HF = dbe_->book1D(name, name, 100,0,50);
+    meEnergy_HF = ib.book1D(name, name, 100,0,50);
     
     sprintf (name, "Time_HB");
-    metime_HB = dbe_->book1D(name, name, 300,-150,150);
+    metime_HB = ib.book1D(name, name, 300,-150,150);
     sprintf (name, "Time_HE");
-    metime_HE = dbe_->book1D(name, name, 300,-150,150);
+    metime_HE = ib.book1D(name, name, 300,-150,150);
     sprintf (name, "Time_HO");
-    metime_HO = dbe_->book1D(name, name, 300,-150, 150);
+    metime_HO = ib.book1D(name, name, 300,-150, 150);
     sprintf (name, "Time_HF");
-    metime_HF = dbe_->book1D(name, name, 300,-150,150);
+    metime_HF = ib.book1D(name, name, 300,-150,150);
 
     sprintf (name, "Time_Enweighted_HB");
-    metime_enweighted_HB = dbe_->book1D(name, name, 300,-150,150);
+    metime_enweighted_HB = ib.book1D(name, name, 300,-150,150);
     sprintf (name, "Time_Enweighted_HE");
-    metime_enweighted_HE = dbe_->book1D(name, name, 300,-150,150);
+    metime_enweighted_HE = ib.book1D(name, name, 300,-150,150);
     sprintf (name, "Time_Enweighted_HO");
-    metime_enweighted_HO = dbe_->book1D(name, name, 300,-150, 150);
+    metime_enweighted_HO = ib.book1D(name, name, 300,-150, 150);
     sprintf (name, "Time_Enweighted_HF");
-    metime_enweighted_HF = dbe_->book1D(name, name, 300,-150,150);
-  }
+    metime_enweighted_HF = ib.book1D(name, name, 300,-150,150);
 }
-
-void SimHitsValidationHcal::endJob() {}
 
 void SimHitsValidationHcal::analyze(const edm::Event& e, const edm::EventSetup& ) {
   
@@ -209,13 +195,12 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
     
     double etax = eta - 0.5;
     if (eta < 0) etax += 1;
-    if (dbe_ && type >= 0) {
+    if ( type >= 0) {
       meHcalHitEta_[type]->Fill(etax,energy);
       meHcalHitTimeEta_[type]->Fill(etax,time);
     }
   }
   
-  if (dbe_) {
     meEnergy_HB->Fill(entotHB);
     meEnergy_HE->Fill(entotHE);
     meEnergy_HF->Fill(entotHF);
@@ -230,10 +215,10 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
     metime_enweighted_HE->Fill(timetotHE,entotHE);
     metime_enweighted_HF->Fill(timetotHF,entotHF);
     metime_enweighted_HO->Fill(timetotHO,entotHO);
-  }
+  
   
   for ( itr = map_try.begin() ; itr != map_try.end(); ++itr)   {
-    if (dbe_ && (*itr).first.second >= 0) {
+    if ( (*itr).first.second >= 0) {
       HcalDetId id= (*itr).first.first;
       energysum ensum= (*itr).second;
       int eta = id.ieta();

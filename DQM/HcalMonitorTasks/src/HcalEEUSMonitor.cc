@@ -68,18 +68,18 @@ void HcalEEUSMonitor::reset() {}
 
 void HcalEEUSMonitor::clearME()
 {
-  if (m_dbe) 
+  /*if (m_dbe) 
     {
       m_dbe->setCurrentFolder(baseFolder_);
       m_dbe->removeContents();
-    } // if (m_dbe)
+    } // if (m_dbe)*/
   meEVT_=0;
 } // void HcalEEUSMonitor::clearME()
 
 
-void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib)
 {
-  HcalBaseMonitor::setup(ps,dbe);  // perform setups of base class
+  HcalBaseMonitor::setup(ps,ib);  // perform setups of base class
 
   ievt_=0; // event counter
   baseFolder_ = rootFolder_ + "EEUSMonitor"; // Will create an "EEUSMonitor" subfolder in .root output
@@ -99,11 +99,9 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   
   
   
-  if (m_dbe)
-    {
       std::string type;
-      m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("EEUSMonitor Event Number"); // store event number
+      ib.setCurrentFolder(baseFolder_);
+      meEVT_ = ib.bookInt("EEUSMonitor Event Number"); // store event number
 
       char label[10];
       //Francesco
@@ -111,7 +109,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       //fraction of X-Type events
   
       type = "Fraction Normal Events - US0 EE0";
-      meNormFractSpigs_US0_EE0_ = m_dbe->book1D(type,type,481,0,481);
+      meNormFractSpigs_US0_EE0_ = ib.book1D(type,type,481,0,481);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meNormFractSpigs_US0_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -120,7 +118,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meNormFractSpigs_US0_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
   
       type = "Fraction Empty Events - US0 EE1";
-      meEEFractSpigs_US0_EE1_ = m_dbe->book1D(type,type,481,0,481);
+      meEEFractSpigs_US0_EE1_ = ib.book1D(type,type,481,0,481);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meEEFractSpigs_US0_EE1_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -129,7 +127,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meEEFractSpigs_US0_EE1_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
       type = "Fraction UnSuppressed Events - US1 EE0";
-      meUSFractSpigs_US1_EE0_ = m_dbe->book1D(type,type,481,0,481);
+      meUSFractSpigs_US1_EE0_ = ib.book1D(type,type,481,0,481);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meUSFractSpigs_US1_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -138,7 +136,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meUSFractSpigs_US1_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
       type = "Fraction UnSuppressed Events - US1 EE1";
-      meUSFractSpigs_US1_EE1_ = m_dbe->book1D(type,type,481,0,481);
+      meUSFractSpigs_US1_EE1_ = ib.book1D(type,type,481,0,481);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meUSFractSpigs_US1_EE1_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -149,7 +147,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       //raw data length for X-type events
 
       type = "Length of raw data - US0 EE0";
-      meRawDataLength2_US0_EE0_ = m_dbe->book2D(type,type,481,0,481,600,0,1200);
+      meRawDataLength2_US0_EE0_ = ib.book2D(type,type,481,0,481,600,0,1200);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meRawDataLength2_US0_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -158,7 +156,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meRawDataLength2_US0_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
       type = "Length of raw data - US0 EE1";
-      meRawDataLength2_US0_EE1_ = m_dbe->book2D(type,type,481,0,481,600,0,1200);
+      meRawDataLength2_US0_EE1_ = ib.book2D(type,type,481,0,481,600,0,1200);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meRawDataLength2_US0_EE1_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -167,7 +165,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meRawDataLength2_US0_EE1_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
       type = "Length of raw data - US1 EE0";
-      meRawDataLength2_US1_EE0_ = m_dbe->book2D(type,type,481,0,481,600,0,1200);
+      meRawDataLength2_US1_EE0_ = ib.book2D(type,type,481,0,481,600,0,1200);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meRawDataLength2_US1_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -176,7 +174,7 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meRawDataLength2_US1_EE0_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
       type = "Length of raw data - US1 EE1";
-      meRawDataLength2_US1_EE1_ = m_dbe->book2D(type,type,481,0,481,600,0,1200);
+      meRawDataLength2_US1_EE1_ = ib.book2D(type,type,481,0,481,600,0,1200);
       for(int f=0; f<NUMFEDS; f++) {
 	sprintf(label, "FED 7%02d", f);
 	meRawDataLength2_US1_EE1_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
@@ -189,24 +187,24 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       //EECorrels Jason
   
       type="EE Spigot Correlation";
-      meEECorrel_ = m_dbe->book2D(type, type,
+      meEECorrel_ = ib.book2D(type, type,
 				  (NUMSPIGS * NUMFEDS), 0, (NUMSPIGS * NUMFEDS),
 				  (NUMSPIGS * NUMFEDS), 0, (NUMSPIGS * NUMFEDS));
       type="EE per Spigot";
-      meEEPerSpigot_ = m_dbe->book1D(type, type,
+      meEEPerSpigot_ = ib.book1D(type, type,
 				  (NUMSPIGS * NUMFEDS), 0, (NUMSPIGS * NUMFEDS));
       type="EE Spigots per Event";
-      meEEThisEvent_ = m_dbe->book1D(type, type,500,-0.5,499.5);
+      meEEThisEvent_ = ib.book1D(type, type,500,-0.5,499.5);
 
       //EE/NE Triggers Jared
   
       char title[128];
       sprintf(title, "EE Triggers");  // DCC FED number 700:731
-      meNumberEETriggered_ = m_dbe->book2D(title,title,(NUMSPIGS * NUMFEDS),0,(NUMSPIGS * NUMFEDS),100,-0.5,99.5);
+      meNumberEETriggered_ = ib.book2D(title,title,(NUMSPIGS * NUMFEDS),0,(NUMSPIGS * NUMFEDS),100,-0.5,99.5);
       sprintf(title, "NE Triggers");  // DCC FED number 700:731
-      meNumberNETriggered_ = m_dbe->book2D(title,title,(NUMSPIGS * NUMFEDS),0,(NUMSPIGS * NUMFEDS),100,-0.5,99.5);
+      meNumberNETriggered_ = ib.book2D(title,title,(NUMSPIGS * NUMFEDS),0,(NUMSPIGS * NUMFEDS),100,-0.5,99.5);
       sprintf(title, "Triggers");  // DCC FED number 700:731
-      meNumberTriggered_ = m_dbe->book2D(title,title,(NUMSPIGS * NUMFEDS),0,(NUMSPIGS * NUMFEDS),100,-0.5,99.5);
+      meNumberTriggered_ = ib.book2D(title,title,(NUMSPIGS * NUMFEDS),0,(NUMSPIGS * NUMFEDS),100,-0.5,99.5);
       
       for (int f=0; f<NUMFEDS;f++){
 	sprintf(label, "DCC 7%02d", f);  // DCC FED number 700:731
@@ -226,7 +224,6 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	  meNumberTriggered_->setBinLabel((f*NUMSPIGS)+s+1, label, 1);}}
       
       prevOrN = -1;
-    } // if (m_dbe)
   
   return;
   
@@ -239,11 +236,11 @@ void HcalEEUSMonitor::processEvent( const FEDRawDataCollection& rawraw,
 				  )
   
 {
-  if (!m_dbe)
+  /*if (!m_dbe)
     {
       if (fVerbosity) std::cout <<"HcalEEUSMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl;
       return;
-    }
+    }*/
 
   // Fill Event Number
   ievt_++;
@@ -272,11 +269,11 @@ void HcalEEUSMonitor::processEvent_RawData(const FEDRawDataCollection& rawraw,
   
 
   // Should not see this error
-  if(!m_dbe) 
+  /*if(!m_dbe) 
     {
       std::cout <<"HcalEEUSMonitor::processEvent_RawData:  DQMStore not instantiated!!!\n"<<std::endl;
       return;
-    }
+    }*/
   numEEthisEvent = 0;
   // Loop over all FEDs reporting the event, unpacking if good.
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) 
