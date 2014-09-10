@@ -70,7 +70,7 @@ process.load('Configuration.Geometry.GeometryExtended2023TTIReco_cff')
 
 process.load('Configuration/StandardSequences/L1HwVal_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_forTTI_cff")
 
 # bug fix for missing HCAL TPs in MC RAW
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import HcalTPGCoderULUT

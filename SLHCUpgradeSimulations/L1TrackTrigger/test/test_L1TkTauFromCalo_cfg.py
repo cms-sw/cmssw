@@ -68,7 +68,7 @@ process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/L1HwVal_cff')
 # Run the SLHCCaloSequence  to produce the L1Jets
 process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_forTTI_cff")
 
 # The sequence SLHCCaloTrigger creates "stage-2" L1Taus.
 # Two collections are created:

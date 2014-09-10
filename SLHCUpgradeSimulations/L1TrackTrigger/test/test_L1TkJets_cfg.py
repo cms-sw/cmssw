@@ -55,7 +55,7 @@ process.load('Configuration/StandardSequences/EndOfProcess_cff')
 # ---  Run the SLHCCaloSequence  to produce the L1Jets
 
 process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_forTTI_cff")
 
 #process.L1CalibFilterTowerJetProducer.pTCalibrationThreshold = cms.double(40) # applies calibration only to > 40GeV L1 jets
 

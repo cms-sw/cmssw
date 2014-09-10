@@ -10,7 +10,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff')
+process.load('SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_forTTI_cff')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
