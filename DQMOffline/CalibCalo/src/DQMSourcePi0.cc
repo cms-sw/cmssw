@@ -52,7 +52,6 @@ using namespace edm;
 DQMSourcePi0::DQMSourcePi0( const edm::ParameterSet& ps ) :
 eventCounter_(0)
 {
-  dbe_ = Service<DQMStore>().operator->();
   folderName_ = ps.getUntrackedParameter<string>("FolderName","HLT/AlCaEcalPi0");
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor",1);
   productMonitoredEBpi0_= consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag"));
@@ -143,184 +142,184 @@ DQMSourcePi0::~DQMSourcePi0()
 
 
 //--------------------------------------------------------
-void DQMSourcePi0::beginJob(){
+void DQMSourcePi0::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup) {
 
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(folderName_);
+  ibooker.setCurrentFolder(folderName_);
 
   // book some histograms 1D
 
-  hiPhiDistrEBpi0_ = dbe_->book1D("iphiDistributionEBpi0", "RechitEB pi0 iphi", 361, 1,361);
+  hiPhiDistrEBpi0_ = ibooker.book1D("iphiDistributionEBpi0", "RechitEB pi0 iphi", 361, 1,361);
   hiPhiDistrEBpi0_->setAxisTitle("i#phi ", 1);
   hiPhiDistrEBpi0_->setAxisTitle("# rechits", 2);
 
-  hiXDistrEEpi0_ = dbe_->book1D("iXDistributionEEpi0", "RechitEE pi0 ix", 100, 0,100);
+  hiXDistrEEpi0_ = ibooker.book1D("iXDistributionEEpi0", "RechitEE pi0 ix", 100, 0,100);
   hiXDistrEEpi0_->setAxisTitle("ix ", 1);
   hiXDistrEEpi0_->setAxisTitle("# rechits", 2);
 
-  hiPhiDistrEBeta_ = dbe_->book1D("iphiDistributionEBeta", "RechitEB eta iphi", 361, 1,361);
+  hiPhiDistrEBeta_ = ibooker.book1D("iphiDistributionEBeta", "RechitEB eta iphi", 361, 1,361);
   hiPhiDistrEBeta_->setAxisTitle("i#phi ", 1);
   hiPhiDistrEBeta_->setAxisTitle("# rechits", 2);
 
-  hiXDistrEEeta_ = dbe_->book1D("iXDistributionEEeta", "RechitEE eta ix", 100, 0,100);
+  hiXDistrEEeta_ = ibooker.book1D("iXDistributionEEeta", "RechitEE eta ix", 100, 0,100);
   hiXDistrEEeta_->setAxisTitle("ix ", 1);
   hiXDistrEEeta_->setAxisTitle("# rechits", 2);
 
 
-  hiEtaDistrEBpi0_ = dbe_->book1D("iEtaDistributionEBpi0", "RechitEB pi0 ieta", 171, -85, 86);
+  hiEtaDistrEBpi0_ = ibooker.book1D("iEtaDistributionEBpi0", "RechitEB pi0 ieta", 171, -85, 86);
   hiEtaDistrEBpi0_->setAxisTitle("i#eta", 1);
   hiEtaDistrEBpi0_->setAxisTitle("#rechits", 2);
 
-  hiYDistrEEpi0_ = dbe_->book1D("iYDistributionEEpi0", "RechitEE pi0 iY", 100, 0, 100);
+  hiYDistrEEpi0_ = ibooker.book1D("iYDistributionEEpi0", "RechitEE pi0 iY", 100, 0, 100);
   hiYDistrEEpi0_->setAxisTitle("iy", 1);
   hiYDistrEEpi0_->setAxisTitle("#rechits", 2);
 
-  hiEtaDistrEBeta_ = dbe_->book1D("iEtaDistributionEBeta", "RechitEB eta ieta", 171, -85, 86);
+  hiEtaDistrEBeta_ = ibooker.book1D("iEtaDistributionEBeta", "RechitEB eta ieta", 171, -85, 86);
   hiEtaDistrEBeta_->setAxisTitle("i#eta", 1);
   hiEtaDistrEBeta_->setAxisTitle("#rechits", 2);
 
-  hiYDistrEEeta_ = dbe_->book1D("iYDistributionEEeta", "RechitEE eta iY", 100, 0, 100);
+  hiYDistrEEeta_ = ibooker.book1D("iYDistributionEEeta", "RechitEE eta iY", 100, 0, 100);
   hiYDistrEEeta_->setAxisTitle("iy", 1);
   hiYDistrEEeta_->setAxisTitle("#rechits", 2);
 
 
-  hRechitEnergyEBpi0_ = dbe_->book1D("rhEnergyEBpi0","Pi0 rechits energy EB",160,0.,2.0);
+  hRechitEnergyEBpi0_ = ibooker.book1D("rhEnergyEBpi0","Pi0 rechits energy EB",160,0.,2.0);
   hRechitEnergyEBpi0_->setAxisTitle("energy (GeV) ",1);
   hRechitEnergyEBpi0_->setAxisTitle("#rechits",2);
 
-  hRechitEnergyEEpi0_ = dbe_->book1D("rhEnergyEEpi0","Pi0 rechits energy EE",160,0.,3.0);
+  hRechitEnergyEEpi0_ = ibooker.book1D("rhEnergyEEpi0","Pi0 rechits energy EE",160,0.,3.0);
   hRechitEnergyEEpi0_->setAxisTitle("energy (GeV) ",1);
   hRechitEnergyEEpi0_->setAxisTitle("#rechits",2);
 
-  hRechitEnergyEBeta_ = dbe_->book1D("rhEnergyEBeta","Eta rechits energy EB",160,0.,2.0);
+  hRechitEnergyEBeta_ = ibooker.book1D("rhEnergyEBeta","Eta rechits energy EB",160,0.,2.0);
   hRechitEnergyEBeta_->setAxisTitle("energy (GeV) ",1);
   hRechitEnergyEBeta_->setAxisTitle("#rechits",2);
 
-  hRechitEnergyEEeta_ = dbe_->book1D("rhEnergyEEeta","Eta rechits energy EE",160,0.,3.0);
+  hRechitEnergyEEeta_ = ibooker.book1D("rhEnergyEEeta","Eta rechits energy EE",160,0.,3.0);
   hRechitEnergyEEeta_->setAxisTitle("energy (GeV) ",1);
   hRechitEnergyEEeta_->setAxisTitle("#rechits",2);
 
-  hEventEnergyEBpi0_ = dbe_->book1D("eventEnergyEBpi0","Pi0 event energy EB",100,0.,20.0);
+  hEventEnergyEBpi0_ = ibooker.book1D("eventEnergyEBpi0","Pi0 event energy EB",100,0.,20.0);
   hEventEnergyEBpi0_->setAxisTitle("energy (GeV) ",1);
 
-  hEventEnergyEEpi0_ = dbe_->book1D("eventEnergyEEpi0","Pi0 event energy EE",100,0.,50.0);
+  hEventEnergyEEpi0_ = ibooker.book1D("eventEnergyEEpi0","Pi0 event energy EE",100,0.,50.0);
   hEventEnergyEEpi0_->setAxisTitle("energy (GeV) ",1);
 
-  hEventEnergyEBeta_ = dbe_->book1D("eventEnergyEBeta","Eta event energy EB",100,0.,20.0);
+  hEventEnergyEBeta_ = ibooker.book1D("eventEnergyEBeta","Eta event energy EB",100,0.,20.0);
   hEventEnergyEBeta_->setAxisTitle("energy (GeV) ",1);
 
-  hEventEnergyEEeta_ = dbe_->book1D("eventEnergyEEeta","Eta event energy EE",100,0.,50.0);
+  hEventEnergyEEeta_ = ibooker.book1D("eventEnergyEEeta","Eta event energy EE",100,0.,50.0);
   hEventEnergyEEeta_->setAxisTitle("energy (GeV) ",1);
 
-  hNRecHitsEBpi0_ = dbe_->book1D("nRechitsEBpi0","#rechits in pi0 collection EB",100,0.,250.);
+  hNRecHitsEBpi0_ = ibooker.book1D("nRechitsEBpi0","#rechits in pi0 collection EB",100,0.,250.);
   hNRecHitsEBpi0_->setAxisTitle("rechits ",1);
   
-  hNRecHitsEEpi0_ = dbe_->book1D("nRechitsEEpi0","#rechits in pi0 collection EE",100,0.,250.);
+  hNRecHitsEEpi0_ = ibooker.book1D("nRechitsEEpi0","#rechits in pi0 collection EE",100,0.,250.);
   hNRecHitsEEpi0_->setAxisTitle("rechits ",1);
   
-  hNRecHitsEBeta_ = dbe_->book1D("nRechitsEBeta","#rechits in eta collection EB",100,0.,250.);
+  hNRecHitsEBeta_ = ibooker.book1D("nRechitsEBeta","#rechits in eta collection EB",100,0.,250.);
   hNRecHitsEBeta_->setAxisTitle("rechits ",1);
   
-  hNRecHitsEEeta_ = dbe_->book1D("nRechitsEEeta","#rechits in eta collection EE",100,0.,250.);
+  hNRecHitsEEeta_ = ibooker.book1D("nRechitsEEeta","#rechits in eta collection EE",100,0.,250.);
   hNRecHitsEEeta_->setAxisTitle("rechits ",1);
   
-  hMeanRecHitEnergyEBpi0_ = dbe_->book1D("meanEnergyEBpi0","Mean rechit energy in pi0 collection EB",50,0.,2.);
+  hMeanRecHitEnergyEBpi0_ = ibooker.book1D("meanEnergyEBpi0","Mean rechit energy in pi0 collection EB",50,0.,2.);
   hMeanRecHitEnergyEBpi0_->setAxisTitle("Mean Energy [GeV] ",1);
   
-  hMeanRecHitEnergyEEpi0_ = dbe_->book1D("meanEnergyEEpi0","Mean rechit energy in pi0 collection EE",100,0.,5.);
+  hMeanRecHitEnergyEEpi0_ = ibooker.book1D("meanEnergyEEpi0","Mean rechit energy in pi0 collection EE",100,0.,5.);
   hMeanRecHitEnergyEEpi0_->setAxisTitle("Mean Energy [GeV] ",1);
   
-  hMeanRecHitEnergyEBeta_ = dbe_->book1D("meanEnergyEBeta","Mean rechit energy in eta collection EB",50,0.,2.);
+  hMeanRecHitEnergyEBeta_ = ibooker.book1D("meanEnergyEBeta","Mean rechit energy in eta collection EB",50,0.,2.);
   hMeanRecHitEnergyEBeta_->setAxisTitle("Mean Energy [GeV] ",1);
   
-  hMeanRecHitEnergyEEeta_ = dbe_->book1D("meanEnergyEEeta","Mean rechit energy in eta collection EE",100,0.,5.);
+  hMeanRecHitEnergyEEeta_ = ibooker.book1D("meanEnergyEEeta","Mean rechit energy in eta collection EE",100,0.,5.);
   hMeanRecHitEnergyEEeta_->setAxisTitle("Mean Energy [GeV] ",1);
   
-  hMinvPi0EB_ = dbe_->book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
+  hMinvPi0EB_ = ibooker.book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
   hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ",1);
 
-  hMinvPi0EE_ = dbe_->book1D("Pi0InvmassEE","Pi0 Invariant Mass in EE",100,0.,0.5);
+  hMinvPi0EE_ = ibooker.book1D("Pi0InvmassEE","Pi0 Invariant Mass in EE",100,0.,0.5);
   hMinvPi0EE_->setAxisTitle("Inv Mass [GeV] ",1);
   
-  hMinvEtaEB_ = dbe_->book1D("EtaInvmassEB","Eta Invariant Mass in EB",100,0.,0.85);
+  hMinvEtaEB_ = ibooker.book1D("EtaInvmassEB","Eta Invariant Mass in EB",100,0.,0.85);
   hMinvEtaEB_->setAxisTitle("Inv Mass [GeV] ",1);
 
-  hMinvEtaEE_ = dbe_->book1D("EtaInvmassEE","Eta Invariant Mass in EE",100,0.,0.85);
+  hMinvEtaEE_ = ibooker.book1D("EtaInvmassEE","Eta Invariant Mass in EE",100,0.,0.85);
   hMinvEtaEE_->setAxisTitle("Inv Mass [GeV] ",1);
 
   
-  hPt1Pi0EB_ = dbe_->book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
+  hPt1Pi0EB_ = ibooker.book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
   hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ",1);
   
-  hPt1Pi0EE_ = dbe_->book1D("Pt1Pi0EE","Pt 1st most energetic Pi0 photon in EE",100,0.,20.);
+  hPt1Pi0EE_ = ibooker.book1D("Pt1Pi0EE","Pt 1st most energetic Pi0 photon in EE",100,0.,20.);
   hPt1Pi0EE_->setAxisTitle("1st photon Pt [GeV] ",1);
 
-  hPt1EtaEB_ = dbe_->book1D("Pt1EtaEB","Pt 1st most energetic Eta photon in EB",100,0.,20.);
+  hPt1EtaEB_ = ibooker.book1D("Pt1EtaEB","Pt 1st most energetic Eta photon in EB",100,0.,20.);
   hPt1EtaEB_->setAxisTitle("1st photon Pt [GeV] ",1);
   
-  hPt1EtaEE_ = dbe_->book1D("Pt1EtaEE","Pt 1st most energetic Eta photon in EE",100,0.,20.);
+  hPt1EtaEE_ = ibooker.book1D("Pt1EtaEE","Pt 1st most energetic Eta photon in EE",100,0.,20.);
   hPt1EtaEE_->setAxisTitle("1st photon Pt [GeV] ",1);
   
-  hPt2Pi0EB_ = dbe_->book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
+  hPt2Pi0EB_ = ibooker.book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
   hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ",1);
 
-  hPt2Pi0EE_ = dbe_->book1D("Pt2Pi0EE","Pt 2nd most energetic Pi0 photon in EE",100,0.,20.);
+  hPt2Pi0EE_ = ibooker.book1D("Pt2Pi0EE","Pt 2nd most energetic Pi0 photon in EE",100,0.,20.);
   hPt2Pi0EE_->setAxisTitle("2nd photon Pt [GeV] ",1);
 
-  hPt2EtaEB_ = dbe_->book1D("Pt2EtaEB","Pt 2nd most energetic Eta photon in EB",100,0.,20.);
+  hPt2EtaEB_ = ibooker.book1D("Pt2EtaEB","Pt 2nd most energetic Eta photon in EB",100,0.,20.);
   hPt2EtaEB_->setAxisTitle("2nd photon Pt [GeV] ",1);
 
-  hPt2EtaEE_ = dbe_->book1D("Pt2EtaEE","Pt 2nd most energetic Eta photon in EE",100,0.,20.);
+  hPt2EtaEE_ = ibooker.book1D("Pt2EtaEE","Pt 2nd most energetic Eta photon in EE",100,0.,20.);
   hPt2EtaEE_->setAxisTitle("2nd photon Pt [GeV] ",1);
 
   
-  hPtPi0EB_ = dbe_->book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
+  hPtPi0EB_ = ibooker.book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
   hPtPi0EB_->setAxisTitle("Pi0 Pt [GeV] ",1);
 
-  hPtPi0EE_ = dbe_->book1D("PtPi0EE","Pi0 Pt in EE",100,0.,20.);
+  hPtPi0EE_ = ibooker.book1D("PtPi0EE","Pi0 Pt in EE",100,0.,20.);
   hPtPi0EE_->setAxisTitle("Pi0 Pt [GeV] ",1);
 
-  hPtEtaEB_ = dbe_->book1D("PtEtaEB","Eta Pt in EB",100,0.,20.);
+  hPtEtaEB_ = ibooker.book1D("PtEtaEB","Eta Pt in EB",100,0.,20.);
   hPtEtaEB_->setAxisTitle("Eta Pt [GeV] ",1);
 
-  hPtEtaEE_ = dbe_->book1D("PtEtaEE","Eta Pt in EE",100,0.,20.);
+  hPtEtaEE_ = ibooker.book1D("PtEtaEE","Eta Pt in EE",100,0.,20.);
   hPtEtaEE_->setAxisTitle("Eta Pt [GeV] ",1);
 
-  hIsoPi0EB_ = dbe_->book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
+  hIsoPi0EB_ = ibooker.book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
   hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
 
-  hIsoPi0EE_ = dbe_->book1D("IsoPi0EE","Pi0 Iso in EE",50,0.,1.);
+  hIsoPi0EE_ = ibooker.book1D("IsoPi0EE","Pi0 Iso in EE",50,0.,1.);
   hIsoPi0EE_->setAxisTitle("Pi0 Iso",1);
 
-  hIsoEtaEB_ = dbe_->book1D("IsoEtaEB","Eta Iso in EB",50,0.,1.);
+  hIsoEtaEB_ = ibooker.book1D("IsoEtaEB","Eta Iso in EB",50,0.,1.);
   hIsoEtaEB_->setAxisTitle("Eta Iso",1);
 
-  hIsoEtaEE_ = dbe_->book1D("IsoEtaEE","Eta Iso in EE",50,0.,1.);
+  hIsoEtaEE_ = ibooker.book1D("IsoEtaEE","Eta Iso in EE",50,0.,1.);
   hIsoEtaEE_->setAxisTitle("Eta Iso",1);
 
-  hS4S91Pi0EB_ = dbe_->book1D("S4S91Pi0EB","S4S9 1st most energetic Pi0 photon in EB",50,0.,1.);
+  hS4S91Pi0EB_ = ibooker.book1D("S4S91Pi0EB","S4S9 1st most energetic Pi0 photon in EB",50,0.,1.);
   hS4S91Pi0EB_->setAxisTitle("S4S9 of the 1st Pi0 Photon ",1);
 
-  hS4S91Pi0EE_ = dbe_->book1D("S4S91Pi0EE","S4S9 1st most energetic Pi0 photon in EE",50,0.,1.);
+  hS4S91Pi0EE_ = ibooker.book1D("S4S91Pi0EE","S4S9 1st most energetic Pi0 photon in EE",50,0.,1.);
   hS4S91Pi0EE_->setAxisTitle("S4S9 of the 1st Pi0 Photon ",1);
 
-  hS4S91EtaEB_ = dbe_->book1D("S4S91EtaEB","S4S9 1st most energetic Eta photon in EB",50,0.,1.);
+  hS4S91EtaEB_ = ibooker.book1D("S4S91EtaEB","S4S9 1st most energetic Eta photon in EB",50,0.,1.);
   hS4S91EtaEB_->setAxisTitle("S4S9 of the 1st Eta Photon ",1);
 
-  hS4S91EtaEE_ = dbe_->book1D("S4S91EtaEE","S4S9 1st most energetic Eta photon in EE",50,0.,1.);
+  hS4S91EtaEE_ = ibooker.book1D("S4S91EtaEE","S4S9 1st most energetic Eta photon in EE",50,0.,1.);
   hS4S91EtaEE_->setAxisTitle("S4S9 of the 1st Eta Photon ",1);
 
-  hS4S92Pi0EB_ = dbe_->book1D("S4S92Pi0EB","S4S9 2nd most energetic Pi0 photon in EB",50,0.,1.);
+  hS4S92Pi0EB_ = ibooker.book1D("S4S92Pi0EB","S4S9 2nd most energetic Pi0 photon in EB",50,0.,1.);
   hS4S92Pi0EB_->setAxisTitle("S4S9 of the 2nd Pi0 Photon",1);
 
-  hS4S92Pi0EE_ = dbe_->book1D("S4S92Pi0EE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
+  hS4S92Pi0EE_ = ibooker.book1D("S4S92Pi0EE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
   hS4S92Pi0EE_->setAxisTitle("S4S9 of the 2nd Pi0 Photon",1);
 
-  hS4S92EtaEB_ = dbe_->book1D("S4S92EtaEB","S4S9 2nd most energetic Pi0 photon in EB",50,0.,1.);
+  hS4S92EtaEB_ = ibooker.book1D("S4S92EtaEB","S4S9 2nd most energetic Pi0 photon in EB",50,0.,1.);
   hS4S92EtaEB_->setAxisTitle("S4S9 of the 2nd Eta Photon",1);
 
-  hS4S92EtaEE_ = dbe_->book1D("S4S92EtaEE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
+  hS4S92EtaEE_ = ibooker.book1D("S4S92EtaEE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
   hS4S92EtaEE_->setAxisTitle("S4S9 of the 2nd Eta Photon",1);
 
   
@@ -329,9 +328,9 @@ void DQMSourcePi0::beginJob(){
 }
 
 //--------------------------------------------------------
-void DQMSourcePi0::beginRun(const edm::Run& r, const EventSetup& context) {
-
-}
+//void DQMSourcePi0::beginRun(const edm::Run& r, const EventSetup& context) {
+//
+//}
 
 //--------------------------------------------------------
 void DQMSourcePi0::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
@@ -1522,11 +1521,11 @@ void DQMSourcePi0::endRun(const Run& r, const EventSetup& context){
 //--------------------------------------------------------
 void DQMSourcePi0::endJob(){
 
-  if(dbe_) {  
-    if (saveToFile_) {
-      dbe_->save(fileName_);
-    }
-  }
+//  if(dbe_) {  
+//    if (saveToFile_) {
+//      dbe_->save(fileName_);
+//    }
+//  }
 }
 
 

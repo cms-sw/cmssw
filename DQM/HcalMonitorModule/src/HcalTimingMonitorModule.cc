@@ -34,7 +34,7 @@ static const int TRIG_CSC=8;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -72,16 +72,17 @@ static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10
 		   5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
 
 
-class HcalTimingMonitorModule : public edm::EDAnalyzer {
+class HcalTimingMonitorModule : public DQMEDAnalyzer {
    public:
       explicit HcalTimingMonitorModule(const edm::ParameterSet&);
       ~HcalTimingMonitorModule();
-      void   initialize();
+      void   initialize(DQMStore::IBooker &);
+
+      virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
    
    private:
-      virtual void beginJob() override ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+  
       
       double GetTime(double *data,int n){
              int MaxI=-100; double Time=0,SumT=0,MaxT=-10;
@@ -157,8 +158,8 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
     int TrigCSC,TrigDT,TrigRPC,TrigGCT;
     
     edm::ParameterSet parameters_;
-    DQMStore          *dbe_;
     std::string       monitorName_;
+    std::string       subsystemname_;
     int               prescaleLS_,prescaleEvt_;
     int               GCTTriggerBit1_;
     int               GCTTriggerBit2_;
@@ -207,38 +208,14 @@ HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfi
    tok_ho_ = consumes<HODigiCollection>(iConfig.getParameter<edm::InputTag>("hoDigiCollectionTag"));
    tok_hf_ = consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("hfDigiCollectionTag"));
 
-  std::string str;   
    parameters_ = iConfig;
-   dbe_ = edm::Service<DQMStore>().operator->();
    // Base folder for the contents of this job
-   std::string subsystemname = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "HcalTiming") ;
+   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "HcalTiming") ;
    
    monitorName_ = parameters_.getUntrackedParameter<std::string>("monitorName","HcalTiming");
-   if (monitorName_ != "" ) monitorName_ =subsystemname+"/"+monitorName_+"/" ;
+   if (monitorName_ != "" ) monitorName_ =subsystemname_+"/"+monitorName_+"/" ;
    counterEvt_=0;
    
-   // some currently dummy things for compartability with GUI
-   dbe_->setCurrentFolder(subsystemname+"/EventInfo/");
-   str="reportSummary";
-   dbe_->bookFloat(str)->Fill(1);     // Unknown status by default
-   str="reportSummaryMap";
-   MonitorElement* me=dbe_->book2D(str,str,5,0,5,1,0,1); // Unknown status by default
-   TH2F* myhist=me->getTH2F();
-   myhist->GetXaxis()->SetBinLabel(1,"HB");
-   myhist->GetXaxis()->SetBinLabel(2,"HE");
-   myhist->GetXaxis()->SetBinLabel(3,"HO");
-   myhist->GetXaxis()->SetBinLabel(4,"HF");
-   myhist->GetYaxis()->SetBinLabel(1,"Status");
-   // Unknown status by default
-   myhist->SetBinContent(1,1,-1);
-   myhist->SetBinContent(2,1,-1);
-   myhist->SetBinContent(3,1,-1);
-   myhist->SetBinContent(4,1,-1);
-   // Add ZDC at some point
-   myhist->GetXaxis()->SetBinLabel(5,"ZDC");
-   myhist->SetBinContent(5,1,-1); // no ZDC info known
-   myhist->SetOption("textcolz");
-     
    run_number=0;
    TrigCSC=TrigDT=TrigRPC=TrigGCT=0;
    std::string sLabel = iConfig.getUntrackedParameter<std::string>("L1ADataLabel" , "l1GtUnpack");
@@ -255,53 +232,76 @@ HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfi
    GCTTriggerBit5_= parameters_.getUntrackedParameter<int>("GCTTriggerBit5", -1);         
    CosmicsCorr_   = parameters_.getUntrackedParameter<bool>("CosmicsCorr", true); 
    Debug_         = parameters_.getUntrackedParameter<bool>("Debug", true);    
-   initialize();
 }
 
 HcalTimingMonitorModule::~HcalTimingMonitorModule(){}
 
-// ------------ method called once each job just before starting event loop  ------------
-void HcalTimingMonitorModule::beginJob(){}
-// ------------ method called once each job just after ending the event loop  ------------
-void HcalTimingMonitorModule::endJob(){}
+void HcalTimingMonitorModule::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es){
 
-void HcalTimingMonitorModule::initialize(){
+  std::string str;   
+
+   // some currently dummy things for compartability with GUI
+   ib.setCurrentFolder(subsystemname_+"/EventInfo/");
+   str="reportSummary";
+   ib.bookFloat(str)->Fill(1);     // Unknown status by default
+   str="reportSummaryMap";
+   MonitorElement* me=ib.book2D(str,str,5,0,5,1,0,1); // Unknown status by default
+   TH2F* myhist=me->getTH2F();
+   myhist->GetXaxis()->SetBinLabel(1,"HB");
+   myhist->GetXaxis()->SetBinLabel(2,"HE");
+   myhist->GetXaxis()->SetBinLabel(3,"HO");
+   myhist->GetXaxis()->SetBinLabel(4,"HF");
+   myhist->GetYaxis()->SetBinLabel(1,"Status");
+   // Unknown status by default
+   myhist->SetBinContent(1,1,-1);
+   myhist->SetBinContent(2,1,-1);
+   myhist->SetBinContent(3,1,-1);
+   myhist->SetBinContent(4,1,-1);
+   // Add ZDC at some point
+   myhist->GetXaxis()->SetBinLabel(5,"ZDC");
+   myhist->SetBinContent(5,1,-1); // no ZDC info known
+   myhist->SetOption("textcolz");
+
+   initialize(ib);
+}
+
+void HcalTimingMonitorModule::initialize(DQMStore::IBooker &ib){
   std::string str;
-  dbe_->setCurrentFolder(monitorName_+"DebugPlots");
-  str="L1MuGMTReadoutRecord_getDTBXCands";   DTcand  =dbe_->book1D(str,str,5,-0.5,4.5);
-  str="L1MuGMTReadoutRecord_getBrlRPCCands"; RPCbcand=dbe_->book1D(str,str,5,-0.5,4.5);
-  str="L1MuGMTReadoutRecord_getFwdRPCCands"; RPCfcand=dbe_->book1D(str,str,5,-0.5,4.5);
-  str="L1MuGMTReadoutRecord_getCSCCands";    CSCcand =dbe_->book1D(str,str,5,-0.5,4.5);
-  str="DT_OR_RPCb_OR_RPCf_OR_CSC";           OR      =dbe_->book1D(str,str,5,-0.5,4.5);
+  ib.setCurrentFolder(monitorName_+"DebugPlots");
+  str="L1MuGMTReadoutRecord_getDTBXCands";   DTcand  =ib.book1D(str,str,5,-0.5,4.5);
+  str="L1MuGMTReadoutRecord_getBrlRPCCands"; RPCbcand=ib.book1D(str,str,5,-0.5,4.5);
+  str="L1MuGMTReadoutRecord_getFwdRPCCands"; RPCfcand=ib.book1D(str,str,5,-0.5,4.5);
+  str="L1MuGMTReadoutRecord_getCSCCands";    CSCcand =ib.book1D(str,str,5,-0.5,4.5);
+  str="DT_OR_RPCb_OR_RPCf_OR_CSC";           OR      =ib.book1D(str,str,5,-0.5,4.5);
   
-  str="HB Tower Energy (LinADC-PED)"; HBEnergy=dbe_->book1D(str,str,1000,-10,90);
-  str="HE Tower Energy (LinADC-PED)"; HEEnergy=dbe_->book1D(str,str,1000,-10,90);
-  str="HO Tower Energy (LinADC-PED)"; HOEnergy=dbe_->book1D(str,str,1000,-10,90);
-  str="HF Tower Energy (LinADC-PED)"; HFEnergy=dbe_->book1D(str,str,1000,-10,90);
+  str="HB Tower Energy (LinADC-PED)"; HBEnergy=ib.book1D(str,str,1000,-10,90);
+  str="HE Tower Energy (LinADC-PED)"; HEEnergy=ib.book1D(str,str,1000,-10,90);
+  str="HO Tower Energy (LinADC-PED)"; HOEnergy=ib.book1D(str,str,1000,-10,90);
+  str="HF Tower Energy (LinADC-PED)"; HFEnergy=ib.book1D(str,str,1000,-10,90);
   
-  dbe_->setCurrentFolder(monitorName_+"ShapePlots");
-  str="HB Shape (DT Trigger)";        HBShapeDT  =dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HB Shape (RPC Trigger)";       HBShapeRPC =dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HB Shape (GCT Trigger)";       HBShapeGCT =dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HO Shape (DT Trigger)";        HOShapeDT  =dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HO Shape (RPC Trigger)";       HOShapeRPC =dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HO Shape (GCT Trigger)";       HOShapeGCT =dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HE+ Shape (CSC Trigger)";      HEShapeCSCp=dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HE- Shape (CSC Trigger)";      HEShapeCSCm=dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HF+ Shape (CSC Trigger)";      HFShapeCSCp=dbe_->book1D(str,str,10,-0.5,9.5); 
-  str="HF- Shape (CSC Trigger)";      HFShapeCSCm=dbe_->book1D(str,str,10,-0.5,9.5); 
+  ib.setCurrentFolder(monitorName_+"ShapePlots");
+  str="HB Shape (DT Trigger)";        HBShapeDT  =ib.book1D(str,str,10,-0.5,9.5); 
+  str="HB Shape (RPC Trigger)";       HBShapeRPC =ib.book1D(str,str,10,-0.5,9.5); 
+  str="HB Shape (GCT Trigger)";       HBShapeGCT =ib.book1D(str,str,10,-0.5,9.5); 
+  str="HO Shape (DT Trigger)";        HOShapeDT  =ib.book1D(str,str,10,-0.5,9.5); 
+  str="HO Shape (RPC Trigger)";       HOShapeRPC =ib.book1D(str,str,10,-0.5,9.5); 
+  str="HO Shape (GCT Trigger)";       HOShapeGCT =ib.book1D(str,str,10,-0.5,9.5); 
+  str="HE+ Shape (CSC Trigger)";      HEShapeCSCp=ib.book1D(str,str,10,-0.5,9.5); 
+  str="HE- Shape (CSC Trigger)";      HEShapeCSCm=ib.book1D(str,str,10,-0.5,9.5); 
+  str="HF+ Shape (CSC Trigger)";      HFShapeCSCp=ib.book1D(str,str,10,-0.5,9.5); 
+  str="HF- Shape (CSC Trigger)";      HFShapeCSCm=ib.book1D(str,str,10,-0.5,9.5); 
   
-  dbe_->setCurrentFolder(monitorName_+"TimingPlots");
-  str="HB Timing (DT Trigger)";       HBTimeDT   =dbe_->book1D(str,str,100,0,10);
-  str="HB Timing (RPC Trigger)";      HBTimeRPC  =dbe_->book1D(str,str,100,0,10);
-  str="HB Timing (GCT Trigger)";      HBTimeGCT  =dbe_->book1D(str,str,100,0,10);
-  str="HO Timing (DT Trigger)";       HOTimeDT   =dbe_->book1D(str,str,100,0,10);
-  str="HO Timing (RPC Trigger)";      HOTimeRPC  =dbe_->book1D(str,str,100,0,10);
-  str="HO Timing (GCT Trigger)";      HOTimeGCT  =dbe_->book1D(str,str,100,0,10);
-  str="HE+ Timing (CSC Trigger)";     HETimeCSCp =dbe_->book1D(str,str,100,0,10);
-  str="HE- Timing (CSC Trigger)";     HETimeCSCm =dbe_->book1D(str,str,100,0,10);
-  str="HF+ Timing (CSC Trigger)";     HFTimeCSCp =dbe_->book1D(str,str,100,0,10);
-  str="HF- Timing (CSC Trigger)";     HFTimeCSCm =dbe_->book1D(str,str,100,0,10);
+  ib.setCurrentFolder(monitorName_+"TimingPlots");
+  str="HB Timing (DT Trigger)";       HBTimeDT   =ib.book1D(str,str,100,0,10);
+  str="HB Timing (RPC Trigger)";      HBTimeRPC  =ib.book1D(str,str,100,0,10);
+  str="HB Timing (GCT Trigger)";      HBTimeGCT  =ib.book1D(str,str,100,0,10);
+  str="HO Timing (DT Trigger)";       HOTimeDT   =ib.book1D(str,str,100,0,10);
+  str="HO Timing (RPC Trigger)";      HOTimeRPC  =ib.book1D(str,str,100,0,10);
+  str="HO Timing (GCT Trigger)";      HOTimeGCT  =ib.book1D(str,str,100,0,10);
+  str="HE+ Timing (CSC Trigger)";     HETimeCSCp =ib.book1D(str,str,100,0,10);
+  str="HE- Timing (CSC Trigger)";     HETimeCSCm =ib.book1D(str,str,100,0,10);
+  str="HF+ Timing (CSC Trigger)";     HFTimeCSCp =ib.book1D(str,str,100,0,10);
+  str="HF- Timing (CSC Trigger)";     HFTimeCSCm =ib.book1D(str,str,100,0,10);
 }
 
 void HcalTimingMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
