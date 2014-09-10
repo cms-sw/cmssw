@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import os,sys
 
 process = cms.Process("EDMtoMEConvert")
 
@@ -11,24 +10,13 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("HLTriggerOffline.Exotica.HLTExoticaPostVal_cff")
 #process.load("HLTriggerOffline.Exotica.HLTExoticaQualityTester_cfi")
 
-# Decide input data
-myinput   = ""
-
-for i in range(0,len(sys.argv)):
-    if str(sys.argv[i])=="_input" and len(sys.argv)>i+1:
-        myinput = str(sys.argv[i+1])
-
-myfileNames = cms.untracked.vstring('file:hltExoticaValidator'+myinput+'.root')
-
-print "Using inputs : "
-print myfileNames
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = myfileNames
+    fileNames = cms.untracked.vstring('file:hltExoticaValidator.root')
 )
 
 process.postprocessor_path = cms.Path(
