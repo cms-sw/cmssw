@@ -101,7 +101,11 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
 
     #QJetsAdder
-    process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService", QJetsAdderAK8 = cms.PSet(initialSeed = cms.untracked.uint32(7)), QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7)))
+    if hasattr(process,"RandomNumberGeneratorService") :
+	    process.RandomNumberGeneratorService.QJetsAdderAK8 = cms.PSet(initialSeed = cms.untracked.uint32(7))
+	    process.RandomNumberGeneratorService.QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7))
+    else:
+	    process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService", QJetsAdderAK8 = cms.PSet(initialSeed = cms.untracked.uint32(7)), QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7)))
     process.load('RecoJets.JetProducers.qjetsadder_cfi')
     process.QJetsAdderAK8 = process.QJetsAdder.clone()
     process.QJetsAdderAK8.src = cms.InputTag("ak8PFJetsCHS")
