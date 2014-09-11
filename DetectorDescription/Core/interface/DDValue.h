@@ -12,10 +12,6 @@
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 
-class DDValue;
-class DDSpecifics;
-class DDLSpecPar;
-
 /** A DDValue std::maps a std::vector of DDValuePair (std::string,double) to a name. Names of DDValues are stored
  transiently. Furthermore, an ID is assigned std::mapping to the name.
  If a particular DDValue is not used anymore, use DDValue::clear() to free the internally
@@ -25,8 +21,6 @@ class DDLSpecPar;
 */
 class DDValue
 {
-  friend class DDSpecifics;
-  friend class DDLSpecPar;
 public:
   //! create a unnamed emtpy value. One can assing a named DDValue to it.
   DDValue( void ) : id_(0), vecPair_(0) { }
