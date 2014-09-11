@@ -10,7 +10,7 @@ bool TrackerGeomDet::setAlignmentPositionError (const AlignmentPositionError& ap
   else *theAlignmentPositionError = ape;
 
   theLocalAlignmentError = ape.valid() ?
-    ErrorFrameTransformer().transform( ape.globalError(),
+    ErrorFrameTransformer().transform( ape.localError(),
                                        surface()
 				       ) :
     InvalidError();

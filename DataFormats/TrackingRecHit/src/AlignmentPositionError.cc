@@ -1,7 +1,5 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
-AlignmentPositionError::AlignmentPositionError( float dx, float dy, float dz){
-  theGlobalError = GlobalError(double(dx*dx),           
-		               0., double(dy*dy),       
-		               0., 0., double(dz*dz) ) ;
+AlignmentPositionError::AlignmentPositionError( float xx, float yy, float phixphix, float phiyphiy){
+  theLocalError = LocalErrorExtended(xx,0.,0.,0.,yy,0.,0.,phixphix,0.,phiyphiy);
 }

@@ -24,6 +24,16 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
+//FIXME
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "TRandom.h"
+
+
 class Alignments;
 class AlignmentSurfaceDeformations;
 
@@ -74,6 +84,20 @@ void GeometryAligner::applyAlignments( C* geometry,
   const AlignTransform::Rotation globalRotation = globalCoordinates.rotation(); // by value!
   const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
 
+  //FIXME test setup to read APEs from ASCIII file, if need be
+  std::ifstream apeReadFile("/afs/cern.ch/user/a/asvyatko/public/APEList66.txt");
+
+  //FIXME read in the APEs from ASCII file
+  std::map<int,GlobalErrorExtended> apeDict;
+  while (!apeReadFile.eof()) {
+    int apeId=0; double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
+    apeReadFile>>apeId>>xx>>xy>>xz>>xphix>>xphiy>>xphiz>>yy>>yz>>yphix>>yphiy>>yphiz>>zz>>zphix>>zphiy>>zphiz>>phixphix>>phixphiy>>phixphiz>>phiyphiy>>phiyphiz>>phizphiz>>std::ws;
+    GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
+    apeDict[apeId] = error_tmp;
+  }
+  apeReadFile.close();
+
+
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
   std::vector<AlignTransformError>::const_iterator 
@@ -106,20 +130,59 @@ void GeometryAligner::applyAlignments( C* geometry,
 					  rotationHep.yx(), rotationHep.yy(), rotationHep.yz(), 
 					  rotationHep.zx(), rotationHep.zy(), rotationHep.zz() );
 	  GeomDet* iGeomDet = const_cast<GeomDet*>((*iPair).second);
+
+          Surface::PositionType posOld = iGeomDet->position(); 
+          AlgebraicVector vOld(3,0);
+          vOld[0] = posOld.x(); 
+          vOld[1] = posOld.y();
+          vOld[2] = posOld.z();
+
+          Surface::RotationType rotOld = iGeomDet->rotation();
+          AlgebraicMatrix amOld(3,3,0);
+          amOld[0][0] = rotOld.xx(); amOld[0][1] = rotOld.xy(); amOld[0][2] = rotOld.xz();
+          amOld[1][0] = rotOld.yx(); amOld[1][1] = rotOld.yy(); amOld[1][2] = rotOld.yz();
+          amOld[2][0] = rotOld.zx(); amOld[2][1] = rotOld.zy(); amOld[2][2] = rotOld.zz();
+
 	  this->setGeomDetPosition( *iGeomDet, position, rotation );
 
-	  // Alignment Position Error only if non-zero to save memory
-	  GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
+          Surface::PositionType posNew = iGeomDet->position();
+          AlgebraicVector vNew(3,0);
+          vNew[0] = posNew.x();
+          vNew[1] = posNew.y();
+          vNew[2] = posNew.z();
 
-	  AlignmentPositionError ape( error );
+          Surface::RotationType rotNew = iGeomDet->rotation();
+          AlgebraicMatrix amNew(3,3,0);
+          amNew[0][0] = rotNew.xx(); amNew[0][1] = rotNew.xy(); amNew[0][2] = rotNew.xz();
+          amNew[1][0] = rotNew.yx(); amNew[1][1] = rotNew.yy(); amNew[1][2] = rotNew.yz();
+          amNew[2][0] = rotNew.zx(); amNew[2][1] = rotNew.zy(); amNew[2][2] = rotNew.zz();
+
+          //Get the alignment parameters
+          AlgebraicVector shifts(3,0);
+          shifts = vNew - vOld; 
+          AlgebraicMatrix am(3,3);
+          am = amOld*amNew.T();
+          //now phiz is 01
+          //phiy is 02
+          //phix is 21
+          AlgebraicVector angles(3,0);
+          angles[0] = am[2][1]; 
+          angles[1] = am[0][2];
+          angles[2] = am[0][1];
+
+          int reference = (iGeomDet->geographicalId()).rawId();
+          GlobalErrorExtended error = apeDict[reference];
+          LocalErrorExtended newError = ErrorFrameTransformer().transform46(error,shifts,angles);
+
+	  AlignmentPositionError ape( newError );
 	  if (this->setAlignmentPositionError( *iGeomDet, ape ))
 	    ++nAPE;
-	  
+
 	}
 
-  edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
-			    << "Finished to apply " << theMap.size() << " alignments with "
-			    << nAPE << " non-zero APE.";
+        edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
+        			    << "Finished to apply " << theMap.size() << " alignments with "
+        		    << nAPE << " non-zero APE.";
 }
 
 

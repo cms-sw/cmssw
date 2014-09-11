@@ -1,7 +1,7 @@
 #ifndef ALIGNMENT_POSITION_ERROR_H
 #define ALIGNMENT_POSITION_ERROR_H
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
 
 /** The position error of a Det due to alignment.
  *  It is summed in quadrature with the RecHit local error.
@@ -13,43 +13,42 @@ class AlignmentPositionError {
 
   AlignmentPositionError(){};
   
-  AlignmentPositionError(float dx, float dy, float dz);
-  
-  AlignmentPositionError(const GlobalError& ge) : theGlobalError(ge) {};
+  AlignmentPositionError(float xx, float yy, float phixphix, float phiyphiy); 
+ 
+  AlignmentPositionError(const LocalErrorExtended& ge) : theLocalError(ge) {};
 
   ~AlignmentPositionError(){};
   
-
+  //FIXME use all APEs for now
   bool valid() const {
-    return ( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.czz()>0 );
+    return true; //( theLocalError.cxx()>0 || theLocalError.cyy()>0 || theLocalError.cphixphix()>0 || theLocalError.cphiyphiy()>0);
   }
 
-  const GlobalError & globalError() const { return theGlobalError; };
+  const LocalErrorExtended & localError() const { return theLocalError; };
 
   AlignmentPositionError operator+ (const AlignmentPositionError& ape) const {
-    return AlignmentPositionError ( this->globalError() + ape.globalError());
+    return AlignmentPositionError ( this->localError() + ape.localError());
   };
 
   AlignmentPositionError operator- (const AlignmentPositionError& ape) const {
-    return AlignmentPositionError ( this->globalError() - ape.globalError());
+    return AlignmentPositionError ( this->localError() - ape.localError());
 
   };
 
   AlignmentPositionError & operator+= (const AlignmentPositionError& ape) {
-    theGlobalError = GlobalError(this->globalError() + ape.globalError());
+    theLocalError = LocalErrorExtended(this->localError() + ape.localError());
     return *this;
   };
 
   AlignmentPositionError & operator-= (const AlignmentPositionError& ape) {
-    theGlobalError = GlobalError(this->globalError() - ape.globalError());
+    theLocalError = LocalErrorExtended(this->localError() - ape.localError());
     return *this;
   };
 
 
  private:
   
-  GlobalError theGlobalError;
+  LocalErrorExtended theLocalError;
 };
 
 #endif // ALIGNMENT_POSITION_ERROR_H
-
