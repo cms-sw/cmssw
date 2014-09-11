@@ -88,6 +88,9 @@ private:
   void validateTrackerGeometry(const TrackerGeometry::DetContainer& dets, 
                                const char* detname);
 
+  void validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets, 
+                               const char* detname);
+
   void validatePixelTopology(const TrackerGeometry::DetContainer& dets,
                              const char* detname);
                    
@@ -907,6 +910,46 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
   makeHistograms(detname);
 }
 
+
+void
+ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets,
+                                          const char* detname)
+{
+  clearData();
+
+  for ( TrackerGeometry::DetUnitContainer::const_iterator it = dets.begin(), 
+                                                       itEnd = dets.end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    unsigned int rawId = (*it)->geographicalId().rawId();
+
+    const TGeoMatrix* matrix = fwGeometry_.getMatrix(rawId);
+
+    if ( ! matrix )
+    {
+      std::cout<< "Failed to get matrix of "<< detname 
+               <<" element with detid: "<< rawId <<std::endl;
+      continue;
+    }
+
+    compareTransform(gp, matrix);
+
+
+    const float* shape = fwGeometry_.getShapePars(rawId);
+
+    if ( ! shape )
+    {
+      std::cout<<"Failed to get shape of "<< detname 
+               <<" element with detid: "<< rawId <<std::endl;
+      continue;
+    }
+
+    compareShape(*it, shape);
+  }
+  
+  makeHistograms(detname);
+}
 
 void 
 ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& dets,
