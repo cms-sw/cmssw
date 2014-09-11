@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_2_0_pre1/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTHI72_V1-v1/00000/08F8AFF4-95FD-E311-83A2-02163E00E7E0.root')
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_2_0_pre5/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTHI72_V1-v1/00000/CE04360B-DB2F-E411-8AA5-02163E00FEB9.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -86,11 +86,6 @@ process.validation_step = cms.EndPath(process.validation)
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
-# customisation of the process.
-#process.globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-#process.trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-#process.tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-#process.looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.prevalidation_step,process.validation_step,process.dqmoffline_step,process.RECOSIMoutput_step,process.DQMoutput_step)

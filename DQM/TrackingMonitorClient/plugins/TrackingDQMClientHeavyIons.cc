@@ -10,7 +10,6 @@
 #include <TH1F.h>
 #include <TClass.h>
 #include <TString.h>
-#include <TPRegexp.h>
 #include <string>
 #include <cmath>
 #include <climits>
@@ -21,8 +20,6 @@ using namespace edm;
 
 typedef MonitorElement ME;
 
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-TPRegexp nonPerlWildcard("\\w\\*|^\\*");
 
 TrackingDQMClientHeavyIons::TrackingDQMClientHeavyIons(const edm::ParameterSet& pset){
 

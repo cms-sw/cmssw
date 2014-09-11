@@ -56,6 +56,8 @@ hiPixelPairSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiPixelPai
 hiPixelPairSeeds.OrderedHitsFactoryPSet.maxElement = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
+hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
+del hiPixelPairSeeds.ClusterCheckPSet.cut
 
 hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
     ComponentName = cms.string('PixelClusterShapeSeedComparitor'),

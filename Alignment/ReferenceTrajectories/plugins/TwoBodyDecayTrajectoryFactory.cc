@@ -9,8 +9,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
@@ -266,14 +265,6 @@ bool TwoBodyDecayTrajectoryFactory::match( const TrajectoryStateOnSurface& state
 
   double varX = le.xx();
   double varY = le.yy();
-
-  auto const & lape = recHit->det()->localAlignmentError();
-  if ( lape.valid() )
-  {
-
-    varX += lape.xx();
-    varY += lape.yy();
-  }
 
   return ( ( fabs(deltaX)/sqrt(varX) < theNSigmaCutValue ) && ( fabs(deltaY)/sqrt(varY) < theNSigmaCutValue ) );
 }

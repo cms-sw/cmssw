@@ -16,7 +16,6 @@
 
 // Reconstruction Classes
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -33,11 +32,6 @@ HiSuperClusterProducer::HiSuperClusterProducer(const edm::ParameterSet& ps)
    else if (verbosityString == "INFO")    verbosity = HiBremRecoveryClusterAlgo::pINFO;
    else                                   verbosity = HiBremRecoveryClusterAlgo::pERROR;
 
-   endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
-   barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
-
-   endcapClusterCollection_ = ps.getParameter<std::string>("endcapClusterCollection");
-   barrelClusterCollection_ = ps.getParameter<std::string>("barrelClusterCollection");
 
    endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
    barrelSuperclusterCollection_ = ps.getParameter<std::string>("barrelSuperclusterCollection");
@@ -69,6 +63,11 @@ HiSuperClusterProducer::HiSuperClusterProducer(const edm::ParameterSet& ps)
    produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
    produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
 
+   eeClustersToken_ =  consumes<reco::BasicClusterCollection>(edm::InputTag(ps.getParameter<std::string>("endcapClusterProducer"), 
+									    ps.getParameter<std::string>("endcapClusterCollection")));
+   ebClustersToken_ =  consumes<reco::BasicClusterCollection>(edm::InputTag(ps.getParameter<std::string>("barrelClusterProducer"), 
+									    ps.getParameter<std::string>("barrelClusterCollection")));
+
    totalE = 0;
    noSuperClusters = 0;
    nEvt_ = 0;
@@ -98,23 +97,22 @@ void HiSuperClusterProducer::endJob() {
 void HiSuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   if(doEndcaps_)
-    produceSuperclustersForECALPart(evt, endcapClusterProducer_, endcapClusterCollection_, endcapSuperclusterCollection_);
+    produceSuperclustersForECALPart(evt, eeClustersToken_, endcapSuperclusterCollection_);
 
   if(doBarrel_)
-    produceSuperclustersForECALPart(evt, barrelClusterProducer_, barrelClusterCollection_, barrelSuperclusterCollection_);
+    produceSuperclustersForECALPart(evt, ebClustersToken_, barrelSuperclusterCollection_);
 
   nEvt_++;
 }
 
 
 void HiSuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt, 
-							   std::string clusterProducer, 
-							   std::string clusterCollection,
-							   std::string superclusterCollection)
+							     const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+							     std::string superclusterCollection)
 {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
   reco::CaloClusterPtrVector *clusterPtrVector_p = new reco::CaloClusterPtrVector;
-  getClusterPtrVector(evt, clusterProducer, clusterCollection, clusterPtrVector_p);
+  getClusterPtrVector(evt, clustersToken, clusterPtrVector_p);
 
   // run the brem recovery and get the SC collection
   std::auto_ptr<reco::SuperClusterCollection> 
@@ -135,15 +133,15 @@ void HiSuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt,
 }
 
 
-void HiSuperClusterProducer::getClusterPtrVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::CaloClusterPtrVector *clusterPtrVector_p)
+void HiSuperClusterProducer::getClusterPtrVector(edm::Event& evt, const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken, reco::CaloClusterPtrVector *clusterPtrVector_p)
 {  
   edm::Handle<reco::BasicClusterCollection> bccHandle;
 
-  evt.getByLabel(clusterProducer_, clusterCollection_, bccHandle);
+  evt.getByToken(clustersToken, bccHandle);
+
   if (!(bccHandle.isValid()))
     {
       edm::LogError("HiSuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
-      edm::LogError("HiSuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
       clusterPtrVector_p = 0;
     }
 

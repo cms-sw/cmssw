@@ -581,10 +581,10 @@ namespace edm {
   fillModuleInPathSummary(Path const& path,
                           size_t which,
                           ModuleInPathSummary& sum) {
-    sum.timesVisited = +path.timesVisited(which);
-    sum.timesPassed  = +path.timesPassed(which);
-    sum.timesFailed  = +path.timesFailed(which);
-    sum.timesExcept  = +path.timesExcept(which);
+    sum.timesVisited += path.timesVisited(which);
+    sum.timesPassed  += path.timesPassed(which);
+    sum.timesFailed  += path.timesFailed(which);
+    sum.timesExcept  += path.timesExcept(which);
     sum.moduleLabel  = path.getWorker(which)->description().moduleLabel();
   }
 

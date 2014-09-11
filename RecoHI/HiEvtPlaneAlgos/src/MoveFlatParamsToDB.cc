@@ -1,19 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    MoveFlatParamsToDB
-// Class:      MoveFlatParamsToDB
-// 
-/**\class MoveFlatParamsToDB MoveFlatParamsToDB.cc HiEvtPlaneFlatten/MoveFlatParamsToDB/src/MoveFlatParamsToDB.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Fri Jun 11 12:56:15 EDT 2010
-// $Id: MoveFlatParamsToDB.cc,v 1.2 2011/10/07 09:41:29 yilmaz Exp $
 //
 //
 
@@ -40,7 +27,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "CondFormats/DataRecord/interface/HeavyIonRPRcd.h"
@@ -76,9 +62,9 @@ public:
   
   
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 //   edm::Service<TFileService> fs;
   TFile * inFile;
   //Hard coded limit of 100 different reaction planes

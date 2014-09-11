@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -182,18 +183,15 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   }
 
   if ( doPUOffsetCorr_ ) {
-    if ( jetTypeE != JetType::CaloJet && jetTypeE != JetType::BasicJet) {
-        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet or BasicJet";
-     }
-     
+
      if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
      else puSubtractorName_ = std::string();
      
      if(puSubtractorName_.empty()){
        edm::LogWarning("VirtualJetProducer") << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
-       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig));
+       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
      }else{
-       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig));
+       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig, consumesCollector()));
      }
   }
 

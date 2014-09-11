@@ -7,7 +7,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 #pseudo towers for noise suppression background subtraction
 PFTowers = cms.EDProducer("ParticleTowerProducer",
                           src = cms.InputTag("particleFlowTmp"),
-                          useHF = cms.untracked.bool(False)
+                          useHF = cms.bool(False)
                           )
 
 ## background for HF/Voronoi-style subtraction
@@ -71,12 +71,6 @@ akPu4PFJets = akPu5PFJets.clone(rParam       = cms.double(0.4), puPtMin = 20)
 akPu6PFJets = akPu5PFJets.clone(rParam       = cms.double(0.6), puPtMin = 30)
 akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
 
-ak1PFJets = ak5PFJets.clone(rParam       = cms.double(0.1))
-ak2PFJets = ak5PFJets.clone(rParam       = cms.double(0.2))
-ak3PFJets = ak5PFJets.clone(rParam       = cms.double(0.3))
-ak4PFJets = ak5PFJets.clone(rParam       = cms.double(0.4))
-ak6PFJets = ak5PFJets.clone(rParam       = cms.double(0.6))
-ak7PFJets = ak5PFJets.clone(rParam       = cms.double(0.7))
 
 hiRecoPFJets = cms.Sequence(
     PFTowers
@@ -85,9 +79,3 @@ hiRecoPFJets = cms.Sequence(
     *akVs3PFJets*akVs4PFJets*akVs5PFJets
     )
 
-hiRecoAllPFJets = cms.Sequence(PFTowers
-                               *akPu1PFJets*akPu2PFJets*akPu3PFJets*akPu4PFJets*akPu5PFJets*akPu6PFJets*akPu7PFJets
-                               *voronoiBackgroundPF
-                               *akVs1PFJets*akVs2PFJets*akVs3PFJets*akVs4PFJets*akVs5PFJets*akVs6PFJets*akVs7PFJets
-                               *ak1PFJets*ak2PFJets*ak3PFJets*ak4PFJets*ak5PFJets*ak6PFJets*ak7PFJets
-                               )

@@ -1,7 +1,6 @@
 #include "FWCore/Services/src/InitRootHandlers.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Streamer/interface/StreamedProductStreamer.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -281,7 +280,6 @@ namespace edm {
 
       // Set custom streamers
       setRefCoreStreamer();
-      setStreamedProductStreamer();
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
       if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {

@@ -21,7 +21,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
@@ -40,19 +40,20 @@ using namespace std;
 class CentralityTableProducer : public edm::EDAnalyzer {
    public:
       explicit CentralityTableProducer(const edm::ParameterSet&);
+      explicit CentralityTableProducer(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       ~CentralityTableProducer();
 
    private:
       virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
    void printBin(const CentralityTable::CBin*);
       // ----------member data ---------------------------
 
    bool makeDBFromTFile_;
    bool makeTFileFromDB_;
-  bool firstRunOnly_;
-  bool debug_;
+   bool firstRunOnly_;
+   bool debug_;
 
    edm::ESHandle<CentralityTable> inputDB_;
    TFile* inputTFile_;
@@ -62,6 +63,7 @@ class CentralityTableProducer : public edm::EDAnalyzer {
    string rootTag_;
    ofstream text_;
 
+   CentralityProvider *cent;
    CentralityTable* CT;
    const CentralityBins* CB;
 
@@ -80,7 +82,9 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig):
+CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig){}
+
+CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector && iC):
    text_("bins.txt"),
    runnum_(0)
 {
@@ -95,6 +99,7 @@ CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfi
       inputTFile_  = new TFile(inputTFileName_.data(),"read");
       cout<<inputTFileName_.data()<<endl;
    }
+   cent =  new CentralityProvider(iSetup, std::move(iC));
 }
 
 CentralityTableProducer::~CentralityTableProducer()
@@ -115,10 +120,10 @@ CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   if((!firstRunOnly_ && runnum_ != iEvent.id().run()) || (firstRunOnly_ && runnum_ == 0)){
     runnum_ = iEvent.id().run();
     cout<<"Adding table for run : "<<runnum_<<endl;
-    CentralityProvider cent(iSetup);
-    if(debug_) cent.print();
+    cent->newRun(iSetup);
+    if(debug_) cent->print();
     TFileDirectory subDir = fs->mkdir(Form("run%d",runnum_));
-    CB = subDir.make<CentralityBins>((CentralityBins)cent);
+    CB = subDir.make<CentralityBins>((CentralityBins) *cent);
   }    
 }
 

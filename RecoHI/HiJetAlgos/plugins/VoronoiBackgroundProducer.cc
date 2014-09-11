@@ -35,7 +35,7 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-   edm::InputTag src_;
+   edm::EDGetTokenT<reco::CandidateView> src_;
    VoronoiAlgorithm* voronoi_;
    bool doEqualize_;
    double equalizeThreshold0_;
@@ -71,7 +71,7 @@ VoronoiBackgroundProducer::VoronoiBackgroundProducer(const edm::ParameterSet& iC
    fourierOrder_(iConfig.getParameter<int>("fourierOrder"))
 {
 
-   src_ = iConfig.getParameter<edm::InputTag>("src");
+   src_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"));
    //register your products
 
    produces<reco::VoronoiMap>();
@@ -102,7 +102,7 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    vvm.clear();
 
    edm::Handle<reco::CandidateView> inputsHandle;
-   iEvent.getByLabel(src_,inputsHandle);
+   iEvent.getByToken(src_,inputsHandle);
 
    for(unsigned int i = 0; i < inputsHandle->size(); ++i){
       reco::CandidateViewRef ref(inputsHandle,i);

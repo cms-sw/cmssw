@@ -17,19 +17,28 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForL1FastJet_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 
-# L1 emulator - in the future, we may want to use directly L1Trigger.Configuration.SimL1Emulator_cff
-# Configuration comes from the GlobalTag
-# Emulator modules
-from L1Trigger.Configuration.L1MuonEmulator_cff import *
-from L1Trigger.Configuration.L1CaloEmulator_cff import *
-from L1Trigger.GlobalTrigger.gtDigis_cfi import *
-rctDigis.ecalDigis = cms.VInputTag(cms.InputTag("simEcalTriggerPrimitiveDigis"))
-rctDigis.hcalDigis = cms.VInputTag(cms.InputTag("simHcalTriggerPrimitiveDigis"))
-# Emulator sequence
-L1Emulator = cms.Sequence(L1CaloEmulator*L1MuonEmulator*gtDigis)
+# L1 emulator - using directly L1Trigger.Configuration.SimL1Emulator_cff
+# for everithing but simRctDigis that is taken from CaloRecHits_cff for 
+# CaloMode = 3
+#
+# For CaloMode = 0 simRctDigis is taken from SimL1Emulator_cff as well:
+# this a hack to make things work, a better solution has to be implemented
+#
+# GT digis and L1 extra have different module label naming  w.r.t.
+# FullSim as they are used as input to HLT w.o. any packing/unpacking
+#
+# In general configuration for the emulator modules comes from GlobalTag
 
-# The calorimeter emulator requires doDigis=true)
-CaloMode = 0   ### In CMSSW > 61X CaloMode can be updated with the following import
+from L1Trigger.Configuration.SimL1Emulator_cff import simGctDigis,             \
+    simDtTriggerPrimitiveDigis, L1DTConfigFromDB, simCscTriggerPrimitiveDigis, \
+    simCsctfTrackDigis, simDttfDigis, simCsctfDigis,                           \
+    simRpcTriggerDigis, RPCConeBuilder, simGmtDigis,                           \
+    SimL1MuTriggerPrimitives, SimL1MuTrackFinders
+
+from L1Trigger.GlobalTrigger.gtDigis_cfi import *
+
+# The calorimeter emulator requires doDigis=true
+# In CMSSW > 61X CaloMode can be updated with the following import
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 if(CaloMode==0 or CaloMode==2):
     ecalRecHit.doDigis = True
@@ -37,28 +46,44 @@ if(CaloMode==0 or CaloMode==1):
     hbhereco.doDigis = True
     hfreco.doDigis = True
     horeco.doDigis = True
-
-# L1 muons emulator
-#from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
-from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
-dtTriggerPrimitiveDigis.digiTag = cms.InputTag("simMuonDTDigis")
-from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import *
-rpcTriggerDigis.label = "simMuonRPCDigis"
-from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import *
-gmtDigis.DTCandidates = cms.InputTag("dttfDigis","DT")
-gmtDigis.CSCCandidates = cms.InputTag("csctfDigis","CSC")
-gmtDigis.RPCbCandidates = cms.InputTag("rpcTriggerDigis","RPCb")
-gmtDigis.RPCfCandidates = cms.InputTag("rpcTriggerDigis","RPCf")
-gmtDigis.MipIsoData = cms.InputTag("rctDigis")
+if(CaloMode==0) :
+    from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
 
 # GT emulator
 gtDigis.EmulateBxInEvent = 1
+gtDigis.GmtInputTag = cms.InputTag("simGmtDigis") 
+gtDigis.GctInputTag = cms.InputTag("simGctDigis")
 
+# Emulator sequence
+L1Emulator = cms.Sequence(simRctDigis + 
+                          simGctDigis + 
+                          SimL1MuTriggerPrimitives + 
+                          SimL1MuTrackFinders + 
+                          simRpcTriggerDigis + 
+                          simGmtDigis +
+                          gtDigis)
 
 # L1Extra - provides 4-vector representation of L1 trigger objects - not needed by HLT
 # The muon extra particles are done here, but could be done also by L1ParamMuons.
 from L1Trigger.Configuration.L1Extra_cff import *
-l1extraParticles.muonSource = 'gmtDigis'
+
+l1extraParticles.isolatedEmSource    = cms.InputTag("simGctDigis","isoEm")
+l1extraParticles.nonIsolatedEmSource = cms.InputTag("simGctDigis","nonIsoEm")
+
+l1extraParticles.centralJetSource = cms.InputTag("simGctDigis","cenJets")
+l1extraParticles.tauJetSource     = cms.InputTag("simGctDigis","tauJets")
+l1extraParticles.forwardJetSource = cms.InputTag("simGctDigis","forJets")
+
+l1extraParticles.muonSource = cms.InputTag('simGmtDigis')
+
+l1extraParticles.etTotalSource = cms.InputTag("simGctDigis")
+l1extraParticles.etHadSource   = cms.InputTag("simGctDigis")
+l1extraParticles.htMissSource  = cms.InputTag("simGctDigis")
+l1extraParticles.etMissSource  = cms.InputTag("simGctDigis")
+
+l1extraParticles.hfRingEtSumsSource    = cms.InputTag("simGctDigis")
+l1extraParticles.hfRingBitCountsSource = cms.InputTag("simGctDigis")
+
 
 # L1 report
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
@@ -78,12 +103,10 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 # The hltbegin sequence (with L1 emulator)
 HLTBeginSequence = cms.Sequence(
     siTrackerGaussianSmearingRecHits+ # repetition if RECO is executed; needed by the next line
-    iterativeTracking+ # repetition if RECO is executed; needed by the next line
-    caloRecHits+ # repetition if RECO is executed; needed to allow -s GEN,SIM,HLT without RECO
-    L1CaloEmulator+
-    L1MuonEmulator+
-    gtDigis+
-    l1extraParticles+
+    iterativeTracking               + # repetition if RECO is executed; needed by the next line
+    caloRecHits                     + # repetition if RECO is executed; needed to allow -s GEN,SIM,HLT without RECO
+    L1Emulator                      +
+    l1extraParticles                +
     cms.SequencePlaceholder("offlineBeamSpot")
 )
 

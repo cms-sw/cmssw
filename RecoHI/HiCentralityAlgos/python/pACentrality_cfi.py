@@ -30,7 +30,7 @@ pACentrality = cms.EDProducer("CentralityProducer",
                             trackPtCut = cms.double(1),
                             hfEtaCut = cms.double(4), #hf above the absolute value of this cut is used
                             midRapidityRange = cms.double(1),
-			    lowGainZDC = cms.untracked.bool(True),
+			    lowGainZDC = cms.bool(True),
 
                             )
 

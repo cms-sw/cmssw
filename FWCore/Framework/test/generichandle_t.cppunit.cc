@@ -4,7 +4,6 @@ Test of GenericHandle class.
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -13,7 +12,6 @@ Test of GenericHandle class.
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -79,7 +77,7 @@ void testGenericHandle::failWrongType() {
 }
 void testGenericHandle::failgetbyLabelTest() {
 
-  edm::EventID id;
+  edm::EventID id = edm::EventID::firstValidEvent();
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
@@ -133,7 +131,7 @@ void testGenericHandle::getbyLabelTest() {
   typedef edm::Wrapper<DP> WDP;
 
   std::auto_ptr<DP> pr(new DP);
-  edm::WrapperOwningHolder pprod(new WDP(pr), WDP::getInterface());
+  std::unique_ptr<edm::WrapperBase> pprod(new WDP(pr));
   std::string label("fred");
   std::string productInstanceName("Rick");
 
@@ -190,7 +188,7 @@ void testGenericHandle::getbyLabelTest() {
   auto entryDescriptionPtr = std::make_shared<edm::Parentage>();
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
   edm::BranchDescription const desc(branchFromRegistry);
-  ep.put(desc, pprod, prov);
+  ep.put(desc, std::move(pprod), prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
