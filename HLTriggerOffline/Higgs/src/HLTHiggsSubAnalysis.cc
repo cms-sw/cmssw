@@ -160,7 +160,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		}
 		if( ! found )
 		{
-			edm::LogWarning("HiggsValidations") << "HLTHiggsSubAnalysis::beginRun, In "
+			LogDebug("HiggsValidations") << "HLTHiggsSubAnalysis::beginRun, In "
 				<< _analysisname << " subfolder NOT found the path: '" 
 				<< _hltPathsToCheck[i] << "*'" ;
 		}
