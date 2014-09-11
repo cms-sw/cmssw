@@ -13,7 +13,7 @@
  *
  */
 
-#include "L1Trigger/GlobalTrigger/interface/CompareToObjectMapRecord.h"
+#include "CompareToObjectMapRecord.h"
 
 #include <algorithm>
 #include <string>
@@ -26,6 +26,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -231,3 +232,5 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
     }
   }
 }
+
+DEFINE_FWK_MODULE(CompareToObjectMapRecord);

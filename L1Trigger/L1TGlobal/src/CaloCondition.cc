@@ -168,7 +168,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
-    //LogTrace("L1GlobalTrigger") << "  nObjInCond: " << nObjInCond
+    //LogTrace("l1t|Global") << "  nObjInCond: " << nObjInCond
     //    << std::endl;
 
     // the candidates
@@ -208,7 +208,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
 
     int numberObjects = candVec->size(useBx);
-    //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
+    //LogTrace("l1t|Global") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
         return false;
@@ -290,7 +290,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	      if (nObjInCond != ObjInWscComb) {
 
                 if (m_verbosity) {
-		  edm::LogError("L1GlobalTrigger")
+		  edm::LogError("l1t|Global")
 		    << "\n  Error: "
 		    << "number of particles in condition with spatial correlation = "
 		    << nObjInCond << "\n  it must be = " << ObjInWscComb
@@ -462,7 +462,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     } // end if condition has 4 objects
 
 
-    LogTrace("L1GlobalTrigger")
+    LogTrace("l1t|Global")
        << "\n  CaloCondition: total number of permutations found:          " << totalLoops
        << "\n  CaloCondition: number of permutations passing requirements: " << passLoops
        << "\n" << std::endl;
@@ -566,7 +566,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
 //     }
 
     // particle matches if we get here
-    //LogTrace("L1GlobalTrigger")
+    //LogTrace("l1t|Global")
     //    << "  checkObjectParameter: calorimeter object OK, passes all requirements\n"
     //    << std::endl;
 
