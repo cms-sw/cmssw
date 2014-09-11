@@ -101,13 +101,6 @@ DDValue::DDValue( unsigned int i )
 DDValue::~DDValue( void )
 {}
 
-void
-DDValue::clear( void )
-{
-  tbb::concurrent_vector<std::shared_ptr<vecpair_type> > & v = mem( 0 );
-  v.clear();
-}
-
 tbb::concurrent_unordered_map<std::string, unsigned int>&
 DDValue::indexer( void )
 { 

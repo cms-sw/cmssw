@@ -79,9 +79,7 @@ public:
   unsigned int size() const { 
    return vecPair_ ? vecPair_->second.first.size() : 0 ; 
   } 
-  
-  static void clear( void );
-  
+    
   //! set to true, if the double-values (method DDValue::doubles()) make sense
   void setEvalState( bool newState ); 
   
