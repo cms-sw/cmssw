@@ -2,27 +2,27 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'MC_72_V2::All',
+    'run1_design'       :   'MC_72_V3::All',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'START72_V2::All',
+    'run1_mc'           :   'START72_V3::All',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'STARTHI72_V3::All',
+    'run1_mc_hi'        :   'STARTHI72_V5::All',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'STARTHI72_V4::All',
+    'run1_mc_pa'        :   'STARTHI72_V6::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESIGN72_V4::All',
+    'run2_design'       :   'DESIGN72_V5::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS172_V8::All',
+    'run2_mc_50ns'      :   'POSTLS172_V10::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS172_V7::All',
+    'run2_mc'           :   'POSTLS172_V9::All',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_72_V3::All',
+    'run1_data'         :   'GR_R_72_V4A::All',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_72_V3::All',
+    'run2_data'         :   'GR_R_72_V5A::All',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run1_hlt'          :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run1_hlt'          :   'GR_H_V38A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run2_hlt'          :   'GR_H_V39::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run2_hlt'          :   'GR_H_V40A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
@@ -62,33 +62,33 @@ conditions_HLT_JECs = (
     'JetCorrectorParametersCollection_HLT_trk1B_V1_AK4PF,JetCorrectionsRecord,frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS,AK4PFHLT',
 )
 
-autoCond['run1_mc']          = ( autoCond['run1_mc'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run1_mc']          = ( autoCond['run1_mc'], ) 
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
-autoCond['run1_mc_hi']       = ( autoCond['run1_mc_hi'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run1_mc_hi']       = ( autoCond['run1_mc_hi'], ) 
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
-autoCond['run1_mc_pa']       = ( autoCond['run1_mc_pa'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run1_mc_pa']       = ( autoCond['run1_mc_pa'], ) 
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
-autoCond['run1_hlt']         = ( autoCond['run1_hlt'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run1_hlt']         = ( autoCond['run1_hlt'], ) 
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
-autoCond['run1_data']        = ( autoCond['run1_data'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run1_data']        = ( autoCond['run1_data'], ) 
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
-autoCond['run2_mc']          = ( autoCond['run2_mc'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run2_mc']          = ( autoCond['run2_mc'], )
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
-autoCond['run2_mc_50ns']     = ( autoCond['run2_mc_50ns'], ) \
-                             + conditions_L1_Run2012D \
-                             + conditions_HLT_JECs
+autoCond['run2_mc_50ns']     = ( autoCond['run2_mc_50ns'], )
+                             #+ conditions_L1_Run2012D 
+                             #+ conditions_HLT_JECs
  
 # dedicated GlobalTags for MC production with the fixed HLT menus
 autoCond['startup_2014']     = ( autoCond['run1_mc'] )
