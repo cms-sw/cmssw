@@ -28,15 +28,6 @@ class DDValue
   //! creates a named DDValue initialized with a std::vector of values 
   explicit DDValue( const std::string &, const std::vector<DDValuePair>& );
   
-  //! creates a single double valued named DDValue. The corresponding std::string-value is an empty std::string
-  explicit DDValue( const std::string &, double );
-  
-  /** creates a single std::string & numerical-valued named DDValue.  */
-  explicit DDValue( const std::string &, const std::string &, double );
-  
-  /** creates a single std::string-valued named DDValue */
-  explicit DDValue( const std::string & name, const std::string & val );
-  
   ~DDValue( void );
 
   //! returns the ID of the DDValue
@@ -88,8 +79,6 @@ private:
   void init( const std::string & );
 
   unsigned int id_;
-  
-public:  
   vecpair_type* vecPair_;
 };
 
