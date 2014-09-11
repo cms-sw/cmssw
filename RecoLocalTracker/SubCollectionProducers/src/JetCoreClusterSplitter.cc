@@ -29,7 +29,6 @@
 #include "TH1.h"
 #include "TH2.h"
 
-float tanLorentz=0.404;
 
 using namespace std;
 	template < typename T >
@@ -61,10 +60,10 @@ class JetCoreClusterSplitter : public edm::EDProducer
 		void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
 
 	private:
-		bool split(const SiPixelCluster & aCluster, edmNew::DetSetVector<SiPixelCluster>::FastFiller & filler, float expectedADC,float xDeviation, float yDeviation,float jetZOverRho, const edmNew::DetSet<SiPixelCluster> & );
+		bool split(const SiPixelCluster & aCluster, edmNew::DetSetVector<SiPixelCluster>::FastFiller & filler, float expectedADC,int sizeY,float jetZOverRho, const edmNew::DetSet<SiPixelCluster> & );
 		float distanceCluster(const SiPixelCluster & cluster,const edmNew::DetSet<SiPixelCluster> & idealClusters);
 		void print(const SiPixelArrayBuffer & b, const SiPixelCluster & aCluster, int div=1000 );
-		std::vector<SiPixelCluster> fittingSplit(const SiPixelCluster & aCluster, float expectedADC,float xDeviation, float yDeviation,float jetZOverRho, int more);
+		std::vector<SiPixelCluster> fittingSplit(const SiPixelCluster & aCluster, float expectedADC,int sizeY,float jetZOverRho, int more);
 		bool nextCombination(std::vector<int> & comb,int npos);
 		float combinations(float npos, float expectedClusters);
 		float pixelWeight(int clx, int cly, int x, int y,int sizeY,int direction,int bintheta);
@@ -160,7 +159,7 @@ JetCoreClusterSplitter::JetCoreClusterSplitter(const edm::ParameterSet& iConfig)
 
    jetZsuRhoCalcolata = fs->make<TH2F>("jetZsuRhoCalcolata","calcolo dalla direzione Vs jetZOverRho",1000, 0.,15, 1000, 0.,15);
 
-   histoSteps = fs->make<TH1D>("steps" , "steps" , 100 , 0 , 100 );
+   histoSteps = fs->make<TH1D>("steps" , "Numero di volte che arrivo a x iterazioni" , 100 , 0 , 100 );
    histoNumberClusters = fs->make<TH1D>("numberClusters" , "Cluster che contengono x cluster" , 80 , 0 , 80 );
    numberIDEALClusters = fs->make<TH1D>("numberIDEALClusters" , "Cluster che contengono x IDEAL cluster" , 80 , 0 , 80 );
    histoNumberClustersZero = fs->make<TH1D>("StepsZeroVsNumCluster" , "StepsZero(y) Vs Number of Cluster(x)" , 80 , 0, 80 );
@@ -168,7 +167,6 @@ JetCoreClusterSplitter::JetCoreClusterSplitter(const edm::ParameterSet& iConfig)
    histoNotCentered2 = fs->make<TH1D>("quasiMedia" , "distanza peso-media da (ymax+ymin)/2" , 1000 , -1. , 1. );
    numberIDEALClustersVsCharge = fs->make<TH2D>("numberIDEALClustersVsCharge" , "IDEAL cluster in un Cluster Vs la sua carica" , 100 , 0 , 70 , 60 , 0 , 20);
    numberIDEALClustersVsChargels10 = fs->make<TH2D>("numberIDEALClustersVsChargels10" , "IDEAL cluster in un Cluster Vs la sua carica" , 100 , 0 , 15 , 60 , 0 , 10);
-   //ClustersVsChargels10 = fs->make<THD>("ClustersVsChargels10" , "cluster in un Cluster Vs la sua carica" , 1000 , 0 , 20 );
 
    histoNotCentered2D = fs->make<TH2D>("dist2D" , "dist2D" , 1000 , -3. , 3. , 1000 , -1. , 1. );
 
@@ -235,11 +233,6 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
 	  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 	  const TrackerGeometry * trackerGeometry = tracker.product();*/
 
-	edm::ESHandle<TrackerGeometry> trkgeo;
-	iSetup.get<TrackerDigiGeometryRecord>().get("",trkgeo);
-
-
-
 	Handle<edmNew::DetSetVector<SiPixelCluster> > inputPixelClusters;
 	iEvent.getByLabel(pixelClusters_, inputPixelClusters);
 	Handle<edmNew::DetSetVector<SiPixelCluster> > inputPixelClustersIDEAL;
@@ -256,6 +249,10 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
 	pp = pe.product();
 
 	std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > output(new edmNew::DetSetVector<SiPixelCluster>());
+	/*std::auto_ptr< int> outputMaxStep00(new int());
+	std::auto_ptr< int> outputMaxStep70(new int());
+	std::auto_ptr< int> outputMaxStep90(new int());
+	std::auto_ptr< int> outputMaxStep100(new int());*/
 
 	edmNew::DetSetVector<SiPixelCluster>::const_iterator detIt=inputPixelClusters->begin();
 	for(;detIt!=inputPixelClusters->end();detIt++)
@@ -270,137 +267,27 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
 			GlobalPoint cPos = det->surface().toGlobal(pp->localParametersV( aCluster,( *geometry->idToDetUnit(detIt->id())))[0].first) ;
 			GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
 			GlobalVector clusterDir = cPos -ppv;
-
-
-
-
-
-	const GlobalPoint origin(0.,0.,0.);
-	const GlobalPoint zAxis(0.,0.,1.);
-	GlobalVector MagneticFieldDirection = zAxis -origin;
-
-	const Local3DPoint center(0.,0.,0.);
-	const Local3DPoint locz(0.,0.,1.);
-	const Local3DPoint locx(1.,0.,0.);
-	const Local3DPoint locy(0.,1.,0.);
-
-	GlobalPoint position = trkgeo->idToDet(detIt->id())->toGlobal(center);
-	GlobalPoint zpos = trkgeo->idToDet(detIt->id())->toGlobal(locz);
-	GlobalPoint xpos = trkgeo->idToDet(detIt->id())->toGlobal(locx);
-	GlobalPoint ypos = trkgeo->idToDet(detIt->id())->toGlobal(locy);
-
-	GlobalVector dz = zpos - position;
-	GlobalVector dx = xpos - position;
-	GlobalVector dy = ypos - position;
-
-
-	//GlobalVector firstDirection = ElectricFieldDirection;
-	GlobalVector ElectricFieldDirection = dz;
-	GlobalVector thirdDirection = ElectricFieldDirection.cross(MagneticFieldDirection);
-	thirdDirection *= (1./thirdDirection.mag());
-	GlobalVector secondDirection = thirdDirection.cross(ElectricFieldDirection);
-	secondDirection *= (1./secondDirection.mag());
-
-
-	//magnetudeThirdDir->Fill(secondDirection.mag());
-
-	float scalarProductEB = ElectricFieldDirection.dot(MagneticFieldDirection);
-	float scalarProductBperp = sqrt(MagneticFieldDirection.dot(dx)*MagneticFieldDirection.dot(dx) + MagneticFieldDirection.dot(dy) * MagneticFieldDirection.dot(dy));
-
-
-	float v_1= 1./tanLorentz + scalarProductEB*tanLorentz;
-	float v_2= tanLorentz*scalarProductBperp*scalarProductEB;
-	float v_3= scalarProductBperp;
-	secondDirection*=v_2/v_1;
-	thirdDirection*=v_3/v_1;
-	GlobalVector velocityDirection = secondDirection + thirdDirection;
-	float xDrift = velocityDirection.dot(dx);
-	float yDrift = velocityDirection.dot(dy);
-
-	ScalarProductEB->Fill(scalarProductEB);
-	XYDrift->Fill( xDrift, yDrift);
-	BdotY->Fill( MagneticFieldDirection.dot(dy) );
-	BdotX->Fill( MagneticFieldDirection.dot(dx) );
-	if(fabs(cPos.z())>30) {
-	const GlobalPoint xAxis(1.,0.,0.);
-	GlobalVector xDir = xAxis - origin;
-	direzioneModuliEndCapX->Fill( xDir.dot(dx), xDir.dot(dy) );
-	}
-
-
 			for(std::vector<reco::CaloJet>::const_iterator jit = jets->begin() ; jit != jets->end() ; jit++)
 			{
 				if(jit->pt() > 100)
 				{
-					float jetZOverRho = clusterDir.z()/clusterDir.transverse();
-					if(fabs(cPos.z())>30) jetZOverRho=clusterDir.transverse()/clusterDir.z();
+					float jetZOverRho = jit->momentum().Z()/jit->momentum().Rho();
+					if(fabs(cPos.z())>30) jetZOverRho=jit->momentum().Rho()/jit->momentum().Z();
 					GlobalVector jetDir(jit->momentum().x(),jit->momentum().y(),jit->momentum().z());
-
 					unsigned int maxSizeY=fabs(sqrt(1.3*1.3+1.9*1.9*jetZOverRho*jetZOverRho));
 //					unsigned int maxSizeY=fabs(jetZOverRho*1.9);
+					
 //					unsigned int maxSizeY=fabs(jetZOverRho*1.75)+0.5;
-					if(maxSizeY < 1) maxSizeY=1;
 
+					if(maxSizeY < 1) maxSizeY=1;
 					if(Geom::deltaR(jetDir,clusterDir) < 0.05 && aCluster.charge() > 30000 && (aCluster.sizeX() > 2 || ((unsigned int)aCluster.sizeY()) > maxSizeY+1) )
 					{
-
-					clusterDir*= (1./clusterDir.mag()) ;
-					float xProiection = clusterDir.dot(dx);
-					float yProiection = clusterDir.dot(dy);
-					float zProiection = clusterDir.dot(dz);
-
-					float lenghtDoneOnX=xProiection/zProiection;
-					float lenghtDoneOnY=yProiection/zProiection;
-					float lenghtDoneInXY = sqrt(lenghtDoneOnY*lenghtDoneOnY + lenghtDoneOnX*lenghtDoneOnX);
-					
-					XYProiection->Fill( xProiection, yProiection);
-
-
-					//if(fabs(cPos.z())>30)  lenghtDone = lenghtDoneOnX;
-
-					jetZsuRhoCalcolata->Fill (1.9*lenghtDoneInXY, 1.9*abs(jetZOverRho));
-					LenghtsInDetector -> Fill( 1.9*lenghtDoneOnX , 1.9*lenghtDoneOnY );
-
-					float xDeviation = 1.9*(lenghtDoneOnX-xDrift) ;
-					float yDeviation = 1.9*(lenghtDoneOnY-yDrift) ;
-
-					if(fabs(cPos.z())<30) DifferenceLenghtsBarrel -> Fill( xDeviation, yDeviation );
-					else DifferenceLenghtsEndCap -> Fill( xDeviation, yDeviation );
-					
-
-					//float lenghtISee = sqrt(yDeviation*yDeviation + xDeviation*xDeviation);
-					float m =  10000;
-					if(abs(xDeviation)>0.001) m=yDeviation/xDeviation;
-					mVsZ->Fill( cPos.z(), m );
-					
-					
-		
-	int ParticelleNelCluster=0;
-	SiPixelClusterCollectionNew::const_iterator myDet =  inputPixelClustersIDEAL->find(detIt->id());
-	for(edmNew::DetSet<SiPixelCluster>::const_iterator clusterIDEAL = myDet->begin(); clusterIDEAL != myDet->end() ;clusterIDEAL++ ) {
-		bool appartiene=false;
-		std::vector<SiPixelCluster::Pixel> pixels = aCluster.pixels();
-		std::vector<SiPixelCluster::Pixel> pixelsIDEAL = clusterIDEAL->pixels();
-		for(unsigned int j = 0; !appartiene && j < pixels.size(); j++)
-		for(unsigned int k = 0; !appartiene && k < pixelsIDEAL.size(); k++)
-		if(pixels[j].x==pixelsIDEAL[k].x && pixels[j].y==pixelsIDEAL[k].y) appartiene=true;
-
-		if(appartiene) ParticelleNelCluster++;
-	}
-
-	float expectedADC = sqrt(1.+lenghtDoneInXY*lenghtDoneInXY)*26000;
-
-	numberIDEALClusters->Fill(ParticelleNelCluster);
-	numberIDEALClustersVsCharge->Fill( aCluster.charge()/expectedADC , ParticelleNelCluster);
-	numberIDEALClustersVsChargels10->Fill( aCluster.charge()/expectedADC , ParticelleNelCluster);
-
-
 						if(verbose) std::cout << "CHECK FOR NEW SPLITTING: charge and deltaR " <<aCluster.charge() << " " << Geom::deltaR(jetDir,clusterDir) << " size x y"<< aCluster.sizeX()  << " " << aCluster.sizeY()<< " detid " << detIt->id() << std::endl;	
 						if(verbose)std::cout << "jetZOverRho="<< jetZOverRho << std::endl;	
-						myDet =  inputPixelClustersIDEAL->find(detIt->id());
+						SiPixelClusterCollectionNew::const_iterator myDet =  inputPixelClustersIDEAL->find(detIt->id());
 						clock_t init=clock(), final;
 						const edmNew::DetSet<SiPixelCluster> & idealClusters  = (*myDet);
-						if(split(aCluster,filler, expectedADC, xDeviation, yDeviation, lenghtDoneInXY, idealClusters)) 							{hasBeenSplit=true;
+						if(split(aCluster,filler,sqrt(1.08+jetZOverRho*jetZOverRho)*26000,maxSizeY,jetZOverRho,idealClusters)) {hasBeenSplit=true;
 						 final=clock()-init; 
 						 if(verbose)cout<<"Time used: (s) " << (double)final / ((double)CLOCKS_PER_SEC)<<endl;
 						}
@@ -432,11 +319,11 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 								if(verbose) std::cout << " " ;  
 								if(verbose) bin( flag,std::cout) ; 
-								 //std::setiosflags(std::ios::fixed)
-								 //                               << std::setprecision(0)
-								 //                             << std::setw(7)
-								 //                          << std::left ; bin( flag,std::cout);
-								 //                               << std::left << hex << flag;
+								// std::setiosflags(std::ios::fixed)
+								//                                << std::setprecision(0)
+								//                              << std::setw(7)
+								//                            << std::left ; bin( flag,std::cout);
+								//                                << std::left << hex << flag;
 
 
 							}
@@ -471,8 +358,15 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 		}
 	}
+	/**outputMaxStep00 = steps00;
+	*outputMaxStep70 = steps70;
+	*outputMaxStep90 = steps90;
+	*outputMaxStep100 = steps100;*/
 	iEvent.put(output);
-
+	/*iEvent.put(outputMaxStep00);
+	iEvent.put(outputMaxStep70);
+	iEvent.put(outputMaxStep90);
+	iEvent.put(outputMaxStep100);*/
 
 cout<<"\n Final number of iterations: maxsteps Zero\t= % "<< std::setprecision(6) << (float) steps00*100. /steps100;
 
@@ -484,25 +378,20 @@ cout<<"\n Final number of iterations: maxsteps80   \t= % "<<(float) steps80*100.
 
 cout<<"\n Final number of iterations: maxsteps90   \t= % "<<(float) steps90*100. /steps100;
 	
-cout<<"\n Final number of iterations               \t=   "<< steps100;
+cout<<"\n Final number of iterations               \t=  "<< steps100;
 
-cout<<"\n Clusters with no pixels and maxsteps Zero\t= % "<< (float) 100*clVuotiMaxstep0/tuttiClMaxstep0;
+cout<<"\n Number of clusters with no pixels and maxsteps Zero\t= % "<< (float) 100*clVuotiMaxstep0/tuttiClMaxstep0;
 
-cout<<"\n Clusters with no pixels                  \t= % "<< (float) 100*clVuoti/tuttiCl;
+cout<<"\n Number of clusters with no pixels                  \t= % "<< (float) 100*clVuoti/tuttiCl;
 
-cout<<"\n Total clusters                           \t=   "<< tuttiCl;
+cout<<"\n Number of total clusters                           \t=  "<< tuttiCl;
 
-cout<<"\n Total clusters with maxsteps Zero        \t=   "<< tuttiClMaxstep0;
+cout<<"\n Number of total clusters with maxsteps Zero        \t=  "<< tuttiClMaxstep0;
 
-cout<<"\n (clVuoti,clVuotiMaxstep0,clVuotiMaxstepNo0)\t=   ( "<< clVuoti <<", " << clVuotiMaxstep0 << " ," << clVuotiMaxstepNo0 << ")";
+cout<<"\n ( clVuoti, clVuotiMaxstep0, clVuotiMaxstepNo0)     \t=  ( "<< clVuoti <<", " << clVuotiMaxstep0 << " ," << clVuotiMaxstepNo0 << ")";
 
-cout<<"\n Pixels out of 1 in Y:                    \t=   "<< fuori;
-
-cout<<"\n Clusters whit more than 10 particles inside\t=   "<< moreThanEight;
-cout<<"\n Clusters whit more than 8 particles inside \t=   "<< moreThanTen;
-cout<<"\n Clusters whit more than 10 particles Zero  \t=   "<< moreThanTen0;
-cout<<"\n Clusters whit more than 8 particles Zero   \t=   "<< moreThanEight0;
 }
+
 
 
 float JetCoreClusterSplitter::distanceCluster(const SiPixelCluster & cluster,const edmNew::DetSet<SiPixelCluster> & idealClusters)
@@ -516,9 +405,9 @@ for(edmNew::DetSet<SiPixelCluster>::const_iterator ideal=idealClusters.begin(); 
 return minDistance;
 }
 
-bool JetCoreClusterSplitter::split(const SiPixelCluster & aCluster, edmNew::DetSetVector<SiPixelCluster>::FastFiller & filler, float expectedADC,float xDeviation, float yDeviation,float jetZOverRho,const edmNew::DetSet<SiPixelCluster> & idealClusters)
+bool JetCoreClusterSplitter::split(const SiPixelCluster & aCluster, edmNew::DetSetVector<SiPixelCluster>::FastFiller & filler, float expectedADC,int sizeY,float jetZOverRho,const edmNew::DetSet<SiPixelCluster> & idealClusters)
 {
-	std::vector<SiPixelCluster> sp=fittingSplit(aCluster,expectedADC,xDeviation,yDeviation,jetZOverRho, 0);
+	std::vector<SiPixelCluster> sp=fittingSplit(aCluster,expectedADC,sizeY,jetZOverRho, 0);
 	
 
 	for(unsigned int i = 0; i < sp.size();i++ )
@@ -653,11 +542,9 @@ float  JetCoreClusterSplitter::combinations(float npos, float expectedClusters){
 }
 
 
-std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(const SiPixelCluster & aCluster, float expectedADC,float xDeviation, float yDeviation,float jetZOverRho, int more)
+std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(const SiPixelCluster & aCluster, float expectedADC,int sizeY,float jetZOverRho, int more)
 {
-
 andamentoSizeY->Fill(1.9*abs(jetZOverRho) , aCluster.sizeY() );
-//check -> Fill( xDeviation , yDeviation );
 
 //	bool verbose=false;
 	int xmin=aCluster.minPixelRow();
@@ -684,155 +571,27 @@ andamentoSizeY->Fill(1.9*abs(jetZOverRho) , aCluster.sizeY() );
 		}
 		if(verbose)             std::cout << std::endl;
 	}
-
-	std::vector<SiPixelCluster> output;
-	SiPixelCluster * trueCluster=0;
-	SiPixelCluster * falseCluster=0;
-	std::vector<bool> daTogliere(xmax-xmin+1);
-	std::vector<bool> gtThanSizey(xmax-xmin+1);
-	std::vector<bool> gtThanSizey2(xmax-xmin);
-	std::vector<SiPixelCluster::Pixel> pixelsToSplit = aCluster.pixels();
-
-	int NumberPixel1=0;
-	int NumberPixel2=0;
-
-	for(int x=xmin; x<= xmax;x++){
-	NumberPixel1=NumberPixel2;
-	NumberPixel2=0;
-
-			for(unsigned int j = 0; j < pixelsToSplit.size(); j++)
-			{
-				if(pixelsToSplit[j].x==x ) 
-				NumberPixel2++;
-			}
-
-	daTogliere[x-xmin] = true;	
-	if(x!=xmin) {
-	if(NumberPixel1+NumberPixel2 < 1.9*abs(jetZOverRho)-1 ) gtThanSizey2[x-xmin] = false;
-	else gtThanSizey2[x-xmin-1] = true;
-	}
-
-	if(NumberPixel2 < 1.9*abs(jetZOverRho)-1 ) gtThanSizey[x-xmin] = false;
-	else gtThanSizey[x-xmin] = true;
-	/*if(NumberPixel1 > 1.9*abs(jetZOverRho)-2 ) 
-	gtThanSizey2[x-xmin] = true;
-	else gtThanSizey2[x-xmin] = false;*/
-
-	}
-
-for(unsigned int j=0; j<gtThanSizey2.size(); j++) {
-
-//if(gtThanSizey[j]) daTogliere[j]=false;
-
-//if(gtThanSizey[j+1]) daTogliere[j+1]=false;
-
-if(gtThanSizey2[j] /* && !gtThanSizey[j+1] && !gtThanSizey[j]*/ ) {
-daTogliere[j]=false;
-daTogliere[j+1]=false;
-}
-}
-
-
-
-	for(unsigned int j = 0; j < pixelsToSplit.size(); j++) {
-		if(daTogliere[pixelsToSplit[j].x-xmin]) {
-
-			if(falseCluster){
-
-				SiPixelCluster::PixelPos newpix(pixelsToSplit[j].x,pixelsToSplit[j].y);
-				falseCluster->add( newpix, pixelsToSplit[j].adc);
-			}
-			else
-			{
-				SiPixelCluster::PixelPos newpix(pixelsToSplit[j].x,pixelsToSplit[j].y);
-				falseCluster = new  SiPixelCluster( newpix,pixelsToSplit[j].adc ); 
-			}
-		}
-
-
-		else {
-			if(trueCluster){
-
-				SiPixelCluster::PixelPos newpix(pixelsToSplit[j].x,pixelsToSplit[j].y);
-				trueCluster->add( newpix, pixelsToSplit[j].adc);
-			}
-			else
-			{
-				SiPixelCluster::PixelPos newpix(pixelsToSplit[j].x,pixelsToSplit[j].y);
-				trueCluster = new  SiPixelCluster( newpix,pixelsToSplit[j].adc ); 
-			}
-		}
-	}
-
-int oneClusterMore=0;
-	if(falseCluster){ 
-		oneClusterMore=1;
-		output.push_back(*falseCluster);
-		andamentoSizeYdaNonSplittare->Fill(abs(1.9*jetZOverRho) , falseCluster->sizeY() );
-	
-		delete falseCluster;
-	}
-
-
-if(trueCluster) {}
-else return output;
-
+	std::cout <<  std::setprecision(7) << "sizeY " << sizeY << std::endl; 	
+	float NumberOfCluster= aCluster.charge() / expectedADC +0.5 + more ;
 	unsigned int meanExp = 0 ;
-	float lenght = 1.9*abs(jetZOverRho);
-
-
-	std::cout <<  std::setprecision(7) << "sizeY " << floor(lenght+1) << std::endl; 	
-	float NumberOfCluster = trueCluster->charge() / expectedADC +0.6 + more ;
-
-
-if(1.*trueCluster->sizeY()/floor(lenght+1) <  0.5 ) NumberOfCluster = 1.1;
-else {
-if( lenght>1 && 1.*trueCluster->sizeY()/(floor(lenght+1)) >  NumberOfCluster*1.1+1)
-if(1.*trueCluster->sizeY()/floor(lenght+1) > NumberOfCluster ) NumberOfCluster = 1.*trueCluster->sizeY()/floor(lenght+1);
-
-if( lenght<1 && 1.*trueCluster->sizeY()/2. >  1.2*NumberOfCluster ) 
-if(1.*trueCluster->sizeY()/2. > NumberOfCluster ) NumberOfCluster = 1.*trueCluster->sizeY()+0.1;
-
-if(  1.*trueCluster->sizeY()/(floor(lenght)+1) <  0.3*NumberOfCluster-0.5 ) NumberOfCluster = 1.1;
-}
-
-andamentoSizeY_Carica->Fill(NumberOfCluster  , 1.*trueCluster->sizeY()/floor(lenght+1) );
-if(trueCluster->sizeY()!=1)
-andamentoSizeY_CaricaNo1SizeY->Fill( NumberOfCluster , 1.*trueCluster->sizeY()/floor(lenght+1) );
-else
-andamentoSizeY_Carica1SizeY->Fill( NumberOfCluster , 1.*trueCluster->sizeY()/floor(lenght+1) );
-
-	if (NumberOfCluster >= 0 ) meanExp = floor(NumberOfCluster);
-
+	if (NumberOfCluster > 0 ) meanExp = floor(NumberOfCluster);
+	std::vector<SiPixelCluster> output;
 	if(meanExp==0) {std::cout << "ZERO????" << std::endl;} 
-	if(meanExp<=1 || trueCluster->sizeY() < lenght-1 ||  trueCluster->sizeY() < lenght/2. ) {
-		output.push_back(*trueCluster);	
-		andamentoSizeYdaNonSplittare->Fill(1.9*abs(jetZOverRho) , trueCluster->sizeY() );
-		andamentoSizeY_CaricaDaNonSplittare->Fill( NumberOfCluster , 1.*trueCluster->sizeY()/floor(lenght+1));	
-		delete trueCluster;
+	if(meanExp<=1) {
+		output.push_back(aCluster);	
+		andamentoSizeYdaNonSplittare->Fill(1.9*abs(jetZOverRho) , aCluster.sizeY() );
+		andamentoSizeY_CaricaDaNonSplittare->Fill( NumberOfCluster , 1.*aCluster.sizeY()/floor(1.9*abs(jetZOverRho)+1));
 		return output;
-	}
-
-
-
-andamentoSizeY_CaricaDaSplittare->Fill( NumberOfCluster , 1.*trueCluster->sizeY()/floor(lenght+1));
-andamentoSizeYdaSplittare->Fill(1.9*abs(jetZOverRho) , trueCluster->sizeY() );	
-
+	}	
+andamentoSizeY_CaricaDaSplittare->Fill( NumberOfCluster , 1.*aCluster.sizeY()/floor(1.9*abs(jetZOverRho)+1));
+andamentoSizeYdaSplittare->Fill(1.9*abs(jetZOverRho) , aCluster.sizeY() );	
+CorrelazioneLunghezzeY->Fill( 1.9*abs(jetZOverRho) , sizeY );
 
 	std::vector<float> clx(meanExp);
 	std::vector<float> cly(meanExp);
 	std::vector<float> cls(meanExp);
-	std::vector<SiPixelCluster::Pixel> originalpixels = trueCluster->pixels();
+	std::vector<SiPixelCluster::Pixel> originalpixels = aCluster.pixels();
 	std::vector<SiPixelCluster::Pixel> pixels;
-
-
-
-if(trueCluster)
-delete trueCluster;
-
-
-
-	std::vector<float> notCentered(meanExp);
 
 	for(unsigned int j = 0; j < originalpixels.size(); j++)
 	{
@@ -845,6 +604,9 @@ if(verbose) 		std::cout << "Splitting  " << j << "  in [ " << pixels.size() << "
 			pixels.push_back(SiPixelCluster::Pixel(originalpixels[j].x,originalpixels[j].y,perDiv));
 		}
 	}
+	std::vector<int> clusterForPixel(pixels.size());
+	for(unsigned int i=0; i< clusterForPixel.size(); i++)
+	clusterForPixel[i] = -1;
 
 	//initial values
 	for(unsigned int j = 0; j < meanExp; j++)
@@ -865,51 +627,11 @@ if(verbose) 		std::cout << "Splitting  " << j << "  in [ " << pixels.size() << "
 		cls[j]=0;
 	}
 
-
-
-	float m =  10000;
-	//if(abs(xDeviation)>0.001) m=yDeviation/xDeviation;
-	float lenghtISee=sqrt(xDeviation*xDeviation+yDeviation*yDeviation);
-
-//HO PROVATO A STIMARE MEGLIO SIZEY
-
-	/*float SizeY=0;
-	lenght = sqrt(xDeviation*xDeviation+yDeviation*yDeviation);
-
-	float minLenghtInTheDetector = 0.5;
-	float delta = minLenghtInTheDetector*sqrt(jetZOverRho*jetZOverRho/(1.+jetZOverRho*jetZOverRho));
-	int parteIntera = floor(lenght);
-	float Pn = 0.;
-	if(parteIntera + 2*delta < lenght) Pn =  lenght - parteIntera -2*delta;
-	else Pn = lenght - parteIntera - 2*delta;
-
-	if(delta>0.5)
-	{ SizeY = lenght; lenght = 14;}
-	else SizeY = ((float) parteIntera) + 1 + Pn;*/
-
-	float SizeY=lenght;
-	//float SizeY= sqrt(xDeviation*xDeviation+yDeviation*yDeviation);
-	//if(SizeY<1) SizeY =1;
-
-	CorrelazioneLunghezzeY->Fill( lenght , SizeY );
-	//CorrelazioneLunghezzeY2->Fill( lenght , sizeY );
-
-
-//BEGIN OF THE LOOP THAT ASSIGNE PIXELS TO CLUSTERS. REMEMBER THIS LINE:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
 	//std::multimap<float,int> scoresDopo;
-
-	std::vector<std::vector<int> > clusterForPix( 100, vector<int>(pixels.size()));
-	std::vector<int> clusterForPixel(pixels.size());
-	for(unsigned int i=0; i< clusterForPixel.size(); i++)
-	clusterForPixel[i] = -1;
-
 	bool pixelsAreMoving=true;
 	int maxsteps=100;
 	while( pixelsAreMoving && maxsteps > 0){
-		maxsteps--;	
+		maxsteps--;
 		//Compute all distances
 		std::vector<std::vector<float> > distanceMapX( pixels.size(), vector<float>(meanExp));
 		std::vector<std::vector<float> > distanceMapY( pixels.size(), vector<float>(meanExp));
@@ -918,72 +640,40 @@ if(verbose) 		std::cout << "Splitting  " << j << "  in [ " << pixels.size() << "
 		{
 if(verbose) 			std::cout << "pixel pos " << j << " " << pixels[j].x << " " << pixels[j].y << std::endl;
 
-
-
-			float normalization = sqrt(1+(m*m));
+			/*float m = 1;
+			if(jetZOverRho == 0) m= 100000;
+			else m = 0.4/jetZOverRho;
+			//float m = - jetZOverRho/0.0004;
+			float normalization = sqrt(1/(m*m)+1);*/
 			for(unsigned int i = 0; i < meanExp; i++)
 			{
-				float distanceX=(1.*pixels[j].x-clx[i])/1.5;
+				/*float distanceX=(1.*pixels[j].x-clx[i])/1.5;
 				float distanceY=1.*pixels[j].y-cly[i];
-				distanceMapY[j][i]=(m*distanceY+distanceX)/normalization;
-				distanceMapX[j][i]=(m*distanceX-distanceY)/normalization;
+				distanceMapY[j][i]=abs(distanceX+distanceY/m)/normalization;
+				distanceMapX[j][i]=abs(distanceY-distanceX/m)/normalization;*/
 
-				//bool nelCluster = abs(m*distanceX-distanceY)/normalization > lenghtISee/2. + 0.5;
-
-				//distanceMapX[j][i]=1.*pixels[j].x-clx[i];
-				//distanceMapY[j][i]=1.*pixels[j].y-cly[i];
+				distanceMapX[j][i]=1.*pixels[j].x-clx[i];
+				distanceMapY[j][i]=1.*pixels[j].y-cly[i];
 			        float dist=0;
-
-				/*if(m>0) {
-				if(distanceMapX[j][i]>0) {
-				float distanzaClusterVertice=(m*(1.*pixels[j].x+0.5-clx[i])/1.5-(1.*pixels[j].y-0.5-cly[i]))/normalization;
-				if(distanzaClusterVertice<0) distanceMapX[j][i]=0;
-				else distanceMapX[j][i]=distanzaClusterVertice;
-				} 
-				else  {
-				float distanzaClusterVertice=(m*(1.*pixels[j].x-0.5-clx[i])/1.5-(1.*pixels[j].y+0.5-cly[i]))/normalization;
-				if(distanzaClusterVertice>0) distanceMapX[j][i]=0;
-				else distanceMapX[j][i]=distanzaClusterVertice;
-				}
-				}
-
-				else {
-				if(distanceMapX[j][i]>0) {
-				float distanzaClusterVertice=(m*(1.*pixels[j].x-0.5-clx[i])/1.5-(1.*pixels[j].y-0.5-cly[i]))/normalization;
-				if(distanzaClusterVertice<0) distanceMapX[j][i]=0;
-				else distanceMapX[j][i]=distanzaClusterVertice;
-				} 
-				
-				else  {
-				float distanzaClusterVertice=(m*(1.*pixels[j].x+0.5-clx[i])/1.5-(1.*pixels[j].y+0.5-cly[i]))/normalization;
-				if(distanzaClusterVertice>0) distanceMapX[j][i]=0;
-				else distanceMapX[j][i]=distanzaClusterVertice;
-				}
-				}
-
-
-				dist+=(distanceMapX[j][i]+1)*(distanceMapX[j][i]+1);
-
-
-                                if(std::abs(distanceMapY[j][i])>lenghtISee/2.+0.5)
+				//sizeY = sqrt(1.3259+1.9*1.9*jetZOverRho*jetZOverRho);
+//				float sizeX=2;
+/*		if(std::abs(distanceMapX[j][i])>sizeX/2.)
                                 {
-                                        dist+=1.*(std::abs(distanceMapY[j][i])-lenghtISee/2.+0.5)*(std::abs(distanceMapY[j][i])-lenghtISee/2.+0.5);
+                                        dist+=(std::abs(distanceMapX[j][i])-sizeX/2.+1)*(std::abs(distanceMapX[j][i])-sizeX/2.+1);
+                                } else {
+                                        dist+=distanceMapX[j][i]/sizeX*2*distanceMapX[j][i]/sizeX*2;
+                                }*/ 
+				dist+=1.5*distanceMapX[j][i]*distanceMapX[j][i];
+
+                                if(std::abs(distanceMapY[j][i])>sizeY/2.)
+                                {
+                                        dist+=1.*(std::abs(distanceMapY[j][i])-sizeY/2.+1.)*(std::abs(distanceMapY[j][i])-sizeY/2.+1.);
                                 } else {
                                         //dist+=1.*distanceMapY[j][i]/sizeY*2.*distanceMapY[j][i]/sizeY*2.;
-					dist+=1;
-                                }*/
-
-				dist+=1.5*(distanceMapX[j][i])*(distanceMapX[j][i]);
-                                if(std::abs(distanceMapY[j][i])>SizeY/2.)
-                                {
-                                        dist+=1.*(std::abs(distanceMapY[j][i])-SizeY/2.+1.)*(std::abs(distanceMapY[j][i])-SizeY/2.+1.);
-                                } else {
-                                        //dist+=1.*distanceMapY[j][i]/sizeY*2.*distanceMapY[j][i]/sizeY*2.;
-					dist+=1;
+					dist+=1.;
                                 }
                                 distanceMap[j][i]=sqrt(dist);
 if(verbose) 				std::cout << "Cluster " << i << " Pixel " << j << " distances: " << distanceMapX[j][i] << " " << distanceMapY[j][i]  << " " << distanceMap[j][i] << std::endl;
-
 
 			}
 
@@ -996,7 +686,7 @@ if(verbose) 				std::cout << "Cluster " << i << " Pixel " << j << " distances: "
 
 		std::vector<float> weightOfPixel(pixels.size());
 
-
+	//if(maxsteps >70) {		
 		for(unsigned int j = 0; j < pixels.size(); j++)
                 {                       
 			float minDist=9e99;
@@ -1017,9 +707,7 @@ if(verbose) 				std::cout << "Cluster " << i << " Pixel " << j << " distances: "
 				}
 			}
 			float distanceToPutIn = minDist-secondMinDist;
-			if(maxsteps <= 60 && maxsteps>40) distanceToPutIn = minDist;
-			//if(maxsteps <= 40 && maxsteps>25) distanceToPutIn = minDist;
-			if(maxsteps <=20) distanceToPutIn = minDist;
+			//if((maxsteps <= 55 && maxsteps > 40) || maxsteps <= 15) distanceToPutIn = minDist;
 			scores.insert(std::pair<float,int>(distanceToPutIn,j));
 			/*if(maxsteps == 10 ) 
 			scoresDopo.insert(std::pair<float,int>(distanceToPutIn,j));
@@ -1059,24 +747,20 @@ if(verbose)			std::cout << "Pixel " << j << " with score " << it->first << std::
 
 
 			float est = 0;
-			if(maxsteps > 80)
+			if(maxsteps > 70)
 			est = chi1+distanceMap[j][i];
 			else {
 			if(maxsteps > 40)
 			est = (chi1*chi1+2)*distanceMap[j][i];
 			else {
-			/*if(maxsteps > 40 )
-			est = (chi1+1)*distanceMap[j][i];
-			else {
-			if(maxsteps > 5)
-			est = distanceMap[j][i];
-			else */
+			//if(maxsteps > 30)
 			est = (chi1+3)*distanceMap[j][i];
-			//}
+			//else
+			//est = chi1*chi1-3*distanceMap[j][i];
 			}
 			}
 
-//if(verbose)			  std::cout <<" Q: " <<  clQest << " D: " << clDest << " " << distanceMap[j][i] <<  std::endl; 
+/*if(verbose)			  std::cout <<" Q: " <<  clQest << " D: " << clDest << " " << distanceMap[j][i] <<  std::endl;*/ 
 			  //float est=clQest*clDest;
 
 
@@ -1098,96 +782,31 @@ if(verbose)			std::cout << "Pixel " << j << " with score " << it->first << std::
 if(verbose) 			std::cout << "Pixel j weight " << weightOfPixel[j] << " " << j << std::endl;
 		}
 
-for(unsigned int j=0; j< clusterForPixel.size() ;j++)
-clusterForPix[maxsteps][j]=clusterForPixel[j];
 
 
 		//Recompute cluster centers
-
-		std::vector<int> adcmin(meanExp);
-		std::vector<int> adcmax(meanExp);
-		std::vector<int> ymin(meanExp);
-		std::vector<int> ymax(meanExp);
-
-	        for(unsigned int i = 0; i < meanExp; i++) {
-		cls[i]=0;
-		adcmin[i]=0;
-		adcmax[i]=0;
-		ymin[i]=-1;
-		ymax[i]=-1;
-		}
-
-                for(unsigned int j = 0; j < pixels.size(); j++)
-		{
-			if(clusterForPixel[j]<0) continue;
-			cls[clusterForPixel[j]]+=pixels[j].adc;	
-			ymin[clusterForPixel[j]]=pixels[j].y;
-			ymax[clusterForPixel[j]]=pixels[j].y;
-		}
-
-		for(unsigned int j=0; j<pixels.size(); j++) {
-		if(pixels[j].y < ymin[clusterForPixel[j]]) ymin[clusterForPixel[j]]=pixels[j].y;
-		if(pixels[j].y > ymax[clusterForPixel[j]]) ymax[clusterForPixel[j]]=pixels[j].y;
-		}
-
-		for(unsigned int i=0; i<meanExp; i++) {
-			for(unsigned int j=0; j<pixels.size(); j++) {
-			int cl = i;
-			if(clusterForPixel[j]==cl) {
-			if(pixels[j].y == ymin[i]) adcmin[i]+=pixels[j].adc;
-			if(pixels[j].y == ymax[i]) adcmax[i]+=pixels[j].adc;
-			}
-			}
-		adcmin[i] = sqrt(adcmin[i]);
-		adcmax[i] = sqrt(adcmax[i]);
-		}
-
-
 	        for(unsigned int i = 0; i < meanExp; i++)
-		if(cls[i]!=0)
-		{clx[i]=0; cly[i]=0;}
+		{clx[i]=0; cly[i]=0; cls[i]=1e-99;}
 
                 for(unsigned int j = 0; j < pixels.size(); j++)
 		{
 			if(clusterForPixel[j]<0) continue;
 if(verbose) 			std::cout << "x " << pixels[j].x <<" * " << pixels[j].adc << " * " << weightOfPixel[j]<<std::endl;
 			clx[clusterForPixel[j]]+=pixels[j].x*pixels[j].adc;
-			cly[clusterForPixel[j]]+=pixels[j].y*pixels[j].adc;	
-	
-
-			//if(ymax[clusterForPixel[j]]-ymin[clusterForPixel[j]]+1-1.9*jetZOverRho>0) cly[clusterForPixel[j]] = 1.*(ymin[clusterForPixel[j]]+ymax[clusterForPixel[j]])/2.;
-
+			cly[clusterForPixel[j]]+=pixels[j].y*pixels[j].adc;
+			cls[clusterForPixel[j]]+=pixels[j].adc;
+//			std::cout << "update cluster " << clusterForPixel[j] << " x,y " << clx[clusterForPixel[j]] << " " << cly[clusterForPixel[j]] <<  "weight x,y " << cls[clusterForPixel[j]] <<  " " << clx[clusterForPixel[j]]/cls[clusterForPixel[j]] << " " << cly[clusterForPixel[j]]/cls[clusterForPixel[j]] <<std::endl;
+			
 		}
-
-	        /*for(unsigned int i = 0; i < meanExp; i++) {
-		if(cls[i]!=0) {
-		cly[i]+=adcmax[i]*ymax[i];	
-		cly[i]+=adcmin[i]*ymin[i];
-		}
-		}*/
-
-
 		for(unsigned int i = 0; i < meanExp; i++){
 			if(cls[i]!=0){
 			clx[i]/=cls[i];
-			/*if(ymax[i]-ymin[i]+1-1.9*jetZOverRho>0) cly[i]+=(adcmax[i]-adcmin[i])/(adcmax[i]+adcmin[i])*(ymax[i]-ymin[i]+1-1.9*jetZOverRho>0)/2;
-			else */cly[i]/=(cls[i]/*+adcmin[i]+adcmax[i]*/);
-			//cly[i]=1.*(ymax[i]+ymin[i])/2. + 1.*(adcmax[i]-adcmin[i])/2./(adcmax[i]+adcmin[i]);
+			cly[i]/=cls[i];
 			}
 if(verbose) 			std::cout << "Center for cluster " << i << " x,y " << clx[i] << " " << cly[i] << std::endl;
+			cls[i]=0;
 		}
 		
-
-
-//If you aready have had this assignment, do not iterate again
-for(int k=99; k>maxsteps && pixelsAreMoving; k--) {
-bool loop=true;
-for(unsigned int j=0; j< clusterForPixel.size() ;j++)
-if(clusterForPix[k][j]!=clusterForPixel[j]) loop = false;
-if(loop)  pixelsAreMoving = false;
-}
-
-
 
 //if there is a cluster without pixels, do another iteration
 		bool thereAreEverybody = true;
@@ -1203,40 +822,8 @@ if(loop)  pixelsAreMoving = false;
 			if(!thereAreEverybody) pixelsAreMoving=true;
 
 
-
-
-
-//Limit on the y position
-	        for(unsigned int i = 0; i < meanExp; i++) {
-		if(cls[i]!=0) {
-		if(!pixelsAreMoving && ymax[i]>ymin[i]+1) {
-		histoNotCentered->Fill( cly[i] - 1*(ymax[i]+ymin[i])/2.);
-		histoNotCentered2->Fill( 1.*(adcmax[i]-adcmin[i])/(1.*(adcmax[i]+adcmin[i])) );
-		/*if(ymax[i]>ymin[i]+2) {
-		centridiversi->Fill( cly[i] - 1*(ymax[i]+ymin[i])/2.);
-		centridiversi2->Fill( 1.*(adcmax[i]-adcmin[i])/(1.*(adcmax[i]+adcmin[i])) ); }*/
-		adcmax[i]=adcmax[i]*adcmax[i];
-		adcmin[i]=adcmin[i]*adcmin[i];
-		histoNotCentered2D->Fill( cly[i] - 1*(ymax[i]+ymin[i])/2. , 1.*(adcmax[i]-adcmin[i])/(1.*(adcmax[i]+adcmin[i])) );
-		/*if(ymax[i]>ymin[i]+2)
-		histoNotCentered2D2->Fill( cly[i] - 1*(ymax[i]+ymin[i])/2. , 1.*(adcmax[i]-adcmin[i])/(1.*(adcmax[i]+adcmin[i])) );
-		if(ymax[i]>ymin[i]+3)
-		histoNotCentered2D3->Fill( cly[i] - 1*(ymax[i]+ymin[i])/2. , 1.*(adcmax[i]-adcmin[i])/(1.*(adcmax[i]+adcmin[i])) );
-		if(ymax[i]>ymin[i]+4)
-		histoNotCentered2D4->Fill( cly[i] - 1*(ymax[i]+ymin[i])/2. , 1.*(adcmax[i]-adcmin[i])/(1.*(adcmax[i]+adcmin[i])) );*/
-		}
-		if(cly[i]> 1*(ymax[i]+ymin[i])/2.+1)
-		{cly[i]=1.*(ymax[i]+ymin[i])/2+1;
-		fuori++;}
-		if(cly[i]< 1*(ymax[i]+ymin[i])/2.-1)
-		{cly[i]=1.*(ymax[i]+ymin[i])/2-1;
-		fuori++;}
-		}
-		cls[i]=0;
-		}
-
-
 	}
+
 
 
 
@@ -1309,75 +896,70 @@ float chiLess = 100000;
 
 for (std::vector<SiPixelCluster>::const_iterator it= output.begin(); it != output.end(); ++it) {
 //float chi=((it->charge())*(it->charge())-expectedADC*expectedADC)/2./(expectedADC*2000); //20% uncertainty? realistic from Landau?
-float chi = it->charge()/expectedADC;
-float chi1 = 100*(0.5+5*chi)*(0.5+5*chi);
-chi0=chi0-chi1;      //1./(1.+exp(x*x-3*3))
+float chi = it->charge()*it->charge()/expectedADC*expectedADC;
+chi0=chi0-chi;      //1./(1.+exp(x*x-3*3))
 float dist =0;
 
 	for(unsigned int i=0; i < it->pixels().size(); i++) {
 
-		float distanceX=1.*it->pixels()[i].x-it->x();
-		float distanceY=1.*it->pixels()[i].y-it->y();
+		float distanceX=1.*it->pixels()[i].x-it->y();
+		float distanceY=1.*it->pixels()[i].y-it->x();
 		dist=0;
 		dist+=1.*distanceX*distanceX;
-			if(std::abs(distanceY)>SizeY/2.)
-                        dist+=1.*(std::abs(distanceY)-SizeY/2.+1.)*(std::abs(distanceY)-SizeY/2.+1.);
+			if(std::abs(distanceY)>sizeY/2.)
+                        dist+=1.*(std::abs(distanceY)-sizeY/2.+1.)*(std::abs(distanceY)-sizeY/2.+1.);
 			else 
-			//dist+=1.*distanceY/SizeY*2.*distanceY/SizeY*2.;
-			dist+=1.;
+			dist+=1.*distanceY/sizeY*2.*distanceY/sizeY*2.;
+
 		}
-cout << "chi0 è: \t" << chi0 << endl; 
-chi0=chi0 - log(dist);
+
+chi0=chi0 - log(dist+0.01)/10;
 cout << "chi0 è: \t" << chi0 << endl; 
 }
 
 
 for (std::vector<SiPixelCluster>::const_iterator it= oneMoreCluster.begin(); it != oneMoreCluster.end(); ++it) {
 //float chi=((it->charge())*(it->charge())-expectedADC*expectedADC)/2./(expectedADC*2000); //20% uncertainty? realistic from Landau?
-float chi = it->charge()/expectedADC;
-float chi1 = 100*(0.5+5*chi)*(0.5+5*chi);
-chiMore=chiMore-chi1;
+float chi = it->charge()*it->charge()/expectedADC*expectedADC;
+chiMore=chiMore-chi;
 float dist=0;
 
 	for(unsigned int i=0; i < it->pixels().size(); i++) {
 
-		float distanceX=1.*it->pixels()[i].x-it->x();
-		float distanceY=1.*it->pixels()[i].y-it->y();
+		float distanceX=1.*it->pixels()[i].x-it->y();
+		float distanceY=1.*it->pixels()[i].y-it->x();
 	        dist=0;
 		dist+=1.*distanceX*distanceX;
-			if(std::abs(distanceY)>SizeY/2.)
-                        dist+=1.*(std::abs(distanceY)-SizeY/2.+1.)*(std::abs(distanceY)-SizeY/2.+1.);
+			if(std::abs(distanceY)>sizeY/2.)
+                        dist+=1.*(std::abs(distanceY)-sizeY/2.+1.)*(std::abs(distanceY)-sizeY/2.+1.);
 			else 
-			//dist+=1.*distanceY/SizeY*2.*distanceY/SizeY*2.;
-			dist+=1.;
+			dist+=1.*distanceY/sizeY*2.*distanceY/sizeY*2.;
 
 	}
-cout << "chiMore è: \t" << chiMore << endl; 
-chiMore=chiMore-log(dist);
+chiMore=chiMore-log(dist+0.01);
 cout << "chiMore è: \t" << chiMore << endl; 
 }
 
 
 for (std::vector<SiPixelCluster>::const_iterator it= oneLessCluster.begin(); it != oneLessCluster.end(); ++it) {
 //float chi=((it->charge())*(it->charge())-expectedADC*expectedADC)/2./(expectedADC*2000); //20% uncertainty? realistic from Landau?
-float chi = it->charge()/expectedADC;
-float chi1 = 100*(0.5+5*chi)*(0.5+5*chi);
-chiLess=chiLess-chi1;
+float chi = it->charge()*it->charge()/expectedADC*expectedADC;
+chiLess=chiLess-chi;
 float dist=0;
 
 	for(unsigned int i=0; i < it->pixels().size(); i++) {
 
-		float distanceX=1.*it->pixels()[i].x-it->x();
-		float distanceY=1.*it->pixels()[i].y-it->y();
+		float distanceX=1.*it->pixels()[i].x-it->y();
+		float distanceY=1.*it->pixels()[i].y-it->x();
 	        dist=0;
 		dist+=1.*distanceX*distanceX;
-			if(std::abs(distanceY)>SizeY/2.)
-                        dist+=1.*(std::abs(distanceY)-SizeY/2.+1.)*(std::abs(distanceY)-SizeY/2.+1.);
+			if(std::abs(distanceY)>sizeY/2.)
+                        dist+=1.*(std::abs(distanceY)-sizeY/2.+1.)*(std::abs(distanceY)-sizeY/2.+1.);
 			else 
-			//dist+=1.*distanceY/SizeY*2.*distanceY/SizeY*2.;
-			dist+=1.;
+			dist+=1.*distanceY/sizeY*2.*distanceY/sizeY*2.;
+	
 	}
-chiLess=chiLess-log(dist);
+chiLess=chiLess-log(dist+0.01);
 cout << "chiLess è: \t" << chiLess << endl; 
 }
 
@@ -1385,30 +967,28 @@ if(chiMore>chi0 && chiMore>chiLess) {
 int More=2;
 std::vector<SiPixelCluster> & outputMore = oneMoreCluster;
 	while (chiMore>chi0) {
-	std::vector<SiPixelCluster> clusterMore = JetCoreClusterSplitter::fittingSplit( aCluster, expectedADC, SizeY, jetZOverRho, More);
+	std::vector<SiPixelCluster> clusterMore = JetCoreClusterSplitter::fittingSplit( aCluster, expectedADC, sizeY, jetZOverRho, More);
 	chi0=chiMore;
 	chiMore=100000;
 
 
 	for (std::vector<SiPixelCluster>::const_iterator it= clusterMore.begin(); it != clusterMore.end(); ++it) {
 
-	float chi = it->charge()/expectedADC;
-	float chi1 = 100*(0.5+5*chi)*(0.5+5*chi);
-	chiMore=chiMore-chi1;      //1./(1.+exp(x*x-3*3))	
+	float chi=(it->charge()*it->charge()-expectedADC*expectedADC)/2./(expectedADC*2000); 
+	chiMore=chiMore-log(1.+exp(chi));      //1./(1.+exp(x*x-3*3))	
 	float dist=0;
 		for(unsigned int i=0; i < it->pixels().size(); i++) {
 
-		float distanceX=1.*it->pixels()[i].x-it->x();
-		float distanceY=1.*it->pixels()[i].y-it->y();
+		float distanceX=1.*it->pixels()[i].x-it->y();
+		float distanceY=1.*it->pixels()[i].y-it->x();
 	        dist=0;
 		dist+=1.*distanceX*distanceX;
-			if(std::abs(distanceY)>SizeY/2.)
-                        dist+=1.*(std::abs(distanceY)-SizeY/2.+1.)*(std::abs(distanceY)-SizeY/2.+1.);
+			if(std::abs(distanceY)>sizeY/2.)
+                        dist+=1.*(std::abs(distanceY)-sizeY/2.+1.)*(std::abs(distanceY)-sizeY/2.+1.);
 			else 
-			//dist+=1.*distanceY/SizeY*2.*distanceY/SizeY*2.;
-			dist+=1.;
+			dist+=1.*distanceY/sizeY*2.*distanceY/sizeY*2.;
 		}
-	chiMore=chiMore-log(dist);
+	chiMore=chiMore-log(dist+0.01);
 
 	if(chiMore>chi0) outputMore = clusterMore;
 	}
@@ -1430,23 +1010,21 @@ std::vector<SiPixelCluster> & outputLess = oneLessCluster;
 
 	for (std::vector<SiPixelCluster>::const_iterator it= clusterLess.begin(); it != clusterLess.end(); ++it) {
 
-	float chi = it->charge()/expectedADC;
-	float chi1 = 100*(0.5+5*chi)*(0.5+5*chi);
-	chiLess=chiLess-chi1;      //1./(1.+exp(x*x-3*3))	
+	float chi=(it->charge()*it->charge()-expectedADC*expectedADC)/2./(expectedADC*2000); 
+	chiLess=chiLess-log(1.+exp(chi));      //1./(1.+exp(x*x-3*3))	
 
 		for(unsigned int i=0; i < it->pixels().size(); i++) {
 
-		float distanceX=1.*it->pixels()[i].x-it->x();
-		float distanceY=1.*it->pixels()[i].y-it->y();
+		float distanceX=1.*it->pixels()[i].x-it->y();
+		float distanceY=1.*it->pixels()[i].y-it->x();
 	        dist=0;
 		dist+=1.*distanceX*distanceX;
-			if(std::abs(distanceY)>SizeY/2.)
-                        dist+=1.*(std::abs(distanceY)-SizeY/2.+1.)*(std::abs(distanceY)-SizeY/2.+1.);
+			if(std::abs(distanceY)>sizeY/2.)
+                        dist+=1.*(std::abs(distanceY)-sizeY/2.+1.)*(std::abs(distanceY)-sizeY/2.+1.);
 			else 
-			//dist+=1.*distanceY/SizeY*2.*distanceY/SizeY*2.;
-			dist+=1.;
+			dist+=1.*distanceY/sizeY*2.*distanceY/sizeY*2.;
 		}
-	chiLess=chiLess-log(dist);
+	chiLess=chiLess-log(dist+0.01);
 
 	if(chiLess>chi0) outputLess = clusterLess;
 	}
@@ -1458,18 +1036,15 @@ return outputLess;
 }
 */
 
-
 if(meanExp>10) moreThanEight++;
 if(meanExp>8) moreThanTen++;
 
-tuttiCl += meanExp + oneClusterMore;
-clVuoti += meanExp - output.size() + oneClusterMore; 
+tuttiCl += meanExp;
+clVuoti += meanExp - output.size(); 
 
 histoSteps -> Fill (maxsteps);
-if(maxsteps < 80) 
-histoSteps -> Fill (maxsteps, 9);
-
-
+//if(maxsteps < 80) 
+//histoSteps -> Fill (maxsteps, 9);
 
 histoNumberClusters -> Fill (output.size());
 
@@ -1477,13 +1052,10 @@ histoNumberClusters -> Fill (output.size());
 	histoNumberClustersZero -> Fill (meanExp);
 	steps00++;
 	tuttiClMaxstep0 += meanExp;
-	clVuotiMaxstep0 += meanExp - output.size() + oneClusterMore; 
-	if( meanExp - output.size() !=0) cout << "è qui: \t" << clVuotiMaxstep0 << endl;
-	if(meanExp>10) moreThanTen0++;
-	if(meanExp>8) moreThanEight0++;
+	clVuotiMaxstep0 += meanExp - output.size(); 
 	}
 	else {
-	clVuotiMaxstepNo0 += meanExp - output.size() + oneClusterMore; 
+	clVuotiMaxstepNo0 += meanExp - output.size(); 
 	if(maxsteps < 40) steps40++;
 	else {	
 	if(maxsteps < 60) steps60++;
