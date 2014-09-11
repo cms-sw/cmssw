@@ -43,7 +43,9 @@
 //
 // -- Constructor
 //
-TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps) {
+TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps) :
+  verbose_(ps.getUntrackedParameter<bool>("verbose",false))
+{
   
   // Get TkMap ParameterSet 
   //  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
@@ -143,7 +145,7 @@ void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 //
 void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: End of LS transition, performing the DQM client operation";
-  std::cout << "[TrackingAnalyser::endLuminosityBlock]" << std::endl;
+  if (verbose_) std::cout << "[TrackingAnalyser::endLuminosityBlock]" << std::endl;
   nLumiSecs_++;
 
   if (!trackerFEDsFound_) {
@@ -152,9 +154,9 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   }   
   endLumiAnalysisOn_ = true;
 
-  std::cout << "====================================================== " << std::endl;
-  std::cout << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << std::endl;
-  std::cout << "====================================================== " << std::endl;
+  if (verbose_) std::cout << "====================================================== " << std::endl;
+  if (verbose_) std::cout << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << std::endl;
+  if (verbose_) std::cout << "====================================================== " << std::endl;
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
     actionExecutor_->fillStatusAtLumi(dqmStore_);
@@ -168,7 +170,7 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //
 void TrackingAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: End of Run";
-  std::cout << "[TrackingAnalyser::endRun]" << std::endl;
+  if (verbose_) std::cout << "[TrackingAnalyser::endRun]" << std::endl;
   if (globalStatusFilling_ > 0) {
     actionExecutor_->fillGlobalStatus(dqmStore_);
   }
@@ -178,7 +180,7 @@ void TrackingAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 //
 void TrackingAnalyser::endJob(){
   edm::LogInfo("TrackingAnalyser") <<"TrackingAnalyser:: endjob called!";
-  std::cout << "[TrackingAnalyser::endJob]" << std::endl;
+  if (verbose_) std::cout << "[TrackingAnalyser::endJob]" << std::endl;
   if (globalStatusFilling_ > 0) {
     actionExecutor_->fillGlobalStatus(dqmStore_);
   }

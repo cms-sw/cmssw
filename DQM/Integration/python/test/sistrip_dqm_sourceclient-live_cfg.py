@@ -11,7 +11,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-live=True
+#live=True
+live=False
 offlineTesting=not live
 print "live: "+str(live)+" ==> offlineTesting: "+str(offlineTesting)
 
