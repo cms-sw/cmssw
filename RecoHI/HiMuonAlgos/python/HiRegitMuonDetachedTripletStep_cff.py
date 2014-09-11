@@ -26,7 +26,7 @@ hiRegitMuDetachedTripletStepClusters = RecoHI.HiTracking.hiRegitDetachedTripletS
 )
 
 # SEEDING LAYERS
-hiRegitMuDetachedTripletStepSeedLayers =  RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepSeedLayers.clone()
+hiRegitMuDetachedTripletStepSeedLayers = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepSeedLayers.clone()
 hiRegitMuDetachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 hiRegitMuDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 
@@ -48,13 +48,14 @@ hiRegitMuDetachedTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitDetached
 hiRegitMuDetachedTripletStepTrajectoryFilter.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryBuilder.clone(
-    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryFilter')),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 )
 
 hiRegitMuDetachedTripletStepTrackCandidates        =  RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuDetachedTripletStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitDetachedTripletStepTrajectoryBuilder')),
+    maxNSeeds=100000
     )
 
 # fitting: feed new-names

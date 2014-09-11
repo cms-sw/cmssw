@@ -1,15 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    HiTrivialConditionRetriever
-// Class:      HiTrivialConditionRetriever
-// 
-/**\class HiTrivialConditionRetriever HiTrivialConditionRetriever.cc yetkin/HiTrivialConditionRetriever/src/HiTrivialConditionRetriever.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
@@ -50,7 +38,7 @@ protected:
   //overriding from ContextRecordIntervalFinder
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) override ;
+                               edm::ValidityInterval& ) ;
   
    private:
   virtual std::auto_ptr<CentralityTable> produceTable( const HeavyIonRcd& );
