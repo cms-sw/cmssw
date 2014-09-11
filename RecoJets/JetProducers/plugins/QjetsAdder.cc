@@ -64,7 +64,7 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     qjetsAlgo_.SetRNEngine(engine);
     // create probabilistic recusterings
     for(unsigned int ii = 0 ; ii < (unsigned int) ntrial_ ; ii++){
-      //qjetsAlgo_.SetRandSeed(iEvent.id().event()*100 + (jetIt - jets->begin())*ntrial_ + ii );// set random seed for reprudcibility. We need a smarted scheme
+      qjetsAlgo_.SetRandSeed(iEvent.id().event()*100 + (jetIt - jets->begin())*ntrial_ + ii );// set random seed for reprudcibility. We need a smarted scheme
       fastjet::ClusterSequence qjet_seq(constits, qjet_def);
       vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(cutoff_));
       if (inclusive_jets2.size()>0){ // fill the massvalue only if the reclustering was successfull
