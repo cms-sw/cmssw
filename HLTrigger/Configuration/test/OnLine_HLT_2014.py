@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/GRun/V61 (CMSSW_7_1_6_HLT1)
+# /dev/CMSSW_7_1_0/GRun/V63 (CMSSW_7_1_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT2014" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V61')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V63')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3896,14 +3896,6 @@ process.FastTimerService = cms.Service( "FastTimerService",
     enableDQMbyPathOverhead = cms.untracked.bool( False ),
     enableDQMbyPathCounters = cms.untracked.bool( True ),
     enableDQMbyModuleType = cms.untracked.bool( False )
-)
-process.DQMStore = cms.Service( "DQMStore",
-    verbose = cms.untracked.int32( 0 ),
-    collateHistograms = cms.untracked.bool( False ),
-    enableMultiThread = cms.untracked.bool( False ),
-    forceResetOnBeginLumi = cms.untracked.bool( False ),
-    LSbasedMode = cms.untracked.bool( False ),
-    verboseQT = cms.untracked.int32( 0 )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     suppressInfo = cms.untracked.vstring(  ),
@@ -54893,7 +54885,15 @@ process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output + process.hltOutp
 process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
 process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + process.hltOutputCalibration )
-process.DQMOutput = cms.EndPath( process.hltPreDQMOutput + process.hltOutputDQM )
+
+# load the DQMStore and DQMRootOutputModule
+process.load( "DQMServices.Core.DQMStore_cfi" )
+process.DQMStore.enableMultiThread = True
+
+process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
+    fileName = cms.untracked.string("DQMIO.root")
+)
+process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltPreDQMOutput + process.hltOutputDQM )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
 process.ExpressForCosmicsOutput = cms.EndPath( process.hltPreExpressCosmicsOutput + process.hltPreExpressCosmicsOutputSmart + process.hltOutputExpressCosmics )
 process.ExpressOutput = cms.EndPath( process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
@@ -54923,8 +54923,6 @@ process = customizeHLTforMC(process)
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
-
-# customization for 6_2_X
 
 # none for now
 
