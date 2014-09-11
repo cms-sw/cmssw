@@ -21,20 +21,6 @@ DDValue::init( const std::string &name )
   }  
 }
 
-DDValue::DDValue( const std::string & name )
- : id_( 0 ),
-   vecPair_( 0 )
-{
-  init( name );
-}
-
-DDValue::DDValue( const char * name )
- : id_( 0 ),
-   vecPair_( 0 )
-{
-  init( name );
-}
-
 DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v ) 
  : id_( 0 )
 {
@@ -88,14 +74,6 @@ DDValue::DDValue( const std::string & name, const std::string & sval )
   vecPair_ = new vecpair_type( false, std::make_pair( svec, dvec ));
   setEvalState( false );
   mem( vecPair_ );
-}
-
-DDValue::DDValue( unsigned int i ) 
- : id_( 0 ),
-   vecPair_( 0 )
-{
-  if( names().size() - 1 <= i )
-    id_ = i;
 }
 
 DDValue::~DDValue( void )

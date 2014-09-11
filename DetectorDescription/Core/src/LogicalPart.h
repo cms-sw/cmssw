@@ -33,7 +33,6 @@ namespace DDI {
     const std::vector<std::pair<const DDPartSelection*,const DDsvalues_type* > > &
          attachedSpecifics() const { return specifics_; }
     bool hasDDValue(const DDValue &) const;
-    //const std::vector<DDPartSelection*> & partSelections(const DDValue &) const;	 
     void stream(std::ostream &);
     double & weight();
   private:
@@ -42,7 +41,6 @@ namespace DDI {
     DDEnums::Category cat_;      
     double weight_;  		
 
-    //std::vector<DDSpecifics> specifics_;
     std::map<DDValue, std::vector<DDPartSelection*> > valToParsel_;
     std::vector<std::pair<const DDPartSelection*, const DDsvalues_type* > > specifics_;
     std::vector<bool> hasDDValue_;
