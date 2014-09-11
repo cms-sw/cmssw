@@ -31,10 +31,8 @@ public:
         double ts321 = ts30 - ts22 > 0 ? a1_(ts30 - ts22) : 0; 
         ts[tsTrig] -= (ts321 + ts21); // ts[4] after pu correction
   
-        // ts5 correction with functions a2(x) and a3(x)
-        double ts52 = ts20 > 0 ? a3_(ts20) : 0;
-        double ts51 = ts30 - ts22 > 0 ? a2_(ts30 - ts22) : 0; 
-        ts[tsTrig+1] -= (ts51 + ts52); // ts[5] after pu correction 
+        // ts5 estimation from ts4
+        ts[tsTrig+1] = a_1_(ts[tsTrig]);
     }
 
 private:
