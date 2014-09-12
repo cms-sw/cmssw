@@ -82,7 +82,7 @@ void TauolappInterface::init( const edm::EventSetup& es ){
    // LHE Information
    dmMatch=fPSet->getUntrackedParameter<double>("dmMatch",0.5);
    dolhe=fPSet->getUntrackedParameter<bool>("dolhe",false);
-   dolheBosonCorr=fPSet->getUntrackedParameter<bool>("dolheBosonCorr",false);
+   dolheBosonCorr=fPSet->getUntrackedParameter<bool>("dolheBosonCorr",true);
    ntries=fPSet->getUntrackedParameter<int>("ntries",10);
 
    // polarization switch 
@@ -211,7 +211,9 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    if(fSelectDecayByEvent){
      selectDecayByMDTAU();
    }
+   std::cout << dolhe << std::endl; 
    if(dolhe && lhe!=NULL){
+     std::cout << "dolhe" << std::endl;
      std::vector<HepMC::GenParticle> particles;
      std::vector<int> m_idx; 
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
@@ -226,30 +228,28 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
      // match to taus in hepmc and identify mother of taus  
      bool hastaus(false);
      std::vector<HepMC::GenParticle*> match;
-     if(dolheBosonCorr){
-       for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++) {
-	 if(abs((*iter)->pdg_id())==15){
-	   hastaus=true;
-	   int mother_pid(0);
-	   // check imediate parent to avoid parent tau ie tau->taugamma
-	   for(HepMC::GenVertex::particle_iterator mother=(*iter)->production_vertex()->particles_begin(HepMC::parents); mother!=(*iter)->production_vertex()->particles_end(HepMC::parents); mother++) {
-	     mother_pid = (*mother)->pdg_id();
-	     if(mother_pid!=(*iter)->pdg_id()){
-	       // match against lhe record
-	       if(abs(mother_pid) == 24 || // W
-		  abs(mother_pid) == 37 || // H+/-
-		  abs(mother_pid) == 23 || // Z
-		  abs(mother_pid) == 22 || // gamma
-		  abs(mother_pid) == 25 || // H0 SM
-		  abs(mother_pid) == 35 || // H0
-		  abs(mother_pid) == 36    // A0
-		  ){
-		 bool isfound=false;
-		 for(unsigned int k=0;k<match.size();k++){
-		   if((*mother)==match.at(k))isfound=true;
-		 }
-		 if(!isfound) match.push_back(*mother);
+     for(HepMC::GenEvent::particle_const_iterator iter = evt->particles_begin(); iter != evt->particles_end(); iter++) {
+       if(abs((*iter)->pdg_id())==15){
+	 hastaus=true;
+	 int mother_pid(0);
+	 // check imediate parent to avoid parent tau ie tau->taugamma
+	 for(HepMC::GenVertex::particle_iterator mother=(*iter)->production_vertex()->particles_begin(HepMC::parents); mother!=(*iter)->production_vertex()->particles_end(HepMC::parents); mother++) {
+	   mother_pid = (*mother)->pdg_id();
+	   if(mother_pid!=(*iter)->pdg_id()){
+	     // match against lhe record
+	     if(abs(mother_pid) == 24 || // W
+		abs(mother_pid) == 37 || // H+/-
+		abs(mother_pid) == 23 || // Z
+		abs(mother_pid) == 22 || // gamma
+		abs(mother_pid) == 25 || // H0 SM
+		abs(mother_pid) == 35 || // H0
+		abs(mother_pid) == 36    // A0
+		){
+	       bool isfound=false;
+	       for(unsigned int k=0;k<match.size();k++){
+		 if((*mother)==match.at(k))isfound=true;
 	       }
+	       if(!isfound) match.push_back(*mother);
 	     }
 	   }
 	 }
@@ -257,7 +257,8 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
      }
      if(hastaus){
        // if is single gauge boson decay and match helicities
-       if(match.size()==1 && dolheBosonCorr){ 
+       if(match.size()==1 && dolheBosonCorr){
+	 std::cout << "dolheBosonCorr" << std::endl; 
 	 for(int i=0; i<ntries;i++){
 	   // re-decay taus then check if helicities match 
 	   auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
