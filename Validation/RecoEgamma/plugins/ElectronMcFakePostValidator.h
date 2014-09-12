@@ -2,15 +2,21 @@
 #ifndef Validation_RecoEgamma_ElectronMcFakePostValidator_h
 #define Validation_RecoEgamma_ElectronMcFakePostValidator_h
 
-#include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
+#include "DQMOffline/EGamma/interface/ElectronDqmHarvesterBase.h"
 
-class ElectronMcFakePostValidator : public ElectronDqmAnalyzerBase
+class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
  {
   public:
-    explicit ElectronMcFakePostValidator( const edm::ParameterSet & conf ) ;
+    explicit ElectronMcFakePostValidator( const edm::ParameterSet & conf ) ; 
     virtual ~ElectronMcFakePostValidator() ;
     virtual void book() ;
-    virtual void finalize() ;
+    virtual void finalize2() ;
+    virtual void finalize( DQMStore::IBooker & iBooker ) ; // , DQMStore::IGetter & iGetter
+
+  private:
+    // histos
+    MonitorElement *h1_ele_xOverX0VsEta ;
+	
  } ;
 
 #endif
