@@ -1,4 +1,3 @@
-
 #include "DQM/TrackingMonitorClient/plugins/TrackingAnalyzer.h"
 
 
@@ -148,10 +147,10 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   if (verbose_) std::cout << "[TrackingAnalyser::endLuminosityBlock]" << std::endl;
   nLumiSecs_++;
 
-  if (!trackerFEDsFound_) {
-    actionExecutor_->fillDummyLSStatus();
-    return;
-  }   
+//  if (!trackerFEDsFound_) {
+//    actionExecutor_->fillDummyLSStatus();
+//    return;
+//  }   
   endLumiAnalysisOn_ = true;
 
   if (verbose_) std::cout << "====================================================== " << std::endl;
@@ -159,7 +158,7 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   if (verbose_) std::cout << "====================================================== " << std::endl;
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillStatusAtLumi(dqmStore_);
+    //    actionExecutor_->fillStatusAtLumi(dqmStore_);
     actionExecutor_->fillGlobalStatus(dqmStore_);
   }
   endLumiAnalysisOn_ = false;
