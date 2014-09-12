@@ -3,17 +3,15 @@
  *  \author Matteo Sani
  */
 
-#include <Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryESProducer.h>
-#include <Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryBuilder.h>
+#include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryESProducer.h"
+#include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryBuilder.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
-#include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
-
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/ModuleFactory.h>
-
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Framework/interface/NoProxyException.h>
-#include <FWCore/Framework/interface/NoRecordException.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
 
 #include <memory>
 
@@ -33,6 +31,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   CSCGeometry const* csc = nullptr;
   RPCGeometry const* rpc = nullptr;
   GEMGeometry const* gem = nullptr;
+  ME0Geometry const* me0 = nullptr;
 
   try {
     edm::ESHandle<TrackerGeometry> tkH;
@@ -80,12 +79,20 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
     }
 
+    edm::ESHandle<ME0Geometry> me0H;
+    record.getRecord<MuonGeometryRecord>().get(me0H);
+    if(me0H.isValid()) {
+      me0 = me0H.product();
+    } else {
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
+    }
+
   } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){
     LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available.";    
   }
 
   GlobalTrackingGeometryBuilder builder;
-  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(tk, dt, csc, rpc, gem));
+  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(tk, dt, csc, rpc, gem, me0));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer);

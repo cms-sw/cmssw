@@ -1,8 +1,9 @@
 #include "SimG4CMS/Muon/interface/MuonSensitiveDetector.h"
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
 #include "SimG4CMS/Muon//interface/MuonEndcapFrameRotation.h"
-#include "SimG4CMS/Muon/interface/MuonGemFrameRotation.h"
-#include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonRPCFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonGEMFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -53,12 +54,15 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
  if (detector->isEndcap()) {
    //    cout << "MuonFrameRotation create MuonEndcapFrameRotation"<<endl;
     theRotation=new MuonEndcapFrameRotation();
-  } else if (detector->isRpc()) {
-    //    cout << "MuonFrameRotation create MuonRpcFrameRotation"<<endl;
-    theRotation=new MuonRpcFrameRotation( cpv );
-  } else if (detector->isGem()) {
-    //    cout << "MuonFrameRotation create MuonGemFrameRotation"<<endl;
-    theRotation=new MuonGemFrameRotation( cpv );
+  } else if (detector->isRPC()) {
+    //    cout << "MuonFrameRotation create MuonRPCFrameRotation"<<endl;
+    theRotation=new MuonRPCFrameRotation( cpv );
+  } else if (detector->isGEM()) {
+    //    cout << "MuonFrameRotation create MuonGEMFrameRotation"<<endl;
+    theRotation=new MuonGEMFrameRotation( cpv );
+  } else if (detector->isME0()) {
+    //    cout << "MuonFrameRotation create MuonME0FrameRotation"<<endl;
+    theRotation=new MuonME0FrameRotation( cpv );
   }  else {
     theRotation = 0;
   }

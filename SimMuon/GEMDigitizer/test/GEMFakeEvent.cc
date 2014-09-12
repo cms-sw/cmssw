@@ -34,7 +34,6 @@ private:
   int nEtaPartitions_;
 };
 
-
 GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config) 
 {
   cout <<"Initialize the Event Dump"<<endl;
