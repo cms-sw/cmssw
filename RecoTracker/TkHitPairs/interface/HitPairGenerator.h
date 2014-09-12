@@ -46,20 +46,9 @@ public:
 
   virtual HitPairGenerator* clone() const = 0;
 
-  virtual void clear() final {
-       localRA.update(thePairs.size());
-       OrderedHitPairs tmp; tmp.swap(thePairs);
-   /*
-     // back to initial allocation if too large
-     if (thePairs.capacity()> 4*m_capacity) {
-       OrderedHitPairs tmp; tmp.reserve(m_capacity); tmp.swap(thePairs);
-     } 
-     thePairs.clear(); 
-   */
-  } 
+  virtual void clear() final;
 
 private:
-//  unsigned int m_capacity;
   OrderedHitPairs thePairs;
   edm::RunningAverage localRA;
 
