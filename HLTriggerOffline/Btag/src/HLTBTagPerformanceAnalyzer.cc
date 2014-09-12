@@ -41,7 +41,6 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& 
 	m_mcMatching = m_mcPartons_Label != "none" ;
 
 	m_mcRadius=0.3;
-//	dqm = edm::Service<DQMStore>().operator->();
 }
 
 
@@ -51,6 +50,43 @@ HLTBTagPerformanceAnalyzer::~HLTBTagPerformanceAnalyzer()
 	// do anything here that needs to be done at desctruction time
 	// (e.g. close files, deallocate resources etc.)
 }
+
+void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+	triggerConfChanged_ = true;
+	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
+	
+	hltConfigProvider_.init(iRun, iSetup, label.process, triggerConfChanged_);
+	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
+
+	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
+	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
+		unsigned int found = 1;
+		int it_mem = -1;
+		std::cout<<"The available path : ";
+		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
+		{
+			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
+			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
+			if ( found == 0 )
+			{
+				it_mem= (int) it;
+			}
+		}//for allallHltPathNames
+		hltPathIndexs_.push_back(it_mem);
+	}//for hltPathNames_
+	
+	//fill _isfoundHLTs for each hltPathNames_
+	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
+		if ( hltPathIndexs_[trgs] < 0 ) {
+			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
+			_isfoundHLTs.push_back(false);
+		} 
+		else {
+			_isfoundHLTs.push_back(true);
+		}
+	}
+}
+
 
 void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -131,11 +167,11 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					if (it== flav_collection.end())   continue;
 					TString label=JetTagCollection_Label[ind] + "__";
 					label+=flavour_str;
-					H1_.at(ind)[label.Data()]->Fill(BtagJT.second);	//fill 1D btag plot for 'b,c,uds'
+					H1_.at(ind)[label.Data()]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds'
 					label=JetTagCollection_Label[ind] + "___";
 					label+=flavour_str;
 					label+=TString("_disc_pT");
-					H2_.at(ind)[label.Data()]->Fill(BtagJT.second,BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
+					H2_.at(ind)[label.Data()]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
 				} /// for flavour
 			} /// if MCOK
 		} /// for BtagJT
@@ -153,9 +189,9 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 	assert(hltPathNames_.size()== JetTagCollection_.size());
 	std::string dqmFolder;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++){
-		float btagL = -11.;
+		float btagL = 0.;
 		float btagU = 1.;
-		int   btagBins = 600;
+		int   btagBins = 100;
 		dqmFolder = Form("HLT/BTag/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
@@ -193,48 +229,8 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		} /// for mc.size()
 	} /// for hltPathNames_.size()
 	std::cout<<"Booking of flavour-dependent plots's been finished."<<std::endl;   
-
-	triggerConfChanged_ = true;
-	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
-	
-	hltConfigProvider_.init(iRun, iSetup, label.process, triggerConfChanged_);
-	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
-
-	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
-	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
-		unsigned int found = 1;
-		int it_mem = -1;
-		std::cout<<"The available path : ";
-		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
-		{
-			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
-			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
-			if ( found == 0 )
-			{
-				it_mem= (int) it;
-			}
-		}//for allallHltPathNames
-		hltPathIndexs_.push_back(it_mem);
-	}//for hltPathNames_
-	
-	//fill _isfoundHLTs for each hltPathNames_
-	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
-		if ( hltPathIndexs_[trgs] < 0 ) {
-			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
-			_isfoundHLTs.push_back(false);
-		} 
-		else {
-			_isfoundHLTs.push_back(true);
-		}
-	}
 }
 
-	// ------------ method called when starting to processes a luminosity block  ------------
-	void 
-		HLTBTagPerformanceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
-		{
-		}
-
-	//define this as a plug-in
-	DEFINE_FWK_MODULE(HLTBTagPerformanceAnalyzer);
+//define this as a plug-in
+DEFINE_FWK_MODULE(HLTBTagPerformanceAnalyzer);
 

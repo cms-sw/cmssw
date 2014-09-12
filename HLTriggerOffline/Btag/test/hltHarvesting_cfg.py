@@ -73,7 +73,7 @@ process.hltJetMCTools
 +	process.VertexValidationVertices
 +	process.bTagValidation
 +	process.bTagPostValidation
-+	process.EDMtoMEConverter
+#+	process.EDMtoMEConverter
 +	process.dqmSaver
 )	
 #Settings equivalent to 'RelVal' convention:

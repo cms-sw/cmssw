@@ -36,11 +36,11 @@ class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 	public:
 		explicit HLTVertexPerformanceAnalyzer(const edm::ParameterSet&);
 		~HLTVertexPerformanceAnalyzer();
+			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
 	private:
 		virtual void analyze(const edm::Event&, const edm::EventSetup&);
 		void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 		// variables from python configuration
 		edm::EDGetTokenT<TriggerResults> hlTriggerResults_;
@@ -53,7 +53,6 @@ class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 		std::vector<int> hltPathIndexs_;
 		
 		// other class variables
-		DQMStore * dqm;
 		std::vector<bool> _isfoundHLTs;
 		std::vector<std::string> folders;
 		std::vector< std::map<std::string, MonitorElement *> > H1_;

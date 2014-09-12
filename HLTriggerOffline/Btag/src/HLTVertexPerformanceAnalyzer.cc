@@ -21,6 +21,44 @@ HLTVertexPerformanceAnalyzer::~HLTVertexPerformanceAnalyzer()
 {
 }
 
+
+void HLTVertexPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+	triggerConfChanged_ = true;
+	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
+	
+	hltConfigProvider_.init(iRun, iSetup, label.process, triggerConfChanged_);
+	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
+
+	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
+	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
+		unsigned int found = 1;
+		int it_mem = -1;
+		std::cout<<"The available path : ";
+		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
+		{
+			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
+			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
+			if ( found == 0 )
+			{
+				it_mem= (int) it;
+			}
+		}//for allallHltPathNames
+		hltPathIndexs_.push_back(it_mem);
+	}//for hltPathNames_
+	
+	//fill _isfoundHLTs for each hltPathNames_
+	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
+		if ( hltPathIndexs_[trgs] < 0 ) {
+			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
+			_isfoundHLTs.push_back(false);
+		} 
+		else {
+			_isfoundHLTs.push_back(true);
+		}
+	}
+}
+
+
 void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 	bool trigRes=false;
@@ -106,47 +144,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, e
 			}
 		}
 	}
-
-	triggerConfChanged_ = true;
-	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
-	
-	hltConfigProvider_.init(iRun, iSetup, label.process, triggerConfChanged_);
-	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
-	
-	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
-	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
-		unsigned int found = 1;
-		int it_mem = -1;
-		std::cout<<"The available path : ";
-		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
-		{
-			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
-			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
-			if ( found == 0 )
-			{
-				it_mem= (int) it;
-			}
-		}//for allHltPathNames
-		hltPathIndexs_.push_back(it_mem); 
-	}//for hltPathNames_
-	
-	//fill _isfoundHLTs for each hltPathNames_
-	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
-		if ( hltPathIndexs_[trgs] < 0 ) {
-			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
-			_isfoundHLTs.push_back(false);
-		} 
-		else {
-			_isfoundHLTs.push_back(true);
-		}
-	}
 }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-void HLTVertexPerformanceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const & , edm::EventSetup const & )
-	{
-	}
-	//define this as a plug-in
-	
 DEFINE_FWK_MODULE(HLTVertexPerformanceAnalyzer);
 

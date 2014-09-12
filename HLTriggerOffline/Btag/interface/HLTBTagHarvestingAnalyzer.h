@@ -47,7 +47,6 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 			std::vector<flavours_t>				m_mcFlavours;
 			bool								m_mcMatching;
 			std::vector< std::string>			m_histoName;
-			DQMStore *							dqm;
 
 			// Histogram handler
 			std::map<std::string, MonitorElement *> H1_;

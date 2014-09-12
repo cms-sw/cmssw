@@ -1,4 +1,5 @@
 #include "HLTriggerOffline/Btag/interface/HLTBTagHarvestingAnalyzer.h"
+#include <algorithm> 
 
 HLTBTagHarvestingAnalyzer::HLTBTagHarvestingAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -8,15 +9,10 @@ HLTBTagHarvestingAnalyzer::HLTBTagHarvestingAnalyzer(const edm::ParameterSet& iC
 	m_mcLabels				= mc.getParameterNamesForType<std::vector<unsigned int> >();
 	m_histoName				= iConfig.getParameter<std::vector<std::string> >("histoName");
 	m_minTag				= iConfig.getParameter<double>("minTag");
-
-	// DQMStore services
-	dqm = edm::Service<DQMStore>().operator->();
 }
 
 HLTBTagHarvestingAnalyzer::~HLTBTagHarvestingAnalyzer()
 {
-	// do anything here that needs to be done at desctruction time
-	// (e.g. close files, deallocate resources etc.)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -26,10 +22,6 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	using namespace edm;
 	std::cout<<"HLTBTagHarvestingAnalyzer::endJob"<<std::endl;
 	Exception excp(errors::LogicError);
-	if (! dqm) {
-		excp << "DQM is not ready"; 
-		excp.raise();
-	}
 	std::string dqmFolder_hist;
 
 	//for each hltPath and for each flavour, do the "b-tag efficiency vs jet pt" and "b-tag efficiency vs mistag rate" plots
@@ -37,7 +29,7 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	{
 		dqmFolder_hist = Form("HLT/BTag/%s",hltPathNames_[ind].c_str());
 		std::string effDir = Form("HLT/BTag/%s/efficiency",hltPathNames_[ind].c_str());
-		dqm->setCurrentFolder(effDir);
+		ibooker.setCurrentFolder(effDir);
 		TH1 *den =NULL;
 		TH1 *num =NULL; 
 		map<TString,TH1F*> effics;

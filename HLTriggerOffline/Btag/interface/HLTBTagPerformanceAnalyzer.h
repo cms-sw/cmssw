@@ -45,12 +45,11 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		public:
 			explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
 			~HLTBTagPerformanceAnalyzer();
+			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
 		private:
 			virtual void analyze(const edm::Event&, const edm::EventSetup&);
 			void bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup ) override;
-			virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
 
 		struct JetRefCompare :
 			public std::binary_function<edm::RefToBase<reco::Jet>, edm::RefToBase<reco::Jet>, bool> {
@@ -84,7 +83,6 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 
 		/// DQM folder handle
 		std::vector<std::string> folders;
-		DQMStore * dqm;
 
 		// Histogram handler
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
