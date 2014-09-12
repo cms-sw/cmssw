@@ -182,12 +182,9 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       if (w < 1.e-10) w=1.e-10;
 
       int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
-
+      
       std::vector<int> cls;
-      
-      std::vector<double>  TMPclsAsymmForDetId 
-	= getRPCSimSetUp()->getAsymmetryForCls(rpcId,slice(posX),clsize); 
-      
+ 
       cls.push_back(centralStrip);
       if (clsize > 1){
 	for (int cl = 0; cl < (clsize-1)/2; cl++){
@@ -200,25 +197,36 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
 	    cls.push_back(lstrip);
 	  }
 	}
- 	if (clsize%2 == 0 ){
- 	  // insert the last strip according to the 
- 	  // simhit position in the central strip 
- 	  double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
- 	  if (deltaw<0.) {
- 	    if (lstrip < roll->nstrips() ){
- 	      lstrip++;
- 	      cls.push_back(lstrip);
- 	    }
- 	  }else{
- 	    if (fstrip > 1 ){
- 	      fstrip--;
- 	      cls.push_back(fstrip);
- 	    }
- 	  }
- 	}
-	
+ 	if (clsize%2 == 0){ //even cluster size is a special case
+	  if(clsize>5){
+	    // insert the last strip according to the 
+	    // simhit position in the central strip
+	    // needed for cls > 5, because higher cluster size has no asymmetry
+	    // and thus is treated like in the old parametrization
+	    double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
+	    if (deltaw<0.) {
+	      if (lstrip < roll->nstrips() ){
+		lstrip++;
+		cls.push_back(lstrip);
+	      }
+	    }else{
+	      if (fstrip > 1 ){
+		fstrip--;
+		cls.push_back(fstrip);
+	      }
+	    }
+	  }
+	  else {
+	    // needed for correct initial position for even cluster size
+	    // in case of asymmetric cluster size
+	    if (lstrip < roll->nstrips() ){
+	      lstrip++;
+	      cls.push_back(lstrip);
+	    }
+	  }	
+	}
       }
-
+      
       //Now calculate the shift according to the distribution
       float fire1 = CLHEP::RandFlat::shoot(engine);
       int strip_shift=0;
@@ -232,14 +240,23 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
 	offset = 1;
       }
       
-      for(unsigned int i = 0; i < TMPclsAsymmForDetId.size(); i ++){
-	if(fire1 < TMPclsAsymmForDetId[i]){
-	  strip_shift = i - offset;
-	  break;
+      //No shift (asymmetry) for higher cluster size.
+      if(clsize>5){ 
+	strip_shift = 0;
+      }
+      else {
+	std::vector<double>  TMPclsAsymmForDetId 
+	  = getRPCSimSetUp()->getAsymmetryForCls(rpcId,slice(posX),clsize); 
+	
+	for(unsigned int i = 0; i < TMPclsAsymmForDetId.size(); i ++){
+	  if(fire1 < TMPclsAsymmForDetId[i]){
+	    strip_shift = i - offset;
+	    break;
+	  }
 	}
       }
-      
-      vector<int> shifted_cls;
+
+      vector<int> shifted_cls; // vector to hold shifted strips
       shifted_cls.clear();
       
       int min_strip=100;
@@ -258,23 +275,13 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       if(min_strip<1 || max_strip-roll->nstrips()>0){
 	strip_shift = 0;
       }
-      //  if(min_strip<1){
-      //    strip_shift = 0;
-      //  }
-      //  if(max_strip-roll->nstrips()>0){
-      //    if(max_strip-roll->nstrips()==1){
-      //      strip_shift--;
-      //    }
-      //    else{
-      //      strip_shift = 0;
-      //    }
-      //  }
-      
+
       //Now shift the cluster
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	shifted_cls.push_back(*i+strip_shift);
       }
-      for (std::vector<int>::iterator i=shifted_cls.begin(); i!=shifted_cls.end();i++){
+      for (std::vector<int>::iterator i=shifted_cls.begin(); 
+	   i!=shifted_cls.end();i++){
 	// Check the timing of the adjacent strip
 	if(*i != centralStrip){
 	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
