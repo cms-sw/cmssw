@@ -27,8 +27,8 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
                                  const edm::VParameterSet& vcfg,
                                  edm::ConsumesCollector&& iC)
     : label_(label),
-      pvSelect_(0),
-      jetIDSelect_(0),
+      pvSelect_(nullptr),
+      jetIDSelect_(nullptr),
       includeBTag_(false),
       lowerEdge_(-1.),
       upperEdge_(-1.),
@@ -80,8 +80,8 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     // select is optional; in case it's not found no
     // selection will be applied
     if (pvExtras.existsAs<std::string>("select")) {
-      pvSelect_ = new StringCutObjectSelector<reco::Vertex>(
-          pvExtras.getParameter<std::string>("select"));
+      pvSelect_.reset(new StringCutObjectSelector<reco::Vertex>(
+          pvExtras.getParameter<std::string>("select")));
     }
   }
   // muonExtras are optional; they may be omitted or empty
@@ -119,8 +119,8 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
           jetExtras.getParameter<edm::ParameterSet>("jetID");
       jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(
           jetID.getParameter<edm::InputTag>("label"));
-      jetIDSelect_ = new StringCutObjectSelector<reco::JetID>(
-          jetID.getParameter<std::string>("select"));
+      jetIDSelect_.reset(new StringCutObjectSelector<reco::JetID>(
+          jetID.getParameter<std::string>("select")));
     }
     // select is optional; in case it's not found no
     // selection will be applied (only implemented for
@@ -554,10 +554,8 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
   edm::Handle<edm::View<reco::PFCandidate>> muons;
   edm::View<reco::PFCandidate>::const_iterator muonit;
-  StringCutObjectSelector<reco::PFCandidate, true>* muonSelect =
-      new StringCutObjectSelector<reco::PFCandidate, true>(muonSelect_);
-  StringCutObjectSelector<reco::PFCandidate, true>* muonIso =
-      new StringCutObjectSelector<reco::PFCandidate, true>(muonIso_);
+  StringCutObjectSelector<reco::PFCandidate, true> muonSelect(muonSelect_);
+  StringCutObjectSelector<reco::PFCandidate, true> muonIso(muonIso_);
   reco::MuonRef muon;
   reco::Muon mu;
 
@@ -578,7 +576,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
       fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 
       // apply selection
-      if (!muonSelect || (*muonSelect)(*muonit)) {
+      if (muonSelect(*muonit)) {
 
         double isolationRel =
             (muon->isolationR03().sumPt + muon->isolationR03().emEt +
@@ -609,7 +607,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
         }
         ++mMult;
 
-        if (!muonIso || (*muonIso)(*muonit)) {
+        if (muonIso(*muonit)) {
           if (mMultIso == 0) mu = *muon;
           ++mMultIso;
         }
@@ -647,23 +645,17 @@ void MonitorEnsemble::fill(const edm::Event& event,
           << "\n"
           << "-----------------------------------------------------------------"
              "-------------------- \n"
-          << " No JetCorrectionsRecord available from EventSetup:              "
-             "                     \n"
-          << "  - Jets will not be corrected.                                  "
-             "                     \n"
+          << " No JetCorrectionsRecord available from EventSetup:\n"
+          << "  - Jets will not be corrected.\n"
           << "  - If you want to change this add the following lines to your "
-             "cfg file:              \n"
-          << "                                                                 "
-             "                     \n"
-          << "  ## load jet corrections                                        "
-             "                     \n"
+             "cfg file:\n"
+          << "\n"
+          << "  ## load jet corrections\n"
           << "  "
              "process.load(\"JetMETCorrections.Configuration."
              "JetCorrectionServicesAllAlgos_cff\") \n"
-          << "  process.prefer(\"ak5CaloL2L3\")                                "
-             "                     \n"
-          << "                                                                 "
-             "                     \n"
+          << "  process.prefer(\"ak5CaloL2L3\")\n"
+          << "\n"
           << "-----------------------------------------------------------------"
              "-------------------- \n";
     }
@@ -905,15 +897,15 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
 SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(
     const edm::ParameterSet& cfg)
-    : vertexSelect_(0),
+    : vertexSelect_(nullptr),
       beamspot_(""),
-      beamspotSelect_(0),
-      MuonStep(0),
-      PFMuonStep(0),
-      ElectronStep(0),
-      PFElectronStep(0),
-      PvStep(0),
-      METStep(0) {
+      beamspotSelect_(nullptr),
+      MuonStep(nullptr),
+      PFMuonStep(nullptr),
+      ElectronStep(nullptr),
+      PFElectronStep(nullptr),
+      PvStep(nullptr),
+      METStep(nullptr) {
   JetSteps.clear();
   CaloJetSteps.clear();
   PFJetSteps.clear();
@@ -933,8 +925,8 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(
     vertex_ = vertex.getParameter<edm::InputTag>("src");
     vertex__ =
         consumes<reco::Vertex>(vertex.getParameter<edm::InputTag>("src"));
-    vertexSelect_ = new StringCutObjectSelector<reco::Vertex>(
-        vertex.getParameter<std::string>("select"));
+    vertexSelect_.reset(new StringCutObjectSelector<reco::Vertex>(
+        vertex.getParameter<std::string>("select")));
   }
   if (presel.existsAs<edm::ParameterSet>("beamspot")) {
     edm::ParameterSet beamspot =
@@ -942,61 +934,68 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(
     beamspot_ = beamspot.getParameter<edm::InputTag>("src");
     beamspot__ =
         consumes<reco::BeamSpot>(beamspot.getParameter<edm::InputTag>("src"));
-    beamspotSelect_ = new StringCutObjectSelector<reco::BeamSpot>(
-        beamspot.getParameter<std::string>("select"));
+    beamspotSelect_.reset(new StringCutObjectSelector<reco::BeamSpot>(
+        beamspot.getParameter<std::string>("select")));
   }
   // conifgure the selection
   std::vector<edm::ParameterSet> sel =
       cfg.getParameter<std::vector<edm::ParameterSet>>("selection");
   for (unsigned int i = 0; i < sel.size(); ++i) {
     selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
+
     selection_[selectionStep(selectionOrder_.back())] = std::make_pair(
         sel.at(i),
-        new SingleTopTChannelLepton::MonitorEnsemble(
-            selectionStep(selectionOrder_.back()).c_str(),
-            cfg.getParameter<edm::ParameterSet>("setup"),
-            cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
-            consumesCollector()));
+        std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble>(
+            new SingleTopTChannelLepton::MonitorEnsemble(
+                selectionStep(selectionOrder_.back()).c_str(),
+                cfg.getParameter<edm::ParameterSet>("setup"),
+                cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
+                consumesCollector())));
   }
   for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin();
        selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
+      using std::unique_ptr;
+
       if (type == "muons") {
-        MuonStep = new SelectionStep<reco::Muon>(selection_[key].first,
-                                                 consumesCollector());
+        MuonStep.reset(new SelectionStep<reco::Muon>(selection_[key].first,
+                                                     consumesCollector()));
       }
       if (type == "muons/pf") {
-        PFMuonStep = new SelectionStep<reco::PFCandidate>(selection_[key].first,
-                                                          consumesCollector());
+        PFMuonStep.reset(new SelectionStep<reco::PFCandidate>(
+            selection_[key].first, consumesCollector()));
       }
       if (type == "elecs") {
-        ElectronStep = new SelectionStep<reco::GsfElectron>(
-            selection_[key].first, consumesCollector());
+        ElectronStep.reset(new SelectionStep<reco::GsfElectron>(
+            selection_[key].first, consumesCollector()));
       }
       if (type == "elecs/pf") {
-        PFElectronStep = new SelectionStep<reco::PFCandidate>(
-            selection_[key].first, consumesCollector());
+        PFElectronStep.reset(new SelectionStep<reco::PFCandidate>(
+            selection_[key].first, consumesCollector()));
       }
       if (type == "pvs") {
-        PvStep = new SelectionStep<reco::Vertex>(selection_[key].first,
-                                                 consumesCollector());
+        PvStep.reset(new SelectionStep<reco::Vertex>(selection_[key].first,
+                                                     consumesCollector()));
       }
       if (type == "jets") {
-        JetSteps.push_back(new SelectionStep<reco::Jet>(selection_[key].first,
-                                                        consumesCollector()));
+        JetSteps.push_back(std::unique_ptr<SelectionStep<reco::Jet>>(
+            new SelectionStep<reco::Jet>(selection_[key].first,
+                                         consumesCollector())));
       }
       if (type == "jets/pf") {
-        PFJetSteps.push_back(new SelectionStep<reco::PFJet>(
-            selection_[key].first, consumesCollector()));
+        PFJetSteps.push_back(std::unique_ptr<SelectionStep<reco::PFJet>>(
+            new SelectionStep<reco::PFJet>(selection_[key].first,
+                                           consumesCollector())));
       }
       if (type == "jets/calo") {
-        CaloJetSteps.push_back(new SelectionStep<reco::CaloJet>(
-            selection_[key].first, consumesCollector()));
+        CaloJetSteps.push_back(std::unique_ptr<SelectionStep<reco::CaloJet>>(
+            new SelectionStep<reco::CaloJet>(selection_[key].first,
+                                             consumesCollector())));
       }
       if (type == "met") {
-        METStep = new SelectionStep<reco::MET>(selection_[key].first,
-                                               consumesCollector());
+        METStep.reset(new SelectionStep<reco::MET>(selection_[key].first,
+                                                   consumesCollector()));
       }
     }
   }
@@ -1070,7 +1069,7 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event,
       }
       if (type == "jets") {
         nJetSteps++;
-        if (JetSteps[nJetSteps] != NULL) {
+        if (JetSteps[nJetSteps]) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -1080,7 +1079,7 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event,
       }
       if (type == "jets/pf") {
         nPFJetSteps++;
-        if (PFJetSteps[nPFJetSteps] != NULL) {
+        if (PFJetSteps[nPFJetSteps]) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -1090,7 +1089,7 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event,
       }
       if (type == "jets/calo") {
         nCaloJetSteps++;
-        if (CaloJetSteps[nCaloJetSteps] != NULL) {
+        if (CaloJetSteps[nCaloJetSteps]) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);

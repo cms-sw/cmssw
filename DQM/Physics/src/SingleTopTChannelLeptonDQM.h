@@ -65,7 +65,7 @@ class MonitorEnsemble {
   MonitorEnsemble(const char* label, const edm::ParameterSet& cfg,
                   const edm::VParameterSet& vcfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  ~MonitorEnsemble() { delete pvSelect_; }
+  ~MonitorEnsemble() {}
 
   /// book histograms in subdirectory _directory_
   void book(std::string directory);
@@ -162,7 +162,7 @@ class MonitorEnsemble {
 
   /// extra selection on primary vertices; meant to investigate the pile-up
   /// effect
-  StringCutObjectSelector<reco::Vertex>* pvSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
 
   /// extra isolation criterion on muon
   std::string muonIso_;
@@ -175,7 +175,8 @@ class MonitorEnsemble {
   edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
 
   /// extra jetID selection on calo jets
-  StringCutObjectSelector<reco::JetID>* jetIDSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
+
   /// extra selection on jets (here given as std::string as it depends
   /// on the the jet type, which selections are valid and which not)
   std::string jetSelect_;
@@ -255,20 +256,15 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
    semi-leptonic channel
 
    Plugin to apply a monitored selection of top like events with some minimal
-   flexibility
-   in the number and definition of the selection steps. To achieve this
-   flexibility it
-   employes the SelectionStep class. The MonitorEnsemble class is used to
-   provide a well
-   defined set of histograms to be monitored after each selection step. The
-   SelectionStep
-   class provides a flexible and intuitive selection via the StringCutParser.
-   SelectionStep
-   and MonitorEnsemble classes are interleaved. The monitoring starts after a
-   preselection
-   step (which is not monitored in the context of this module) with an instance
-   of the
-   MonitorEnsemble class. The following objects are supported for selection:
+   flexibility in the number and definition of the selection steps. To achieve
+   this flexibility it employes the SelectionStep class. The MonitorEnsemble
+   class is used to provide a well defined set of histograms to be monitored
+   after each selection step. The SelectionStep class provides a flexible and
+   intuitive selection via the StringCutParser.  SelectionStep and
+   MonitorEnsemble classes are interleaved. The monitoring starts after a
+   preselection step (which is not monitored in the context of this module) with
+   an instance of the MonitorEnsemble class. The following objects are supported
+   for selection:
 
     - jets  : of type reco::Jet (jets), reco::CaloJet (jets/calo) or reco::PFJet
    (jets/pflow)
@@ -277,12 +273,10 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
     - met   : of type reco::MET
 
    These types have to be present as prefix of the selection step paramter
-   _label_ separated
-   from the rest of the label by a ':' (e.g. in the form "jets:step0"). The
-   class expects
-   selection labels of this type. They will be disentangled by the private
-   helper functions
-   _objectType_ and _seletionStep_ as declared below.
+   _label_ separated from the rest of the label by a ':' (e.g. in the form
+   "jets:step0"). The class expects selection labels of this type. They will be
+   disentangled by the private helper functions _objectType_ and _seletionStep_
+   as declared below.
 */
 
 /// define MonitorEnsembple to be used
@@ -293,22 +287,7 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer {
   /// default constructor
   SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~SingleTopTChannelLeptonDQM() {
-    if (vertexSelect_) delete vertexSelect_;
-    if (beamspotSelect_) delete beamspotSelect_;
-    if (MuonStep) delete MuonStep;
-    if (PFMuonStep) delete PFMuonStep;
-    if (ElectronStep) delete ElectronStep;
-    if (PFElectronStep) delete PFElectronStep;
-    if (PvStep) delete PvStep;
-    for (unsigned int i = 0; i < JetSteps.size(); i++)
-      if (JetSteps[i]) delete JetSteps[i];
-    for (unsigned int i = 0; i < CaloJetSteps.size(); i++)
-      if (CaloJetSteps[i]) delete CaloJetSteps[i];
-    for (unsigned int i = 0; i < PFJetSteps.size(); i++)
-      if (PFJetSteps[i]) delete PFJetSteps[i];
-    if (METStep) delete METStep;
-  };
+  ~SingleTopTChannelLeptonDQM() {};
 
   /// do this during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -335,13 +314,13 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer {
   edm::InputTag vertex_;
   edm::EDGetTokenT<reco::Vertex> vertex__;
   /// string cut selector
-  StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::Vertex> > vertexSelect_;
 
   /// beamspot
   edm::InputTag beamspot_;
   edm::EDGetTokenT<reco::BeamSpot> beamspot__;
   /// string cut selector
-  StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::BeamSpot> > beamspotSelect_;
 
   /// needed to guarantee the selection order as defined by the order of
   /// ParameterSets in the _selection_ vector as defined in the config
@@ -351,18 +330,23 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer {
   /// the configuration of the selection for the SelectionStep class,
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to
   /// be filled _after_ each selection step
-  std::map<std::string, std::pair<edm::ParameterSet,
-                                  SingleTopTChannelLepton::MonitorEnsemble*> >
+  std::map<
+      std::string,
+      std::pair<edm::ParameterSet,
+                std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble> > >
       selection_;
-  SelectionStep<reco::Muon>* MuonStep;
-  SelectionStep<reco::PFCandidate>* PFMuonStep;
-  SelectionStep<reco::GsfElectron>* ElectronStep;
-  SelectionStep<reco::PFCandidate>* PFElectronStep;
-  SelectionStep<reco::Vertex>* PvStep;
-  std::vector<SelectionStep<reco::Jet>*> JetSteps;
-  std::vector<SelectionStep<reco::CaloJet>*> CaloJetSteps;
-  std::vector<SelectionStep<reco::PFJet>*> PFJetSteps;
-  SelectionStep<reco::MET>* METStep;
+
+  std::unique_ptr<SelectionStep<reco::Muon> > MuonStep;
+  std::unique_ptr<SelectionStep<reco::PFCandidate> > PFMuonStep;
+  std::unique_ptr<SelectionStep<reco::GsfElectron> > ElectronStep;
+  std::unique_ptr<SelectionStep<reco::PFCandidate> > PFElectronStep;
+  std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
+
+  std::vector<std::unique_ptr<SelectionStep<reco::Jet> > > JetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::CaloJet> > > CaloJetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::PFJet> > > PFJetSteps;
+
+  std::unique_ptr<SelectionStep<reco::MET> > METStep;
 };
 
 #endif
