@@ -59,8 +59,7 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
-  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ),
-  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) )
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -176,7 +175,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
 
-      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
+      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
@@ -203,34 +202,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	if(isPIB && mask) continue;
 		
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
-	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
-	
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
-        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
-        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
-
-        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-        char smodule[80];sprintf(smodule,"Module_%i",module);
-        std::string side_str = sside;
-	std::string disk_str = sdisk;
-	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	            side_str.find("HalfCylinder_2")!=string::npos||
-		    side_str.find("HalfCylinder_4")!=string::npos||
-		    disk_str.find("Disk_2")!=string::npos;
-	// clutch to take all of FPIX, but no BPIX:
-	mask = false;
-	if(isPIB && mask) continue;
-		
-	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-      }//endif(isUpgrade)
+      }
     }
   }
   LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors " << endl;
@@ -267,7 +239,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0)) {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
         if(!isPIB) throw cms::Exception("LogicError")
                        << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
@@ -275,13 +247,13 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     
     if(ladOn){
-      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     
     if(bladeOn){
-      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }

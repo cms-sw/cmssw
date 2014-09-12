@@ -93,7 +93,6 @@
        int nBigEvents;
        MonitorElement* bigFpixClusterEventRate;
        int bigEventSize;
-       bool isUpgrade;
 
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;

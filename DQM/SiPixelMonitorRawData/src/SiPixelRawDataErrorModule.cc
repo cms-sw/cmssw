@@ -93,7 +93,7 @@ SiPixelRawDataErrorModule::~SiPixelRawDataErrorModule() {}
 //
 // Book histograms for errors with detId
 //
-void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type, bool isUpgrade) {}
+void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type) {}
 //
 // Fill histograms
 //

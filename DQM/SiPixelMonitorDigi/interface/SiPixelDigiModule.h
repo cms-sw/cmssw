@@ -47,7 +47,7 @@ class SiPixelDigiModule {
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false, bool isUpgrade=false);
+  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false);
   /// Fill histograms
 //  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
 //						 bool ladon=false, bool layon=false, bool phion=false, 
@@ -59,7 +59,7 @@ class SiPixelDigiModule {
 	   const bool modon, const bool ladon, const bool layon, const bool phion, 
 	   const bool bladeon, const bool diskon, const bool ringon, 
 	   const bool twoD, const bool reducedSet, const bool twoDimModOn, const bool twoDimOnlyLayDisk,
-	   int &nDigisA, int &nDigisB, bool isUpgrade);
+	   int &nDigisA, int &nDigisB);
   void resetRocMap(); // This is to move the rocmap reset from the Source to the Module where the map is booked. Necessary for multithread safety.
   std::pair<int,int> getZeroLoEffROCs(); // Moved from Souce.cc. Gets number of zero and low eff ROCs from each module.
  private:

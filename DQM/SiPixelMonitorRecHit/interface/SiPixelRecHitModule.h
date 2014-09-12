@@ -46,7 +46,7 @@ class SiPixelRecHitModule {
 
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, 
-            bool reducedSet=false, bool isUpgrade=false);
+            bool reducedSet=false);
   /// Fill histograms
   void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, 
             const int& sizeY, const float& lerr_x, const float& lerr_y, 
