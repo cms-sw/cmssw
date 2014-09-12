@@ -267,6 +267,13 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
       m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+
+      float height = topo.stripLength()/2;
+      LocalPoint  lTop( 0., height, 0.);
+      LocalPoint  lBottom( 0., -height, 0.);
+      m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+      m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+      m_fwGeometry->idToName[current].topology[5] = roll->npads();
     }
   }
 }
