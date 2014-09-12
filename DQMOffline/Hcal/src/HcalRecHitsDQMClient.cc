@@ -91,7 +91,7 @@ void HcalRecHitsDQMClient::runClient_()
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsV/HcalRecHitTask") ==0  ){
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsD/HcalRecHitTask") ==0  ){
          hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !HcalRecHitsEndjob(hcalMEs) ) std::cout<<"\nError in HcalRecHitsEndjob!"<<std::endl<<std::endl;

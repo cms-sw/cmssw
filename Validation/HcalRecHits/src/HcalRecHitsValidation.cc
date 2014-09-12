@@ -533,7 +533,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sevLvl_HE = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
-      meRecHitsEnergyHE = dbe_->book1D(histo, histo, 510, -10., 500.); 
+      meRecHitsEnergyHE = dbe_->book1D(histo, histo, 2010, -10., 2000.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HE" ) ;
       meTimeHE = dbe_->book1D(histo, histo, 70, -48., 92.); 
@@ -594,7 +594,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sevLvl_HO = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HO" ) ;
-      meRecHitsEnergyHO = dbe_->book1D(histo, histo, 510 , -10. , 500.); 
+      meRecHitsEnergyHO = dbe_->book1D(histo, histo, 2010 , -10. , 2000.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HO" ) ;
       meTimeHO = dbe_->book1D(histo, histo, 70, -48., 92.); 
@@ -651,7 +651,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sevLvl_HF = dbe_->book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HF" ) ;
-      meRecHitsEnergyHF = dbe_->book1D(histo, histo, 1010 , -10. , 1000.); 
+      meRecHitsEnergyHF = dbe_->book1D(histo, histo, 2010 , -10. , 2000.); 
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
       meTimeHF = dbe_->book1D(histo, histo, 70, -48., 92.); 

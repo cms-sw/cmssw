@@ -90,8 +90,8 @@ void CaloTowersDQMClient::runClient_()
     for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
-
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
+//XXX: !!! CaloTowersV !!! should be CaloTowersD
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersD/CaloTowersTask") ==0  ){
          hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
