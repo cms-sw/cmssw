@@ -25,9 +25,21 @@ class DDValue
   //! create a unnamed emtpy value. One can assing a named DDValue to it.
   DDValue( void ) : id_(0), vecPair_(0) { }
 
+  //! create a named empty value
+  DDValue( const std::string & );
+
   //! creates a named DDValue initialized with a std::vector of values 
   explicit DDValue( const std::string &, const std::vector<DDValuePair>& );
+
+  //! creates a single double valued named DDValue. The corresponding std::string-value is an empty std::string
+  explicit DDValue( const std::string &, double );
   
+  /** creates a single std::string & numerical-valued named DDValue.  */
+  explicit DDValue( const std::string &, const std::string &, double );
+
+  /** creates a single std::string-valued named DDValue */
+  explicit DDValue( const std::string &, const std::string & );
+ 
   ~DDValue( void );
 
   //! returns the ID of the DDValue

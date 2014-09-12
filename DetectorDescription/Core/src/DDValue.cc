@@ -21,6 +21,13 @@ DDValue::init( const std::string &name )
   }  
 }
 
+DDValue::DDValue( const std::string & name )
+  : id_( 0 ),
+    vecPair_( 0 )
+{
+  init( name );
+}
+
 DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v ) 
  : id_( 0 )
 {
@@ -36,6 +43,43 @@ DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v )
     vecPair_->second.first.push_back( it->first );
     vecPair_->second.second.push_back( it->second );
   }
+}
+
+DDValue::DDValue( const std::string & name, double val ) 
+  : id_( 0 )
+{
+  init( name );
+  
+  std::vector<std::string> svec( 1, "" ); 
+  std::vector<double> dvec( 1, val );
+  
+  vecPair_ =  new vecpair_type( false, std::make_pair( svec, dvec ));
+  setEvalState( true );
+  mem( vecPair_ );
+}
+
+DDValue::DDValue( const std::string & name, const std::string & sval, double dval ) 
+  : id_( 0 )
+{
+  init( name );
+  
+  std::vector<std::string> svec( 1, sval );
+  std::vector<double> dvec( 1, dval );
+  vecPair_ = new vecpair_type( false, std::make_pair( svec, dvec ));
+  setEvalState( true );
+  mem( vecPair_ );
+}
+
+DDValue::DDValue( const std::string & name, const std::string & sval ) 
+  : id_( 0 )
+{
+  init( name );
+  
+  std::vector<std::string> svec( 1, sval );
+  std::vector<double> dvec( 1, 0 );
+  vecPair_ = new vecpair_type( false, std::make_pair( svec, dvec ));
+  setEvalState( false );
+  mem( vecPair_ );
 }
 
 DDValue::~DDValue( void )
