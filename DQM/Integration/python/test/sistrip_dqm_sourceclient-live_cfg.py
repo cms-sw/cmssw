@@ -235,7 +235,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_Cosmic_cff")
     process.TrackingAnalyserCosmic.RawDataTag           = cms.untracked.InputTag("rawDataCollector")
     process.TrackingAnalyserCosmic.ShiftReportFrequency = -1
-    process.TrackingAnalyserCosmic.StaticUpdateFrequency = -1
+    process.TrackingAnalyserCosmic.StaticUpdateFrequency = 5
     process.TrackingClient = cms.Sequence( process.TrackingAnalyserCosmic )
 
     # Reco for cosmic data
