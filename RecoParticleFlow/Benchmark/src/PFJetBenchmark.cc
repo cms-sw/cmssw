@@ -337,7 +337,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	case TrackBase::tobTecStep:
 	  iter = 6;
 	  break;
-	case TrackBase::iter8:
+	case TrackBase::conversionStep:
 	  iter = 7;
 	  //std::cout << "Warning in entry " << entry_ << " : iter = " << trackRef->algo() << std::endl;
 	  //std::cout << ic << " " << *(constituents[ic]) << std::endl;

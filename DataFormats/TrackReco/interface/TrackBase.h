@@ -104,7 +104,7 @@ public:
         pixelLessStep = 9,
         tobTecStep = 10,
         jetCoreRegionalStep = 11,
-        iter8 = 12,
+        conversionStep = 12,
         muonSeededStepInOut = 13,
         muonSeededStepOutIn = 14,
         outInEcalSeededConv = 15, inOutEcalSeededConv = 16,
@@ -448,8 +448,8 @@ inline std::string TrackBase::algoName() const
         return "tobTecStep";
     case jetCoreRegionalStep:
         return "jetCoreRegionalStep";
-    case iter8:
-        return "iter8";
+    case conversionStep:
+        return "conversionStep";
     case muonSeededStepInOut:
         return "muonSeededStepInOut";
     case muonSeededStepOutIn:

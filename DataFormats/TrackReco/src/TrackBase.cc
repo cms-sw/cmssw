@@ -19,7 +19,7 @@ std::string const TrackBase::algoNames[] = {
     "pixelLessStep",
     "tobTecStep",
     "jetCoreRegionalStep",
-    "iter8",
+    "conversionStep",
     "muonSeededStepInOut",
     "muonSeededStepOutIn",
     "outInEcalSeededConv",
