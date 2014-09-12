@@ -34,6 +34,8 @@ bool support::isCmsLocalFile(const char* file)
   if ((DirLen==0) || (strncmp(file,LocalDir,DirLen)!=0) || (strncmp(&file[DirLen],"/src/",5)!=0)) return false;
   return true;
 }
+
+
 // This is a wrapper around NamedDecl::getQualifiedNameAsString.
 // It produces more qualified output to distinguish several cases
 // which would otherwise be ambiguous.
@@ -85,6 +87,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
 
   return ret;
 }
+
 
 bool support::isSafeClassName(const std::string &name) {
   static const std::string atomic = "std::atomic";
@@ -151,4 +154,10 @@ bool support::isDataClass(const std::string & name) {
 		if ( line == os.str() ) return true;
 	}
 	return false;
+}
+
+bool support::isInterestingLocation(const std::string & name) {
+	if ( name[0] == '<' && name.find(".h")==std::string::npos ) return false;
+	if ( name.find("/test/") != std::string::npos ) return false;
+	return true;
 }
