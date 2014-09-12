@@ -1,9 +1,9 @@
-#ifndef MuonGemFrameRotation_H
-#define MuonGemFrameRotation_H
+#ifndef SimG4CMS_Muon_MuonME0FrameRotation_H
+#define SimG4CMS_Muon_MuonME0FrameRotation_H
 
-/** \class MuonGemFrameRotation
+/** \class MuonME0FrameRotation
  *
- * implementation of FrameRotation for the muon gem
+ * implementation of FrameRotation for the muon ME0
  * 
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
@@ -18,11 +18,11 @@
 
 class DDCompactView;
 
-class MuonGemFrameRotation : public MuonFrameRotation {
+class MuonME0FrameRotation : public MuonFrameRotation {
 
 public:
-  MuonGemFrameRotation( const DDCompactView& cpv );
-  virtual ~MuonGemFrameRotation();
+  MuonME0FrameRotation( const DDCompactView& cpv );
+  virtual ~MuonME0FrameRotation();
   virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
 
 private:

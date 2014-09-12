@@ -64,9 +64,9 @@ GEMEtaPartition::centreOfStrip(float strip) const
 }
 
 LocalError
-GEMEtaPartition::localError(float strip) const
+GEMEtaPartition::localError(float strip, float cluster_size) const
 {
-  return this->specificTopology().localError(strip, 1./sqrt(12.));
+  return this->specificTopology().localError(strip, cluster_size*cluster_size/12.);
 }
 
 float
