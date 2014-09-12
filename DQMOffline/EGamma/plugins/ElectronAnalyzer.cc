@@ -155,122 +155,123 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
 ElectronAnalyzer::~ElectronAnalyzer()
  {}
 
-void ElectronAnalyzer::book()
+//void ElectronAnalyzer::book()
+void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
   nEvents_ = 0 ;
   //nAfterTrigger_ = 0 ;
 
 
   // basic quantities
-//  h1_num_= bookH1("num","# rec electrons",20, 0.,20.,"N_{ele}");
-//  h1_vertexP = bookH1("vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
-//  h1_Et = bookH1("Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
-//  h1_vertexTIP = bookH1("vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
-//  h1_charge = bookH1("charge","ele charge",5,-2.,2.,"charge");
-  h1_vertexPt_barrel = bookH1("vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-  h1_vertexPt_endcaps = bookH1("vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-  h1_vertexEta = bookH1("vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
-//  h1_vertexPhi = bookH1("vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h2_vertexEtaVsPhi = bookH2("vertexEtaVsPhi","ele momentum #eta vs #phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax,"#eta","#phi (rad)");
-//  h1_vertexX = bookH1("vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)");
-//  h1_vertexY = bookH1("vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)");
-  h2_vertexXvsY = bookH2("vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"x (cm)","y (cm)");
-  h1_vertexZ = bookH1("vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)");
+//  h1_num_= bookH1(iBooker, "num","# rec electrons",20, 0.,20.,"N_{ele}");
+//  h1_vertexP = bookH1(iBooker, "vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
+//  h1_Et = bookH1(iBooker, "Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
+//  h1_vertexTIP = bookH1(iBooker, "vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
+//  h1_charge = bookH1(iBooker, "charge","ele charge",5,-2.,2.,"charge");
+  h1_vertexPt_barrel = bookH1(iBooker, "vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+  h1_vertexPt_endcaps = bookH1(iBooker, "vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+  h1_vertexEta = bookH1(iBooker, "vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
+//  h1_vertexPhi = bookH1(iBooker, "vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
+  h2_vertexEtaVsPhi = bookH2(iBooker, "vertexEtaVsPhi","ele momentum #eta vs #phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax,"#eta","#phi (rad)");
+//  h1_vertexX = bookH1(iBooker, "vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)");
+//  h1_vertexY = bookH1(iBooker, "vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)");
+  h2_vertexXvsY = bookH2(iBooker, "vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"x (cm)","y (cm)");
+  h1_vertexZ = bookH1(iBooker, "vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)");
 
   // super-clusters
-//  h1_sclEn = bookH1("sclEnergy","ele supercluster energy",nbinp,0.,pmax,"E (GeV)");
-//  h1_sclEta = bookH1("sclEta","ele supercluster #eta",nbineta,etamin,etamax,"#eta");
-//  h1_sclPhi = bookH1("sclPhi","ele supercluster #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h1_sclEt = bookH1("sclEt","ele supercluster transverse energy",nbinpt,0.,ptmax,"E_{T} (GeV)");
+//  h1_sclEn = bookH1(iBooker, "sclEnergy","ele supercluster energy",nbinp,0.,pmax,"E (GeV)");
+//  h1_sclEta = bookH1(iBooker, "sclEta","ele supercluster #eta",nbineta,etamin,etamax,"#eta");
+//  h1_sclPhi = bookH1(iBooker, "sclPhi","ele supercluster #phi",nbinphi,phimin,phimax,"#phi (rad)");
+  h1_sclEt = bookH1(iBooker, "sclEt","ele supercluster transverse energy",nbinpt,0.,ptmax,"E_{T} (GeV)");
 
   // electron track
-//  h1_ambiguousTracks = bookH1("ambiguousTracks","ele # ambiguous tracks",  5,0.,5.,"N_{amb. tk}");
-//  h2_ambiguousTracksVsEta = bookH2("ambiguousTracksVsEta","ele # ambiguous tracks  vs #eta",  nbineta2D,etamin,etamax,5,0.,5.,"#eta","N_{amb. tk}");
-//  h2_ambiguousTracksVsPhi = bookH2("ambiguousTracksVsPhi","ele # ambiguous tracks  vs #phi",  nbinphi2D,phimin,phimax,5,0.,5.,"#phi(rad)","N_{amb. tk}");
-//  h2_ambiguousTracksVsPt = bookH2("ambiguousTracksVsPt","ele # ambiguous tracks vs pt",  nbinpt2D,0.,ptmax,5,0.,5.,"p_{T} (GeV/c),"N_{amb. tk}");
-  h1_chi2 = bookH1("chi2","ele track #chi^{2}",100,0.,15.,"#Chi^{2}");
-  py_chi2VsEta = bookP1("chi2VsEta","ele track #chi^{2} vs #eta",nbineta2D,etamin,etamax,0.,15.,"#eta","<#chi^{2}>");
-  py_chi2VsPhi = bookP1("chi2VsPhi","ele track #chi^{2} vs #phi",nbinphi2D,phimin,phimax,0.,15.,"#phi (rad)","<#chi^{2}>");
-  //h2_chi2VsPt = bookH2("chi2VsPt","ele track #chi^{2} vs pt",nbinpt2D,0.,ptmax,50,0.,15.,"p_{T} (GeV/c)","<#chi^{2}>");
-  h1_foundHits = bookH1("foundHits","ele track # found hits",nbinfhits,0.,fhitsmax,"N_{hits}");
-  py_foundHitsVsEta = bookP1("foundHitsVsEta","ele track # found hits vs #eta",nbineta2D,etamin,etamax,0.,fhitsmax,"#eta","<# hits>");
-  py_foundHitsVsPhi = bookP1("foundHitsVsPhi","ele track # found hits vs #phi",nbinphi2D,phimin,phimax,0.,fhitsmax,"#phi (rad)","<# hits>");
-//  h2_foundHitsVsPt = bookH2("foundHitsVsPt","ele track # found hits vs pt",nbinpt2D,0.,ptmax,nbinfhits,0.,fhitsmax,"p_{T} (GeV/c)","<# hits>");
-  h1_lostHits = bookH1("lostHits","ele track # lost hits",5,0.,5.,"N_{lost hits}");
-  py_lostHitsVsEta = bookP1("lostHitsVsEta","ele track # lost hits vs #eta",nbineta2D,etamin,etamax,0.,lhitsmax,"#eta","<# hits>");
-  py_lostHitsVsPhi = bookP1("lostHitsVsPhi","ele track # lost hits vs #eta",nbinphi2D,phimin,phimax,0.,lhitsmax,"#phi (rad)","<# hits>");
-//  h2_lostHitsVsPt = bookH2("lostHitsVsPt","ele track # lost hits vs #eta",nbinpt2D,0.,ptmax,nbinlhits,0.,lhitsmax,"p_{T} (GeV/c)","<# hits>");
+//  h1_ambiguousTracks = bookH1(iBooker, "ambiguousTracks","ele # ambiguous tracks",  5,0.,5.,"N_{amb. tk}");
+//  h2_ambiguousTracksVsEta = bookH2(iBooker, "ambiguousTracksVsEta","ele # ambiguous tracks  vs #eta",  nbineta2D,etamin,etamax,5,0.,5.,"#eta","N_{amb. tk}");
+//  h2_ambiguousTracksVsPhi = bookH2(iBooker, "ambiguousTracksVsPhi","ele # ambiguous tracks  vs #phi",  nbinphi2D,phimin,phimax,5,0.,5.,"#phi(rad)","N_{amb. tk}");
+//  h2_ambiguousTracksVsPt = bookH2(iBooker, "ambiguousTracksVsPt","ele # ambiguous tracks vs pt",  nbinpt2D,0.,ptmax,5,0.,5.,"p_{T} (GeV/c),"N_{amb. tk}");
+  h1_chi2 = bookH1(iBooker, "chi2","ele track #chi^{2}",100,0.,15.,"#Chi^{2}");
+  py_chi2VsEta = bookP1(iBooker, "chi2VsEta","ele track #chi^{2} vs #eta",nbineta2D,etamin,etamax,0.,15.,"#eta","<#chi^{2}>");
+  py_chi2VsPhi = bookP1(iBooker, "chi2VsPhi","ele track #chi^{2} vs #phi",nbinphi2D,phimin,phimax,0.,15.,"#phi (rad)","<#chi^{2}>");
+  //h2_chi2VsPt = bookH2(iBooker, "chi2VsPt","ele track #chi^{2} vs pt",nbinpt2D,0.,ptmax,50,0.,15.,"p_{T} (GeV/c)","<#chi^{2}>");
+  h1_foundHits = bookH1(iBooker, "foundHits","ele track # found hits",nbinfhits,0.,fhitsmax,"N_{hits}");
+  py_foundHitsVsEta = bookP1(iBooker, "foundHitsVsEta","ele track # found hits vs #eta",nbineta2D,etamin,etamax,0.,fhitsmax,"#eta","<# hits>");
+  py_foundHitsVsPhi = bookP1(iBooker, "foundHitsVsPhi","ele track # found hits vs #phi",nbinphi2D,phimin,phimax,0.,fhitsmax,"#phi (rad)","<# hits>");
+//  h2_foundHitsVsPt = bookH2(iBooker, "foundHitsVsPt","ele track # found hits vs pt",nbinpt2D,0.,ptmax,nbinfhits,0.,fhitsmax,"p_{T} (GeV/c)","<# hits>");
+  h1_lostHits = bookH1(iBooker, "lostHits","ele track # lost hits",5,0.,5.,"N_{lost hits}");
+  py_lostHitsVsEta = bookP1(iBooker, "lostHitsVsEta","ele track # lost hits vs #eta",nbineta2D,etamin,etamax,0.,lhitsmax,"#eta","<# hits>");
+  py_lostHitsVsPhi = bookP1(iBooker, "lostHitsVsPhi","ele track # lost hits vs #eta",nbinphi2D,phimin,phimax,0.,lhitsmax,"#phi (rad)","<# hits>");
+//  h2_lostHitsVsPt = bookH2(iBooker, "lostHitsVsPt","ele track # lost hits vs #eta",nbinpt2D,0.,ptmax,nbinlhits,0.,lhitsmax,"p_{T} (GeV/c)","<# hits>");
 
   // electron matching and ID
-  //h1_EoPout = bookH1( "EoPout","ele E/P_{out}",nbineop,0.,eopmax,"E_{seed}/P_{out}");
-  //h1_dEtaCl_propOut = bookH1( "dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{seedcl} - #eta_{tr}");
-  //h1_dPhiCl_propOut = bookH1( "dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{seedcl} - #phi_{tr} (rad)");
-  //h1_outerP = bookH1( "outerP","ele track outer p, mean",nbinp,0.,pmax,"P_{out} (GeV/c)");
-  //h1_outerP_mode = bookH1( "outerP_mode","ele track outer p, mode",nbinp,0.,pmax,"P_{out} (GeV/c)");
-  h1_Eop_barrel = bookH1( "Eop_barrel","ele E/P_{vertex} in barrel",nbineop,0.,eopmax,"E/P_{vertex}");
-  h1_Eop_endcaps = bookH1( "Eop_endcaps","ele E/P_{vertex} in endcaps",nbineop,0.,eopmax,"E/P_{vertex}");
-  py_EopVsPhi = bookP1("EopVsPhi","ele E/P_{vertex} vs #phi",nbinphi2D,phimin,phimax,0.,eopmax,"#phi (rad)","<E/P_{vertex}>");
-//  h2_EopVsPt = bookH2("EopVsPt","ele E/P_{vertex} vs pt",nbinpt2D,0.,ptmax,nbineop,0.,eopmax,"p_{T} (GeV/c)","E/P_{vertex}");
-  h1_EeleOPout_barrel = bookH1( "EeleOPout_barrel","ele E_{ele}/P_{out} in barrel",nbineop,0.,eopmax,"E_{ele}/P_{out}");
-  h1_EeleOPout_endcaps = bookH1( "EeleOPout_endcaps","ele E_{ele}/P_{out} in endcaps",nbineop,0.,eopmax,"E_{ele}/P_{out}");
-//  h2_EeleOPoutVsPhi = bookH2("EeleOPoutVsPhi","ele E_{ele}/P_{out} vs #phi",nbinphi2D,phimin,phimax,nbineop,0.,eopmax,"#phi","E_{ele}/P_{out}");
-//  h2_EeleOPoutVsPt = bookH2("EeleOPoutVsPt","ele E_{ele}/P_{out} vs pt",nbinpt2D,0.,ptmax,nbineop,0.,eopmax,"p_{T} (GeV/c)","E_{ele}/P_{out}");
-  h1_dEtaSc_propVtx_barrel = bookH1( "dEtaSc_propVtx_barrel","ele #eta_{sc} - #eta_{tr}, prop from vertex, in barrel",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
-  h1_dEtaSc_propVtx_endcaps = bookH1( "dEtaSc_propVtx_endcaps","ele #eta_{sc} - #eta_{tr}, prop from vertex, in endcaps",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
-  py_dEtaSc_propVtxVsPhi = bookP1("dEtaSc_propVtxVsPhi","ele #eta_{sc} - #eta_{tr}, prop from vertex vs #phi",nbinphi2D,phimin,phimax,detamatchmin,detamatchmax,"#phi (rad)","<#eta_{sc} - #eta_{tr}>");
-//  h2_dEtaSc_propVtxVsPt = bookH2("dEtaSc_propVtxVsPt","ele #eta_{sc} - #eta_{tr}, prop from vertex vs pt",nbinpt2D,0.,ptmax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
-  h1_dEtaEleCl_propOut_barrel = bookH1( "dEtaEleCl_propOut_barrel","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in barrel",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
-  h1_dEtaEleCl_propOut_endcaps = bookH1( "dEtaEleCl_propOut_endcaps","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in endcaps",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
-//  h2_dEtaEleCl_propOutVsPhi = bookH2("dEtaEleCl_propOutVsPhi","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs #phi",nbinphi2D,phimin,phimax,nbindetamatch,detamatchmin,detamatchmax,"#phi (rad)","#eta_{elecl} - #eta_{tr}");
-//  h2_dEtaEleCl_propOutVsPt = bookH2("dEtaEleCl_propOutVsPt","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindetamatch,detamatchmin,detamatchmax,"p_{T} (GeV/c)","#eta_{elecl} - #eta_{tr}");
-  h1_dPhiSc_propVtx_barrel = bookH1( "dPhiSc_propVtx_barrel","ele #phi_{sc} - #phi_{tr}, prop from vertex, in barrel",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
-  h1_dPhiSc_propVtx_endcaps = bookH1( "dPhiSc_propVtx_endcaps","ele #phi_{sc} - #phi_{tr}, prop from vertex, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
-  py_dPhiSc_propVtxVsPhi = bookP1("dPhiSc_propVtxVsPhi","ele #phi_{sc} - #phi_{tr}, prop from vertex vs #phi",nbinphi2D,phimin,phimax,dphimatchmin,dphimatchmax,"#phi (rad)","<#phi_{sc} - #phi_{tr}> (rad)");
-//  h2_dPhiSc_propVtxVsPt = bookH2("dPhiSc_propVtxVsPt","ele #phi_{sc} - #phi_{tr}, prop from vertex vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"p_{T} (GeV/c)","#phi_{sc} - #phi_{tr} (rad)");
-  h1_dPhiEleCl_propOut_barrel = bookH1( "dPhiEleCl_propOut_barrel","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in barrel",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
-  h1_dPhiEleCl_propOut_endcaps = bookH1( "dPhiEleCl_propOut_endcaps","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
-//  h2_dPhiEleCl_propOutVsPhi = bookH2("dPhiEleCl_propOutVsPhi","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs #phi",nbinphi2D,phimin,phimax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
-//  h2_dPhiEleCl_propOutVsPt = bookH2("dPhiEleCl_propOutVsPt","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"p_{T} (GeV/c)","#phi_{elecl} - #phi_{tr} (rad)");
-  h1_Hoe_barrel = bookH1("Hoe_barrel","ele hadronic energy / em energy, in barrel", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
-  h1_Hoe_endcaps = bookH1("Hoe_endcaps","ele hadronic energy / em energy, in endcaps", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
-  py_HoeVsPhi = bookP1("HoeVsPhi","ele hadronic energy / em energy vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>","E1 P") ;
-//  h2_HoeVsPt = bookH2("HoeVsPt","ele hadronic energy / em energy vs pt",nbinpt2D,0.,ptmax,nbinhoe,hoemin,hoemax,"p_{T} (GeV/c)","<H/E>","ELE_LOGY COLZ") ;
-  h1_sclSigEtaEta_barrel = bookH1("sclSigEtaEta_barrel","ele supercluster sigma ieta ieta in barrel",100,0.,0.05,"sietaieta");
-  h1_sclSigEtaEta_endcaps = bookH1("sclSigEtaEta_endcaps","ele supercluster sigma ieta ieta in endcaps",100,0.,0.05,"sietaieta");
+  //h1_EoPout = bookH1(iBooker, "EoPout","ele E/P_{out}",nbineop,0.,eopmax,"E_{seed}/P_{out}");
+  //h1_dEtaCl_propOut = bookH1(iBooker, "dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{seedcl} - #eta_{tr}");
+  //h1_dPhiCl_propOut = bookH1(iBooker, "dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{seedcl} - #phi_{tr} (rad)");
+  //h1_outerP = bookH1(iBooker, "outerP","ele track outer p, mean",nbinp,0.,pmax,"P_{out} (GeV/c)");
+  //h1_outerP_mode = bookH1(iBooker, "outerP_mode","ele track outer p, mode",nbinp,0.,pmax,"P_{out} (GeV/c)");
+  h1_Eop_barrel = bookH1(iBooker, "Eop_barrel","ele E/P_{vertex} in barrel",nbineop,0.,eopmax,"E/P_{vertex}");
+  h1_Eop_endcaps = bookH1(iBooker, "Eop_endcaps","ele E/P_{vertex} in endcaps",nbineop,0.,eopmax,"E/P_{vertex}");
+  py_EopVsPhi = bookP1(iBooker, "EopVsPhi","ele E/P_{vertex} vs #phi",nbinphi2D,phimin,phimax,0.,eopmax,"#phi (rad)","<E/P_{vertex}>");
+//  h2_EopVsPt = bookH2(iBooker, "EopVsPt","ele E/P_{vertex} vs pt",nbinpt2D,0.,ptmax,nbineop,0.,eopmax,"p_{T} (GeV/c)","E/P_{vertex}");
+  h1_EeleOPout_barrel = bookH1(iBooker, "EeleOPout_barrel","ele E_{ele}/P_{out} in barrel",nbineop,0.,eopmax,"E_{ele}/P_{out}");
+  h1_EeleOPout_endcaps = bookH1(iBooker, "EeleOPout_endcaps","ele E_{ele}/P_{out} in endcaps",nbineop,0.,eopmax,"E_{ele}/P_{out}");
+//  h2_EeleOPoutVsPhi = bookH2(iBooker, "EeleOPoutVsPhi","ele E_{ele}/P_{out} vs #phi",nbinphi2D,phimin,phimax,nbineop,0.,eopmax,"#phi","E_{ele}/P_{out}");
+//  h2_EeleOPoutVsPt = bookH2(iBooker, "EeleOPoutVsPt","ele E_{ele}/P_{out} vs pt",nbinpt2D,0.,ptmax,nbineop,0.,eopmax,"p_{T} (GeV/c)","E_{ele}/P_{out}");
+  h1_dEtaSc_propVtx_barrel = bookH1(iBooker, "dEtaSc_propVtx_barrel","ele #eta_{sc} - #eta_{tr}, prop from vertex, in barrel",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h1_dEtaSc_propVtx_endcaps = bookH1(iBooker, "dEtaSc_propVtx_endcaps","ele #eta_{sc} - #eta_{tr}, prop from vertex, in endcaps",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  py_dEtaSc_propVtxVsPhi = bookP1(iBooker, "dEtaSc_propVtxVsPhi","ele #eta_{sc} - #eta_{tr}, prop from vertex vs #phi",nbinphi2D,phimin,phimax,detamatchmin,detamatchmax,"#phi (rad)","<#eta_{sc} - #eta_{tr}>");
+//  h2_dEtaSc_propVtxVsPt = bookH2(iBooker, "dEtaSc_propVtxVsPt","ele #eta_{sc} - #eta_{tr}, prop from vertex vs pt",nbinpt2D,0.,ptmax,nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h1_dEtaEleCl_propOut_barrel = bookH1(iBooker, "dEtaEleCl_propOut_barrel","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in barrel",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+  h1_dEtaEleCl_propOut_endcaps = bookH1(iBooker, "dEtaEleCl_propOut_endcaps","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in endcaps",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+//  h2_dEtaEleCl_propOutVsPhi = bookH2(iBooker, "dEtaEleCl_propOutVsPhi","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs #phi",nbinphi2D,phimin,phimax,nbindetamatch,detamatchmin,detamatchmax,"#phi (rad)","#eta_{elecl} - #eta_{tr}");
+//  h2_dEtaEleCl_propOutVsPt = bookH2(iBooker, "dEtaEleCl_propOutVsPt","ele #eta_{EleCl} - #eta_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindetamatch,detamatchmin,detamatchmax,"p_{T} (GeV/c)","#eta_{elecl} - #eta_{tr}");
+  h1_dPhiSc_propVtx_barrel = bookH1(iBooker, "dPhiSc_propVtx_barrel","ele #phi_{sc} - #phi_{tr}, prop from vertex, in barrel",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  h1_dPhiSc_propVtx_endcaps = bookH1(iBooker, "dPhiSc_propVtx_endcaps","ele #phi_{sc} - #phi_{tr}, prop from vertex, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  py_dPhiSc_propVtxVsPhi = bookP1(iBooker, "dPhiSc_propVtxVsPhi","ele #phi_{sc} - #phi_{tr}, prop from vertex vs #phi",nbinphi2D,phimin,phimax,dphimatchmin,dphimatchmax,"#phi (rad)","<#phi_{sc} - #phi_{tr}> (rad)");
+//  h2_dPhiSc_propVtxVsPt = bookH2(iBooker, "dPhiSc_propVtxVsPt","ele #phi_{sc} - #phi_{tr}, prop from vertex vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"p_{T} (GeV/c)","#phi_{sc} - #phi_{tr} (rad)");
+  h1_dPhiEleCl_propOut_barrel = bookH1(iBooker, "dPhiEleCl_propOut_barrel","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in barrel",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+  h1_dPhiEleCl_propOut_endcaps = bookH1(iBooker, "dPhiEleCl_propOut_endcaps","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+//  h2_dPhiEleCl_propOutVsPhi = bookH2(iBooker, "dPhiEleCl_propOutVsPhi","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs #phi",nbinphi2D,phimin,phimax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+//  h2_dPhiEleCl_propOutVsPt = bookH2(iBooker, "dPhiEleCl_propOutVsPt","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"p_{T} (GeV/c)","#phi_{elecl} - #phi_{tr} (rad)");
+  h1_Hoe_barrel = bookH1(iBooker, "Hoe_barrel","ele hadronic energy / em energy, in barrel", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
+  h1_Hoe_endcaps = bookH1(iBooker, "Hoe_endcaps","ele hadronic energy / em energy, in endcaps", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
+  py_HoeVsPhi = bookP1(iBooker, "HoeVsPhi","ele hadronic energy / em energy vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>","E1 P") ;
+//  h2_HoeVsPt = bookH2(iBooker, "HoeVsPt","ele hadronic energy / em energy vs pt",nbinpt2D,0.,ptmax,nbinhoe,hoemin,hoemax,"p_{T} (GeV/c)","<H/E>","ELE_LOGY COLZ") ;
+  h1_sclSigEtaEta_barrel = bookH1(iBooker, "sclSigEtaEta_barrel","ele supercluster sigma ieta ieta in barrel",100,0.,0.05,"sietaieta");
+  h1_sclSigEtaEta_endcaps = bookH1(iBooker, "sclSigEtaEta_endcaps","ele supercluster sigma ieta ieta in endcaps",100,0.,0.05,"sietaieta");
 
   // fbrem
-//  h1_innerPt_mean = bookH1( "innerPt_mean","ele track inner p_{T}, mean",nbinpt,0.,ptmax,"P_{T in} (GeV/c)");
-//  h1_outerPt_mean = bookH1( "outerPt_mean","ele track outer p_{T}, mean",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
-//  h1_outerPt_mode = bookH1( "outerPt_mode","ele track outer p_{T}, mode",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
-//  //h_PinMnPout_mode = bookH1( "PinMnPout_mode","ele track inner p - outer p, mode"   ,nbinp,0.,100.,"P_{in} - P_{out} (GeV/c)");
-//  h1_PinMnPout = bookH1( "PinMnPout","ele track inner p - outer p, mean" ,nbinp,0.,200.,"P_{in} - P_{out} (GeV/c)");
-//  h1_PinMnPout_mode = bookH1( "PinMnPout_mode","ele track inner p - outer p, mode",nbinp,0.,100.,"P_{in} - P_{out}, mode (GeV/c)");
-  h1_fbrem = bookH1("fbrem","ele brem fraction",100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
-  py_fbremVsEta = bookP1("fbremVsEta","ele brem fraction vs #eta",nbineta2D,etamin,etamax,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>") ;
-  py_fbremVsPhi = bookP1("fbremVsPhi","ele brem fraction vs #phi",nbinphi2D,phimin,phimax,0.,1.,"#phi (rad)","<P_{in} - P_{out} / P_{in}>") ;
-//  h2_fbremVsPt = bookH2("fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"p_{T} (GeV/c)","<P_{in} - P_{out} / P_{in}>") ;
-  h1_classes = bookH1("classes","ele electron classes",10,0.0,10.);
+//  h1_innerPt_mean = bookH1(iBooker, "innerPt_mean","ele track inner p_{T}, mean",nbinpt,0.,ptmax,"P_{T in} (GeV/c)");
+//  h1_outerPt_mean = bookH1(iBooker, "outerPt_mean","ele track outer p_{T}, mean",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
+//  h1_outerPt_mode = bookH1(iBooker, "outerPt_mode","ele track outer p_{T}, mode",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
+//  //h_PinMnPout_mode = bookH1(iBooker, "PinMnPout_mode","ele track inner p - outer p, mode"   ,nbinp,0.,100.,"P_{in} - P_{out} (GeV/c)");
+//  h1_PinMnPout = bookH1(iBooker, "PinMnPout","ele track inner p - outer p, mean" ,nbinp,0.,200.,"P_{in} - P_{out} (GeV/c)");
+//  h1_PinMnPout_mode = bookH1(iBooker, "PinMnPout_mode","ele track inner p - outer p, mode",nbinp,0.,100.,"P_{in} - P_{out}, mode (GeV/c)");
+  h1_fbrem = bookH1(iBooker, "fbrem","ele brem fraction",100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
+  py_fbremVsEta = bookP1(iBooker, "fbremVsEta","ele brem fraction vs #eta",nbineta2D,etamin,etamax,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>") ;
+  py_fbremVsPhi = bookP1(iBooker, "fbremVsPhi","ele brem fraction vs #phi",nbinphi2D,phimin,phimax,0.,1.,"#phi (rad)","<P_{in} - P_{out} / P_{in}>") ;
+//  h2_fbremVsPt = bookH2(iBooker, "fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"p_{T} (GeV/c)","<P_{in} - P_{out} / P_{in}>") ;
+  h1_classes = bookH1(iBooker, "classes","ele electron classes",10,0.0,10.);
 
   // pflow
-  h1_mva = bookH1( "mva","ele identification mva",100,-1.,1.,"mva");
-  h1_provenance = bookH1( "provenance","ele provenance",5,-2.,3.,"provenance");
+  h1_mva = bookH1(iBooker, "mva","ele identification mva",100,-1.,1.,"mva");
+  h1_provenance = bookH1(iBooker, "provenance","ele provenance",5,-2.,3.,"provenance");
 
   // isolation
-  h1_tkSumPt_dr03 = bookH1("tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY E1 P");
-  h1_ecalRecHitSumEt_dr03 = bookH1("ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
-  h1_hcalTowerSumEt_dr03 = bookH1("hcalTowerSumEt_dr03","hcal isolation sum, dR=0.3",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
-//  h1_hcalDepth1TowerSumEt_dr03 = bookH1("hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.,"Hcal1IsoSum (GeV)","Events","ELE_LOGY E1 P");
-//  h1_hcalDepth2TowerSumEt_dr03 = bookH1("hcalDepth2TowerSumEt_dr03","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum (GeV)","Events","ELE_LOGY E1 P");
-//  h1_tkSumPt_dr04 = bookH1("tkSumPt_dr04","hcal isolation sum",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY E1 P");
-//  h1_ecalRecHitSumEt_dr04 = bookH1("ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
-//  h1_hcalTowerSumEt_dr04 = bookH1("hcalTowerSumEt_dr04","hcal isolation sum, dR=0.4",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
-////  h1_hcalDepth1TowerSumEt_dr04 = bookH1("hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.,"Hcal1IsoSum (GeV)","Events","ELE_LOGY E1 P");
-////  h1_hcalDepth2TowerSumEt_dr04 = bookH1("hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum (GeV)","Events","ELE_LOGY E1 P");
+  h1_tkSumPt_dr03 = bookH1(iBooker, "tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY E1 P");
+  h1_ecalRecHitSumEt_dr03 = bookH1(iBooker, "ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
+  h1_hcalTowerSumEt_dr03 = bookH1(iBooker, "hcalTowerSumEt_dr03","hcal isolation sum, dR=0.3",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
+//  h1_hcalDepth1TowerSumEt_dr03 = bookH1(iBooker, "hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.,"Hcal1IsoSum (GeV)","Events","ELE_LOGY E1 P");
+//  h1_hcalDepth2TowerSumEt_dr03 = bookH1(iBooker, "hcalDepth2TowerSumEt_dr03","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum (GeV)","Events","ELE_LOGY E1 P");
+//  h1_tkSumPt_dr04 = bookH1(iBooker, "tkSumPt_dr04","hcal isolation sum",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY E1 P");
+//  h1_ecalRecHitSumEt_dr04 = bookH1(iBooker, "ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
+//  h1_hcalTowerSumEt_dr04 = bookH1(iBooker, "hcalTowerSumEt_dr04","hcal isolation sum, dR=0.4",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
+////  h1_hcalDepth1TowerSumEt_dr04 = bookH1(iBooker, "hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.,"Hcal1IsoSum (GeV)","Events","ELE_LOGY E1 P");
+////  h1_hcalDepth2TowerSumEt_dr04 = bookH1(iBooker, "hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum (GeV)","Events","ELE_LOGY E1 P");
 
   // di-electron mass
   setBookIndex(200) ;
-  h1_mee = bookH1("mee","ele pairs invariant mass", nbinmee, meemin, meemax,"m_{ee} (GeV/c^{2})");
-  h1_mee_os = bookH1("mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
+  h1_mee = bookH1(iBooker, "mee","ele pairs invariant mass", nbinmee, meemin, meemax,"m_{ee} (GeV/c^{2})");
+  h1_mee_os = bookH1(iBooker, "mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
 
 
 
@@ -289,32 +290,32 @@ void ElectronAnalyzer::book()
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
 //  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
-//  h1_matchingObject_Num = bookH1withSumw2("matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
+//  h1_matchingObject_Num = bookH1withSumw2(iBooker, "matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
 
   // matching object distributions
-  h1_matchingObject_Eta = bookH1withSumw2("matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
-//  h1_matchingObject_AbsEta = bookH1withSumw2("matchingObject_AbsEta",matchingObjectType+" |#eta|",nbineta/2,0.,etamax,"|#eta|_{SC}");
-//  h1_matchingObject_P = bookH1withSumw2("matchingObject_P",matchingObjectType+" p",nbinp,0.,pmax,"E_{SC} (GeV)");
-  h1_matchingObject_Pt = bookH1withSumw2("matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
-  h1_matchingObject_Phi = bookH1withSumw2("matchingObject_Phi",matchingObjectType+" #phi",nbinphi,phimin,phimax,"#phi (rad)");
-//  h1_matchingObject_Z = bookH1withSumw2("matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25,"z (cm)");
+  h1_matchingObject_Eta = bookH1withSumw2(iBooker, "matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
+//  h1_matchingObject_AbsEta = bookH1withSumw2(iBooker, "matchingObject_AbsEta",matchingObjectType+" |#eta|",nbineta/2,0.,etamax,"|#eta|_{SC}");
+//  h1_matchingObject_P = bookH1withSumw2(iBooker, "matchingObject_P",matchingObjectType+" p",nbinp,0.,pmax,"E_{SC} (GeV)");
+  h1_matchingObject_Pt = bookH1withSumw2(iBooker, "matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
+  h1_matchingObject_Phi = bookH1withSumw2(iBooker, "matchingObject_Phi",matchingObjectType+" #phi",nbinphi,phimin,phimax,"#phi (rad)");
+//  h1_matchingObject_Z = bookH1withSumw2(iBooker, "matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25,"z (cm)");
 
-  h1_matchedObject_Eta = bookH1withSumw2("matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax,"#eta_{SC}");
-//  h1_matchedObject_AbsEta = bookH1withSumw2("matchedObject_AbsEta","Efficiency vs matching SC |#eta|",nbineta/2,0.,2.5,"|#eta|_{SC}");
-  h1_matchedObject_Pt = bookH1withSumw2("matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
-  h1_matchedObject_Phi = bookH1withSumw2("matchedObject_Phi","Efficiency vs matching SC #phi",nbinphi,phimin,phimax,"#phi (rad)");
-//  h1_matchedObject_Z = bookH1withSumw2("matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25,"z (cm)");
+  h1_matchedObject_Eta = bookH1withSumw2(iBooker, "matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax,"#eta_{SC}");
+//  h1_matchedObject_AbsEta = bookH1withSumw2(iBooker, "matchedObject_AbsEta","Efficiency vs matching SC |#eta|",nbineta/2,0.,2.5,"|#eta|_{SC}");
+  h1_matchedObject_Pt = bookH1withSumw2(iBooker, "matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
+  h1_matchedObject_Phi = bookH1withSumw2(iBooker, "matchedObject_Phi","Efficiency vs matching SC #phi",nbinphi,phimin,phimax,"#phi (rad)");
+//  h1_matchedObject_Z = bookH1withSumw2(iBooker, "matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25,"z (cm)");
 
 //  // classes
-//  h1_matchedEle_eta = bookH1( "matchedEle_eta", "ele electron #eta",  nbineta/2,0.0,etamax,"#eta");
-//  h1_matchedEle_eta_golden = bookH1( "matchedEle_eta_golden", "ele electron #eta golden",  nbineta/2,0.0,etamax,"#eta");
-//  h1_matchedEle_eta_shower = bookH1( "matchedEle_eta_shower", "ele electron #eta showering",  nbineta/2,0.0,etamax,"#eta");
-//  //h1_matchedEle_eta_bbrem = bookH1( "matchedEle_eta_bbrem", "ele electron #eta bbrem",  nbineta/2,0.0,etamax,"#eta");
-//  //h1_matchedEle_eta_narrow = bookH1( "matchedEle_eta_narrow", "ele electron #eta narrow",  nbineta/2,0.0,etamax,"#eta");
+//  h1_matchedEle_eta = bookH1(iBooker, "matchedEle_eta", "ele electron #eta",  nbineta/2,0.0,etamax,"#eta");
+//  h1_matchedEle_eta_golden = bookH1(iBooker, "matchedEle_eta_golden", "ele electron #eta golden",  nbineta/2,0.0,etamax,"#eta");
+//  h1_matchedEle_eta_shower = bookH1(iBooker, "matchedEle_eta_shower", "ele electron #eta showering",  nbineta/2,0.0,etamax,"#eta");
+//  //h1_matchedEle_eta_bbrem = bookH1(iBooker, "matchedEle_eta_bbrem", "ele electron #eta bbrem",  nbineta/2,0.0,etamax,"#eta");
+//  //h1_matchedEle_eta_narrow = bookH1(iBooker, "matchedEle_eta_narrow", "ele electron #eta narrow",  nbineta/2,0.0,etamax,"#eta");
 //
  }
 
-void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
+void ElectronAnalyzer::analyze( DQMStore::IBooker &, DQMStore::IGetter &, const edm::Event& iEvent, const edm::EventSetup & iSetup )
 {
   nEvents_++ ;
 
