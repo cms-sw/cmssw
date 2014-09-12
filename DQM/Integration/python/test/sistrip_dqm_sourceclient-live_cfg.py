@@ -11,10 +11,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-#live=True
-live=False
+live=True
+# uncomment for running on lxplus
+#live=False
 offlineTesting=not live
-print "live: "+str(live)+" ==> offlineTesting: "+str(offlineTesting)
+#print "live: "+str(live)+" ==> offlineTesting: "+str(offlineTesting)
 
 #----------------------------
 # Event Source
@@ -263,7 +264,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 #                                               qtestOnEndLumi = cms.untracked.bool(True),
 #                                               qtestOnEndRun = cms.untracked.bool(True)                                                                    
 #                                            )
-    print "process.trackingQTester: " + str(process.trackingQTester.prescaleFactor) + " " + str(process.trackingQTester.qtList)
+#    print "process.trackingQTester: " + str(process.trackingQTester.prescaleFactor) + " " + str(process.trackingQTester.qtList)
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.APVPhases*
