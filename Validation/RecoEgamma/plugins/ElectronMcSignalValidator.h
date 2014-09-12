@@ -1,5 +1,5 @@
 
-#ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h
+#ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h 
 #define Validation_RecoEgamma_ElectronMcSignalValidator_h
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
@@ -24,8 +24,10 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
 
     explicit ElectronMcSignalValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcSignalValidator() ;
-    virtual void book() ;
+//    virtual void book() ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
     virtual void analyze( const edm::Event& e, const edm::EventSetup & c ) ;
+//    virtual void analyze2( const edm::Event& e, const edm::EventSetup & c ) ;
 
   private:
 
