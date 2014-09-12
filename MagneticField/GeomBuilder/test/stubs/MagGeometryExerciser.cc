@@ -42,7 +42,7 @@ void MagGeometryExerciser::testFindVolume(int ntry){
     testFindVolume(GlobalPoint(0,0,0));
   }
 
-  GlobalPointProvider p(0.,900., -Geom::pi(), Geom::pi(), -1600, 1600);
+  GlobalPointProvider p(0.,900., -Geom::pi(), Geom::pi(), -2000, 2000);
 
   cout << "Random points:" << endl;
   int success = 0;
@@ -74,10 +74,12 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
 
     // Try with a linear search
     vol =  (MagVolume6Faces const*) theGeometry->findVolume1(gp,tolerance);
-    cout << "Was in volume: "
-	 << (vol !=0 ? vol->volumeNo : -1)
-	 << " (tolerance = " << tolerance << ")"
-	 << endl;
+    cout << "Was in volume: ";
+    if (vol !=0) 
+      cout << vol->volumeNo << ":" << int(vol->copyno);
+    else 
+      cout << "-1";
+    cout << endl;
   }
 
   return ok;
