@@ -6,6 +6,8 @@ PulseChiSqSNNLS::PulseChiSqSNNLS() :
   _chisq(0.),
   _computeErrors(true)
 {
+  
+  Eigen::initParallel();
       
 }  
 
@@ -17,11 +19,7 @@ bool PulseChiSqSNNLS::DoFit(const std::vector<double> &samples, const SampleMatr
  
   const unsigned int nsample = SampleVector::RowsAtCompileTime;
   const unsigned int npulse = bxs.size();
-    
-  //_pulsemat.resize(NoChange_t, npulse);
-  //_ampvecmin.resize(npulse);
-  //_errvecmin.resize(npulse);
-    
+
   for (unsigned int isample=0; isample<nsample; ++isample) {
     _sampvec(isample) = samples[isample];
   }
