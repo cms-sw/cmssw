@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMGeometryBuilderFromDDD_H
-#define GEMGeometry_GEMGeometryBuilderFromDDD_H
+#ifndef Geometry_GEMGeometry_GEMGeometryBuilderFromDDD_H
+#define Geometry_GEMGeometry_GEMGeometryBuilderFromDDD_H
 
 /** \class  GEMGeometryBuilderFromDDD
  *  Build the GEMGeometry ftom the DDD description
@@ -10,7 +10,7 @@
 
 #include <string>
 #include <map>
-#include <list>
+#include <vector>
 
 class DDCompactView;
 class DDFilteredView;
@@ -23,19 +23,15 @@ class GEMGeometryBuilderFromDDD
 { 
  public:
 
-  GEMGeometryBuilderFromDDD(bool comp11);
+  GEMGeometryBuilderFromDDD();
 
   ~GEMGeometryBuilderFromDDD();
 
   GEMGeometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
 
-
  private:
   GEMGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
-  //  std::map<GEMDetId,std::list<GEMEtaPartition *> > chids;
-
-  bool theComp11Flag;
-
+  std::map<GEMDetId,std::vector<GEMDetId>> chids;
 };
 
 #endif

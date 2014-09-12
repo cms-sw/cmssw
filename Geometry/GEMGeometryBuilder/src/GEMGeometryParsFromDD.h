@@ -1,5 +1,5 @@
-#ifndef GEMGeometry_GEMGeometryParsFromDD_H
-#define GEMGeometry_GEMGeometryParsFromDD_H
+#ifndef Geometry_GEMGeometry_GEMGeometryParsFromDD_H
+#define Geometry_GEMGeometry_GEMGeometryParsFromDD_H
 
 /** \class  GEMGeometryParsFromDD
  *  Build the GEMGeometry ftom the DDD description
