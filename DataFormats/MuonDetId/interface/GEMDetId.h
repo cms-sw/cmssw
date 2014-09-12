@@ -1,5 +1,5 @@
-#ifndef MuonDetId_GEMDetId_h
-#define MuonDetId_GEMDetId_h
+#ifndef DataFormats_MuonDetId_GEMDetId_h
+#define DataFormats_MuonDetId_GEMDetId_h
 
 /** \class GEMDetId
  * 
@@ -7,8 +7,8 @@
  *
  */
 
-#include <DataFormats/DetId/interface/DetId.h>
-#include <FWCore/Utilities/interface/Exception.h>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iosfwd>
 #include <iostream>

@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_CSCNumberingScheme_h
-#define MuonNumbering_CSCNumberingScheme_h
+#ifndef Geometry_MuonNumbering_CSCNumberingScheme_h
+#define Geometry_MuonNumbering_CSCNumberingScheme_h
 
 /** \class CSCNumberingScheme
  *
