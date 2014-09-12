@@ -630,6 +630,13 @@ hpsPFTauMVA3IsolationPUcorrPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
     storeRawPUsumPt = cms.bool(True),
     verbosity = cms.int32(0)
 )
+hpsPFTauMVA3IsolationNeutralIsoPtSumWeight = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
+    ApplyDiscriminationByWeightedECALIsolation = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    UseAllPFCandsForWeights = cms.bool(True),
+    verbosity = cms.int32(0)
+)
+
 hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw = discriminationByIsolationMVA2raw.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),

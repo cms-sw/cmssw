@@ -151,7 +151,8 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
     double R = gp.perp();
     int bin = theBarrelBinFinder->binIndex(R);
     
-    for (int bin1 = bin; bin1 >= max(0,bin-2); --bin1) {
+    // Search up to 3 layers inwards. This may happen for very thin layers.
+    for (int bin1 = bin; bin1 >= max(0,bin-3); --bin1) {
       if (verbose::debugOut) cout << "Trying layer at R " << theBLayers[bin1]->minR()
 		      << " " << R << endl ;
       result = theBLayers[bin1]->findVolume(gp, tolerance);
