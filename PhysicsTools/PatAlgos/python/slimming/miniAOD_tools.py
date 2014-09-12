@@ -74,7 +74,7 @@ def miniAOD_customizeCommon(process):
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
-    #add CA8   
+    #add AK8   
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     addJetCollection(process, labelName = 'AK8', jetSource = cms.InputTag('ak8PFJetsCHS'),algo= 'AK', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
@@ -101,6 +101,26 @@ def miniAOD_customizeCommon(process):
     process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
     process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
     process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
+
+    #QJetsAdder
+    if hasattr(process,"RandomNumberGeneratorService") :
+	    process.RandomNumberGeneratorService.QJetsAdderAK8 = cms.PSet(initialSeed = cms.untracked.uint32(7))
+	    process.RandomNumberGeneratorService.QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7))
+    else:
+	    process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService", QJetsAdderAK8 = cms.PSet(initialSeed = cms.untracked.uint32(7)), QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7)))
+    process.load('RecoJets.JetProducers.qjetsadder_cfi')
+    process.QJetsAdderAK8 = process.QJetsAdder.clone()
+    process.QJetsAdderAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.QJetsAdderAK8.jetRad = cms.double(0.8)
+    process.QJetsAdderAK8.jetAlgo = cms.string('AK')
+    process.patJetsAK8.userData.userFloats.src += ['QJetsAdderAK8:QjetsVolatility']
+
+    # add Njetiness
+    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+    process.NjettinessAK8 = process.Njettiness.clone()
+    process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.NjettinessAK8.cone = cms.double(0.8)
+    process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
 
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
