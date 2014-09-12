@@ -321,7 +321,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HF" ) ;
-    meEnergyHcal_HF    = dbe_->book1D(histo, histo, 3040, -200, 15000);  
+    meEnergyHcal_HF    = dbe_->book1D(histo, histo, 4040, -200, 20000);  
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HF" ) ;
     meEnergyEcal_HF    = dbe_->book1D(histo, histo, 2440, -200, 12000); 
