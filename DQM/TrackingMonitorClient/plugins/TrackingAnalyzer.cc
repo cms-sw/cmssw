@@ -126,8 +126,7 @@ void TrackingAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //
 void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
-  //  if (nEvents_ == 1 && globalStatusFilling_ > 0) {
-  if (globalStatusFilling_ > 0) {
+  if (nEvents_ == 1 && globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
     if (!trackerFEDsFound_) {
       actionExecutor_->fillDummyGlobalStatus();
@@ -137,7 +136,6 @@ void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetu
       if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
     }
   }
-
 }
 //
 // -- End Luminosity Block
@@ -147,10 +145,10 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   if (verbose_) std::cout << "[TrackingAnalyser::endLuminosityBlock]" << std::endl;
   nLumiSecs_++;
 
-//  if (!trackerFEDsFound_) {
-//    actionExecutor_->fillDummyLSStatus();
-//    return;
-//  }   
+  if (!trackerFEDsFound_) {
+    actionExecutor_->fillDummyLSStatus();
+    return;
+  }   
   endLumiAnalysisOn_ = true;
 
   if (verbose_) std::cout << "====================================================== " << std::endl;
@@ -158,7 +156,6 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   if (verbose_) std::cout << "====================================================== " << std::endl;
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    //    actionExecutor_->fillStatusAtLumi(dqmStore_);
     actionExecutor_->fillGlobalStatus(dqmStore_);
   }
   endLumiAnalysisOn_ = false;
@@ -169,20 +166,12 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //
 void TrackingAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: End of Run";
-  if (verbose_) std::cout << "[TrackingAnalyser::endRun]" << std::endl;
-  if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillGlobalStatus(dqmStore_);
-  }
 }
 //
 // -- End Job
 //
 void TrackingAnalyser::endJob(){
   edm::LogInfo("TrackingAnalyser") <<"TrackingAnalyser:: endjob called!";
-  if (verbose_) std::cout << "[TrackingAnalyser::endJob]" << std::endl;
-  if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillGlobalStatus(dqmStore_);
-  }
 }
 //
 // Check Tracker FEDs
