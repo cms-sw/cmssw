@@ -35,7 +35,7 @@ public:
    *  the first element. For neutral particles the last argument should be false, 
    *  in which case the charge of the first element will be neglected.
    */
-  LocalTrajectoryParameters(const AlgebraicVector5& v, double aPzSign, bool charged = true) {
+  LocalTrajectoryParameters(const AlgebraicVector5& v, float aPzSign, bool charged = true) {
     theQbp  = v[0];
     theDxdz = v[1];
     theDydz = v[2];
@@ -56,8 +56,8 @@ public:
    *  the first argument. For neutral particles the last argument should be false, 
    *  in which case the charge of the first argument will be neglected.
    */
-  LocalTrajectoryParameters(double aQbp, double aDxdz, double aDydz,
-                            double aX, double aY, double aPzSign, bool charged = true) :
+  LocalTrajectoryParameters(float aQbp, float aDxdz, float aDydz,
+                            float aX, float aY, float aPzSign, bool charged = true) :
     theDxdz(aDxdz), theDydz(aDydz),
     theX(aX), theY(aY), thePzSign(aPzSign) {
     if ( charged ) {
@@ -87,19 +87,19 @@ public:
 
   /// Momentum vector in the local frame. 
   LocalVector momentum() const {
-    double op = fabs(theQbp);
+    float op = fabs(theQbp);
     if ( op<1.e-9 )  op = 1.e-9;
-    double pz = thePzSign/(op*sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
-    double px = pz*theDxdz;
-    double py = pz*theDydz;
+    float pz = thePzSign/(op*sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
+    float px = pz*theDxdz;
+    float py = pz*theDydz;
     return LocalVector(px, py, pz);
   }
 
  /// Momentum vector unit in the local frame. 
   LocalVector direction() const {
-    double dz = thePzSign/sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
-    double dx = dz*theDxdz;
-    double dy = dz*theDydz;
+    float dz = thePzSign/sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
+    float dx = dz*theDxdz;
+    float dy = dz*theDydz;
     return LocalVector(dx, dy, dz);
   }
 
@@ -108,7 +108,7 @@ public:
   TrackCharge charge() const {return theCharge;}
 
   /// Signed inverse momentum q/p (zero for neutrals).
-  double signedInverseMomentum() const {
+  float signedInverseMomentum() const {
     return charge()==0 ? 0. : theQbp;
   }
 
@@ -143,31 +143,31 @@ public:
   }
 
   /// Sign of the z-component of the momentum in the local frame.
-  double pzSign() const {
+  float pzSign() const {
     return thePzSign;
   }
 
   /// Update of momentum by a scalar dP.
-  bool updateP(double dP) {
-    double p = 1./fabs(theQbp);
+  bool updateP(float dP) {
+    float p = 1./fabs(theQbp);
     if ((p += dP) <= 0.) return false;
-    double newQbp = theQbp > 0. ? 1./p : -1./p;
+    float newQbp = theQbp > 0. ? 1./p : -1./p;
     theQbp = newQbp;
     return true;
   }
 
 
-  double qbp() const { return theQbp;}
-  double dxdz() const { return theDxdz;}
-  double dydz() const { return theDydz;}
+  float qbp() const { return theQbp;}
+  float dxdz() const { return theDxdz;}
+  float dydz() const { return theDydz;}
 
 
 private:
-  double theQbp;    ///< q/p (charged) or 1/p (neutral)
-  double theDxdz;   ///< tangent of direction in local x vs. z
-  double theDydz;   ///< tangent of direction in local y vs. z
-  double theX;      ///< local x position
-  double theY;      ///< local y position
+  float theQbp;    ///< q/p (charged) or 1/p (neutral)
+  float theDxdz;   ///< tangent of direction in local x vs. z
+  float theDydz;   ///< tangent of direction in local y vs. z
+  float theX;      ///< local x position
+  float theY;      ///< local y position
 
   float thePzSign; ///< sign of local pz
 
