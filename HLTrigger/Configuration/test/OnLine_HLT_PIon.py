@@ -8327,6 +8327,11 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 # none for now
 
 
+# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
+if cmsswVersion > "CMSSW_7_1":
+    if 'hltESPStripCPEfromTrackAngle' in process.__dict__:
+        process.hltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
+
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTPIon' )
