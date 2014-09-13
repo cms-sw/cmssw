@@ -42509,11 +42509,8 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_L1SingleJet16_v7, HLT_L1Si
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
-
-
 # from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
-if cmsswVersion > "CMSSW_7_1":
+if cmsswVersion >= "CMSSW_7_2":
     if 'hltESPStripCPEfromTrackAngle' in locals():
         hltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
 
