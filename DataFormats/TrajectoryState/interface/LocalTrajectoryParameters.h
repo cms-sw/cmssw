@@ -74,8 +74,8 @@ public:
   LocalTrajectoryParameters( const LocalPoint& pos, const LocalVector& p,
 			     TrackCharge charge) :
     theQbp( charge/p.mag()), theDxdz( p.x()/p.z()), theDydz( p.y()/p.z()), 
-    theX( pos.x()), theY(pos.y()), thePzSign( p.z()>0. ? 1.:-1.), theCharge(charge) {
-    if ( charge==0 )  theQbp = 1./p.mag();
+    theX( pos.x()), theY(pos.y()), thePzSign( p.z()>0. ? 1.f:-1.f), theCharge(charge) {
+    if ( charge==0 )  theQbp = 1.f/p.mag();
   }
 
 // access
@@ -87,9 +87,9 @@ public:
 
   /// Momentum vector in the local frame. 
   LocalVector momentum() const {
-    float op = fabs(theQbp);
-    if ( op<1.e-9 )  op = 1.e-9;
-    float pz = thePzSign/(op*sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
+    float op = std::abs(theQbp);
+    if ( op<1.e-9f )  op = 1.e-9f;
+    float pz = thePzSign/(op*std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
     float px = pz*theDxdz;
     float py = pz*theDydz;
     return LocalVector(px, py, pz);
@@ -97,7 +97,7 @@ public:
 
  /// Momentum vector unit in the local frame. 
   LocalVector direction() const {
-    float dz = thePzSign/sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
+    float dz = thePzSign/std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
     float dx = dz*theDxdz;
     float dy = dz*theDydz;
     return LocalVector(dx, dy, dz);
@@ -109,7 +109,7 @@ public:
 
   /// Signed inverse momentum q/p (zero for neutrals).
   float signedInverseMomentum() const {
-    return charge()==0 ? 0. : theQbp;
+    return charge()==0 ? 0.f : theQbp;
   }
 
   /** Vector of parameters with signed inverse momentum.
@@ -149,9 +149,9 @@ public:
 
   /// Update of momentum by a scalar dP.
   bool updateP(float dP) {
-    float p = 1./fabs(theQbp);
-    if ((p += dP) <= 0.) return false;
-    float newQbp = theQbp > 0. ? 1./p : -1./p;
+    float p = 1.f/std::abs(theQbp);
+    if ((p += dP) <= 0.f) return false;
+    float newQbp = theQbp > 0. ? 1.f/p : -1.f/p;
     theQbp = newQbp;
     return true;
   }
