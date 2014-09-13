@@ -211,9 +211,7 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    if(fSelectDecayByEvent){
      selectDecayByMDTAU();
    }
-   std::cout << dolhe << std::endl; 
    if(dolhe && lhe!=NULL){
-     std::cout << "dolhe" << std::endl;
      std::vector<HepMC::GenParticle> particles;
      std::vector<int> m_idx; 
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
@@ -258,7 +256,6 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
      if(hastaus){
        // if is single gauge boson decay and match helicities
        if(match.size()==1 && dolheBosonCorr){
-	 std::cout << "dolheBosonCorr" << std::endl; 
 	 for(int i=0; i<ntries;i++){
 	   // re-decay taus then check if helicities match 
 	   auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
@@ -758,7 +755,6 @@ double TauolappInterface::MatchedLHESpinUp(HepMC::GenParticle* tau, std::vector<
       }
     }
   }
-  std::cout << "failed to match taus" << std::endl;
   return 0;
 }
 

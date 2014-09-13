@@ -1,5 +1,3 @@
-#! /bin/bash
-cmsenv
 
 cmsRun DYToLLtaupinu_Hadronizer_MgmMatchTune4C_13TeV_madgraph_pythia8_Tauola_LHE_GEN_VALIDATION.py
 cmsDriver.py step3 -s HARVESTING:genHarvesting --harvesting AtJobEnd --conditions auto:mc  --mc --filein file:step1.root
