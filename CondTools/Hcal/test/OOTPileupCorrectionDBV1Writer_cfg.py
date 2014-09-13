@@ -1,16 +1,17 @@
-database = "sqlite_file:compatOOTPileupCorrection.db"
+database = "sqlite_file:mcOOTPileupCorrection_v1.db"
 tag = "test"
-inputfile = "testOOTPileupCorrection.bbin"
+inputfile = "mcOOTPileupCorrection_v1.bbin"
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('OOTPileupCompatibilityDBWrite') 
+process = cms.Process('OOTPileupCorrectionDBWrite') 
 
 process.source = cms.Source('EmptySource') 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1)) 
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = database
+# process.CondDB.dbFormat = cms.untracked.int32(1)
 
 # Data is tagged in the database by the "tag" parameter specified in the
 # PoolDBOutputService configuration. We then check if the tag already exists.
@@ -31,15 +32,15 @@ process.PoolDBOutputService = cms.Service(
     process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string("HcalOOTPileupCompatibilityRcd"),
+        record = cms.string("HcalOOTPileupCorrectionMapCollRcd"),
         tag = cms.string(tag)
     ))
 )
 
 process.filereader = cms.EDAnalyzer(
-    'BufferedBoostIODBWriter',
+    'OOTPileupCorrectionDBV1Writer',
     inputFile = cms.string(inputfile),
-    record = cms.string("HcalOOTPileupCompatibilityRcd")
+    record = cms.string("HcalOOTPileupCorrectionMapCollRcd")
 )
 
 process.p = cms.Path(process.filereader)

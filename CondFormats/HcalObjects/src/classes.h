@@ -83,6 +83,15 @@ namespace CondFormats_HcalObjects {
     HcalTimingParams myTimingParams;
     std::vector<HcalTimingParam> myTimingParamVec;
 
+    // OOT pileup correction objects
+    std::map<std::string, AbsOOTPileupCorrection*> myInnerMap;
+    std::map<std::string, std::map<std::string, AbsOOTPileupCorrection*> > myOuterMap;
+    ScalingExponential myScalingExponential;
+    PiecewiseScalingPolynomial myPiecewiseScalingPolynomial;
+    OOTPileupCorrDataFcn myOOTPileupCorrDataFcn;
+    OOTPileupCorrData myOOTPileupCorrData;
+    DummyOOTPileupCorrection myDummyOOTPileupCorrection;
+    OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
     OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
   };
 }
