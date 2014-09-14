@@ -366,7 +366,7 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
       LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedRegStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
-      collectedRegStrips_.resize(stripClusters->dataSize());
+      collectedRegStrips_.resize(stripClusters->dataSize(),false);
     }else {
       collectedRegStrips_.resize(stripClusters->dataSize()); fill(collectedRegStrips_.begin(), collectedRegStrips_.end(), false);
       collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
@@ -413,7 +413,7 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
 	  for ( auto cAmp : clusters[i].amplitudes() ) clusCharge+=cAmp;
 	  
 	  //	if (clusCharge < pblocks_[subdet-1].minGoodStripCharge_) std::cout << " clusCharge: " << clusCharge << std::endl;
-	  if(clusCharge < pblocks_[subdet-1].minGoodStripCharge_) collectedRegStrips_[i] = true; // (|= does not work!)
+/	  if(clusCharge < pblocks_[subdet-1].minGoodStripCharge_) collectedRegStrips_[i] = true; // (|= does not work!)
 	}
 	
       }

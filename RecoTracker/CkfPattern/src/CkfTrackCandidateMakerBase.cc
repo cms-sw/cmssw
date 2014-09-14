@@ -223,7 +223,7 @@ namespace cms{
       auto spt = [&](unsigned int i) { return seeds[i].startingState().pt();};
       std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return spt(i)>spt(j);});
 
-      std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
+      // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
       
       auto theLoop = [&](size_t ii) {    
         auto j = indeces[ii];
