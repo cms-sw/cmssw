@@ -1,15 +1,16 @@
-#ifndef DDValue_h
-#define DDValue_h
+#ifndef DetectorDescription_Core_DDValue_h
+#define DetectorDescription_Core_DDValue_h
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 #include <memory>
+#include <atomic>
+#include "tbb/concurrent_vector.h"
+#include "tbb/concurrent_unordered_map.h"
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
-
-#include "boost/shared_ptr.hpp"
 
 class DDValue;
 class DDSpecifics;
@@ -28,15 +29,13 @@ class DDValue
   friend class DDLSpecPar;
 public:
   //! create a unnamed emtpy value. One can assing a named DDValue to it.
-  DDValue( void ) : id_(0), vecPair_(0) { }
+  DDValue( void ) : id_(0), vecPair_() { }
   
   //! create a named empty value
-  DDValue( const std::string & );
+  explicit DDValue( const std::string & );
 
   //! create a named empty value
-  DDValue( const char * );
- 
-  void init( const std::string & );
+  explicit DDValue( const char * );
  
   //! creates a named DDValue initialized with a std::vector of values 
   explicit DDValue( const std::string &, const std::vector<DDValuePair>& );
@@ -61,7 +60,7 @@ public:
   operator unsigned int( void ) const { return id_; }
   
   //! the name of the DDValue
-  const std::string & name( void ) const { return names()[id_]; }
+  const std::string & name( void ) const { return *(names()[id_].string_); }
   
   /** access to the values stored in DDValue by an index. Note, that
    the index is not checked for bounds excess! */
@@ -79,8 +78,6 @@ public:
    return vecPair_ ? vecPair_->second.first.size() : 0 ; 
   } 
   
-  static void clear( void );
-  
   //! set to true, if the double-values (method DDValue::doubles()) make sense
   void setEvalState( bool newState ); 
   
@@ -96,19 +93,46 @@ public:
   
   //! A DDValue a is smaller than a DDValue b if (a.id()<b.id()) OR (a.id()==b.id() and value(a)<value(b))
   bool operator<( const DDValue & ) const;
+
+  ///Only used internally
+  struct StringHolder {
+    StringHolder() {}
+    explicit StringHolder(std::string iString): string_(new std::string{std::move(iString)}) {}
+    explicit StringHolder(StringHolder const& iOther): string_(new std::string{*(iOther.string_)}) {
+    }
+    StringHolder& operator=(const StringHolder&) = delete;
+    ~StringHolder() { delete string_.load();}
+    
+    
+    std::atomic<std::string*> string_;
+  };
+  struct AtomicUInt {
+    AtomicUInt(unsigned int iValue): value_(iValue) {}
+    AtomicUInt() {}
+    AtomicUInt( const AtomicUInt& iOther) : value_(iOther.value_.load()) {}
+    AtomicUInt& operator=(const AtomicUInt& iOther) {
+      value_ = iOther.value_.load();
+      return *this;
+    }
+
+    std::atomic<unsigned int> value_;
+  };
   
 private:  
-  typedef std::pair<bool, std::pair<std::vector<std::string>, std::vector<double> > >vecpair_type;
-  static std::vector<std::string>& names();
-  static std::map<std::string,unsigned int>& indexer();
-  static std::vector<boost::shared_ptr<vecpair_type> >& mem(vecpair_type*);
+  void init( const std::string & );
+ 
+  using Names = tbb::concurrent_vector<StringHolder,tbb::zero_allocator<StringHolder>>;
+  static Names& names();
+  static Names initializeNames();
+
+  using NamesToIndicies = tbb::concurrent_unordered_map<std::string,AtomicUInt>;
+  static NamesToIndicies& indexer();
 
   unsigned int id_;
-  
-public:  
-  vecpair_type* vecPair_;
+  using vecpair_type =  std::pair<bool, std::pair<std::vector<std::string>, std::vector<double>>>;  
+  std::shared_ptr<vecpair_type> vecPair_;
 };
 
 std::ostream & operator<<(std::ostream & o, const DDValue & v);
 
-#endif // DDValue_h
+#endif // DetectorDescription_Core_DDValue_h
