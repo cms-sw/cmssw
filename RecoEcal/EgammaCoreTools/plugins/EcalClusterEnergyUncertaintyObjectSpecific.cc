@@ -204,10 +204,12 @@ float EcalClusterEnergyUncertaintyObjectSpecific::getValue( const reco::SuperClu
 	par2[5][5]=-7.27426;
 	par3[5][5]=0.201164;
 	
-	
+
+	double absEta=TMath::Abs(eta);
+
 	int iEtaSl = -1;                                                                         
 	for (int iEta = 0; iEta < nBinsEta; ++iEta){								             
-	  if ( EtaBins[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) <EtaBins[iEta+1] ){			 
+	  if ( EtaBins[iEta] <= absEta && absEta <EtaBins[iEta+1] ){			 
 	    iEtaSl = iEta;											       						 
 	  }													       								 
 	}
@@ -220,7 +222,7 @@ float EcalClusterEnergyUncertaintyObjectSpecific::getValue( const reco::SuperClu
 	  }													       								 
 	}
 	
-	if (TMath::Abs(eta)>2.5) iEtaSl = nBinsEta-1;
+	if (absEta>EtaBins[nBinsEta-1]) iEtaSl = nBinsEta-1;
 	if (brem<BremBins[0]) iBremSl = 0;
 	if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
 	

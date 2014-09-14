@@ -43,11 +43,12 @@ void BaselinePFSCRegression::set(const reco::SuperCluster& sc,
       maxDRDPhi = this_dphi;
       maxDRRawEnergy = (*clus)->energy();
     }
-    if( iclus++ < 3 ) {
+    if( iclus < 3 ) {
       subClusRawE[iclus] = (*clus)->energy();
       subClusDEta[iclus] = this_deta;
       subClusDPhi[iclus] = this_dphi;
     }
+    iclus++;
   }
   float scPreshowerSum = sc.preshowerEnergy();
   switch( seed->hitsAndFractions().at(0).first.subdetId() ) {
