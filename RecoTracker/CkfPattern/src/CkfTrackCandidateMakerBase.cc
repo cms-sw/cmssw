@@ -216,10 +216,19 @@ namespace cms{
       // Loop over seeds
       size_t collseed_size = collseed->size();
 
-      auto theLoop = [&](size_t j) {    
+      unsigned int indeces[collseed_size]; for (auto i=0U; i< collseed_size; ++i) indeces[i]=i;
+      // std::random_shuffle(indeces,indeces+collseed_size);
 
-      // to be moved inside a par section
-      vector<Trajectory> theTmpTrajectories;
+      auto const & seeds = *collseed;
+      auto spt = [&](unsigned int i) { return seeds[i].startingState().pt();};
+
+      std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return spt(i)>spt(j);});
+
+      auto theLoop = [&](size_t ii) {    
+        auto j = indeces[ii];
+
+        // to be moved inside a par section
+        vector<Trajectory> theTmpTrajectories;
 
 
 	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========"<<endl;
