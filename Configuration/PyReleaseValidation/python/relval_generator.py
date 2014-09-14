@@ -10,6 +10,10 @@ workflows = Matrix()
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
+# 'generator' the base set of relval for generators
+# 'extendedgen' extends the base set to a more thorough assesment of GEN
+# the two sets are exclusive
+
 # LO Generators
 workflows[501]=['',['MinBias_TuneZ2star_13TeV_pythia6','HARVGEN']]
 workflows[502]=['',['QCD_Pt-30_TuneZ2star_13TeV_pythia6','HARVGEN']]
@@ -30,6 +34,5 @@ workflows[523]=['',['WToLNu_13TeV_pythia8-tauola','HARVGEN']]
 
 # Heavy Ion
 workflows[531]=['',['ReggeGribovPartonMC_EposLHC_5TeV_pPb','HARVGEN']]
-#workflows[532]=['',['Hijing_PPb_MinimumBias','HARVGEN']]
 
 # Miscellaneous
