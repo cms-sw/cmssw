@@ -11,7 +11,7 @@
 #define Pythia8_SetNumberOfPartonsDynamically_H
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8/Pythia8ToHepMC.h"
+#include "Pythia8Plugins/HepMC2.h"
 #include <unistd.h>
 
 #include "HepMC/GenEvent.h"
