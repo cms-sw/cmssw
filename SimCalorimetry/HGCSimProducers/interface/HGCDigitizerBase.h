@@ -105,25 +105,25 @@ class HGCDigitizerBase {
    */
   void runShaper(D &dataFrame)
   {
+    //bool doDebug(dataFrame[4].adc()>adcThreshold_);
     for(int it=0; it<dataFrame.size(); it++)
       {
 	HGCSample sample=dataFrame[it];
 	
 	uint16_t newADC=sample.adc();
+	//if(doDebug) std::cout << newADC << "-> ";
 	if(shaperN_*shaperTau_>0){
 	  for(int jt=0; jt<it; jt++)
 	    {
 	      float relTime(bxTime_*(it-jt)+shaperN_*shaperTau_);	
 	      uint16_t adc_jt=dataFrame[jt].adc();
 	      newADC += uint16_t(adc_jt*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
-	      //if(debug) std::cout << "\t deltaT=" << relTime 
-	      //			  << " ADC_" << jt << " =" << adc_jt 
-	      //			  << " pow=" <<  pow(relTime/(shaperN_*shaperTau_),shaperN_) 
-	      //			  << " exp=" << exp(-(relTime-shaperN_*shaperTau_)/shaperTau_) << std::endl;
 	    }
 	}
+	//if(doDebug) std:: cout << newADC << "  ";
       	sample.set( sample.gain(), newADC );
       }
+    //if(doDebug) std::cout << std::endl;
   }
 
 

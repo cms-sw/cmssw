@@ -52,20 +52,21 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  float totalEn( (it->second)[i]*1e6 );
 	  
 	  //convert energy to MIP
-	  float totalMIPs = totalEn/mipInKeV_;
+	  float totalIniMIPs = totalEn/mipInKeV_;
 	  
 	  //generate random number of photon electrons
-	  float npe = peGen_->fire(totalMIPs*nPEperMIP_);
+	  uint32_t npe = (uint32_t)peGen_->fire(totalIniMIPs*nPEperMIP_);
 	  
 	  //number of pixels	
-	  float x=(int)exp(-npe/nTotalPE_);
-	  float nPixel(0);
-	  if(xTalk_*x!=1) nPixel=std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
+	  float x=exp(-(float)(npe)/(float)(nTotalPE_));
+	  uint32_t nPixel(0);
+	  if(xTalk_*x!=1) nPixel=(uint32_t) std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
 	  
 	  //update signal
-	  nPixel=std::max( float(sigGen_->fire(nPixel,sdPixels_)), float(0.) );
+	  nPixel=(uint32_t)std::max( float(sigGen_->fire((float)nPixel,(float)sdPixels_)), float(0.) );
 	  
-	  //convert to MIP again
+	  //convert to MIP again and saturate
+	  float totalMIPs(totalIniMIPs);
 	  if(nTotalPE_!=nPixel && (nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel)>0 )
 	    totalMIPs = (nTotalPE_/nPEperMIP_)*log((nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel));
 	  else
@@ -77,7 +78,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  
 	  //round to integer (sample will saturate the value according to available bits)
 	  uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
-	  
+	 	  
 	  //0 gain for the moment
 	  HGCSample singleSample;
 	  singleSample.set(0, totalEnInt );
