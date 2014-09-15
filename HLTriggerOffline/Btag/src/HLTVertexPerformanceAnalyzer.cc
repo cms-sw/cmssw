@@ -137,7 +137,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, e
 			if(VertexCollection_Label.at(coll)==("hltFastPrimaryVertex")) maxValue = 2.; //for the hltFastPrimaryVertex use a larger scale (res ~ 1 cm)
 			float vertexU = maxValue;
 			float vertexL = -maxValue;
-			int   vertexBins = 400;
+			int   vertexBins = 100;
 			if ( VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" ) { 
 				H1_.back()["Vertex_"+VertexCollection_Label.at(coll)]       = ibooker.book1D("Vertex_"+VertexCollection_Label.at(coll),      VertexCollection_Label.at(coll).c_str(),  vertexBins, vertexL, vertexU );
 				H1_.back()["Vertex_"+VertexCollection_Label.at(coll)]      -> setAxisTitle("vertex error (cm)",1);
