@@ -134,7 +134,6 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
 //
 void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom)
 {
-
   if(!geom.isValid()) return;
   const HGCalTopology &topo=geom->topology();
   const HGCalDDDConstants &dddConst=topo.dddConstants();
@@ -170,9 +169,10 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       float tof(hit_it->time()-dist2center/refSpeed_+tofDelay_);
       int itime=floor( tof/bxTime_ ) ;
       
-      itime += bxCrossing;
+      //no need to add bx crossing - tof comes already corrected from the mixing module
+      //itime += bxCrossing;
       itime += 4;
-
+      
       if(itime<0 || itime>5) continue; 
       
       //energy deposited 
