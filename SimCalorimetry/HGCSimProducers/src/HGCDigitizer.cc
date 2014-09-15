@@ -19,7 +19,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   checkValidDetIds_(true),
   simHitAccumulator_( new HGCSimHitDataAccumulator ),
   mySubDet_(ForwardSubdetector::ForwardEmpty),
-  refSpeed_(0.1*0.99*CLHEP::c_light) //[CLHEP::c_light]=mm/ns convert to cm/ns + delay by 1%
+  refSpeed_(0.1*CLHEP::c_light) //[CLHEP::c_light]=mm/ns convert to cm/ns
 {
   //configure from cfg
   hitCollection_     = ps.getParameter< std::string >("hitCollection");
@@ -29,7 +29,8 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   useAllChannels_    = ps.getParameter< bool >("useAllChannels");
   verbosity_         = ps.getUntrackedParameter< int32_t >("verbosity",0);
-  
+  tofDelay_          = ps.getParameter< double >("tofDelay");  
+
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -164,11 +165,14 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       //distance to the center of the detector
       float dist2center( geom->getPosition(id).mag() );
 
-      //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns
+      //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
       //accumulate in 6 buckets of 25ns (4 pre-samples, 1 in-time, 1 post-sample)
-      int itime=floor( (hit_it->time()-dist2center/refSpeed_)/bxTime_ ) ;
+      float tof(hit_it->time()-dist2center/refSpeed_+tofDelay_);
+      int itime=floor( tof/bxTime_ ) ;
+      
       itime += bxCrossing;
       itime += 4;
+
       if(itime<0 || itime>5) continue; 
       
       //energy deposited 
