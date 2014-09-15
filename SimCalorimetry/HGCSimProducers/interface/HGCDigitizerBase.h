@@ -88,7 +88,7 @@ class HGCDigitizerBase {
 	    
 	    newDataFrame.setSample(i, singleSample);
 	  }
-
+	
 	//bool doDebug(newDataFrame[4].adc()>4);
 	//if(doDebug) std::cout << newDataFrame[4].adc() << "," << newDataFrame[5].adc() << " -> ";
 	
@@ -99,6 +99,8 @@ class HGCDigitizerBase {
 
 	//check if 5th time sample is above threshold
 	if( newDataFrame[4].adc() < adcThreshold_ ) continue;
+	
+	//if(doDebug) std::cout << "Accept" << std::endl;
 
 	//add to collection to produce
 	coll->push_back(newDataFrame);
@@ -110,14 +112,17 @@ class HGCDigitizerBase {
    */
   D runShaper(D &dataFrame)
   {
-    D newDataFrame;
+    D newDataFrame(dataFrame.id());
 
     //bool doDebug(dataFrame[4].adc()>adcThreshold_);
+
     for(int it=0; it<dataFrame.size(); it++)
       {
 	uint16_t gain=dataFrame[it].gain();
 	uint16_t newADC=dataFrame[it].adc();
+	
 	//if(doDebug) std::cout << newADC << "-> ";
+	
 	if(shaperN_*shaperTau_>0){
 	  for(int jt=0; jt<it; jt++)
 	    {
@@ -126,7 +131,9 @@ class HGCDigitizerBase {
 	      newADC += uint16_t(adc_jt*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
 	    }
 	}
+
 	//if(doDebug) std:: cout << newADC << "  ";
+
 	HGCSample newSample;
 	newSample.set(gain,newADC);
 	newDataFrame.setSample(it,newSample);
