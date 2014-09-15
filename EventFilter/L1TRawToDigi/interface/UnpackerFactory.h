@@ -18,6 +18,8 @@ namespace edm {
 }
 
 namespace l1t {
+   class UnpackerCollections;
+
    typedef std::pair<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerItem;
    typedef std::unordered_map<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerMap;
 
@@ -29,12 +31,10 @@ namespace l1t {
 
    class BaseUnpackerFactory {
       public:
-         virtual std::vector<UnpackerItem> create(const unsigned&, const int fedid) = 0;
-         virtual void beginEvent(edm::Event&) = 0;
-         virtual void endEvent(edm::Event&) = 0;
+         virtual std::vector<UnpackerItem> create(const unsigned&, const int fedid, UnpackerCollections*) = 0;
    };
 
-   typedef BaseUnpackerFactory*(fct)(const edm::ParameterSet&, edm::one::EDProducerBase&);
+   typedef BaseUnpackerFactory*(fct)();
    typedef edmplugin::PluginFactory<fct> UnpackerFactoryFacility;
 
    class UnpackerFactory {
@@ -43,7 +43,7 @@ namespace l1t {
 
          static const UnpackerFactory* get();
 
-         std::auto_ptr<BaseUnpackerFactory> makeUnpackerFactory(const std::string&, const edm::ParameterSet&, edm::one::EDProducerBase&) const;
+         std::auto_ptr<BaseUnpackerFactory> makeUnpackerFactory(const std::string&) const;
 
       private:
          UnpackerFactory();

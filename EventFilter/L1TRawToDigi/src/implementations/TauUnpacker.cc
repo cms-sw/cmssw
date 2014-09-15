@@ -1,43 +1,25 @@
-#include "DataFormats/L1Trigger/interface/Tau.h"
-
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
+#include "L1TCollections.h"
+
 namespace l1t {
    class TauUnpacker : public BaseUnpacker {
       public:
-         TauUnpacker(TauBxCollection*);
+         TauUnpacker(UnpackerCollections* c) : BaseUnpacker(c) {};
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
-      private:
-         TauBxCollection* res_;
    };
 
    class TauUnpackerFactory : public BaseUnpackerFactory {
       public:
-         TauUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
-         virtual void beginEvent(edm::Event&) override;
-         virtual void endEvent(edm::Event&) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::one::EDProducerBase& prod_;
-
-         std::auto_ptr<TauBxCollection> res_;
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid, UnpackerCollections*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   TauUnpacker::TauUnpacker(TauBxCollection* coll) :
-      res_(coll)
-   {
-   };
-
    bool
    TauUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
    {
@@ -55,6 +37,7 @@ namespace l1t {
        lastBX = ceil((double)nBX/2.);
      }
 
+     auto res_ = static_cast<L1TCollections*>(collections_)->getTaus();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -98,30 +81,12 @@ namespace l1t {
      return true;
    }
 
-   TauUnpackerFactory::TauUnpackerFactory(const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) : cfg_(cfg), prod_(prod)
-   {
-      prod_.produces<TauBxCollection>();
-   }
-
-   void
-   TauUnpackerFactory::beginEvent(edm::Event& ev)
-   {
-      res_.reset(new TauBxCollection());
-   }
-
-   void
-   TauUnpackerFactory::endEvent(edm::Event& ev)
-   {
-      ev.put(res_);
-      res_.reset();
-   }
-
-   std::vector<UnpackerItem> TauUnpackerFactory::create(const unsigned& fw, const int fedid) {
+   std::vector<UnpackerItem> TauUnpackerFactory::create(const unsigned& fw, const int fedid, UnpackerCollections* coll) {
 
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
      if (fedid==1){
 
-       return {std::make_pair(7, std::shared_ptr<BaseUnpacker>(new TauUnpacker(res_.get())))};
+       return {std::make_pair(7, std::shared_ptr<BaseUnpacker>(new TauUnpacker(coll)))};
 
      } else {
 

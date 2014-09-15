@@ -34,6 +34,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
+#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
 namespace l1t {
@@ -48,7 +49,6 @@ namespace l1t {
 
       private:
          virtual void produce(edm::Event&, const edm::EventSetup&) override;
-         void unpack(edm::Event&, const edm::EventSetup&);
          
          virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
          virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
@@ -60,6 +60,8 @@ namespace l1t {
          int fedId_;
          std::vector<std::auto_ptr<BaseUnpackerFactory>> factories_;
 
+         std::string product_;
+
          // header and trailer sizes in chars
          int slinkHeaderSize_;
          int slinkTrailerSize_;
@@ -70,13 +72,16 @@ namespace l1t {
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      fedId_(config.getParameter<int>("FedId"))
+      fedId_(config.getParameter<int>("FedId")),
+      product_("l1t::L1T")
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
+      UnpackerCollectionsProducesFactory::get()->makeUnpackerCollectionsProduces(product_ + "CollectionsProduces", *this);
+
       auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
       for (const auto& name: factory_names)
-         factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name, config, *this));
+         factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name));
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
       slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
@@ -98,19 +103,9 @@ namespace l1t {
    void
    L1TRawToDigi::produce(edm::Event& event, const edm::EventSetup& setup)
    {
-      for (auto& f: factories_)
-         f->beginEvent(event);
-
-      unpack(event, setup);
-
-      for (auto& f: factories_)
-         f->endEvent(event);
-   }
-
-   void
-   L1TRawToDigi::unpack(edm::Event& event, const edm::EventSetup& setup)
-   {
       using namespace edm;
+
+      std::auto_ptr<UnpackerCollections> coll(UnpackerCollectionsFactory::get()->makeUnpackerCollections(product_ + "Collections", event));
 
       edm::Handle<FEDRawDataCollection> feds;
       event.getByToken(fedData_, feds);
@@ -192,7 +187,7 @@ namespace l1t {
 
       UnpackerMap unpackers;
       for (auto& f: factories_) {
-        for (const auto& up: f->create(fw, fedId_)) {
+        for (const auto& up: f->create(fw, fedId_, coll.get())) {
             unpackers.insert(up);
          }
       }

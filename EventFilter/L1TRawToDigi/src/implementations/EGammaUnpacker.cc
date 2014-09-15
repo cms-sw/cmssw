@@ -1,43 +1,25 @@
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
+#include "L1TCollections.h"
+
 namespace l1t {
    class EGammaUnpacker : public BaseUnpacker {
       public:
-         EGammaUnpacker(EGammaBxCollection*);
+         EGammaUnpacker(UnpackerCollections* c) : BaseUnpacker(c) {};
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
-      private:
-         EGammaBxCollection* res_;
    };
 
    class EGammaUnpackerFactory : public BaseUnpackerFactory {
       public:
-         EGammaUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
-         virtual void beginEvent(edm::Event&) override;
-         virtual void endEvent(edm::Event&) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::one::EDProducerBase& prod_;
-
-         std::auto_ptr<EGammaBxCollection> res_;
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid, UnpackerCollections*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   EGammaUnpacker::EGammaUnpacker(EGammaBxCollection* coll) :
-      res_(coll)
-   {
-   };
-
    bool
    EGammaUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
    {
@@ -55,6 +37,7 @@ namespace l1t {
        lastBX = ceil((double)nBX/2.);
      }
 
+     auto res_ = static_cast<L1TCollections*>(collections_)->getEGammas();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -98,33 +81,15 @@ namespace l1t {
      return true;
    }
 
-   EGammaUnpackerFactory::EGammaUnpackerFactory(const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) : cfg_(cfg), prod_(prod)
-   {
-      prod_.produces<EGammaBxCollection>();
-   }
-
-   void
-   EGammaUnpackerFactory::beginEvent(edm::Event& ev)
-   {
-      res_.reset(new EGammaBxCollection());
-   }
-
-   void
-   EGammaUnpackerFactory::endEvent(edm::Event& ev)
-   {
-      ev.put(res_);
-      res_.reset();
-   }
-
   std::vector<UnpackerItem>
-  EGammaUnpackerFactory::create(const unsigned& fw, const int fedid)
+  EGammaUnpackerFactory::create(const unsigned& fw, const int fedid, UnpackerCollections* coll)
    {
      
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.
      
      if (fedid==1){
        
-       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(res_.get())))};
+       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(coll)))};
        
      } else {
        

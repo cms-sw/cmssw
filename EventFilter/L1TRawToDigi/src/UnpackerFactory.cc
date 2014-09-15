@@ -19,9 +19,9 @@ namespace l1t {
    UnpackerFactory::~UnpackerFactory() {};
 
    std::auto_ptr<BaseUnpackerFactory>
-   UnpackerFactory::makeUnpackerFactory(const std::string& type, const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) const
+   UnpackerFactory::makeUnpackerFactory(const std::string& type) const
    {
-      auto factory = std::auto_ptr<BaseUnpackerFactory>(UnpackerFactoryFacility::get()->create(type, cfg, prod));
+      auto factory = std::auto_ptr<BaseUnpackerFactory>(UnpackerFactoryFacility::get()->create(type));
 
       if (factory.get() == 0) {
          throw edm::Exception(edm::errors::Configuration, "NoSourceModule")
