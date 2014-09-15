@@ -17,13 +17,17 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace reco {class Jet; class MET; class BeamSpot;}
+namespace reco {
+class Jet;
+class MET;
+class BeamSpot;
+}
 
 class DQMStore;
 class MonitorElement;
 class EwkElecDQM : public edm::EDAnalyzer {
-public:
-  EwkElecDQM (const edm::ParameterSet &);
+ public:
+  EwkElecDQM(const edm::ParameterSet&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();
@@ -33,8 +37,8 @@ public:
   double calcDeltaPhi(double phi1, double phi2);
 
   void init_histograms();
-private:
 
+ private:
   //  edm::InputTag muonTag_;
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
@@ -87,14 +91,14 @@ private:
   unsigned int PUMax_, PUBinCount_;
 
   bool isValidHltConfig_;
-  HLTConfigProvider  hltConfigProvider_;
+  HLTConfigProvider hltConfigProvider_;
 
   unsigned int nall;
   unsigned int nrec;
   unsigned int neid;
   unsigned int niso;
-/*   unsigned int nhlt; */
-/*   unsigned int nmet; */
+  /*   unsigned int nhlt; */
+  /*   unsigned int nmet; */
   unsigned int nsel;
 
   //  unsigned int nRecoElectrons;
@@ -120,17 +124,17 @@ private:
   MonitorElement* detainendcap_before_;
   MonitorElement* detainendcap_after_;
 
-/*   MonitorElement* dxy_before_; */
-/*   MonitorElement* dxy_after_; */
+  /*   MonitorElement* dxy_before_; */
+  /*   MonitorElement* dxy_after_; */
 
-/*   MonitorElement* chi2_before_; */
-/*   MonitorElement* chi2_after_; */
+  /*   MonitorElement* chi2_before_; */
+  /*   MonitorElement* chi2_after_; */
 
-/*   MonitorElement* nhits_before_; */
-/*   MonitorElement* nhits_after_; */
+  /*   MonitorElement* nhits_before_; */
+  /*   MonitorElement* nhits_after_; */
 
-/*   MonitorElement* tkmu_before_; */
-/*   MonitorElement* tkmu_after_; */
+  /*   MonitorElement* tkmu_before_; */
+  /*   MonitorElement* tkmu_after_; */
 
   MonitorElement* ecalisobarrel_before_;
   MonitorElement* ecalisobarrel_after_;
@@ -159,7 +163,7 @@ private:
   MonitorElement* invmassPU_afterZ_;
 
   MonitorElement* npvs_before_;
-  //MonitorElement* npvs_afterW_;
+  // MonitorElement* npvs_afterW_;
   MonitorElement* npvs_afterZ_;
 
   MonitorElement* nelectrons_before_;
@@ -171,14 +175,14 @@ private:
   MonitorElement* met_before_;
   MonitorElement* met_after_;
 
-/*   MonitorElement* acop_before_; */
-/*   MonitorElement* acop_after_; */
+  /*   MonitorElement* acop_before_; */
+  /*   MonitorElement* acop_after_; */
 
-/*   MonitorElement* nz1_before_; */
-/*   MonitorElement* nz1_after_; */
+  /*   MonitorElement* nz1_before_; */
+  /*   MonitorElement* nz1_after_; */
 
-/*   MonitorElement* nz2_before_; */
-/*   MonitorElement* nz2_after_; */
+  /*   MonitorElement* nz2_before_; */
+  /*   MonitorElement* nz2_after_; */
 
   MonitorElement* njets_before_;
   MonitorElement* njets_after_;
@@ -186,11 +190,9 @@ private:
   MonitorElement* jet_et_after_;
   MonitorElement* jet_eta_before_;
   MonitorElement* jet_eta_after_;
-/*   MonitorElement* jet2_et_before_; */
-/*   MonitorElement* jet2_et_after_; */
-
+  /*   MonitorElement* jet2_et_before_; */
+  /*   MonitorElement* jet2_et_after_; */
 };
-
 
 #endif
 

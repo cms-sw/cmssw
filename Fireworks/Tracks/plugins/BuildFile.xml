@@ -3,8 +3,6 @@
  <use name="DataFormats/Common"/>
  <use name="DataFormats/DetId"/>
  <use name="DataFormats/Scalers"/>
- <use name="DataFormats/TrajectorySeed"/>
- <use name="DataFormats/TrackerRecHit2D"/>
  <use name="DataFormats/SiPixelCluster"/>
  <use name="DataFormats/SiPixelDigi"/>
  <use name="DataFormats/SiStripCluster"/>
