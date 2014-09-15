@@ -22,6 +22,7 @@
 #include "FunctionChecker.h"
 #include "FunctionDumper.h"
 #include "EDMPluginDumper.h"
+#include "ThrUnsafeFCallChecker.h"
 
 #include <clang/StaticAnalyzer/Core/CheckerRegistry.h>
 
@@ -50,6 +51,7 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::FunctionChecker>( "cms.FunctionChecker", "Reports functions which access non-const statics" );
 	registry.addChecker< clangcms::FunctionDumper>( "cms.FunctionDumper", "Reports function calls and overrides" );
 	registry.addChecker< clangcms::EDMPluginDumper>( "optional.EDMPluginDumper", "Dumps macro DEFINE_EDM_PLUGIN types" );
+	registry.addChecker< clangcms::ThrUnsafeFCallChecker>( "cms.ThrUnsafeFCallChecker", "Reports calls of known thread unsafe functions" );
 }
 
 extern "C"
