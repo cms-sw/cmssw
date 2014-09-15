@@ -10,5 +10,5 @@ l1tRawToDigi = cms.EDProducer(
         "l1t::TauUnpackerFactory"
         ]),
     InputLabel = cms.InputTag("l1tDigiToRaw"),
-    FedId = cms.int32(100)
+    FedId = cms.int32(1)
 )
