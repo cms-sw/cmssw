@@ -8,5 +8,4 @@ typedef Eigen::Matrix<double,10,10> SampleMatrix;
 typedef Eigen::Matrix<double,19,19> FullSampleMatrix;
 typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic,0,10,10> PulseMatrix;
 typedef Eigen::Matrix<double,10,Eigen::Dynamic,0,10,10> SamplePulseMatrix;
-typedef Eigen::LDLT<SampleMatrix> SampleDecompLDLT;
-typedef Eigen::SelfAdjointView< SampleMatrix, Eigen::Upper > SampleSymMatrixView;
+typedef Eigen::LLT<SampleMatrix> SampleDecompLLT;

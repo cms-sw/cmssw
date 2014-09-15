@@ -22,7 +22,7 @@ class PulseChiSqSNNLS {
     
     const PulseVector &X() const { return _ampvecmin; }
     const PulseVector &Errors() const { return _errvec; }
-    const BXVector &BXs() const { return _bxs; }
+    const BXVector &BXs() const { return _bxsmin; }
     
     double ChiSq() const { return _chisq; }
     void disableErrorCalculation() { _computeErrors = false; }
@@ -43,9 +43,10 @@ class PulseChiSqSNNLS {
     PulseVector _errvec;
     PulseVector _ampvecmin;
     
-    SampleDecompLDLT _covdecomp;
+    SampleDecompLLT _covdecomp;
 
     BXVector _bxs;
+    BXVector _bxsmin;
     unsigned int _nP;
     
     double _chisq;

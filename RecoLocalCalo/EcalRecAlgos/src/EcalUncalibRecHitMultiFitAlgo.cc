@@ -88,6 +88,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   double jitter = 0.;
   
+  //printf("status = %i\n",int(status));
   printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
