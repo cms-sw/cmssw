@@ -298,6 +298,7 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, SiStripDetId 
 
   assert(collectedStrips_.size() > cluster.key());
   strips[cluster.key()] = false;
+  if (!clusterWasteSolution_) collectedStrips_[cluster.key()]=true;
 
 }
 
