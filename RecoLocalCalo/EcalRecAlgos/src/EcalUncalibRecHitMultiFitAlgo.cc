@@ -89,19 +89,18 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   double jitter = 0.;
   
   //printf("status = %i\n",int(status));
-  printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
+  //printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
-//   for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
-//     int ipulse = std::distance(activeBX.begin(),bxit);
-//     if(*bxit==0) {
-//       rh.setOutOfTimeAmplitude(*bxit+5,0.);
-//     } else {
-//       rh.setOutOfTimeAmplitude(*bxit+5, status ? _pulsefunc.X()[ipulse] : 0.);
-//     }
-//   }
-
+  
+  for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+    int bx = _pulsefunc.BXs().coeff(ipulse);
+    if (bx!=0) {
+      rh.setOutOfTimeAmplitude(bx+5, status ? _pulsefunc.X().coeff(ipulse) : 0.);
+    }
+  }
+  
   return rh;
 }
 
