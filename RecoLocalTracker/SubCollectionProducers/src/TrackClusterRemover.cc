@@ -550,7 +550,8 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       iEvent.put( removedPixelClusterMask );
       
     }
-    
+    collectedStrips_.clear();
+    collectedPixels_.clear();
 
 }
 
