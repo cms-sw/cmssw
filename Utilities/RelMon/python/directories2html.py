@@ -61,6 +61,7 @@ def fairy_url(run1,run2,sample1,sample2,version1,version2,plot_path,tier1,tier2,
   if len(draw_opts)>0:
     fairy_url+="drawopts=%s;" %draw_opts
   fairy_url+= plot_size(h,w)
+  fairy_url += ";ref=ratiooverlay"
   return fairy_url
 
 def fairy_url_single(run,sample,version,plot_path,tier,draw_opts="",h=250,w=200):
