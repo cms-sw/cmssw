@@ -16,13 +16,10 @@
 
 template <typename T, typename Textractor>
 SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProducerForPFNoPUMEtT(const edm::ParameterSet& cfg)
-  : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    genJetMatcher_(cfg,consumesCollector()),
+  : genJetMatcher_(cfg,consumesCollector()),
     jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions")),
     skipJetSelection_(0)
 {
-  //std::cout << "<SmearedPFCandidateProducerForPFNoPUMEt::SmearedPFCandidateProducerForPFNoPUMEt>:" << std::endl;
-  //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
 
   srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates") );
   srcJets_ = consumes<JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
