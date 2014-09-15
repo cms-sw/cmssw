@@ -66,11 +66,10 @@ class HGCDigitizerBase {
       {
 	
 	//create a new data frame
-	D newDataFrame( it->first );
+	D rawDataFrame( it->first );
 
 	for(size_t i=0; i<it->second.size(); i++) 
 	  {
-
 	    //convert total energy GeV->keV->ADC counts
 	    double totalEn=(it->second)[i]*1e6;
 
@@ -86,59 +85,59 @@ class HGCDigitizerBase {
 	    HGCSample singleSample;
 	    singleSample.set(0, totalEnInt);
 	    
-	    newDataFrame.setSample(i, singleSample);
+	    rawDataFrame.setSample(i, singleSample);
 	  }
 	
-	//bool doDebug(newDataFrame[4].adc()>4);
-	//if(doDebug) std::cout << newDataFrame[4].adc() << "," << newDataFrame[5].adc() << " -> ";
+	/* bool doDebug(rawDataFrame[3].adc()>2); */
+	/* 	if(doDebug)  */
+	/* 	  { */
+	/* 	    for(size_t iti=0;iti<6; iti++) */
+	/* 	      std::cout << rawDataFrame[iti].adc() << "(" << (it->second)[iti]*1e6 << ") ,"; */
+	/* 	    std::cout << "->"; */
+	/* 	  } */
 	
 	//run the shaper
-	newDataFrame=runShaper(newDataFrame);
+	runShaper(rawDataFrame);
 
-	//if(doDebug) std::cout << newDataFrame[4].adc() << "," << newDataFrame[5].adc() << std::endl;
-
-	//check if 5th time sample is above threshold
-	if( newDataFrame[4].adc() < adcThreshold_ ) continue;
+	/* if(doDebug)  */
+	/* 	  { */
+	/* 	    for(size_t iti=0;iti<6; iti++) */
+	/* 	      std::cout << rawDataFrame[iti].adc() << ","; */
+	/* 	    std::cout << std::endl; */
+	/* 	  } */
 	
-	//if(doDebug) std::cout << "Accept" << std::endl;
-
+	//check if 5th time sample is above threshold
+	if( rawDataFrame[4].adc() < adcThreshold_ ) continue;
+	
 	//add to collection to produce
-	coll->push_back(newDataFrame);
+	coll->push_back(rawDataFrame);
       }
   }
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  D runShaper(D &dataFrame)
+  void runShaper(D &dataFrame)
   {
-    D newDataFrame(dataFrame.id());
-
-    //bool doDebug(dataFrame[4].adc()>adcThreshold_);
-
+    std::vector<uint16_t> oldADC(dataFrame.size());
     for(int it=0; it<dataFrame.size(); it++)
       {
 	uint16_t gain=dataFrame[it].gain();
-	uint16_t newADC=dataFrame[it].adc();
-	
-	//if(doDebug) std::cout << newADC << "-> ";
+	oldADC[it]=dataFrame[it].adc();
+	uint16_t newADC(oldADC[it]);
 	
 	if(shaperN_*shaperTau_>0){
 	  for(int jt=0; jt<it; jt++)
 	    {
 	      float relTime(bxTime_*(it-jt)+shaperN_*shaperTau_);	
-	      uint16_t adc_jt=dataFrame[jt].adc();
-	      newADC += uint16_t(adc_jt*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
+	      newADC += uint16_t(oldADC[jt]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
 	    }
 	}
-
-	//if(doDebug) std:: cout << newADC << "  ";
-
+	
 	HGCSample newSample;
 	newSample.set(gain,newADC);
-	newDataFrame.setSample(it,newSample);
+	dataFrame.setSample(it,newSample);
       }
-    return newDataFrame;
   }
 
 

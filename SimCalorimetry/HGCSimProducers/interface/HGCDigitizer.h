@@ -80,10 +80,11 @@ private :
   //subdetector id
   ForwardSubdetector mySubDet_;
 
-  //reference speed to evaluate time of arrival 
-  //at the sensititive detector
-  //assuming the center of CMS
+  //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
   float refSpeed_;
+
+  //delay to apply after evaluating time of arrival at the sensitive detector
+  float tofDelay_;
 };
 
 #endif
