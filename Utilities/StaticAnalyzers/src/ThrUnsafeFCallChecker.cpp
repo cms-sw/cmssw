@@ -1,4 +1,10 @@
 #include "ThrUnsafeFCallChecker.h"
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <string>
+
+
 using namespace clang;
 using namespace ento;
 using namespace llvm;
@@ -45,6 +51,14 @@ void TUFWalker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		R->addRange(CE->getSourceRange());
 		BR.emitReport(R);
+		const char * pPath = std::getenv("LOCALRT");
+		std::string tname = ""; 
+		if ( pPath != NULL ) tname += std::string(pPath);
+		tname+="/tmp/function-checker.txt.unsorted";
+		std::string ostring =  "function '"+ pname + "' known thread unsafe function '" + mname + "'.\n";
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
+	
 	}
 		
 		
