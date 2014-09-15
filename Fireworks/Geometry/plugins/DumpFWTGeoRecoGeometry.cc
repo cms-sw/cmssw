@@ -10,6 +10,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TError.h"
+#include "TSystem.h"
 
 class DumpFWTGeoRecoGeometry : public edm::EDAnalyzer
 {
@@ -22,11 +23,14 @@ private:
   virtual void beginJob( void ) override;
   virtual void endJob( void ) override;
 
-  int m_level;
+   std::string m_tag;
+   std::string m_outputFileName;
 };
 
 DumpFWTGeoRecoGeometry::DumpFWTGeoRecoGeometry( const edm::ParameterSet& config )
-  : m_level( config.getUntrackedParameter<int>( "level", 1 ))
+   :m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "unknown" )),
+    m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsTGeoReco.root" ))
+
 {}
 
 void
@@ -38,39 +42,10 @@ DumpFWTGeoRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup&
   eventSetup.get<FWTGeoRecoGeometryRecord>().get( geoh );
   TGeoManager *geom = geoh.product()->manager();//const_cast<TGeoManager*>( geoh.product()->manager());
 
-  std::stringstream s;
-  s << "cmsTGeoRecoGeom" << m_level << ".root";
-  TFile file( s.str().c_str(), "RECREATE" );
-   
-  TTree *tree = new TTree( "idToGeo", "Raw detector id association with geometry" );
-  UInt_t v_id;
-  TString *v_path( new TString );
-  char v_name[1000];
-  Float_t v_vertex[24];
-  Float_t v_params[9];
-
-  tree->SetBranchStyle( 0 );
-  tree->Branch( "id", &v_id, "id/i" );
-  tree->Branch( "path", &v_name, "path/C" );
-  tree->Branch( "points", &v_vertex, "points[24]/F" );
-  tree->Branch( "topology", &v_params, "topology[9]/F" );
-
-  for( std::map<unsigned int, FWTGeoRecoGeometry::Info>::const_iterator it = geoh.product()->idToName.begin(),
-								       end = geoh.product()->idToName.end();
-       it != end; ++it )
-  {
-    v_id = it->first;
-    *v_path = it->second.name.c_str();
-    for( unsigned int i = 0; i < 24; ++i )
-      v_vertex[i] = it->second.points[i];
-    for( unsigned int i = 0; i < 9; ++i )
-      v_params[i] = it->second.topology[i];
-    assert( it->second.name.size() < 1000 );
-    strncpy( v_name, it->second.name.c_str(), 1000 );
-    tree->Fill();
-  }
+  TFile file( m_outputFileName.c_str(), "RECREATE" );
   file.WriteTObject( &*geom );
-  file.WriteTObject( tree );
+  file.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" )));
+  file.WriteTObject(new TNamed("tag", m_tag.c_str()));
   file.Close();
 }
 
