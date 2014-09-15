@@ -78,6 +78,7 @@ public:
 
 FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned int version) :
    FWViewBase(type, version),
+   m_context(0),
    m_viewer(0),
    m_eventScene(0),
    m_ownedProducts(0),
@@ -86,7 +87,6 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_overlayLogo(0),
    m_energyMaxValAnnotation(0),
    m_cameraGuide(0),
-   m_context(0),
    // style
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
