@@ -71,7 +71,7 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 FullSampleVector fullpulseEE;
                 FullSampleMatrix fullpulsecovEB;
                 FullSampleMatrix fullpulsecovEE;
-                std::set<int> activeBX;
+                BXVector activeBX;
                 bool ampErrorCalculation_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 

@@ -29,7 +29,10 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
   // get the BX for the pulses to be activated
   std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
-  for(unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) activeBX.insert(activeBXs[ibx]);
+  activeBX.resize(activeBXs.size());
+  for (unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) {
+    activeBX.coeffRef(ibx) = activeBXs[ibx];
+  }
 
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");

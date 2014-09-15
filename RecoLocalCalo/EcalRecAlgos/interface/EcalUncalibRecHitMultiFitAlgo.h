@@ -25,7 +25,7 @@ class EcalUncalibRecHitMultiFitAlgo
   
   EcalUncalibRecHitMultiFitAlgo();
   ~EcalUncalibRecHitMultiFitAlgo() { };
-  EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const std::set<int> &activeBX);
+  EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX);
   void disableErrorCalculation() { _computeErrors = false; }
   
  private:

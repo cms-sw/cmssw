@@ -1,13 +1,6 @@
 #ifndef PulseChiSqSNNLS_h
 #define PulseChiSqSNNLS_h
 
-#include "TMatrixD.h"
-#include "TVectorD.h"
-#include "TMatrixDSym.h"
-#include "Math/Minimizer.h"
-#include "Math/IFunction.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/TDecompCholFast.h"
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 #include <set>
@@ -15,26 +8,30 @@
 
 class PulseChiSqSNNLS {
   public:
+    
+    typedef BXVector::Index Index;
+    
     PulseChiSqSNNLS();
     ~PulseChiSqSNNLS();
     
     
-    bool DoFit(const std::vector<double> &samples, const SampleMatrix &samplecor, double pederr, const std::set<int> &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov);
+    bool DoFit(const SampleVector &samples, const SampleMatrix &samplecor, double pederr, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov);
     
     const SamplePulseMatrix &pulsemat() const { return _pulsemat; }
     const SampleMatrix &invcov() const { return _invcov; }
     
     const PulseVector &X() const { return _ampvecmin; }
     const PulseVector &Errors() const { return _errvec; }
+    const BXVector &BXs() const { return _bxs; }
     
     double ChiSq() const { return _chisq; }
     void disableErrorCalculation() { _computeErrors = false; }
 
   protected:
     
-    bool Minimize(const SampleMatrix &samplecor, double pederr, const std::set<int> &bxs, const FullSampleMatrix &fullpulsecov);
+    bool Minimize(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
     bool NNLS();
-    bool updateCov(const SampleMatrix &samplecor, double pederr, const std::set<int> &bxs, const FullSampleMatrix &fullpulsecov);
+    bool updateCov(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
     double ComputeChiSq();
     double ComputeApproxUncertainty(unsigned int ipulse);
     
@@ -48,8 +45,8 @@ class PulseChiSqSNNLS {
     
     SampleDecompLDLT _covdecomp;
 
-    std::set<unsigned int> _idxsP;
-    std::set<unsigned int> _idxsFixed;
+    BXVector _bxs;
+    unsigned int _nP;
     
     double _chisq;
     bool _computeErrors;

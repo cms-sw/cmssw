@@ -10,7 +10,7 @@ EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() :
 }
 
 /// compute rechits
-EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const std::set<int> &activeBX) {
+EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX) {
 
   uint32_t flags = 0;
   
@@ -21,7 +21,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   double pedval = 0.;
   double pedrms = 0.;
   
-  std::vector<double> amplitudes(nsample);
+  SampleVector amplitudes;
   for(unsigned int iSample = 0; iSample < nsample; iSample++) {
     
     const EcalMGPASample &sample = dataFrame.sample(iSample);
@@ -66,10 +66,6 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     }    
         
   }
-    
-  
-  std::vector<double> fitvals;
-  std::vector<double> fiterrs;
   
   if(!_computeErrors) _pulsefunc.disableErrorCalculation();
   bool status = _pulsefunc.DoFit(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
@@ -79,24 +75,31 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
   }
 
-  unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
+  unsigned int ipulseintime = 0;
+  for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+    if (_pulsefunc.BXs().coeff(ipulse)==0) {
+      ipulseintime = ipulse;
+      break;
+    }
+  }
+  
   double amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
   double amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
   
   double jitter = 0.;
   
-  //printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
+  printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
-  for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
-    int ipulse = std::distance(activeBX.begin(),bxit);
-    if(*bxit==0) {
-      rh.setOutOfTimeAmplitude(*bxit+5,0.);
-    } else {
-      rh.setOutOfTimeAmplitude(*bxit+5, status ? _pulsefunc.X()[ipulse] : 0.);
-    }
-  }
+//   for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
+//     int ipulse = std::distance(activeBX.begin(),bxit);
+//     if(*bxit==0) {
+//       rh.setOutOfTimeAmplitude(*bxit+5,0.);
+//     } else {
+//       rh.setOutOfTimeAmplitude(*bxit+5, status ? _pulsefunc.X()[ipulse] : 0.);
+//     }
+//   }
 
   return rh;
 }
