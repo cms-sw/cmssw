@@ -901,7 +901,7 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
 		ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> mom4;
                 ROOT::Math::XYZVector mom3 = cols->muonTracks->at(i).innerMomentum();
                 mom4.SetXYZT(mom3.x(),mom3.y(),mom3.z(),mom3.r());
-		reco::LeafCandidate m(0, mom4, cols->muons->at(i).vertex(), objType, 0, true);
+		reco::LeafCandidate m(0, mom4, cols->muonTracks->at(i).vertex(), objType, 0, true);
 		matches->push_back(m);
             }
         }
