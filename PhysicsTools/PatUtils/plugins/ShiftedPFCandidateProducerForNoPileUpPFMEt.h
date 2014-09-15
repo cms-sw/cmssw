@@ -50,8 +50,6 @@ class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::EDProducer
 
   void produce(edm::Event&, const edm::EventSetup&);
 
-  std::string moduleLabel_;
-
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
   edm::EDGetTokenT<reco::PFJetCollection>       srcJetsToken_;
 
