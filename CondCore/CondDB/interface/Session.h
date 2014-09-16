@@ -161,6 +161,16 @@ namespace cond {
 			       const std::string& sourceTag, 
 			       cond::MigrationStatus status);
 
+      bool lookupMigratedPayload( const std::string& sourceAccount, 
+				  const std::string& sourceToken, 
+				  std::string& payloadId );
+      void addMigratedPayload( const std::string& sourceAccount, 
+			       const std::string& sourceToken, 
+			       const std::string& payloadId );
+      void updateMigratedPayload( const std::string& sourceAccount, 
+				  const std::string& sourceToken, 
+				  const std::string& payloadId );
+      std::string parsePoolToken( const std::string& poolToken );
 
       std::string connectionString();
 

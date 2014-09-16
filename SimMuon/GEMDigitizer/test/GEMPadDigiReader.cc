@@ -1,6 +1,3 @@
-#ifndef SimMuon_GEMPadDigiReader_h
-#define SimMuon_GEMPadDigiReader_h
-
 /** \class GEMDigiReader
  *  Dumps GEM-CSC trigger pad digis 
  *  
@@ -122,7 +119,5 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
   }// for (detids with pads)
 }
 
-
-#endif
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE(GEMPadDigiReader);

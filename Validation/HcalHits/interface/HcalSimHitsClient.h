@@ -15,7 +15,7 @@
 
 #include <memory>
 #include <unistd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -30,13 +30,11 @@
 #include <fstream>
 #include <vector>
 
-class DQMStore;
 class MonitorElement;
 
-class HcalSimHitsClient : public edm::EDAnalyzer {
+class HcalSimHitsClient : public DQMEDHarvester {
  
  private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string outputFile_;
 
   edm::ParameterSet conf_;
@@ -53,13 +51,8 @@ class HcalSimHitsClient : public edm::EDAnalyzer {
   explicit HcalSimHitsClient(const edm::ParameterSet& );
   virtual ~HcalSimHitsClient();
   
-  virtual void beginJob(void);
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  virtual void runClient_();   
+  virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
   int SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 

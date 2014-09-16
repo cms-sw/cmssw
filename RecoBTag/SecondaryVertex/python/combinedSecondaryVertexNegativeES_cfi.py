@@ -10,14 +10,6 @@ combinedSecondaryVertexNegative.trackPseudoSelection.sip3dSigMax = 0
 combinedSecondaryVertexNegative.trackPseudoSelection.sip2dSigMin = -99999.9
 combinedSecondaryVertexNegative.trackPseudoSelection.sip2dSigMax = -2.0
 
-combinedSecondaryVertexV1Negative = RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi.combinedSecondaryVertexV1.clone()
-combinedSecondaryVertexV1Negative.vertexFlip = True
-combinedSecondaryVertexV1Negative.trackFlip = True
-combinedSecondaryVertexV1Negative.trackSelection.sip3dSigMax = 0
-combinedSecondaryVertexV1Negative.trackPseudoSelection.sip3dSigMax = 0
-combinedSecondaryVertexV1Negative.trackPseudoSelection.sip2dSigMin = -99999.9
-combinedSecondaryVertexV1Negative.trackPseudoSelection.sip2dSigMax = -2.0
-
 combinedSecondaryVertexV2Negative = RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi.combinedSecondaryVertexV2.clone()
 combinedSecondaryVertexV2Negative.vertexFlip = True
 combinedSecondaryVertexV2Negative.trackFlip = True

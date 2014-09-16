@@ -312,7 +312,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       if (notIn) {
         namx = log.material().name().name();
         matNames.push_back(namx);
-        G4Material* mat;
+        G4Material* mat = nullptr;
         for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
           if ((*matite)->GetName() == namx) {
             mat = (*matite);

@@ -190,7 +190,7 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 // ------------------------------------------------------------------------------------------
 void PileupJetIdAlgo::bookReader()
 {
-	reader_ = new TMVA::Reader("!Color:!Silent");
+	reader_ = new TMVA::Reader("!Color:Silent");
 	assert( ! tmvaMethod_.empty() && !  tmvaWeights_.empty() );
 	for(std::vector<std::string>::iterator it=tmvaVariables_.begin(); it!=tmvaVariables_.end(); ++it) {
 		if(  tmvaNames_[*it].empty() ) { 
@@ -219,7 +219,7 @@ void PileupJetIdAlgo::runMva()
 	if( cutBased_ ) {
 		internalId_.idFlag_ = computeCutIDflag(internalId_.betaStarClassic_,internalId_.dR2Mean_,internalId_.nvtx_,internalId_.jetPt_,internalId_.jetEta_);
 	} else {
-		if( ! reader_ ) { bookReader(); std::cerr << "Reader booked" << std::endl; }
+		if( ! reader_ ) { bookReader();}
 		if(fabs(internalId_.jetEta_) <  5.0) internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
 		if(fabs(internalId_.jetEta_) >= 5.0) internalId_.mva_ = -2.;
 		internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);

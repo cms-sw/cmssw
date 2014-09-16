@@ -82,9 +82,9 @@ void testEcalRecHit::testOne() {
   CPPUNIT_ASSERT_DOUBLES_EQUAL(timerr*25, rh.timeError(), 0.5);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(urh.jitterError()*25, rh.timeError(), 0.00001);
 
-  // test outOfTimeEnergy
-  rh.setOutOfTimeEnergy(1.8);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.8, rh.outOfTimeEnergy(), 0.01);
-  rh.setOutOfTimeEnergy(50.8);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(50.8, rh.outOfTimeEnergy(), 0.01);
+  // test energyError
+  rh.setEnergyError(0.51);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.51, rh.energyError(), 0.01);
+  rh.setEnergyError(50.8);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(50.8, rh.energyError(), 0.01);
 }

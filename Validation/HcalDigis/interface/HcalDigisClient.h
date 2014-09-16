@@ -12,7 +12,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class HcalDigisClient : public edm::EDAnalyzer {
+class HcalDigisClient : public DQMEDHarvester {
 public:
     explicit HcalDigisClient(const edm::ParameterSet&);
 
@@ -33,23 +33,23 @@ public:
 
 private:
 
-    virtual void beginJob() {
-    };
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-    virtual void endJob() {
-        if (outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
-
-    };
 
     virtual void beginRun(edm::Run const&, edm::EventSetup const&) {
     };
 
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) {
 
-        if (dbe_) dbe_->setCurrentFolder(dirName_);
-        runClient();
-    };
+    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) {
+      igetter.setCurrentFolder("HcalDigisV/HcalDigiTask"); // moved this line from constructor
+
+      // the following booking clas were moved from the constructor
+      booking(ibooker, "HB");
+      booking(ibooker, "HE");
+      booking(ibooker, "HO");
+      booking(ibooker, "HF");
+
+      igetter.setCurrentFolder(dirName_); // This sets the DQMStore (should apply to ibooker as well
+      runClient(ibooker, igetter);
+    }
 
     struct HistLim {
 
@@ -61,47 +61,46 @@ private:
         double max;
     };
 
-    virtual void runClient();
+    virtual void runClient(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
     int HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs, std::string subdet_);
 
     MonitorElement* monitor(std::string name);
 
-    void book1D(std::string name, int n, double min, double max) {
-        if (!msm_->count(name)) (*msm_)[name] = dbe_->book1D(name.c_str(), name.c_str(), n, min, max);
+    void book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max) {
+        if (!msm_->count(name)) (*msm_)[name] = ib.book1D(name.c_str(), name.c_str(), n, min, max);
     }
 
-    void book1D(std::string name, const HistLim& limX) {
-        if (!msm_->count(name)) (*msm_)[name] = dbe_->book1D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max);
+    void book1D(DQMStore::IBooker &ib, std::string name, const HistLim& limX) {
+        if (!msm_->count(name)) (*msm_)[name] = ib.book1D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max);
     }
 
     void fill1D(std::string name, double X, double weight = 1) {
         msm_->find(name)->second->Fill(X, weight);
     }
 
-    void book2D(std::string name, const HistLim& limX, const HistLim& limY) {
-        if (!msm_->count(name)) (*msm_)[name] = dbe_->book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+    void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
+        if (!msm_->count(name)) (*msm_)[name] = ib.book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
     }
 
     void fill2D(std::string name, double X, double Y, double weight = 1) {
         msm_->find(name)->second->Fill(X, Y, weight);
     }
 
-    void bookPf(std::string name, const HistLim& limX, const HistLim& limY) {
-        if (!msm_->count(name)) (*msm_)[name] = dbe_->bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
+        if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
     }
 
     void fillPf(std::string name, double X, double Y) {
         msm_->find(name)->second->Fill(X, Y);
     }
 
-    void booking(std::string subdetopt);
+    void booking(DQMStore::IBooker &ib, std::string subdetopt);
 
     std::string str(int x);
 
     double integralMETH2D(MonitorElement* ME, int i0, int i1, int j0, int j1);
     void scaleMETH2D(MonitorElement* ME, double s);
     std::map<std::string, MonitorElement*> *msm_;
-    DQMStore* dbe_;
     std::string outputFile_;
     std::string dirName_;
 };

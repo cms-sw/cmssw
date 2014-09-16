@@ -51,7 +51,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
 	const DetId& detid = erh.detid();
-	double energy = erh.outOfTimeEnergy();
+	double energy = erh.energy();
 	double time = erh.time();
 
 	math::XYZVector position;

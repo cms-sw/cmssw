@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/GRun/V61 (CMSSW_7_1_6_HLT1)
+# /dev/CMSSW_7_1_0/GRun/V63 (CMSSW_7_1_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V61')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V63')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -51938,8 +51938,8 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v14, HLT
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# customization for 6_2_X
-
-# none for now
-
+# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
+if cmsswVersion >= "CMSSW_7_2":
+    if 'hltESPStripCPEfromTrackAngle' in locals():
+        hltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
 

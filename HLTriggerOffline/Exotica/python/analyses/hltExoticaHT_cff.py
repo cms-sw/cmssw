@@ -2,10 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HTPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_PFNoPUHT750_4Jet_v", # Run2
-        "HLT_PFHT900_v",          # Run2
-        "HLT_HT900_v",            # Run2
-        "HLT_HT750_v"             # Run1 (frozenHLT)
+        "HLT_PFNoPUHT350_v",
         ),
     recPFMETLabel  = cms.InputTag("recoExoticaValidationHT"),
     # -- Analysis specific cuts

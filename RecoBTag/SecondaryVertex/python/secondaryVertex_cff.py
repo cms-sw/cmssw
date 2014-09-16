@@ -20,7 +20,6 @@ from RecoBTag.SecondaryVertex.combinedSecondaryVertexSoftLeptonBJetTags_cfi impo
 # IVF
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
-#from RecoBTag.SecondaryVertex.combinedIVFES_cfi import * #not yet using dedicated training, share CSV ones
 from RecoBTag.SecondaryVertex.bVertexFilter_cfi import *
 inclusiveSecondaryVerticesFiltered = bVertexFilter.clone()
 inclusiveSecondaryVerticesFiltered.vertexFilter.multiplicityMin = 2
@@ -33,15 +32,22 @@ from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 
 # Negative taggers
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderNegativeTagInfos_cfi import * 
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexNegativeES_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexNegativeBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexNegativeBJetTags_cfi import * 
 
 # Positive taggers
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexPositiveES_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexPositiveBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexPositiveBJetTags_cfi import *
+
+# New candidate based fwk
+from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexES_cfi import *
+from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfCombinedSecondaryVertexBJetTags_cfi import *
 
 # Backwards compatibility
 

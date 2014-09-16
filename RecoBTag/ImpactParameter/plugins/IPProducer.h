@@ -106,7 +106,7 @@ namespace IPProducerHelpers {
                                       bases.push_back(jRef);
 				      //FIXME: add deltaR or any other requirement here
 				      for(size_t j=0;j<cands->size();j++) {
-					      if((*cands)[j].bestTrack()!=0 &&  ROOT::Math::VectorUtil::DeltaR((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR){
+					      if((*cands)[j].bestTrack()!=0 &&  ROOT::Math::VectorUtil::DeltaR((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR && (*cands)[j].charge() !=0 ){
 						      m_map[i].push_back(cands->ptrAt(j));	
 					      }
 				      }

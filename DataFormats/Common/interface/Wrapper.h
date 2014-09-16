@@ -17,7 +17,6 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Visibility.h"
-
 #include "boost/mpl/if.hpp"
 
 #include <algorithm>
@@ -32,7 +31,9 @@ namespace edm {
     typedef T value_type;
     typedef T wrapped_type;  // used with the dictionary to identify Wrappers
     Wrapper() : WrapperBase(), present(false), obj() {}
-    explicit Wrapper(std::auto_ptr<T> ptr);
+#ifndef __GCCXML__
+    explicit Wrapper(std::unique_ptr<T> ptr);
+#endif
     virtual ~Wrapper() {}
     T const* product() const {return (present ? &obj : 0);}
     T const* operator->() const {return product();}
@@ -275,8 +276,9 @@ namespace edm {
 #endif
   }
 
+#ifndef __GCCXML__
   template <typename T>
-  Wrapper<T>::Wrapper(std::auto_ptr<T> ptr) :
+  Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
     WrapperBase(),
     present(ptr.get() != 0),
     obj() {
@@ -295,7 +297,7 @@ namespace edm {
   WrapperBase(),
   present(ptr != 0),
   obj() {
-     std::auto_ptr<T> temp(ptr);
+     std::unique_ptr<T> temp(ptr);
      if (present) {
         // The following will call swap if T has such a function,
         // and use assignment if T has no such function.
@@ -306,6 +308,7 @@ namespace edm {
      }
 
   }
+#endif
 
 #ifndef __GCCXML__
   template <typename T>
