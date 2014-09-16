@@ -8,6 +8,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
+    
+    # -- The instance name of the reco::GenJets collection
+    genJetLabel = cms.string(""),
 
     # -- The number of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
@@ -70,6 +73,12 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     MET_recCut      = cms.string("pt > 75."),  
     MET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
     MET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    # --- PFMET    
+    PFMET_genCut      = cms.string("(abs(pdgId) == 12 || abs(pdgId)==14 || abs(pdgId) == 16 ) && status == 1"),
+    PFMET_recCut      = cms.string("pt > 75."),  
+    PFMET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
+    PFMET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
     
     # --- Jets: 
     Jet_genCut      = cms.string("pt > 0."),
@@ -160,7 +169,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(4), 
-	    NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+	    NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 	    ),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
@@ -170,9 +179,18 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         Jet_recCut   = cms.string("abs(eta) < 2.6"),
         recJetLabel  = cms.string("PFJetsFilter"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
-        recCaloMETLabel = cms.string("caloMet"),  
+        recPFMETLabel = cms.string("pfMet"),  
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 4, 20, 80, 60), #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 4, 20, 80, 60), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+        ),
+    testJetSMP  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadJet75_55_35_20_BTagIP_VBF_v"
+            ),
+        recJetLabel  = cms.string("ak4PFJets"), #check this
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        #NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
 )

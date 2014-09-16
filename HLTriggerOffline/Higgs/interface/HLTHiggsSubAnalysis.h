@@ -28,6 +28,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -112,12 +114,14 @@ class HLTHiggsSubAnalysis
 		// The name of the object collections to be used in this
 		// analysis. 
 		edm::EDGetTokenT<reco::GenParticleCollection> _genParticleLabel;
+        edm::EDGetTokenT<reco::GenJetCollection> _genJetLabel;
 
 		std::map<unsigned int,std::string> _recLabels;
 		edm::EDGetTokenT<reco::MuonCollection> _recLabelsMuon;
 		edm::EDGetTokenT<reco::GsfElectronCollection> _recLabelsElec;
 		edm::EDGetTokenT<reco::PhotonCollection> _recLabelsPhoton;
 		edm::EDGetTokenT<reco::CaloMETCollection> _recLabelsCaloMET;
+        edm::EDGetTokenT<reco::PFMETCollection> _recLabelsPFMET;
 		edm::EDGetTokenT<reco::PFTauCollection> _recLabelsPFTau;
         edm::EDGetTokenT<reco::PFJetCollection> _recLabelsPFJet;
         edm::EDGetTokenT<reco::JetTagCollection> _recTagPFJet;
@@ -146,6 +150,7 @@ class HLTHiggsSubAnalysis
 	      	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
 	      	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
 	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+            StringCutObjectSelector<reco::PFMET>     * _recPFMETSelector;
 	      	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
             StringCutObjectSelector<reco::PFJet>      * _recPFJetSelector;

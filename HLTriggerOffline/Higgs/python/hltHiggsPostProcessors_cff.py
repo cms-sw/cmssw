@@ -14,6 +14,8 @@ def efficiency_string(objtype,plot_type,triggerpath):
 	objtypeLatex="e"
     elif objtype == "MET" :
 	objtypeLatex="MET"
+    elif objtype == "PFMET" :
+        objtypeLatex="PFMET"
     elif objtype == "PFTau": 
 	objtypeLatex="#tau"
     elif objtype == "Jet": 
@@ -85,7 +87,7 @@ def get_reco_strings(strings):
 plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","Ele","Photon","MET","PFTau","Jet"]
+obj_types  = ["Mu","Ele","Photon","MET","PFMET","PFTau","Jet"]
 #--- IMPORTANT: Trigger are extracted from the hltHiggsValidator_cfi.py module
 triggers = [] 
 efficiency_strings = []
@@ -182,15 +184,15 @@ for type in plot_types:
         
 efficiency_strings = get_reco_strings(efficiency_strings)
 
-#MET plots
-plot_types = ["TurnOn1", "EffEta", "EffPhi"]
+#PFMET plots
+plot_types = ["TurnOn1", "EffPhi"]
 efficiency_strings2 = []
 for type in plot_types:
-    for obj in ["MET"]:
+    for obj in ["PFMET"]:
         for trig in triggers:
             efficiency_strings2.append(efficiency_string(obj,type,trig))
 
-efficiency_strings2.extend(get_reco_strings(efficiency_strings2))
+efficiency_strings2 = get_reco_strings(efficiency_strings2)
 efficiency_strings += efficiency_strings2
     
 hltHiggsPostZnnHbb = hltHiggsPostProcessor.clone()

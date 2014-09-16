@@ -83,7 +83,7 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
             if( *it == EVTColContainer::PFJET) {
                 if( source == "gen" ) continue;
                 else {
-                    // N-1 jet plots (dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4)
+                    // N-1 jet plots (dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, PFMET, pt1, pt2, pt3, pt4)
                     if( _NminOneCuts[0] ) bookHist(source, objTypeStr, "dEtaqq", ibooker);
                     if( _NminOneCuts[1] ) bookHist(source, objTypeStr, "mqq", ibooker);
                     if( _NminOneCuts[2] ) bookHist(source, objTypeStr, "dPhibb", ibooker);
@@ -198,8 +198,8 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
     float eta = matches[j].eta;
     float phi = matches[j].phi;
     
-    // MET N-1 cut
-    if( objType == EVTColContainer::CALOMET && _NminOneCuts[6] && ! nMinOne["MET"] ) continue;
+    // PFMET N-1 cut
+    if( objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) continue;
  
     if( ! objType == EVTColContainer::PFJET || passAllCuts ) {
         this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
@@ -269,6 +269,16 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
     std::string jetObj = EVTColContainer::getTypeString(EVTColContainer::PFJET);
     if( objType == jetObj ) {
       const size_t nBinsJets = 20;
+      nBins = nBinsJets;
+      delete [] edges;
+      edges = new float[nBinsJets+1];
+      for(size_t i = 0; i < nBinsJets + 1; i++)
+      {
+        edges[i] = i*10;
+      }
+    }
+    if( objType == EVTColContainer::getTypeString(EVTColContainer::PFMET) ) {
+      const size_t nBinsJets = 30;
       nBins = nBinsJets;
       delete [] edges;
       edges = new float[nBinsJets+1];
