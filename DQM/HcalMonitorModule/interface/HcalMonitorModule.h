@@ -10,7 +10,7 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -21,11 +21,12 @@
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 // forward declarations
 
+class DQMStore;
 class MonitorElement;
 class FEDRawDataCollection;
 class HcalElectronicsMap;
 
-class HcalMonitorModule : public DQMEDAnalyzer
+class HcalMonitorModule : public edm::EDAnalyzer
 {
 
 public:
@@ -36,17 +37,27 @@ public:
   // Destructor
   ~HcalMonitorModule();
 
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
-
  protected:
 
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
+  // BeginJob
+  void beginJob();
+
+  // BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+
+  // Begin LumiBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                            const edm::EventSetup& c) ;
+
   // End LumiBlock
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                         const edm::EventSetup& c);
+                          const edm::EventSetup& c);
+
+ // EndJob
+  void endJob(void);
 
   // EndRun
   void endRun(const edm::Run& run, const edm::EventSetup& c);
@@ -58,7 +69,7 @@ public:
   void cleanup(void);
 
   // setup
-  void setup(DQMStore::IBooker &);
+  void setup(void);
   
   // CheckSubdetectorStatus
   void CheckSubdetectorStatus(const edm::Handle<FEDRawDataCollection>& rawraw,
@@ -93,6 +104,7 @@ public:
   bool mergeRuns_;
   bool enableCleanup_;
   int debug_;
+  bool init_;
   edm::InputTag FEDRawDataCollection_;
   edm::InputTag inputLabelReport_;
   std::string prefixME_;
@@ -102,6 +114,7 @@ public:
   edm::EDGetTokenT<HcalUnpackerReport> tok_report_;
 
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
+  DQMStore* dbe_;
 
   const HcalElectronicsMap*    eMap_;
   EtaPhiHists ChannelStatus;

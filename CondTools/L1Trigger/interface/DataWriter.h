@@ -9,6 +9,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Session.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+
+//#include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "DataFormats/Provenance/interface/RunID.h"
 

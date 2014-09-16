@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
-hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import *

@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMDigitizer_GEMPadDigiProducer_h
-#define SimMuon_GEMDigitizer_GEMPadDigiProducer_h
+#ifndef GEMPadDigiProducer_h
+#define GEMPadDigiProducer_h
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include "FWCore/Framework/interface/EDProducer.h"

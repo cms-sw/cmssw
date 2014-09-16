@@ -2,50 +2,35 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cassert>
-#include "tbb/tbb_allocator.h"
-
-static std::atomic<unsigned int> lastIndex{0};
 
 void
 DDValue::init( const std::string &name )
 {
-  auto result = indexer().insert( { name, 0 });
+  unsigned int temp = indexer().size()+1;
+  typedef std::map<std::string,unsigned int>::iterator itT;
+  std::pair<itT,bool> result = indexer().insert( std::make_pair( name, temp ));
   
-  auto& indexToUse = result.first->second;
-  
-  //A 0 index means either
-  // 1) this result was just added or
-  // 2) another thread just added this but has not yet assigned an index
-  if(0 == indexToUse.value_) {
-    auto newIndex = ++lastIndex;
-    unsigned int previous = 0;
-    indexToUse.value_.compare_exchange_strong(previous,newIndex);
+  if( result.second )
+  {
+    id_ = temp;
+    names().push_back( name );
   }
-  id_ = indexToUse.value_.load();
-  
-  //Make sure the name is recorded at the proper index
-  auto& allNames = names();
-  allNames.grow_to_at_least(id_+1);
-  auto& storedName = allNames[id_];
-  if(not storedName.string_) {
-    std::unique_ptr<std::string> newName(new std::string{name});
-    std::string* previous = nullptr;
-    if( storedName.string_.compare_exchange_strong(previous,newName.get())) {
-      newName.release();
-    }
-  }
+  else
+  {
+    id_ = result.first->second;
+  }  
 }
 
 DDValue::DDValue( const std::string & name )
  : id_( 0 ),
-   vecPair_()
+   vecPair_( 0 )
 {
   init( name );
 }
 
 DDValue::DDValue( const char * name )
  : id_( 0 ),
-   vecPair_()
+   vecPair_( 0 )
 {
   init( name );
 }
@@ -55,10 +40,11 @@ DDValue::DDValue( const std::string & name, const std::vector<DDValuePair>& v )
 {
   init( name );
   
-  auto it = v.begin();
+  std::vector<DDValuePair>::const_iterator it = v.begin();
   std::vector<std::string> svec;
   std::vector<double> dvec;
-  vecPair_.reset(new vecpair_type( false, std::make_pair( svec, dvec )));
+  vecPair_ = new vecpair_type( false, std::make_pair( svec, dvec ));
+  mem( vecPair_ );
   for(; it != v.end(); ++it )
   {
     vecPair_->second.first.push_back( it->first );
@@ -75,8 +61,9 @@ DDValue::DDValue( const std::string & name, double val )
   std::vector<std::string> svec( 1, "" ); 
   std::vector<double> dvec( 1, val );
   
-  vecPair_.reset( new vecpair_type( false, std::make_pair( svec, dvec )));
+  vecPair_ =  new vecpair_type( false, std::make_pair( svec, dvec ));
   setEvalState( true );
+  mem( vecPair_ );
 }
 
 DDValue::DDValue( const std::string & name, const std::string & sval, double dval ) 
@@ -86,8 +73,9 @@ DDValue::DDValue( const std::string & name, const std::string & sval, double dva
   
   std::vector<std::string> svec( 1, sval );
   std::vector<double> dvec( 1, dval );
-  vecPair_.reset(new vecpair_type( false, std::make_pair( svec, dvec )));
+  vecPair_ = new vecpair_type( false, std::make_pair( svec, dvec ));
   setEvalState( true );
+  mem( vecPair_ );
 }
 
 DDValue::DDValue( const std::string & name, const std::string & sval ) 
@@ -97,43 +85,50 @@ DDValue::DDValue( const std::string & name, const std::string & sval )
   
   std::vector<std::string> svec( 1, sval );
   std::vector<double> dvec( 1, 0 );
-  vecPair_.reset(new vecpair_type( false, std::make_pair( svec, dvec )));
+  vecPair_ = new vecpair_type( false, std::make_pair( svec, dvec ));
   setEvalState( false );
+  mem( vecPair_ );
 }
 
 DDValue::DDValue( unsigned int i ) 
  : id_( 0 ),
-   vecPair_()
+   vecPair_( 0 )
 {
-  if( lastIndex >= i )
+  if( names().size() - 1 <= i )
     id_ = i;
 }
 
 DDValue::~DDValue( void )
 {}
 
-DDValue::NamesToIndicies&
-DDValue::indexer( void )
-{ 
-  static NamesToIndicies indexer_;
-  return indexer_;
-}  
-
-DDValue::Names DDValue::initializeNames() {
-  //Make sure memory is zeroed before allocating StringHolder
-  // this allows us to check the value of the held std::atomic
-  // as the object is being added to the container
-  DDValue::Names names{};
-  names.push_back(StringHolder(std::string{}));
-  return names;
+void
+DDValue::clear( void )
+{
+  std::vector<boost::shared_ptr<vecpair_type> > & v = mem( 0 );
+  v.clear();
 }
 
-DDValue::Names&
+std::map<std::string, unsigned int>&
+DDValue::indexer( void )
+{ 
+  static std::map<std::string,unsigned int> indexer_;
+  return indexer_;
+}  
+  
+std::vector<std::string>&
 DDValue::names( void )
 {
-  static Names names_{ initializeNames() };
+  static std::vector<std::string> names_( 1 );
   return names_;
 } 
+
+std::vector<boost::shared_ptr<DDValue::vecpair_type> >&
+DDValue::mem( DDValue::vecpair_type * vp )
+{
+  static std::vector<boost::shared_ptr<vecpair_type> > memory_;
+  memory_.push_back( boost::shared_ptr<vecpair_type>( vp ));
+  return memory_;
+}
 
 const std::vector<double> &
 DDValue::doubles( void ) const 
@@ -144,7 +139,7 @@ DDValue::doubles( void ) const
   }
   else
   {
-    std::string message = "DDValue " + name() + " is not numerically evaluated! Use DDValue::std::strings()!";
+    std::string message = "DDValue " + names()[id_] + " is not numerically evaluated! Use DDValue::std::strings()!";
     edm::LogError("DDValue") << message << std::endl;
     throw cms::Exception("DDException") << message;
   }
@@ -187,7 +182,7 @@ DDValue::operator[]( unsigned int i ) const
   }
   else
   {
-    std::string message = "DDValue " + name() + " is not numerically evaluated! Use DDValue::std::strings()!";
+    std::string message = "DDValue " + names()[id_] + " is not numerically evaluated! Use DDValue::std::strings()!";
     edm::LogError( "DDValue" ) << message;
     throw cms::Exception("DDException") << message;
   }

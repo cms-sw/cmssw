@@ -108,12 +108,12 @@ bool DEcompare<T>::do_compare(std::ofstream& os, int dump) {
     std::cout << " DEcompare::do_compare... " 
 	      << GetName() << "\n" << std::flush;
   t_match = CompareCollections(os,dump);
-  std::string ok;
-  if(t_match) ok="successful";
-  else        ok="failed";
+  char ok[10];
+  if(t_match) sprintf(ok,"successful");
+  else        sprintf(ok,"failed");
   if(dump==-1 || (dump==1 && !t_match))
     os << "  ..." << GetName() 
-       << " data and emulator comparison: " << ok.c_str() << std::endl;
+       << " data and emulator comparison: " << ok << std::endl;
   return t_match;
 }
 

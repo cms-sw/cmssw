@@ -78,8 +78,8 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
     {
       clustersECALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersECAL"));
       clustersHCALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHCAL"));
-      clustersHFToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHF"));
-
+      clustersHFEMToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFEM"));
+      clustersHFHADToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFHAD"));
     }
 
   muonDepValueMapToken_ = iConsumesCollector.consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("muonDepValueMap"));
@@ -227,9 +227,20 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event)
       pfcsumet += et;
     }
 
-  edm::Handle< reco::PFClusterCollection > clustersHF;
-  event.getByToken(clustersHFToken_, clustersHF);
-  for (reco::PFClusterCollection::const_iterator it = clustersHF->begin(); it != clustersHF->end(); it++)
+  edm::Handle< reco::PFClusterCollection > clustersHFHAD;
+  event.getByToken(clustersHFHADToken_, clustersHFHAD);
+  for (reco::PFClusterCollection::const_iterator it = clustersHFHAD->begin(); it != clustersHFHAD->end(); it++)
+    {
+      const math::XYZPoint& cluster_pos = it->position();
+      double et = it->energy()/cosh(cluster_pos.eta());
+      pfcmet_x -= et*cos(cluster_pos.phi());
+      pfcmet_y -= et*sin(cluster_pos.phi());
+      pfcsumet += et;
+    }
+
+  edm::Handle< reco::PFClusterCollection > clustersHFEM;
+  event.getByToken(clustersHFEMToken_, clustersHFEM);
+  for (reco::PFClusterCollection::const_iterator it = clustersHFEM->begin(); it != clustersHFEM->end(); it++)
     {
       const math::XYZPoint& cluster_pos = it->position();
       double et = it->energy()/cosh(cluster_pos.eta());

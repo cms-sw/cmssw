@@ -251,7 +251,7 @@ void PFClient::createProfilePlots(std::string& folder, std::string& name) {
     TProfile* profileX = th->ProfileX();
     //size_t nbiny = me->getNbinsY();
     //TProfile* profileX = th->ProfileX("",0,nbiny+1); add underflow and overflow
-    static const Int_t NUM_STAT = 7;
+    static const Int_t NUM_STAT = 6;
     Double_t stats[NUM_STAT] = {0}; th->GetStats(stats);
 
     for (Int_t i = 0; i<2; i++) {

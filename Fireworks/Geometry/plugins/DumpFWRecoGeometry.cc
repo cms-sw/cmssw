@@ -9,7 +9,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TError.h"
-#include "TSystem.h"
 
 class DumpFWRecoGeometry : public edm::EDAnalyzer
 {
@@ -23,14 +22,10 @@ private:
   virtual void endJob( void ) override;
 
   int m_level;
-  std::string m_tag;
-  std::string m_outputFileName;
 };
 
 DumpFWRecoGeometry::DumpFWRecoGeometry( const edm::ParameterSet& config )
-  : m_level( config.getUntrackedParameter<int>( "level", 1 )),
-    m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "unknown" )),
-    m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsRecoGeo.root" ))
+  : m_level( config.getUntrackedParameter<int>( "level", 1 ))
 {}
 
 void
@@ -40,10 +35,12 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
 
   ESTransientHandle<FWRecoGeometry> geoh;
   eventSetup.get<FWRecoGeometryRecord>().get( geoh );
-  TFile file( m_outputFileName.c_str(), "RECREATE" );
-
-  TTree *tree = new TTree("idToGeo", "raw detector id association with geometry");
-
+  
+  std::stringstream s;
+  s << "cmsRecoGeom" << m_level << ".root";
+  TFile file( s.str().c_str(), "RECREATE" );
+   
+  TTree *tree = new TTree( "idToGeo", "Raw detector id association with geometry" );
   UInt_t v_id;
   Float_t v_vertex[24];
   Float_t v_params[9];
@@ -77,14 +74,6 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
     tree->Fill();
   }
   file.WriteTObject( tree );
-
-
-  file.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" )));
-  file.WriteTObject(new TNamed("tag", m_tag.c_str()));
-  file.WriteTObject(&geoh.product()->extraDet, "ExtraDetectors");
-
-
-
   file.Close();
 }
 

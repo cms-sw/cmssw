@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from IOMC.EventVertexGenerators.BeamSpotFilterParameters_cfi import baseVtx,newVtx
+from IOMC.EventVertexGenerators.BeamSpotFilterParameters_cfi import *
 simBeamSpotFilter = cms.EDFilter("GaussianZBeamSpotFilter",
     src = cms.InputTag("generator"),
     baseSZ = baseVtx.SigmaZ,

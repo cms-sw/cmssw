@@ -193,8 +193,8 @@ void refTest() {
   c.insert(d1);
   c.post_insert();
 
-  std::unique_ptr<coll_type> pC(new coll_type(c));
-  edm::Wrapper<coll_type> wrapper(std::move(pC));
+  std::auto_ptr<coll_type> pC(new coll_type(c));
+  edm::Wrapper<coll_type> wrapper(pC);
   DSVGetter<coll_type> theGetter;
   theGetter.prod_ = &wrapper;
 

@@ -20,9 +20,7 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 // Less than operator for sorting EcalRecHits according to energy.
@@ -41,7 +39,7 @@ public:
 class DQMStore;
 class MonitorElement;
 
-class DQMSourcePi0 : public DQMEDAnalyzer {
+class DQMSourcePi0 : public edm::EDAnalyzer {
 
 public:
 
@@ -52,8 +50,8 @@ protected:
    
   void beginJob();
 
-//  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
@@ -75,6 +73,7 @@ protected:
 private:
  
 
+  DQMStore*   dbe_;  
   int eventCounter_;      
   PositionCalc posCalculator_ ;                        
 

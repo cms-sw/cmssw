@@ -1820,19 +1820,19 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
   auto ronotconv = std::partition(BeginROskfs,EndROskfs,isConvKf); 
   size_t convkfs_end = std::distance(BeginROskfs,ronotconv);  
   for( size_t idx = 0; idx < convkfs_end; ++idx ) { 
-    const std::vector<PFKFFlaggedElement>& secKFs = RO.secondaryKFs; //we want the entry at the index but we allocate to secondaryKFs in loop which invalidates all iterators, references and pointers, hence we need to get the entry fresh each time
+    const PFKFFlaggedElement ro_skf = RO.secondaryKFs[idx];
     NotCloserToOther<reco::PFBlockElement::TRACK,
                      reco::PFBlockElement::TRACK,
-                     true> 
-      TracksToTracks(_currentblock,_currentlinks, secKFs[idx].first); 
+                     true>
+      TracksToTracks(_currentblock,_currentlinks, ro_skf.first); 
     auto notmatched = std::partition(KFbegin,KFend,TracksToTracks);    
     notmatched = std::partition(KFbegin,notmatched,isConvKf);    
     for( auto kf = KFbegin; kf != notmatched; ++kf ) {
       const reco::PFBlockElementTrack* elemaskf =
 	docast(const reco::PFBlockElementTrack*,kf->first);      
       RO.secondaryKFs.push_back( std::make_pair(elemaskf,true) );
-      RO.localMap.push_back( ElementMap::value_type(secKFs[idx].first,kf->first) );
-      RO.localMap.push_back( ElementMap::value_type(kf->first,secKFs[idx].first) );
+      RO.localMap.push_back( ElementMap::value_type(ro_skf.first,kf->first) );
+      RO.localMap.push_back( ElementMap::value_type(kf->first,ro_skf.first) );
       kf->second = false;      
     }    
   }

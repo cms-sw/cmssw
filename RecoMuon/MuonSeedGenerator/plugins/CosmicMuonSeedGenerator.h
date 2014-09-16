@@ -77,7 +77,6 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
                                          const edm::EventSetup&) const;
 
   TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t) const;
-  TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t, edm::OwnVector<TrackingRecHit>&) const;
 
   /// check if two rechits are correlated
   bool areCorrelated(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
@@ -113,7 +112,6 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
   /// the maximum chi2 required for dt and csc rechits
   double theMaxDTChi2;
   double theMaxCSCChi2;
-  bool theForcePointDownFlag;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
 

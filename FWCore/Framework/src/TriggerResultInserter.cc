@@ -22,9 +22,9 @@ namespace edm
 
   void TriggerResultInserter::produce(StreamID id, edm::Event& e, edm::EventSetup const&) const
   {
-    std::unique_ptr<TriggerResults>
+    std::auto_ptr<TriggerResults>
       results(new TriggerResults(*resultsPerStream_[id.value()], pset_id_));
 
-    e.put(std::move(results));
+    e.put(results);
   }
 }

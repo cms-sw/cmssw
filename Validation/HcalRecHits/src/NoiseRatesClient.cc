@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 NoiseRatesClient::NoiseRatesClient(const edm::ParameterSet& iConfig):conf_(iConfig)
@@ -13,10 +14,19 @@ NoiseRatesClient::NoiseRatesClient(const edm::ParameterSet& iConfig):conf_(iConf
 
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
+  dbe_ = edm::Service<DQMStore>().operator->();
+  if (!dbe_) {
+    edm::LogError("NoiseRatesClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
+  }
+  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
+    if(dbe_) dbe_->setVerbose(0);
+  }
+ 
   debug_ = false;
   verbose_ = false;
 
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
+  if(dbe_) dbe_->setCurrentFolder(dirName_);
  
 }
 
@@ -26,16 +36,43 @@ NoiseRatesClient::~NoiseRatesClient()
   
 }
 
-
-
-void NoiseRatesClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
+void NoiseRatesClient::beginJob()
 {
-  runClient_(ib,ig);
+ 
+
 }
 
-void NoiseRatesClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
+void NoiseRatesClient::endJob() 
 {
-  ig.setCurrentFolder(dirName_);
+   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+}
+
+void NoiseRatesClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
+{
+ 
+}
+
+
+void NoiseRatesClient::endRun(const edm::Run& run, const edm::EventSetup& c)
+{
+  runClient_();
+}
+
+//dummy analysis function
+void NoiseRatesClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
+{
+  
+}
+
+void NoiseRatesClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
+{ 
+//  runClient_();
+}
+
+void NoiseRatesClient::runClient_()
+{
+  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
+  dbe_->setCurrentFolder(dirName_);
 
   if (verbose_) std::cout << "\nrunClient" << std::endl; 
 
@@ -43,19 +80,19 @@ void NoiseRatesClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 
   // Since out folders are fixed to three, we can just go over these three folders
   // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-  std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
+  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
     if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    ig.setCurrentFolder(fullPathHLTFolders[i]);
+    dbe_->setCurrentFolder(fullPathHLTFolders[i]);
 
-    std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
+    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
     for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
       if( strcmp(fullSubPathHLTFolders[j].c_str(), "NoiseRatesV/NoiseRatesTask") ==0  ){
-         hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
+         hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !NoiseRatesEndjob(hcalMEs) ) std::cout<<"\nError in NoiseRatesEndjob!"<<std::endl<<std::endl;
       }

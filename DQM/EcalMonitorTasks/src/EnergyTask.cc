@@ -53,7 +53,7 @@ namespace ecaldqm
       if(isPhysicsRun_ && hitItr->checkFlagMask(notGood)) continue;
       if(!isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorOOT)) continue;
 
-      float energy(hitItr->energy());
+      float energy(isPhysicsRun_ ? hitItr->energy() : hitItr->outOfTimeEnergy());
 
       if(energy < 0.) continue;
 

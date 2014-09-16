@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_Muon_SimHitPrinter_H
-#define SimG4CMS_Muon_SimHitPrinter_H
+#ifndef SimHitPrinter_H
+#define SimHitPrinter_H
 
 /** \class SimHitPrinter
  *

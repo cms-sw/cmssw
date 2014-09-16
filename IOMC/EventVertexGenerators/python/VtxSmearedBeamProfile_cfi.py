@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import VtxSmearedCommon
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 
 # default definition of common parameters
 

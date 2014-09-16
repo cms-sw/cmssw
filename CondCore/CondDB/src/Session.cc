@@ -224,39 +224,6 @@ namespace cond {
       m_session->iovSchema().tagMigrationTable().updateValidationCode( sourceAccount, sourceTag, (int)status );
     }
 
-    bool Session::lookupMigratedPayload( const std::string& sourceAccount, 
-					 const std::string& sourceToken, 
-					 std::string& payloadId ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().payloadMigrationTable().exists() ) return false;
-      return m_session->iovSchema().payloadMigrationTable().select( sourceAccount, sourceToken, payloadId );
-    }
-
-    void Session::addMigratedPayload( const std::string& sourceAccount, 
-				      const std::string& sourceToken, 
-				      const std::string& payloadId ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().payloadMigrationTable().exists() ) m_session->iovSchema().payloadMigrationTable().create();
-      m_session->iovSchema().payloadMigrationTable().insert( sourceAccount, sourceToken, payloadId,
-							     boost::posix_time::microsec_clock::universal_time() );             
-    }
-
-    void Session::updateMigratedPayload( const std::string& sourceAccount, 
-					 const std::string& sourceToken, 
-					 const std::string& payloadId ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().payloadMigrationTable().exists() ) 
-	throwException( "Payload Migration Table does not exist in this schema.","Session::updateMigratedPayload");
-      m_session->iovSchema().payloadMigrationTable().update( sourceAccount, sourceToken, payloadId,
-							     boost::posix_time::microsec_clock::universal_time() );             
-    }
-
-    std::string Session::parsePoolToken( const std::string& poolToken ){
-      m_session->openIovDb();
-      //std::cout <<"## parsing pool token="<<poolToken<<std::endl;
-      return m_session->iovSchema().parsePoolToken( poolToken );
-    }
-
     std::string Session::connectionString(){
       return m_session->connectionString;
     }

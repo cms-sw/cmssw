@@ -196,7 +196,6 @@ from TrackingTools.GsfTracking.GsfElectronFit_cff import *
 from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.allConversionSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.gedPhotonSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import *
 from RecoEgamma.Configuration.RecoEgamma_cff import egammaHighLevelRecoPostPF
 allConversions.src = 'gsfGeneralConversionTrackMerger'
 famosConversionSequence = cms.Sequence(conversionTrackSequenceNoEcalSeeded*allConversionSequence)

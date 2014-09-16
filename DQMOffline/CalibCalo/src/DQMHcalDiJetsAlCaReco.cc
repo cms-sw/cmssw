@@ -29,6 +29,7 @@
 // #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 // #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/CalibCalo/src/DQMHcalDiJetsAlCaReco.h"
 
 using namespace std;
@@ -42,6 +43,7 @@ using namespace reco;
 DQMHcalDiJetsAlCaReco::DQMHcalDiJetsAlCaReco( const edm::ParameterSet& iConfig ) :
 eventCounter_(0)
 {
+  dbe_ = Service<DQMStore>().operator->();
 //
 // Input from configurator file 
 //
@@ -63,54 +65,54 @@ DQMHcalDiJetsAlCaReco::~DQMHcalDiJetsAlCaReco()
 {}
 
 //--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
-{  
+void DQMHcalDiJetsAlCaReco::beginJob(){
+   
 
   // create and cd into new folder
-  ibooker.setCurrentFolder(folderName_);
+  dbe_->setCurrentFolder(folderName_);
 
   // book some histograms 1D
-  hiDistrRecHitEnergyEBEE_ = ibooker.book1D("RecHitEnergyEBEE", "the number of hits inside jets", 100, 0, 800);
+  hiDistrRecHitEnergyEBEE_ = dbe_->book1D("RecHitEnergyEBEE", "the number of hits inside jets", 100, 0, 800);
   hiDistrRecHitEnergyEBEE_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyEBEE_->setAxisTitle("# rechits", 2);
 
-  hiDistrRecHitEnergyHBHE_ = ibooker.book1D("RecHitEnergyHBHE", "the number of hits inside jets", 100,0, 800);
+  hiDistrRecHitEnergyHBHE_ = dbe_->book1D("RecHitEnergyHBHE", "the number of hits inside jets", 100,0, 800);
   hiDistrRecHitEnergyHBHE_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyHBHE_->setAxisTitle("# rechits", 2);
 
-  hiDistrRecHitEnergyHF_ = ibooker.book1D("RecHitEnergyHF", "the number of hits inside jets", 150,0, 1500); 
+  hiDistrRecHitEnergyHF_ = dbe_->book1D("RecHitEnergyHF", "the number of hits inside jets", 150,0, 1500); 
   hiDistrRecHitEnergyHF_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyHF_->setAxisTitle("# rechits", 2);
 
-  hiDistrRecHitEnergyHO_ = ibooker.book1D("RecHitEnergyHO", "the number of hits inside jets", 100,0, 100); 
+  hiDistrRecHitEnergyHO_ = dbe_->book1D("RecHitEnergyHO", "the number of hits inside jets", 100,0, 100); 
   hiDistrRecHitEnergyHO_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyHO_->setAxisTitle("# rechits", 2);
 
-  hiDistrProbeJetEnergy_ = ibooker.book1D("ProbeJetEnergy", "the energy of probe jets", 250,0, 2500); 
+  hiDistrProbeJetEnergy_ = dbe_->book1D("ProbeJetEnergy", "the energy of probe jets", 250,0, 2500); 
   hiDistrProbeJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrProbeJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrProbeJetEta_ = ibooker.book1D("ProbeJetEta", "the number of probe jets", 100, -5., 5.); 
+  hiDistrProbeJetEta_ = dbe_->book1D("ProbeJetEta", "the number of probe jets", 100, -5., 5.); 
   hiDistrProbeJetEta_->setAxisTitle("#eta", 1);
   hiDistrProbeJetEta_->setAxisTitle("# jets", 2);
 
-  hiDistrProbeJetPhi_ = ibooker.book1D("ProbeJetPhi", "the number of probe jets", 50, -3.14, 3.14); 
+  hiDistrProbeJetPhi_ = dbe_->book1D("ProbeJetPhi", "the number of probe jets", 50, -3.14, 3.14); 
   hiDistrProbeJetPhi_->setAxisTitle("#phi", 1);
   hiDistrProbeJetPhi_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetEnergy_ = ibooker.book1D("TagJetEnergy", "the energy of tsg jets", 250,0, 2500); 
+  hiDistrTagJetEnergy_ = dbe_->book1D("TagJetEnergy", "the energy of tsg jets", 250,0, 2500); 
   hiDistrTagJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrTagJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetEta_ = ibooker.book1D("TagJetEta", "the number of  tag jets", 100, -5., 5.); 
+  hiDistrTagJetEta_ = dbe_->book1D("TagJetEta", "the number of  tag jets", 100, -5., 5.); 
   hiDistrTagJetEta_->setAxisTitle("#eta", 1);
   hiDistrTagJetEta_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetPhi_ = ibooker.book1D("TagJetPhi", "the number of tag jets", 50, -3.14, 3.14); 
+  hiDistrTagJetPhi_ = dbe_->book1D("TagJetPhi", "the number of tag jets", 50, -3.14, 3.14); 
   hiDistrTagJetPhi_->setAxisTitle("#phi", 1);
   hiDistrTagJetPhi_->setAxisTitle("# jets", 2);
 
-  hiDistrEtThirdJet_ = ibooker.book1D("EtThirdJet", "Et of the third jet", 90, 0, 90); 
+  hiDistrEtThirdJet_ = dbe_->book1D("EtThirdJet", "Et of the third jet", 90, 0, 90); 
 
 
 //==================================================================================
@@ -118,6 +120,10 @@ void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 
 }
 
+//--------------------------------------------------------
+void DQMHcalDiJetsAlCaReco::beginRun(const edm::Run& r, const EventSetup& context) {
+
+}
 
 //--------------------------------------------------------
 void DQMHcalDiJetsAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
@@ -243,5 +249,24 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 	
 } //analyze
 
+
+
+
+//--------------------------------------------------------
+void DQMHcalDiJetsAlCaReco::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
+                                          const EventSetup& context) {
+}
+//--------------------------------------------------------
+void DQMHcalDiJetsAlCaReco::endRun(const Run& r, const EventSetup& context){
+
+}
+//--------------------------------------------------------
+void DQMHcalDiJetsAlCaReco::endJob(){
+  
+  if (saveToFile_) {
+     dbe_->save(fileName_);
+  }
+  
+}
 
 

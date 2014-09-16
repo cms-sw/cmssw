@@ -2,7 +2,7 @@
 # define GEOMETRY_FWRECO_GEOMETRY_H
 
 # include "Fireworks/Core/interface/FWRecoGeom.h"
-#include "TObjArray.h"
+
 class FWRecoGeometry
 {
 public:
@@ -13,7 +13,6 @@ public:
     {}
 
   FWRecoGeom::InfoMap idToName;
-  TObjArray extraDet;
 };
 
 #endif // GEOMETRY_FWRECO_GEOMETRY_H

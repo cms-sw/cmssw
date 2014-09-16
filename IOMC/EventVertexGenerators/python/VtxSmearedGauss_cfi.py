@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import GaussVtxSmearingParameters,VtxSmearedCommon
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     GaussVtxSmearingParameters,
     VtxSmearedCommon

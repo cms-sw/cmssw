@@ -9,8 +9,6 @@ from RecoBTag.SecondaryVertex.simpleSecondaryVertex2TrkES_cfi import *
 ## list of all available btagInfos
 supportedBtagInfos = [
     'None'
-  , 'pfImpactParameterTagInfos'
-  , 'pfSecondaryVertexTagInfos'
   , 'impactParameterTagInfos'
   , 'secondaryVertexTagInfos'
   , 'secondaryVertexNegativeTagInfos'
@@ -18,7 +16,6 @@ supportedBtagInfos = [
   , 'softPFMuonsTagInfos'
   , 'softPFElectronsTagInfos'
   , 'inclusiveSecondaryVertexFinderTagInfos'
-  , 'inclusiveSecondaryVertexFinderNegativeTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredTagInfos'
   , 'caTopTagInfos'
   ]
@@ -40,14 +37,13 @@ supportedBtagDiscr = {
   , 'simpleSecondaryVertexHighPurBJetTags'                  : ['secondaryVertexTagInfos']
   , 'simpleSecondaryVertexNegativeHighEffBJetTags'          : ['secondaryVertexNegativeTagInfos']
   , 'simpleSecondaryVertexNegativeHighPurBJetTags'          : ['secondaryVertexNegativeTagInfos']
-  , 'pfCombinedSecondaryVertexBJetTags'                     : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos']
   , 'combinedSecondaryVertexBJetTags'                       : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   , 'combinedSecondaryVertexPositiveBJetTags'               : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
-  , 'combinedInclusiveSecondaryVertexV2BJetTags'            : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
-  , 'combinedInclusiveSecondaryVertexV2PositiveBJetTags'    : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
-  , 'combinedInclusiveSecondaryVertexV2NegativeBJetTags'    : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos']
+  #, 'combinedSecondaryVertexV1BJetTags'                     : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
+  #, 'combinedSecondaryVertexV1PositiveBJetTags'             : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   , 'combinedSecondaryVertexMVABJetTags'                    : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   , 'combinedSecondaryVertexNegativeBJetTags'               : ['impactParameterTagInfos', 'secondaryVertexNegativeTagInfos']
+  #, 'combinedSecondaryVertexV1NegativeBJetTags'             : ['impactParameterTagInfos', 'secondaryVertexNegativeTagInfos']
   , 'softPFMuonBJetTags'                                    : ['softPFMuonsTagInfos']
   , 'softPFMuonByPtBJetTags'                                : ['softPFMuonsTagInfos']
   , 'softPFMuonByIP3dBJetTags'                              : ['softPFMuonsTagInfos']

@@ -82,7 +82,7 @@ HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
   // replace with one
 
   auto cloner = ttrhBuilder.cloner();
-  replaceMe = cloner.project(hit, rejectSt, TrajectoryStateOnSurface()).release();
+  replaceMe = cloner.project(hit, rejectSt, TrajectoryStateOnSurface());
   if (rejectSt)
     LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->geographicalId().rawId()<<" key: "<<hit.monoClusterRef().key();
   else 

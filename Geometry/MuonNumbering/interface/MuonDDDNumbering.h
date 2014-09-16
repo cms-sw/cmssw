@@ -1,5 +1,5 @@
-#ifndef Geometry_MuonNumbering_MuonDDDNumbering_h
-#define Geometry_MuonNumbering_MuonDDDNumbering_h
+#ifndef MuonNumbering_MuonDDDNumbering_h
+#define MuonNumbering_MuonDDDNumbering_h
 
 /** \class MuonDDDNumbering
  *

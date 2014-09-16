@@ -327,7 +327,7 @@ class BinToBin(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in xrange(0, nbins+2):
+    for ibin in xrange(0,nbins):
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
       bindiff=h1bin-h2bin

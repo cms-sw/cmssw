@@ -37,106 +37,110 @@ class TH1F;
 class TH2F;
 class TopDiLeptonDQM : public edm::EDAnalyzer {
 
- public:
-  explicit TopDiLeptonDQM(const edm::ParameterSet&);
-  ~TopDiLeptonDQM();
+  public:
 
- protected:
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void endRun(const edm::Run&, const edm::EventSetup&);
+    explicit TopDiLeptonDQM(const edm::ParameterSet&);
+    ~TopDiLeptonDQM();
 
- private:
-  void initialize();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  protected:
 
-  DQMStore* dbe_;
-  bool fileOutput_;
+    void beginRun(const edm::Run&, const edm::EventSetup&);
+    void endRun(  const edm::Run&, const edm::EventSetup&);
 
-  std::string moduleName_;
-  std::string outputFile_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  std::vector<std::string> hltPaths_;
-  std::vector<std::string> hltPaths_sig_;
-  std::vector<std::string> hltPaths_trig_;
+  private:
 
-  std::ofstream outfile;
+    void initialize();
+    virtual void beginJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
 
-  int N_sig[100];
-  int N_trig[100];
-  float Eff[100];
+    DQMStore * dbe_;
+    bool fileOutput_;
 
-  int N_mumu;
-  int N_muel;
-  int N_elel;
+    std::string moduleName_;
+    std::string outputFile_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
+    std::vector<std::string> hltPaths_;
+    std::vector<std::string> hltPaths_sig_;
+    std::vector<std::string> hltPaths_trig_;
 
-  edm::EDGetTokenT<reco::VertexCollection> vertex_;
-  double vertex_X_cut_;
-  double vertex_Y_cut_;
-  double vertex_Z_cut_;
+    std::ofstream outfile;
 
-  edm::EDGetTokenT<reco::MuonCollection> muons_;
-  double muon_pT_cut_;
-  double muon_eta_cut_;
-  double muon_iso_cut_;
+    int N_sig[100];
+    int N_trig[100];
+    float Eff[100];
 
-  edm::EDGetTokenT<reco::GsfElectronCollection> elecs_;
-  double elec_pT_cut_;
-  double elec_eta_cut_;
-  double elec_iso_cut_;
-  double elec_emf_cut_;
+    int N_mumu;
+    int N_muel;
+    int N_elel;
 
-  double MassWindow_up_;
-  double MassWindow_down_;
+    edm::EDGetTokenT<reco::VertexCollection> vertex_;
+    double vertex_X_cut_;
+    double vertex_Y_cut_;
+    double vertex_Z_cut_;
 
-  MonitorElement* Events_;
-  MonitorElement* Trigs_;
-  MonitorElement* TriggerEff_;
-  MonitorElement* Ntracks_;
+    edm::EDGetTokenT<reco::MuonCollection> muons_;
+    double muon_pT_cut_;
+    double muon_eta_cut_;
+    double muon_iso_cut_;
 
-  MonitorElement* Nmuons_;
-  MonitorElement* Nmuons_iso_;
-  MonitorElement* Nmuons_charge_;
-  MonitorElement* VxVy_muons_;
-  MonitorElement* Vz_muons_;
-  MonitorElement* pT_muons_;
-  MonitorElement* eta_muons_;
-  MonitorElement* phi_muons_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> elecs_;
+    double elec_pT_cut_;
+    double elec_eta_cut_;
+    double elec_iso_cut_;
+    double elec_emf_cut_;
 
-  MonitorElement* Nelecs_;
-  MonitorElement* Nelecs_iso_;
-  MonitorElement* Nelecs_charge_;
-  MonitorElement* HoverE_elecs_;
-  MonitorElement* pT_elecs_;
-  MonitorElement* eta_elecs_;
-  MonitorElement* phi_elecs_;
+    double MassWindow_up_;
+    double MassWindow_down_;
 
-  MonitorElement* MuIso_emEt03_;
-  MonitorElement* MuIso_hadEt03_;
-  MonitorElement* MuIso_hoEt03_;
-  MonitorElement* MuIso_nJets03_;
-  MonitorElement* MuIso_nTracks03_;
-  MonitorElement* MuIso_sumPt03_;
-  MonitorElement* MuIso_CombRelIso03_;
+    MonitorElement * Events_;
+    MonitorElement * Trigs_;
+    MonitorElement * TriggerEff_;
+    MonitorElement * Ntracks_;
 
-  MonitorElement* ElecIso_cal_;
-  MonitorElement* ElecIso_trk_;
-  MonitorElement* ElecIso_CombRelIso_;
+    MonitorElement * Nmuons_;
+    MonitorElement * Nmuons_iso_;
+    MonitorElement * Nmuons_charge_;
+    MonitorElement * VxVy_muons_;
+    MonitorElement * Vz_muons_;
+    MonitorElement * pT_muons_;
+    MonitorElement * eta_muons_;
+    MonitorElement * phi_muons_;
 
-  MonitorElement* dimassRC_;
-  MonitorElement* dimassWC_;
-  MonitorElement* dimassRC_LOGX_;
-  MonitorElement* dimassWC_LOGX_;
-  MonitorElement* dimassRC_LOG10_;
-  MonitorElement* dimassWC_LOG10_;
+    MonitorElement * Nelecs_;
+    MonitorElement * Nelecs_iso_;
+    MonitorElement * Nelecs_charge_;
+    MonitorElement * HoverE_elecs_;
+    MonitorElement * pT_elecs_;
+    MonitorElement * eta_elecs_;
+    MonitorElement * phi_elecs_;
 
-  MonitorElement* D_eta_muons_;
-  MonitorElement* D_phi_muons_;
-  MonitorElement* D_eta_elecs_;
-  MonitorElement* D_phi_elecs_;
-  MonitorElement* D_eta_lepts_;
-  MonitorElement* D_phi_lepts_;
+    MonitorElement * MuIso_emEt03_;
+    MonitorElement * MuIso_hadEt03_;
+    MonitorElement * MuIso_hoEt03_;
+    MonitorElement * MuIso_nJets03_;
+    MonitorElement * MuIso_nTracks03_;
+    MonitorElement * MuIso_sumPt03_;
+    MonitorElement * MuIso_CombRelIso03_;
+
+    MonitorElement * ElecIso_cal_;
+    MonitorElement * ElecIso_trk_;
+    MonitorElement * ElecIso_CombRelIso_;
+
+    MonitorElement * dimassRC_;
+    MonitorElement * dimassWC_;
+    MonitorElement * dimassRC_LOGX_;
+    MonitorElement * dimassWC_LOGX_;
+    MonitorElement * dimassRC_LOG10_;
+    MonitorElement * dimassWC_LOG10_;
+
+    MonitorElement * D_eta_muons_;
+    MonitorElement * D_phi_muons_;
+    MonitorElement * D_eta_elecs_;
+    MonitorElement * D_phi_elecs_;
+    MonitorElement * D_eta_lepts_;
+    MonitorElement * D_phi_lepts_;
+
 };
 
 #endif

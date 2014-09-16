@@ -59,13 +59,8 @@ bool GeomDetType::isGEM() const
   return (theSubDet == GEM ) ;
 }
 
-bool GeomDetType::isME0() const
-{   
-  return (theSubDet == ME0 ) ;
-}
-
 
 bool GeomDetType::isMuon() const
 {
-  return (theSubDet == DT || theSubDet == CSC || isRPC() || theSubDet == GEM || theSubDet == ME0) ;
+  return (theSubDet == DT || theSubDet == CSC || isRPC() || theSubDet == GEM) ;
 }

@@ -2,7 +2,7 @@
 #define HcalRecHitsValidation_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
@@ -53,14 +55,13 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 
-class HcalRecHitsValidation : public thread_unsafe::DQMEDAnalyzer {
+class HcalRecHitsValidation : public edm::EDAnalyzer {
  public:
   HcalRecHitsValidation(edm::ParameterSet const& conf);
   ~HcalRecHitsValidation();
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
-
+  virtual void beginJob() ;
+  virtual void endJob() ;
  private:
   
   virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
@@ -68,6 +69,8 @@ class HcalRecHitsValidation : public thread_unsafe::DQMEDAnalyzer {
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
 
+  DQMStore* dbe_;
+  
   std::string outputFile_;
   std::string hcalselector_;
   std::string ecalselector_;

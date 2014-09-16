@@ -11,7 +11,8 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Loic Quertenmont
+// Original Author:  Rizzi Andrea
+// Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
 
 
@@ -61,7 +62,7 @@ class HSCParticleProducer : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 
-    std::vector<susybsm::HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle, edm::Handle<reco::MuonCollection>& MTmuonCollectionHandle);
+    std::vector<susybsm::HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
 
     // ----------member data ---------------------------
     bool          Filter_;
@@ -69,7 +70,6 @@ class HSCParticleProducer : public edm::EDFilter {
     edm::EDGetTokenT<reco::TrackCollection> m_trackToken;
     edm::EDGetTokenT<reco::TrackCollection> m_trackIsoToken;
     edm::EDGetTokenT<reco::MuonCollection> m_muonsToken;
-    edm::EDGetTokenT<reco::MuonCollection> m_MTmuonsToken;
 
     bool         useBetaFromTk;
     bool         useBetaFromMuon;
@@ -80,10 +80,7 @@ class HSCParticleProducer : public edm::EDFilter {
     float        maxTkChi2;
     unsigned int minTkHits;
     float        minMuP;
-    float        minSAMuPt;
-    float        minMTMuPt;
     float        minDR;
-    float        minMTDR;
     float        maxInvPtDiff;
 
     BetaCalculatorTK*   beta_calculator_TK;

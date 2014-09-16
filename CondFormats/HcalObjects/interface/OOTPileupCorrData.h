@@ -101,12 +101,10 @@ protected:
                readjustTiming_ == r.readjustTiming_;
     }
 
-public:
-    // Default constructor needed for serialization.
-    // Do not use in application code.
+private:
+    // Default constructor needed for serialization
     inline OOTPileupCorrData() {}
 
-private:
     bool validate() const;
 
     std::vector<OOTPileupCorrDataFcn> corrs_;

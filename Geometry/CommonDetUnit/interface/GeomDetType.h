@@ -31,7 +31,6 @@ public:
     bool isCSC()          const;
     bool isRPC()          const;
     bool isGEM()          const;
-    bool isME0()          const;
     bool isMuon()         const;
 
 private:

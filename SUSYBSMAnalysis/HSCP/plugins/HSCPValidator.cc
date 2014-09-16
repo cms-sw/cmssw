@@ -68,6 +68,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "SUSYBSMAnalysis/HSCP/plugins/HSCPValidator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -80,9 +81,6 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TCanvas.h"
-
-#include "SUSYBSMAnalysis/HSCP/plugins/HSCPValidator.h"
-
 
 //
 // constants, enums and typedefs

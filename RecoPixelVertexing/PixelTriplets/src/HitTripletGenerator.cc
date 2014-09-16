@@ -1,12 +1,14 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 
-HitTripletGenerator::HitTripletGenerator(unsigned int nSize) : localRA(nSize) {}
+HitTripletGenerator::HitTripletGenerator(unsigned int nSize) : localRA(nSize)
+{
+//  theTriplets.reserve(nSize);
+}
 
 const OrderedHitTriplets & HitTripletGenerator::run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es)
 {
-  assert(theTriplets.size()==0);assert(theTriplets.capacity()==0);
-  theTriplets.reserve(localRA.upper());
+  OrderedHitTriplets tmp; tmp.reserve(localRA.upper()); tmp.swap(theTriplets);
   hitTriplets(region, theTriplets, ev, es);
   localRA.update(theTriplets.size());
   theTriplets.shrink_to_fit();
@@ -15,6 +17,7 @@ const OrderedHitTriplets & HitTripletGenerator::run(
 
 void HitTripletGenerator::clear() 
 {
-  theTriplets.clear(); theTriplets.shrink_to_fit();
+    OrderedHitTriplets tmp; tmp.swap(theTriplets);
+//  theTriplets.clear();
 }
 

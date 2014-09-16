@@ -108,7 +108,8 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
    {
       std::ofstream file(iName.c_str());
       if(not file) {
-         std::string message = "unable to open file " + iName;
+         std::string message("unable to open file %s ", iName.c_str());
+         fflush(stdout);
          message += iName;
          throw std::runtime_error(message.c_str());
       }
@@ -119,10 +120,7 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
 
       streamTo(file, top, "top");
    }
-   catch (std::runtime_error &e)
-   { 
-      fwLog(fwlog::kError) << "FWConfigurationManager::writeToFile() " << e.what() << std::endl;
-   }
+   catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void

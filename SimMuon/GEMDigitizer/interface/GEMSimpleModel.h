@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMDigitizer_GEMSimpleModel_h
-#define SimMuon_GEMDigitizer_GEMSimpleModel_h
+#ifndef GEMDigitizer_GEMSimpleModel_h
+#define GEMDigitizer_GEMSimpleModel_h
 
 /** 
  * \class GEMSimpleModel
@@ -29,14 +29,14 @@ public:
 
   void setup();
 
-  void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
+  void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine) override;
 
-  int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
+  int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine* engine);
 
-  void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine*) override;
+  void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) override;
 
   std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine*) override;
+    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine) override;
 
 private:
 

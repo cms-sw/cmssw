@@ -19,12 +19,18 @@ class HcalZDCMonitor: public HcalBaseMonitor
  public:
   HcalZDCMonitor();
   ~HcalZDCMonitor();
-  void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const ZDCDigiCollection& digi,
                     const ZDCRecHitCollection& rechit);
+  //void done();
   void reset();
   void endLuminosityBlock(void);
  private:
+  //virtual void endJob();
+  //void endLuminosityBlock(void);
+  //void zeroCounters();
+  //void fillHistos();
+  //void setZDClabels(MonitorElement* h);
   double getTime(const std::vector<double>& fData, unsigned int ts_min, unsigned int ts_max, double& fSum);
   //int getTSMax(std::vector<double> fData);
   //bool isGood(std::vector<double> fData, double fCut, double fPercentage);

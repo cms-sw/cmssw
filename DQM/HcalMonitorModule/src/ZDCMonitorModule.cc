@@ -32,8 +32,7 @@
 #include <sys/time.h>
 
 //--------------------------------------------------------
-ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps):ps_(ps)
-{
+ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps){
 
   irun_=0; ilumisec=0; ievent_=0; itime_=0;
 
@@ -58,8 +57,15 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps):ps_(ps)
   // Check Online running
   Online_                = ps.getUntrackedParameter<bool>("Online",false);
   checkZDC_=ps.getUntrackedParameter<bool>("checkZDC", true); 
+  dbe_ = edm::Service<DQMStore>().operator->();
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   //FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
+
+  if (checkZDC_)
+    {
+      zdcMon_ = new HcalZDCMonitor();
+      zdcMon_->setup(ps, dbe_);
+    }
 
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
@@ -79,24 +85,18 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps):ps_(ps)
   psTime_.updateTime /= 1000.0;
   psTime_.elapsedTime=0;
   psTime_.vetoTime=psTime_.updateTime;
-
-  // beginJob contents has been moved to the constructor for the MT migration
-  if (checkZDC_) {
-    // should we reset these counters at the start of each run?
-    ievt_ = 0;
-    ievt_pre_=0;
-  
-    // Counters for rawdata, digi, and rechit
-    ievt_rawdata_=0;
-    ievt_digi_=0;
-    ievt_rechit_=0;
-  }
 }
 
 //--------------------------------------------------------
 ZDCMonitorModule::~ZDCMonitorModule()
 {
   if (!checkZDC_) return;
+  if (dbe_!=0)
+    {    
+      if (zdcMon_!=0)   zdcMon_->clearME();
+      dbe_->setCurrentFolder(rootFolder_);
+      dbe_->removeContents();
+    }
 
 if (zdcMon_!=0)
     {
@@ -104,44 +104,56 @@ if (zdcMon_!=0)
     }
 }
 
+//--------------------------------------------------------
+// beginJob no longer needed; trying setup within beginJob won't work !! -- IOV's not loaded
+void ZDCMonitorModule::beginJob()
+{
+  if (!checkZDC_) return;
+  // should we reset these counters at the start of each run?
+  ievt_ = 0;
+  ievt_pre_=0;
+
+  // Counters for rawdata, digi, and rechit
+  ievt_rawdata_=0;
+  ievt_digi_=0;
+  ievt_rechit_=0;
+  return;
+}
 
 //--------------------------------------------------------
-void ZDCMonitorModule::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c) 
+void ZDCMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
 {
-  
   if (!checkZDC_) return;
-  
-      zdcMon_ = new HcalZDCMonitor();
-      zdcMon_->setup(ps_, ib);
-
   fedsListed_ = false;
   ZDCpresent_ = 0;
 
   reset();
 
-    ib.setCurrentFolder(rootFolder_+"DQM Job Status" );
+  if ( dbe_ != NULL ){
+    dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
 
-    meIEVTALL_ = ib.bookInt("Events Processed");
-    meIEVTRAW_ = ib.bookInt("Events with Raw Data");
-    meIEVTDIGI_= ib.bookInt("Events with Digis");
-    meIEVTRECHIT_ = ib.bookInt("Events with RecHits");
+    meIEVTALL_ = dbe_->bookInt("Events Processed");
+    meIEVTRAW_ = dbe_->bookInt("Events with Raw Data");
+    meIEVTDIGI_= dbe_->bookInt("Events with Digis");
+    meIEVTRECHIT_ = dbe_->bookInt("Events with RecHits");
     meIEVTALL_->Fill(ievt_);
     meIEVTRAW_->Fill(ievt_rawdata_);
     meIEVTDIGI_->Fill(ievt_digi_);
     meIEVTRECHIT_->Fill(ievt_rechit_);
-    meStatus_  = ib.bookInt("STATUS");
+    meStatus_  = dbe_->bookInt("STATUS");
    
-    meFEDS_    = ib.book1D("FEDs Unpacked","FEDs Unpacked",1+(FEDNumbering::MAXHCALFEDID-FEDNumbering::MINHCALFEDID),FEDNumbering::MINHCALFEDID-0.5,FEDNumbering::MAXHCALFEDID+0.5);
+    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",1+(FEDNumbering::MAXHCALFEDID-FEDNumbering::MINHCALFEDID),FEDNumbering::MINHCALFEDID-0.5,FEDNumbering::MAXHCALFEDID+0.5);
     // process latency was (200,0,1), but that gave overflows
-    meLatency_ = ib.book1D("Process Latency","Process Latency",200,0,10);
-    meQuality_ = ib.book1D("Quality Status","Quality Status",100,0,1);
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",200,0,10);
+    meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     // Store whether or not subdetectors are present
-    meZDC_ = ib.bookInt("ZDCpresent");
+    meZDC_ = dbe_->bookInt("ZDCpresent");
 
     meStatus_->Fill(0);
     // Should fill with 0 to start
     meZDC_->Fill(ZDCpresent_);
 
+  }
   // Create histograms for individual Tasks
   if (zdcMon_)    zdcMon_->beginRun();
 
@@ -214,6 +226,23 @@ void ZDCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
   return;
 }
 
+
+//--------------------------------------------------------
+void ZDCMonitorModule::endJob(void) 
+{
+  if (!checkZDC_) return;
+  if ( dbe_ != NULL ){
+    meStatus_  = dbe_->get(rootFolder_+"DQM Job Status/STATUS");
+  }
+  
+  if ( meStatus_ ) meStatus_->Fill(2);
+
+  return; // All of the rest of the endjob stuff (filling db, etc.) should be done in the client, right?
+
+  if (zdcMon_!=NULL)       zdcMon_->done();
+
+  return;
+}
 
 //--------------------------------------------------------
 void ZDCMonitorModule::reset(){

@@ -36,42 +36,31 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     tok_ho_ = consumes<edm::SortedCollection<HODataFrame> >(inputTag_);
     tok_hf_ = consumes<edm::SortedCollection<HFDataFrame> >(inputTag_);
 
-    nevent1 = 0;
-    nevent2 = 0;
-    nevent3 = 0;
-    nevent4 = 0;
-    nevtot = 0;
-
+    dbe_ = edm::Service<DQMStore > ().operator->();
     msm_ = new std::map<std::string, MonitorElement*>();
 
     if (outputFile_.size() != 0) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
     else edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
 
-}
-
-void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es)
-{
-
-    ib.setCurrentFolder(dirName_);
+    if (dbe_) dbe_->setCurrentFolder(dirName_);
 
     // book
-    book1D(ib,"nevtot", 1, 0, 1);
+    book1D("nevtot", 1, 0, 1);
     int bnoise = 0;
     int bmc = 0;
     if (subdet_ == "noise") bnoise = 1;
     if (mc_ == "yes") bmc = 1;
     if (subdet_ == "noise" || subdet_ == "all") {
-        booking(ib,"HB", bnoise, bmc);
-        booking(ib,"HO", bnoise, bmc);
-        booking(ib,"HF", bnoise, bmc);
-        booking(ib,"HE", bnoise, bmc);
+        booking("HB", bnoise, bmc);
+        booking("HO", bnoise, bmc);
+        booking("HF", bnoise, bmc);
+        booking("HE", bnoise, bmc);
     } else {
-        booking(ib,subdet_, 0, bmc);
+        booking(subdet_, 0, bmc);
     }
-
 }
 
-void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubdet, int bnoise, int bmc) {
+void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc) {
 
     // defaults are for HB
 
@@ -122,134 +111,134 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     if (bnoise == 0) {
         // number of digis in each subdetector
         sprintf(histo, "HcalDigiTask_Ndigis_%s", sub);
-        book1D(ib, histo, Ndigis);
+        book1D(histo, Ndigis);
 
         // maps of occupancies
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth1_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth2_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth3_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 
         // occupancies vs ieta
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub);
-        book1D(ib, histo, ietaLim);
+        book1D(histo, ietaLim);
 
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth2_%s", sub);
-        book1D(ib, histo, ietaLim);
+        book1D(histo, ietaLim);
 
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth3_%s", sub);
-        book1D(ib, histo, ietaLim);
+        book1D(histo, ietaLim);
 
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub);
-        book1D(ib, histo, ietaLim);
+        book1D(histo, ietaLim);
 
 
         // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
 /*
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth1_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth2_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth3_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth4_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 */
         // just 1D of all cells' amplitudes
         sprintf(histo, "HcalDigiTask_sum_all_amplitudes_%s", sub);
-        book1D(ib, histo, sumAmp);
+        book1D(histo, sumAmp);
 
         sprintf(histo, "HcalDigiTask_number_of_amplitudes_above_10fC_%s", sub);
-        book1D(ib, histo, ndigis);
+        book1D(histo, ndigis);
 
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth1_%s", sub);
-        book1D(ib, histo, pedestal);
+        book1D(histo, pedestal);
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth2_%s", sub);
-        book1D(ib, histo, pedestal);
+        book1D(histo, pedestal);
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth3_%s", sub);
-        book1D(ib, histo, pedestal);
+        book1D(histo, pedestal);
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth4_%s", sub);
-        book1D(ib, histo, pedestal);
+        book1D(histo, pedestal);
 
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth1_%s", sub);
-        book1D(ib, histo, pedestalfC);
+        book1D(histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth2_%s", sub);
-        book1D(ib, histo, pedestalfC);
+        book1D(histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth3_%s", sub);
-        book1D(ib, histo, pedestalfC);
+        book1D(histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth4_%s", sub);
-        book1D(ib, histo, pedestalfC);
+        book1D(histo, pedestalfC);
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_%s", sub);
-        book1D(ib, histo, digiAmp);
+        book1D(histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth1_%s", sub);
-        book1D(ib, histo, digiAmp);
+        book1D(histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth2_%s", sub);
-        book1D(ib, histo, digiAmp);
+        book1D(histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth3_%s", sub);
-        book1D(ib, histo, digiAmp);
+        book1D(histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth4_%s", sub);
-        book1D(ib, histo, digiAmp);
+        book1D(histo, digiAmp);
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
-        book2D(ib, histo, nbin, digiAmp);
+        book2D(histo, nbin, digiAmp);
 
 /*
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_depth1_%s", sub);
-        book2D(ib, histo, nbin, digiAmp);
+        book2D(histo, nbin, digiAmp);
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_depth2_%s", sub);
-        book2D(ib, histo, nbin, digiAmp);
+        book2D(histo, nbin, digiAmp);
 */
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth1_%s", sub);
-        book1D(ib, histo, nbin);
+        book1D(histo, nbin);
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_%s", sub);
-        book1D(ib, histo, nbin);
+        book1D(histo, nbin);
 
         sprintf(histo, "HcalDigiTask_bin_5_frac_%s", sub);
-        book1D(ib, histo, frac);
+        book1D(histo, frac);
         sprintf(histo, "HcalDigiTask_bin_6_7_frac_%s", sub);
-        book1D(ib, histo, frac);
+        book1D(histo, frac);
 
         if (bmc == 1) {
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_%s", sub);
-            book2D(ib, histo, sime, digiAmp);
+            book2D(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth1_%s", sub);
-            book2D(ib, histo, sime, digiAmp);
+            book2D(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth2_%s", sub);
-            book2D(ib, histo, sime, digiAmp);
+            book2D(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth3_%s", sub);
-            book2D(ib, histo, sime, digiAmp);
+            book2D(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth4_%s", sub);
-            book2D(ib, histo, sime, digiAmp);
+            book2D(histo, sime, digiAmp);
 
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_%s", sub);
-            bookPf(ib, histo, sime, digiAmp);
+            bookPf(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth1_%s", sub);
-            bookPf(ib, histo, sime, digiAmp);
+            bookPf(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth2_%s", sub);
-            bookPf(ib, histo, sime, digiAmp);
+            bookPf(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth3_%s", sub);
-            bookPf(ib, histo, sime, digiAmp);
+            bookPf(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth4_%s", sub);
-            bookPf(ib, histo, sime, digiAmp);
+            bookPf(histo, sime, digiAmp);
 
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_%s", sub);
-            book1D(ib, histo, ratio);
+            book1D(histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth1_%s", sub);
-            book1D(ib, histo, ratio);
+            book1D(histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth2_%s", sub);
-            book1D(ib, histo, ratio);
+            book1D(histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth3_%s", sub);
-            book1D(ib, histo, ratio);
+            book1D(histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth4_%s", sub);
-            book1D(ib, histo, ratio);
+            book1D(histo, ratio);
         }//mc only
 
     } else { // noise only
@@ -259,175 +248,175 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         if (subdet_ == "HB" || subdet_ == "HE" || subdet_ == "HF") {
             sprintf(histo, "HcalDigiTask_gain_capId0_Depth1_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId1_Depth1_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId2_Depth1_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId3_Depth1_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
 
             sprintf(histo, "HcalDigiTask_gain_capId0_Depth2_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId1_Depth2_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId2_Depth2_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId3_Depth2_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
 
             sprintf(histo, "HcalDigiTask_gainWidth_capId0_Depth1_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId1_Depth1_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId2_Depth1_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId3_Depth1_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
 
             sprintf(histo, "HcalDigiTask_gainWidth_capId0_Depth2_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId1_Depth2_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId2_Depth2_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId3_Depth2_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_capId0_Depth1_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId1_Depth1_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId2_Depth1_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId3_Depth1_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_capId0_Depth2_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId1_Depth2_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId2_Depth2_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId3_Depth2_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_width_capId0_Depth1_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId1_Depth1_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId2_Depth1_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId3_Depth1_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_width_capId0_Depth2_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId1_Depth2_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId2_Depth2_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId3_Depth2_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
 
         }
 
         if (subdet_ == "HE") {
             sprintf(histo, "HcalDigiTask_gain_capId0_Depth3_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId1_Depth3_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId2_Depth3_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId3_Depth3_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
 
             sprintf(histo, "HcalDigiTask_gainWidth_capId0_Depth3_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId1_Depth3_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId2_Depth3_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId3_Depth3_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_capId0_Depth3_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId1_Depth3_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId2_Depth3_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId3_Depth3_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_width_capId0_Depth3_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId1_Depth3_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId2_Depth3_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId3_Depth3_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
 
         }
 
         if (subdet_ == "HO") {
             sprintf(histo, "HcalDigiTask_gain_capId0_Depth4_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId1_Depth4_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId2_Depth4_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
             sprintf(histo, "HcalDigiTask_gain_capId3_Depth4_%s", sub);
-            book1D(ib, histo, gainLim);
+            book1D(histo, gainLim);
 
             sprintf(histo, "HcalDigiTask_gainWidth_capId0_Depth4_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId1_Depth4_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId2_Depth4_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
             sprintf(histo, "HcalDigiTask_gainWidth_capId3_Depth4_%s", sub);
-            book1D(ib, histo, gainWidthLim);
+            book1D(histo, gainWidthLim);
 
 
             sprintf(histo, "HcalDigiTask_pedestal_capId0_Depth4_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId1_Depth4_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId2_Depth4_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
             sprintf(histo, "HcalDigiTask_pedestal_capId3_Depth4_%s", sub);
-            book1D(ib, histo, pedLim);
+            book1D(histo, pedLim);
 
             sprintf(histo, "HcalDigiTask_pedestal_width_capId0_Depth4_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId1_Depth4_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId2_Depth4_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
             sprintf(histo, "HcalDigiTask_pedestal_width_capId3_Depth4_%s", sub);
-            book1D(ib, histo, pedWidthLim);
+            book1D(histo, pedWidthLim);
 
         }
 
         sprintf(histo, "HcalDigiTask_gainMap_Depth1_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_gainMap_Depth2_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_gainMap_Depth3_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_gainMap_Depth4_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 
         sprintf(histo, "HcalDigiTask_pwidthMap_Depth1_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_pwidthMap_Depth2_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_pwidthMap_Depth3_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_pwidthMap_Depth4_%s", sub);
-        book2D(ib, histo, ietaLim, iphiLim);
+        book2D(histo, ietaLim, iphiLim);
 
     } //end of noise-only
 }//book
@@ -935,6 +924,19 @@ void HcalDigisValidation::eval_occupancy() {
 
 }
 
+void HcalDigisValidation::beginJob() {
+    nevent1 = 0;
+    nevent2 = 0;
+    nevent3 = 0;
+    nevent4 = 0;
+
+    nevtot = 0;
+}
+
+void HcalDigisValidation::endJob() {
+    //        if (outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
+}
+
 void HcalDigisValidation::beginRun() {
 
 }
@@ -943,28 +945,28 @@ void HcalDigisValidation::endRun() {
 
 }
 
-void HcalDigisValidation::book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max) {
-    if (!msm_->count(name)) (*msm_)[name] = ib.book1D(name.c_str(), name.c_str(), n, min, max);
+void HcalDigisValidation::book1D(std::string name, int n, double min, double max) {
+    if (!msm_->count(name)) (*msm_)[name] = dbe_->book1D(name.c_str(), name.c_str(), n, min, max);
 }
 
-void HcalDigisValidation::book1D(DQMStore::IBooker &ib, std::string name, const HistLim& limX) {
-    if (!msm_->count(name)) (*msm_)[name] = ib.book1D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max);
+void HcalDigisValidation::book1D(std::string name, const HistLim& limX) {
+    if (!msm_->count(name)) (*msm_)[name] = dbe_->book1D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max);
 }
 
 void HcalDigisValidation::fill1D(std::string name, double X, double weight) {
     msm_->find(name)->second->Fill(X, weight);
 }
 
-void HcalDigisValidation::book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
-    if (!msm_->count(name)) (*msm_)[name] = ib.book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+void HcalDigisValidation::book2D(std::string name, const HistLim& limX, const HistLim& limY) {
+    if (!msm_->count(name)) (*msm_)[name] = dbe_->book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
 }
 
 void HcalDigisValidation::fill2D(std::string name, double X, double Y, double weight) {
     msm_->find(name)->second->Fill(X, Y, weight);
 }
 
-void HcalDigisValidation::bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
-    if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+void HcalDigisValidation::bookPf(std::string name, const HistLim& limX, const HistLim& limY) {
+    if (!msm_->count(name)) (*msm_)[name] = dbe_->bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
 }
 
 void HcalDigisValidation::fillPf(std::string name, double X, double Y) {

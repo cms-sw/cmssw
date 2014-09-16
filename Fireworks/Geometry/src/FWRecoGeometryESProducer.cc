@@ -25,7 +25,6 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-#include "TNamed.h"
 # define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
   if( det )							\
@@ -243,14 +242,6 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
     }
   }
-
-
-  try {
-     RPCDetId id(1, 1, 4, 1, 1, 1, 1 );
-     m_geomRecord->slaveGeometry( detId );
-     m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
-  }
-  catch (...) {}
 }
 
 void
@@ -276,17 +267,8 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
       m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
-
-      float height = topo.stripLength()/2;
-      LocalPoint  lTop( 0., height, 0.);
-      LocalPoint  lBottom( 0., -height, 0.);
-      m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-      m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-      m_fwGeometry->idToName[current].topology[5] = roll->npads();
     }
   }
-
-  m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
 }
 
 

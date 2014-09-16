@@ -11,14 +11,18 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 
+
 using namespace std;
 using namespace RecoBTag;
 
+
+
 EffPurFromHistos::EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F * h_u,
-				     TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g, TH1F * h_ni,
+				     TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
 				     TH1F * h_dus, TH1F * h_dusg, TH1F * h_pu, 
 				     const std::string& label, const unsigned int& mc, 
 				     int nBin, double startO, double endO) :
+	//BTagPlotPrintC(),
         fromDiscriminatorDistr(false),
 	histoExtension(ext), effVersusDiscr_d(h_d), effVersusDiscr_u(h_u),
 	effVersusDiscr_s(h_s), effVersusDiscr_c(h_c), effVersusDiscr_b(h_b),
@@ -41,14 +45,14 @@ EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscrimin
   discrNoCutEffic = new FlavourHistograms<double> (
 	"totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), false, true, false, "b", label, mcPlots_, ibook );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label, mcPlots_, ibook );
 
   // conditional discriminator cut for efficiency histos
 
   discrCutEfficScan = new FlavourHistograms<double> (
 	"effVsDiscrCut" + histoExtension, "Eff. vs Disc. Cut: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), false, true, false, "b", label , mcPlots_, ibook );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label , mcPlots_, ibook );
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_){ 
 

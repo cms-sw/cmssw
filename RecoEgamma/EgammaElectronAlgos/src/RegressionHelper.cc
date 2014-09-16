@@ -167,12 +167,11 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
       maxDRDPhi = this_dphi;
       maxDRRawEnergy = (*clus)->energy();
     }
-    if( iclus < 3 ) {
+    if( iclus++ < 3 ) {
       subClusRawE[iclus] = (*clus)->energy();
       subClusDEta[iclus] = this_deta;
       subClusDPhi[iclus] = this_dphi;
     }
-    iclus++;
   }
   float scPreshowerSum = sc.preshowerEnergy();
   if ( seed->hitsAndFractions()[0].first.subdetId()==EcalBarrel ) {

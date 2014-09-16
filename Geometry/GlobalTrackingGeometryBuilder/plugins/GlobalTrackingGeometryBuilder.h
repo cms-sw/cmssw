@@ -16,7 +16,6 @@ class DTGeometry;
 class CSCGeometry;
 class RPCGeometry;
 class GEMGeometry;
-class ME0Geometry;
 
 class GlobalTrackingGeometryBuilder {
 public:
@@ -31,8 +30,7 @@ public:
 				const DTGeometry* dt, 
                                 const CSCGeometry* csc, 
 				const RPCGeometry* rpc,
-				const GEMGeometry* gem,
-				const ME0Geometry* me0);
+				const GEMGeometry* gem);
 
 protected:
 

@@ -18,26 +18,27 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
+class DQMStore;
 class MonitorElement;
 
-class HcalRecHitsDQMClient : public DQMEDHarvester {
+class HcalRecHitsDQMClient : public edm::EDAnalyzer {
  
  private:
+  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string outputFile_;
+
   edm::ParameterSet conf_;
 
   bool verbose_;
@@ -52,7 +53,12 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   virtual ~HcalRecHitsDQMClient();
   
   virtual void beginJob(void);
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  virtual void endJob();
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
+  virtual void runClient_();   
 
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 

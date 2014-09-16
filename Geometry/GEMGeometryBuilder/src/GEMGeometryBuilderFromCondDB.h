@@ -1,5 +1,5 @@
-#ifndef Geometry_GEMGeometry_GEMGeometryBuilderFromCondDB_H
-#define Geometry_GEMGeometry_GEMGeometryBuilderFromCondDB_H
+#ifndef GEMGeometry_GEMGeometryBuilderFromCondDB_H
+#define GEMGeometry_GEMGeometryBuilderFromCondDB_H
 
 /** \class  GEMGeometryBuilderFromCondDB
  *  Build the GEMGeometry from the DDD description stored in Condition DB 
@@ -22,14 +22,17 @@ class GEMGeometryBuilderFromCondDB
 { 
  public:
 
-  GEMGeometryBuilderFromCondDB();
+  GEMGeometryBuilderFromCondDB(bool comp11);
 
   ~GEMGeometryBuilderFromCondDB();
 
   GEMGeometry* build(const RecoIdealGeometry& rgeo);
 
+
  private:
   //  std::map<GEMDetId,std::list<GEMEtaPartition *> > chids;
+  bool theComp11Flag;
+
 };
 
 #endif

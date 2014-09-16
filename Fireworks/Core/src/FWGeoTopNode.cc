@@ -254,7 +254,6 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
    // printf("trans %d \n", transparency );
    if (transparency >= 100) return;
    
-   if (data.m_node->GetVolume()->IsAssembly()) return;
    TGeoShape* shape = data.m_node->GetVolume()->GetShape();
    
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);

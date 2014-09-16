@@ -4,7 +4,6 @@
 #include "TPRegexp.h"
 #include "TSystem.h"
 #include "TGeoArb8.h"
-#include "TObjArray.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -54,7 +53,6 @@ FWGeometry::loadMap( const char* fileName )
       throw std::runtime_error( "ERROR: failed to find geometry file. Initialization failed." );
       return;
    }
-
    TTree* tree = static_cast<TTree*>(file->Get( "idToGeo" ));
    if( ! tree )
    {
@@ -119,20 +117,6 @@ FWGeometry::loadMap( const char* fileName )
 	    m_idToInfo[i].matrix[j] = matrix[j];
       }
    }
-
-
-   m_versionInfo.productionTag  = static_cast<TNamed*>(file->Get( "tag" ));
-   m_versionInfo.cmsswVersion   = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
-   m_versionInfo.extraDetectors = static_cast<TObjArray*>(file->Get( "ExtraDetectors" ));
-  
-   TString path = file->GetPath();
-   if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
-
-   if (m_versionInfo.productionTag)
-      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(),  m_versionInfo.productionTag->GetName(), path.Data());  
-   else 
-      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), path.Data());  
-
    file->Close();
 }
 
@@ -369,12 +353,4 @@ FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* g
 		   + local[1] * info.matrix[3 * i + 1]
 		   + local[2] * info.matrix[3 * i + 2];
    }
-}
-
-//______________________________________________________________________________
-
-bool FWGeometry::VersionInfo::haveExtraDet(const char* det) const
-{
-   
-   return (extraDetectors && extraDetectors->FindObject(det)) ? true : false;
 }

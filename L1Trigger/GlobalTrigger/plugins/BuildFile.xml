@@ -1,5 +1,0 @@
-<export>
-</export>
-<library name="L1TriggerGlobalTriggerPlugins" file="*.cc">
-  <use name="L1Trigger/GlobalTrigger"/>
-</library>

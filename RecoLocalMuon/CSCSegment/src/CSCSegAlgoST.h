@@ -13,23 +13,18 @@
  * This builds segments consisting of at least 3 hits. It is allowed for segments to have 
  * a common (only one) rechit.  
  * 
- * The program is under construction/testing, as it has been for many years?!
- * As of Aug-2014 replace CLHEP matrices by ROOT::SMatrix in a minimal way.
+ * The program is under construction/testing.
  *
- *  \authors S. Stoynev  - NWU
- *           I. Bloch    - FNAL
- *           E. James    - FNAL
- *           A. Sakharov - WSU (extensive revision to handle weird segments)
- *           T. Cox      - UC Davis (struggling to handle this monster)
+ *  \authors S. Stoynev - NU
+ *           I. Bloch   - FNAL
+ *           E. James   - FNAL
+ *           A. Sakharov - WSU (extensive revision to handle wierd segments)
  *
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
-#include <Math/Functions.h>
-#include <Math/SVector.h>
-#include <Math/SMatrix.h>
+#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
 #include <deque>
 #include <vector>
@@ -45,23 +40,6 @@ public:
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
   typedef std::vector < std::vector<const CSCRecHit2D* > > Segments;
   typedef std::deque<bool> BoolContainer;
-
-  // 12 x12 Symmetric
-  typedef ROOT::Math::SMatrix<double,12,12,ROOT::Math::MatRepSym<double,12> > SMatrixSym12;
-
-  // 12 x 4
-  typedef ROOT::Math::SMatrix<double,12,4 > SMatrix12by4;
-
-  // 4 x 4 General + Symmetric
-  typedef ROOT::Math::SMatrix<double, 4 > SMatrix4;
-  typedef ROOT::Math::SMatrix<double,4,4,ROOT::Math::MatRepSym<double,4> > SMatrixSym4;
-
-  // 2 x 2 Symmetric
-  typedef ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > SMatrixSym2;
-
-  // 4-dim vector
-  typedef ROOT::Math::SVector<double,4> SVector4;
-
 
   /// Constructor
   explicit CSCSegAlgoST(const edm::ParameterSet& ps);
@@ -109,9 +87,9 @@ private:
 
   void ChooseSegments(void);
 
-  // Return the segment with the smallest weight
+  // siplistic routine - just return the segment with the smallest weight
   void ChooseSegments2a(std::vector< ChamberHitContainer > & best_segments, int best_seg);
-  // Version of ChooseSegments for the case without fake hits
+  // copy of Stoyans ChooseSegments adjusted to the case without fake hits
   void ChooseSegments2(int best_seg);
 
   // Choose routine with reduce nr of loops
@@ -122,25 +100,18 @@ private:
   void fillChiSquared(void);
   void fillLocalDirection(void);
   void doSlopesAndChi2(void);
-
-  // Find duplicates in ME1/1a, if it has ganged strips (i.e. pre-LS1)
+  // Duplicates are found in ME1/1a only (i.e. only when ME1/1A is ganged)
   void findDuplicates(std::vector<CSCSegment>  & segments );
 
   bool isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain);
 
-  // THE FOLLOWING BLITHELY PASS MATRICES AROUND LIKE CONFETTI
-  // (And that must be fixed!)
+  CLHEP::HepMatrix derivativeMatrix(void) const;
+  AlgebraicSymMatrix weightMatrix(void) const;
+  AlgebraicSymMatrix calculateError(void) const;
+  void flipErrors(AlgebraicSymMatrix&) const;
 
-  SMatrix12by4 derivativeMatrix(void) const;
-  SMatrixSym12 weightMatrix(void) const;
-  SMatrixSym4 calculateError(void) const;
-  AlgebraicSymMatrix flipErrors(const SMatrixSym4&) const;
-  void correctTheCovMatrix(SMatrixSym2& IC);
   void correctTheCovX(void);
-
-  void dumpSegment( const CSCSegment& seg ) const;
-  const CSCChamber* chamber() const {return theChamber;}
-
+  void correctTheCovMatrix(CLHEP::HepMatrix &IC);
   // Member variables
   const std::string myName; 
   const CSCChamber* theChamber;
@@ -222,25 +193,25 @@ private:
   double  curvePenaltyThreshold;
   double  curvePenalty;
   CSCSegAlgoShowering* showering_;
-
+  //
   /// Correct the Error Matrix
   bool correctCov_;              /// Allow to correct the error matrix
   double protoChiUCorrection;
   std::vector<double> e_Cxx;
-  double chi2Norm_2D_;           /// Chi^2 normalization for the corrected fit
-  double chi2Norm_3D_;           /// Chi^2 normalization for the initial fit
-  unsigned maxContrIndex;        /// The index of the worst x RecHit in Chi^2-X method
-  bool prePrun_;                 /// Allow to prune a (rechit in a) segment in segment buld method
-                                 /// once it passed through Chi^2-X and  protoChiUCorrection is big.
+  double chi2Norm_2D_;               /// Chi^2 normalization for the corrected fit
+  double chi2Norm_3D_;               /// Chi^2 normalization for the initial fit
+  unsigned maxContrIndex;       /// The index of the worst x RecHit in Chi^2-X method
+  bool prePrun_;                 /// Allow to prun a (rechit in a) segment in segment buld method
+                                /// once it passed through Chi^2-X and  protoChiUCorrection
+                                /// is big
   double prePrunLimit_;          /// The upper limit of protoChiUCorrection to apply prePrun
-
   /// Correct the error matrix for the condition number
-  double condSeed1_, condSeed2_; /// The correction parameters
+  double condSeed1_, condSeed2_;  /// The correction parameters
   bool covToAnyNumber_;          /// Allow to use any number for covariance (by hand)
   bool covToAnyNumberAll_;       /// Allow to use any number for covariance for all RecHits
-  double covAnyNumber_;          /// The number to force the Covariance
-  bool passCondNumber;           /// Passage the condition number calculations
-  bool passCondNumber_2;         /// Passage the condition number calculations
+  double covAnyNumber_;          /// The number to fource the Covariance
+  bool passCondNumber;          /// Passage the condition number calculations
+  bool passCondNumber_2;          /// Passage the condition number calculations
 };
 
 #endif

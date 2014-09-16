@@ -1,12 +1,12 @@
-#ifndef CondTools_Hcal_BoostIODBWriter_h
-#define CondTools_Hcal_BoostIODBWriter_h
+#ifndef RecoLocalCalo_HcalRecAlgos_BoostIODBWriter_h
+#define RecoLocalCalo_HcalRecAlgos_BoostIODBWriter_h
 
 // -*- C++ -*-
 //
-// Package:    CondTools/Hcal
+// Package:    RecoLocalCalo/HcalRecAlgos
 // Class:      BoostIODBWriter
 // 
-/**\class BoostIODBWriter BoostIODBWriter.h CondTools/Hcal/interface/BoostIODBWriter.h
+/**\class BoostIODBWriter BoostIODBWriter.h RecoLocalCalo/HcalRecAlgos/interface/BoostIODBWriter.h
 
  Description: writes a boost I/O blob from a file into a database
 
@@ -87,4 +87,4 @@ void BoostIODBWriter<DataType>::analyze(const edm::Event& iEvent,
             << "please configure it properly" << std::endl;
 }
 
-#endif // CondTools_Hcal_BoostIODBWriter_h
+#endif // RecoLocalCalo_HcalRecAlgos_BoostIODBWriter_h

@@ -497,7 +497,6 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	 << " at " << vol->center()
 	 << " phi: " << vol->center().phi()
 	 << " file: " << vol->magFile
-	 << " master : " << vol->masterSector
 	 << endl;
 
     if ( fabs(vol->center().phi() - masterSectorPhi) > Geom::pi()/9.) {
@@ -609,8 +608,8 @@ void MagGeoBuilderFromDDD::testInside(handles & volumes) {
       if ((*i)==(*vol)) continue;
       //if ((*i)->magVolume == 0) continue;
       if ((*i)->magVolume->inside((*vol)->center())) {
-	cout << "*** ERROR: center of V " << (*vol)->volumeno << ":" << (*vol)->copyno << " is inside V " 
-	     << (*i)->volumeno << ":" << (*i)->copyno << endl;
+	cout << "*** ERROR: center of V " << (*vol)->volumeno << " is inside V " 
+	     << (*i)->volumeno <<endl;
       }
     }
     

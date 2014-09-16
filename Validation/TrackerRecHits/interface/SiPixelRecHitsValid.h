@@ -71,9 +71,6 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	MonitorElement* recHitYResLayer1Modules[8];
 	MonitorElement* recHitYResLayer2Modules[8];
 	MonitorElement* recHitYResLayer3Modules[8];
-	MonitorElement* recHitBunchB;
-	MonitorElement* recHitEventB;
-	MonitorElement* recHitNsimHitLayer[3];
 
 	//RecHits FPIX
 	MonitorElement* recHitXResAllF;
@@ -88,10 +85,6 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	MonitorElement* recHitXResDisk2Plaquettes[7];
 	MonitorElement* recHitYResDisk1Plaquettes[7];
 	MonitorElement* recHitYResDisk2Plaquettes[7];
-	MonitorElement* recHitBunchF;
-	MonitorElement* recHitEventF;
-	MonitorElement* recHitNsimHitDisk1;
-	MonitorElement* recHitNsimHitDisk2;
 
 	// Pull distributions
 	//RecHits BPIX

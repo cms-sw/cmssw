@@ -99,7 +99,7 @@ class TopSingleLeptonHLTValidation : public DQMEDAnalyzer {
       double etaJets_;
       unsigned int minJets_;
       // Trigger
-      edm::InputTag iTrigger_;
+      std::string sTrigger_;
       edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
       std::vector<std::string> vsPaths_;
       // Flags
@@ -143,7 +143,7 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
   ptJets_(iConfig.getUntrackedParameter<double>("ptJets",0.)),
   etaJets_(iConfig.getUntrackedParameter<double>("etaJets",0.)),
   minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets",0)),
-  iTrigger_(iConfig.getUntrackedParameter<edm::InputTag>("iTrigger")),
+  sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger","TriggerResults")),
   vsPaths_(iConfig.getUntrackedParameter< std::vector<std::string> >("vsPaths"))
 
 {
@@ -154,7 +154,7 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
   // Jets
   tokJets_ = consumes< edm::View<reco::Jet> >(edm::InputTag(sJets_));
   // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(iTrigger_); 
+  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "")); 
 }
 
 

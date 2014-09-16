@@ -36,6 +36,7 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"

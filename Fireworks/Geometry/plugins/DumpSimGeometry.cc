@@ -40,7 +40,6 @@
 
 #include "TFile.h"
 #include "TError.h"
-#include "TSystem.h"
 
 //
 // class declaration
@@ -53,22 +52,19 @@ public:
   ~DumpSimGeometry();
 
 private:
+  // virtual void beginJob();
+  // virtual void endJob();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-
-   std::string m_tag;
-   std::string m_outputFileName;
 };
 
 
 //
 // constructors and destructor
 //
-DumpSimGeometry::DumpSimGeometry(const edm::ParameterSet& ps)
+DumpSimGeometry::DumpSimGeometry(const edm::ParameterSet&)
 {
-   m_tag =  ps.getUntrackedParameter<std::string>("tag", "unknown");
-   m_outputFileName = ps.getUntrackedParameter<std::string>("outputFileName", "cmsSimGeom.root");
-
+   // now do what ever initialization is needed
 }
 
 
@@ -95,11 +91,8 @@ DumpSimGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    std::cout << "In the DumpSimGeometry::analyze method...obtained main geometry, level="
              << level << std::endl;
    
-   // TFile f(TString::Format("cmsSimGeom-%d.root", level), "RECREATE");
-   TFile f(m_outputFileName.c_str(), "RECREATE");
+   TFile f(TString::Format("cmsSimGeom-%d.root", level), "RECREATE");
    f.WriteTObject(geom);
-   f.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" )));
-   f.WriteTObject(new TNamed("tag", m_tag.c_str()));
    f.Close();
 }
 
