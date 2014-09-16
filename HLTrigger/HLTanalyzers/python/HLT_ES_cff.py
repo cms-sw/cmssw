@@ -2749,13 +2749,13 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
-hltESPAK4CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
+hltESPAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPL1FastJetCorrectionESProducer',
     'hltESPL2RelativeCorrectionESProducer',
     'hltESPL3AbsoluteCorrectionESProducer' ),
   appendToDataLabel = cms.string( "" )
 )
-hltESPAK4CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
+hltESPAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPL2RelativeCorrectionESProducer',
     'hltESPL3AbsoluteCorrectionESProducer' ),
   appendToDataLabel = cms.string( "" )
@@ -3148,17 +3148,17 @@ hltESPKFUpdator = cms.ESProducer( "KFUpdatorESProducer",
 hltESPL1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-  algorithm = cms.string( "AK4Calo" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L1FastJet" )
 )
 hltESPL2RelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK4Calo" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L2Relative" )
 )
 hltESPL3AbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK4Calo" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L3Absolute" )
 )
 hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
