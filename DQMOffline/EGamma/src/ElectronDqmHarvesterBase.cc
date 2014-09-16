@@ -296,11 +296,18 @@ void ElectronDqmHarvesterBase::remove_other_dirs()
    }
  }
 
-MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
+/*MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker,
    const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title, const std::string & setEfficiencyFlag )
+ { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title,setEfficiencyFlag) ;  }*/
+
+MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
+ ( DQMStore::IBooker & iBooker,
+   const std::string & name, const std::string & num, const std::string & denom,
+   const std::string & titleX, const std::string & titleY,
+   const std::string & title, const bool & setEfficiencyFlag )
  { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title,setEfficiencyFlag) ;  }
 
 /*MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
@@ -496,7 +503,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookP1
   return me ;
  }*/
 
-MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
+/*MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker,
    const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
@@ -513,6 +520,27 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book1D(name2,h_temp) ;
   if (setEfficiencyFlag == "true") { me->setEfficiencyFlag(); }
+  delete h_temp ;
+  return me ;
+ }*/
+
+MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
+ ( DQMStore::IBooker & iBooker,
+   const std::string & name, MonitorElement * num, MonitorElement * denom,
+   const std::string & titleX, const std::string & titleY,
+   const std::string & title,const bool & setEfficiencyFlag )
+ {
+  if ((!num)||(!denom)) return 0 ;
+  std::string name2 = newName(name) ;
+  TH1F * h_temp = (TH1F *)num->getTH1F()->Clone(name2.c_str()) ;
+  h_temp->Reset() ;
+  h_temp->Divide(num->getTH1(),denom->getTH1(),1,1,"b") ;
+  h_temp->GetXaxis()->SetTitle(titleX.c_str()) ;
+  h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
+  if (title!="") { h_temp->SetTitle(title.c_str()) ; }
+  if (verbosity_>0) { h_temp->Print() ; }
+  MonitorElement * me = iBooker.book1D(name2,h_temp) ;
+  if (setEfficiencyFlag) { me->setEfficiencyFlag(); }
   delete h_temp ;
   return me ;
  }
