@@ -12,10 +12,10 @@ class MonitorElement ;
 #include <vector>
 
 //DQM
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
  {
@@ -56,23 +56,11 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
        const std::string & titleX ="", const std::string & titleY ="Events",
        Option_t * option = "E1 P" ) ;
 
-/*    MonitorElement * bookH1b 
-     ( const std::string & name, const std::string & title,
-       int nchX, double lowX, double highX,
-       const std::string & titleX ="", const std::string & titleY ="Events",
-       Option_t * option = "E1 P" ) ;*/
-
     MonitorElement * bookH1withSumw2
      ( DQMStore::IBooker & , const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        const std::string & titleX ="", const std::string & titleY ="Events",
        Option_t * option = "E1 P"  ) ;
-
-/*    MonitorElement * bookH1withSumw2
-     ( const std::string & name, const std::string & title,
-       int nchX, double lowX, double highX,
-       const std::string & titleX ="", const std::string & titleY ="Events",
-       Option_t * option = "E1 P"  ) ;*/
 
     MonitorElement * bookH2
      ( DQMStore::IBooker & , const std::string & name, const std::string & title,
@@ -81,26 +69,12 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
        const std::string & titleX ="", const std::string & titleY ="",
        Option_t * option = "COLZ"  ) ;
 
-/*    MonitorElement * bookH2
-     ( const std::string & name, const std::string & title,
-       int nchX, double lowX, double highX,
-       int nchY, double lowY, double highY,
-       const std::string & titleX ="", const std::string & titleY ="",
-       Option_t * option = "COLZ"  ) ;*/
-
     MonitorElement * bookH2withSumw2
      ( DQMStore::IBooker & , const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        int nchY, double lowY, double highY,
        const std::string & titleX ="", const std::string & titleY ="",
        Option_t * option = "COLZ"  ) ;
-
-/*    MonitorElement * bookH2withSumw2
-     ( const std::string & name, const std::string & title,
-       int nchX, double lowX, double highX,
-       int nchY, double lowY, double highY,
-       const std::string & titleX ="", const std::string & titleY ="",
-       Option_t * option = "COLZ"  ) ;*/
 
     MonitorElement * bookP1
      ( DQMStore::IBooker & , const std::string & name, const std::string & title,
@@ -109,118 +83,53 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
        const std::string & titleX ="", const std::string & titleY ="",
        Option_t * option = "E1 P"  ) ;
 
-/*    MonitorElement * bookP1
-     ( const std::string & name, const std::string & title,
-       int nchX, double lowX, double highX,
-                 double lowY, double highY,
-       const std::string & titleX ="", const std::string & titleY ="",
-       Option_t * option = "E1 P"  ) ;*/
-
-/*    MonitorElement * bookH1andDivide
-     ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
-       const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;*/
-
     MonitorElement * bookH1andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="", const bool & setEfficiencyFlag=false ) ;
-
-/*    MonitorElement * bookH1andDivide
-     ( const std::string & name, MonitorElement * num, MonitorElement * denom,
-       const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;*/
 
     MonitorElement * bookH2andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="" ) ;
 
-/*    MonitorElement * bookH2andDivide
-     ( const std::string & name, MonitorElement * num, MonitorElement * denom,
-       const std::string & titleX, const std::string & titleY,
-       const std::string & title ="" ) ;*/
-
     MonitorElement * cloneH1
     ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * original,
       const std::string & title ="" ) ;
-
-/*    MonitorElement * cloneH1
-    ( const std::string & name, MonitorElement * original,
-      const std::string & title ="" ) ;*/
 
     MonitorElement * profileX
      ( DQMStore::IBooker & iBooker, MonitorElement * me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
-/*    MonitorElement * profileX
-     ( MonitorElement * me2d,
-       const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
-       Double_t minimum = -1111, Double_t maximum = -1111 ) ;*/
-
     MonitorElement * profileY
      ( DQMStore::IBooker & iBooker, MonitorElement * me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
-
-/*    MonitorElement * profileY
-     ( MonitorElement * me2d,
-       const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
-       Double_t minimum = -1111, Double_t maximum = -1111 ) ;*/
-
-/*    MonitorElement * bookH1andDivide
-     ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
-       const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;*/
 
     MonitorElement * bookH1andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="", const bool & setEfficiencyFlag="" ) ;
 
-/*    MonitorElement * bookH1andDivide
-     ( const std::string & name, const std::string & num, const std::string & denom,
-       const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;*/
-
     MonitorElement * bookH2andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="" ) ;
 
-/*    MonitorElement * bookH2andDivide
-     ( const std::string & name, const std::string & num, const std::string & denom,
-       const std::string & titleX, const std::string & titleY,
-       const std::string & title ="" ) ;*/
-
     MonitorElement * cloneH1
      ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & original,
        const std::string & title ="" ) ;
-
-/*    MonitorElement * cloneH1
-     ( const std::string & name, const std::string & original,
-       const std::string & title ="" ) ;*/
 
     MonitorElement * profileX
      ( DQMStore::IBooker & iBooker, const std::string & me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
-/*    MonitorElement * profileX
-     ( const std::string & me2d,
-       const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
-       Double_t minimum = -1111, Double_t maximum = -1111 ) ;*/
-
     MonitorElement * profileY
      ( DQMStore::IBooker & iBooker, const std::string & me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
-
-/*    MonitorElement * profileY
-     ( const std::string & me2d,
-       const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
-       Double_t minimum = -1111, Double_t maximum = -1111 ) ;*/
 
   private:
 
