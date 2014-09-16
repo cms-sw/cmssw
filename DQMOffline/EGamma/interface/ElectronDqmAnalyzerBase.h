@@ -116,10 +116,15 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
        const std::string & titleX ="", const std::string & titleY ="",
        Option_t * option = "E1 P"  ) ;*/
 
+/*    MonitorElement * bookH1andDivide
+     ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
+       const std::string & titleX, const std::string & titleY,
+       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;*/
+
     MonitorElement * bookH1andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;
+       const std::string & title ="", const bool & setEfficiencyFlag=false ) ;
 
 /*    MonitorElement * bookH1andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
@@ -164,10 +169,15 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;*/
 
+/*    MonitorElement * bookH1andDivide
+     ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
+       const std::string & titleX, const std::string & titleY,
+       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;*/
+
     MonitorElement * bookH1andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const std::string & setEfficiencyFlag="" ) ;
+       const std::string & title ="", const bool & setEfficiencyFlag="" ) ;
 
 /*    MonitorElement * bookH1andDivide
      ( const std::string & name, const std::string & num, const std::string & denom,
