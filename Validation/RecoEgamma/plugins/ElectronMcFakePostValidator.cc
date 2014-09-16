@@ -20,30 +20,18 @@ void ElectronMcFakePostValidator::book()
  { setBookIndex(-1) ; }
 /**/
 
-void ElectronMcFakePostValidator::finalize2(  ) 
- {
-  std::cout << "========== ElectronMcFakePostValidator::finalize2 ==========" << std::endl; // A.C. to be removed
-  //ElectronDqmHarvesterBase::setBookPrefix("h_ele") ;
-
- }
-
 void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
  {
-  std::cout << "========== ElectronMcFakePostValidator::finalize ==========" << std::endl; // A.C. to be removed
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation " ;
-  std::cout << " ElectronMcFakePostValidator::finalize : efficiency calculation" << std::endl; // A.C. to be removed
-  std::cout << "ElectronMcSignalPostValidator::finalize::setEfficiencyFlag = " << set_EfficiencyFlag << std::endl; // A.C. to be removed
   bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency","", set_EfficiencyFlag);
-  
   bookH1andDivide(iBooker, "zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency","", set_EfficiencyFlag);
   bookH1andDivide(iBooker, "absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency","", set_EfficiencyFlag);
   bookH1andDivide(iBooker, "ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","", set_EfficiencyFlag);
   bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency","", set_EfficiencyFlag);
 //    bookH2andDivide(iBooker, "ptEtaEff","matchingObjectPtEta_matched","matchingObjectPtEta","#eta","p_{T} (GeV/c)","");
 //
-//    std::cout << "[ElectronMcFakePostValidator] q-misid calculation " << std::endl;
 //    bookH1andDivide(iBooker, "etaQmisid","matchingObjectEta_matched_qmisid","h_simEta","#eta","q misId","",set_EfficiencyFlag);
 //    bookH1andDivide(iBooker, "zQmisid","matchingObjectZ_matched_qmisid","h_simZ","z (cm)","q misId","",set_EfficiencyFlag);
 //    bookH1andDivide(iBooker, "absetaQmisid","matchingObjectAbsEta_matched_qmisid","h_simAbsEta","|#eta|","q misId","",set_EfficiencyFlag);
@@ -62,11 +50,9 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
   // fbrem
   MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
   TAxis * etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis() ;
-  MonitorElement * h1_ele_xOverX0VsEta = ElectronDqmHarvesterBase::bookH1withSumw2(iBooker, "xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
-  std::cout << "McFakePost bookHistograms h1_ele_xOverX0VsEta : " << h1_ele_xOverX0VsEta->getTH1F()->GetXaxis()->GetNbins()+1 << " Nbins" << std::endl;
+  MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2(iBooker, "xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
   for (int ibin=1;ibin<etaAxis->GetNbins()+1;ibin++) {
     double xOverX0 = 0.;
-	std::cout << "boucle finalize" << ibin << std::endl;
     if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
      { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
@@ -106,8 +92,6 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
   profileX(iBooker, "seedDphi2Pos_VsPt","mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
   profileX(iBooker, "seedDrz2Pos_VsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
   profileX(iBooker, "seedDrz2Pos_VsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-
-  std::cout << "========== ElectronMcFakePostValidator::finalize : fin ==========" << std::endl; // A.C. to be removed
 
   }
 
