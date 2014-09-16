@@ -232,6 +232,8 @@ namespace cond {
 	    bool exists = false;
             std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
 	    if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
+	    std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
+	    if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
 	  }
           converted.addKey( kitem.first, pid );
 	}
@@ -244,6 +246,8 @@ namespace cond {
 	      bool exists = false;
 	      std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
 	      if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
+	      std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
+	      if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
 	    }
 	    converted.addKey( ritem.first, kitem.first, pid );
 	  }
