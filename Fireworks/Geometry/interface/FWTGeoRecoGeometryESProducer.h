@@ -31,7 +31,7 @@ class FWTGeoRecoGeometryESProducer : public edm::ESProducer
 {
    enum ERecoDet  {kDummy, 
                    kSiPixel, kSiStrip,
-                   kMuonDT, kMuonRPC, kMuonCSC, kMuonGEM,
+                   kMuonDT, kMuonRPC, kMuonCSC, kMuonGEM, kMuonME0,
                    kECal, kHCal,
                    kHGCE, kHGCH };
 public:
@@ -65,6 +65,7 @@ private:
    void addDTGeometry();
    void addRPCGeometry();
    void addGEMGeometry();
+   void addME0Geometry();
    void addEcalCaloGeometry();
    void addHcalCaloGeometryBarrel();
    void addHcalCaloGeometryEndcap();
