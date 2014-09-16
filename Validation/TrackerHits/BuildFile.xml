@@ -1,4 +1,3 @@
-<use name="SimTracker/SiPixelDigitizer"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>

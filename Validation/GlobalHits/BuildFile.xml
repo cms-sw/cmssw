@@ -19,5 +19,4 @@
 <use   name="clhep"/>
 <use   name="rootmath"/>
 <use   name="DataFormats/Math"/>
-<use name="SimTracker/SiPixelDigitizer"/>
 <flags   EDM_PLUGIN="1"/>
