@@ -775,19 +775,6 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 }
 
 
-namespace {
-
-double etatotheta(double eta)
-{
-   using namespace TMath;
-
-   if (eta < 0)
-      return 3.14 - 2*ATan(Exp(- Abs(eta)));
-   else
-      return 2*ATan(Exp(- Abs(eta)));
-}
-}
-
 //==============================================================================
 //================================= CALO =======================================
 //==============================================================================
