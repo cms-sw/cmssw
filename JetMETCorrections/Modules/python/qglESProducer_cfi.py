@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-QGLikelihoodESProducer_AK5PF = cms.ESProducer("QGLikelihoodESProducer",
+QGLikelihoodESProducer_AK4PF = cms.ESProducer("QGLikelihoodESProducer",
 # this is what it makes available
-    algo = cms.string('QGL_AK5PF')
+    algo = cms.string('QGL_AK4PF')
 )
-QGLikelihoodESProducer_AK5PFchs = cms.ESProducer("QGLikelihoodESProducer",
+QGLikelihoodESProducer_AK4PFchs = cms.ESProducer("QGLikelihoodESProducer",
 # this is what it makes available
-    algo = cms.string('QGL_AK5PFchs')
+    algo = cms.string('QGL_AK4PFchs')
 )
