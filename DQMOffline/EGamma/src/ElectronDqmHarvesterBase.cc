@@ -146,13 +146,6 @@ void ElectronDqmHarvesterBase::endRun( edm::Run const &, edm::EventSetup const &
    }
  }
 
-/*virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const&) 
-{
-  std::cout << "ElectronDqmHarvesterBase::beginLuminosityBlock : " << std::endl; // A.C. to be removed
-  std::cout << "ElectronDqmHarvesterBase::beginLuminosityBlock : appel analyze2" << std::endl; // A.C. to be removed
-  analyze2() ;
-}*/
-
 /* void ElectronDqmHarvesterBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
  {
   if (finalStep_=="AtLumiEnd")
@@ -182,8 +175,6 @@ void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker &, DQMSt
    }
    else 
    {
-//    std::cout << "ElectronDqmHarvesterBase::beginLuminosityBlock : appel analyze2" << std::endl; // A.C. to be removed
-//    analyze2() ;
 //    passe par ici mais pas au dessus
    }
   std::cout << "ElectronDqmHarvesterBase::dqmEndLuminosityBlock : fin" << std::endl; // A.C. to be removed
