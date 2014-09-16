@@ -5,19 +5,19 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL2L3,
 
 #JEC for CHS
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFCHSL1Fastjet, ak4PFCHSL2Relative, ak4PFCHSL3Absolute, ak4PFCHSResidual, ak4PFCHSL1FastL2L3, ak4PFCHSL1FastL2L3Residual
-newak4PFCHSL1Fastjet = ak4PFCHSL1Fastjet.clone(algorithm = 'AK5PFchs')
-newak4PFCHSL2Relative = ak4PFCHSL2Relative.clone(algorithm = 'AK5PFchs')
-newak4PFCHSL3Absolute = ak4PFCHSL3Absolute.clone(algorithm = 'AK5PFchs')
-newak4PFCHSResidual = ak4PFCHSResidual.clone(algorithm = 'AK5PFchs')
+newak4PFCHSL1Fastjet = ak4PFCHSL1Fastjet.clone(algorithm = 'AK4PFchs')
+newak4PFCHSL2Relative = ak4PFCHSL2Relative.clone(algorithm = 'AK4PFchs')
+newak4PFCHSL3Absolute = ak4PFCHSL3Absolute.clone(algorithm = 'AK4PFchs')
+newak4PFCHSResidual = ak4PFCHSResidual.clone(algorithm = 'AK4PFchs')
 
 newak4PFCHSL1FastL2L3 = ak4PFCHSL1FastL2L3.clone(correctors = cms.vstring('newak4PFCHSL1Fastjet','newak4PFCHSL2Relative','newak4PFCHSL3Absolute'))
 newak4PFCHSL1FastL2L3Residual = ak4PFCHSL1FastL2L3Residual.clone(correctors = cms.vstring('newak4PFCHSL1Fastjet','newak4PFCHSL2Relative','newak4PFCHSL3Absolute','newak4PFCHSResidual'))
 
 #Needed only for fastsim, why?
-ak4PFCHSL1Fastjet.algorithm = 'AK5PFchs'
-ak4PFCHSL2Relative.algorithm = 'AK5PFchs'
-ak4PFCHSL3Absolute.algorithm = 'AK5PFchs'
-ak4PFCHSResidual.algorithm = 'AK5PFchs'
+ak4PFCHSL1Fastjet.algorithm = 'AK4PFchs'
+ak4PFCHSL2Relative.algorithm = 'AK4PFchs'
+ak4PFCHSL3Absolute.algorithm = 'AK4PFchs'
+ak4PFCHSResidual.algorithm = 'AK4PFchs'
 
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
