@@ -74,7 +74,7 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	if (!CCD) return;
 	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
 	std::string sname(sfile);
-	if ( sname.find("/test/") != std::string::npos) return;
+	if ( ! support::isInterestingLocation(sname) ) return;
 	std::string mname = support::getQualifiedName(*CCD);
 	const char * pPath = std::getenv("LOCALRT");
 	std::string tname = ""; 
@@ -98,7 +98,7 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	if (!FD) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
 	std::string sname(sfile);
-	if ( sname.find("/test/") != std::string::npos) return;
+	if ( ! support::isInterestingLocation(sname) ) return;
  	std::string mname = support::getQualifiedName(*FD);
 	const char * pPath = std::getenv("LOCALRT");
 	std::string tname = ""; 
@@ -113,7 +113,8 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 		if ( AMD && CD && RD && CD->isVirtual() && RD == AMD->getParent() ) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
 		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	} else {
-		if (FD->isVirtualAsWritten() || FD->isPure()) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n"; 
+		if (FD->isVirtualAsWritten() || FD->isPure())
+			ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
 		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	}
 	std::ofstream file(tname.c_str(),std::ios::app);
@@ -123,10 +124,11 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-
+	if (MD->getLocation().isInvalid()) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
 	std::string sname(sfile);
-	if ( sname.find("/test/") != std::string::npos) return;
+	if ( ! support::isInterestingLocation(sname) ) return;
+	if ( ! support::isCmsLocalFile(sfile) ) return;
 	if (!MD->doesThisDeclarationHaveABody()) return;
 	FDumper walker(BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
@@ -146,11 +148,11 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 
 void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-
+	if (TD->getLocation().isInvalid()) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
 	std::string sname(sfile);
-	if ( sname.find("/test/") != std::string::npos) return;
-  
+	if ( ! support::isInterestingLocation(sname) ) return;
+	if ( ! support::isCmsLocalFile(sfile) ) return;
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{
