@@ -50,7 +50,7 @@ class HLTHiggsPlotter
 				//const std::string & lastFilter,
 				const std::vector<unsigned int> & objectsType,
 				const unsigned int & minCandidates,
-				const bool & isVBFHBB);
+                const std::vector<double> & NminOneCuts);
 		~HLTHiggsPlotter();
 	      	void beginJob();
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
@@ -58,7 +58,7 @@ class HLTHiggsPlotter
                 void analyze(const bool & isPassTrigger,const std::string & source,
 				const std::vector<MatchStruct> & matches);
 		void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches,
-			       const std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb);
+			       std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const bool & passAllCuts);
 		
 		inline const std::string gethltpath() const { return _hltPath; }
 		
@@ -88,8 +88,8 @@ class HLTHiggsPlotter
 		// The amount of Pt plots needed for the hlt path
 		unsigned int _minCandidates;
 
-		//bool to determine if VBFHbb plots have to be made
-		bool _isVBFHBB;
+        //N-1 cut values
+        std::vector<double> _NminOneCuts;
 		
 		std::map<std::string, MonitorElement *> _elements;
 };

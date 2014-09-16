@@ -26,7 +26,7 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
                                  const std::string & hltPath,
                                  const std::vector<unsigned int> & objectsType, 
                                  const unsigned int & minCandidates,
-                                 const bool & isVBFHBB) :
+                                 const std::vector<double> & NminOneCuts) :
     _hltPath(hltPath),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
     _objectsType(std::set<unsigned int>(objectsType.begin(),objectsType.end())),
@@ -35,7 +35,7 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
     _minCandidates(minCandidates),
-    _isVBFHBB(isVBFHBB)
+    _NminOneCuts(NminOneCuts)
 {
   for(std::set<unsigned int>::iterator it = _objectsType.begin();
       it != _objectsType.end(); ++it)
@@ -79,15 +79,21 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
         for (size_t i = 0; i < sources.size(); i++)
         {
             std::string source = sources[i];
-            if( _isVBFHBB ) {
+            
+            if( *it == EVTColContainer::PFJET) {
                 if( source == "gen" ) continue;
-                else{
-                    bookHist(source, objTypeStr, "dEtaqq", ibooker);
-                    bookHist(source, objTypeStr, "mqq", ibooker);
-                    bookHist(source, objTypeStr, "dPhibb", ibooker);
+                else {
+                    // N-1 jet plots (dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4)
+                    if( _NminOneCuts[0] ) bookHist(source, objTypeStr, "dEtaqq", ibooker);
+                    if( _NminOneCuts[1] ) bookHist(source, objTypeStr, "mqq", ibooker);
+                    if( _NminOneCuts[2] ) bookHist(source, objTypeStr, "dPhibb", ibooker);
+                    if( _NminOneCuts[3] ) {
+                        if ( _NminOneCuts[4] ) bookHist(source, objTypeStr, "maxCSV", ibooker);
+                        else bookHist(source, objTypeStr, "CSV1", ibooker);
+                    }
                 }
             }
-            
+             
             bookHist(source, objTypeStr, "Eta", ibooker);
             bookHist(source, objTypeStr, "Phi", ibooker);
             for( unsigned int i=0; i < _minCandidates; i++ )
@@ -113,7 +119,8 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
   for(std::set<unsigned int>::iterator co = _objectsType.begin();
       co != _objectsType.end(); ++co)
   {
-    countobjects[*co] = 0;
+    if( !(*co == EVTColContainer::PFJET && source == "gen") ) // genJets are not there
+      countobjects[*co] = 0;
   }
 	
   int counttotal = 0;
@@ -158,7 +165,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
 }
 
 void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches,
-			       const std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb)
+			       std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const bool & passAllCuts)
 {
   if ( !isPassTrigger )
   {
@@ -169,18 +176,15 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
   for(std::set<unsigned int>::iterator co = _objectsType.begin();
       co != _objectsType.end(); ++co)
   {
-    countobjects[*co] = 0;
+    if( !(*co == EVTColContainer::PFJET && source == "gen") ) // genJets are not needed
+      countobjects[*co] = 0;
   }
 	
   int counttotal = 0;
-  int totobj_temp = _minCandidates*countobjects.size();
-  if( _isVBFHBB && source == "gen" ) totobj_temp = _minCandidates*(countobjects.size()-1);
-  const int totalobjectssize2 = totobj_temp;
+  const int totalobjectssize2 = _minCandidates*countobjects.size();
   // Fill the histos if pass the trigger (just the two with higher pt)
   for (size_t j = 0; j < matches.size(); ++j)
-  {
-	if( _isVBFHBB && j >= (unsigned) totalobjectssize2) break;
-	  
+  { 
     // Is this object owned by this trigger? If not we are not interested...
     if ( _objectsType.find( matches[j].objType) == _objectsType.end() )
     {
@@ -194,39 +198,46 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
     float eta = matches[j].eta;
     float phi = matches[j].phi;
     
-
-	if( nMinOne.at("MaxPt1") && nMinOne.at("MaxPt2") ) {
-		this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
-		this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
-	}
+    // MET N-1 cut
+    if( objType == EVTColContainer::CALOMET && _NminOneCuts[6] && ! nMinOne["MET"] ) continue;
+ 
+    if( ! objType == EVTColContainer::PFJET || passAllCuts ) {
+        this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
+        this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
+    }
     
     TString maxPt;
     if( (unsigned)(countobjects)[objType] < _minCandidates )
 	{
 		maxPt = "MaxPt";
 		maxPt += j+1;
-		if( nMinOne.at(maxPt.Data()) ) {
+		if( ! objType == EVTColContainer::PFJET || nMinOne[maxPt.Data()] ) {
 			this->fillHist(isPassTrigger,source,objTypeStr,maxPt.Data(),pt);
-			// Filled the high pt ...
-			++(countobjects[objType]);
-			++counttotal;
 		}
+        ++(countobjects[objType]);
+        ++counttotal;
 	}
 	if ( counttotal == totalobjectssize2 ) 
 	{
 		break;
 	}				
   }
-  
-  if( nMinOne.at("dEtaqq") ) {
-    this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"dEtaqq",dEtaqq);
+  if( source == "rec") {
+    if( _NminOneCuts[0] && nMinOne["dEtaqq"] ) {
+        this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"dEtaqq",dEtaqq);
+    }
+    if( _NminOneCuts[1] && nMinOne["mqq"] ) {
+        this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"mqq",mqq);
+    }
+    if( _NminOneCuts[2] && nMinOne["dPhibb"] ) {
+        this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"dPhibb",dPhibb);
+    }
+    if( _NminOneCuts[3] ) {
+        std::string nameCSVplot = "CSV1";
+        if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
+        if ( nMinOne[nameCSVplot] ) this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),nameCSVplot,CSV1);
+    }
   }
-  if( nMinOne.at("mqq") ) {
-    this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"mqq",mqq);
-  }
-  if( nMinOne.at("dPhibb") ) {
-    this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"dPhibb",dPhibb);
-  }  
 }
 
 void HLTHiggsPlotter::bookHist(const std::string & source, 
@@ -272,11 +283,11 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
   else 
   {
     if( variable == "dEtaqq" ){
-	std::string title  = "#Delta #eta_{qq} of " + sourceUpper + " " + objType;
-	int    nBins = 20;
-	double min   = 0;
-	double max   = 4.8;
-	h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+        std::string title  = "#Delta #eta_{qq} of " + sourceUpper + " " + objType;
+        int    nBins = 20;
+        double min   = 0;
+        double max   = 4.8;
+        h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
 	}
 	else if ( variable == "mqq" ){
 		std::string title  = "m_{qq} of " + sourceUpper + " " + objType;
@@ -292,6 +303,20 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
 	    	double max   = 3.1416;
 	    	h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
 	}
+    else if ( variable == "CSV1" ){
+        std::string title  = "CSV1 of " + sourceUpper + " " + objType;
+        int    nBins = 20;
+        double min   = 0;
+        double max   = 1;
+        h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+    } 
+    else if ( variable == "maxCSV" ){
+        std::string title  = "max CSV of " + sourceUpper + " " + objType;
+        int    nBins = 20;
+        double min   = 0;
+        double max   = 1;
+        h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+    } 
 	else
 	{
 	    std::string symbol = (variable == "Eta") ? "#eta" : "#phi";

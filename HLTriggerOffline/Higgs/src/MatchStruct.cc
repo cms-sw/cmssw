@@ -86,13 +86,6 @@ struct matchesByDescendingPt
 		return a.pt > b.pt;
 	}
 };
-struct matchesByDescendingEta 
-{
-	bool operator() (MatchStruct a, MatchStruct b) 
-	{     
-		return a.eta > b.eta;
-	}
-};
 struct matchesByDescendingBtag
 {
 	bool operator() (MatchStruct a, MatchStruct b) 

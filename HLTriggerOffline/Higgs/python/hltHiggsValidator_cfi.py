@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "Hbb"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -150,7 +150,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(2), 
 	    ),
-    Hbb  = cms.PSet( 
+    VBFHbb  = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
 		    "HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
@@ -160,7 +160,19 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(4), 
-	    isVBFHBB   = cms.untracked.bool(True),
-	    multipleJetCuts = cms.untracked.vdouble(85, 70, 60, 40, 2.4, 300, 2), #pt1, pt2, pt3, pt4, dEtaqq, mqq, dPhibb 
+	    NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 	    ),
+    ZnnHbb = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            #"HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
+            "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
+            ),
+        Jet_recCut   = cms.string("abs(eta) < 2.6"),
+        recJetLabel  = cms.string("PFJetsFilter"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        recCaloMETLabel = cms.string("caloMet"),  
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(1), 
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 4, 20, 80, 60), #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1
+        ),
 )
