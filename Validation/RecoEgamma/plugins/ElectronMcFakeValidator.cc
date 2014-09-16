@@ -461,14 +461,8 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
 
  }
 
-/*void ElectronMcFakeValidator::book2()
- {
-  std::cout << "========== ElectronMcFakeValidator::book2 ==========" << std::endl; // A.C. to be removed
- }*/
- 
 void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
-  std::cout << "========== ElectronMcFakeValidator::bookHistograms ==========" << std::endl; // A.C. to be removed
   setBookIndex(-1) ;
   setBookPrefix("h") ;
 
@@ -892,11 +886,6 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
 
  }
 
-/*void ElectronMcFakeValidator::book()
- {
-  std::cout << "ElectronMcFakeValidator::book " << std::endl; // A.C. to be removed 
- }*/
-
 ElectronMcFakeValidator::~ElectronMcFakeValidator()
  {}
 
@@ -905,16 +894,8 @@ ElectronMcFakeValidator::~ElectronMcFakeValidator()
 // Main methods
 //=========================================================================
 
-//void ElectronMcFakeValidator::analyze()
-//void ElectronMcFakeValidator::analyze( DQMStore::IBooker &, DQMStore::IGetter &, edm::Event const & iEvent, edm::EventSetup const & iSetup )
-/*void ElectronMcFakeValidator::analyze2( edm::Event const & iEvent, edm::EventSetup const & iSetup ) 
- {
-  std::cout << "ElectronMcFakeValidator::analyze2 " << std::endl; // A.C. to be removed 
- }*/
- 
 void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
  {
-//  std::cout << "========== ElectronMcFakeValidator::analyze ==========" << std::endl; // A.C. to be removed
   // get reco electrons
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByToken(electronCollection_,gsfElectrons);
@@ -1527,7 +1508,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
    } // loop overmatching object
 
   h1_matchingObjectNum->Fill(matchingObjectNum) ;
-//  std::cout << "ElectronMcFakeValidator::analyze sortie " << std::endl; // A.C. to be removed
 
  }
 
