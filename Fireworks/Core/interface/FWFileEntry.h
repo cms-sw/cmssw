@@ -1,6 +1,6 @@
 // -*- C++ -*-
 #ifndef Fireworks_Core_FWFileEntry_h
-#define Fireworks_Core_FWFileEntryr_h
+#define Fireworks_Core_FWFileEntry_h
 //
 // Package:     Core
 // Class  :     FWFileEntry

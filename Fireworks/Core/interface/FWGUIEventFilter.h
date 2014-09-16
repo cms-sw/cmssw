@@ -13,7 +13,7 @@ class TGRadioButton;
 class TGTextButton;
 class CSGAction;
 class FWCustomIconsButton;
-class FWGUIEventSelector;
+struct FWGUIEventSelector;
 //class FWJobMetadataManager;
 class CmsShowNavigator;
 class FWConfiguration;
