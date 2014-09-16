@@ -47,7 +47,7 @@ pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
                          algos = cms.VPSet(_chsalgos),
                                         
                          rho     = cms.InputTag("fixedGridRhoFastjetAll"),
-                         jec     = cms.string("AK4PFchs"),
+                         jec     = cms.string("AK4PFCHS"),
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),
                          residualsFromTxt = cms.bool(False),
