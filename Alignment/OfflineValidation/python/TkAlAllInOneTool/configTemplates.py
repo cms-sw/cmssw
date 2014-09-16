@@ -198,7 +198,6 @@ done
 .oO[CompareAlignments]Oo.
 
 .oO[RunExtendedOfflineValidation]Oo.
-.oO[RunTrackSplitPlot]Oo.
 
 for file in $(ls -d --color=never *_result.root)
 do

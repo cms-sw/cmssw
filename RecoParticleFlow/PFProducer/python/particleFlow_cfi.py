@@ -205,8 +205,9 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # Check HF cleaning
     cleanedHF = cms.VInputTag(
-                cms.InputTag("particleFlowRecHitHF","Cleaned"),
-                cms.InputTag("particleFlowClusterHF","Cleaned")
+                cms.InputTag("particleFlowRecHitHCAL","Cleaned"),
+                cms.InputTag("particleFlowClusterHFHAD","Cleaned"),
+                cms.InputTag("particleFlowClusterHFEM","Cleaned")
                 ),
     
     # number of sigmas for neutral energy detection

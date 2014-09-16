@@ -105,7 +105,8 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> clustersECALToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> clustersHCALToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFEMToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFHADToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
 

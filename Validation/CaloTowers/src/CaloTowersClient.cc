@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 CaloTowersClient::CaloTowersClient(const edm::ParameterSet& iConfig):conf_(iConfig)
@@ -13,9 +14,20 @@ CaloTowersClient::CaloTowersClient(const edm::ParameterSet& iConfig):conf_(iConf
 
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
+  dbe_ = edm::Service<DQMStore>().operator->();
+  if (!dbe_) {
+    edm::LogError("CaloTowersClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
+  }
+  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
+    if(dbe_) dbe_->setVerbose(0);
+  }
+ 
   debug_ = false;
   verbose_ = false;
+
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
+  if(dbe_) dbe_->setCurrentFolder(dirName_);
+ 
 }
 
 
@@ -30,10 +42,37 @@ void CaloTowersClient::beginJob()
 
 }
 
-
-void CaloTowersClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
+void CaloTowersClient::endJob() 
 {
-  igetter.setCurrentFolder(dirName_);
+   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+}
+
+void CaloTowersClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
+{
+ 
+}
+
+
+void CaloTowersClient::endRun(const edm::Run& run, const edm::EventSetup& c)
+{
+  runClient_();
+}
+
+//dummy analysis function
+void CaloTowersClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
+{
+  
+}
+
+void CaloTowersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
+{ 
+//  runClient_();
+}
+
+void CaloTowersClient::runClient_()
+{
+  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
+  dbe_->setCurrentFolder(dirName_);
 
   if (verbose_) std::cout << "\nrunClient" << std::endl; 
 
@@ -41,19 +80,19 @@ void CaloTowersClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 
   // Since out folders are fixed to three, we can just go over these three folders
   // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-  std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
+  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
     if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    igetter.setCurrentFolder(fullPathHLTFolders[i]);
+    dbe_->setCurrentFolder(fullPathHLTFolders[i]);
 
-    std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
+    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
     for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
       if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
-         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+         hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
       }

@@ -124,8 +124,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 	DZ1 = 0.;
       }
     }
-    
-    if (rods.size()==0) cout << " *** ERROR: bSector has no rods " << DZ << " " << DZ1 << endl;
+
     if (MagGeoBuilderFromDDD::debug) cout << "-----------------------" << endl;
 
   }

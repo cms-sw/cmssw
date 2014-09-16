@@ -82,50 +82,50 @@
 
 class DQMStore;
 
-class ExoticaDQM : public edm::EDAnalyzer {
+class ExoticaDQM: public edm::EDAnalyzer{
 
- public:
+public:
+
   ExoticaDQM(const edm::ParameterSet& ps);
   virtual ~ExoticaDQM();
 
- protected:
+protected:
+
   virtual void beginJob();
   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                    edm::EventSetup const& context);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                  edm::EventSetup const& c);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void endJob();
 
-  // Diagnostic
+  //Diagnostic
   virtual void analyzeMultiJets(edm::Event const& e);
   virtual void analyzeMultiJetsTrigger(edm::Event const& e);
 
   virtual void analyzeLongLived(edm::Event const& e);
   virtual void analyzeLongLivedTrigger(edm::Event const& e);
 
-  virtual void analyzeEventInterpretation(edm::Event const& e,
-                                          edm::EventSetup const& eSetup);
+  virtual void analyzeEventInterpretation(edm::Event const& e, edm::EventSetup const& eSetup);
 
   //
-  // virtual void analyzeTopLike(edm::Event const& e);
-  // virtual void analyzeTopLikeTrigger(edm::Event const& e);
+  //virtual void analyzeTopLike(edm::Event const& e);
+  //virtual void analyzeTopLikeTrigger(edm::Event const& e);
   //
-  // virtual void analyzeLeptonJet(edm::Event const& e);
-  // virtual void analyzeLeptonJetTrigger(edm::Event const& e);
+  //virtual void analyzeLeptonJet(edm::Event const& e);
+  //virtual void analyzeLeptonJetTrigger(edm::Event const& e);
   //
-  // virtual void analyzeNonHadronic(edm::Event const& e);
-  // virtual void analyzeNonHadronicTrigger(edm::Event const& e);
+  //virtual void analyzeNonHadronic(edm::Event const& e);
+  //virtual void analyzeNonHadronicTrigger(edm::Event const& e);
 
- private:
-  void bookHistos(DQMStore* bei);
+private:
+
+  void bookHistos(DQMStore * bei );
 
   unsigned long long m_cacheID_;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
-  reco::CandidateCollection* leptonscands_;
+  reco::CandidateCollection *leptonscands_;
   int leptonflavor;
   float pi;
 
@@ -135,9 +135,10 @@ class ExoticaDQM : public edm::EDAnalyzer {
 
   // Variables from config file
   edm::InputTag theTriggerResultsCollection;
-  std::vector<std::string> theTriggerForMultiJetsList;
-  std::vector<std::string> theTriggerForLongLivedList;
+  std::vector<std::string>  theTriggerForMultiJetsList;
+  std::vector<std::string>  theTriggerForLongLivedList;
   edm::Handle<edm::TriggerResults> triggerResults_;
+
 
   // Electrons
   edm::EDGetTokenT<reco::GsfElectronCollection> ElectronToken_;
@@ -147,6 +148,7 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFCandidateCollection> pfElectronCollectionEI_;
   reco::PFCandidateCollection pfelectronsEI;
 
+
   // Muons
   edm::EDGetTokenT<reco::MuonCollection> MuonToken_;
   edm::Handle<reco::MuonCollection> MuonCollection_;
@@ -155,12 +157,14 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFCandidateCollection> pfMuonCollectionEI_;
   reco::PFCandidateCollection pfmuonsEI;
 
+
   // Taus
   edm::EDGetTokenT<reco::CaloTauCollection> TauToken_;
   edm::Handle<reco::CaloTauCollection> TauCollection_;
   //
   edm::InputTag PFTauLabelEI_;
   edm::Handle<reco::PFTauCollection> pfTauCollectionEI_;
+
 
   // Photons
   edm::EDGetTokenT<reco::PhotonCollection> PhotonToken_;
@@ -169,6 +173,7 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::InputTag PFPhotonLabelEI_;
   edm::Handle<reco::PFCandidateCollection> pfPhotonCollectionEI_;
   reco::PFCandidateCollection pfphotons;
+
 
   // Jets
   edm::EDGetTokenT<reco::CaloJetCollection> CaloJetToken_;
@@ -183,6 +188,7 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFJetCollection> pfJetCollectionEI_;
   reco::PFJetCollection pfjetsEI;
 
+
   // MET
   edm::EDGetTokenT<reco::CaloMETCollection> CaloMETToken_;
   edm::Handle<reco::CaloMETCollection> caloMETCollection_;
@@ -194,10 +200,8 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFMETCollection> pfMETCollectionEI_;
 
   // ECAL RECHITS
-  edm::EDGetTokenT<EBRecHitCollection>
-      ecalBarrelRecHitToken_;  // reducedEcalRecHitsEB
-  edm::EDGetTokenT<EERecHitCollection>
-      ecalEndcapRecHitToken_;  // reducedEcalRecHitsEE
+  edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
+  edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
   ///////////////////////////
   // Parameters
@@ -206,12 +210,12 @@ class ExoticaDQM : public edm::EDAnalyzer {
   // inputs
   std::string CaloJetCorService_;
   std::string PFJetCorService_;
-  reco::helper::JetIDHelper* jetID;
+  reco::helper::JetIDHelper *jetID;
   double mj_monojet_ptPFJet_;
   double mj_monojet_ptPFMuon_;
   double mj_monojet_ptPFElectron_;
   //
-  int mj_monojet_countPFJet;
+  int    mj_monojet_countPFJet;
   //
   double CaloJetPx[2];
   double CaloJetPy[2];
@@ -281,7 +285,9 @@ class ExoticaDQM : public edm::EDAnalyzer {
   MonitorElement* ei_pfmet_pt;
   MonitorElement* ei_pfmuon_pt;
   MonitorElement* ei_pfelectron_pt;
+
 };
+
 
 #endif
 

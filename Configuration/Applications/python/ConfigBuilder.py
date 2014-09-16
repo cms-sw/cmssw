@@ -644,8 +644,6 @@ class ConfigBuilder(object):
 			self._options.inlineObjets+=',mix'
 		else:
 			self.loadAndRemember(mixingDict['file'])
-			if self._options.fast:
-				self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.setVertexGeneratorPileUpProducer")
 
 		mixingDict.pop('file')
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
@@ -1060,6 +1058,7 @@ class ConfigBuilder(object):
 
         # if fastsim switch event content
 	if self._options.fast:
+		self.GENDefaultSeq='pgen_genonly'
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.FamosSequences_cff'
 		self.SIMDefaultSeq='simulationWithFamos'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.FamosSequences_cff'
@@ -1339,6 +1338,8 @@ class ConfigBuilder(object):
                 try:
 			from Configuration.StandardSequences.VtxSmeared import VtxSmeared
 			cffToBeLoaded=VtxSmeared[self._options.beamspot]
+			if self._options.fast:
+				cffToBeLoaded='IOMC.EventVertexGenerators.VtxSmearedParameters_cfi'
 			self.loadAndRemember(cffToBeLoaded)
                 except ImportError:
                         raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
@@ -1378,9 +1379,21 @@ class ConfigBuilder(object):
 			else:
 				self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 	else:
-		if self._options.magField=='0T':
-			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
-
+		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
+		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
+		## manipulate the beamspot
+		if 'Flat' in self._options.beamspot:
+			beamspotType = 'Flat'
+		elif 'Gauss' in self._options.beamspot:
+			beamspotType = 'Gaussian'
+		else:
+			beamspotType = 'BetaFunc'
+		beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
+		self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
+		self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
+		if hasattr(self.process,'famosPileUp'):
+			self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
+		
 	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
 

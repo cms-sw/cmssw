@@ -1451,9 +1451,6 @@ EmDQM::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleName)
       inputType == "EgammaHLTClusterShapeProducer" ||                  // cluster shape
       inputType == "EgammaHLTEcalRecIsolationProducer" ||              // ecal isolation
       inputType == "EgammaHLTHcalIsolationProducersRegional" ||        // HCAL isolation and HE
-      inputType == "EgammaHLTBcHcalIsolationProducersRegional" ||      // HCAL isolation and HE
-      inputType == "EgammaHLTEcalPFClusterIsolationProducer" ||        // ECAL PF isolation filter
-      inputType == "EgammaHLTHcalPFClusterIsolationProducer" ||        // HCAL PF isolation filter
       inputType == "EgammaHLTPhotonTrackIsolationProducersRegional"    // Photon track isolation
      ) {
     retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));

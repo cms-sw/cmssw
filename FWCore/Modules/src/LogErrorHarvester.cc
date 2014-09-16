@@ -55,11 +55,11 @@ namespace edm {
   LogErrorHarvester::produce(Event& iEvent, EventSetup const&) {
     const auto index = iEvent.streamID().value();
     if(!FreshErrorsExist(index)) {
-      std::unique_ptr<std::vector<ErrorSummaryEntry> > errors(new std::vector<ErrorSummaryEntry>());
-      iEvent.put(std::move(errors));
+      std::auto_ptr<std::vector<ErrorSummaryEntry> > errors(new std::vector<ErrorSummaryEntry>());
+      iEvent.put(errors);
     } else {
-      std::unique_ptr<std::vector<ErrorSummaryEntry> > errors(new std::vector<ErrorSummaryEntry>(LoggedErrorsSummary(index)));
-      iEvent.put(std::move(errors));
+      std::auto_ptr<std::vector<ErrorSummaryEntry> > errors(new std::vector<ErrorSummaryEntry>(LoggedErrorsSummary(index)));
+      iEvent.put(errors);
     }
   }
 

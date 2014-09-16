@@ -40,21 +40,17 @@ static unsigned int
 computeSharedTracks(const Vertex &pv, const std::vector<CandidatePtr> &svTracks,
                     double minTrackWeight)
 {
-//         std::set<const Track *> pvTracks;
-//         for(std::vector<TrackBaseRef>::const_iterator iter = pv.tracks_begin();
-//             iter != pv.tracks_end(); iter++)
-//                 if (pv.trackWeight(*iter) >= minTrackWeight)
-//                         pvTracks.insert(iter->get());
+        std::set<const Track *> pvTracks;
+        for(std::vector<TrackBaseRef>::const_iterator iter = pv.tracks_begin();
+            iter != pv.tracks_end(); iter++)
+                if (pv.trackWeight(*iter) >= minTrackWeight)
+                        pvTracks.insert(iter->get());
 
         unsigned int count = 0;
         for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
             iter != svTracks.end(); iter++)
-               {
-			if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < 2.0 &&
-			    std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError() < 2.0 )
-			  )  
-				count++;
-		}
+                count += pvTracks.count((*iter)->bestTrack());
+
         return count;
 }
 

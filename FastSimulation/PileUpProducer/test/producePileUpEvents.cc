@@ -18,6 +18,7 @@
 //#include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <vector>
 #include <string>
@@ -161,7 +162,8 @@ producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
   const HepMC::GenEvent* myGenEvent = evtSource->GetEvent();
   edm::EventID id(1,1,totalPU);
 
-  mySimEvent->fill(*myGenEvent,id);
+  RandomEngineAndDistribution random(iEvent.streamID());
+  mySimEvent->fill(*myGenEvent,id, &random);
   
   //  mySimEvent->print();
   

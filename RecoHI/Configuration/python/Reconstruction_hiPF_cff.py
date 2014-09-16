@@ -45,7 +45,9 @@ particleFlowBlock.elementImporters = cms.VPSet(
     cms.PSet( importerName = cms.string("GenericClusterImporter"),
               source = cms.InputTag("particleFlowClusterHO") ),
     cms.PSet( importerName = cms.string("GenericClusterImporter"),
-              source = cms.InputTag("particleFlowClusterHF") ),
+              source = cms.InputTag("particleFlowClusterHFEM") ),
+    cms.PSet( importerName = cms.string("GenericClusterImporter"),
+              source = cms.InputTag("particleFlowClusterHFHAD") ),
     cms.PSet( importerName = cms.string("GenericClusterImporter"),
               source = cms.InputTag("particleFlowClusterPS") )
     )

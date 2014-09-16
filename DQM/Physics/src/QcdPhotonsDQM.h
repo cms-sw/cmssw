@@ -1,12 +1,14 @@
 #ifndef QcdPhotonsDQM_H
 #define QcdPhotonsDQM_H
 
+
 /** \class QcdPhotonsDQM
  *
  *  DQM offline for QCD-Photons
  *
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -19,15 +21,14 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace reco {
-class Jet;
-}
+namespace reco {class Jet;}
 
 class DQMStore;
 class MonitorElement;
 
 class QcdPhotonsDQM : public edm::EDAnalyzer {
  public:
+
   /// Constructor
   QcdPhotonsDQM(const edm::ParameterSet&);
 
@@ -38,7 +39,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   void beginJob();
 
   ///
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun( const edm::Run& , const edm::EventSetup& );
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
@@ -50,6 +51,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   void endJob(void);
 
  private:
+
   // ----------member data ---------------------------
 
   DQMStore* theDbe;
@@ -61,7 +63,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   std::string logTraceName;
 
   // Variables from config file
-  std::string theTriggerPathToPass_;
+  std::string   theTriggerPathToPass_;
   std::vector<std::string> thePlotTheseTriggersToo_;
   edm::InputTag theJetCollectionLabel_;
   edm::EDGetTokenT<edm::TriggerResults> trigTagToken_;
@@ -70,7 +72,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken_;
   double theMinJetPt_;
   double theMinPhotonEt_;
-  bool theRequirePhotonFound_;
+  bool   theRequirePhotonFound_;
   double thePlotPhotonMaxEt_;
   double thePlotPhotonMaxEta_;
   double thePlotJetMaxEta_;

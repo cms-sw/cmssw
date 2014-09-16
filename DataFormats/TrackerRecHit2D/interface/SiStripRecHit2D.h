@@ -40,8 +40,8 @@ public:
   virtual bool canImproveWithTrack() const GCC11_OVERRIDE {return true;}
 private:
   // double dispatch
-  virtual SiStripRecHit2D* clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
-    return cloner(*this,tsos).release();
+  virtual SiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+    return cloner(*this,tsos);
   }
 #ifdef NO_DICT
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {

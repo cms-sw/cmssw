@@ -3,20 +3,19 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class DQMHOAlCaRecoStream : public DQMEDAnalyzer {
+class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
    public:
       explicit DQMHOAlCaRecoStream(const edm::ParameterSet&);
       ~DQMHOAlCaRecoStream();
 
    private:
 
+      DQMStore* dbe_; 
 
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      virtual void endJob() ;
 
 
   MonitorElement* hMuonMultipl;

@@ -11,7 +11,6 @@ class TEveGeoShape;
 class TGeoVolume;
 class TGeoShape;
 class TFile;
-class TObjArray;
 
 #include "TEveVSDStructs.h"
 #include "TGeoMatrix.h"
@@ -37,16 +36,6 @@ public:
       double max2;
       Range( void ) : min1( 9999 ), max1( -9999 ), min2( 9999 ), max2( -9999 ) {
       }
-   };
-
-   class VersionInfo {
-   public:
-      TNamed* productionTag;
-      TNamed* cmsswVersion;
-      TObjArray* extraDetectors;
-
-      VersionInfo() : productionTag(0), cmsswVersion(0), extraDetectors(0) {}
-      bool haveExtraDet(const char*)const;
    };
 
    FWGeometry( void );
@@ -113,17 +102,11 @@ public:
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
    void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
-
-   const VersionInfo& versionInfo() const { return m_versionInfo; }
-
+ 
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
-
-   std::string m_prodTag;
-
-   VersionInfo  m_versionInfo;
 
    TGeoShape* getShape( const GeomDetInfo& info ) const;
 };

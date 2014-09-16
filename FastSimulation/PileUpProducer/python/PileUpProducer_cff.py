@@ -1,39 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 
-famosPileUp = cms.EDProducer(
-    "PileUpProducer",
+# Copied here so python will auto-translate the names
+# Now beta function vertex smearing 
+#from FastSimulation.Event.Early10TeVCollisionVertexGenerator_cfi import *
+#from FastSimulation.Event.Realistic7TeV2011CollisionVertexGenerator_cfi import *
+#from FastSimulation.Event.Realistic8TeVCollisionVertexGenerator_cfi import *
+from FastSimulation.Configuration.CommonInputs_cff import *
+
+# 14 TeV pile-up files
+#from FastSimulation.PileUpProducer.PileUpSimulator14TeV_cfi import *
+# 10 TeV pile-up files
+#from FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi import *
+# 7 TeV pile-up files
+#from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
+# 8 TeV pile-up files
+#from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *
+# Choose according to the beamspot (recommended)
+if(fastsimPrimaryVertex=='Realistic7TeV2011'):
+    from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
+else: # by default, the currently recommended one
+    from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *
+###
+# Gaussian or flat or no primary vertex smearing
+# include "FastSimulation/Event/data/GaussianVertexGenerator.cfi"
+# include "FastSimulation/Event/data/FlatVertexGenerator.cfi"
+# include "FastSimulation/Event/data/NoVertexGenerator.cfi"
+famosPileUp = cms.EDProducer("PileUpProducer",
     # The conditions for pile-up event generation
-    PileUpSimulatorBlock = cms.PSet(
-        PileUpSimulator = cms.PSet(
-            # The file with the last minimum bias events read in the previous run
-            # to be put in the local running directory (if desired)
-            inputFile = cms.untracked.string('PileUpInputFile.txt'),
-            # Special files of minimum bias events (generated with 
-            # cmsRun FastSimulation/PileUpProducer/test/producePileUpEvents_cfg.py)
-            fileNames = cms.untracked.vstring(
-                'MinBias14TeV_001.root', 
-                'MinBias14TeV_002.root', 
-                'MinBias14TeV_003.root', 
-                'MinBias14TeV_004.root', 
-                'MinBias14TeV_005.root', 
-                'MinBias14TeV_006.root', 
-                'MinBias14TeV_007.root', 
-                'MinBias14TeV_008.root', 
-                'MinBias14TeV_009.root', 
-                'MinBias14TeV_010.root'),
-            averageNumber = cms.double(0.0)
-            )
-        ),
+    PileUpSimulatorBlock,
     VertexGenerator = cms.PSet(
-        type = cms.string('BetaFunc'),
-        Phi = cms.double(0.0),
-        Y0 = cms.double(0.3929),
-        BetaStar = cms.double(70.0),
-        Emittance = cms.double(5.86e-08),
-        SigmaZ = cms.double(6.16),
-        TimeOffset = cms.double(0.0),
-        Alpha = cms.double(0.0),
-        X0 = cms.double(0.244),
-        Z0 = cms.double(0.4145)
-        )
+        myVertexGenerator
     )
+)
+
+

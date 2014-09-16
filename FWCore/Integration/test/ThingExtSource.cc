@@ -30,13 +30,13 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    e.put(std::move(result));
+    e.put(result);
   }
 
   // Functions that gets called by framework every luminosity block
@@ -44,26 +44,26 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    lb.put(std::move(result), "beginLumi");
+    lb.put(result, "beginLumi");
   }
 
   void ThingExtSource::endLuminosityBlock(edm::LuminosityBlock& lb) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    lb.put(std::move(result), "endLumi");
+    lb.put(result, "endLumi");
   }
 
   // Functions that gets called by framework every run
@@ -71,26 +71,26 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    r.put(std::move(result), "beginRun");
+    r.put(result, "beginRun");
   }
 
   void ThingExtSource::endRun(edm::Run& r) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    r.put(std::move(result), "endRun");
+    r.put(result, "endRun");
   }
 
 }

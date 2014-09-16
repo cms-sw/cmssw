@@ -4,8 +4,7 @@
 /** \class EwkTauDQM
  *
  * Booking and filling of histograms for data-quality monitoring purposes
- * in EWK tau analyses; individual channels are implemented in separate
- *Ewk..HistManager classes,
+ * in EWK tau analyses; individual channels are implemented in separate Ewk..HistManager classes,
  * so far:
  *  o Z --> electron + tau-jet channel (EwkElecTauHistManager)
  *  o Z --> muon + tau-jet channel (EwkMuTauHistManager)
@@ -27,7 +26,8 @@
 class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
-class EwkTauDQM : public edm::EDAnalyzer {
+class EwkTauDQM : public edm::EDAnalyzer
+{
  public:
   EwkTauDQM(const edm::ParameterSet&);
   ~EwkTauDQM();
@@ -71,7 +71,8 @@ class EwkTauDQM : public edm::EDAnalyzer {
 
 #include <string>
 
-class EwkElecTauHistManager {
+class EwkElecTauHistManager
+{
  public:
   EwkElecTauHistManager(const edm::ParameterSet&, DQMStore*);
 
@@ -80,8 +81,9 @@ class EwkElecTauHistManager {
   void finalizeHistograms();
 
  private:
-  //--- labels of electron, tau-jet and MEt collections being used
-  //    in event selection and when filling histograms
+
+//--- labels of electron, tau-jet and MEt collections being used
+//    in event selection and when filling histograms
   edm::InputTag triggerResultsSource_;
   edm::InputTag vertexSource_;
   edm::InputTag beamSpotSource_;
@@ -97,7 +99,7 @@ class EwkElecTauHistManager {
   edm::InputTag tauDiscrAgainstElectrons_;
   edm::InputTag tauDiscrAgainstMuons_;
 
-  //--- event selection criteria
+//--- event selection criteria
   typedef std::vector<std::string> vstring;
   vstring hltPaths_;
 
@@ -112,68 +114,58 @@ class EwkElecTauHistManager {
 
   double visMassCut_;
 
-  //--- pointer to DQM histogram management service
+//--- pointer to DQM histogram management service
   DQMStore* dqmStore_;
 
-  //--- name of DQM directory in which histograms for Z --> electron + tau-jet
-  // channel get stored
+//--- name of DQM directory in which histograms for Z --> electron + tau-jet channel get stored
   std::string dqmDirectory_;
 
-  //--- histograms
-  // MonitorElement* hNumIdElectrons_;
+//--- histograms
+  //MonitorElement* hNumIdElectrons_;
   MonitorElement* hElectronPt_;
   MonitorElement* hElectronEta_;
   MonitorElement* hElectronPhi_;
   MonitorElement* hElectronTrackIsoPt_;
   MonitorElement* hElectronEcalIsoPt_;
-  // MonitorElement* hElectronHcalIsoPt_;
+  //MonitorElement* hElectronHcalIsoPt_;
 
   MonitorElement* hTauJetPt_;
   MonitorElement* hTauJetEta_;
-  // MonitorElement* hTauJetPhi_;
-  // MonitorElement* hTauLeadTrackPt_;
-  // MonitorElement* hTauTrackIsoPt_;
-  // MonitorElement* hTauEcalIsoPt_;
-  // MonitorElement* hTauDiscrAgainstElectrons_;
-  // MonitorElement* hTauDiscrAgainstMuons_;
-  // MonitorElement* hTauJetCharge_;
-  // MonitorElement* hTauJetNumSignalTracks_;
-  // MonitorElement* hTauJetNumIsoTracks_;
+  //MonitorElement* hTauJetPhi_;
+  //MonitorElement* hTauLeadTrackPt_;
+  //MonitorElement* hTauTrackIsoPt_;
+  //MonitorElement* hTauEcalIsoPt_;
+  //MonitorElement* hTauDiscrAgainstElectrons_;
+  //MonitorElement* hTauDiscrAgainstMuons_;
+  //MonitorElement* hTauJetCharge_;
+  //MonitorElement* hTauJetNumSignalTracks_;
+  //MonitorElement* hTauJetNumIsoTracks_;
 
   MonitorElement* hVisMass_;
-  // MonitorElement* hMtElecCaloMEt_;
+  //MonitorElement* hMtElecCaloMEt_;
   MonitorElement* hMtElecPFMEt_;
-  // MonitorElement* hPzetaCaloMEt_;
-  // MonitorElement* hPzetaPFMEt_;
+  //MonitorElement* hPzetaCaloMEt_;
+  //MonitorElement* hPzetaPFMEt_;
   MonitorElement* hElecTauAcoplanarity_;
   MonitorElement* hElecTauCharge_;
 
-  // MonitorElement* hVertexChi2_;
+  //MonitorElement* hVertexChi2_;
   MonitorElement* hVertexZ_;
-  // MonitorElement* hVertexD0_;
+  //MonitorElement* hVertexD0_;
 
   MonitorElement* hCaloMEtPt_;
-  // MonitorElement* hCaloMEtPhi_;
+  //MonitorElement* hCaloMEtPhi_;
 
   MonitorElement* hPFMEtPt_;
-  // MonitorElement* hPFMEtPhi_;
+  //MonitorElement* hPFMEtPhi_;
 
   MonitorElement* hCutFlowSummary_;
-  enum {
-    kPassedPreselection = 1,
-    kPassedTrigger = 2,
-    kPassedElectronId = 3,
-    kPassedElectronTrackIso = 4,
-    kPassedElectronEcalIso = 5,
-    kPassedTauLeadTrack = 6,
-    kPassedTauLeadTrackPt = 7,
-    kPassedTauDiscrAgainstElectrons = 8,
-    kPassedTauDiscrAgainstMuons = 9,
-    kPassedTauTrackIso = 10,
-    kPassedTauEcalIso = 11
-  };
+  enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedElectronId = 3, kPassedElectronTrackIso = 4, kPassedElectronEcalIso = 5,
+         kPassedTauLeadTrack = 6, kPassedTauLeadTrackPt = 7, kPassedTauDiscrAgainstElectrons = 8, kPassedTauDiscrAgainstMuons = 9,
+         kPassedTauTrackIso = 10, kPassedTauEcalIso = 11
+       };
 
-  //--- counters for filter-statistics output
+//--- counters for filter-statistics output
   unsigned numEventsAnalyzed_;
   unsigned numEventsSelected_;
 
@@ -196,6 +188,8 @@ class EwkElecTauHistManager {
   long numWarningsCaloMEt_;
   long numWarningsPFMEt_;
 };
+
+
 
 //-------------------------------------------------------------------------------
 // code specific to Z --> mu + tau-jet channel
@@ -222,7 +216,8 @@ class EwkElecTauHistManager {
 
 #include <string>
 
-class EwkMuTauHistManager {
+class EwkMuTauHistManager
+{
  public:
   EwkMuTauHistManager(const edm::ParameterSet&, DQMStore*);
 
@@ -231,8 +226,9 @@ class EwkMuTauHistManager {
   void finalizeHistograms();
 
  private:
-  //--- labels of muon, tau-jet and MEt collections being used
-  //    in event selection and when filling histograms
+
+//--- labels of muon, tau-jet and MEt collections being used
+//    in event selection and when filling histograms
   edm::InputTag triggerResultsSource_;
   edm::InputTag vertexSource_;
   edm::InputTag beamSpotSource_;
@@ -247,7 +243,7 @@ class EwkMuTauHistManager {
   edm::InputTag tauDiscrByEcalIso_;
   edm::InputTag tauDiscrAgainstMuons_;
 
-  //--- event selection criteria
+//--- event selection criteria
   typedef std::vector<std::string> vstring;
   vstring hltPaths_;
 
@@ -255,7 +251,7 @@ class EwkMuTauHistManager {
   double muonPtCut_;
   double muonTrackIsoCut_;
   double muonEcalIsoCut_;
-  double muonCombIsoCut_;
+double muonCombIsoCut_;
   int muonIsoMode_;
 
   double tauJetEtaCut_;
@@ -263,15 +259,14 @@ class EwkMuTauHistManager {
 
   double visMassCut_;
   double deltaRCut_;
-  //--- pointer to DQM histogram management service
+//--- pointer to DQM histogram management service
   DQMStore* dqmStore_;
 
-  //--- name of DQM directory in which histograms for Z --> muon + tau-jet
-  // channel get stored
+//--- name of DQM directory in which histograms for Z --> muon + tau-jet channel get stored
   std::string dqmDirectory_;
 
-  //--- histograms
-  // MonitorElement* hNumGlobalMuons_;
+//--- histograms
+  //MonitorElement* hNumGlobalMuons_;
   MonitorElement* hMuonPt_;
   MonitorElement* hMuonEta_;
   MonitorElement* hMuonPhi_;
@@ -291,41 +286,29 @@ class EwkMuTauHistManager {
   MonitorElement* hTauJetNumIsoTracks_;
 
   MonitorElement* hVisMass_;
-  MonitorElement* hMuTauDeltaR_;
-  MonitorElement* hVisMassFinal_;
-  // MonitorElement* hMtMuCaloMEt_;
+MonitorElement* hMuTauDeltaR_;
+MonitorElement* hVisMassFinal_;
+  //MonitorElement* hMtMuCaloMEt_;
   MonitorElement* hMtMuPFMEt_;
-  // MonitorElement* hPzetaCmaxNumWarnings_aloMEt_;
-  // MonitorElement* hPzetaPFMEt_;
+  //MonitorElement* hPzetaCmaxNumWarnings_aloMEt_;
+  //MonitorElement* hPzetaPFMEt_;
   MonitorElement* hMuTauAcoplanarity_;
-  // MonitorElement* hMuTauCharge_;
+  //MonitorElement* hMuTauCharge_;
 
-  // MonitorElement* hVertexChi2_;
+  //MonitorElement* hVertexChi2_;
   MonitorElement* hVertexZ_;
-  // MonitorElement* hVertexD0_;
+  //MonitorElement* hVertexD0_;
 
   MonitorElement* hCaloMEtPt_;
-  // MonitorElement* hCaloMEtPhi_;
+  //MonitorElement* hCaloMEtPhi_;
 
   MonitorElement* hPFMEtPt_;
-  // MonitorElement* hPFMEtPhi_;
+  //MonitorElement* hPFMEtPhi_;
 
   MonitorElement* hCutFlowSummary_;
-  enum {
-    kPassedPreselection = 1,
-    kPassedTrigger = 2,
-    kPassedMuonId = 3,
-    kPassedTauLeadTrack = 4,
-    kPassedTauLeadTrackPt = 5,
-    kPassedTauDiscrAgainstMuons = 6,
-    kPassedDeltaR = 7,
-    kPassedMuonTrackIso = 8,
-    kPassedMuonEcalIso = 9,
-    kPassedTauTrackIso = 10,
-    kPassedTauEcalIso = 11
-  };
+  enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedMuonId = 3, kPassedTauLeadTrack = 4, kPassedTauLeadTrackPt = 5, kPassedTauDiscrAgainstMuons = 6, kPassedDeltaR = 7, kPassedMuonTrackIso = 8, kPassedMuonEcalIso = 9, kPassedTauTrackIso = 10, kPassedTauEcalIso = 11};
 
-  //--- counters for filter-statistics output
+//--- counters for filter-statistics output
   unsigned numEventsAnalyzed_;
   unsigned numEventsSelected_;
 
@@ -363,6 +346,7 @@ class EwkMuTauHistManager {
  *
  */
 
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -375,19 +359,15 @@ class EwkMuTauHistManager {
 
 #include <string>
 
-enum {
-  kAbsoluteIso,
-  kRelativeIso,
-  kUndefinedIso
-};
+enum { kAbsoluteIso, kRelativeIso, kUndefinedIso };
 
-template <typename T>
-void readEventData(const edm::Event& evt, const edm::InputTag& src,
-                   edm::Handle<T>& handle, long& numWarnings,
-                   int maxNumWarnings, bool& error, const char* errorMessage) {
-  if (!evt.getByLabel(src, handle)) {
-    if (numWarnings < maxNumWarnings || maxNumWarnings == -1)
-      edm::LogWarning("readEventData") << errorMessage << " !!";
+template<typename T>
+void readEventData(const edm::Event& evt, const edm::InputTag& src, edm::Handle<T>& handle, long& numWarnings, int maxNumWarnings,
+		   bool& error, const char* errorMessage)
+{
+  if ( !evt.getByLabel(src, handle) ) {
+    if ( numWarnings < maxNumWarnings || maxNumWarnings == -1 )
+      edm::LogWarning ("readEventData") << errorMessage << " !!";
     ++numWarnings;
     error = true;
   }
@@ -397,17 +377,14 @@ int getIsoMode(const std::string&, int&);
 
 double calcDeltaPhi(double, double);
 double calcMt(double, double, double, double);
-double calcPzeta(const reco::Candidate::LorentzVector&,
-                 const reco::Candidate::LorentzVector&, double, double);
+double calcPzeta(const reco::Candidate::LorentzVector&, const reco::Candidate::LorentzVector&, double, double);
 
 bool passesElectronPreId(const reco::GsfElectron&);
 bool passesElectronId(const reco::GsfElectron&);
 
-const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection&,
-                                        double, double);
+const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection&, double, double);
 const reco::Muon* getTheMuon(const reco::MuonCollection&, double, double);
-const reco::PFTau* getTheTauJet(const reco::PFTauCollection&, double, double,
-                                int&);
+const reco::PFTau* getTheTauJet(const reco::PFTauCollection&, double, double, int&);
 
 double getVertexD0(const reco::Vertex&, const reco::BeamSpot&);
 

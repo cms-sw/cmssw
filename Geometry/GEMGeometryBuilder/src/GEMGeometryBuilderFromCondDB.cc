@@ -24,7 +24,8 @@
 #include <iostream>
 #include <algorithm>
 
-GEMGeometryBuilderFromCondDB::GEMGeometryBuilderFromCondDB() 
+GEMGeometryBuilderFromCondDB::GEMGeometryBuilderFromCondDB(bool comp11) :
+  theComp11Flag(comp11)
 { }
 
 GEMGeometryBuilderFromCondDB::~GEMGeometryBuilderFromCondDB() 

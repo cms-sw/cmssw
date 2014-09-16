@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMDigitizer_GEMDigiProducer_h
-#define SimMuon_GEMDigitizer_GEMDigiProducer_h
+#ifndef GEMDigitizer_GEMDigiProducer_h
+#define GEMDigitizer_GEMDigiProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,8 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-
-#include <string>
+#include "string"
 
 class GEMGeometry;
 class GEMDigiModel;

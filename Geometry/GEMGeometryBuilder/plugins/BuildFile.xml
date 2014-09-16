@@ -7,8 +7,5 @@
 <library file="GEMGeometryESModule.cc"> 
   <flags EDM_PLUGIN="1"/>
 </library>
-<library file="ME0GeometryESModule.cc"> 
-  <flags EDM_PLUGIN="1"/>
-</library>
 
 

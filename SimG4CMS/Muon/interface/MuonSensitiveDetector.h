@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_Muon_MuonSensitiveDetector_h
-#define SimG4CMS_Muon_MuonSensitiveDetector_h
+#ifndef MuonSensitiveDetector_h
+#define MuonSensitiveDetector_h
 
 /** \class MuonSensitiveDetector
  *

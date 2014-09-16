@@ -18,7 +18,7 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		 const edm::ParameterSet& pSet, const unsigned int& mc , 
-		 const bool& willFinalize, DQMStore::IBooker & ibook);
+		 const bool& update, const bool& willFinalize, DQMStore::IBooker & ibook);
 
   virtual ~JetTagPlotter () ;
 
@@ -30,10 +30,12 @@ class JetTagPlotter : public BaseBTagPlotter {
   void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour, const float & w);
 
   // final computation, plotting, printing .......
-  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) ;
+  void createPlotsForFinalize(DQMStore::IBooker & ibook);
+  void finalize () ;
 
   // get "2d" histograms for misid. vs. b-eff
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
+
 
   void epsPlot(const std::string & name);
 
@@ -54,10 +56,12 @@ class JetTagPlotter : public BaseBTagPlotter {
   double startEffPur_ ; 
   double endEffPur_ ; 
 
+  bool finalized;
   unsigned int mcPlots_;
   bool willFinalize_;
 
   int *nJets;
+  DQMStore::IBooker & ibook_;
   // jet multiplicity
   FlavourHistograms<int> * JetMultiplicity;
 
@@ -65,6 +69,9 @@ class JetTagPlotter : public BaseBTagPlotter {
   EffPurFromHistos * effPurFromHistos ;
 
   FlavourHistograms<int> * dJetFlav;
+
+  // track multiplicity in jet
+  //FlavourHistograms<int> * dJetTrackMultiplicity;
   
   // Discriminator: again with reasonable binning
   FlavourHistograms<double> * dDiscriminator;
@@ -81,6 +88,14 @@ class JetTagPlotter : public BaseBTagPlotter {
   // reconstructed jet phi
   FlavourHistograms<double> * dJetRecPhi;
 
+  // associated parton momentum
+  //FlavourHistograms<double> * dJetPartonMomentum;
+
+  // associated parton pt
+  //FlavourHistograms<double> * dJetPartonPt;
+
+  // associated parton eta
+  //FlavourHistograms<double> * dJetPartonPseudoRapidity;
 } ;
 
 #endif

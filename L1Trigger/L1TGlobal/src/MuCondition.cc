@@ -150,7 +150,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
     }
 
     int numberObjects = candVec->size(useBx);  //BLW Change for BXVector
-    //LogTrace("l1t|Global") << "  numberObjects: " << numberObjects
+    //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
         return false;
@@ -162,14 +162,8 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
         index[i] = i;
     }
 
-    int numberForFactorial = numberObjects - nObjInCond;
-
-    // TEMPORARY FIX UNTIL IMPLEMENT NEW MUON CONDITIONS
-    int myfactorial = 1;
-    for( int i=numberForFactorial; i>0; i-- ) myfactorial *= i;
-
     int jumpIndex = 1;
-    int jump = myfactorial;//factorial(numberObjects - nObjInCond);
+    int jump = factorial(numberObjects - nObjInCond);
 
     int totalLoops = 0;
     int passLoops = 0;
@@ -307,7 +301,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             const int ObjInWscComb = 2;
             if (nObjInCond != ObjInWscComb) {
 
-                edm::LogError("l1t|Global") << "\n  Error: "
+                edm::LogError("L1GlobalTrigger") << "\n  Error: "
                     << "number of particles in condition with spatial correlation = " << nObjInCond
                     << "\n  it must be = " << ObjInWscComb << std::endl;
                 // TODO Perhaps I should throw here an exception,
@@ -369,7 +363,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
                 // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
                 candDeltaPhi = (m_corrParDeltaPhiNrBins - 1) * 2 - candDeltaPhi;
                 if (m_verbosity) {
-                    LogTrace("l1t|Global")
+                    LogTrace("L1GlobalTrigger")
                             << "    Initial candDeltaPhi = "
                             << candDeltaPhiInitial
                             << " > m_corrParDeltaPhiNrBins = "
@@ -409,7 +403,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 
     } while (std::next_permutation(index.begin(), index.end()) );
 
-    //LogTrace("l1t|Global")
+    //LogTrace("L1GlobalTrigger")
     //    << "\n  MuCondition: total number of permutations found:          " << totalLoops
     //    << "\n  MuCondition: number of permutations passing requirements: " << passLoops
     //    << "\n" << std::endl;
@@ -589,7 +583,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     }
 
     // particle matches if we get here
-    //LogTrace("l1t|Global")
+    //LogTrace("L1GlobalTrigger")
     //    << "  checkObjectParameter: muon object OK, passes all requirements\n" << std::endl;
 
     return true;

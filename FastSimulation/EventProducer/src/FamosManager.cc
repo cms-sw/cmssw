@@ -56,7 +56,8 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 {
   // Initialize the FSimEvent
   mySimEvent = 
-    new FSimEvent(p.getParameter<edm::ParameterSet>("ParticleFilter"));
+    new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
+		  p.getParameter<edm::ParameterSet>("ParticleFilter"));
 
   /// Initialize the TrajectoryManager
   myTrajectoryManager = 
@@ -164,10 +165,10 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 
     // Fill the event from the original generated event
     if (evt ) 
-      mySimEvent->fill(*evt,id);
+      mySimEvent->fill(*evt,id, random);
     
     else 
-      mySimEvent->fill(*particles,id);
+      mySimEvent->fill(*particles,id, random);
     
     //    mySimEvent->printMCTruth(*evt);
     /*
@@ -206,7 +207,7 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 void FamosManager::reconstruct(const reco::GenParticleCollection* particles, const TrackerTopology *tTopo, RandomEngineAndDistribution const* random){
   iEvent++;
   edm::EventID id(m_pRunNumber,1U,iEvent);
-  mySimEvent->fill(*particles, id);
+  mySimEvent->fill(*particles, id, random);
   myTrajectoryManager->reconstruct(tTopo, random);
   if ( myCalorimetry ) myCalorimetry->reconstruct(random);
 }

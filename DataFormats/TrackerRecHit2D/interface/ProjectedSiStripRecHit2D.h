@@ -74,7 +74,7 @@ public:
 private:
   // double dispatch
   virtual ProjectedSiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
-    return cloner(*this,tsos).release();
+    return cloner(*this,tsos);
   }
 #ifdef NO_DICT
   virtual  ConstRecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {

@@ -18,7 +18,6 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TEveCalo.h"
-#include "TGeoManager.h"
 #include "TGLViewer.h"
 
 #include "Fireworks/Core/interface/FWEveViewManager.h"
@@ -132,8 +131,6 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
 
    gEve->GetHighlight()->Connect("SelectionAdded(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
    gEve->GetHighlight()->Connect("SelectionRepeated(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
-
-   TGeoManager::SetVerboseLevel(0);
 }
 
 FWEveViewManager::~FWEveViewManager()

@@ -10,3 +10,12 @@ positiveCombinedMVABJetTags = cms.EDProducer("JetTagProducer",
 	)
 )
 
+positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags = cms.EDProducer("JetTagProducer",
+	jetTagComputer = cms.string('positiveCombinedSecondaryVertexSoftPFLeptonV1'),
+	tagInfos = cms.VInputTag(
+		cms.InputTag("impactParameterTagInfos"),
+		cms.InputTag("secondaryVertexTagInfos"),
+		cms.InputTag("softPFMuonsTagInfos"),
+		cms.InputTag("softPFElectronsTagInfos")
+	)
+)

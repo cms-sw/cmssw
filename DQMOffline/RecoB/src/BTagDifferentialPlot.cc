@@ -18,11 +18,11 @@ using namespace std ;
 
 
 BTagDifferentialPlot::BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable,
-					    const std::string & tagName, const unsigned int& mc) :
+					    const std::string & tagName, DQMStore::IBooker & ibook) :
 	fixedBEfficiency     ( bEff )  ,
 	noProcessing         ( false ) , processed(false), constVar(constVariable),
 	constVariableName    ( "" )    , diffVariableName     ( "" )    ,
-	constVariableValue   ( 999.9 , 999.9 ) , commonName( "MisidForBEff_" + tagName+"_"),
+	constVariableValue   ( 999.9 , 999.9 ) , commonName( "MisidForBEff_" + tagName+"_") , ibook_(ibook),
 	theDifferentialHistoB_d    ( 0 ) ,
 	theDifferentialHistoB_u    ( 0 ) ,
 	theDifferentialHistoB_s    ( 0 ) ,
@@ -32,9 +32,7 @@ BTagDifferentialPlot::BTagDifferentialPlot (const double& bEff, const ConstVarTy
 	theDifferentialHistoB_ni   ( 0 ) ,
 	theDifferentialHistoB_dus  ( 0 ) ,
 	theDifferentialHistoB_dusg ( 0 ) ,
-	theDifferentialHistoB_pu   ( 0 ) ,
-	mcPlots_ (mc)
-{}
+	theDifferentialHistoB_pu   ( 0 ) {}
 
 
 BTagDifferentialPlot::~BTagDifferentialPlot () {
@@ -128,23 +126,22 @@ void BTagDifferentialPlot::plot (TCanvas & thePlotCanvas ) {
   theDifferentialHistoB_c ->getTH1F()  -> SetStats     ( false ) ;
   //  theDifferentialHistoB_c   -> Draw("peSame") ;
   theDifferentialHistoB_c   ->getTH1F()-> Draw("pe") ;
-  if(mcPlots_>2){
-    // uds in blue
-    theDifferentialHistoB_dus ->getTH1F()-> SetMarkerColor ( col_dus ) ;
-    theDifferentialHistoB_dus ->getTH1F()-> SetLineColor   ( col_dus ) ;
-    theDifferentialHistoB_dus ->getTH1F()-> SetMarkerSize  ( mSize ) ;
-    theDifferentialHistoB_dus ->getTH1F()-> SetMarkerStyle ( mStyle_dus ) ;
-    theDifferentialHistoB_dus ->getTH1F()-> SetStats     ( false ) ;
-    theDifferentialHistoB_dus ->getTH1F()-> Draw("peSame") ;
-    // g in green
-    // only uds not to confuse
-    theDifferentialHistoB_g   ->getTH1F()-> SetMarkerColor ( col_g ) ;
-    theDifferentialHistoB_g   ->getTH1F()-> SetLineColor   ( col_g ) ;
-    theDifferentialHistoB_g   ->getTH1F()-> SetMarkerSize  ( mSize ) ;
-    theDifferentialHistoB_g   ->getTH1F()-> SetMarkerStyle ( mStyle_g ) ;
-    theDifferentialHistoB_g   ->getTH1F()-> SetStats     ( false ) ;
-    theDifferentialHistoB_g   ->getTH1F()-> Draw("peSame") ;
-  }
+  // uds in blue
+  theDifferentialHistoB_dus ->getTH1F()-> SetMarkerColor ( col_dus ) ;
+  theDifferentialHistoB_dus ->getTH1F()-> SetLineColor   ( col_dus ) ;
+  theDifferentialHistoB_dus ->getTH1F()-> SetMarkerSize  ( mSize ) ;
+  theDifferentialHistoB_dus ->getTH1F()-> SetMarkerStyle ( mStyle_dus ) ;
+  theDifferentialHistoB_dus ->getTH1F()-> SetStats     ( false ) ;
+  theDifferentialHistoB_dus ->getTH1F()-> Draw("peSame") ;
+  // g in green
+  // only uds not to confuse
+  theDifferentialHistoB_g   ->getTH1F()-> SetMarkerColor ( col_g ) ;
+  theDifferentialHistoB_g   ->getTH1F()-> SetLineColor   ( col_g ) ;
+  theDifferentialHistoB_g   ->getTH1F()-> SetMarkerSize  ( mSize ) ;
+  theDifferentialHistoB_g   ->getTH1F()-> SetMarkerStyle ( mStyle_g ) ;
+  theDifferentialHistoB_g   ->getTH1F()-> SetStats     ( false ) ;
+  theDifferentialHistoB_g   ->getTH1F()-> Draw("peSame") ;
+
   // NI if wanted
   if ( btppNI ) {
     theDifferentialHistoB_ni ->getTH1F()-> SetMarkerColor ( col_ni ) ;
@@ -175,10 +172,10 @@ void BTagDifferentialPlot::plot(const std::string & name, const std::string & ex
 }
 
 
-void BTagDifferentialPlot::process (DQMStore::IBooker & ibook) {
+void BTagDifferentialPlot::process () {
   setVariableName () ; // also sets noProcessing if not OK
   if ( noProcessing ) return ;
-  bookHisto (ibook) ;
+  bookHisto () ;
   fillHisto () ;
   processed = true;
 }
@@ -196,11 +193,18 @@ void BTagDifferentialPlot::setVariableName ()
     diffVariableName  = "eta" ;
     constVariableValue = make_pair ( theBinPlotters[0]->etaPtBin().getPtMin() , theBinPlotters[0]->etaPtBin().getPtMax() ) ;
   }
+
+  /*  std::cout
+     << "====>>>> BTagDifferentialPlot::setVariableName() : set const/diffVariableName to : "
+     << constVariableName << " / " << diffVariableName << endl
+     << "====>>>>                                            constant value interval : "
+     << constVariableValue.first  << " - " << constVariableValue.second << endl ;
+  */
 }
 
 
 
-void BTagDifferentialPlot::bookHisto (DQMStore::IBooker & ibook) {
+void BTagDifferentialPlot::bookHisto () {
 
   // vector with ranges
   vector<float> variableRanges ;
@@ -229,6 +233,12 @@ void BTagDifferentialPlot::bookHisto (DQMStore::IBooker & ibook) {
   // to book histo with variable binning -> put into array
   int      nBins    = variableRanges.size() - 1 ;
   float * binArray = &variableRanges[0];
+  //float * binArray = new float [nBins+1] ;
+
+  //for ( int i = 0 ; i < nBins + 1 ; i++ ) {
+  //  binArray[i] = variableRanges[i] ;
+  //}
+
 
   // part of the name common to all flavours
   std::stringstream stream("");
@@ -239,21 +249,18 @@ void BTagDifferentialPlot::bookHisto (DQMStore::IBooker & ibook) {
   std::replace(commonName.begin(), commonName.end(), '.' , 'v' ) ;
 
   std::string label(commonName);
-  HistoProviderDQM prov ("Btag",label,ibook);
+  HistoProviderDQM prov ("Btag",label,ibook_);
 
-  theDifferentialHistoB_b    = (prov.book1D ( "B_"    + commonName , "B_"    + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_d    = (prov.book1D ( "D_"    + commonName , "D_"    + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_u    = (prov.book1D ( "U_"    + commonName , "U_"    + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_s    = (prov.book1D ( "S_"    + commonName , "S_"    + commonName , nBins , binArray )) ;
   theDifferentialHistoB_c    = (prov.book1D ( "C_"    + commonName , "C_"    + commonName , nBins , binArray )) ;
-  theDifferentialHistoB_dusg = (prov.book1D ( "DUSG_" + commonName , "DUSG_" + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_b    = (prov.book1D ( "B_"    + commonName , "B_"    + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_g    = (prov.book1D ( "G_"    + commonName , "G_"    + commonName , nBins , binArray )) ;
   theDifferentialHistoB_ni   = (prov.book1D ( "NI_"   + commonName , "NI_"   + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_dus  = (prov.book1D ( "DUS_"  + commonName , "DUS_"  + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_dusg = (prov.book1D ( "DUSG_" + commonName , "DUSG_" + commonName , nBins , binArray )) ;
   theDifferentialHistoB_pu   = (prov.book1D ( "PU_"   + commonName , "PU_"   + commonName , nBins , binArray )) ;
-
-  if(mcPlots_>2){
-    theDifferentialHistoB_d    = (prov.book1D ( "D_"    + commonName , "D_"    + commonName , nBins , binArray )) ;
-    theDifferentialHistoB_u    = (prov.book1D ( "U_"    + commonName , "U_"    + commonName , nBins , binArray )) ;
-    theDifferentialHistoB_s    = (prov.book1D ( "S_"    + commonName , "S_"    + commonName , nBins , binArray )) ;
-    theDifferentialHistoB_g    = (prov.book1D ( "G_"    + commonName , "G_"    + commonName , nBins , binArray )) ;
-    theDifferentialHistoB_dus  = (prov.book1D ( "DUS_"  + commonName , "DUS_"  + commonName , nBins , binArray )) ;
-  }
 }
 
 
@@ -290,18 +297,16 @@ void BTagDifferentialPlot::fillHisto () {
     // get histo; find the bin of the fixed b-efficiency in the histo and get misid; fill
 
 
-    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_b()    , theDifferentialHistoB_b  ->getTH1F()  ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_d()    , theDifferentialHistoB_d ->getTH1F()   ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_u()    , theDifferentialHistoB_u ->getTH1F()   ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_s()    , theDifferentialHistoB_s ->getTH1F()   ) ) ;
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_c()    , theDifferentialHistoB_c  ->getTH1F()  ) ) ;
-    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dusg() , theDifferentialHistoB_dusg->getTH1F() ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_b()    , theDifferentialHistoB_b  ->getTH1F()  ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_g()    , theDifferentialHistoB_g  ->getTH1F()  ) ) ;
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_ni()   , theDifferentialHistoB_ni ->getTH1F()  ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dus()  , theDifferentialHistoB_dus->getTH1F()  ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dusg() , theDifferentialHistoB_dusg->getTH1F() ) ) ;
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_pu()   , theDifferentialHistoB_pu->getTH1F()   ) ) ;
-    if(mcPlots_>2){
-      effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_d()    , theDifferentialHistoB_d ->getTH1F()   ) ) ;
-      effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_u()    , theDifferentialHistoB_u ->getTH1F()   ) ) ;
-      effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_s()    , theDifferentialHistoB_s ->getTH1F()   ) ) ;
-      effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_g()    , theDifferentialHistoB_g  ->getTH1F()  ) ) ;
-      effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dus()  , theDifferentialHistoB_dus->getTH1F()  ) ) ;
-    }
 
     for ( vector< pair<TH1F*,TH1F*> >::const_iterator itP  = effPurDifferentialPairs.begin() ;
 	                                              itP != effPurDifferentialPairs.end()   ; ++itP ) {

@@ -19,104 +19,102 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   
   nevtot = 0;
   
+  dbe_ = 0;
+  // get hold of back-end interface
+  dbe_ = edm::Service<DQMStore>().operator->();
+   
+  Char_t histo[200];
+
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("HcalSimHitsV/HcalSimHitTask");
+
+    // General counters
+    sprintf  (histo, "N_HB" );
+    Nhb = dbe_->book1D(histo, histo, 2600,0.,2600.);
+    sprintf  (histo, "N_HE" );
+    Nhe = dbe_->book1D(histo, histo, 2600,0.,2600.);
+    sprintf  (histo, "N_HO" );
+    Nho = dbe_->book1D(histo, histo, 2200,0.,2200.);
+    sprintf  (histo, "N_HF" );
+    Nhf = dbe_->book1D(histo, histo, 1800,0., 1800.);
+
+    //Mean energy vs iEta TProfiles
+    sprintf  (histo, "emean_vs_ieta_HB1" );
+    emean_vs_ieta_HB1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_HB2" );
+    emean_vs_ieta_HB2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_HE1" );
+    emean_vs_ieta_HE1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HE2" );
+    emean_vs_ieta_HE2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_HE3" );
+    emean_vs_ieta_HE3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HO" );
+    emean_vs_ieta_HO = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HF1" );
+    emean_vs_ieta_HF1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HF2" );
+    emean_vs_ieta_HF2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+
+    //Occupancy vs. iEta TH1Fs
+    sprintf  (histo, "occupancy_vs_ieta_HB1" );
+    occupancy_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HB2" );
+    occupancy_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HE1" );
+    occupancy_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HE2" );
+    occupancy_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HE3" );
+    occupancy_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HO" );
+    occupancy_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HF1" );
+    occupancy_vs_ieta_HF1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HF2" );
+    occupancy_vs_ieta_HF2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+
+    //Energy spectra
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HB" ) ;
+    meSimHitsEnergyHB = dbe_->book1D(histo, histo, 510 , -0.1 , 5.); 
+
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HE" ) ;
+    meSimHitsEnergyHE = dbe_->book1D(histo, histo, 510, -0.02, 2.); 
+
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HO" ) ;
+    meSimHitsEnergyHO = dbe_->book1D(histo, histo, 510 , -0.1 , 5.); 
+    
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HF" ) ;
+    meSimHitsEnergyHF = dbe_->book1D(histo, histo, 1010 , -5. , 500.); 
+
+    //Energy in Cone
+    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
+    meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+    
+    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
+    meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      
+    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
+    meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+    
+   }  //end-of if(_dbe) 
 
 }
 
 
 HcalSimHitsValidation::~HcalSimHitsValidation() { }
 
-
-void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es)
-{
-  Char_t histo[200];
-
-    ib.setCurrentFolder("HcalSimHitsV/HcalSimHitTask");
-
-    // General counters
-    sprintf  (histo, "N_HB" );
-    Nhb = ib.book1D(histo, histo, 2600,0.,2600.);
-    sprintf  (histo, "N_HE" );
-    Nhe = ib.book1D(histo, histo, 2600,0.,2600.);
-    sprintf  (histo, "N_HO" );
-    Nho = ib.book1D(histo, histo, 2200,0.,2200.);
-    sprintf  (histo, "N_HF" );
-    Nhf = ib.book1D(histo, histo, 1800,0., 1800.);
-
-    //Mean energy vs iEta TProfiles
-    sprintf  (histo, "emean_vs_ieta_HB1" );
-    emean_vs_ieta_HB1 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
-    sprintf  (histo, "emean_vs_ieta_HB2" );
-    emean_vs_ieta_HB2 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
-    sprintf  (histo, "emean_vs_ieta_HE1" );
-    emean_vs_ieta_HE1 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., "s" );
-    sprintf  (histo, "emean_vs_ieta_HE2" );
-    emean_vs_ieta_HE2 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
-    sprintf  (histo, "emean_vs_ieta_HE3" );
-    emean_vs_ieta_HE3 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
-    sprintf  (histo, "emean_vs_ieta_HO" );
-    emean_vs_ieta_HO = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
-    sprintf  (histo, "emean_vs_ieta_HF1" );
-    emean_vs_ieta_HF1 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
-    sprintf  (histo, "emean_vs_ieta_HF2" );
-    emean_vs_ieta_HF2 = ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
-
-    //Occupancy vs. iEta TH1Fs
-    sprintf  (histo, "occupancy_vs_ieta_HB1" );
-    occupancy_vs_ieta_HB1 = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HB2" );
-    occupancy_vs_ieta_HB2 = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HE1" );
-    occupancy_vs_ieta_HE1 = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HE2" );
-    occupancy_vs_ieta_HE2 = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HE3" );
-    occupancy_vs_ieta_HE3 = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HO" );
-    occupancy_vs_ieta_HO = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HF1" );
-    occupancy_vs_ieta_HF1 = ib.book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "occupancy_vs_ieta_HF2" );
-    occupancy_vs_ieta_HF2 = ib.book1D(histo, histo, 82, -41., 41.);
-
-    //Energy spectra
-    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HB" ) ;
-    meSimHitsEnergyHB = ib.book1D(histo, histo, 510 , -0.1 , 5.); 
-
-    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HE" ) ;
-    meSimHitsEnergyHE = ib.book1D(histo, histo, 510, -0.02, 2.); 
-
-    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HO" ) ;
-    meSimHitsEnergyHO = ib.book1D(histo, histo, 510 , -0.1 , 5.); 
-    
-    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HF" ) ;
-    meSimHitsEnergyHF = ib.book1D(histo, histo, 1010 , -5. , 500.); 
-
-    //Energy in Cone
-    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
-    meEnConeEtaProfile = ib.bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
-    
-    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
-    meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
-      
-    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
-    meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
-    
-
-}
-
-
 void HcalSimHitsValidation::endJob() { 
   //before check that histos are there....
 
-  // let's see if this breaks anything
   // check if ME still there (and not killed by MEtoEDM for memory saving)
-  /*if( dbe_ )
+  if( dbe_ )
     {
       // check existence of first histo in the list
       if (! dbe_->get("HcalSimHitsV/HcalSimHitTask/N_HB")) return;
     }
   else
-    return;*/
+    return;
   
   //======================================
 
@@ -156,10 +154,11 @@ void HcalSimHitsValidation::endJob() {
   }
 
 
-  // let's see if this breaks anything
-  //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
+
+void HcalSimHitsValidation::beginJob(){ }
 
 void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 

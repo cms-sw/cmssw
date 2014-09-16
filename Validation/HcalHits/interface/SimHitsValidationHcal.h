@@ -2,7 +2,7 @@
 #define ValidationSimHitsValidationHcal_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -25,17 +26,17 @@
 #include <map>
 #include <string>
 
-class SimHitsValidationHcal: public DQMEDAnalyzer {
+class SimHitsValidationHcal: public edm::EDAnalyzer{
 public:
 
   SimHitsValidationHcal(const edm::ParameterSet& ps);
   ~SimHitsValidationHcal();
 
-
 protected:
 
+  void beginJob ();
+  void endJob   ();
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
   void analyzeHits  (std::vector<PCaloHit> &);
 
@@ -44,6 +45,7 @@ private:
   std::string    g4Label, hcalHits;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   bool           verbose_;
+  DQMStore       *dbe_;
 
   struct energysum {
     double e25, e50, e100, e250;

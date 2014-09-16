@@ -171,7 +171,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 
   const float rollRadius(fixedRollRadius_ ? top_->radius() : 
 			 top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
-
+  
   //calculate noise from model
   double averageNeutralNoiseRatePerRoll = 0.;
   double averageNoiseElectronRatePerRoll = 0.;
@@ -179,11 +179,11 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 
   if(gemId.station() == 1)
   {
-//simulate neutral background for GE1/1
+    //simulate neutral background for GE1/1
     averageNeutralNoiseRatePerRoll = constNeuGE11_ * TMath::Exp(slopeNeuGE11_*rollRadius);
-
-//simulate eletron background for GE1/1
-//the product is faster than Power or pow:
+    
+    //simulate eletron background for GE1/1
+    //the product is faster than Power or pow:
     if(simulateElectronBkg_)
     averageNoiseElectronRatePerRoll = GE11ElecBkgParams_[0]
                                     + GE11ElecBkgParams_[1]*rollRadius
@@ -195,7 +195,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 
   if(gemId.station() == 2 || gemId.station() == 3)
   {
-//simulate neutral background for GE2/1
+    //simulate neutral background for GE2/1
     averageNeutralNoiseRatePerRoll = GE21NeuBkgParams_[0]
                                    + GE21NeuBkgParams_[1]*rollRadius
                                    + GE21NeuBkgParams_[2]*rollRadius*rollRadius
@@ -304,8 +304,8 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 
         else
         {
-	  if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-	    cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
+        if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
+          cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
           for (int i = 1; i <= clsR; ++i)
           {
             if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))

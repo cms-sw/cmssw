@@ -113,8 +113,6 @@ B2GHadronicHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   }
   if (isSel_) {
-    hNumJetPt->Fill(jet_->pt());
-    hNumJetEta->Fill(jet_->eta());
     for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
       TString name = triggerNames.triggerNames()[i].c_str();
       for (unsigned int j=0; j<vsPaths_.size(); j++) {

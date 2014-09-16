@@ -15,8 +15,6 @@ else if ( ($2 == all) || ($2 == ALL) ) then
   set tables = ( GRun PIon 2014 HIon FULL )
 else if ( ($2 == dev) || ($2 == DEV) ) then
   set tables = ( GRun PIon HIon )
-else if ( ($2 == full) || ($2 == FULL) ) then
-  set tables = ( FULL )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
   set tables = ( 2014 )
 else
@@ -114,7 +112,7 @@ end
 
 # running each HLT trigger path individually one by one
 
-if ( ($2 != all) && ($2 != dev) && ($2 != frozen) && ($2 != full) ) then
+if ( ($2 != all) && ($2 != dev) && ($2 != frozen) ) then
   ./runIntegration.csh $1 $2
 endif
 

@@ -1,12 +1,14 @@
 #ifndef EwkDQM_H
 #define EwkDQM_H
 
+
 /** \class EwkDQM
  *
  *  DQM offline for SMP V+Jets
  *
  *  \author Valentina Gori, University of Firenze
  */
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -20,15 +22,13 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace reco {
-class Jet;
-class MET;
-}
+namespace reco {class Jet; class MET;}
 class DQMStore;
 class MonitorElement;
 
 class EwkDQM : public edm::EDAnalyzer {
  public:
+
   /// Constructor
   EwkDQM(const edm::ParameterSet&);
 
@@ -39,7 +39,7 @@ class EwkDQM : public edm::EDAnalyzer {
   void beginJob();
 
   ///
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun( const edm::Run& , const edm::EventSetup& );
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
@@ -50,6 +50,7 @@ class EwkDQM : public edm::EDAnalyzer {
   double calcDeltaPhi(double phi1, double phi2);
 
  private:
+
   // ----------member data ---------------------------
 
   DQMStore* theDbe;
@@ -59,9 +60,10 @@ class EwkDQM : public edm::EDAnalyzer {
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 
+
   // Variables from config file
-  std::vector<std::string> theElecTriggerPathToPass_;
-  std::vector<std::string> theMuonTriggerPathToPass_;
+  std::vector<std::string>   theElecTriggerPathToPass_;
+  std::vector<std::string>   theMuonTriggerPathToPass_;
   edm::InputTag thePFJetCollectionLabel_;
   edm::InputTag theCaloMETCollectionLabel_;
   edm::InputTag theTriggerResultsCollection_;
@@ -88,7 +90,7 @@ class EwkDQM : public edm::EDAnalyzer {
   MonitorElement* h_jet_phi;
 
   MonitorElement* h_jet2_et;
-  // MonitorElement* h_jet2_pt;
+  //MonitorElement* h_jet2_pt;
   MonitorElement* h_jet2_eta;
   MonitorElement* h_jet2_phi;
 
@@ -106,9 +108,9 @@ class EwkDQM : public edm::EDAnalyzer {
   MonitorElement* h_m1_phi;
   MonitorElement* h_m2_phi;
 
-  // MonitorElement* h_t1_et;
-  // MonitorElement* h_t1_eta;
-  // MonitorElement* h_t1_phi;
+  //MonitorElement* h_t1_et;
+  //MonitorElement* h_t1_eta;
+  //MonitorElement* h_t1_phi;
 
   MonitorElement* h_met;
   MonitorElement* h_met_phi;

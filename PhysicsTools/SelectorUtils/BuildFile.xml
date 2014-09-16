@@ -2,9 +2,6 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/PatCandidates"/>
-<use name="DataFormats/EgammaCandidates"/>
-<use name="DataFormats/MuonReco"/>
-<use name="DataFormats/TauReco"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
@@ -16,9 +13,8 @@
 <use name="rootrflx"/>
 <use name="rootcore"/>
 <use name="root"/>
-<use name="openssl"/>
 <export>
-  <lib name="1"/>
+  <lib name="PhysicsToolsSelectorUtils"/>
   <use name="CommonTools/Utils"/>
   <use name="DataFormats/Math"/>
   <use name="DataFormats/Candidate"/>
@@ -31,5 +27,4 @@
   <use name="FWCore/FWLite"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
-  <use name="openssl"/>
 </export>

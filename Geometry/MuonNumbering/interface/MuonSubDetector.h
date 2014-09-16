@@ -1,11 +1,11 @@
-#ifndef Geometry_MuonNumbering_MuonSubDetector_h
-#define Geometry_MuonNumbering_MuonSubDetector_h
+#ifndef MuonNumbering_MuonSubDetector_h
+#define MuonNumbering_MuonSubDetector_h
 
 /** \class MuonSubDetector
  *
  * class to handle muon sensitive detectors,
  * possible arguments for constructor:
- * "MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits" 
+ * "MuonDTHits", "MuonCSCHits", "MuonRPCHits"
  *
  * the function suIdName() returns the detector SuId
  * for the ROU factory
@@ -21,7 +21,7 @@ class MuonSubDetector {
 
   /*  
    * possible arguments for constructor:
-   * "MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"
+   * "MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits"
    */
 
   MuonSubDetector(std::string name);
@@ -29,14 +29,13 @@ class MuonSubDetector {
 
   bool isBarrel();
   bool isEndcap();
-  bool isRPC();
-  bool isGEM();
-  bool isME0();
+  bool isRpc();
+  bool isGem();
   std::string name();
   std::string suIdName();
       
  private:
-  enum subDetector {barrel,endcap,rpc,gem,me0,nodef};
+  enum subDetector {barrel,endcap,rpc,gem,nodef};
   subDetector detector;
   std::string detectorName;
 };

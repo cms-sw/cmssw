@@ -1,6 +1,13 @@
-#include "DQMOffline/RecoB/plugins/BTagPerformanceAnalyzerOnData.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DQMOffline/RecoB/plugins/BTagPerformanceAnalyzerOnData.h"
+#include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
+#include "DQMOffline/RecoB/interface/Tools.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 using namespace reco;
@@ -9,6 +16,7 @@ using namespace std;
 using namespace RecoBTag;
 
 BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::ParameterSet& pSet) :
+  partonKinematics(pSet.getParameter< bool >("partonKinematics")),
   jetSelector(
     pSet.getParameter<double>("etaMin"),
     pSet.getParameter<double>("etaMax"),
@@ -21,10 +29,22 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   ),
   etaRanges(pSet.getParameter< vector<double> >("etaRanges")),
   ptRanges(pSet.getParameter< vector<double> >("ptRanges")),
+  produceEps(pSet.getParameter< bool >("produceEps")),
+  producePs(pSet.getParameter< bool >("producePs")),
+  psBaseName(pSet.getParameter<std::string>( "psBaseName" )),
+  epsBaseName(pSet.getParameter<std::string>( "epsBaseName" )),
+  inputFile(pSet.getParameter<std::string>( "inputfile" )),
   JECsource(pSet.getParameter<std::string>( "JECsource" )),
   doJEC(pSet.getParameter<bool>( "doJEC" )),
-  moduleConfig(pSet.getParameter< vector<edm::ParameterSet> >("tagConfig"))
+  update(pSet.getParameter<bool>( "update" )),
+  allHisto(pSet.getParameter<bool>( "allHistograms" )),
+  finalize(pSet.getParameter< bool >("finalizePlots")),
+  finalizeOnly(pSet.getParameter< bool >("finalizeOnly")),
+  moduleConfig(pSet.getParameter< vector<edm::ParameterSet> >("tagConfig")),
+  mcPlots_(pSet.getParameter< unsigned int >("mcPlots"))
 {
+  if(!finalizeOnly) mcPlots_ = 0; //analyzer not designed to produce flavour histograms but could be used for harvesting 
+
   genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));
   slInfoToken = consumes<SoftLeptonTagInfoCollection>(pSet.getParameter<InputTag>("softLeptonInfo"));
   for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin();
@@ -38,6 +58,9 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
       jetTagInputTags.push_back(moduleLabel);
       binJetTagPlotters.push_back(vector<JetTagPlotter*>()) ;
       jetTagToken.push_back(consumes<JetTagCollection>(moduleLabel));
+      if (finalize && mcPlots_==4){
+	differentialPlots.push_back(vector<BTagDifferentialPlot*>());
+      }
     }
     else if(dataFormatType == "TagCorrelation") {
       const InputTag& label1 = iModule->getParameter<InputTag>("label1");
@@ -72,6 +95,17 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
   // Book all histograms.
   //
 
+  if (update) {
+    //
+        // append the DQM file ... we should consider this experimental
+    //    edm::Service<DQMStore>().operator->()->open(std::string((const char *)(inputFile)),"/");
+    // removed, a module will take care
+  }
+
+  // parton p
+//   double pPartonMin = 0.0    ;
+//   double pPartonMax = 99999.9 ;
+
   // iterate over ranges:
   const int iEtaStart = -1                   ;  // this will be the inactive one
   const int iEtaEnd   = etaRanges.size() - 1 ;
@@ -89,7 +123,30 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
                                    "JetTag";
     if (dataFormatType == "JetTag") {
       iTag++;
+      const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
       const string& folderName    = iModule->getParameter<string>("folder");
+      // Contains plots for each bin of rapidity and pt.
+      vector<BTagDifferentialPlot*> * differentialPlotsConstantEta = new vector<BTagDifferentialPlot*> () ;
+      vector<BTagDifferentialPlot*> * differentialPlotsConstantPt  = new vector<BTagDifferentialPlot*> () ;
+      if (finalize && mcPlots_==4){
+	// the constant b-efficiency for the differential plots versus pt and eta
+	const double& effBConst = 
+	  iModule->getParameter<edm::ParameterSet>("parameters").getParameter<double>("effBConst");
+	
+	// the objects for the differential plots vs. eta,pt for
+	for ( int iEta = iEtaStart ; iEta < iEtaEnd ; ++iEta ) {
+	  BTagDifferentialPlot * etaConstDifferentialPlot = new BTagDifferentialPlot
+	    (effBConst, BTagDifferentialPlot::constETA, moduleLabel.label(), ibook);
+	  differentialPlotsConstantEta->push_back ( etaConstDifferentialPlot );
+	}
+	
+	for ( int iPt = iPtStart ; iPt < iPtEnd ; ++iPt ) {
+	  // differentialPlots for this pt bin
+	  BTagDifferentialPlot * ptConstDifferentialPlot = new BTagDifferentialPlot
+	    (effBConst, BTagDifferentialPlot::constPT, moduleLabel.label(), ibook);
+	  differentialPlotsConstantPt->push_back ( ptConstDifferentialPlot );
+	}
+      }
       
       // eta loop
       for ( int iEta = iEtaStart ; iEta < iEtaEnd ; ++iEta ) {
@@ -100,12 +157,30 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
 	  
 	  // Instantiate the genertic b tag plotter
 	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
-							   iModule->getParameter<edm::ParameterSet>("parameters"), 0, false, ibook);
+							   iModule->getParameter<edm::ParameterSet>("parameters"), mcPlots_, update, finalize, ibook);
 	  binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
 	  
+	  // Add to the corresponding differential plotters
+	  if (finalize && mcPlots_==4){	
+	    (*differentialPlotsConstantEta)[iEta+1]->addBinPlotter ( jetTagPlotter ) ;
+	    (*differentialPlotsConstantPt )[iPt+1] ->addBinPlotter ( jetTagPlotter ) ;
+	  }
 	}
       }
       
+      // the objects for the differential plots vs. eta, pt: collect all from constant eta and constant pt
+      if (finalize && mcPlots_==4){
+	differentialPlots.at(iTag).reserve(differentialPlotsConstantEta->size()+differentialPlotsConstantPt->size()) ;
+	differentialPlots.at(iTag).insert(differentialPlots.at(iTag).end(), differentialPlotsConstantEta->begin(), differentialPlotsConstantEta->end());
+	differentialPlots.at(iTag).insert(differentialPlots.at(iTag).end(), differentialPlotsConstantPt->begin(), differentialPlotsConstantPt->end());
+	
+	edm::LogInfo("Info")
+	  << "====>>>> ## sizeof differentialPlots = " << differentialPlots.size();
+	
+	// the intermediate ones are no longer needed
+	delete differentialPlotsConstantEta ;
+	delete differentialPlotsConstantPt  ;
+      }
     } else if(dataFormatType == "TagCorrelation") { 
         iTagCorr++;
         const InputTag& label1 = iModule->getParameter<InputTag>("label1");
@@ -119,7 +194,7 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
             // Instantiate the generic b tag correlation plotter
             TagCorrelationPlotter* tagCorrelationPlotter = new TagCorrelationPlotter(label1.label(), label2.label(), etaPtBin,
                                                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
-                                                                                     0, ibook);
+                                                                                     mcPlots_, update, ibook);
             binTagCorrelationPlotters.at(iTagCorr).push_back(tagCorrelationPlotter);
           }
         }
@@ -139,12 +214,14 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
 	  
 	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(),
 								      etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName,
-								      0, false, ibook);
+								      update, mcPlots_, finalize, ibook);
 	  binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
           binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
 	}
       }
       
+      edm::LogInfo("Info")
+	<< "====>>>> ## sizeof differentialPlots = " << differentialPlots.size();
     }
   }
   
@@ -189,6 +266,12 @@ BTagPerformanceAnalyzerOnData::~BTagPerformanceAnalyzerOnData()
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
       delete binJetTagPlotters[iJetLabel][iPlotter];
     }
+    if (finalize && mcPlots_==4){
+      for (vector<BTagDifferentialPlot *>::iterator iPlotter = differentialPlots[iJetLabel].begin();
+	   iPlotter != differentialPlots[iJetLabel].end(); ++ iPlotter) {
+	delete *iPlotter;
+      }
+    }
   }
 
   for (vector<vector<TagCorrelationPlotter*> >::iterator iJetLabel = binTagCorrelationPlotters.begin();
@@ -206,6 +289,9 @@ BTagPerformanceAnalyzerOnData::~BTagPerformanceAnalyzerOnData()
 
 void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if (finalizeOnly) return;
+  //
+  //no flavour map needed here
 
   edm::Handle<reco::SoftLeptonTagInfoCollection> infoHandle;
   iEvent.getByToken(slInfoToken, infoHandle);
@@ -385,6 +471,44 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     }
   }
 }
+
+void BTagPerformanceAnalyzerOnData::endRun(const edm::Run & run, const edm::EventSetup & es){
+
+  if (finalize == false) return;
+  setTDRStyle();
+  for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
+    int plotterSize =  binJetTagPlotters[iJetLabel].size();
+    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
+      binJetTagPlotters[iJetLabel][iPlotter]->finalize();
+      //      binJetTagPlotters[iJetLabel][iPlotter]->write(allHisto);
+      if (producePs)  (*binJetTagPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
+      if (produceEps) (*binJetTagPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
+    }
+    
+    if (mcPlots_==4){
+      for (vector<BTagDifferentialPlot *>::iterator iPlotter = differentialPlots[iJetLabel].begin();
+	   iPlotter != differentialPlots[iJetLabel].end(); ++ iPlotter) {
+	(**iPlotter).process();
+	if (producePs)  (**iPlotter).psPlot(psBaseName);
+	if (produceEps) (**iPlotter).epsPlot(epsBaseName);
+	//      (**iPlotter).write(allHisto);
+      }
+    }
+  }
+  for (unsigned int iJetLabel = 0; iJetLabel != binTagInfoPlotters.size(); ++iJetLabel) {
+    int plotterSize =  binTagInfoPlotters[iJetLabel].size();
+    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
+      binTagInfoPlotters[iJetLabel][iPlotter]->finalize();
+
+      //      binTagInfoPlotters[iJetLabel][iPlotter]->write(allHisto);
+      if (producePs)  (*binTagInfoPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
+      if (produceEps) (*binTagInfoPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
+    }
+  }
+  
+  
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(BTagPerformanceAnalyzerOnData);

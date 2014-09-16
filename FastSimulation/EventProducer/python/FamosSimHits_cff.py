@@ -5,6 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Event.Early10TeVCollisionVertexGenerator_cfi import *
 #from FastSimulation.Event.Realistic7TeV2011CollisionVertexGenerator_cfi import *
 from FastSimulation.Configuration.CommonInputs_cff import *
+if(fastsimPrimaryVertex=='Realistic8TeV'):
+    from FastSimulation.Event.Realistic8TeVCollisionVertexGenerator_cfi import *
+else:
+    from FastSimulation.Event.Realistic7TeV2011CollisionVertexGenerator_cfi import *
+    
 
 from FastSimulation.Event.ParticleFilter_cfi import *
 from FastSimulation.MaterialEffects.MaterialEffects_cfi import *
@@ -52,6 +57,10 @@ famosSimHits = cms.EDProducer("FamosProducer",
     # If the following is false, no B field map is used, 
     # and B is set to 4 T altogether
     UseMagneticField = cms.bool(True),
+    # The primary vertex smearing 
+    VertexGenerator = cms.PSet(
+        myVertexGenerator
+    )
 )
 
 

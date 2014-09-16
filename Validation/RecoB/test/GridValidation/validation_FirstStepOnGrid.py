@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 whichJets  = "ak4PFCHS" # default value, allowed : "ak4PF", "ak4PFCHS", add "NoJEC" to run the code with no JEC applied
 useTrigger = False
 runOnMC    = True
-tag =  'POSTLS172_V3::All'
+tag =  'START70_V4::All'
 
 ###prints###
 print "jet collcetion asked : ", whichJets
@@ -36,7 +36,7 @@ process.GlobalTag.globaltag = tag
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMOffline.RecoB.bTagSequences_cff")
-#process.bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
+#bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
 
 newjetID=cms.InputTag("ak4PFJetsCHS")
 process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
@@ -60,8 +60,9 @@ print "inputTag : ", process.myak4JetTracksAssociatorAtVertex.jets
 process.load("Validation.RecoB.bTagAnalysis_firststep_cfi")
 if runOnMC:
     process.bTagValidationFirstStep.jetMCSrc = 'AK4byValAlgo'
+    process.bTagValidationFirstStep.allHistograms = True
     process.bTagValidationFirstStep.applyPtHatWeight = False
-    process.bTagValidationFirstStep.flavPlots = "allbcl" #if contains "all" plots for all jets booked, if contains "bcl" histograms for b, c and light jets booked, if contains "dusg" all histograms booked
+    process.bTagValidationFirstStep.flavPlots = "allbcl" #if contains "noall" plots for all jets not booked, if contains "dusg" all histograms booked, default : all, b, c, udsg, ni
     #process.bTagValidation.ptRecJetMin = cms.double(20.)                                                                                          
     process.bTagValidation.genJetsMatched = cms.InputTag("patJetGenJetMatch")
     process.bTagValidation.doPUid = cms.bool(True)

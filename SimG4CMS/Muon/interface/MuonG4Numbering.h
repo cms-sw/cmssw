@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_Muon_MuonG4Numbering_h
-#define SimG4CMS_Muon_MuonG4Numbering_h
+#ifndef MuonG4Numbering_h
+#define MuonG4Numbering_h
 
 /** \class MuonG4Numbering
  *

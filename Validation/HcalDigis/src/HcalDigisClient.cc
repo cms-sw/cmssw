@@ -21,38 +21,54 @@
 // system include files
 
 HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
+    dbe_ = edm::Service<DQMStore > ().operator->();
     outputFile_ = iConfig.getUntrackedParameter<std::string > ("outputFile", "HcalDigisClient.root");
     dirName_ = iConfig.getParameter<std::string > ("DQMDirName");
+    if (!dbe_) edm::LogError("HcalDigisClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
     msm_ = new std::map<std::string, MonitorElement*>();
+    //if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) if (dbe_) dbe_->setVerbose(0);
+
+    //    std::cout << "dirName: " <<  dirName_ << std::endl;
+    //dbe_->setCurrentFolder(dirName_);
+    dbe_->setCurrentFolder("HcalDigisV/HcalDigiTask");
+
+    booking("HB");
+    booking("HE");
+    booking("HO");
+    booking("HF");
+}
+
+void HcalDigisClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    using namespace edm;
 
 
 }
 
-
-void HcalDigisClient::booking(DQMStore::IBooker &ib, std::string subdetopt) {
+void HcalDigisClient::booking(std::string subdetopt) {
 
     std::string strtmp;
     HistLim ietaLim(82, -41., 41.);
 
     for (int depth = 1; depth <= 4; depth++) {
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + str(depth) + "_" + subdetopt;
-        book1D(ib,strtmp, ietaLim);
+        book1D(strtmp, ietaLim);
     }
 
 }
 
-void HcalDigisClient::runClient(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
-    ig.setCurrentFolder(dirName_);
+void HcalDigisClient::runClient() {
+    if (!dbe_) return; //we dont have the DQMStore so we cant do anything
+    dbe_->setCurrentFolder(dirName_);
     std::vector<MonitorElement*> hcalMEs;
     // Since out folders are fixed to three, we can just go over these three folders
     // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-    std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
+    std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
     for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
-        ig.setCurrentFolder(fullPathHLTFolders[i]);
-        std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
+        dbe_->setCurrentFolder(fullPathHLTFolders[i]);
+        std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
         for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
             if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalDigisV/HcalDigiTask") == 0) {
-                hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
+                hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
                 if (!HcalDigisEndjob(hcalMEs, "HB")) 
 		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HB"; 
                 if (!HcalDigisEndjob(hcalMEs, "HE")) 

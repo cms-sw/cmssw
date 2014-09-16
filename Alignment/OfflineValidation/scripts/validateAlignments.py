@@ -221,18 +221,6 @@ def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlo
     theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.close()
     
-def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
-    repMap = trackSplittingValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "trackSplitPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-
-    for validation in trackSplittingValidationList:
-        repMap[ "trackSplitPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "trackSplitPlotInstantiation" ] )
-    
-    theFile = open( outFilePath, "w" )
-    # theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
-    theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
-    theFile.close()
-    
 def createMergeScript( path, validations ):
     if(len(validations) == 0):
         msg = "Cowardly refusing to merge nothing!"
@@ -242,8 +230,7 @@ def createMergeScript( path, validations ):
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
-            "RunExtendedOfflineValidation":"",
-            "RunTrackSplitPlot":""
+            "RunExtendedOfflineValidation":""
             })
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
@@ -267,14 +254,6 @@ def createMergeScript( path, validations ):
                                        resultPlotFile)
         repMap["RunExtendedOfflineValidation"] = \
             replaceByMap(configTemplates.extendedValidationExecution, repMap)
-
-    if "TrackSplittingValidation" in comparisonLists:
-        repMap["trackSplitPlotScriptPath"] = \
-            os.path.join(path, "TkAlTrackSplitPlot.C")
-        createTrackSplitPlotScript(comparisonLists["TrackSplittingValidation"],
-                                       repMap["trackSplitPlotScriptPath"] )
-        repMap["RunTrackSplitPlot"] = \
-            replaceByMap(configTemplates.trackSplitPlotExecution, repMap)
 
     repMap["CompareAlignments"] = "#run comparisons"
     for validationId in comparisonLists:

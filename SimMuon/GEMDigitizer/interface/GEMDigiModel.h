@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMDigitizer_GEMDigiModel_h
-#define SimMuon_GEMDigitizer_GEMDigiModel_h
+#ifndef GEMDigitizer_GEMDigiModel_h
+#define GEMDigitizer_GEMDigiModel_h
 
 /** 
  *  \class GEMDigiModel

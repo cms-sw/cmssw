@@ -71,9 +71,3 @@ GEMEtaPartitionSpecs::detName() const
   return _n;
 }
 
-
-const std::vector<float>&
-GEMEtaPartitionSpecs::parameters() const
-{
-  return _p;
-}

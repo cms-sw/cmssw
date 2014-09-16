@@ -28,6 +28,9 @@ class KineParticleFilter;
 
 class SimTrack;
 class SimVertex;
+class PrimaryVertexGenerator;
+class RandomEngineAndDistribution;
+//class Histos;
 
 namespace edm {
   class ParameterSet;
@@ -47,6 +50,9 @@ public:
   /// Default constructor
   FBaseSimEvent(const edm::ParameterSet& kine);
 
+  FBaseSimEvent(const edm::ParameterSet& vtx,
+		const edm::ParameterSet& kine);
+
   ///  usual virtual destructor
   ~FBaseSimEvent();
 
@@ -59,10 +65,10 @@ public:
   }
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
-  void fill(const HepMC::GenEvent& hev);
+  void fill(const HepMC::GenEvent& hev, RandomEngineAndDistribution const*);
 
   /// fill the FBaseSimEvent from the current reco::GenParticleCollection
-  void fill(const reco::GenParticleCollection& hev);
+  void fill(const reco::GenParticleCollection& hev, RandomEngineAndDistribution const*);
 
   /// fill the FBaseSimEvent from SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>&, const std::vector<SimVertex>&);
@@ -71,8 +77,8 @@ public:
   void printMCTruth(const HepMC::GenEvent& hev);
 
   /// Add the particles and their vertices to the list
-  void addParticles(const HepMC::GenEvent& hev);
-  void addParticles(const reco::GenParticleCollection& myGenParticles);
+  void addParticles(const HepMC::GenEvent& hev, RandomEngineAndDistribution const*);
+  void addParticles(const reco::GenParticleCollection& myGenParticles, RandomEngineAndDistribution const*);
 
   /// print the FBaseSimEvent in an intelligible way
   void print() const;
@@ -138,6 +144,8 @@ public:
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
+  PrimaryVertexGenerator* thePrimaryVertexGenerator() const { return theVertexGenerator; }
+
   /// Set the beam spot position
   inline void setBeamSpot(const math::XYZPoint& aBeamSpot) { 
     theBeamSpot = aBeamSpot;
@@ -189,6 +197,7 @@ public:
 
   const ParticleDataTable * pdt;
 
+  PrimaryVertexGenerator* theVertexGenerator;
   math::XYZPoint theBeamSpot;
   double lateVertexPosition;
 
