@@ -212,28 +212,14 @@ bool PulseChiSqSNNLS::NNLS() {
   
   
   int iter = 0;
-  while (true) {
-    //printf("iter out, idxsP = %i\n",int(_idxsP.size()));
-    
+  while (true) {    
     //can only perform this step if solution is guaranteed viable
     if (iter>0 || _nP==0) {
-      if ( _nP==npulse ) break;            
-      
-//       printf("wvec calc:\n");
-//       for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-//         printf("%5f ",_ampvec.coeff(ipulse));
-//       }
-//       printf("\n");       
+      if ( _nP==npulse ) break;                  
       
       const unsigned int nActive = npulse - _nP;
            
-      wvec.tail(nActive) = aTbvec.tail(nActive) - (aTamat.selfadjointView<Eigen::Lower>()*_ampvec).tail(nActive);
-      
-/*      printf("wvec:\n");
-      for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-        printf("%5f ",wvec.coeff(ipulse));
-      }
-      printf("\n");   */       
+      wvec.tail(nActive) = aTbvec.tail(nActive) - (aTamat.selfadjointView<Eigen::Lower>()*_ampvec).tail(nActive);       
       
       Index idxwmax;
       double wmax = wvec.tail(nActive).maxCoeff(&idxwmax);
@@ -257,25 +243,12 @@ bool PulseChiSqSNNLS::NNLS() {
     while (true) {
       //printf("iter in, idxsP = %i\n",int(_idxsP.size()));
       
-      if (_nP==0) break;
-
-/*      printf("nP = %i\n",_nP);
-      printf("initial:\n");
-      for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-        printf("%5f ",_ampvec.coeff(ipulse));
-      }
-      printf("\n");*/      
+      if (_nP==0) break;     
       
       PulseVector ampvecpermtest = _ampvec;
       
       //solve for unconstrained parameters      
-      ampvecpermtest.head(_nP) = aTamat.topLeftCorner(_nP,_nP).ldlt().solve(aTbvec.head(_nP));
-      
-/*      printf("ampvecpermtest postsolve:\n");
-      for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-        printf("%5f ",ampvecpermtest.coeff(ipulse));
-      }
-      printf("\n"); */       
+      ampvecpermtest.head(_nP) = aTamat.topLeftCorner(_nP,_nP).ldlt().solve(aTbvec.head(_nP));     
       
       //check solution
       if (ampvecpermtest.head(_nP).minCoeff()>0.) {
@@ -299,22 +272,9 @@ bool PulseChiSqSNNLS::NNLS() {
 
       _ampvec.head(_nP) += minratio*(ampvecpermtest.head(_nP) - _ampvec.head(_nP));
       
-/*      printf("intermediate:\n");
-      for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-        printf("%5f ",_ampvec.coeff(ipulse));
-      }
-      printf("\n");    */  
-      
-      //avoid numerical problems with below ==0. check
+      //avoid numerical problems with later ==0. check
       _ampvec.coeffRef(minratioidx) = 0.;
-      
-//       printf("final:\n");
-//       for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
-//         printf("%5f ",_ampvec.coeff(ipulse));
-//       }
-//       printf("\n");
-
-      
+            
       //printf("removing index %i, orig idx %i\n",int(minratioidx),int(_bxs.coeff(minratioidx)));
       aTamat.col(_nP-1).swap(aTamat.col(minratioidx));
       aTamat.row(_nP-1).swap(aTamat.row(minratioidx));
