@@ -10,7 +10,6 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
     explicit ElectronMcFakePostValidator( const edm::ParameterSet & conf ) ; 
     virtual ~ElectronMcFakePostValidator() ;
     virtual void book() ;
-    virtual void finalize2() ;
     virtual void finalize( DQMStore::IBooker & iBooker ) ; // , DQMStore::IGetter & iGetter
 
   private:
