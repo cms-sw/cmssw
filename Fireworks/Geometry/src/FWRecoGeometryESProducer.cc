@@ -1,3 +1,4 @@
+#include "TNamed.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryESProducer.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
@@ -230,6 +231,14 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   {
     edm::LogInfo("FWRecoGeometry") << "failed to produce RPC geometry " << exception.what() << std::endl;
   }
+
+
+  try {
+     RPCDetId id(1, 1, 4, 1, 1, 1, 1 );
+     m_geomRecord->slaveGeometry( detId );
+     m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
+  }
+  catch (...) {}
 }
 
 void
@@ -265,6 +274,8 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
 	m_fwGeometry->idToName[current].topology[5] = roll->npads();
       }
     }
+
+    m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
   }
   catch( cms::Exception &exception )
   {
