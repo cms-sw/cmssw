@@ -567,7 +567,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
 
 void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
-  std::cout << "========== ElectronMcSignalValidator::bookHistograms ==========" << std::endl; // A.C. to be removed
 //  prepareStore() ;
 //  setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
   setBookIndex(-1) ;
@@ -1068,22 +1067,11 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
 
  }
 
-/*void ElectronMcSignalValidator::book()
- {
-  std::cout << "ElectronMcSignalValidator::book " << std::endl; // A.C. to be removed 
- }*/
- 
 ElectronMcSignalValidator::~ElectronMcSignalValidator()
  {}
 
-/*void ElectronMcSignalValidator::analyze2( const edm::Event & iEvent, const edm::EventSetup & iSetup ) 
- {
-  std::cout << "ElectronMcSignalValidator::analyze2 " << std::endl; // A.C. to be removed 
- }*/
- 
 void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
  {
-//  std::cout << "ElectronMcSignalValidator::analyze " << std::endl; // A.C. to be removed
   // get collections
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByToken(electronCollection_, gsfElectrons) ;
