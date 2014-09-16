@@ -10,7 +10,6 @@ class ElectronMcSignalPostValidator : public ElectronDqmHarvesterBase
     explicit ElectronMcSignalPostValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcSignalPostValidator() ;
     virtual void book() ;
-    virtual void finalize2() ;
     virtual void finalize( DQMStore::IBooker & iBooker ) ; // , DQMStore::IGetter & iGetter
 
   private:
