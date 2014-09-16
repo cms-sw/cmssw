@@ -1,0 +1,153 @@
+Darwin 13.3.0 x86_64
+For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
+
+Performance of std::chrono::steady_clock
+	Average time per call:       40.9 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 146.8 ns) (average: 1003.3 +/- 0.7 ns)
+
+Performance of std::chrono::system_clock
+	Average time per call:       40.6 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 240.4 ns) (average: 1003.5 +/- 1.2 ns)
+
+Performance of std::chrono::high_resolution_clock
+	Average time per call:       41.6 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 488.0 ns) (average: 1015.2 +/- 2.4 ns)
+
+Performance of gettimeofday()
+	Average time per call:       39.7 ns
+	Clock tick period:         1000.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 411.0 ns) (average: 1009.5 +/- 2.1 ns)
+
+Performance of times() (wall-clock time)
+	Average time per call:      612.8 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:   10000000.0 ns (median: 10000000.0 ns) (sigma: 0.1 ns) (average: 10000000.0 +/- 0.1 ns)
+
+Performance of times() (cpu time)
+	Average time per call:      657.5 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:   10000000.0 ns (median: 10000000.0 ns) (sigma: 0.1 ns) (average: 10000000.0 +/- 0.1 ns)
+
+Performance of times() (wall-clock time) (using double)
+	Average time per call:      619.1 ns
+	Clock tick period:            n/a
+	Measured resolution:    9999990.5 ns (median: 9999990.5 ns) (sigma: 42.8 ns) (average: 9999998.3 +/- 5.5 ns)
+
+Performance of times() (cpu time) (using double)
+	Average time per call:      617.1 ns
+	Clock tick period:            n/a
+	Measured resolution:   10000000.0 ns (median: 10000000.0 ns) (sigma: 0.1 ns) (average: 10000000.0 +/- 0.1 ns)
+
+Performance of times() (wall-clock time) (using fixed math)
+	Average time per call:      616.1 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:   10000000.0 ns (median: 10000000.0 ns) (sigma: 0.1 ns) (average: 10000000.0 +/- 0.1 ns)
+
+Performance of times() (cpu time) (using fixed math)
+	Average time per call:      624.6 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:   10000000.0 ns (median: 10000000.0 ns) (sigma: 0.1 ns) (average: 10000000.0 +/- 0.1 ns)
+
+Performance of clock()
+	Average time per call:      350.2 ns
+	Clock tick period:         1000.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 300.0 ns) (average: 1075.8 +/- 0.5 ns)
+
+Performance of getrusage(RUSAGE_SELF)
+	Average time per call:      338.7 ns
+	Clock tick period:         1000.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 305.4 ns) (average: 1070.2 +/- 0.5 ns)
+
+Performance of host_get_clock_service(SYSTEM_CLOCK), clock_get_time(...)
+	Average time per call:      739.1 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:        721.0 ns (median: 731.0 ns) (sigma: 166.1 ns) (average: 739.1 +/- 0.2 ns)
+
+Performance of host_get_clock_service(REALTIME_CLOCK), clock_get_time(...)
+	Average time per call:      743.1 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:        722.0 ns (median: 733.0 ns) (sigma: 175.2 ns) (average: 743.1 +/- 0.2 ns)
+
+Performance of host_get_clock_service(CALENDAR_CLOCK), clock_get_time(...)
+	Average time per call:      759.8 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 127.5 ns) (average: 1002.2 +/- 0.1 ns)
+
+Performance of mach_absolute_time() (using nanoseconds)
+	Average time per call:       21.2 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:         20.0 ns (median: 21.0 ns) (sigma: 18.1 ns) (average: 21.2 +/- 0.1 ns)
+
+Performance of mach_absolute_time() (native)
+	Average time per call:       18.9 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:         18.0 ns (median: 19.0 ns) (sigma: 14.0 ns) (average: 18.9 +/- 0.1 ns)
+
+Performance of thread_info(mach_thread_self(), THREAD_BASIC_INFO, ...)
+	Average time per call:      852.0 ns
+	Clock tick period:         1000.0 ns
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 365.1 ns) (average: 1127.8 +/- 0.4 ns)
+
+Performance of RDTSC (2494.316 MHz) (using nanoseconds)
+	Average time per call:        8.7 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:          7.0 ns (median: 9.0 ns) (sigma: 11.0 ns) (average: 8.7 +/- 0.1 ns)
+
+Performance of LFENCE; RDTSC (2494.316 MHz) (using nanoseconds)
+	Average time per call:       13.5 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:         12.0 ns (median: 14.0 ns) (sigma: 13.7 ns) (average: 13.5 +/- 0.1 ns)
+
+Performance of MFENCE; RDTSC (2494.316 MHz) (using nanoseconds)
+	Average time per call:       22.3 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:         21.0 ns (median: 22.0 ns) (sigma: 18.3 ns) (average: 22.3 +/- 0.1 ns)
+
+Performance of RDTSCP (2494.316 MHz) (using nanoseconds)
+	Average time per call:       12.3 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:         10.0 ns (median: 12.0 ns) (sigma: 14.2 ns) (average: 12.3 +/- 0.1 ns)
+
+Performance of RDTSC (2494.316 MHz) (native)
+	Average time per call:        8.5 ns
+	Clock tick period:            0.4 ns
+	Measured resolution:          7.2 ns (median: 8.8 ns) (sigma: 17.4 ns) (average: 8.5 +/- 0.1 ns)
+
+Performance of LFENCE; RDTSC (2494.316 MHz) (native)
+	Average time per call:       12.1 ns
+	Clock tick period:            0.4 ns
+	Measured resolution:          9.6 ns (median: 11.6 ns) (sigma: 30.3 ns) (average: 12.1 +/- 0.1 ns)
+
+Performance of MFENCE; RDTSC (2494.316 MHz) (native)
+	Average time per call:       21.1 ns
+	Clock tick period:            0.4 ns
+	Measured resolution:         20.0 ns (median: 21.2 ns) (sigma: 26.9 ns) (average: 21.1 +/- 0.1 ns)
+
+Performance of RDTSCP (2494.316 MHz) (native)
+	Average time per call:       11.3 ns
+	Clock tick period:            0.4 ns
+	Measured resolution:          9.6 ns (median: 11.2 ns) (sigma: 17.2 ns) (average: 11.3 +/- 0.1 ns)
+
+Performance of boost::timer (wall-clock time)
+	Average time per call:      639.4 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:        630.0 ns (median: 637.0 ns) (sigma: 100.4 ns) (average: 639.4 +/- 0.1 ns)
+
+Performance of boost::timer (cpu time)
+	Average time per call:      643.1 ns
+	Clock tick period:            1.0 ns
+	Measured resolution:   10000000.0 ns (median: 10000000.0 ns) (sigma: 0.1 ns) (average: 10000000.0 +/- 0.1 ns)
+
+Performance of tbb::tick_count
+	Average time per call:       41.8 ns
+	Clock tick period:            n/a
+	Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 106.7 ns) (average: 1001.7 +/- 0.5 ns)
+
+Performance of omp_get_wtime
+	Average time per call:       47.2 ns
+	Clock tick period:            n/a
+	Measured resolution:        953.7 ns (median: 953.7 ns) (sigma: 156.3 ns) (average: 1002.1 +/- 0.7 ns)
+

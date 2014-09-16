@@ -15,10 +15,12 @@ namespace l1t {
   public:
 
     enum EtSumType {
+      kTotalEt,
+      kTotalHt,
       kMissingEt,
       kMissingHt,
-      kTotalEt,
-      kTotalHt
+      kTotalEx,
+      kTotalEy
     };
 
     EtSum(){}

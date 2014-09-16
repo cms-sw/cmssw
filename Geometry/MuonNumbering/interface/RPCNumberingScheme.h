@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_RPCNumberingScheme_h
-#define MuonNumbering_RPCNumberingScheme_h
+#ifndef Geometry_MuonNumbering_RPCNumberingScheme_h
+#define Geometry_MuonNumbering_RPCNumberingScheme_h
 
 /** \class RPCNumberingScheme
  *

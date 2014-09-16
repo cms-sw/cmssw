@@ -71,10 +71,10 @@ void TestRef::nondefault_ctor() {
   edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
-  std::auto_ptr<product1_t> prod(new product1_t);
+  std::unique_ptr<product1_t> prod(new product1_t);
   prod->push_back(1);
   prod->push_back(2);
-  getter.addProduct(id, prod);
+  getter.addProduct(id, std::move(prod));
 
   ref1_t ref0(id, 0, &getter);
   CPPUNIT_ASSERT(ref0.isNull()==false);
@@ -127,10 +127,10 @@ void TestRef::using_wrong_productid() {
   edm::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
 
-  std::auto_ptr<product1_t> prod(new product1_t);
+  std::unique_ptr<product1_t> prod(new product1_t);
   prod->push_back(1);
   prod->push_back(2);
-  getter.addProduct(id, prod);
+  getter.addProduct(id, std::move(prod));
 
   edm::ProductID wrong_id(1, 100U);
   CPPUNIT_ASSERT(wrong_id.isValid()); // its valid, but not used.

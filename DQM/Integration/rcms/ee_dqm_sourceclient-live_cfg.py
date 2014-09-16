@@ -125,8 +125,8 @@ if (onlyEB == 1) :
 if (onlyEE == 1) :
   process.ecalEBunpacker.FEDs = [ 601, 602, 603, 604, 605, 606, 607, 608, 609, 646, 647, 648, 649, 650, 651, 652, 653, 654 ]
 
-import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
+process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit1 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()

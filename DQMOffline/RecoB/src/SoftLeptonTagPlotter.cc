@@ -12,59 +12,63 @@ static const string ordinal[9] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7t
 
 SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
 					   const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-					   const unsigned int& mc, const bool& update, DQMStore::IBooker & ibook) :
-    BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
+					   const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook) :
+  BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc), willFinalize_(wf)
 {
   const std::string softLepDir(theExtensionString.substr(1));
-
+  
+  if(willFinalize_) return;
+  
   for (int i = 0; i < s_leptons; i++) {
     std::ostringstream s("");
     s << ordinal[i] << " lepton ";
     m_leptonId[i] = new FlavourHistograms<double> (
 						   s.str() + "id",
 						   "Lepton identification discriminaint",
-						   60, -0.1, 1.1, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+						   60, -0.1, 1.1, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_leptonPt[i] = new FlavourHistograms<double> (
 						   s.str() + "pT",
 						   "Lepton transverse moementum",
-						   100, 0.0, 20.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+						   100, 0.0, 20.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_sip2d[i] = new FlavourHistograms<double> (
         s.str() + "sip2d",
         "Lepton signed 2D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_sip3d[i] = new FlavourHistograms<double> (
         s.str() + "sip3d",
         "Lepton signed 3D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_ptRel[i] = new FlavourHistograms<double> (
         s.str() +  "pT rel",
         "Lepton transverse moementum relative to jet axis",
-        100, 0.0, 10.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, 0.0, 10.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_p0Par[i] = new FlavourHistograms<double> (
         s.str() + "p0 par",
         "Lepton moementum along jet axis in the B rest frame",
-        100, 0.0, 10.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, 0.0, 10.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_etaRel[i] = new FlavourHistograms<double> (
         s.str() + "eta rel",
         "Lepton pseudorapidity relative to jet axis",
-        100, -5.0, 25.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, -5.0, 25.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_deltaR[i] = new FlavourHistograms<double> (
         s.str() + "delta R",
         "Lepton pseudoangular distance from jet axis",
-        100, 0.0, 0.6, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, 0.0, 0.6, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_ratio[i] = new FlavourHistograms<double> (
         s.str() + "energy ratio",
         "Ratio of lepton momentum to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, 0.0, 2.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_ratioRel[i] = new FlavourHistograms<double> (
         s.str() + "parallel energy ratio",
         "Ratio of lepton momentum along the jet axis to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", update,softLepDir,mcPlots_, ibook);
+        100, 0.0, 2.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
   }
 }
 
 SoftLeptonTagPlotter::~SoftLeptonTagPlotter ()
 {
+  if(willFinalize_) return;
+
   for (int i = 0; i != s_leptons; ++i) {
     delete m_leptonId[i];
     delete m_leptonPt[i];
@@ -118,6 +122,8 @@ void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
 
 void SoftLeptonTagPlotter::psPlot(const std::string & name)
 {
+  if(willFinalize_) return;
+
   const std::string cName("SoftLeptonPlots" + theExtensionString);
   setTDRStyle()->cd();
   TCanvas canvas(cName.c_str(), cName.c_str(), 600, 900);
@@ -157,6 +163,8 @@ void SoftLeptonTagPlotter::psPlot(const std::string & name)
 
 void SoftLeptonTagPlotter::epsPlot(const std::string & name)
 {
+  if(willFinalize_) return;
+
   for (int i=0; i != s_leptons; ++i) {
     m_leptonId[i]->epsPlot( name );
     m_leptonPt[i]->epsPlot( name );

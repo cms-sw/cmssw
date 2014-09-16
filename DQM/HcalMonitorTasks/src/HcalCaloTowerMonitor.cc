@@ -5,9 +5,9 @@ HcalCaloTowerMonitor::HcalCaloTowerMonitor(){}
 
 HcalCaloTowerMonitor::~HcalCaloTowerMonitor() {}
 
-void HcalCaloTowerMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
+void HcalCaloTowerMonitor::setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib)
 {
-  HcalBaseMonitor::setup(ps,dbe);
+  HcalBaseMonitor::setup(ps,ib);
 
   baseFolder_ = rootFolder_+"CaloTowerMonitor";
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
@@ -22,87 +22,84 @@ void HcalCaloTowerMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   ievt_=0;
   // book histograms
-  if (m_dbe)
-    {
-      m_dbe->setCurrentFolder(baseFolder_); 
-      meEVT_ = m_dbe->bookInt("CaloTower Event Number");     
+      ib.setCurrentFolder(baseFolder_); 
+      meEVT_ = ib.bookInt("CaloTower Event Number");     
       meEVT_->Fill(ievt_); 
 
       // Calo Tower occupancy
-      caloTowerOccMap=m_dbe->book2D("CaloTowerOccupancyMap", "Calo Tower Occupancy Map",
+      caloTowerOccMap=ib.book2D("CaloTowerOccupancyMap", "Calo Tower Occupancy Map",
 				    etaBins_,etaMin_,etaMax_,
 				    phiBins_,phiMin_,phiMax_);
       // Calo Tower energy
-      caloTowerEnergyMap=m_dbe->book2D("CaloTowerEnergyMap", "Calo Tower Energy Map",
+      caloTowerEnergyMap=ib.book2D("CaloTowerEnergyMap", "Calo Tower Energy Map",
 				       etaBins_,etaMin_,etaMax_,
 				       phiBins_,phiMin_,phiMax_);
 
-      caloTowerTime = m_dbe->book1D("CaloTowerTime", "Calo Tower Time",
+      caloTowerTime = ib.book1D("CaloTowerTime", "Calo Tower Time",
 				    10,0,10);
-      caloTowerEnergy = m_dbe->book1D("CalotowerEnergy", "Calo Tower Energy",
+      caloTowerEnergy = ib.book1D("CalotowerEnergy", "Calo Tower Energy",
 				      100,0,100);
-      caloTowerMeanEnergyEta = m_dbe->bookProfile("CaloTowerMeanEnergyEta","Calo tower Mean Energy vs. Eta",
+      caloTowerMeanEnergyEta = ib.bookProfile("CaloTowerMeanEnergyEta","Calo tower Mean Energy vs. Eta",
 						  etaBins_,etaMin_,etaMax_,100,0,100);
 
       // Make plots of HCAL contributions to tower
-      m_dbe->setCurrentFolder(baseFolder_+"/"+"HCAL");
-      hcalOccMap=m_dbe->book2D("HcalOccupancyMap", "Calo Tower Occupancy Map",
+      ib.setCurrentFolder(baseFolder_+"/"+"HCAL");
+      hcalOccMap=ib.book2D("HcalOccupancyMap", "Calo Tower Occupancy Map",
 			       etaBins_,etaMin_,etaMax_,
 			       phiBins_,phiMin_,phiMax_);
       // Calo Tower energy
-      hcalEnergyMap=m_dbe->book2D("HcalEnergyMap", "Calo Tower Energy Map",
+      hcalEnergyMap=ib.book2D("HcalEnergyMap", "Calo Tower Energy Map",
 				  etaBins_,etaMin_,etaMax_,
 				  phiBins_,phiMin_,phiMax_);
 
-      hcalTime = m_dbe->book1D("HcalTime", "Calo Tower Time",
+      hcalTime = ib.book1D("HcalTime", "Calo Tower Time",
 				    10,0,10);
-      hcalEnergy = m_dbe->book1D("HcalEnergy", "Calo Tower Energy",
+      hcalEnergy = ib.book1D("HcalEnergy", "Calo Tower Energy",
 				      100,0,100);
-      hcalMeanEnergyEta = m_dbe->bookProfile("HcalMeanEnergyEta",
+      hcalMeanEnergyEta = ib.bookProfile("HcalMeanEnergyEta",
 					     "Calo tower Mean Energy vs. Eta",
 					     etaBins_,etaMin_,etaMax_,
 					     100,0,100);
       
 
-      m_dbe->setCurrentFolder(baseFolder_+"/"+"ECAL");
-      ecalOccMap=m_dbe->book2D("EcalOccupancyMap", "Calo Tower Occupancy Map",
+      ib.setCurrentFolder(baseFolder_+"/"+"ECAL");
+      ecalOccMap=ib.book2D("EcalOccupancyMap", "Calo Tower Occupancy Map",
 			       etaBins_,etaMin_,etaMax_,
 			       phiBins_,phiMin_,phiMax_);
       // Calo Tower energy
-      ecalEnergyMap=m_dbe->book2D("EcalEnergyMap", "Calo Tower Energy Map",
+      ecalEnergyMap=ib.book2D("EcalEnergyMap", "Calo Tower Energy Map",
 				  etaBins_,etaMin_,etaMax_,
 				  phiBins_,phiMin_,phiMax_);
 
-      ecalTime = m_dbe->book1D("EcalTime", "Calo Tower Time",
+      ecalTime = ib.book1D("EcalTime", "Calo Tower Time",
 			       10,0,10);
-      ecalEnergy = m_dbe->book1D("EcalEnergy", "Calo Tower Energy",
+      ecalEnergy = ib.book1D("EcalEnergy", "Calo Tower Energy",
 				 100,0,100);
-      ecalMeanEnergyEta = m_dbe->bookProfile("EcalMeanEnergyEta",
+      ecalMeanEnergyEta = ib.bookProfile("EcalMeanEnergyEta",
 					     "Calo tower Mean Energy vs. Eta",
 					     etaBins_,etaMin_,etaMax_,
 					     100,0,100);
 
       // Comparison Plots
-      m_dbe->setCurrentFolder(baseFolder_+"/"+"ComparisonPlots");
-      time_HcalvsEcal=m_dbe->book2D("HcalvsEcalTime",
+      ib.setCurrentFolder(baseFolder_+"/"+"ComparisonPlots");
+      time_HcalvsEcal=ib.book2D("HcalvsEcalTime",
 				    "Hcal Time vs. Ecal time",
 				    10,0,10,10,0,10);
-      time_CaloTowervsEcal=m_dbe->book2D("CaloTowervsEcalTime",
+      time_CaloTowervsEcal=ib.book2D("CaloTowervsEcalTime",
 					 "Calotower Time vs. Ecal time",
 					 10,0,10,10,0,10);
-      time_CaloTowervsHcal=m_dbe->book2D("CaloTowervsHcalTime",
+      time_CaloTowervsHcal=ib.book2D("CaloTowervsHcalTime",
 					 "CaloTower Time vs. Hcal time",
 					 10,0,10,10,0,10);
-      energy_HcalvsEcal=m_dbe->book2D("HcalvsEcalEnergy",
+      energy_HcalvsEcal=ib.book2D("HcalvsEcalEnergy",
 				    "Hcal Energy vs. Ecal energy",
 				    100,0,100,100,0,100);
-      energy_CaloTowervsEcal=m_dbe->book2D("CaloTowervsEcalEnergy",
+      energy_CaloTowervsEcal=ib.book2D("CaloTowervsEcalEnergy",
 					 "Calotower Energy vs. Ecal energy",
 					 100,0,100,100,0,100);
-      energy_CaloTowervsHcal=m_dbe->book2D("CaloTowervsHcalEnergy",
+      energy_CaloTowervsHcal=ib.book2D("CaloTowervsHcalEnergy",
 					 "CaloTower Energy vs. Hcal energy",
 					 100,0,100,100,0,100);
-    } // if (m_dbe)
   
 } //void HcalCaloTowerMonitor::setup(...)
 
@@ -110,11 +107,6 @@ void HcalCaloTowerMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 void HcalCaloTowerMonitor::processEvent(const CaloTowerCollection& calotower)
 {
   // fill histograms for each event
-  if(!m_dbe)  
-    { 
-      if(fVerbosity) std::cout <<"<HcalCaloTowerMonitor::processEvent>    DQMStore not instantiated!!!\n"; 
-      return; 
-    }  // if(!m_dbe)
   
   if (fVerbosity) std::cout <<"Processing calotower"<<std::endl;
 

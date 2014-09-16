@@ -425,7 +425,7 @@
    <Parameter name="CopyNoOffset" value="3*[super]"/>
   </SpecPar>
   <SpecPar name="MuonGEMChamber">
-   <PartSelector path="//GHA.*"/>
+   <PartSelector path="//GHA1.*"/>
    <Parameter name="CopyNoTag" value="[mg_roll]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
   </SpecPar>

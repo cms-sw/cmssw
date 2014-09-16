@@ -43,7 +43,7 @@ hltpostvalidation_fastsim = cms.Sequence(
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
     #+HLTAlCaPostVal
-    +SusyExoPostVal
+    +SusyExoPostVal_fastsim
     +HLTHiggsPostVal
     +b2gHLTriggerValidationHarvest
     )

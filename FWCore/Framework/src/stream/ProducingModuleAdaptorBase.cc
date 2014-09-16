@@ -202,9 +202,17 @@ namespace edm {
     ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const& fb){}
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::doPreForkReleaseResources(){}
+    ProducingModuleAdaptorBase<T>::doPreForkReleaseResources(){
+      for(auto m: m_streamModules) {
+        m->preForkReleaseResources();
+      }
+    }
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){}
+    ProducingModuleAdaptorBase<T>::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){
+      for(auto m: m_streamModules) {
+        m->postForkReacquireResources(iChildIndex,iNumberOfChildren);
+      }
+    }
   }
 }

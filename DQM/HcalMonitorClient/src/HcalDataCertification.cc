@@ -27,7 +27,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,24 +43,23 @@
 // class declaration
 //
 
-class HcalDataCertification : public edm::EDAnalyzer {
+class HcalDataCertification : public DQMEDHarvester {
    public:
       explicit HcalDataCertification(const edm::ParameterSet&);
       ~HcalDataCertification();
+      
+    virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ib, DQMStore::IGetter & ig, const edm::LuminosityBlock&, const edm::EventSetup&) override ;
+    virtual void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig ) override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override ;
-      void endRun(const edm::Run & r, const edm::EventSetup & c) override;
-  void CertifyHcal();
+  void CertifyHcal(DQMStore::IBooker &, DQMStore::IGetter &);
+
+  // helper method to book histograms
+  void bookHistograms(DQMStore::IBooker &);
 
    // ----------member data ---------------------------
 
    edm::ParameterSet conf_;
-   DQMStore * dbe_;
    MonitorElement* CertificationSummary;
    MonitorElement* CertificationSummaryMap;
    MonitorElement* Hcal_HB;
@@ -72,6 +71,7 @@ class HcalDataCertification : public edm::EDAnalyzer {
    MonitorElement* Hcal_HO12;
    int debug_;
    std::string rootFolder_;
+
 };
 
 //
@@ -91,7 +91,8 @@ HcalDataCertification::HcalDataCertification(const edm::ParameterSet& iConfig)
   // now do what ever initialization is needed
   debug_ = iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
-  dbe_ = edm::Service<DQMStore>().operator->();  
+
+  CertificationSummary = NULL;
 }
 
 HcalDataCertification::~HcalDataCertification()
@@ -104,27 +105,20 @@ HcalDataCertification::~HcalDataCertification()
 // member functions
 //
 
-// ------------ method called to for each event  ------------
-void
-HcalDataCertification::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
-
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalDataCertification::beginJob()
+HcalDataCertification::bookHistograms(DQMStore::IBooker &ib)
 {
-  if (debug_>0) std::cout<<"<HcalDataCertification> beginJob"<< std::endl;
+  if (debug_>0) std::cout<<"<HcalDataCertification> bookHistograms"<< std::endl;
 
-  dbe_->setCurrentFolder(rootFolder_);
-  std::string currDir = dbe_->pwd();
-  if (debug_>0) std::cout << "--- Current Directory " << currDir << std::endl;
-  std::vector<MonitorElement*> mes = dbe_->getAllContents("");
-  if (debug_>0) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
+  ib.setCurrentFolder(rootFolder_);
+  std::string currDir = ib.pwd();
 
-  dbe_->setCurrentFolder(rootFolder_+"/EventInfo/");
+  ib.setCurrentFolder(rootFolder_+"/EventInfo/");
 
-  CertificationSummary = dbe_->bookFloat("CertificationSummary");
+  CertificationSummary = ib.bookFloat("CertificationSummary");
 
-  CertificationSummaryMap = dbe_->book2D("CertificationSummaryMap","HcalCertificationSummaryMap",7,0.,7.,1,0.,1.);
+  CertificationSummaryMap = ib.book2D("CertificationSummaryMap","HcalCertificationSummaryMap",7,0.,7.,1,0.,1.);
   CertificationSummaryMap->setAxisRange(-1,1,3);
   CertificationSummaryMap->setBinLabel(1,"HB");
   CertificationSummaryMap->setBinLabel(2,"HE");
@@ -135,44 +129,43 @@ HcalDataCertification::beginJob()
   CertificationSummaryMap->setBinLabel(7,"HFlumi");
   CertificationSummaryMap->setBinLabel(1,"Status",2);
 
-  dbe_->setCurrentFolder(rootFolder_+"/EventInfo/CertificationContents/");
-  Hcal_HB = dbe_->bookFloat("Hcal_HB");
-  Hcal_HE = dbe_->bookFloat("Hcal_HE");
-  Hcal_HF = dbe_->bookFloat("Hcal_HF");
-  Hcal_HO = dbe_->bookFloat("Hcal_HO");
-  Hcal_HFlumi = dbe_->bookFloat("Hcal_HFlumi");
-  Hcal_HO0    = dbe_->bookFloat("Hcal_HO0");
-  Hcal_HO12   = dbe_->bookFloat("Hcal_HO12");
+  ib.setCurrentFolder(rootFolder_+"/EventInfo/CertificationContents/");
+  Hcal_HB = ib.bookFloat("Hcal_HB");
+  Hcal_HE = ib.bookFloat("Hcal_HE");
+  Hcal_HF = ib.bookFloat("Hcal_HF");
+  Hcal_HO = ib.bookFloat("Hcal_HO");
+  Hcal_HFlumi = ib.bookFloat("Hcal_HFlumi");
+  Hcal_HO0    = ib.bookFloat("Hcal_HO0");
+  Hcal_HO12   = ib.bookFloat("Hcal_HO12");
 
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HcalDataCertification::endJob() 
-{
-  if (debug_>0) std::cout << "<HcalDataCertification> endJob " << std::endl;
-}
 
-// ------------ method called just before starting a new run  ------------
-void 
-HcalDataCertification::beginLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
-{
-  if (debug_>0) std::cout<<"<HcalDataCertification> beginLuminosityBlock"<<std::endl;
-}
 
 // ------------ method called right after a run ends ------------
 void 
-HcalDataCertification::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
+HcalDataCertification::dqmEndLuminosityBlock(DQMStore::IBooker &ib, DQMStore::IGetter &ig, const edm::LuminosityBlock& run, const edm::EventSetup& c)
 {
-  CertifyHcal();
+  // check if MonitorElements exits
+  // book them if not
+  if ( !CertificationSummary ) {
+    bookHistograms(ib);
+  }
+  CertifyHcal(ib,ig);
 }
 
-void HcalDataCertification::endRun(const edm::Run & r, const edm::EventSetup & c)
+// this used to be endRun, after migration I make it dqmEndJob
+void HcalDataCertification::dqmEndJob(DQMStore::IBooker & ib, DQMStore::IGetter &ig )
 {
-  CertifyHcal();
+  // check if MonitorElements exits
+  // book them if not
+  if ( !CertificationSummary ) {
+    bookHistograms(ib);
+  }
+  CertifyHcal(ib,ig);
 }
 
-void HcalDataCertification::CertifyHcal()
+void HcalDataCertification::CertifyHcal(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
 
   float hcalFrac,reportFrac,dcsFrac,daqFrac;
@@ -180,25 +173,23 @@ void HcalDataCertification::CertifyHcal()
   float certHcal[7];
 
   if (debug_>0) {
-    dbe_->setCurrentFolder(rootFolder_);
-    std::string currDir = dbe_->pwd();
+    ig.setCurrentFolder(rootFolder_);
+    std::string currDir = ib.pwd();
     std::cout << "<HcalDataCertification::endLuminosityBlock> --- Current Directory " << currDir << std::endl;
-    std::vector<MonitorElement*> mes = dbe_->getAllContents("");
-    std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
   }
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummary")) {
-    dcsFrac = (dbe_->get(rootFolder_+"/EventInfo/DCSSummary"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSSummary")) {
+    dcsFrac = (ig.get(rootFolder_+"/EventInfo/DCSSummary"))->getFloatValue();
   }
   else dcsFrac = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummary")) {
-    daqFrac = (dbe_->get(rootFolder_+"/EventInfo/DAQSummary"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQSummary")) {
+    daqFrac = (ig.get(rootFolder_+"/EventInfo/DAQSummary"))->getFloatValue();
   }
   else daqFrac = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummary")) {
-    reportFrac = (dbe_->get(rootFolder_+"/EventInfo/reportSummary"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummary")) {
+    reportFrac = (ig.get(rootFolder_+"/EventInfo/reportSummary"))->getFloatValue();
   }
   else reportFrac = -1;
 
@@ -215,114 +206,114 @@ void HcalDataCertification::CertifyHcal()
 
   // reportSummary
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HB")) {
-    fracHCAL[0][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HB"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HB")) {
+    fracHCAL[0][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HB"))->getFloatValue();
   }
   else fracHCAL[0][0] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HE")) {
-    fracHCAL[1][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HE"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HE")) {
+    fracHCAL[1][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HE"))->getFloatValue();
   }
   else fracHCAL[1][0] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO")) {
-    fracHCAL[2][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO")) {
+    fracHCAL[2][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO"))->getFloatValue();
   }
   else fracHCAL[2][0] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HF")) {
-    fracHCAL[3][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HF"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HF")) {
+    fracHCAL[3][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HF"))->getFloatValue();
   }
   else fracHCAL[3][0] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO0")) {
-    fracHCAL[4][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO0"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO0")) {
+    fracHCAL[4][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO0"))->getFloatValue();
   }
   else fracHCAL[4][0] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO12")) {
-    fracHCAL[5][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO12"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO12")) {
+    fracHCAL[5][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HO12"))->getFloatValue();
   }
   else fracHCAL[5][0] = -1;
 
 
-  if (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HFlumi")) {
-    fracHCAL[6][0] = (dbe_->get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HFlumi"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HFlumi")) {
+    fracHCAL[6][0] = (ig.get(rootFolder_+"/EventInfo/reportSummaryContents/Hcal_HFlumi"))->getFloatValue();
   }
   else fracHCAL[6][0] = -1;
 
   // DAQ
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HB")) {
-    fracHCAL[0][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HB"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HB")) {
+    fracHCAL[0][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HB"))->getFloatValue();
   }
   else fracHCAL[0][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HE")) {
-    fracHCAL[1][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HE"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HE")) {
+    fracHCAL[1][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HE"))->getFloatValue();
   }
   else fracHCAL[1][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO")) {
-    fracHCAL[2][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO")) {
+    fracHCAL[2][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO"))->getFloatValue();
   }
   else fracHCAL[2][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HF")) {
-    fracHCAL[3][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HF"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HF")) {
+    fracHCAL[3][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HF"))->getFloatValue();
   }
   else fracHCAL[3][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO0")) {
-    fracHCAL[4][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO0"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO0")) {
+    fracHCAL[4][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO0"))->getFloatValue();
   }
   else fracHCAL[4][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO12")) {
-    fracHCAL[5][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO12"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO12")) {
+    fracHCAL[5][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO12"))->getFloatValue();
   }
   else fracHCAL[5][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HFlumi")) {
-    fracHCAL[6][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HFlumi"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HFlumi")) {
+    fracHCAL[6][1] = (ig.get(rootFolder_+"/EventInfo/DAQContents/Hcal_HFlumi"))->getFloatValue();
   }
   else fracHCAL[6][1] = -1;
 
   // DCS
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HB")) {
-    fracHCAL[0][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HB"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HB")) {
+    fracHCAL[0][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HB"))->getFloatValue();
   }
   else fracHCAL[0][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HE")) {
-    fracHCAL[1][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HE"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HE")) {
+    fracHCAL[1][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HE"))->getFloatValue();
   }
   else fracHCAL[1][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO")) {
-    fracHCAL[2][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO")) {
+    fracHCAL[2][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO"))->getFloatValue();
   }
   else fracHCAL[2][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HF")) {
-    fracHCAL[3][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HF"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HF")) {
+    fracHCAL[3][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HF"))->getFloatValue();
   }
   else fracHCAL[3][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO0")) {
-    fracHCAL[4][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO0"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO0")) {
+    fracHCAL[4][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO0"))->getFloatValue();
   }
   else fracHCAL[4][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO12")) {
-    fracHCAL[5][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO12"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO12")) {
+    fracHCAL[5][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO12"))->getFloatValue();
   }
   else fracHCAL[5][2] = -1;
 
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HFlumi")) {
-    fracHCAL[6][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HFlumi"))->getFloatValue();
+  if (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HFlumi")) {
+    fracHCAL[6][2] = (ig.get(rootFolder_+"/EventInfo/DCSContents/Hcal_HFlumi"))->getFloatValue();
   }
   else fracHCAL[6][2] = -1;
 

@@ -5,26 +5,20 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include <vector>
 #include "DataFormats/Common/interface/ValueMap.h"
+#include <vector>
 
 namespace susybsm {
-
 
  class HSCPDeDxInfo
   {
    public:
-     std::vector<float> charge;
-     std::vector<float> chargeUnSat;
-     std::vector<float> probability;
-     std::vector<float> pathlength;
-     std::vector<float> cosine;
+     std::vector<float> charges;
+     std::vector<float> pathlengths;
      std::vector<uint32_t> detIds;
-     std::vector<bool> shapetest;
-     std::vector<float> modwidth;
-     std::vector<float> modlength;
-     std::vector<float> localx;
-     std::vector<float> localy;
+     std::vector<float> localPosXs;
+     std::vector<float> localPosYs;
+     std::vector<uint32_t> clusterIndices;
      HSCPDeDxInfo(){}
   };
 

@@ -122,6 +122,8 @@ namespace cond {
       IIOVTable& iovTable();
       IPayloadTable& payloadTable();
       ITagMigrationTable& tagMigrationTable();
+      IPayloadMigrationTable& payloadMigrationTable();
+      std::string parsePoolToken( const std::string& poolToken );
     private:
       IOVCache m_cache;
       OraTagTable m_tagTable;

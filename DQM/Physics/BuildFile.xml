@@ -8,6 +8,7 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="DataFormats/HeavyIonEvent"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
