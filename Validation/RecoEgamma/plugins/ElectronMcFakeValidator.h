@@ -35,12 +35,8 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
 
     explicit ElectronMcFakeValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcFakeValidator() ;
-//    virtual void book() ;
-//    virtual void book2() ;
     virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
-//    virtual void analyze2( const edm::Event & e, const edm::EventSetup & c ) ;
     virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) ;
-//    virtual void analyze() ;
 
   private:
 
