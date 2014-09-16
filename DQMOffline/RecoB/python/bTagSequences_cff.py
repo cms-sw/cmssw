@@ -48,10 +48,10 @@ JetCut=cms.string("neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction
 
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-ak4PFCHSL1Fastjet.algorithm = 'AK4PFchs'
-ak4PFCHSL2Relative.algorithm = 'AK4PFchs'
-ak4PFCHSL3Absolute.algorithm = 'AK4PFchs'
-ak4PFCHSResidual.algorithm = 'AK4PFchs'
+ak4PFCHSL1Fastjet.algorithm = 'AK4PFCHS'
+ak4PFCHSL2Relative.algorithm = 'AK4PFCHS'
+ak4PFCHSL3Absolute.algorithm = 'AK4PFCHS'
+ak4PFCHSResidual.algorithm = 'AK4PFCHS'
 
 ak4JetsJEC = ak4PFJetsL2L3.clone(
         src = jetID,
