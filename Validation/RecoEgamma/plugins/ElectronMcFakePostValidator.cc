@@ -5,7 +5,13 @@
 
 ElectronMcFakePostValidator::ElectronMcFakePostValidator( const edm::ParameterSet & conf ) 
  : ElectronDqmHarvesterBase(conf) 
- {}
+ {
+  // histos bining and limits
+
+  edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("histosCfg") ;
+
+  set_EfficiencyFlag=histosSet.getParameter<bool>("setEfficiencyFlag");
+ }
 
 ElectronMcFakePostValidator::~ElectronMcFakePostValidator()
  {}
@@ -28,28 +34,30 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation " ;
   std::cout << " ElectronMcFakePostValidator::finalize : efficiency calculation" << std::endl; // A.C. to be removed
-  bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency","", "true");
-  bookH1andDivide(iBooker, "zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency","", "true");
-  bookH1andDivide(iBooker, "absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency","", "true");
-  bookH1andDivide(iBooker, "ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","", "true");
-  bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency","", "true");
+  std::cout << "ElectronMcSignalPostValidator::finalize::setEfficiencyFlag = " << set_EfficiencyFlag << std::endl; // A.C. to be removed
+  bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency","", set_EfficiencyFlag);
+  
+  bookH1andDivide(iBooker, "zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency","", set_EfficiencyFlag);
+  bookH1andDivide(iBooker, "absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency","", set_EfficiencyFlag);
+  bookH1andDivide(iBooker, "ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","", set_EfficiencyFlag);
+  bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency","", set_EfficiencyFlag);
 //    bookH2andDivide(iBooker, "ptEtaEff","matchingObjectPtEta_matched","matchingObjectPtEta","#eta","p_{T} (GeV/c)","");
 //
 //    std::cout << "[ElectronMcFakePostValidator] q-misid calculation " << std::endl;
-//    bookH1andDivide(iBooker, "etaQmisid","matchingObjectEta_matched_qmisid","h_simEta","#eta","q misId","","");
-//    bookH1andDivide(iBooker, "zQmisid","matchingObjectZ_matched_qmisid","h_simZ","z (cm)","q misId","","");
-//    bookH1andDivide(iBooker, "absetaQmisid","matchingObjectAbsEta_matched_qmisid","h_simAbsEta","|#eta|","q misId","","");
-//    bookH1andDivide(iBooker, "ptQmisid","matchingObjectPt_matched_qmisid","h_simPt","p_{T} (GeV/c)","q misId","","");
+//    bookH1andDivide(iBooker, "etaQmisid","matchingObjectEta_matched_qmisid","h_simEta","#eta","q misId","",set_EfficiencyFlag);
+//    bookH1andDivide(iBooker, "zQmisid","matchingObjectZ_matched_qmisid","h_simZ","z (cm)","q misId","",set_EfficiencyFlag);
+//    bookH1andDivide(iBooker, "absetaQmisid","matchingObjectAbsEta_matched_qmisid","h_simAbsEta","|#eta|","q misId","",set_EfficiencyFlag);
+//    bookH1andDivide(iBooker, "ptQmisid","matchingObjectPt_matched_qmisid","h_simPt","p_{T} (GeV/c)","q misId","",set_EfficiencyFlag);
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "all reco electrons " ;
-  bookH1andDivide(iBooker, "etaEff_all","vertexEta_all","matchingObject_eta","#eta","N_{rec}/N_{gen}","","");
-  bookH1andDivide(iBooker, "ptEff_all", "vertexPt_all","matchingObject_Pt","p_{T} (GeV/c)","N_{rec}/N_{gen}","","");
+  bookH1andDivide(iBooker, "etaEff_all","vertexEta_all","matchingObject_eta","#eta","N_{rec}/N_{gen}","",set_EfficiencyFlag);
+  bookH1andDivide(iBooker, "ptEff_all", "vertexPt_all","matchingObject_Pt","p_{T} (GeV/c)","N_{rec}/N_{gen}","",set_EfficiencyFlag);
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "classes" ;
-  bookH1andDivide(iBooker, "eta_goldenFrac","eta_golden","h_ele_eta","|#eta|","Fraction of electrons","fraction of golden electrons vs eta","");
-  bookH1andDivide(iBooker, "eta_bbremFrac" ,"eta_bbrem", "h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta","");
-//  bookH1andDivide(iBooker, "eta_narrowFrac","eta_narrow","h_ele_eta","|#eta|","Fraction of electrons","fraction of narrow electrons vs eta","");
-  bookH1andDivide(iBooker, "eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta","");
+  bookH1andDivide(iBooker, "eta_goldenFrac","eta_golden","h_ele_eta","|#eta|","Fraction of electrons","fraction of golden electrons vs eta",set_EfficiencyFlag);
+  bookH1andDivide(iBooker, "eta_bbremFrac" ,"eta_bbrem", "h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta",set_EfficiencyFlag);
+//  bookH1andDivide(iBooker, "eta_narrowFrac","eta_narrow","h_ele_eta","|#eta|","Fraction of electrons","fraction of narrow electrons vs eta",set_EfficiencyFlag);
+  bookH1andDivide(iBooker, "eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta",set_EfficiencyFlag);
 
   // fbrem
   MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
