@@ -170,14 +170,7 @@ void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & 
    }
  }
 
-/*virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const&) 
-{
-  std::cout << "ElectronDqmAnalyzerBase::beginLuminosityBlock : " << std::endl; // A.C. to be removed
-  std::cout << "ElectronDqmAnalyzerBase::beginLuminosityBlock : appel analyze2" << std::endl; // A.C. to be removed
-  //analyze2() ;
-}*/
-
- void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
+void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
  {
   if (finalStep_=="AtLumiEnd")
    {
