@@ -3,7 +3,7 @@
   <use   name="boost_program_options"/>
   <use   name="FWCore/PluginManager"/>
 <architecture name="slc[6-9]_amd64">
-  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
+  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so -fsanitize=address -static-libasan"/>
 </architecture>
 </bin>
 <bin   name="edmPluginRefresh" file="refresh.cc">
@@ -11,6 +11,6 @@
   <use   name="boost_program_options"/>
   <use   name="FWCore/PluginManager"/>
 <architecture name="slc[6-9]_amd64">
-  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
+  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so -fsanitize=address -static-libasan"/>
 </architecture>
 </bin>
