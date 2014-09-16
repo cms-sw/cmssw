@@ -12,6 +12,7 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -30,6 +31,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -150,6 +152,19 @@ TGeoVolume* FWTGeoRecoGeometryESProducer::GetTopHolder(const char* prefix, EReco
    return res;
 }
 
+namespace {
+
+enum GMCol { Green = 4, 
+             Blue0 = 13, Blue1 = 24, Blue2 = 6,
+             Yellow0 = 3, Yellow1 = 16,
+             Pink = 10,  
+             Red = 29, Orange0 = 79, Orange1 = 14,
+             Magenta = 8,
+             Gray = 12
+};
+
+}
+
 
 TGeoMedium*
 FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
@@ -160,48 +175,62 @@ FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
 
    std::string name;
    int color;
-   // see TGeoManager::DefaultColors()
+
+
    switch (det)
    {
+      // TRACKER
       case kSiPixel:
          name = "SiPixel";
-         color = 4;//kGreen-10
+         color = GMCol::Green;
          break;
+
       case kSiStrip:
          name = "SiStrip";
-         color = 29; // kOrange+9
+         color = GMCol::Gray;
          break;
+         // MUON
       case kMuonDT:
          name = "MuonDT";
-         color = 13; // kBlue -10
+         color = GMCol::Blue2;
          break;
-      case kMuonGEM:
-         name = "MuonGEM";
-         color = 16; //kYellow+1
-         break;
+
       case kMuonRPC:
          name = "MuonRPC";
-         color = 10; //kRed-10
+         color = GMCol::Red;
          break;
+
+      case kMuonGEM:
+         name = "MuonGEM";
+         color = GMCol::Yellow1;
+         break;
+
       case kMuonCSC:
-         name = "MuonCSC"; // kMagenta
-         color = 9;
+         name = "MuonCSC";
+         color = GMCol::Gray;
          break;
+
+      case kMuonME0:
+         name = "MuonME0";
+         color = GMCol::Yellow0;
+         break;
+
+         // CALO
       case kECal:
          name = "ECal";
-         color = 6;
+         color = GMCol::Blue2;
          break;
       case kHCal:
          name = "HCal";    
-         color = 10; // kRed-10
+         color = GMCol::Orange1;
          break;
       case kHGCE:
          name = "HGCEE";
-         color = 10;
+         color = GMCol::Blue2;
          break;
       case kHGCH:
          name = "HGCEH";
-         color = 6; // kBlue -7
+         color = GMCol::Blue1;
          break;
       default:
          printf("invalid medium id \n");
@@ -261,33 +290,27 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    top->SetLineColor( kBlue );
    
    addPixelBarrelGeometry();
-
    addPixelForwardGeometry();
+
    addTIBGeometry();
    addTIDGeometry();
    addTOBGeometry();
    addTECGeometry();
    addDTGeometry();
+
    addCSCGeometry();
    addRPCGeometry();
-   try {
-      addGEMGeometry();
-   }
-   catch ( cms::Exception& exception ) {
-      edm::LogWarning("FWRecoGeometryProducerException")
-         << "addGEMGeometry() Exception caught while building GEM geometry: " << exception.what()
-         << std::endl; 
-   }
+   addME0Geometry();
+   addGEMGeometry();
 
-
-   addEcalCaloGeometry();
-   
+   addEcalCaloGeometry();   
    addHcalCaloGeometryBarrel();
    addHcalCaloGeometryEndcap();
 
    geom->CloseGeometry();
 
    geom->DefaultColors();
+   // printf("==== geo manager NNodes = %d \n", geom->GetNNodes());
    geom->CloseGeometry();
 
    return m_fwGeometry;
@@ -705,35 +728,39 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
 void
 FWTGeoRecoGeometryESProducer::addGEMGeometry()
 { 
-  
-   DetId detId( DetId::Muon, MuonSubdetId::GEM );
-   const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+   try {
+      DetId detId( DetId::Muon, MuonSubdetId::GEM );
+      const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
 
-   TGeoVolume* tv =  GetTopHolder("Muon", kMuonRPC);
-   TGeoVolume *assembly = GetDaughter(tv, "GEM", kMuonGEM);
+      TGeoVolume* tv =  GetTopHolder("Muon", kMuonRPC);
+      TGeoVolume *assembly = GetDaughter(tv, "GEM", kMuonGEM);
 
-   for( auto it = gemGeom->etaPartitions().begin(),
-	   end = gemGeom->etaPartitions().end(); 
-        it != end; ++it )
-   {
-      const GEMEtaPartition* roll = (*it);
-      if( roll )
+      for( auto it = gemGeom->etaPartitions().begin(),
+              end = gemGeom->etaPartitions().end(); 
+           it != end; ++it )
       {
-         GEMDetId detid = roll->geographicalId();
-         std::stringstream s;
-         s << detid;
-         std::string name = s.str();
+         const GEMEtaPartition* roll = (*it);
+         if( roll )
+         {
+            GEMDetId detid = roll->geographicalId();
+            std::stringstream s;
+            s << detid;
+            std::string name = s.str();
       
-         TGeoVolume* child = createVolume( name, roll, kMuonGEM );
+            TGeoVolume* child = createVolume( name, roll, kMuonGEM );
 
-         TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", kMuonGEM , detid.region());
-         holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
-         holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
-         holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
-         holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
+            TGeoVolume* holder  = GetDaughter(assembly, "ROLL Region", kMuonGEM , detid.region());
+            holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
+            holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
+            holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
+            holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
 
-         AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+            AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+         }
       }
+   }catch (cms::Exception &exception) {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
+
    }
 }
 
@@ -774,7 +801,59 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
    };
 }
 
+void
+FWTGeoRecoGeometryESProducer::addME0Geometry( )
+{
+   TGeoVolume* tv =  GetTopHolder("Muon", kMuonCSC);
+   TGeoVolume *assembly = GetDaughter(tv, "ME0", kMuonME0);
 
+   DetId detId( DetId::Muon, 5 );
+   try 
+   {
+      const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+  
+      for(auto roll : me0Geom->etaPartitions())
+      { 
+         if( roll )
+         {
+            unsigned int rawid = roll->geographicalId().rawId();
+            // std::cout << "AMT FWTTTTRecoGeometryES\n" << rawid ;
+                        
+            ME0DetId detid(rawid);
+            std::stringstream s;
+            s << detid;
+            std::string name = s.str();
+            TGeoVolume* child = createVolume( name, roll, kMuonME0 );
+
+            TGeoVolume* holder  = GetDaughter(assembly, "Region", kMuonME0, detid.region());
+            holder = GetDaughter(holder, "Layer", kMuonME0, detid.layer()); 
+            holder = GetDaughter(holder, "Chamber", kMuonME0, detid.chamber()); 
+            AddLeafNode(holder, child, name.c_str(),  createPlacement(roll));
+
+
+         }
+      }
+   }
+   catch( cms::Exception &exception )
+   {
+      edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
+   }
+}
+
+namespace {
+
+double etatotheta(double eta)
+{
+   using namespace TMath;
+
+   if (eta < 0)
+      return 3.14 - 2*ATan(Exp(- Abs(eta)));
+   else
+      return 2*ATan(Exp(- Abs(eta)));
+}
+}
+
+>>>>>>> 2f03567... Add ME0 to tgeo reco. Organise TGeoManager colors.
 //==============================================================================
 //================================= CALO =======================================
 //==============================================================================
