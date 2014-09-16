@@ -19,25 +19,13 @@ ElectronMcSignalPostValidator::~ElectronMcSignalPostValidator()
 void ElectronMcSignalPostValidator::book()
  { setBookIndex(-1) ; }/**/
 
-// , DQMStore::IGetter & iGetter ElectronMcSignalPostValidator::
-void ElectronMcSignalPostValidator::finalize2(  ) 
- {
-  std::cout << "========== ElectronMcSignalPostValidator::finalize2 ==========" << std::endl; // A.C. to be removed
-  //ElectronDqmHarvesterBase::setBookPrefix("h_ele") ;
-
- }
-
 void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
  {
 
-  std::cout << "========== ElectronMcSignalPostValidator::finalize ==========" << std::endl; // A.C. to be removed
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
-  std::cout << " ElectronMcSignalPostValidator::finalize2 : efficiency calculation" << std::endl; // A.C. to be removed
-  std::cout << "ElectronMcSignalPostValidator::finalize::setEfficiencyFlag = " << set_EfficiencyFlag << std::endl; // A.C. to be removed
-  bookH1andDivide(iBooker, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency","",set_EfficiencyFlag);
-  
+  bookH1andDivide(iBooker, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency","",set_EfficiencyFlag); 
   bookH1andDivide(iBooker, "zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","",set_EfficiencyFlag);
   bookH1andDivide(iBooker, "absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency","",set_EfficiencyFlag);
   bookH1andDivide(iBooker, "ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency","",set_EfficiencyFlag);
@@ -63,10 +51,8 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
   MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
   TAxis * etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis() ;
   MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2(iBooker, "xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
-  std::cout << "McSignalPost finalize h1_ele_xOverX0VsEta : " << h1_ele_xOverX0VsEta->getTH1F()->GetXaxis()->GetNbins()+1 << " Nbins" << std::endl;
   for (int ibin=1;ibin<etaAxis->GetNbins()+1;ibin++) {
     double xOverX0 = 0.;
-	std::cout << "boucle finalize : " << ibin << std::endl;
     if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
      { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
