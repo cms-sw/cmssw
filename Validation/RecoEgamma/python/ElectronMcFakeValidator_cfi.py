@@ -16,7 +16,8 @@ electronMcFakeHistosCfg = cms.PSet(
   Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
   Nbinpopmatching = cms.int32(75), Popmatchingmin = cms.double(0.0), Popmatchingmax = cms.double(1.5),
-  Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0) 
+  Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0), 
+  setEfficiencyFlag = cms.bool(True)
 )
 
 electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
