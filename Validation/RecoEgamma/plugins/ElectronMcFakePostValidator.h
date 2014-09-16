@@ -14,6 +14,10 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
     virtual void finalize( DQMStore::IBooker & iBooker ) ; // , DQMStore::IGetter & iGetter
 
   private:
+    // histos limits and binning
+
+    bool set_EfficiencyFlag ;
+
     // histos
     MonitorElement *h1_ele_xOverX0VsEta ;
 	
