@@ -31,7 +31,6 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; // call finalize() if finalStep==AtRunEnd
     void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-//    virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const&) {};
 //    virtual void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) ; // call  finalize() if finalStep==AtLumiEnd
 //    void endJob() ; // call finalize() if if finalStep==AtJobEnd
 
