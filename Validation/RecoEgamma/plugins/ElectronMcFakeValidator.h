@@ -86,6 +86,7 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     int mee_nbin ; double mee_min ; double mee_max ;
     int hoe_nbin ; double hoe_min ; double hoe_max ;
     int popmatching_nbin ; double popmatching_min ; double popmatching_max ;
+    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     // histos
 
