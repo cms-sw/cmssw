@@ -18,6 +18,9 @@ ShiftedJetProducerByMatchedObjectT<T>::ShiftedJetProducerByMatchedObjectT(const 
   dRmatch_Object_ = cfg.exists("dRmatch_Object") ?
     cfg.getParameter<double>("dRmatch_Object") : 0.1;
 
+  dR2match_Jet_ = dRmatch_Jet_*dRmatch_Jet_;
+  dR2match_Object_ = dRmatch_Object_*dRmatch_Object_;
+
   produces<JetCollection>();
 }
 
@@ -46,19 +49,19 @@ void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::
   for ( CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
 	unshiftedObject != unshiftedObjects->end(); ++unshiftedObject ) {
     bool isMatched_Object = false;
-    double dRbestMatch_Object = 1.e+3;
+    double dR2bestMatch_Object = std::numeric_limits<double>::max();
     reco::Candidate::LorentzVector shiftedObjectP4_matched;
     for ( CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
 	shiftedObject != shiftedObjects->end(); ++shiftedObject ) {
-      double dR = deltaR(unshiftedObject->p4(), shiftedObject->p4());
-      if ( dR < dRmatch_Object_ && dR < dRbestMatch_Object ) {
+      double dR2 = deltaR2(unshiftedObject->p4(), shiftedObject->p4());
+      if ( dR2 < dR2match_Object_ && dR2 < dR2bestMatch_Object ) {
 	shiftedObjectP4_matched = shiftedObject->p4();
 	isMatched_Object = true;
-	dRbestMatch_Object = dR;
+	dR2bestMatch_Object = dR2;
       }
     }
     if ( isMatched_Object ) {
-      objects_.push_back(objectEntryType(shiftedObjectP4_matched, unshiftedObject->p4(), dRbestMatch_Object));
+      objects_.push_back(objectEntryType(shiftedObjectP4_matched, unshiftedObject->p4(), sqrt(dR2bestMatch_Object)));
     }
   }
  
@@ -69,15 +72,15 @@ void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::
     
     double shift = 0.;
     bool applyShift = false;
-    double dRbestMatch_Jet = 1.e+3;
+    double dR2bestMatch_Jet = std::numeric_limits<double>::max();
     for ( typename std::vector<objectEntryType>::const_iterator object = objects_.begin();
 	  object != objects_.end(); ++object ) {
       if ( !object->isValidMatch_ ) continue;
-      double dR = deltaR(originalJet->p4(), object->unshiftedObjectP4_);
-      if ( dR < dRmatch_Jet_ && dR < dRbestMatch_Jet ) {
+      double dR2 = deltaR2(originalJet->p4(), object->unshiftedObjectP4_);
+      if ( dR2 < dR2match_Jet_ && dR2 < dR2bestMatch_Jet ) {
 	shift = object->shift_;
 	applyShift = true;
-	dRbestMatch_Jet = dR;
+	dR2bestMatch_Jet = dR2;
       }
     }
     

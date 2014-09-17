@@ -44,6 +44,9 @@ class ShiftedJetProducerByMatchedObjectT : public edm::EDProducer
   double dRmatch_Jet_;
   double dRmatch_Object_;
 
+  double dR2match_Jet_;
+  double dR2match_Object_;
+
   struct objectEntryType
   {
     objectEntryType(const reco::Candidate::LorentzVector& shiftedObjectP4, 
@@ -61,8 +64,8 @@ class ShiftedJetProducerByMatchedObjectT : public edm::EDProducer
     ~objectEntryType() {}
     reco::Candidate::LorentzVector shiftedObjectP4_;
     reco::Candidate::LorentzVector unshiftedObjectP4_;
-    double dRmatch_;
     double shift_;
+    double dRmatch_;
     bool isValidMatch_;
   };
 

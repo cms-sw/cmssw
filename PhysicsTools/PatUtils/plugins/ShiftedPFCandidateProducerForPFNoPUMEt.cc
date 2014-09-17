@@ -38,7 +38,8 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
 
 ShiftedPFCandidateProducerForPFNoPUMEt::~ShiftedPFCandidateProducerForPFNoPUMEt()
 {
-// nothing to be done yet...
+  delete jetCorrParameters_;
+  delete jecUncertainty_;
 }
 
 void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm::EventSetup& es)
