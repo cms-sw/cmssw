@@ -32,7 +32,7 @@ public:
         ts[tsTrig] -= (ts321 + ts21); // ts[4] after pu correction
   
         // ts5 estimation from ts4
-        ts[tsTrig+1] = a_1_(ts[tsTrig]);
+        ts[tsTrig+1] = a1_(ts[tsTrig]);
     }
 
 private:
