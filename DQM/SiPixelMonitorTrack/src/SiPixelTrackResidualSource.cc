@@ -1121,9 +1121,9 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeOnTrack_fpix->Fill((*clust).size());
 		meClSizeXOnTrack_fpix->Fill((*clust).sizeX());
 		meClSizeYOnTrack_fpix->Fill((*clust).sizeY());
-		uint32_t DBdisk;
+		uint32_t DBdisk = 0;
                 if (!isUpgrade) { DBdisk = PixelEndcapName(DetId((*hit).geographicalId())).diskName(); }
-                else if (isUpgrade) { DBdisk = PixelEndcapNameUpgrade(DetId((*hit).geographicalId())).diskName(); }
+                else { DBdisk = PixelEndcapNameUpgrade(DetId((*hit).geographicalId())).diskName(); }
 		float x = clustgp.x(); 
 		float y = clustgp.y(); 
 		float z = clustgp.z();
