@@ -151,6 +151,9 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   error_nbin=histosSet.getParameter<int>("Nbinerror");
   enerror_max=histosSet.getParameter<double>("Energyerrormax");
 
+  set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
+  set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
+
   // so to please coverity...
   h1_mcNum = 0 ;
   h1_eleNum = 0 ;
@@ -571,6 +574,7 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
 //  setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
   setBookIndex(-1) ;
   setBookPrefix("h") ;
+  setBookStatOverflowFlag ( set_EfficiencyFlag ) ;
 
   // mc truth collections sizes
   h1_mcNum = bookH1withSumw2(iBooker, "mcNum","# mc particles",fhits_nbin,0.,fhits_max,"N_{gen}" );
