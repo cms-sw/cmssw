@@ -37,6 +37,12 @@ void ElectronDqmAnalyzerBase::setBookPrefix( const std::string & prefix )
 void ElectronDqmAnalyzerBase::setBookIndex( short index )
  { bookIndex_ = index ; }
 
+void ElectronDqmAnalyzerBase::setBookEfficiencyFlag( const bool & eff_flag )
+ { bookEfficiencyFlag_ = eff_flag ;}
+
+void ElectronDqmAnalyzerBase::setBookStatOverflowFlag( const bool & statOverflow_flag )
+ { bookStatOverflowFlag_ = statOverflow_flag ;}
+
 std::string ElectronDqmAnalyzerBase::newName( const std::string & name )
  {
   if (bookPrefix_.empty())
@@ -230,8 +236,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker,
    const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title, const bool & setEfficiencyFlag )
- { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title,setEfficiencyFlag) ;  }
+   const std::string & title )
+ { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title) ;  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
  ( DQMStore::IBooker & iBooker,
@@ -333,7 +339,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker,
    const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title,const bool & setEfficiencyFlag )
+   const std::string & title )
  {
   if ((!num)||(!denom)) return 0 ;
   std::string name2 = newName(name) ;
@@ -345,7 +351,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book1D(name2,h_temp) ;
-  if (setEfficiencyFlag) { me->setEfficiencyFlag(); }
+  if (bookEfficiencyFlag_) { me->setEfficiencyFlag(); }
   delete h_temp ;
   return me ;
  }
@@ -366,6 +372,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book2D(name2,h_temp) ;
+  if (bookEfficiencyFlag_) { me->setEfficiencyFlag(); }
   delete h_temp ;
   return me ;
  }
