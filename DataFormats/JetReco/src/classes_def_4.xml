@@ -156,4 +156,21 @@
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>" />
 
+
+  <class name="reco::HTTTopJetProperties" ClassVersion="14">
+   <version ClassVersion="14" checksum="427903012"/>
+  </class>
+  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
+ 
+  <class name="reco::HTTTopJetTagInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="1184606281"/>
+  </class>
+  <class name="reco::HTTTopJetTagInfoCollection"/>
+  <class name="reco::HTTTopJetTagInfoRef"/>
+  <class name="reco::HTTTopJetTagInfoRefProd"/>
+  <class name="reco::HTTTopJetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::HTTTopJetTagInfoCollection>"/>
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>" />
+
 </lcgdict>
