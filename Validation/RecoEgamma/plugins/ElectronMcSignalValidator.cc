@@ -574,7 +574,8 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
 //  setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
   setBookIndex(-1) ;
   setBookPrefix("h") ;
-  setBookStatOverflowFlag ( set_EfficiencyFlag ) ;
+//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
+  setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   // mc truth collections sizes
   h1_mcNum = bookH1withSumw2(iBooker, "mcNum","# mc particles",fhits_nbin,0.,fhits_max,"N_{gen}" );
@@ -1124,7 +1125,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
 
 
   // seeds electrons A.C. // over/underflows in Mean calculation
-  h1_ele_seed_subdet2->getTH1()->StatOverflows(kTRUE); // A.C.
+/*  h1_ele_seed_subdet2->getTH1()->StatOverflows(kTRUE); // A.C.
   h1_ele_seed_mask->getTH1()->StatOverflows(kTRUE); // A.C.
   h1_ele_seed_mask_bpix->getTH1()->StatOverflows(kTRUE); // A.C.
   h1_ele_seed_mask_fpix->getTH1()->StatOverflows(kTRUE); // A.C.
@@ -1141,7 +1142,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   h1_ele_seed_drz2pos->getTH1()->StatOverflows(kTRUE); // A.C.
   h2_ele_seed_drz2posVsEta->getTH1()->StatOverflows(kTRUE); // A.C.
   h2_ele_seed_drz2posVsPt->getTH1()->StatOverflows(kTRUE); // A.C.
-/**/
+*/
   //===============================================
   // all rec electrons
   //===============================================
