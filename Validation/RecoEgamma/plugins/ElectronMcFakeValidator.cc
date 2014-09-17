@@ -132,6 +132,9 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   popmatching_min=histosSet.getParameter<double>("Popmatchingmin");
   popmatching_max=histosSet.getParameter<double>("Popmatchingmax");
 
+  set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
+  set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
+
   // so to please coverity
   h1_matchingObjectNum = 0 ;
   h1_recEleNum_ = 0 ;
@@ -465,7 +468,8 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
  {
   setBookIndex(-1) ;
   setBookPrefix("h") ;
-
+  setBookStatOverflowFlag ( set_EfficiencyFlag ) ;
+  
   // matching object type
   std::string matchingObjectType ;
   // Emilia
