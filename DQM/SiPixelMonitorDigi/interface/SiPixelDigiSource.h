@@ -192,7 +192,6 @@
        MonitorElement* meNDigisCHANEndcapDm3_;
        
        int bigEventSize;
-       bool isUpgrade;
        bool firstRun;
        
        std::string I_name[1856];

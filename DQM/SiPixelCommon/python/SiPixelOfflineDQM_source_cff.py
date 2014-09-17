@@ -32,6 +32,8 @@ from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
 SiPixelHitEfficiencySource.saveFile = False
 SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
 
+from DQM.SiPixelCommon.SiPixelOfflineDQM_phase1_source_cff import *
+
 ##online/offline
 #RawDataErrors
 SiPixelRawDataErrorSource.modOn = False
@@ -110,24 +112,24 @@ SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
 
 
 # Phase1 Upgrade configuration
-SiPixelRawDataErrorSource_phase1 = SiPixelRawDataErrorSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelDigiSource_phase1 = SiPixelDigiSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelClusterSource_phase1 = SiPixelClusterSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelRecHitSource_phase1 = SiPixelRecHitSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelTrackResidualSource_phase1 = SiPixelTrackResidualSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelHitEfficiencySource_phase1 = SiPixelHitEfficiencySource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
+#SiPixelRawDataErrorSource_phase1 = SiPixelRawDataErrorSource.clone(
+#    isUpgrade = cms.untracked.bool(True)
+#    )
+#SiPixelDigiSource_phase1 = SiPixelDigiSource.clone(
+#    isUpgrade = cms.untracked.bool(True)
+#    )
+#SiPixelClusterSource_phase1 = SiPixelClusterSource.clone(
+#    isUpgrade = cms.untracked.bool(True)
+#    )
+#SiPixelRecHitSource_phase1 = SiPixelRecHitSource.clone(
+#    isUpgrade = cms.untracked.bool(True)
+#    )
+#SiPixelTrackResidualSource_phase1 = SiPixelTrackResidualSource.clone(
+#    isUpgrade = cms.untracked.bool(True)
+#    )
+#SiPixelHitEfficiencySource_phase1 = SiPixelHitEfficiencySource.clone(
+#    isUpgrade = cms.untracked.bool(True)
+#    )
 
 
 #DQM service

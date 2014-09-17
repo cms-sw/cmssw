@@ -81,7 +81,6 @@ private:
   bool Tier0Flag_;
   bool firstRun;
   bool doHitEfficiency_;
-  bool isUpgrade_;
   std::string inputSource_;
   
   std::ostringstream html_out_;

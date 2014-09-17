@@ -75,7 +75,6 @@
        bool modOn;
        bool ladOn;
        bool bladeOn;
-       bool isUpgrade;
        int eventNo;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
        std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;

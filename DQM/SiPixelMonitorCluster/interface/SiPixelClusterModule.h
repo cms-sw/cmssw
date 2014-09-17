@@ -52,7 +52,7 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool reducedSet=false, bool isUpgrade=false);
+  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool reducedSet=false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             const TrackerGeometry* tracker,
@@ -75,8 +75,7 @@ class SiPixelClusterModule {
 	    bool ringon=false, 
 	    bool twoD=true,
 	    bool reducedSet=false,
-	    bool smileyon=false,
-	    bool isUpgrade=false);
+	    bool smileyon=false);
   
  private:
 

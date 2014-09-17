@@ -70,7 +70,6 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) {
   Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false); //client
   doHitEfficiency_       = ps.getUntrackedParameter<bool>("DoHitEfficiency",true); //client
   inputSource_           = ps.getUntrackedParameter<string>("inputSource",  "source");
-  isUpgrade_             = ps.getUntrackedParameter<bool>("isUpgrade",false); //client
   
   if(!Tier0Flag_){
     string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
@@ -162,11 +161,11 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   // Setting up QTests:
 //  sipixelActionExecutor_->setupQTests(bei_);
   // Creating Summary Histos:
-  sipixelActionExecutor_->createSummary(bei_, isUpgrade_);
+  sipixelActionExecutor_->createSummary(bei_);
   // Booking Deviation Histos:
-  if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_, isUpgrade_);
+  if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_);
   // Booking Efficiency Histos:
-  if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_, isUpgrade_);
+  if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_);
   // Creating occupancy plots:
   sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
   // Booking noisy pixel ME's:
@@ -252,7 +251,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     //sipixelWebInterface_->performAction();
      //cout << " Updating efficiency plots" << endl;
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;
     //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     //sipixelWebInterface_->performAction();
@@ -292,9 +291,9 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout << " Updating Summary " << endl;
     //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     //sipixelWebInterface_->performAction();
-    sipixelActionExecutor_->createSummary(bei_, isUpgrade_);
+    sipixelActionExecutor_->createSummary(bei_);
      //cout << " Updating efficiency plots" << endl;
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;
     //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     //sipixelWebInterface_->performAction();
