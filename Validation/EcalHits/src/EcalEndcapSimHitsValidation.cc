@@ -5,37 +5,26 @@
  *
 */
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
-#include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/EcalHits/interface/EcalEndcapSimHitsValidation.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet& ps):
-  g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
-  EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
-  ValidationCollection(ps.getParameter<std::string>("ValidationCollection")){   
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-  EEHitsToken               = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(EEHitsCollection)));
-  ValidationCollectionToken = consumes <PEcalValidInfo>         (edm::InputTag(std::string(g4InfoLabel),std::string(ValidationCollection)));
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  // get hold of back-end interface
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();           
-  if ( dbe_ ) {
-    if ( verbose_ ) { dbe_->setVerbose(1); } 
-    else            { dbe_->setVerbose(0); }
-  }
-                                                                                                            
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
- 
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet& ps)
+{  
+  std::string g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4"));
+
+  EEHitsToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EEHitsCollection")));
+  ValidationCollectionToken = consumes<PEcalValidInfo>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("ValidationCollection")));
 
   meEEzpHits_             = 0;
   meEEzmHits_             = 0;
@@ -67,111 +56,102 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   meEEe16oe25_ = 0;
 
   myEntries = 0;
-  for ( int myStep = 0; myStep<26; myStep++) { eRLength[myStep] = 0.0; }
+  std::fill_n(eRLength, 26, 0.);
+}
 
-  Char_t histo[200];
- 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+EcalEndcapSimHitsValidation::~EcalEndcapSimHitsValidation()
+{
+}
+
+void
+EcalEndcapSimHitsValidation::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const&)
+{
+  _ibooker.setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+
+  std::string name;
   
-    sprintf (histo, "EE+ hits multiplicity" ) ;
-    meEEzpHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.) ; 
+  name = "EE+ hits multiplicity";
+  meEEzpHits_ = _ibooker.book1D(name, name, 50, 0., 5000.) ; 
 
-    sprintf (histo, "EE- hits multiplicity" ) ;
-    meEEzmHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.) ; 
+  name = "EE- hits multiplicity";
+  meEEzmHits_ = _ibooker.book1D(name, name, 50, 0., 5000.) ; 
 
-    sprintf (histo, "EE+ crystals multiplicity" ) ;
-    meEEzpCrystals_ = dbe_->book1D(histo, histo, 200, 0., 2000.) ; 
+  name = "EE+ crystals multiplicity";
+  meEEzpCrystals_ = _ibooker.book1D(name, name, 200, 0., 2000.) ; 
 
-    sprintf (histo, "EE- crystals multiplicity" ) ;
-    meEEzmCrystals_ = dbe_->book1D(histo, histo, 200, 0., 2000.) ; 
+  name = "EE- crystals multiplicity";
+  meEEzmCrystals_ = _ibooker.book1D(name, name, 200, 0., 2000.) ; 
 
-    sprintf (histo, "EE+ occupancy" ) ;
-    meEEzpOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  name = "EE+ occupancy";
+  meEEzpOccupancy_ = _ibooker.book2D(name, name, 100, 0., 100., 100, 0., 100.);
   
-    sprintf (histo, "EE- occupancy" ) ;
-    meEEzmOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  name = "EE- occupancy";
+  meEEzmOccupancy_ = _ibooker.book2D(name, name, 100, 0., 100., 100, 0., 100.);
   
-    sprintf (histo, "EE longitudinal shower profile" ) ;
-    meEELongitudinalShower_ = dbe_->bookProfile(histo, histo, 26,0,26, 100, 0, 20000);
+  name = "EE longitudinal shower profile";
+  meEELongitudinalShower_ = _ibooker.bookProfile(name, name, 26,0,26, 100, 0, 20000);
 
-    sprintf (histo, "EE hits energy spectrum" );
-    meEEHitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+  name = "EE hits energy spectrum";
+  meEEHitEnergy_ = _ibooker.book1D(name, name, 4000, 0., 400.);
 
-    sprintf (histo, "EE hits log10energy spectrum" );
-    meEEhitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
+  name = "EE hits log10energy spectrum";
+  meEEhitLog10Energy_ = _ibooker.book1D(name, name, 140, -10., 4.);
 
-    sprintf (histo, "EE hits log10energy spectrum vs normalized energy" );
-    meEEhitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+  name = "EE hits log10energy spectrum vs normalized energy";
+  meEEhitLog10EnergyNorm_ = _ibooker.bookProfile(name, name, 140, -10., 4., 100, 0., 1.);
 
-    sprintf (histo, "EE hits log10energy spectrum vs normalized energy25" );
-    meEEhitLog10Energy25Norm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+  name = "EE hits log10energy spectrum vs normalized energy25";
+  meEEhitLog10Energy25Norm_ = _ibooker.bookProfile(name, name, 140, -10., 4., 100, 0., 1.);
 
-    sprintf (histo, "EE hits energy spectrum 2" );
-    meEEHitEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
+  name = "EE hits energy spectrum 2";
+  meEEHitEnergy2_ = _ibooker.book1D(name, name, 1000, 0., 0.001);
 
-    sprintf (histo, "EE crystal energy spectrum" );
-    meEEcrystalEnergy_ = dbe_->book1D(histo, histo, 5000, 0., 50.);
+  name = "EE crystal energy spectrum";
+  meEEcrystalEnergy_ = _ibooker.book1D(name, name, 5000, 0., 50.);
 
-    sprintf (histo, "EE crystal energy spectrum 2" );
-    meEEcrystalEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
+  name = "EE crystal energy spectrum 2";
+  meEEcrystalEnergy2_ = _ibooker.book1D(name, name, 1000, 0., 0.001);
 
-    sprintf (histo, "EE E1" ) ;
-    meEEe1_ = dbe_->book1D(histo, histo, 400, 0., 400.);
+  name = "EE E1";
+  meEEe1_ = _ibooker.book1D(name, name, 400, 0., 400.);
 
-    sprintf (histo, "EE E4" ) ;
-    meEEe4_ = dbe_->book1D(histo, histo, 400, 0., 400.);
+  name = "EE E4";
+  meEEe4_ = _ibooker.book1D(name, name, 400, 0., 400.);
 
-    sprintf (histo, "EE E9" ) ;
-    meEEe9_ = dbe_->book1D(histo, histo, 400, 0., 400.);
+  name = "EE E9";
+  meEEe9_ = _ibooker.book1D(name, name, 400, 0., 400.);
 
-    sprintf (histo, "EE E16" ) ;
-    meEEe16_ = dbe_->book1D(histo, histo, 400, 0., 400.);
+  name = "EE E16";
+  meEEe16_ = _ibooker.book1D(name, name, 400, 0., 400.);
 
-    sprintf (histo, "EE E25" ) ;
-    meEEe25_ = dbe_->book1D(histo, histo, 400, 0., 400.);
+  name = "EE E25";
+  meEEe25_ = _ibooker.book1D(name, name, 400, 0., 400.);
 
-    sprintf (histo, "EE E1oE4" ) ;
-    meEEe1oe4_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+  name = "EE E1oE4";
+  meEEe1oe4_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 
-    sprintf (histo, "EE E1oE9" ) ;
-    meEEe1oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+  name = "EE E1oE9";
+  meEEe1oe9_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 
-    sprintf (histo, "EE E4oE9" ) ;
-    meEEe4oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+  name = "EE E4oE9";
+  meEEe4oe9_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 
-    sprintf (histo, "EE E9oE16" ) ;
-    meEEe9oe16_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+  name = "EE E9oE16";
+  meEEe9oe16_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 
-    sprintf (histo, "EE E1oE25" ) ;
-    meEEe1oe25_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+  name = "EE E1oE25";
+  meEEe1oe25_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 
-    sprintf (histo, "EE E9oE25" ) ;
-    meEEe9oe25_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+  name = "EE E9oE25";
+  meEEe9oe25_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 
-    sprintf (histo, "EE E16oE25" ) ;
-    meEEe16oe25_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
-  }
+  name = "EE E16oE25";
+  meEEe16oe25_ = _ibooker.book1D(name, name, 100, 0.4, 1.1);
 }
 
-EcalEndcapSimHitsValidation::~EcalEndcapSimHitsValidation(){
-
-}
-
-void EcalEndcapSimHitsValidation::beginJob(){
-
-}
-
-void EcalEndcapSimHitsValidation::endJob(){
-
-  //for ( int myStep = 0; myStep<26; myStep++){
-  //  if (meEELongitudinalShower_) meEELongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
-  //}
-
-}
-
-void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
-
+void
+EcalEndcapSimHitsValidation::analyze(edm::Event const& e, edm::EventSetup const&)
+{
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   edm::Handle<edm::PCaloHitContainer> EcalHitsEE;
@@ -334,10 +314,11 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   }
 }
 
-float EcalEndcapSimHitsValidation::energyInMatrixEE(int nCellInX, int nCellInY,
-                                        int centralX, int centralY,
-                                        int centralZ, MapType& themap){
-  
+float
+EcalEndcapSimHitsValidation::energyInMatrixEE(int nCellInX, int nCellInY,
+                                              int centralX, int centralY,
+                                              int centralZ, MapType& themap)
+{
   int   ncristals   = 0;
   float totalEnergy = 0.;
         
@@ -368,8 +349,9 @@ float EcalEndcapSimHitsValidation::energyInMatrixEE(int nCellInX, int nCellInY,
   
 }
 
-std::vector<uint32_t> EcalEndcapSimHitsValidation::getIdsAroundMax( int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType& themap){
-  
+std::vector<uint32_t>
+EcalEndcapSimHitsValidation::getIdsAroundMax( int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType& themap)
+{
   int   ncristals   = 0;
   std::vector<uint32_t> ids( nCellInX*nCellInY );
         
@@ -395,40 +377,43 @@ std::vector<uint32_t> EcalEndcapSimHitsValidation::getIdsAroundMax( int nCellInX
   return ids;
 }
 
-bool  EcalEndcapSimHitsValidation::fillEEMatrix(int nCellInX, int nCellInY,
-                                    int CentralX, int CentralY,int CentralZ,
-                                    MapType& fillmap, MapType&  themap)
+bool
+EcalEndcapSimHitsValidation::fillEEMatrix(int nCellInX, int nCellInY,
+                                          int CentralX, int CentralY,int CentralZ,
+                                          MapType& fillmap, MapType&  themap)
 {
-   int goBackInX = nCellInX/2;
-   int goBackInY = nCellInY/2;
+  int goBackInX = nCellInX/2;
+  int goBackInY = nCellInY/2;
 
-   int startX  =  CentralX - goBackInX;
-   int startY  =  CentralY - goBackInY;
+  int startX  =  CentralX - goBackInX;
+  int startY  =  CentralY - goBackInY;
 
-   int i = 0 ;
-   for ( int ix = startX; ix < startX+nCellInX; ix ++ ) {
+  int i = 0 ;
+  for ( int ix = startX; ix < startX+nCellInX; ix ++ ) {
 
-      for( int iy = startY; iy < startY + nCellInY; iy++ ) {
+    for( int iy = startY; iy < startY + nCellInY; iy++ ) {
 
-        uint32_t index ;
+      uint32_t index ;
 
-	if(EEDetId::validDetId(ix,iy,CentralZ)) {
-          index = EEDetId(ix,iy,CentralZ).rawId();
-	}
-	else { continue; }
-        fillmap[i++] = themap[index];
+      if(EEDetId::validDetId(ix,iy,CentralZ)) {
+        index = EEDetId(ix,iy,CentralZ).rawId();
       }
-   }
-   uint32_t  centerid = getUnitWithMaxEnergy(themap);
+      else { continue; }
+      fillmap[i++] = themap[index];
+    }
+  }
+  uint32_t  centerid = getUnitWithMaxEnergy(themap);
 
-   if ( fillmap[i/2] == themap[centerid] ) 
-        return true;
-   else
-        return false;
+  if ( fillmap[i/2] == themap[centerid] ) 
+    return true;
+  else
+    return false;
 }
 
 
-float EcalEndcapSimHitsValidation::eCluster2x2( MapType& themap){
+float
+EcalEndcapSimHitsValidation::eCluster2x2( MapType& themap)
+{
   float  E22=0.;
   float e012  = themap[0]+themap[1]+themap[2];
   float e036  = themap[0]+themap[3]+themap[6];
@@ -448,7 +433,9 @@ float EcalEndcapSimHitsValidation::eCluster2x2( MapType& themap){
   }
 }
 
-float EcalEndcapSimHitsValidation::eCluster4x4(float e33,  MapType&  themap){
+float
+EcalEndcapSimHitsValidation::eCluster4x4(float e33,  MapType&  themap)
+{
   float E44=0.;
   float e0_4   = themap[0]+themap[1]+themap[2]+themap[3]+themap[4];
   float e0_20  = themap[0]+themap[5]+themap[10]+themap[15]+themap[20];
@@ -468,8 +455,9 @@ float EcalEndcapSimHitsValidation::eCluster4x4(float e33,  MapType&  themap){
   }
 }
 
-uint32_t EcalEndcapSimHitsValidation::getUnitWithMaxEnergy(MapType& themap) {
-  
+uint32_t
+EcalEndcapSimHitsValidation::getUnitWithMaxEnergy(MapType& themap)
+{
   //look for max
   uint32_t unitWithMaxEnergy = 0;
   float    maxEnergy = 0.;
@@ -489,4 +477,4 @@ uint32_t EcalEndcapSimHitsValidation::getUnitWithMaxEnergy(MapType& themap) {
   return unitWithMaxEnergy;
 }
 
-
+DEFINE_FWK_MODULE(EcalEndcapSimHitsValidation);
