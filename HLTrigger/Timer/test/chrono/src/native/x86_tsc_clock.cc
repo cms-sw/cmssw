@@ -18,6 +18,9 @@ namespace native {
   const bool clock_rdtscp::is_available        = has_rdtscp() and tsc_allowed();
   const bool clock_rdtscp::is_steady           = has_invariant_tsc();
 
+  const bool clock_serialising_rdtsc::is_available    = has_tsc() and tsc_allowed();
+  const bool clock_serialising_rdtsc::is_steady       = has_invariant_tsc();
+
 } // namespace native
 
 #endif // defined __x86_64__ or defined __i386__

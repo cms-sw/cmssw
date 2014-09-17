@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 using namespace std;
+using namespace xercesc;
 
 class ADummy
 {
@@ -275,7 +276,8 @@ int main(int argC, char* argV[])
 	      }
 	      cout << endl;
 	   }
-	   cout << "dom-size=" << handler.dom().size() << endl;
+	   cout << "dom-size=" << handler.dom().size()
+		<< "duration " << duration << endl;
 	   /*
 	   TinyDomWalker walker(handler.dom());
 	   bool go = true;
