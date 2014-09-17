@@ -11,6 +11,8 @@ ElectronMcSignalPostValidator::ElectronMcSignalPostValidator( const edm::Paramet
   edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("histosCfg") ;
 
   set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
+  set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
+//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
  }
 
 ElectronMcSignalPostValidator::~ElectronMcSignalPostValidator()
@@ -23,8 +25,10 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
  {
 
   setBookPrefix("h_ele") ;
+//  std::cout << "appel setBookEfficiencyFlag : " << set_EfficiencyFlag << std::endl;
   setBookEfficiencyFlag(set_EfficiencyFlag);
-  setBookStatOverflowFlag ( set_EfficiencyFlag ) ;
+//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
+  setBookStatOverflowFlag( set_StatOverflowFlag ) ;
   
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
   bookH1andDivide(iBooker, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",""); 
