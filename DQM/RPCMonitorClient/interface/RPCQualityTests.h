@@ -4,45 +4,39 @@
 #include <string>
 
 // Framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 
 //
 // class decleration
 //
 
-class RPCQualityTests : public edm::EDAnalyzer {
+class RPCQualityTests : public  DQMEDHarvester{
    public:
       explicit RPCQualityTests(const edm::ParameterSet&);
       ~RPCQualityTests();
 
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
-      virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
-      virtual void endRun(const edm::Run& r, const edm::EventSetup& c);  
+ protected:
+  void beginJob();
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
-      void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-      void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-     
+ 
+   private:
+      
       std::map<std::string , RPCClient*> makeQTestMap();
 
 
       int nevents_;
 
-      DQMStore * dbe_ ;
-
-      std::string hostName_;
+       std::string hostName_;
       int hostPort_;
       std::string clientName_;
       
