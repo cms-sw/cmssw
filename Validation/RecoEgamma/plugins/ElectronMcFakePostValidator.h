@@ -15,7 +15,7 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
   private:
     // histos limits and binning
 
-    bool set_EfficiencyFlag ;
+    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     // histos
     MonitorElement *h1_ele_xOverX0VsEta ;
