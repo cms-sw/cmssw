@@ -78,6 +78,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     int hoe_nbin ; double hoe_min ; double hoe_max ;
     int poptrue_nbin ; double poptrue_min ; double poptrue_max ;
     int error_nbin ; double enerror_max ;
+    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     // histos
 
