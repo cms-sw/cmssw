@@ -30,7 +30,6 @@ ElectronDqmHarvesterBase::ElectronDqmHarvesterBase( const edm::ParameterSet& con
 
 ElectronDqmHarvesterBase::~ElectronDqmHarvesterBase()
  { 
- std::cout << "ElectronDqmHarvesterBase" << "Destructor ElectronDqmHarvesterBase::~ElectronDqmHarvesterBase " << std::endl;
  }
 
 void ElectronDqmHarvesterBase::setBookPrefix( const std::string & prefix )
@@ -38,6 +37,12 @@ void ElectronDqmHarvesterBase::setBookPrefix( const std::string & prefix )
 
 void ElectronDqmHarvesterBase::setBookIndex( short index )
  { bookIndex_ = index ; }
+ 
+void ElectronDqmHarvesterBase::setBookEfficiencyFlag( const bool & eff_flag )
+ { bookEfficiencyFlag_ = eff_flag ;}
+
+void ElectronDqmHarvesterBase::setBookStatOverflowFlag( const bool & statOverflow_flag )
+ { bookStatOverflowFlag_ = statOverflow_flag ;}
 
 std::string ElectronDqmHarvesterBase::newName( const std::string & name )
  {
@@ -228,8 +233,8 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker,
    const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title, const bool & setEfficiencyFlag )
- { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title,setEfficiencyFlag) ;  }
+   const std::string & title )
+ { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title) ;  }
 
 MonitorElement * ElectronDqmHarvesterBase::bookH2andDivide
  ( DQMStore::IBooker & iBooker,
@@ -330,7 +335,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker,
    const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
-   const std::string & title,const bool & setEfficiencyFlag )
+   const std::string & title )
  {
   if ((!num)||(!denom)) return 0 ;
   std::string name2 = newName(name) ;
@@ -342,7 +347,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book1D(name2,h_temp) ;
-  if (setEfficiencyFlag) { me->setEfficiencyFlag(); }
+  if (bookEfficiencyFlag_) { me->setEfficiencyFlag(); }
   delete h_temp ;
   return me ;
  }
@@ -363,6 +368,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH2andDivide
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book2D(name2,h_temp) ;
+  if (bookEfficiencyFlag_) { me->setEfficiencyFlag(); }
   delete h_temp ;
   return me ;
  }
