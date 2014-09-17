@@ -36,6 +36,16 @@
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
+<bin file="simple_dom_parser2.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use name="xerces-c"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Base"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
 <bin file="named_types.cpp">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>

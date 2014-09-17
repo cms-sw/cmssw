@@ -1,5 +1,5 @@
-#include "DetectorDescription/RegressionTest/src/SaxToDom.h"
-#include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
+#include "DetectorDescription/RegressionTest/src/SaxToDom2.h"
+#include "DetectorDescription/RegressionTest/src/TinyDomTest2.h"
 #include "DetectorDescription/RegressionTest/src/StrX.h"
 
 #include "FWCore/Concurrency/interface/Xerces.h"
@@ -12,7 +12,7 @@
 using namespace std;
 using namespace xercesc;
 
-class ADummy
+class ADummy2
 {
 
 };
@@ -20,7 +20,7 @@ class ADummy
 // ---------------------------------------------------------------------------
 //  Local helper methods
 // ---------------------------------------------------------------------------
-void usage()
+void usage2()
 {
     cout << "\nUsage:\n"
             "    SAX2Count [options] <XML file | List file>\n\n"
@@ -63,7 +63,7 @@ int main(int argC, char* argV[])
     // Check command line and extract arguments.
     if (argC < 2)
     {
-        usage();
+        usage2();
         cms::concurrency::xercesTerminate();
         return 1;
     }
@@ -87,7 +87,7 @@ int main(int argC, char* argV[])
         // Watch for special case help request
         if (!strcmp(argV[argInd], "-?"))
         {
-            usage();
+            usage2();
             cms::concurrency::xercesTerminate();
             return 2;
         }
@@ -155,7 +155,7 @@ int main(int argC, char* argV[])
     //
     if (argInd != argC - 1)
     {
-        usage();
+        usage2();
         cms::concurrency::xercesTerminate();
         return 1;
     }
@@ -189,7 +189,7 @@ int main(int argC, char* argV[])
     //  Create our SAX handler object and install it on the parser, as the
     //  document and error handler.
     //
-    SaxToDom handler;
+    SaxToDom2 handler;
     parser->setContentHandler(&handler);
     parser->setErrorHandler(&handler);
 
@@ -197,6 +197,7 @@ int main(int argC, char* argV[])
     //  Get the starting time and kick off the parse of the indicated
     //  file. Catch any exceptions that might propogate out of it.
     //
+    unsigned long TOTALduration = 0;
     unsigned long duration;
 
     bool more = true;
@@ -205,6 +206,8 @@ int main(int argC, char* argV[])
     // the input is a list file
     if (doList)
         fin.open(argV[argInd]);
+
+    cout << "argInd = " << argInd << endl;
 
     while (more)
     {
@@ -241,6 +244,8 @@ int main(int argC, char* argV[])
 	     cout << "parsing ended" << endl;
             const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
             duration = endMillis - startMillis;
+	    TOTALduration += duration;
+	    cout << "duration = " << duration << endl;
         }
 
         catch (const XMLException& e)
@@ -264,20 +269,21 @@ int main(int argC, char* argV[])
         if (true && getenv("DOTEST"))
         {
 	
-	   TinyDomTest test(handler.dom());
-	   vector<const AttList *> atts;
-	   test.allNodes(NodeName("Box"),atts);
+	   TinyDomTest2 test(handler.dom());
+	   vector<const AttList2*> allAtts;
+	   AttList2 atl2;
+	   Node2 n2(TagName("Box"), atl2);
+	   test.allNodes(n2, allAtts);
 	   unsigned int i = 0;
-	   for (; i < atts.size(); ++i) {
-	      const AttList & a = *(atts[i]);
-	      AttList::const_iterator it = a.begin();
+	   for (; i < allAtts.size(); ++i) {
+	      const AttList2 & a = *(allAtts[i]);
+	      AttList2::const_iterator it = a.begin();
 	      for (; it != a.end(); ++it) {
 	         cout << it->first.str() << '=' << it->second.str() << ' ';
 	      }
 	      cout << endl;
 	   }
-	   cout << "dom-size=" << handler.dom().size()
-		<< "duration " << duration << endl;
+	   cout << "dom-size=" << handler.dom().size() << endl;
 	   /*
 	   TinyDomWalker walker(handler.dom());
 	   bool go = true;
@@ -299,6 +305,8 @@ int main(int argC, char* argV[])
 
     if (doList)
         fin.close();
+
+    cout << "Total Duration: ~ " << TOTALduration << endl;
 
     //
     //  Delete the parser itself.  Must be done prior to calling Terminate, below.
