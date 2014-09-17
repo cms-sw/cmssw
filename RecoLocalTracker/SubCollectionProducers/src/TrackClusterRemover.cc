@@ -292,11 +292,14 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, SiStripDetId 
     }
     if (pblocks_[subdet-1].cutOnStripCharge_ && (clusCharge > (pblocks_[subdet-1].minGoodStripCharge_*sensorThickness(detid)))) return;
   }
-  strips[cluster.key()] = false;  
-  //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
+
+  if (collectedStrips_.size()<=cluster.key())
+    edm::LogError("BadCollectionSize")<<collectedStrips_.size()<<" is smaller than "<<cluster.key();
+
   assert(collectedStrips_.size() > cluster.key());
-  //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
+  strips[cluster.key()] = false;
   if (!clusterWasteSolution_) collectedStrips_[cluster.key()]=true;
+
 }
 
 
@@ -435,9 +438,11 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
+      assert(stripClusters->dataSize()>=collectedStrips_.size());
+      collectedStrips_.resize(stripClusters->dataSize(), false);
     }else {
-      collectedStrips_.resize(stripClusters->dataSize()); fill(collectedStrips_.begin(), collectedStrips_.end(), false);
-      collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
+      collectedStrips_.resize(stripClusters->dataSize(), false);
+      collectedPixels_.resize(pixelClusters->dataSize(), false);
     } 
 
     if (doTracks_) {
@@ -545,7 +550,8 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       iEvent.put( removedPixelClusterMask );
       
     }
-    
+    collectedStrips_.clear();
+    collectedPixels_.clear();
 
 }
 
