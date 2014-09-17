@@ -14,7 +14,6 @@
 using namespace std;
 
 l1t::Stage2PreProcessorFirmwareImp1::Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParams* params) :
-  m_fwv(fwv),
   m_params(params)
 {
 

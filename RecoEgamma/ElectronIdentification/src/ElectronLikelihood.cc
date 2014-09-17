@@ -21,9 +21,7 @@ ElectronLikelihood::ElectronLikelihood (const ElectronLikelihoodCalibration *cal
   _EEgt15lh (new LikelihoodPdfProduct ("electronID_EE_ptGt15_likelihood",2,1)) ,
   m_eleIDSwitches (eleIDSwitches) ,
   m_signalWeightSplitting (signalWeightSplitting), 
-  m_backgroundWeightSplitting (backgroundWeightSplitting),
-  m_splitSignalPdfs (splitSignalPdfs), 
-  m_splitBackgroundPdfs (splitBackgroundPdfs)  
+  m_backgroundWeightSplitting (backgroundWeightSplitting)
 {
   Setup (calibration,
 	 signalWeightSplitting, backgroundWeightSplitting,
