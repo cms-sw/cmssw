@@ -1,6 +1,8 @@
 <use name="llvm"/>
+<use name="boost"/>
+
 <flags NO_LIB_CHECKING="yes"/>
-<flags CXXFLAGS="-w"/>
+<flags CXXFLAGS="-w -frtti"/>
 <architecture name="osx">
   <flags LDFLAGs="-flat_namespace"/>
 </architecture>

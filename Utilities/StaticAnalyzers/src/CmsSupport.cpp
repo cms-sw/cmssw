@@ -16,6 +16,9 @@
 #include <fstream>
 #include <iterator>
 #include <string>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 
 
 using namespace clangcms;
@@ -133,20 +136,33 @@ bool support::isDataClass(const std::string & name) {
 	}
 		
 	std::string tname("/tmp/classes.txt");
+	std::string sname("/src/Utilities/StaticAnalyzers/scripts/classes.txt.bz2");
 	std::string fname1 = lname + tname;
-	if (!FM.getFile(fname1)) {
-		llvm::errs()<<"\n\nChecker cannot find classes.txt. Run \"USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT scram b checker to create $LOCALRT/tmp/classes.txt.\n\n\n";
+	std::string fname2 = rname + sname;
+	if (!FM.getFile(fname1) && !FM.getFile(fname2) ) {
+		llvm::errs()<<"\n\nChecker cannot find $LOCALRT/tmp/classes.txt or $CMSSW_RELEASE_BASE/src/Utilities/StaticAnalyzers/scripts/classes.txt.bz2 \n\n\n";
 		exit(1);
-		}
-	if ( FM.getFile(fname1) ) 
-		iname = fname1;
-	os <<"class '"<< name <<"'";
-	std::ifstream ifile;
-	ifile.open(iname.c_str(),std::ifstream::in);
-	std::string line;
-	while (std::getline(ifile,line)) {
-		if ( line == os.str() ) return true;
 	}
+	os <<"class '"<< name <<"'";
+	if ( FM.getFile(fname1) ) {
+		iname = fname1;
+		std::ifstream ifile;
+		ifile.open(iname.c_str(),std::ifstream::in);
+		std::string line;
+		while (std::getline(ifile,line)) {
+			if ( line == os.str() ) return true;
+		}
+	} else {
+		iname = fname2;
+		boost::iostreams::file_souce bzfile(iname.c_str());
+		boost::iostreams::filtering_istream infilt;
+		infilt.push(boost::iostreams::bzip2_decompressor());
+		infilt.push(file);
+		std::string line;
+		while (std::getline(infilt, line)) {
+			if ( line == os.str() ) return true;
+		}
+	}	
 	return false;
 }
 
