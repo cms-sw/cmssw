@@ -67,6 +67,7 @@ class TrackingQualityChecker {
   MonitorElement* TrackLSSummaryReportGlobal;
 
   edm::ParameterSet pSet_;
+  bool verbose_;
 
   bool bookedTrackingGlobalStatus_;
   bool bookedTrackingLSStatus_;
