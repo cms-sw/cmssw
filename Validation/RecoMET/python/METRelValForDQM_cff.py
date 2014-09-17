@@ -71,7 +71,3 @@ METValidation = cms.Sequence(
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
     )
-
-
-
-
