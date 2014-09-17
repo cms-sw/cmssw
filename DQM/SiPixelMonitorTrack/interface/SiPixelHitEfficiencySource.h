@@ -84,8 +84,6 @@ class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
     double vtxndof_;
     double vtxchi2_;
 
-    bool isUpgrade;
-
 };
 
 #endif

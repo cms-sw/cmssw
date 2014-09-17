@@ -84,7 +84,6 @@ class SiPixelRecHitSource : public thread_unsafe::DQMEDAnalyzer {
        bool ringOn, bladeOn, diskOn; 
        
        bool firstRun;
-       bool isUpgrade;
 
  };
 

@@ -76,7 +76,6 @@ class SiPixelTrackResidualSource : public thread_unsafe::DQMEDAnalyzer {
     bool ladOn, layOn, phiOn;
     //forward:
     bool ringOn, bladeOn, diskOn; 
-    bool isUpgrade;
     double ptminres_;
     bool firstRun;
     int NTotal;
