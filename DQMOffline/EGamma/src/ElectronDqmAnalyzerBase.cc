@@ -274,6 +274,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
+  if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
  }
 
@@ -288,6 +289,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1withSumw2
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
+  if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
  }
 
@@ -302,7 +304,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
-  return me ;
+  if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
+ return me ;
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
@@ -317,6 +320,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
+  if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
  }
 
@@ -331,6 +335,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookP1
   if (titleX!="") { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTProfile()->SetOption(option) ; }
+  if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
  }
 
