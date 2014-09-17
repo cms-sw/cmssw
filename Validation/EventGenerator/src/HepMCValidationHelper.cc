@@ -185,7 +185,7 @@ namespace HepMCValidationHelper {
     for (unsigned int i = 0; i < taus.size(); ++i){
       std::vector<const HepMC::GenParticle*> taudaughters;
       findDescendents(taus[i], taudaughters);
-      //assert(taudaughters.size()>0);
+      assert(taudaughters.size()>0);
       if ( taudaughters.size()==0 ) {
 	edm::LogError("HepMCValidationHelper") << "Tau with no daughters. This is a bug. Fix it";
 	continue;
