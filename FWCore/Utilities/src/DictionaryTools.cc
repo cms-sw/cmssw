@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "TClass.h"
@@ -25,7 +26,7 @@ namespace edm {
     return prefix;
   }
 
-  static StringSet missingTypes_;
+  static TypeSet missingTypes_;
 
   bool
   find_nested_type_named(std::string const& nested_type,
@@ -83,28 +84,28 @@ namespace edm {
     return find_nested_type_named(member_type, possibleRefVector, value_type);
   }
 
-  StringSet&
+  TypeSet&
   missingTypes() {
     return missingTypes_;
   }
 
   bool
-  checkTypeDictionary(std::string const& name) {
-    TClass *cl = TClass::GetClass(name.c_str(), true);
+  checkTypeDictionary(TypeID const& type) {
+    TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       // Assume not a class
       return true;
     }
     if(!cl->HasDictionary()) {
-      missingTypes().insert(cl->GetName());
+      missingTypes().insert(type);
       return false;
     }
     return true;
   }
 
   void
-  checkTypeDictionaries(std::string const& name, bool recursive) {
-    TClass *cl = TClass::GetClass(name.c_str(), true);
+  checkTypeDictionaries(TypeID const& type, bool recursive) {
+    TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       // Assume not a class
       return;
@@ -113,36 +114,36 @@ namespace edm {
     cl->GetMissingDictionaries(result, recursive); 
     for(auto const& item : result) {
       TClass const* cl = static_cast<TClass const*>(item);
-      missingTypes().insert(cl->GetName());
+      missingTypes().insert(TypeID(cl->GetTypeInfo()));
     }
   }
 
   bool
-  checkClassDictionary(std::string const& name) {
-    TClass *cl = TClass::GetClass(name.c_str(), true);
+  checkClassDictionary(TypeID const& type) {
+    TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       throw Exception(errors::DictionaryNotFound)
-          << "No TClass for class: '" << name << "'" << std::endl;
+          << "No TClass for class: '" << cl->GetName() << "'" << std::endl;
     }
     if(!cl->HasDictionary()) {
-      missingTypes().insert(cl->GetName());
+      missingTypes().insert(type);
       return false;
     }
     return true;
   }
 
   void
-  checkClassDictionaries(std::string const& name, bool recursive) {
-    TClass *cl = TClass::GetClass(name.c_str(), true);
+  checkClassDictionaries(TypeID const& type, bool recursive) {
+    TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       throw Exception(errors::DictionaryNotFound)
-          << "No TClass for class: '" << name << "'" << std::endl;
+          << "No TClass for class: '" << cl->GetName() << "'" << std::endl;
     }
     THashTable result;
     cl->GetMissingDictionaries(result, recursive); 
     for(auto const& item : result) {
       TClass const* cl = static_cast<TClass const*>(item);
-      missingTypes().insert(cl->GetName());
+      missingTypes().insert(TypeID(cl->GetTypeInfo()));
     }
   }
 
@@ -171,10 +172,10 @@ namespace edm {
   void
   loadMissingDictionaries() {
     while (!missingTypes().empty()) {
-      StringSet missing(missingTypes());
+      TypeSet missing(missingTypes());
       for(auto const& item : missing) {
         try {
-          TClass::GetClass(item.c_str(), kTRUE);
+          TClass::GetClass(item.typeInfo(), kTRUE);
         }
         // We don't want to fail if we can't load a plug-in.
         catch (...) {}

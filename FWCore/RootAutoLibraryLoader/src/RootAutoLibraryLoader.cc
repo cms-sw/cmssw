@@ -223,7 +223,7 @@ GetClass(char const* classname, bool load)
   // Good, library was loaded, now have ROOT provide the TClass.
   // Note: Here we guard against a recursive call to ourselves.
   classNameAttemptingToLoad_ = classname;
-  auto ret = gROOT->GetClass(classname, true);
+  auto ret = TClass::GetClass(classname, true);
   classNameAttemptingToLoad_.clear();
   return ret;
 }

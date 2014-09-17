@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
@@ -28,9 +29,9 @@ namespace edm {
   namespace {
     void checkDicts(BranchDescription const& productDesc) {
       if(productDesc.transient()) {
-        checkClassDictionaries(wrappedClassName(productDesc.fullClassName()), false);
+        checkClassDictionaries(TypeID(productDesc.wrappedType().typeInfo()), false);
       } else {
-        checkClassDictionaries(wrappedClassName(productDesc.fullClassName()), true);
+        checkClassDictionaries(TypeID(productDesc.wrappedType().typeInfo()), true);
       }
     }
   }
@@ -266,7 +267,7 @@ namespace edm {
 
   void ProductRegistry::initializeLookupTables() {
 
-    StringSet missingDicts;
+    TypeSet missingDicts;
     transient_.branchIDToIndex_.clear();
     constProductList().clear();
 
@@ -282,7 +283,7 @@ namespace edm {
 
       //only do the following if the data is supposed to be available in the event
       if(desc.present()) {
-        bool hasDict = checkTypeDictionary(desc.className()) && checkClassDictionary(wrappedClassName(desc.className()));
+        bool hasDict = checkTypeDictionary(TypeID(desc.unwrappedType().typeInfo())) && checkClassDictionary(TypeID(desc.wrappedType().typeInfo()));
         if(hasDict) {
           TypeWithDict type(TypeWithDict::byName(desc.className()));
           ProductHolderIndex index =

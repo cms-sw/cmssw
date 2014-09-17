@@ -12,10 +12,13 @@ the CMS event model.
 #include <string>
 #include <vector>
 
+#include "FWCore/Utilities/interface/TypeID.h"
+
 namespace edm {
 
+class TypeID;
 class TypeWithDict;
-using StringSet = std::set<std::string>;
+using TypeSet = std::set<TypeID>;
 
 bool
 find_nested_type_named(std::string const& nested_type,
@@ -56,13 +59,13 @@ bool
 is_RefToBaseVector(TypeWithDict const& possible_ref_vector,
                    TypeWithDict& value_type);
 
-bool checkClassDictionary(std::string const& name);
-void checkClassDictionaries(std::string const& name, bool recursive = true);
-bool checkTypeDictionary(std::string const& name);
-void checkTypeDictionaries(std::string const& name, bool recursive = true);
+bool checkClassDictionary(TypeID const& type);
+void checkClassDictionaries(TypeID const& type, bool recursive = true);
+bool checkTypeDictionary(TypeID const& type);
+void checkTypeDictionaries(TypeID const& type, bool recursive = true);
 void throwMissingDictionariesException();
 void loadMissingDictionaries();
-StringSet& missingTypes();
+TypeSet& missingTypes();
 
 void public_base_classes(TypeWithDict const& type,
                          std::vector<TypeWithDict>& baseTypes);
