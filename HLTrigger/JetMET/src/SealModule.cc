@@ -41,6 +41,9 @@
 #include "HLTrigger/JetMET/interface/HLTDiJetAveFilter.h"
 #include "HLTrigger/JetMET/src/HLTDiJetAveFilter.cc"
 //
+#include "HLTrigger/JetMET/interface/HLTDiJetAveEtaFilter.h"
+#include "HLTrigger/JetMET/src/HLTDiJetAveEtaFilter.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetSortedVBFFilter.cc"
 //
@@ -91,6 +94,9 @@ typedef HLTAlphaTFilter<  PFJet> HLTAlphaTPFJetFilter;
 
 typedef HLTDiJetAveFilter<CaloJet> HLTDiCaloJetAveFilter;
 typedef HLTDiJetAveFilter<  PFJet> HLTDiPFJetAveFilter;
+
+typedef HLTDiJetAveEtaFilter<CaloJet> HLTDiCaloJetAveEtaFilter;
+typedef HLTDiJetAveEtaFilter<  PFJet> HLTDiPFJetAveEtaFilter;
 
 typedef HLTJetSortedVBFFilter<CaloJet> HLTCaloJetSortedVBFFilter;
 typedef HLTJetSortedVBFFilter<  PFJet> HLTPFJetSortedVBFFilter;
