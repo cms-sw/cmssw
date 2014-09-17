@@ -12,7 +12,7 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+// #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -31,7 +31,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+// #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -804,6 +804,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 void
 FWTGeoRecoGeometryESProducer::addME0Geometry( )
 {
+   /*
    TGeoVolume* tv =  GetTopHolder("Muon", kMuonCSC);
    TGeoVolume *assembly = GetDaughter(tv, "ME0", kMuonME0);
 
@@ -838,22 +839,10 @@ FWTGeoRecoGeometryESProducer::addME0Geometry( )
    {
       edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
    }
+   */
 }
 
-namespace {
 
-double etatotheta(double eta)
-{
-   using namespace TMath;
-
-   if (eta < 0)
-      return 3.14 - 2*ATan(Exp(- Abs(eta)));
-   else
-      return 2*ATan(Exp(- Abs(eta)));
-}
-}
-
->>>>>>> 2f03567... Add ME0 to tgeo reco. Organise TGeoManager colors.
 //==============================================================================
 //================================= CALO =======================================
 //==============================================================================
