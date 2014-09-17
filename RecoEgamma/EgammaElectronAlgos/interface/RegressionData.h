@@ -60,17 +60,19 @@ class RegressionData {
   int nrVtx()const{return nrVtx_;}
 
   //indirect accessors
+  float scPreShowerEnergyOverSCRawEnergy()const{return divideBySCRawEnergy_(scPreShowerEnergy());}
   float scSeedR9()const{return divideBySCRawEnergy_(e3x3());}
-  float seedClusEnergyOverSCEnergyRaw()const{return divideBySCRawEnergy_(seedClusEnergy_);}
+  float seedClusEnergyOverSCRawEnergy()const{return divideBySCRawEnergy_(seedClusEnergy());}
   float eMaxOverSCRawEnergy()const{return divideBySCRawEnergy_(eMax());}
   float e2ndOverSCRawEnergy()const{return divideBySCRawEnergy_(e2nd());}
   float seedLeftRightAsym()const;
-  float seedTopBottomAsym()const;
-  float subClusRawEOverSCRawEnergy(size_t clusNr)const{return divideBySCRawEnergy_(subClusRawEnergy(clusNr));}
+  float seedTopBottomAsym()const;  
+  float maxSubClusDRRawEnergyOverSCRawEnergy()const{return divideBySCRawEnergy_(maxSubClusDRRawEnergy());}
+  float subClusRawEnergyOverSCRawEnergy(size_t clusNr)const{return divideBySCRawEnergy_(subClusRawEnergy(clusNr));}
   float subClusRawEnergy(size_t clusNr)const;
   float subClusDPhi(size_t clusNr)const;
   float subClusDEta(size_t clusNr)const;
-  float subClusRawEOverSCRawEnergy(SubClusNr clusNr)const{return subClusRawEOverSCRawEnergy(static_cast<int>(clusNr));}
+  float subClusRawEnergyOverSCRawEnergy(SubClusNr clusNr)const{return subClusRawEnergyOverSCRawEnergy(static_cast<int>(clusNr));}
   float subClusRawEnergy(SubClusNr clusNr)const{return subClusRawEnergy(static_cast<int>(clusNr));}
   float subClusDPhi(SubClusNr clusNr)const{return subClusDPhi(static_cast<int>(clusNr));}
   float subClusDEta(SubClusNr clusNr)const{return subClusDEta(static_cast<int>(clusNr));}
@@ -81,10 +83,14 @@ class RegressionData {
 	    const reco::VertexCollection* vertices);
   void clear();
   
+  void fillVec(std::vector<float>& inputVec)const;
+  
   private:
   //0 is obviously not a sensible energy for a supercluster so just return zero if this is the case
   float divideBySCRawEnergy_(float numer)const{return scRawEnergy()!=0 ? numer/scRawEnergy() : 0.;}
-
+  void fillVecEB_(std::vector<float>& inputVec)const;
+  void fillVecEE_(std::vector<float>& inputVec)const;
+  
 private:
   bool isEB_;
   

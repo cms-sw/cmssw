@@ -149,3 +149,85 @@ void RegressionData::clear()
   nrVtx_=0;
   
 }
+
+void RegressionData::fillVec(std::vector<float>& inputVec)const
+{
+  if(isEB()) fillVecEB_(inputVec);
+  else fillVecEE_(inputVec);
+}
+
+void RegressionData::fillVecEB_(std::vector<float>& inputVec)const
+{
+  inputVec.clear();
+  inputVec.resize(33);
+  inputVec[0] = nrVtx(); //nVtx
+  inputVec[1] = scEta(); //scEta
+  inputVec[2] = scPhi(); //scPhi
+  inputVec[3] = scEtaWidth(); //scEtaWidth
+  inputVec[4] = scPhiWidth(); //scPhiWidth
+  inputVec[5] = scSeedR9(); //scSeedR9
+  inputVec[6] = seedClusEnergyOverSCRawEnergy(); //scSeedRawEnergy/scRawEnergy
+  inputVec[7] = eMaxOverSCRawEnergy(); //scSeedEmax/scRawEnergy
+  inputVec[8] = e2ndOverSCRawEnergy(); //scSeedE2nd/scRawEnergy
+  inputVec[9] = seedLeftRightAsym();//scSeedLeftRightAsym
+  inputVec[10] = seedTopBottomAsym();//scSeedTopBottomAsym
+  inputVec[11] = sigmaIEtaIEta(); //scSeedSigmaIetaIeta
+  inputVec[12] = sigmaIEtaIPhi(); //scSeedSigmaIetaIphi
+  inputVec[13] = sigmaIPhiIPhi(); //scSeedSigmaIphiIphi
+  inputVec[14] = scNrAdditionalClusters(); //N_ECALClusters
+  inputVec[15] = maxSubClusDR(); //clusterMaxDR
+  inputVec[16] = maxSubClusDRDPhi(); //clusterMaxDRDPhi
+  inputVec[17] = maxSubClusDRDEta(); //clusterMaxDRDEta
+  inputVec[18] = maxSubClusDRRawEnergyOverSCRawEnergy(); //clusMaxDRRawEnergy/scRawEnergy
+  inputVec[19] = subClusRawEnergyOverSCRawEnergy(SubClusNr::C1); //clusterRawEnergy[0]/scRawEnergy
+  inputVec[20] = subClusRawEnergyOverSCRawEnergy(SubClusNr::C2); //clusterRawEnergy[1]/scRawEnergy  float scPreShowerEnergy()const{return scPreShowerEnergy_;}
+
+  inputVec[21] = subClusRawEnergyOverSCRawEnergy(SubClusNr::C3); //clusterRawEnergy[2]/scRawEnergy
+  inputVec[22] = subClusDPhi(SubClusNr::C1); //clusterDPhiToSeed[0]
+  inputVec[23] = subClusDPhi(SubClusNr::C2); //clusterDPhiToSeed[1]
+  inputVec[24] = subClusDPhi(SubClusNr::C3); //clusterDPhiToSeed[2]
+  inputVec[25] = subClusDEta(SubClusNr::C1); //clusterDEtaToSeed[0]
+  inputVec[26] = subClusDEta(SubClusNr::C2); //clusterDEtaToSeed[1]
+  inputVec[27] = subClusDEta(SubClusNr::C3); //clusterDEtaToSeed[2]
+  inputVec[28] = seedCrysEtaOrX(); //scSeedCryEta
+  inputVec[29] = seedCrysPhiOrY(); //scSeedCryPhi
+  inputVec[30] = seedCrysIEtaOrIX(); //scSeedCryIeta
+  inputVec[31] = seedCrysIPhiOrIY(); //scSeedCryIphi
+  inputVec[32] = scCalibEnergy(); //scCalibratedEnergy
+}
+
+void RegressionData::fillVecEE_(std::vector<float>& inputVec)const
+{
+  inputVec.clear();
+  inputVec.resize(33); //this emulates the old behaviour of RegressionHelper, even if past 29 we dont use elements
+  inputVec[0] = nrVtx(); //nVtx
+  inputVec[1] = scEta(); //scEta
+  inputVec[2] = scPhi(); //scPhi
+  inputVec[3] = scEtaWidth(); //scEtaWidth
+  inputVec[4] = scPhiWidth(); //scPhiWidth
+  inputVec[5] = scSeedR9(); //scSeedR9
+  inputVec[6] = seedClusEnergyOverSCRawEnergy(); //scSeedRawEnergy/scRawEnergy
+  inputVec[7] = eMaxOverSCRawEnergy(); //scSeedEmax/scRawEnergy
+  inputVec[8] = e2ndOverSCRawEnergy(); //scSeedE2nd/scRawEnergy
+  inputVec[9] = seedLeftRightAsym();//scSeedLeftRightAsym
+  inputVec[10] = seedTopBottomAsym();//scSeedTopBottomAsym
+  inputVec[11] = sigmaIEtaIEta(); //scSeedSigmaIetaIeta
+  inputVec[12] = sigmaIEtaIPhi(); //scSeedSigmaIetaIphi
+  inputVec[13] = sigmaIPhiIPhi(); //scSeedSigmaIphiIphi
+  inputVec[14] = scNrAdditionalClusters(); //N_ECALClusters
+  inputVec[15] = maxSubClusDR(); //clusterMaxDR
+  inputVec[16] = maxSubClusDRDPhi(); //clusterMaxDRDPhi
+  inputVec[17] = maxSubClusDRDEta(); //clusterMaxDRDEta
+  inputVec[18] = maxSubClusDRRawEnergyOverSCRawEnergy(); //clusMaxDRRawEnergy/scRawEnergy
+  inputVec[19] = subClusRawEnergyOverSCRawEnergy(SubClusNr::C1); //clusterRawEnergy[0]/scRawEnergy
+  inputVec[20] = subClusRawEnergyOverSCRawEnergy(SubClusNr::C2); //clusterRawEnergy[1]/scRawEnergy
+  inputVec[21] = subClusRawEnergyOverSCRawEnergy(SubClusNr::C3); //clusterRawEnergy[2]/scRawEnergy
+  inputVec[22] = subClusDPhi(SubClusNr::C1); //clusterDPhiToSeed[0]
+  inputVec[23] = subClusDPhi(SubClusNr::C2); //clusterDPhiToSeed[1]
+  inputVec[24] = subClusDPhi(SubClusNr::C3); //clusterDPhiToSeed[2]
+  inputVec[25] = subClusDEta(SubClusNr::C1); //clusterDEtaToSeed[0]
+  inputVec[26] = subClusDEta(SubClusNr::C2); //clusterDEtaToSeed[1]
+  inputVec[27] = subClusDEta(SubClusNr::C3); //clusterDEtaToSeed[2]
+  inputVec[28] = scPreShowerEnergyOverSCRawEnergy();
+  inputVec[29] = scCalibEnergy(); //scCalibratedEnergy
+}
