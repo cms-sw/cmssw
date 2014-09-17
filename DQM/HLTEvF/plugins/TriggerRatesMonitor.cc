@@ -97,6 +97,8 @@ private:
   HLTConfigProvider             m_hltConfig;
   std::vector<HLTIndices>       m_hltIndices;
 
+  std::vector<std::vector<unsigned int>>    m_datasets;
+
 
   struct HLTRatesPlots {
     TH1F * wasrun;
@@ -150,6 +152,7 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   m_l1tTechMask( nullptr),
   m_hltConfig(),
   m_hltIndices(),
+  m_datasets(),
   // overall event count and event types
   m_events_processed( nullptr ),
   m_events_physics( nullptr ),
@@ -171,7 +174,6 @@ TriggerRatesMonitor::~TriggerRatesMonitor()
 
 void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup const & setup)
 {
-  // FIXME - do we need to destroy the old histograms ?
   m_events_processed    = nullptr;
   m_events_physics      = nullptr;
   m_events_calibration  = nullptr;
@@ -184,7 +186,6 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
   m_l1tAlgoMask = get<L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask>(setup);
   m_l1tTechMask = get<L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask>(setup);
   if (m_l1tMenu and m_l1tAlgoMask and m_l1tTechMask) {
-    // FIXME - do we need to destroy the old histograms ?
     m_l1t_algo_counts.clear();
     m_l1t_algo_counts.resize( m_l1tAlgoMask->gtTriggerMask().size(), nullptr );
     m_l1t_tech_counts.clear();
@@ -199,12 +200,21 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
   edm::EDConsumerBase::Labels labels;
   labelsForToken(m_hlt_results, labels);
   if (m_hltConfig.init(run, setup, labels.process, changed)) {
-    // FIXME - do we need to destroy the old histograms ?
     m_hlt_counts.clear();
     m_hlt_counts.resize( m_hltConfig.size(), HLTRatesPlots() );
     m_hltIndices.resize( m_hltConfig.size(), HLTIndices() );
 
-    // FIXME rate per dataset is still missing
+    unsigned int datasets = m_hltConfig.datasetNames().size();
+    m_datasets.clear();
+    m_datasets.resize( datasets, {} );
+    for (unsigned int i = 0; i < datasets; ++i) {
+      auto const & paths = m_hltConfig.datasetContent(i);
+      m_datasets[i].reserve(paths.size());
+      for (auto const & path: paths)
+        m_datasets[i].push_back(m_hltConfig.triggerIndex(path));
+    }
+    m_dataset_counts.clear();
+    m_dataset_counts.resize( datasets, nullptr );
   } else {
     // HLTConfigProvider not initialised, skip the the HLT monitoring
     edm::LogError("TriggerRatesMonitor") << "failed to initialise HLTConfigProvider, the HLT trigger and datasets rates will not be monitored";
@@ -277,8 +287,9 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
 
     // book the HLT datasets rate histograms
     booker.setCurrentFolder( m_dqm_path + "/Datasets" );
-
-    // FIXME rate per dataset is still missing
+    auto const & datasets = m_hltConfig.datasetNames();
+    for (unsigned int i = 0; i < datasets.size(); ++i)
+      m_dataset_counts[i] = booker.book1D(datasets[i], datasets[i], m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
   }
 }
 
@@ -345,7 +356,13 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
         m_hlt_counts[i].reject->Fill(lumisection);
     }
 
-    // FIXME rate per dataset is still missing
+    for (unsigned int i = 0; i < m_datasets.size(); ++i)
+      for (unsigned int j: m_datasets[i])
+        if (hltResults.at(j).accept()) {
+          m_dataset_counts[i]->Fill(lumisection);
+          // ensure each dataset is incremented only once per event 
+          break;
+        }
   }
 }
 
