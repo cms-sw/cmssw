@@ -35,7 +35,6 @@ namespace l1t {
 			      std::vector<l1t::CaloSpare> * spares);
 
   private:
-    CaloParamsStage1* const params_;
     std::vector<double> cosPhi;
     std::vector<double> sinPhi;
   };
@@ -49,7 +48,6 @@ namespace l1t {
 			      const std::vector<l1t::Tau> * taus,
 			      std::vector<l1t::CaloSpare> * spares);
   private:
-    CaloParamsStage1* const params_;
   };
 }
 

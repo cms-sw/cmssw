@@ -36,7 +36,6 @@ namespace l1t {
   private:
     
     //FirmwareVersion const & m_fwv;
-    int const & m_fwv;
     CaloParams* m_params;
 
     Stage2TowerCompressAlgorithm* m_towerAlgo;

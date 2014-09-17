@@ -20,15 +20,15 @@
 template< class PhysicsObjectPtr , class SelectorType=VersionedSelector<PhysicsObjectPtr> >
 class VersionedIdProducer : public edm::stream::EDProducer<> {
 public:
-  typedef typename PhysicsObjectPtr::value_type   PhysicsObjectType;
+  using PhysicsObjectType =  typename PhysicsObjectPtr::value_type;
 
-  typedef edm::View<PhysicsObjectType> Collection;
-  typedef edm::EDGetTokenT<Collection> TokenType;
+  using Collection =  edm::View<PhysicsObjectType>;
+  using TokenType = edm::EDGetTokenT<Collection>;
 
   explicit VersionedIdProducer(const edm::ParameterSet&);
   ~VersionedIdProducer() {}
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:  
   // ----------member data ---------------------------
