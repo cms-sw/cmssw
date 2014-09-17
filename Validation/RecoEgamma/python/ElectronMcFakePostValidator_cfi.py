@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 
 electronMcFakeHistosCfg = cms.PSet(
-  EfficiencyFlag = cms.bool(True),StatOverflowFlag = cms.bool(True)
+  EfficiencyFlag = cms.bool(False),StatOverflowFlag = cms.bool(True)
 )
 
 electronMcFakePostValidator = cms.EDAnalyzer("ElectronMcFakePostValidator",
