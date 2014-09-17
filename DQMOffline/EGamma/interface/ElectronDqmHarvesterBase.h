@@ -45,7 +45,9 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
 
     void setBookPrefix( const std::string & ) ;
     void setBookIndex( short ) ;
-
+    void setBookEfficiencyFlag( const bool & ) ;
+    void setBookStatOverflowFlag ( const bool & ) ;
+    
     MonitorElement * bookH1
      ( DQMStore::IBooker & , const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
@@ -82,7 +84,7 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     MonitorElement * bookH1andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const bool & setEfficiencyFlag=false ) ;
+       const std::string & title ="" ) ;
 
     MonitorElement * bookH2andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
@@ -106,7 +108,7 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     MonitorElement * bookH1andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
-       const std::string & title ="", const bool & setEfficiencyFlag="" ) ;
+       const std::string & title ="" ) ;
 
     MonitorElement * bookH2andDivide
      ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
@@ -132,6 +134,8 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     int verbosity_ ;
     std::string bookPrefix_ ;
     short bookIndex_ ;
+    bool bookEfficiencyFlag_ ;
+    bool bookStatOverflowFlag_ ;
     bool histoNamesReady ;
     std::vector<std::string> histoNames_ ;
     std::string finalStep_ ;
