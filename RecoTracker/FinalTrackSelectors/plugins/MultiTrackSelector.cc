@@ -187,7 +187,7 @@ MultiTrackSelector::~MultiTrackSelector() {
 }
 
 
-void MultiTrackSelector::beginJob() {
+void MultiTrackSelector::beginStream(edm::StreamID) {
   if(!useForestFromDB_){
      TFile gbrfile(dbFileName_.c_str());
        forest_ = (GBRForest*)gbrfile.Get(forestLabel_.c_str());
