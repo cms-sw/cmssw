@@ -34,7 +34,7 @@ METRelValSequence = cms.Sequence(
     genMetTrueAnalyzer*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
-    correctionTermsPfMetType0PFCandidate*
+    correctionTermsPfMetType0PFCandidateForValidation*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
@@ -61,7 +61,7 @@ METValidation = cms.Sequence(
     genMetTrueAnalyzer*#*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
-    correctionTermsPfMetType0PFCandidate*
+    correctionTermsPfMetType0PFCandidateForValidation*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
