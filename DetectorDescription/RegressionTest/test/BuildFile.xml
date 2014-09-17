@@ -26,6 +26,24 @@
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
+<bin file="named_types.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Base"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
+<library file="test_module.cc" name="DetectorDescriptionTestAlgorithmPlugins">
+  <use name="DetectorDescription/Algorithm"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="algorithm_plugin_test.cpp">
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
 <bin file="testrot.cpp">
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
