@@ -1,16 +1,16 @@
+<architecture name="slc[6-9]_amd64">
+  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
+</architecture>
+<release name=".*_ASAN_.*">
+  <flags LDFLAGS="-fsanitize=address -static-libasan"/>
+</release>
 <bin   name="edmPluginDump" file="dump.cc">
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="FWCore/PluginManager"/>
-<architecture name="slc[6-9]_amd64">
-  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
-</architecture>
 </bin>
 <bin   name="edmPluginRefresh" file="refresh.cc">
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="FWCore/PluginManager"/>
-<architecture name="slc[6-9]_amd64">
-  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
-</architecture>
 </bin>
