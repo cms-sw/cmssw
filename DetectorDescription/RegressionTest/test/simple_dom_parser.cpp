@@ -5,11 +5,13 @@
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/util/XMLException.hpp>
 #include <fstream>
 #include <map>
 #include <stdlib.h>
 
 using namespace std;
+using namespace xercesc;
 
 class ADummy
 {
@@ -275,7 +277,8 @@ int main(int argC, char* argV[])
 	      }
 	      cout << endl;
 	   }
-	   cout << "dom-size=" << handler.dom().size() << endl;
+	   cout << "dom-size=" << handler.dom().size()
+		<< "duration " << duration << endl;
 	   /*
 	   TinyDomWalker walker(handler.dom());
 	   bool go = true;
