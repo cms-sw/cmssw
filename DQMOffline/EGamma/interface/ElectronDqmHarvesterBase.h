@@ -34,7 +34,7 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
 
     // interface to implement in derived classes
     virtual void book() {} ;
-    virtual void finalize( DQMStore::IBooker & iBooker ) {} ; //, DQMStore::IGetter & iGetter override ;
+    virtual void finalize( DQMStore::IBooker & iBooker ) {} ; //, DQMStore::IGetter & iGetter override ;, const edm::Event& e, const edm::EventSetup & c
 
     // utility methods
     bool finalStepDone() { return finalDone_ ; }
