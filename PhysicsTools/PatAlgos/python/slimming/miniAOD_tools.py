@@ -119,15 +119,18 @@ def miniAOD_customizeCommon(process):
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
-    ## process.patJetsAK8.userData.userFunctions = cms.vstring(
-    ##     "jet.tagInfo('caTop').properties().topMass",
-    ##     "jet.tagInfo('caTop').properties().nSubJets",
-    ##     "jet.tagInfo('caTop').properties().minMass"
-    ## )
+
     ## process.patJetsAK8.userData.userFunctionLabels = cms.vstring('topMass','vtxNtracks','vtx3DVal','vtx3DSig')
     process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("ak8TopTagInfos"))
     process.patJetsAK8.addTagInfos = cms.bool(True) 
-
+    process.patJetsAK8.userData.userFunctions = cms.vstring(
+        "jet.tagInfo('caTop').properties().topMass",
+        "jet.tagInfo('caTop').properties().nSubJets",
+        "jet.tagInfo('caTop').properties().minMass"
+    )
+    process.patJetsAK8.userData.userFunctionLabels = cms.vstring(
+        "topMass", "nSubJets", "minMass"
+        )
 
 
     # add Njetiness
@@ -136,8 +139,6 @@ def miniAOD_customizeCommon(process):
     process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
     process.NjettinessAK8.cone = cms.double(0.8)
     process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
-
-
 
             
     
