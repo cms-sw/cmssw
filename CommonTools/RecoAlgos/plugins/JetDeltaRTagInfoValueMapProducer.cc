@@ -1,8 +1,13 @@
-/* \class PFJetSelector
+/* \class JetDeltaRTagInfoValueMapProducer<T,I>
  *
- * Selects jets with a configurable string-based cut,
- * and also writes out the constituents of the jet
- * into a separate collection.
+ * Inputs two jet collections ("src" and "matched", type T), with
+ * the second having tag infos run on them ("matchedTagInfos", type I). 
+ * The jet collections are matched using delta-R matching. The
+ * tag infos from the second collection are then rewritten into a
+ * new TagInfoCollection, keyed to the first jet collection. 
+ * This can be used in the miniAOD to associate the previously-run
+ * CA8 "Top-Tagged" jets with their CATopTagInfos to the AK8 jets
+ * that are stored in the miniAOD. 
  *
  * \author: Sal Rappoccio
  *
