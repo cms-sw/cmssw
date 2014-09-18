@@ -1,9 +1,13 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiStripObjects"/>
+<use   name="CalibTracker/SiStripESProducers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/Phase2TrackerDigi"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

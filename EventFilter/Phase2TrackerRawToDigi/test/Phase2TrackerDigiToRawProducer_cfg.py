@@ -12,12 +12,13 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 'root://xrootd.ba.infn.it/'+sys.argv[-1])
 )
 
+process.load('TestbeamCabling_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiToRawProducer_cfi')
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('myOutputFile.root')
-)
+# process.out = cms.OutputModule("PoolOutputModule",
+ #    fileName = cms.untracked.string('myOutputFile.root')
+# )
 
 process.p = cms.Path(process.Phase2TrackerDigiToRawProducer)
 
-process.e = cms.EndPath(process.out)
+# process.e = cms.EndPath(process.out)
