@@ -50,7 +50,9 @@ bool isSafeClassName(const std::string &d);
 bool isDataClass(const std::string &d);
 bool isInterestingLocation(const std::string &d);
 bool isKnownThrUnsafeFunc(const std::string &name );
+const char * sha1hash(const std::string &str);
 }
+
 } 
 
 #endif

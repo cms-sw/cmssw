@@ -10,13 +10,14 @@
 #include <llvm/ADT/SmallString.h>
 #include "llvm/Support/raw_ostream.h"
 #include "CmsSupport.h"
+#include "sha1.h"
+#include "bloom_filter.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <iterator>
 #include <string>
-
 
 using namespace clangcms;
 using namespace clang;
@@ -117,38 +118,7 @@ bool support::isSafeClassName(const std::string &cname) {
   return false;
 }
 
-bool support::isDataClass(const std::string & name) {
-	std::string buf;
-	llvm::raw_string_ostream os(buf);
-	clang::FileSystemOptions FSO;
-	clang::FileManager FM(FSO);
-	const char * lPath = std::getenv("LOCALRT");
-	const char * rPath = std::getenv("CMSSW_RELEASE_BASE");
-	std::string lname(""); 
-	std::string rname(""); 
-	std::string iname(""); 
-	if ( lPath != NULL && rPath != NULL ) {
-		lname = std::string(lPath);
-		rname = std::string(rPath);
-	}
-		
-	std::string tname("/tmp/classes.txt");
-	std::string fname1 = lname + tname;
-	if (!FM.getFile(fname1)) {
-		llvm::errs()<<"\n\nChecker cannot find classes.txt. Run \"USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT scram b checker to create $LOCALRT/tmp/classes.txt.\n\n\n";
-		exit(1);
-		}
-	if ( FM.getFile(fname1) ) 
-		iname = fname1;
-	os <<"class '"<< name <<"'";
-	std::ifstream ifile;
-	ifile.open(iname.c_str(),std::ifstream::in);
-	std::string line;
-	while (std::getline(ifile,line)) {
-		if ( line == os.str() ) return true;
-	}
-	return false;
-}
+
 
 bool support::isInterestingLocation(const std::string & name) {
 	if ( name[0] == '<' && name.find(".h")==std::string::npos ) return false;
@@ -169,4 +139,34 @@ bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
 	for (auto& name: names)
   		if ( fname.substr(0,name.length()) == name ) return true;	
 	return false;
+}
+
+const char * support::sha1hash(const std::string &str) {
+  static unsigned char rawhash[20];
+  static char hashstr[41];
+  sha1::calc(str.c_str(), str.size(), rawhash);
+  sha1::toHexString(rawhash, hashstr);
+  return hashstr;
+}
+
+bool support::isDataClass(const std::string & cname) {
+
+#include "classname-hashes.inc"
+  static unsigned int random_seed = 0xA57EC3B2;
+  static const double desired_probability_of_false_positive = 1.0 / dataClassNameHashes.size();
+  static bloom_parameters parameters;
+  if ( parameters.projected_element_count == 10000 ) {
+  	parameters.projected_element_count    =  dataClassNameHashes.size();
+  	parameters.false_positive_probability = desired_probability_of_false_positive;
+  	parameters.random_seed                = random_seed++;
+  	parameters.compute_optimal_parameters();
+  }
+  static bloom_filter filter(parameters);
+  if (filter.element_count() == 0) {
+	filter.insert(dataClassNameHashes.begin(),dataClassNameHashes.end());
+  }
+  std::string chash(sha1hash(cname));
+  if ( filter.contains(chash.substr(0,8)) ) return true;	
+return false;
+
 }
