@@ -3,73 +3,47 @@
 #include <fstream>
 #include <iomanip>
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQM/EcalPreshowerMonitorClient/interface/ESSummaryClient.h"
 
-using namespace edm;
 using namespace std;
 
-ESSummaryClient::ESSummaryClient(const ParameterSet& ps) {
-
-   cloneME_       = ps.getUntrackedParameter<bool>("cloneME", true);
-   verbose_       = ps.getUntrackedParameter<bool>("verbose", true);
-   debug_         = ps.getUntrackedParameter<bool>("debug", false);
-   prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
-   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
+ESSummaryClient::ESSummaryClient(const edm::ParameterSet& ps) :
+  ESClient(ps)
+{
 }
 
 ESSummaryClient::~ESSummaryClient() {
 }
 
-void ESSummaryClient::beginJob(DQMStore* dqmStore) {
+void ESSummaryClient::book(DQMStore::IBooker& _ibooker) {
 
-   dqmStore_ = dqmStore;
-
-   if ( debug_ ) cout << "ESSummaryClient: beginJob" << endl;
-
-   ievt_ = 0;
-   jevt_ = 0;
+   if ( debug_ ) cout << "ESSummaryClient: setup" << endl;
 
    char histo[200];
 
    MonitorElement* me;
 
-   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+   _ibooker.setCurrentFolder( prefixME_ + "/EventInfo" );
 
    sprintf(histo, "reportSummary");
-   me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-   if ( me ) {
-      dqmStore_->removeElement(me->getName());
-   }
-   me = dqmStore_->bookFloat(histo);
+   me = _ibooker.bookFloat(histo);
    me->Fill(-1.0);      
 
-   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+   _ibooker.setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
    for (int i=0 ; i<2; ++i){
       for (int j=0 ; j<2; ++j){
 	 int iz = (i==0)? 1:-1;
 	 sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-	 if(me){
-	    dqmStore_->removeElement(me->getName());
-	 }
-         me = dqmStore_->bookFloat(histo);
+         me = _ibooker.bookFloat(histo);
          me->Fill(-1.0);      
       }
    }
 
-   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+   _ibooker.setCurrentFolder( prefixME_ + "/EventInfo" );
 
    sprintf(histo, "reportSummaryMap");
-   me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-   if ( me ) {
-      dqmStore_->removeElement(me->getName());
-   }
-   me = dqmStore_->book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
+   me = _ibooker.book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
    me->setAxisTitle("Si X", 1);
    me->setAxisTitle("Si Y", 2);
 
@@ -81,43 +55,7 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
 
 }
 
-void ESSummaryClient::beginRun(void) {
-
-   if ( debug_ ) cout << "ESSummaryClient: beginRun" << endl;
-
-   jevt_ = 0;
-
-   this->setup();
-
-}
-
-void ESSummaryClient::endJob(void) {
-
-   if ( debug_ ) cout << "ESSummaryClient: endJob, ievt = " << ievt_ << endl;
-
-   this->cleanup();
-
-}
-
-void ESSummaryClient::endRun(void) {
-
-   if ( debug_ ) cout << "ESSummaryClient: endRun, jevt = " << jevt_ << endl;
-
-   this->cleanup();
-
-}
-
-void ESSummaryClient::setup(void) {
-
-}
-
-void ESSummaryClient::cleanup(void) {
-
-   if ( ! enableCleanup_ ) return;
-
-}
-
-void ESSummaryClient::analyze(void) {
+void ESSummaryClient::endLumiAnalyze(DQMStore::IGetter& _igetter) {
 
    char histo[200];
 
@@ -139,21 +77,21 @@ void ESSummaryClient::analyze(void) {
 	 int iz = (i==0)? 1:-1;
 
 	 sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/" + histo);
+	 me = _igetter.get(prefixME_ + "/ESIntegrityTask/" + histo);
 	 if (me) 
 	   for (int x=0; x<40; ++x) 
 	     for (int y=0; y<40; ++y) 
 	       nDI_FedErr[i*40+x][(1-j)*40+y] = me->getBinContent(x+1, y+1);
 	 
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
+	 me = _igetter.get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if (me)
 	   for (int x=0; x<40; ++x)
 	     for (int y=0; y<40; ++y) 
 	       DCC[i*40+x][(1-j)*40+y] = me->getBinContent(x+1, y+1);
 	 
 	 sprintf(histo, "ES RecHit 2D Occupancy Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
+	 me = _igetter.get(prefixME_ + "/ESOccupancyTask/" + histo);
 	 if (me)
 	   eCount = me->getBinContent(40,40);
 	 else 
@@ -171,7 +109,7 @@ void ESSummaryClient::analyze(void) {
    float nValidChannelsES[2][2]={}; 
    float nGlobalErrorsES[2][2]={};
 
-   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+   me = _igetter.get(prefixME_ + "/EventInfo/reportSummaryMap");
    if (me) {
       for (int x=0; x<80; ++x) {
 	if (eCount < 1) break; //Fill reportSummaryMap after have 1 event
@@ -200,50 +138,24 @@ void ESSummaryClient::analyze(void) {
 	}
       }
    }
-   
-   for (int i=0; i<2; ++i) {
-     for (int j=0; j<2; ++j) {
-       int iz = (i==0)? 1:-1;
-       float reportSummaryES = -1.;
-       if (nValidChannelsES[i][j] != 0) 
-	 reportSummaryES = 1.0 - nGlobalErrorsES[i][j]/nValidChannelsES[i][j];
-       sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
-       me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-       if ( me ) me->Fill(reportSummaryES);
-     }
-   }
-   
-   //Return ratio of good channels
-   float reportSummary = -1.0;
-   if ( nValidChannels != 0 ) 
-      reportSummary = 1.0 - nGlobalErrors/nValidChannels;
-   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-   if ( me ) me->Fill(reportSummary);
 
-}
+   // Past version (<= CMSSW_7_2_0_pre4) of this module was filling reportSummaryContents and reportSummary with more information when the analyze function was called.
+   // Since CMSSW_7_1_X, Client modules are not called per event any more.
 
-void ESSummaryClient::softReset(bool flag) {
-}
-
-void ESSummaryClient::endLumiAnalyze() {
-
-   char histo[200];
-   MonitorElement* me = 0;
    MonitorElement* me_report = 0;
    sprintf(histo, "ES Good Channel Fraction");
-   me = dqmStore_->get(prefixME_+"/ESIntegrityTask/"+histo);
+   me = _igetter.get(prefixME_+"/ESIntegrityTask/"+histo);
    if (!me) return;
    for (int i=0; i<2; ++i) {
      for (int j=0; j<2; ++j) {
        int iz = (i==0)? 1:-1;
        sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
-       me_report = dqmStore_->get(prefixME_+"/EventInfo/reportSummaryContents/" + histo);
+       me_report = _igetter.get(prefixME_+"/EventInfo/reportSummaryContents/" + histo);
        if (me_report) {
 	 me_report->Fill(me->getBinContent(i+1, j+1));  
        }
      }
    }
-   me_report = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+   me_report = _igetter.get(prefixME_ + "/EventInfo/reportSummary");
    if ( me_report ) me_report->Fill(me->getBinContent(3,3));
-    
 }
