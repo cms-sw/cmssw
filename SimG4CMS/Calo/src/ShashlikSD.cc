@@ -19,7 +19,7 @@
 
 #include<algorithm>
 
-//#define DebugLog
+// #define DebugLog
 
 template <class T>
 bool any(const std::vector<T> & v, const T &what) {
@@ -114,7 +114,7 @@ bool ShashlikSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   } else {
     preStepPoint     = aStep->GetPreStepPoint(); 
     theTrack         = aStep->GetTrack();   
-    double time      = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
+    double time      = (aStep->GetPreStepPoint()->GetGlobalTime())/nanosecond;
     int    primaryID = getTrackID(theTrack);
     G4int  particleCode = theTrack->GetDefinition()->GetPDGEncoding();
     if (particleCode == emPDG ||
@@ -203,13 +203,36 @@ uint16_t ShashlikSD::getDepth(G4Step *aStep) {
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint16_t ret = (uint16_t)(touch->GetReplicaNumber(0));
-  if (storeLayerTimeSim) ret+=100;
+  if (storeLayerTimeSim) ret=getLayerIDForTimeSim(aStep);
 #ifdef DebugLog
   std::cout << "ShashlikSD::Volume " << touch->GetVolume(0)->GetName() 
 	    << " Depth " << ret << std::endl;
 #endif
   return ret;
 }
+
+uint16_t ShashlikSD::getLayerIDForTimeSim(G4Step * aStep) 
+{
+  float    layerSize = 1*cm; //layer size in cm
+
+  if (aStep != NULL ) {
+    G4StepPoint* hitPoint = aStep->GetPostStepPoint();
+    int layer             = hitPoint->GetTouchable()->GetReplicaNumber(0);
+    G4ThreeVector  localPoint = setToLocal(hitPoint->GetPosition(),
+					   hitPoint->GetTouchable());
+    double crlength = fiberL[layer-1]-0.75;
+    double detz;
+    detz     = (float)(crlength + 2 + localPoint.z());
+#ifdef DebugLog
+    std::cout << " Module L: " << crlength << "   local: " << localPoint.z() << "   depth: " << detz << std::endl;
+#endif
+    if (detz<0)
+      detz=0;
+    return 100+(int)detz/layerSize;
+  }
+  return 0;
+}
+
 
 uint32_t ShashlikSD::setDetUnitId(G4Step *aStep) { 
 
