@@ -1,5 +1,5 @@
-#ifndef EgammaElectronAlgos_RegressionData_h
-#define EgammaElectronAlgos_RegressionData_h
+#ifndef EgammaElectronAlgos_EcalRegressionData_h
+#define EgammaElectronAlgos_EcalRegressionData_h
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -12,9 +12,9 @@ namespace reco{
   class SuperCluster;
 }
 
-class RegressionData {
+class EcalRegressionData {
 public:
-  RegressionData(){clear();}
+  EcalRegressionData(){clear();}
   
   //this exists due to concerns that sub-cluster 1 is actually accessed 
   //by subClusRawE_[0] and could potentially cause bugs 

@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionData.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/EcalRegressionData.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -10,39 +10,39 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 
-float RegressionData::seedLeftRightAsym()const
+float EcalRegressionData::seedLeftRightAsym()const
 {
   float eLeftRightSum = eLeft()+eRight();
   float eLeftRightDiff = eLeft()-eRight();
   return eLeftRightSum !=0 ? eLeftRightDiff/eLeftRightSum : 0.;
 }
 
-float RegressionData::seedTopBottomAsym()const
+float EcalRegressionData::seedTopBottomAsym()const
 {
   float eTopBottomSum = eTop()+eBottom();
   float eTopBottomDiff = eTop()-eBottom();
   return eTopBottomSum !=0 ? eTopBottomDiff/eTopBottomSum : 0.;
 }
   
-float RegressionData::subClusRawEnergy(size_t clusNr)const
+float EcalRegressionData::subClusRawEnergy(size_t clusNr)const
 {
   if(clusNr<subClusRawEnergy_.size()) return subClusRawEnergy_[clusNr];
   else return 0.;
 }
 
-float RegressionData::subClusDEta(size_t clusNr)const
+float EcalRegressionData::subClusDEta(size_t clusNr)const
 {
   if(clusNr<subClusDEta_.size()) return subClusDEta_[clusNr];
   else return 0.;
 }
 
-float RegressionData::subClusDPhi(size_t clusNr)const
+float EcalRegressionData::subClusDPhi(size_t clusNr)const
 {
   if(clusNr<subClusDPhi_.size()) return subClusDPhi_[clusNr];
   else return 0.;
 }
 
-void RegressionData::fill(const reco::SuperCluster& superClus,
+void EcalRegressionData::fill(const reco::SuperCluster& superClus,
 			  const EcalRecHitCollection* ebRecHits,const EcalRecHitCollection* eeRecHits,
 			  const CaloGeometry* geom,const CaloTopology* topology,
 			  const reco::VertexCollection* vertices)
@@ -110,7 +110,7 @@ void RegressionData::fill(const reco::SuperCluster& superClus,
 
 }
 
-void RegressionData::clear()
+void EcalRegressionData::clear()
 {
   isEB_=false;
   scRawEnergy_=0.;
@@ -152,13 +152,13 @@ void RegressionData::clear()
   
 }
 
-void RegressionData::fillVec(std::vector<float>& inputVec)const
+void EcalRegressionData::fillVec(std::vector<float>& inputVec)const
 {
   if(isEB()) fillVecEB_(inputVec);
   else fillVecEE_(inputVec);
 }
 
-void RegressionData::fillVecEB_(std::vector<float>& inputVec)const
+void EcalRegressionData::fillVecEB_(std::vector<float>& inputVec)const
 {
   inputVec.clear();
   inputVec.resize(33);
@@ -198,7 +198,7 @@ void RegressionData::fillVecEB_(std::vector<float>& inputVec)const
   inputVec[32] = scCalibEnergy(); //scCalibratedEnergy
 }
 
-void RegressionData::fillVecEE_(std::vector<float>& inputVec)const
+void EcalRegressionData::fillVecEE_(std::vector<float>& inputVec)const
 {
   inputVec.clear();
   inputVec.resize(33); //this emulates the old behaviour of RegressionHelper, even if past 29 we dont use elements
