@@ -86,6 +86,7 @@ namespace cond{
 			 const std::string& recordName,
                          bool withlogging=false){
         if( !firstPayloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::createNewIOV");
+	if (!m_dbstarted) this->initDB( false );
         createNewIOV( m_session.storePayload( *firstPayloadObj ),
 		      cond::demangledName(typeid(T)),
                       firstSinceTime,
@@ -114,6 +115,7 @@ namespace cond{
                                                  const std::string& recordName,
                                                  bool withlogging=false){
         if( !payloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::appendSinceTime");
+	if (!m_dbstarted) this->initDB( false );
         appendSinceTime( m_session.storePayload( *payloadObj ),
 			 sinceTime,
 			 recordName,
