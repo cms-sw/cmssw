@@ -12,7 +12,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 'root://xrootd.ba.infn.it/'+sys.argv[-1])
 )
 
-process.load('TestbeamCabling_cfi')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBEReco_cff')
+process.load('DummyCablingTxt_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiToRawProducer_cfi')
 
 # process.out = cms.OutputModule("PoolOutputModule",

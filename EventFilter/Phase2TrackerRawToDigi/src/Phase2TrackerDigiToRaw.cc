@@ -44,8 +44,13 @@ namespace Phase2Tracker
     const edmNew::DetSetVector<SiPixelCluster>* digs = handle.product();
     for (edmNew::DetSetVector<SiPixelCluster>::const_iterator it = digs->begin(); it != digs->end(); it++)
     {
-      std::cout << it->detId() << std::endl;
+      std::pair<unsigned int, unsigned int> ch_data = (c->findDetid(it->detId())).getCh();
+      std::cout << "info for detid " << it->detId() << " fedid: " << ch_data.first << ", channel: " << ch_data.second << std::endl;
       /*
+      if (topo->tobLayer(it->detId()) > 0)
+      {
+        std::cout << it->detId() << std::endl;
+      }
       std::cout << std::endl << "Digis for detId : " << it->detId() << std::endl;
       for (edmNew::DetSet<SiPixelCluster>::const_iterator it2 = it->begin(); it2 != it->end(); it2++)
       {
