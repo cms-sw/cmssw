@@ -34,6 +34,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Global tag
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
+# Need for test in lxplus
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi")
+
 
 #-----------------------------
 #### Sub-system configuration follows
@@ -78,6 +81,8 @@ process.SiPixelHLTSource.saveFile = False
 process.SiPixelHLTSource.slowDown = False
 process.SiPixelHLTSource.DirName = cms.untracked.string('Pixel/FEDIntegrity_SM/')
 
+process.load("Configuration.StandardSequences.Geometry_cff")
+
 # SiStrip DQM sequences
 process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
 process.siStripFEDCheck.DirName = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
@@ -116,8 +121,8 @@ process.evfDQMPath = cms.Path(#process.physicsEventsFilter+
  			      process.ecalDigis  + process.ecalFEDMonitor + 
 			      process.l1tfed +
  			      process.siPixelDigis + process.SiPixelHLTSource +
-#                              process.siStripFEDCheck + 
-#			      process.hcalDigis + process.hcalDataIntegrityMonitor +
+                              process.siStripFEDCheck + 
+			      process.hcalDigis + process.hcalDataIntegrityMonitor +
 			      process.rpcunpacker + process.rpcFEDIntegrity +
 			      process.esRawToDigi + process.ecalPreshowerFEDIntegrityTask +
 			      process.dqmFEDIntegrityClient 
