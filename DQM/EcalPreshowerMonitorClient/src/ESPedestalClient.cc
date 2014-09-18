@@ -26,13 +26,7 @@ ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps) :
 	  hPed_[i][j][k][m] = 0;
 	  hTotN_[i][j][k][m] = 0;
 	}
-}
 
-ESPedestalClient::~ESPedestalClient() {
-  delete fg_;
-}
-
-void ESPedestalClient::beginJob(DQMStore* dqmStore) {
    std::string lutPath(ps.getUntrackedParameter<edm::FileInPath>("LookupTable").fullPath());
 
    // read in look-up table
@@ -59,6 +53,7 @@ void ESPedestalClient::beginJob(DQMStore* dqmStore) {
 }
 
 ESPedestalClient::~ESPedestalClient() {
+  delete fg_;
 }
 
 void ESPedestalClient::endJobAnalyze(DQMStore::IGetter& _igetter) {
