@@ -135,15 +135,12 @@ void MaterialBudgetAction::update(const BeginOfRun* )
 {
   //----- Check that selected volumes are indeed part of the geometry
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  std::cout << "G4LogicalVolumeStore size " << lvs->size();
   std::vector<G4LogicalVolume*>::const_iterator lvcite;
   std::vector<G4String>::const_iterator volcite;
 
   for( volcite = theVolumeList.begin(); volcite != theVolumeList.end(); volcite++ ){
-    std::cout << " MaterialBudgetAction checking volume " << *volcite << std::endl;
     bool volFound = false;
     for( lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++ ) {
-      std::cout << "Checking " << (*lvcite)->GetName() << "\n";
       if( (*lvcite)->GetName() == *volcite )  {
 	volFound = true;
 	break;
