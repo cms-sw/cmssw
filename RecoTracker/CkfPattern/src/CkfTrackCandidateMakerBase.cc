@@ -219,12 +219,38 @@ namespace cms{
       unsigned int indeces[collseed_size]; for (auto i=0U; i< collseed_size; ++i) indeces[i]=i;
       // std::random_shuffle(indeces,indeces+collseed_size);
 
+
+      /* 
+       * here only for reference: does not seems to help
+     
       auto const & seeds = *collseed;
-      auto spt = [&](unsigned int i) { return seeds[i].startingState().pt();};
-      std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return spt(i)>spt(j);});
+      
+      
+      float val[collseed_size]; 
+      for (auto i=0U; i< collseed_size; ++i) 
+        {  val[i] =  seeds[i].startingState().pt();};
+      //  { val[i] =  std::abs((*seeds[i].recHits().first).surface()->eta());}
+      
+
+      unsigned long long val[collseed_size];
+      for (auto i=0U; i< collseed_size; ++i) {
+        if (seeds[i].nHits()<2) { val[i]=0; continue;}
+        auto h = seeds[i].recHits().first;  
+        auto const & hit = static_cast<BaseTrackerRecHit const&>(*h);
+        val[i] = hit.firstClusterRef().key(); 
+        if (++h != seeds[i].recHits().second) {
+          auto	const &	hit = static_cast<BaseTrackerRecHit const&>(*h);
+    	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32; 
+        }
+      }
+
+      std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return val[i]<val[j];});
+             
 
       // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
       
+      */
+
       auto theLoop = [&](size_t ii) {    
         auto j = indeces[ii];
 
