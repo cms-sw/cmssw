@@ -1,3 +1,5 @@
+#ifndef InclusiveVertexFinder_h
+#define InclusiveVertexFinder_h
 #include <memory>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -28,6 +30,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 #include "RecoVertex/MultiVertexFit/interface/MultiVertexFitter.h"
 
+#include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
 //#define VTXDEBUG 1
 template <class InputContainer, class VTX>
 class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
@@ -41,8 +44,6 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
     private:
 	bool trackFilter(const reco::Track &track) const;
         std::pair<std::vector<reco::TransientTrack>,GlobalPoint> nearTracks(const reco::TransientTrack &seed, const std::vector<reco::TransientTrack> & tracks, const reco::Vertex & primaryVertex) const;
-	reco::TransientTrack buildTT(edm::Handle<reco::TrackCollection> & , edm::ESHandle<TransientTrackBuilder> &, unsigned int);
-	reco::TransientTrack buildTT(edm::Handle<edm::View<reco::Candidate> > & , edm::ESHandle<TransientTrackBuilder> &, unsigned int);
 
 	edm::EDGetTokenT<reco::BeamSpot> 	token_beamSpot; 
 	edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
@@ -97,18 +98,6 @@ bool TemplatedInclusiveVertexFinder<InputContainer,VTX>::trackFilter(const reco:
  
 	return true;
 }
-template <class InputContainer, class VTX>
-reco::TransientTrack TemplatedInclusiveVertexFinder<InputContainer,VTX>::buildTT(edm::Handle<reco::TrackCollection> & tracks, edm::ESHandle<TransientTrackBuilder> &trackbuilder, unsigned int k)
-{
-	reco::TrackRef ref(tracks, k);
-	return trackbuilder->build(ref);
-}
-template <class InputContainer, class VTX>
-reco::TransientTrack TemplatedInclusiveVertexFinder<InputContainer,VTX>::buildTT(edm::Handle<edm::View<reco::Candidate> > & tracks, edm::ESHandle<TransientTrackBuilder> &trackbuilder, unsigned int k)
-{
-	return trackbuilder->build(tracks->ptrAt(k));
-}
-
 
 template <class InputContainer, class VTX>
 void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &event, const edm::EventSetup &es)
@@ -151,7 +140,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 	    track != tracks->end(); ++track) {
 //TransientTrack tt = trackBuilder->build(ref);
 //TrackRef ref(tracks, track - tracks->begin());
-		TransientTrack tt(buildTT(tracks,trackBuilder, track - tracks->begin()));
+		TransientTrack tt(tthelpers::buildTT(tracks,trackBuilder, track - tracks->begin()));
 		if (!trackFilter(tt.track()))
 			continue;
                 if( std::abs(tt.track().dz(pv.position())) > maxLIP)
@@ -247,4 +236,4 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 	event.put(recoVertices);
 
 }
-
+#endif 
