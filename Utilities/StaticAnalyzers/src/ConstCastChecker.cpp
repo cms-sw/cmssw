@@ -6,6 +6,7 @@
 
 
 #include <clang/AST/Attr.h>
+#include <clang/AST/ExprCXX.h>
 #include "ConstCastChecker.h"
 #include "CmsSupport.h" 
 
@@ -27,11 +28,9 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
 		if (! support::isDataClass(cname) ) return; 
 	}
 	if (clang::ento::ExplodedNode *errorNode = C.generateSink()) {
-		if (!BT)
-			BT.reset(
-					new clang::ento::BugType("const_cast used",
-							"ThreadSafety"));
-		clang::ento::BugReport *R = new clang::ento::BugReport(*BT, "const_cast was used, this may result in thread-unsafe code.", errorNode);
+		if (!BT) BT.reset(new clang::ento::BugType(this,"const_cast used on a pointer to a data class ", "ThreadSafety"));
+		clang::ento::BugReport *R = new clang::ento::BugReport(*BT,
+					"const_cast was used on a pointer to a data class ", errorNode);
 		R->addRange(CE->getSourceRange());
 	   	if ( ! m_exception.reportConstCast( *R, C ) )
 			return;
