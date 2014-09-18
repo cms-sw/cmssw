@@ -124,9 +124,9 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("ak8TopTagInfos"))
     process.patJetsAK8.addTagInfos = cms.bool(True) 
     process.patJetsAK8.userData.userFunctions = cms.vstring(
-        "jet.tagInfo('caTop').properties().topMass",
-        "jet.tagInfo('caTop').properties().nSubJets",
-        "jet.tagInfo('caTop').properties().minMass"
+        "tagInfo('caTop').properties().topMass",
+        "tagInfo('caTop').properties().nSubJets",
+        "tagInfo('caTop').properties().minMass"
     )
     process.patJetsAK8.userData.userFunctionLabels = cms.vstring(
         "topMass", "nSubJets", "minMass"
