@@ -1,5 +1,4 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
-#include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,7 +20,7 @@ namespace Phase2Tracker
       }
       LogTrace("Phase2TrackerFEDBuffer") << std::endl;
       
-      // reserve all channels (should be 16x16 in our case)
+      // reserve all channels to avoid vector reservation updates (should be 16x16 in our case)
       channels_.reserve(MAX_FE_PER_FED*MAX_CBC_PER_FE);
       // first 64 bits word is for DAQ header
       daqHeader_     = FEDDAQHeader(buffer_);
@@ -43,8 +42,8 @@ namespace Phase2Tracker
   {
     // each FED can be connectd to up to 16 frontends (read from header)
     // each fronted can be connected to up to 16 CBC
-    // in raw mode, a header of 16bits tells which CBC are activated on this FE
-    // in ZS mode, one byte is used to tell how many clusters are present in the current CBC
+    // in unsparsified (raw) mode, a header of 16bits tells which CBC are activated on this FE
+    // in sparsified (ZS) mode, the header tells how many P and S clusters to expect for this FE. Each cluster contains the CBC ID at the beginning
     // one channel corresponds to one CBC chip, undependently of the mode
   
     // offset of beginning of current channel
@@ -91,32 +90,91 @@ namespace Phase2Tracker
     }
     else if (readoutMode() == READOUT_MODE_ZERO_SUPPRESSED)
     {
+      // save current bit index
+      int bitOffset = 0;
+      // loop on FE
       for (FE_it = status.begin(); FE_it < status.end(); FE_it++)
       {
         if(*FE_it)
         {
-          for (int i=0; i<MAX_CBC_PER_FE; i++)
+          // Read FE header : 
+          // FE header is : P/S (1bit) + #P clusters (5bits if P, 0 otherwise) + #S clusters (5bits)
+          // read type of module (2S/PS)
+          uint8_t mod_type = static_cast<uint8_t>(read_n_at_m(payloadPointer_,1,bitOffset));
+          // note the index of the next channel to fill
+          int ichan = channels_.size();
+          // add the proper number of channels for this FE (2 channels per chip because of PS) 
+          channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE*2),Phase2TrackerFEDChannel(payloadPointer_,0,0));
+          // read number of clusters of each type
+          uint8_t num_p, num_s;
+          if (mod_type == 0)
           {
-            // read first byte to get number of clusters and skip it
-            uint8_t n_clusters = static_cast<uint8_t> (*(payloadPointer_ + offsetBeginningOfChannel));
-            offsetBeginningOfChannel += 1;
-            // each channel contains 2 bytes per cluster 
-            channels_.push_back(Phase2TrackerFEDChannel(payloadPointer_,offsetBeginningOfChannel,2*n_clusters));
-            // skip clusters
-            offsetBeginningOfChannel += 2*n_clusters;
+              num_p = 0; 
+              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,5,bitOffset+1));
+              bitOffset += 6;
+          }
+          else
+          {
+              num_p = static_cast<uint8_t>(read_n_at_m(payloadPointer_,5,bitOffset+1));
+              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,5,bitOffset+6));
+              bitOffset += 11;
+          }
+          // start indexing
+          int currCBC = -1;
+          int iCBC = -1;
+          int chanSize = 0;
+          for (int i=0; i<num_p; i++)
+          {
+              // test if new chip (CBC for 2S, ??? for PS)
+              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset));
+              if(iCBC != currCBC)
+              {
+                  if(iCBC > 0) 
+                  {
+                      // save channel (P channels start after S channels)
+                      channels_[ichan + iCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,bitOffset/8,(chanSize + 8 -1)/8,bitOffset%8,DET_PonPS);
+                      // advance bit pointer
+                      bitOffset += chanSize;
+                  }
+                  currCBC = iCBC;
+                  chanSize = P_CLUSTER_SIZE_BITS;
+              }
+              else 
+              {
+                  chanSize += P_CLUSTER_SIZE_BITS;
+              }
+          }
+          currCBC = -1;
+          for (int i=0; i<num_s; i++)
+          {
+              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset));
+              if(iCBC != currCBC)
+              {
+                  if(iCBC > 0) 
+                  {
+                      // save channel
+                      DET_TYPE det_type = (mod_type == 0) ? DET_SonPS : DET_Son2S;
+                      channels_[ichan + iCBC] = Phase2TrackerFEDChannel(payloadPointer_,bitOffset/8,(chanSize + 8 -1)/8,bitOffset%8,det_type);
+                      // advance bit pointer
+                      bitOffset += chanSize;
+                  }
+                  currCBC = iCBC;
+                  chanSize = S_CLUSTER_SIZE_BITS;
+              }
+              else 
+              {
+                  chanSize += S_CLUSTER_SIZE_BITS;
+              }
           }
         }
         else
         {
-          // else fill with FEDCH_PER_FEUNIT null channels, don't advance the channel pointer
+          // else fill with null channels, don't advance the channel pointer
           channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE),Phase2TrackerFEDChannel(payloadPointer_,0,0));
         }
       }
-    }
-    else
-    {
-      // TODO: throw exception for unrecognised readout mode
-      // check done at Phase2TrackerFEDHeader::readoutMode()
+      // compute byte offset for payload
+      offsetBeginningOfChannel = (bitOffset + 8 -1)/8;
     }
     // round the offset to the next 64 bits word
     int words64 = (offsetBeginningOfChannel + 8 - 1)/8; // size in 64 bit

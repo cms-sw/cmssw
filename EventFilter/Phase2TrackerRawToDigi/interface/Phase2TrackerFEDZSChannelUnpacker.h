@@ -12,29 +12,29 @@ namespace Phase2Tracker {
   {
   public:
     Phase2TrackerFEDZSChannelUnpacker(const Phase2TrackerFEDChannel& channel);
-    uint8_t clusterIndex() const { return data_[currentOffset_^7]; }
-    uint8_t clusterLength() const {return data_[(currentOffset_+1)^7]; }
-    bool hasData() const { return valuesLeft_; }
+    virtual uint8_t clusterIndex() const;
+    virtual uint8_t clusterSize() const;
+    bool hasData() const { return clustersLeft_; }
     Phase2TrackerFEDZSChannelUnpacker& operator ++ ();
     Phase2TrackerFEDZSChannelUnpacker& operator ++ (int);
-  private:
+  protected:
     const uint8_t* data_;
-    uint8_t currentOffset_;
-    uint16_t valuesLeft_;
+    uint16_t currentOffset_; // caution : this is in bits, not bytes
+    uint16_t clustersLeft_;
+    uint8_t clusterdatasize_;
   };
 
   // unpacker for ZS CBC data
   inline Phase2TrackerFEDZSChannelUnpacker::Phase2TrackerFEDZSChannelUnpacker(const Phase2TrackerFEDChannel& channel)
-    : data_(channel.data()),
-      currentOffset_(channel.offset()),
-      valuesLeft_(channel.length()/2)
+    : data_(channel.data())
   {
+      currentOffset_ = channel.offset() * 8 + channel.bitoffset();
   }
 
   inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator ++ ()
   {
-    currentOffset_ = currentOffset_+2;
-    valuesLeft_--;
+    currentOffset_ += clusterdatasize_; 
+    clustersLeft_--;
     return (*this);
   }
   
@@ -42,6 +42,31 @@ namespace Phase2Tracker {
   {
     ++(*this); return *this;
   }
+
+  class Phase2TrackerFEDZSSChannelUnpacker : public Phase2TrackerFEDZSChannelUnpacker
+  {
+      public:
+          Phase2TrackerFEDZSSChannelUnpacker(const Phase2TrackerFEDChannel& channel) : Phase2TrackerFEDZSChannelUnpacker(channel)
+          {
+              clusterdatasize_ = S_CLUSTER_SIZE_BITS;  
+              clustersLeft_ = (channel.length()*8 - channel.bitoffset())/clusterdatasize_;
+          }
+          inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,8,5+currentOffset_);  }
+          inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,13+currentOffset_); }
+  };
+
+  class Phase2TrackerFEDZSPChannelUnpacker : public Phase2TrackerFEDZSChannelUnpacker
+  {
+      public:
+          Phase2TrackerFEDZSPChannelUnpacker(const Phase2TrackerFEDChannel& channel) : Phase2TrackerFEDZSChannelUnpacker(channel)
+          {
+              clusterdatasize_ = P_CLUSTER_SIZE_BITS;  
+              clustersLeft_ = (channel.length()*8 - channel.bitoffset())/clusterdatasize_;
+          }
+          inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,7,5+currentOffset_);  }
+          inline uint8_t clusterZpos()  { return (uint8_t)read_n_at_m(data_,4,12+currentOffset_); }
+          inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,16+currentOffset_); }
+  };
 
 } // end of Phase2Tracker namespace
 
