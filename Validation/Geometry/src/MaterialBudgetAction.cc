@@ -26,10 +26,9 @@
 
 #include <iostream>
 
-
 //-------------------------------------------------------------------------
-MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) :
-  theHistoMgr(0)
+MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
+  : theHistoMgr(0)
 {
   theData = new MaterialBudgetData;
   
@@ -131,25 +130,20 @@ MaterialBudgetAction::~MaterialBudgetAction()
   delete theData;
 }
 
-
 //-------------------------------------------------------------------------
-void MaterialBudgetAction::produce(edm::Event& e, const edm::EventSetup&)
-{
-}
-
-
-//-------------------------------------------------------------------------
-void MaterialBudgetAction::update(const BeginOfRun* trk)
+void MaterialBudgetAction::update(const BeginOfRun* )
 {
   //----- Check that selected volumes are indeed part of the geometry
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  std::cout << "G4LogicalVolumeStore size " << lvs->size();
   std::vector<G4LogicalVolume*>::const_iterator lvcite;
   std::vector<G4String>::const_iterator volcite;
 
   for( volcite = theVolumeList.begin(); volcite != theVolumeList.end(); volcite++ ){
-  //-  std::cout << " MaterialBudgetAction checking volume " << *volcite << std::endl;
+    std::cout << " MaterialBudgetAction checking volume " << *volcite << std::endl;
     bool volFound = false;
     for( lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++ ) {
+      std::cout << "Checking " << (*lvcite)->GetName() << "\n";
       if( (*lvcite)->GetName() == *volcite )  {
 	volFound = true;
 	break;
@@ -250,7 +244,6 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::update(const G4Step* aStep)
 {
-
   //----- Check it is inside one of the volumes selected
   if( theVolumeList.size() != 0 ) {
     if( !CheckTouchableInSelectedVolumes( aStep->GetTrack()->GetTouchable() ) ) return;
@@ -305,33 +298,21 @@ std::string MaterialBudgetAction::getPartName( G4StepPoint* aStepPoint )
   }
 }
 
-
-
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::update(const EndOfTrack* trk)
 {
-  //  std::cout << " EndOfTrack " << saveToHistos << std::endl;
   const G4Track * aTrack = (*trk)(); // recover G4 pointer if wanted
   //  if( aTrack->GetParentID() != 0 ) return;
   
   //---------- end of track (OutOfWorld)
   //-  std::cout << " Data End Track " << std::endl;
   theData->dataEndTrack( aTrack );
-}
 
-void MaterialBudgetAction::update(const EndOfEvent* evt)
-{
   //-  std::cout << " Data End Event " << std::endl;
   if (saveToTree) theTree->fillEndTrack();
   if (saveToHistos) theHistos->fillEndTrack();
   if (saveToTxt) theTxt->fillEndTrack();  
 }
-
-//-------------------------------------------------------------------------
-void MaterialBudgetAction::endRun()
-{
-}
-
 
 //-------------------------------------------------------------------------
 bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable*  touch ) 
@@ -347,9 +328,7 @@ bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable* 
   }
 
   return false;
-
 }
-
 
 //-------------------------------------------------------------------------
 bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )

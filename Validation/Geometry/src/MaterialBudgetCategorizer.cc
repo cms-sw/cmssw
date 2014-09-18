@@ -1,5 +1,4 @@
 #include "Validation/Geometry/interface/MaterialBudgetCategorizer.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4Material.hh"
@@ -30,6 +29,7 @@ void MaterialBudgetCategorizer::buildMaps()
   int ii = 0;
   for (ite = lvs->begin(); ite != lvs->end(); ite++) {
     theVolumeMap[(*ite)->GetName()] = ii++;
+    std::cout << "Volume " << (*ite)->GetName() << "\n";
   }
   
   //----- Build map material name - volume index
@@ -37,6 +37,7 @@ void MaterialBudgetCategorizer::buildMaps()
   G4int matSize = matTable->size();
   for( ii = 0; ii < matSize; ii++ ) {
     theMaterialMap[ (*matTable)[ii]->GetName()] = ii+1;
+    std::cout << "Material " << (*matTable)[ii]->GetName() << "\n";
   }
   
   // rr
