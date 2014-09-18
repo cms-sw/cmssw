@@ -87,7 +87,7 @@ private:
   double respFactorEM;
 
   // Tabulated energy, et/pt and eta points
-  vec1 eGridHD[3];
+  vec1 eGridHD[4];
   vec1 eGridEM;
   vec1 eGridMU;
   vec1 etaGridMU;

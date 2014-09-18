@@ -236,6 +236,8 @@ double HCALResponse::getMIPfraction(double energy, double eta){
   }
 
 double HCALResponse::responseHCAL(int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const* random) {
+
+
   int ieta = abs((int)(eta / etaStep)) ;
   int ie = -1;
 
@@ -394,62 +396,66 @@ double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, Rando
   double mean = 0;
   vec1 pars(nPar,0);
 
-  if (det==2 && ieta>5 && e<20){
+  // why this ieta> 5 condition?
+  //if (det==2 && ieta>5 && e<20){
+  if (det==2 && e<20){
 
-  x1 = eGridHD[det+1][ie];
-  x2 = eGridHD[det+1][ie+1];
-          for(int p = 0; p < 4; p++){
-          y1=PoissonParameters[p][ie][ieta];
-          y2=PoissonParameters[p][ie+1][ieta];
-                if(e>5)pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
-                else pars[p] = y1;
-          }
-	  mean =random->poissonShoot((int (PoissonShootNoNegative(pars[0],pars[1],random))+(int (PoissonShootNoNegative(pars[2],pars[3],random)))/4+random->flatShoot()/4) *6)/(0.3755*6);
+    for(int p = 0; p < 4; p++){
+      y1=PoissonParameters[p][ie][ieta];
+      y2=PoissonParameters[p][ie+1][ieta];
+      if(e>5){
+	x1 = eGridHD[det+1][ie];
+	x2 = eGridHD[det+1][ie+1];
+	pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
+      }
+      else pars[p] = y1;
+    }
+    mean =random->poissonShoot((int (PoissonShootNoNegative(pars[0],pars[1],random))+(int (PoissonShootNoNegative(pars[2],pars[3],random)))/4+random->flatShoot()/4) *6)/(0.3755*6);
   }
 
   else{
 
-  x1 = eGridHD[det][ie];
-  x2 = eGridHD[det][ie+1];
-  
-  //calculate all parameters
-  for(int p = 0; p < nPar; p++){
-	y1 = parameters[p][mip][det][ie][ieta];
-	y2 = parameters[p][mip][det][ie+1][ieta];
-
-	//par-specific checks
-	double custom = 0;
-	bool use_custom = false;
-	
-	//do not let mu or sigma get extrapolated below zero for low energies
-	//especially important for HF since extrapolation is used for E < 15 GeV
-	if((p==0 || p==1) && e < x1){
-		double tmp = (y1*x2-y2*x1)/(x2-x1); //extrapolate down to e=0
-		if(tmp<0) { //require mu,sigma > 0 for E > 0
-			custom = y1*e/x1;
-			use_custom = true;
-		}
+    x1 = eGridHD[det][ie];
+    x2 = eGridHD[det][ie+1];
+    
+    //calculate all parameters
+    for(int p = 0; p < nPar; p++){
+      y1 = parameters[p][mip][det][ie][ieta];
+      y2 = parameters[p][mip][det][ie+1][ieta];
+      
+      //par-specific checks
+      double custom = 0;
+      bool use_custom = false;
+      
+      //do not let mu or sigma get extrapolated below zero for low energies
+      //especially important for HF since extrapolation is used for E < 15 GeV
+      if((p==0 || p==1) && e < x1){
+	double tmp = (y1*x2-y2*x1)/(x2-x1); //extrapolate down to e=0
+	if(tmp<0) { //require mu,sigma > 0 for E > 0
+	  custom = y1*e/x1;
+	  use_custom = true;
 	}
-	//tail parameters have lower bounds - never extrapolate down
-	else if((p==2 || p==3 || p==4 || p==5)){
-		if(e < x1 && y1 < y2){
-			custom = y1;
-			use_custom = true;
-		}
-		else if(e > x2 && y2 < y1){
-			custom = y2;
-			use_custom = true;
-		}
+      }
+      //tail parameters have lower bounds - never extrapolate down
+      else if((p==2 || p==3 || p==4 || p==5)){
+	if(e < x1 && y1 < y2){
+	  custom = y1;
+	  use_custom = true;
 	}
-	
-	//linear interpolation
-	if(use_custom) pars[p] = custom;
-	else pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
-  }
-  
-  //random smearing
-  if(nPar==6) mean = cballShootNoNegative(pars[0],pars[1],pars[2],pars[3],pars[4],pars[5], random);
-  else if(nPar==2) mean = gaussShootNoNegative(pars[0],pars[1], random); //gaussian fallback
+	else if(e > x2 && y2 < y1){
+	  custom = y2;
+	  use_custom = true;
+	}
+      }
+      
+      //linear interpolation
+      if(use_custom) pars[p] = custom;
+      else pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
+    }
+    
+    //random smearing
+    if(nPar==6) mean = cballShootNoNegative(pars[0],pars[1],pars[2],pars[3],pars[4],pars[5], random);
+    else if(nPar==2) mean = gaussShootNoNegative(pars[0],pars[1], random); //gaussian fallback
   }
   return mean;
 }
