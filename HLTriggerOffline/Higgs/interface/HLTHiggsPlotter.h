@@ -55,7 +55,7 @@ class HLTHiggsPlotter
 		~HLTHiggsPlotter();
 	      	void beginJob();
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
-                void bookHistograms(DQMStore::IBooker &);
+                void bookHistograms(DQMStore::IBooker &, const bool &);
                 void analyze(const bool & isPassTrigger,const std::string & source,
 				const std::vector<MatchStruct> & matches);
 		void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches,
