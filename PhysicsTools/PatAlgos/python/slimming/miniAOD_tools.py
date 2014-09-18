@@ -75,9 +75,15 @@ def miniAOD_customizeCommon(process):
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
-    #add CA8   
+    #add AK8
+    from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    addJetCollection(process, labelName = 'AK8', jetSource = cms.InputTag('ak8PFJetsCHS'),algo= 'AK', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
+    addJetCollection(process, labelName = 'AK8',
+                     jetSource = cms.InputTag('ak8PFJetsCHS'),
+                     algo= 'AK', rParam = 0.8,
+                     jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+                     #,btagInfos = ['CATopTagInfos']
+                     )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsAK8.cut = cms.string("pt > 100")
     process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
@@ -103,6 +109,38 @@ def miniAOD_customizeCommon(process):
     process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
     process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
 
+    # add CMS top tagger
+    ak8TopTagInfos = cms.EDProducer("JetDeltaRTagInfoValueMapProducer",
+                                    src = cms.InputTag("ak8PFJetsCHS"),
+                                    matched = cms.InputTag("cmsTopTagPFJetsCHS"),
+                                    matchedTagInfos = cms.InputTag("caTopTagInfos"),
+                                    distMax = cms.double(0.8)
+                        )    
+
+    #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
+    #Some useful BTAG vars
+    ## process.patJetsAK8.userData.userFunctions = cms.vstring(
+    ##     "jet.tagInfo('CATop').properties().topMass",
+    ##     "jet.tagInfo('CATop').properties().nSubJets",
+    ##     "jet.tagInfo('CATop').properties().minMass"
+    ## )
+    ## process.patJetsAK8.userData.userFunctionLabels = cms.vstring('topMass','vtxNtracks','vtx3DVal','vtx3DSig')
+    process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfos"))
+    process.patJetsAK8.addTagInfos = cms.bool(True) 
+
+
+
+    # add Njetiness
+    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+    process.NjettinessAK8 = process.Njettiness.clone()
+    process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.NjettinessAK8.cone = cms.double(0.8)
+    process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
+
+
+
+            
+    
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
