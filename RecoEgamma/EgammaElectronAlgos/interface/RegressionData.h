@@ -13,7 +13,7 @@ namespace reco{
 }
 
 class RegressionData {
-  
+public:
   RegressionData(){clear();}
   
   //this exists due to concerns that sub-cluster 1 is actually accessed 
@@ -46,6 +46,7 @@ class RegressionData {
   float sigmaIEtaIEta()const{return sigmaIEtaIEta_;}
   float sigmaIEtaIPhi()const{return sigmaIEtaIPhi_;}
   float sigmaIPhiIPhi()const{return sigmaIPhiIPhi_;}
+ 
   float seedCrysPhiOrY()const{return seedCrysPhiOrY_;}
   float seedCrysEtaOrX()const{return seedCrysEtaOrX_;}
   float seedCrysIEtaOrIX()const{return seedCrysIEtaOrIX_;}
@@ -77,15 +78,18 @@ class RegressionData {
   float subClusDPhi(SubClusNr clusNr)const{return subClusDPhi(static_cast<int>(clusNr));}
   float subClusDEta(SubClusNr clusNr)const{return subClusDEta(static_cast<int>(clusNr));}
   
+
+  //modifiers
   void fill(const reco::SuperCluster& superClus,
 	    const EcalRecHitCollection* ebRecHits,const EcalRecHitCollection* eeRecHits,
 	    const CaloGeometry* geom,const CaloTopology* topology,
 	    const reco::VertexCollection* vertices);
   void clear();
   
+  //converts output to single vector for use in training
   void fillVec(std::vector<float>& inputVec)const;
   
-  private:
+private:
   //0 is obviously not a sensible energy for a supercluster so just return zero if this is the case
   float divideBySCRawEnergy_(float numer)const{return scRawEnergy()!=0 ? numer/scRawEnergy() : 0.;}
   void fillVecEB_(std::vector<float>& inputVec)const;

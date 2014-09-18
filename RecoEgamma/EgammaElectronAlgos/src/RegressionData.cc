@@ -71,10 +71,12 @@ void RegressionData::fill(const reco::SuperCluster& superClus,
   eRight_ = EcalClusterTools::eRight(*superClus.seed(),recHits,topology);
   std::vector<float> localCovs = EcalClusterTools::localCovariances(*superClus.seed(),recHits,topology);
   sigmaIEtaIEta_ = std::isnan(localCovs[0]) ? 0. : std::sqrt(localCovs[0]);
-  sigmaIEtaIPhi_ = std::isnan(localCovs[1]) ? 0. : std::sqrt(localCovs[1]);
   sigmaIPhiIPhi_ = std::isnan(localCovs[2]) ? 0. : std::sqrt(localCovs[2]);
   
-
+  if(sigmaIEtaIEta_*sigmaIPhiIPhi_>0) sigmaIEtaIPhi_ = localCovs[1]/(sigmaIEtaIEta_*sigmaIPhiIPhi_);
+  else if(localCovs[1]>0) sigmaIEtaIPhi_ = 1.;
+  else sigmaIEtaIPhi_ = -1.;
+  
 
   EcalClusterLocal ecalClusterLocal; //not clear why this doesnt use static functions
   float thetaTilt=0,phiTilt=0; //dummy variables that are not used but are required by below function
@@ -82,7 +84,7 @@ void RegressionData::fill(const reco::SuperCluster& superClus,
   					   float &, float &, int &, int &, 
   					   float &, float &)const;
   localCoordFunc = &EcalClusterLocal::localCoordsEB;
-  if(isEB()) localCoordFunc = &EcalClusterLocal::localCoordsEE;
+  if(!isEB()) localCoordFunc = &EcalClusterLocal::localCoordsEE;
   (ecalClusterLocal.*localCoordFunc)(*superClus.seed(),*geom,
 				     seedCrysEtaOrX_,seedCrysPhiOrY_,
 				     seedCrysIEtaOrIX_,seedCrysIPhiOrIY_,
@@ -137,9 +139,9 @@ void RegressionData::clear()
   seedCrysIEtaOrIX_=0;
   seedCrysIPhiOrIY_=0;
   
-  maxSubClusDR_=0.;
-  maxSubClusDRDPhi_=0.;
-  maxSubClusDRDEta_=0.;
+  maxSubClusDR_=999.;
+  maxSubClusDRDPhi_=999.;
+  maxSubClusDRDEta_=999.;
   maxSubClusDRRawEnergy_=0.;
   
   subClusRawEnergy_.clear();
