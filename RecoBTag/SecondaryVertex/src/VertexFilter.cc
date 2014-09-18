@@ -90,9 +90,9 @@ bool VertexFilter::operator () (const Vertex &pv,
 	// find shared tracks between PV and SV
 
 	if (fracPV < 1.0) {
-		unsigned int sharedTracks =
+		double fractionSharedTracks =
 			vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
-		if ((double)sharedTracks / svTracks.size() > fracPV)
+		if (fractionSharedTracks > fracPV)
 			return false;
 	}
 
@@ -150,9 +150,9 @@ bool VertexFilter::operator () (const reco::Vertex &pv,
 	// find shared tracks between PV and SV
 
 	if (fracPV < 1.0) {
-		unsigned int sharedTracks =
+		double fractionSharedTracks =
 			vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
-		if ((double)sharedTracks / svTracks.size() > fracPV)
+		if (fractionSharedTracks  > fracPV)
 			return false;
 	}
 
