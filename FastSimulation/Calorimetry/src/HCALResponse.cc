@@ -396,10 +396,9 @@ double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, Rando
   double mean = 0;
   vec1 pars(nPar,0);
 
-  // why this ieta> 5 condition?
-  //if (det==2 && ieta>5 && e<20){
-  if (det==2 && e<20){
-
+  // for ieta < 5 there is overlap between HE and HF, and measurement comes from HE
+  if (det==2 && ieta>5 && e<20){
+  
     for(int p = 0; p < 4; p++){
       y1=PoissonParameters[p][ie][ieta];
       y2=PoissonParameters[p][ie+1][ieta];
