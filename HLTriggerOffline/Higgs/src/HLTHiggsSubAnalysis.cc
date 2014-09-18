@@ -27,7 +27,7 @@
 
 #include<set>
 #include<algorithm>
-
+#include<iostream>
 
 HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 					 const std::string & analysisname,
@@ -37,6 +37,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	_minCandidates(0),
 	_hltProcessName(pset.getParameter<std::string>("hltProcessName")),
 	_genParticleLabel(iC.consumes<reco::GenParticleCollection>(pset.getParameter<std::string>("genParticleLabel"))),
+	_genJetLabel(iC.consumes<reco::GenJetCollection>(pset.getParameter<std::string>("genJetLabel"))),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
   	_parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
   	_parametersPu(pset.getParameter<std::vector<double> >("parametersPu")),
@@ -45,9 +46,13 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	_recMuonSelector(0),
 	_recElecSelector(0),
 	_recCaloMETSelector(0),
+	_recPFMETSelector(0),
 	_recPFTauSelector(0),
 	_recPhotonSelector(0),
-	_recTrackSelector(0)
+	_recPFJetSelector(0),
+	_recTrackSelector(0),
+	_NminOneCuts(0),
+	_useNminOneCuts(0)
 {
 	// Specific parameters for this analysis
 	edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
@@ -70,7 +75,6 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
 		if(anpset.existsAs<std::string>( objStr+"_genCut", false)) 
 		{
@@ -98,6 +102,17 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
         _puSummaryInfo = iC.consumes<std::vector< PileupSummaryInfo > >(pset.getParameter<std::string>("pileUpInfoLabel"));
 	}
 
+    if( anpset.existsAs<std::vector<double>>( "NminOneCuts" , false) )
+    {
+        _NminOneCuts = anpset.getUntrackedParameter<std::vector<double> >("NminOneCuts"); 
+        for(std::vector<double>::const_iterator it = _NminOneCuts.begin(); it != _NminOneCuts.end(); ++it)
+        {
+            if( *it ) {
+                _useNminOneCuts = true;
+                break;
+            }
+        }
+    }
 }
 
 HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
@@ -116,8 +131,12 @@ HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
 	_recPhotonSelector =0;
 	delete _recCaloMETSelector;
 	_recCaloMETSelector =0;
+    delete _recPFMETSelector;
+    _recPFMETSelector =0;
 	delete _recPFTauSelector;
 	_recPFTauSelector =0;
+    delete _recPFJetSelector;
+	_recPFJetSelector =0;
 	delete _recTrackSelector;
 	_recTrackSelector =0;
 }
@@ -131,8 +150,6 @@ void HLTHiggsSubAnalysis::beginJob()
 
 void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
-
-
 	// Initialize the confighlt
 	bool changedConfig;
 	if(!_hltConfig.init(iRun,iSetup,_hltProcessName,changedConfig))
@@ -213,10 +230,9 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		
 		// the hlt path, the objects (elec,muons,photons,...)
 		// needed to evaluate the path are the argumens of the plotter
-		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT);
+		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT, _minCandidates, _NminOneCuts);
 		_analyzers.push_back(analyzer);
-    	}
-
+    }
 }
 
 void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
@@ -232,14 +248,33 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
 			it != _recLabels.end(); ++it)
 	{
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
+        TString maxPt;
 
 		for(size_t i = 0; i < sources.size(); i++) 
 		{
 			std::string source = sources[i];
+            if( it->first == EVTColContainer::PFJET) {
+                if( source == "gen" ) continue;
+                else {
+                    // N-1 jet plots (dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, PFMET, pt1, pt2, pt3, pt4)
+                    if( _NminOneCuts[0] ) bookHist(source, objStr, "dEtaqq", ibooker);
+                    if( _NminOneCuts[1] ) bookHist(source, objStr, "mqq", ibooker);
+                    if( _NminOneCuts[2] ) bookHist(source, objStr, "dPhibb", ibooker);
+                    if( _NminOneCuts[3] ) {
+                        if ( _NminOneCuts[4] ) bookHist(source, objStr, "maxCSV", ibooker);
+                        else bookHist(source, objStr, "CSV1", ibooker);
+                    }
+                }
+            }
+            
 			bookHist(source, objStr, "Eta", ibooker);
 			bookHist(source, objStr, "Phi", ibooker);
-			bookHist(source, objStr, "MaxPt1", ibooker);
-			bookHist(source, objStr, "MaxPt2", ibooker);
+			for( unsigned int i=0; i < _minCandidates; i++ )
+			{
+				maxPt = "MaxPt";
+				maxPt += i+1;
+				bookHist(source, objStr, maxPt.Data(), ibooker);
+			}
 		}
 	}
     
@@ -319,28 +354,37 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-		// Avoiding the TkMu and Mu case
-/*		if( alreadyMu )
-		{
-			continue;
-		}*/
-		// Initialize selectors when first event
-		if(!_genSelectorMap[it->first]) 
-		{
-			_genSelectorMap[it->first] = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
-		}
+        // Skip genJets
+        if(it->first == EVTColContainer::PFJET)
+        {
+            continue;
+        }
+        // Use genParticles
+        else
+        {
+          // Avoiding the TkMu and Mu case
+  /*		if( alreadyMu )
+          {
+              continue;
+          }*/
+          // Initialize selectors when first event
+          if(!_genSelectorMap[it->first]) 
+          {
+              _genSelectorMap[it->first] = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
+          }
 
-		for(size_t i = 0; i < cols->genParticles->size(); ++i)
-		{
-			if(_genSelectorMap[it->first]->operator()(cols->genParticles->at(i)))
-			{
-				matches->push_back(MatchStruct(&cols->genParticles->at(i),it->first));
-			}
-		}
-/*		if( it->first == EVTColContainer::MUON || it->first == EVTColContainer::TRACK )
-		{
-			alreadyMu = true;
-		}*/
+          for(size_t i = 0; i < cols->genParticles->size(); ++i)
+          {
+              if(_genSelectorMap[it->first]->operator()(cols->genParticles->at(i)))
+              {
+                  matches->push_back(MatchStruct(&cols->genParticles->at(i),it->first));
+              }
+          }
+  /*		if( it->first == EVTColContainer::MUON || it->first == EVTColContainer::TRACK )
+          {
+              alreadyMu = true;
+          }*/
+        }
 	}
 	// Sort the MatchStructs by pT for later filling of turn-on curve
 	std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
@@ -353,6 +397,28 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	// Reuse the vector
 	matches->clear();
 	// --- same for RECO objects
+	
+	// Different treatment for jets (b-tag)
+	std::map<std::string,bool> nMinOne;
+    std::map<std::string,bool> jetCutResult;
+	float dEtaqq;
+	float mqq;
+	float dPhibb;
+    float CSV1;
+    bool passAllCuts = false;
+	if( _recLabels.find(EVTColContainer::PFJET) != _recLabels.end() ) {
+		// Initialize jet selector
+		this->InitSelector(EVTColContainer::PFJET);
+		// Initialize and insert pfJets
+		this->initAndInsertJets(iEvent, cols, matches);
+        // Make sure to skip events that don't have enough jets
+        if( matches->size() < _minCandidates ) return;
+		// Cuts on multiple jet events (RECO)
+		if ( _useNminOneCuts ) {
+			this->passJetCuts(matches, jetCutResult, dEtaqq, mqq, dPhibb, CSV1);
+	    }
+	}
+    
 	// Extraction of the objects candidates 
 	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
@@ -363,8 +429,37 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		// -- Storing the matches 
 		this->insertcandidates(it->first,cols,matches);
 	}
-	// Sort the MatchStructs by pT for later filling of turn-on curve
-	std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+    
+    // Sort the MatchStructs by pT for later filling of turn-on curve
+    std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+	
+	if ( _useNminOneCuts ) {
+        // Check non-jet N-1 Cuts
+        this->passOtherCuts(matches,jetCutResult);
+	
+        // Make N-1 booleans from jetCutResults 
+        for(std::map<std::string,bool>::const_iterator it = jetCutResult.begin(); it != jetCutResult.end(); ++it)
+        {
+            nMinOne[it->first] = true;
+            for(std::map<std::string,bool>::const_iterator it2 = jetCutResult.begin(); it2 != jetCutResult.end(); ++it2)
+            {
+                if( it->first != it2->first && !(it2->second) ) {
+                    nMinOne[it->first] = false;
+                    break;
+                }
+            }
+        }
+        bool temp = false;
+        for(std::map<std::string,bool>::const_iterator it = nMinOne.begin(); it != nMinOne.end(); ++it)
+        {
+            if( temp && it->second ) {
+                passAllCuts = true;
+                break;
+            }
+            if( it->second ) temp = true;
+        }
+    }
+	
 	// --- Storing the reco candidates
 	sourceMatchMap[RECO] = *matches;
 	// --- All the objects are in place
@@ -391,47 +486,84 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		for(std::map<unsigned int,std::string>::iterator co = _recLabels.begin();
 				co != _recLabels.end(); ++co)
 		{
-			countobjects->insert(std::pair<unsigned int,int>(co->first,0));
+            if( !(co->first == EVTColContainer::PFJET && it->first == GEN) ) // genJets are not there
+                countobjects->insert(std::pair<unsigned int,int>(co->first,0));
 		}
 		int counttotal = 0;
-		const int totalobjectssize2 = 2*countobjects->size();
+        const int totalobjectssize2 = _minCandidates*countobjects->size();
 		for(size_t j = 0; j < it->second.size(); ++j)
-		{
+		{	
    			const unsigned int objType = it->second[j].objType;
 			const std::string objTypeStr = EVTColContainer::getTypeString(objType);
-
-			float pt  = (it->second)[j].pt; 
+           
+            float pt  = (it->second)[j].pt; 
 			float eta = (it->second)[j].eta;
 			float phi = (it->second)[j].phi;
+            
+            // PFMET N-1 cut
+            if( _useNminOneCuts && objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) {
+                continue;
+            }
+            
+            TString maxPt;          
+            if( (unsigned)(*countobjects)[objType] < _minCandidates )
+            {
+                maxPt = "MaxPt";
+                if( _useNminOneCuts && objType == EVTColContainer::PFJET ) {
+                    maxPt += j+1;
+                    if( nMinOne[maxPt.Data()] ) 
+                    {
+                        this->fillHist(u2str[it->first],objTypeStr,maxPt.Data(),pt);
+                    }
+                }
+                else {
+                    maxPt += (*countobjects)[objType]+1;
+                    this->fillHist(u2str[it->first],objTypeStr,maxPt.Data(),pt);
+                }
+                // Filled the high pt ...
+                ++((*countobjects)[objType]);
+                ++counttotal;
+            }
+            else continue; //   Otherwise too many entries in Eta and Phi distributions
+
+            // Jet N-1 Cuts
+			if( _useNminOneCuts && objType == EVTColContainer::PFJET ) {
+			    if( passAllCuts ) {
+					this->fillHist(u2str[it->first],objTypeStr,"Eta",eta);
+					this->fillHist(u2str[it->first],objTypeStr,"Phi",phi);
+			    }
+			}
+			else {
+			    this->fillHist(u2str[it->first],objTypeStr,"Eta",eta);
+			    this->fillHist(u2str[it->first],objTypeStr,"Phi",phi);
+			}
 			
-			this->fillHist(u2str[it->first],objTypeStr,"Eta",eta);
-			this->fillHist(u2str[it->first],objTypeStr,"Phi",phi);
-			if( (*countobjects)[objType] == 0 )
+			// Already the minimum two objects has been filled, get out...
+			if( counttotal == totalobjectssize2 )
 			{
-				this->fillHist(u2str[it->first],objTypeStr,"MaxPt1",pt);
-				// Filled the high pt ...
-				++((*countobjects)[objType]);
-				++counttotal;
-			}
-			else if( (*countobjects)[objType] == 1  )
-			{
-				this->fillHist(u2str[it->first],objTypeStr,"MaxPt2",pt);
-				// Filled the second high pt ...
-				++((*countobjects)[objType]);
-				++counttotal;
-			}
-			else
-			{
-				// Already the minimum two objects has been filled, get out...
-				if( counttotal == totalobjectssize2 )
-				{
-					break;
-				}
-			}				
-		}
+				break;
+			}			
+		}				
 		delete countobjects;
-        
-        //fill the efficiency vs nb of interactions
+
+        if( _useNminOneCuts && it->first == RECO) {
+		    if( _NminOneCuts[0] && nMinOne["dEtaqq"] ) {
+			this->fillHist(u2str[it->first],EVTColContainer::getTypeString(EVTColContainer::PFJET),"dEtaqq",dEtaqq);
+		    }
+		    if( _NminOneCuts[1] && nMinOne["mqq"] ) {
+			this->fillHist(u2str[it->first],EVTColContainer::getTypeString(EVTColContainer::PFJET),"mqq",mqq);
+		    }
+		    if( _NminOneCuts[2] && nMinOne["dPhibb"] ) {
+			this->fillHist(u2str[it->first],EVTColContainer::getTypeString(EVTColContainer::PFJET),"dPhibb",dPhibb);
+		    }
+            if( _NminOneCuts[3] ) {
+                std::string nameCSVplot = "CSV1";
+                if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
+                if ( nMinOne[nameCSVplot] ) this->fillHist(u2str[it->first],EVTColContainer::getTypeString(EVTColContainer::PFJET),nameCSVplot,CSV1);
+            }
+		}
+
+		//fill the efficiency vs nb of interactions
         std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+u2str[it->first];
         _elements[nameVtxPlot]->Fill(nbMCvtx);
 	
@@ -444,8 +576,15 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			const std::string hltPath = _shortpath2long[an->gethltpath()];
             const std::string fillShortPath = an->gethltpath();
 			const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
-			an->analyze(ispassTrigger,source,it->second);
-            int refOfThePath = -1;
+            
+			if( _useNminOneCuts ) {
+                an->analyze(ispassTrigger,source,it->second, nMinOne, dEtaqq, mqq, dPhibb, CSV1, passAllCuts);
+			}
+			else {
+			    an->analyze(ispassTrigger,source,it->second);
+			}
+
+			int refOfThePath = -1;
             for (size_t itePath = 0 ; itePath< _hltPathsToCheck.size() ; itePath++){
                 refOfThePath++;
                 if (TString(hltPath).Contains(_hltPathsToCheck[itePath])) break;
@@ -466,13 +605,16 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 // Return the objects (muons,electrons,photons,...) needed by a hlt path.
 const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::string & hltPath) const
 {
-	static const unsigned int objSize = 5; //6;
-	static const unsigned int objtriggernames[] = { EVTColContainer::MUON, 
+	static const unsigned int objSize = 7;
+	static const unsigned int objtriggernames[] = { 
+		EVTColContainer::MUON, 
 		EVTColContainer::ELEC, 
 		EVTColContainer::PHOTON,
 //		EVTColContainer::TRACK,  // Note is tracker muon
 	       	EVTColContainer::PFTAU,
-		EVTColContainer::CALOMET
+		EVTColContainer::PFJET,
+		EVTColContainer::CALOMET,
+        EVTColContainer::PFMET
 	};
 
 	std::set<unsigned int> objsType;
@@ -483,8 +625,10 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
 		// Check if it is needed this object for this trigger
 		if( ! TString(hltPath).Contains(objTypeStr) )
 		{
-			continue;
+            if( !( objtriggernames[i] == EVTColContainer::PFMET && TString(hltPath).Contains("MHT") ) ) // fix for ZnnHbb
+                continue;
 		}
+		if( objtriggernames[i] == EVTColContainer::CALOMET && (TString(hltPath).Contains("PFMET") || TString(hltPath).Contains("MHT") ) ) continue; // fix for PFMET
 
 		objsType.insert(objtriggernames[i]);
 	}
@@ -520,11 +664,23 @@ void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset, edm::Co
 	        _recLabelsCaloMET = iC.consumes<reco::CaloMETCollection>(anpset.getParameter<std::string>("recCaloMETLabel"));
 		_genSelectorMap[EVTColContainer::CALOMET] = 0 ;
 	}
+    if( anpset.exists("recPFMETLabel") )
+    {
+            _recLabels[EVTColContainer::PFMET] = anpset.getParameter<std::string>("recPFMETLabel");
+            _recLabelsPFMET = iC.consumes<reco::PFMETCollection>(anpset.getParameter<std::string>("recPFMETLabel"));
+        _genSelectorMap[EVTColContainer::PFMET] = 0 ;
+    }
 	if( anpset.exists("recPFTauLabel") )
 	{
 	        _recLabels[EVTColContainer::PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
 	        _recLabelsPFTau = iC.consumes<reco::PFTauCollection>(anpset.getParameter<std::string>("recPFTauLabel"));
 		_genSelectorMap[EVTColContainer::PFTAU] = 0 ;
+	}
+	if( anpset.exists("recJetLabel") )
+	{
+		_recLabels[EVTColContainer::PFJET] = anpset.getParameter<std::string>("recJetLabel");
+        _recLabelsPFJet = iC.consumes<reco::PFJetCollection>(anpset.getParameter<std::string>("recJetLabel"));
+        _recTagPFJet = iC.consumes<reco::JetTagCollection>(anpset.getParameter<std::string>("jetTagLabel"));
 	}
 	/*if( anpset.exists("recTrackLabel") )
 	{
@@ -532,7 +688,6 @@ void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset, edm::Co
 		_genSelectorMap[EVTColContainer::TRACK] = 0 ;
 	}*/
 
-    
 	if( _recLabels.size() < 1 )
 	{
 		edm::LogError("HiggsValidation") << "HLTHiggsSubAnalysis::bookobjects, " 
@@ -595,11 +750,21 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 			iEvent.getByToken(_recLabelsCaloMET, theHandle);
 			col->set(theHandle.product());
 		}
+        else if( it->first == EVTColContainer::PFMET )
+        {
+            edm::Handle<reco::PFMETCollection> theHandle;
+            iEvent.getByToken(_recLabelsPFMET, theHandle);
+            col->set(theHandle.product());
+        }
 		else if( it->first == EVTColContainer::PFTAU )
 		{
 			edm::Handle<reco::PFTauCollection> theHandle;
 			iEvent.getByToken(_recLabelsPFTau, theHandle);
 			col->set(theHandle.product());
+		}
+		else if( it->first == EVTColContainer::PFJET )
+		{
+		// Done in seperate function initAndInsertJets because they need to be combined with the btags using the Handle (not the product) and for ordering them seperately in the MatchStruct's
 		}
 		else
 		{
@@ -618,20 +783,82 @@ void HLTHiggsSubAnalysis::bookHist(const std::string & source,
 	std::string name = source + objType + variable ;
     TH1F * h = 0;
 
-    if(variable.find("MaxPt") != std::string::npos){
-		std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
+      	if(variable.find("MaxPt") != std::string::npos) 
+	{
+		std::string desc;
+		if (variable == "MaxPt1") desc = "Leading";
+		else if (variable == "MaxPt2") desc = "Next-to-Leading";
+		else desc = variable.substr(5,6) + "th Leading";
 		std::string title = "pT of " + desc + " " + sourceUpper + " " + objType;
-	    	const size_t nBins = _parametersTurnOn.size() - 1;
-	    	float * edges = new float[nBins + 1];
-	    	for(size_t i = 0; i < nBins + 1; i++)
+		const size_t nBinsStandard = _parametersTurnOn.size() - 1;
+		size_t nBins = nBinsStandard;
+		float * edges = new float[nBinsStandard + 1];
+		for(size_t i = 0; i < nBinsStandard + 1; i++)
 		{
 			edges[i] = _parametersTurnOn[i];
 		}
-	    	h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
-		delete[] edges;
-      	}
-      	else 
-	{
+		
+		std::string jetObj = EVTColContainer::getTypeString(EVTColContainer::PFJET);
+		if( objType == jetObj ) {
+			const size_t nBinsJets = 20;
+			nBins = nBinsJets;
+			delete [] edges;
+			edges = new float[nBinsJets+1];
+			for(size_t i = 0; i < nBinsJets + 1; i++)
+			{
+				edges[i] = i*10;
+			}
+		}
+        if( objType == EVTColContainer::getTypeString(EVTColContainer::PFMET) ) {
+            const size_t nBinsJets = 30;
+            nBins = nBinsJets;
+            delete [] edges;
+            edges = new float[nBinsJets+1];
+            for(size_t i = 0; i < nBinsJets + 1; i++)
+            {
+                edges[i] = i*10;
+            }
+        }
+		h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
+		delete [] edges;
+	}
+	else if( variable == "dEtaqq" ){
+			std::string title  = "#Delta #eta_{qq} of " + sourceUpper + " " + objType;
+			int    nBins = 20;
+			double min   = 0;
+			double max   = 4.8;
+			h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+		}
+		else if ( variable == "mqq" ){
+			std::string title  = "m_{qq} of " + sourceUpper + " " + objType;
+			int    nBins = 20;
+			double min   = 0;
+			double max   = 1000;
+			h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+		} 
+	    else if ( variable == "dPhibb" ){
+			std::string title  = "#Delta #phi_{bb} of " + sourceUpper + " " + objType;
+			int    nBins = 10;
+			double min   = 0;
+			double max   = 3.1416;
+			h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+	    } 
+        else if ( variable == "CSV1" ){
+            std::string title  = "CSV1 of " + sourceUpper + " " + objType;
+            int    nBins = 20;
+            double min   = 0;
+            double max   = 1;
+            h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+        } 
+        else if ( variable == "maxCSV" ){
+            std::string title  = "max CSV of " + sourceUpper + " " + objType;
+            int    nBins = 20;
+            double min   = 0;
+            double max   = 1;
+            h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+        } 
+	    else
+	    {
 		std::string symbol = (variable == "Eta") ? "#eta" : "#phi";
 		std::string title  = symbol + " of " + sourceUpper + " " + objType;
 		std::vector<double> params = (variable == "Eta") ? _parametersEta : _parametersPhi;
@@ -677,9 +904,17 @@ void HLTHiggsSubAnalysis::InitSelector(const unsigned int & objtype)
 	{
 		_recCaloMETSelector = new StringCutObjectSelector<reco::CaloMET>(_recCut[objtype]);
 	}
+    else if( objtype == EVTColContainer::PFMET && _recPFMETSelector == 0)
+    {
+        _recPFMETSelector = new StringCutObjectSelector<reco::PFMET>(_recCut[objtype]);
+    }
 	else if( objtype == EVTColContainer::PFTAU && _recPFTauSelector == 0 )
 	{
 		_recPFTauSelector = new StringCutObjectSelector<reco::PFTau>(_recCut[objtype]);
+	}
+	else if( objtype == EVTColContainer::PFJET && _recPFJetSelector == 0 )
+	{
+		_recPFJetSelector = new StringCutObjectSelector<reco::PFJet>(_recCut[objtype]);
 	}
 	/*else if( objtype == EVTColContainer::TRACK && _recTrackSelector == 0)
 	{
@@ -689,6 +924,95 @@ void HLTHiggsSubAnalysis::InitSelector(const unsigned int & objtype)
 	{
 FIXME: ERROR NO IMPLEMENTADO
 	}*/
+}
+
+void HLTHiggsSubAnalysis::initAndInsertJets(const edm::Event & iEvent, EVTColContainer * cols, 
+		std::vector<MatchStruct> * matches)
+{
+    edm::Handle<reco::PFJetCollection> PFJetHandle;
+    iEvent.getByToken(_recLabelsPFJet, PFJetHandle);
+    cols->set(PFJetHandle.product());
+    
+    edm::Handle<reco::JetTagCollection> JetTagHandle;
+    iEvent.getByToken(_recTagPFJet, JetTagHandle);
+
+	for(reco::PFJetCollection::const_iterator it = PFJetHandle->begin(); 
+	it != PFJetHandle->end(); ++it)
+	{	
+		reco::PFJetRef jetRef(PFJetHandle, it - PFJetHandle->begin());
+		reco::JetBaseRef jetBaseRef(jetRef); 
+		float bTag  = (*(JetTagHandle.product()))[jetBaseRef];	
+
+		if(_recPFJetSelector->operator()(*it))
+		{
+			matches->push_back(MatchStruct(&*it,EVTColContainer::PFJET, bTag));
+		}
+    }
+}
+
+void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult, float & dEtaqq, float & mqq, float & dPhibb, float & CSV1) 
+{ //dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, PFMET, pt1, pt2, pt3, pt4
+    
+    // Perform pt cuts
+    std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+    TString maxPt;
+    for( unsigned int i=0; i < _minCandidates; i++ )
+    {
+        maxPt = "MaxPt";
+        maxPt += i+1;
+        if( (matches->at(i)).pt > _NminOneCuts.at(7+i) ) jetCutResult[maxPt.Data()] = true;
+        else jetCutResult[maxPt.Data()] = false;
+    }  
+    
+    // Perform b-tag ordered cuts
+    std::sort(matches->begin(), matches->begin()+4, matchesByDescendingBtag());
+
+    if( _NminOneCuts[0] ) {
+        dEtaqq =  fabs(matches->at(2).eta - matches->at(3).eta);
+        if( dEtaqq > _NminOneCuts[0] ) jetCutResult["dEtaqq"] = true;
+        else jetCutResult["dEtaqq"] = false;
+    }
+    
+    if( _NminOneCuts[1] ) {
+        mqq = (matches->at(2).lorentzVector + matches->at(3).lorentzVector).M();
+        if( mqq > _NminOneCuts[1] ) jetCutResult["mqq"] = true;
+        else jetCutResult["mqq"] = false;
+    }
+    
+    if( _NminOneCuts[2] ) {
+        dPhibb = fmod(fabs(matches->at(0).phi - matches->at(1).phi),3.1416);
+        if( dPhibb < _NminOneCuts[2] ) jetCutResult["dPhibb"] = true;
+        else jetCutResult["dPhibb"] = false;
+    }
+    if( _NminOneCuts[3] ) {
+        CSV1 = matches->at(0).bTag;
+        std::string nameCSVplot = "CSV1";
+        if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
+        if( CSV1 > _NminOneCuts[3] ) jetCutResult[nameCSVplot] = true;
+        else jetCutResult[nameCSVplot] = false;
+        
+        // max(CSV)
+        if( _NminOneCuts[4] ) {
+            std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+            CSV1 = matches->at(0).bTag;
+            for(unsigned int i=1; i < (unsigned int) _NminOneCuts[4] ; ++i) {
+                if( matches->at(i).bTag > CSV1 && matches->at(i).pt > _NminOneCuts[5] ) CSV1 = matches->at(i).bTag;
+            }
+        }
+    }    
+} 
+
+void HLTHiggsSubAnalysis::passOtherCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult){
+    if( _NminOneCuts[6] ) {
+        for(std::vector<MatchStruct>::iterator it = matches->begin(); it != matches->end(); ++it)
+        {
+            if( it->objType == EVTColContainer::PFMET ) {
+                if( it->pt > _NminOneCuts[6] ) jetCutResult["PFMET"] = true;
+                else jetCutResult["PFMET"] = false;
+                break;
+            }
+        }
+    }    
 }
 
 void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const EVTColContainer * cols, 
@@ -734,6 +1058,16 @@ void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const E
 			}
 		}
 	}
+    else if( objType == EVTColContainer::PFMET )
+    {
+        for(size_t i = 0; i < cols->pfMETs->size(); i++)
+        {
+            if(_recPFMETSelector->operator()(cols->pfMETs->at(i)))
+            {
+                matches->push_back(MatchStruct(&cols->pfMETs->at(i),objType));
+            }
+        }
+    }
 	else if( objType == EVTColContainer::PFTAU )
 	{
 		for(size_t i = 0; i < cols->pfTaus->size(); i++)
@@ -744,6 +1078,10 @@ void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const E
 			}
 		}
 	}
+// 	else if( objType == EVTColContainer::PFJET )
+// 	{
+// 	already inserted
+// 	}
 	/*else if( objType == EVTColContainer::TRACK )
 	{
 		for(size_t i = 0; i < cols->tracks->size(); i++)

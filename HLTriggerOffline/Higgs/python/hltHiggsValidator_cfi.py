@@ -4,12 +4,15 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
+    
+    # -- The instance name of the reco::GenJets collection
+    genJetLabel = cms.string(""),
 
-    # -- The nomber of interactions in the event
+    # -- The number of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
 
     # -- The binning of the Pt efficiency plots
@@ -70,6 +73,20 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     MET_recCut      = cms.string("pt > 75."),  
     MET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
     MET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    # --- PFMET    
+    PFMET_genCut      = cms.string("(abs(pdgId) == 12 || abs(pdgId)==14 || abs(pdgId) == 16 ) && status == 1"),
+    PFMET_recCut      = cms.string("pt > 75."),  
+    PFMET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
+    PFMET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    # --- Jets: 
+    Jet_genCut      = cms.string("pt > 0."),
+    Jet_recCut      = cms.string("pt > 0."),  
+    Jet_cutMinPt    = cms.double(0), # TO BE DEPRECATED
+    Jet_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    
 
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
@@ -77,7 +94,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     #    - hltPathsToCheck (cms.vstring) : a list of all the trigger pats to be checked 
     #                 in this analysis. Up to the version number _v, but not including 
     #                 the number in order to avoid this version dependence. Example: HLT_Mu18_v
-    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau. This 
+    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau, Jet. This 
     #                 attribute is the name of the INSTANCE LABEL for each RECO collection to 
     #                 be considered in the analysis. Note that the trigger paths rely on some 
     #                 objects which need to be defined here, otherwise the code will complain. 
@@ -153,4 +170,38 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(2), 
 	    ),
+    VBFHbb  = cms.PSet( 
+	    hltPathsToCheck = cms.vstring(
+		    "HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
+		    "HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
+		    ),
+	    #recJetLabel  = cms.string("ak5PFJets"),
+	    recJetLabel  = cms.string("PFJetsFilter"),
+	    jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+	    # -- Analysis specific cuts
+	    minCandidates = cms.uint32(4), 
+	    NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+	    ),
+    ZnnHbb = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            #"HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
+            "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
+            ),
+        Jet_recCut   = cms.string("abs(eta) < 2.6"),
+        recJetLabel  = cms.string("PFJetsFilter"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        recPFMETLabel = cms.string("pfMet"),  
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(1), 
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 4, 20, 80, 60), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+        ),
+    testJetSMP  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadJet75_55_35_20_BTagIP_VBF_v"
+            ),
+        recJetLabel  = cms.string("ak4PFJets"), #check this
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        #NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
 )

@@ -24,9 +24,11 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -47,13 +49,17 @@ class HLTHiggsPlotter
        	public:
 	      	HLTHiggsPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
 				//const std::string & lastFilter,
-				const std::vector<unsigned int> & objectsType);
+				const std::vector<unsigned int> & objectsType,
+				const unsigned int & minCandidates,
+                const std::vector<double> & NminOneCuts);
 		~HLTHiggsPlotter();
 	      	void beginJob();
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
-            void bookHistograms(DQMStore::IBooker &);
-            void analyze(const bool & isPassTrigger,const std::string & source,
+                void bookHistograms(DQMStore::IBooker &);
+                void analyze(const bool & isPassTrigger,const std::string & source,
 				const std::vector<MatchStruct> & matches);
+		void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches,
+			       std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const bool & passAllCuts);
 		
 		inline const std::string gethltpath() const { return _hltPath; }
 		
@@ -80,7 +86,12 @@ class HLTHiggsPlotter
 		std::map<unsigned int,unsigned int> _cutMotherId;
 		std::map<unsigned int,std::vector<double> > _cutsDr;
 		
+		// The amount of Pt plots needed for the hlt path
+		unsigned int _minCandidates;
+
+        //N-1 cut values
+        std::vector<double> _NminOneCuts;
 		
-        std::map<std::string, MonitorElement *> _elements;
+		std::map<std::string, MonitorElement *> _elements;
 };
 #endif

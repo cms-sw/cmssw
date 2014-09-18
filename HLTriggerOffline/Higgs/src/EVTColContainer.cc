@@ -18,6 +18,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,6 +27,11 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+// #include "DataFormats/JetReco/​interface/​GenJet.h"
+// #include "DataFormats/JetReco/​interface/​GenJetCollection.h"
 
 #include<vector>
 #include<map>
@@ -38,7 +45,9 @@ struct EVTColContainer
 		ELEC,
 		PHOTON,
 		CALOMET,
+        PFMET,
 		PFTAU,
+		PFJET,
 //		TRACK,
 		_nMAX
 	};
@@ -46,23 +55,31 @@ struct EVTColContainer
 	int nOfCollections;
 	int nInitialized;
 	const reco::GenParticleCollection * genParticles;
+//     const reco::GenJetCollection * genJets;
 	const std::vector<reco::Muon> * muons;
 	const std::vector<reco::GsfElectron> * electrons;
 	const std::vector<reco::Photon> * photons;
 	const std::vector<reco::CaloMET> * caloMETs;
+    const std::vector<reco::PFMET> * pfMETs;
 	const std::vector<reco::PFTau> * pfTaus;
+	const std::vector<reco::PFJet> * pfJets;
+	const reco::JetTagCollection * jetTags;
 	//const std::vector<reco::Track> * tracks;
 	const trigger::TriggerEventWithRefs * rawTriggerEvent;
 	const edm::TriggerResults   * triggerResults ;
 	EVTColContainer():
-//		nOfCollections(6),
-		nOfCollections(5),
+		nOfCollections(6),
 		nInitialized(0),
 		genParticles(0),
+// 		genJets(0);
 		muons(0),
 		electrons(0),
 		photons(0),
+		caloMETs(0),
+		pfMETs(0),
 		pfTaus(0),
+		pfJets(0),
+		jetTags(0),
 		//tracks(0),
 		rawTriggerEvent(0),
 		triggerResults(0)
@@ -83,7 +100,9 @@ struct EVTColContainer
 	{
 		nInitialized = 0;
 		genParticles = 0;
-		muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; //tracks=0; 
+//         genJets = 0;
+		muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; pfMETs= 0; pfJets=0; //tracks=0; 
+		jetTags = 0;
 		rawTriggerEvent = 0;
 		triggerResults = 0;
 	}
@@ -108,10 +127,24 @@ struct EVTColContainer
 		caloMETs = v;
 		++nInitialized;
 	}
+    void set(const reco::PFMETCollection * v)
+    {
+        pfMETs = v;
+        ++nInitialized;
+    }
 	void set(const reco::PFTauCollection * v)
 	{
 		pfTaus = v;
 		++nInitialized;
+	}
+	void set(const reco::PFJetCollection * v)
+	{
+		pfJets = v;
+		++nInitialized;
+	}
+	void set(const reco::JetTagCollection * v)
+	{
+		jetTags = v;
 	}
 	/*void set(const reco::TrackCollection * v)
 	{
@@ -137,9 +170,17 @@ struct EVTColContainer
 		{
 			size = caloMETs->size();
 		}
+        else if( objtype == EVTColContainer::PFMET && pfMETs != 0 )
+        {
+            size = pfMETs->size();
+        }
 		else if( objtype == EVTColContainer::PFTAU && pfTaus != 0 )
 		{
 			size = pfTaus->size();
+		}
+		else if( objtype == EVTColContainer::PFJET && pfJets != 0 )
+		{
+			size = pfJets->size();
 		}
 		/*else if( objtype == EVTColContainer::TRACK && tracks != 0 )
 		{
@@ -169,9 +210,17 @@ struct EVTColContainer
 		{
 			objTypestr = "MET";
 		}
+        else if( objtype == EVTColContainer::PFMET )
+        {
+            objTypestr = "PFMET";
+        }
 		else if( objtype == EVTColContainer::PFTAU )
 		{
 			objTypestr = "PFTau";
+		}
+		else if( objtype == EVTColContainer::PFJET )
+		{
+			objTypestr = "Jet";
 		}
 		/*else if( objtype == EVTColContainer::TRACK )
 		{
