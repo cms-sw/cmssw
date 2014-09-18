@@ -201,7 +201,7 @@ namespace cms{
     if ((*collseed).size()>0){
 
       unsigned int lastCleanResult=0;
-      vector<Trajectory> rawResult;
+      std::vector<Trajectory> rawResult;
       rawResult.reserve(collseed->size() * 4);
 
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
@@ -210,16 +210,26 @@ namespace cms{
       countSeedsDebugger();
 
       // the mutex
-     std::mutex theMutex;
-     using Lock = std::unique_lock<std::mutex>;
+      std::mutex theMutex;
+      using Lock = std::unique_lock<std::mutex>;
 
       // Loop over seeds
       size_t collseed_size = collseed->size();
 
-      auto theLoop = [&](size_t j) {    
+      unsigned int indeces[collseed_size]; for (auto i=0U; i< collseed_size; ++i) indeces[i]=i;
+      // std::random_shuffle(indeces,indeces+collseed_size);
 
-      // to be moved inside a par section
-      vector<Trajectory> theTmpTrajectories;
+      auto const & seeds = *collseed;
+      auto spt = [&](unsigned int i) { return seeds[i].startingState().pt();};
+      std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return spt(i)>spt(j);});
+
+      // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
+      
+      auto theLoop = [&](size_t ii) {    
+        auto j = indeces[ii];
+
+        // to be moved inside a par section (how with tbb??)
+        std::vector<Trajectory> theTmpTrajectories;
 
 
 	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========"<<endl;
