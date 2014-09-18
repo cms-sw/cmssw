@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/EcalRegressionData.h"
+#include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
