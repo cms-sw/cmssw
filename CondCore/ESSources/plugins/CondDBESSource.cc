@@ -344,7 +344,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 
   // compute the smallest interval (assume all objects have the same timetype....)                                                                                                          
   cond::ValidityInterval recordValidity(1,cond::TIMELIMIT);
-  cond::TimeType timetype = cond::TimeType::invalid;;
+  cond::TimeType timetype = cond::TimeType::invalid;
   bool userTime=true;
 
  //FIXME use equal_range
