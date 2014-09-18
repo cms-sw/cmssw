@@ -3,7 +3,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
+#include "RecoEgamma/EgammaElectronAlgos/interface/EcalRegressionData.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TVector2.h"
 #include "TFile.h"
@@ -321,6 +321,17 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
       throw cms::Exception("RegressionHelper::calculateRegressedEnergy")
 	<< "Supercluster seed is either EB nor EE!" << std::endl;
     }
+
+  std::vector<float> newInputs;
+  EcalRegressionData regData;
+  regData.fill(sc,rechitsEB.product(),rechitsEE.product(),caloGeometry_,caloTopology_,vertices.product());
+  regData.fillVec(newInputs);
+  
+  // std::cout <<"starting debug "<<sc.eta()<<std::endl;
+  for(size_t i=0;i<newInputs.size();i++){
+    if(fabs(newInputs[i]-rInputs[i])>0.00001) std::cout <<"miss match eta "<<sc.eta()<<" "<<i<<" new "<<newInputs[i]<<" old "<<rInputs[i]<<std::endl;
+  }
+
 }
 
 void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
