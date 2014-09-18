@@ -368,8 +368,8 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
       oldPxlMask->copyMaskTo(collectedPixels_);
       collectedRegStrips_.resize(stripClusters->dataSize(),false);
     }else {
-      collectedRegStrips_.resize(stripClusters->dataSize()); fill(collectedRegStrips_.begin(), collectedRegStrips_.end(), false);
-      collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
+      collectedRegStrips_.resize(stripClusters->dataSize(), false);
+      collectedPixels_.resize(pixelClusters->dataSize(), false);
     } 
 
 
@@ -393,6 +393,9 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
     
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip (before charge check): "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
+
+
+    // checks only cluster already found! creates regression 
     if (doStripChargeCheck_) {
       //      std::cout << "[HLTTrackClusterRemoverNew::produce] doStripChargeCheck_: " << (doStripChargeCheck_ ? "true" : "false") << " stripClusters: " << stripClusters->size() << std::endl;
       
@@ -431,6 +434,9 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
 							      new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
     LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
     iEvent.put( removedPixelClusterMask );
+
+    collectedRegStrips_.clear();
+    collectedPixels_.clear();
     
     
 }
