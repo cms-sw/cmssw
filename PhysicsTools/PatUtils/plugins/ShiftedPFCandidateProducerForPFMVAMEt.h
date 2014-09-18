@@ -51,6 +51,10 @@ class ShiftedPFCandidateProducerForPFMVAMEt : public edm::EDProducer
   double dRmatch_PFCandidate_;
   double dRmatch_Object_;
 
+  double dR2match_PFCandidate_;
+  double dR2match_Object_;
+
+
   struct objectEntryType
   {
     objectEntryType(const reco::Candidate::LorentzVector& shiftedObjectP4,

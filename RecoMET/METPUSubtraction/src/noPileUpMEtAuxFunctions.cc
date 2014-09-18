@@ -4,19 +4,18 @@
 
 #include <math.h>
 
-const int minPFCandToVertexAssocQuality = 3; // CV: value recommended by Matthias Geisler, representing "good" PFCandidate-vertex associations
+const int minPFCandToVertexAssocQuality = noPuUtils::kChHSAssoc; // CV: value recommended by Matthias Geisler, representing "good" PFCandidate-vertex associations
+
+const double dRMin=0.01;
 
 int isVertexAssociated(const reco::PFCandidate& pfCandidate,
                        const PFCandToVertexAssMap& pfCandToVertexAssociations,
                        const reco::VertexCollection& vertices, double dZ)
 {
-  int vtxAssociationType = 0; // 0 = neutral particle,
-                              // 1 = charged particle not associated to any vertex
-                              // 2 = charged particle associated to pile-up vertex
-                              // 3 = charged particle associated to vertex of hard-scatter event
+  int vtxAssociationType = noPuUtils::kNeutral;
 
-  if ( fabs(pfCandidate.charge()) > 0.5 ) {
-    vtxAssociationType = 1;
+  if ( pfCandidate.charge() != 0 ) {
+    vtxAssociationType = noPuUtils::kChNoAssoc;
     for ( PFCandToVertexAssMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
           pfCandToVertexAssociation != pfCandToVertexAssociations.end(); ++pfCandToVertexAssociation ) {
       typedef std::vector<std::pair<reco::PFCandidateRef, int> > PFCandidateQualityPairVector;
@@ -24,12 +23,12 @@ int isVertexAssociated(const reco::PFCandidate& pfCandidate,
       for ( PFCandidateQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
             pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
 	int pfCandToVertexAssocQuality = pfCandidate_vertex->second;
-	if ( pfCandToVertexAssocQuality >= minPFCandToVertexAssocQuality && deltaR(pfCandidate.p4(), pfCandidate_vertex->first->p4()) < 1.e-2 ) {
-          if ( vtxAssociationType < 2 ) vtxAssociationType = 2;
+	if ( pfCandToVertexAssocQuality >= minPFCandToVertexAssocQuality && deltaR2(pfCandidate.p4(), pfCandidate_vertex->first->p4()) < dRMin*dRMin ) {
+          if ( vtxAssociationType < noPuUtils::kChPUAssoc ) vtxAssociationType = noPuUtils::kChPUAssoc;
           for ( reco::VertexCollection::const_iterator vertex = vertices.begin();
                 vertex != vertices.end(); ++vertex ) {
             if ( fabs(pfCandToVertexAssociation->key->position().z() - vertex->position().z()) < dZ ) {
-              if ( vtxAssociationType < 3 ) vtxAssociationType = 3;
+              if ( vtxAssociationType < noPuUtils::kChHSAssoc ) vtxAssociationType = noPuUtils::kChHSAssoc;
             }
           }
         }
@@ -68,7 +67,7 @@ int isVertexAssociated_fast(const reco::PFCandidateRef& pfCandidate,
                               // 2 = charged particle associated to pile-up vertex
                               // 3 = charged particle associated to vertex of hard-scatter event
 
-  if ( fabs(pfCandidate->charge()) > 0.5 ) {
+  if ( pfCandidate->charge() != 0 ) {
     vtxAssociationType = 1;
     typedef std::vector<std::pair<reco::VertexRef, int> > VertexQualityPairVector;
     const VertexQualityPairVector* pfCandidate_associated_vertices = 0;
@@ -78,7 +77,7 @@ int isVertexAssociated_fast(const reco::PFCandidateRef& pfCandidate,
     } else {
       for ( reversedPFCandidateToVertexAssociationMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
 	    pfCandToVertexAssociation != pfCandToVertexAssociations.end(); ++pfCandToVertexAssociation ) {
-	if ( deltaR(pfCandidate->p4(), pfCandToVertexAssociation->key->p4()) < 1.e-2 ) {
+	if ( deltaR2(pfCandidate->p4(), pfCandToVertexAssociation->key->p4()) < dRMin*dRMin ) {
     	  pfCandidate_associated_vertices = &pfCandToVertexAssociation->val;
     	  break;
     	}
@@ -94,11 +93,11 @@ int isVertexAssociated_fast(const reco::PFCandidateRef& pfCandidate,
       for ( VertexQualityPairVector::const_iterator pfCandidate_associated_vertex = pfCandidate_associated_vertices->begin();
 	    pfCandidate_associated_vertex != pfCandidate_associated_vertices->end(); ++pfCandidate_associated_vertex ) {	
 	if ( pfCandidate_associated_vertex->second >= minPFCandToVertexAssocQuality ) {
-	  if ( vtxAssociationType < 2 ) vtxAssociationType = 2;
+	  if ( vtxAssociationType <  noPuUtils::kChPUAssoc ) vtxAssociationType =  noPuUtils::kChPUAssoc;
 	  for ( reco::VertexCollection::const_iterator vertex = vertices.begin();
 		vertex != vertices.end(); ++vertex ) {
 	    if ( fabs(pfCandidate_associated_vertex->first->position().z() - vertex->position().z()) < dZ ) {
-	      if ( vtxAssociationType < 3 ) vtxAssociationType = 3;
+	      if ( vtxAssociationType < noPuUtils::kChHSAssoc ) vtxAssociationType = noPuUtils::kChHSAssoc;
 	    }
 	  }
 	}

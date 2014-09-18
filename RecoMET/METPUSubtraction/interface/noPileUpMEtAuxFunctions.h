@@ -12,6 +12,14 @@
 
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
+ // 0 = neutral particle,
+ // 1 = charged particle not associated to any vertex
+ // 2 = charged particle associated to pile-up vertex
+ // 3 = charged particle associated to vertex of hard-scatter event
+namespace noPuUtils {
+  enum {kNeutral=0, kChNoAssoc, kChPUAssoc, kChHSAssoc};
+}
+
 typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::PFCandidateCollection, reco::VertexCollection, int> >
   reversedPFCandidateToVertexAssociationMap;
 

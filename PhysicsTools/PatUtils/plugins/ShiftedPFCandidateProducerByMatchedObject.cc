@@ -2,6 +2,8 @@
 
 #include <TMath.h>
 
+const double dRDefault = 1000;
+
 ShiftedPFCandidateProducerByMatchedObject::ShiftedPFCandidateProducerByMatchedObject(const edm::ParameterSet& cfg)
 {
   srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
@@ -38,11 +40,11 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
   
   CandidateView::const_iterator shiftedObjectP4_matched;
   bool isMatched_Object = false;
-  double dR2bestMatch_Object = 1.e+3;
+  double dR2bestMatch_Object = dRDefault;
   for ( CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
 	unshiftedObject != unshiftedObjects->end(); ++unshiftedObject ) {
     isMatched_Object = false;
-    dR2bestMatch_Object = 1.e+3;
+    dR2bestMatch_Object = dRDefault;
    
     for ( CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
 	shiftedObject != shiftedObjects->end(); ++shiftedObject ) {
@@ -65,7 +67,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
     
     double shift = 0.;
     bool applyShift = false;
-    double dR2bestMatch_PFCandidate = 1.e+3;
+    double dR2bestMatch_PFCandidate = dRDefault;
     for ( std::vector<objectEntryType>::const_iterator object = objects_.begin();
 	  object != objects_.end(); ++object ) {
       if ( !object->isValidMatch_ ) continue;

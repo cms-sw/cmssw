@@ -60,6 +60,16 @@ class NoPileUpPFMEtProducer : public edm::EDProducer
   double sfType0Correction_;
   double sfLeptonIsoCones_;
   
+  std::string sfLeptonsName_;
+  std::string sfNoPUjetsName_;
+  std::string sfNoPUjetOffsetEnCorrName_;
+  std::string sfPUjetsName_;
+  std::string sfNoPUunclChargedCandsName_;
+  std::string sfPUunclChargedCandsName_;
+  std::string sfUnclNeutralCandsName_;
+  std::string sfType0CorrectionName_;
+  std::string sfLeptonIsoConesName_;
+
   PFMEtSignInterfaceBase* pfMEtSignInterface_;
   double sfMEtCovMin_;
   double sfMEtCovMax_;

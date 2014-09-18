@@ -6,14 +6,17 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
+const double dRMatch = 0.01;
+
 ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(const edm::ParameterSet& cfg)
-  : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
-  , srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates")))
+  : srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates")))
   , srcJetsToken_(consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJets")))
 {
 
   jetCorrUncertaintyTag_ = cfg.getParameter<std::string>("jetCorrUncertaintyTag");
-  if ( cfg.exists("jetCorrInputFileName") ) {
+
+  jecValidFileName_ = cfg.exists("jetCorrInputFileName");
+  if ( jecValidFileName_ ) {
     jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
     if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
       << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
@@ -33,13 +36,16 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
 
   unclEnUncertainty_ = cfg.getParameter<double>("unclEnUncertainty");
 
+
   produces<reco::PFCandidateCollection>();
 }
 
 ShiftedPFCandidateProducerForPFNoPUMEt::~ShiftedPFCandidateProducerForPFNoPUMEt()
 {
+ if( jecValidFileName_ ) {
   delete jetCorrParameters_;
   delete jecUncertainty_;
+ }
 }
 
 void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm::EventSetup& es)
@@ -69,18 +75,17 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
   for ( reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
 	originalPFCandidate != originalPFCandidates->end(); ++originalPFCandidate ) {
 
-    const reco::PFJet* jet_matched = 0;
+    const reco::PFJet* jet_matched = nullptr;
     for ( std::vector<const reco::PFJet*>::iterator jet = selectedJets.begin();
 	  jet != selectedJets.end(); ++jet ) {
-      std::vector<reco::PFCandidatePtr> jetConstituents = (*jet)->getPFConstituents();
-      for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-	    jetConstituent != jetConstituents.end() && !jet_matched; ++jetConstituent ) {
-	if ( deltaR(originalPFCandidate->p4(), (*jetConstituent)->p4()) < 1.e-2 ) jet_matched = (*jet);
+      for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = (*jet)->getPFConstituents().begin();
+	    jetConstituent != (*jet)->getPFConstituents().end() && jet_matched==nullptr; ++jetConstituent ) {
+	if ( deltaR2(originalPFCandidate->p4(), (*jetConstituent)->p4()) < dRMatch*dRMatch ) jet_matched = (*jet);
       }
     }
 
     double shift = 0.;
-    if ( jet_matched ) {
+    if ( jet_matched!=nullptr ) {
       jecUncertainty_->setJetEta(jet_matched->eta());
       jecUncertainty_->setJetPt(jet_matched->pt());
 

@@ -90,6 +90,9 @@ class SmearedPFCandidateProducerForPFNoPUMEtT : public edm::EDProducer
   double skipCorrJetPtThreshold_; // are **not** smeared 
 
   int verbosity_; // flag to enabled/disable debug output
+
+  bool skipJetSel_;
+
 };
 
 #endif

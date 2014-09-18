@@ -46,7 +46,7 @@ PFMEtSignInterfaceBase::~PFMEtSignInterfaceBase()
   delete lut_;
 }
 
-TMatrixD PFMEtSignInterfaceBase::operator()(const std::vector<metsig::SigInputObj>& pfMEtSignObjects) const
+reco::METCovMatrix PFMEtSignInterfaceBase::operator()(const std::vector<metsig::SigInputObj>& pfMEtSignObjects) const
 {
   if ( this->verbosity_ ) {
     std::cout << "<PFMEtSignInterfaceBase::operator()>:" << std::endl;
@@ -61,15 +61,27 @@ TMatrixD PFMEtSignInterfaceBase::operator()(const std::vector<metsig::SigInputOb
     std::cout << "--> sqrt(sum(dpt^2)) = " << TMath::Sqrt(dpt2Sum) << std::endl;
   }
 
-  TMatrixD pfMEtCov(2,2);
+  reco::METCovMatrix pfMEtCov;
   if ( pfMEtSignObjects.size() >= 2 ) {
     metsig::significanceAlgo pfMEtSignAlgorithm;
     pfMEtSignAlgorithm.addObjects(pfMEtSignObjects);
     pfMEtCov = pfMEtSignAlgorithm.getSignifMatrix();
+ 
+    double det=0;
+    pfMEtCov.Det(det);
 
-    if ( this->verbosity_ && TMath::Abs(pfMEtCov.Determinant()) > epsilon ) {
+    if ( this->verbosity_ && fabs(det) > epsilon ) {
+      //keep TMatrixD as it is much easier to find 
+      //eigenvectors and values than with SMatrix;
+      //not used anyway, except for debugging
+      TMatrixD tmpMatrix(2,2);
+      tmpMatrix(0,0) = pfMEtCov(0,0);
+      tmpMatrix(0,1) = pfMEtCov(0,1);
+      tmpMatrix(1,0) = pfMEtCov(1,0);
+      tmpMatrix(1,1) = pfMEtCov(1,1);
+
       TVectorD eigenValues(2);
-      TMatrixD eigenVectors = pfMEtCov.EigenVectors(eigenValues);
+      TMatrixD eigenVectors = tmpMatrix.EigenVectors(eigenValues);
       // CV: eigenvectors are stored in columns 
       //     and are sorted such that the one corresponding to the highest eigenvalue is in the **first** column
       for ( unsigned iEigenVector = 0; iEigenVector < 2; ++iEigenVector ) {
@@ -77,12 +89,12 @@ TMatrixD PFMEtSignInterfaceBase::operator()(const std::vector<metsig::SigInputOb
 		  << " x = " << eigenVectors(0, iEigenVector) << ", y = " << eigenVectors(1, iEigenVector) << std::endl;
       }
     }
-
-//--- substitute (PF)MEt resolution matrix by default values 
-//    in case resolution matrix cannot be inverted
-    if ( TMath::Abs(pfMEtCov.Determinant()) < epsilon ) {
+    
+    //--- substitute (PF)MEt resolution matrix by default values 
+    //    in case resolution matrix cannot be inverted
+    if (fabs(det) < epsilon ) {
       edm::LogWarning("PFMEtSignInterfaceBase::operator()") 
-	<< "Inversion of PFMEt covariance matrix failed, det = " << pfMEtCov.Determinant()
+	<< "Inversion of PFMEt covariance matrix failed, det = " << det
 	<< " --> replacing covariance matrix by resolution defaults !!";
       pfMEtCov(0,0) = defaultPFMEtResolutionX*defaultPFMEtResolutionX;
       pfMEtCov(0,1) = 0.;

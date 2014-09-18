@@ -38,8 +38,7 @@ GBRForestWriter::~GBRForestWriter()
 
 void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 {
-  std::cout << "<GBRForestWriter::analyze (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
-  
+   
   for ( std::vector<jobEntryType*>::iterator job = jobs_.begin();
 	job != jobs_.end(); ++job ) {   
     std::map<std::string, const GBRForest*> gbrForests; // key = name
@@ -81,7 +80,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
     }
     if ( (*job)->outputFileType_ == jobEntryType::kGBRForest ) {
       TFile* outputFile = new TFile((*job)->outputFileName_.data(), "RECREATE");
-      std::cout << " writing " << (*job)->outputFileName_.data() << "..." << std::endl;
+    
       for ( std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
 	    gbrForest != gbrForests.end(); ++gbrForest ) {
 	outputFile->WriteObject(gbrForest->second, gbrForest->first.data());
@@ -92,7 +91,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
       if ( !dbService.isAvailable() ) 
 	throw cms::Exception("GBRForestWriter") 
 	  << " Failed to access PoolDBOutputService !!\n";
-      std::cout << " writing " << (*job)->outputRecord_ << "..." << std::endl;
+      
       for ( std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
 	    gbrForest != gbrForests.end(); ++gbrForest ) {
 	std::string outputRecord = (*job)->outputRecord_;
@@ -102,7 +101,6 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
     }
   }
 
-  std::cout << "done." << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

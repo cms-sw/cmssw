@@ -14,11 +14,17 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+
+const double defJetPtThr = 0.01;
+const double dRMatch = 0.01;
+const double etaMaxBound = 9.9;
+
+
 template <typename T, typename Textractor>
 SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProducerForPFNoPUMEtT(const edm::ParameterSet& cfg)
   : genJetMatcher_(cfg,consumesCollector()),
     jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions")),
-    skipJetSelection_(0)
+    skipJetSelection_(nullptr)
 {
 
   srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates") );
@@ -39,7 +45,7 @@ SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProduc
   jetCorrLabel_ = ( cfg.exists("jetCorrLabel") ) ?
     cfg.getParameter<std::string>("jetCorrLabel") : "";
   jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
-    cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
+    cfg.getParameter<double>("jetCorrEtaMax") : etaMaxBound;
   
   sigmaMaxGenJetMatch_ = cfg.getParameter<double>("sigmaMaxGenJetMatch");
   
@@ -49,15 +55,17 @@ SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProduc
   shiftBy_ = ( cfg.exists("shiftBy") ) ? cfg.getParameter<double>("shiftBy") : 0.;
   //std::cout << "shiftBy = " << shiftBy_ << std::endl;
   
-  if ( cfg.exists("skipJetSelection") ) {
+  skipJetSel_ = cfg.exists("skipJetSelection");
+  if ( skipJetSel_ ) {
     std::string skipJetSelection_string = cfg.getParameter<std::string>("skipJetSelection");
     skipJetSelection_ = new StringCutObjectSelector<T>(skipJetSelection_string);
   }
   
+
   skipRawJetPtThreshold_  = ( cfg.exists("skipRawJetPtThreshold")  ) ? 
-    cfg.getParameter<double>("skipRawJetPtThreshold")  : 1.e-2;
+    cfg.getParameter<double>("skipRawJetPtThreshold")  : defJetPtThr;
   skipCorrJetPtThreshold_ = ( cfg.exists("skipCorrJetPtThreshold") ) ? 
-    cfg.getParameter<double>("skipCorrJetPtThreshold") : 1.e-2;
+    cfg.getParameter<double>("skipCorrJetPtThreshold") : defJetPtThr;
   
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
@@ -68,7 +76,10 @@ SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProduc
 template <typename T, typename Textractor>
 SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::~SmearedPFCandidateProducerForPFNoPUMEtT()
 {
-// nothing to be done yet...
+  delete inputFile_;
+  if ( skipJetSel_ ) {
+    delete skipJetSelection_;
+  }
 }
 
 template <typename T, typename Textractor>
@@ -85,17 +96,17 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
   for ( reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
 	originalPFCandidate != originalPFCandidates->end(); ++originalPFCandidate ) {
     
-    const T* jet_matched = 0;
+    const T* jet_matched = nullptr;
     for ( typename JetCollection::const_iterator jet = jets->begin();
 	  jet != jets->end(); ++jet ) {
       std::vector<reco::PFCandidatePtr> jetConstituents = jet->getPFConstituents();
-      for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-	    jetConstituent != jetConstituents.end() && !jet_matched; ++jetConstituent ) {
-	if ( deltaR(originalPFCandidate->p4(), (*jetConstituent)->p4()) < 1.e-2 ) jet_matched = &(*jet);
+      for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jet->getPFConstituents().begin();
+	    jetConstituent != jet->getPFConstituents().end() && jet_matched==nullptr; ++jetConstituent ) {
+	if ( deltaR2(originalPFCandidate->p4(), (*jetConstituent)->p4()) < dRMatch*dRMatch ) jet_matched = &(*jet);
       }
     }
 
-    if ( !jet_matched ) continue;
+    if ( jet_matched==nullptr ) continue;
 
     static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
     reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*jet_matched);
@@ -110,7 +121,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
     }
     
     double smearFactor = 1.;      
-    double x = TMath::Abs(corrJetP4.eta());
+    double x = fabs(corrJetP4.eta());
     double y = corrJetP4.pt();
     if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
 	 y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {
@@ -140,7 +151,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 	std::cout << "genJet: Pt = " << genJet->pt() << ", eta = " << genJet->eta() << ", phi = " << genJet->phi() << std::endl;
       }
       double dEn = corrJetP4.E() - genJet->energy();
-      if ( TMath::Abs(dEn) < (sigmaMaxGenJetMatch_*sigmaEn) ) {
+      if ( fabs(dEn) < (sigmaMaxGenJetMatch_*sigmaEn) ) {
 //--- case 1: reconstructed jet matched to generator level jet, 
 //            smear difference between reconstructed and "true" jet energy
 
@@ -170,8 +181,8 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 	//     Take maximum(rawJetEn, corrJetEn) to avoid pathological cases
 	//    (e.g. corrJetEn << rawJetEn, due to L1Fastjet corrections)
 	
-	double addSigmaEn = jetResolution*TMath::Sqrt(smearFactor*smearFactor - 1.);
-	//smearedJetEn = jet_matched->energy()*(1. + rnd_.Gaus(0., addSigmaEn)/TMath::Max(rawJetP4.E(), corrJetP4.E()));
+	double addSigmaEn = jetResolution*sqrt(smearFactor*smearFactor - 1.);
+	//smearedJetEn = jet_matched->energy()*(1. + rnd_.Gaus(0., addSigmaEn)/max(rawJetP4.E(), corrJetP4.E()));
 	smearedJetEn = jet_matched->energy() + rnd_.Gaus(0., addSigmaEn);
       }
     }
@@ -207,7 +218,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
     double smearedPy = scaleFactor*originalPFCandidate->py();
     double smearedPz = scaleFactor*originalPFCandidate->pz();
     double mass      = originalPFCandidate->mass();
-    double smearedEn = TMath::Sqrt(smearedPx*smearedPx + smearedPy*smearedPy + smearedPz*smearedPz + mass*mass);
+    double smearedEn = sqrt(smearedPx*smearedPx + smearedPy*smearedPy + smearedPz*smearedPz + mass*mass);
     reco::Candidate::LorentzVector smearedPFCandidateP4(smearedPx, smearedPy, smearedPz, smearedEn);
     
     reco::PFCandidate smearedPFCandidate(*originalPFCandidate);      

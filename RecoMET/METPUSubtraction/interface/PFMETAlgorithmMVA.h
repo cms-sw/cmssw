@@ -16,11 +16,13 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoMET/METPUSubtraction/interface/mvaMEtUtilities.h"
 
-#include <TMatrixD.h>
+//#include <TMatrixD.h>
+#include <Math/SMatrix.h>
 
 #include <string>
 #include <vector>
@@ -28,6 +30,7 @@
 
 class PFMETAlgorithmMVA 
 {
+  
  public:
 
   PFMETAlgorithmMVA(const edm::ParameterSet& cfg);
@@ -45,7 +48,7 @@ class PFMETAlgorithmMVA
   void evaluateMVA();
 
   reco::Candidate::LorentzVector getMEt()    const { return mvaMEt_;    }
-  const TMatrixD&                getMEtCov() const { return mvaMEtCov_; }
+  const reco::METCovMatrix&    getMEtCov() const { return mvaMEtCov_; }
 
   double getU()     const { return mvaOutputU_;    }
   double getDPhi()  const { return mvaOutputDPhi_;  }
@@ -125,7 +128,8 @@ class PFMETAlgorithmMVA
   double chargedSumLeptonPy_;
 
   reco::Candidate::LorentzVector mvaMEt_;
-  TMatrixD mvaMEtCov_;
+  //TMatrixD mvaMEtCov_;
+  reco::METCovMatrix mvaMEtCov_;
 
   const GBRForest* mvaReaderU_;
   const GBRForest* mvaReaderDPhi_;

@@ -61,11 +61,14 @@ class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::EDProducer
   JetCorrectorParameters* jetCorrParameters_;
   JetCorrectionUncertainty* jecUncertainty_;
 
+  bool jecValidFileName_;
+
   double minJetPt_;
 
   double shiftBy_;
 
   double unclEnUncertainty_;
+
 };
 
 #endif

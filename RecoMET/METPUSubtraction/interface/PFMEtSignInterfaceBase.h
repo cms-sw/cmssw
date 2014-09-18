@@ -16,27 +16,27 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "DataFormats/METReco/interface/SigInputObj.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/SigInputObj.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+
 
 #include <TFile.h>
 #include <TH2.h>
-#include <TMatrixD.h>
 
-#include <list>
 
 class PFMEtSignInterfaceBase
 {
@@ -165,10 +165,10 @@ class PFMEtSignInterfaceBase
     return pfMEtSignObjects;
   }
 
-  TMatrixD operator()(const std::vector<metsig::SigInputObj>&) const;
+  reco::METCovMatrix operator()(const std::vector<metsig::SigInputObj>&) const;
 
   template <typename T>
-  TMatrixD operator()(const std::list<T*>& particles) const
+    reco::METCovMatrix operator()(const std::list<T*>& particles) const
   {
     std::vector<metsig::SigInputObj> pfMEtSignObjects = compResolution(particles);
     return this->operator()(pfMEtSignObjects);

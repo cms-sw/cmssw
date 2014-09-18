@@ -49,7 +49,7 @@ PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg)
     mvaInputDPhi_(0),
     mvaInputCovU1_(0),
     mvaInputCovU2_(0),
-    mvaMEtCov_(2, 2),
+    //mvaMEtCov_(2, 2),
     mvaReaderU_(0),
     mvaReaderDPhi_(0),
     mvaReaderCovU1_(0),

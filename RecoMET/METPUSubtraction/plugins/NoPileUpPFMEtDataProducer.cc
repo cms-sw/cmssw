@@ -11,6 +11,8 @@ const int flag_isWithinFakeJet      = 1;
 const int flag_isWithinSelectedJet  = 2;
 const int flag_isWithinJetForMEtCov = 4;
 
+const double dRMin = 0.001;
+
 NoPileUpPFMEtDataProducer::NoPileUpPFMEtDataProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
     looseJetIdAlgo_(0),
@@ -65,11 +67,10 @@ namespace
 			  const edm::View<reco::PFCandidate>& pfCandidateCollection, 
 			  std::vector<int>& flags, int value,
 			  int& numWarnings, int maxWarnings,
-			  std::vector<const reco::PFJet*>* pfCandidateToJetAssociations = 0)
-  {
-    std::vector<reco::PFCandidatePtr> pfJetConstituents = pfJet.getPFConstituents();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfJetConstituents.begin();
-	  pfJetConstituent != pfJetConstituents.end(); ++pfJetConstituent ) {
+			  std::vector<const reco::PFJet*>* pfCandidateToJetAssociations = 0) {
+
+    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfJet.getPFConstituents().begin();
+	  pfJetConstituent != pfJet.getPFConstituents().end(); ++pfJetConstituent ) {
       std::vector<int> idxs;
       if ( pfJetConstituent->id() == pfCandidateCollection.id() ) {
 	idxs.push_back(pfJetConstituent->key());
@@ -77,8 +78,8 @@ namespace
 	bool isMatched_fast = false;
 	if ( pfJetConstituent->key() < pfCandidateCollection.size() ) {
 	  edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(pfJetConstituent->key());
-	  double dR = deltaR((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
-	  if ( dR < 1.e-5 ) {
+	  double dR2 = deltaR2((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
+	  if ( dR2 < dRMin*dRMin ) {
 	    idxs.push_back(pfCandidatePtr.key());
 	    isMatched_fast = true;
 	  }
@@ -87,8 +88,8 @@ namespace
 	  size_t numPFCandidates = pfCandidateCollection.size();
 	  for ( size_t iPFCandidate = 0; iPFCandidate < numPFCandidates; ++iPFCandidate ) {
 	    edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(iPFCandidate);
-	    double dR = deltaR((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
-	    if ( dR < 1.e-3 ) {
+	    double dR2 = deltaR2((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
+	    if ( dR2 < dRMin*dRMin ) {
 	      idxs.push_back(pfCandidatePtr.key());
 	    }
 	  }
@@ -100,7 +101,7 @@ namespace
 	  }
 	}
       }
-      if ( idxs.size() >= 1 ) {
+      if ( idxs.size() ) {
 	for ( std::vector<int>::const_iterator idx = idxs.begin();
 	      idx != idxs.end(); ++idx ) {
 	  if ( (*idx) >= (int)flags.size() ) flags.resize(2*flags.size());
@@ -131,10 +132,9 @@ namespace
 
 void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  if ( verbosity_ ) {
-    std::cout << "<NoPileUpPFMEtDataProducer::produce>:" << std::endl;
-    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-  }
+  LogDebug ("produce")
+    << "<NoPileUpPFMEtDataProducer::produce>:\n"
+    << " moduleLabel = " << moduleLabel_ << std::endl;
   
   // get jets 
   edm::Handle<reco::PFJetCollection> jets;
@@ -178,7 +178,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
 	    pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
 	const reco::PFCandidate& pfCandidate = (*pfCandidate_vertex->first);
 	int pfCandToVertexAssocQuality = pfCandidate_vertex->second;
-	if ( pfCandidate.pt() > 2. && fabs(pfCandidate.charge()) > 0.5 ) {
+	if ( pfCandidate.pt() > 2. && pfCandidate.charge() != 0 ) {
 	  double dZ = -1.;
 	  if      ( pfCandidate.trackRef().isNonnull()    ) dZ = fabs(pfCandidate.trackRef()->dz(hardScatterVertexPos));
 	  else if ( pfCandidate.gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate.gsfTrackRef()->dz(hardScatterVertexPos));
@@ -214,7 +214,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
       setPFCandidateFlag(*jet, *pfCandidates, pfCandidateFlags, flag_isWithinFakeJet, numWarnings_, maxWarnings_);
     }
     setPFCandidateFlag(*jet, *pfCandidates, pfCandidateFlags, flag_isWithinSelectedJet, numWarnings_, maxWarnings_);
-
+ 
     reco::MVAMEtJetInfo jetInfo;
     jetInfo.p4_ = jet->p4();
     int jetId = (*jetIds)[jet];
@@ -230,9 +230,9 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
      + jet->muonEnergy()
      + jet->HFHadronEnergy()
      + jet->HFEMEnergy();
-    double jetPx_uncorrected = TMath::Cos(jet->phi())*TMath::Sin(jet->theta())*jetEnergy_uncorrected;
-    double jetPy_uncorrected = TMath::Sin(jet->phi())*TMath::Sin(jet->theta())*jetEnergy_uncorrected;
-    double jetPz_uncorrected = TMath::Cos(jet->theta())*jetEnergy_uncorrected;
+    double jetPx_uncorrected = cos(jet->phi())*sin(jet->theta())*jetEnergy_uncorrected;
+    double jetPy_uncorrected = sin(jet->phi())*sin(jet->theta())*jetEnergy_uncorrected;
+    double jetPz_uncorrected = cos(jet->theta())*jetEnergy_uncorrected;
     reco::Candidate::LorentzVector rawJetP4(jetPx_uncorrected, jetPy_uncorrected, jetPz_uncorrected, jetEnergy_uncorrected);
     reco::PFJet rawJet(*jet);
     rawJet.setP4(rawJetP4);
@@ -247,18 +247,18 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     	        << " sigma(En)/En = " << (jetInfo.pfMEtSignObj_.get_sigma_e()/jet->energy()) << std::endl;
       std::cout << "(offsetEnCorr = " << jetInfo.offsetEnCorr_ << ")" << std::endl;
       std::cout << "  id. flags: PU = " << jetIdSelection_passed << ", anti-noise = " << passesLooseJetId << std::endl;
-      std::vector<reco::PFCandidatePtr> pfJetConstituents = jet->getPFConstituents();
-      size_t numPFJetConstituents = pfJetConstituents.size();
+     
+      size_t numPFJetConstituents = jet->getPFConstituents().size();
       std::cout << "numConstituents = " << numPFJetConstituents << std::endl;
       for ( size_t iPFJetConstituent = 0; iPFJetConstituent < numPFJetConstituents; ++iPFJetConstituent ) {
-	const reco::PFCandidatePtr& pfJetConstituent = pfJetConstituents[iPFJetConstituent];
+	const reco::PFCandidatePtr& pfJetConstituent = jet->getPFConstituents()[iPFJetConstituent];
 	std::cout << " constituent #" << iPFJetConstituent << ": Pt = " << pfJetConstituent->pt() << ", eta = " << pfJetConstituent->eta() << ", phi = " << pfJetConstituent->phi() << std::endl;
       }
     }
 
     jetInfos->push_back(jetInfo);    
   }
-  if ( verbosity_ ) std::cout << "#jetInfos = " << jetInfos->size() << std::endl;
+  LogDebug ("produce")  << "#jetInfos = " << jetInfos->size() << std::endl;
 
   for ( reco::PFJetCollection::const_iterator jet = jets->begin();
 	jet != jets->end(); ++jet ) {
@@ -282,8 +282,8 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     //int vtxAssociationType = isVertexAssociated(*pfCandidatePtr, *pfCandToVertexAssociations, *hardScatterVertex, dZcut_);
     reco::PFCandidateRef pfCandidateRef(pfCandidateHandle, iPFCandidate);
     int vtxAssociationType = isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
-    bool isHardScatterVertex_associated = (vtxAssociationType >= 3);
-    if      ( fabs(pfCandidatePtr->charge()) < 0.5 ) pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kNeutral;
+    bool isHardScatterVertex_associated = (vtxAssociationType == noPuUtils::kChHSAssoc);
+    if      ( abs(pfCandidatePtr->charge()) != 0 )   pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kNeutral;
     else if ( isHardScatterVertex_associated       ) pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kNoPileUpCharged;
     else                                             pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kPileUpCharged;
     pfCandInfo.isWithinJet_ = (pfCandidateFlags[idx] & flag_isWithinSelectedJet);
@@ -312,10 +312,10 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
       //	  << " Pt = " << pfCandidatePtr->pt() << ", eta = " << pfCandidatePtr->eta() << ", phi = " << pfCandidatePtr->phi() << ":"
       //	  << " sigma(En)/En = " << (pfCandInfo.pfMEtSignObj_.get_sigma_e()/pfCandidatePtr->energy()) << std::endl;
     }
-
+   
     pfCandInfos->push_back(pfCandInfo);
   }
-  if ( verbosity_ ) std::cout << "#pfCandInfos = " << pfCandInfos->size() << std::endl;
+    LogDebug ("produce") << "#pfCandInfos = " << pfCandInfos->size() << std::endl;
 
   evt.put(jetInfos);
   evt.put(pfCandInfos);
