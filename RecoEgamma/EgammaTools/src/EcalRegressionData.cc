@@ -45,7 +45,7 @@ float EcalRegressionData::subClusDPhi(size_t clusNr)const
 void EcalRegressionData::fill(const reco::SuperCluster& superClus,
 			  const EcalRecHitCollection* ebRecHits,const EcalRecHitCollection* eeRecHits,
 			  const CaloGeometry* geom,const CaloTopology* topology,
-			  const reco::VertexCollection* vertices)
+			  int nrVertices)
 {
   clear();
   
@@ -106,7 +106,7 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
     
   }
   
-  nrVtx_ = vertices->size();
+  nrVtx_ = nrVertices;
 
 }
 

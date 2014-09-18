@@ -83,7 +83,13 @@ public:
   void fill(const reco::SuperCluster& superClus,
 	    const EcalRecHitCollection* ebRecHits,const EcalRecHitCollection* eeRecHits,
 	    const CaloGeometry* geom,const CaloTopology* topology,
-	    const reco::VertexCollection* vertices);
+	    const reco::VertexCollection* vertices){
+    fill(superClus,ebRecHits,eeRecHits,geom,topology,vertices->size());
+  }
+  void fill(const reco::SuperCluster& superClus,
+	    const EcalRecHitCollection* ebRecHits,const EcalRecHitCollection* eeRecHits,
+	    const CaloGeometry* geom,const CaloTopology* topology,
+	    int nrVertices);
   void clear();
   
   //converts output to single vector for use in training
