@@ -27,7 +27,7 @@ HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*		# JIRA: CMSHLT-73
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v*		# JIRA: CMSHLT-99
 
 #HLT_PFJet40_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
-#HLT_PFJet260_v*					# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
+HLT_PFJet260_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, allowed in GRun by CMSHLT-109
 #HLT_CaloJet260_v*					# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_HT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_PFHT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun

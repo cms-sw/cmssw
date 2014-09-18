@@ -50,7 +50,7 @@ class ME0Geometry : public TrackingGeometry {
   //---- Extension of the interface
 
   /// Return a vector of all ME0 eta partitions
-  const std::vector<ME0EtaPartition*>& etaPartitions() const;
+  const std::vector<ME0EtaPartition const*>& etaPartitions() const;
 
   /// Return a etaPartition given its id
   const ME0EtaPartition* etaPartition(ME0DetId id) const;
@@ -68,7 +68,7 @@ class ME0Geometry : public TrackingGeometry {
   // Map for efficient lookup by DetId 
   mapIdToDet theMap;
 
-  std::vector<ME0EtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
+  std::vector<ME0EtaPartition const*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
 
 };
 

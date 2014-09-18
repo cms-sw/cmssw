@@ -104,8 +104,6 @@ struct clock_rdtscp
 };
 
 
-#if defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
-// IFUNC support requires GLIBC >= 2.11.1
 // TSC-based clock, determining at run-time the best strategy to serialise the reads from the TSC
 struct clock_serialising_rdtsc
 {
@@ -113,7 +111,7 @@ struct clock_serialising_rdtsc
   typedef std::chrono::nanoseconds                                      duration;
   typedef duration::rep                                                 rep;
   typedef duration::period                                              period;
-  typedef std::chrono::time_point<clock_rdtscp, duration>               time_point;
+  typedef std::chrono::time_point<clock_serialising_rdtsc, duration>    time_point;
 
   static const bool is_steady;
   static const bool is_available;
@@ -126,7 +124,6 @@ struct clock_serialising_rdtsc
     return time;
   }
 };
-#endif // defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
 
 
 #endif // x86_tsc_clock_h

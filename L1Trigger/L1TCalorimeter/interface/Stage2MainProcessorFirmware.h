@@ -48,7 +48,6 @@ namespace l1t {
 
   private:
     
-    unsigned const & m_fwv;
     CaloParams* m_params;
 
     Stage2TowerDecompressAlgorithm* m_towerAlgo;
