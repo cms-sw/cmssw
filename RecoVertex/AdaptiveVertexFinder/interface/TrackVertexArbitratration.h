@@ -98,6 +98,8 @@ TrackVertexArbitration<VTX>::TrackVertexArbitration(const edm::ParameterSet &par
 template <class VTX>
 bool TrackVertexArbitration<VTX>::trackFilterArbitrator(const reco::TransientTrack &track) const
 {
+	if(!track.isValid()) 
+		return false;
         if (track.track().hitPattern().trackerLayersWithMeasurement() < trackMinLayers)
                 return false;
         if (track.track().pt() < trackMinPt)

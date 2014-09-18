@@ -92,7 +92,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 	if(primaryVertices->size()!=0){ 
 		const reco::Vertex &pv = (*primaryVertices)[0];
 
-		edm::Handle<TrackCollection> tracks;
+		edm::Handle<InputContainer> tracks;
 		event.getByToken(token_tracks, tracks);
 
 		edm::ESHandle<TransientTrackBuilder> trackBuilder;
@@ -103,9 +103,9 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 		event.getByToken(token_beamSpot,beamSpot);
 
 		std::vector<TransientTrack> selectedTracks;
-		for(TrackCollection::const_iterator track = tracks->begin();
+		for(typename InputContainer::const_iterator track = tracks->begin();
 				track != tracks->end(); ++track) {
-			selectedTracks.push_back(tthelpers::buildTT(tracks,trackBuilder,track - tracks->begin()));
+			 selectedTracks.push_back(tthelpers::buildTT(tracks,trackBuilder,track - tracks->begin()));
 		}
 
 

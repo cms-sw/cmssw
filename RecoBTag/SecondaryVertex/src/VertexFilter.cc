@@ -15,48 +15,9 @@
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
-
+#include "RecoVertex/VertexTools/interface/SharedTracks.h"
 using namespace reco; 
 
-static unsigned int
-computeSharedTracks(const Vertex &pv, const std::vector<TrackRef> &svTracks,
-                    double minTrackWeight)
-{
-	std::set<TrackRef> pvTracks;
-	for(std::vector<TrackBaseRef>::const_iterator iter = pv.tracks_begin();
-	    iter != pv.tracks_end(); iter++)
-		if (pv.trackWeight(*iter) >= minTrackWeight)
-			pvTracks.insert(iter->castTo<TrackRef>());
-
-	unsigned int count = 0;
-	for(std::vector<TrackRef>::const_iterator iter = svTracks.begin();
-	    iter != svTracks.end(); iter++)
-		count += pvTracks.count(*iter);
-
-	return count;
-}
-
-static unsigned int
-computeSharedTracks(const Vertex &pv, const std::vector<CandidatePtr> &svTracks,
-                    double minTrackWeight)
-{
-//         std::set<const Track *> pvTracks;
-//         for(std::vector<TrackBaseRef>::const_iterator iter = pv.tracks_begin();
-//             iter != pv.tracks_end(); iter++)
-//                 if (pv.trackWeight(*iter) >= minTrackWeight)
-//                         pvTracks.insert(iter->get());
-
-        unsigned int count = 0;
-        for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
-            iter != svTracks.end(); iter++)
-               {
-			if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < 2.0 &&
-			    std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError() < 2.0 )
-			  )  
-				count++;
-		}
-        return count;
-}
 
 VertexFilter::VertexFilter(const edm::ParameterSet &params) :
 	useTrackWeights(params.getParameter<bool>("useTrackWeights")),
@@ -130,7 +91,7 @@ bool VertexFilter::operator () (const Vertex &pv,
 
 	if (fracPV < 1.0) {
 		unsigned int sharedTracks =
-			computeSharedTracks(pv, svTracks, minTrackWeight);
+			vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
 		if ((double)sharedTracks / svTracks.size() > fracPV)
 			return false;
 	}
@@ -190,7 +151,7 @@ bool VertexFilter::operator () (const reco::Vertex &pv,
 
 	if (fracPV < 1.0) {
 		unsigned int sharedTracks =
-			computeSharedTracks(pv, svTracks, minTrackWeight);
+			vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
 		if ((double)sharedTracks / svTracks.size() > fracPV)
 			return false;
 	}

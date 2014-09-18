@@ -141,6 +141,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 //TransientTrack tt = trackBuilder->build(ref);
 //TrackRef ref(tracks, track - tracks->begin());
 		TransientTrack tt(tthelpers::buildTT(tracks,trackBuilder, track - tracks->begin()));
+		if(!tt.isValid()) continue;
 		if (!trackFilter(tt.track()))
 			continue;
                 if( std::abs(tt.track().dz(pv.position())) > maxLIP)
