@@ -120,12 +120,12 @@ def miniAOD_customizeCommon(process):
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
     ## process.patJetsAK8.userData.userFunctions = cms.vstring(
-    ##     "jet.tagInfo('CATop').properties().topMass",
-    ##     "jet.tagInfo('CATop').properties().nSubJets",
-    ##     "jet.tagInfo('CATop').properties().minMass"
+    ##     "jet.tagInfo('caTop').properties().topMass",
+    ##     "jet.tagInfo('caTop').properties().nSubJets",
+    ##     "jet.tagInfo('caTop').properties().minMass"
     ## )
     ## process.patJetsAK8.userData.userFunctionLabels = cms.vstring('topMass','vtxNtracks','vtx3DVal','vtx3DSig')
-    process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfos"))
+    process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("ak8TopTagInfos"))
     process.patJetsAK8.addTagInfos = cms.bool(True) 
 
 
