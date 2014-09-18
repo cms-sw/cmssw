@@ -26,7 +26,6 @@
 
 metsig::significanceAlgo::significanceAlgo():
   //  eventVec_(0),
-  // signifmatrix_(2,2),
   set_worker_(0),
   xmet_(0),
   ymet_(0)
@@ -74,7 +73,7 @@ metsig::significanceAlgo::rotateMatrix( Double_t theta, reco::METCovMatrix &v)
   rInv = r;
   rInv.Invert();
   //-- Rotate v --//
-  v = rInv * ( v * r );
+  v = rInv * v * r;
 }
 //************************************************************//
 
