@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
+#include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
@@ -22,6 +23,12 @@ void BaselinePFSCRegression::update(const edm::EventSetup& es) {
 
 void BaselinePFSCRegression::set(const reco::SuperCluster& sc,
 				 std::vector<float>& vars     ) const {
+  std::vector<float> rInputs;
+  EcalRegressionData regData;
+  regData.fill(sc,rechitsEB.product(),rechitsEE.product(),calogeom.product(),calotopo.product(),vertices.product());
+  regData.fillVec(rInputs);
+
+ 
   vars.clear();
   vars.resize(33);
   const double rawEnergy = sc.rawEnergy(), calibEnergy = sc.correctedEnergy();
@@ -194,6 +201,10 @@ void BaselinePFSCRegression::set(const reco::SuperCluster& sc,
   default:
    throw cms::Exception("PFECALSuperClusterProducer::calculateRegressedEnergy")
      << "Supercluster seed is either EB nor EE!" << std::endl;
+  }
+
+  for(size_t i=0;i<vars.size();i++){
+    if(fabs(vars[i]-rInputs[i])>0.00001) std::cout <<" eta "<<sc.eta()<< " i "<<i<<" new "<<rInputs[i]<<" old "<<vars[i]<<std::endl;
   }
 }
 
