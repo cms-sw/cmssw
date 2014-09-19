@@ -57,6 +57,7 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  bTagPlotsDATA *
                                  alcaBeamMonitor *
                                  dqmPhysics *
+				 prebTagSequence *
                                  produceDenoms *
                                  pfTauRunDQMValidation)
 
@@ -70,7 +71,6 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
-				   prebTagSequence *
                                    dqmPhysics )
 
 DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
