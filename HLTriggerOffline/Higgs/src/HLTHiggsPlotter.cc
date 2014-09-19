@@ -64,7 +64,7 @@ void HLTHiggsPlotter::beginRun(const edm::Run & iRun,
 
 }
 
-void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
+void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool & useNminOneCuts)
 {
     for (std::set<unsigned int>::iterator it = _objectsType.begin();
          it != _objectsType.end(); ++it)
@@ -80,7 +80,7 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker)
         {
             std::string source = sources[i];
             
-            if( *it == EVTColContainer::PFJET) {
+            if( useNminOneCuts && *it == EVTColContainer::PFJET) {
                 if( source == "gen" ) continue;
                 else {
                     // N-1 jet plots (dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, PFMET, pt1, pt2, pt3, pt4)
@@ -119,7 +119,6 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
   for(std::set<unsigned int>::iterator co = _objectsType.begin();
       co != _objectsType.end(); ++co)
   {
-    if( !(*co == EVTColContainer::PFJET && source == "gen") ) // genJets are not there
       countobjects[*co] = 0;
   }
 	
@@ -176,7 +175,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
   for(std::set<unsigned int>::iterator co = _objectsType.begin();
       co != _objectsType.end(); ++co)
   {
-    if( !(*co == EVTColContainer::PFJET && source == "gen") ) // genJets are not needed
+    if( !(*co == EVTColContainer::PFJET && source == "gen") ) // genJets are not there
       countobjects[*co] = 0;
   }
 	

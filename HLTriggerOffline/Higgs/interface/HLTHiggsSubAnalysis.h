@@ -37,6 +37,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -147,6 +149,7 @@ class HLTHiggsSubAnalysis
 		//! The concrete String selectors (use the string cuts introduced
 		//! via the config python)
 		std::map<unsigned int,StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
+        StringCutObjectSelector<reco::GenJet> * _genJetSelector;
 	      	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
 	      	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
 	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;

@@ -27,11 +27,11 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-// #include "DataFormats/JetReco/​interface/​GenJet.h"
-// #include "DataFormats/JetReco/​interface/​GenJetCollection.h"
 
 #include<vector>
 #include<map>
@@ -55,7 +55,7 @@ struct EVTColContainer
 	int nOfCollections;
 	int nInitialized;
 	const reco::GenParticleCollection * genParticles;
-//     const reco::GenJetCollection * genJets;
+    const reco::GenJetCollection * genJets;
 	const std::vector<reco::Muon> * muons;
 	const std::vector<reco::GsfElectron> * electrons;
 	const std::vector<reco::Photon> * photons;
@@ -68,10 +68,10 @@ struct EVTColContainer
 	const trigger::TriggerEventWithRefs * rawTriggerEvent;
 	const edm::TriggerResults   * triggerResults ;
 	EVTColContainer():
-		nOfCollections(6),
+		nOfCollections(7),
 		nInitialized(0),
 		genParticles(0),
-// 		genJets(0);
+		genJets(0),
 		muons(0),
 		electrons(0),
 		photons(0),
@@ -100,7 +100,7 @@ struct EVTColContainer
 	{
 		nInitialized = 0;
 		genParticles = 0;
-//         genJets = 0;
+        genJets = 0;
 		muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; pfMETs= 0; pfJets=0; //tracks=0; 
 		jetTags = 0;
 		rawTriggerEvent = 0;
