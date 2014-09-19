@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v3.2/HLT/V49 (CMSSW_7_1_8)
+# /online/collisions/2012/8e33/v3.2/HLT/V50 (CMSSW_7_1_9)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V49')
+  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V50')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
