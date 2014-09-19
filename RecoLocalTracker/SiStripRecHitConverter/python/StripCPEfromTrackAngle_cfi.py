@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import *
 StripCPEfromTrackAngleESProducer = stripCPEESProducer.clone()
-StripCPEfromTrackAngleESProducer.ComponentName = cms.string('StripCPEfromTrackAngle'),
-StripCPEfromTrackAngleESProducer.ComponentType = cms.string('StripCPEfromTrackAngle'),
+StripCPEfromTrackAngleESProducer.ComponentName = cms.string('StripCPEfromTrackAngle')
+StripCPEfromTrackAngleESProducer.ComponentType = cms.string('StripCPEfromTrackAngle')
 StripCPEfromTrackAngleESProducer.parameters    = cms.PSet(
    mLC_P0         = cms.double(-.326),
    mLC_P1         = cms.double( .618),
