@@ -38,21 +38,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
             #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
-             #'/store/relval/CMSSW_6_2_0/RelValQCD_Pt_600_800/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/B0E46DF7-5CEC-E211-BAAD-0025901D5C7E.root',
-            #'/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-RECO/START52_V4A-v1/0248/BE2AD2B0-1569-E111-B555-003048678FF4.root',
-            #'/store/relval/CMSSW_6_2_0/RelValMinBias/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/E25D61DF-53EC-E211-833B-002481E736D2.root',
-
-            #'/store/relval/CMSSW_6_2_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/F640D45E-47EC-E211-8B37-00237DDC5C16.root',
-
-#'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_6_2_0/src/Configuration/Generator/test/step2_RAW2DIGI_RECO.root'
             'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/RECO/0090828A-AC71-E311-A488-7845C4FC36D7.root'
-            #'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_6_2_0/src/AODSIM/8A160446-E270-E311-B293-00266CFAC810.root',
-            #'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_6_2_0/src/AODSIM/7691F031-1C70-E311-8935-7845C4F9321B.root'
-#'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_6_2_0/src/AODSIM/703841B6-C271-E311-9BE1-848F69FD501B.root',
-
-#'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_6_2_0/src/AODSIM/CE4C9570-0379-E311-8A51-7845C4FC3611.root',
-
-#'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_6_2_0/src/AODSIM/A2CE01C5-B46F-E311-8067-00A0D1EE9424.root'
+	    #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
     ),
     secondaryFileNames = cms.untracked.vstring(
             #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
@@ -60,6 +47,8 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+#process.ak4PFJetsJEC.src = cms.InputTag("ak5PFJets")#process.caloMet.alias = cms.string('met')
+#process.hltHiggsValidator.Htaunu.recCaloMETLabel = cms.string('met')
 
 process.DQMStore = cms.Service("DQMStore")
 

@@ -358,8 +358,8 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
         if( it->first == EVTColContainer::PFJET)
         {
             // Skip genJets for N-1 plots
-            if( _useNminOneCuts ) continue;
-            else {
+            if( ! _useNminOneCuts ) 
+            {
                 // Initialize selectors when first event
                 if(!_genJetSelector) 
                 {
@@ -730,21 +730,13 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 			col->triggerResults = trigResults.product();
 		}
 
-		// GenParticle collection if is there
+		// GenParticle collection if is there (genJets only if there need to be jets)
 		edm::Handle<reco::GenParticleCollection> genPart;
 		iEvent.getByToken(_genParticleLabel,genPart);
 		if( genPart.isValid() )
 		{
 			col->genParticles = genPart.product();
 		}
-		
-        // GenJet collection
-        edm::Handle<reco::GenJetCollection> genJet;
-        iEvent.getByToken(_genJetLabel,genJet);
-        if( genJet.isValid() )
-        {
-            col->genJets = genJet.product();
-        }
 	}
 		
 	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin(); 
@@ -786,9 +778,18 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 			iEvent.getByToken(_recLabelsPFTau, theHandle);
 			col->set(theHandle.product());
 		}
+		// PFJets loaded in seperate function initAndInsertJets because they need to be combined with the btags using the Handle (not the product) and for ordering them seperately in the MatchStruct's
 		else if( it->first == EVTColContainer::PFJET )
 		{
-		// Done in seperate function initAndInsertJets because they need to be combined with the btags using the Handle (not the product) and for ordering them seperately in the MatchStruct's
+            if( ! _useNminOneCuts) {
+                // GenJet collection
+                edm::Handle<reco::GenJetCollection> genJet;
+                iEvent.getByToken(_genJetLabel,genJet);
+                if( genJet.isValid() )
+                {
+                    col->genJets = genJet.product();
+                }
+            }
 		}
 		else
 		{

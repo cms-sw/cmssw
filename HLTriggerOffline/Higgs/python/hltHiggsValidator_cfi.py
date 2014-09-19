@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb", "testJetSMP"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"), 
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -183,13 +183,5 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
         NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 4, 20, 80, 60), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
-        ),
-    testJetSMP  = cms.PSet( 
-        hltPathsToCheck = cms.vstring(
-            "HLT_QuadJet75_55_35_20_BTagIP_VBF_v"
-            ),
-        recJetLabel  = cms.string("ak5PFJets"),
-        # -- Analysis specific cuts
-        minCandidates = cms.uint32(2), 
         ),
 )
