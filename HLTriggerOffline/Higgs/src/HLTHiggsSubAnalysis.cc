@@ -28,6 +28,7 @@
 #include<set>
 #include<algorithm>
 
+
 HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 					 const std::string & analysisname,
 					 edm::ConsumesCollector&& iC) :
@@ -1026,10 +1027,12 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
         
         // max(CSV)
         if( _NminOneCuts[4] ) {
-            std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
-            CSV1 = matches->at(0).bTag;
-            for(unsigned int i=1; i < (unsigned int) _NminOneCuts[4] ; ++i) {
-                if( matches->at(i).bTag > CSV1 && matches->at(i).pt > _NminOneCuts[5] ) CSV1 = matches->at(i).bTag;
+            if ( _NminOneCuts[4] < matches->size()){
+                std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+                CSV1 = matches->at(0).bTag;
+                for(unsigned int i=1; i < (unsigned int) _NminOneCuts[4] ; ++i) {
+                    if( matches->at(i).bTag > CSV1 && matches->at(i).pt > _NminOneCuts[5] ) CSV1 = matches->at(i).bTag;
+                }
             }
         }
     }    
