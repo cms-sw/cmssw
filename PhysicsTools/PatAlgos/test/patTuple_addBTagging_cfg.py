@@ -32,6 +32,7 @@ addJetCollection(
       ,'simpleSecondaryVertexHighPurBJetTags'
       ,'simpleSecondaryVertexNegativeHighEffBJetTags'
       ,'simpleSecondaryVertexNegativeHighPurBJetTags'
+      ,'pfCombinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexPositiveBJetTags'
       ,'combinedInclusiveSecondaryVertexV2BJetTags'
