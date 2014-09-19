@@ -2,7 +2,7 @@
 import pydablooms
 CAPACITY=5000
 ERROR_RATE=float(1)/CAPACITY
-BYTES=1
+BYTES=2
 bloom = pydablooms.Dablooms(capacity=CAPACITY, error_rate=ERROR_RATE,filepath='bloom.bin')
 
 f = open('classes.txt')

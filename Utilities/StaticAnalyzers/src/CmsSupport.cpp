@@ -22,7 +22,7 @@ extern "C" {
 }
 #define CAPACITY 5000
 #define ERROR_RATE .0002
-#define BYTES 1
+#define BYTES 2
 
 
 using namespace clangcms;
@@ -152,7 +152,7 @@ bool support::isDataClass(const std::string & name) {
 
 	static scaling_bloom_t * blmflt = new_scaling_bloom_from_file( CAPACITY, ERROR_RATE, iname.c_str() );
 
-	if ( scaling_bloom_check( blmflt, name.c_str(), BYTES ) ) return true;
+	if ( scaling_bloom_check( blmflt, name.c_str(), BYTES ) == 1 ) return true;
 
 	return false;
 }
