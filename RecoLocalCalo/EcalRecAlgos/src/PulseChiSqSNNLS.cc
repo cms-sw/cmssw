@@ -18,26 +18,32 @@ PulseChiSqSNNLS::~PulseChiSqSNNLS() {
 
 bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &samplecor, double pederr, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov) {
  
-  const unsigned int nsample = SampleVector::RowsAtCompileTime;
+  //const unsigned int nsample = SampleVector::RowsAtCompileTime;
   const unsigned int npulse = bxs.rows();
 
   _sampvec = samples;
   _bxs = bxs;
   
-  _pulsemat = SamplePulseMatrix::Zero(nsample,npulse);
+  //_pulsemat = SamplePulseMatrix::Zero(nsample,npulse);
+  _pulsemat.resize(Eigen::NoChange,npulse);
   _ampvec = PulseVector::Zero(npulse);
   _errvec = PulseVector::Zero(npulse);  
   _nP = 0;
   _chisq = 0.;
+  
+  aTamat.resize(npulse,npulse);
+  wvec.resize(npulse);
 
   //initialize pulse template matrix
   for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
     int bx = _bxs.coeff(ipulse);
-    int firstsamplet = std::max(0,bx + 3);
+    //int firstsamplet = std::max(0,bx + 3);
     int offset = 7-3-bx;
     
-    const unsigned int nsamplepulse = nsample-firstsamplet;
-    _pulsemat.col(ipulse).segment(firstsamplet,nsamplepulse) = fullpulse.segment(firstsamplet+offset,nsamplepulse);
+    //const unsigned int nsamplepulse = nsample-firstsamplet;
+    //_pulsemat.col(ipulse).segment(firstsamplet,nsamplepulse) = fullpulse.segment(firstsamplet+offset,nsamplepulse);
+    
+    _pulsemat.col(ipulse) = fullpulse.segment<SampleVector::RowsAtCompileTime>(offset);
   }
 
   //do the actual fit
@@ -201,15 +207,10 @@ bool PulseChiSqSNNLS::NNLS() {
   
   const unsigned int npulse = _bxs.rows();
   
-  SamplePulseMatrix invcovp = _covdecomp.matrixL().solve(_pulsemat);
-  PulseMatrix aTamat(npulse,npulse);
+  invcovp = _covdecomp.matrixL().solve(_pulsemat);
   aTamat.triangularView<Eigen::Lower>() = invcovp.transpose()*invcovp;
   aTamat = aTamat.selfadjointView<Eigen::Lower>();
-  PulseVector aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
-  
-  
-  PulseVector wvec(npulse);
-  
+  aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
   
   int iter = 0;
   while (true) {    
@@ -245,7 +246,7 @@ bool PulseChiSqSNNLS::NNLS() {
       
       if (_nP==0) break;     
       
-      PulseVector ampvecpermtest = _ampvec;
+      ampvecpermtest = _ampvec;
       
       //solve for unconstrained parameters      
       ampvecpermtest.head(_nP) = aTamat.topLeftCorner(_nP,_nP).ldlt().solve(aTbvec.head(_nP));     

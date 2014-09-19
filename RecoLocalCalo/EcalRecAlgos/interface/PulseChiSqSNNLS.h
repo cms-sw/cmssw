@@ -49,6 +49,12 @@ class PulseChiSqSNNLS {
     BXVector _bxsmin;
     unsigned int _nP;
     
+    SamplePulseMatrix invcovp;
+    PulseMatrix aTamat;
+    PulseVector aTbvec;
+    PulseVector wvec;
+    PulseVector ampvecpermtest;
+    
     double _chisq;
     bool _computeErrors;
 };
