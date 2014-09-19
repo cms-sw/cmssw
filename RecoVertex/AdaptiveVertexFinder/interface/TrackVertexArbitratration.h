@@ -181,6 +181,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
 
 		AnalyticalImpactPointExtrapolator extrapolator(tt.field());
 		TrajectoryStateOnSurface tsos = extrapolator.extrapolate(tt.impactPointState(), RecoVertex::convertPos(sv->position()));
+		if(! tsos.isValid()) continue;
 		GlobalPoint refPoint          = tsos.globalPosition();
 		GlobalError refPointErr       = tsos.cartesianError().position();
 		Measurement1D isv = dist.distance(VertexState(RecoVertex::convertPos(sv->position()),RecoVertex::convertError(sv->error())),VertexState(refPoint, refPointErr));	   
