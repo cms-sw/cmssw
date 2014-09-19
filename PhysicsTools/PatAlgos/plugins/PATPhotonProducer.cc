@@ -225,7 +225,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     edm::Handle< EcalRecHitCollection > recHitsEBHandle;
     iEvent.getByToken(reducedBarrelRecHitCollectionToken_,recHitsEBHandle);
     edm::Handle< EcalRecHitCollection > recHitsEEHandle;
-    iEvent.getByToken(reducedEndcapRecHitCollectionToken_,recHitsEBHandle);
+    iEvent.getByToken(reducedEndcapRecHitCollectionToken_,recHitsEEHandle);
     
 
     //orginal code would throw an exception via the handle not being valid but now it'll just have a null pointer error
