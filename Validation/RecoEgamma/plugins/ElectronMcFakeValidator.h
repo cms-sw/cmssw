@@ -1,6 +1,6 @@
 
 #ifndef Validation_RecoEgamma_ElectronMcFakeValidator_h
-#define Validation_RecoEgamma_ElectronMcFakeValidator_h
+#define Validation_RecoEgamma_ElectronMcFakeValidator_h 
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 //#include "Validation/RecoEgamma/interface/ElectronValidator.h"
@@ -35,8 +35,8 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
 
     explicit ElectronMcFakeValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcFakeValidator() ;
-    virtual void book() ;
-    virtual void analyze( const edm::Event& e, const edm::EventSetup & c ) ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
+    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) ;
 
   private:
 
@@ -86,6 +86,7 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     int mee_nbin ; double mee_min ; double mee_max ;
     int hoe_nbin ; double hoe_min ; double hoe_max ;
     int popmatching_nbin ; double popmatching_min ; double popmatching_max ;
+    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     // histos
 
