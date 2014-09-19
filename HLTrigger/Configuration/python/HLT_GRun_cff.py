@@ -5113,7 +5113,7 @@ UpdaterService = cms.Service( "UpdaterService",
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
     ),
-    verbose = cms.untracked.bool( False )
+    verbose = cms.untracked.bool( True )
 )
 hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
