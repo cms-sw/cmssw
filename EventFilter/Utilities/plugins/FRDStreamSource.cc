@@ -27,7 +27,6 @@ FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset,
 
 bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime)
 {
-  std::cout <<"This is the event id now " << id << std::endl;
   if ( fin_.peek() == EOF ) {
     if ( ++itFileName_==fileNames().end() ) {
       fin_.close();
