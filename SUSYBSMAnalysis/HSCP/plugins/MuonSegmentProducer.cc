@@ -66,8 +66,8 @@ MuonSegmentProducer::MuonSegmentProducer(const edm::ParameterSet& iConfig) {
   using namespace std;
 
 
-  m_cscSegmentToken = consumes< CSCSegmentCollection >( edm::InputTag( "CSCSegments" ) );
-  m_dtSegmentToken  = consumes< DTRecSegment4DCollection >(edm::InputTag( "DTSegments" ) );
+  m_cscSegmentToken = consumes< CSCSegmentCollection >( iConfig.getParameter<edm::InputTag>("CSCSegments" ) );
+  m_dtSegmentToken  = consumes< DTRecSegment4DCollection >(iConfig.getParameter<edm::InputTag>("DTSegments" ) );
 
   produces<susybsm::MuonSegmentCollection >();
 }
