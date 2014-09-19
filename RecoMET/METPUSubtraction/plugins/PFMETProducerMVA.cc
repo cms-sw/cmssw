@@ -424,7 +424,7 @@ double PFMETProducerMVA::chargedFracInCone(const reco::Candidate *iCand,
   reco::Candidate::LorentzVector lVis(0,0,0,0);
   for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
-    if(deltaR(iCand->p4(),pfCandidate->p4()) > iDRMax)  continue;
+    if(deltaR2(iCand->p4(),pfCandidate->p4()) > iDRMax*iDRMax)  continue;
     double dZ = -999.; // PH: If no vertex is reconstructed in the event
                        //     or PFCandidate has no track, set dZ to -999
     if ( hardScatterVertex ) {

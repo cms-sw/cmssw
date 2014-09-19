@@ -14,9 +14,9 @@ const double defaultPFMEtResolutionY = 10.;
 const double epsilon = 1.e-9;
 
 PFMEtSignInterfaceBase::PFMEtSignInterfaceBase(const edm::ParameterSet& cfg)
-  : pfMEtResolution_(0),
-    inputFile_(0),
-    lut_(0)
+  : pfMEtResolution_(nullptr),
+    inputFile_(nullptr),
+    lut_(nullptr)
 {
   pfMEtResolution_ = new metsig::SignAlgoResolutions(cfg);
 

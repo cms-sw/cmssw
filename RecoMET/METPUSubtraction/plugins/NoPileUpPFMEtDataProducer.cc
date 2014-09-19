@@ -15,8 +15,8 @@ const double dRMin = 0.001;
 
 NoPileUpPFMEtDataProducer::NoPileUpPFMEtDataProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    looseJetIdAlgo_(0),
-    pfMEtSignInterface_(0)
+    looseJetIdAlgo_(nullptr),
+    pfMEtSignInterface_(nullptr)
 {
   srcJets_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
   srcJetIds_ = consumes<edm::ValueMap<int> >(cfg.getParameter<edm::InputTag>("srcJetIds"));
@@ -67,7 +67,7 @@ namespace
 			  const edm::View<reco::PFCandidate>& pfCandidateCollection, 
 			  std::vector<int>& flags, int value,
 			  int& numWarnings, int maxWarnings,
-			  std::vector<const reco::PFJet*>* pfCandidateToJetAssociations = 0) {
+			  std::vector<const reco::PFJet*>* pfCandidateToJetAssociations = nullptr) {
 
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfJet.getPFConstituents().begin();
 	  pfJetConstituent != pfJet.getPFConstituents().end(); ++pfJetConstituent ) {
@@ -106,7 +106,7 @@ namespace
 	      idx != idxs.end(); ++idx ) {
 	  if ( (*idx) >= (int)flags.size() ) flags.resize(2*flags.size());
 	  flags[*idx] |= value;
-	  if ( pfCandidateToJetAssociations ) (*pfCandidateToJetAssociations)[*idx] = &pfJet;
+	  if ( pfCandidateToJetAssociations!=nullptr ) (*pfCandidateToJetAssociations)[*idx] = &pfJet;
 	}
       } else {
 	edm::LogError ("setPFCandidateFlag") 
@@ -195,7 +195,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   std::auto_ptr<reco::MVAMEtJetInfoCollection> jetInfos(new reco::MVAMEtJetInfoCollection());
   std::auto_ptr<reco::MVAMEtPFCandInfoCollection> pfCandInfos(new reco::MVAMEtPFCandInfoCollection());
 
-  const JetCorrector* jetEnOffsetCorrector = 0;
+  const JetCorrector* jetEnOffsetCorrector = nullptr;
   if ( jetEnOffsetCorrLabel_ != "" ) {
     jetEnOffsetCorrector = JetCorrector::getJetCorrector(jetEnOffsetCorrLabel_, es);
     if ( !jetEnOffsetCorrector )  

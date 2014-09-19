@@ -45,15 +45,14 @@ namespace
 
 PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg) 
   : utils_(cfg),
-    mvaInputU_(0),
-    mvaInputDPhi_(0),
-    mvaInputCovU1_(0),
-    mvaInputCovU2_(0),
-    //mvaMEtCov_(2, 2),
-    mvaReaderU_(0),
-    mvaReaderDPhi_(0),
-    mvaReaderCovU1_(0),
-    mvaReaderCovU2_(0),
+    mvaInputU_(nullptr),
+    mvaInputDPhi_(nullptr),
+    mvaInputCovU1_(nullptr),
+    mvaInputCovU2_(nullptr),
+    mvaReaderU_(nullptr),
+    mvaReaderDPhi_(nullptr),
+    mvaReaderCovU1_(nullptr),
+    mvaReaderCovU2_(nullptr),
     cfg_(cfg)
 {
   mvaType_ = kBaseline;

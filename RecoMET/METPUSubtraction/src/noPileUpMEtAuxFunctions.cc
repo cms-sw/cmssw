@@ -70,7 +70,7 @@ int isVertexAssociated_fast(const reco::PFCandidateRef& pfCandidate,
   if ( pfCandidate->charge() != 0 ) {
     vtxAssociationType = 1;
     typedef std::vector<std::pair<reco::VertexRef, int> > VertexQualityPairVector;
-    const VertexQualityPairVector* pfCandidate_associated_vertices = 0;
+    const VertexQualityPairVector* pfCandidate_associated_vertices = nullptr;
     reversedPFCandidateToVertexAssociationMap::const_iterator pfCandToVertexAssociation_iter = pfCandToVertexAssociations.find(pfCandidate);
     if ( pfCandToVertexAssociation_iter != pfCandToVertexAssociations.end() ) {
       pfCandidate_associated_vertices = &pfCandToVertexAssociation_iter->val;

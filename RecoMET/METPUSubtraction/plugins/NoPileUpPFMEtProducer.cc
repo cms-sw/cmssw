@@ -109,20 +109,20 @@ void finalizeCommonMETData(CommonMETData& metData)
 
 int findBestMatchingLepton(const std::vector<reco::Candidate::LorentzVector>& leptons, const reco::Candidate::LorentzVector& p4_ref)
 {
-  int leptonIdx_dRmin = -1;
-  double dRmin = 1.e+3;
+  int leptonIdx_dR2min = -1;
+  double dR2min = 1.e+3;
   int leptonIdx = 0;
   for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
 	lepton != leptons.end(); ++lepton ) {
-    double dR = deltaR(*lepton, p4_ref);
-    if ( leptonIdx_dRmin == -1 || dR < dRmin ) {
-      leptonIdx_dRmin = leptonIdx;
-      dRmin = dR;
+    double dR2 = deltaR2(*lepton, p4_ref);
+    if ( leptonIdx_dR2min == -1 || dR2 < dR2min ) {
+      leptonIdx_dR2min = leptonIdx;
+      dR2min = dR2;
     }
     ++leptonIdx;
   }
-  assert(leptonIdx_dRmin >= 0 && leptonIdx_dRmin < (int)leptons.size());
-  return leptonIdx_dRmin;
+  assert(leptonIdx_dR2min >= 0 && leptonIdx_dR2min < (int)leptons.size());
+  return leptonIdx_dR2min;
 }
 
 void scaleAndAddPFMEtSignObjects(std::vector<metsig::SigInputObj>& metSignObjects_scaled, const std::vector<metsig::SigInputObj>& metSignObjects, 
@@ -301,8 +301,8 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     if ( pfCandidate->isWithinJet_ ) {
       for ( reco::MVAMEtJetInfoCollection::const_iterator jet = jets_leptons.begin();
 	    jet != jets_leptons.end(); ++jet ) {
-	double dR = deltaR(pfCandidate->p4_, jet->p4_);
-	if ( dR < 0.5 ) isWithinJet_lepton = true; 
+	double dR2 = deltaR2(pfCandidate->p4_, jet->p4_);
+	if ( dR2 < 0.5*0.5 ) isWithinJet_lepton = true; 
       }
     }
     if ( !isWithinJet_lepton ) {

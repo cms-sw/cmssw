@@ -105,7 +105,7 @@ std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vect
     bool isOverlap = false;
     for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR(jet->p4_, lepton->p4_) < dRmatch ) isOverlap = true;	
+      if ( deltaR2(jet->p4_, lepton->p4_) < dRmatch*dRmatch ) isOverlap = true;	
     }
     if ( jet->p4_.pt() > ptThreshold && !isOverlap ) retVal.push_back(*jet);
   }
@@ -122,7 +122,7 @@ std::vector<mvaMEtUtilities::pfCandInfo> mvaMEtUtilities::cleanPFCands(const std
     bool isOverlap = false;
     for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR(pfCandidate->p4_, lepton->p4_) < dRmatch ) isOverlap = true;
+      if ( deltaR2(pfCandidate->p4_, lepton->p4_) < dRmatch*dRmatch ) isOverlap = true;
     }
     if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(*pfCandidate);
   }

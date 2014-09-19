@@ -29,7 +29,7 @@ namespace noPileUpMEtUtilities
       bool isOverlap = false;
       for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
 	    lepton != leptons.end(); ++lepton ) {
-	if ( deltaR(jet->p4_, *lepton) < dRoverlap ) {
+	if ( deltaR2(jet->p4_, *lepton) < dRoverlap*dRoverlap ) {
 	  isOverlap = true;
 	  break;
 	}
@@ -133,7 +133,7 @@ namespace noPileUpMEtUtilities
       bool isOverlap = false;
       for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
 	    lepton != leptons.end(); ++lepton ) {
-	if ( deltaR(pfCandidate->p4_, *lepton) < dRoverlap ) {
+	if ( deltaR2(pfCandidate->p4_, *lepton) < dRoverlap*dRoverlap ) {
 	  isOverlap = true;
 	  break;
 	}

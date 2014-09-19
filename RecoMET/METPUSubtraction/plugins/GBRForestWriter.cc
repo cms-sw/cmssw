@@ -44,7 +44,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
     std::map<std::string, const GBRForest*> gbrForests; // key = name
     for ( std::vector<categoryEntryType*>::iterator category = (*job)->categories_.begin();
 	  category != (*job)->categories_.end(); ++category ) {
-      const GBRForest* gbrForest = 0;
+      const GBRForest* gbrForest = nullptr;
       if ( (*category)->inputFileType_ == categoryEntryType::kXML ) {
 	TMVA::Tools::Instance();
 	TMVA::Reader* mvaReader = new TMVA::Reader("!V:!Silent");   
@@ -99,6 +99,13 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	dbService->writeOne(gbrForest->second, dbService->beginOfTime(), outputRecord);
       }
     }
+ 
+    //gbrforest deletion
+    for ( std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
+	  gbrForest != gbrForests.end(); ++gbrForest ) {
+      delete gbrForest->second;
+    }
+
   }
 
 }

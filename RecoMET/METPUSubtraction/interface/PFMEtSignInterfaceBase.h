@@ -75,7 +75,7 @@ class PFMEtSignInterfaceBase
 		dynamic_cast<const pat::Muon*>(particle) != 0 ) {
       std::string particleType = "muon";
       double dpt, dphi;
-      const reco::Track* muonTrack = 0;
+      const reco::Track* muonTrack = nullptr;
     if ( dynamic_cast<const pat::Muon*>(particle) != 0 ) {
       const pat::Muon* muon = dynamic_cast<const pat::Muon*>(particle);
       if ( muon->track().isNonnull() && muon->track().isAvailable() ) muonTrack = muon->track().get();
