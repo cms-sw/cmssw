@@ -59,7 +59,7 @@ public:
   LocalTrajectoryParameters(float aQbp, float aDxdz, float aDydz,
                             float aX, float aY, float aPzSign, bool charged = true) :
     theDxdz(aDxdz), theDydz(aDydz),
-    theX(aX), theY(aY), thePzSign(aPzSign) {
+    theX(aX), theY(aY), thePzSign(aPzSign>0 ? 1 : -1) {
     if ( charged ) {
       theQbp = aQbp;
       theCharge = theQbp>0 ? 1 : -1;
@@ -74,7 +74,7 @@ public:
   LocalTrajectoryParameters( const LocalPoint& pos, const LocalVector& p,
 			     TrackCharge charge) :
     theQbp( charge/p.mag()), theDxdz( p.x()/p.z()), theDydz( p.y()/p.z()), 
-    theX( pos.x()), theY(pos.y()), thePzSign( p.z()>0. ? 1.f:-1.f), theCharge(charge) {
+    theX( pos.x()), theY(pos.y()), thePzSign( p.z()>0. ? 1:-1), theCharge(charge) {
     if ( charge==0 )  theQbp = 1.f/p.mag();
   }
 
@@ -89,7 +89,7 @@ public:
   LocalVector momentum() const {
     float op = std::abs(theQbp);
     if ( op<1.e-9f )  op = 1.e-9f;
-    float pz = thePzSign/(op*std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
+    float pz = float(thePzSign)/(op*std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
     float px = pz*theDxdz;
     float py = pz*theDydz;
     return LocalVector(px, py, pz);
@@ -97,7 +97,7 @@ public:
 
  /// Momentum vector unit in the local frame. 
   LocalVector direction() const {
-    float dz = thePzSign/std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
+    float dz = float(thePzSign)/std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
     float dx = dz*theDxdz;
     float dy = dz*theDydz;
     return LocalVector(dx, dy, dz);
@@ -169,9 +169,9 @@ private:
   float theX;      ///< local x position
   float theY;      ///< local y position
 
-  float thePzSign; ///< sign of local pz
+  short thePzSign; ///< sign of local pz
 
-  TrackCharge theCharge; ///< charge
+  short theCharge; ///< charge
 
 };
 
