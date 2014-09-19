@@ -32,9 +32,9 @@ void HcalUpgradeDataFrame::setSize(int size) {
 }
 
 void HcalUpgradeDataFrame::setPresamples(int presamples) {
-  if (presamples>MAXSAMPLES) presamples_|=MAXSAMPLES&0xF;
+  if (presamples>MAXSAMPLES) presamples_=MAXSAMPLES&0xF;
   else if (presamples<=0) presamples_=0;
-  else presamples_|=presamples&0xF;
+  else presamples_=presamples&0xF;
 }
 
 void HcalUpgradeDataFrame::setReadoutIds(const HcalElectronicsId& eid) {
