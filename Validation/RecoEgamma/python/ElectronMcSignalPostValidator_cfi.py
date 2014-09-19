@@ -1,6 +1,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
+electronMcSignalHistosCfg = cms.PSet(
+  EfficiencyFlag = cms.bool(False), StatOverflowFlag = cms.bool(True)
+)
+
 electronMcSignalPostValidator = cms.EDAnalyzer("ElectronMcSignalPostValidator",
 
   Verbosity = cms.untracked.int32(0),
@@ -10,6 +14,7 @@ electronMcSignalPostValidator = cms.EDAnalyzer("ElectronMcSignalPostValidator",
   InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
   OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
     
+  histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
 
 
