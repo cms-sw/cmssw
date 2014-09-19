@@ -4,14 +4,16 @@ namespace evf{
 
       edm::EventAuxiliary makeEventAuxiliary(TCDSRecord *record, 
 					     unsigned int runNumber,
+                                             unsigned int lumiSection,
 					     std::string const &processGUID){
 	edm::EventID eventId(runNumber, // check that runnumber from record is consistent
-			     record->getHeader().getData().header.lumiSection,
+			     //record->getHeader().getData().header.lumiSection,//+1
+                             lumiSection,
 			     record->getHeader().getData().header.eventNumber);
 	
 	uint64_t gpsh = record->getBST().getBST().gpstimehigh;
 	uint32_t gpsl = record->getBST().getBST().gpstimelow;
-	edm::Timestamp tstamp = edm::Timestamp(static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl));      
+	edm::Timestamp tstamp = edm::Timestamp(static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl));
 	return edm::EventAuxiliary(eventId,
 				   processGUID,
 				   tstamp,
