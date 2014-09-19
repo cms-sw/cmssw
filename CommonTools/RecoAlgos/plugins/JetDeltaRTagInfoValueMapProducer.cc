@@ -69,6 +69,7 @@ private:
     edm::Handle< typename edm::View<I> > h_tagInfos;
     iEvent.getByToken( matchedTagInfosToken_, h_tagInfos );
 
+    double distMax2 = distMax_*distMax_;
 
     std::vector<bool> jets2_locks( h_jets2->size(), false );
 
@@ -103,7 +104,7 @@ private:
 
       if( matched_index>=0 && matched_index < h_tagInfos->size() )
       {
-        if ( matched_dR2 > distMax_*distMax_ )
+        if ( matched_dR2 > distMax2 )
           edm::LogWarning("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
         else
         {
