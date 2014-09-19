@@ -590,7 +590,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   else{
     evf::evtn::TCDSRecord record((unsigned char *)(tcds_pointer_));
     edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(&record, 
-						 eventRunNumber_,
+						 eventRunNumber_,currentLumiSection_,
 						 processGUID());
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
