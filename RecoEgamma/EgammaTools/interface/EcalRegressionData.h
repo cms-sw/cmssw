@@ -4,6 +4,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <vector>
+#include <cmath>
 
 class CaloGeometry;
 class CaloTopology;
@@ -51,7 +52,7 @@ public:
   float seedCrysEtaOrX()const{return seedCrysEtaOrX_;}
   float seedCrysIEtaOrIX()const{return seedCrysIEtaOrIX_;}
   float seedCrysIPhiOrIY()const{return seedCrysIPhiOrIY_;}
-  float maxSubClusDR()const{return maxSubClusDR_;}
+  float maxSubClusDR()const{return std::sqrt(maxSubClusDR2_);}
   float maxSubClusDRDPhi()const{return maxSubClusDRDPhi_;}
   float maxSubClusDRDEta()const{return maxSubClusDRDEta_;}
   float maxSubClusDRRawEnergy()const{return maxSubClusDRRawEnergy_;}
@@ -134,7 +135,7 @@ private:
   int seedCrysIPhiOrIY_;
 
   //sub cluster (non-seed) quantities
-  float maxSubClusDR_;
+  float maxSubClusDR2_;
   float maxSubClusDRDPhi_;
   float maxSubClusDRDEta_;
   float maxSubClusDRRawEnergy_;

@@ -93,9 +93,9 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   for( auto clus = superClus.clustersBegin()+1;clus != superClus.clustersEnd(); ++clus ) {
     const float dEta = (*clus)->eta() - superClus.seed()->eta();
     const float dPhi = reco::deltaPhi((*clus)->phi(),superClus.seed()->phi());
-    const float dR = std::hypot(dEta,dPhi);
-    if(dR > maxSubClusDR_ || maxSubClusDR_ == 999.0f) {
-      maxSubClusDR_ = dR;
+    const float dR2 = dEta*dEta+dPhi*dPhi;
+    if(dR2 > maxSubClusDR2_ || maxSubClusDR2_ == 998001.) {
+      maxSubClusDR2_ = dR2;
       maxSubClusDRDEta_ = dEta;
       maxSubClusDRDPhi_ = dPhi;
       maxSubClusDRRawEnergy_ = (*clus)->energy();
@@ -139,9 +139,9 @@ void EcalRegressionData::clear()
   seedCrysIEtaOrIX_=0;
   seedCrysIPhiOrIY_=0;
   
-  maxSubClusDR_=999.;
+  maxSubClusDR2_=998001.;
   maxSubClusDRDPhi_=999.;
-  maxSubClusDRDEta_=999.;
+  maxSubClusDRDEta_=999;
   maxSubClusDRRawEnergy_=0.;
   
   subClusRawEnergy_.clear();
