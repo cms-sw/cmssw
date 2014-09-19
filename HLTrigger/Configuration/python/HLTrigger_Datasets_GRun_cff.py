@@ -23,7 +23,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8PFJet3
     'HLT_DoubleMu4_JpsiTrk_Displaced_v1', 
     'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v1', 
     'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v1', 
-    'HLT_DoublePho85_v1', 
+    'HLT_DoublePhoton85_v1', 
     'HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v1', 
     'HLT_Ele20WP60_Ele8_Mass55_v1', 
     'HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1', 

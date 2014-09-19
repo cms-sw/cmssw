@@ -94,7 +94,7 @@ HLT_JetE70_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-87
 
 HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*			# JIRA: CMSHLT-88
 HLT_Ele95_CaloIdVT_GsfTrkIdT_v*					# JIRA: CMSHLT-88
-HLT_DoublePho85_v*						# JIRA: CMSHLT-88
+HLT_DoublePhoton85_v*						# JIRA: CMSHLT-88
 HLT_Photon155_v*						# JIRA: CMSHLT-88
 
 #HLT_PFHT750_4Jet_v*						# JIRA: CMSHLT-90 (PFnoPU version was from CMSHLT-89)
