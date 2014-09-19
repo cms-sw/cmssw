@@ -81,8 +81,10 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname+="/tmp/function-dumper.txt.unsorted";
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	std::ofstream file(tname.c_str(),std::ios::app);
-	file<<ostring;	
+	std::fstream file;
+	file.open(tname.c_str(),std::ios::out|std::ios::app);
+	file<<ostring<<"\n";
+	file.close();
 	VisitChildren(CCE);
 }
 
@@ -117,8 +119,10 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 			ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
 		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	}
-	std::ofstream file(tname.c_str(),std::ios::app);
-	file<<ostring;
+	std::fstream file;
+	file.open(tname.c_str(),std::ios::out|std::ios::app);
+	file<<ostring<<"\n";
+	file.close();
 	VisitChildren(CE);
 }
 
@@ -140,8 +144,10 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		std::string oname = support::getQualifiedName(*(*I));
 		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + " virtual'\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		std::fstream file;
+		file.open(tname.c_str(),std::ios::out|std::ios::app);
+		file<<ostring<<"\n";
+		file.close();
 	}
        	return;
 } 

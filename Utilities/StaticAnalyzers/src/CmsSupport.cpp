@@ -16,6 +16,13 @@
 #include <fstream>
 #include <iterator>
 #include <string>
+// PGartung needed for bloom filter loading
+extern "C" {
+#include "dablooms.h"
+}
+#define CAPACITY 5000
+#define ERROR_RATE .0002
+#define BYTES 1
 
 
 using namespace clangcms;
@@ -118,35 +125,35 @@ bool support::isSafeClassName(const std::string &cname) {
 }
 
 bool support::isDataClass(const std::string & name) {
-	std::string buf;
-	llvm::raw_string_ostream os(buf);
-	clang::FileSystemOptions FSO;
-	clang::FileManager FM(FSO);
-	const char * lPath = std::getenv("LOCALRT");
-	const char * rPath = std::getenv("CMSSW_RELEASE_BASE");
-	std::string lname(""); 
-	std::string rname(""); 
-	std::string iname(""); 
-	if ( lPath != NULL && rPath != NULL ) {
-		lname = std::string(lPath);
-		rname = std::string(rPath);
-	}
-		
-	std::string tname("/tmp/classes.txt");
-	std::string fname1 = lname + tname;
-	if (!FM.getFile(fname1)) {
-		llvm::errs()<<"\n\nChecker cannot find classes.txt. Run \"USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT scram b checker to create $LOCALRT/tmp/classes.txt.\n\n\n";
-		exit(1);
+	static std::string iname("");
+	if ( iname == "") {
+		clang::FileSystemOptions FSO;
+		clang::FileManager FM(FSO);
+		const char * lPath = std::getenv("LOCALRT");
+		const char * rPath = std::getenv("CMSSW_RELEASE_BASE");
+		if ( lPath == NULL || rPath == NULL ) {
+			llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
+			exit(1);
 		}
-	if ( FM.getFile(fname1) ) 
-		iname = fname1;
-	os <<"class '"<< name <<"'";
-	std::ifstream ifile;
-	ifile.open(iname.c_str(),std::ifstream::in);
-	std::string line;
-	while (std::getline(ifile,line)) {
-		if ( line == os.str() ) return true;
+		const std::string lname = std::string(lPath);
+		const std::string rname = std::string(rPath);
+		const std::string tname("/src/Utilities/StaticAnalyzers/scripts/bloom.bin");
+		const std::string fname1 = lname + tname;
+		const std::string fname2 = rname + tname;
+		if (!(FM.getFile(fname1) || FM.getFile(fname2))) {
+			llvm::errs()<<"\n\nChecker cannot find bloom filter file" <<fname1 << " or " <<fname2 <<"\n\n\n";
+			exit(1);
+			}
+		if ( FM.getFile(fname1) )
+			iname = fname1;
+		else
+			iname = fname2;
 	}
+
+	static scaling_bloom_t * blmflt = new_scaling_bloom_from_file( CAPACITY, ERROR_RATE, iname.c_str() );
+
+	if ( scaling_bloom_check( blmflt, name.c_str(), BYTES ) ) return true;
+
 	return false;
 }
 
