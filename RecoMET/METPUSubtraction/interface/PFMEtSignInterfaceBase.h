@@ -154,10 +154,8 @@ class PFMEtSignInterfaceBase
   template <typename T>
   std::vector<metsig::SigInputObj> compResolution(const std::list<T*>& particles) const
   {
-    if ( this->verbosity_ ) {
-      std::cout << "<PFMEtSignInterfaceBase::compResolution>:" << std::endl;
-      std::cout << " particles: entries = " << particles.size() << std::endl;
-    }
+    LogDebug("compResolution")
+      << " particles: entries = " << particles.size() << std::endl;
     
     std::vector<metsig::SigInputObj> pfMEtSignObjects;
     addPFMEtSignObjects(pfMEtSignObjects, particles);

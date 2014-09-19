@@ -167,30 +167,30 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   edm::Handle<reco::VertexCollection> hardScatterVertex;
   evt.getByToken(srcHardScatterVertex_, hardScatterVertex);
-  if ( verbosity_ && hardScatterVertex->size() >= 1 ) {
-    reco::Vertex::Point hardScatterVertexPos = hardScatterVertex->front().position();
-    std::cout << "hard-scatter Vertex: x = " << hardScatterVertexPos.x() << ", y = " << hardScatterVertexPos.y() << ", z = " << hardScatterVertexPos.z() << std::endl;    
-    for ( PFCandToVertexAssMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations->begin();
-	  pfCandToVertexAssociation != pfCandToVertexAssociations->end(); ++pfCandToVertexAssociation ) {
-      reco::VertexRef vertex = pfCandToVertexAssociation->key;      
-      const PFCandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
-      for ( PFCandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
-	    pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
-	const reco::PFCandidate& pfCandidate = (*pfCandidate_vertex->first);
-	int pfCandToVertexAssocQuality = pfCandidate_vertex->second;
-	if ( pfCandidate.pt() > 2. && pfCandidate.charge() != 0 ) {
-	  double dZ = -1.;
-	  if      ( pfCandidate.trackRef().isNonnull()    ) dZ = fabs(pfCandidate.trackRef()->dz(hardScatterVertexPos));
-	  else if ( pfCandidate.gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate.gsfTrackRef()->dz(hardScatterVertexPos));
-	  std::cout << "pfCand #" << pfCandidate_vertex->first.key() << ": Pt = " << pfCandidate.pt() << ", eta = " << pfCandidate.eta() << ", phi = " << pfCandidate.phi() 
-		    << " (charge = " << pfCandidate.charge() << ", dZ = " << dZ << ")" << std::endl;
-	  reco::Vertex::Point vertexPos = vertex->position();
-	  std::cout << " associated vertex (quality = " << pfCandToVertexAssocQuality << "):" 
-		    << " x = " << vertexPos.x() << ", y = " << vertexPos.y() << ", z = " << vertexPos.z() << std::endl;
-	}
-      }
-    }
-  }
+  // if ( verbosity_ && hardScatterVertex->size() >= 1 ) {
+  //   reco::Vertex::Point hardScatterVertexPos = hardScatterVertex->front().position();
+  //   std::cout << "hard-scatter Vertex: x = " << hardScatterVertexPos.x() << ", y = " << hardScatterVertexPos.y() << ", z = " << hardScatterVertexPos.z() << std::endl;    
+  //   for ( PFCandToVertexAssMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations->begin();
+  // 	  pfCandToVertexAssociation != pfCandToVertexAssociations->end(); ++pfCandToVertexAssociation ) {
+  //     reco::VertexRef vertex = pfCandToVertexAssociation->key;      
+  //     const PFCandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
+  //     for ( PFCandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
+  // 	    pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
+  // 	const reco::PFCandidate& pfCandidate = (*pfCandidate_vertex->first);
+  // 	int pfCandToVertexAssocQuality = pfCandidate_vertex->second;
+  // 	if ( pfCandidate.pt() > 2. && pfCandidate.charge() != 0 ) {
+  // 	  double dZ = -1.;
+  // 	  if      ( pfCandidate.trackRef().isNonnull()    ) dZ = fabs(pfCandidate.trackRef()->dz(hardScatterVertexPos));
+  // 	  else if ( pfCandidate.gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate.gsfTrackRef()->dz(hardScatterVertexPos));
+  // 	  std::cout << "pfCand #" << pfCandidate_vertex->first.key() << ": Pt = " << pfCandidate.pt() << ", eta = " << pfCandidate.eta() << ", phi = " << pfCandidate.phi() 
+  // 		    << " (charge = " << pfCandidate.charge() << ", dZ = " << dZ << ")" << std::endl;
+  // 	  reco::Vertex::Point vertexPos = vertex->position();
+  // 	  std::cout << " associated vertex (quality = " << pfCandToVertexAssocQuality << "):" 
+  // 		    << " x = " << vertexPos.x() << ", y = " << vertexPos.y() << ", z = " << vertexPos.z() << std::endl;
+  // 	}
+  //     }
+  //   }
+  // }
 
   std::auto_ptr<reco::MVAMEtJetInfoCollection> jetInfos(new reco::MVAMEtJetInfoCollection());
   std::auto_ptr<reco::MVAMEtPFCandInfoCollection> pfCandInfos(new reco::MVAMEtPFCandInfoCollection());
@@ -242,19 +242,19 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     jetInfo.offsetEnCorr_ = ( jetEnOffsetCorrector ) ?
       rawJet.energy()*(1. - jetEnOffsetCorrector->correction(rawJet, evt, es)) : 0.;
     jetInfo.pfMEtSignObj_ = pfMEtSignInterface_->compResolution(&(*jet));
-    if ( verbosity_ ) {
-      std::cout << " jet: Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << ":" 
-    	        << " sigma(En)/En = " << (jetInfo.pfMEtSignObj_.get_sigma_e()/jet->energy()) << std::endl;
-      std::cout << "(offsetEnCorr = " << jetInfo.offsetEnCorr_ << ")" << std::endl;
-      std::cout << "  id. flags: PU = " << jetIdSelection_passed << ", anti-noise = " << passesLooseJetId << std::endl;
+    // if ( verbosity_ ) {
+    //   std::cout << " jet: Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << ":" 
+    // 	        << " sigma(En)/En = " << (jetInfo.pfMEtSignObj_.get_sigma_e()/jet->energy()) << std::endl;
+    //   std::cout << "(offsetEnCorr = " << jetInfo.offsetEnCorr_ << ")" << std::endl;
+    //   std::cout << "  id. flags: PU = " << jetIdSelection_passed << ", anti-noise = " << passesLooseJetId << std::endl;
      
-      size_t numPFJetConstituents = jet->getPFConstituents().size();
-      std::cout << "numConstituents = " << numPFJetConstituents << std::endl;
-      for ( size_t iPFJetConstituent = 0; iPFJetConstituent < numPFJetConstituents; ++iPFJetConstituent ) {
-	const reco::PFCandidatePtr& pfJetConstituent = jet->getPFConstituents()[iPFJetConstituent];
-	std::cout << " constituent #" << iPFJetConstituent << ": Pt = " << pfJetConstituent->pt() << ", eta = " << pfJetConstituent->eta() << ", phi = " << pfJetConstituent->phi() << std::endl;
-      }
-    }
+    //   size_t numPFJetConstituents = jet->getPFConstituents().size();
+    //   std::cout << "numConstituents = " << numPFJetConstituents << std::endl;
+    //   for ( size_t iPFJetConstituent = 0; iPFJetConstituent < numPFJetConstituents; ++iPFJetConstituent ) {
+    // 	const reco::PFCandidatePtr& pfJetConstituent = jet->getPFConstituents()[iPFJetConstituent];
+    // 	std::cout << " constituent #" << iPFJetConstituent << ": Pt = " << pfJetConstituent->pt() << ", eta = " << pfJetConstituent->eta() << ", phi = " << pfJetConstituent->phi() << std::endl;
+    //   }
+    // }
 
     jetInfos->push_back(jetInfo);    
   }

@@ -362,7 +362,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   int jetIdx = 0;
   for ( reco::MVAMEtJetInfoCollection::const_iterator jet = jets_cleaned.begin();
 	jet != jets_cleaned.end(); ++jet ) {
-    if ( verbosity_ ) printMVAMEtJetInfo("jet", jetIdx, *jet);
+    //if ( verbosity_ ) printMVAMEtJetInfo("jet", jetIdx, *jet);
     if ( jet->passesLooseJetId_ ) {
       if ( jet->type_ == reco::MVAMEtJetInfo::kNoPileUp ) {	
 	addToCommonMETData(*sumNoPUjets, jet->p4_);
@@ -398,7 +398,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   int pfCandIdx = 0;
   for ( reco::MVAMEtPFCandInfoCollection::const_iterator pfCandidate = pfCandidates_cleaned.begin();
 	pfCandidate != pfCandidates_cleaned.end(); ++pfCandidate ) {
-    if ( verbosity_ && pfCandidate->p4_.pt() > 2. ) printMVAMEtPFCandInfo("pfCand", pfCandIdx, *pfCandidate);
+    //if ( verbosity_ && pfCandidate->p4_.pt() > 2. ) printMVAMEtPFCandInfo("pfCand", pfCandIdx, *pfCandidate);
     if ( pfCandidate->passesLooseJetId_ ) {
       if ( !pfCandidate->isWithinJet_ ) {
 	if ( pfCandidate->type_ == reco::MVAMEtPFCandInfo::kNoPileUpCharged ) {
@@ -433,17 +433,17 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   finalizeCommonMETData(*type0Correction_output);
   finalizeCommonMETData(*sumLeptonIsoCones);
 
-  if ( verbosity_ ) {
-    printCommonMETData(sfLeptonsName_, *sumLeptons);
-    printCommonMETData(sfNoPUjetOffsetEnCorrName_, *sumNoPUjetOffsetEnCorr);
-    printCommonMETData(sfNoPUjetsName_, *sumNoPUjets);
-    printCommonMETData(sfPUjetsName_, *sumPUjets);
-    printCommonMETData(sfNoPUunclChargedCandsName_, *sumNoPUunclChargedCands);
-    printCommonMETData(sfPUunclChargedCandsName_, *sumPUunclChargedCands);
-    printCommonMETData(sfUnclNeutralCandsName_, *sumUnclNeutralCands);
-    printCommonMETData(sfType0CorrectionName_, *type0Correction_output);
-    printCommonMETData(sfLeptonIsoConesName_, *sumLeptonIsoCones);
-  }
+  // if ( verbosity_ ) {
+  //   printCommonMETData(sfLeptonsName_, *sumLeptons);
+  //   printCommonMETData(sfNoPUjetOffsetEnCorrName_, *sumNoPUjetOffsetEnCorr);
+  //   printCommonMETData(sfNoPUjetsName_, *sumNoPUjets);
+  //   printCommonMETData(sfPUjetsName_, *sumPUjets);
+  //   printCommonMETData(sfNoPUunclChargedCandsName_, *sumNoPUunclChargedCands);
+  //   printCommonMETData(sfPUunclChargedCandsName_, *sumPUunclChargedCands);
+  //   printCommonMETData(sfUnclNeutralCandsName_, *sumUnclNeutralCands);
+  //   printCommonMETData(sfType0CorrectionName_, *type0Correction_output);
+  //   printCommonMETData(sfLeptonIsoConesName_, *sumLeptonIsoCones);
+  // }
 
   double noPileUpScaleFactor = ( sumPUunclChargedCands->sumet > 0. ) ?
     (sumPUunclChargedCands->sumet/(sumNoPUunclChargedCands->sumet + sumPUunclChargedCands->sumet)) : 1.;

@@ -48,18 +48,18 @@ PFMEtSignInterfaceBase::~PFMEtSignInterfaceBase()
 
 reco::METCovMatrix PFMEtSignInterfaceBase::operator()(const std::vector<metsig::SigInputObj>& pfMEtSignObjects) const
 {
-  if ( this->verbosity_ ) {
-    std::cout << "<PFMEtSignInterfaceBase::operator()>:" << std::endl;
-    std::cout << " pfMEtSignObjects: entries = " << pfMEtSignObjects.size() << std::endl;
-    double dpt2Sum = 0.;
-    for ( std::vector<metsig::SigInputObj>::const_iterator pfMEtSignObject = pfMEtSignObjects.begin();
-	  pfMEtSignObject != pfMEtSignObjects.end(); ++pfMEtSignObject ) {
-      std::cout << pfMEtSignObject->get_type() << ": pt = " << pfMEtSignObject->get_energy() << "," 
-		<< " phi = " << pfMEtSignObject->get_phi() << " --> dpt = " << pfMEtSignObject->get_sigma_e() << std::endl;
-      dpt2Sum += pfMEtSignObject->get_sigma_e();
-    }
-    std::cout << "--> sqrt(sum(dpt^2)) = " << TMath::Sqrt(dpt2Sum) << std::endl;
-  }
+  // if ( this->verbosity_ ) {
+  //   std::cout << "<PFMEtSignInterfaceBase::operator()>:" << std::endl;
+  //   std::cout << " pfMEtSignObjects: entries = " << pfMEtSignObjects.size() << std::endl;
+  //   double dpt2Sum = 0.;
+  //   for ( std::vector<metsig::SigInputObj>::const_iterator pfMEtSignObject = pfMEtSignObjects.begin();
+  // 	  pfMEtSignObject != pfMEtSignObjects.end(); ++pfMEtSignObject ) {
+  //     std::cout << pfMEtSignObject->get_type() << ": pt = " << pfMEtSignObject->get_energy() << "," 
+  // 		<< " phi = " << pfMEtSignObject->get_phi() << " --> dpt = " << pfMEtSignObject->get_sigma_e() << std::endl;
+  //     dpt2Sum += pfMEtSignObject->get_sigma_e();
+  //   }
+  //   std::cout << "--> sqrt(sum(dpt^2)) = " << TMath::Sqrt(dpt2Sum) << std::endl;
+  // }
 
   reco::METCovMatrix pfMEtCov;
   if ( pfMEtSignObjects.size() >= 2 ) {
@@ -70,25 +70,25 @@ reco::METCovMatrix PFMEtSignInterfaceBase::operator()(const std::vector<metsig::
     double det=0;
     pfMEtCov.Det(det);
 
-    if ( this->verbosity_ && fabs(det) > epsilon ) {
-      //keep TMatrixD as it is much easier to find 
-      //eigenvectors and values than with SMatrix;
-      //not used anyway, except for debugging
-      TMatrixD tmpMatrix(2,2);
-      tmpMatrix(0,0) = pfMEtCov(0,0);
-      tmpMatrix(0,1) = pfMEtCov(0,1);
-      tmpMatrix(1,0) = pfMEtCov(1,0);
-      tmpMatrix(1,1) = pfMEtCov(1,1);
+    // if ( this->verbosity_ && fabs(det) > epsilon ) {
+    //   //keep TMatrixD as it is much easier to find 
+    //   //eigenvectors and values than with SMatrix;
+    //   //not used anyway, except for debugging
+    //   TMatrixD tmpMatrix(2,2);
+    //   tmpMatrix(0,0) = pfMEtCov(0,0);
+    //   tmpMatrix(0,1) = pfMEtCov(0,1);
+    //   tmpMatrix(1,0) = pfMEtCov(1,0);
+    //   tmpMatrix(1,1) = pfMEtCov(1,1);
 
-      TVectorD eigenValues(2);
-      TMatrixD eigenVectors = tmpMatrix.EigenVectors(eigenValues);
-      // CV: eigenvectors are stored in columns 
-      //     and are sorted such that the one corresponding to the highest eigenvalue is in the **first** column
-      for ( unsigned iEigenVector = 0; iEigenVector < 2; ++iEigenVector ) {
-	std::cout << "eigenVector #" << iEigenVector << " (eigenValue = " << eigenValues(iEigenVector) << "):" 
-		  << " x = " << eigenVectors(0, iEigenVector) << ", y = " << eigenVectors(1, iEigenVector) << std::endl;
-      }
-    }
+    //   TVectorD eigenValues(2);
+    //   TMatrixD eigenVectors = tmpMatrix.EigenVectors(eigenValues);
+    //   // CV: eigenvectors are stored in columns 
+    //   //     and are sorted such that the one corresponding to the highest eigenvalue is in the **first** column
+    //   for ( unsigned iEigenVector = 0; iEigenVector < 2; ++iEigenVector ) {
+    // 	std::cout << "eigenVector #" << iEigenVector << " (eigenValue = " << eigenValues(iEigenVector) << "):" 
+    // 		  << " x = " << eigenVectors(0, iEigenVector) << ", y = " << eigenVectors(1, iEigenVector) << std::endl;
+    //   }
+    // }
     
     //--- substitute (PF)MEt resolution matrix by default values 
     //    in case resolution matrix cannot be inverted
