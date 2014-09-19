@@ -15,9 +15,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -38,6 +35,12 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
+
+#include "EventFilter/Utilities/interface/AuxiliaryMakers.h"
+
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+
 
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
@@ -63,6 +66,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventID_(),
   processHistoryID_(),
   currentLumiSection_(0),
+  tcds_pointer_(0),
   eventsThisLumi_(0),
   dpd_(nullptr)
 {
@@ -75,7 +79,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     edm::LogInfo("FedRawDataInputSource") << "Test mode is ON!";
 
   processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
-  setNewRun();
+  setNewRun(); 
   setRunAuxiliary(new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
 					edm::Timestamp::invalidTimestamp()));
 
@@ -566,18 +570,31 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 {
   std::auto_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
   edm::Timestamp tstamp = fillFEDRawDataCollection(rawData);
-
-  if (useL1EventID_)
+  if (useL1EventID_){
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, L1EventID_); 
-  else {
+    edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
+			    edm::EventAuxiliary::PhysicsTrigger);
+    aux.setProcessHistoryID(processHistoryID_);
+    makeEvent(eventPrincipal, aux);
+  }
+  else if(tcds_pointer_==0){
     assert(GTPEventID_);
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
+    edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
+			    edm::EventAuxiliary::PhysicsTrigger);
+    aux.setProcessHistoryID(processHistoryID_);
+    makeEvent(eventPrincipal, aux);
   }
+  else{
+    evf::evtn::TCDSRecord record((unsigned char *)(tcds_pointer_));
+    edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(&record, 
+						 eventRunNumber_,currentLumiSection_,
+						 processGUID());
+    aux.setProcessHistoryID(processHistoryID_);
+    makeEvent(eventPrincipal, aux);
+  }
+  
 
-  edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
-                          edm::EventAuxiliary::PhysicsTrigger);
-  aux.setProcessHistoryID(processHistoryID_);
-  makeEvent(eventPrincipal, aux);
 
   edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
                                edm::Wrapper<FEDRawDataCollection>::getInterface());
@@ -624,7 +641,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
   uint32_t eventSize = event_->eventSize();
   char* event = (char*)event_->payload();
   GTPEventID_=0;
-
+  tcds_pointer_ = 0;
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
     const fedt_t* fedTrailer = (fedt_t*) (event + eventSize);
@@ -632,6 +649,9 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
     eventSize -= (fedSize - sizeof(fedh_t));
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
+    if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
+      tcds_pointer_ = (unsigned char *)(event + eventSize );
+    }
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
       if (evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize))
           GTPEventID_ = evf::evtn::get((unsigned char*) fedHeader,true);
