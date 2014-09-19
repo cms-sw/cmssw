@@ -4,6 +4,6 @@ from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import *
 StripCPEESProducer = stripCPEESProducer.clone()
 StripCPEESProducer.ComponentName = cms.string('SimpleStripCPE')
 StripCPEESProducer.ComponentType = cms.string('SimpleStripCPE')
-StripCPEESProducer.parameters    = cms.PSet("parameters")
+StripCPEESProducer.parameters    = cms.PSet()
 
 
