@@ -36,9 +36,9 @@ PythiaDecays::PythiaDecays(std::string program)
     decayer.reset(new Pythia8::Pythia);
     p8RndmEngine.reset(new gen::P8RndmEngine);
     decayer->setRndmEnginePtr(p8RndmEngine.get());
-    decayer->readString("ProcessLevel:all = off");
-    decayer->readString("PartonLevel:FSRinResonances = off"); //?
-    decayer->readString("ProcessLevel:resonanceDecays = off"); //?
+    decayer->settings.flag("ProcessLevel:all",false);
+    decayer->settings.flag("PartonLevel:FSRinResonances",false);
+    decayer->settings.flag("ProcessLevel:resonanceDecays",false);
     decayer->init();
 
     // forbid all decays    
