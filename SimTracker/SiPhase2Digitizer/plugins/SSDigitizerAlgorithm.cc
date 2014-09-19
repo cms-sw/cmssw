@@ -90,12 +90,15 @@ SSDigitizerAlgorithm::~SSDigitizerAlgorithm() {
 }
 void SSDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
 					     std::vector<PSimHit>::const_iterator inputEnd,
+					     const size_t inputBeginGlobalIndex,
+                                             const unsigned int tofBin,
 					     const Phase2TrackerGeomDetUnit* pixdet,
 					     const GlobalVector& bfield) {
   // produce SignalPoint's for all SimHit's in detector
   // Loop over hits
   uint32_t detId = pixdet->geographicalId().rawId();
-  for (auto it = inputBegin; it != inputEnd; ++it) {
+  size_t simHitGlobalIndex = inputBeginGlobalIndex; // This needs to be stored to create the digi-sim link later
+  for (auto it = inputBegin; it != inputEnd; ++it, ++simHitGlobalIndex) {
     // skip hits not in this detector.
     if ((*it).detUnitId() != detId)
       continue;
@@ -118,7 +121,8 @@ void SSDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
       drift(*it, pixdet, bfield, ionization_points, collection_points);  // transforms _ionization_points to collection_points
 
       // compute induced signal on readout elements and add to _signal
-      induce_signal(*it, pixdet, collection_points); // *ihit needed only for SimHit<-->Digi link
+
+      induce_signal(*it, simHitGlobalIndex, tofBin, pixdet, collection_points); // *ihit needed only for SimHit<-->Digi link
     }
   }
 }
@@ -145,15 +149,15 @@ void SSDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* pixdet,
   unsigned int Sub_detid = DetId(detID).subdetId();
 
   float theThresholdInE = 0.;
-  if (theNoiseInElectrons > 0.) {
-    if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
-      if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
-      else theThresholdInE = theThresholdInE_Barrel; // no smearing
-    } 
-    else { // Forward disks modules
-      if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
-      else theThresholdInE = theThresholdInE_Endcap; // no smearing
-    }
+
+  // can we generalize it
+  if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
+    if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
+    else theThresholdInE = theThresholdInE_Barrel; // no smearing
+  } 
+  else { // Forward disks modules
+    if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
+    else theThresholdInE = theThresholdInE_Endcap; // no smearing
   }
 
   // full detector thickness

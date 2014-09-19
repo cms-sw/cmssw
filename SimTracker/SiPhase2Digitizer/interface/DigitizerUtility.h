@@ -24,9 +24,8 @@ namespace DigitizerUtility {
 	_frac.pop_back();
     }
 
-    Amplitude(float amp, const PSimHit* hitp, float frac) :
-      _amp(amp), _frac(1, frac), _hitInfo(new SimHitInfoForLinks(hitp)) 
-    {
+    Amplitude( float amp, const PSimHit* hitp, size_t hitIndex, unsigned int tofBin, float frac) :
+    _amp(amp), _frac(1, frac), _hitInfo(new SimHitInfoForLinks(hitp, hitIndex, tofBin)) {
       // in case of digi from noisypixels
       // the MC information are removed
       if (_frac[0] < -0.5) {
@@ -62,6 +61,12 @@ namespace DigitizerUtility {
     }
     const EncodedEventId& eventId() const {
       return _hitInfo->eventId_;
+    }
+    const unsigned int hitIndex() const {
+      return _hitInfo->hitIndex_;
+    }
+    const unsigned int tofBin() const {
+      return _hitInfo->tofBin_;
     }
     void operator+= (const float& amp) {
       _amp += amp;

@@ -58,7 +58,7 @@ using namespace sipixelobjects;
 
 void PSPDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (use_ineff_from_db_)     // load gain calibration service from db
-    theSiPixelGainCalibrationService_->setESObjects( es );
+    theSiPixelGainCalibrationService_->setESObjects(es);
 
   if (use_deadmodule_DB_) 
     es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
@@ -71,12 +71,12 @@ void PSPDigitizerAlgorithm::init(const edm::EventSetup& es) {
   es.get<SiPixelFedCablingMapRcd>().get(map_);
   es.get<TrackerDigiGeometryRecord>().get(geom_);
 }
-PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
+PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
   Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
 				  conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm"),
 				  eng)
 {
-  LogInfo("PSPDigitizerAlgorithm") << "PSPDigitizerAlgorithm constructed "
+  LogInfo("PSPDigitizerAlgorithm") << "Algorithm constructed "
 				   << "Configuration parameters:"
 				   << "Threshold/Gain = "
 				   << "threshold in electron Endcap = "
@@ -85,19 +85,22 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, CLHE
 				   << theThresholdInE_Barrel
 				   << " " << theElectronPerADC << " " << theAdcFullScale
 				   << " The delta cut-off is set to " << tMax
-				   << " pix-inefficiency "<<AddPixelInefficiency;
+				   << " pix-inefficiency " << AddPixelInefficiency;
 }
 PSPDigitizerAlgorithm::~PSPDigitizerAlgorithm() {
-  LogDebug("PSPDigitizerAlgorithm") << "PSPDigitizerAlgorithm deleted";
+  LogDebug("PSPDigitizerAlgorithm") << "Algorithm deleted";
 }
 void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
 					      std::vector<PSimHit>::const_iterator inputEnd,
+                                              const size_t inputBeginGlobalIndex,
+                                              const unsigned int tofBin,
 					      const Phase2TrackerGeomDetUnit* pixdet,
 					      const GlobalVector& bfield) {
   // produce SignalPoint's for all SimHit's in detector
   // Loop over hits
   uint32_t detId = pixdet->geographicalId().rawId();
-  for (auto it = inputBegin; it != inputEnd; ++it) {
+  size_t simHitGlobalIndex = inputBeginGlobalIndex; // This needs to be stored to create the digi-sim link later
+  for (auto it = inputBegin; it != inputEnd; ++it, ++simHitGlobalIndex) {
     // skip hits not in this detector.
     if ((*it).detUnitId() != detId)
       continue;
@@ -107,7 +110,7 @@ void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterat
       << (*it).energyLoss() << " " << (*it).tof() << " "
       << (*it).trackId() << " " << (*it).processType() << " "
       << (*it).detUnitId()
-      << (*it).entryPoint() << " " << (*it).exitPoint() ;
+      << (*it).entryPoint() << " " << (*it).exitPoint();
       
     std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
     std::vector<DigitizerUtility::SignalPoint> collection_points;
@@ -120,7 +123,7 @@ void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterat
       drift(*it, pixdet, bfield, ionization_points, collection_points);  // transforms _ionization_points to collection_points
 
       // compute induced signal on readout elements and add to _signal
-      induce_signal(*it, pixdet, collection_points); // *ihit needed only for SimHit<-->Digi link
+      induce_signal(*it, simHitGlobalIndex, tofBin, pixdet, collection_points); // *ihit needed only for SimHit<-->Digi link
     }
   }
 }
@@ -149,15 +152,13 @@ void PSPDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* pixdet,
   float theThresholdInE = 0.;
 
   // can we generalize it
-  if (theNoiseInElectrons > 0.) {
-    if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
-      if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
-      else theThresholdInE = theThresholdInE_Barrel; // no smearing
-    } 
-    else {                                           // Forward disks modules
-      if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
-      else theThresholdInE = theThresholdInE_Endcap; // no smearing
-    }
+  if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
+    if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
+    else theThresholdInE = theThresholdInE_Barrel; // no smearing
+  } 
+  else {                                           // Forward disks modules
+    if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
+    else theThresholdInE = theThresholdInE_Endcap; // no smearing
   }
 
   // full detector thickness
@@ -184,5 +185,7 @@ void PSPDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* pixdet,
   
   make_digis(theThresholdInE, detID, digis, simlinks, tTopo);
 
-  LogDebug("PSPDigitizerAlgorithm") << "[PSPDigitizerAlgorithm] converted " << digis.size() << " PixelDigis in DetUnit" << detID;
+  LogDebug("PSPDigitizerAlgorithm") << "converted " << digis.size() 
+                                    << " PixelDigis in DetUnit" 
+                                    << detID;
 }

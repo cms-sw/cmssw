@@ -30,10 +30,6 @@ namespace edm {
 
 class DetId;
 class GaussianTailNoiseGenerator;
-class PixelDigi;
-class PixelDigiSimLink;
-class PixelGeomDetUnit;
-class PixelTopology;
 class SiG4UniversalFluctuation;
 class SiPixelFedCablingMap;
 class SiPixelGainCalibrationOfflineSimService;
@@ -55,6 +51,8 @@ class Phase2TrackerDigitizerAlgorithm  {
   // run the algorithm to digitize a single det
   virtual void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
 				 const std::vector<PSimHit>::const_iterator inputEnd,
+				 const size_t inputBeginGlobalIndex,
+				 const unsigned int tofBin,
 				 const Phase2TrackerGeomDetUnit* pixdet,
 				 const GlobalVector& bfield) = 0;
   virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
@@ -166,6 +164,8 @@ class Phase2TrackerDigitizerAlgorithm  {
 	     const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
 	     std::vector<DigitizerUtility::SignalPoint>& collection_points) const;
   void induce_signal(const PSimHit& hit,
+		     const size_t hitIndex,
+		     const unsigned int tofBin,
 		     const Phase2TrackerGeomDetUnit* pixdet,
 		     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
   void fluctuateEloss(int particleId, float momentum, float eloss, 

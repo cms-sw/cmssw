@@ -24,6 +24,7 @@
 
 #include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizerFwd.h"
 
+// Forward declaration
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -38,24 +39,15 @@ namespace edm {
 
 class MagneticField;
 class PileUpEventPrincipal;
-class PixelGeomDetUnit;
-//class PixelDigi;
-//class PixelDigiSimLink;
 class PSimHit;
 class Phase2TrackerDigitizerAlgorithm;
 class TrackerGeometry;
 
 namespace cms 
 {
-  class Phase2TrackerDigitizer : public DigiAccumulatorMixMod {
+  class Phase2TrackerDigitizer: public DigiAccumulatorMixMod {
 
   public:
-    // typedef to change names of current pixel types to phase 2 types
-    typedef PixelGeomDetUnit Phase2TrackerGeomDetUnit;
-    typedef PixelDigi Phase2TrackerDigi;
-    typedef PixelDigiSimLink Phase2TrackerDigiSimLink;
-    typedef PixelTopology Phase2TrackerTopology;
-
     explicit Phase2TrackerDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod);
     virtual ~Phase2TrackerDigitizer();
     virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -77,8 +69,20 @@ namespace cms
   private:
     typedef std::vector<std::string> vstring;
 
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >);   
+    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, 
+			     size_t globalSimHitIndex,
+			     const unsigned int tofBin);   
+   
     bool first_;
+    /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
+     *
+     * I need to know what each sim hit index will be when the hits from all crossing frames are merged into
+     * one collection (assuming the MixingModule is configured to create the crossing frame for all sim hits).
+     * To do this I'll record how many hits were in each crossing, and then add that on to the index for a given
+     * hit in a given crossing. This assumes that the crossings are processed in the same order here as they are
+     * put into the crossing frame, which I'm pretty sure is true.<br/>
+     * The key is the name of the sim hit collection. */
+    std::map<std::string,size_t> crossingSimHitIndexOffset_; 
     std::map<std::string, std::unique_ptr<Phase2TrackerDigitizerAlgorithm> > algomap_;
     const std::string hitsProducer_;
     const vstring trackerContainers_;

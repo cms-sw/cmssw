@@ -228,7 +228,7 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(const PSimHit& hit,
     DigitizerUtility::EnergyDepositUnit edu(energy, point); // define position,energy point
     ionization_points[i] = edu; // save
 
-    LogDebug ("Phase2 Digitizer")
+    LogDebug("Phase2TrackerDigitizerAlgorithm")
       << i << " " << ionization_points[i].x() << " "
       << ionization_points[i].y() << " "
       << ionization_points[i].z() << " "
@@ -310,7 +310,7 @@ void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
   collection_points.resize(ionization_points.size()); // set size
   LocalVector driftDir = DriftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
   if (driftDir.z() == 0.) {
-    LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
+    LogWarning("Phase2TrackerDigitizerAlgorithm") << " pxlx: drift in z is zero ";
     return;
   }
 
@@ -401,7 +401,7 @@ void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
     }
     LogDebug("Phase2TrackerDigitizerAlgorithm")
       << "Dift DistanceZ = " << DriftDistance << " module thickness = " << moduleThickness
-      << " Start Energy = " <<ionization_points[i].energy() << " Energy after loss= " << energyOnCollector;
+      << " Start Energy = " << ionization_points[i].energy() << " Energy after loss= " << energyOnCollector;
     DigitizerUtility::SignalPoint sp(CloudCenterX, CloudCenterY, Sigma_x, Sigma_y, hit.tof(), energyOnCollector);
     // Load the Charge distribution parameters
     collection_points[i] = sp;
@@ -412,6 +412,8 @@ void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
 //
 // Induce the signal on the collection plane of the active sensor area.
 void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
+						    const size_t hitIndex,
+						    const unsigned int tofBin,
 						    const Phase2TrackerGeomDetUnit* pixdet,
 						    const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
 
@@ -422,7 +424,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   uint32_t detID = pixdet->geographicalId().rawId();
   signal_map_type& theSignal = _signal[detID];
 
-  LogDebug ("Phase2TrackerDigitizerAlgorithm")
+  LogDebug("Phase2TrackerDigitizerAlgorithm")
     << " enter induce_signal, "
     << topol->pitch().first << " " << topol->pitch().second; //OK
 
@@ -446,7 +448,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     float SigmaY = i->sigma_y();            //               in y
     float Charge = i->amplitude();          // Charge amplitude
     
-    LogDebug ("Phase2TrackerDigitizerAlgorithm")
+    LogDebug("Phase2TrackerDigitizerAlgorithm")
       << " cloud " << i->position().x() << " " << i->position().y() << " "
       << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude();
 
@@ -473,11 +475,11 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     int IPixRightUpX = int(floor( mp.x()));
     int IPixRightUpY = int(floor( mp.y()));
 
-    LogDebug ("Phase2TrackerDigitizerAlgorithm") << " right-up " << PointRightUp << " "
-				 << mp.x() << " " << mp.y() << " "
-				 << IPixRightUpX << " " << IPixRightUpY ;
+    LogDebug("Phase2TrackerDigitizerAlgorithm") << " right-up " << PointRightUp << " "
+						<< mp.x() << " " << mp.y() << " "
+						<< IPixRightUpX << " " << IPixRightUpY ;
 
-    mp = topol->measurementPosition(PointLeftDown ); //OK
+    mp = topol->measurementPosition(PointLeftDown); // OK
 
     int IPixLeftDownX = int(floor( mp.x()));
     int IPixLeftDownY = int(floor( mp.y()));
@@ -577,7 +579,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   // Fill the global map with all hit pixels from this event
   for (auto im = hit_signal.begin();im != hit_signal.end(); ++im) {
     int chan =  (*im).first;
-    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( (*im).second, &hit, (*im).second) : DigitizerUtility::Amplitude( (*im).second, (*im).second));
+    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( (*im).second, &hit, hitIndex, tofBin, (*im).second) : DigitizerUtility::Amplitude( (*im).second, (*im).second) ) ;
   }
 }
 
@@ -635,7 +637,7 @@ void Phase2TrackerDigitizerAlgorithm::make_digis(float theThresholdInE,
 	    }
 	    float fraction = sum_samechannel/(*i).second;
 	    if (fraction>1.) fraction = 1.;
-	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.eventId(), fraction);
+	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.hitIndex(), (*i).second.tofBin(), (*i).second.eventId(), fraction);
 	  }
         }
       }
@@ -653,7 +655,7 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
   LogDebug("Phase2TrackerDigitizerAlgorithm") << " enter add_noise " << theNoiseInElectrons;
   uint32_t detID = pixdet->geographicalId().rawId();
   signal_map_type& theSignal = _signal[detID];
-  const Phase2TrackerTopology* topol=&pixdet->specificTopology();
+  const Phase2TrackerTopology* topol = &pixdet->specificTopology();
   int numColumns = topol->ncolumns();  // det module number of cols&rows
   int numRows = topol->nrows();
 
@@ -708,10 +710,10 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
 		      theNoiseInElectrons, // noise in elec.
                       otherPixels );
 
-  LogDebug ("Phase2TrackerDigitizerAlgorithm")
+  LogDebug("Phase2TrackerDigitizerAlgorithm")
     <<  " Add noisy pixels " << numRows << " "
     << numColumns << " " << theNoiseInElectrons << " "
-    << theThresholdInE_Endcap << "  " << theThresholdInE_Barrel <<" "<< numberOfPixels<<" "
+    << theThresholdInE_Endcap << "  " << theThresholdInE_Barrel << " " << numberOfPixels << " "
     << otherPixels.size() ;
 
   // Add noisy pixels
@@ -720,9 +722,9 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
     int ix = ((*mapI).first) - (iy*numRows);
     // Keep for a while for testing.
     if( iy < 0 || iy > (numColumns-1) )
-      LogWarning ("Pixel Geometry") << " error in iy " << iy ;
+      LogWarning("Phase2TrackerDigitizerAlgorithm") << " error in iy " << iy;
     if( ix < 0 || ix > (numRows-1) )
-      LogWarning ("Pixel Geometry")  << " error in ix " << ix ;
+      LogWarning("Phase2TrackerDigitizerAlgorithm") << " error in ix " << ix;
 
     int chan = Phase2TrackerDigi::pixelToChannel(ix, iy);
 

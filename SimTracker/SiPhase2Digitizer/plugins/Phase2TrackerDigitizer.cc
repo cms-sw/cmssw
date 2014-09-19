@@ -70,7 +70,7 @@ namespace cms
   const std::string Phase2TrackerDigitizer::StripinPS  = "PSS";
   const std::string Phase2TrackerDigitizer::TwoStrip   = "SS";   
 
-  Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::EDProducer& mixMod) :
+  Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::EDProducer& mixMod):
     first_(true),
     hitsProducer_(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers_(iConfig.getParameter<std::vector<std::string> >("ROUList")),
@@ -102,62 +102,66 @@ namespace cms
     edm::LogInfo("Phase2TrackerDigitizer") << "Destroying the Digitizer";
   }
   void
-  Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits) {
+  Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+				       size_t globalSimHitIndex,const unsigned int tofBin) {
     if (hSimHits.isValid()) {
       std::set<unsigned int> detIds;
       std::vector<PSimHit> const& simHits = *hSimHits.product();
-      for (auto it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
+      for (auto it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
 	unsigned int detId_raw = (*it).detUnitId();
 	if (detIds.insert(detId_raw).second) {
-          // The insert succeeded, so this detector element has not yet been processed.
+	  // The insert succeeded, so this detector element has not yet been processed.
 	  const std::string algotype = getAlgoType(detId_raw);
 	  Phase2TrackerGeomDetUnit* phase2det = detectorUnits_[detId_raw];
 
 	  // access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
 	  LogDebug("PixelDigitizer") << "B-field(T) at " << phase2det->surface().position() << "(cm): " 
-				      << pSetup_->inTesla(phase2det->surface().position());
+	         		     << pSetup_->inTesla(phase2det->surface().position());
 	  if (algomap_.find(algotype) != algomap_.end()) 
-	    algomap_[algotype]->accumulateSimHits(it, itEnd, phase2det, bfield);
+	    algomap_[algotype]->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, phase2det, bfield);
 	  else
-            edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm";
+	    edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm: " << algotype;
 	}
       }
     }
   }
-
+  
   void
   Phase2TrackerDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
+    
     // Must initialize all the algorithms
     for (auto it = algomap_.begin(); it != algomap_.end(); ++it) {
-      if (first_) {
-	it->second->init(iSetup); 
-	first_ = false;
-      }
+      if (first_) it->second->init(iSetup); 
       it->second->initializeEvent(); 
     }
-
+    first_ = false;
+    // Make sure that the first crossing processed starts indexing the sim hits from zero.
+    // This variable is used so that the sim hits from all crossing frames have sequential
+    // indices used to create the digi-sim link (if configured to do so) rather than starting
+    // from zero for each crossing.
+    crossingSimHitIndexOffset_.clear();
+  
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD_);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
-
+    
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
     if (true) { // Replace with ESWatcher 
       detectorUnits_.clear();
       for (auto iu = pDD_->detUnits().begin(); iu != pDD_->detUnits().end(); ++iu) {
-        unsigned int detId_raw = (*iu)->geographicalId().rawId();
+	unsigned int detId_raw = (*iu)->geographicalId().rawId();
 	DetId detId = DetId(detId_raw);
-        if (DetId(detId).det() == DetId::Detector::Tracker) {
-          unsigned int isub = detId.subdetId();
-          if (isub == PixelSubdetector::PixelBarrel || isub == PixelSubdetector::PixelEndcap) {
-            Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<Phase2TrackerGeomDetUnit*>(*iu);
-            assert(pixdet);
-            detectorUnits_.insert(std::make_pair(detId_raw, pixdet));
-          }
-        }
+	if (DetId(detId).det() == DetId::Detector::Tracker) {
+	  unsigned int isub = detId.subdetId();
+	  if (isub == PixelSubdetector::PixelBarrel || isub == PixelSubdetector::PixelEndcap) {
+	    Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<Phase2TrackerGeomDetUnit*>(*iu);
+	    assert(pixdet);
+	    detectorUnits_.insert(std::make_pair(detId_raw, pixdet));
+	  }
+	}
       }
     }
-  }
-
+  }  
   void
   Phase2TrackerDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
     accumulate_local<edm::Event>(iEvent, iSetup);
@@ -173,9 +177,17 @@ namespace cms
     for (auto it = trackerContainers_.begin(); it != trackerContainers_.end(); ++it) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer_, *it);
+
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
-    }
+      unsigned int tofBin = PixelDigiSimLink::LowTof;
+      if ((*it).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin);
+      // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
+      // the global counter. Next time accumulateStripHits() is called it will count the sim hits
+      // as though they were on the end of this collection.
+      // Note that this is only used for creating digi-sim links (if configured to do so).
+      if (simHits.isValid()) crossingSimHitIndexOffset_[tag.encode()] += simHits->size();
+     }
   }
   void
   Phase2TrackerDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -193,9 +205,9 @@ namespace cms
         edm::DetSet<Phase2TrackerDigi> collector((*iu)->geographicalId().rawId());
         edm::DetSet<Phase2TrackerDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
         algomap_[algotype]->digitize(dynamic_cast<Phase2TrackerGeomDetUnit*>((*iu)),
-                                 collector.data,
-                                 linkcollector.data,
-				 tTopo);
+                                     collector.data,
+                                     linkcollector.data,
+                                     tTopo);
         if (collector.data.size() > 0)
           theDigiVector.push_back(std::move(collector));
 
@@ -203,7 +215,7 @@ namespace cms
           theDigiLinkVector.push_back(std::move(linkcollector));
       }
       else
-	edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm";
+	edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm: " << algotype;
     }
     
     // Step C: create collection with the cache vector of DetSet 
@@ -217,7 +229,7 @@ namespace cms
     iEvent.put(outputlink);
   }
 
-  // Fill the StackedTrackerDetId to  DetId mapping here
+  // Fill the StackedTrackerDetId to DetId mapping here
   void Phase2TrackerDigitizer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
     // Get Stack Geometry information     
     edm::ESHandle<StackedTrackerGeometry> stkgeomHandle;
