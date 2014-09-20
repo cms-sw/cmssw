@@ -206,6 +206,7 @@ namespace edm {
       }
     } else {
       // new run
+      assert(numberEventsInLumi_ != 0);
       eventID = eventID.previousRunLastEvent(origEventID_.luminosityBlock() + numberEventsInRun_/numberEventsInLumi_);
       eventID = EventID(numberEventsInRun_, eventID.luminosityBlock(), eventID.run());
       numberEventsInThisLumi_ = numberEventsInLumi_;
