@@ -208,7 +208,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
             WTFlip=WTother/WT;
 	    double Rxx(0),Ryy(0),Rxy(0),Ryx(0);
 	    TauSpinner::getZgamParametersTR(Rxx,Ryy,Rxy,Ryx);
-	    std::cout << "Z R " << Rxx << " " << Ryy << " " << Rxy << " " << Ryx << std::endl;
+	    //std::cout << "Z R " << Rxx << " " << Ryy << " " << Rxy << " " << Ryx << std::endl;
           }
         }
       }
@@ -223,6 +223,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   *TauSpinnerWeightisValid =isValid;
   e.put(TauSpinnerWeightisValid,"TauSpinnerWTisValid");
 
+  std::cout << WT << std::endl;
   // regular weight
   std::auto_ptr<double> TauSpinnerWeight(new double);
   *TauSpinnerWeight =WT;
