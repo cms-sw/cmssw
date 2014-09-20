@@ -5,11 +5,20 @@ ERROR_RATE=float(1)/CAPACITY
 BYTES=2
 bloom = pydablooms.Dablooms(capacity=CAPACITY, error_rate=ERROR_RATE,filepath='bloom.bin')
 
-f = open('classes.txt')
-
+f = open('classes.txt','r')
+g = open('classnames.txt','w')
 for line in f :
 	fields = line.split("'")
 	if fields[0] == 'class ' :
-		bloom.add(fields[1],BYTES)
-		bloom.check(fields[1])
+		g.write(fields[1]+'\n')
+
 f.close()
+g.close()
+h = open('classnames.txt','rb')
+i = 0
+for line in h:
+	bloom.add(line.rstrip(), i)
+	i += 1
+
+bloom.flush()
+

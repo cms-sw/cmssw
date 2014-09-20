@@ -13,7 +13,10 @@ typedef struct {
     char  *array;
 } bitmap_t;
 
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 bitmap_t *bitmap_resize(bitmap_t *bitmap, size_t old_size, size_t new_size);
 bitmap_t *new_bitmap(int fd, size_t bytes);
 
@@ -24,6 +27,9 @@ int bitmap_flush(bitmap_t *bitmap);
 
 void free_bitmap(bitmap_t *bitmap);
 
+#ifdef __cplusplus
+}
+#endif
 typedef struct {
     uint64_t id;
     uint32_t count;
@@ -44,6 +50,10 @@ typedef struct {
     bitmap_t *bitmap;
 } counting_bloom_t;
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 int free_counting_bloom(counting_bloom_t *bloom);
 counting_bloom_t *new_counting_bloom(unsigned int capacity, double error_rate, const char *filename);
 counting_bloom_t *new_counting_bloom_from_file(unsigned int capacity, double error_rate, const char *filename);
@@ -51,6 +61,9 @@ int counting_bloom_add(counting_bloom_t *bloom, const char *s, size_t len);
 int counting_bloom_remove(counting_bloom_t *bloom, const char *s, size_t len);
 int counting_bloom_check(counting_bloom_t *bloom, const char *s, size_t len);
 
+#ifdef __cplusplus
+}
+#endif
 typedef struct {
     uint64_t max_id;
     uint64_t mem_seqnum;
@@ -68,6 +81,10 @@ typedef struct {
     bitmap_t *bitmap;
 } scaling_bloom_t;
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 scaling_bloom_t *new_scaling_bloom(unsigned int capacity, double error_rate, const char *filename);
 scaling_bloom_t *new_scaling_bloom_from_file(unsigned int capacity, double error_rate, const char *filename);
 int free_scaling_bloom(scaling_bloom_t *bloom);
@@ -77,4 +94,7 @@ int scaling_bloom_check(scaling_bloom_t *bloom, const char *s, size_t len);
 int scaling_bloom_flush(scaling_bloom_t *bloom);
 uint64_t scaling_bloom_mem_seqnum(scaling_bloom_t *bloom);
 uint64_t scaling_bloom_disk_seqnum(scaling_bloom_t *bloom);
+#ifdef __cplusplus
+}
+#endif
 #endif
