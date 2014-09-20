@@ -73,7 +73,10 @@ private:
   edm::InputTag gensrc_;
   int MotherPDGID_,Ipol_,nonSM2_,nonSMN_;
   static bool isTauSpinnerConfigure;
-
+  double roundOff_;
+  bool doH0T, doZ0T;
+  double H0Rxx,H0Ryy,H0Rxy,H0Ryx,Z0Rxx,Z0Ryy,Z0Rxy,Z0Ryx;
+  
   // Additional funtionms for Reco (not provided by Tauola/TauSpinner authors)
   int readParticlesfromReco(edm::Event& e,
                             TauSpinner::SimpleParticle &X,
@@ -86,7 +89,6 @@ private:
                         std::vector<TauSpinner::SimpleParticle> &daughters,
                         int parentpdgid);
   bool isFirst(const reco::GenParticle *Particle);
-  double roundOff_;
 
   static CLHEP::HepRandomEngine* fRandomEngine;
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
