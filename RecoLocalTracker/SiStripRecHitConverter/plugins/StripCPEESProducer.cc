@@ -28,7 +28,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
     throw cms::Exception("Unknown StripCPE type") << type;
 
   cpeNum = enumMap[type];
-  parametersPSet = p.getParameter<edm::ParameterSet>("parameters");
+  parametersPSet = (p.exists("parameters") ? p.getParameter<edm::ParameterSet>("parameters") : p);
   setWhatProduced(this,name);
 }
 
