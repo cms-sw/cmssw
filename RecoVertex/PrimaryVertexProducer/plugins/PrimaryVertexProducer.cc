@@ -204,7 +204,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
 
-
+    if (clusters.size()>2 && clusters.size() > 2*pvs.size()) 
+      edm::LogWarning("PrimaryVertexProducer") << "more than half of candidate vertices lost " << pvs.size()  << ' ' << clusters.size();
     
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)
