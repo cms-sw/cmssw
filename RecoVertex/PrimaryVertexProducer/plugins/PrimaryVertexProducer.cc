@@ -206,7 +206,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     if (clusters.size()>2 && clusters.size() > 2*pvs.size()) 
       edm::LogWarning("PrimaryVertexProducer") << "more than half of candidate vertices lost " << pvs.size()  << ' ' << clusters.size();
-    
+
+    if (pvs.empty() && seltks.size()>5) 
+       edm::LogWarning("PrimaryVertexProducer") << "no vertex found with " << seltks.size() << " tracks and " << clusters.size() <<" vertex-candidates";    
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)
     if(pvs.size()>1){

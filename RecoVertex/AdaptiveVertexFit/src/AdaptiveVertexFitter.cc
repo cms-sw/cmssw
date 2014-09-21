@@ -19,13 +19,14 @@ using namespace std;
 
 namespace {
     void sortTracksByPt(std::vector<reco::TransientTrack> & cont) {
-      auto b = &cont.front();
-      auto e = b + cont.size();
-      using tk = reco::TransientTrack const &;
-      float pt2[e-b];
-      for (auto p=b; p!=e; ++p) pt2[p-b] = p->impactPointState().globalMomentum().perp2();
-      std::sort(b,e,[&](tk x, tk y){ return pt2[&x-b]>pt2[&y-b];} );
-   }
+      auto s = cont.size();
+      float pt2[s]; int ind[s]; int i=0; 
+      for (auto const & tk : cont) { ind[i]=i; pt2[++i] = tk.impactPointState().globalMomentum().perp2();}
+      std::sort(ind,ind+s, [&](int i, int j){return pt2[i]>pt2[j];} ); 
+      std::vector<reco::TransientTrack> tmp; tmp.reserve(s);
+      for (auto i=0U; i<s; ++i) tmp.emplace_back(std::move( cont[ind[i]] ) );
+      cont.swap(tmp);
+    }
 
   // typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
   typedef AdaptiveVertexFitter::RefCountedVertexTrack RefCountedVertexTrack;
@@ -57,22 +58,16 @@ namespace {
 
 
 
-  struct DistanceToRefPoint {
-    DistanceToRefPoint ( const GlobalPoint & ref ) : theRef ( ref ) {}
-
-    bool operator() ( const RefCountedVertexTrack & v1, const RefCountedVertexTrack & v2 )
-    {
-      return ( distance ( v1 ) < distance ( v2 ) );
-    }
-
-    float distance ( const RefCountedVertexTrack & v1 )
-    {
-      return ( v1->linearizedTrack()->track().initialFreeState().position() - theRef ).mag2();
-    }
-
-    private:
-      GlobalPoint theRef;
-  };
+  void
+  sortByDistanceToRefPoint (std::vector<RefCountedVertexTrack> & cont, const GlobalPoint  ref ) {
+      auto s = cont.size();
+      float d2[s]; int ind[s]; int i=0;
+      for (auto const & tk : cont) { ind[i]=i; d2[++i] = (tk->linearizedTrack()->track().initialFreeState().position() - ref ).mag2();}
+      std::sort(ind,ind+s, [&](int i, int j){return d2[i]<d2[j];} );
+      std::vector<RefCountedVertexTrack> tmp; tmp.reserve(s);
+      for (auto i=0U; i<s; ++i) tmp.emplace_back(std::move( cont[ind[i]] ) );
+      cont.swap(tmp);
+  }
 
 
 
@@ -439,8 +434,7 @@ AdaptiveVertexFitter::reWeightTracks(
 
     finalTracks.push_back(vTrData);
   }
-  sort ( finalTracks.begin(), finalTracks.end(), 
-         DistanceToRefPoint ( vertex.position() ) );
+  sortByDistanceToRefPoint( finalTracks, vertex.position() );
   // cout << "[AdaptiveVertexFitter] /now reweight" << endl;
   return finalTracks;
 }
@@ -536,12 +530,9 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
                     priorVertexPosition,priorVertexError,initialTracks,0);
   }
 
-  // vector<RefCountedVertexTrack> globalVTracks = tracks;
+  std::vector<RefCountedVertexTrack> globalVTracks = tracks;
   // sort the tracks, according to distance to seed!
-  vector<RefCountedVertexTrack> globalVTracks ( tracks.size() );
-
-  partial_sort_copy ( tracks.begin(), tracks.end(), 
-      globalVTracks.begin(), globalVTracks.end(), DistanceToRefPoint ( priorSeed.position() ) );
+  sortByDistanceToRefPoint (globalVTracks, priorSeed.position() );
 
   // main loop through all the VTracks
   int lpStep = 0; int step = 0;
@@ -588,11 +579,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
       if ((**i).weight() > 0.) nVertex = theUpdator->add( fVertex, *i );
 	else  nVertex = fVertex;
       if (nVertex.isValid()) {
-        if ( (**i).weight() >= theWeightThreshold )
-        {
-          ns_trks++;
-        };
-
+        if ( (**i).weight() >= theWeightThreshold ) ns_trks++;
+        
         if ( fabs ( nVertex.position().z() ) > 10000. ||
              nVertex.position().perp()>120.)
         {
@@ -614,7 +602,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
 	        << ".\n Your vertex might just have lost one good track.";
-      };
+      }
     }
     previousPosition = newPosition;
     newPosition = fVertex.position();
