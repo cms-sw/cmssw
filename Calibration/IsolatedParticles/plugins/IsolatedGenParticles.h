@@ -106,10 +106,9 @@ private:
   void clearTreeVectors();
   int  particleCode(int);
 
-  //static const int NPBins   = 21;
   static const int NPBins   = 3;
   static const int NEtaBins = 4;
-  static const int Particles=12;
+  static const int PBins=32, EtaBins=60, Particles=12;
   int    nEventProc;
   double genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
   double pSeed, ptMin, etaMax, pCutIsolate;
@@ -118,28 +117,24 @@ private:
   std::string genSrc_;
   const MagneticField *bField;
 
-  edm::EDGetTokenT<edm::HepMCProduct> tok_hepmc_;
+  edm::EDGetTokenT<edm::HepMCProduct>           tok_hepmc_;
   edm::EDGetTokenT<reco::GenParticleCollection> tok_genParticles_;
 
-  bool initL1, useHepMC;
+  bool   initL1, useHepMC;
   static const size_t nL1BitsMax=128;
   std::string algoBitToName[nL1BitsMax];
   double a_coneR, a_charIsoR, a_neutIsoR, a_mipR;
-
   bool   debugL1Info_;
   int    verbosity;
-  edm::InputTag L1extraTauJetSource_, L1extraCenJetSource_, L1extraFwdJetSource_;
-  edm::InputTag L1extraMuonSource_,   L1extraIsoEmSource_,  L1extraNonIsoEmSource_;
-  edm::InputTag L1GTReadoutRcdSource_, L1GTObjectMapRcdSource_;
 
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_L1GTrorsrc_;
-  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_L1GTobjmap_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>      tok_L1GTrorsrc_;
+  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord>    tok_L1GTobjmap_;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> tok_L1extMusrc_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1Em_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1extNonIsoEm_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1Em_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1extNonIsoEm_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extTauJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extCenJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extFwdJet_;
 
 
   edm::Service<TFileService> fs;

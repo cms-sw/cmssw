@@ -15,6 +15,97 @@
 
 namespace spr{
 
+  std::vector<spr::propagatedTrackID> propagateCosmicCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug) {
+
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
+    std::vector<spr::propagatedTrackID> vdets;
+
+    unsigned int indx;
+    reco::TrackCollection::const_iterator trkItr;
+    for (trkItr = trkCollection->begin(),indx=0; trkItr != trkCollection->end(); ++trkItr,indx++) {
+      const reco::Track* pTrack = &(*trkItr);
+      spr::propagatedTrackID vdet;
+      vdet.trkItr = trkItr;
+      vdet.ok     = (pTrack->quality(trackQuality_));
+      vdet.detIdECAL = DetId(0);
+      vdet.detIdHCAL = DetId(0);
+      vdet.detIdEHCAL= DetId(0);
+      if (debug) std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi " << trkItr->phi() << " Flag " << vdet.ok << std::endl;
+
+      GlobalPoint  vertex;
+      GlobalVector momentum;
+      int charge (pTrack->charge());
+      if (((pTrack->innerPosition()).Perp2()) < 
+	  ((pTrack->outerPosition()).Perp2())) {
+	vertex = GlobalPoint(((pTrack->innerPosition()).X()),
+			     ((pTrack->innerPosition()).Y()),
+			     ((pTrack->innerPosition()).Z()));
+	momentum = GlobalVector(((pTrack->innerMomentum()).X()),
+				((pTrack->innerMomentum()).Y()),
+				((pTrack->innerMomentum()).Z()));
+      } else {
+ 	vertex = GlobalPoint(((pTrack->outerPosition()).X()),
+			     ((pTrack->outerPosition()).Y()),
+			     ((pTrack->outerPosition()).Z()));
+	momentum = GlobalVector(((pTrack->outerMomentum()).X()),
+				((pTrack->outerMomentum()).Y()),
+				((pTrack->outerMomentum()).Z()));
+      }
+      if (debug) std::cout << "Track charge " << charge << " p " << momentum << " position " << vertex << std::endl;
+
+      std::pair<math::XYZPoint,bool> info = 
+	spr::propagateECAL (vertex, momentum, charge, bField, debug);
+
+      vdet.okECAL = info.second;
+      if (vdet.okECAL) {
+	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+	vdet.etaECAL = point.eta();
+	vdet.phiECAL = point.phi();
+	if (std::abs(point.eta())<1.479) {
+	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
+	} else {
+	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	}
+	vdet.detIdEHCAL = gHB->getClosestCell(point);
+      }
+      info = spr::propagateHCAL (vertex, momentum, charge, bField, debug);
+      vdet.okHCAL = info.second;
+      if (vdet.okHCAL) {
+	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+	vdet.etaHCAL = point.eta();
+	vdet.phiHCAL = point.phi();
+	vdet.detIdHCAL = gHB->getClosestCell(point);
+      }
+      if (debug) {
+	std::cout << "Track [" << indx << "] Flag: " << vdet.ok << " ECAL (" 
+		  << vdet.okECAL << ") ";
+	if (vdet.detIdECAL.subdetId() == EcalBarrel) 
+	  std::cout << (EBDetId)(vdet.detIdECAL);
+	else 
+	  std::cout << (EEDetId)(vdet.detIdECAL); 
+	std::cout << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or " << (HcalDetId)(vdet.detIdEHCAL) << std::endl;
+      }
+      vdets.push_back(vdet);
+    }
+    
+    if (debug) {
+      std::cout << "propagateCALO:: for " << vdets.size() << " tracks" << std::endl;
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	std::cout << "Track [" << i << "] Flag: " << vdets[i].ok << " ECAL (" << vdets[i].okECAL << ") ";
+	if (vdets[i].detIdECAL.subdetId() == EcalBarrel) {
+	  std::cout << (EBDetId)(vdets[i].detIdECAL);
+	} else {
+	  std::cout << (EEDetId)(vdets[i].detIdECAL); 
+	}
+	std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << " Or " << (HcalDetId)(vdets[i].detIdEHCAL) << std::endl;
+      }
+    }
+    return vdets;
+  }
+ 
   std::vector<spr::propagatedTrackID> propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug) {
 
     std::vector<spr::propagatedTrackID> vdets;
@@ -62,7 +153,15 @@ namespace spr{
 	vdet.phiHCAL = point.phi();
 	vdet.detIdHCAL = gHB->getClosestCell(point);
       }
-
+      if (debug) {
+	std::cout << "Track [" << indx << "] Flag: " << vdet.ok << " ECAL (" 
+		  << vdet.okECAL << ") ";
+	if (vdet.detIdECAL.subdetId() == EcalBarrel) 
+	  std::cout << (EBDetId)(vdet.detIdECAL);
+	else 
+	  std::cout << (EEDetId)(vdet.detIdECAL); 
+	std::cout << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or " << (HcalDetId)(vdet.detIdEHCAL) << std::endl;
+      }
       vdets.push_back(vdet);
     }
     
@@ -145,6 +244,54 @@ namespace spr{
 	std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
       }
     }
+  }
+
+  spr::propagatedTrackID propagateCALO(const reco::Track* pTrack, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
+
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+
+    spr::propagatedTrackID vdet;
+    vdet.ok        = true;
+    vdet.detIdECAL = DetId(0);
+    vdet.detIdHCAL = DetId(0);
+    vdet.detIdEHCAL= DetId(0);
+    if (debug) std::cout << "Propagate track:  p " << pTrack->p() << " eta " << pTrack->eta() << " phi " << pTrack->phi() << " Flag " << vdet.ok << std::endl;
+
+    std::pair<math::XYZPoint,bool> info = spr::propagateECAL (pTrack, bField, debug);
+    vdet.okECAL = info.second;
+    if (vdet.okECAL) {
+      const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+      vdet.etaECAL = point.eta();
+      vdet.phiECAL = point.phi();
+      if (std::abs(point.eta())<1.479) {
+	vdet.detIdECAL = barrelGeom->getClosestCell(point);
+      } else {
+	vdet.detIdECAL = endcapGeom->getClosestCell(point);
+      }
+      vdet.detIdEHCAL = gHB->getClosestCell(point);
+    }
+    info = spr::propagateHCAL (pTrack, bField, debug);
+    vdet.okHCAL = info.second;
+    if (vdet.okHCAL) {
+      const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+      vdet.etaHCAL = point.eta();
+      vdet.phiHCAL = point.phi();
+      vdet.detIdHCAL = gHB->getClosestCell(point);
+    }
+    
+    if (debug) {
+      std::cout << "propagateCALO:: for 1 track" << std::endl;
+      std::cout << "Track [0] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") ";
+      if (vdet.detIdECAL.subdetId() == EcalBarrel) {
+	std::cout << (EBDetId)(vdet.detIdECAL);
+      } else {
+	std::cout << (EEDetId)(vdet.detIdECAL); 
+      }
+      std::cout << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or " << (HcalDetId)(vdet.detIdEHCAL) << std::endl;
+    }
+    return vdet;
   }
 
   std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent * genEvent, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax, bool debug) {
@@ -434,7 +581,7 @@ namespace spr{
 
     FreeTrajectoryState fts (vertex, momentum, charge, bField);
     Plane::PlanePointer endcap = Plane::build(Plane::PositionType (0, 0, zdist), Plane::RotationType());
-    Cylinder::CylinderPointer barrel = Cylinder::build(radius, Cylinder::PositionType (0, 0, 0), Cylinder::RotationType ());
+    Cylinder::CylinderPointer barrel = Cylinder::build(Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), radius);
 
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
 
@@ -479,7 +626,7 @@ namespace spr{
     Plane::PlanePointer lendcap = Plane::build(Plane::PositionType (0, 0, -zdist), Plane::RotationType());
     Plane::PlanePointer rendcap = Plane::build(Plane::PositionType (0, 0,  zdist), Plane::RotationType());
     
-    Cylinder::CylinderPointer barrel = Cylinder::build(radius, Cylinder::PositionType (0, 0, 0), Cylinder::RotationType ());
+    Cylinder::CylinderPointer barrel = Cylinder::build(Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), radius);
   
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
 
