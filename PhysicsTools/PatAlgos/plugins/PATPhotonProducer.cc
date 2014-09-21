@@ -326,8 +326,8 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     aPhoton.setELeft( ecalRegData.eLeft() );
     aPhoton.setERight( ecalRegData.eRight() );
     aPhoton.setSee( ecalRegData.sigmaIEtaIEta() );
-    aPhoton.setSpp( ecalRegData.sigmaIEtaIPhi() );
-    aPhoton.setSep( ecalRegData.sigmaIPhiIPhi() );
+    aPhoton.setSep( ecalRegData.sigmaIEtaIPhi() );
+    aPhoton.setSpp( ecalRegData.sigmaIPhiIPhi() );
    
     aPhoton.setMaxDR( ecalRegData.maxSubClusDR() );
     aPhoton.setMaxDRDPhi( ecalRegData.maxSubClusDRDPhi() );
