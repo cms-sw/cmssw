@@ -7,6 +7,7 @@ from DQMServices.Components.DQMFastTimerService_cff import *
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
+from DQM.OuterTrackerMonitorClient.OuterTrackerSourceConfig_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
@@ -21,6 +22,7 @@ DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  ecal_dqm_source_offline *
                                  hcalOfflineDQMSource *
                                  SiStripDQMTier0 *
+                                 OuterTrackerSource *
                                  siPixelOfflineDQM_source *
                                  dtSources *
                                  rpcTier0Source *
