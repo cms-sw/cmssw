@@ -37,6 +37,7 @@ pixelPairStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 pixelPairStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
+pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("firstStepPrimaryVertices")
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03

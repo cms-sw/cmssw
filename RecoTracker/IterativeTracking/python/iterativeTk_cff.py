@@ -16,6 +16,7 @@ from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 iterTracking = cms.Sequence(InitialStep*
+                            firstStepPrimaryVertices*
                             DetachedTripletStep*
                             LowPtTripletStep*
                             PixelPairStep*
