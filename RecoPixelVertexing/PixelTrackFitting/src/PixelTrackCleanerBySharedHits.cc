@@ -30,28 +30,29 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
 							     const TrackerTopology *tTopo)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
-
+  vector<TrackWithRecHits> cleanedTracks;
 
   LogDebug("PixelTrackCleanerBySharedHits") << "Cleanering tracks" << "\n";
-  int size = trackHitPairs.size();
+  unsigned int size = trackHitPairs.size();
+  if (size == 0) return cleanedTracks;
 
   bool trackOk[size];
-  for (int i = 0; i < size; i++) trackOk[i] = true;
+  for (auto i = 0U; i < size; i++) trackOk[i] = true;
 
-  for (auto iTrack1 = 0; iTrack1 < size; iTrack1++) {
+  for (auto iTrack1 = 0U; iTrack1 < size; iTrack1++) {
     auto track1 = trackHitPairs[iTrack1].first;
     const RecHits& recHits1 = trackHitPairs[iTrack1].second;
 
     if (!trackOk[iTrack1]) continue;
 
-    for (auto iTrack2 = iTrack1 + 1; iTrack2 < size; iTrack2++)
+    for (auto iTrack2 = iTrack1 + 1U; iTrack2 < size; iTrack2++)
     {
       if ( !trackOk[iTrack2]) continue; 
 
       auto track2 = trackHitPairs[iTrack2].first;
       const RecHits& recHits2 = trackHitPairs[iTrack2].second;
 
-      int commonRecHits = 0;
+      auto commonRecHits = 0U;
       for (auto iRecHit1 = 0U; iRecHit1 < recHits1.size(); iRecHit1++) {
         for (auto iRecHit2 = 0U; iRecHit2 < recHits2.size(); iRecHit2++) {
           if (recHitsAreEqual(recHits1[iRecHit1], recHits2[iRecHit2])) { commonRecHits++; break;} // if a hit is common, no other can be the same!
@@ -67,14 +68,10 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
     }
   }
 
-  vector<TrackWithRecHits> cleanedTracks;
-
-  for (int i = 0; i < size; i++)
+  for (auto i = 0U; i < size; i++)
   {
     if (trackOk[i]) cleanedTracks.push_back(trackHitPairs[i]);
     else delete trackHitPairs[i].first;
   }
   return cleanedTracks;
 }
-
-
