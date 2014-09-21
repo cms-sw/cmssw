@@ -622,7 +622,9 @@ DAClusterizerInZ_vect::vertices(const vector<reco::TransientTrack> & tracks, con
   
   // ensure correct normalization of probabilities, should makes double assginment reasonably impossible
   const unsigned int nv = y.GetSize();
-  
+  for (unsigned int k = 0; k < nv; k++)
+     if ( edm::isNotFinite(y._pk[k]) || edm::isNotFinite(y._z[k]) ) y._pk[k]=0;
+
   for (unsigned int i = 0; i < nt; i++) // initialize
     tks._Z_sum[i] = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
 

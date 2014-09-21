@@ -18,12 +18,15 @@ using namespace edm;
 using namespace std;
 
 namespace {
-  struct CompareTwoTracks {
-    int operator() ( const reco::TransientTrack & a, const reco::TransientTrack & b ) {
-            return ( a.impactPointState().globalMomentum().perp() >
-                     b.impactPointState().globalMomentum().perp() ) ;
-    };
-  };
+    void sortTracksByPt(std::vector<reco::TransientTrack> & cont) {
+      auto b = &cont.front();
+      auto e = b + cont.size();
+      using tk = reco::TransientTrack const &;
+      float pt2[e-b];
+      for (auto p=b; p!=e; ++p) pt2[p-b] = p->impactPointState().globalMomentum().perp2();
+      std::sort(b,e,[&](tk x, tk y){ return pt2[&x-b]>pt2[&y-b];} );
+   }
+
   // typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
   typedef AdaptiveVertexFitter::RefCountedVertexTrack RefCountedVertexTrack;
 
@@ -37,11 +40,8 @@ namespace {
       ret(2,2)=initialError;
       return ret;
   }
-  GlobalError fitError()
-  {
-    static const GlobalError err( initFitError() );
-    return err;
-  }
+
+  GlobalError const fitError = initFitError();
 
   AlgebraicSymMatrix33 initLinePointError() {
       // that's how we model the error of the linearization point.
@@ -51,11 +51,11 @@ namespace {
       // ret(0,0)=1e-7; ret(1,1)=1e-7; ret(2,2)=1e-7;
       return ret;
   }
-  GlobalError linPointError()
-  {
-    static const GlobalError err( initLinePointError() );
-    return err;
-  }
+
+  GlobalError const linPointError = initLinePointError();
+
+
+
 
   struct DistanceToRefPoint {
     DistanceToRefPoint ( const GlobalPoint & ref ) : theRef ( ref ) {}
@@ -73,6 +73,8 @@ namespace {
     private:
       GlobalPoint theRef;
   };
+
+
 
   #ifdef STORE_WEIGHTS
   //NOTE: This is not thread safe
@@ -163,14 +165,14 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks) con
     return CachingVertex<5>(); // return invalid vertex
   };
   vector < reco::TransientTrack > tracks = unstracks;
-  sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
+  sortTracksByPt( tracks);
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
   // Initial vertex seed, with a very large error matrix
-  VertexState lseed (linP, linPointError() );
+  VertexState lseed (linP, linPointError );
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lseed);
 
-  VertexState seed (linP, fitError() );
+  VertexState seed (linP, fitError );
   return fit(vtContainer, seed, false);
 }
 
@@ -185,7 +187,7 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
   };
   // Initial vertex seed, with a very small weight matrix
   GlobalPoint linP = tracks[0]->linearizedTrack()->linearizationPoint();
-  VertexState seed (linP, fitError() );
+  VertexState seed (linP, fitError );
   return fit(tracks, seed, false);
 }
 
@@ -218,9 +220,9 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
     return CachingVertex<5>(); // return invalid vertex
   };
   // Initial vertex seed, with a very large error matrix
-  VertexState seed (linPoint, linPointError() );
+  VertexState seed (linPoint, linPointError );
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, seed);
-  VertexState fitseed (linPoint, fitError() );
+  VertexState fitseed (linPoint, fitError );
   return fit(vtContainer, fitseed, false);
 }
 
@@ -244,12 +246,12 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks,
   vector<RefCountedVertexTrack> vtContainer;
 
   vector < reco::TransientTrack > tracks = unstracks;
-  sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
+  sortTracksByPt(tracks);
 
   if (tracks.size() > 1) {
     // Linearization Point search if there are more than 1 track
     GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
-    VertexState lpState(linP, linPointError() );
+    VertexState lpState(linP, linPointError );
     vtContainer = linearizeTracks(tracks, lpState);
   } else {
     // otherwise take the beamspot position.
