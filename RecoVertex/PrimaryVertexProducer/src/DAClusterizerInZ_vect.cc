@@ -516,7 +516,7 @@ void DAClusterizerInZ_vect::splitAll( vertex_t & y) const {
 
 vector<TransientVertex> 
 DAClusterizerInZ_vect::vertices(const vector<reco::TransientTrack> & tracks, const int verbosity) const {
-  track_t tks = fill(tracks);
+  track_t && tks = fill(tracks);
   tks.ExtractRaw();
   
   unsigned int nt = tks.GetSize();
