@@ -12,12 +12,14 @@ using namespace llvm;
 namespace clangcms {
 
 class TUFWalker : public clang::StmtVisitor<TUFWalker> {
+  const CheckerBase *Checker;
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
 
 public:
-  TUFWalker(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
-    : BR(br),
+  TUFWalker(const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
+    : Checker(checker),
+      BR(br),
       AC(ac) {}
 
   void VisitChildren(clang::Stmt *S );
@@ -47,7 +49,7 @@ void TUFWalker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	if ( support::isKnownThrUnsafeFunc(mname) ) {
 		os << "Known thread unsafe function " << mname << " is called in function " << pname;
 		PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
- 		BugType * BT = new BugType("known thread unsafe function called","optional");
+ 		BugType * BT = new BugType(Checker, "known thread unsafe function called","optional");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		R->addRange(CE->getSourceRange());
 		BR.emitReport(R);
@@ -70,7 +72,7 @@ void ThrUnsafeFCallChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManage
        	PathDiagnosticLocation DLoc =PathDiagnosticLocation::createBegin( MD, SM );
 	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
        	if (!MD->doesThisDeclarationHaveABody()) return;
-	clangcms::TUFWalker walker(BR, mgr.getAnalysisDeclContext(MD));
+	clangcms::TUFWalker walker(this,BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
        	return;
 } 
@@ -85,7 +87,7 @@ void ThrUnsafeFCallChecker::checkASTDecl(const FunctionTemplateDecl *TD, Analysi
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{
 			if (I->doesThisDeclarationHaveABody()) {
-				clangcms::TUFWalker walker(BR, mgr.getAnalysisDeclContext(*I));
+				clangcms::TUFWalker walker(this,BR, mgr.getAnalysisDeclContext(*I));
 				walker.Visit(I->getBody());
 				}
 		}	
