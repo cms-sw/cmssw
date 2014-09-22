@@ -8,7 +8,7 @@
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
 
 #include <Pythia8/Pythia.h>
-#include <Pythia8Plugins/HepMC2.h>
+#include <Pythia8/Pythia8ToHepMC.h>
 
 namespace CLHEP {
   class HepRandomEngine;

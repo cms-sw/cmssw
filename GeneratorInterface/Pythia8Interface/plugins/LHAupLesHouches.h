@@ -13,7 +13,7 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/LesHouches.h"
-#include "Pythia8Plugins/HepMC2.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
