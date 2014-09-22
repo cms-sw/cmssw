@@ -44,15 +44,8 @@ namespace clangcms {
 
 
 void writeLog(std::string ostring) {
-	const char * pPath = std::getenv("LOCALRT");
-	std::string tname = ""; 
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname+="/tmp/class-checker.txt.unsorted";
-	std::fstream file;
-	file.open(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-	file<<ostring<<"\n";
-	file.flush();
-	file.close();
+	std::string tname ="class-checker.txt.unsorted";
+	support::writeLog(ostring,tname);
 	return;
 }
 
@@ -311,7 +304,7 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
 	os <<"const_cast used\n";
 	std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD)+ "' Warning: "+os.str()+".";
 	writeLog(tolog);
-	BugType * BT = new BugType(Checker,"const_cast used in const function ","DataClassConstCorrect");
+	BugType * BT = new BugType(Checker,"const_cast used in const function ","Data Class Const Correctness");
 	BugReport * R = new BugReport(*BT,tolog,CELoc);
 	BR.emitReport(R);
 	return;
@@ -352,7 +345,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 		const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
 		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 		writeLog(tolog);
-	    	BugType * BT = new BugType(Checker,"ClassChecker : non-const static local variable accessed","DataClassConstCorrect");
+	    	BugType * BT = new BugType(Checker,"ClassChecker : non-const static local variable accessed","Data Class Const Correctness");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 		return;
@@ -368,7 +361,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 		const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
 		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 		writeLog(tolog);
-	    	BugType * BT = new BugType(Checker,"Non-const static member variable accessed","DataClassConstCorrect");
+	    	BugType * BT = new BugType(Checker,"Non-const static member variable accessed","Data Class Const Correctness");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	    return;
@@ -389,7 +382,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 		const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
 		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 		writeLog(tolog);
-	    	BugType * BT = new BugType(Checker,"Non-const global static variable accessed","DataClassConstCorrect");
+	    	BugType * BT = new BugType(Checker,"Non-const global static variable accessed","Data Class Const Correctness");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	    return;
@@ -487,7 +480,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: " + os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(AC->getDecl(),Checker,"Member data modified in const function","DataClassConstCorrect",os.str(),CELoc);
+  BR.EmitBasicReport(AC->getDecl(),Checker,"Member data modified in const function","Data Class Const Correctness",os.str(),CELoc);
 }
 
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
@@ -517,7 +510,7 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   if ( support::isSafeClassName(MD->getQualifiedNameAsString()) ) return;
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BugType * BT = new BugType(Checker,"Non-const member function could modify member data object","DataClassConstCorrect");
+  BugType * BT = new BugType(Checker,"Non-const member function could modify member data object","Data Class Const Correctness");
   BugReport * R = new BugReport(*BT,os.str(),CELoc);
   BR.emitReport(R);
   
@@ -545,7 +538,7 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
 
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BugType * BT = new BugType(Checker,"Const cast away from member data in const function","DataClassConstCorrect");
+  BugType * BT = new BugType(Checker,"Const cast away from member data in const function","Data Class Const Correctness");
   BugReport * R = new BugReport(*BT,os.str(),CELoc);
   BR.emitReport(R);
 	 
@@ -576,7 +569,7 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
 
   if (!m_exception.reportClass( ELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(CE->getCalleeDecl(),Checker,"Member data passed to non-const reference","DataClassConstCorrect",os.str(),ELoc);
+  BR.EmitBasicReport(CE->getCalleeDecl(),Checker,"Member data passed to non-const reference","Data Class Const Correctness",os.str(),ELoc);
 
 }
 
@@ -605,7 +598,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   clang::QualType RTy = Ctx.getCanonicalType(RQT);
   if ( (RTy->isPointerType() || RTy->isReferenceType() ) ) {
 	if( !support::isConst(RTy) ) {
-		BugType * BT = new BugType(Checker,"Class Checker : Const function returns pointer or reference to non-const member data object","DataClassConstCorrect");
+		BugType * BT = new BugType(Checker,"Const function returns pointer or reference to non-const member data object","Data Class Const Correctness");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	}
@@ -613,7 +606,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   std::string svname = "const class std::vector<";
   std::string rtname = RTy.getAsString();
   if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
-	BugType * BT = new BugType(Checker,"Const function returns member data object of type const std::vector<*> or const std::vector<*>&","DataClassConstCorrect");
+	BugType * BT = new BugType(Checker,"Const function returns member data object of type const std::vector<*> or const std::vector<*>&","Data Class Const Correctness");
 	BugReport * R = new BugReport(*BT,os.str(),CELoc);
 	BR.emitReport(R);
   }
@@ -660,7 +653,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object \n";
 						std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
 						writeLog(tolog);
-						BR.EmitBasicReport(MD,this, "Const function returns pointer or reference to non-const object.","DataClassConstCorrect",os.str(),ELoc);
+						BR.EmitBasicReport(MD,this, "Const function returns pointer or reference to non-const object.","Data Class Const Correctness",os.str(),ELoc);
 						}
 					std::string svname = "const class std::vector<";
 					std::string rtname = RTy.getAsString();
@@ -678,7 +671,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 									os << MD->getQualifiedNameAsString() << " is a const member function that returns an object of type const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
 									std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
 									writeLog(tolog);
-									BR.EmitBasicReport(MD,this, "Const function returns const std::vector<*> or const std::vector<*>&","DataClassConstCorrect",os.str(),ELoc);
+									BR.EmitBasicReport(MD,this, "Const function returns const std::vector<*> or const std::vector<*>&","Data Class Const Correctness",os.str(),ELoc);
 								}
 							}
 						}

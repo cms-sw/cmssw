@@ -97,10 +97,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	} else 
 		DLoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(), AC);
 
-	const char * pPath = std::getenv("LOCALRT");
-	std::string tname = ""; 
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname+="/tmp/function-checker.txt.unsorted";
+	std::string tname ="function-checker.txt.unsorted";
 
 	std::string vname = support::getQualifiedName(*D);
 	std::string svname = D->getNameAsString();
@@ -112,8 +109,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << svname<< "'.\n";
 //		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '"+ sdname + "' static variable '" + vname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		support::writeLog(ostring,tname);
 		return;
 	}
 
@@ -124,8 +120,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << svname << "'.\n";
 //		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		support::writeLog(ostring,tname);
 	    return;
 	}
 
@@ -140,8 +135,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << svname << "'.\n";
 //		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		support::writeLog(ostring,tname);
 	    return;
 	
 	}
@@ -176,11 +170,8 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
 //		BR.EmitBasicReport(FD, "COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
 		const char * pPath = std::getenv("LOCALRT");
-		std::string tname = ""; 
-		if ( pPath != NULL ) tname += std::string(pPath);
-		tname+="/tmp/function-checker.txt.unsorted";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		std::string tname = "function-checker.txt.unsorted";
+		support::writeLog(ostring,tname);
         }
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(FD->getLocation ()).getFilename();

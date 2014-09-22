@@ -20,7 +20,6 @@
 #include "dablooms.h"
 #define CAPACITY 5000
 #define ERROR_RATE .0002
-#define BYTES 2
 
 
 using namespace clangcms;
@@ -175,3 +174,22 @@ bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
   		if ( fname.substr(0,name.length()) == name ) return true;	
 	return false;
 }
+
+void support::writeLog(const std::string &ostring,const std::string &tfstring) {
+	const char * pPath = std::getenv("LOCALRT");
+	if ( pPath == NULL ) {
+		llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
+		exit(1);
+	}
+
+	std::string pname = std::string(pPath) +"/tmp/";
+	const std::string tname = pname + tfstring;
+
+	std::fstream file;
+	file.open(tname.c_str(),std::ios::out|std::ios::app);
+	file<<ostring<<"\n";
+	file.close();
+
+	return;
+}
+
