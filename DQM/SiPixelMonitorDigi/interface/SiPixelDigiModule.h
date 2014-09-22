@@ -83,8 +83,8 @@ class SiPixelDigiModule {
   MonitorElement* meNDigisLay_;
   MonitorElement* meADCLay_;
   MonitorElement* mePixDigisLay_;
-  MonitorElement* mePixRocsLay_;
-  MonitorElement* meZeroOccRocsLay_;
+  MonitorElement* mePixRocsLay_ = NULL;
+  MonitorElement* meZeroOccRocsLay_ = NULL;
   MonitorElement* mePixDigisLay_px_;
   MonitorElement* mePixDigisLay_py_;
 
@@ -101,8 +101,8 @@ class SiPixelDigiModule {
   MonitorElement* meNDigisDisk_;
   MonitorElement* meADCDisk_;
   MonitorElement* mePixDigisDisk_;
-  MonitorElement* mePixRocsDisk_;
-  MonitorElement* meZeroOccRocsDisk_;
+  MonitorElement* mePixRocsDisk_ = NULL;
+  MonitorElement* meZeroOccRocsDisk_ = NULL;
 
   MonitorElement* meNDigisRing_;
   MonitorElement* meADCRing_;
