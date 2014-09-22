@@ -128,7 +128,8 @@
    <version ClassVersion="10" checksum="634833762"/>
   </class>
   <class name="std::vector<L1DataEmulDigi>"/>
-  <class name="L1DataEmulRecord" ClassVersion="11">
+  <class name="L1DataEmulRecord" ClassVersion="12">
+   <version ClassVersion="12" checksum="3255820845"/>
    <version ClassVersion="11" checksum="3617630969"/>
    <version ClassVersion="10" checksum="466303541"/>
   </class>
