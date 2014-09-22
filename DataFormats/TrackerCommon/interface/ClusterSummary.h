@@ -68,13 +68,6 @@ The number of variables for each module is stored within iterator_
 
 class ClusterSummary {
 public:
-
-  // Holds information for the standard module selections
-  struct CMSTrackerSelection{
-    std::string name;
-    std::vector<std::string> selection;
-  };
-  
   ClusterSummary();
   //nSelections is the number of selections that you want to have
   //It should be highest enum + 1
@@ -89,22 +82,14 @@ public:
 #endif
 
   // Enum for each partition within Tracker
-  enum CMSTracker {STRIP = 0, TIB = 1, TOB = 2, TID = 3, TEC = 4, PIXEL = 5, FPIX = 6, BPIX = 7, NDEFAULTENUMS = 8, NTRACKERENUMS = 100};
+  enum CMSTracker {STRIP = 0, TIB = 1, TOB = 2, TID = 3, TEC = 4, PIXEL = 5, FPIX = 6, BPIX = 7, NVALIDENUMS = 8, NTRACKERENUMS = 100};
+  static const std::vector<std::string> subDetNames;
+  static const std::vector<std::vector<std::string> > subDetSelections ;
 
   // Enum which describes the ordering of the summary variables inside vector variables_
   enum VariablePlacement{NCLUSTERS, CLUSTERSIZE, CLUSTERCHARGE, NVARIABLES};
+  static const std::vector<std::string> variableNames;
 
-  //Functions to return the standard subdetector selections
-  static std::vector<CMSTrackerSelection> getStandardSelections(); //returns the standard selection info
-  static const CMSTrackerSelection& getStandardSelection(const CMSTracker subdet) {
-    static std::vector<CMSTrackerSelection> selVec = getStandardSelections();
-    return selVec.at(subdet);
-  }
-  static const std::string& getSubDetName(const CMSTracker subdet) {return getStandardSelection(subdet).name;}
-  static const std::vector<std::string>& getSubDetSelection(const CMSTracker subdet) {return getStandardSelection(subdet).selection;}
-  static CMSTracker getSubDetEnum(const std::string name);
-
-  static std::string getVarName(const VariablePlacement var);
 
   //===================+++++++++++++========================
   //
@@ -128,10 +113,6 @@ public:
   const std::vector<int>  & getClusSizeVector()   const {return clusSize;}
   const std::vector<float>& getClusChargeVector() const {return clusCharge;}
 
-  std::vector<int>  & getNClusVector()      {return nClus;}
-  std::vector<int>  & getClusSizeVector()   {return clusSize;}
-  std::vector<float>& getClusChargeVector() {return clusCharge;}
-
   void addNClusByIndex     (const int mod, const int   val) {nClus     .at(mod)+=val;}
   void addClusSizeByIndex  (const int mod, const int   val) {clusSize  .at(mod)+=val;}
   void addClusChargeByIndex(const int mod, const float val) {clusCharge.at(mod)+=val;}
@@ -141,15 +122,15 @@ public:
   void addClusCharge(const CMSTracker mod, const float val) {clusCharge.at(getModuleLocation(mod))+=val;}
 
   const std::vector<int>& getModules() const { return modules;  }
-  std::vector<int>& getModules() { return modules;  }
   // Return the location of desired module within modules_. If warn is set to true, a warnign will be outputed in case no module was found
   int getModuleLocation ( int mod, bool warn = true ) const;
   unsigned int getNumberOfModules() const {return modules.size();}
   int getModule(const int index) const { return modules[index];}
 
-  //Resets the source values (set values to 0)
-  //and copies over only non-zero entries into the current one
-  void cleanAndReset(ClusterSummary& src);
+  //copies over only non-zero entries into the current one
+  void copyNonEmpty(const ClusterSummary& src);
+  //Set values to 0
+  void reset();
 
  private:
   std::vector<int>   modules   ;    // <Module1, Module2 ...>

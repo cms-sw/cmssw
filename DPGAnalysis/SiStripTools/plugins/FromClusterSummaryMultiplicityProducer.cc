@@ -117,15 +117,26 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
   Handle<ClusterSummary> clustsumm;
   iEvent.getByToken(m_collectionToken,clustsumm);
 
-  for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS){
-    switch(m_subdetvar){
-      case ClusterSummary::NCLUSTERS     :(*mults)[m_subdetsel[iS]] = int(clustsumm->getNClus     (m_subdetenums[iS])); break;
-      case ClusterSummary::CLUSTERSIZE   :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusSize  (m_subdetenums[iS])); break;
-      case ClusterSummary::CLUSTERCHARGE :(*mults)[m_subdetsel[iS]] = int(clustsumm->getClusCharge(m_subdetenums[iS])); break;
-      default : (*mults)[m_subdetsel[iS]] = -1;
-    }
-    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " " << clustsumm->getModuleLocation(m_subdetenums[iS]);
+  switch(m_subdetvar){
+    case ClusterSummary::NCLUSTERS     :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = int(clustsumm->getNClus     (m_subdetenums[iS]));
+      break;
+    case ClusterSummary::CLUSTERSIZE   :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = int(clustsumm->getClusSize     (m_subdetenums[iS]));
+      break;
+    case ClusterSummary::CLUSTERCHARGE :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = int(clustsumm->getClusCharge     (m_subdetenums[iS]));
+      break;
+    default :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = -1;
   }
+
+  for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " " << clustsumm->getModuleLocation(m_subdetenums[iS]);
 
   for(std::map<unsigned int,int>::const_iterator it=mults->begin();it!=mults->end();++it) {
     LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first;

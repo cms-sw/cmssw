@@ -70,7 +70,6 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
 
       std::map<int,std::string> allModules_;
 
-      bool _firstPass;
       edm::Service<TFileService> fs;
 
       bool _verbose;
@@ -81,9 +80,46 @@ ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig)
 {
   
   token = consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSum"));
-
-  _firstPass = true;
   _verbose = true;    //set to true to see the event by event summary info
+
+  std::vector<std::string> wantedsubdets = iConfig.getParameter<std::vector<std::string> >("wantedSubDets");
+  for(auto iS : wantedsubdets){
+
+    ClusterSummary::CMSTracker subdet = ClusterSummary::NVALIDENUMS;
+    for(int iN = 0; iN < ClusterSummary::NVALIDENUMS; ++i)
+      if(ClusterSummary::subDetNames[iN] == iS)
+        subdet = ClusterSummary::CMSTracker(iN);
+    if(subdet == ClusterSummary::NVALIDENUMS) throw cms::Exception( "No standard selection: ") << iS;
+
+    allModules_[subdet] = iS;
+  }
+
+  std::vector<edm::ParameterSet> wantedusersubdets_ps = iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedUserSubDets");
+  for(const auto& iS : wantedusersubdets_ps){
+    ClusterSummary::CMSTracker subdet    = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
+    std::string                detname   = iS.getParameter<std::string>("detLabel");
+    if(subdet <=  ClusterSummary::NVALIDENUMS) throw cms::Exception( "Already predefined selection: ") << subdet;
+    if(subdet >=  ClusterSummary::NTRACKERENUMS) throw cms::Exception( "Selection is out of range: ") << subdet;
+    allModules_[subdet] = detname;
+  }
+
+  cout << "From provenance infomation the selected modules are = ";
+  for (auto i : allModules_)
+   cout << i.second <<" ";
+  cout << endl;
+
+  for( auto i = allModules_.begin(); i != allModules_.end(); ++i){
+    std::string tmpstr = i->second;
+    histos1D_[ (tmpstr + "nclusters").c_str() ] = fs->make< TH1D >( (tmpstr + "nclusters").c_str() , (tmpstr + "nclusters").c_str() , 1000 , 0 , 3000   );
+    histos1D_[ (tmpstr + "nclusters").c_str() ]->SetXTitle( ("number of Clusters in " + tmpstr).c_str() );
+
+    histos1D_[ (tmpstr + "avgCharge").c_str() ] = fs->make< TH1D >( (tmpstr + "avgCharge").c_str() , (tmpstr + "avgCharge").c_str() , 500 , 0 , 1000   );
+    histos1D_[ (tmpstr + "avgCharge").c_str() ]->SetXTitle( ("average cluster charge in " + tmpstr).c_str() );
+
+    histos1D_[ (tmpstr + "avgSize").c_str() ] = fs->make< TH1D >( (tmpstr + "avgSize").c_str() , (tmpstr + "avgSize").c_str() , 30 , 0 , 10   );
+    histos1D_[ (tmpstr + "avgSize").c_str() ]->SetXTitle( ("average cluster size in " + tmpstr).c_str() );
+
+  }
 
 }
 
@@ -94,55 +130,9 @@ void
 ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-
    
    Handle< ClusterSummary  > class_;
    iEvent.getByToken( token, class_);
-      
-   if (_firstPass){
-     //  Provenance Information
-     const Provenance& prov = iEvent.getProvenance(class_.id());
-     const edm::ParameterSet& pSet = parameterSet(prov);   
-
-     std::vector<std::string> wantedsubdets = iConfig.getParameter<std::vector<std::string> >("wantedSubDets");
-     for(auto iS : wantedsubdets){
-       ClusterSummary::CMSTracker subdet = ClusterSummary::getSubDetEnum(iS);
-       if(subdet == ClusterSummary::NDEFAULTENUMS) throw cms::Exception( "No standard selection: ") << iS;
-       allModules_[subdet] = ClusterSummary::getSubDetName(subdet);
-     }
-
-     std::vector<edm::ParameterSet> wantedusersubdets_ps = iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedUserSubDets");
-     for(const auto& iS : wantedusersubdets_ps){
-       ClusterSummary::CMSTracker subdet    = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
-       std::string                detname   = iS.getParameter<std::string>("detLabel");
-       if(subdet <=  ClusterSummary::NDEFAULTENUMS) throw cms::Exception( "Already predefined selection: ") << subdet;
-       if(subdet >=  ClusterSummary::NTRACKERENUMS) throw cms::Exception( "Selection is out of range: ") << subdet;
-       allModules_[subdet] = detname;
-     }
-
-     cout << "From provenance infomation the selected modules are = ";
-     for (auto i : allModules_)
-      cout << i.second <<" ";
-     cout << endl;
-   }
-
-   if ( _firstPass ){ //only do on the first event
-
-     for( auto i = allModules_.begin(); i != allModules_.end(); ++i){
-       std::string tmpstr = i->second;
-       histos1D_[ (tmpstr + "nclusters").c_str() ] = fs->make< TH1D >( (tmpstr + "nclusters").c_str() , (tmpstr + "nclusters").c_str() , 1000 , 0 , 3000   );
-       histos1D_[ (tmpstr + "nclusters").c_str() ]->SetXTitle( ("number of Clusters in " + tmpstr).c_str() );
-
-       histos1D_[ (tmpstr + "avgCharge").c_str() ] = fs->make< TH1D >( (tmpstr + "avgCharge").c_str() , (tmpstr + "avgCharge").c_str() , 500 , 0 , 1000   );
-       histos1D_[ (tmpstr + "avgCharge").c_str() ]->SetXTitle( ("average cluster charge in " + tmpstr).c_str() );
-
-       histos1D_[ (tmpstr + "avgSize").c_str() ] = fs->make< TH1D >( (tmpstr + "avgSize").c_str() , (tmpstr + "avgSize").c_str() , 30 , 0 , 10   );
-       histos1D_[ (tmpstr + "avgSize").c_str() ]->SetXTitle( ("average cluster size in " + tmpstr).c_str() );
-       
-     }
-
-     _firstPass = false;
-   }
    
    for ( unsigned int iM  = 0; iM < class_->GetNumberOfModules(); iM++ ){
      auto iAllModules = allModules_.find(class_->GetModule(iM));
