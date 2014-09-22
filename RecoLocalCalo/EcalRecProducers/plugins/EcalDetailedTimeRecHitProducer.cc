@@ -131,7 +131,9 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
                 evt.getByLabel( EKRecHitCollection_, pEKRecHits);
                 if ( pEKRecHits.isValid() ) {
                         EKRecHits = pEKRecHits.product(); // get a ptr to the product
-                        std::cout << "total # EK uncalibrated rechits to be re-calibrated: " << EKRecHits->size() << std::endl;
+#ifdef DEBUG
+                        LogDebug("EcalRecHitDebug") << "total # EK uncalibrated rechits to be re-calibrated: " << EKRecHits->size() << std::endl;
+#endif
                 } else {
                         edm::LogError("EcalRecHitError") << "Error! can't get the product " << EKRecHitCollection_.label() ;
                 }
@@ -172,7 +174,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
                 //evt.getByLabel( digiProducer_, pEKTimeDigis);
                 if ( pEKTimeDigis.isValid() ) {
                         ekTimeDigis = pEKTimeDigis.product(); // get a ptr to the product
-                        std::cout << "[EcalDetailedTimeRecHitInfo]" << "total # ekTimeDigis: " << ekTimeDigis->size() << std::endl;
+//                        std::cout << "[EcalDetailedTimeRecHitInfo]"
+                        edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # ekTimeDigis: " << ekTimeDigis->size() << std::endl;
                 } else {
                         edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << ekTimeDigiCollection_;
                 }
@@ -296,8 +299,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 			  if (vertex)
 			    {
 			      aHit.setTime(myTime+deltaTimeOfFlight(*vertex,(*it).id(),ekTimeLayer_));
-			      std::cout << " uncorr time: " << myTime << "  corrected: " << myTime+deltaTimeOfFlight(*vertex,(*it).id(),ekTimeLayer_)
-			                << "  old rechit: " << (*it).time() << std::endl;
+//			      std::cout << " uncorr time: " << myTime << "  corrected: " << myTime+deltaTimeOfFlight(*vertex,(*it).id(),ekTimeLayer_)
+//			                << "  old rechit: " << (*it).time() << std::endl;
 			    }
 			  else
 			    //Uncorrected ToF
@@ -312,7 +315,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         // put the collection of recunstructed hits in the event   
         LogInfo("EcalDetailedTimeRecHitInfo") << "total # EB rechits: " << EBDetailedTimeRecHits->size();
         LogInfo("EcalDetailedTimeRecHitInfo") << "total # EE rechits: " << EEDetailedTimeRecHits->size();
-        std::cout << "[EcalDetailedTimeRecHitInfo]" << "Storing total # EK rechits: " << EKDetailedTimeRecHits->size() << std::endl;
+//        std::cout << "[EcalDetailedTimeRecHitInfo]" 
+        LogInfo("EcalDetailedTimeRecHitInfo") << "Storing total # EK rechits: " << EKDetailedTimeRecHits->size() << std::endl;
 
         evt.put( EBDetailedTimeRecHits, EBDetailedTimeRecHitCollection_ );
         evt.put( EEDetailedTimeRecHits, EEDetailedTimeRecHitCollection_ );

@@ -6,7 +6,7 @@ def cust_shashlikTime(process):
     # Store layers in 1 cm for Shashlik with 1ps timeSlices
     if hasattr(process,'g4SimHits'):
         print "___ ShashlikSD configured for 1ps time resolution and 1cm layers ___"
-#        process.g4SimHits.ShashlikSD.StoreLayerTimeSim  = cms.untracked.bool(True)
+        process.g4SimHits.ShashlikSD.StoreLayerTimeSim  = cms.untracked.bool(True)
         process.g4SimHits.ShashlikSD.TimeSliceUnit  = cms.double(0.001)
 
     # Switch on the ecalTime digitization
