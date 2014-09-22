@@ -75,6 +75,13 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
+
+#vertices
+import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
+firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
+
+
 # Final selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSelector
@@ -126,5 +133,6 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
+                           firstStepPrimaryVertices*
                            initialStepSelector*
                            initialStep)
