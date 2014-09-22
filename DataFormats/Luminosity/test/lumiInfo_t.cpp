@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 class TestLumiInfo: public CppUnit::TestFixture
 {
@@ -29,8 +30,8 @@ TestLumiInfo::testConstructor() {
   LumiInfo lumiInfo;
   
   lumiInfo.setDeadFraction(0.4);
-  CPPUNIT_ASSERT(lumiInfo.deadFraction() == 0.4);
-  CPPUNIT_ASSERT(lumiInfo.liveFraction() == 0.6);
+  CPPUNIT_ASSERT(fabs(lumiInfo.deadFraction() - 0.4) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.liveFraction() - 0.6) < 1e-5);
 }
 
 void
@@ -54,21 +55,21 @@ TestLumiInfo::testFill() {
 
   lumiInfo.fill(lumBX, beam1, beam2);
 
-  CPPUNIT_ASSERT(lumiInfo.getInstLumiBX(0) == 1.0f);
-  CPPUNIT_ASSERT(lumiInfo.getInstLumiBX(1) == 2.0f);
-  CPPUNIT_ASSERT(lumiInfo.getInstLumiBX(2) == 3.0f);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getInstLumiBX(0) - 1.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getInstLumiBX(1) - 2.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getInstLumiBX(2) - 3.0f) < 1e-5);
 
-  CPPUNIT_ASSERT(lumiInfo.instLuminosity() == 6.0f);
-  CPPUNIT_ASSERT(lumiInfo.integLuminosity() == 6.0f*lumiInfo.lumiSectionLength());
-  CPPUNIT_ASSERT(lumiInfo.recordedLuminosity() == 3.0f*lumiInfo.lumiSectionLength());
+  CPPUNIT_ASSERT(fabs(lumiInfo.instLuminosity() - 6.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.integLuminosity() - 6.0f*lumiInfo.lumiSectionLength()) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.recordedLuminosity() - 3.0f*lumiInfo.lumiSectionLength()) < 1e-5);
   
-  CPPUNIT_ASSERT(lumiInfo.getBeam1IntensityBX(0) == 4.0f);
-  CPPUNIT_ASSERT(lumiInfo.getBeam1IntensityBX(1) == 5.0f);
-  CPPUNIT_ASSERT(lumiInfo.getBeam1IntensityBX(2) == 6.0f);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getBeam1IntensityBX(0) - 4.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getBeam1IntensityBX(1) - 5.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getBeam1IntensityBX(2) - 6.0f) < 1e-5);
 
-  CPPUNIT_ASSERT(lumiInfo.getBeam2IntensityBX(0) == 7.0f);
-  CPPUNIT_ASSERT(lumiInfo.getBeam2IntensityBX(1) == 8.0f);
-  CPPUNIT_ASSERT(lumiInfo.getBeam2IntensityBX(2) == 9.0f);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getBeam2IntensityBX(0) - 7.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getBeam2IntensityBX(1) - 8.0f) < 1e-5);
+  CPPUNIT_ASSERT(fabs(lumiInfo.getBeam2IntensityBX(2) - 9.0f) < 1e-5);
 
   CPPUNIT_ASSERT(lumiInfo.isProductEqual(lumiInfo));
 
