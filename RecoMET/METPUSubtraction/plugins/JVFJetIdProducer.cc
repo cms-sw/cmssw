@@ -64,7 +64,7 @@ namespace
   
     for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jet.getPFConstituents().begin();
 	  jetConstituent != jet.getPFConstituents().end(); ++jetConstituent ) {
-      if ( abs((*jetConstituent)->charge()) != 0 ) {
+      if ( (*jetConstituent)->charge() != 0 ) {
 	double trackPt = 0.;
 	if ( (*jetConstituent)->gsfTrackRef().isNonnull() && (*jetConstituent)->gsfTrackRef().isAvailable() ) trackPt = (*jetConstituent)->gsfTrackRef()->pt();
 	else if ( (*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable() ) trackPt = (*jetConstituent)->trackRef()->pt();

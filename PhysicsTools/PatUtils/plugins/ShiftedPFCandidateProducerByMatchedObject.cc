@@ -1,7 +1,5 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerByMatchedObject.h"
 
-#include <TMath.h>
-
 const double dRDefault = 1000;
 
 ShiftedPFCandidateProducerByMatchedObject::ShiftedPFCandidateProducerByMatchedObject(const edm::ParameterSet& cfg)
@@ -85,7 +83,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
       double shiftedPy = (1. + shift)*originalPFCandidate->py();
       double shiftedPz = (1. + shift)*originalPFCandidate->pz();
       double mass = originalPFCandidate->mass();
-      double shiftedEn = TMath::Sqrt(shiftedPx*shiftedPx + shiftedPy*shiftedPy + shiftedPz*shiftedPz + mass*mass);
+      double shiftedEn = sqrt(shiftedPx*shiftedPx + shiftedPy*shiftedPy + shiftedPz*shiftedPz + mass*mass);
       shiftedPFCandidateP4.SetPxPyPzE(shiftedPx, shiftedPy, shiftedPz, shiftedEn);
     }
     

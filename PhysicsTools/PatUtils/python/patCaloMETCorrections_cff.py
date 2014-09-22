@@ -36,7 +36,7 @@ patCaloMetType2Corr = cms.EDProducer(
         cms.InputTag('patCaloMetType1Corr', 'type2'),
         cms.InputTag('patCaloMetMuCorr') # NOTE: use this for 'corMetGlobalMuons', do **not** use it for 'met' !!
         ),
-    type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
+    type2CorrFormula = cms.string("A + B*exp(-C*x)"),
     type2CorrParameter = cms.PSet(
         A = cms.double(2.0),
         B = cms.double(1.3),
@@ -67,7 +67,7 @@ patCaloMetT1T2 = cms.EDProducer("CorrectedPATMETProducer",
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('patCaloMetType1Corr', 'type2' ),                    
     ),                              
-    type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
+    type2CorrFormula = cms.string("A + B*exp(-C*x)"),
     type2CorrParameter = cms.PSet(
         A = cms.double(2.0),
         B = cms.double(1.3),

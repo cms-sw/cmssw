@@ -5,7 +5,6 @@
 
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 
-#include <TMath.h>
 #include <TVectorD.h>
 
 const double defaultPFMEtResolutionX = 10.;
@@ -58,7 +57,7 @@ reco::METCovMatrix PFMEtSignInterfaceBase::operator()(const std::vector<metsig::
   // 		<< " phi = " << pfMEtSignObject->get_phi() << " --> dpt = " << pfMEtSignObject->get_sigma_e() << std::endl;
   //     dpt2Sum += pfMEtSignObject->get_sigma_e();
   //   }
-  //   std::cout << "--> sqrt(sum(dpt^2)) = " << TMath::Sqrt(dpt2Sum) << std::endl;
+  //   std::cout << "--> sqrt(sum(dpt^2)) = " << sqrt(dpt2Sum) << std::endl;
   // }
 
   reco::METCovMatrix pfMEtCov;

@@ -126,7 +126,7 @@ class PFMEtSignInterfaceBase
       //     not included in (PF)MEt significance algorithm yet
       //    (cf. CMS AN-11/400 vs. CMS AN-11/330)
       if ( lut_ && pt > 10. ) {
-	double x = TMath::Abs(eta);
+	double x = std::abs(eta);
 	double y = pt;
 	if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
 	     y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {

@@ -160,7 +160,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 	  std::cout << "corrJetEn = " << corrJetP4.E() << ", genJetEn = " << genJet->energy() << " --> dEn = " << dEn << std::endl;
 	}
 	
-	//smearedJetEn = jet_matched->energy()*(1. + (smearFactor - 1.)*dEn/TMath::Max(rawJetP4.E(), corrJetP4.E()));
+	//smearedJetEn = jet_matched->energy()*(1. + (smearFactor - 1.)*dEn/std::max(rawJetP4.E(), corrJetP4.E()));
 	smearedJetEn = jet_matched->energy() + (smearFactor - 1.)*dEn;
 	isGenMatched = true;
       }
@@ -182,7 +182,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 	//    (e.g. corrJetEn << rawJetEn, due to L1Fastjet corrections)
 	
 	double addSigmaEn = jetResolution*sqrt(smearFactor*smearFactor - 1.);
-	//smearedJetEn = jet_matched->energy()*(1. + rnd_.Gaus(0., addSigmaEn)/max(rawJetP4.E(), corrJetP4.E()));
+	//smearedJetEn = jet_matched->energy()*(1. + rnd_.Gaus(0., addSigmaEn)/std::max(rawJetP4.E(), corrJetP4.E()));
 	smearedJetEn = jet_matched->energy() + rnd_.Gaus(0., addSigmaEn);
       }
     }

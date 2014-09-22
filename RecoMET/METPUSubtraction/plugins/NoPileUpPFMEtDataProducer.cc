@@ -283,7 +283,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     reco::PFCandidateRef pfCandidateRef(pfCandidateHandle, iPFCandidate);
     int vtxAssociationType = isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
     bool isHardScatterVertex_associated = (vtxAssociationType == noPuUtils::kChHSAssoc);
-    if      ( abs(pfCandidatePtr->charge()) != 0 )   pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kNeutral;
+    if      ( pfCandidatePtr->charge() != 0 )   pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kNeutral;
     else if ( isHardScatterVertex_associated       ) pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kNoPileUpCharged;
     else                                             pfCandInfo.type_ = reco::MVAMEtPFCandInfo::kPileUpCharged;
     pfCandInfo.isWithinJet_ = (pfCandidateFlags[idx] & flag_isWithinSelectedJet);

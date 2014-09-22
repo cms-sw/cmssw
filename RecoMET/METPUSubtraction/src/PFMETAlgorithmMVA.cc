@@ -10,11 +10,12 @@
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
 #include <TFile.h>
-#include <TMath.h>
 
 #include <iomanip>
 
 enum MVAType { kBaseline = 0 };
+
+const double Pi=cos(-1);
 
 namespace
 {
@@ -240,13 +241,13 @@ void PFMETAlgorithmMVA::evaluateMVA()
   // compute MET(Photon check)
   if(hasPhotons_) { 
     //Fix events with unphysical properties
-    double sumLeptonPt = TMath::Max(sqrt(sumLeptonPx_*sumLeptonPx_+sumLeptonPy_*sumLeptonPy_),1.);
+    double sumLeptonPt = std::max(sqrt(sumLeptonPx_*sumLeptonPx_+sumLeptonPy_*sumLeptonPy_),1.);
     if(tkU_/sumLeptonPt < 0.1 || npuU_/sumLeptonPt <  0.1 ) mvaOutputU_      = 1.;
     if(tkU_/sumLeptonPt < 0.1 || npuU_/sumLeptonPt <  0.1 ) mvaOutputDPhi_   = 0.;
   }
   double U      = pfU_*mvaOutputU_;
   double Phi    = pfPhi_ + mvaOutputDPhi_;
-  if ( U < 0. ) Phi += TMath::Pi();
+  if ( U < 0. ) Phi += Pi;
   double cosPhi = cos(Phi);
   double sinPhi = sin(Phi);
   double metPx  = U*cosPhi - sumLeptonPx_; // CV: U is actually minus the hadronic recoil in the event

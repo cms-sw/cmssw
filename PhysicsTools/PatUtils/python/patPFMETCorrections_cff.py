@@ -19,13 +19,13 @@ patPFMet = patMETs.clone(
 
 selectedPatJetsForMETtype1p2Corr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patJets'),                                    
-    cut = cms.string('abs(eta) < 9.9'),
+    cut = cms.string('std::abs(eta) < 9.9'),
     filter = cms.bool(False)
 )
 
 selectedPatJetsForMETtype2Corr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patJets'),                                               
-    cut = cms.string('abs(eta) > 9.9'),
+    cut = cms.string('std::abs(eta) > 9.9'),
     filter = cms.bool(False)
 )
 #--------------------------------------------------------------------------------
