@@ -20,7 +20,7 @@ void edmChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Analy
 			os << RD->getQualifiedNameAsString() << " inherits from edm::EDProducer,edm::EDFilter,edm::EDAnalyzer, or edm::OutputModule";
 			os << "\n";
 			clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-			BR.EmitBasicReport(RD, "Class Checker : inherits from edm::EDProducer,edm::EDFilter,edm::EDAnalyzer, or edm::OutputModule","cms",os.str(),ELoc);
+			BR.EmitBasicReport(RD, this, "inherits from edm::EDProducer,edm::EDFilter,edm::EDAnalyzer, or edm::OutputModule","ThreadSafety",os.str(),ELoc);
 		}
 	}
 } //end of class
