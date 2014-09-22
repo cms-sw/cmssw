@@ -24,6 +24,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HBHENegativeFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
@@ -50,6 +51,7 @@ class HcalTopology;
 
     private:      
       typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
+      typedef void (HBHENegativeFlagSetter::*SetCorrectionFcnForNegative)(boost::shared_ptr<AbsOOTPileupCorrection>);
 
       HcalSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
@@ -58,6 +60,7 @@ class HcalTopology;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
       HBHEPulseShapeFlagSetter *hbhePulseShapeFlagSetter_;
+      HBHENegativeFlagSetter *hbheNegativeFlagSetter_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
       HcalHF_S9S1algorithm*       hfS9S1_;
       HcalHF_S9S1algorithm*       hfS8S1_;
@@ -78,6 +81,7 @@ class HcalTopology;
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
       bool setPulseShapeFlags_; //  turn on/off HBHE fit-based noise flags
+      bool setNegativeFlags_;   // turn on/off HBHE negative noise flags
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 
       int firstAuxTS_;
@@ -99,6 +103,7 @@ class HcalTopology;
       std::string mcOOTCorrectionName_;
       std::string mcOOTCorrectionCategory_;
       SetCorrectionFcn setPileupCorrection_;
+      SetCorrectionFcnForNegative setPileupCorrectionForNegative_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       const HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters

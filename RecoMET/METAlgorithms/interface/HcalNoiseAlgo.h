@@ -13,7 +13,7 @@ class CommonHcalNoiseRBXData {
  public:
   CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE, double minLowHitE, double minHighHitE,
       double TS4TS5EnergyThreshold, std::vector<std::pair<double, double> > &TS4TS5UpperCut,
-      std::vector<std::pair<double, double> > &TS4TS5LowerCut);
+      std::vector<std::pair<double, double> > &TS4TS5LowerCut, double MinRBXRechitR45E);
   ~CommonHcalNoiseRBXData() {}
 
   // accessors to internal variables
@@ -38,31 +38,37 @@ class CommonHcalNoiseRBXData {
   inline double HPDEMF(void) const { return HPDEMF_; }
   inline bool PassTS4TS5(void) const { return TS4TS5Decision_; }
   inline edm::RefVector<CaloTowerCollection> rbxTowers(void) const { return rbxtowers_; }
+  inline int r45Count(void) const { return r45Count_; }
+  inline double r45Fraction(void) const { return r45Fraction_; }
+  inline double r45EnergyFraction(void) const { return r45EnergyFraction_; }
 
   bool CheckPassFilter(double Charge, double Discriminant, std::vector<std::pair<double, double> > &Cuts, int Side);
 
 private:
 
   // values
-  double energy_;           // RBX hadronic energy as determined by the sum of calotowers
-  double e2ts_;             // pedestal subtracted charge in two peak TS for RBX
-  double e10ts_;            // pedestal subtracted charge in all 10 TS for RBX
-  int numHPDHits_;          // largest number of hits in an HPD in the RBX
-  int numRBXHits_;          // number of hits in the RBX
-  int numHPDNoOtherHits_;   // largest number of hits in an HPD when no other HPD has a hit in the RBX
-  int numZeros_;            // number of ADC 0 counts in all hits in all TS in the RBX
-  double minLowEHitTime_;   // minimum time found for any low energy hit in the RBX
-  double maxLowEHitTime_;   // maximum time found for any low energy hit in the RBX
-  double lowEHitTimeSqrd_;  // low energy hit time^2
-  int numLowEHits_;         // number of low energy hits
-  double minHighEHitTime_;  // minimum time found for any high energy hit in the RBX
-  double maxHighEHitTime_;  // maximum time found for any high energy hit in the RBX
-  double highEHitTimeSqrd_; // high energy hit time^2
-  int numHighEHits_;        // number of high energy hits
-  double HPDEMF_;           // minimum electromagnetic fraction found in an HPD in the RBX
-  double RBXEMF_;           // electromagnetic fraction of the RBX
-  bool TS4TS5Decision_;     // if this RBX fails TS4TS5 variable or not
+  double energy_;            // RBX hadronic energy as determined by the sum of calotowers
+  double e2ts_;              // pedestal subtracted charge in two peak TS for RBX
+  double e10ts_;             // pedestal subtracted charge in all 10 TS for RBX
+  int numHPDHits_;           // largest number of hits in an HPD in the RBX
+  int numRBXHits_;           // number of hits in the RBX
+  int numHPDNoOtherHits_;    // largest number of hits in an HPD when no other HPD has a hit in the RBX
+  int numZeros_;             // number of ADC 0 counts in all hits in all TS in the RBX
+  double minLowEHitTime_;    // minimum time found for any low energy hit in the RBX
+  double maxLowEHitTime_;    // maximum time found for any low energy hit in the RBX
+  double lowEHitTimeSqrd_;   // low energy hit time^2
+  int numLowEHits_;          // number of low energy hits
+  double minHighEHitTime_;   // minimum time found for any high energy hit in the RBX
+  double maxHighEHitTime_;   // maximum time found for any high energy hit in the RBX
+  double highEHitTimeSqrd_;  // high energy hit time^2
+  int numHighEHits_;         // number of high energy hits
+  double HPDEMF_;            // minimum electromagnetic fraction found in an HPD in the RBX
+  double RBXEMF_;            // electromagnetic fraction of the RBX
+  bool TS4TS5Decision_;      // if this RBX fails TS4TS5 variable or not
   edm::RefVector<CaloTowerCollection> rbxtowers_; // calotowers associated with the RBX
+  int r45Count_;             // Number of rechits above some threshold flagged by R45
+  double r45Fraction_;       // Fraction of rechits above some threshold flagged by R45
+  double r45EnergyFraction_; // Energy fraction of rechits above some threshold
 
 };
 
@@ -86,12 +92,14 @@ public:
   bool passLooseHits(const CommonHcalNoiseRBXData&) const;
   bool passLooseZeros(const CommonHcalNoiseRBXData&) const;
   bool passLooseTiming(const CommonHcalNoiseRBXData&) const;
+  bool passLooseRBXRechitR45(const CommonHcalNoiseRBXData &) const;
 
   // tight filter broken down into separate components
   bool passTightRatio(const CommonHcalNoiseRBXData&) const;
   bool passTightHits(const CommonHcalNoiseRBXData&) const;
   bool passTightZeros(const CommonHcalNoiseRBXData&) const;
   bool passTightTiming(const CommonHcalNoiseRBXData&) const;
+  bool passTightRBXRechitR45(const CommonHcalNoiseRBXData &) const;
 
   // an rbx passes an energy (or other) threshold to test a certain variable
   // for instance, the EMF cut might require that the RBX have 20 GeV of energy
@@ -127,6 +135,9 @@ private:
   double pMaxHighEHitTime_;   // maximum high energy hit time
   double pMaxHPDEMF_;         // maximum HPD EMF
   double pMaxRBXEMF_;         // maximum RBX EMF
+  int    pMinRBXRechitR45Count_;       // number of R45-flagged hits
+  double pMinRBXRechitR45Fraction_;    // fraction of R45-flagged hits
+  double pMinRBXRechitR45EnergyFraction_;   // energy fraction of R45-flagged hits
 
   // "loose" cuts
   // used to determine whether an RBX fails the loose noise cuts
@@ -140,6 +151,7 @@ private:
   double lMaxLowEHitTime_;    // maximum low energy hit time
   double lMinHighEHitTime_;   // minimum high energy hit time
   double lMaxHighEHitTime_;   // maximum high energy hit time
+  std::vector<double> lMinRBXRechitR45Cuts_;
 
   // "tight" cuts
   // used to determine whether an RBX fails the tight noise cuts
@@ -153,6 +165,7 @@ private:
   double tMaxLowEHitTime_;    // maximum low energy hit time
   double tMinHighEHitTime_;   // minimum high energy hit time
   double tMaxHighEHitTime_;   // maximum high energy hit time
+  std::vector<double> tMinRBXRechitR45Cuts_;
 
   // "high level" cuts
   // used to determine where an RBX fails the high level noise cuts
