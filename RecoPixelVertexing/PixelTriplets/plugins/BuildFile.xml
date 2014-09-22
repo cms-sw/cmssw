@@ -6,3 +6,6 @@
 </library>
 
 <flags   CXXFLAGS="-Ofast -fno-math-errno"/>
+<compiler name="gcc">
+  <flags CXXFLAGS="-ftree-loop-if-convert-stores"/>
+</compiler>
