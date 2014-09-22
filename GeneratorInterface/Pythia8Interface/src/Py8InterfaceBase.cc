@@ -95,7 +95,7 @@ bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& 
 void Py8InterfaceBase::statistics()
 {
   
-   fMasterGen->stat();
+   fMasterGen->statistics();
    return;
    
 }
