@@ -35,7 +35,7 @@ void TauValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
 }
 
 void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
-    ///Setting the DQM top directories
+  ///Setting the DQM top directories
     i.setCurrentFolder("Generator/Tau");
     
     // Number of analyzed events
@@ -464,9 +464,10 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
   int ntau(0);
   for(unsigned int i = 0; i <boson->numberOfDaughters(); i++){
     const reco::GenParticle *dau=static_cast<const reco::GenParticle*>(boson->daughter(i));
+    if(ntau==1 && dau->pdgId() == 15)return;
     if(boson->pdgId()!= 15 && abs(dau->pdgId()) == 15)ntau++;
   }
-  if(ntau!=2) return;
+  if(ntau!=2) return; 
   if(abs(boson->pdgId())==PdtPdgMini::Z0 || abs(boson->pdgId())==PdtPdgMini::Higgs0){
     TLorentzVector tautau(0,0,0,0);
     TLorentzVector pipi(0,0,0,0);
@@ -535,7 +536,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	  if(jak_id==TauDecay::JAK_PION){
 	    for(unsigned int i=0; i<part.size();i++){
 	      int pid_d = part.at(i)->pdgId();
-	      if(abs(pid_d)==211 || abs(pid_d)==111){
+	      if(abs(pid_d)==211 ){
 		TLorentzVector LV(part.at(i)->px(),part.at(i)->py(),part.at(i)->pz(),part.at(i)->energy());
 		if(pid==15){
 		  haspi_minus=true;
@@ -564,15 +565,15 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
       TLorentzVector pi0_rhoplusb=pi0_rhoplus;   pi0_rhoplusb.Boost(-1*rhorho.BoostVector());
       TLorentzVector pi_rhominusb=pi_rhominus;   pi_rhominusb.Boost(-1*rhorho.BoostVector());
       TLorentzVector pi0_rhominusb=pi0_rhominus; pi0_rhominusb.Boost(-1*rhorho.BoostVector());
-      
+  
       // compute n+/-
       TVector3 n_plus=pi_rhoplusb.Vect().Cross(pi0_rhoplusb.Vect());
       TVector3 n_minus=pi_rhominusb.Vect().Cross(pi0_rhominusb.Vect());
       
       // compute the acoplanarity
       double Acoplanarity=acos(n_plus.Dot(n_minus)/(n_plus.Mag()*n_minus.Mag()));
-      if(pi_rhominus.Vect().Dot(n_plus)>0){Acoplanarity*=-1;Acoplanarity+=2*TMath::Pi();}
-      
+      if(pi_rhominusb.Vect().Dot(n_plus)>0){Acoplanarity*=-1;Acoplanarity+=2*TMath::Pi();}
+  
       // now boost to tau frame
       pi_rhoplus.Boost(-1*taup.BoostVector());
       pi0_rhoplus.Boost(-1*taup.BoostVector());
@@ -603,7 +604,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	TauSpinEffectsH_pipiAcollinearityzoom->Fill(acos(pi_plus.Vect().Dot(pi_minus.Vect())/(pi_plus.P()*pi_minus.P())));
       }
       
-      double proj_m=taum.Vect().Dot(pi_minus.Vect())/(taum.P()*taup.P());
+      double proj_m=taum.Vect().Dot(pi_minus.Vect())/(taum.P()*taum.P());
       double proj_p=taup.Vect().Dot(pi_plus.Vect())/(taup.P()*taup.P());
       TVector3 Tau_m=taum.Vect();
       TVector3 Tau_p=taup.Vect();
