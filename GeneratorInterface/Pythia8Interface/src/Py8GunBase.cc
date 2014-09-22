@@ -167,7 +167,7 @@ void Py8GunBase::finalizeEvent()
 void Py8GunBase::statistics()
 {
 
-   fMasterGen->stat();
+   fMasterGen->statistics();
 
    double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
    xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
