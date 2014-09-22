@@ -105,7 +105,7 @@ private:
       if( matched_index>=0 && matched_index < h_tagInfos->size() )
       {
         if ( matched_dR2 > distMax2 )
-          edm::LogWarning("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
+          LogDebug("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
         else
         {
           jets2_locks.at(matched_index) = true;
