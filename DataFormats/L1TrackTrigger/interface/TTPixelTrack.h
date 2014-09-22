@@ -45,11 +45,26 @@ class TTPixelTrack
   double       getChi2() const;
   double       getChi2Red() const;
 
-  void init(const edm::Ref<std::vector<TTTrack<Ref_PixelDigi_> >, TTTrack<Ref_PixelDigi_> >& aL1Track,	    
+  /// Errors
+    
+  double getSigmaRInv() const {return theSigmaRInv;}
+  double getSigmaPhi0() const {return theSigmaPhi0;}
+  double getSigmaD0() const {return theSigmaD0;}
+  double getSigmaT() const {return theSigmaT;}
+  double getSigmaZ0() const {return theSigmaZ0;}
+  
+
+  void init(const edm::Ref<std::vector<TTTrack<Ref_PixelDigi_> >, 
+	    TTTrack<Ref_PixelDigi_> >& aL1Track,	    
 	    const GlobalVector& aMomentum,
 	    const GlobalPoint&  aPOCA,
 	    double aRInv,
-	    double aChi2);
+	    double aChi2,
+	    double sigmarinv,
+	    double sigmad0,
+	    double sigmaphi0,
+	    double sigmat,
+	    double sigmaz0);
   
   /// Information
   std::string print( unsigned int i = 0 ) const;
@@ -64,6 +79,12 @@ class TTPixelTrack
   GlobalPoint  thePOCA;
   double       theRInv;
   double       theChi2;
+  double       theSigmaRInv;
+  double       theSigmaPhi0;
+  double       theSigmaD0;
+  double       theSigmaT;
+  double       theSigmaZ0;
+  
 
 
 }; /// Close class
@@ -89,13 +110,24 @@ void TTPixelTrack::init(const edm::Ref<std::vector<TTTrack<Ref_PixelDigi_> >, TT
 			const GlobalVector& aMomentum,
 			const GlobalPoint&  aPOCA,
 			double aRInv,
-			double aChi2){
+			double aChi2,
+			double sigmarinv,
+			double sigmad0,
+			double sigmaphi0,
+			double sigmat,
+			double sigmaz0){
 
   theL1Track=aL1Track;
   theMomentum=aMomentum;
   thePOCA=aPOCA;
   theRInv=aRInv;
   theChi2=aChi2;
+  theSigmaRInv=sigmarinv;
+  theSigmaPhi0=sigmad0;
+  theSigmaD0=sigmaphi0;
+  theSigmaT=sigmat;
+  theSigmaZ0=sigmaz0;
+
 
 }
 

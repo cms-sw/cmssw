@@ -29,6 +29,7 @@
 //#include "SimDataFormats/SLHC/interface/L1TDisk.hh"
 //#include "SimDataFormats/SLHC/interface/L1TStub.hh"
 
+
 #include "TRandom.h"
 #include "TMath.h"
 #include <iostream>
@@ -174,6 +175,7 @@ void L1TrackDegrader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		float NewPt = Pt + NsigmaPT * deltaPt * Pt;
 		//std::cout << "deltaPt: " << deltaPt << std::endl << "NsigmaPT: " << NsigmaPT << std::endl << "Pt: " << Pt << std::endl << "sigma: " << sigma << std::endl  << NewPt << std::endl;
 		float NewPz = pz * NewPt / Pt;
+
 	  	GlobalVector smearedMomentum(GlobalVector::Cylindrical( NewPt,
 					Phi, NewPz ));
 		smearedTrack.setMomentum( smearedMomentum, Npar );
