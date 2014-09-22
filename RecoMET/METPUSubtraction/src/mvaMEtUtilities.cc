@@ -54,9 +54,9 @@ bool mvaMEtUtilities::passesMVA(const reco::Candidate::LorentzVector& jetP4, dou
   if ( jetP4.pt() > 30.                     ) ptBin = 3;
   
   int etaBin = 0;
-  if ( fabs(jetP4.eta()) > 2.5  && fabs(jetP4.eta()) < 2.75) etaBin = 1; 
-  if ( fabs(jetP4.eta()) > 2.75 && fabs(jetP4.eta()) < 3.0 ) etaBin = 2; 
-  if ( fabs(jetP4.eta()) > 3.0  && fabs(jetP4.eta()) < 5.0 ) etaBin = 3; 
+  if ( std::abs(jetP4.eta()) > 2.5  && std::abs(jetP4.eta()) < 2.75) etaBin = 1; 
+  if ( std::abs(jetP4.eta()) > 2.75 && std::abs(jetP4.eta()) < 3.0 ) etaBin = 2; 
+  if ( std::abs(jetP4.eta()) > 3.0  && std::abs(jetP4.eta()) < 5.0 ) etaBin = 3; 
 
   return ( mvaJetId > mvaCut_[2][ptBin][etaBin] );
 }
@@ -99,13 +99,15 @@ std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vect
 								 const std::vector<leptonInfo>& leptons,
 								 double ptThreshold, double dRmatch)
 {
+
+  double dR2match = dRmatch*dRmatch;
   std::vector<JetInfo> retVal;
   for ( std::vector<JetInfo>::const_iterator jet = jets.begin();
 	jet != jets.end(); ++jet ) {
     bool isOverlap = false;
     for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR2(jet->p4_, lepton->p4_) < dRmatch*dRmatch ) isOverlap = true;	
+      if ( deltaR2(jet->p4_, lepton->p4_) < dR2match ) isOverlap = true;	
     }
     if ( jet->p4_.pt() > ptThreshold && !isOverlap ) retVal.push_back(*jet);
   }
@@ -116,13 +118,15 @@ std::vector<mvaMEtUtilities::pfCandInfo> mvaMEtUtilities::cleanPFCands(const std
 								       const std::vector<leptonInfo>& leptons,
 								       double dRmatch, bool invert)
 {
+
+  double dR2match = dRmatch*dRmatch;
   std::vector<pfCandInfo> retVal;
   for ( std::vector<pfCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
     bool isOverlap = false;
     for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR2(pfCandidate->p4_, lepton->p4_) < dRmatch*dRmatch ) isOverlap = true;
+      if ( deltaR2(pfCandidate->p4_, lepton->p4_) < dR2match ) isOverlap = true;
     }
     if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(*pfCandidate);
   }

@@ -66,8 +66,8 @@ namespace noPileUpMEtUtilities
       retVal.mex   += jet->p4_.px();
       retVal.mey   += jet->p4_.py();
       retVal.sumet += jet->p4_.pt();
-      retVal_sumAbsPx += fabs(jet->p4_.px());
-      retVal_sumAbsPy += fabs(jet->p4_.py());
+      retVal_sumAbsPx += std::abs(jet->p4_.px());
+      retVal_sumAbsPy += std::abs(jet->p4_.py());
     }
     finalizeMEtData(retVal);
     if ( sumAbsPx ) (*sumAbsPx) = retVal_sumAbsPx;
@@ -88,8 +88,8 @@ namespace noPileUpMEtUtilities
       retVal.mex   += (jet->p4_.px()*jet->neutralEnFrac_);
       retVal.mey   += (jet->p4_.py()*jet->neutralEnFrac_);
       retVal.sumet += (jet->p4_.pt()*jet->neutralEnFrac_);
-      retVal_sumAbsPx += fabs(jet->p4_.px());
-      retVal_sumAbsPy += fabs(jet->p4_.py());
+      retVal_sumAbsPx += std::abs(jet->p4_.px());
+      retVal_sumAbsPy += std::abs(jet->p4_.py());
     }
     finalizeMEtData(retVal);
     if ( sumAbsPx ) (*sumAbsPx) = retVal_sumAbsPx;
@@ -175,8 +175,8 @@ namespace noPileUpMEtUtilities
       retVal.mex   += pfCandidate->p4_.px();
       retVal.mey   += pfCandidate->p4_.py();
       retVal.sumet += pfCandidate->p4_.pt();
-      retVal_sumAbsPx += fabs(pfCandidate->p4_.px());
-      retVal_sumAbsPy += fabs(pfCandidate->p4_.py());
+      retVal_sumAbsPx += std::abs(pfCandidate->p4_.px());
+      retVal_sumAbsPy += std::abs(pfCandidate->p4_.py());
     }
     finalizeMEtData(retVal);
     if ( sumAbsPx ) (*sumAbsPx) = retVal_sumAbsPx;

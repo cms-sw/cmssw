@@ -165,7 +165,7 @@ reco::METCovMatrix computePFMEtSignificance(const std::vector<metsig::SigInputOb
   
   double det = 0;
   pfMEtCov.Det(det);
-  if ( fabs(det) < epsilon ) {
+  if ( std::abs(det) < epsilon ) {
     edm::LogWarning("computePFMEtSignificance") 
       << "Inversion of PFMEt covariance matrix failed, det = " << det
       << " --> replacing covariance matrix by resolution defaults !!";    
@@ -454,13 +454,13 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 			 + sfUnclNeutralCands_*sumUnclNeutralCands->mex + sfPUunclChargedCands_*sumPUunclChargedCands->mex + sfPUjets_*sumPUjets->mex))
     + noPileUpScaleFactor*sfType0Correction_*type0Correction_output->mex;
   if ( sfLeptonIsoCones_ >= 0. ) noPileUpMEtPx -= (noPileUpScaleFactor*sfLeptonIsoCones_*sumLeptonIsoCones->mex);
-  else noPileUpMEtPx -= (fabs(sfLeptonIsoCones_)*sumLeptonIsoCones->mex);
+  else noPileUpMEtPx -= (std::abs(sfLeptonIsoCones_)*sumLeptonIsoCones->mex);
   double noPileUpMEtPy = -(sumLeptons->mey + sumNoPUjets->mey + sumNoPUunclChargedCands->mey
     + noPileUpScaleFactor*(sfNoPUjetOffsetEnCorr_*sumNoPUjetOffsetEnCorr->mey
 			 + sfUnclNeutralCands_*sumUnclNeutralCands->mey + sfPUunclChargedCands_*sumPUunclChargedCands->mey + sfPUjets_*sumPUjets->mey))
     + noPileUpScaleFactor*sfType0Correction_*type0Correction_output->mey;
   if ( sfLeptonIsoCones_ >= 0. ) noPileUpMEtPy -= (noPileUpScaleFactor*sfLeptonIsoCones_*sumLeptonIsoCones->mey);
-  else noPileUpMEtPy -= (fabs(sfLeptonIsoCones_)*sumLeptonIsoCones->mey);
+  else noPileUpMEtPy -= (std::abs(sfLeptonIsoCones_)*sumLeptonIsoCones->mey);
   double noPileUpMEtPt = sqrt(noPileUpMEtPx*noPileUpMEtPx + noPileUpMEtPy*noPileUpMEtPy);		  
   reco::Candidate::LorentzVector noPileUpMEtP4(noPileUpMEtPx, noPileUpMEtPy, 0., noPileUpMEtPt);
 

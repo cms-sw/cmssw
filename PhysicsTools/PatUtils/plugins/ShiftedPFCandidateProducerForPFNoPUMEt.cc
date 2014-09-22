@@ -6,7 +6,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-const double dRMatch = 0.01;
+const double dR2Match = 0.01*0.01;
 
 ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(const edm::ParameterSet& cfg)
   : srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates")))
@@ -82,7 +82,7 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
 	  jet != selectedJets.end(); ++jet ) {
       for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = (*jet)->getPFConstituents().begin();
 	    jetConstituent != (*jet)->getPFConstituents().end() && jet_matched==nullptr; ++jetConstituent ) {
-	if ( deltaR2(originalPFCandidate->p4(), (*jetConstituent)->p4()) < dRMatch*dRMatch ) jet_matched = (*jet);
+	if ( deltaR2(originalPFCandidate->p4(), (*jetConstituent)->p4()) < dR2Match ) jet_matched = (*jet);
       }
     }
 

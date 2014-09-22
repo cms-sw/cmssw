@@ -16,7 +16,7 @@
 
 
 const double defJetPtThr = 0.01;
-const double dRMatch = 0.01;
+const double dR2Match = 0.01*0.01;
 const double etaMaxBound = 9.9;
 
 
@@ -102,7 +102,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
       std::vector<reco::PFCandidatePtr> jetConstituents = jet->getPFConstituents();
       for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jet->getPFConstituents().begin();
 	    jetConstituent != jet->getPFConstituents().end() && jet_matched==nullptr; ++jetConstituent ) {
-	if ( deltaR2(originalPFCandidate->p4(), (*jetConstituent)->p4()) < dRMatch*dRMatch ) jet_matched = &(*jet);
+	if ( deltaR2(originalPFCandidate->p4(), (*jetConstituent)->p4()) < dR2Match ) jet_matched = &(*jet);
       }
     }
 
@@ -121,7 +121,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
     }
     
     double smearFactor = 1.;      
-    double x = fabs(corrJetP4.eta());
+    double x = std::abs(corrJetP4.eta());
     double y = corrJetP4.pt();
     if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
 	 y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {
@@ -151,7 +151,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 	std::cout << "genJet: Pt = " << genJet->pt() << ", eta = " << genJet->eta() << ", phi = " << genJet->phi() << std::endl;
       }
       double dEn = corrJetP4.E() - genJet->energy();
-      if ( fabs(dEn) < (sigmaMaxGenJetMatch_*sigmaEn) ) {
+      if ( std::abs(dEn) < (sigmaMaxGenJetMatch_*sigmaEn) ) {
 //--- case 1: reconstructed jet matched to generator level jet, 
 //            smear difference between reconstructed and "true" jet energy
 

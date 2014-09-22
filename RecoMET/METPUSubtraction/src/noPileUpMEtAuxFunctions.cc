@@ -6,7 +6,7 @@
 
 const int minPFCandToVertexAssocQuality = noPuUtils::kChHSAssoc; // CV: value recommended by Matthias Geisler, representing "good" PFCandidate-vertex associations
 
-const double dRMin=0.01;
+const double dR2Min=0.01*0.01;
 
 int isVertexAssociated(const reco::PFCandidate& pfCandidate,
                        const PFCandToVertexAssMap& pfCandToVertexAssociations,
@@ -23,11 +23,11 @@ int isVertexAssociated(const reco::PFCandidate& pfCandidate,
       for ( PFCandidateQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
             pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
 	int pfCandToVertexAssocQuality = pfCandidate_vertex->second;
-	if ( pfCandToVertexAssocQuality >= minPFCandToVertexAssocQuality && deltaR2(pfCandidate.p4(), pfCandidate_vertex->first->p4()) < dRMin*dRMin ) {
+	if ( pfCandToVertexAssocQuality >= minPFCandToVertexAssocQuality && deltaR2(pfCandidate.p4(), pfCandidate_vertex->first->p4()) < dR2Min ) {
           if ( vtxAssociationType < noPuUtils::kChPUAssoc ) vtxAssociationType = noPuUtils::kChPUAssoc;
           for ( reco::VertexCollection::const_iterator vertex = vertices.begin();
                 vertex != vertices.end(); ++vertex ) {
-            if ( fabs(pfCandToVertexAssociation->key->position().z() - vertex->position().z()) < dZ ) {
+            if ( std::abs(pfCandToVertexAssociation->key->position().z() - vertex->position().z()) < dZ ) {
               if ( vtxAssociationType < noPuUtils::kChHSAssoc ) vtxAssociationType = noPuUtils::kChHSAssoc;
             }
           }
@@ -77,7 +77,7 @@ int isVertexAssociated_fast(const reco::PFCandidateRef& pfCandidate,
     } else {
       for ( reversedPFCandidateToVertexAssociationMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
 	    pfCandToVertexAssociation != pfCandToVertexAssociations.end(); ++pfCandToVertexAssociation ) {
-	if ( deltaR2(pfCandidate->p4(), pfCandToVertexAssociation->key->p4()) < dRMin*dRMin ) {
+	if ( deltaR2(pfCandidate->p4(), pfCandToVertexAssociation->key->p4()) < dR2Min ) {
     	  pfCandidate_associated_vertices = &pfCandToVertexAssociation->val;
     	  break;
     	}
@@ -96,7 +96,7 @@ int isVertexAssociated_fast(const reco::PFCandidateRef& pfCandidate,
 	  if ( vtxAssociationType <  noPuUtils::kChPUAssoc ) vtxAssociationType =  noPuUtils::kChPUAssoc;
 	  for ( reco::VertexCollection::const_iterator vertex = vertices.begin();
 		vertex != vertices.end(); ++vertex ) {
-	    if ( fabs(pfCandidate_associated_vertex->first->position().z() - vertex->position().z()) < dZ ) {
+	    if ( std::abs(pfCandidate_associated_vertex->first->position().z() - vertex->position().z()) < dZ ) {
 	      if ( vtxAssociationType < noPuUtils::kChHSAssoc ) vtxAssociationType = noPuUtils::kChHSAssoc;
 	    }
 	  }

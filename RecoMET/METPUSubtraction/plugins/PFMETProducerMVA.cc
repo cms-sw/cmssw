@@ -29,8 +29,8 @@
 
 using namespace reco;
 
-const double dRMin = 0.01;
-const double dRMax = 0.5;
+const double dR2Min = 0.01*0.01;
+const double dR2Max = 0.5*0.5;
 const double dPtMatch = 0.1;
 
 typedef edm::View<reco::Candidate> CandidateView;
@@ -188,14 +188,14 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 	for ( CandidateView::const_iterator lepton2 = leptons2->begin();
 	      lepton2 != leptons2->end(); ++lepton2 ) {
 	  if(&(*lepton1) == &(*lepton2)) { continue; }
-	  if(deltaR2(lepton1->p4(),lepton2->p4()) < dRMax*dRMax) {                                                        pMatch = true; }
+	  if(deltaR2(lepton1->p4(),lepton2->p4()) < dR2Max) {                                                        pMatch = true; }
 	  if(pMatch &&     !istau(&(*lepton1)) &&  istau(&(*lepton2))) {                                                  pMatch = false; }
 	  if(pMatch &&    ( (istau(&(*lepton1)) && istau(&(*lepton2))) || (!istau(&(*lepton1)) && !istau(&(*lepton2)))) 
 	     &&     lepton1->pt() > lepton2->pt()) {                                                                      pMatch = false; }
 	  if(pMatch && lepton1->pt() == lepton2->pt()) {
 	    pMatch = false;
 	    for(unsigned int i0 = 0; i0 < leptonInfo.size(); i0++) {
-	      if(fabs(lepton1->pt() - leptonInfo[i0].p4_.pt()) < dPtMatch) { pMatch = true; break; }
+	      if(std::abs(lepton1->pt() - leptonInfo[i0].p4_.pt()) < dPtMatch) { pMatch = true; break; }
 	    }
 	  }
 	  if(pMatch) break;
@@ -276,6 +276,7 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
 								       const JetCorrector &iCorrector,edm::Event &iEvent,const edm::EventSetup &iSetup,
 								       std::vector<mvaMEtUtilities::leptonInfo> &iLeptons,std::vector<mvaMEtUtilities::pfCandInfo> &iCands)
 {
+
   const L1FastjetCorrector* lCorrector = dynamic_cast<const L1FastjetCorrector*>(&iCorrector);
   std::vector<mvaMEtUtilities::JetInfo> retVal;
   for ( reco::PFJetCollection::const_iterator uncorrJet = uncorrJets.begin();
@@ -286,7 +287,7 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
 	  corrJet != corrJets.end(); ++corrJet ) {
       // match corrected and uncorrected jets
       if ( uncorrJet->jetArea() != corrJet->jetArea() ) continue;
-      if ( deltaR2(corrJet->p4(),uncorrJet->p4()) > dRMin*dRMin ) continue;
+      if ( deltaR2(corrJet->p4(),uncorrJet->p4()) > dR2Min ) continue;
 
       // check that jet passes loose PFJet id.
       //bool passesLooseJetId = (*looseJetIdAlgo_)(*corrJet);
@@ -308,7 +309,7 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
 	reco::Candidate::LorentzVector pType1Corr; pType1Corr.SetCoordinates(pVec.Px(),pVec.Py(),pVec.Pz(),pVec.E());
 	//Filter to leptons
 	bool pOnLepton = false;
-	for(unsigned int i0 = 0; i0 < iLeptons.size(); i0++) if(deltaR2(iLeptons[i0].p4_,corrJet->p4()) < dRMax*dRMax) pOnLepton = true;
+	for(unsigned int i0 = 0; i0 < iLeptons.size(); i0++) if(deltaR2(iLeptons[i0].p4_,corrJet->p4()) < dR2Max) {pOnLepton = true; break;}
 	//Add it to PF Collection
 	if(corrJet->pt() > 10 && !pOnLepton) {
 	  mvaMEtUtilities::pfCandInfo pfCandidateInfo;
@@ -342,8 +343,8 @@ std::vector<mvaMEtUtilities::pfCandInfo> PFMETProducerMVA::computePFCandidateInf
     double dZ = -999.; // PH: If no vertex is reconstructed in the event
                        //     or PFCandidate has no track, set dZ to -999
     if ( hardScatterVertex ) {
-      if      ( pfCandidate->trackRef().isNonnull()    ) dZ = fabs(pfCandidate->trackRef()->dz(hardScatterVertex->position()));
-      else if ( pfCandidate->gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate->gsfTrackRef()->dz(hardScatterVertex->position()));
+      if      ( pfCandidate->trackRef().isNonnull()    ) dZ = std::abs(pfCandidate->trackRef()->dz(hardScatterVertex->position()));
+      else if ( pfCandidate->gsfTrackRef().isNonnull() ) dZ = std::abs(pfCandidate->gsfTrackRef()->dz(hardScatterVertex->position()));
     }
     mvaMEtUtilities::pfCandInfo pfCandidateInfo;
     pfCandidateInfo.p4_ = pfCandidate->p4();
@@ -358,7 +359,7 @@ std::vector<reco::Vertex::Point> PFMETProducerMVA::computeVertexInfo(const reco:
   std::vector<reco::Vertex::Point> retVal;
   for ( reco::VertexCollection::const_iterator vertex = vertices.begin();
 	vertex != vertices.end(); ++vertex ) {
-    if(fabs(vertex->z())           > 24.) continue;
+    if(std::abs(vertex->z())           > 24.) continue;
     if(vertex->ndof()              <  4.) continue;
     if(vertex->position().Rho()    >  2.) continue;
     retVal.push_back(vertex->position());
@@ -410,9 +411,9 @@ bool PFMETProducerMVA::passPFLooseId(const PFJet *iJet) {
   if(iJet->neutralHadronEnergy()/iJet->energy() > 0.99)   return false;
   if(iJet->neutralEmEnergy()/iJet->energy()     > 0.99)   return false;
   if(iJet->nConstituents() <  2)                          return false;
-  if(iJet->chargedHadronEnergy()/iJet->energy() <= 0 && fabs(iJet->eta()) < 2.4 ) return false;
-  if(iJet->chargedEmEnergy()/iJet->energy() >  0.99  && fabs(iJet->eta()) < 2.4 ) return false;
-  if(iJet->chargedMultiplicity()            < 1      && fabs(iJet->eta()) < 2.4 ) return false;
+  if(iJet->chargedHadronEnergy()/iJet->energy() <= 0 && std::abs(iJet->eta()) < 2.4 ) return false;
+  if(iJet->chargedEmEnergy()/iJet->energy() >  0.99  && std::abs(iJet->eta()) < 2.4 ) return false;
+  if(iJet->chargedMultiplicity()            < 1      && std::abs(iJet->eta()) < 2.4 ) return false;
   return true;
 }
 
@@ -421,17 +422,18 @@ double PFMETProducerMVA::chargedFracInCone(const reco::Candidate *iCand,
 					   const reco::Vertex* hardScatterVertex,double iDRMax)
 {
 
+  double iDR2Max = iDRMax*iDRMax;
   reco::Candidate::LorentzVector lVis(0,0,0,0);
   for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
-    if(deltaR2(iCand->p4(),pfCandidate->p4()) > iDRMax*iDRMax)  continue;
+    if(deltaR2(iCand->p4(),pfCandidate->p4()) > iDR2Max)  continue;
     double dZ = -999.; // PH: If no vertex is reconstructed in the event
                        //     or PFCandidate has no track, set dZ to -999
     if ( hardScatterVertex ) {
-      if      ( pfCandidate->trackRef().isNonnull()    ) dZ = fabs(pfCandidate->trackRef()->dz(hardScatterVertex->position()));
-      else if ( pfCandidate->gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate->gsfTrackRef()->dz(hardScatterVertex->position()));
+      if      ( pfCandidate->trackRef().isNonnull()    ) dZ = std::abs(pfCandidate->trackRef()->dz(hardScatterVertex->position()));
+      else if ( pfCandidate->gsfTrackRef().isNonnull() ) dZ = std::abs(pfCandidate->gsfTrackRef()->dz(hardScatterVertex->position()));
     }
-    if(fabs(dZ) > 0.1) continue; 
+    if(std::abs(dZ) > 0.1) continue; 
     lVis += pfCandidate->p4();
   }
   return lVis.pt()/iCand->pt();

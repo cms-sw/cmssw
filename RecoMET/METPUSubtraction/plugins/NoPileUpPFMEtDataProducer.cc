@@ -11,7 +11,7 @@ const int flag_isWithinFakeJet      = 1;
 const int flag_isWithinSelectedJet  = 2;
 const int flag_isWithinJetForMEtCov = 4;
 
-const double dRMin = 0.001;
+const double dR2Min = 0.001*0.001;
 
 NoPileUpPFMEtDataProducer::NoPileUpPFMEtDataProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
@@ -79,7 +79,7 @@ namespace
 	if ( pfJetConstituent->key() < pfCandidateCollection.size() ) {
 	  edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(pfJetConstituent->key());
 	  double dR2 = deltaR2((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
-	  if ( dR2 < dRMin*dRMin ) {
+	  if ( dR2 < dR2Min ) {
 	    idxs.push_back(pfCandidatePtr.key());
 	    isMatched_fast = true;
 	  }
@@ -89,7 +89,7 @@ namespace
 	  for ( size_t iPFCandidate = 0; iPFCandidate < numPFCandidates; ++iPFCandidate ) {
 	    edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(iPFCandidate);
 	    double dR2 = deltaR2((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
-	    if ( dR2 < dRMin*dRMin ) {
+	    if ( dR2 < dR2Min ) {
 	      idxs.push_back(pfCandidatePtr.key());
 	    }
 	  }
@@ -180,8 +180,8 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   // 	int pfCandToVertexAssocQuality = pfCandidate_vertex->second;
   // 	if ( pfCandidate.pt() > 2. && pfCandidate.charge() != 0 ) {
   // 	  double dZ = -1.;
-  // 	  if      ( pfCandidate.trackRef().isNonnull()    ) dZ = fabs(pfCandidate.trackRef()->dz(hardScatterVertexPos));
-  // 	  else if ( pfCandidate.gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate.gsfTrackRef()->dz(hardScatterVertexPos));
+  // 	  if      ( pfCandidate.trackRef().isNonnull()    ) dZ = std::abs(pfCandidate.trackRef()->dz(hardScatterVertexPos));
+  // 	  else if ( pfCandidate.gsfTrackRef().isNonnull() ) dZ = std::abs(pfCandidate.gsfTrackRef()->dz(hardScatterVertexPos));
   // 	  std::cout << "pfCand #" << pfCandidate_vertex->first.key() << ": Pt = " << pfCandidate.pt() << ", eta = " << pfCandidate.eta() << ", phi = " << pfCandidate.phi() 
   // 		    << " (charge = " << pfCandidate.charge() << ", dZ = " << dZ << ")" << std::endl;
   // 	  reco::Vertex::Point vertexPos = vertex->position();

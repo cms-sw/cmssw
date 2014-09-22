@@ -70,7 +70,7 @@ reco::METCovMatrix PFMEtSignInterfaceBase::operator()(const std::vector<metsig::
     double det=0;
     pfMEtCov.Det(det);
 
-    // if ( this->verbosity_ && fabs(det) > epsilon ) {
+    // if ( this->verbosity_ && std::abs(det) > epsilon ) {
     //   //keep TMatrixD as it is much easier to find 
     //   //eigenvectors and values than with SMatrix;
     //   //not used anyway, except for debugging
@@ -92,7 +92,7 @@ reco::METCovMatrix PFMEtSignInterfaceBase::operator()(const std::vector<metsig::
     
     //--- substitute (PF)MEt resolution matrix by default values 
     //    in case resolution matrix cannot be inverted
-    if (fabs(det) < epsilon ) {
+    if (std::abs(det) < epsilon ) {
       edm::LogWarning("PFMEtSignInterfaceBase::operator()") 
 	<< "Inversion of PFMEt covariance matrix failed, det = " << det
 	<< " --> replacing covariance matrix by resolution defaults !!";

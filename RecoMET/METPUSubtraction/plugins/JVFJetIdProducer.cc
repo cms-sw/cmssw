@@ -93,7 +93,7 @@ namespace
     double trackSum = trackSum_isVtxAssociated + trackSum_isNotVtxAssociated;
     
     double jvf = -1.;
-    if ( fabs(jet.eta()) < 2.5 && trackSum > 5. ) {
+    if ( std::abs(jet.eta()) < 2.5 && trackSum > 5. ) {
       jvf = trackSum_isVtxAssociated/trackSum;
     }
     
