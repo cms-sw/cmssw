@@ -9,7 +9,7 @@
 #include "HepMC/GenParticle.h"
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/HepMC2.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -316,29 +316,20 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
+
+  // pythiaEvent = &pythia->event;
+
   if ( fInitialState == PP ) // default
   {
-    //fMasterGen->init(2212, 2212, comEnergy);
-    fMasterGen->settings.mode("Beams:idA", 2212);
-    fMasterGen->settings.mode("Beams:idB", 2212);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    fMasterGen->init(2212, 2212, comEnergy);
   }
   else if ( fInitialState == PPbar )
   {
-    //fMasterGen->init(2212, -2212, comEnergy);
-    fMasterGen->settings.mode("Beams:idA", 2212);
-    fMasterGen->settings.mode("Beams:idB", -2212);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    fMasterGen->init(2212, -2212, comEnergy);
   }
   else if ( fInitialState == ElectronPositron )
   {
-    //fMasterGen->init(11, -11, comEnergy);
-    fMasterGen->settings.mode("Beams:idA", 11);
-    fMasterGen->settings.mode("Beams:idB", -11);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    fMasterGen->init(11, -11, comEnergy);
   }    
   else 
   {
@@ -358,10 +349,8 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   // init decayer
-  //fDecayer->readString("ProcessLevel:all = off"); // trick
-  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
-  fDecayer->settings.flag("ProcessLevel:all", false ); // trick
-  fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
+  fDecayer->readString("ProcessLevel:all = off"); // trick
+  fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->init();
 
   return true;
@@ -375,13 +364,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   if(LHEInputFileName != string()) {
 
-    edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
-                                     << LHEInputFileName;
-    edm::LogInfo("Pythia8Interface") << "Some LHE information can be not stored";
-    //fMasterGen->init(LHEInputFileName);
-    fMasterGen->settings.mode("Beams:frameType", 4);
-    fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
-    fMasterGen->init();
+    std::cout << std::endl;
+    std::cout << "LHE Input File Name = " << LHEInputFileName << std::endl;
+    std::cout << std::endl;
+    fMasterGen->init(LHEInputFileName);
 
   } else {
 
@@ -410,18 +396,14 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
       }
       file.close();
 
-      //std::string lhareadcmd = "SLHA:readFrom = 2";    
-      //std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
-      //fMasterGen->readString(lhareadcmd);    
-      //fMasterGen->readString(lhafilecmd); 
-      fMasterGen->settings.mode("SLHA:readFrom", 2);
-      fMasterGen->settings.word("SLHA:file", std::string(fname));
+      std::string lhareadcmd = "SLHA:readFrom = 2";    
+      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
+
+      fMasterGen->readString(lhareadcmd);    
+      fMasterGen->readString(lhafilecmd); 
     }
     
-    //fMasterGen->init(lhaUP.get());
-    fMasterGen->settings.mode("Beams:frameType", 5);
-    fMasterGen->setLHAupPtr(lhaUP.get());
-    fMasterGen->init();
+    fMasterGen->init(lhaUP.get());
     
     if (doslha) {
       std::remove( fname );
@@ -438,10 +420,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
 
   // init decayer
-  //fDecayer->readString("ProcessLevel:all = off"); // trick
-  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
-  fDecayer->settings.flag("ProcessLevel:all", false ); // trick
-  fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
+  fDecayer->readString("ProcessLevel:all = off"); // trick
+  fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->init();
 
   return true;
@@ -450,7 +430,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
 void Pythia8Hadronizer::statistics()
 {
-  fMasterGen->stat();
+  fMasterGen->statistics();
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
