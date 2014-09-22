@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 MonojetPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v"
+        "HLT_PFJet260_v", # Run2
+        "HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v" # Run1
         ),
     recJetLabel    = cms.InputTag("ak5PFJetsCHS"),
     recPFMETLabel  = cms.InputTag("pfMet"),

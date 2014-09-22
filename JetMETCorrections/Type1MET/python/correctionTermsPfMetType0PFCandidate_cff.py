@@ -12,4 +12,9 @@ correctionTermsPfMetType0PFCandidate = cms.Sequence(
     corrPfMetType0PfCand
     )
 
+correctionTermsPfMetType0PFCandidateForValidation = cms.Sequence(
+    type0PFMEtCorrectionPFCandToVertexAssociationForValidation +
+    corrPfMetType0PfCand
+    )
+
 ##____________________________________________________________________________||
