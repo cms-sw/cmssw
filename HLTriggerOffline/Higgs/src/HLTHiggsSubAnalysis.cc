@@ -102,6 +102,14 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     if( anpset.existsAs<std::vector<double>>( "NminOneCuts" , false) )
     {
         _NminOneCuts = anpset.getUntrackedParameter<std::vector<double> >("NminOneCuts"); 
+        if( _NminOneCuts.size() < 7 + _minCandidates ) {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with size "
+                        << _NminOneCuts.size() << ", while it needs to be at least of size " 
+                        <<  (7 + _minCandidates) << ".";
+            exit(-1);
+        }
         for(std::vector<double>::const_iterator it = _NminOneCuts.begin(); it != _NminOneCuts.end(); ++it)
         {
             if( *it ) {
@@ -996,7 +1004,7 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     {
         maxPt = "MaxPt";
         maxPt += i+1;
-        if( (matches->at(i)).pt > _NminOneCuts.at(7+i) ) jetCutResult[maxPt.Data()] = true;
+        if( (*matches)[i].pt > _NminOneCuts[7+i] ) jetCutResult[maxPt.Data()] = true;
         else jetCutResult[maxPt.Data()] = false;
     }  
     
@@ -1004,24 +1012,24 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     std::sort(matches->begin(), matches->begin()+_minCandidates, matchesByDescendingBtag());
 
     if( _NminOneCuts[0] ) {
-        dEtaqq =  fabs(matches->at(2).eta - matches->at(3).eta);
+        dEtaqq =  fabs((*matches)[2].eta - (*matches)[3].eta);
         if( dEtaqq > _NminOneCuts[0] ) jetCutResult["dEtaqq"] = true;
         else jetCutResult["dEtaqq"] = false;
     }
     
     if( _NminOneCuts[1] ) {
-        mqq = (matches->at(2).lorentzVector + matches->at(3).lorentzVector).M();
+        mqq = ((*matches)[2].lorentzVector + (*matches)[3].lorentzVector).M();
         if( mqq > _NminOneCuts[1] ) jetCutResult["mqq"] = true;
         else jetCutResult["mqq"] = false;
     }
     
     if( _NminOneCuts[2] ) {
-        dPhibb = fmod(fabs(matches->at(0).phi - matches->at(1).phi),3.1416);
+        dPhibb = fmod(fabs((*matches)[0].phi - (*matches)[1].phi),3.1416);
         if( dPhibb < _NminOneCuts[2] ) jetCutResult["dPhibb"] = true;
         else jetCutResult["dPhibb"] = false;
     }
     if( _NminOneCuts[3] ) {
-        CSV1 = matches->at(0).bTag;
+        CSV1 = (*matches)[0].bTag;
         std::string nameCSVplot = "CSV1";
         if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
         if( CSV1 > _NminOneCuts[3] ) jetCutResult[nameCSVplot] = true;
@@ -1030,11 +1038,11 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
         // max(CSV)
         if( _NminOneCuts[4] ) {
             std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
-            CSV1 = matches->at(0).bTag;
+            CSV1 = (*matches)[0].bTag;
             unsigned int Njets = (unsigned int) _NminOneCuts[4];
             if ( _NminOneCuts[4] > matches->size()) Njets = matches->size();
             for(unsigned int i=1; i < (unsigned int) Njets ; ++i) {
-                if( matches->at(i).bTag > CSV1 && matches->at(i).pt > _NminOneCuts[5] ) CSV1 = matches->at(i).bTag;
+                if( (*matches)[i].bTag > CSV1 && (*matches)[i].pt > _NminOneCuts[5] ) CSV1 = (*matches)[i].bTag;
             }
         }
     }    
