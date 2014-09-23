@@ -99,14 +99,16 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         xmin           = cms.double(-0.5),        
         xmax           = cms.double(799.5),
         layerswitchon  = cms.bool(False),
-        moduleswitchon = cms.bool(True)
+        moduleswitchon = cms.bool(True),
+        subdetswitchon = cms.bool(False)
     ),
     TH1ClusterWidth = cms.PSet(
         Nbinx          = cms.int32(20),
         xmin           = cms.double(-0.5),
         xmax           = cms.double(19.5),
         layerswitchon  = cms.bool(False),        
-        moduleswitchon = cms.bool(True)
+        moduleswitchon = cms.bool(True),
+        subdetswitchon = cms.bool(False)
     ),
 
     TProfNumberOfCluster = cms.PSet(

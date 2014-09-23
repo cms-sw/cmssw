@@ -49,6 +49,8 @@ HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
   minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");
   useTS4TS5_ = iConfig.getParameter<bool>("useTS4TS5");
+  useRBXRechitR45Loose_ = iConfig.getParameter<bool>("useRBXRechitR45Loose");
+  useRBXRechitR45Tight_ = iConfig.getParameter<bool>("useRBXRechitR45Tight");
 
   IgnoreTS4TS5ifJetInLowBVRegion_ = iConfig.getParameter<bool>("IgnoreTS4TS5ifJetInLowBVRegion");
   jetlabel_ =  iConfig.getParameter<edm::InputTag>("jetlabel");
@@ -138,7 +140,9 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) return false;
   if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) return false;
   // Only use TS4TS5 test if jet is not in low BV region
-  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true && goodJetFoundInLowBVRegion==false) return false;
+  if(useTS4TS5_ && summary.HasBadRBXTS4TS5() == true && !goodJetFoundInLowBVRegion) return false;
+  if(useRBXRechitR45Loose_ && summary.HasBadRBXRechitR45Loose() == true && !goodJetFoundInLowBVRegion) return false;
+  if(useRBXRechitR45Tight_ && summary.HasBadRBXRechitR45Tight() == true && !goodJetFoundInLowBVRegion) return false;
 
   return true;
 }

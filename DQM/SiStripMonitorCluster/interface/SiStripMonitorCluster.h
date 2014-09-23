@@ -84,6 +84,8 @@ class SiStripMonitorCluster : public thread_unsafe::DQMEDAnalyzer {
     MonitorElement* SubDetClusterApvTH2 = 0;
     MonitorElement* SubDetClusterDBxCycleProf = 0;
     MonitorElement* SubDetApvDBxProf2 = 0;
+    MonitorElement* SubDetClusterChargeTH1 = 0;
+    MonitorElement* SubDetClusterWidthTH1 = 0;
   };
 
   struct ClusterProperties { // Cluster Properties
@@ -181,6 +183,8 @@ class SiStripMonitorCluster : public thread_unsafe::DQMEDAnalyzer {
   bool subdetswitchapvcycledbxprof2on;
   bool subdetswitchdbxcycleprofon;
   bool subdetswitchtotclusth1on;
+  bool subdetswitchcluschargeon;
+  bool subdetswitchcluswidthon;
   bool globalswitchapvcycledbxth2on;
   bool globalswitchcstripvscpix;
   bool globalswitchMultiRegions;

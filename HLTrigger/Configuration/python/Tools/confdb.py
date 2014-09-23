@@ -190,11 +190,13 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
-if cmsswVersion >= "CMSSW_7_2":
-    if 'hltESPStripCPEfromTrackAngle' in %(dict)s:
-        %(process)shltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
+# none for now
 """
+
+# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
+#if cmsswVersion >= "CMSSW_7_2":
+#    if 'hltESPStripCPEfromTrackAngle' in %(dict)s:
+#        %(process)shltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
 
   # customize the configuration according to the options
   def customize(self):

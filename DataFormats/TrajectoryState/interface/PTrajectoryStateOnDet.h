@@ -42,20 +42,20 @@ public:
 
   PTrajectoryStateOnDet() {}
 
-  PTrajectoryStateOnDet( const LocalTrajectoryParameters& param,
+  PTrajectoryStateOnDet( const LocalTrajectoryParameters& param, float ipt,
 			 unsigned int id,
 			 int surfaceSide) :   
-    theLocalParameters(param) 
+    theLocalParameters(param) ,	thePt(ipt)
   {
     Pack p(id, surfaceSide);
     thePack = p.packed;
     theLocalErrors[0]=-99999.e10; 
   }
   
-  PTrajectoryStateOnDet( const LocalTrajectoryParameters& param,
+  PTrajectoryStateOnDet( const LocalTrajectoryParameters& param, float ipt,
 			 float errmatrix[15], unsigned int id,
 			 int surfaceSide) :   
-    theLocalParameters( param)
+    theLocalParameters( param), thePt(ipt)
   {
     Pack p(id, surfaceSide);
     thePack = p.packed;
@@ -64,6 +64,7 @@ public:
 
 
   const LocalTrajectoryParameters& parameters() const {return theLocalParameters;}
+  float pt() const { return thePt; }
   bool hasError() const { return theLocalErrors[0] > -1.e10; }
   float & error(int i)  {return theLocalErrors[i];}
   float   error(int i) const {return theLocalErrors[i];}
@@ -79,9 +80,8 @@ private:
 
   LocalTrajectoryParameters theLocalParameters;
   float theLocalErrors[15];
+  float thePt;
   unsigned int thePack;
-  //unsigned int theDetId;
-  //int          theSurfaceSide;
 
 };
 
