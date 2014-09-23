@@ -38,24 +38,39 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
 
   objects_.clear();
 
+  std::vector<bool> match(shiftedObjects->size(), false);
+  int prevMatch=-1;
+  int cnt = 0;
+
   for ( CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
 	unshiftedObject != unshiftedObjects->end(); ++unshiftedObject ) {
     bool isMatched_Object = false;
     double dR2bestMatch_Object = dRDefault;
     reco::Candidate::LorentzVector shiftedObjectP4_matched;
+    prevMatch=-1;
+    
     for ( CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
 	shiftedObject != shiftedObjects->end(); ++shiftedObject ) {
+      if( match[ cnt ] ) continue;
+
       double dR2 = deltaR2(unshiftedObject->p4(), shiftedObject->p4());
       if ( dR2 < dR2match_Object_ && dR2 < dR2bestMatch_Object ) {
 	shiftedObjectP4_matched = shiftedObject->p4();
 	isMatched_Object = true;
 	dR2bestMatch_Object = dR2;
+
+	prevMatch = cnt;
       }
+      cnt++;
     }
     if ( isMatched_Object ) {
+      //Ambiguity removal
+      match[ prevMatch ] = true;
       objects_.push_back(objectEntryType(shiftedObjectP4_matched, unshiftedObject->p4(), sqrt(dR2bestMatch_Object)));
     }
   }
+
+  match.assign(objects_.size(), false);
 
   std::auto_ptr<reco::PFCandidateCollection> shiftedPFCandidates(new reco::PFCandidateCollection);
 
@@ -65,19 +80,32 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
     double shift = 0.;
     bool applyShift = false;
     double dR2bestMatch_PFCandidate = dRDefault;
+    prevMatch=-1;
+    cnt = 0;
+    
     for ( std::vector<objectEntryType>::const_iterator object = objects_.begin();
 	  object != objects_.end(); ++object ) {
       if ( !object->isValidMatch_ ) continue;
+      if( match[ cnt ] ) continue;
+
       double dR2 = deltaR2(originalPFCandidate->p4(), object->unshiftedObjectP4_);
       if ( dR2 < dR2match_PFCandidate_ && dR2 < dR2bestMatch_PFCandidate ) {
 	shift = object->shift_;
 	applyShift = true;
 	dR2bestMatch_PFCandidate = dR2;
+
+	prevMatch = cnt;
       }
+      cnt++;
     }
 
     reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate->p4();
-    if ( applyShift ) shiftedPFCandidateP4 *= (1. + shift);
+    if ( applyShift ) {
+      //Ambiguity removal
+      match[ prevMatch ] = true;
+     
+      shiftedPFCandidateP4 *= (1. + shift);
+    }
 
     reco::PFCandidate shiftedPFCandidate(*originalPFCandidate);
     shiftedPFCandidate.setP4(shiftedPFCandidateP4);
