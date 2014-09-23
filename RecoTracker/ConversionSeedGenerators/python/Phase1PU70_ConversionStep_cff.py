@@ -250,7 +250,7 @@ convStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.
 import RecoTracker.TrackProducer.TrackProducer_cfi
 convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'convTrackCandidates',
-    AlgorithmName = cms.string('iter8'),
+    AlgorithmName = cms.string('conversionStep'),
     Fitter = 'convStepFitterSmoother',
     TTRHBuilder=cms.string('WithTrackAngle')
     )

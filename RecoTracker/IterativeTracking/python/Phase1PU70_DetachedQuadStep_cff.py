@@ -130,7 +130,7 @@ detachedQuadStepTrackCandidates.TrajectoryCleaner = 'detachedQuadStepTrajectoryC
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter4'),
+    AlgorithmName = cms.string('detachedQuadStep'),
     src = 'detachedQuadStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
     TTRHBuilder=cms.string('WithTrackAngle')

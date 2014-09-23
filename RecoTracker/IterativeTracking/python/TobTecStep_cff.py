@@ -240,7 +240,7 @@ tobTecFlexibleKFFittingSmoother = TrackingTools.TrackFitters.FlexibleKFFittingSm
 import RecoTracker.TrackProducer.TrackProducer_cfi
 tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'tobTecStepTrackCandidates',
-    AlgorithmName = cms.string('iter6'),
+    AlgorithmName = cms.string('tobTecStep'),
     #Fitter = 'tobTecStepFitterSmoother',
     Fitter = 'tobTecFlexibleKFFittingSmoother',
     )

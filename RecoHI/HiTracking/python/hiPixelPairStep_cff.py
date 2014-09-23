@@ -92,7 +92,7 @@ hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'hiPixelPairTrackCandidates',
-    AlgorithmName = cms.string('iter2')
+    AlgorithmName = cms.string('pixelPairStep')
     )
 
 

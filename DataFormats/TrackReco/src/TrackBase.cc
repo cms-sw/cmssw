@@ -11,17 +11,17 @@ std::string const TrackBase::algoNames[] = {
     "ctf",
     "rs",
     "cosmics",
-    "iter0",
-    "iter1",
-    "iter2",
-    "iter3",
-    "iter4",
-    "iter5",
-    "iter6",
-    "iter7",
-    "iter8",
-    "iter9",
-    "iter10",
+    "inialStep",
+    "lowPtTripletStep",
+    "pixelPairStep",
+    "detachedTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "jetCoreRegionalStep",
+    "conversionStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
     "outInEcalSeededConv",
     "inOutEcalSeededConv",
     "nuclInter",
@@ -92,7 +92,6 @@ TrackBase::~TrackBase()
 {
     ;
 }
-
 
 TrackBase::CovarianceMatrix & TrackBase::fill(CovarianceMatrix &v) const
 {
