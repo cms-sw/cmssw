@@ -27,6 +27,7 @@
 template<typename T>
 HLTDiJetAveEtaFilter<T>::HLTDiJetAveEtaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+    minPtJet_    (iConfig.template getParameter<double> ("minPtJet")),
     minPtAve_    (iConfig.template getParameter<double> ("minPtAve")),
     //minPtJet3_   (iConfig.template getParameter<double> ("minPtJet3")),
     minDphi_     (iConfig.template getParameter<double> ("minDphi")),
@@ -37,7 +38,7 @@ HLTDiJetAveEtaFilter<T>::HLTDiJetAveEtaFilter(const edm::ParameterSet& iConfig) 
     triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
     m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
-    LogDebug("") << "HLTDiJetAveEtaFilter: Input/minPtAve/minPtJet3/minDphi/triggerType : "
+    LogDebug("") << "HLTDiJetAveEtaFilter: Input/minPtAve/minDphi/triggerType : "
         << inputJetTag_.encode() << " "
         << minPtAve_ << " "
         //<< minPtJet3_ << " "
@@ -55,6 +56,7 @@ HLTDiJetAveEtaFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
     makeHLTFilterDescription(desc);
     desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltIterativeCone5CaloJets"));
     desc.add<double>("minPtAve",100.0);
+    desc.add<double>("minPtJet",50.0);
     //desc.add<double>("minPtJet3",99999.0);
     desc.add<double>("minDphi",-1.0);
     desc.add<double>("minTagEta", -1.);
@@ -88,39 +90,72 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     // look at all candidates,  check cuts and add to filter object
     int n(0);
 
+    //std::cout << "--- " << minPtJet_ << std::endl;
     if(objects->size() > 1){ // events with two or more jets
         std::map<int, TRef > tags; // since eta ranges can overlap
         std::map<int, TRef > probes; 
         typename TCollection::const_iterator i ( objects->begin() );
+        typename TCollection::const_iterator iEnd ( objects->end() );
         int cnt = 0;
-        for (; i<=(objects->begin()+objects->size()); i++) {
+        for (; i!=iEnd; ++i) {
+            ++cnt;
+
+            if (i->pt() < minPtJet_) continue;
             float eta = std::abs(i->eta());
+            bool isGood = false;
             if ( eta > tagEtaMin_ && eta < tagEtaMax_ ){
+                //std::cout << "Tag: " << cnt << " " << eta << " " << i->pt() << " " << i->phi() << std::endl;
                 tags[cnt] = TRef(objects,distance(objects->begin(),i));
+                isGood = true;
             }
             if ( eta > probeEtaMin_ && eta < probeEtaMax_ ){
+                //std::cout << "Probe: " << cnt << " " << eta << " " << i->pt() << " " << i->phi() <<  std::endl;
                 probes[cnt] = TRef(objects,distance(objects->begin(),i));
+                isGood = true;
             }
-            ++cnt;
+            if (isGood){ // for easier efficiency evaluation
+                filterproduct.addObject(triggerType_,  TRef(objects,distance(objects->begin(),i)));
+            }
         }
+        if (probes.size() == 0) return false;
+
         typename std::map<int, TRef >::const_iterator iTag   = tags.begin();
         typename std::map<int, TRef >::const_iterator iTagE   = tags.end();
         typename std::map<int, TRef >::const_iterator iProbe = probes.begin();
         typename std::map<int, TRef >::const_iterator iProbeE = probes.end();
+        //std::cout <<"Tags: " << tags.size() << std::endl;
+        //std::cout <<"Probes: " << probes.size() << std::endl;
         for(;iTag != iTagE; ++iTag){
+            iProbe = probes.begin();
+            //std::cout << "With tag " << iTag -> first << std::endl;
             for(;iProbe != iProbeE; ++iProbe){
-                if (iTag->first == iProbe->first) continue; // not the same jet
+                //std::cout << "C " << iTag->first << " " << iProbe->first << std::endl;
+
+                if (iTag->first == iProbe->first) {
+                    //std::cout << "Skip same\n" ;
+                    continue; // not the same jet
+                }
                 double dphi = std::abs(deltaPhi(iTag->second->phi(),iProbe->second->phi() ));
-                if (dphi<minDphi_) continue;
-                double ptAve = (iTag->second->pt(), iProbe->second->pt())/2;
-                if (ptAve<minPtAve_ ) continue;
-                filterproduct.addObject(triggerType_, iTag->second);
-                filterproduct.addObject(triggerType_, iProbe->second);
+                if (dphi<minDphi_) {    
+                    //std::cout << "skip dphi " << dphi << " < " << minDphi_ << std::endl;
+                    continue;
+                }
+                double ptAve = (iTag->second->pt() + iProbe->second->pt())/2;
+                if (ptAve<minPtAve_ ) {
+                    //std::cout << "skip ave " << ptAve << " < " << minPtAve_ << std::endl;
+                    continue;
+                }
+                //std::cout << "Good: " << ptAve << " " << dphi << std::endl;
+                //std::cout << "  Tag: " << iTag->second->eta() << " " << iTag->second->pt() << std::endl;
+                //std::cout << "  Probe: " << iProbe->second->eta() << " " << iProbe->second->pt() << std::endl;
+                //filterproduct.addObject(triggerType_, iTag->second);
+                //filterproduct.addObject(triggerType_, iProbe->second);
                 ++n;
             }
         }
     } // events with two or more jets
     // filter decision
     bool accept(n>=1);
+    //std::cout << "ACC: " << accept << std::endl;
     return accept;
 }

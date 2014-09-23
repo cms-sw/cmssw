@@ -31,6 +31,7 @@ class HLTDiJetAveEtaFilter : public HLTFilter {
    private:
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;
       edm::InputTag inputJetTag_; // input tag identifying jets
+      double minPtJet_;
       double minPtAve_;
       //double minPtJet3_;
       double minDphi_;
