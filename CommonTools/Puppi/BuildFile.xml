@@ -1,0 +1,10 @@
+<use   name="root"/>
+<use   name="rootrflx"/>
+<use   name="rootcore"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="fastjet"/>
+<export>
+  <lib   name="1"/>
+</export>
+<Flags CXXFLAGS="-g" />
