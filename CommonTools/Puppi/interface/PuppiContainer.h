@@ -2,7 +2,6 @@
 #define COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 
 #include "CommonTools/Puppi/interface/PuppiAlgo.h"
-#include "CommonTools/Puppi/interface/NoTrees.hh"
 #include "CommonTools/Puppi/interface/RecoObj.hh"
 #include "fastjet/internal/base.hh"
 #include "fastjet/PseudoJet.hh"
