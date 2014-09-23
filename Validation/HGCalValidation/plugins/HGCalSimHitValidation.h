@@ -51,34 +51,34 @@
 #include <string>
 
 class HGCalSimHitValidation : public edm::EDAnalyzer {
-
+  
 public:
   
   struct energysum{
-    energysum() {e15=e25=e50=e100=e250=e1000=0.0;}
-    double e15, e25, e50, e100, e250, e1000;
+    energysum() {e15=e25=e50=e100=e250=e1000=etotal=0;}
+    double e15, e25, e50, e100, e250, e1000, etotal;
   };
-
+  
   struct hitsinfo{
     hitsinfo() {
-      x=y=z=time=energy=phi=eta=0.0;
+      x=y=z=phi=eta=0.0;
       cell=sector=layer=0;
     }
-    double x, y, z, time, energy, phi, eta ;
+    double x, y, z, phi, eta;
     int    cell, sector, layer;
   };
   
-
+  
   explicit HGCalSimHitValidation(const edm::ParameterSet&);
   ~HGCalSimHitValidation();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void analyzeHits (std::vector<PCaloHit>& hits);
-
-  void FillHitsInfo(std::pair<hitsinfo,energysum> hit_, unsigned int itimeslice, double esum); 
-  void FillHitsInfo(); 
-  static const int netaBins = 4;
   
+  void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
+  void FillHitsInfo(); 
+  void FillHitsInfo(std::pair<hitsinfo,energysum> hit_, unsigned int itimeslice, double esum); 
+  static const int netaBins = 4;
   
 private:
   virtual void beginJob() override;
@@ -90,15 +90,16 @@ private:
   
   // ----------member data ---------------------------
   std::string           nameDetector_, caloHitSource_;
-  DQMStore              *dbe_;
-  HGCalDDDConstants     *hgcons_;
+  DQMStore             *dbe_;
+  HGCalDDDConstants    *hgcons_;
   int                   verbosity_;
   bool                  geometrydefined_, symmDet_;
-  unsigned int layers;
+  unsigned int          layers_;
   std::map<uint32_t, HepGeom::Transform3D> transMap_;
-  std::vector<int> hitsPerLayerPlus[netaBins];
-  std::vector<int> hitsPerLayerMinus[netaBins];
-
+  
+  std::map<int, int> OccupancyMap_plus[netaBins];
+  std::map<int, int> OccupancyMap_minus[netaBins];
+  
   std::vector<MonitorElement*> HitOccupancy_Plus_[netaBins];
   std::vector<MonitorElement*> HitOccupancy_Minus_[netaBins];
   std::vector<MonitorElement*> EtaPhi_Plus_;

@@ -1,5 +1,5 @@
-#ifndef ValidationHGCalSimHitsClient_H
-#define ValidationHGCalSimHitsClient_H
+#ifndef ValidationHGCalDigiClient_H
+#define ValidationHGCalDigiClient_H
 
 // -*- C++ -*-
 /*
@@ -16,17 +16,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include <iostream>
 #include <fstream>
@@ -35,25 +32,19 @@
 class DQMStore;
 class MonitorElement;
 
-class HGCalSimHitsClient : public edm::EDAnalyzer {
+class HGCalDigiClient : public edm::EDAnalyzer {
  
 private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
+  DQMStore* dbe_;
   std::string outputFile_;
-  edm::ParameterSet conf_;
-
-  //member data
-  std::string dirName_;
+  // edm::ParameterSet conf_;
   std::string nameDetector_;
   int verbosity_;
   HGCalDDDConstants *hgcons_;
-  bool geometrydefined_, symmDet_;
-  //  unsigned int layers_;
-  std::map<uint32_t, HepGeom::Transform3D> transMap_;
 
 public:
-  explicit HGCalSimHitsClient(const edm::ParameterSet& );
-  virtual ~HGCalSimHitsClient();
+  explicit HGCalDigiClient(const edm::ParameterSet& );
+  virtual ~HGCalDigiClient();
   
   virtual void beginJob(void);
   virtual void endJob();
@@ -61,10 +52,8 @@ public:
   virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  virtual void runClient_();   
-  //const HcalDDDRecConstants *hcons;
-  int SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
-  bool defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH);
+  void runClient_();   
+  int          DigisEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };
 
 #endif

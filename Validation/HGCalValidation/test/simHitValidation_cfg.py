@@ -8,11 +8,15 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023HGCal_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023HGCalReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023HGCal_cff')
+#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')##
+process.load ('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')##
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')##
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
+#process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')##
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -41,8 +45,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxEta = cms.double(2.50),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(3.1415926),
-        MinE   = cms.double(100.00),
-        MaxE   = cms.double(100.00)
+        MinE   = cms.double(10.00),
+        MaxE   = cms.double(10.00)
     ),
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)

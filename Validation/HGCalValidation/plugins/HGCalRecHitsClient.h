@@ -1,9 +1,9 @@
-#ifndef ValidationHGCalSimHitsClient_H
-#define ValidationHGCalSimHitsClient_H
+#ifndef ValidationHGCalRecHitsClient_H
+#define ValidationHGCalRecHitsClient_H
 
 // -*- C++ -*-
 /*
- Description: This is a SImHit CLient code
+ Description: This is a HGCRecHit CLient code
 */
 //
 // Originally create by: Kalyanmoy Chatterjee
@@ -35,25 +35,24 @@
 class DQMStore;
 class MonitorElement;
 
-class HGCalSimHitsClient : public edm::EDAnalyzer {
+class HGCalRecHitsClient : public edm::EDAnalyzer {
  
 private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string outputFile_;
   edm::ParameterSet conf_;
 
+  int verbosity_;
+
   //member data
   std::string dirName_;
   std::string nameDetector_;
-  int verbosity_;
   HGCalDDDConstants *hgcons_;
-  bool geometrydefined_, symmDet_;
-  //  unsigned int layers_;
-  std::map<uint32_t, HepGeom::Transform3D> transMap_;
+  //  std::map<uint32_t, HepGeom::Transform3D> transMap_;
 
 public:
-  explicit HGCalSimHitsClient(const edm::ParameterSet& );
-  virtual ~HGCalSimHitsClient();
+  explicit HGCalRecHitsClient(const edm::ParameterSet& );
+  virtual ~HGCalRecHitsClient();
   
   virtual void beginJob(void);
   virtual void endJob();
@@ -62,9 +61,8 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   virtual void runClient_();   
-  //const HcalDDDRecConstants *hcons;
-  int SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
-  bool defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH);
+
+  int RecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };
 
 #endif
