@@ -42,7 +42,7 @@ reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(
 void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, 
 		double etaRoad, double phiRoad)
 {
-
+  if(clusters_v.empty()) return;
 
   bool usedSeed[clusters_v.size()];
   for (auto ic=0U; ic<clusters_v.size(); ++ic) usedSeed[ic]=false;
