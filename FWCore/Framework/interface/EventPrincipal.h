@@ -27,6 +27,7 @@ is the DataBlock.
 #include <vector>
 
 namespace edm {
+  class BranchID;
   class BranchIDListHelper;
   class ProductProvenanceRetriever;
   class DelayedReader;
@@ -34,7 +35,10 @@ namespace edm {
   class HistoryAppender;
   class LuminosityBlockPrincipal;
   class ModuleCallingContext;
+  class ProductID;
   class StreamContext;
+  class ThinnedAssociation;
+  class ThinnedAssociationsHelper;
   class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
@@ -50,6 +54,7 @@ namespace edm {
     EventPrincipal(
         std::shared_ptr<ProductRegistry const> reg,
         std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+        std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
         unsigned int streamIndex = 0);
@@ -154,7 +159,11 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance);
 
-    WrapperBase const* getIt(ProductID const& pid) const;
+    virtual WrapperBase const* getIt(ProductID const& pid) const override;
+    virtual WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
+    virtual void getThinnedProducts(ProductID const& pid,
+                                    std::vector<WrapperBase const*>& foundContainers,
+                                    std::vector<unsigned int>& keys) const override;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
@@ -171,6 +180,8 @@ namespace edm {
   private:
 
     BranchID pidToBid(ProductID const& pid) const;
+
+    edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel,
                                  ModuleCallingContext const* mcc) const override;
@@ -209,6 +220,7 @@ namespace edm {
     EventSelectionIDVector eventSelectionIDs_;
 
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper_;
 
     BranchListIndexes branchListIndexes_;
 

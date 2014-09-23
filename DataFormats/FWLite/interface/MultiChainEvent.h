@@ -135,6 +135,11 @@ class MultiChainEvent: public EventBase
 
       edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
+      edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
+
+      void getThinnedProducts(edm::ProductID const& pid,
+                              std::vector<edm::WrapperBase const*>& foundContainers,
+                              std::vector<unsigned int>& keys) const;
 
    private:
 

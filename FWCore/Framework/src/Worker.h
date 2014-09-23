@@ -54,7 +54,9 @@ namespace edm {
   class ProductHolderIndexAndSkipBit;
   class StreamID;
   class StreamContext;
-  
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   namespace workerhelper {
     template< typename O> class CallImpl;
   }
@@ -84,6 +86,7 @@ namespace edm {
 
     void preForkReleaseResources() {implPreForkReleaseResources();}
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
+    void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) { implRegisterThinnedAssociations(registry, helper); }
 
     void reset() { state_ = Ready; }
 
@@ -162,6 +165,8 @@ namespace edm {
     virtual void implPreForkReleaseResources() = 0;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex,
                                                unsigned int iNumberOfChildren) = 0;
+    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
+
     int timesRun_;
     int timesVisited_;
     int timesPassed_;

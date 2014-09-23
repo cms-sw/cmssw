@@ -68,6 +68,7 @@ namespace edm {
   class ProductRegistry;
   class StreamContext;
   class SharedResourcesAcquirer;
+  class ThinnedAssociationsHelper;
   namespace multicore {
     class MessageReceiverForSource;
   }
@@ -175,6 +176,9 @@ namespace edm {
 
     /// Accessor for branchIDListHelper
     std::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return branchIDListHelper_;}
+
+    /// Accessor for thinnedAssociationsHelper
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() const {return thinnedAssociationsHelper_;}
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -439,6 +443,7 @@ namespace edm {
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<ProcessHistoryRegistry> processHistoryRegistry_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     bool const primary_;
     std::string processGUID_;
     Timestamp time_;
