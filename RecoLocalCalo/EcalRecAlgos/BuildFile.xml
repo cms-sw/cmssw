@@ -9,6 +9,7 @@
 <use   name="CondFormats/ESObjects"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="eigen"/>
 <export>
   <lib   name="1"/>
 </export>
