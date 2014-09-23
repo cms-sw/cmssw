@@ -94,8 +94,27 @@ void CMSMonopolePhysics::ConstructProcess() {
   for (unsigned int ii=0; ii<monopoles.size(); ++ii) {
     if (monopoles[ii]) {
       G4Monopole* mpl = monopoles[ii];
-      G4ProcessManager* pmanager = new G4ProcessManager(mpl);
-      mpl->SetProcessManager(pmanager);
+      G4ProcessManager *pmanager = mpl->GetProcessManager();
+      if(!pmanager) {
+        std::ostringstream o;
+        o << "Monopole without a Process Manager";
+        G4Exception("CMSMonopolePhysics::ConstructProcess()","",
+                    FatalException,o.str().c_str());
+      }
+
+      // Clear process list, for some reason G4Transportation is added
+      // somewhere, and it is not wanted (at least that was the
+      // behaviour before MT)
+      const G4int procLength = pmanager->GetProcessListLength();
+      for(G4int ip=procLength-1; ip >= 0; --ip) {
+        G4VProcess *proc = pmanager->RemoveProcess(ip);
+        if(!proc) {
+          std::ostringstream o;
+          o << "Clearing Monopole Process Manager failed for process " << ip << ", total number of processes " << procLength;
+          G4Exception("CMSMonopolePhysics::ConstructProcess()","",
+                      FatalException,o.str().c_str());
+        }
+      }
 
       G4String particleName = mpl->GetParticleName();
       G4double magn         = mpl->MagneticCharge();
