@@ -15,17 +15,20 @@ namespace Phase2Tracker
   {
     public:
       Phase2TrackerDigiToRaw() {}
-      Phase2TrackerDigiToRaw(FEDDAQHeader, FEDDAQTrailer, Phase2TrackerFEDHeader, int);
+      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerTopology *, edm::Handle< edmNew::DetSetVector<SiPixelCluster> >, int);
       ~Phase2TrackerDigiToRaw() {}
-      void buildPayload(edm::Event&, const TrackerTopology *&, const Phase2TrackerCabling*&, edm::Handle< edmNew::DetSetVector<SiPixelCluster> >&);
-      uint8_t* buildBuffer();
+      void buildFEDBuffers();
     private:
-      FEDDAQHeader  daq_header_;
-      FEDDAQTrailer daq_trailer_;
-      Phase2TrackerFEDHeader     fed_header_;
+      // data you get from outside
+      const Phase2TrackerCabling * cabling_; 
+      const TrackerTopology * topo_; 
+      edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digishandle_;
       int mode_;
-      uint8_t* payload_;
-      uint8_t* buffer_;
-      int payload_size_;
+      // headers to be created at init 
+      FEDDAQHeader FedDaqHeader_;
+      FEDDAQTrailer FedDaqTrailer_; 
+      Phase2TrackerFEDHeader FedHeader_;
+      // fed buffer we build
+      std::vector<uint64_t> fedbuffer_;
   };
 }

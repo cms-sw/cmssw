@@ -54,8 +54,8 @@ namespace Phase2Tracker {
   
   void Phase2TrackerDigiToRawProducer::produce( edm::Event& event, const edm::EventSetup& es)
   {
-    edm::Handle< edmNew::DetSetVector<SiPixelCluster> > handle;
-    Phase2TrackerDigiToRaw converter;
-    converter.buildPayload(event,topo_,cabling_,handle);
+    edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle;
+    Phase2TrackerDigiToRaw raw_producer(cabling_, topo_, digis_handle, 1);
+    raw_producer.buildFEDBuffers();
   }
 }
