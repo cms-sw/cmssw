@@ -70,13 +70,12 @@ DAClusterizerInZ_vect::fill(const vector<reco::TransientTrack> & tracks) const {
     double t_pi=1.;
     double t_z = ((*it).stateAtBeamLine().trackStateAtPCA()).position().z();
     if (std::abs(t_z) > 1000.) continue;
-    double phi=((*it).stateAtBeamLine().trackStateAtPCA()).momentum().phi();
-    double tantheta = std::tan( ((*it).stateAtBeamLine().trackStateAtPCA()).momentum().theta());
+    auto const & t_mom = (*it).stateAtBeamLine().trackStateAtPCA().momentum();
     //  get the beam-spot
     reco::BeamSpot beamspot = (it->stateAtBeamLine()).beamSpot();
     double t_dz2 = 
       std::pow((*it).track().dzError(), 2) // track errror
-      + (std::pow(beamspot.BeamWidthX()*cos(phi),2)+std::pow(beamspot.BeamWidthY()*sin(phi),2))/std::pow(tantheta,2)  // beam-width
+      + (std::pow(beamspot.BeamWidthX()*t_mom.x(),2)+std::pow(beamspot.BeamWidthY()*t_mom.y(),2))*std::pow(t_mom.z(),2)/std::pow(t_mom.perp2(),2) // beam spot width
       + std::pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
     t_dz2 = 1./ t_dz2;
     if (edm::isNotFinite(t_dz2) || t_dz2 < std::numeric_limits<double>::min() ) continue;
