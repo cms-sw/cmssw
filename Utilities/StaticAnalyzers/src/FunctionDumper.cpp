@@ -76,15 +76,9 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	std::string sname(sfile);
 	if ( ! support::isInterestingLocation(sname) ) return;
 	std::string mname = support::getQualifiedName(*CCD);
-	const char * pPath = std::getenv("LOCALRT");
-	std::string tname = ""; 
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname+="/tmp/function-dumper.txt.unsorted";
-	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	std::fstream file;
-	file.open(tname.c_str(),std::ios::out|std::ios::app);
-	file<<ostring<<"\n";
-	file.close();
+	std::string tname = "function-dumper.txt.unsorted";
+	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
+	support::writeLog(ostring,tname); 
 	VisitChildren(CCE);
 }
 
@@ -102,10 +96,7 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	std::string sname(sfile);
 	if ( ! support::isInterestingLocation(sname) ) return;
  	std::string mname = support::getQualifiedName(*FD);
-	const char * pPath = std::getenv("LOCALRT");
-	std::string tname = ""; 
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname+="/tmp/function-dumper.txt.unsorted";
+	std::string tname = "function-dumper.txt.unsorted";
 	std::string ostring;
 	CXXMemberCallExpr * CXE = llvm::dyn_cast<CXXMemberCallExpr>(CE);
 	if (CXE) {
@@ -119,10 +110,7 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 			ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
 		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	}
-	std::fstream file;
-	file.open(tname.c_str(),std::ios::out|std::ios::app);
-	file<<ostring<<"\n";
-	file.close();
+	support::writeLog(ostring,tname);
 	VisitChildren(CE);
 }
 
@@ -138,16 +126,11 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	walker.Visit(MD->getBody());
         std::string mname = support::getQualifiedName(*MD);
 	const char * pPath = std::getenv("LOCALRT");
-	std::string tname=""; 
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname += "/tmp/function-dumper.txt.unsorted";
+	std::string tname = "function-dumper.txt.unsorted";
 	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		std::string oname = support::getQualifiedName(*(*I));
 		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + " virtual'\n";
-		std::fstream file;
-		file.open(tname.c_str(),std::ios::out|std::ios::app);
-		file<<ostring<<"\n";
-		file.close();
+		support::writeLog(ostring,tname);
 	}
        	return;
 } 
