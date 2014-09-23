@@ -28,6 +28,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -35,6 +37,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -78,6 +84,10 @@ class HLTHiggsSubAnalysis
 		void bookobjects(const edm::ParameterSet & anpset, edm::ConsumesCollector& iC);
 		void initobjects(const edm::Event & iEvent, EVTColContainer * col);
 		void InitSelector(const unsigned int & objtype);
+		void initAndInsertJets(const edm::Event & iEvent, EVTColContainer * cols, 
+				std::vector<MatchStruct> * matches);
+		void passJetCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult, float & dEtaqq, float & mqq, float & dPhibb, float & CSV1); 
+        void passOtherCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult); 
 		void insertcandidates(const unsigned int & objtype, const EVTColContainer * col,
 				std::vector<MatchStruct> * matches);
 
@@ -106,13 +116,17 @@ class HLTHiggsSubAnalysis
 		// The name of the object collections to be used in this
 		// analysis. 
 		edm::EDGetTokenT<reco::GenParticleCollection> _genParticleLabel;
+        edm::EDGetTokenT<reco::GenJetCollection> _genJetLabel;
 
 		std::map<unsigned int,std::string> _recLabels;
 		edm::EDGetTokenT<reco::MuonCollection> _recLabelsMuon;
 		edm::EDGetTokenT<reco::GsfElectronCollection> _recLabelsElec;
 		edm::EDGetTokenT<reco::PhotonCollection> _recLabelsPhoton;
 		edm::EDGetTokenT<reco::CaloMETCollection> _recLabelsCaloMET;
+        edm::EDGetTokenT<reco::PFMETCollection> _recLabelsPFMET;
 		edm::EDGetTokenT<reco::PFTauCollection> _recLabelsPFTau;
+        edm::EDGetTokenT<reco::PFJetCollection> _recLabelsPFJet;
+        edm::EDGetTokenT<reco::JetTagCollection> _recTagPFJet;
 		edm::EDGetTokenT<std::vector< PileupSummaryInfo > > _puSummaryInfo;
 
 		
@@ -135,14 +149,20 @@ class HLTHiggsSubAnalysis
 		//! The concrete String selectors (use the string cuts introduced
 		//! via the config python)
 		std::map<unsigned int,StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
+        StringCutObjectSelector<reco::GenJet> * _genJetSelector;
 	      	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
 	      	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
 	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+            StringCutObjectSelector<reco::PFMET>     * _recPFMETSelector;
 	      	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
+            StringCutObjectSelector<reco::PFJet>      * _recPFJetSelector;
 	      	StringCutObjectSelector<reco::Track>       * _recTrackSelector;
 		
-
+		//N-1 cut values
+		std::vector<double> _NminOneCuts;
+        bool _useNminOneCuts;
+		
 		// The plotters: managers of each hlt path where the plots are done
 		std::vector<HLTHiggsPlotter> _analyzers;
 		
