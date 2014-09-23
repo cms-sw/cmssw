@@ -2,21 +2,20 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcal.xml" eval="true">
-  <Constant name="etaMinF"    value="1.495"/>
-  <Constant name="slope2"     value="tan(2.0*atan(exp(-[etaMinF])))"/>
+  <Constant name="slope2"     value="tan(20.0*deg)"/>
   <Constant name="slope3"     value="tan(53.0*deg)"/>
   <Constant name="z1Beam"     value="2412.7*mm"/>
   <Constant name="zHGCal1"    value="3170.0*mm"/>
-  <Constant name="rMaxHGCal1" value="([zHGCal1]*[slope2])"/>
-  <Constant name="zHGCal2"    value="([z1Beam]*[slope3]/([slope3]-[slope2]))"/>
-  <Constant name="rMaxHGCal2" value="([zHGCal2]*[slope2])"/>
-  <Constant name="rMaxHGCal3" value="2639.0*mm"/>
-  <Constant name="rMaxHGCal4" value="2459.0*mm"/>
-  <Constant name="zHGCal3"    value="(([rMaxHGCal3]/[slope3])+[z1Beam])"/>
-  <Constant name="zHGCal4"    value="4880.0*mm"/>
-  <Constant name="zHGCal5"    value="5228.0*mm"/>
+  <Constant name="rMaxHGCal1" value="1520.48*mm"/>
+  <Constant name="zHGCal2"    value="3887.85*mm"/>
+  <Constant name="rMaxHGCal2" value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
+  <Constant name="zHGCal3"    value="4522.85*mm"/>
+  <Constant name="rMaxHGCal3" value="([rMaxHGCal2]+(([zHGCal3]-[zHGCal2])*[slope3]))"/>
+  <Constant name="rMaxHGCal4" value="2499.5*mm"/>
+  <Constant name="zHGCal4"    value="4870.85*mm"/>
+  <Constant name="zHGCal5"    value="5218.85*mm"/>
   <Constant name="zMinEE"     value="[zHGCal1]"/>
-  <Constant name="zMaxEE"     value="3489.0*mm"/>
+  <Constant name="zMaxEE"     value="3488.85*mm"/>
   <Constant name="zMinHE"     value="[zMaxEE]"/>
   <Constant name="zMaxHE"     value="[zHGCal5]"/>
   <Constant name="rMinHGCal1" value="[etaMax:slope]*[zHGCal1]"/>
@@ -28,9 +27,9 @@
   <Constant name="rMinEEMax"  value="[etaMax:slope]*[zMaxEE]"/>
   <Constant name="rMinHEMin"  value="[etaMax:slope]*[zMinHE]"/>
   <Constant name="rMinHEMax"  value="[etaMax:slope]*[zMaxHE]"/>
-  <Constant name="rMaxEEMin"  value="([slope2]*[zMinEE])"/>
-  <Constant name="rMaxEEMax"  value="([slope2]*[zMaxEE])"/>
-  <Constant name="rMaxHEMin"  value="([slope2]*[zMinHE])"/>
+  <Constant name="rMaxEEMin"  value="[rMaxHGCal1]"/>
+  <Constant name="rMaxEEMax"  value="([rMaxHGCal1]+(([zMaxEE]-[zHGCal1])*[slope2]))"/>
+  <Constant name="rMaxHEMin"  value="[rMaxEEMax]"/>
   <Constant name="rMaxHEMax"  value="[rMaxHGCal4]"/>
   <Constant name="factor1"    value="cos(10*deg)"/>
   <Constant name="factor2"    value="cos(10*deg)"/>
