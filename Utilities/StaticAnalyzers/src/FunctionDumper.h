@@ -24,7 +24,6 @@ namespace clangcms {
 class FunctionDumper : public clang::ento::Checker< clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
 						clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > 
 {
-  mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 
 public:

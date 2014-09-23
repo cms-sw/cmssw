@@ -19,7 +19,6 @@
 namespace clangcms {
 
 class ClassDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
@@ -37,7 +36,6 @@ private:
 };
 
 class ClassDumperCT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
 
@@ -50,7 +48,6 @@ private:
 };
 
 class ClassDumperFT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
 
@@ -63,7 +60,6 @@ private:
 };
 
 class ClassDumperInherit : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
