@@ -5,6 +5,7 @@
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -21,7 +22,7 @@
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "JetMETCorrections/Algorithms/interface/L1FastjetCorrector.h"
 #include "TLorentzVector.h"
-#include <TMatrixD.h>
+
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -32,8 +33,6 @@ using namespace reco;
 const double dR2Min = 0.01*0.01;
 const double dR2Max = 0.5*0.5;
 const double dPtMatch = 0.1;
-
-typedef edm::View<reco::Candidate> CandidateView;
 
 namespace
 {

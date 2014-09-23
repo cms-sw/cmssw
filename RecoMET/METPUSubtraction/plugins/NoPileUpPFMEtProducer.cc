@@ -246,11 +246,11 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::Candidate::LorentzVector sumLeptonP4s;
   for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = srcLeptons_.begin();
 	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
-    typedef edm::View<reco::Candidate> CandidateView;
-    edm::Handle<CandidateView> leptons_i;
+    
+    edm::Handle<reco::CandidateView> leptons_i;
     evt.getByToken(*srcLeptons_i, leptons_i);
     int leptonIdx = 0;
-    for ( CandidateView::const_iterator lepton = leptons_i->begin();
+    for ( reco::CandidateView::const_iterator lepton = leptons_i->begin();
 	  lepton != leptons_i->end(); ++lepton ) {
       //if ( verbosity_ ) printP4(srcLeptons_i->label(), leptonIdx, "", *lepton);
       leptons.push_back(lepton->p4());

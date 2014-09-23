@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <string>
 #include <vector>

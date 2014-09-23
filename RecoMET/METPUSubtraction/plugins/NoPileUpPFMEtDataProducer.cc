@@ -32,7 +32,7 @@ NoPileUpPFMEtDataProducer::NoPileUpPFMEtDataProducer(const edm::ParameterSet& cf
   srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcPFCandidatesView_ = consumes<edm::View<reco::PFCandidate> >(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcPFCandToVertexAssociations_ = consumes<PFCandToVertexAssMap>(cfg.getParameter<edm::InputTag>("srcPFCandToVertexAssociations"));
-  srcJetsForMEtCov_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJetsForMEtCov"));
+  srcJetsForMEtCov_ = mayConsume<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJetsForMEtCov"));
   minJetPtForMEtCov_ = cfg.getParameter<double>("minJetPtForMEtCov");
   srcHardScatterVertex_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcHardScatterVertex"));
   dZcut_ = cfg.getParameter<double>("dZcut");

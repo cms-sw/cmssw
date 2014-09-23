@@ -36,22 +36,20 @@ void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::
   edm::Handle<JetCollection> originalJets;
   evt.getByToken(srcJets_, originalJets);
 
-  typedef edm::View<reco::Candidate> CandidateView;
-
-  edm::Handle<CandidateView> unshiftedObjects;
+  edm::Handle<reco::CandidateView> unshiftedObjects;
   evt.getByToken(srcUnshiftedObjects_, unshiftedObjects);
 
-  edm::Handle<CandidateView> shiftedObjects;
+  edm::Handle<reco::CandidateView> shiftedObjects;
   evt.getByToken(srcShiftedObjects_, shiftedObjects);
 
   objects_.clear();
   
-  for ( CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
+  for ( reco::CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
 	unshiftedObject != unshiftedObjects->end(); ++unshiftedObject ) {
     bool isMatched_Object = false;
     double dR2bestMatch_Object = std::numeric_limits<double>::max();
     reco::Candidate::LorentzVector shiftedObjectP4_matched;
-    for ( CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
+    for ( reco::CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
 	shiftedObject != shiftedObjects->end(); ++shiftedObject ) {
       double dR2 = deltaR2(unshiftedObject->p4(), shiftedObject->p4());
       if ( dR2 < dR2match_Object_ && dR2 < dR2bestMatch_Object ) {

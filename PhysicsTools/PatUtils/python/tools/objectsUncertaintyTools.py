@@ -226,7 +226,7 @@ def addSmearedJets(process, jetCollection, smearedJetCollectionName_parts,
 
     smearedJets = cms.EDProducer("SmearedPATJetProducer",
             src = cms.InputTag(jetCollection),
-            dRmaxGenJetMatch = cms.string('std::min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
+            dRmaxGenJetMatch = cms.string('min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
             sigmaMaxGenJetMatch = cms.double(3.),                               
             inputFileName = cms.FileInPath(jetSmearFileName),
             lutName = cms.string(jetSmearHistogram),
@@ -243,7 +243,7 @@ def addSmearedJets(process, jetCollection, smearedJetCollectionName_parts,
             #             even though jet energy got smeared by merely 1 GeV
             #
             skipJetSelection = cms.string(
-                'jecSetsAvailable & std::abs(energy - correctedP4("Uncorrected").energy) > (5.*std::min(energy, correctedP4("Uncorrected").energy))'
+                'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
             ),
             skipRawJetPtThreshold = cms.double(10.), # GeV
             skipCorrJetPtThreshold = cms.double(1.e-2),

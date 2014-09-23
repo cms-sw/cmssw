@@ -230,7 +230,7 @@ class RunMVAMEtUncertainties(JetMEtUncertaintyTools):
         setattr(process, "smearedUncorrectedJetsForPFMVAMEt" + postfix, cms.EDProducer("SmearedPFJetProducer",
                                                    src = cms.InputTag('ak4PFJets'),
                                                    jetCorrLabel = cms.string("ak4PFL1FastL2L3"),                                       
-                                                   dRmaxGenJetMatch = cms.string('std::min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
+                                                   dRmaxGenJetMatch = cms.string('min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
                                                    sigmaMaxGenJetMatch = cms.double(3.),                                                               
                                                    inputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root'),
                                                    lutName = cms.string('pfJetResolutionMCtoDataCorrLUT'),
