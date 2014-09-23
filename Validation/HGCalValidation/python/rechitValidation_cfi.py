@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hgcalSimHitValidationEE = cms.EDAnalyzer('HGCalSimHitValidation',
+hgcalRecHitValidationEE = cms.EDAnalyzer('HGCalRecHitValidation',
                                          DetectorName = cms.string("HGCalEESensitive"),
-                                         CaloHitSource = cms.string("HGCHitsEE"),
+                                         RecHitSource = cms.string("HGCEERecHits"),
                                          Verbosity     = cms.untracked.int32(0)
                                          )
