@@ -16,16 +16,24 @@ CustomUIsession::~CustomUIsession()
 
 }
 
+namespace {
+  std::string trim(const std::string& str) {
+    if(!str.empty() && str.back() == '\n')
+      return str.substr(0, str.length()-1);
+    return str;
+  }
+}
+
 G4int CustomUIsession::ReceiveG4cout(const G4String& coutString)
 {
   //std::cout << coutString << std::flush;
-  edm::LogInfo("G4cout") << coutString;
+  edm::LogVerbatim("G4cout") << trim(coutString);
   return 0;
 }
 
 G4int CustomUIsession::ReceiveG4cerr(const G4String& cerrString)
 {
   //std::cerr << cerrString << std::flush;
-  edm::LogWarning("G4cerr") << cerrString;
+  edm::LogWarning("G4cerr") << trim(cerrString);
   return 0;
 }

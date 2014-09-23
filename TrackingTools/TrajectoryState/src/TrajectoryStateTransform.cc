@@ -17,6 +17,7 @@ namespace trajectoryStateTransform {
 		   unsigned int detid)
   {
     int surfaceSide = static_cast<int>(ts.surfaceSide());
+    auto pt = ts.globalMomentum().perp();
     
     if (ts.hasError()) {
       AlgebraicSymMatrix55 const & m = ts.localError().matrix();
@@ -30,11 +31,11 @@ namespace trajectoryStateTransform {
 	  localErrors[k++] = m(i,j);
 	}
       }
-    return PTrajectoryStateOnDet(ts.localParameters(),
+    return PTrajectoryStateOnDet(ts.localParameters(),pt,
 				 localErrors, detid,
 				 surfaceSide);
     }
-    return PTrajectoryStateOnDet(ts.localParameters(),
+    return PTrajectoryStateOnDet(ts.localParameters(),pt,
 				 detid,
 				 surfaceSide);
   }

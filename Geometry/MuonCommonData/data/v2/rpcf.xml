@@ -528,7 +528,7 @@
      RE3/1 staged volumes -->
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4XP"/>
-    <String name="ChildName" value="RTXU"/>
+    <String name="ChildName" value="RTXUR"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="1"/>
@@ -539,7 +539,7 @@
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4XP"/>
-    <String name="ChildName" value="RTXU"/>
+    <String name="ChildName" value="RTXUR"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="2"/>
@@ -550,7 +550,7 @@
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4XN"/>
-    <String name="ChildName" value="RTXU"/>
+    <String name="ChildName" value="RTXUR"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="1"/>
@@ -561,7 +561,7 @@
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4XN"/>
-    <String name="ChildName" value="RTXU"/>
+    <String name="ChildName" value="RTXUR"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="2"/>
