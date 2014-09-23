@@ -85,18 +85,42 @@ void GeometryAligner::applyAlignments( C* geometry,
   const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
 
   //FIXME test setup to read APEs from ASCIII file, if need be
-  std::ifstream apeReadFile("/afs/cern.ch/user/a/asvyatko/public/APEList66.txt");
+  std::ifstream apeReadFileTRK("/afs/cern.ch/user/a/asvyatko/public/APEList66_TRK.txt");
+  std::ifstream apeReadFileDT("/afs/cern.ch/user/a/asvyatko/public/muonAPEs_2014-06-05_DT_AllTypesOfApes.txt");
+  std::ifstream apeReadFileCSC("/afs/cern.ch/user/a/asvyatko/public/muonAPEs_2014-06-05_CSC_AllTypesOfApes.txt");
 
-  //FIXME read in the APEs from ASCII file
   std::map<int,GlobalErrorExtended> apeDict;
-  while (!apeReadFile.eof()) {
+  while (!apeReadFileTRK.eof()) {
     int apeId=0; double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
-    apeReadFile>>apeId>>xx>>xy>>xz>>xphix>>xphiy>>xphiz>>yy>>yz>>yphix>>yphiy>>yphiz>>zz>>zphix>>zphiy>>zphiz>>phixphix>>phixphiy>>phixphiz>>phiyphiy>>phiyphiz>>phizphiz>>std::ws;
+    apeReadFileTRK>>apeId>>xx>>xy>>xz>>xphix>>xphiy>>xphiz>>yy>>yz>>yphix>>yphiy>>yphiz>>zz>>zphix>>zphiy>>zphiz>>phixphix>>phixphiy>>phixphiz>>phiyphiy>>phiyphiz>>phizphiz>>std::ws;
     GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
     apeDict[apeId] = error_tmp;
   }
-  apeReadFile.close();
-
+  apeReadFileTRK.close();
+//wheel station sector xx xy xz yy yz zz xphix xphiy xphiz yphix yphiy yphiz zphix zphiy zphiz phixphix phixphiy phixphiz phiyphiy phiyphiz phizphiz
+  while (!apeReadFileDT.eof()) {
+    double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
+    int wheel, station, sector;
+    apeReadFileDT >> wheel >> station  >>sector >> xx >> xy >> xz >> yy >> yz >> zz >> xphix >> xphiy >> xphiz >> yphix >> yphiy >> yphiz  >>zphix >> zphiy  >>zphiz >> phixphix >> phixphiy  >>phixphiz  >>phiyphiy  >>phiyphiz >> phizphiz >> std::ws;
+    DTChamberId did(wheel,station,sector);
+    int apeId = 0;
+    apeId = did.rawId();
+    GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
+    apeDict[apeId] = error_tmp;
+  }
+  apeReadFileDT.close();
+//endcap station ring chamber xx xy xz yy yz zz xphix xphiy xphiz yphix yphiy yphiz zphix zphiy zphiz phixphix phixphiy phixphiz phiyphiy phiyphiz phizphiz
+  while (!apeReadFileCSC.eof()) {
+    double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
+    int endcap, ring, station, chamber;
+    apeReadFileCSC >> endcap >> station  >>ring >> chamber >> xx  >>xy  >>xz  >>yy  >>yz  >>zz  >>xphix >> xphiy  >>xphiz  >>yphix >> yphiy >> yphiz >> zphix >> zphiy  >>zphiz >> phixphix >> phixphiy >> phixphiz >> phiyphiy >> phiyphiz >> phizphiz >> std::ws;
+    CSCDetId csc(endcap, station, ring, chamber);
+    int apeId = 0;
+    apeId = csc.rawId();
+    GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
+    apeDict[apeId] = error_tmp;
+  }
+  apeReadFileCSC.close();
 
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
@@ -131,47 +155,13 @@ void GeometryAligner::applyAlignments( C* geometry,
 					  rotationHep.zx(), rotationHep.zy(), rotationHep.zz() );
 	  GeomDet* iGeomDet = const_cast<GeomDet*>((*iPair).second);
 
-          Surface::PositionType posOld = iGeomDet->position(); 
-          AlgebraicVector vOld(3,0);
-          vOld[0] = posOld.x(); 
-          vOld[1] = posOld.y();
-          vOld[2] = posOld.z();
-
-          Surface::RotationType rotOld = iGeomDet->rotation();
-          AlgebraicMatrix amOld(3,3,0);
-          amOld[0][0] = rotOld.xx(); amOld[0][1] = rotOld.xy(); amOld[0][2] = rotOld.xz();
-          amOld[1][0] = rotOld.yx(); amOld[1][1] = rotOld.yy(); amOld[1][2] = rotOld.yz();
-          amOld[2][0] = rotOld.zx(); amOld[2][1] = rotOld.zy(); amOld[2][2] = rotOld.zz();
-
 	  this->setGeomDetPosition( *iGeomDet, position, rotation );
-
-          Surface::PositionType posNew = iGeomDet->position();
-          AlgebraicVector vNew(3,0);
-          vNew[0] = posNew.x();
-          vNew[1] = posNew.y();
-          vNew[2] = posNew.z();
-
-          Surface::RotationType rotNew = iGeomDet->rotation();
-          AlgebraicMatrix amNew(3,3,0);
-          amNew[0][0] = rotNew.xx(); amNew[0][1] = rotNew.xy(); amNew[0][2] = rotNew.xz();
-          amNew[1][0] = rotNew.yx(); amNew[1][1] = rotNew.yy(); amNew[1][2] = rotNew.yz();
-          amNew[2][0] = rotNew.zx(); amNew[2][1] = rotNew.zy(); amNew[2][2] = rotNew.zz();
-
-          //Get the alignment parameters
-          AlgebraicVector shifts(3,0);
-          shifts = vNew - vOld; 
-          AlgebraicMatrix am(3,3);
-          am = amOld*amNew.T();
-          //now phiz is 01
-          //phiy is 02
-          //phix is 21
-          AlgebraicVector angles(3,0);
-          angles[0] = am[2][1]; 
-          angles[1] = am[0][2];
-          angles[2] = am[0][1];
 
           int reference = (iGeomDet->geographicalId()).rawId();
           GlobalErrorExtended error = apeDict[reference];
+          //alignment parameters for Jacobian
+          AlgebraicVector shifts(3,0);
+          AlgebraicVector angles(3,0);
           LocalErrorExtended newError = ErrorFrameTransformer().transform46(error,shifts,angles);
 
 	  AlignmentPositionError ape( newError );
