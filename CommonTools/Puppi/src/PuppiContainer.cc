@@ -1,5 +1,6 @@
 #include "CommonTools/Puppi/interface/PuppiContainer.h"
 #include "fastjet/internal/base.hh"
+#include "fastjet/FunctionOfPseudoJet.hh"
 #include "Math/ProbFunc.h"
 #include "TMath.h"
 #include <iostream>
