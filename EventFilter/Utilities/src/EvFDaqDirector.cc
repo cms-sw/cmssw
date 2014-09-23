@@ -213,7 +213,7 @@ namespace evf {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
     if (directorBu_) {
-      std::string filename = base_dir_ + "/bu.lock";
+      std::string filename = bu_run_dir_ + "/bu.lock";
       removeFile(filename);
     }
   }
