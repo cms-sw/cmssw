@@ -28,7 +28,6 @@
 #include<set>
 #include<algorithm>
 
-
 HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 					 const std::string & analysisname,
 					 edm::ConsumesCollector&& iC) :
@@ -428,7 +427,10 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		// Initialize and insert pfJets
 		this->initAndInsertJets(iEvent, cols, matches);
         // Make sure to skip events that don't have enough jets
-        if( matches->size() < _minCandidates ) return;
+        if( matches->size() < _minCandidates ) {
+            delete matches;  
+            return;
+        }
 		// Cuts on multiple jet events (RECO)
 		if ( _useNminOneCuts ) {
 			this->passJetCuts(matches, jetCutResult, dEtaqq, mqq, dPhibb, CSV1);
@@ -450,8 +452,8 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	
 	if ( _useNminOneCuts ) {
         // Check non-jet N-1 Cuts
-        this->passOtherCuts(matches,jetCutResult);
-	
+        this->passOtherCuts(*matches,jetCutResult);	
+        
         // Make N-1 booleans from jetCutResults 
         for(std::map<std::string,bool>::const_iterator it = jetCutResult.begin(); it != jetCutResult.end(); ++it)
         {
@@ -999,7 +1001,7 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     }  
     
     // Perform b-tag ordered cuts
-    std::sort(matches->begin(), matches->begin()+4, matchesByDescendingBtag());
+    std::sort(matches->begin(), matches->begin()+_minCandidates, matchesByDescendingBtag());
 
     if( _NminOneCuts[0] ) {
         dEtaqq =  fabs(matches->at(2).eta - matches->at(3).eta);
@@ -1027,20 +1029,20 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
         
         // max(CSV)
         if( _NminOneCuts[4] ) {
-            if ( _NminOneCuts[4] < matches->size()){
-                std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
-                CSV1 = matches->at(0).bTag;
-                for(unsigned int i=1; i < (unsigned int) _NminOneCuts[4] ; ++i) {
-                    if( matches->at(i).bTag > CSV1 && matches->at(i).pt > _NminOneCuts[5] ) CSV1 = matches->at(i).bTag;
-                }
+            std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+            CSV1 = matches->at(0).bTag;
+            unsigned int Njets = (unsigned int) _NminOneCuts[4];
+            if ( _NminOneCuts[4] > matches->size()) Njets = matches->size();
+            for(unsigned int i=1; i < (unsigned int) Njets ; ++i) {
+                if( matches->at(i).bTag > CSV1 && matches->at(i).pt > _NminOneCuts[5] ) CSV1 = matches->at(i).bTag;
             }
         }
     }    
 } 
 
-void HLTHiggsSubAnalysis::passOtherCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult){
+void HLTHiggsSubAnalysis::passOtherCuts(const std::vector<MatchStruct> & matches, std::map<std::string,bool> & jetCutResult){
     if( _NminOneCuts[6] ) {
-        for(std::vector<MatchStruct>::iterator it = matches->begin(); it != matches->end(); ++it)
+        for(std::vector<MatchStruct>::const_iterator it = matches.begin(); it != matches.end(); ++it)
         {
             if( it->objType == EVTColContainer::PFMET ) {
                 if( it->pt > _NminOneCuts[6] ) jetCutResult["PFMET"] = true;
