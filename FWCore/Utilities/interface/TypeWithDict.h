@@ -66,7 +66,6 @@ public:
   bool hasDictionary() const;
   std::type_info const& typeInfo() const;
   std::type_info const& id() const;
-  TType* getType() const;
   TClass* getClass() const;
   TEnum* getEnum() const;
   TDataType* getDataType() const;
@@ -118,9 +117,6 @@ public:
   void deallocate(void* address) const;
   ObjectWithDict construct() const;
   void destruct(void* address, bool dealloc = true) const;
-  void* ttype() const {
-    return type_;
-  }
 };
 
 // A related free function
