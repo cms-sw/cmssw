@@ -35,6 +35,11 @@ public:
   int size() const { return data_.size() & 0xf; }
 
   /**
+     @short allow to set size
+   */
+  void resize(size_t s) { data_.resize(s); }
+
+  /**
      @short assess/set specific samples
   */
   const S& operator[](int i) const { return data_[i]; }
