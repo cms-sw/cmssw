@@ -7,7 +7,7 @@
 namespace l1t {
    class MPUnpacker : public BaseUnpacker {
       public:
-         MPUnpacker(UnpackerCollections* c) : BaseUnpacker(c) {};
+         using BaseUnpacker::BaseUnpacker;
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
 
    };

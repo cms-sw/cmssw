@@ -7,10 +7,8 @@
 namespace l1t {
    class CaloTowerUnpacker : public BaseUnpacker {
       public:
-         CaloTowerUnpacker(UnpackerCollections* c) : BaseUnpacker(c) {};
+         using BaseUnpacker::BaseUnpacker;
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
-      private:
-         CaloTowerBxCollection* res_;
    };
 
    class CaloTowerUnpackerFactory : public BaseUnpackerFactory {

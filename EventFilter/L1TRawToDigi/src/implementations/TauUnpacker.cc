@@ -7,7 +7,7 @@
 namespace l1t {
    class TauUnpacker : public BaseUnpacker {
       public:
-         TauUnpacker(UnpackerCollections* c) : BaseUnpacker(c) {};
+         using BaseUnpacker::BaseUnpacker;
          virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
    };
 
