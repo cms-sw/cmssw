@@ -26,7 +26,7 @@ public:
 
   void checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
-	std::string pname = "/tmp/classes.txt.dumperall.unsorted";
+	std::string pname = "classes.txt.dumperall.unsorted";
 	checkASTDecl(RD,mgr,BR,pname);
 }
 

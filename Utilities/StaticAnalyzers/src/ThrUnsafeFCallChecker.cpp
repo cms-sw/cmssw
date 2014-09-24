@@ -49,18 +49,14 @@ void TUFWalker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	if ( support::isKnownThrUnsafeFunc(mname) ) {
 		os << "Known thread unsafe function " << mname << " is called in function " << pname;
 		PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
- 		BugType * BT = new BugType(Checker, "known thread unsafe function called","optional");
+ 		BugType * BT = new BugType(Checker, "known thread unsafe function called","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		R->addRange(CE->getSourceRange());
 		BR.emitReport(R);
-		const char * pPath = std::getenv("LOCALRT");
-		std::string tname = ""; 
-		if ( pPath != NULL ) tname += std::string(pPath);
-		tname+="/tmp/function-checker.txt.unsorted";
+
+		std::string tname = "function-checker.txt.unsorted";
 		std::string ostring =  "function '"+ pname + "' known thread unsafe function '" + mname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
-	
+		support::writeLog(ostring,tname);
 	}
 		
 		
