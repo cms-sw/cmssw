@@ -90,7 +90,6 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     // look at all candidates,  check cuts and add to filter object
     int n(0);
 
-    //std::cout << "--- " << minPtJet_ << std::endl;
     if(objects->size() > 1){ // events with two or more jets
         std::map<int, TRef > tags; // since eta ranges can overlap
         std::map<int, TRef > probes; 
@@ -104,12 +103,10 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
             float eta = std::abs(i->eta());
             bool isGood = false;
             if ( eta > tagEtaMin_ && eta < tagEtaMax_ ){
-                //std::cout << "Tag: " << cnt << " " << eta << " " << i->pt() << " " << i->phi() << std::endl;
                 tags[cnt] = TRef(objects,distance(objects->begin(),i));
                 isGood = true;
             }
             if ( eta > probeEtaMin_ && eta < probeEtaMax_ ){
-                //std::cout << "Probe: " << cnt << " " << eta << " " << i->pt() << " " << i->phi() <<  std::endl;
                 probes[cnt] = TRef(objects,distance(objects->begin(),i));
                 isGood = true;
             }
@@ -123,31 +120,21 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
         typename std::map<int, TRef >::const_iterator iTagE   = tags.end();
         typename std::map<int, TRef >::const_iterator iProbe = probes.begin();
         typename std::map<int, TRef >::const_iterator iProbeE = probes.end();
-        //std::cout <<"Tags: " << tags.size() << std::endl;
-        //std::cout <<"Probes: " << probes.size() << std::endl;
         for(;iTag != iTagE; ++iTag){
             iProbe = probes.begin();
-            //std::cout << "With tag " << iTag -> first << std::endl;
             for(;iProbe != iProbeE; ++iProbe){
-                //std::cout << "C " << iTag->first << " " << iProbe->first << std::endl;
-
                 if (iTag->first == iProbe->first) {
-                    //std::cout << "Skip same\n" ;
                     continue; // not the same jet
                 }
                 double dphi = std::abs(deltaPhi(iTag->second->phi(),iProbe->second->phi() ));
                 if (dphi<minDphi_) {    
-                    //std::cout << "skip dphi " << dphi << " < " << minDphi_ << std::endl;
                     continue;
                 }
                 double ptAve = (iTag->second->pt() + iProbe->second->pt())/2;
                 if (ptAve<minPtAve_ ) {
-                    //std::cout << "skip ave " << ptAve << " < " << minPtAve_ << std::endl;
                     continue;
                 }
-                //std::cout << "Good: " << ptAve << " " << dphi << std::endl;
-                //std::cout << "  Tag: " << iTag->second->eta() << " " << iTag->second->pt() << std::endl;
-                //std::cout << "  Probe: " << iProbe->second->eta() << " " << iProbe->second->pt() << std::endl;
+                // moved into first loop
                 //filterproduct.addObject(triggerType_, iTag->second);
                 //filterproduct.addObject(triggerType_, iProbe->second);
                 ++n;
@@ -156,6 +143,5 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     } // events with two or more jets
     // filter decision
     bool accept(n>=1);
-    //std::cout << "ACC: " << accept << std::endl;
     return accept;
 }
