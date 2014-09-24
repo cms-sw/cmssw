@@ -51,6 +51,27 @@ conditions_L1_Run2012D = (
     'L1MuDTTFParameters_dttf12_TSC_03_csc_col_mc,L1MuDTTFParametersRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
 )
 
+autoCond['run1_mc']          = ( autoCond['run1_mc'], ) \
+                             + conditions_L1_Run2012D 
+ 
+autoCond['run1_mc_hi']       = ( autoCond['run1_mc_hi'], ) \
+                             + conditions_L1_Run2012D 
+ 
+autoCond['run1_mc_pa']       = ( autoCond['run1_mc_pa'], ) \
+                             + conditions_L1_Run2012D 
+ 
+autoCond['run1_hlt']         = ( autoCond['run1_hlt'], ) \
+                             + conditions_L1_Run2012D 
+ 
+autoCond['run1_data']        = ( autoCond['run1_data'], ) \
+                             + conditions_L1_Run2012D 
+ 
+autoCond['run2_mc']          = ( autoCond['run2_mc'], ) \
+                             + conditions_L1_Run2012D 
+ 
+autoCond['run2_mc_50ns']     = ( autoCond['run2_mc_50ns'], ) \
+                             + conditions_L1_Run2012D 
+
 # dedicated GlobalTags for MC production with the fixed HLT menus
 autoCond['run1_mc_2014']     = ( autoCond['run1_mc'] )
 autoCond['run1_mc_Fake']     = ( autoCond['run1_mc'] )
