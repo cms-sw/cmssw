@@ -2,7 +2,7 @@
 //
 // Package:    EventFilter/L1TRawToDigi
 // Class:      L1TRawToDigi
-// 
+//
 /**\class L1TRawToDigi L1TRawToDigi.cc EventFilter/L1TRawToDigi/plugins/L1TRawToDigi.cc
 
  Description: [one line class summary]
@@ -49,7 +49,7 @@ namespace l1t {
 
       private:
          virtual void produce(edm::Event&, const edm::EventSetup&) override;
-         
+
          virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
          virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
          virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
@@ -170,10 +170,10 @@ namespace l1t {
       LogDebug("L1T") << "Found AMC13 header: Event Number " << event_id
                       << " Board ID " << board_id
                       << " Orbit Number " << orbit_id
-                      << " BX Number " << bx_id 
+                      << " BX Number " << bx_id
                       << " FW version " << fw_id
                       << " Event Type " << event_type
-                      << " Payload size " << payload_size; 
+                      << " Payload size " << payload_size;
 
       if (l1tRcd.size() < payload_size * 4 + amcHeaderSize_ + amcTrailerSize_) {
          LogError("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
