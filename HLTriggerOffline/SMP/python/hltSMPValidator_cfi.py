@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
+    histDirectory  = cms.string("HLT/SMP"),
     analysis       = cms.vstring("SingleEle", "SingleMu", "SinglePhoton"),
     
     # -- The instance name of the reco::GenParticles collection
