@@ -86,6 +86,7 @@ namespace CondFormats_HcalObjects {
     // OOT pileup correction objects
     std::map<std::string, AbsOOTPileupCorrection*> myInnerMap;
     std::map<std::string, std::map<std::string, AbsOOTPileupCorrection*> > myOuterMap;
+    std::vector<uint32_t> myVectorUint32T;
     ScalingExponential myScalingExponential;
     PiecewiseScalingPolynomial myPiecewiseScalingPolynomial;
     OOTPileupCorrDataFcn myOOTPileupCorrDataFcn;
@@ -93,6 +94,7 @@ namespace CondFormats_HcalObjects {
     DummyOOTPileupCorrection myDummyOOTPileupCorrection;
     OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
     OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
+    HBHEChannelGroups myHBHEChannelGroups;
   };
 }
 
