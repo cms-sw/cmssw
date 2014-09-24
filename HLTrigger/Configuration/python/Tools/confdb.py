@@ -250,14 +250,14 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
     if self.config.fragment:
       
-#      self.data += """
-## dummyfy hltGetConditions in cff's
-#if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
-#    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
-#        result = cms.bool( True )
-#    )
-#    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
-#"""
+      self.data += """
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
+    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+"""
 
       # if requested, adapt the configuration for FastSim
       self.fixForFastSim()
@@ -1193,7 +1193,7 @@ if 'GlobalTag' in %%(dict)s:
       self.source = [ "file:RelVal_Raw_%s_DATA.root" % self.config.type ]
     else:
       # ...or on mc
-      self.source = [ "file:RelVal_Raw_%s_STARTUP.root" % self.config.type ]
+      self.source = [ "file:RelVal_Raw_%s_MC.root" % self.config.type ]
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",
