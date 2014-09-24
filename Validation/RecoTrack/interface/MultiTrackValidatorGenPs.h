@@ -15,19 +15,16 @@ class MultiTrackValidatorGenPs : public MultiTrackValidator {
  public:
   /// Constructor
   MultiTrackValidatorGenPs(const edm::ParameterSet& pset);
-  
+
   /// Destructor
   virtual ~MultiTrackValidatorGenPs();
 
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
-private:
-
+ private:
   const TrackAssociatorByChi2* associatorByChi2;
-  GenParticleCustomSelector gpSelector;				      
-
+  GenParticleCustomSelector gpSelector;
 };
-
 
 #endif

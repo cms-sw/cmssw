@@ -2,7 +2,8 @@
 #define MultiTrackValidatorBase_h
 
 /** \class MultiTrackValidatorBase
- *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
+ *  Base class for analyzers that produces histrograms to validate Track
+ *Reconstruction performances
  *
  *  \author cerati
  */
@@ -14,8 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h" 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
@@ -41,18 +42,17 @@ class DeDxData;
 
 class MultiTrackValidatorBase {
  public:
-
   /// Constructor
-  MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed = false);
-    
+  MultiTrackValidatorBase(const edm::ParameterSet& pset,
+                          edm::ConsumesCollector&& iC, bool isSeed = false);
+
   /// Destructor
-  virtual ~MultiTrackValidatorBase(){ }
-  
-  //virtual void initialize()=0;
+  virtual ~MultiTrackValidatorBase() {}
+
+  // virtual void initialize()=0;
 
  protected:
-
-  //DQMStore* dbe_;
+  // DQMStore* dbe_;
 
   // MTV-specific data members
   std::vector<std::string> associators;
@@ -64,11 +64,10 @@ class MultiTrackValidatorBase {
   std::string sim;
   std::string parametersDefiner;
 
-
   std::vector<edm::InputTag> label;
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > labelToken;
   std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > labelTokenSeed;
-  edm::EDGetTokenT<reco::BeamSpot>  bsSrc;
+  edm::EDGetTokenT<reco::BeamSpot> bsSrc;
 
   std::string out;
 
@@ -78,11 +77,8 @@ class MultiTrackValidatorBase {
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;
 
-
   bool ignoremissingtkcollection_;
   bool skipHistoFit;
-
 };
-
 
 #endif
