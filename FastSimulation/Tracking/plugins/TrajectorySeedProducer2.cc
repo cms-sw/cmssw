@@ -399,8 +399,10 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 	    e.put(output,outputSeedCollectionName);
 		return;
 	}
-
-    
+	std::cout<<std::endl;
+	std::cout<<std::endl;
+    std::cout<<"collection: "<<outputSeedCollectionName.c_str()<<std::endl;
+    std::cout<<"-----------------------------"<<std::endl;
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentSimTrackId = *itSimTrackId;
@@ -470,7 +472,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 
 		if (seedHitNumbers.size()>0)
 		{
-
+            std::cout<<"accept: "<<currentSimTrackId<<std::endl;
 			edm::OwnVector<TrackingRecHit> recHits;
 			for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
 			{
