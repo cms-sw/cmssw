@@ -1,18 +1,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-#include "L1TCollections.h"
+#include "CaloCollections.h"
 
 namespace l1t {
-   class CaloTowerUnpacker : public BaseUnpacker {
+   class CaloTowerUnpacker : public Unpacker {
       public:
          virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
-   };
-
-   class CaloTowerUnpackerFactory : public BaseUnpackerFactory {
-      public:
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
    };
 }
 
@@ -36,7 +31,7 @@ namespace l1t {
        lastBX = std::ceil((double)nBX/2.);
      }
 
-     auto res_ = static_cast<L1TCollections*>(coll)->getTowers();
+     auto res_ = static_cast<CaloCollections*>(coll)->getTowers();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -114,35 +109,6 @@ namespace l1t {
      return true;
 
   }
-
-   std::vector<UnpackerItem>
-   CaloTowerUnpackerFactory::create(const unsigned& fw, const int fedid)
-   {
-
-     // This unpacker is only appropriate for the Main Processor input (FED ID=2). Anything else should not be unpacked.
-     
-     if (fedid==2){
-
-       std::vector<UnpackerItem> towersMap;
-    
-       // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
-       // which receives the block_ID and can convert this to phi
-
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker());
-
-       for (int link = 0; link < 144; link++){
-         if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 
-       }
-     
-       return towersMap;
-
-     } else {
-       
-       return {};
-
-     }
-
-   };
 };
 
-DEFINE_L1TUNPACKER(l1t::CaloTowerUnpackerFactory);
+DEFINE_L1T_UNPACKER(l1t::CaloTowerUnpacker);

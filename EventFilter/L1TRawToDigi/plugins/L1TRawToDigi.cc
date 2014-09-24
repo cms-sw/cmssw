@@ -34,12 +34,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/UnpackerProvider.h"
 
 namespace l1t {
-   class BaseUnpackerFactory;
-
    class L1TRawToDigi : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
       public:
          explicit L1TRawToDigi(const edm::ParameterSet&);
@@ -58,9 +55,9 @@ namespace l1t {
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
-         std::vector<std::auto_ptr<BaseUnpackerFactory>> factories_;
 
-         std::string product_;
+         std::auto_ptr<UnpackerProvider> prov_;
+         UnpackerMap unpackers_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -72,16 +69,12 @@ namespace l1t {
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      fedId_(config.getParameter<int>("FedId")),
-      product_("l1t::L1T")
+      fedId_(config.getParameter<int>("FedId"))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      UnpackerCollectionsProducesFactory::get()->makeUnpackerCollectionsProduces(product_ + "CollectionsProduces", *this);
-
-      auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
-      for (const auto& name: factory_names)
-         factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name));
+      prov_ = UnpackerProviderFactory::get()->make("l1t::CaloSetup", *this);
+      unpackers_ = prov_->getUnpackers();
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
       slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
@@ -105,7 +98,7 @@ namespace l1t {
    {
       using namespace edm;
 
-      std::auto_ptr<UnpackerCollections> coll(UnpackerCollectionsFactory::get()->makeUnpackerCollections(product_ + "Collections", event));
+      std::unique_ptr<UnpackerCollections> coll = prov_->getCollections(event);
 
       edm::Handle<FEDRawDataCollection> feds;
       event.getByToken(fedData_, feds);
@@ -185,13 +178,6 @@ namespace l1t {
 
       unsigned fw = fw_id;
 
-      UnpackerMap unpackers;
-      for (auto& f: factories_) {
-        for (const auto& up: f->create(fw, fedId_)) {
-            unpackers.insert(up);
-         }
-      }
-
       auto payload_end = idx + payload_size * 4;
       for (unsigned int b = 0; idx < payload_end; ++b) {
          // Parse block
@@ -201,8 +187,9 @@ namespace l1t {
 
          LogDebug("L1T") << "Found MP7 header: block ID " << block_id << " block size " << block_size;
 
-         auto unpacker = unpackers.find(block_id);
-         if (unpacker == unpackers.end()) {
+         // set AMC id to 1 for now
+         auto unpacker = unpackers_.find(std::make_tuple(fedId_, 1, (int) block_id, (int) fw_id));
+         if (unpacker == unpackers_.end()) {
             LogWarning("L1T") << "Cannot find an unpacker for block ID "
                << block_id << ", FED ID " << fedId_ << ", and FW ID "
                << fw << "!";

@@ -10,14 +10,9 @@
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 
 namespace l1t {
-   class L1TCollectionsProduces : public UnpackerCollectionsProduces {
+   class CaloCollections : public UnpackerCollections {
       public:
-         L1TCollectionsProduces(edm::one::EDProducerBase&);
-   };
-
-   class L1TCollections : public UnpackerCollections {
-      public:
-         L1TCollections(edm::Event& e) :
+         CaloCollections(edm::Event& e) :
             UnpackerCollections(e),
             towers_(new CaloTowerBxCollection()),
             egammas_(new EGammaBxCollection()),
@@ -27,7 +22,7 @@ namespace l1t {
             mp_etsums_(new EtSumBxCollection()),
             mp_jets_(new JetBxCollection()) {};
 
-         virtual ~L1TCollections();
+         virtual ~CaloCollections();
 
          inline CaloTowerBxCollection* getTowers() { return towers_.get(); };
          inline EGammaBxCollection* getEGammas() { return egammas_.get(); };

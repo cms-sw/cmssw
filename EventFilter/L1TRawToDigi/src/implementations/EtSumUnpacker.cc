@@ -1,18 +1,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-#include "L1TCollections.h"
+#include "CaloCollections.h"
 
 namespace l1t {
-   class EtSumUnpacker : public BaseUnpacker {
+   class EtSumUnpacker : public Unpacker {
       public:
          virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
-   };
-
-   class EtSumUnpackerFactory : public BaseUnpackerFactory {
-      public:
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
    };
 }
 
@@ -36,7 +31,7 @@ namespace l1t {
        lastBX = ceil((double)nBX/2.);
      }
 
-     auto res_ = static_cast<L1TCollections*>(coll)->getEtSums();
+     auto res_ = static_cast<CaloCollections*>(coll)->getEtSums();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -105,22 +100,6 @@ namespace l1t {
 
      return true;
    }
-
-   std::vector<UnpackerItem>
-   EtSumUnpackerFactory::create(const unsigned& fw, const int fedid) {
-
-     // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
-     if (fedid==1){
-
-       return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker()))};
-
-     } else {
-
-       return {};
-
-     }
-
-   };
 }
 
-DEFINE_L1TUNPACKER(l1t::EtSumUnpackerFactory);
+DEFINE_L1T_UNPACKER(l1t::EtSumUnpacker);

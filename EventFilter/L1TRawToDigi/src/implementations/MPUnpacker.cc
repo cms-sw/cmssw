@@ -1,18 +1,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-#include "L1TCollections.h"
+#include "CaloCollections.h"
 
 namespace l1t {
-   class MPUnpacker : public BaseUnpacker {
+   class MPUnpacker : public Unpacker {
       public:
          virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
-   };
-
-   class MPUnpackerFactory : public BaseUnpackerFactory {
-      public:
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
    };
 }
 
@@ -25,8 +20,8 @@ namespace l1t {
 
      LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
 
-     auto res1_ = static_cast<L1TCollections*>(coll)->getMPJets();
-     auto res2_ = static_cast<L1TCollections*>(coll)->getMPEtSums();
+     auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
+     auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
      res1_->setBXRange(0,1);
      res2_->setBXRange(0,1);
 
@@ -94,36 +89,6 @@ namespace l1t {
 
      return true;
    }
-
-   std::vector<UnpackerItem>
-   MPUnpackerFactory::create(const unsigned& fw, const int fedid) {
-
-     // This unpacker is only appropriate for the Main Processor output (FED ID=2). Anything else should not be unpacked.
-     
-     if (fedid==2){
-
-       std::vector<UnpackerItem> linkMap;
-    
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker());
-
-       // Six links are used to output the data
-       
-       linkMap.push_back(std::make_pair(1, unpacker));
-       linkMap.push_back(std::make_pair(3, unpacker));
-       linkMap.push_back(std::make_pair(5, unpacker));
-       linkMap.push_back(std::make_pair(7, unpacker));
-       linkMap.push_back(std::make_pair(9, unpacker));
-       linkMap.push_back(std::make_pair(11, unpacker));
-
-       return linkMap;
-
-     } else {
-
-       return {};
-
-     }
-
-   };
 }
 
-DEFINE_L1TUNPACKER(l1t::MPUnpackerFactory);
+DEFINE_L1T_UNPACKER(l1t::MPUnpacker);
