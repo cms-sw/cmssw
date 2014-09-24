@@ -87,56 +87,44 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     Handle<TCollection> objects;
     iEvent.getByToken (m_theJetToken,objects);
 
-    // look at all candidates,  check cuts and add to filter object
     int n(0);
 
     if(objects->size() > 1){ // events with two or more jets
-        std::map<int, TRef > tags; // since eta ranges can overlap
-        std::map<int, TRef > probes; 
-        typename TCollection::const_iterator i ( objects->begin() );
+        typename TCollection::const_iterator iTag ( objects->begin() );
         typename TCollection::const_iterator iEnd ( objects->end() );
-        int cnt = 0;
-        for (; i!=iEnd; ++i) {
-            ++cnt;
+        for (; iTag!=iEnd; ++iTag) {
+            if (iTag->pt() < minPtJet_) continue;
 
-            if (i->pt() < minPtJet_) continue;
-            float eta = std::abs(i->eta());
-            bool isGood = false;
+            // for easier trigger efficiency evaluation save all tag/probe 
+            // objects passing the minPT/eta criteria (outer loop)
+            float eta = std::abs(iTag->eta());
+            bool isGood = false; // tag or probe
+            bool isTag = false;
             if ( eta > tagEtaMin_ && eta < tagEtaMax_ ){
-                tags[cnt] = TRef(objects,distance(objects->begin(),i));
                 isGood = true;
+                isTag =  true;
             }
             if ( eta > probeEtaMin_ && eta < probeEtaMax_ ){
-                probes[cnt] = TRef(objects,distance(objects->begin(),i));
                 isGood = true;
             }
-            if (isGood){ // for easier efficiency evaluation
-                filterproduct.addObject(triggerType_,  TRef(objects,distance(objects->begin(),i)));
+            if (isGood){
+                filterproduct.addObject(triggerType_,  TRef(objects,distance(objects->begin(),iTag)));
             }
-        }
-        if (probes.size() == 0) return false;
 
-        typename std::map<int, TRef >::const_iterator iTag   = tags.begin();
-        typename std::map<int, TRef >::const_iterator iTagE   = tags.end();
-        typename std::map<int, TRef >::const_iterator iProbe = probes.begin();
-        typename std::map<int, TRef >::const_iterator iProbeE = probes.end();
-        for(;iTag != iTagE; ++iTag){
-            iProbe = probes.begin();
-            for(;iProbe != iProbeE; ++iProbe){
-                if (iTag->first == iProbe->first) {
-                    continue; // not the same jet
-                }
-                double dphi = std::abs(deltaPhi(iTag->second->phi(),iProbe->second->phi() ));
+            if (!isTag) continue;
+
+            typename TCollection::const_iterator iProbe ( iTag );
+            ++iProbe;
+            for (;iProbe != iEnd; ++iProbe){
+                double dphi = std::abs(deltaPhi(iTag->phi(),iProbe->phi() ));
                 if (dphi<minDphi_) {    
                     continue;
                 }
-                double ptAve = (iTag->second->pt() + iProbe->second->pt())/2;
+
+                double ptAve = (iTag->pt() + iProbe->pt())/2;
                 if (ptAve<minPtAve_ ) {
                     continue;
                 }
-                // moved into first loop
-                //filterproduct.addObject(triggerType_, iTag->second);
-                //filterproduct.addObject(triggerType_, iProbe->second);
                 ++n;
             }
         }
