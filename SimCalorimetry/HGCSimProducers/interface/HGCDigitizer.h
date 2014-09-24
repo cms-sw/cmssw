@@ -80,6 +80,10 @@ private :
   //subdetector id
   ForwardSubdetector mySubDet_;
 
+  //misc switches
+  bool useAllChannels_;
+  int  verbosity_;
+
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
   float refSpeed_;
 
