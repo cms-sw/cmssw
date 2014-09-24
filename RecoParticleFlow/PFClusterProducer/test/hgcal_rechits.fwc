@@ -894,10 +894,10 @@
  <config name="GUI" version="1">
   <config name="main window" version="3">
    <config name="x" version="0">
-     <string>54</string>
+     <string>106</string>
    </config>
    <config name="y" version="0">
-     <string>44</string>
+     <string>23</string>
    </config>
    <config name="width" version="0">
      <string>1263</string>
@@ -1011,22 +1011,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.401173</string>
+      <string>0.769709</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.563483</string>
+      <string>0.13655</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.722185</string>
+      <string>0.623623</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.814632</string>
+      <string>-0.174677</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.579978</string>
+      <string>0.984626</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -1035,25 +1035,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.41885</string>
+      <string>-0.614034</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.588315</string>
+      <string>-0.108934</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.691701</string>
+      <string>0.781726</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>-1458.17</string>
+      <string>2877.96</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2016.83</string>
+      <string>498.315</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>2612.92</string>
+      <string>2219.76</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1095,19 +1095,19 @@
       <string>0</string>
     </config>
     <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>-52.4547</string>
+      <string>0.281389</string>
     </config>
     <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>-37.8377</string>
+      <string>0.577909</string>
     </config>
     <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>317.74</string>
+      <string>6.85455</string>
     </config>
     <config name="cameraMatrixBase15Plain3D" version="0">
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>3.09973</string>
+      <string>5.46292</string>
     </config>
    </config>
    <config name="Rho Phi" version="7">
