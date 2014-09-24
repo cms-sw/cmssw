@@ -75,10 +75,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
 	std::string fname(sfile);
-	if ( fname.find("stdio.h") != std::string::npos
-		|| fname.find("iostream") != std::string::npos
-		|| fname.find("placeholders.hpp") != std::string::npos) return;
-
+	if (!support::isInterestingLocation(fname)) return;
 	clang::QualType t =  D->getType();  
 	if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
 	const Decl * PD = AC->getDecl();
@@ -150,7 +147,7 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
-	if ( fname.find("/test/") != std::string::npos) return;
+	if ( !support::isInterestingLocation(fname) ) return;
       	if (!MD->doesThisDeclarationHaveABody()) return;
 	FWalker walker(this, BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
@@ -169,7 +166,6 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                 clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
 //		BR.EmitBasicReport(FD, "COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
-		const char * pPath = std::getenv("LOCALRT");
 		std::string tname = "function-checker.txt.unsorted";
 		support::writeLog(ostring,tname);
         }
@@ -177,7 +173,7 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
  	const char *sfile=BR.getSourceManager().getPresumedLoc(FD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
-	if ( fname.find("/test/") != std::string::npos) return;
+	if ( !support::isInterestingLocation(fname) ) return;
 	if (FD->doesThisDeclarationHaveABody()) {
 		FWalker walker(this, BR, mgr.getAnalysisDeclContext(FD));
 		walker.Visit(FD->getBody());
@@ -191,7 +187,7 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
-	if ( fname.find("/test/") != std::string::npos) return;
+	if ( !support::isInterestingLocation(fname) ) return;
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{

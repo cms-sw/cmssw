@@ -135,10 +135,25 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
        	return;
 } 
 
+void FunctionDumper::checkASTDecl(const FunctionDecl *MD, AnalysisManager& mgr,
+                    BugReporter &BR) const {
+	if (MD->getLocation().isInvalid()) return;
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
+	std::string sname(sfile);
+	if ( ! support::isInterestingLocation(sname) ) return;
+	if ( ! support::isCmsLocalFile(sfile) ) return;
+	if (!MD->doesThisDeclarationHaveABody()) return;
+	FDumper walker(BR, mgr.getAnalysisDeclContext(MD));
+	walker.Visit(MD->getBody());
+       	return;
+} 
+
+
+
 void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 	if (TD->getLocation().isInvalid()) return;
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
+	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
 	std::string sname(sfile);
 	if ( ! support::isInterestingLocation(sname) ) return;
 	if ( ! support::isCmsLocalFile(sfile) ) return;
