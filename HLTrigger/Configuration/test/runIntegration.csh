@@ -9,13 +9,15 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
-  set tables = ( GRun PIon 2014 HIon FULL )
+  set tables = ( FULL Fake 2014 GRun HIon PIon )
 else if ( $2 == DEV ) then
-  set tables = ( GRun PIon HIon )
-else if ( $2 == FROZEN ) then
-  set tables = ( 2014 )
+  set tables = ( GRun HIon PIon )
 else if ( $2 == FULL ) then
   set tables = ( FULL )
+else if ( $2 == FAKE ) then
+  set tables = ( Fake )
+else if ( $2 == FROZEN ) then
+  set tables = ( 2014 )
 else
   set tables = ( $2 )
 endif

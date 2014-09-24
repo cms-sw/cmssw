@@ -22,18 +22,16 @@ set InputLHCRawHIon = /store/hidata/HIRun2011/HIHighPt/RAW/v1/000/182/838/F20AAF
 set InputLHCRawPIon = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 
 #
-# global tags to be used for PP and HIon running
-set GTAGPPUP = auto:startup
-set GTAGPPMC = auto:mc
-set GTAGPPRD = auto:hltonline
-set GTAGHIUP = auto:starthi
-set GTAGHIMC = auto:mc      # MC39_V4HI::All
-set GTAGHIRD = auto:hltonline
+# global tags to be used
+set BASE1MC  = auto:run1_mc
+set BASE1HLT = auto:run1_hlt
+set BASE1RD  = auto:run1_data
+set BASE2MC  = auto:run2_mc
+set BASE2HLT = auto:run2_hlt
+set BASE2RD  = auto:run2_data
 
-set NNPPUP = 100
 set NNPPMC = 100
 set NNPPRD = 100
-set NNHIUP = 25
 set NNHIMC = 25
 set NNHIRD = 25
 
@@ -60,28 +58,17 @@ set XL1TPI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTri
 #set XL1THI  = ${XJEC}
 #set XL1TPI  = ${XJEC}
 
-foreach gtag ( STARTUP DATA )
-#foreach gtag ( DATA STARTUP MC )
+foreach gtag ( MC DATA )
   if ( $gtag == DATA ) then
-    set GTAG   = $GTAGPPRD
-    set GTAGPP = $GTAGPPRD
-    set GTAGHI = $GTAGHIRD
+    set BASE1  = $BASE1HLT
+    set BASE2  = $BASE2HLT
     set NNPP   = $NNPPRD
     set NNHI   = $NNHIRD
     set DATAMC = --data
     set PNAME  = HLT1
-  else  if ( $gtag == STARTUP ) then
-    set GTAG   = $GTAGPPUP
-    set GTAGPP = $GTAGPPUP
-    set GTAGHI = $GTAGHIUP
-    set NNPP   = $NNPPUP
-    set NNHI   = $NNHIUP
-    set DATAMC = --mc
-    set PNAME  = HLT
-  else if ( $gtag == MC ) then
-    set GTAG   = $GTAGPPMC
-    set GTAGPP = $GTAGPPMC
-    set GTAGHI = $GTAGHIMC
+  else  if ( $gtag == MC ) then
+    set BASE1  = $BASE1MC
+    set BASE2  = $BASE2MC
     set NNPP   = $NNPPMC
     set NNHI   = $NNHIMC
     set DATAMC = --mc
@@ -91,22 +78,22 @@ foreach gtag ( STARTUP DATA )
     continue
   endif
 
-  foreach table ( GRun PIon 2014 HIon FULL )
+  foreach table ( FULL Fake 2014 GRun HIon PIon )
 
     set name = ${table}_${gtag}  
 
-    if ( $table == GRun ) then
+    if ( $table == FULL ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:GRun
-      set GTAG = ${GTAGPP}_GRun
+      set XHLT = HLT:FULL
+      set GTAG = ${BASE1}_FULL
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
       set InputLHCRaw = $InputLHCRawGRun
-    else if ( $table == FULL ) then
+    else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:FULL
-      set GTAG = ${GTAGPP}_GRun
+      set XHLT = HLT:Fake
+      set GTAG = ${BASE1}_Fake
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
@@ -114,7 +101,15 @@ foreach gtag ( STARTUP DATA )
     else if ( $table == 2014 ) then
       set XL1T = $XL1TPP2
       set XHLT = HLT:2014
-      set GTAG = ${GTAGPP}_2014
+      set GTAG = ${BASE1}_2014
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun
+      set InputLHCRaw = $InputLHCRawGRun
+    else if ( $table == GRun ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:GRun
+      set GTAG = ${BASE1}_GRun
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
@@ -122,7 +117,7 @@ foreach gtag ( STARTUP DATA )
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
-      set GTAG = ${GTAGHI}_HIon
+      set GTAG = ${BASE1}_HIon
       set NN   = $NNHI
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon
@@ -130,7 +125,7 @@ foreach gtag ( STARTUP DATA )
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
-      set GTAG = ${GTAGPP}_PIon
+      set GTAG = ${BASE1}_PIon
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon
@@ -182,10 +177,7 @@ foreach gtag ( STARTUP DATA )
 
     if ( $gtag == DATA ) then
 
-    set RTAG = auto:com10_$table
-    if ( $table == FULL ) then
-      set RTAG = auto:com10_GRun
-    endif
+    set RTAG = ${BASE1RD}_$table
 
     echo
     echo "Creating HLT+RECO $name"

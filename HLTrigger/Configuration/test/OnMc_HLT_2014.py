@@ -54932,7 +54932,7 @@ process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibration
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_2014_STARTUP.root',
+        'file:RelVal_Raw_2014_MC.root',
     ),
     secondaryFileNames = cms.untracked.vstring(
     ),
@@ -54996,7 +54996,7 @@ process.options = cms.untracked.PSet(
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:startup_2014')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run1_mc_2014')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     for pset in process.GlobalTag.toGet.value():
