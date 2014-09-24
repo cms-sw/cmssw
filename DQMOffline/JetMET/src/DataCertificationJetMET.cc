@@ -128,12 +128,9 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   if (RunDir == "") newHistoName = "JetMET/Jet/";
   else              newHistoName = RunDir+"/JetMET/Runsummary/Jet/";
   std::string cleaningdir = "";
-  if (isData){ //directory should be present in MC as well -> take out a later stage maybe
     cleaningdir = "Cleaned";
-  }else{
-    cleaningdir = "Uncleaned";
-  }
-  //Jet Phi histos
+ 
+ //Jet Phi histos
   meJetPhi[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Barrel");
   meJetPhi[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_EndCap");
   meJetPhi[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Forward");
