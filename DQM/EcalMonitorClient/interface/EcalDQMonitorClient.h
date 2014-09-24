@@ -18,7 +18,7 @@ class EcalDQMonitorClient : public DQMEDHarvester, public ecaldqm::EcalDQMonitor
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter&, edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&);
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   
   void runWorkers(DQMStore::IGetter&, ecaldqm::DQWorkerClient::ProcessType);
 
