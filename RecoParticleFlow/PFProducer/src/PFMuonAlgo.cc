@@ -896,7 +896,7 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
       muons.push_back(i);
     else if ( cands->at(i).particleId() == reco::PFCandidate::h ) {
     //clean this crazy shit with iter10
-    if (cands->at(i).pt()>100.0 &&  (!cands->at(i).trackRef()->quality(trackQuality_)) && cands->at(i).muonRef()->isGlobalMuon()) {
+      if (cands->at(i).pt()>100.0 &&  (!cands->at(i).trackRef()->quality(trackQuality_)) && cands->at(i).muonRef()->isGlobalMuon() && cands.at(i).rawHcalEnergy()/cands.at(i).p()<0.05) {
       maskedIndices_.push_back(i);
       pfPunchThroughMuonCleanedCandidates_->push_back(cands->at(i));
 
