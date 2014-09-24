@@ -48,17 +48,22 @@ using namespace std;
 
 InputGenJetsParticleSelector::InputGenJetsParticleSelector(const edm::ParameterSet &params ):
   inTag(params.getParameter<edm::InputTag>("src")),
-  prunedInTag(params.exists("prunedGenParticles") ? params.getParameter<edm::InputTag>("prunedGenParticles") : edm::InputTag()),
+  prunedInTag(params.exists("prunedGenParticles") ? params.getParameter<edm::InputTag>("prunedGenParticles") : edm::InputTag("prunedGenParticles")),
   partonicFinalState(params.getParameter<bool>("partonicFinalState")),
   excludeResonances(params.getParameter<bool>("excludeResonances")),
   tausAsJets(params.getParameter<bool>("tausAsJets")),
-  isMiniAOD(params.exists("prunedGenParticles")),
   ptMin(0.0){
   if (params.exists("ignoreParticleIDs"))
     setIgnoredParticles(params.getParameter<std::vector<unsigned int> >
 			("ignoreParticleIDs"));
   setExcludeFromResonancePids(params.getParameter<std::vector<unsigned int> >
 			("excludeFromResonancePids"));
+  isMiniAOD = ( params.exists("isMiniAOD") ? params.getParameter<bool>("isMiniAOD") : (inTag.label()=="packedGenParticles") );
+
+  if (isMiniAOD && partonicFinalState){
+    edm::LogError("PartonicFinalStateFromMiniAOD") << "Partonic final state not supported for MiniAOD. Falling back to the stable particle selection.";
+    partonicFinalState = false;
+  }
 
   produces <reco::CandidatePtrVector> ();
 
@@ -239,7 +244,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
   ParticleVector particles;
   
   edm::Handle<edm::View<reco::Candidate> > prunedGenParticles;
-  if(isMiniAOD && !partonicFinalState)
+  if(isMiniAOD)
   {
     evt.getByToken(input_prunedgenpartcoll_token_, prunedGenParticles );
 
