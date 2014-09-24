@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
+    histDirectory  = cms.string("HLT/Higgs"),
     analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau"),
     
     # -- The instance name of the reco::GenParticles collection
