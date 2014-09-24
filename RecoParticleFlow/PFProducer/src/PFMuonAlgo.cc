@@ -894,6 +894,15 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   for(unsigned int i=0;i<cands->size();++i) 
     if ( cands->at(i).particleId() == reco::PFCandidate::mu )
       muons.push_back(i);
+    else if ( cands->at(i).particleId() == reco::PFCandidate::h ) {
+    //clean this crazy shit with iter10
+    if (cands->at(i).pt()>100.0 &&  (!cands->at(i).trackRef()->quality(trackQuality_)) && cands->at(i).muonRef()->isGlobalMuon()) {
+      maskedIndices_.push_back(i);
+      pfPunchThroughMuonCleanedCandidates_->push_back(cands->at(i));
+
+    }
+  }
+      
 
   //Then sort the muon indicess by decsending pt
 
