@@ -4,6 +4,9 @@
 namespace CondFormats_HcalObjects {
   struct dictionary {
 
+    HcalZDCLowGainFraction myfracs();
+    std:vector<HcalZDCLowGainFraction> myfracsVec;
+    
     HcalPedestals mypeds();
     std::vector<HcalPedestal> mypedsVec;
  
