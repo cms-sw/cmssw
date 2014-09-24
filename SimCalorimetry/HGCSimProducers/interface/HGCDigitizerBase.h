@@ -28,6 +28,7 @@ class HGCDigitizerBase {
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
       myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
+      doTimeSamples_ = ps.getParameter< bool >("doTimeSamples");
       mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
       lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
       mip2noise_     = myCfg_.getParameter<double>("mip2noise");
@@ -88,29 +89,38 @@ class HGCDigitizerBase {
 	    rawDataFrame.setSample(i, singleSample);
 	  }
 	
-	/* bool doDebug(rawDataFrame[3].adc()>2); */
-	/* 	if(doDebug)  */
-	/* 	  { */
-	/* 	    for(size_t iti=0;iti<6; iti++) */
-	/* 	      std::cout << rawDataFrame[iti].adc() << "(" << (it->second)[iti]*1e6 << ") ,"; */
-	/* 	    std::cout << "->"; */
-	/* 	  } */
-	
 	//run the shaper
 	runShaper(rawDataFrame);
+      }
+  }
 
-	/* if(doDebug)  */
-	/* 	  { */
-	/* 	    for(size_t iti=0;iti<6; iti++) */
-	/* 	      std::cout << rawDataFrame[iti].adc() << ","; */
-	/* 	    std::cout << std::endl; */
-	/* 	  } */
-	
-	//check if 5th time sample is above threshold
-	if( rawDataFrame[4].adc() < adcThreshold_ ) continue;
-	
-	//add to collection to produce
+  /**
+     @short prepares the output according to the number of time samples to produce
+   */
+  void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
+  {
+    size_t itIdx(4); //index to the in-time digi
+
+    std::cout << "[updateOutput] doTimeSamples=" << doTimeSamples_ << std::endl;
+
+    //check if in-time sample is above threshold and put result into the event
+    if(doTimeSamples_)
+      {
+	if(rawDataFrame[itIdx].adc() < adcThreshold_ ) return;
 	coll->push_back(rawDataFrame);
+      }
+    else
+      {
+	//create a new data frame containing only the in-time digi
+	D singleRawDataFrame( rawDataFrame.id() );
+	singleRawDataFrame.resize(1);
+
+	HGCSample singleSample;
+	singleSample.set(rawDataFrame[itIdx].gain(),rawDataFrame[itIdx].adc());
+	singleRawDataFrame.setSample(0, singleSample);
+	std::cout << "Producing single time sample from itIdx=" << itIdx << " " << rawDataFrame[itIdx].adc() << " " << singleRawDataFrame[0].adc() << std::endl;
+	if(singleRawDataFrame[0].adc() < adcThreshold_ ) return;
+	coll->push_back(singleRawDataFrame);
       }
   }
 
@@ -133,7 +143,7 @@ class HGCDigitizerBase {
 	      newADC += uint16_t(oldADC[jt]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
 	    }
 	}
-	
+
 	HGCSample newSample;
 	newSample.set(gain,newADC);
 	dataFrame.setSample(it,newSample);
@@ -174,6 +184,9 @@ class HGCDigitizerBase {
 
   //bunch time
   int bxTime_;
+  
+  //if true will put both in time and out-of-time samples in the event
+  bool doTimeSamples_;
 
  private:
 
