@@ -72,7 +72,7 @@ namespace edm {
     StreamSchedule::WorkerPtr
     makeInserter(ExceptionToActionTable const& actions,
                  std::shared_ptr<ActivityRegistry> areg,
-                 TriggerResultInserter* inserter) {
+                 std::shared_ptr<TriggerResultInserter> inserter) {
       StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
       return ptr;
@@ -130,7 +130,7 @@ namespace edm {
 
   // -----------------------------
 
-  StreamSchedule::StreamSchedule(TriggerResultInserter* inserter,
+  StreamSchedule::StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
                                  std::shared_ptr<ModuleRegistry> modReg,
                                  ParameterSet& proc_pset,
                                  service::TriggerNamesService& tns,

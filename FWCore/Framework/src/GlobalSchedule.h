@@ -73,7 +73,7 @@ namespace edm {
     typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> Workers;
 
-    GlobalSchedule(TriggerResultInserter* inserter,
+    GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
                    std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
