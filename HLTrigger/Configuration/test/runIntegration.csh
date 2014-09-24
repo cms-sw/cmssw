@@ -24,21 +24,17 @@ endif
 
 foreach gtag ( $1 )
 
-  foreach table ( $tables )
+  if ( $gtag == DATA ) then
+    set basepy = OnData
+    set flags  = ""
+    set infix  = hlt
+  else
+    set basepy = OnMc
+    set flags  = --mc
+    set infix  = mc
+  endif
 
-    if ( $gtag == DATA ) then
-      set basepy = OnData
-      set basegt = auto:hltonline
-      set flags  = ""
-    else
-      set basepy = OnLine
-      if ( $table == HIon ) then
-        set basegt = auto:starthi
-      else
-        set basegt = auto:startup
-      endif
-      set flags  = --mc
-    endif
+  foreach table ( $tables )
 
     echo
     set name = HLT_Integration_${table}_${gtag}
@@ -46,10 +42,13 @@ foreach gtag ( $1 )
     rm -rf ${name}*
 
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
-    set autogt = "--globaltag=${basegt}_${table}"
-    if ( $table == FULL ) then
-      set autogt = "--globaltag=${basegt}_GRun"
+    if ( ($table == 2014) || ($table == Fake) ) then
+      set basegt = auto:run1_${infix}_${table}
+    else
+#     set basegt = auto:run2_${infix}_${table}
+      set basegt = auto:run1_${infix}_${table}
     endif
+    set autogt = "--globaltag=${basegt}"
     set infile = file:../RelVal_Raw_${table}_${gtag}.root
 
 #   -x "--l1-emulator" -x "--l1 L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc" 
