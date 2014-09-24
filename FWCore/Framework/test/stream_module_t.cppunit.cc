@@ -100,7 +100,7 @@ private:
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   
   template<typename T, typename U>
-  void testTransitions(U* iMod, Expectations const& iExpect);
+  void testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect);
   
   template<typename T>
   void runTest(Expectations const& iExpect);
@@ -454,12 +454,11 @@ m_ep()
 
 namespace {
   template<typename T>
-  std::unique_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
+  std::shared_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
     edm::ParameterSet pset;
-    std::unique_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
-    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue.get(),nullptr);
+    std::shared_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
+    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue,nullptr);
     h.preallocate(edm::PreallocationConfiguration{});
-    h.release();
     return retValue;
   }
   template<typename T>
@@ -479,7 +478,7 @@ namespace {
 
 template<typename T, typename U>
 void
-testStreamModule::testTransitions(U* iMod, Expectations const& iExpect) {
+testStreamModule::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::stream::EDProducerAdaptorBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition<T>(&w,keyVal.first,iExpect,keyVal.second);
@@ -490,7 +489,7 @@ void
 testStreamModule::runTest(Expectations const& iExpect) {
   auto mod = createModule<T>();
   CPPUNIT_ASSERT(0 == T::m_count);
-  testTransitions<T>(mod.get(),iExpect);
+  testTransitions<T>(mod,iExpect);
 }
 
 

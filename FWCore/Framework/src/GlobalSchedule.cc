@@ -16,7 +16,7 @@
 #include <map>
 
 namespace edm {
-  GlobalSchedule::GlobalSchedule(TriggerResultInserter* inserter,
+  GlobalSchedule::GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
                                  std::shared_ptr<ModuleRegistry> modReg,
                                  std::vector<std::string> const& iModulesToUse,
                                  ParameterSet& proc_pset,
