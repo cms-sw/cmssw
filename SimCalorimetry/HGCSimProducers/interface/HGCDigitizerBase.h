@@ -28,14 +28,14 @@ class HGCDigitizerBase {
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
       myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
-      doTimeSamples_ = ps.getParameter< bool >("doTimeSamples");
+      bxTime_        = ps.getParameter<int32_t>("bxTime");
+      doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
       mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
       lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
       mip2noise_     = myCfg_.getParameter<double>("mip2noise");
       adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
       shaperN_       = myCfg_.getParameter< double >("shaperN");
       shaperTau_     = myCfg_.getParameter< double >("shaperTau");
-      bxTime_        = ps.getParameter<int32_t>("bxTime");
     }
 
   /**
@@ -99,9 +99,7 @@ class HGCDigitizerBase {
    */
   void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
   {
-    size_t itIdx(4); //index to the in-time digi
-
-    std::cout << "[updateOutput] doTimeSamples=" << doTimeSamples_ << std::endl;
+    size_t itIdx(4); //index to the in-time digi - this could be configurable in a future version
 
     //check if in-time sample is above threshold and put result into the event
     if(doTimeSamples_)
@@ -118,7 +116,6 @@ class HGCDigitizerBase {
 	HGCSample singleSample;
 	singleSample.set(rawDataFrame[itIdx].gain(),rawDataFrame[itIdx].adc());
 	singleRawDataFrame.setSample(0, singleSample);
-	std::cout << "Producing single time sample from itIdx=" << itIdx << " " << rawDataFrame[itIdx].adc() << " " << singleRawDataFrame[0].adc() << std::endl;
 	if(singleRawDataFrame[0].adc() < adcThreshold_ ) return;
 	coll->push_back(singleRawDataFrame);
       }
