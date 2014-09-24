@@ -36,7 +36,7 @@ namespace edm {
   namespace maker {
     class ModuleHolder {
     public:
-      ModuleHolder(void* iModule, Maker const* iMaker): m_mod(iModule),
+      ModuleHolder(Maker const* iMaker):
       m_maker(iMaker){}
       virtual ~ModuleHolder() {}
       std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const;
@@ -49,44 +49,40 @@ namespace edm {
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
     protected:
-      void * m_mod;
       Maker const* m_maker;
     };
     
     template<typename T>
     class ModuleHolderT : public ModuleHolder {
     public:
-      ModuleHolderT(T* iModule, Maker const* iMaker) :ModuleHolder(iModule,iMaker) {}
-      ~ModuleHolderT() { delete reinterpret_cast<T*>(m_mod); }
-      T* module() const { return reinterpret_cast<T*>(m_mod); }
+      ModuleHolderT(std::shared_ptr<T> iModule, Maker const* iMaker) :ModuleHolder(iMaker), m_mod(iModule) {}
+      ~ModuleHolderT() {}
+      std::shared_ptr<T> module() const { return m_mod; }
       void replaceModuleFor(Worker* iWorker) const override {
         auto w = dynamic_cast<WorkerT<T>*>(iWorker);
         assert(0!=w);
-        w->setModule(module());
+        w->setModule(m_mod);
       }
       ModuleDescription const& moduleDescription() const override {
-        return module()->moduleDescription();
+        return m_mod->moduleDescription();
       }
       void setModuleDescription(ModuleDescription const& iDesc) override {
-        module()->setModuleDescription(iDesc);
+        m_mod->setModuleDescription(iDesc);
       }
       void preallocate(PreallocationConfiguration const& iPrealloc) override {
-        module()->doPreallocate(iPrealloc);
+        m_mod->doPreallocate(iPrealloc);
       }
 
       void registerProductsAndCallbacks(ProductRegistry* iReg) override {
-        module()->registerProductsAndCallbacks(module(),iReg);
-      }
-      T* release() {
-        T* m = module();
-        m_mod = nullptr;
-        return m;
+        m_mod->registerProductsAndCallbacks(module().get(),iReg);
       }
       
       std::unique_ptr<OutputModuleCommunicator>
       createOutputModuleCommunicator() {
-        return std::move(OutputModuleCommunicatorT<T>::createIfNeeded(this->module()));
+        return std::move(OutputModuleCommunicatorT<T>::createIfNeeded(m_mod.get()));
       }
+    private:
+      std::shared_ptr<T> m_mod;
 
     };
   }

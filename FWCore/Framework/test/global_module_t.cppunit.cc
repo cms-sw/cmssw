@@ -101,7 +101,7 @@ private:
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   
   template<typename T>
-  void testTransitions(T* iMod, Expectations const& iExpect);
+  void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
   
   class BasicProd : public edm::global::EDProducer<> {
   public:
@@ -427,7 +427,7 @@ m_ep()
 namespace {
   template<typename T>
   void
-  testTransition(T* iMod, edm::Worker* iWorker, testGlobalModule::Trans iTrans, testGlobalModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
+  testTransition(std::shared_ptr<T> iMod, edm::Worker* iWorker, testGlobalModule::Trans iTrans, testGlobalModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
     assert(0==iMod->m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(),iExpect.end(),iTrans);
@@ -442,7 +442,7 @@ namespace {
 
 template<typename T>
 void
-testGlobalModule::testTransitions(T* iMod, Expectations const& iExpect) {
+testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::global::EDProducerBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
@@ -452,101 +452,100 @@ testGlobalModule::testTransitions(T* iMod, Expectations const& iExpect) {
 
 void testGlobalModule::basicTest()
 {
-  std::unique_ptr<BasicProd> testProd{ new BasicProd };
+  std::shared_ptr<BasicProd> testProd{ new BasicProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kEvent});
+  testTransitions(testProd, {Trans::kEvent});
 }
 
 void testGlobalModule::streamTest()
 {
-  std::unique_ptr<StreamProd> testProd{ new StreamProd };
-  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd.get(),nullptr);
+  std::shared_ptr<StreamProd> testProd{ new StreamProd };
+  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd,nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
-  h.release();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,
+  testTransitions(testProd, {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,
     Trans::kStreamEndLuminosityBlock,Trans::kStreamEndRun,Trans::kEndStream});
 }
 
 void testGlobalModule::runTest()
 {
-  std::unique_ptr<RunProd> testProd{ new RunProd };
+  std::shared_ptr<RunProd> testProd{ new RunProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
 }
 
 void testGlobalModule::runSummaryTest()
 {
-  std::unique_ptr<RunSummaryProd> testProd{ new RunSummaryProd };
+  std::shared_ptr<RunSummaryProd> testProd{ new RunSummaryProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
 void testGlobalModule::lumiTest()
 {
-  std::unique_ptr<LumiProd> testProd{ new LumiProd };
+  std::shared_ptr<LumiProd> testProd{ new LumiProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }
 
 void testGlobalModule::lumiSummaryTest()
 {
-  std::unique_ptr<LumiSummaryProd> testProd{ new LumiSummaryProd };
+  std::shared_ptr<LumiSummaryProd> testProd{ new LumiSummaryProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock});
 }
 
 void testGlobalModule::beginRunProdTest()
 {
-  std::unique_ptr<BeginRunProd> testProd{ new BeginRunProd };
+  std::shared_ptr<BeginRunProd> testProd{ new BeginRunProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent});
 }
 
 void testGlobalModule::beginLumiProdTest()
 {
-  std::unique_ptr<BeginLumiProd> testProd{ new BeginLumiProd };
+  std::shared_ptr<BeginLumiProd> testProd{ new BeginLumiProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
 }
 
 void testGlobalModule::endRunProdTest()
 {
-  std::unique_ptr<EndRunProd> testProd{ new EndRunProd };
+  std::shared_ptr<EndRunProd> testProd{ new EndRunProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndRun, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent});
 }
 
 void testGlobalModule::endLumiProdTest()
 {
-  std::unique_ptr<EndLumiProd> testProd{ new EndLumiProd };
+  std::shared_ptr<EndLumiProd> testProd{ new EndLumiProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
 }
 
 void testGlobalModule::endRunSummaryProdTest()
 {
-  std::unique_ptr<EndRunSummaryProd> testProd{ new EndRunSummaryProd };
+  std::shared_ptr<EndRunSummaryProd> testProd{ new EndRunSummaryProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
 void testGlobalModule::endLumiSummaryProdTest()
 {
-  std::unique_ptr<EndLumiSummaryProd> testProd{ new EndLumiSummaryProd };
+  std::shared_ptr<EndLumiSummaryProd> testProd{ new EndLumiSummaryProd };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndLuminosityBlock, Trans::kEvent, Trans::kGlobalBeginLuminosityBlock, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock}); 
+  testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent, Trans::kGlobalBeginLuminosityBlock, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock}); 
 }
 
