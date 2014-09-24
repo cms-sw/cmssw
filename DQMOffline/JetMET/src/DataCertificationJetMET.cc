@@ -407,11 +407,8 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   if (RunDir == "") newHistoName = "JetMET/MET/";
   else              newHistoName = RunDir+"/JetMET/Runsummary/MET/";
 
-  if (isData){ //directory should be present in MC as well
     metFolder = "Cleaned";
-  }else{
-    metFolder   = "Uncleaned";
-  }
+  
   //MEx/MEy monitor elements
   meMExy[0][0] = iget_.get(newHistoName+"met/"+metFolder+"/MEx");
   meMExy[0][1] = iget_.get(newHistoName+"met/"+metFolder+"/MEy");
