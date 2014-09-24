@@ -65,7 +65,7 @@ class HGCDigitizerBase {
 	it!=simData.end();
 	it++)
       {
-	
+
 	//create a new data frame
 	D rawDataFrame( it->first );
 
@@ -91,6 +91,9 @@ class HGCDigitizerBase {
 	
 	//run the shaper
 	runShaper(rawDataFrame);
+
+	//update the output according to the final shape
+	updateOutput(coll,rawDataFrame);
       }
   }
 
