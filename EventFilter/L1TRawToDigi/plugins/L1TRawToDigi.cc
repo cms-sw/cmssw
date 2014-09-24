@@ -187,7 +187,7 @@ namespace l1t {
 
       UnpackerMap unpackers;
       for (auto& f: factories_) {
-        for (const auto& up: f->create(fw, fedId_, coll.get())) {
+        for (const auto& up: f->create(fw, fedId_)) {
             unpackers.insert(up);
          }
       }
@@ -207,7 +207,7 @@ namespace l1t {
                << block_id << ", FED ID " << fedId_ << ", and FW ID "
                << fw << "!";
             // TODO Handle error
-         } else if (!unpacker->second->unpack(data + idx, block_id, block_size)) {
+         } else if (!unpacker->second->unpack(block_id, block_size, data + idx, coll.get())) {
             LogWarning("L1T") << "Error unpacking data for block ID "
                << block_id << ", FED ID " << fedId_ << ", and FW ID "
                << fw << "!";

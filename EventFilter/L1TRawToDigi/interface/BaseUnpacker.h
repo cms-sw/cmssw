@@ -6,11 +6,11 @@
 namespace l1t {
    class BaseUnpacker {
       public:
-         BaseUnpacker(UnpackerCollections* coll) : collections_(coll) {};
-         // Returns successful read
-         virtual bool unpack(const unsigned char *data, const unsigned blockid, const unsigned size) = 0;
-      protected:
-         UnpackerCollections* collections_;
+         virtual bool unpack(
+               const unsigned block_id,
+               const unsigned size,
+               const unsigned char *data,
+               UnpackerCollections *coll) = 0;
    };
 }
 

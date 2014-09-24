@@ -7,13 +7,12 @@
 namespace l1t {
    class EGammaUnpacker : public BaseUnpacker {
       public:
-         using BaseUnpacker::BaseUnpacker;
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
+         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
    };
 
    class EGammaUnpackerFactory : public BaseUnpackerFactory {
       public:
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid, UnpackerCollections*) override;
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
    };
 }
 
@@ -21,7 +20,7 @@ namespace l1t {
 
 namespace l1t {
    bool
-   EGammaUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   EGammaUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
    {
 
      LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
@@ -37,7 +36,7 @@ namespace l1t {
        lastBX = ceil((double)nBX/2.);
      }
 
-     auto res_ = static_cast<L1TCollections*>(collections_)->getEGammas();
+     auto res_ = static_cast<L1TCollections*>(coll)->getEGammas();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -82,14 +81,14 @@ namespace l1t {
    }
 
   std::vector<UnpackerItem>
-  EGammaUnpackerFactory::create(const unsigned& fw, const int fedid, UnpackerCollections* coll)
+  EGammaUnpackerFactory::create(const unsigned& fw, const int fedid)
    {
      
      // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.
      
      if (fedid==1){
        
-       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker(coll)))};
+       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker()))};
        
      } else {
        

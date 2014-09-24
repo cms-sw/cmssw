@@ -7,13 +7,12 @@
 namespace l1t {
    class CaloTowerUnpacker : public BaseUnpacker {
       public:
-         using BaseUnpacker::BaseUnpacker;
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
+         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
    };
 
    class CaloTowerUnpackerFactory : public BaseUnpackerFactory {
       public:
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid, UnpackerCollections*) override;
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
    };
 }
 
@@ -21,7 +20,7 @@ namespace l1t {
 
 namespace l1t {
    bool
-   CaloTowerUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   CaloTowerUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
    {
 
      LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
@@ -37,7 +36,7 @@ namespace l1t {
        lastBX = std::ceil((double)nBX/2.);
      }
 
-     auto res_ = static_cast<L1TCollections*>(collections_)->getTowers();
+     auto res_ = static_cast<L1TCollections*>(coll)->getTowers();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -117,7 +116,7 @@ namespace l1t {
   }
 
    std::vector<UnpackerItem>
-   CaloTowerUnpackerFactory::create(const unsigned& fw, const int fedid, UnpackerCollections* coll)
+   CaloTowerUnpackerFactory::create(const unsigned& fw, const int fedid)
    {
 
      // This unpacker is only appropriate for the Main Processor input (FED ID=2). Anything else should not be unpacked.
@@ -129,7 +128,7 @@ namespace l1t {
        // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
        // which receives the block_ID and can convert this to phi
 
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(coll));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker());
 
        for (int link = 0; link < 144; link++){
          if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 

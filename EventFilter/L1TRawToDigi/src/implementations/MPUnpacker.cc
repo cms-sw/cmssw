@@ -7,14 +7,12 @@
 namespace l1t {
    class MPUnpacker : public BaseUnpacker {
       public:
-         using BaseUnpacker::BaseUnpacker;
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
-
+         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
    };
 
    class MPUnpackerFactory : public BaseUnpackerFactory {
       public:
-         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid, UnpackerCollections*) override;
+         virtual std::vector<UnpackerItem> create(const unsigned& fw, const int fedid) override;
    };
 }
 
@@ -22,13 +20,13 @@ namespace l1t {
 
 namespace l1t {
    bool
-   MPUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   MPUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
    {
 
      LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
 
-     auto res1_ = static_cast<L1TCollections*>(collections_)->getMPJets();
-     auto res2_ = static_cast<L1TCollections*>(collections_)->getMPEtSums();
+     auto res1_ = static_cast<L1TCollections*>(coll)->getMPJets();
+     auto res2_ = static_cast<L1TCollections*>(coll)->getMPEtSums();
      res1_->setBXRange(0,1);
      res2_->setBXRange(0,1);
 
@@ -98,7 +96,7 @@ namespace l1t {
    }
 
    std::vector<UnpackerItem>
-   MPUnpackerFactory::create(const unsigned& fw, const int fedid, UnpackerCollections* coll) {
+   MPUnpackerFactory::create(const unsigned& fw, const int fedid) {
 
      // This unpacker is only appropriate for the Main Processor output (FED ID=2). Anything else should not be unpacked.
      
@@ -106,7 +104,7 @@ namespace l1t {
 
        std::vector<UnpackerItem> linkMap;
     
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker(coll));
+       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker());
 
        // Six links are used to output the data
        
