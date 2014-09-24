@@ -1,5 +1,6 @@
 #include <cassert>
 #include "FWCore/Utilities/interface/Exception.h"
+#include <algorithm>
 
 #include "CondFormats/HcalObjects/interface/HBHELinearMap.h"
 
@@ -18,21 +19,33 @@ void HBHELinearMap::getChannelTriple(const unsigned index, unsigned* depth,
         *iphi = id.iphi();
 }
 
+unsigned HBHELinearMap::find(const unsigned depth, const int ieta,
+                             const unsigned iphi) const
+{
+    const HBHEChannelId id(depth, ieta, iphi);
+    const unsigned loc = std::lower_bound(
+        inverse_.begin(), inverse_.end(), MapPair(id, 0U)) - inverse_.begin();
+    if (loc < ChannelCount)
+        if (inverse_[loc].first == id)
+            return inverse_[loc].second;
+    return ChannelCount;
+}
+
 bool HBHELinearMap::isValidTriple(const unsigned depth, const int ieta,
                                   const unsigned iphi) const
 {
-    ChannelMap::const_iterator it = inverse_.find(HBHEChannelId(depth, ieta, iphi));
-    return it != inverse_.end();
+    const unsigned ind = find(depth, ieta, iphi);
+    return ind < ChannelCount;
 }
 
 unsigned HBHELinearMap::linearIndex(const unsigned depth, const int ieta,
                                     const unsigned iphi) const
 {
-    ChannelMap::const_iterator it = inverse_.find(HBHEChannelId(depth, ieta, iphi));
-    if (it == inverse_.end())
+    const unsigned ind = find(depth, ieta, iphi);
+    if (ind >= ChannelCount)
         throw cms::Exception("In HBHELinearMap::linearIndex: "
                                     "invalid channel triple");
-    return it->second;
+    return ind;
 }
 
 HBHELinearMap::HBHELinearMap()
@@ -99,11 +112,10 @@ HBHELinearMap::HBHELinearMap()
 
     assert(l == ChannelCount);
 
+    inverse_.reserve(ChannelCount);
     for (unsigned i=0; i<ChannelCount; ++i)
-    {
-        const HBHEChannelId& cid = lookup_[i];
-        inverse_[cid] = i;
-    }
+        inverse_.push_back(MapPair(lookup_[i], i));
+    std::sort(inverse_.begin(), inverse_.end());
 }
 
 HcalSubdetector HBHELinearMap::getSubdetector(const unsigned depth,

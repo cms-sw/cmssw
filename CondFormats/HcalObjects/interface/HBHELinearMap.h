@@ -8,7 +8,8 @@
 // September 2014
 //
 
-#include <map>
+#include <vector>
+#include <utility>
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -63,13 +64,22 @@ private:
             return iphi_ < r.iphi_;
         }
 
+        inline bool operator==(const HBHEChannelId& r) const
+            {return depth_ == r.depth_ && ieta_ == r.ieta_ && iphi_ == r.iphi_;}
+
+        inline bool operator!=(const HBHEChannelId& r) const
+            {return !(*this == r);}
+
     private:
         unsigned depth_;
         int ieta_;
         unsigned iphi_;
     };
 
-    typedef std::map<HBHEChannelId,unsigned> ChannelMap;
+    typedef std::pair<HBHEChannelId,unsigned> MapPair;
+    typedef std::vector<MapPair> ChannelMap;
+
+    unsigned find(unsigned depth, int ieta, unsigned iphi) const;
 
     HBHEChannelId lookup_[ChannelCount];
     ChannelMap inverse_;
