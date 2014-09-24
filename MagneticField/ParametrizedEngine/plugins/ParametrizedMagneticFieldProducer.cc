@@ -38,11 +38,7 @@ ParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iReco
   string version = pset.getParameter<string>("version");
   ParameterSet parameters = pset.getParameter<ParameterSet>("parameters");
 
-  if (version=="OAE_85l_030919") {
-    // V. Karimaki's off-axis expansion fitted to v85l TOSCA computation
-    std::auto_ptr<MagneticField> result(new OAE85lParametrizedMagneticField(parameters));
-    return result;
-  } else if (version=="OAE_1103l_071212") {
+  if (version=="OAE_1103l_071212") {
     // V. Karimaki's off-axis expansion fitted to v1103l TOSCA computation
     std::auto_ptr<MagneticField> result( new OAEParametrizedMagneticField(parameters));
     return result;

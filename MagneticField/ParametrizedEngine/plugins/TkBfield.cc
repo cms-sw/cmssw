@@ -18,7 +18,20 @@ namespace {
   BCylParam<float>  fpar4{4.24326f,15.0201f,3.81492f,0.0178712f,0.000656527f,2.45818f,0.00778695f,2.12500f,1.77436f}; // 3.8T-2G
   BCylParam<float>  fpar5{4.21136f,14.8824f,4.01683f,0.0175932f,0.000695541f,2.45311f,0.00813447f,2.11688f,1.76076f}; // 4.0T-2G
   std::string const flds[] = {"2_0T","3_0T","3_5T","3_8T","4_0T"};
+  float flds_f[]           = {2.0,    3.0,   3.5,   3.8,   4.0};
   BCylParam<float> const fpars[]{fpar1,fpar2,fpar3,fpar4,fpar5};
+
+  BCylParam<float> const & findPar(float fld) {
+    for (int i=0; i<5; ++i){
+      if (fabs(fld-flds_f[i])<0.001) {
+	return fpars[i];
+      } else {    
+	throw cms::Exception("BadParameters") << "Undefined field value " << fld;	
+      }
+    }
+    return fpar4; // make the compiler happy
+  }
+
 
   BCylParam<float> const & findPar(std::string fld) {
     auto f = std::find(flds,flds+5,fld);
@@ -31,8 +44,10 @@ namespace {
   
 }
 
-TkBfield::TkBfield(std::string fld) : bcyl(findPar(fld)) {
+TkBfield::TkBfield(float fld) : bcyl(findPar(fld)) {
+}
 
+TkBfield::TkBfield(std::string fld) : bcyl(findPar(fld)) {
 }
 
 

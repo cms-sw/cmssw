@@ -26,8 +26,11 @@ namespace magfieldparam {
   class TkBfield {
   public:
 
-    TkBfield (std::string T="3_8T");  
+    // Deprecated ctor, nominal field value specified with a string, eg. "3_8T"
+    TkBfield (std::string T);  
 
+    // Ctor
+    TkBfield (float fld=3.8);  
 
     /// B out in cartesian
     void getBxyz(float const  * __restrict__ x, float * __restrict__ Bxyz) const; 

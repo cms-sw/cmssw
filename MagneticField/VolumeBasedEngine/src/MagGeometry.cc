@@ -196,12 +196,12 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   if (geometryVersion>=120812) {
     return (Z<350. ||
 	    (R>172.4 && Z<633.29) || 
-	    (R>308.7345 && Z<662.01));    
-  } else if (geometryVersion>=90812) {
+	    (R>308.735 && Z<662.01));    
+  } else if (geometryVersion>=90812) { // FIXME no longer supported
     return (Z<350. ||
 	    (R>172.4 && Z<633.89) || 
 	    (R>308.755 && Z<662.01));
-  } else { // version 71212
+  } else { // versions 71212, 90322
     return (Z<350. ||
 	    (R>172.4 && Z<633.29) || 
 	    (R>308.755 && Z<661.01));

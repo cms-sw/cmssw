@@ -12,7 +12,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 namespace edm { class ParameterSet; }
-namespace magfieldparam { class TkBfield; }
 
 class ParabolicParametrizedMagneticField : public MagneticField {
  public:
