@@ -102,7 +102,7 @@ EcalCondDBWriter::~EcalCondDBWriter()
 }
 
 void
-EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
+EcalCondDBWriter::endJob()
 {
   if(executed_) return;
 
@@ -170,7 +170,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
   for(unsigned iC(0); iC < nTasks; ++iC){
     if(!workers_[iC] || !workers_[iC]->runsOn(runType_)) continue;
 
-    workers_[iC]->retrieveSource(dqmStore);
+    workers_[iC]->retrieveSource();
 
     setBit(taskList, iC);
   }

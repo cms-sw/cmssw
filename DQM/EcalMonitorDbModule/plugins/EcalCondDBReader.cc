@@ -50,7 +50,10 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
   if(!worker_)
     throw cms::Exception("Configuration") << "Invalid worker type";
 
-  meSet_->book(*edm::Service<DQMStore>());
+  DQMStore& store(*edm::Service<DQMStore>());
+  store.meBookerGetter([this](DQMStore::IBooker& _ibooker, DQMStore::IGetter&){
+      this->meSet_->book(_ibooker);
+    });
 
   std::string DBName(_ps.getUntrackedParameter<std::string>("DBName"));
   std::string hostName(_ps.getUntrackedParameter<std::string>("hostName"));

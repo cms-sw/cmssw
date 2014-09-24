@@ -80,16 +80,6 @@ namespace ecaldqm
   }
 
   void
-  DQWorker::bookMEs(DQMStore& _booker)
-  {
-    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
-      MESet* me(mItr->second);
-      if(me->isActive()) continue;
-      me->book(_booker);
-    }
-  }
-
-  void
   DQWorker::bookMEs(DQMStore::IBooker& _booker)
   {
     for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){

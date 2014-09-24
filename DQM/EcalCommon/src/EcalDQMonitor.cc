@@ -97,6 +97,15 @@ namespace ecaldqm
   }
 
   void
+  EcalDQMonitor::ecaldqmBookHistograms(DQMStore::IBooker& _ibooker)
+  {
+    executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+        worker->releaseMEs();
+        worker->bookMEs(_ibooker);
+      }, "bookMEs", "Booking MEs");
+  }
+
+  void
   EcalDQMonitor::ecaldqmReleaseHistograms()
   {
     executeOnWorkers_([](DQWorker* worker){
