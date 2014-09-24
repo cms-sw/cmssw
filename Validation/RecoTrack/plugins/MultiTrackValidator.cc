@@ -225,8 +225,9 @@ void MultiTrackValidator::analyze(const edm::Event& event,
   */
 
   // calculate dR for TPs
-  float dR_tPCeff[(*TPCollectionHeff).size()];
-  {
+  std::vector<float> dR_tPCeff(TPCollectionHeff->size(), 0);
+
+  if (TPCollectionHeff->size()) {
     int j = 0;
     float etaL[(*TPCollectionHeff).size()], phiL[(*TPCollectionHeff).size()];
     bool okL[(*TPCollectionHeff).size()];
@@ -469,10 +470,11 @@ void MultiTrackValidator::analyze(const edm::Event& event,
       // end dE/dx
 
       // calculate dR for tracks
-      float dR_trk[trackCollection->size()];
+      std::vector<float> dR_trk(trackCollection->size(), 0);
+      std::vector<float> etaL(trackCollectionForDrCalculation->size(), 0);
+      std::vector<float> phiL(trackCollectionForDrCalculation->size(), 0);
+
       int i = 0;
-      float etaL[trackCollectionForDrCalculation->size()];
-      float phiL[trackCollectionForDrCalculation->size()];
       for (auto const& track2 : *trackCollectionForDrCalculation) {
         auto&& p = track2.momentum();
         etaL[i] = etaFromXYZ(p.x(), p.y(), p.z());
@@ -551,8 +553,6 @@ void MultiTrackValidator::analyze(const edm::Event& event,
         // histoProducerAlgo_->fill_dedx_recoTrack_histos(track2, v_dEdx);
 
         // Fill other histos
-        // try{ //Is this really necessary ????
-
         if (tp.size() == 0) continue;
 
         histoProducerAlgo_->fill_simAssociated_recoTrack_histos(w, *track);
@@ -589,14 +589,6 @@ void MultiTrackValidator::analyze(const edm::Event& event,
         // std::vector<PSimHit> simhits=tpr.get()->trackPSimHit(DetId::Tracker);
         // nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(),
         // (int)(simhits.end()-simhits.begin() ));
-
-        /*
-          } // End of try{
-          catch (cms::Exception e){
-          LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
-          }
-        */
-
       }  // End of for(View<Track>::size_type i=0; i<trackCollection->size();
          // ++i){
 
