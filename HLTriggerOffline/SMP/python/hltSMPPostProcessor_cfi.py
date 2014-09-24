@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltSMPPostProcessor  = cms.EDAnalyzer("DQMGenericClient",
-    subDirs           = cms.untracked.vstring('HLT/Higgs/*'),
+    subDirs           = cms.untracked.vstring('HLT/SMP/*'),
     verbose           = cms.untracked.uint32(2),
     outputFileName    = cms.untracked.string(''),
     resolution        = cms.vstring(),                                    
