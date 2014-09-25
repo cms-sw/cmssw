@@ -6,8 +6,10 @@
  */
 
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
-#include <string>
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
+#include <string>
 
 class DetId; 
 
@@ -19,6 +21,8 @@ public:
   /// ctor from DetId
   PixelBarrelName(const DetId &);
 
+  PixelBarrelName(const DetId &, const TrackerTopology* tt);
+
   /// ctor for defined name with dummy parameters
   PixelBarrelName(Shell shell=mO, int layer=0, int module=0, int ladder=0)
     : PixelModuleName(true), 
@@ -29,6 +33,8 @@ public:
   PixelBarrelName(std::string name);
 
   virtual ~PixelBarrelName() { }
+
+  inline int convertLadderNumber(int oldLadder);
 
   /// from base class
   virtual std::string name() const;
@@ -55,6 +61,7 @@ public:
 
   /// return the DetId
   PXBDetId getDetId();
+  DetId getDetId(const TrackerTopology* tt);
 
   /// check equality of modules from datamemebers
   virtual bool operator== (const PixelModuleName &) const;

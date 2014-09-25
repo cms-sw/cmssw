@@ -4,12 +4,12 @@
 /** \class PixelEndcapName
  * Endcap Module name (as in PixelDatabase) for endcaps
  */
-
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <string>
 #include <iostream>
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 class DetId;
 
@@ -20,6 +20,7 @@ public:
 
   /// ctor from DetId
   PixelEndcapName(const DetId &);
+  PixelEndcapName(const DetId &, const TrackerTopology* tt);
   
   /// ctor for defined name
   PixelEndcapName( HalfCylinder part = mO, int disk =0, int blade =0, int pannel=0, int plaq=0) 
@@ -49,11 +50,15 @@ public:
   /// plaquetteId (in pannel)
   int plaquetteName() const { return thePlaquette; }
 
+  /// ring Id
+  int ringName() const { return theRing; }
+
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
 
   /// return DetId
   PXFDetId getDetId(); 
+  DetId getDetId(const TrackerTopology* tt); 
 
   /// check equality of modules from datamemebers
   virtual bool operator== (const PixelModuleName &) const;
@@ -61,7 +66,7 @@ public:
 
 private:
   HalfCylinder thePart;
-  int theDisk, theBlade, thePannel, thePlaquette;
+  int theDisk, theBlade, thePannel, thePlaquette, theRing;
 };
 
 std::ostream & operator<<( std::ostream& out, const PixelEndcapName::HalfCylinder & t);
