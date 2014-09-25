@@ -341,7 +341,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						   track.outerStateCovariance(), track.outerDetId(),
 						   track.innerStateCovariance(), track.innerDetId(),
 						   track.seedDirection(), origSeedRef ) );
-      seedsRefs[(*matchIter0).first]=origSeedRef;
       out_generalTracks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
       reco::TrackExtra & tx = outputTrkExtras->back();
       tx.setResiduals(track.residuals());
@@ -439,7 +438,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						     track.outerStateCovariance(), track.outerDetId(),
 						     track.innerStateCovariance(), track.innerDetId(),
 						     track.seedDirection(), origSeedRef ) );
-	seedsRefs[i]=origSeedRef;
 	out_generalTracks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
 	reco::TrackExtra & tx = outputTrkExtras->back();
 	tx.setResiduals(track.residuals());

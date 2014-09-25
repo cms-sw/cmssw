@@ -99,10 +99,6 @@ void MaterialBudgetData::SetAllStepsToTree()
 
 void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
 {
-  // rr
-  std::cout << "MaterialBudget Analysis of Event #" << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << std::endl;
-  // rr
-  
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
   
   if( myMaterialBudgetCategorizer == 0) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
@@ -169,70 +165,68 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
   //-  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
   // rr
   std::cout << "Recorded steps " << theStepN << std::endl;
-  std::cout << " Material Budget: Radiation Length   " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
-  std::cout << " Material Budget: Interaction Length " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
+  std::cout << " Material Budget: Radiation Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
+  std::cout << " Material Budget: Interaction Length " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
   // rr
 }
 
-
 void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 {
-  G4Material * theMaterialPre = aStep->GetPreStepPoint()->GetMaterial();
-  //  G4Material * theMaterialPost = aStep->GetPostStepPoint()->GetMaterial();
-
+  assert(aStep);
   G4StepPoint* prePoint  = aStep->GetPreStepPoint();
   G4StepPoint* postPoint = aStep->GetPostStepPoint();
+  assert(prePoint);
+  assert(postPoint);
+  G4Material * theMaterialPre = prePoint->GetMaterial();
+  assert(theMaterialPre);
   
   CLHEP::Hep3Vector prePos  = prePoint->GetPosition();
   CLHEP::Hep3Vector postPos = postPoint->GetPosition();
 
   G4double steplen = aStep->GetStepLength();
 
-  G4double radlen;
-  G4double intlen;
-  G4double density;
-
-  radlen  = theMaterialPre->GetRadlen();
-  intlen  = theMaterialPre->GetNuclearInterLength();
-  density = theMaterialPre->GetDensity() / densityConvertionFactor; // always g/cm3
+  G4double radlen = theMaterialPre->GetRadlen();
+  G4double intlen = theMaterialPre->GetNuclearInterLength();
+  G4double density = theMaterialPre->GetDensity() / densityConvertionFactor; // always g/cm3
   
-  G4String name = theMaterialPre->GetName();
-  //  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
-     
-  G4LogicalVolume* lv = aStep->GetTrack()->GetVolume()->GetLogicalVolume();
+  G4String materialName = theMaterialPre->GetName();
+  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
+
+  G4String volumeName = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName();
+  std::cout << " Volume "   << volumeName << "\n";
+  std::cout << " Material " << materialName << "\n";
   
   // instantiate the categorizer
-  int volumeID   = myMaterialBudgetCategorizer->volume( lv->GetName() );
-  int materialID = myMaterialBudgetCategorizer->material( lv->GetMaterial()->GetName() );
-  // rr
-  std::string volumeName   = lv->GetName();
-  std::string materialName = lv->GetMaterial()->GetName();
-  // rr
-  
-  // rr
-  /*
-    std::cout << " Volume "   << lv->GetName()                << std::endl;
-    std::cout << " Material " << lv->GetMaterial()->GetName() << std::endl;
-  */    
-  theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[0];
-  theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[1];
-  theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[2];
-  theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[3];
-  theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[4];
-  theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[5];
-  theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[6];
-  if(theOtherFractionMB!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
-				      << " in volume " << lv->GetName() << std::endl;
-  theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[0];
-  theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[1];
-  theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[2];
-  theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[3];
-  theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[4];
-  theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[5];
-  theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[6];
-  if(theOtherFractionIL!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
-				      << " in volume " << lv->GetName() << std::endl;
-  //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << lv->GetMaterial()->GetName() 
+  assert(myMaterialBudgetCategorizer);
+  int volumeID   = myMaterialBudgetCategorizer->volume( volumeName );
+  int materialID = myMaterialBudgetCategorizer->material( materialName );
+  std::cout << "Volume ID " << volumeID << " and material ID " << materialID << "\n";
+
+  // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
+  // values as zeros. 
+  if( volumeID != 0 )
+    {
+      theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(0);
+      theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName).at(1);
+      theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName).at(2);
+      theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(3);
+      theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName).at(4);
+      theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName).at(5);
+      theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName).at(6);
+    
+      if(theOtherFractionMB!=0) std::cout << " material found with no category " << materialName 
+					  << " in volume " << volumeName << std::endl;
+      theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName).at(0);
+      theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName).at(1);
+      theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName).at(2);
+      theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName).at(3);
+      theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName).at(4);
+      theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName).at(5);
+      theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName).at(6);
+      if(theOtherFractionIL!=0) std::cout << " material found with no category " << materialName 
+					  << " in volume " << volumeName << std::endl;
+    }
+  //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << name 
   //				 << " in volume " << lv->GetName();
   // rr  
   
