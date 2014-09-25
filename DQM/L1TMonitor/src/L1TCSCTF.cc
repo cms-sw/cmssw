@@ -436,7 +436,7 @@ void L1TCSCTF::beginJob(void)
         if(iEndcap==0) signEndcap="-";
 
         char lcttitle[200];
-        sprintf(lcttitle,"ME%s%d/%d", signEndcap.Data(), iStation, iRing);
+        snprintf(lcttitle,200,"ME%s%d/%d", signEndcap.Data(), iStation, iRing);
         if(ihist<=8){
                 csctflcts -> setBinLabel(9-ihist,lcttitle,2);
         }
