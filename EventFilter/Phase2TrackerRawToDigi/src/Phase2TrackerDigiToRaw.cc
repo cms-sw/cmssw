@@ -1,4 +1,6 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerDigiToRaw.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -9,36 +11,125 @@ namespace Phase2Tracker
     cabling_(cabling),
     topo_(topo),
     digishandle_(digis_handle),
-    mode_(mode)
+    mode_(mode),
+    FedDaqHeader_(0,0,0,DAQ_EVENT_TYPE_SIMULATED), // TODO : add L1ID
+    FedDaqTrailer_(0,0)
   {
+    // TODO : add software version
+    FedHeader_.setDataFormatVersion(2);
+    FedHeader_.setDebugMode(SUMMARY); 
+    FedHeader_.setEventType((uint8_t)0x04);
   }
 
-  void Phase2TrackerDigiToRaw::buildFEDBuffers()
+  void Phase2TrackerDigiToRaw::buildFEDBuffers(std::auto_ptr<FEDRawDataCollection>& rcollection)
   {
-    // vector to store digis for a given fedid
+    // store digis for a given fedid
     std::vector<edmNew::DetSet<SiPixelCluster>> digis_t;
+    // store active connections for a given fedid
+    std::vector<bool> festatus (72,false);
     // iterate on all possible channels 
     std::vector<Phase2TrackerModule> conns = cabling_->connections();
     std::vector<Phase2TrackerModule>::iterator iconn;
-    unsigned int fedid_current = 0;
+    int fedid_current = -1;
     for(iconn = conns.begin(); iconn != conns.end(); iconn++) 
     {
       std::pair<unsigned int, unsigned int> fedch = iconn->getCh();
       int detid = iconn->getDetid();
-      // std::vector<edm::DetSet<SiPixelCluster>>::const_iterator digis = digishandle_->find(detid);
       edmNew::DetSetVector<SiPixelCluster>::const_iterator  digis = digishandle_->find(detid);
-      if(fedch.first == fedid_current) 
+      if((int)fedch.first != fedid_current and fedid_current >= 0)
       {
-        // adding detset to the current fed
-        digis_t.push_back(*digis);
+        // std::cout << "building buffer for fed " << fedid_current << " with " << digis_t.size() << " modules" << std::endl;
+        FedHeader_.setFrontendStatus(festatus);
+        std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
+        FEDRawData& frd = rcollection->FEDData(fedid_current);
+        int size = fedbuffer.size()*8;
+        uint8_t arrtemp[size];
+        vec_to_array(fedbuffer,arrtemp);
+        frd.resize(size);
+        memcpy(arrtemp,frd.data(),size);
+        // TODO : check arrtemp
+        /* 
+        std::cout << std::showbase << std::internal << std::setfill('0');
+        std::vector<uint64_t>::iterator it;
+        for (it = fedbuffer.begin(); it != fedbuffer.end(); it++)
+        {
+          std::cout << std::hex << std::setw(18) << *it << std::dec << std::endl;
+        }
+        */
+        digis_t.clear();
+        festatus.assign(72,false);
       }
-      else
+      if (digis != digishandle_->end())
       {
-        // store create buffer for this fed
-        // empty digis_t
-        digis_t.empty();
-        fedid_current = fedch.first;
+        digis_t.push_back(*digis);
+        festatus[fedch.second] = true;
+        fedid_current = (int)fedch.first;
       }
     }
+  }
+
+  std::vector<uint64_t> Phase2TrackerDigiToRaw::makeBuffer(std::vector<edmNew::DetSet<SiPixelCluster>> digis)
+  {
+    uint64_t bitindex = 0;
+    std::vector<uint64_t> fedbuffer;
+    // add daq header
+    fedbuffer.push_back(*(uint64_t*)FedDaqHeader_.data());
+    bitindex += 64;
+    // add fed header
+    uint8_t* feh = FedHeader_.data();
+    fedbuffer.push_back(*(uint64_t*)feh);
+    fedbuffer.push_back(*(uint64_t*)(feh+8));
+    bitindex += 128;
+    // looping on detids
+    std::vector<edmNew::DetSet<SiPixelCluster>>::const_iterator idigi;
+    for (idigi = digis.begin(); idigi != digis.end(); idigi++ )
+    {
+      // loop on digis for this detid
+      writeFeHeaderSparsified(fedbuffer,bitindex,0,0,idigi->size());
+      edmNew::DetSet<SiPixelCluster>::const_iterator it;
+      for (it = idigi->begin(); it != idigi->end(); it++)
+      {
+        writeSCluster(fedbuffer, bitindex, it);
+      }
+    }
+    // add daq trailer 
+    fedbuffer.push_back(*(uint64_t*)FedDaqTrailer_.data());
+    return fedbuffer;
+  }
+
+  void Phase2TrackerDigiToRaw::writeFeHeaderSparsified(std::vector<uint64_t> & buffer, uint64_t & bitpointer, int modtype, int np, int ns)
+  {
+    uint8_t length = 6;
+    uint16_t header = (uint16_t)ns & 0x1F;
+    if (modtype == 1)
+    {
+      header |= ((uint16_t)np & 0x1F)<<5;
+      header |= (uint16_t)0x01 << 10; 
+      length = 11;
+    }
+    else
+    {
+      header |= (uint16_t)0x01 << 5;
+    }
+    write_n_at_m(buffer,length,bitpointer,header);
+    bitpointer += length;
+  }
+
+  void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi)
+  {
+    std::pair<int,int> chipstrip = calcChipId(digi);
+    uint32_t pcluster = (chipstrip.first & 0x0F) << 11;
+    pcluster |= (chipstrip.second & 0xFF) << 3;
+    pcluster |= (digi->sizeX() & 0x07);
+    write_n_at_m(buffer,15,bitpointer,pcluster);
+    bitpointer += 15;
+  }
+
+  std::pair<int,int> Phase2TrackerDigiToRaw::calcChipId(const SiPixelCluster * digi)
+  {
+    int chipid = digi->x()/127;
+    int strip  = int(digi->x())%127;
+    std::pair<int,int> id (chipid,strip);
+    return id;
   }
 }

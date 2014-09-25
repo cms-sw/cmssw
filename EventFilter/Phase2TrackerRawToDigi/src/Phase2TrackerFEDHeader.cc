@@ -58,6 +58,11 @@ namespace Phase2Tracker
     return Version;
   }
 
+  void Phase2TrackerFEDHeader::setDataFormatVersion(uint8_t version)
+  {
+    write_n_at_m(headercopy_,VERSION_L,VERSION_S,(uint64_t)version);
+  }
+
   void Phase2TrackerFEDHeader::setDebugMode(READ_MODE mode)
   {
     write_n_at_m(headercopy_,HEADER_FORMAT_L,HEADER_FORMAT_S,(uint64_t)mode);
@@ -170,15 +175,15 @@ namespace Phase2Tracker
         index = (sti-status.begin());
         if(index<8)
         {
-          fe_status_0 |= 1LL<<index;
+          fe_status_0 |= 1LL<<(7-index);
         }
         else
         {
-          fe_status_1 |= 1LL<<(index-8);
+          fe_status_1 |= 1LL<<(63-index+8);
         }
       }
     }
-    write_n_at_m(headercopy_,8,0,(uint64_t)fe_status_0);
+    write_n_at_m(headercopy_,8, 0, (uint64_t)fe_status_0);
     write_n_at_m(headercopy_,64,64,(uint64_t)fe_status_1);
   }
 

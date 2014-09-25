@@ -17,6 +17,7 @@ namespace Phase2Tracker {
 
       // getters:
       inline uint8_t getDataFormatVersion() const { return dataFormatVersion_; }
+      void setDataFormatVersion(uint8_t);
 
       inline READ_MODE getDebugMode() const { return debugMode_; }
       void setDebugMode(READ_MODE);

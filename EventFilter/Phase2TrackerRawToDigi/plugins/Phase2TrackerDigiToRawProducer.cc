@@ -26,6 +26,7 @@ namespace Phase2Tracker {
     cabling_(0)
   {
     token_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(pset.getParameter<edm::InputTag>("ProductLabel"));
+    produces<FEDRawDataCollection>();
   }
   
   Phase2TrackerDigiToRawProducer::~Phase2TrackerDigiToRawProducer()
@@ -54,8 +55,11 @@ namespace Phase2Tracker {
   
   void Phase2TrackerDigiToRawProducer::produce( edm::Event& event, const edm::EventSetup& es)
   {
+    std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle;
+    event.getByLabel("siPixelClusters","", digis_handle);
     Phase2TrackerDigiToRaw raw_producer(cabling_, topo_, digis_handle, 1);
-    raw_producer.buildFEDBuffers();
+    raw_producer.buildFEDBuffers(buffers);
+    event.put(buffers);
   }
 }

@@ -251,15 +251,22 @@ namespace Phase2Tracker {
   inline void write_n_at_m(uint8_t* buffer, int size, int pos_bit, uint64_t data)
   {
     // remove additional data
-    data &= ((1LL<<size)-1);
+    if(size<64)
+    {
+      data &= ((1LL<<size)-1);
+    }
     int iword = pos_bit/64;
     int end_bit = pos_bit % 64 + size;
     uint64_t curr_data = *(uint64_t*)(buffer+(iword*8));
     // mask to keep all bits that should not be replaced
     uint64_t mask = ~(((1LL<<size)-1)<<pos_bit);
+    if(size == 64)
+    {
+      mask = (1LL<<(pos_bit%64))-1;
+    }
     curr_data &= mask;
     // add data
-    curr_data |= (data<<pos_bit);
+    curr_data |= (data<<(pos_bit%64));
     memcpy(buffer+(iword*8),&curr_data, 8);
     if ( end_bit > 64 )
     {
@@ -271,7 +278,39 @@ namespace Phase2Tracker {
       memcpy(buffer+((iword+1)*8),&data_supp, 8);
     }
   }
-  
+
+  inline void write_n_at_m(std::vector<uint64_t>& buffer, int size, int pos_bit, uint64_t data)
+  {
+    int iword  = pos_bit/64;
+    // extend vector if necessary
+    if(pos_bit + size > (int)(buffer.size())*64)
+    {
+      int toadd = (pos_bit + size + 64 - 1)/64 - buffer.size();
+      buffer.insert(buffer.end(),toadd,(uint64_t)0x00);
+    }
+    uint64_t temp[] = {buffer[iword], 0x00};
+    if(pos_bit%64 + size > 64)
+    {
+      temp[1] = buffer[iword+1];
+    }
+    uint8_t* tt = (uint8_t*)(temp);
+    write_n_at_m(tt,size,pos_bit%64,data);
+    buffer[iword] = *(uint64_t*)(tt);
+    if(pos_bit%64 + size > 64)
+    {
+      buffer[iword+1] = *(uint64_t*)(tt+8);
+    }
+  }
+
+  inline void vec_to_array(std::vector<uint64_t> vec,uint8_t* arr)
+  {
+    std::vector<uint64_t>::iterator it;
+    for (it=vec.begin(); it!=vec.end(); it++)
+    {
+      memcpy(arr+8*(it-vec.begin()),&*it,8);
+    }
+  }
+
 } // end of Phase2Tracker namespace
 
 #endif // } end def utils

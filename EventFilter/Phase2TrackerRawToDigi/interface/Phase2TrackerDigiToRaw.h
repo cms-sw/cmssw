@@ -8,6 +8,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 namespace Phase2Tracker
 {
@@ -17,7 +18,11 @@ namespace Phase2Tracker
       Phase2TrackerDigiToRaw() {}
       Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerTopology *, edm::Handle< edmNew::DetSetVector<SiPixelCluster> >, int);
       ~Phase2TrackerDigiToRaw() {}
-      void buildFEDBuffers();
+      void buildFEDBuffers(std::auto_ptr<FEDRawDataCollection>&);
+      std::vector<uint64_t> makeBuffer(std::vector<edmNew::DetSet<SiPixelCluster>>);
+      void writeFeHeaderSparsified(std::vector<uint64_t>&,uint64_t&,int,int,int);
+      void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
+      std::pair<int,int> calcChipId(const SiPixelCluster*);
     private:
       // data you get from outside
       const Phase2TrackerCabling * cabling_; 
@@ -28,7 +33,5 @@ namespace Phase2Tracker
       FEDDAQHeader FedDaqHeader_;
       FEDDAQTrailer FedDaqTrailer_; 
       Phase2TrackerFEDHeader FedHeader_;
-      // fed buffer we build
-      std::vector<uint64_t> fedbuffer_;
   };
 }
