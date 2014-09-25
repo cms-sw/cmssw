@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 # customize to use upgrade L1 emulation 
 
+from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
+
 # customization of run L1 emulator for 2015 run configuration
 def customiseSimL1EmulatorForPostLS1(process):
     #print "INFO:  Customising L1T emulator for 2015 run configuration"
