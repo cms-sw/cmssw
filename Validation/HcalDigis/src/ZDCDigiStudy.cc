@@ -7,7 +7,7 @@
   This code has been developed to be a check for the ZDC sim. In 2009, it was found that the ZDC Simulation was unrealistic and needed repair. The aim of this code is to show the user the input and output of a ZDC MinBias simulation.
 
   Implementation:
-  First a MinBias simulation should be run, it could be pythia,hijin,or hydjet. This will output a .root file which should have information about recoGenParticles, hcalunsuppresseddigis. Use this .root file as the input into the cfg.py which is found in the main directory of this package. This output will be another .root file which is meant to be viewed in a TBrowser.
+  First a MinBias simulation should be run, it could be pythia,hijin,or hydjet. This will output a .root file which should have information about recoGenParticles, hcalunsuppresseddigis. Use this .root file as the input into the cfg.py which is found in the main directory of this package. This output will be another .root file which is meant to be viewed in a TBrowser
 
 */
 //
@@ -42,174 +42,165 @@ ZDCDigiStudy::ZDCDigiStudy(const edm::ParameterSet& ps) {
     << zdcHits << " / "<< checkHit_
     << "   Output: " << outFile_;
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (dbe_) {
-    if (verbose_) {
-      dbe_->setVerbose(1);
-      sleep (3);
-      dbe_->showDirStructure();
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
 }
 
 ZDCDigiStudy::~ZDCDigiStudy() {}
 
-void ZDCDigiStudy::beginJob() {
-  if (dbe_) {
-    dbe_->setCurrentFolder("ZDCDigiValidation");
-    //Histograms for Hits
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //# Below we are filling the histograms made in the .h file. The syntax is as follows:                                      #
-    //# plot_code_name = dbe_->TypeofPlot[(1,2,3)-D,(F,I,D)]("Name as it will appear","Title",axis options);                    #
-    //# They will be stored in the TFile subdirectory set by :    dbe_->setCurrentFolder("FolderIwant")                         #
-    //# axis options are like (#ofbins,min,max)                                                                                 #
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ZDCDigiStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const & es )
+{
+  ib.setCurrentFolder("ZDCDigiValidation");
+  //Histograms for Hits
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //# Below we are filling the histograms made in the .h file. The syntax is as follows:                                      #
+  //# plot_code_name = dbe_->TypeofPlot[(1,2,3)-D,(F,I,D)]("Name as it will appear","Title",axis options);                    #
+  //# They will be stored in the TFile subdirectory set by :    dbe_->setCurrentFolder("FolderIwant")                         #
+  //# axis options are like (#ofbins,min,max)                                                                                 #
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    if (checkHit_) {
+  if (checkHit_) {
 
 
-      ////////////////////////// 1-D TotalfC per Side ///////////////////////
+    ////////////////////////// 1-D TotalfC per Side ///////////////////////
 
-      ///////////////////////////////// 1 ////////////////////////////////////////////
-      dbe_->setCurrentFolder("ZDCDigiValidation/ZDC_Digis/1D_fC");
-      meZdcfCPHAD = dbe_->book1D("PHAD_TotalfC","PZDC_HAD_TotalfC",1000,-50,10000);
-      meZdcfCPHAD->setAxisTitle("Counts",2);
-      meZdcfCPHAD->setAxisTitle("fC",1);
-      /////////////////////////////////2////////////////////////////
-      meZdcfCPTOT = dbe_->book1D("PZDC_TotalfC","PZDC_TotalfC_TS:456",1000,-50,20000);
-      meZdcfCPTOT->setAxisTitle("Counts",2);
-      meZdcfCPTOT->setAxisTitle("Sum_{HAD}+(0.1)*Sum_{EM}  (fC)",1);
-      /////////////////////////////////3/////////////////////////////////
-      meZdcfCNHAD = dbe_->book1D("NHAD_TotalfC","NZDC_HAD_TotalfC",1000,-50,10000);
-      meZdcfCNHAD->setAxisTitle("Counts",2);
-      meZdcfCNHAD->setAxisTitle("fC",1);
-      ////////////////////////////////4/////////////////////////////////////////
-      meZdcfCNTOT = dbe_->book1D("NZDC_TotalfC","NZDC_TotalfC_TS:456",1000,-50,20000);
-      meZdcfCNTOT->setAxisTitle("Counts",2);
-      meZdcfCNTOT->setAxisTitle("Sum_{HAD}+(0.1)*Sum_{EM}  (fC)",1);
-      /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////// 1 ////////////////////////////////////////////
+    ib.setCurrentFolder("ZDCDigiValidation/ZDC_Digis/1D_fC");
+    meZdcfCPHAD = ib.book1D("PHAD_TotalfC","PZDC_HAD_TotalfC",1000,-50,10000);
+    meZdcfCPHAD->setAxisTitle("Counts",2);
+    meZdcfCPHAD->setAxisTitle("fC",1);
+    /////////////////////////////////2////////////////////////////
+    meZdcfCPTOT = ib.book1D("PZDC_TotalfC","PZDC_TotalfC",1000,-50,20000);
+    meZdcfCPTOT->setAxisTitle("Counts",2);
+    meZdcfCPTOT->setAxisTitle("fC",1);
+    /////////////////////////////////3/////////////////////////////////
+    meZdcfCNHAD = ib.book1D("NHAD_TotalfC","NZDC_HAD_TotalfC",1000,-50,10000);
+    meZdcfCNHAD->setAxisTitle("Counts",2);
+    meZdcfCNHAD->setAxisTitle("fC",1);
+    ////////////////////////////////4/////////////////////////////////////////
+    meZdcfCNTOT = ib.book1D("NZDC_TotalfC","NZDC_TotalfC",1000,-50,20000);
+    meZdcfCNTOT->setAxisTitle("Counts",2);
+    meZdcfCNTOT->setAxisTitle("fC",1);
+    /////////////////////////////////////////////////////////////////////////
 
-      //////////////////////// 1-D fC vs TS ///////////////////////////////////////
-      dbe_->setCurrentFolder("ZDCDigiValidation/ZDC_Digis/fCvsTS/PZDC");
+    //////////////////////// 1-D fC vs TS ///////////////////////////////////////
+    ib.setCurrentFolder("ZDCDigiValidation/ZDC_Digis/fCvsTS/PZDC");
 
-      /////////////////////////////////5/////////////////////////////////////////
-      meZdcPEM1fCvsTS = dbe_->book1D("PEM1_fCvsTS","P-EM1_AveragefC_vsTS",10,0,9);
-      meZdcPEM1fCvsTS->setAxisTitle("fC",2);
-      meZdcPEM1fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////6/////////////////////////////////////////
-      meZdcPEM2fCvsTS = dbe_->book1D("PEM2_fCvsTS","P-EM2_AveragefC_vsTS",10,0,9);
-      meZdcPEM2fCvsTS->setAxisTitle("fC",2);
-      meZdcPEM2fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////7/////////////////////////////////////////
-      meZdcPEM3fCvsTS = dbe_->book1D("PEM3_fCvsTS","P-EM3_AveragefC_vsTS",10,0,9);
-      meZdcPEM3fCvsTS->setAxisTitle("fC",2);
-      meZdcPEM3fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////8/////////////////////////////////////////
-      meZdcPEM4fCvsTS = dbe_->book1D("PEM4_fCvsTS","P-EM4_AveragefC_vsTS",10,0,9);
-      meZdcPEM4fCvsTS->setAxisTitle("fC",2);
-      meZdcPEM4fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////9/////////////////////////////////////////
-      meZdcPEM5fCvsTS = dbe_->book1D("PEM5_fCvsTS","P-EM5_AveragefC_vsTS",10,0,9);
-      meZdcPEM5fCvsTS->setAxisTitle("fC",2);
-      meZdcPEM5fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////10/////////////////////////////////////////
-      meZdcPHAD1fCvsTS = dbe_->book1D("PHAD1_fCvsTS","P-HAD1_AveragefC_vsTS",10,0,9);
-      meZdcPHAD1fCvsTS->setAxisTitle("fC",2);
-      meZdcPHAD1fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////11/////////////////////////////////////////
-      meZdcPHAD2fCvsTS = dbe_->book1D("PHAD2_fCvsTS","P-HAD2_AveragefC_vsTS",10,0,9);
-      meZdcPHAD2fCvsTS->setAxisTitle("fC",2);
-      meZdcPHAD2fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////12/////////////////////////////////////////
-      meZdcPHAD3fCvsTS = dbe_->book1D("PHAD3_fCvsTS","P-HAD3_AveragefC_vsTS",10,0,9);
-      meZdcPHAD3fCvsTS->setAxisTitle("fC",2);
-      meZdcPHAD3fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////13/////////////////////////////////////////
-      meZdcPHAD4fCvsTS = dbe_->book1D("PHAD4_fCvsTS","P-HAD4_AveragefC_vsTS",10,0,9);
-      meZdcPHAD4fCvsTS->setAxisTitle("fC",2);
-      meZdcPHAD4fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      dbe_->setCurrentFolder("ZDCDigiValidation/ZDC_Digis/fCvsTS/NZDC");
+    /////////////////////////////////5/////////////////////////////////////////
+    meZdcPEM1fCvsTS = ib.book1D("PEM1_fCvsTS","P-EM1_AveragefC_vsTS",10,0,9);
+    meZdcPEM1fCvsTS->setAxisTitle("fC",2);
+    meZdcPEM1fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////6/////////////////////////////////////////
+    meZdcPEM2fCvsTS = ib.book1D("PEM2_fCvsTS","P-EM2_AveragefC_vsTS",10,0,9);
+    meZdcPEM2fCvsTS->setAxisTitle("fC",2);
+    meZdcPEM2fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////7/////////////////////////////////////////
+    meZdcPEM3fCvsTS = ib.book1D("PEM3_fCvsTS","P-EM3_AveragefC_vsTS",10,0,9);
+    meZdcPEM3fCvsTS->setAxisTitle("fC",2);
+    meZdcPEM3fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////8/////////////////////////////////////////
+    meZdcPEM4fCvsTS = ib.book1D("PEM4_fCvsTS","P-EM4_AveragefC_vsTS",10,0,9);
+    meZdcPEM4fCvsTS->setAxisTitle("fC",2);
+    meZdcPEM4fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////9/////////////////////////////////////////
+    meZdcPEM5fCvsTS = ib.book1D("PEM5_fCvsTS","P-EM5_AveragefC_vsTS",10,0,9);
+    meZdcPEM5fCvsTS->setAxisTitle("fC",2);
+    meZdcPEM5fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////10/////////////////////////////////////////
+    meZdcPHAD1fCvsTS = ib.book1D("PHAD1_fCvsTS","P-HAD1_AveragefC_vsTS",10,0,9);
+    meZdcPHAD1fCvsTS->setAxisTitle("fC",2);
+    meZdcPHAD1fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////11/////////////////////////////////////////
+    meZdcPHAD2fCvsTS = ib.book1D("PHAD2_fCvsTS","P-HAD2_AveragefC_vsTS",10,0,9);
+    meZdcPHAD2fCvsTS->setAxisTitle("fC",2);
+    meZdcPHAD2fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////12/////////////////////////////////////////
+    meZdcPHAD3fCvsTS = ib.book1D("PHAD3_fCvsTS","P-HAD3_AveragefC_vsTS",10,0,9);
+    meZdcPHAD3fCvsTS->setAxisTitle("fC",2);
+    meZdcPHAD3fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////13/////////////////////////////////////////
+    meZdcPHAD4fCvsTS = ib.book1D("PHAD4_fCvsTS","P-HAD4_AveragefC_vsTS",10,0,9);
+    meZdcPHAD4fCvsTS->setAxisTitle("fC",2);
+    meZdcPHAD4fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    ib.setCurrentFolder("ZDCDigiValidation/ZDC_Digis/fCvsTS/NZDC");
 
-      /////////////////////////////////14/////////////////////////////////////////
-      meZdcNEM1fCvsTS = dbe_->book1D("NEM1_fCvsTS","N-EM1_AveragefC_vsTS",10,0,9);
-      meZdcNEM1fCvsTS->setAxisTitle("fC",2);
-      meZdcNEM1fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////15/////////////////////////////////////////
-      meZdcNEM2fCvsTS = dbe_->book1D("NEM2_fCvsTS","N-EM2_AveragefC_vsTS",10,0,9);
-      meZdcNEM2fCvsTS->setAxisTitle("fC",2);
-      meZdcNEM2fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////16/////////////////////////////////////////
-      meZdcNEM3fCvsTS = dbe_->book1D("NEM3_fCvsTS","N-EM3_AveragefC_vsTS",10,0,9);
-      meZdcNEM3fCvsTS->setAxisTitle("fC",2);
-      meZdcNEM3fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////17/////////////////////////////////////////
-      meZdcNEM4fCvsTS = dbe_->book1D("NEM4_fCvsTS","N-EM4_AveragefC_vsTS",10,0,9);
-      meZdcNEM4fCvsTS->setAxisTitle("fC",2);
-      meZdcNEM4fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////18/////////////////////////////////////////
-      meZdcNEM5fCvsTS = dbe_->book1D("NEM5_fCvsTS","N-EM5_AveragefC_vsTS",10,0,9);
-      meZdcNEM5fCvsTS->setAxisTitle("fC",2);
-      meZdcNEM5fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////19/////////////////////////////////////////
-      meZdcNHAD1fCvsTS = dbe_->book1D("NHAD1_fCvsTS","N-HAD1_AveragefC_vsTS",10,0,9);
-      meZdcNHAD1fCvsTS->setAxisTitle("fC",2);
-      meZdcNHAD1fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////20/////////////////////////////////////////
-      meZdcNHAD2fCvsTS = dbe_->book1D("NHAD2_fCvsTS","N-HAD2_AveragefC_vsTS",10,0,9);
-      meZdcNHAD2fCvsTS->setAxisTitle("fC",2);
-      meZdcNHAD2fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////21/////////////////////////////////////////
-      meZdcNHAD3fCvsTS = dbe_->book1D("NHAD3_fCvsTS","N-HAD3_AveragefC_vsTS",10,0,9);
-      meZdcNHAD3fCvsTS->setAxisTitle("fC",2);
-      meZdcNHAD3fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////22/////////////////////////////////////////
-      meZdcNHAD4fCvsTS = dbe_->book1D("NHAD4_fCvsTS","N-HAD4_AveragefC_vsTS",10,0,9);
-      meZdcNHAD4fCvsTS->setAxisTitle("fC",2);
-      meZdcNHAD4fCvsTS->setAxisTitle("TS",1);
-      ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////14/////////////////////////////////////////
+    meZdcNEM1fCvsTS = ib.book1D("NEM1_fCvsTS","N-EM1_AveragefC_vsTS",10,0,9);
+    meZdcNEM1fCvsTS->setAxisTitle("fC",2);
+    meZdcNEM1fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////15/////////////////////////////////////////
+    meZdcNEM2fCvsTS = ib.book1D("NEM2_fCvsTS","N-EM2_AveragefC_vsTS",10,0,9);
+    meZdcNEM2fCvsTS->setAxisTitle("fC",2);
+    meZdcNEM2fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////16/////////////////////////////////////////
+    meZdcNEM3fCvsTS = ib.book1D("NEM3_fCvsTS","N-EM3_AveragefC_vsTS",10,0,9);
+    meZdcNEM3fCvsTS->setAxisTitle("fC",2);
+    meZdcNEM3fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////17/////////////////////////////////////////
+    meZdcNEM4fCvsTS = ib.book1D("NEM4_fCvsTS","N-EM4_AveragefC_vsTS",10,0,9);
+    meZdcNEM4fCvsTS->setAxisTitle("fC",2);
+    meZdcNEM4fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////18/////////////////////////////////////////
+    meZdcNEM5fCvsTS = ib.book1D("NEM5_fCvsTS","N-EM5_AveragefC_vsTS",10,0,9);
+    meZdcNEM5fCvsTS->setAxisTitle("fC",2);
+    meZdcNEM5fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////19/////////////////////////////////////////
+    meZdcNHAD1fCvsTS = ib.book1D("NHAD1_fCvsTS","N-HAD1_AveragefC_vsTS",10,0,9);
+    meZdcNHAD1fCvsTS->setAxisTitle("fC",2);
+    meZdcNHAD1fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////20/////////////////////////////////////////
+    meZdcNHAD2fCvsTS = ib.book1D("NHAD2_fCvsTS","N-HAD2_AveragefC_vsTS",10,0,9);
+    meZdcNHAD2fCvsTS->setAxisTitle("fC",2);
+    meZdcNHAD2fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////21/////////////////////////////////////////
+    meZdcNHAD3fCvsTS = ib.book1D("NHAD3_fCvsTS","N-HAD3_AveragefC_vsTS",10,0,9);
+    meZdcNHAD3fCvsTS->setAxisTitle("fC",2);
+    meZdcNHAD3fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////22/////////////////////////////////////////
+    meZdcNHAD4fCvsTS = ib.book1D("NHAD4_fCvsTS","N-HAD4_AveragefC_vsTS",10,0,9);
+    meZdcNHAD4fCvsTS->setAxisTitle("fC",2);
+    meZdcNHAD4fCvsTS->setAxisTitle("TS",1);
+    ////////////////////////////////////////////////////////////////////////////
 
-      //////////////////// 2-D EMvHAD plots/////////////////////////////////////////
-      dbe_->setCurrentFolder("ZDCDigiValidation/ZDC_Digis/2D_EMvHAD");
-      /////////////////////////////////////////////////////////////////////////////
-      /////////////////////////////////23//////////////////////////////////////////
-      meZdcfCPEMvHAD = dbe_->book2D("PEMvPHAD","PZDC_EMvSum",200,-25,12000,200,-25,15000);
-      meZdcfCPEMvHAD->setAxisTitle("SumEM_fC",2);
-      meZdcfCPEMvHAD->setAxisTitle("Sum_{HAD}+(0.1)*Sum_{EM} (fC)",1);
-      meZdcfCPEMvHAD->getTH2F()->SetOption("colz");
-      ////////////////////////////////24///////////////////////////////////////////
-      meZdcfCNEMvHAD = dbe_->book2D("NEMvNHAD","NZDC_EMvSum",200,-25,12000,200,-25,15000);
-      meZdcfCNEMvHAD->setAxisTitle("Sum_{EM} (fC)",2);
-      meZdcfCNEMvHAD->setAxisTitle("Sum_{HAD}+(0.1)*Sum_{EM} (fC)",1);
-      meZdcfCNEMvHAD->getTH2F()->SetOption("colz");
-      ///////////////////////////////////////////////////////////////////////////////
+    //////////////////// 2-D EMvHAD plots/////////////////////////////////////////
+    ib.setCurrentFolder("ZDCDigiValidation/ZDC_Digis/2D_EMvHAD");
+    /////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////23//////////////////////////////////////////
+    meZdcfCPEMvHAD = ib.book2D("PEMvPHAD","PZDC_EMvHAD",200,-25,12000,200,-25,15000);
+    meZdcfCPEMvHAD->setAxisTitle("SumEM_fC",2);
+    meZdcfCPEMvHAD->setAxisTitle("SumHAD_fC",1);
+    meZdcfCPEMvHAD->getTH2F()->SetOption("colz");
+    ////////////////////////////////24///////////////////////////////////////////
+    meZdcfCNEMvHAD = ib.book2D("NEMvNHAD","NZDC_EMvHAD",1000,-25,12000,1000,-25,15000);
+    meZdcfCNEMvHAD->setAxisTitle("SumEM_fC",2);
+    meZdcfCNEMvHAD->setAxisTitle("SumHAD_fC",1);
+    meZdcfCNEMvHAD->getTH2F()->SetOption("colz");
+    ///////////////////////////////////////////////////////////////////////////////
 
-    }
   }
+
 }
 
-void ZDCDigiStudy::endJob() {
+
+/*void ZDCDigiStudy::endJob() {
   if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
-}
+  }*/
 
 //void ZDCDigiStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
@@ -271,11 +262,9 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                     meZdcPHAD4fCvsTS->Fill(i,digi.sample(i).nominal_fC());
                     if (i==0) meZdcPHAD4fCvsTS->Fill(-1,1);
                   }
-                  if(i==4 || i==5 || i==6) totalPHADCharge+=digi.sample(i).nominal_fC();//here i am looking for the total charge in PHAD so i sum over every TS and channel and add it up
-		  //                  std::cout<<"The had channel had this much charge "<<digi.sample(i).nominal_fC()<<std::endl;
-		  //std::cout<<"And the running total for this event is "<<totalPHADCharge<<std::endl;
-                } // loop over all (10) TS for the given digi
-            }//End Of Required Pos
+		  if(i==4 || i==5 || i==6) totalPHADCharge+=digi.sample(i).nominal_fC();
+		} // loop over all (10) TS for the given digi
+            }
           else {
             for (int i=0; i<digi.size();++i)
               {
@@ -295,10 +284,10 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                   meZdcNHAD4fCvsTS->Fill(i,digi.sample(i).nominal_fC());
                   if (i==0) meZdcNHAD4fCvsTS->Fill(-1,1);
                 }
-                if(i==4 || i==5 || i==6) totalNHADCharge+=digi.sample(i).nominal_fC();
-              }//Loop over all 10 TS
-	  }//Requires NHad
-        }//Require HAD section
+		if(i==4 || i==5 || i==6) totalNHADCharge+=digi.sample(i).nominal_fC();
+	      }//loop over all 10 TS
+          }//Requires NHAd
+        }//Requires HAD sections
         ///////////////////////////////EM SECTIONS////////////////////////////
         if (digi.id().section()==1){//require EM....here i do the smae thing that i did above but now for P/N EM sections
           if (digi.id().zside()==1)
@@ -356,33 +345,30 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
           }
         }
 	
-        totalPCharge=totalPHADCharge+(0.1)*totalPEMCharge;
+	totalPCharge=totalPHADCharge+(0.1)*totalPEMCharge;
         totalNCharge=totalNHADCharge+(0.1)*totalNEMCharge;
-
-        /*       std::cout <<"CHANNEL = "<<digi.id().channel()<<std::endl;
+	
+	
+	/*       std::cout <<"CHANNEL = "<<digi.id().channel()<<std::endl;
                  for (int i=0;i<digi.size();++i)
                  std::cout <<"SAMPLE = "<<i<<"  ADC = "<<digi.sample(i).adc()<<" fC =  "<<digi.sample(i).nominal_fC()<<std::endl;
         */
         //  digi[i] should be the sample as digi.sample(i), I think
       } // loop on all (22) ZDC digis
-  }//if GOT ZDC Digis
+  }
   ////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 
   // Now fill total charge histogram
-  //std::cout<<"And when it gets to filling the total is"<< totalPHADCharge<<std::endl;
-  //  meZdcfCPEMvHAD->Fill(totalPHADCharge,totalPEMCharge);
-  //meZdcfCNEMvHAD->Fill(totalNHADCharge,totalNEMCharge);
   meZdcfCPEMvHAD->Fill(totalPCharge,totalPEMCharge);
   meZdcfCNEMvHAD->Fill(totalNCharge,totalNEMCharge);
   meZdcfCPHAD->Fill(totalPHADCharge);
   meZdcfCNHAD->Fill(totalNHADCharge);
   meZdcfCNTOT->Fill(totalNCharge);
   meZdcfCPTOT->Fill(totalPCharge);
-
-}//End of Analyze
+}
 
 ////////////////////////////////////////////////////////////////////
 

@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -37,18 +37,16 @@
 // class declaration
 //
 
-class NoiseRates : public edm::EDAnalyzer {
+class NoiseRates : public DQMEDAnalyzer {
  public:
   explicit NoiseRates(const edm::ParameterSet&);
   ~NoiseRates();
-  
+ 
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &); 
   
  private:
-  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
 
-  DQMStore* dbe_;
   std::string outputFile_;
 
   // parameters

@@ -2,7 +2,7 @@
 #define SimG4CMS_HcalSimHitStudy_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,16 +25,17 @@
 #include <map>
 #include <string>
 
-class HcalSimHitStudy: public edm::EDAnalyzer{
+class HcalSimHitStudy: public DQMEDAnalyzer {
 public:
 
   HcalSimHitStudy(const edm::ParameterSet& ps);
   ~HcalSimHitStudy();
 
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & , edm::EventSetup const & );
+
 protected:
 
-  void beginJob ();
-  void endJob   ();
+  //void endJob   ();
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
 
   void analyzeHits  (std::vector<PCaloHit> &);
@@ -43,7 +44,6 @@ private:
 
   std::string    g4Label, hcalHits, outFile_;
   bool           verbose_, checkHit_;
-  DQMStore       *dbe_;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
 

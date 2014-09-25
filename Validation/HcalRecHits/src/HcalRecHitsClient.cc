@@ -14,19 +14,11 @@ HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet& iConfig):conf_(iCo
 
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (!dbe_) {
-    edm::LogError("HcalRecHitsClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
-  }
-  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if(dbe_) dbe_->setVerbose(0);
-  }
  
   debug_ = false;
   verbose_ = false;
 
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
  
 }
 
@@ -36,43 +28,19 @@ HcalRecHitsClient::~HcalRecHitsClient()
   
 }
 
-void HcalRecHitsClient::beginJob()
+
+void HcalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig )
 {
- 
+  ig.setCurrentFolder(dirName_);
+
+  runClient_(ib,ig);
 
 }
 
-void HcalRecHitsClient::endJob() 
+
+void HcalRecHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
-   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
-
-void HcalRecHitsClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
-
-
-void HcalRecHitsClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  runClient_();
-}
-
-//dummy analysis function
-void HcalRecHitsClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
-  
-}
-
-void HcalRecHitsClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-{ 
-//  runClient_();
-}
-
-void HcalRecHitsClient::runClient_()
-{
-  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
-  dbe_->setCurrentFolder(dirName_);
+  ig.setCurrentFolder(dirName_);
 
   if (verbose_) std::cout << "\nrunClient" << std::endl; 
 
@@ -80,19 +48,19 @@ void HcalRecHitsClient::runClient_()
 
   // Since out folders are fixed to three, we can just go over these three folders
   // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
+  std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
     if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    dbe_->setCurrentFolder(fullPathHLTFolders[i]);
+    ig.setCurrentFolder(fullPathHLTFolders[i]);
 
-    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
+    std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
     for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
       if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsV/HcalRecHitTask") ==0  ){
-         hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
+         hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !HcalRecHitsEndjob(hcalMEs) ) std::cout<<"\nError in HcalRecHitsEndjob!"<<std::endl<<std::endl;
       }
