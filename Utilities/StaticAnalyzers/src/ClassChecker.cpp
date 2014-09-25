@@ -52,9 +52,9 @@ void writeLog(std::string ostring) {
 
 
 class WalkAST : public clang::StmtVisitor<WalkAST> {
+  const CheckerBase *Checker;
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
-  const CheckerBase *Checker;
   typedef const clang::CXXMemberCallExpr * WorkListUnit;
   typedef clang::SmallVector<WorkListUnit, 50> DFSWorkList;
 
