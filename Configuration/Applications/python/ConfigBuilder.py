@@ -1529,6 +1529,10 @@ class ConfigBuilder(object):
         if self._options.isMC:
 		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
 
+	if 'HLT' in self.stepMap:
+		if hasattr(self.process,'HLTriggerFirstPath'): 
+			self.additionalCommands.append('process.HLTriggerFirstPath.remove(process.hltGetConditions)')
+
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
 		self.additionalCommands.append('process = ProcessName(process)')
