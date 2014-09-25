@@ -125,7 +125,6 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	FDumper walker(BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
         std::string mname = support::getQualifiedName(*MD);
-	const char * pPath = std::getenv("LOCALRT");
 	std::string tname = "function-dumper.txt.unsorted";
 	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		std::string oname = support::getQualifiedName(*(*I));
