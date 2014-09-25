@@ -345,7 +345,7 @@ namespace edm {
 
   bool
   TypeWithDict::isTypedef() const {
-    if (class_ != nullptr || dataType_ != nullptr) {
+    if (class_ != nullptr || dataType_ != nullptr || *ti_ == typeid(void)) {
       return false;
     }
     assert(type_ != nullptr);
