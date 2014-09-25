@@ -160,6 +160,7 @@
 - HcalL1TriggerObjectsRcd
 - HcalLUTCorrsRcd
 - HcalLongRecoParamsRcd
+- HcalZDCLowGainFractionsRcd
 - HcalLutMetadataRcd
 - HcalMCParamsRcd
 - HcalPFCorrsRcd
