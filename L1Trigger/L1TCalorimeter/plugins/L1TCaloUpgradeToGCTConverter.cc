@@ -130,6 +130,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+    isoEmResult->resize(4);
+    nonIsoEmResult->resize(4);
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
@@ -147,6 +149,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	tauCount++;
       }
     }
+    tauJetResult->resize(4);
 
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
@@ -172,6 +175,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+    forJetResult->resize(4);
+    cenJetResult->resize(4);
 
     //looping over EtSum elments with a specific BX
     for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
